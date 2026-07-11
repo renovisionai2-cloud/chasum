@@ -50,8 +50,28 @@ Read functions return typed data or throw on Supabase errors.
 
 | Route | Method | Description |
 |-------|--------|-------------|
-| `/auth/callback` | GET | OAuth / magic link callback |
-| `/auth/confirm` | GET | Email confirmation handler |
+| `/auth/callback` | GET | Auth callback: exchanges OAuth `code` via `exchangeCodeForSession()`, or email/password links via `verifyOtp()` using `token_hash` + `type` |
+| `/auth/confirm` | GET | Legacy email confirmation handler (prefer `/auth/callback`) |
+
+#### Email confirmation (SSR)
+
+Supabase must **not** use the default `{{ .ConfirmationURL }}` template (implicit hash flow). Configure the **Confirm signup** template to link directly to the app:
+
+```html
+<a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email&next=/dashboard">
+  Confirm your email
+</a>
+```
+
+Password reset emails should use the same pattern with `type=recovery` and `next=/reset-password`.
+
+Sync templates programmatically:
+
+```bash
+SUPABASE_ACCESS_TOKEN=... node scripts/sync-supabase-email-templates.mjs
+```
+
+Requires a personal access token from [Supabase account tokens](https://supabase.com/dashboard/account/tokens).
 
 ---
 

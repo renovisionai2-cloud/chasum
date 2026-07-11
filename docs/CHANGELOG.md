@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Email confirmation now completes via `/auth/callback` using Supabase SSR token-hash flow (`verifyOtp`) instead of implicit `#access_token` redirects to the landing page
+- Added `scripts/sync-supabase-email-templates.mjs` to configure Supabase confirmation and recovery email templates
+
 ### Planned (Phase 4)
 
 - Stripe subscriptions and billing
