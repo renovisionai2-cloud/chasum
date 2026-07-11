@@ -1,6 +1,7 @@
 "use client";
 
 import { WorkingHoursGrid } from "@/components/forms/working-hours-grid";
+import { AvailabilityBlocksForm } from "@/components/settings/availability-blocks-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertMessage } from "@/components/ui/form-feedback";
@@ -12,7 +13,7 @@ import {
   updateBusinessHours,
   updateBusinessProfile,
 } from "@/lib/actions/business-hours";
-import type { ActionState, Business, BusinessHours } from "@/lib/types/booking";
+import type { ActionState, Availability, Business, BusinessHours, Holiday, Staff } from "@/lib/types/booking";
 import { TIMEZONES } from "@/lib/constants";
 import { getAppUrl } from "@/lib/env";
 import {
@@ -20,7 +21,6 @@ import {
   deleteHoliday,
   updateBusinessSettings,
 } from "@/lib/actions/holidays";
-import type { Holiday } from "@/lib/types/booking";
 import { Textarea } from "@/components/ui/textarea";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
@@ -212,10 +212,14 @@ export function SettingsManager({
   business,
   hours,
   holidays,
+  availabilityBlocks,
+  staff,
 }: {
   business: Business;
   hours: BusinessHours[];
   holidays: Holiday[];
+  availabilityBlocks: Availability[];
+  staff: Staff[];
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -223,6 +227,7 @@ export function SettingsManager({
       <HoursForm hours={hours} />
       <BookingSettingsForm business={business} />
       <HolidaysForm holidays={holidays} />
+      <AvailabilityBlocksForm blocks={availabilityBlocks} staff={staff} />
     </div>
   );
 }

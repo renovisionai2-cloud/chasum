@@ -88,7 +88,31 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 
 ---
 
-## Phase 4 — Monetization & AI 🔜 Planned
+## Phase 4 — Core Scheduling Engine ✅ Complete
+
+**Goal:** Unified availability and booking validation so a real business can operate reliably.
+
+| Deliverable | Status |
+|-------------|--------|
+| `get_available_slots` RPC (timezone, hours, staff schedules, holidays, buffers, limits) | ✅ |
+| `validate_appointment_slot` RPC (shared by dashboard, public booking, API) | ✅ |
+| DB exclusion constraint (prevent staff double-booking) | ✅ |
+| Hardened `create_public_appointment` | ✅ |
+| Availability block CRUD + settings UI | ✅ |
+| Auto-seed staff working hours on create | ✅ |
+| Shared `SlotPicker` UI (dashboard + public booking) | ✅ |
+| Dashboard appointment dialog slot selection | ✅ |
+| Drag-to-reschedule via available slots | ✅ |
+| Verification script (`scripts/verify-phase4-scheduling.mjs`) | ✅ |
+| Migration `005_phase4_scheduling_engine.sql` | ✅ |
+
+**Prerequisite:** Run migrations `001`–`005` in Supabase (`npx supabase db push`).
+
+**Verify:** `node scripts/verify-phase4-scheduling.mjs`
+
+---
+
+## Phase 5 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
 
@@ -100,10 +124,19 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 | Analytics dashboard | Conversion, no-show rates, revenue trends |
 | Embeddable booking widget | `<script>` embed for external sites |
 | Custom branding | Logo, colors, custom domain |
-| Waitlist & auto-fill | Fill cancelled slots automatically |
 | Client self-service portal | Reschedule / cancel without login |
-| API for third-party integrations | REST or GraphQL public API |
 | Mobile app (React Native) | Staff-facing mobile calendar |
+
+---
+
+## Phase 4 (legacy roadmap items, deferred)
+
+The items below were previously listed under Phase 4 and remain planned for later phases:
+
+| Deliverable | Notes |
+|-------------|-------|
+| Waitlist & auto-fill | Partially shipped in Phase 3 |
+| API for third-party integrations | REST API v1 shipped in Phase 3 |
 
 ---
 

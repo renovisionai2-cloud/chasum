@@ -2,11 +2,9 @@
 
 import { addMinutes, parseISO } from "date-fns";
 import { getBusinessBySlug } from "@/lib/actions/business";
-import { getPublicBusinessHours } from "@/lib/actions/business-hours";
-import { getPublicAppointments } from "@/lib/actions/appointments";
+import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
-import { generateTimeSlots } from "@/lib/calendar/utils";
 
 export async function getAvailableSlots(
   slug: string,
@@ -14,35 +12,7 @@ export async function getAvailableSlots(
   staffId: string,
   date: string,
 ) {
-  const business = await getBusinessBySlug(slug);
-  if (!business) return [];
-
-  const supabase = await createClient();
-
-  const [{ data: service }, hours, appointments] = await Promise.all([
-    supabase
-      .from("services")
-      .select("duration_minutes")
-      .eq("id", serviceId)
-      .single(),
-    getPublicBusinessHours(business.id),
-    getPublicAppointments(
-      business.id,
-      `${date}T00:00:00.000Z`,
-      `${date}T23:59:59.999Z`,
-    ),
-  ]);
-
-  if (!service) return [];
-
-  const dayDate = parseISO(date);
-  return generateTimeSlots(
-    dayDate,
-    hours,
-    service.duration_minutes,
-    appointments,
-    staffId,
-  ).map((slot) => slot.toISOString());
+  return getPublicAvailableSlots(slug, serviceId, staffId, date);
 }
 
 export async function bookAppointment(

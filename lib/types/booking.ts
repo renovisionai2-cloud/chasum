@@ -93,6 +93,18 @@ export type Holiday = {
   created_at: string;
 };
 
+export type Availability = {
+  id: string;
+  business_id: string;
+  staff_id: string | null;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+  notes: string | null;
+  created_at: string;
+  staff?: Pick<Staff, "id" | "name"> | null;
+};
+
 export type Customer = {
   id: string;
   business_id: string;

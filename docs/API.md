@@ -178,17 +178,36 @@ Requires a personal access token from [Supabase account tokens](https://supabase
 |----------|-------|-------------|
 | `getAppointments(start, end)` | ISO timestamps | Appointments in range with relations |
 | `getDashboardStats()` | — | Today/week counts, revenue, upcoming, new clients |
-| `createAppointment(prev, formData)` | `customer_id`, `service_id`, `staff_id`, `date`, `time`, `notes` | Create with conflict check |
-| `updateAppointment(prev, formData)` | Above + `id`, `status` | Update with conflict check |
+| `createAppointment(prev, formData)` | `customer_id`, `service_id`, `staff_id`, `start_time`, `notes` | Create with slot validation |
+| `updateAppointment(prev, formData)` | Above + `id`, `status` | Update with slot validation |
 | `cancelAppointment(id)` | UUID | Set status to `cancelled` |
-| `rescheduleAppointment(id, newStartTime)` | UUID, ISO timestamp | Move appointment with conflict check |
+| `rescheduleAppointment(id, newStartTime)` | UUID, ISO timestamp | Move appointment with slot validation |
 | `getPublicAppointments(businessId, start, end)` | UUID, ISO timestamps | Via RPC `get_public_appointments` |
 
 **Revalidates:** `/dashboard/calendar`, `/dashboard`
 
+### Scheduling
+
+**File:** `lib/actions/scheduling.ts`
+
+| Function | Input | Description |
+|----------|-------|-------------|
+| `fetchAvailableSlots(businessId, serviceId, staffId, date, excludeAppointmentId?)` | UUIDs, `YYYY-MM-DD` | Core RPC wrapper — all slot queries use this |
+| `getDashboardAvailableSlots(serviceId, staffId, date, excludeAppointmentId?)` | UUIDs, date | Dashboard slot picker |
+| `getPublicAvailableSlots(slug, serviceId, staffId, date)` | Slug, UUIDs, date | Public booking slot picker |
+| `validateAppointmentSlot({ businessId, serviceId, staffId, startTime, endTime, excludeAppointmentId? })` | Slot params | Pre-save validation |
+
+**File:** `lib/actions/availability.ts`
+
+| Function | Input | Description |
+|----------|-------|-------------|
+| `getAvailabilityBlocks()` | — | List blocked time for current business |
+| `createAvailabilityBlock(prev, formData)` | `staff_id?`, `start_time`, `end_time`, `reason?` | Add block |
+| `deleteAvailabilityBlock(id)` | UUID | Remove block |
+
 ### Conflict Detection
 
-Checks overlapping non-cancelled appointments for the same staff, including service buffer times on create/update.
+All create/update/reschedule paths call `validate_appointment_slot` RPC. The database also enforces staff double-booking via a GiST exclusion constraint on active appointments.
 
 ---
 
@@ -214,15 +233,17 @@ Checks overlapping non-cancelled appointments for the same staff, including serv
 
 | Function | Input | Description |
 |----------|-------|-------------|
-| `getAvailableSlots(slug, serviceId, staffId, date)` | Slug, UUIDs, `YYYY-MM-DD` | Returns ISO timestamp array of open slots |
+| `getAvailableSlots(slug, serviceId, staffId, date)` | Slug, UUIDs, `YYYY-MM-DD` | Via `get_available_slots` RPC (same as dashboard) |
 | `bookAppointment(prev, formData)` | `slug`, `service_id`, `staff_id`, `start_time`, `customer_name`, `customer_email`, `customer_phone`, `notes` | Full booking flow via RPCs |
 
 ### Booking Flow (Internal)
 
 1. Resolve business by slug
 2. Validate service is active
-3. `upsert_booking_customer` RPC → customer UUID
-4. `create_public_appointment` RPC → appointment UUID (with conflict check)
+3. `get_available_slots` → user picks slot
+4. `validate_appointment_slot` → confirm slot still open
+5. `upsert_booking_customer` RPC → customer UUID
+6. `create_public_appointment` RPC → appointment UUID
 
 ---
 
@@ -232,6 +253,8 @@ Called from server actions; not directly from the browser.
 
 | RPC | Parameters | Returns |
 |-----|------------|---------|
+| `get_available_slots` | `p_business_id`, `p_service_id`, `p_staff_id`, `p_date`, `p_exclude_appointment_id?` | `timestamptz[]` of open slot starts |
+| `validate_appointment_slot` | `p_business_id`, `p_service_id`, `p_staff_id`, `p_start_time`, `p_end_time`, `p_exclude_appointment_id?` | void (raises on conflict) |
 | `get_public_appointments` | `p_business_id`, `p_start`, `p_end` | `{ start_time, end_time, staff_id, status }[]` |
 | `upsert_booking_customer` | `p_business_id`, `p_name`, `p_email`, `p_phone` | `uuid` |
 | `create_public_appointment` | `p_business_id`, `p_service_id`, `p_staff_id`, `p_customer_id`, `p_start_time`, `p_end_time`, `p_notes` | `uuid` |

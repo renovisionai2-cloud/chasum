@@ -1,6 +1,6 @@
 # Chasum Features
 
-Current feature inventory as of **v0.1.0** (Phase 2 + architecture review complete).
+Current feature inventory as of **v0.2.0** (Phase 4 scheduling engine complete).
 
 ---
 
@@ -57,7 +57,10 @@ Current feature inventory as of **v0.1.0** (Phase 2 + architecture review comple
 - Appointment blocks colored by service
 - Status colors: pending, confirmed, cancelled, completed, no-show
 - Create / edit / cancel appointments via dialog
-- Conflict detection on create, update, and reschedule
+- Slot picker loads available times from unified `get_available_slots` RPC (staff + service + date)
+- Reschedule via slot picker or calendar drag-drop (nearest available slot)
+- Conflict detection via `validate_appointment_slot` RPC on create, update, and reschedule
+- Cancelled appointments immediately free their slot in availability queries
 - Empty state when no services or staff configured
 
 ### Services (`/dashboard/services`)
@@ -94,6 +97,7 @@ Current feature inventory as of **v0.1.0** (Phase 2 + architecture review comple
 | Business hours | 7-day open/close grid |
 | Booking settings | Interval, booking limit days, max daily bookings, cancellation policy |
 | Holidays | Named dates, recurring annually option |
+| Blocked time | Business-wide or per-staff availability blocks (lunch, meetings, etc.) |
 
 ---
 
@@ -105,14 +109,36 @@ Multi-step flow:
 
 1. **Choose service** — active services with duration and price
 2. **Choose provider** — staff filtered by service assignment
-3. **Pick date & time** — available slots based on business hours and existing appointments
+3. **Pick date & time** — available slots from `get_available_slots` (same engine as dashboard)
 4. **Enter details** — name, email, phone (optional), notes (optional)
 5. **Confirmation** — success screen with appointment summary
 
-- Slots generated server-side with conflict checking
+- Shared `SlotPicker` component with dashboard calendar
+- Slots validated server-side via `validate_appointment_slot` before insert
 - Customer upserted by email per business
 - Appointments created as `confirmed` via SECURITY DEFINER RPC
 - Unavailable state when business has no services or staff
+
+---
+
+## Scheduling Engine (Phase 4)
+
+Unified availability and validation used by dashboard, public booking, calendar API, and REST API.
+
+| Capability | Implementation |
+|------------|----------------|
+| Available slots | `get_available_slots` RPC via `fetchAvailableSlots()` |
+| Slot validation | `validate_appointment_slot` RPC via `validateAppointmentSlot()` |
+| Business timezone & hours | Applied inside RPC |
+| Staff schedules & vacations | Applied inside RPC |
+| Holidays & booking limits | Applied inside RPC |
+| Service buffers | Applied inside RPC |
+| Blocked time | `availability_blocks` table + RPC |
+| Active appointments | Excluded from slots; cancelled excluded from conflicts |
+| External calendar busy time | Included when integrations connected |
+| Double-booking prevention | GiST exclusion constraint on `appointments` |
+
+**Verify:** `node scripts/verify-phase4-scheduling.mjs` (19 checks)
 
 ---
 
@@ -163,13 +189,12 @@ Multi-step flow:
 
 | Feature | Planned Phase |
 |---------|---------------|
-| Stripe payments & subscriptions | Phase 3 |
-| Google / Outlook calendar sync | Phase 3 |
-| Email & SMS reminders | Phase 3 |
-| AI scheduling assistant | Phase 4 |
-| Multi-user staff login | Phase 4 |
-| Embeddable booking widget | Phase 4 |
-| Custom domain / white-label | Phase 4 |
-| Client self-service portal | Phase 4 |
-| Availability overrides in slot engine | Phase 3 |
-| Real-time calendar updates | Phase 3 |
+| Stripe payments & subscriptions | Phase 5 |
+| Google / Outlook calendar sync | Phase 3 ✅ |
+| Email & SMS reminders | Phase 3 ✅ |
+| AI scheduling assistant | Phase 5 |
+| Multi-user staff login | Phase 5 |
+| Embeddable booking widget | Phase 5 |
+| Custom domain / white-label | Phase 5 |
+| Client self-service portal | Phase 5 |
+| Real-time calendar updates | Phase 5 |

@@ -24,7 +24,21 @@ Authentication code is complete for development and staging. **Custom SMTP is th
 
 Resend is not configured yet; enable custom SMTP when ready for production testing.
 
-### Planned (Phase 4)
+### Added (Phase 4 — Core Scheduling Engine)
+
+- Migration `005_phase4_scheduling_engine.sql`: unified `get_available_slots` and `validate_appointment_slot` RPCs, staff double-booking exclusion constraint, default staff hours seeding
+- `lib/actions/scheduling.ts` and `lib/actions/availability.ts` for slot validation and time blocks
+- Shared `components/scheduling/slot-picker.tsx` used by dashboard appointment dialog and public booking
+- Public booking, dashboard appointments, calendar drag-reschedule, and API v1 POST all use the same scheduling RPCs
+- Settings UI for blocked time (business-wide or per-staff)
+- `scripts/verify-phase4-scheduling.mjs` end-to-end scheduling verification (19 checks)
+
+### Changed (Phase 4)
+
+- Dashboard appointment form replaces manual date/time inputs with available slot selection
+- Fixed migration `002` enum update that blocked `supabase db push` on PostgreSQL
+
+### Planned (Phase 5)
 
 - Stripe subscriptions and billing
 - AI scheduling assistant

@@ -2,12 +2,23 @@
 
 import { addMinutes, parseISO } from "date-fns";
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import { validateAppointmentSlot } from "@/lib/actions/scheduling";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
-import { hasExternalCalendarConflict } from "@/lib/integrations/calendar/conflicts";
 import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchestrator";
 import { enqueueWaitlistNotification } from "@/lib/integrations/automation/waitlist";
+
+function parseAppointmentStart(formData: FormData): Date | null {
+  const startTime = formData.get("start_time") as string | null;
+  if (startTime) return parseISO(startTime);
+
+  const date = formData.get("date") as string;
+  const time = formData.get("time") as string;
+  if (date && time) return parseISO(`${date}T${time}`);
+
+  return null;
+}
 
 export async function getAppointments(start: string, end: string) {
   const business = await getOrCreateBusiness();
@@ -128,40 +139,6 @@ export async function getDashboardStats() {
   };
 }
 
-async function checkConflict(
-  businessId: string,
-  staffId: string,
-  startTime: string,
-  endTime: string,
-  excludeId?: string,
-) {
-  const supabase = await createClient();
-
-  let query = supabase
-    .from("appointments")
-    .select("id")
-    .eq("business_id", businessId)
-    .eq("staff_id", staffId)
-    .neq("status", "cancelled")
-    .lt("start_time", endTime)
-    .gt("end_time", startTime);
-
-  if (excludeId) {
-    query = query.neq("id", excludeId);
-  }
-
-  const { data } = await query;
-  if ((data?.length ?? 0) > 0) return true;
-
-  return hasExternalCalendarConflict(
-    businessId,
-    staffId,
-    startTime,
-    endTime,
-    excludeId,
-  );
-}
-
 export async function createAppointment(
   _prev: ActionState,
   formData: FormData,
@@ -172,12 +149,15 @@ export async function createAppointment(
   const serviceId = formData.get("service_id") as string;
   const staffId = formData.get("staff_id") as string;
   const customerId = formData.get("customer_id") as string;
-  const date = formData.get("date") as string;
-  const time = formData.get("time") as string;
   const notes = (formData.get("notes") as string) || null;
 
-  if (!serviceId || !staffId || !customerId || !date || !time) {
+  if (!serviceId || !staffId || !customerId) {
     return { error: "All required fields must be filled." };
+  }
+
+  const startTime = parseAppointmentStart(formData);
+  if (!startTime) {
+    return { error: "Select an available time slot." };
   }
 
   const { data: service } = await supabase
@@ -188,20 +168,18 @@ export async function createAppointment(
 
   if (!service) return { error: "Service not found." };
 
-  const startTime = parseISO(`${date}T${time}`);
   const endTime = addMinutes(startTime, service.duration_minutes);
-  const blockStart = addMinutes(startTime, -(service.buffer_before_minutes ?? 0));
-  const blockEnd = addMinutes(endTime, service.buffer_after_minutes ?? 0);
 
-  const conflict = await checkConflict(
-    business.id,
+  const validation = await validateAppointmentSlot({
+    businessId: business.id,
+    serviceId,
     staffId,
-    blockStart.toISOString(),
-    blockEnd.toISOString(),
-  );
+    startTime: startTime.toISOString(),
+    endTime: endTime.toISOString(),
+  });
 
-  if (conflict) {
-    return { error: "This time slot conflicts with an existing appointment." };
+  if (!validation.ok) {
+    return { error: validation.error };
   }
 
   const { data: created, error } = await supabase.from("appointments").insert({
@@ -237,8 +215,6 @@ export async function updateAppointment(
   const serviceId = formData.get("service_id") as string;
   const staffId = formData.get("staff_id") as string;
   const customerId = formData.get("customer_id") as string;
-  const date = formData.get("date") as string;
-  const time = formData.get("time") as string;
   const status = formData.get("status") as AppointmentStatus;
   const notes = (formData.get("notes") as string) || null;
 
@@ -250,21 +226,26 @@ export async function updateAppointment(
 
   if (!service) return { error: "Service not found." };
 
-  const startTime = parseISO(`${date}T${time}`);
+  const startTime = parseAppointmentStart(formData);
+  if (!startTime) {
+    return { error: "Select an available time slot." };
+  }
+
   const endTime = addMinutes(startTime, service.duration_minutes);
-  const blockStart = addMinutes(startTime, -(service.buffer_before_minutes ?? 0));
-  const blockEnd = addMinutes(endTime, service.buffer_after_minutes ?? 0);
 
-  const conflict = await checkConflict(
-    business.id,
-    staffId,
-    blockStart.toISOString(),
-    blockEnd.toISOString(),
-    id,
-  );
+  if (status !== "cancelled") {
+    const validation = await validateAppointmentSlot({
+      businessId: business.id,
+      serviceId,
+      staffId,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      excludeAppointmentId: id,
+    });
 
-  if (conflict && status !== "cancelled") {
-    return { error: "This time slot conflicts with an existing appointment." };
+    if (!validation.ok) {
+      return { error: validation.error };
+    }
   }
 
   const { error } = await supabase
@@ -340,19 +321,18 @@ export async function rescheduleAppointment(
 
   const startTime = parseISO(newStartTime);
   const endTime = addMinutes(startTime, service.duration_minutes);
-  const blockStart = addMinutes(startTime, -(service.buffer_before_minutes ?? 0));
-  const blockEnd = addMinutes(endTime, service.buffer_after_minutes ?? 0);
 
-  const conflict = await checkConflict(
-    business.id,
-    appointment.staff_id,
-    blockStart.toISOString(),
-    blockEnd.toISOString(),
-    id,
-  );
+  const validation = await validateAppointmentSlot({
+    businessId: business.id,
+    serviceId: appointment.service_id,
+    staffId: appointment.staff_id,
+    startTime: startTime.toISOString(),
+    endTime: endTime.toISOString(),
+    excludeAppointmentId: id,
+  });
 
-  if (conflict) {
-    return { error: "This time slot conflicts with an existing appointment." };
+  if (!validation.ok) {
+    return { error: validation.error };
   }
 
   const { error } = await supabase

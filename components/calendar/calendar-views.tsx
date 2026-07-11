@@ -22,7 +22,7 @@ type ViewProps = {
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
   onSelectSlot: (date: Date) => void;
-  onReschedule?: (appointmentId: string, newStart: Date) => void;
+  onReschedule?: (appointment: AppointmentWithRelations, newStart: Date) => void;
 };
 
 export function DayView({
@@ -54,7 +54,16 @@ export function DayView({
               hour={hour}
               className="relative min-h-[60px] w-full"
               onClick={onSelectSlot}
-              onDrop={(slot) => onSelectSlot(slot)}
+              onDrop={(slot, appointmentId) => {
+                if (appointmentId && onReschedule) {
+                  const appointment = dayAppointments.find(
+                    (appt) => appt.id === appointmentId,
+                  );
+                  if (appointment) onReschedule(appointment, slot);
+                  return;
+                }
+                onSelectSlot(slot);
+              }}
             />
           </div>
         ))}

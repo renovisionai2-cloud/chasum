@@ -1,7 +1,9 @@
 "use client";
 
-import { bookAppointment, getAvailableSlots } from "@/lib/actions/public-booking";
-import type { ActionState, Business, BusinessHours, Service, StaffWithServices } from "@/lib/types/booking";
+import { bookAppointment } from "@/lib/actions/public-booking";
+import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
+import { SlotPicker } from "@/components/scheduling/slot-picker";
+import type { ActionState, Business, Service, StaffWithServices } from "@/lib/types/booking";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,13 +14,12 @@ import { Logo } from "@/components/ui/logo";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Check, ChevronLeft, Clock } from "lucide-react";
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useCallback, useState } from "react";
 
 type BookingPageProps = {
   business: Business;
   services: Service[];
   staff: StaffWithServices[];
-  hours: BusinessHours[];
 };
 
 type Step = "service" | "staff" | "datetime" | "details" | "confirmed";
@@ -33,29 +34,19 @@ export function PublicBookingPage({
   const [selectedStaff, setSelectedStaff] = useState<StaffWithServices | null>(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [slots, setSlots] = useState<string[]>([]);
-  const [loadingSlots, startSlotTransition] = useTransition();
   const [state, formAction, pending] = useActionState(bookAppointment, {} as ActionState);
+
+  const loadSlots = useCallback(
+    (serviceId: string, staffId: string, date: string) =>
+      getPublicAvailableSlots(business.slug, serviceId, staffId, date),
+    [business.slug],
+  );
 
   const availableStaff = selectedService
     ? staff.filter((m) =>
         m.staff_services.some((ss) => ss.service_id === selectedService.id),
       )
     : [];
-
-  useEffect(() => {
-    if (!selectedService || !selectedStaff || !selectedDate) return;
-    startSlotTransition(async () => {
-      const available = await getAvailableSlots(
-        business.slug,
-        selectedService.id,
-        selectedStaff.id,
-        selectedDate,
-      );
-      setSlots(available);
-      setSelectedSlot(null);
-    });
-  }, [business.slug, selectedService, selectedStaff, selectedDate]);
 
   if (state.success) {
     return (
@@ -172,40 +163,26 @@ export function PublicBookingPage({
               <ChevronLeft className="h-4 w-4" /> Back
             </button>
             <h2 className="text-lg font-semibold">Pick a date & time</h2>
-            <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
-              <Input
-                id="date"
-                type="date"
-                value={selectedDate}
-                min={format(new Date(), "yyyy-MM-dd")}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-            </div>
-            {loadingSlots ? (
-              <p className="text-sm text-muted-foreground">Loading available times...</p>
-            ) : slots.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No available times for this date.</p>
-            ) : (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {slots.map((slot) => (
-                  <button
-                    key={slot}
-                    type="button"
-                    onClick={() => {
-                      setSelectedSlot(slot);
-                      setStep("details");
-                    }}
-                    className={cn(
-                      "rounded-xl border border-border px-3 py-2.5 text-sm font-medium transition-colors hover:border-primary hover:bg-accent/30",
-                      selectedSlot === slot && "border-primary bg-accent",
-                    )}
-                  >
-                    {formatTime(parseISO(slot))}
-                  </button>
-                ))}
-              </div>
-            )}
+            <SlotPicker
+              serviceId={selectedService.id}
+              staffId={selectedStaff.id}
+              date={selectedDate}
+              selectedSlot={selectedSlot}
+              onDateChange={(value) => {
+                setSelectedDate(value);
+                setSelectedSlot(null);
+              }}
+              onSelectSlot={setSelectedSlot}
+              loadSlots={loadSlots}
+            />
+            <Button
+              type="button"
+              className="w-full"
+              disabled={!selectedSlot}
+              onClick={() => setStep("details")}
+            >
+              Continue
+            </Button>
           </div>
         )}
 

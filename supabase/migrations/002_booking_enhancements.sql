@@ -161,6 +161,3 @@ create policy "Owners manage availability"
 
 create policy "Public can view availability"
   on availability for select using (true);
-
--- Migrate scheduled -> pending for consistency
-update appointments set status = 'pending' where status = 'scheduled';

@@ -38,11 +38,13 @@ export function FormFooter({
   pending,
   submitLabel,
   pendingLabel = "Saving...",
+  submitDisabled = false,
 }: {
   onCancel?: () => void;
   pending: boolean;
   submitLabel: string;
   pendingLabel?: string;
+  submitDisabled?: boolean;
 }) {
   return (
     <div className="flex justify-end gap-2 pt-2">
@@ -57,7 +59,7 @@ export function FormFooter({
       )}
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || submitDisabled}
         className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
       >
         {pending ? pendingLabel : submitLabel}

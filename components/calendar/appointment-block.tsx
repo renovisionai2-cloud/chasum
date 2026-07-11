@@ -98,7 +98,7 @@ export function CurrentTimeIndicator({ show }: { show: boolean }) {
 type DropZoneProps = {
   date: Date;
   hour: number;
-  onDrop: (date: Date) => void;
+  onDrop: (date: Date, appointmentId?: string) => void;
   onClick: (date: Date) => void;
   className?: string;
 };
@@ -127,7 +127,7 @@ export function TimeSlotDropZone({
 
     const slot = new Date(date);
     slot.setHours(hour, 0, 0, 0);
-    onDrop(slot);
+    onDrop(slot, appointmentId || undefined);
   }
 
   return (

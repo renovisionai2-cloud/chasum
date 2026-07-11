@@ -9,6 +9,7 @@ import {
 } from "@/components/calendar/calendar-views";
 import { EmptyState } from "@/components/ui/page-header";
 import { rescheduleAppointment } from "@/lib/actions/appointments";
+import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { useToast } from "@/providers/toast-provider";
 import type {
   AppointmentWithRelations,
@@ -17,10 +18,12 @@ import type {
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
+import { parseISO } from "@/lib/calendar/utils";
 import {
   endOfDay,
   endOfMonth,
   endOfWeek,
+  format,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -87,11 +90,34 @@ export function CalendarClient({
     setDialogOpen(true);
   }
 
-  async function handleReschedule(appointmentId: string, newStart: Date) {
-    const result = await rescheduleAppointment(
-      appointmentId,
-      newStart.toISOString(),
+  async function handleReschedule(
+    appointment: AppointmentWithRelations,
+    newStart: Date,
+  ) {
+    const date = format(newStart, "yyyy-MM-dd");
+    const slots = await getDashboardAvailableSlots(
+      appointment.service_id,
+      appointment.staff_id,
+      date,
+      appointment.id,
     );
+
+    const targetMs = newStart.getTime();
+    const match =
+      slots.find((slot) => parseISO(slot).getTime() === targetMs) ??
+      slots.reduce<string | null>((best, slot) => {
+        if (!best) return slot;
+        const diff = Math.abs(parseISO(slot).getTime() - targetMs);
+        const bestDiff = Math.abs(parseISO(best).getTime() - targetMs);
+        return diff < bestDiff ? slot : best;
+      }, null);
+
+    if (!match) {
+      toast("No available slot at that time.", "error");
+      return;
+    }
+
+    const result = await rescheduleAppointment(appointment.id, match);
     if (result.error) {
       toast(result.error, "error");
       return;
@@ -165,6 +191,10 @@ export function CalendarClient({
       )}
 
       <AppointmentDialog
+        key={
+          selectedAppointment?.id ??
+          `new-${defaultSlot?.toISOString() ?? "blank"}`
+        }
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         appointment={selectedAppointment}

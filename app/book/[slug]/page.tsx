@@ -1,6 +1,5 @@
 import { PublicBookingPage } from "@/components/booking/public-booking-page";
 import { getBusinessBySlug } from "@/lib/actions/business";
-import { getPublicBusinessHours } from "@/lib/actions/business-hours";
 import { getPublicServices } from "@/lib/actions/services";
 import { getPublicStaff } from "@/lib/actions/staff";
 import type { Metadata } from "next";
@@ -26,10 +25,9 @@ export default async function BookPage({ params }: PageProps) {
 
   if (!business) notFound();
 
-  const [services, staff, hours] = await Promise.all([
+  const [services, staff] = await Promise.all([
     getPublicServices(business.id),
     getPublicStaff(business.id),
-    getPublicBusinessHours(business.id),
   ]);
 
   if (services.length === 0 || staff.length === 0) {
@@ -50,7 +48,6 @@ export default async function BookPage({ params }: PageProps) {
       business={business}
       services={services}
       staff={staff}
-      hours={hours}
     />
   );
 }

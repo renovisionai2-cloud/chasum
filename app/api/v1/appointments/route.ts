@@ -37,6 +37,18 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const supabase = createServiceClient();
 
+  const validation = await supabase.rpc("validate_appointment_slot", {
+    p_business_id: auth.businessId,
+    p_service_id: body.service_id,
+    p_staff_id: body.staff_id,
+    p_start_time: body.start_time,
+    p_end_time: body.end_time,
+  });
+
+  if (validation.error) {
+    return apiError(validation.error.message, 400);
+  }
+
   const { data, error } = await supabase
     .from("appointments")
     .insert({

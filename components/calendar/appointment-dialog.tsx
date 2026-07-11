@@ -2,15 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { SlotPicker } from "@/components/scheduling/slot-picker";
 import {
   cancelAppointment,
   createAppointment,
   updateAppointment,
 } from "@/lib/actions/appointments";
+import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import type {
   ActionState,
   AppointmentStatus,
@@ -25,7 +26,7 @@ import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
 import { parseISO } from "@/lib/calendar/utils";
-import { useActionState, useState } from "react";
+import { useActionState, useCallback, useMemo, useState } from "react";
 
 type AppointmentDialogProps = {
   open: boolean;
@@ -38,12 +39,28 @@ type AppointmentDialogProps = {
   onSuccess: () => void;
 };
 
-function toDateInput(date: Date): string {
-  return format(date, "yyyy-MM-dd");
+function slotDateInLocalTimezone(iso: string): string {
+  return format(parseISO(iso), "yyyy-MM-dd");
 }
 
-function toTimeInput(date: Date): string {
-  return format(date, "HH:mm");
+function getInitialState(
+  appointment: AppointmentWithRelations | null | undefined,
+  services: Service[],
+  defaultDate?: Date,
+) {
+  const initialStart = appointment
+    ? appointment.start_time
+    : defaultDate?.toISOString() ?? null;
+
+  return {
+    serviceId:
+      appointment?.service_id ?? services.find((s) => s.is_active)?.id ?? "",
+    staffId: appointment?.staff_id ?? "",
+    date: initialStart
+      ? slotDateInLocalTimezone(initialStart)
+      : format(new Date(), "yyyy-MM-dd"),
+    slot: initialStart,
+  };
 }
 
 export function AppointmentDialog({
@@ -59,22 +76,44 @@ export function AppointmentDialog({
   const isEditing = !!appointment;
   const action = isEditing ? updateAppointment : createAppointment;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
-  const [selectedService, setSelectedService] = useState(
-    appointment?.service_id ?? services[0]?.id ?? "",
-  );
   const { toast } = useToast();
+
+  const initial = getInitialState(appointment, services, defaultDate);
+  const [selectedService, setSelectedService] = useState(initial.serviceId);
+  const [selectedStaff, setSelectedStaff] = useState(initial.staffId);
+  const [selectedDate, setSelectedDate] = useState(initial.date);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(initial.slot);
+
+  const loadSlots = useCallback(
+    (
+      serviceId: string,
+      staffId: string,
+      date: string,
+      excludeAppointmentId?: string,
+    ) => getDashboardAvailableSlots(serviceId, staffId, date, excludeAppointmentId),
+    [],
+  );
 
   useFormAction(state, onSuccess, onClose);
 
-  const filteredStaff = staff.filter(
-    (member) =>
-      member.is_active &&
-      member.staff_services.some((ss) => ss.service_id === selectedService),
+  const filteredStaff = useMemo(
+    () =>
+      staff.filter(
+        (member) =>
+          member.is_active &&
+          member.staff_services.some((ss) => ss.service_id === selectedService),
+      ),
+    [staff, selectedService],
   );
 
-  const defaultStart = appointment
-    ? parseISO(appointment.start_time)
-    : defaultDate ?? new Date();
+  const activeStaffId = useMemo(() => {
+    if (filteredStaff.some((member) => member.id === selectedStaff)) {
+      return selectedStaff;
+    }
+    return filteredStaff[0]?.id ?? "";
+  }, [filteredStaff, selectedStaff]);
+
+  const canSubmit = !!selectedService && !!activeStaffId && !!selectedSlot;
 
   async function handleCancel() {
     if (!appointment) return;
@@ -95,8 +134,8 @@ export function AppointmentDialog({
       title={isEditing ? "Edit appointment" : "New appointment"}
       description={
         isEditing
-          ? "Update appointment details or change status."
-          : "Schedule a new appointment for a customer."
+          ? "Update appointment details or pick a new available time."
+          : "Select service, staff, and an available time slot."
       }
     >
       <form action={formAction} className="space-y-4">
@@ -127,7 +166,11 @@ export function AppointmentDialog({
             id="service_id"
             name="service_id"
             value={selectedService}
-            onChange={(e) => setSelectedService(e.target.value)}
+            onChange={(e) => {
+              setSelectedService(e.target.value);
+              setSelectedStaff("");
+              setSelectedSlot(null);
+            }}
             required
           >
             <option value="">Select service</option>
@@ -144,7 +187,11 @@ export function AppointmentDialog({
           <Select
             id="staff_id"
             name="staff_id"
-            defaultValue={appointment?.staff_id ?? filteredStaff[0]?.id ?? ""}
+            value={activeStaffId}
+            onChange={(e) => {
+              setSelectedStaff(e.target.value);
+              setSelectedSlot(null);
+            }}
             required
           >
             <option value="">Select staff</option>
@@ -156,28 +203,23 @@ export function AppointmentDialog({
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
-            <Input
-              id="date"
-              name="date"
-              type="date"
-              defaultValue={toDateInput(defaultStart)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="time">Time</Label>
-            <Input
-              id="time"
-              name="time"
-              type="time"
-              defaultValue={toTimeInput(defaultStart)}
-              required
-            />
-          </div>
-        </div>
+        {selectedService && activeStaffId ? (
+          <SlotPicker
+            serviceId={selectedService}
+            staffId={activeStaffId}
+            date={selectedDate}
+            selectedSlot={selectedSlot}
+            onDateChange={(value) => {
+              setSelectedDate(value);
+              setSelectedSlot(null);
+            }}
+            onSelectSlot={setSelectedSlot}
+            loadSlots={loadSlots}
+            excludeAppointmentId={appointment?.id}
+          />
+        ) : null}
+
+        <input type="hidden" name="start_time" value={selectedSlot ?? ""} />
 
         {isEditing && (
           <div className="space-y-2">
@@ -221,7 +263,12 @@ export function AppointmentDialog({
               Cancel appointment
             </Button>
           )}
-          <FormFooter onCancel={onClose} pending={pending} submitLabel={isEditing ? "Save changes" : "Create"} />
+          <FormFooter
+            onCancel={onClose}
+            pending={pending}
+            submitLabel={isEditing ? "Save changes" : "Create"}
+            submitDisabled={!canSubmit}
+          />
         </div>
       </form>
     </Dialog>
