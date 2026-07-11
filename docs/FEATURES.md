@@ -30,6 +30,8 @@ Current feature inventory as of **v0.1.0** (Phase 2 + architecture review comple
 - Protected routes redirect unauthenticated users to `/login`
 - Graceful handling when Supabase env vars are missing
 
+**Production requirement:** Authentication code is complete. Before production email auth works end-to-end, configure **custom SMTP in Supabase** (Resend recommended), then sync templates via `scripts/sync-supabase-email-templates.mjs`. Free-tier projects using Supabase's default email service cannot edit auth templates. Defer SMTP setup until production testing.
+
 ---
 
 ## Dashboard

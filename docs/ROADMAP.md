@@ -56,6 +56,8 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 
 **Prerequisite before production:** Run migration `003_rls_hardening.sql` in Supabase.
 
+**Auth production prerequisite (deferred):** Authentication code is complete. Enable **custom SMTP in Supabase** (Resend recommended) and run `scripts/sync-supabase-email-templates.mjs` when ready for production email testing. Not required for local development beyond Supabase's default email limits.
+
 ---
 
 ## Phase 3 — Integrations & Communication ✅ Complete

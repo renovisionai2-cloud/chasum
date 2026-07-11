@@ -73,6 +73,8 @@ SUPABASE_ACCESS_TOKEN=... node scripts/sync-supabase-email-templates.mjs
 
 Requires a personal access token from [Supabase account tokens](https://supabase.com/dashboard/account/tokens).
 
+**Production prerequisite:** Custom SMTP must be enabled in Supabase before templates can be updated (free-tier projects on the default email provider cannot edit templates). Use [Resend SMTP](https://resend.com/docs/send-with-smtp) (`smtp.resend.com`, user `resend`, password = API key) or another provider. This is the only remaining production requirement for authentication; application code and the sync script are ready.
+
 ---
 
 ## Business Actions

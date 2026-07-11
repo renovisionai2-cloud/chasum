@@ -14,6 +14,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Email confirmation now completes via `/auth/callback` using Supabase SSR token-hash flow (`verifyOtp`) instead of implicit `#access_token` redirects to the landing page
 - Added `scripts/sync-supabase-email-templates.mjs` to configure Supabase confirmation and recovery email templates
 
+### Production requirements (auth)
+
+Authentication code is complete for development and staging. **Custom SMTP is the only remaining production requirement** before email confirmation and password reset can be verified end-to-end in production:
+
+1. Configure custom SMTP in Supabase (recommended: [Resend](https://resend.com/docs/send-with-smtp)) — required on free-tier projects created after June 2026 to unlock auth email template editing
+2. Run `node scripts/sync-supabase-email-templates.mjs` to apply token-hash callback templates
+3. Verify signup, confirmation, login, and password reset against a real inbox
+
+Resend is not configured yet; enable custom SMTP when ready for production testing.
+
 ### Planned (Phase 4)
 
 - Stripe subscriptions and billing
