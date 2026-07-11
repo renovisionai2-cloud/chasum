@@ -34,6 +34,8 @@ export async function createStaff(
 
   if (!name?.trim()) return { error: "Staff name is required." };
 
+  const photoUrl = (formData.get("photo_url") as string) || null;
+
   const { data: staffMember, error } = await supabase
     .from("staff")
     .insert({
@@ -42,6 +44,7 @@ export async function createStaff(
       email,
       title,
       color,
+      photo_url: photoUrl,
     })
     .select("id")
     .single();
@@ -78,6 +81,7 @@ export async function updateStaff(
       email: (formData.get("email") as string) || null,
       title: (formData.get("title") as string) || null,
       color: (formData.get("color") as string) || "#3b82f6",
+      photo_url: (formData.get("photo_url") as string) || null,
       is_active: formData.get("is_active") === "true",
     })
     .eq("id", id)

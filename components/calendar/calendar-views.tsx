@@ -1,23 +1,28 @@
 "use client";
 
-import { StatusBadge } from "@/components/ui/badge";
+import {
+  AppointmentBlock,
+  CurrentTimeIndicator,
+  TimeSlotDropZone,
+} from "@/components/calendar/appointment-block";
 import {
   CALENDAR_END_HOUR,
   CALENDAR_START_HOUR,
   formatTime,
-  getAppointmentPosition,
   getHourSlots,
   isSameDay,
   parseISO,
 } from "@/lib/calendar/utils";
+import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 
-type DayViewProps = {
+type ViewProps = {
   date: Date;
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
   onSelectSlot: (date: Date) => void;
+  onReschedule?: (appointmentId: string, newStart: Date) => void;
 };
 
 export function DayView({
@@ -25,11 +30,13 @@ export function DayView({
   appointments,
   onSelectAppointment,
   onSelectSlot,
-}: DayViewProps) {
+  onReschedule,
+}: ViewProps) {
   const hours = getHourSlots();
   const dayAppointments = appointments.filter((appt) =>
     isSameDay(parseISO(appt.start_time), date),
   );
+  const showNow = isSameDay(date, new Date());
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -42,56 +49,38 @@ export function DayView({
             <div className="border-r border-border px-2 py-4 text-xs text-muted-foreground">
               {formatTime(new Date(2024, 0, 1, hour))}
             </div>
-            <button
-              type="button"
-              className="relative min-h-[60px] hover:bg-muted/30"
-              onClick={() => {
-                const slot = new Date(date);
-                slot.setHours(hour, 0, 0, 0);
-                onSelectSlot(slot);
-              }}
+            <TimeSlotDropZone
+              date={date}
+              hour={hour}
+              className="relative min-h-[60px] w-full"
+              onClick={onSelectSlot}
+              onDrop={(slot) => onSelectSlot(slot)}
             />
           </div>
         ))}
 
         <div className="pointer-events-none absolute inset-0 ml-[60px]">
-          {dayAppointments.map((appt) => {
-            const { top, height } = getAppointmentPosition(
-              appt.start_time,
-              appt.end_time,
-            );
-            return (
-              <button
-                key={appt.id}
-                type="button"
-                className="pointer-events-auto absolute inset-x-2 overflow-hidden rounded-lg border border-white/20 px-2 py-1 text-left text-xs text-white shadow-sm transition-opacity hover:opacity-90"
-                style={{
-                  top: `${top}%`,
-                  height: `${height}%`,
-                  backgroundColor: appt.service.color,
-                  minHeight: "28px",
-                }}
-                onClick={() => onSelectAppointment(appt)}
-              >
-                <p className="truncate font-medium">{appt.customer.name}</p>
-                <p className="truncate opacity-90">{appt.service.name}</p>
-              </button>
-            );
-          })}
+          <CurrentTimeIndicator show={showNow} />
+          {dayAppointments.map((appt) => (
+            <AppointmentBlock
+              key={appt.id}
+              appointment={appt}
+              onSelect={onSelectAppointment}
+              draggable={!!onReschedule}
+            />
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-type WeekViewProps = DayViewProps;
-
 export function WeekView({
   date,
   appointments,
   onSelectAppointment,
   onSelectSlot,
-}: WeekViewProps) {
+}: ViewProps) {
   const hours = getHourSlots();
   const weekStart = new Date(date);
   weekStart.setDate(date.getDate() - date.getDay());
@@ -100,6 +89,7 @@ export function WeekView({
     d.setDate(weekStart.getDate() + i);
     return d;
   });
+  const todayInWeek = days.some((d) => isSameDay(d, new Date()));
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-border bg-card">
@@ -132,15 +122,13 @@ export function WeekView({
                 {formatTime(new Date(2024, 0, 1, hour))}
               </div>
               {days.map((day) => (
-                <button
+                <TimeSlotDropZone
                   key={`${day.toISOString()}-${hour}`}
-                  type="button"
-                  className="min-h-[48px] border-l border-border hover:bg-muted/30"
-                  onClick={() => {
-                    const slot = new Date(day);
-                    slot.setHours(hour, 0, 0, 0);
-                    onSelectSlot(slot);
-                  }}
+                  date={day}
+                  hour={hour}
+                  className="min-h-[48px] border-l border-border"
+                  onClick={onSelectSlot}
+                  onDrop={onSelectSlot}
                 />
               ))}
             </div>
@@ -153,28 +141,18 @@ export function WeekView({
               );
               return (
                 <div key={day.toISOString()} className="relative border-l border-border">
-                  {dayAppts.map((appt) => {
-                    const { top, height } = getAppointmentPosition(
-                      appt.start_time,
-                      appt.end_time,
-                    );
-                    return (
-                      <button
-                        key={appt.id}
-                        type="button"
-                        className="pointer-events-auto absolute inset-x-0.5 overflow-hidden rounded-md px-1 py-0.5 text-left text-[10px] text-white shadow-sm"
-                        style={{
-                          top: `${top}%`,
-                          height: `${height}%`,
-                          backgroundColor: appt.service.color,
-                          minHeight: "20px",
-                        }}
-                        onClick={() => onSelectAppointment(appt)}
-                      >
-                        <p className="truncate font-medium">{appt.customer.name}</p>
-                      </button>
-                    );
-                  })}
+                  {isSameDay(day, new Date()) && (
+                    <CurrentTimeIndicator show={todayInWeek} />
+                  )}
+                  {dayAppts.map((appt) => (
+                    <AppointmentBlock
+                      key={appt.id}
+                      appointment={appt}
+                      onSelect={onSelectAppointment}
+                      compact
+                      draggable={false}
+                    />
+                  ))}
                 </div>
               );
             })}
@@ -253,8 +231,8 @@ export function MonthView({
                     key={appt.id}
                     role="button"
                     tabIndex={0}
-                    className="truncate rounded-md px-1.5 py-0.5 text-[10px] text-white sm:text-xs"
-                    style={{ backgroundColor: appt.service.color }}
+                    className="truncate rounded-md border-l-2 px-1.5 py-0.5 text-[10px] text-white sm:text-xs"
+                    style={getAppointmentBlockStyle(appt.status, appt.service.color)}
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectAppointment(appt);
@@ -283,4 +261,4 @@ export function MonthView({
   );
 }
 
-export { StatusBadge, CALENDAR_START_HOUR, CALENDAR_END_HOUR };
+export { CALENDAR_START_HOUR, CALENDAR_END_HOUR };

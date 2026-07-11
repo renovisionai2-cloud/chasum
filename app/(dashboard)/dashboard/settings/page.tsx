@@ -2,6 +2,7 @@ import { SettingsManager } from "@/components/settings/settings-manager";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getBusinessHours } from "@/lib/actions/business-hours";
+import { getHolidays } from "@/lib/actions/holidays";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 
 export default async function SettingsPage() {
   const business = await getOrCreateBusiness();
-  const hours = await getBusinessHours();
+  const [hours, holidays] = await Promise.all([
+    getBusinessHours(),
+    getHolidays(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -18,7 +22,7 @@ export default async function SettingsPage() {
         title="Settings"
         description="Configure your business profile, hours, and booking page."
       />
-      <SettingsManager business={business} hours={hours} />
+      <SettingsManager business={business} hours={hours} holidays={holidays} />
     </div>
   );
 }

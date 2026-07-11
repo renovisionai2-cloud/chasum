@@ -15,8 +15,8 @@ export async function getAppointments(start: string, end: string) {
     .select(
       `
       *,
-      service:services(id, name, color, duration_minutes),
-      staff:staff(id, name, color),
+      service:services(id, name, color, duration_minutes, buffer_before_minutes, buffer_after_minutes),
+      staff:staff(id, name, color, photo_url),
       customer:customers(id, name, email, phone)
     `,
     )
@@ -47,8 +47,9 @@ export async function getDashboardStats() {
   weekEnd.setHours(23, 59, 59, 999);
 
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-  const [todayRes, weekRes, customersRes, upcomingRes] = await Promise.all([
+  const [todayRes, weekRes, customersRes, upcomingRes, todayApptsRes, newCustomersRes, revenueRes] = await Promise.all([
     supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
@@ -77,6 +78,28 @@ export async function getDashboardStats() {
       .gte("start_time", now.toISOString())
       .order("start_time")
       .limit(5),
+    supabase
+      .from("appointments")
+      .select(`*, service:services(name, color, price), customer:customers(name), staff:staff(name)`)
+      .eq("business_id", business.id)
+      .neq("status", "cancelled")
+      .gte("start_time", todayStart.toISOString())
+      .lte("start_time", todayEnd.toISOString())
+      .order("start_time"),
+    supabase
+      .from("customers")
+      .select("id, name, email, created_at")
+      .eq("business_id", business.id)
+      .gte("created_at", monthStart.toISOString())
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("appointments")
+      .select("service:services(price)")
+      .eq("business_id", business.id)
+      .eq("status", "completed")
+      .gte("start_time", monthStart.toISOString())
+      .lte("start_time", monthEnd.toISOString()),
   ]);
 
   const monthCustomersRes = await supabase
@@ -85,12 +108,20 @@ export async function getDashboardStats() {
     .eq("business_id", business.id)
     .gte("created_at", monthStart.toISOString());
 
+  const revenue = (revenueRes.data ?? []).reduce((sum, appt) => {
+    const price = (appt.service as { price?: number } | null)?.price ?? 0;
+    return sum + Number(price);
+  }, 0);
+
   return {
     todayCount: todayRes.count ?? 0,
     weekCount: weekRes.count ?? 0,
     customerCount: customersRes.count ?? 0,
     newCustomersThisMonth: monthCustomersRes.count ?? 0,
     upcoming: upcomingRes.data ?? [],
+    todayAppointments: todayApptsRes.data ?? [],
+    newCustomers: newCustomersRes.data ?? [],
+    monthlyRevenue: revenue,
   };
 }
 
@@ -140,7 +171,7 @@ export async function createAppointment(
 
   const { data: service } = await supabase
     .from("services")
-    .select("duration_minutes")
+    .select("duration_minutes, buffer_before_minutes, buffer_after_minutes")
     .eq("id", serviceId)
     .single();
 
@@ -148,12 +179,14 @@ export async function createAppointment(
 
   const startTime = parseISO(`${date}T${time}`);
   const endTime = addMinutes(startTime, service.duration_minutes);
+  const blockStart = addMinutes(startTime, -(service.buffer_before_minutes ?? 0));
+  const blockEnd = addMinutes(endTime, service.buffer_after_minutes ?? 0);
 
   const conflict = await checkConflict(
     business.id,
     staffId,
-    startTime.toISOString(),
-    endTime.toISOString(),
+    blockStart.toISOString(),
+    blockEnd.toISOString(),
   );
 
   if (conflict) {
@@ -168,7 +201,7 @@ export async function createAppointment(
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
     notes,
-    status: "scheduled",
+    status: "pending",
   });
 
   if (error) return { error: error.message };
@@ -196,7 +229,7 @@ export async function updateAppointment(
 
   const { data: service } = await supabase
     .from("services")
-    .select("duration_minutes")
+    .select("duration_minutes, buffer_before_minutes, buffer_after_minutes")
     .eq("id", serviceId)
     .single();
 
@@ -204,12 +237,14 @@ export async function updateAppointment(
 
   const startTime = parseISO(`${date}T${time}`);
   const endTime = addMinutes(startTime, service.duration_minutes);
+  const blockStart = addMinutes(startTime, -(service.buffer_before_minutes ?? 0));
+  const blockEnd = addMinutes(endTime, service.buffer_after_minutes ?? 0);
 
   const conflict = await checkConflict(
     business.id,
     staffId,
-    startTime.toISOString(),
-    endTime.toISOString(),
+    blockStart.toISOString(),
+    blockEnd.toISOString(),
     id,
   );
 
@@ -253,6 +288,60 @@ export async function cancelAppointment(id: string): Promise<ActionState> {
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard");
   return { success: "Appointment cancelled." };
+}
+
+export async function rescheduleAppointment(
+  id: string,
+  newStartTime: string,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("*, service:services(duration_minutes, buffer_before_minutes, buffer_after_minutes)")
+    .eq("id", id)
+    .eq("business_id", business.id)
+    .single();
+
+  if (!appointment) return { error: "Appointment not found." };
+
+  const service = appointment.service as {
+    duration_minutes: number;
+    buffer_before_minutes: number;
+    buffer_after_minutes: number;
+  };
+
+  const startTime = parseISO(newStartTime);
+  const endTime = addMinutes(startTime, service.duration_minutes);
+  const blockStart = addMinutes(startTime, -(service.buffer_before_minutes ?? 0));
+  const blockEnd = addMinutes(endTime, service.buffer_after_minutes ?? 0);
+
+  const conflict = await checkConflict(
+    business.id,
+    appointment.staff_id,
+    blockStart.toISOString(),
+    blockEnd.toISOString(),
+    id,
+  );
+
+  if (conflict) {
+    return { error: "This time slot conflicts with an existing appointment." };
+  }
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({
+      start_time: startTime.toISOString(),
+      end_time: endTime.toISOString(),
+    })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/calendar");
+  revalidatePath("/dashboard");
+  return { success: "Appointment rescheduled." };
 }
 
 export async function getPublicAppointments(

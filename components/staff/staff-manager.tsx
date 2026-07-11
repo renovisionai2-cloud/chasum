@@ -9,7 +9,9 @@ import { EmptyState } from "@/components/ui/page-header";
 import { createStaff, deleteStaff, updateStaff } from "@/lib/actions/staff";
 import type { ActionState, Service, Staff } from "@/lib/types/booking";
 import { STAFF_COLORS } from "@/lib/types/booking";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { StaffScheduleDialog } from "@/components/staff/staff-schedule-dialog";
+import type { StaffVacation, StaffWorkingHours } from "@/lib/types/booking";
+import { Calendar, Pencil, Plus, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 
 type StaffWithServices = Staff & {
@@ -56,6 +58,10 @@ function StaffForm({
         </div>
       </div>
       <div className="space-y-2">
+        <Label htmlFor="photo_url">Photo URL</Label>
+        <Input id="photo_url" name="photo_url" type="url" placeholder="https://..." defaultValue={member?.photo_url ?? ""} />
+      </div>
+      <div className="space-y-2">
         <Label>Services</Label>
         <div className="space-y-2 rounded-xl border border-border p-3">
           {services.filter((s) => s.is_active).map((service) => (
@@ -95,12 +101,16 @@ function StaffForm({
 export function StaffManager({
   staff,
   services,
+  schedules,
 }: {
   staff: StaffWithServices[];
   services: Service[];
+  schedules: Record<string, { hours: StaffWorkingHours[]; vacations: StaffVacation[] }>;
 }) {
   const [open, setOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   const [editing, setEditing] = useState<StaffWithServices | undefined>();
+  const [scheduling, setScheduling] = useState<StaffWithServices | undefined>();
 
   function refresh() {
     window.location.reload();
@@ -123,8 +133,13 @@ export function StaffManager({
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white" style={{ backgroundColor: member.color }}>
-                      {member.name.charAt(0)}
+                    <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white" style={{ backgroundColor: member.color }}>
+                      {member.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={member.photo_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        member.name.charAt(0)
+                      )}
                     </span>
                     <div>
                       <h3 className="font-semibold">{member.name}</h3>
@@ -132,6 +147,9 @@ export function StaffManager({
                     </div>
                   </div>
                   <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Schedule" onClick={() => { setScheduling(member); setScheduleOpen(true); }}>
+                      <Calendar className="h-4 w-4" />
+                    </Button>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { setEditing(member); setOpen(true); }}>
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -158,6 +176,17 @@ export function StaffManager({
       <Dialog open={open} onClose={() => setOpen(false)} title={editing ? "Edit staff" : "Add staff member"}>
         <StaffForm member={editing} services={services} onClose={() => setOpen(false)} onSuccess={refresh} />
       </Dialog>
+
+      {scheduling && (
+        <StaffScheduleDialog
+          open={scheduleOpen}
+          onClose={() => { setScheduleOpen(false); setScheduling(undefined); }}
+          staff={scheduling}
+          workingHours={schedules[scheduling.id]?.hours ?? []}
+          vacations={schedules[scheduling.id]?.vacations ?? []}
+          onSuccess={refresh}
+        />
+      )}
     </div>
   );
 }

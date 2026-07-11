@@ -1,5 +1,5 @@
 export type AppointmentStatus =
-  | "scheduled"
+  | "pending"
   | "confirmed"
   | "cancelled"
   | "completed"
@@ -11,6 +11,10 @@ export type Business = {
   name: string;
   slug: string;
   timezone: string;
+  appointment_interval_minutes: number;
+  booking_limit_days: number;
+  cancellation_policy: string | null;
+  max_daily_bookings: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -20,9 +24,12 @@ export type Service = {
   business_id: string;
   name: string;
   description: string | null;
+  category: string | null;
   duration_minutes: number;
   price: number;
   color: string;
+  buffer_before_minutes: number;
+  buffer_after_minutes: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -34,10 +41,29 @@ export type Staff = {
   name: string;
   email: string | null;
   title: string | null;
+  photo_url: string | null;
   color: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type StaffWorkingHours = {
+  id: string;
+  staff_id: string;
+  day_of_week: number;
+  is_working: boolean;
+  start_time: string;
+  end_time: string;
+};
+
+export type StaffVacation = {
+  id: string;
+  staff_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+  created_at: string;
 };
 
 export type BusinessHours = {
@@ -49,6 +75,15 @@ export type BusinessHours = {
   close_time: string;
 };
 
+export type Holiday = {
+  id: string;
+  business_id: string;
+  name: string;
+  date: string;
+  is_recurring: boolean;
+  created_at: string;
+};
+
 export type Customer = {
   id: string;
   business_id: string;
@@ -56,6 +91,7 @@ export type Customer = {
   email: string;
   phone: string | null;
   notes: string | null;
+  tags: string[];
   created_at: string;
   updated_at: string;
 };
@@ -75,8 +111,8 @@ export type Appointment = {
 };
 
 export type AppointmentWithRelations = Appointment & {
-  service: Pick<Service, "id" | "name" | "color" | "duration_minutes">;
-  staff: Pick<Staff, "id" | "name" | "color">;
+  service: Pick<Service, "id" | "name" | "color" | "duration_minutes" | "buffer_before_minutes" | "buffer_after_minutes">;
+  staff: Pick<Staff, "id" | "name" | "color" | "photo_url">;
   customer: Pick<Customer, "id" | "name" | "email" | "phone">;
 };
 
@@ -97,12 +133,29 @@ export const DAY_NAMES = [
   "Saturday",
 ] as const;
 
+export const SERVICE_CATEGORIES = [
+  "General",
+  "Consultation",
+  "Treatment",
+  "Follow-up",
+  "Package",
+  "Other",
+] as const;
+
 export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
-  scheduled: "Scheduled",
+  pending: "Pending",
   confirmed: "Confirmed",
   cancelled: "Cancelled",
   completed: "Completed",
   no_show: "No Show",
+};
+
+export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
+  pending: "#f59e0b",
+  confirmed: "#2563eb",
+  cancelled: "#ef4444",
+  completed: "#22c55e",
+  no_show: "#71717a",
 };
 
 export const SERVICE_COLORS = [
@@ -125,4 +178,12 @@ export const STAFF_COLORS = [
   "#06b6d4",
   "#6366f1",
   "#d946ef",
+] as const;
+
+export const CUSTOMER_TAG_COLORS = [
+  "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
+  "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300",
+  "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300",
 ] as const;

@@ -13,7 +13,14 @@ import type { ActionState, Business, BusinessHours } from "@/lib/types/booking";
 import { DAY_NAMES } from "@/lib/types/booking";
 import { TIMEZONES } from "@/lib/constants";
 import { getAppUrl } from "@/lib/env";
-import { Copy, ExternalLink } from "lucide-react";
+import {
+  createHoliday,
+  deleteHoliday,
+  updateBusinessSettings,
+} from "@/lib/actions/holidays";
+import type { Holiday } from "@/lib/types/booking";
+import { Textarea } from "@/components/ui/textarea";
+import { Copy, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
 
@@ -125,17 +132,108 @@ function HoursForm({ hours }: { hours: BusinessHours[] }) {
   );
 }
 
+function BookingSettingsForm({ business }: { business: Business }) {
+  const [state, formAction, pending] = useActionState(
+    updateBusinessSettings,
+    {} as ActionState,
+  );
+
+  return (
+    <Card className="border-border/60">
+      <CardHeader>
+        <CardTitle>Booking settings</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form action={formAction} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="appointment_interval_minutes">Appointment interval (min)</Label>
+              <Input id="appointment_interval_minutes" name="appointment_interval_minutes" type="number" min={5} step={5} defaultValue={business.appointment_interval_minutes ?? 30} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="booking_limit_days">Booking limit (days ahead)</Label>
+              <Input id="booking_limit_days" name="booking_limit_days" type="number" min={1} defaultValue={business.booking_limit_days ?? 60} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="max_daily_bookings">Max daily bookings (optional)</Label>
+            <Input id="max_daily_bookings" name="max_daily_bookings" type="number" min={1} defaultValue={business.max_daily_bookings ?? ""} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cancellation_policy">Cancellation policy</Label>
+            <Textarea id="cancellation_policy" name="cancellation_policy" placeholder="e.g. Cancel at least 24 hours before your appointment..." defaultValue={business.cancellation_policy ?? ""} />
+          </div>
+          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+          {state.success && <p className="text-sm text-success">{state.success}</p>}
+          <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save settings"}</Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
+  const [state, formAction, pending] = useActionState(createHoliday, {} as ActionState);
+
+  return (
+    <Card className="border-border/60">
+      <CardHeader>
+        <CardTitle>Holidays</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {holidays.length > 0 && (
+          <ul className="space-y-2">
+            {holidays.map((holiday) => (
+              <li key={holiday.id} className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm">
+                <span>{holiday.name} — {holiday.date}</span>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive" onClick={async () => {
+                  await deleteHoliday(holiday.id);
+                  window.location.reload();
+                }}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <form action={formAction} className="space-y-3 border-t border-border pt-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="holiday_name">Holiday name</Label>
+              <Input id="holiday_name" name="name" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="holiday_date">Date</Label>
+              <Input id="holiday_date" name="date" type="date" required />
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="is_recurring" /> Recurring annually
+          </label>
+          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
+          {state.success && <p className="text-sm text-success">{state.success}</p>}
+          <Button type="submit" size="sm" disabled={pending}>Add holiday</Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function SettingsManager({
   business,
   hours,
+  holidays,
 }: {
   business: Business;
   hours: BusinessHours[];
+  holidays: Holiday[];
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <ProfileForm business={business} />
       <HoursForm hours={hours} />
+      <BookingSettingsForm business={business} />
+      <HolidaysForm holidays={holidays} />
     </div>
   );
 }

@@ -229,6 +229,12 @@ export function PublicBookingPage({
               </CardContent>
             </Card>
 
+          {business.cancellation_policy && step === "details" && (
+            <p className="rounded-xl border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+              <strong>Cancellation policy:</strong> {business.cancellation_policy}
+            </p>
+          )}
+
             <form action={formAction} className="space-y-4">
               <input type="hidden" name="slug" value={business.slug} />
               <input type="hidden" name="service_id" value={selectedService.id} />

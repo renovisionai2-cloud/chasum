@@ -41,12 +41,19 @@ export async function createCustomer(
   if (!name) return { error: "Customer name is required." };
   if (!email) return { error: "Email is required." };
 
+  const tagsRaw = (formData.get("tags") as string) || "";
+  const tags = tagsRaw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
   const { error } = await supabase.from("customers").insert({
     business_id: business.id,
     name,
     email,
     phone,
     notes,
+    tags,
   });
 
   if (error) {
@@ -69,6 +76,12 @@ export async function updateCustomer(
   const supabase = await createClient();
   const id = formData.get("id") as string;
 
+  const tagsRaw = (formData.get("tags") as string) || "";
+  const tags = tagsRaw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
   const { error } = await supabase
     .from("customers")
     .update({
@@ -76,6 +89,7 @@ export async function updateCustomer(
       email: (formData.get("email") as string).trim(),
       phone: (formData.get("phone") as string) || null,
       notes: (formData.get("notes") as string) || null,
+      tags,
     })
     .eq("id", id)
     .eq("business_id", business.id);
@@ -100,4 +114,28 @@ export async function deleteCustomer(id: string): Promise<ActionState> {
 
   revalidatePath("/dashboard/clients");
   return { success: "Customer deleted." };
+}
+
+export async function getCustomerProfile(id: string) {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const { data: customer, error } = await supabase
+    .from("customers")
+    .select("*")
+    .eq("id", id)
+    .eq("business_id", business.id)
+    .single();
+
+  if (error || !customer) return null;
+
+  const { data: appointments } = await supabase
+    .from("appointments")
+    .select(
+      `*, service:services(name, color), staff:staff(name)`,
+    )
+    .eq("customer_id", id)
+    .order("start_time", { ascending: false });
+
+  return { customer, appointments: appointments ?? [] };
 }

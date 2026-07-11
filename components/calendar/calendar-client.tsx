@@ -8,6 +8,7 @@ import {
   WeekView,
 } from "@/components/calendar/calendar-views";
 import { EmptyState } from "@/components/ui/page-header";
+import { rescheduleAppointment } from "@/lib/actions/appointments";
 import type {
   AppointmentWithRelations,
   CalendarView,
@@ -88,6 +89,18 @@ export function CalendarClient({
     setDialogOpen(true);
   }
 
+  async function handleReschedule(appointmentId: string, newStart: Date) {
+    const result = await rescheduleAppointment(
+      appointmentId,
+      newStart.toISOString(),
+    );
+    if (result.error) {
+      alert(result.error);
+      return;
+    }
+    refresh();
+  }
+
   function handleViewChange(newView: CalendarView) {
     setView(newView);
     const range = getRange(newView, date);
@@ -129,6 +142,7 @@ export function CalendarClient({
           appointments={appointments}
           onSelectAppointment={openEdit}
           onSelectSlot={openNew}
+          onReschedule={handleReschedule}
         />
       )}
       {view === "week" && (

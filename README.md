@@ -2,100 +2,55 @@
 
 AI-powered appointment booking SaaS — faster, cleaner, and easier to use.
 
-## Tech Stack
-
-- **Next.js 16** (App Router)
-- **TypeScript**
-- **Tailwind CSS v4**
-- **Supabase** (Auth + Database + Storage)
-- **Stripe** (Phase 3+)
-- **Vercel** (Deployment)
-
-## Getting Started
-
-### 1. Install dependencies
+## Setup
 
 ```bash
 npm install
-```
-
-### 2. Configure Supabase
-
-1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard)
-2. Copy `.env.example` to `.env.local` and fill in your credentials:
-
-```bash
 cp .env.example .env.local
-```
-
-3. Run the database migration in Supabase → SQL Editor:
-
-```
-supabase/migrations/001_booking_engine.sql
-```
-
-4. In Supabase → Authentication → URL Configuration, add these **Redirect URLs**:
-
-```
-http://localhost:3000/auth/callback
-http://localhost:3000/auth/confirm
-http://localhost:3000/reset-password
-```
-
-### 3. Run the dev server
-
-```bash
+# Add Supabase credentials, then run both migrations in SQL Editor:
+# 1. supabase/migrations/001_booking_engine.sql
+# 2. supabase/migrations/002_booking_enhancements.sql
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+## Phase 2 — Complete Booking Engine
 
-## Project Structure
+### Calendar
+- Day, week, and month views
+- Color-coded appointment status
+- Current time indicator
+- Drag-and-drop reschedule (day view)
+- Appointment create, edit, cancel, reschedule
 
-```
-app/
-  (marketing)/         # Landing page
-  (auth)/              # Login, signup, forgot/reset password
-  (dashboard)/         # Protected dashboard routes
-  book/[slug]/         # Public booking page
-  auth/                # Supabase OAuth & email callbacks
-components/
-  ui/                  # Reusable UI primitives
-  calendar/            # Day/week/month calendar views
-  booking/             # Public booking flow
-  services/            # Service management
-  staff/               # Staff management
-  customers/           # Client database
-  settings/            # Business profile & hours
-lib/
-  supabase/            # Supabase client utilities
-  actions/             # Server actions
-  calendar/            # Calendar date utilities
-  types/               # TypeScript types
-supabase/migrations/   # Database schema
-```
+### Services
+- CRUD with category, duration, price
+- Buffer time before/after appointments
 
-## Phase 1 (Complete)
+### Staff
+- CRUD with profile photo URL
+- Per-staff working hours and vacation days
+- Service assignments
 
-- Premium landing page
-- Authentication (sign up, login, forgot/reset password)
-- Dashboard with sidebar + top navigation
-- Dark / light mode
-- Route protection
+### Business Settings
+- Business hours, timezone, booking URL
+- Appointment intervals and booking limits
+- Cancellation policy
+- Holiday management
 
-## Phase 2 (Complete)
+### Customers
+- Database with search and tags
+- Customer profile with appointment history
 
-- **Calendar** — day, week, and month views with appointment CRUD
-- **Services** — create, edit, delete services with pricing and duration
-- **Staff** — manage team members and assign services
-- **Business hours** — configure weekly availability
-- **Clients** — customer database with search
-- **Public booking page** — `/book/[slug]` multi-step booking flow
-- **Availability engine** — conflict detection and slot generation
+### Public Booking
+- Multi-step flow at `/book/[slug]`
+- Service → staff → date/time → contact → confirmation
+- Availability engine with conflict detection
 
-## Phase 3 (Upcoming)
+### Dashboard
+- Today's schedule and upcoming appointments
+- Revenue card (from completed appointments)
+- New clients widget and quick actions
 
-- Stripe subscriptions
-- Calendar sync (Google, Outlook)
-- Email/SMS reminders
-- Analytics dashboard
+## Tech Stack
+
+Next.js 16 · TypeScript · Tailwind CSS v4 · Supabase · Vercel

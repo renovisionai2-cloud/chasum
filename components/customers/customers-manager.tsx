@@ -13,6 +13,8 @@ import {
   updateCustomer,
 } from "@/lib/actions/customers";
 import type { ActionState, Customer } from "@/lib/types/booking";
+import { TagBadge } from "@/components/ui/badge";
+import Link from "next/link";
 import { Mail, Pencil, Phone, Plus, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 
@@ -49,6 +51,10 @@ function CustomerForm({
       <div className="space-y-2">
         <Label htmlFor="phone">Phone</Label>
         <Input id="phone" name="phone" type="tel" defaultValue={customer?.phone ?? ""} />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="tags">Tags (comma-separated)</Label>
+        <Input id="tags" name="tags" placeholder="VIP, Regular, New" defaultValue={customer?.tags?.join(", ") ?? ""} />
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">Notes</Label>
@@ -103,11 +109,20 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
             <Card key={customer.id} className="border-border/60">
               <CardContent className="flex items-center justify-between p-4">
                 <div>
-                  <h3 className="font-semibold">{customer.name}</h3>
+                  <Link href={`/dashboard/clients/${customer.id}`} className="font-semibold hover:text-primary">
+                    {customer.name}
+                  </Link>
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{customer.email}</span>
                     {customer.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{customer.phone}</span>}
                   </div>
+                  {customer.tags?.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {(customer.tags ?? []).map((tag, i) => (
+                        <TagBadge key={tag} tag={tag} index={i} />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-1">
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { setEditing(customer); setOpen(true); }}>

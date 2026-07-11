@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createService, deleteService, updateService } from "@/lib/actions/services";
 import type { ActionState, Service } from "@/lib/types/booking";
-import { SERVICE_COLORS } from "@/lib/types/booking";
+import { SERVICE_CATEGORIES, SERVICE_COLORS } from "@/lib/types/booking";
+import { Select } from "@/components/ui/select";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,12 +46,30 @@ function ServiceForm({
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Select id="category" name="category" defaultValue={service?.category ?? "General"}>
+            {SERVICE_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </Select>
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="duration_minutes">Duration (min)</Label>
           <Input id="duration_minutes" name="duration_minutes" type="number" min={5} step={5} defaultValue={service?.duration_minutes ?? 30} required />
         </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="price">Price ($)</Label>
           <Input id="price" name="price" type="number" min={0} step={0.01} defaultValue={service?.price ?? 0} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="buffer_before_minutes">Buffer before (min)</Label>
+          <Input id="buffer_before_minutes" name="buffer_before_minutes" type="number" min={0} step={5} defaultValue={service?.buffer_before_minutes ?? 0} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="buffer_after_minutes">Buffer after (min)</Label>
+          <Input id="buffer_after_minutes" name="buffer_after_minutes" type="number" min={0} step={5} defaultValue={service?.buffer_after_minutes ?? 0} />
         </div>
       </div>
       <div className="space-y-2">
@@ -115,7 +134,9 @@ export function ServicesManager({ services }: { services: Service[] }) {
                     <span className="h-3 w-3 rounded-full" style={{ backgroundColor: service.color }} />
                     <div>
                       <h3 className="font-semibold">{service.name}</h3>
-                      <p className="text-sm text-muted-foreground">{service.duration_minutes} min · ${Number(service.price).toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {service.category ?? "General"} · {service.duration_minutes} min · ${Number(service.price).toFixed(2)}
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-1">
