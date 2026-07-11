@@ -1,29 +1,24 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SettingsManager } from "@/components/settings/settings-manager";
+import { PageHeader } from "@/components/ui/page-header";
+import { getOrCreateBusiness } from "@/lib/actions/business";
+import { getBusinessHours } from "@/lib/actions/business-hours";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Settings",
 };
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const business = await getOrCreateBusiness();
+  const hours = await getBusinessHours();
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-1 text-muted-foreground">
-          Manage your account and booking preferences.
-        </p>
-      </div>
-      <Card className="border-border/60">
-        <CardHeader>
-          <CardTitle>Coming in Phase 2</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Account and booking settings will be available in the next phase.
-          </p>
-        </CardContent>
-      </Card>
+      <PageHeader
+        title="Settings"
+        description="Configure your business profile, hours, and booking page."
+      />
+      <SettingsManager business={business} hours={hours} />
     </div>
   );
 }

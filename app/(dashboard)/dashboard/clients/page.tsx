@@ -1,29 +1,24 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CustomersManager } from "@/components/customers/customers-manager";
+import { PageHeader } from "@/components/ui/page-header";
+import { getOrCreateBusiness } from "@/lib/actions/business";
+import { getCustomers } from "@/lib/actions/customers";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Clients",
 };
 
-export default function ClientsPage() {
+export default async function ClientsPage() {
+  await getOrCreateBusiness();
+  const customers = await getCustomers();
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-        <p className="mt-1 text-muted-foreground">
-          View and manage your client directory.
-        </p>
-      </div>
-      <Card className="border-border/60">
-        <CardHeader>
-          <CardTitle>Coming in Phase 2</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Client management will be available in the next phase.
-          </p>
-        </CardContent>
-      </Card>
+      <PageHeader
+        title="Clients"
+        description="Your customer database — everyone who has booked with you."
+      />
+      <CustomersManager customers={customers} />
     </div>
   );
 }

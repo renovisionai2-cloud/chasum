@@ -7,11 +7,13 @@ import { DASHBOARD_NAV } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/actions/auth";
 import {
+  Briefcase,
   Calendar,
   LayoutDashboard,
   LogOut,
   Menu,
   Settings,
+  UserCog,
   Users,
   X,
 } from "lucide-react";
@@ -22,6 +24,8 @@ const iconMap = {
   "layout-dashboard": LayoutDashboard,
   calendar: Calendar,
   users: Users,
+  briefcase: Briefcase,
+  "user-cog": UserCog,
   settings: Settings,
 } as const;
 
