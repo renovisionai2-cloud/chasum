@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chasum
+
+AI-powered appointment booking SaaS — faster, cleaner, and easier to use.
+
+## Tech Stack
+
+- **Next.js 16** (App Router)
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Supabase** (Auth)
+- **Stripe** (Phase 2+)
+- **Vercel** (Deployment)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure environment
+
+Copy the example env file and add your Supabase credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+Set these values in `.env.local`:
+
+- `NEXT_PUBLIC_SUPABASE_URL` — from your [Supabase project settings](https://supabase.com/dashboard)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — from your Supabase project settings
+- `NEXT_PUBLIC_APP_URL` — `http://localhost:3000` for local dev
+
+### 3. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+  (marketing)/     # Landing page
+  (auth)/          # Login, signup, forgot password
+  (dashboard)/     # Protected dashboard routes
+components/
+  ui/              # Reusable UI primitives
+  landing/         # Marketing page sections
+  auth/            # Auth form components
+  dashboard/       # Dashboard layout & widgets
+  layout/          # Theme toggle, scripts
+lib/
+  supabase/        # Supabase client utilities
+  actions/         # Server actions
+  utils.ts         # Shared utilities
+providers/         # React context providers
+```
 
-## Learn More
+## Phase 1 (Complete)
 
-To learn more about Next.js, take a look at the following resources:
+- Beautiful landing page with hero, features, pricing, and CTA
+- Authentication (sign up, login, forgot password) via Supabase
+- Dashboard layout with sidebar navigation
+- Responsive mobile navigation
+- Dark / light mode with no flash on load
+- Reusable component library
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Phase 2 (Upcoming)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Appointment management
+- Booking pages
+- Calendar sync
+- Stripe billing
