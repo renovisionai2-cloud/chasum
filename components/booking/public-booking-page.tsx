@@ -1,7 +1,7 @@
 "use client";
 
 import { bookAppointment, getAvailableSlots } from "@/lib/actions/public-booking";
-import type { ActionState, Business, BusinessHours, Service, Staff } from "@/lib/types/booking";
+import type { ActionState, Business, BusinessHours, Service, StaffWithServices } from "@/lib/types/booking";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,10 +13,6 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Check, ChevronLeft, Clock } from "lucide-react";
 import { useActionState, useEffect, useState, useTransition } from "react";
-
-type StaffWithServices = Staff & {
-  staff_services: { service_id: string }[];
-};
 
 type BookingPageProps = {
   business: Business;

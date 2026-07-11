@@ -48,6 +48,15 @@ export type Staff = {
   updated_at: string;
 };
 
+export type StaffWithServices = Staff & {
+  staff_services: { service_id: string }[];
+};
+
+export type StaffScheduleMap = Record<
+  string,
+  { hours: StaffWorkingHours[]; vacations: StaffVacation[] }
+>;
+
 export type StaffWorkingHours = {
   id: string;
   staff_id: string;

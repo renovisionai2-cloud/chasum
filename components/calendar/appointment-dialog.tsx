@@ -17,16 +17,15 @@ import type {
   AppointmentWithRelations,
   Customer,
   Service,
-  Staff,
+  StaffWithServices,
 } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
+import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
+import { useFormAction } from "@/hooks/use-form-action";
+import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
 import { parseISO } from "@/lib/calendar/utils";
-import { useActionState, useEffect, useState } from "react";
-
-type StaffWithServices = Staff & {
-  staff_services: { service_id: string }[];
-};
+import { useActionState, useState } from "react";
 
 type AppointmentDialogProps = {
   open: boolean;
@@ -63,19 +62,15 @@ export function AppointmentDialog({
   const [selectedService, setSelectedService] = useState(
     appointment?.service_id ?? services[0]?.id ?? "",
   );
+  const { toast } = useToast();
+
+  useFormAction(state, onSuccess, onClose);
 
   const filteredStaff = staff.filter(
     (member) =>
       member.is_active &&
       member.staff_services.some((ss) => ss.service_id === selectedService),
   );
-
-  useEffect(() => {
-    if (state.success) {
-      onSuccess();
-      onClose();
-    }
-  }, [state.success, onSuccess, onClose]);
 
   const defaultStart = appointment
     ? parseISO(appointment.start_time)
@@ -84,9 +79,13 @@ export function AppointmentDialog({
   async function handleCancel() {
     if (!appointment) return;
     if (!confirm("Cancel this appointment?")) return;
-    await cancelAppointment(appointment.id);
-    onSuccess();
-    onClose();
+    const result = await cancelAppointment(appointment.id);
+    if (result.error) toast(result.error, "error");
+    else {
+      toast(result.success ?? "Appointment cancelled.", "success");
+      onSuccess();
+      onClose();
+    }
   }
 
   return (
@@ -209,11 +208,7 @@ export function AppointmentDialog({
           />
         </div>
 
-        {state.error && (
-          <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {state.error}
-          </div>
-        )}
+        <AlertMessage error={state.error} />
 
         <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-between">
           {isEditing && appointment.status !== "cancelled" && (
@@ -226,14 +221,7 @@ export function AppointmentDialog({
               Cancel appointment
             </Button>
           )}
-          <div className="flex gap-2 sm:ml-auto">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Close
-            </Button>
-            <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : isEditing ? "Save changes" : "Create"}
-            </Button>
-          </div>
+          <FormFooter onCancel={onClose} pending={pending} submitLabel={isEditing ? "Save changes" : "Create"} />
         </div>
       </form>
     </Dialog>

@@ -80,64 +80,39 @@ export async function bookAppointment(
   const start = parseISO(startTime);
   const end = addMinutes(start, service.duration_minutes);
 
-  let customerId: string;
+  const { data: customerId, error: customerError } = await supabase.rpc(
+    "upsert_booking_customer",
+    {
+      p_business_id: business.id,
+      p_name: customerName,
+      p_email: customerEmail,
+      p_phone: customerPhone,
+    },
+  );
 
-  const { data: existingCustomer } = await supabase
-    .from("customers")
-    .select("id")
-    .eq("business_id", business.id)
-    .eq("email", customerEmail)
-    .maybeSingle();
-
-  if (existingCustomer) {
-    customerId = existingCustomer.id;
-    await supabase
-      .from("customers")
-      .update({ name: customerName, phone: customerPhone })
-      .eq("id", customerId);
-  } else {
-    const { data: newCustomer, error: customerError } = await supabase
-      .from("customers")
-      .insert({
-        business_id: business.id,
-        name: customerName,
-        email: customerEmail,
-        phone: customerPhone,
-      })
-      .select("id")
-      .single();
-
-    if (customerError || !newCustomer) {
-      return { error: customerError?.message ?? "Failed to create customer." };
-    }
-    customerId = newCustomer.id;
+  if (customerError || !customerId) {
+    return { error: customerError?.message ?? "Failed to save customer details." };
   }
 
-  const { data: conflicts } = await supabase
-    .from("appointments")
-    .select("id")
-    .eq("business_id", business.id)
-    .eq("staff_id", staffId)
-    .neq("status", "cancelled")
-    .lt("start_time", end.toISOString())
-    .gt("end_time", start.toISOString());
+  const { error: appointmentError } = await supabase.rpc(
+    "create_public_appointment",
+    {
+      p_business_id: business.id,
+      p_service_id: serviceId,
+      p_staff_id: staffId,
+      p_customer_id: customerId,
+      p_start_time: start.toISOString(),
+      p_end_time: end.toISOString(),
+      p_notes: notes,
+    },
+  );
 
-  if (conflicts && conflicts.length > 0) {
-    return { error: "This time slot is no longer available." };
+  if (appointmentError) {
+    const message = appointmentError.message.includes("Time slot")
+      ? "This time slot is no longer available."
+      : appointmentError.message;
+    return { error: message };
   }
-
-  const { error } = await supabase.from("appointments").insert({
-    business_id: business.id,
-    service_id: serviceId,
-    staff_id: staffId,
-    customer_id: customerId,
-    start_time: start.toISOString(),
-    end_time: end.toISOString(),
-    status: "confirmed",
-    notes,
-  });
-
-  if (error) return { error: error.message };
 
   return {
     success: `Your ${service.name} appointment is confirmed for ${start.toLocaleString()}.`,

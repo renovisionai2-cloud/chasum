@@ -9,12 +9,13 @@ import {
 } from "@/components/calendar/calendar-views";
 import { EmptyState } from "@/components/ui/page-header";
 import { rescheduleAppointment } from "@/lib/actions/appointments";
+import { useToast } from "@/providers/toast-provider";
 import type {
   AppointmentWithRelations,
   CalendarView,
   Customer,
   Service,
-  Staff,
+  StaffWithServices,
 } from "@/lib/types/booking";
 import {
   endOfDay,
@@ -26,10 +27,6 @@ import {
 } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-
-type StaffWithServices = Staff & {
-  staff_services: { service_id: string }[];
-};
 
 type CalendarClientProps = {
   appointments: AppointmentWithRelations[];
@@ -66,6 +63,7 @@ export function CalendarClient({
   initialView,
 }: CalendarClientProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [view, setView] = useState<CalendarView>(initialView);
   const [date, setDate] = useState(new Date(initialDate));
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -95,9 +93,10 @@ export function CalendarClient({
       newStart.toISOString(),
     );
     if (result.error) {
-      alert(result.error);
+      toast(result.error, "error");
       return;
     }
+    toast(result.success ?? "Appointment rescheduled.", "success");
     refresh();
   }
 

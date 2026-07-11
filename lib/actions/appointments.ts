@@ -351,14 +351,12 @@ export async function getPublicAppointments(
 ) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("appointments")
-    .select("start_time, end_time, staff_id, status")
-    .eq("business_id", businessId)
-    .neq("status", "cancelled")
-    .gte("start_time", start)
-    .lte("start_time", end);
+  const { data, error } = await supabase.rpc("get_public_appointments", {
+    p_business_id: businessId,
+    p_start: start,
+    p_end: end,
+  });
 
   if (error) throw new Error(error.message);
-  return data;
+  return data ?? [];
 }

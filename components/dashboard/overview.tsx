@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState, PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDashboardStats, getAppointments } from "@/lib/actions/appointments";
@@ -102,9 +102,10 @@ export async function DashboardOverview() {
           </CardHeader>
           <CardContent>
             {todayAppts.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No appointments today.
-              </p>
+              <EmptyState
+                title="No appointments today"
+                description="Your schedule is clear. Open the calendar to add one."
+              />
             ) : (
               <div className="space-y-2">
                 {todayAppts.map((appt) => (

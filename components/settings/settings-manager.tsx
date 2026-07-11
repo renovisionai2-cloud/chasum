@@ -1,7 +1,10 @@
 "use client";
 
+import { WorkingHoursGrid } from "@/components/forms/working-hours-grid";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertMessage } from "@/components/ui/form-feedback";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -10,7 +13,6 @@ import {
   updateBusinessProfile,
 } from "@/lib/actions/business-hours";
 import type { ActionState, Business, BusinessHours } from "@/lib/types/booking";
-import { DAY_NAMES } from "@/lib/types/booking";
 import { TIMEZONES } from "@/lib/constants";
 import { getAppUrl } from "@/lib/env";
 import {
@@ -20,6 +22,8 @@ import {
 } from "@/lib/actions/holidays";
 import type { Holiday } from "@/lib/types/booking";
 import { Textarea } from "@/components/ui/textarea";
+import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { useToast } from "@/providers/toast-provider";
 import { Copy, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
@@ -30,6 +34,8 @@ function ProfileForm({ business }: { business: Business }) {
     {} as ActionState,
   );
   const bookingUrl = `${getAppUrl()}/book/${business.slug}`;
+
+  useFormAction(state);
 
   return (
     <Card className="border-border/60">
@@ -71,8 +77,7 @@ function ProfileForm({ business }: { business: Business }) {
               </Link>
             </div>
           </div>
-          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-          {state.success && <p className="text-sm text-success">{state.success}</p>}
+          <AlertMessage error={state.error} success={state.success} />
           <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save profile"}</Button>
         </form>
       </CardContent>
@@ -86,6 +91,8 @@ function HoursForm({ hours }: { hours: BusinessHours[] }) {
     {} as ActionState,
   );
 
+  useFormAction(state);
+
   return (
     <Card className="border-border/60">
       <CardHeader>
@@ -93,38 +100,8 @@ function HoursForm({ hours }: { hours: BusinessHours[] }) {
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-3">
-          {DAY_NAMES.map((dayName, day) => {
-            const dayHours = hours.find((h) => h.day_of_week === day);
-            return (
-              <div key={dayName} className="flex flex-col gap-2 rounded-xl border border-border p-3 sm:flex-row sm:items-center">
-                <label className="flex min-w-[120px] items-center gap-2 text-sm font-medium">
-                  <input
-                    type="checkbox"
-                    name={`day_${day}_open`}
-                    defaultChecked={dayHours?.is_open ?? (day >= 1 && day <= 5)}
-                  />
-                  {dayName}
-                </label>
-                <div className="flex flex-1 items-center gap-2">
-                  <Input
-                    type="time"
-                    name={`day_${day}_open_time`}
-                    defaultValue={dayHours?.open_time?.slice(0, 5) ?? "09:00"}
-                    className="flex-1"
-                  />
-                  <span className="text-muted-foreground">to</span>
-                  <Input
-                    type="time"
-                    name={`day_${day}_close_time`}
-                    defaultValue={dayHours?.close_time?.slice(0, 5) ?? "17:00"}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-            );
-          })}
-          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-          {state.success && <p className="text-sm text-success">{state.success}</p>}
+          <WorkingHoursGrid hours={hours} namePrefix="day" openField="open" />
+          <AlertMessage error={state.error} success={state.success} />
           <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save hours"}</Button>
         </form>
       </CardContent>
@@ -137,6 +114,8 @@ function BookingSettingsForm({ business }: { business: Business }) {
     updateBusinessSettings,
     {} as ActionState,
   );
+
+  useFormAction(state);
 
   return (
     <Card className="border-border/60">
@@ -163,8 +142,7 @@ function BookingSettingsForm({ business }: { business: Business }) {
             <Label htmlFor="cancellation_policy">Cancellation policy</Label>
             <Textarea id="cancellation_policy" name="cancellation_policy" placeholder="e.g. Cancel at least 24 hours before your appointment..." defaultValue={business.cancellation_policy ?? ""} />
           </div>
-          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-          {state.success && <p className="text-sm text-success">{state.success}</p>}
+          <AlertMessage error={state.error} success={state.success} />
           <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save settings"}</Button>
         </form>
       </CardContent>
@@ -174,6 +152,19 @@ function BookingSettingsForm({ business }: { business: Business }) {
 
 function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
   const [state, formAction, pending] = useActionState(createHoliday, {} as ActionState);
+  const refresh = useRefresh();
+  const { toast } = useToast();
+
+  useFormAction(state);
+
+  async function handleDelete(id: string) {
+    const result = await deleteHoliday(id);
+    if (result.error) toast(result.error, "error");
+    else {
+      toast(result.success ?? "Holiday removed.", "success");
+      refresh();
+    }
+  }
 
   return (
     <Card className="border-border/60">
@@ -181,23 +172,22 @@ function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
         <CardTitle>Holidays</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {holidays.length > 0 && (
+        {holidays.length > 0 ? (
           <ul className="space-y-2">
             {holidays.map((holiday) => (
-              <li key={holiday.id} className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm">
+              <li key={holiday.id} className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-2 text-sm">
                 <span>{holiday.name} — {holiday.date}</span>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive" onClick={async () => {
-                  await deleteHoliday(holiday.id);
-                  window.location.reload();
-                }}>
+                <IconButton label={`Remove ${holiday.name}`} className="text-destructive hover:text-destructive" onClick={() => handleDelete(holiday.id)}>
                   <Trash2 className="h-4 w-4" />
-                </Button>
+                </IconButton>
               </li>
             ))}
           </ul>
+        ) : (
+          <p className="text-sm text-muted-foreground">No holidays added yet.</p>
         )}
         <form action={formAction} className="space-y-3 border-t border-border pt-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="holiday_name">Holiday name</Label>
               <Input id="holiday_name" name="name" required />
@@ -210,9 +200,8 @@ function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="is_recurring" /> Recurring annually
           </label>
-          {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-          {state.success && <p className="text-sm text-success">{state.success}</p>}
-          <Button type="submit" size="sm" disabled={pending}>Add holiday</Button>
+          <AlertMessage error={state.error} success={state.success} />
+          <Button type="submit" size="sm" disabled={pending}>{pending ? "Adding..." : "Add holiday"}</Button>
         </form>
       </CardContent>
     </Card>

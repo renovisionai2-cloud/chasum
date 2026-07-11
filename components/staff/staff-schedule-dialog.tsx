@@ -1,7 +1,10 @@
 "use client";
 
+import { WorkingHoursGrid } from "@/components/forms/working-hours-grid";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { AlertMessage } from "@/components/ui/form-feedback";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,9 +18,10 @@ import type {
   StaffVacation,
   StaffWorkingHours,
 } from "@/lib/types/booking";
-import { DAY_NAMES } from "@/lib/types/booking";
+import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { useToast } from "@/providers/toast-provider";
 import { Trash2 } from "lucide-react";
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 
 type StaffScheduleDialogProps = {
   open: boolean;
@@ -25,7 +29,6 @@ type StaffScheduleDialogProps = {
   staff: Staff;
   workingHours: StaffWorkingHours[];
   vacations: StaffVacation[];
-  onSuccess: () => void;
 };
 
 export function StaffScheduleDialog({
@@ -34,7 +37,6 @@ export function StaffScheduleDialog({
   staff,
   workingHours,
   vacations,
-  onSuccess,
 }: StaffScheduleDialogProps) {
   const [hoursState, hoursAction, hoursPending] = useActionState(
     updateStaffWorkingHours,
@@ -44,10 +46,20 @@ export function StaffScheduleDialog({
     addStaffVacation,
     {} as ActionState,
   );
+  const refresh = useRefresh();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    if (hoursState.success || vacationState.success) onSuccess();
-  }, [hoursState.success, vacationState.success, onSuccess]);
+  useFormAction(hoursState);
+  useFormAction(vacationState);
+
+  async function handleDeleteVacation(id: string) {
+    const result = await deleteStaffVacation(id);
+    if (result.error) toast(result.error, "error");
+    else {
+      toast(result.success ?? "Vacation removed.", "success");
+      refresh();
+    }
+  }
 
   return (
     <Dialog
@@ -60,47 +72,32 @@ export function StaffScheduleDialog({
       <form action={hoursAction} className="mb-6 space-y-3">
         <input type="hidden" name="staff_id" value={staff.id} />
         <h3 className="text-sm font-semibold">Working hours</h3>
-        {DAY_NAMES.map((dayName, day) => {
-          const dayHours = workingHours.find((h) => h.day_of_week === day);
-          return (
-            <div key={dayName} className="flex flex-col gap-2 rounded-xl border border-border p-3 sm:flex-row sm:items-center">
-              <label className="flex min-w-[100px] items-center gap-2 text-sm">
-                <input type="checkbox" name={`day_${day}_working`} defaultChecked={dayHours?.is_working ?? (day >= 1 && day <= 5)} />
-                {dayName.slice(0, 3)}
-              </label>
-              <div className="flex flex-1 items-center gap-2">
-                <Input type="time" name={`day_${day}_start`} defaultValue={dayHours?.start_time?.slice(0, 5) ?? "09:00"} className="flex-1" />
-                <span className="text-muted-foreground">–</span>
-                <Input type="time" name={`day_${day}_end`} defaultValue={dayHours?.end_time?.slice(0, 5) ?? "17:00"} className="flex-1" />
-              </div>
-            </div>
-          );
-        })}
-        {hoursState.error && <p className="text-sm text-destructive">{hoursState.error}</p>}
-        {hoursState.success && <p className="text-sm text-success">{hoursState.success}</p>}
-        <Button type="submit" size="sm" disabled={hoursPending}>Save hours</Button>
+        <WorkingHoursGrid hours={workingHours} namePrefix="staff_day" openField="working" />
+        <AlertMessage error={hoursState.error} success={hoursState.success} />
+        <Button type="submit" size="sm" disabled={hoursPending}>
+          {hoursPending ? "Saving..." : "Save hours"}
+        </Button>
       </form>
 
       <div className="border-t border-border pt-4">
         <h3 className="mb-3 text-sm font-semibold">Vacation days</h3>
-        {vacations.length > 0 && (
+        {vacations.length > 0 ? (
           <ul className="mb-3 space-y-2">
             {vacations.map((v) => (
-              <li key={v.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm">
-                <span>{v.start_date} → {v.end_date}{v.reason ? ` (${v.reason})` : ""}</span>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive" onClick={async () => {
-                  await deleteStaffVacation(v.id);
-                  onSuccess();
-                }}>
+              <li key={v.id} className="flex items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm">
+                <span className="min-w-0 break-words">{v.start_date} → {v.end_date}{v.reason ? ` (${v.reason})` : ""}</span>
+                <IconButton label="Remove vacation" className="text-destructive hover:text-destructive" onClick={() => handleDeleteVacation(v.id)}>
                   <Trash2 className="h-3.5 w-3.5" />
-                </Button>
+                </IconButton>
               </li>
             ))}
           </ul>
+        ) : (
+          <p className="mb-3 text-sm text-muted-foreground">No vacation days scheduled.</p>
         )}
         <form action={vacationAction} className="space-y-3">
           <input type="hidden" name="staff_id" value={staff.id} />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="start_date">Start</Label>
               <Input id="start_date" name="start_date" type="date" required />
@@ -110,9 +107,11 @@ export function StaffScheduleDialog({
               <Input id="end_date" name="end_date" type="date" required />
             </div>
           </div>
-          <Input name="reason" placeholder="Reason (optional)" />
-          {vacationState.error && <p className="text-sm text-destructive">{vacationState.error}</p>}
-          <Button type="submit" size="sm" variant="outline" disabled={vacationPending}>Add vacation</Button>
+          <Input name="reason" placeholder="Reason (optional)" aria-label="Vacation reason" />
+          <AlertMessage error={vacationState.error} />
+          <Button type="submit" size="sm" variant="outline" disabled={vacationPending}>
+            {vacationPending ? "Adding..." : "Add vacation"}
+          </Button>
         </form>
       </div>
     </Dialog>

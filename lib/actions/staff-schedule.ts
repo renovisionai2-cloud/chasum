@@ -152,3 +152,47 @@ export async function getPublicStaffWorkingHours(staffId: string) {
   if (error) throw new Error(error.message);
   return data;
 }
+
+export async function getAllStaffSchedules(staffIds: string[]) {
+  if (staffIds.length === 0) return {};
+
+  const supabase = await createClient();
+
+  const [hoursRes, vacationsRes] = await Promise.all([
+    supabase
+      .from("staff_working_hours")
+      .select("*")
+      .in("staff_id", staffIds)
+      .order("day_of_week"),
+    supabase
+      .from("staff_vacations")
+      .select("*")
+      .in("staff_id", staffIds)
+      .order("start_date"),
+  ]);
+
+  if (hoursRes.error) throw new Error(hoursRes.error.message);
+  if (vacationsRes.error) throw new Error(vacationsRes.error.message);
+
+  const schedules: Record<
+    string,
+    {
+      hours: NonNullable<typeof hoursRes.data>;
+      vacations: NonNullable<typeof vacationsRes.data>;
+    }
+  > = {};
+
+  for (const id of staffIds) {
+    schedules[id] = { hours: [], vacations: [] };
+  }
+
+  for (const row of hoursRes.data ?? []) {
+    schedules[row.staff_id]?.hours.push(row);
+  }
+
+  for (const row of vacationsRes.data ?? []) {
+    schedules[row.staff_id]?.vacations.push(row);
+  }
+
+  return schedules;
+}

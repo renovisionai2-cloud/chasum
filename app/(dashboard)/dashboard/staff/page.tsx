@@ -3,10 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
-import {
-  getStaffVacations,
-  getStaffWorkingHours,
-} from "@/lib/actions/staff-schedule";
+import { getAllStaffSchedules } from "@/lib/actions/staff-schedule";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -16,18 +13,7 @@ export const metadata: Metadata = {
 export default async function StaffPage() {
   await getOrCreateBusiness();
   const [staff, services] = await Promise.all([getStaff(), getServices()]);
-
-  const scheduleEntries = await Promise.all(
-    staff.map(async (member) => {
-      const [hours, vacations] = await Promise.all([
-        getStaffWorkingHours(member.id),
-        getStaffVacations(member.id),
-      ]);
-      return [member.id, { hours, vacations }] as const;
-    }),
-  );
-
-  const schedules = Object.fromEntries(scheduleEntries);
+  const schedules = await getAllStaffSchedules(staff.map((member) => member.id));
 
   return (
     <div className="space-y-6">

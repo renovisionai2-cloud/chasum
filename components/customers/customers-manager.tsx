@@ -3,39 +3,36 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog } from "@/components/ui/dialog";
+import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/ui/page-header";
+import { TagBadge } from "@/components/ui/badge";
+import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import {
   createCustomer,
   deleteCustomer,
   updateCustomer,
 } from "@/lib/actions/customers";
 import type { ActionState, Customer } from "@/lib/types/booking";
-import { TagBadge } from "@/components/ui/badge";
+import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
 import { Mail, Pencil, Phone, Plus, Trash2 } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 
 function CustomerForm({
   customer,
   onClose,
-  onSuccess,
 }: {
   customer?: Customer;
   onClose: () => void;
-  onSuccess: () => void;
 }) {
   const action = customer ? updateCustomer : createCustomer;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
 
-  useEffect(() => {
-    if (state.success) {
-      onSuccess();
-      onClose();
-    }
-  }, [state.success, onSuccess, onClose]);
+  useFormAction(state, undefined, onClose);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -60,11 +57,8 @@ function CustomerForm({
         <Label htmlFor="notes">Notes</Label>
         <Textarea id="notes" name="notes" defaultValue={customer?.notes ?? ""} />
       </div>
-      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-        <Button type="submit" disabled={pending}>{pending ? "Saving..." : customer ? "Update" : "Add"}</Button>
-      </div>
+      <AlertMessage error={state.error} />
+      <FormFooter onCancel={onClose} pending={pending} submitLabel={customer ? "Update" : "Add"} />
     </form>
   );
 }
@@ -73,9 +67,17 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Customer | undefined>();
   const [search, setSearch] = useState("");
+  const refresh = useRefresh();
+  const { toast } = useToast();
 
-  function refresh() {
-    window.location.reload();
+  async function handleDelete(id: string, name: string) {
+    if (!(await confirmDelete(`Delete ${name}?`))) return;
+    const result = await deleteCustomer(id);
+    if (result.error) toast(result.error, "error");
+    else {
+      toast(result.success ?? "Client deleted.", "success");
+      refresh();
+    }
   }
 
   const filtered = customers.filter(
@@ -92,9 +94,10 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
+          aria-label="Search clients"
         />
         <Button onClick={() => { setEditing(undefined); setOpen(true); }}>
-          <Plus className="h-4 w-4" /> Add client
+          <Plus className="h-4 w-4" aria-hidden="true" /> Add client
         </Button>
       </div>
 
@@ -107,14 +110,14 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
         <div className="grid gap-3">
           {filtered.map((customer) => (
             <Card key={customer.id} className="border-border/60">
-              <CardContent className="flex items-center justify-between p-4">
-                <div>
+              <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                   <Link href={`/dashboard/clients/${customer.id}`} className="font-semibold hover:text-primary">
                     {customer.name}
                   </Link>
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />{customer.email}</span>
-                    {customer.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />{customer.phone}</span>}
+                    <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" aria-hidden="true" />{customer.email}</span>
+                    {customer.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" aria-hidden="true" />{customer.phone}</span>}
                   </div>
                   {customer.tags?.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
@@ -124,18 +127,13 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
                     </div>
                   )}
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { setEditing(customer); setOpen(true); }}>
+                <div className="flex shrink-0 gap-1">
+                  <IconButton label={`Edit ${customer.name}`} onClick={() => { setEditing(customer); setOpen(true); }}>
                     <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive" onClick={async () => {
-                    if (confirm("Delete this client?")) {
-                      await deleteCustomer(customer.id);
-                      refresh();
-                    }
-                  }}>
+                  </IconButton>
+                  <IconButton label={`Delete ${customer.name}`} className="text-destructive hover:text-destructive" onClick={() => handleDelete(customer.id, customer.name)}>
                     <Trash2 className="h-4 w-4" />
-                  </Button>
+                  </IconButton>
                 </div>
               </CardContent>
             </Card>
@@ -144,7 +142,7 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
       )}
 
       <Dialog open={open} onClose={() => setOpen(false)} title={editing ? "Edit client" : "Add client"}>
-        <CustomerForm customer={editing} onClose={() => setOpen(false)} onSuccess={refresh} />
+        <CustomerForm customer={editing} onClose={() => setOpen(false)} />
       </Dialog>
     </div>
   );
