@@ -58,26 +58,35 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 
 ---
 
-## Phase 3 — Monetization & Integrations 🔜 Planned
+## Phase 3 — Integrations & Communication ✅ Complete
 
-**Goal:** Revenue, external calendars, and automated communications.
+**Goal:** Calendar sync, email/SMS, automation, and developer platform.
 
-| Deliverable | Priority | Notes |
-|-------------|----------|-------|
-| Stripe subscriptions & billing | High | Free / Pro / Business tiers |
-| Stripe Connect for per-appointment payments | Medium | Optional add-on |
-| Google Calendar sync (two-way) | High | OAuth + webhook |
-| Outlook / Microsoft 365 sync | Medium | Graph API |
-| Email confirmations & reminders | High | Resend or SendGrid |
-| SMS reminders | Medium | Twilio |
-| `availability` table integration | Medium | Block/extra hours in slot engine |
-| Public catalog RLS via single RPC | High | Close cross-tenant enumeration gap |
-| Generated Supabase TypeScript types | Medium | Replace manual types |
-| Zod validation on server actions | Medium | Replace FormData casts |
+| Deliverable | Status |
+|-------------|--------|
+| Google Calendar OAuth + two-way sync | ✅ |
+| Outlook Calendar (Microsoft Graph) | ✅ |
+| Apple Calendar (.ics subscriptions) | ✅ |
+| Per-staff calendar connections | ✅ |
+| External calendar conflict detection | ✅ |
+| Email templates (confirm, reminder, cancel, reschedule) | ✅ |
+| Resend email provider (console fallback) | ✅ |
+| Twilio SMS provider (console fallback) | ✅ |
+| Notification center (in-app) | ✅ |
+| Background job queue + cron processor | ✅ |
+| Recurring appointments | ✅ |
+| Waitlist with auto-notify on cancellation | ✅ |
+| REST API v1 with API keys | ✅ |
+| Webhooks with HMAC signatures | ✅ |
+| Zapier / Make.com discovery endpoint | ✅ |
+| Developer dashboard UI | ✅ |
+| Migration `004_phase3_integrations.sql` | ✅ |
+
+**Prerequisite:** Run migration `004` and configure env vars (see `.env.example`).
 
 ---
 
-## Phase 4 — Growth & AI 🔮 Future
+## Phase 4 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
 
@@ -114,9 +123,9 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 
 | Version | Target | Scope |
 |---------|--------|-------|
-| `0.1.0` | Current | Phase 1 + 2 + architecture review |
-| `0.2.0` | Q3 2026 | Phase 3 core (Stripe + email) |
-| `0.3.0` | Q4 2026 | Calendar sync + SMS |
+| `0.1.0` | Shipped | Phase 1 + 2 + architecture review |
+| `0.2.0` | Current | Phase 3 integrations & communication |
+| `0.3.0` | Q4 2026 | Stripe billing + calendar webhooks |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

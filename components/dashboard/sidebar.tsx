@@ -7,11 +7,15 @@ import { DASHBOARD_NAV } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/actions/auth";
 import {
+  Bell,
   Briefcase,
   Calendar,
+  Code,
   LayoutDashboard,
   LogOut,
   Menu,
+  Plug,
+  Repeat,
   Settings,
   UserCog,
   Users,
@@ -26,6 +30,10 @@ const iconMap = {
   users: Users,
   briefcase: Briefcase,
   "user-cog": UserCog,
+  bell: Bell,
+  plug: Plug,
+  repeat: Repeat,
+  code: Code,
   settings: Settings,
 } as const;
 

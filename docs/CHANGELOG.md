@@ -9,14 +9,35 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Planned (Phase 3)
+### Planned (Phase 4)
 
 - Stripe subscriptions and billing
-- Google Calendar two-way sync
-- Email confirmations and reminders
-- SMS reminders via Twilio
+- AI scheduling assistant
 - Generated Supabase TypeScript types
 - Zod validation on server actions
+
+---
+
+## [0.2.0] — 2026-07-11
+
+Phase 3: Integrations & Communication platform.
+
+### Added
+
+- **Calendar:** Google OAuth, Outlook OAuth, Apple .ics feeds, per-staff connections, two-way sync, external conflict detection
+- **Email:** Resend provider with 6 reusable HTML templates; console fallback for dev
+- **SMS:** Twilio provider with reminder/cancel/reschedule messages; console fallback
+- **Notifications:** In-app notification center, delivery logs, orchestrator wired to all appointment lifecycle events
+- **Automation:** Recurring appointment rules, waitlist with auto-notify on cancellation
+- **Jobs:** `background_jobs` queue, cron processor (`/api/cron/process-jobs`), email/SMS/calendar/webhook queues
+- **Developer platform:** REST API v1, API key auth, webhooks with HMAC, Zapier/Make discovery endpoint
+- **Dashboard:** Integrations, Notifications, Automation, Developer pages
+- Migration `004_phase3_integrations.sql` (9 new tables)
+- `docs/REST_API.md` — complete API documentation
+
+### Dependencies
+
+- `resend`, `twilio`, `googleapis`, `ical-generator`, `zod`
 
 ---
 

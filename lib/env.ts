@@ -46,3 +46,50 @@ export function requireSupabaseEnv(): SupabaseEnv {
 
   return env;
 }
+
+export function getServiceRoleKey(): string | null {
+  return process.env.SUPABASE_SERVICE_ROLE_KEY ?? null;
+}
+
+export function requireServiceRoleKey(): string {
+  const key = getServiceRoleKey();
+  if (!key) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is required for background jobs.");
+  }
+  return key;
+}
+
+export function getCronSecret(): string | null {
+  return process.env.CRON_SECRET ?? null;
+}
+
+export function getResendApiKey(): string | null {
+  return process.env.RESEND_API_KEY ?? null;
+}
+
+export function getEmailFromAddress(): string {
+  return process.env.EMAIL_FROM ?? "Chasum <notifications@chasum.app>";
+}
+
+export function getTwilioConfig() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const phoneNumber = process.env.TWILIO_PHONE_NUMBER;
+  if (!accountSid || !authToken || !phoneNumber) return null;
+  return { accountSid, authToken, phoneNumber };
+}
+
+export function getGoogleOAuthConfig() {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+  return { clientId, clientSecret };
+}
+
+export function getMicrosoftOAuthConfig() {
+  const clientId = process.env.MICROSOFT_CLIENT_ID;
+  const clientSecret = process.env.MICROSOFT_CLIENT_SECRET;
+  const tenantId = process.env.MICROSOFT_TENANT_ID ?? "common";
+  if (!clientId || !clientSecret) return null;
+  return { clientId, clientSecret, tenantId };
+}

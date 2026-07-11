@@ -5,6 +5,9 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
+import { hasExternalCalendarConflict } from "@/lib/integrations/calendar/conflicts";
+import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchestrator";
+import { enqueueWaitlistNotification } from "@/lib/integrations/automation/waitlist";
 
 export async function getAppointments(start: string, end: string) {
   const business = await getOrCreateBusiness();
@@ -148,7 +151,15 @@ async function checkConflict(
   }
 
   const { data } = await query;
-  return (data?.length ?? 0) > 0;
+  if ((data?.length ?? 0) > 0) return true;
+
+  return hasExternalCalendarConflict(
+    businessId,
+    staffId,
+    startTime,
+    endTime,
+    excludeId,
+  );
 }
 
 export async function createAppointment(
@@ -193,7 +204,7 @@ export async function createAppointment(
     return { error: "This time slot conflicts with an existing appointment." };
   }
 
-  const { error } = await supabase.from("appointments").insert({
+  const { data: created, error } = await supabase.from("appointments").insert({
     business_id: business.id,
     service_id: serviceId,
     staff_id: staffId,
@@ -202,9 +213,13 @@ export async function createAppointment(
     end_time: endTime.toISOString(),
     notes,
     status: "pending",
-  });
+  }).select("id").single();
 
   if (error) return { error: error.message };
+
+  if (created?.id) {
+    await handleAppointmentEvent(created.id, "created");
+  }
 
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard");
@@ -268,6 +283,14 @@ export async function updateAppointment(
 
   if (error) return { error: error.message };
 
+  const event =
+    status === "cancelled"
+      ? "cancelled"
+      : status === "confirmed"
+        ? "confirmed"
+        : "updated";
+  await handleAppointmentEvent(id, event);
+
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard");
   return { success: "Appointment updated." };
@@ -284,6 +307,9 @@ export async function cancelAppointment(id: string): Promise<ActionState> {
     .eq("business_id", business.id);
 
   if (error) return { error: error.message };
+
+  await handleAppointmentEvent(id, "cancelled");
+  await enqueueWaitlistNotification(business.id, id);
 
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard");
@@ -338,6 +364,10 @@ export async function rescheduleAppointment(
     .eq("id", id);
 
   if (error) return { error: error.message };
+
+  await handleAppointmentEvent(id, "rescheduled", {
+    previousStartTime: appointment.start_time,
+  });
 
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard");

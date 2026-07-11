@@ -4,6 +4,10 @@ export const DASHBOARD_NAV = [
   { href: "/dashboard/clients", label: "Clients", icon: "users" },
   { href: "/dashboard/services", label: "Services", icon: "briefcase" },
   { href: "/dashboard/staff", label: "Staff", icon: "user-cog" },
+  { href: "/dashboard/notifications", label: "Notifications", icon: "bell" },
+  { href: "/dashboard/integrations", label: "Integrations", icon: "plug" },
+  { href: "/dashboard/automation", label: "Automation", icon: "repeat" },
+  { href: "/dashboard/developer", label: "Developer", icon: "code" },
   { href: "/dashboard/settings", label: "Settings", icon: "settings" },
 ] as const;
 

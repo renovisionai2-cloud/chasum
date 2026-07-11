@@ -94,7 +94,7 @@ export async function bookAppointment(
     return { error: customerError?.message ?? "Failed to save customer details." };
   }
 
-  const { error: appointmentError } = await supabase.rpc(
+  const { data: appointmentId, error: appointmentError } = await supabase.rpc(
     "create_public_appointment",
     {
       p_business_id: business.id,
@@ -112,6 +112,13 @@ export async function bookAppointment(
       ? "This time slot is no longer available."
       : appointmentError.message;
     return { error: message };
+  }
+
+  if (appointmentId) {
+    const { handleAppointmentEvent } = await import(
+      "@/lib/integrations/notifications/orchestrator"
+    );
+    await handleAppointmentEvent(appointmentId as string, "confirmed");
   }
 
   return {
