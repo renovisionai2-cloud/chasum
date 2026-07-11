@@ -4,8 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
 type Theme = "light" | "dark";
@@ -22,26 +21,37 @@ const ThemeContext = createContext<ThemeContextValue>({
   toggleTheme: () => {},
 });
 
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "light";
-  const stored = localStorage.getItem("chasum-theme");
+const STORAGE_KEY = "chasum-theme";
+
+function readTheme(): Theme {
+  const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "dark" || stored === "light") return stored;
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+function subscribeToTheme(callback: () => void) {
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  mediaQuery.addEventListener("change", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    mediaQuery.removeEventListener("change", callback);
+    window.removeEventListener("storage", callback);
+  };
+}
 
-  useEffect(() => {
-    setThemeState(getInitialTheme());
-  }, []);
+function useThemeSnapshot(): Theme {
+  return useSyncExternalStore(subscribeToTheme, readTheme, () => "light");
+}
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const theme = useThemeSnapshot();
 
   const setTheme = useCallback((next: Theme) => {
-    setThemeState(next);
-    localStorage.setItem("chasum-theme", next);
+    localStorage.setItem(STORAGE_KEY, next);
     document.documentElement.classList.toggle("dark", next === "dark");
+    window.dispatchEvent(new Event("storage"));
   }, []);
 
   const toggleTheme = useCallback(() => {

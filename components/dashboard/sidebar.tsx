@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 const iconMap = {
   "layout-dashboard": LayoutDashboard,
@@ -97,60 +96,105 @@ export function DashboardSidebar({
   );
 }
 
-export function DashboardHeader({ userEmail }: { userEmail?: string }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+export function getPageTitle(pathname: string): string {
+  const match = DASHBOARD_NAV.find(
+    (item) =>
+      pathname === item.href ||
+      (item.href !== "/dashboard" && pathname.startsWith(item.href)),
+  );
+  return match?.label ?? "Dashboard";
+}
+
+function UserBadge({ email }: { email?: string }) {
+  const initial = email?.charAt(0).toUpperCase() ?? "?";
 
   return (
-    <>
-      <header className="flex h-16 items-center justify-between border-b border-border bg-card px-4 md:px-6 lg:hidden">
-        <Logo showText={false} />
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
+    <div className="flex items-center gap-3">
+      <div className="hidden text-right sm:block">
+        <p className="text-sm font-medium text-foreground">Account</p>
+        <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+          {email}
+        </p>
+      </div>
+      <div
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground"
+        aria-hidden="true"
+      >
+        {initial}
+      </div>
+    </div>
+  );
+}
+
+type DashboardTopNavProps = {
+  userEmail?: string;
+  onMenuOpen?: () => void;
+};
+
+export function DashboardTopNav({
+  userEmail,
+  onMenuOpen,
+}: DashboardTopNavProps) {
+  const pathname = usePathname();
+  const pageTitle = getPageTitle(pathname);
+
+  return (
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-card/80 px-4 backdrop-blur-xl md:px-6">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-9 w-9 shrink-0 p-0 lg:hidden"
+          onClick={onMenuOpen}
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <div className="lg:hidden">
+          <Logo showText={false} />
+        </div>
+        <h1 className="truncate text-base font-semibold tracking-tight text-foreground sm:text-lg lg:text-lg">
+          {pageTitle}
+        </h1>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <UserBadge email={userEmail} />
+      </div>
+    </header>
+  );
+}
+
+type MobileSidebarProps = {
+  open: boolean;
+  userEmail?: string;
+  onClose: () => void;
+};
+
+export function MobileSidebar({ open, userEmail, onClose }: MobileSidebarProps) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="absolute inset-y-0 left-0 w-64 shadow-xl">
+        <div className="absolute right-3 top-3 z-10">
           <Button
             variant="ghost"
             size="sm"
             className="h-9 w-9 p-0"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open menu"
+            onClick={onClose}
+            aria-label="Close menu"
           >
-            <Menu className="h-5 w-5" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
-      </header>
-
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="absolute inset-y-0 left-0 w-64 shadow-xl">
-            <div className="absolute right-3 top-3 z-10">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-9 w-9 p-0"
-                onClick={() => setMobileOpen(false)}
-                aria-label="Close menu"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            <DashboardSidebar
-              userEmail={userEmail}
-              onNavigate={() => setMobileOpen(false)}
-            />
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-export function DashboardDesktopHeader() {
-  return (
-    <header className="hidden h-16 items-center justify-end gap-2 border-b border-border bg-card px-6 lg:flex">
-      <ThemeToggle />
-    </header>
+        <DashboardSidebar userEmail={userEmail} onNavigate={onClose} />
+      </div>
+    </div>
   );
 }

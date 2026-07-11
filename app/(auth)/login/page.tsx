@@ -11,11 +11,12 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams: Promise<{ redirect?: string }>;
+  searchParams: Promise<{ redirect?: string; error?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: PageProps) {
-  const { redirect: redirectTo } = await searchParams;
+  const { redirect: redirectTo, error } = await searchParams;
+  const supabaseNotConfigured = error === "supabase_not_configured";
 
   return (
     <AuthForm
@@ -24,6 +25,15 @@ export default async function LoginPage({ searchParams }: PageProps) {
       action={signIn}
       submitLabel="Sign in"
       hiddenFields={redirectTo ? { redirect: redirectTo } : undefined}
+      alert={
+        supabaseNotConfigured ? (
+          <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            Supabase is not configured. Add your credentials to{" "}
+            <code className="text-xs">.env.local</code> to enable
+            authentication.
+          </div>
+        ) : undefined
+      }
       footer={
         <>
           <AuthLink href="/forgot-password">Forgot your password?</AuthLink>

@@ -23,6 +23,7 @@ type AuthFormProps = {
   children?: React.ReactNode;
   footer?: React.ReactNode;
   hiddenFields?: Record<string, string>;
+  alert?: React.ReactNode;
 };
 
 export function AuthForm({
@@ -33,6 +34,7 @@ export function AuthForm({
   children,
   footer,
   hiddenFields,
+  alert,
 }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, {});
 
@@ -43,6 +45,7 @@ export function AuthForm({
       </div>
 
       <Card className="w-full max-w-md border-border/60 shadow-lg shadow-black/5 dark:shadow-black/20">
+        {alert && <div className="px-6 pt-6">{alert}</div>}
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
