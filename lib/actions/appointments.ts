@@ -2,7 +2,12 @@
 
 import { addMinutes, parseISO } from "date-fns";
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import {
+  getActiveLocationId,
+  getLocationScope,
+} from "@/lib/actions/location";
 import { validateAppointmentSlot } from "@/lib/actions/scheduling";
+import { withLocationFilter } from "@/lib/location/constants";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -22,16 +27,18 @@ function parseAppointmentStart(formData: FormData): Date | null {
 
 export async function getAppointments(start: string, end: string) {
   const business = await getOrCreateBusiness();
+  const scope = await getLocationScope();
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("appointments")
     .select(
       `
       *,
       service:services(id, name, color, duration_minutes, buffer_before_minutes, buffer_after_minutes),
       staff:staff(id, name, color, photo_url),
-      customer:customers(id, name, email, phone)
+      customer:customers(id, name, email, phone),
+      location:locations(id, name)
     `,
     )
     .eq("business_id", business.id)
@@ -39,12 +46,17 @@ export async function getAppointments(start: string, end: string) {
     .lte("start_time", end)
     .order("start_time");
 
+  query = withLocationFilter(query, scope);
+
+  const { data, error } = await query;
+
   if (error) throw new Error(error.message);
   return data;
 }
 
 export async function getDashboardStats() {
   const business = await getOrCreateBusiness();
+  const scope = await getLocationScope();
   const supabase = await createClient();
 
   const now = new Date();
@@ -63,18 +75,26 @@ export async function getDashboardStats() {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
+  function appointmentFilter() {
+    return scope.mode === "single"
+      ? { business_id: business.id, location_id: scope.locationId }
+      : { business_id: business.id };
+  }
+
+  const apptFilter = appointmentFilter();
+
   const [todayRes, weekRes, customersRes, upcomingRes, todayApptsRes, newCustomersRes, revenueRes] = await Promise.all([
     supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
-      .eq("business_id", business.id)
+      .match(apptFilter)
       .neq("status", "cancelled")
       .gte("start_time", todayStart.toISOString())
       .lte("start_time", todayEnd.toISOString()),
     supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
-      .eq("business_id", business.id)
+      .match(apptFilter)
       .neq("status", "cancelled")
       .gte("start_time", weekStart.toISOString())
       .lte("start_time", weekEnd.toISOString()),
@@ -84,18 +104,16 @@ export async function getDashboardStats() {
       .eq("business_id", business.id),
     supabase
       .from("appointments")
-      .select(
-        `*, service:services(name), customer:customers(name)`,
-      )
-      .eq("business_id", business.id)
+      .select(`*, service:services(name), customer:customers(name), location:locations(name)`)
+      .match(apptFilter)
       .neq("status", "cancelled")
       .gte("start_time", now.toISOString())
       .order("start_time")
       .limit(5),
     supabase
       .from("appointments")
-      .select(`*, service:services(name, color, price), customer:customers(name), staff:staff(name)`)
-      .eq("business_id", business.id)
+      .select(`*, service:services(name, color, price), customer:customers(name), staff:staff(name), location:locations(name)`)
+      .match(apptFilter)
       .neq("status", "cancelled")
       .gte("start_time", todayStart.toISOString())
       .lte("start_time", todayEnd.toISOString())
@@ -110,7 +128,7 @@ export async function getDashboardStats() {
     supabase
       .from("appointments")
       .select("service:services(price)")
-      .eq("business_id", business.id)
+      .match(apptFilter)
       .eq("status", "completed")
       .gte("start_time", monthStart.toISOString())
       .lte("start_time", monthEnd.toISOString()),
@@ -144,6 +162,7 @@ export async function createAppointment(
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
+  const locationId = await getActiveLocationId();
   const supabase = await createClient();
 
   const serviceId = formData.get("service_id") as string;
@@ -176,6 +195,7 @@ export async function createAppointment(
     staffId,
     startTime: startTime.toISOString(),
     endTime: endTime.toISOString(),
+    locationId,
   });
 
   if (!validation.ok) {
@@ -184,6 +204,7 @@ export async function createAppointment(
 
   const { data: created, error } = await supabase.from("appointments").insert({
     business_id: business.id,
+    location_id: locationId,
     service_id: serviceId,
     staff_id: staffId,
     customer_id: customerId,
@@ -233,6 +254,15 @@ export async function updateAppointment(
 
   const endTime = addMinutes(startTime, service.duration_minutes);
 
+  const { data: existing } = await supabase
+    .from("appointments")
+    .select("location_id")
+    .eq("id", id)
+    .eq("business_id", business.id)
+    .single();
+
+  if (!existing) return { error: "Appointment not found." };
+
   if (status !== "cancelled") {
     const validation = await validateAppointmentSlot({
       businessId: business.id,
@@ -241,6 +271,7 @@ export async function updateAppointment(
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       excludeAppointmentId: id,
+      locationId: existing.location_id,
     });
 
     if (!validation.ok) {
@@ -329,6 +360,7 @@ export async function rescheduleAppointment(
     startTime: startTime.toISOString(),
     endTime: endTime.toISOString(),
     excludeAppointmentId: id,
+    locationId: appointment.location_id,
   });
 
   if (!validation.ok) {

@@ -11,8 +11,9 @@ export async function getAvailableSlots(
   serviceId: string,
   staffId: string,
   date: string,
+  locationId?: string,
 ) {
-  return getPublicAvailableSlots(slug, serviceId, staffId, date);
+  return getPublicAvailableSlots(slug, serviceId, staffId, date, locationId);
 }
 
 export async function bookAppointment(
@@ -20,6 +21,7 @@ export async function bookAppointment(
   formData: FormData,
 ): Promise<ActionState> {
   const slug = formData.get("slug") as string;
+  const locationId = (formData.get("location_id") as string) || null;
   const serviceId = formData.get("service_id") as string;
   const staffId = formData.get("staff_id") as string;
   const startTime = formData.get("start_time") as string;
@@ -74,6 +76,7 @@ export async function bookAppointment(
       p_start_time: start.toISOString(),
       p_end_time: end.toISOString(),
       p_notes: notes,
+      p_location_id: locationId,
     },
   );
 

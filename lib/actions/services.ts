@@ -1,19 +1,29 @@
 "use server";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import {
+  getActiveLocationId,
+  getLocationScope,
+} from "@/lib/actions/location";
+import { withLocationFilter } from "@/lib/location/constants";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
 
 export async function getServices() {
   const business = await getOrCreateBusiness();
+  const scope = await getLocationScope();
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("services")
     .select("*")
     .eq("business_id", business.id)
     .order("name");
+
+  query = withLocationFilter(query, scope);
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
   return data;
@@ -24,6 +34,7 @@ export async function createService(
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
+  const locationId = await getActiveLocationId();
   const supabase = await createClient();
 
   const name = formData.get("name") as string;
@@ -43,6 +54,7 @@ export async function createService(
 
   const { error } = await supabase.from("services").insert({
     business_id: business.id,
+    location_id: locationId,
     name: name.trim(),
     description,
     category,
@@ -107,15 +119,24 @@ export async function deleteService(id: string): Promise<ActionState> {
   return { success: "Service deleted." };
 }
 
-export async function getPublicServices(businessId: string) {
+export async function getPublicServices(
+  businessId: string,
+  locationId?: string,
+) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("services")
     .select("*")
     .eq("business_id", businessId)
     .eq("is_active", true)
     .order("name");
+
+  if (locationId) {
+    query = query.eq("location_id", locationId);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
   return data;

@@ -10,17 +10,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import {
-  updateBusinessHours,
-  updateBusinessProfile,
-} from "@/lib/actions/business-hours";
-import type { ActionState, Availability, Business, BusinessHours, Holiday, Staff } from "@/lib/types/booking";
+  updateLocationHours,
+  updateLocationSettings,
+} from "@/lib/actions/location";
+import type { LocationScope } from "@/lib/location/constants";
+import type {
+  ActionState,
+  Availability,
+  Business,
+  Holiday,
+  LocationHours,
+  LocationSettings,
+  LocationWithSettings,
+  Staff,
+} from "@/lib/types/booking";
 import { TIMEZONES } from "@/lib/constants";
 import { getAppUrl } from "@/lib/env";
 import {
   createHoliday,
   deleteHoliday,
-  updateBusinessSettings,
 } from "@/lib/actions/holidays";
+import { updateBusinessProfile } from "@/lib/actions/business-hours";
 import { Textarea } from "@/components/ui/textarea";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
@@ -85,9 +95,9 @@ function ProfileForm({ business }: { business: Business }) {
   );
 }
 
-function HoursForm({ hours }: { hours: BusinessHours[] }) {
+function HoursForm({ hours, locationName }: { hours: LocationHours[]; locationName: string }) {
   const [state, formAction, pending] = useActionState(
-    updateBusinessHours,
+    updateLocationHours,
     {} as ActionState,
   );
 
@@ -96,7 +106,8 @@ function HoursForm({ hours }: { hours: BusinessHours[] }) {
   return (
     <Card className="border-border/60">
       <CardHeader>
-        <CardTitle>Business hours</CardTitle>
+        <CardTitle>Location hours</CardTitle>
+        <p className="text-sm text-muted-foreground">{locationName}</p>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-3">
@@ -109,9 +120,15 @@ function HoursForm({ hours }: { hours: BusinessHours[] }) {
   );
 }
 
-function BookingSettingsForm({ business }: { business: Business }) {
+function BookingSettingsForm({
+  settings,
+  locationName,
+}: {
+  settings: LocationSettings;
+  locationName: string;
+}) {
   const [state, formAction, pending] = useActionState(
-    updateBusinessSettings,
+    updateLocationSettings,
     {} as ActionState,
   );
 
@@ -121,26 +138,27 @@ function BookingSettingsForm({ business }: { business: Business }) {
     <Card className="border-border/60">
       <CardHeader>
         <CardTitle>Booking settings</CardTitle>
+        <p className="text-sm text-muted-foreground">{locationName}</p>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="appointment_interval_minutes">Appointment interval (min)</Label>
-              <Input id="appointment_interval_minutes" name="appointment_interval_minutes" type="number" min={5} step={5} defaultValue={business.appointment_interval_minutes ?? 30} />
+              <Input id="appointment_interval_minutes" name="appointment_interval_minutes" type="number" min={5} step={5} defaultValue={settings.appointment_interval_minutes ?? 30} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="booking_limit_days">Booking limit (days ahead)</Label>
-              <Input id="booking_limit_days" name="booking_limit_days" type="number" min={1} defaultValue={business.booking_limit_days ?? 60} />
+              <Input id="booking_limit_days" name="booking_limit_days" type="number" min={1} defaultValue={settings.booking_limit_days ?? 60} />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="max_daily_bookings">Max daily bookings (optional)</Label>
-            <Input id="max_daily_bookings" name="max_daily_bookings" type="number" min={1} defaultValue={business.max_daily_bookings ?? ""} />
+            <Input id="max_daily_bookings" name="max_daily_bookings" type="number" min={1} defaultValue={settings.max_daily_bookings ?? ""} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="cancellation_policy">Cancellation policy</Label>
-            <Textarea id="cancellation_policy" name="cancellation_policy" placeholder="e.g. Cancel at least 24 hours before your appointment..." defaultValue={business.cancellation_policy ?? ""} />
+            <Textarea id="cancellation_policy" name="cancellation_policy" placeholder="e.g. Cancel at least 24 hours before your appointment..." defaultValue={settings.cancellation_policy ?? ""} />
           </div>
           <AlertMessage error={state.error} success={state.success} />
           <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save settings"}</Button>
@@ -200,6 +218,9 @@ function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="is_recurring" /> Recurring annually
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="business_wide" /> Apply to all locations
+          </label>
           <AlertMessage error={state.error} success={state.success} />
           <Button type="submit" size="sm" disabled={pending}>{pending ? "Adding..." : "Add holiday"}</Button>
         </form>
@@ -210,24 +231,38 @@ function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
 
 export function SettingsManager({
   business,
-  hours,
+  location,
+  locationScope,
   holidays,
   availabilityBlocks,
   staff,
 }: {
   business: Business;
-  hours: BusinessHours[];
+  location: LocationWithSettings;
+  locationScope: LocationScope;
   holidays: Holiday[];
   availabilityBlocks: Availability[];
   staff: Staff[];
 }) {
+  const scopeNote =
+    locationScope.mode === "all"
+      ? "Showing settings for your default location. Switch to a specific location in the header to edit another site."
+      : null;
+
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <ProfileForm business={business} />
-      <HoursForm hours={hours} />
-      <BookingSettingsForm business={business} />
-      <HolidaysForm holidays={holidays} />
-      <AvailabilityBlocksForm blocks={availabilityBlocks} staff={staff} />
+    <div className="space-y-4">
+      {scopeNote && (
+        <p className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+          {scopeNote}
+        </p>
+      )}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ProfileForm business={business} />
+        <HoursForm hours={location.hours} locationName={location.name} />
+        <BookingSettingsForm settings={location.settings} locationName={location.name} />
+        <HolidaysForm holidays={holidays} />
+        <AvailabilityBlocksForm blocks={availabilityBlocks} staff={staff} />
+      </div>
     </div>
   );
 }

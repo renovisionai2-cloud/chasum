@@ -1,6 +1,7 @@
 "use server";
 
-import { getOrCreateBusiness, getBusinessBySlug } from "@/lib/actions/business";
+import { getOrCreateBusiness } from "@/lib/actions/business";
+import { getActiveLocationId, getLocationScope } from "@/lib/actions/location";
 import { createClient } from "@/lib/supabase/server";
 
 /** Single RPC entry point for all slot queries — public and dashboard share this. */
@@ -10,6 +11,7 @@ export async function fetchAvailableSlots(
   staffId: string,
   date: string,
   excludeAppointmentId?: string,
+  locationId?: string,
 ): Promise<string[]> {
   const supabase = await createClient();
 
@@ -19,6 +21,7 @@ export async function fetchAvailableSlots(
     p_staff_id: staffId,
     p_date: date,
     p_exclude_appointment_id: excludeAppointmentId ?? null,
+    p_location_id: locationId ?? null,
   });
 
   if (error) throw new Error(error.message);
@@ -32,12 +35,14 @@ export async function getDashboardAvailableSlots(
   excludeAppointmentId?: string,
 ): Promise<string[]> {
   const business = await getOrCreateBusiness();
+  const locationId = await getActiveLocationId();
   return fetchAvailableSlots(
     business.id,
     serviceId,
     staffId,
     date,
     excludeAppointmentId,
+    locationId,
   );
 }
 
@@ -46,10 +51,19 @@ export async function getPublicAvailableSlots(
   serviceId: string,
   staffId: string,
   date: string,
+  locationId?: string,
 ): Promise<string[]> {
+  const { getBusinessBySlug } = await import("@/lib/actions/business");
   const business = await getBusinessBySlug(slug);
   if (!business) return [];
-  return fetchAvailableSlots(business.id, serviceId, staffId, date);
+  return fetchAvailableSlots(
+    business.id,
+    serviceId,
+    staffId,
+    date,
+    undefined,
+    locationId,
+  );
 }
 
 export async function validateAppointmentSlot(params: {
@@ -59,6 +73,7 @@ export async function validateAppointmentSlot(params: {
   startTime: string;
   endTime: string;
   excludeAppointmentId?: string;
+  locationId?: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await createClient();
 
@@ -69,6 +84,7 @@ export async function validateAppointmentSlot(params: {
     p_start_time: params.startTime,
     p_end_time: params.endTime,
     p_exclude_appointment_id: params.excludeAppointmentId ?? null,
+    p_location_id: params.locationId ?? null,
   });
 
   if (error) {
@@ -79,4 +95,8 @@ export async function validateAppointmentSlot(params: {
   }
 
   return { ok: true };
+}
+
+export async function getDashboardLocationScope() {
+  return getLocationScope();
 }

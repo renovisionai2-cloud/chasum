@@ -1,5 +1,7 @@
 # Chasum Roadmap
 
+> **Product docs:** Strategy, north star, backlog, and release plan live in [`product/`](./product/).
+
 Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for modern businesses. This document outlines completed phases and planned work.
 
 ---
@@ -112,12 +114,35 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 
 ---
 
-## Phase 5 — Monetization & AI 🔜 Planned
+## Phase 5 — Multi-Location Foundation ✅ Shipped
+
+**Goal:** Support multiple physical sites per business without breaking single-location tenants.
+
+| Deliverable | Status |
+|-------------|--------|
+| `locations`, `location_settings`, `location_hours` tables | ✅ |
+| `subscription_plans` + `can_add_location()` (config-driven limits) | ✅ |
+| `location_id` on staff, services, appointments, availability | ✅ |
+| Default location backfill for existing businesses | ✅ |
+| Scheduling RPCs with `p_location_id` | ✅ |
+| Dashboard location switcher + Add Location | ✅ |
+| Location-scoped settings, calendar, staff, services, reports | ✅ |
+| Shared customers across locations | ✅ |
+| Public booking location picker + `?location=` slug | ✅ |
+| Migrations `008`, `009` | ✅ |
+| Verification script (`scripts/verify-phase5-multi-location.mjs`) | ✅ |
+
+**Verify:** `node scripts/verify-phase5-multi-location.mjs`
+
+---
+
+## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
 
 | Deliverable | Notes |
 |-------------|-------|
+| Stripe billing (wire `subscription_plans` to payments) | Plan limits already in DB |
 | AI scheduling assistant | Natural-language booking, smart slot suggestions |
 | Multi-staff login & roles | Owner, admin, staff permissions |
 | Team inbox & notifications | Real-time appointment alerts |
@@ -128,6 +153,10 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 | Mobile app (React Native) | Staff-facing mobile calendar |
 
 ---
+
+## Phase 5 (legacy roadmap — Monetization) — superseded
+
+The product roadmap renumbered monetization to Phase 6 after multi-location was prioritized. See [`docs/product/03_PRODUCT_ROADMAP.md`](./product/03_PRODUCT_ROADMAP.md).
 
 ## Phase 4 (legacy roadmap items, deferred)
 

@@ -153,6 +153,26 @@ async function main() {
 
   const testDate = nextWeekdayDate(8);
 
+  let { data: defaultLocation } = await supabase
+    .from("locations")
+    .select("id")
+    .eq("business_id", business.id)
+    .eq("is_default", true)
+    .maybeSingle();
+
+  if (!defaultLocation) {
+    const { data: locationId, error: locError } = await supabase.rpc(
+      "create_default_location",
+      { p_business_id: business.id },
+    );
+    if (locError || !locationId) {
+      fail("Ensure default location", locError?.message ?? "missing location");
+      process.exit(1);
+    }
+    defaultLocation = { id: locationId };
+  }
+  pass("Default location ready", defaultLocation.id);
+
   const { data: hours } = await supabase
     .from("business_hours")
     .select("*")
@@ -172,6 +192,7 @@ async function main() {
     .insert(
       serviceNames.map((name, i) => ({
         business_id: business.id,
+        location_id: defaultLocation.id,
         name,
         duration_minutes: 30 + i * 15,
         price: 50 + i * 25,
@@ -191,11 +212,13 @@ async function main() {
     .insert([
       {
         business_id: business.id,
+        location_id: defaultLocation.id,
         name: `P4 Staff One ${suffix}`,
         is_active: true,
       },
       {
         business_id: business.id,
+        location_id: defaultLocation.id,
         name: `P4 Staff Two ${suffix}`,
         is_active: true,
       },
@@ -241,6 +264,7 @@ async function main() {
 
   const { error: blockError } = await supabase.from("availability").insert({
     business_id: business.id,
+    location_id: defaultLocation.id,
     staff_id: staffOne.id,
     start_time: blockStart,
     end_time: blockEnd,

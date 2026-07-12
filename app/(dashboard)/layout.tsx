@@ -2,6 +2,11 @@ export const dynamic = "force-dynamic";
 
 import { DashboardShell } from "@/components/dashboard/shell";
 import { getSupabaseEnv } from "@/lib/env";
+import {
+  getLocationQuota,
+  getLocationScope,
+  getLocations,
+} from "@/lib/actions/location";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -23,8 +28,19 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const [locations, locationScope, locationQuota] = await Promise.all([
+    getLocations(),
+    getLocationScope(),
+    getLocationQuota(),
+  ]);
+
   return (
-    <DashboardShell userEmail={user.email ?? undefined}>
+    <DashboardShell
+      userEmail={user.email ?? undefined}
+      locations={locations}
+      locationScope={locationScope}
+      locationQuota={locationQuota}
+    >
       {children}
     </DashboardShell>
   );

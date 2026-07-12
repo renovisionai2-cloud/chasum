@@ -1,0 +1,56 @@
+-- One-time deduplication of businesses created by concurrent getOrCreateBusiness().
+-- Keeps the oldest row per owner_id; deletes newer duplicates for the same owner.
+--
+-- SAFE WHEN duplicates only contain default business_hours (auto-seeded on create).
+-- Review scripts/cleanup-duplicate-businesses.mjs dry-run output before applying.
+--
+-- To apply manually in Supabase SQL editor:
+--   1. Run the preview query below.
+--   2. Confirm no duplicate row has services, staff, customers, or appointments.
+--   3. Uncomment and run the DELETE block.
+
+-- Preview rows that would be removed
+-- select b.id, b.owner_id, b.slug, b.name, b.created_at
+-- from businesses b
+-- join (
+--   select owner_id, min(created_at) as keep_created_at
+--   from businesses
+--   group by owner_id
+--   having count(*) > 1
+-- ) d on d.owner_id = b.owner_id and b.created_at > d.keep_created_at
+-- order by b.owner_id, b.created_at;
+
+-- Preview operational data on duplicate rows (must all be zero before delete)
+-- select 'services' as tbl, business_id, count(*) from services
+-- where business_id in (
+--   select b.id from businesses b
+--   join (
+--     select owner_id, min(created_at) as keep_created_at
+--     from businesses group by owner_id having count(*) > 1
+--   ) d on d.owner_id = b.owner_id and b.created_at > d.keep_created_at
+-- ) group by business_id
+-- union all
+-- select 'appointments', business_id, count(*) from appointments
+-- where business_id in (
+--   select b.id from businesses b
+--   join (
+--     select owner_id, min(created_at) as keep_created_at
+--     from businesses group by owner_id having count(*) > 1
+--   ) d on d.owner_id = b.owner_id and b.created_at > d.keep_created_at
+-- ) group by business_id;
+
+-- DELETE FROM businesses b
+-- WHERE b.id IN (
+--   SELECT b2.id
+--   FROM businesses b2
+--   JOIN (
+--     SELECT owner_id, MIN(created_at) AS keep_created_at
+--     FROM businesses
+--     GROUP BY owner_id
+--     HAVING COUNT(*) > 1
+--   ) d ON d.owner_id = b2.owner_id AND b2.created_at > d.keep_created_at
+-- )
+-- AND NOT EXISTS (SELECT 1 FROM services s WHERE s.business_id = b.id)
+-- AND NOT EXISTS (SELECT 1 FROM staff st WHERE st.business_id = b.id)
+-- AND NOT EXISTS (SELECT 1 FROM customers c WHERE c.business_id = b.id)
+-- AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.business_id = b.id);

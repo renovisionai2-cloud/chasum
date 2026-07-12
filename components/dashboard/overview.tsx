@@ -4,6 +4,7 @@ import { EmptyState, PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDashboardStats, getAppointments } from "@/lib/actions/appointments";
+import { getLocationScope } from "@/lib/actions/location";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { format, startOfDay, endOfDay } from "date-fns";
 import {
@@ -18,6 +19,7 @@ import Link from "next/link";
 
 export async function DashboardOverview() {
   const business = await getOrCreateBusiness();
+  const locationScope = await getLocationScope();
   const stats = await getDashboardStats();
   const now = new Date();
   const todayAppts = await getAppointments(
@@ -60,11 +62,16 @@ export async function DashboardOverview() {
     { label: "View calendar", href: "/dashboard/calendar", icon: Calendar },
   ];
 
+  const scopeLabel =
+    locationScope.mode === "all"
+      ? "all locations"
+      : "this location";
+
   return (
     <div className="space-y-8">
       <PageHeader
         title="Overview"
-        description={`Welcome back. Here's what's happening at ${business.name}.`}
+        description={`Welcome back. Here's what's happening at ${business.name} (${scopeLabel}).`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

@@ -15,13 +15,68 @@ export type Business = {
   booking_limit_days: number;
   cancellation_policy: string | null;
   max_daily_bookings: number | null;
+  subscription_plan_key?: string;
   created_at: string;
   updated_at: string;
+};
+
+export type Location = {
+  id: string;
+  business_id: string;
+  name: string;
+  slug: string;
+  timezone: string | null;
+  is_default: boolean;
+  is_active: boolean;
+  address_line1: string | null;
+  address_line2: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+  phone: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
+export type LocationSettings = {
+  location_id: string;
+  appointment_interval_minutes: number;
+  booking_limit_days: number;
+  max_daily_bookings: number | null;
+  cancellation_policy: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
+export type LocationHours = {
+  id: string;
+  location_id: string;
+  day_of_week: number;
+  is_open: boolean;
+  open_time: string;
+  close_time: string;
+};
+
+export type LocationWithSettings = Location & {
+  settings: LocationSettings;
+  hours: LocationHours[];
+};
+
+export type SubscriptionPlan = {
+  plan_key: string;
+  name: string;
+  max_locations: number | null;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
 };
 
 export type Service = {
   id: string;
   business_id: string;
+  location_id: string;
   name: string;
   description: string | null;
   category: string | null;
@@ -38,6 +93,7 @@ export type Service = {
 export type Staff = {
   id: string;
   business_id: string;
+  location_id: string;
   name: string;
   email: string | null;
   title: string | null;
@@ -87,6 +143,7 @@ export type BusinessHours = {
 export type Holiday = {
   id: string;
   business_id: string;
+  location_id: string | null;
   name: string;
   date: string;
   is_recurring: boolean;
@@ -96,6 +153,7 @@ export type Holiday = {
 export type Availability = {
   id: string;
   business_id: string;
+  location_id: string;
   staff_id: string | null;
   start_time: string;
   end_time: string;
@@ -120,6 +178,7 @@ export type Customer = {
 export type Appointment = {
   id: string;
   business_id: string;
+  location_id: string;
   service_id: string;
   staff_id: string;
   customer_id: string;
@@ -135,6 +194,7 @@ export type AppointmentWithRelations = Appointment & {
   service: Pick<Service, "id" | "name" | "color" | "duration_minutes" | "buffer_before_minutes" | "buffer_after_minutes">;
   staff: Pick<Staff, "id" | "name" | "color" | "photo_url">;
   customer: Pick<Customer, "id" | "name" | "email" | "phone">;
+  location?: Pick<Location, "id" | "name">;
 };
 
 export type CalendarView = "day" | "week" | "month";

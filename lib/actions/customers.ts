@@ -132,7 +132,7 @@ export async function getCustomerProfile(id: string) {
   const { data: appointments } = await supabase
     .from("appointments")
     .select(
-      `*, service:services(name, color), staff:staff(name)`,
+      `*, service:services(name, color), staff:staff(name), location:locations(name)`,
     )
     .eq("customer_id", id)
     .order("start_time", { ascending: false });

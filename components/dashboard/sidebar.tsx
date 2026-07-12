@@ -1,6 +1,7 @@
 "use client";
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { LocationSwitcher } from "@/components/dashboard/location-switcher";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { DASHBOARD_NAV } from "@/lib/constants";
@@ -23,6 +24,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { LocationScope } from "@/lib/location/constants";
+import type { Location, SubscriptionPlan } from "@/lib/types/booking";
 
 const iconMap = {
   "layout-dashboard": LayoutDashboard,
@@ -140,18 +143,28 @@ function UserBadge({ email }: { email?: string }) {
 
 type DashboardTopNavProps = {
   userEmail?: string;
+  locations: Location[];
+  locationScope: LocationScope;
+  locationQuota: {
+    plan: SubscriptionPlan | null;
+    currentCount: number;
+    canAdd: boolean;
+  };
   onMenuOpen?: () => void;
 };
 
 export function DashboardTopNav({
   userEmail,
+  locations,
+  locationScope,
+  locationQuota,
   onMenuOpen,
 }: DashboardTopNavProps) {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-card/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/80 px-4 backdrop-blur-xl md:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Button
           variant="ghost"
@@ -170,7 +183,13 @@ export function DashboardTopNav({
         </h1>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
+        <LocationSwitcher
+          locations={locations}
+          scope={locationScope}
+          quota={locationQuota}
+          className="hidden sm:flex"
+        />
         <ThemeToggle />
         <UserBadge email={userEmail} />
       </div>

@@ -9,6 +9,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5 — Multi-Location Foundation)
+
+- Migration `008_phase5_multi_location.sql`: `locations`, `location_settings`, `location_hours`, `subscription_plans`; `location_id` on staff/services/appointments/availability; default location backfill for all businesses
+- Migration `009_phase5_drop_old_rpc_overloads.sql`: remove pre-Phase-5 RPC signatures that conflicted with location-aware functions
+- `lib/actions/location.ts`, `lib/location/constants.ts`: location CRUD, scope cookie, plan quota via `can_add_location`
+- Dashboard location switcher (current location / all locations) and Add Location workflow
+- Location-scoped settings (hours, booking policy), staff, services, calendar, and overview stats
+- Public booking location picker and `?location=<slug>` deep link
+- Shared customers with cross-location appointment history
+- `scripts/verify-phase5-multi-location.mjs` (14 checks)
+
+### Changed (Phase 5)
+
+- Scheduling RPCs accept optional `p_location_id`; use `location_hours` and `location_settings` when present
+- `ensure_business_for_owner` seeds default location for new businesses
+- Phase 4 verification script updated for `location_id` on test fixtures
+
 ### Fixed
 
 - Email confirmation now completes via `/auth/callback` using Supabase SSR token-hash flow (`verifyOtp`) instead of implicit `#access_token` redirects to the landing page

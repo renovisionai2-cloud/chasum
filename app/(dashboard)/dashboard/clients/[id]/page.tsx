@@ -83,6 +83,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
                         {format(parseISO(appt.start_time), "MMM d, yyyy")} at{" "}
                         {formatTime(parseISO(appt.start_time))}
                         {appt.staff?.name ? ` · ${appt.staff.name}` : ""}
+                        {appt.location?.name ? ` · ${appt.location.name}` : ""}
                       </p>
                     </div>
                     <StatusBadge status={appt.status} />

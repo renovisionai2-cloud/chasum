@@ -3,7 +3,7 @@
 import { bookAppointment } from "@/lib/actions/public-booking";
 import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
 import { SlotPicker } from "@/components/scheduling/slot-picker";
-import type { ActionState, Business, Service, StaffWithServices } from "@/lib/types/booking";
+import type { ActionState, Business, Location, Service, StaffWithServices } from "@/lib/types/booking";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,18 +18,33 @@ import { useActionState, useCallback, useState } from "react";
 
 type BookingPageProps = {
   business: Business;
+  locations: Location[];
+  initialLocationId?: string;
   services: Service[];
   staff: StaffWithServices[];
 };
 
-type Step = "service" | "staff" | "datetime" | "details" | "confirmed";
+type Step = "location" | "service" | "staff" | "datetime" | "details" | "confirmed";
 
 export function PublicBookingPage({
   business,
+  locations,
+  initialLocationId,
   services,
   staff,
 }: BookingPageProps) {
-  const [step, setStep] = useState<Step>("service");
+  const defaultLocation =
+    locations.find((l) => l.id === initialLocationId) ??
+    locations.find((l) => l.is_default) ??
+    locations[0] ??
+    null;
+
+  const [step, setStep] = useState<Step>(
+    locations.length > 1 ? "location" : "service",
+  );
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    defaultLocation,
+  );
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<StaffWithServices | null>(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -38,12 +53,26 @@ export function PublicBookingPage({
 
   const loadSlots = useCallback(
     (serviceId: string, staffId: string, date: string) =>
-      getPublicAvailableSlots(business.slug, serviceId, staffId, date),
-    [business.slug],
+      getPublicAvailableSlots(
+        business.slug,
+        serviceId,
+        staffId,
+        date,
+        selectedLocation?.id,
+      ),
+    [business.slug, selectedLocation?.id],
   );
 
+  const locationServices = selectedLocation
+    ? services.filter((s) => s.location_id === selectedLocation.id)
+    : services;
+
+  const locationStaff = selectedLocation
+    ? staff.filter((m) => m.location_id === selectedLocation.id)
+    : staff;
+
   const availableStaff = selectedService
-    ? staff.filter((m) =>
+    ? locationStaff.filter((m) =>
         m.staff_services.some((ss) => ss.service_id === selectedService.id),
       )
     : [];
@@ -71,7 +100,9 @@ export function PublicBookingPage({
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <div>
             <h1 className="text-xl font-semibold">{business.name}</h1>
-            <p className="text-sm text-muted-foreground">Book an appointment</p>
+            <p className="text-sm text-muted-foreground">
+              {selectedLocation ? `${selectedLocation.name} · Book an appointment` : "Book an appointment"}
+            </p>
           </div>
           <Logo showText={false} />
         </div>
@@ -80,12 +111,14 @@ export function PublicBookingPage({
       <main className="mx-auto max-w-2xl px-6 py-8">
         {/* Progress */}
         <div className="mb-8 flex items-center gap-2">
-          {(["service", "staff", "datetime", "details"] as Step[]).map((s, i) => (
+          {(["location", "service", "staff", "datetime", "details"] as Step[])
+            .filter((s) => s !== "location" || locations.length > 1)
+            .map((s, i, arr) => (
             <div
               key={s}
               className={cn(
                 "h-1.5 flex-1 rounded-full",
-                ["service", "staff", "datetime", "details"].indexOf(step) >= i
+                arr.indexOf(step) >= i || (step === "confirmed" && i <= arr.length)
                   ? "bg-primary"
                   : "bg-muted",
               )}
@@ -93,11 +126,50 @@ export function PublicBookingPage({
           ))}
         </div>
 
+        {step === "location" && locations.length > 1 && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Choose a location</h2>
+            <div className="grid gap-3">
+              {locations.map((location) => (
+                <button
+                  key={location.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLocation(location);
+                    setSelectedService(null);
+                    setSelectedStaff(null);
+                    setStep("service");
+                  }}
+                  className="rounded-2xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/50 hover:bg-accent/30"
+                >
+                  <p className="font-medium">{location.name}</p>
+                  {(location.address_line1 || location.city) && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {[location.address_line1, location.city, location.state]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </p>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {step === "service" && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Choose a service</h2>
+            {locations.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setStep("location")}
+                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+              >
+                <ChevronLeft className="h-4 w-4" /> Change location
+              </button>
+            )}
             <div className="grid gap-3">
-              {services.map((service) => (
+              {locationServices.map((service) => (
                 <button
                   key={service.id}
                   type="button"
@@ -210,6 +282,7 @@ export function PublicBookingPage({
 
             <form action={formAction} className="space-y-4">
               <input type="hidden" name="slug" value={business.slug} />
+              <input type="hidden" name="location_id" value={selectedLocation?.id ?? ""} />
               <input type="hidden" name="service_id" value={selectedService.id} />
               <input type="hidden" name="staff_id" value={selectedStaff.id} />
               <input type="hidden" name="start_time" value={selectedSlot} />
