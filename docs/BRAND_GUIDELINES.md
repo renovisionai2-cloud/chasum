@@ -1,9 +1,19 @@
 # Chasum Brand Guidelines
 
-**Official mark:** Option 01 — **The C Mark**  
-**Status:** Permanent. Do not redesign, redraw, or replace with a generic letter C.
+**Status:** Brand V1.0 — Official  
+**Source of truth:** Approved Chasum Brand Identity board.
 
-Companion AI accent: Option 02 — **The Spark** (not a substitute for the logo).
+Do not redesign, reinterpret, or recreate the logo with fonts or CSS.
+
+---
+
+## Brand meaning
+
+- The **C** represents Chasum, Connection, and Commitment.
+- The **signal dots** represent Workflow, Intelligence, and Growth.
+- The **Spark** represents intelligence, innovation, and AI-powered features only.
+
+Tagline: **AI Business Operating System**
 
 ---
 
@@ -13,93 +23,85 @@ All official files live in [`/public/brand/`](../public/brand/):
 
 | File | Use |
 |------|-----|
-| `logo.svg` | Primary framed mark (blue badge + white C) — product chrome |
-| `logo-dark.svg` | C Mark in brand blue on transparent — light backgrounds |
-| `logo-light.svg` | C Mark in white — dark backgrounds |
-| `icon.svg` | Bare C Mark (PWA / compact) |
+| `logo-full.svg` | Icon + wordmark + tagline (marketing) |
+| `logo-horizontal.svg` | Icon + wordmark (product nav / auth) |
+| `wordmark.svg` | Wordmark + tagline |
+| `wordmark-name.svg` | Wordmark only (custom A + blue AI dot) |
+| `logo-icon.svg` | C Mark icon |
+| `spark.svg` | AI Spark |
 | `favicon.svg` | Browser favicon |
-| `apple-touch-icon.png` | 180×180 iOS / PWA touch icon |
-| `site.webmanifest` | Also mirrored at `/public/site.webmanifest` |
-
-**React / app usage:** import only from `@/components/brand/logo` (`Logo`, `LogoMark`).  
-`@/components/ui/logo` re-exports the same module for compatibility.  
-**Do not** paste SVG paths, invent alternate Cs, or duplicate lockups in feature code.
+| `apple-touch-icon.png` | 180×180 |
+| `manifest-icon.png` | 512×512 PWA |
+| `app-icon-1024.png` | 1024×1024 app icon |
+| `*-light.svg` | Light ink lockups for dark backgrounds |
 
 Constants: [`lib/brand/assets.ts`](../lib/brand/assets.ts)
 
 ---
 
-## Logo usage
+## React components
 
-### Preferred compositions
+Import from `@/components/brand/logo` and `@/components/brand/spark`:
 
-1. **Product nav / auth / emails:** `Logo` with `variant="color"` (framed mark + “Chasum” wordmark).
-2. **Hero / marketing:** same, larger `size="lg"` / `"xl"`.
-3. **Mark only:** `Logo showText={false}` or `LogoMark`.
-4. **On photography / dark UI:** `variant="light"`.
-5. **On very light UI without the badge:** `variant="dark"`.
+| Component | Asset |
+|-----------|--------|
+| `<Logo />` | `logo-horizontal.svg` (or `logo-full` with `withTagline`) |
+| `<LogoIcon />` | `logo-icon.svg` |
+| `<Wordmark />` | `wordmark.svg` / `wordmark-name.svg` |
+| `<Spark />` | `spark.svg` — AI features only |
 
-### Clear space
+`@/components/ui/logo` re-exports for compatibility.  
+`SparkMark` / `ChasumMark` in `marks.tsx` wrap the official components.
 
-Maintain clear space around the mark equal to **at least 25% of the mark’s width** on all sides. Do not crowd with icons, chips, or dense copy.
-
-### Minimum size
-
-| Context | Min mark size |
-|---------|----------------|
-| Digital UI | 20×20 px |
-| Favicon | 16×16 px (SVG scales) |
-| Print / PDF | 0.3 in (≈ 8 mm) |
-| Touch icon | 180×180 px (`apple-touch-icon.png`) |
-
-Never distort, rotate (beyond 0°), or crop the open C.
+**Never** paste wordmark text as CSS/HTML as a substitute for the artwork.
 
 ---
 
-## Colors
+## Colors (Brand Identity board)
 
 | Token | Hex | Role |
 |-------|-----|------|
-| Primary | `#1d4ed8` | Brand blue — badges, links, CTAs |
-| Primary foreground | `#ffffff` | Ink on primary |
-| Ink | `#0c1222` | Primary text |
-| Spark | `#0f766e` | AI accent only |
-| Background | `#f7f8fa` | App canvas |
+| Primary Blue | `#2563EB` | CTAs, links, AI dot |
+| Deep Blue | `#1E40AF` | Logo gradient mid |
+| Purple | `#7C3AED` | Logo/Spark gradient, AI accent |
+| Dark Navy | `#0B1324` | Ink / dark surfaces |
+| Slate | `#334155` | Secondary text |
+| Light Gray | `#F1F5F9` | App canvas |
 
-Full product tokens: `app/globals.css`, [`docs/UI_GUIDELINES.md`](./UI_GUIDELINES.md).
-
-Do not replace the C Mark with a purple-glow or generic sans “C”.
+Product tokens: `app/globals.css`.
 
 ---
 
 ## Typography
 
-- **Wordmark:** Geist Sans, semibold, tracking-tight, text “Chasum” (from `BRAND_NAME`).
-- **UI:** Geist Sans; code: Geist Mono.
-- Do not outline, skew, or recreate the wordmark as a custom SVG unless Marketing publishes a lockup file into `/public/brand/`.
+- **UI / product:** Inter (Regular → ExtraBold)
+- **Wordmark:** official SVG artwork only — preserves custom **A** and blue AI dot
+- **Code:** JetBrains Mono
 
 ---
 
-## Icon spacing (framed badge)
+## Clear space & minimum size
 
-The framed logo (`logo.svg`) uses an 8px-equivalent corner radius at 32×32 artboard (~22% rounding). Keep the stroke of The C Mark at the canonical weight — do not thicken for “visibility.”
+- Clear space around lockups ≥ height of the **C** icon on all sides.
+- Digital minimum logo height: **32px**
+- Icon / favicon: 16–32px SVG
+- Do not rotate, stretch, recolor arbitrarily, or add effects that obscure the mark.
 
 ---
 
 ## Do’s
 
-- Use `Logo` / `LogoMark` everywhere (landing, dashboard, auth, booking, loaders, emails via hosted `/brand/logo.svg`).
-- Pair The Spark with AI features — never as a replacement logo.
-- Keep contrast: light mark on dark, dark/color mark on light.
-- Link wordmark+mark together in navigation.
+- Use `Logo` / `LogoIcon` / `Wordmark` / `Spark` everywhere.
+- Pair Spark only with AI features.
+- Use light lockups (`tone="light"`) on dark navy chrome.
+- Keep contrast and clear space.
 
 ## Don’ts
 
-- Don’t redesign The C Mark or draw a new letter C.
-- Don’t use The Spark as the company logo.
-- Don’t stretch, recolor arbitrarily (except approved light/dark/color variants), or add drop-shadows that obscure the stroke.
-- Don’t place the mark on busy photo areas without a solid scrim.
-- Don’t duplicate SVG path code outside `/public/brand/` + `lib/brand/assets.ts`.
+- Don’t redraw the C, wordmark, or Spark.
+- Don’t use Spark as the company logo.
+- Don’t recreate “CHASUM” with Inter/CSS instead of the wordmark asset.
+- Don’t place the mark on busy photography without a scrim.
 
 ---
 
@@ -107,18 +109,16 @@ The framed logo (`logo.svg`) uses an 8px-equivalent corner radius at 32×32 artb
 
 | Surface | Implementation |
 |---------|----------------|
-| Landing header / footer / hero | `Logo` |
-| Dashboard sidebar / mobile drawer | `Logo` |
-| Auth (login, signup, forgot, reset) | `Logo` via `AuthForm` |
-| Public booking | `Logo` + tenant business logo |
-| Loaders / splash | `PageLoader`, `SplashScreen`, `AppLoader` |
-| Emails | Absolute URL to `/brand/logo.svg` |
+| Landing | `Logo` (+ `withTagline` in hero), `Spark` on AI copy |
+| Dashboard sidebar | `Logo` |
+| Auth | `Logo` via `AuthForm` |
+| Public booking | `Logo` + tenant logo |
+| Loaders | `Logo` / `Spark` |
+| Emails | Hosted `/brand/logo-icon.svg` or horizontal |
 | Favicon / PWA | Metadata + `site.webmanifest` |
-| Customer portal (future) | Must use `Logo` from `@/components/brand/logo` |
-| Mobile app (future) | Bundle `logo.svg` / `apple-touch-icon.png`; same clear space & min sizes |
 
 ---
 
 ## Change control
 
-The C Mark is **final**. Asset or geometry changes require an explicit brand update — not a drive-by UI tweak.
+Brand V1.0 is **final**. Geometry or wordmark changes require an explicit brand update — not a drive-by UI tweak.

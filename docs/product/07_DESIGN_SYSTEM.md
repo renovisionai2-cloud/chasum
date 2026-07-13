@@ -7,14 +7,14 @@ Also see [`../UI_GUIDELINES.md`](../UI_GUIDELINES.md), [18_UX_PRINCIPLES.md](./1
 
 | Asset | Name | Usage |
 |-------|------|-------|
-| **Option 01** | The C Mark | Permanent logo — `/public/brand/*`, `Logo` / `LogoMark` |
-| **Option 02** | The Spark | AI symbol (`SparkMark`) only — never a logo substitute |
+| **Logo** | C Mark + wordmark | `/public/brand/*`, `Logo` / `LogoIcon` / `Wordmark` |
+| **Spark** | AI Spark | `Spark` only — never a logo substitute |
 
 See [`../BRAND_GUIDELINES.md`](../BRAND_GUIDELINES.md).
 
-- Do not invent alternate lettermarks or generic letter Cs.
-- Spark accent color is teal (`--spark`), never purple glow.
-- Primary brand color is signal blue (`--primary`).
+- Do not invent alternate lettermarks or recreate the wordmark with CSS text.
+- Spark accent follows the brand board (`--spark` purple); use the SVG asset for AI UI.
+- Primary brand color is Primary Blue (`--primary` `#2563EB`).
 
 ## Principles
 

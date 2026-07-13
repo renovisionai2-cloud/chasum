@@ -1,5 +1,5 @@
 import { Logo } from "@/components/brand/logo";
-import { SparkMark } from "@/components/brand/marks";
+import { Spark } from "@/components/brand/spark";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -11,17 +11,11 @@ export function Hero() {
 
       <div className="mx-auto max-w-4xl text-center">
         <div className="animate-fade-in-up mb-8 flex justify-center">
-          <Logo
-            size="lg"
-            href={null}
-            wordmarkClassName="text-2xl md:text-3xl tracking-tight"
-          />
+          <Logo size="xl" href={null} withTagline priority />
         </div>
 
         <div className="animate-fade-in-up animation-delay-100 mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground shadow-sm">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-spark text-spark-foreground">
-            <SparkMark className="h-3 w-3" />
-          </span>
+          <Spark className="h-4 w-4" size={16} animate />
           AI Business Operating System for service businesses
         </div>
 
@@ -85,8 +79,8 @@ export function Hero() {
               </div>
             </div>
             <div className="flex flex-col justify-center rounded-[var(--radius-md)] bg-spark-muted/70 p-6 dark:bg-spark-muted/30">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-spark text-spark-foreground">
-                <SparkMark className="h-5 w-5" />
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-card">
+                <Spark className="h-5 w-5" size={20} animate />
               </div>
               <p className="text-sm font-medium text-foreground">
                 The Spark recommends the best times from your calendar, staff

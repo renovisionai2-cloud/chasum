@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Brand V1.0 — Official)
+
+- Approved Brand Identity board locked as source of truth
+- Production assets: `logo-full`, `logo-horizontal`, `wordmark`, `logo-icon`, `spark`, favicon, apple/manifest/app icons
+- Components: `Logo`, `LogoIcon`, `Wordmark`, `Spark` — wordmark preserves custom A + blue AI dot
+- Board palette + Inter UI type; Spark reserved for AI features with pulse animation
+
 ### Changed (Sprint 2 — Reception Workspace Excellence)
 
 - Instant customer search: local seed filter, server fallback, recent customers, clear control, loading spinner

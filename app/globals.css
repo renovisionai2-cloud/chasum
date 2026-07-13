@@ -1,28 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  /* Surfaces */
-  --background: #f7f8fa;
-  --foreground: #0c1222;
+  /* Surfaces — Brand Identity board */
+  --background: #f1f5f9;
+  --foreground: #0b1324;
   --card: #ffffff;
-  --card-foreground: #0c1222;
-  --muted: #eef1f6;
-  --muted-foreground: #5b6578;
-  --border: #e2e7ef;
+  --card-foreground: #0b1324;
+  --muted: #e8eef5;
+  --muted-foreground: #334155;
+  --border: #e2e8f0;
 
-  /* Brand — deep signal blue */
-  --primary: #1d4ed8;
+  /* Brand — Primary Blue */
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --secondary: #eef1f6;
-  --secondary-foreground: #0c1222;
-  --accent: #e8eefc;
-  --accent-foreground: #1e3a8a;
-  --ring: #1d4ed8;
+  --secondary: #e8eef5;
+  --secondary-foreground: #0b1324;
+  --accent: #dbeafe;
+  --accent-foreground: #1e40af;
+  --ring: #2563eb;
 
-  /* AI Spark accent (teal — not purple) */
-  --spark: #0f766e;
+  /* AI Spark accent (board purple) */
+  --spark: #7c3aed;
   --spark-foreground: #ffffff;
-  --spark-muted: #ccfbf1;
+  --spark-muted: #ede9fe;
 
   /* Status */
   --destructive: #dc2626;
@@ -59,25 +59,25 @@
 }
 
 .dark {
-  --background: #070b14;
+  --background: #081324;
   --foreground: #f4f6fb;
-  --card: #101726;
+  --card: #0f1a2e;
   --card-foreground: #f4f6fb;
-  --muted: #1a2336;
-  --muted-foreground: #9aa6bc;
+  --muted: #162338;
+  --muted-foreground: #94a3b8;
   --border: #243049;
 
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  --secondary: #1a2336;
+  --secondary: #162338;
   --secondary-foreground: #f4f6fb;
   --accent: #172554;
   --accent-foreground: #93c5fd;
   --ring: #3b82f6;
 
-  --spark: #2dd4bf;
-  --spark-foreground: #042f2e;
-  --spark-muted: #134e4a;
+  --spark: #a78bfa;
+  --spark-foreground: #1e1035;
+  --spark-muted: #2e1065;
 
   --destructive: #f87171;
   --success: #4ade80;

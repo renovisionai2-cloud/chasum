@@ -16,22 +16,22 @@ Design system reference for building consistent interfaces in Chasum.
 
 ## Typography & color
 
-**Font:** Geist Sans (primary), Geist Mono (code)
+**Font:** Inter (primary), JetBrains Mono (code)
 
-**Brand marks:** Option 01 — The C Mark (primary logo), Option 02 — The Spark (AI accent).  
-See [`docs/BRAND_GUIDELINES.md`](./BRAND_GUIDELINES.md), assets in `/public/brand/`, React via `@/components/brand/logo`.
+**Brand marks:** Brand V1.0 — C Mark + wordmark (`Logo` / `LogoIcon` / `Wordmark`), Spark (`Spark`) for AI only.  
+See [`docs/BRAND_GUIDELINES.md`](./BRAND_GUIDELINES.md), assets in `/public/brand/`.
 
 ### Light Mode
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--background` | `#f7f8fa` | Page background |
-| `--foreground` | `#0c1222` | Primary text |
+| `--background` | `#f1f5f9` | Page background |
+| `--foreground` | `#0b1324` | Primary text |
 | `--card` | `#ffffff` | Card surfaces |
-| `--primary` | `#1d4ed8` | Buttons, links, accents |
-| `--spark` | `#0f766e` | AI / The Spark accent |
-| `--muted` | `#eef1f6` | Subtle backgrounds |
-| `--border` | `#e2e7ef` | Borders, dividers |
+| `--primary` | `#2563eb` | Buttons, links, accents |
+| `--spark` | `#7c3aed` | AI / The Spark accent |
+| `--muted` | `#e8eef5` | Subtle backgrounds |
+| `--border` | `#e2e8f0` | Borders, dividers |
 | `--destructive` | `#dc2626` | Errors, delete actions |
 | `--success` | `#16a34a` | Success states |
 

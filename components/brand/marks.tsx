@@ -1,4 +1,5 @@
-import { LogoMark } from "@/components/brand/logo";
+import { LogoIcon } from "@/components/brand/logo";
+import { Spark } from "@/components/brand/spark";
 import { cn } from "@/lib/utils";
 
 type MarkProps = {
@@ -6,41 +7,17 @@ type MarkProps = {
   title?: string;
 };
 
-/**
- * Option 01 — "The C Mark"
- * Thin wrapper around the official brand asset. Do not redraw the path here.
- */
+/** @deprecated Prefer LogoIcon — official Brand V1.0 C Mark. */
 export function ChasumMark({ className }: MarkProps) {
-  return <LogoMark className={className} variant="dark" size={20} />;
+  return <LogoIcon className={className} size={20} />;
 }
 
 /**
- * Option 02 — "The Spark"
- * AI symbol used for intelligence, automation, and loading accents.
- * Not the primary logo — do not substitute for The C Mark.
+ * Official AI Spark.
+ * Prefer importing `Spark` from `@/components/brand/spark`.
  */
 export function SparkMark({ className, title = "Chasum AI" }: MarkProps) {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0", className)}
-      role="img"
-      aria-label={title}
-    >
-      <title>{title}</title>
-      <path
-        d="M16 3.5L18.4 12.1L27 14.5L18.4 16.9L16 25.5L13.6 16.9L5 14.5L13.6 12.1L16 3.5Z"
-        fill="currentColor"
-      />
-      <path
-        d="M25.2 5.2L26.1 8.1L29 9L26.1 9.9L25.2 12.8L24.3 9.9L21.4 9L24.3 8.1L25.2 5.2Z"
-        fill="currentColor"
-        opacity="0.85"
-      />
-    </svg>
-  );
+  return <Spark className={className} size={20} title={title} />;
 }
 
 type BrandBadgeProps = {
@@ -61,10 +38,7 @@ const iconPx = {
   lg: 44,
 } as const;
 
-/**
- * Framed brand mark for nav, auth, and product chrome.
- * Uses official `/brand/logo.svg` for The C Mark (never a redrawn letter).
- */
+/** Framed brand mark for empty states and compact chrome. */
 export function BrandBadge({
   className,
   size = "md",
@@ -74,13 +48,13 @@ export function BrandBadge({
     return (
       <span
         className={cn(
-          "inline-flex items-center justify-center rounded-[22%] bg-spark text-spark-foreground shadow-sm shadow-spark/25",
+          "inline-flex items-center justify-center rounded-[22%] bg-spark/15 text-spark",
           sizeMap[size],
           className,
         )}
         aria-hidden
       >
-        <SparkMark className="h-[55%] w-[55%]" />
+        <Spark className="h-[55%] w-[55%]" size={iconPx[size] * 0.55} animate />
       </span>
     );
   }
@@ -90,11 +64,7 @@ export function BrandBadge({
       className={cn("inline-flex shrink-0", sizeMap[size], className)}
       aria-hidden
     >
-      <LogoMark
-        variant="color"
-        size={iconPx[size]}
-        className="h-full w-full rounded-[22%]"
-      />
+      <LogoIcon size={iconPx[size]} className="h-full w-full" />
     </span>
   );
 }

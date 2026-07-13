@@ -1,25 +1,45 @@
-/** Canonical Option 01 — "The C Mark" path (viewBox 0 0 32 32). Do not redesign. */
-export const CHASUM_C_MARK_PATH =
-  "M22.5 8.2C20.6 6.5 18.1 5.5 15.4 5.5 9.6 5.5 4.9 10.2 4.9 16s4.7 10.5 10.5 10.5c2.7 0 5.2-1 7.1-2.7";
+/** Official Chasum Brand V1.0 — assets from the approved Brand Identity board. */
 
 export const BRAND_ASSETS = {
-  /** Primary framed mark (blue badge + white C) — product chrome default */
-  logo: "/brand/logo.svg",
-  /** C mark in dark/primary ink for light backgrounds */
-  logoDark: "/brand/logo-dark.svg",
-  /** C mark in white for dark backgrounds */
-  logoLight: "/brand/logo-light.svg",
-  /** Bare icon (transparent) */
-  icon: "/brand/icon.svg",
+  /** Full lockup: icon + wordmark + tagline */
+  logoFull: "/brand/logo-full.svg",
+  logoFullLight: "/brand/logo-full-light.svg",
+  /** Horizontal: icon + wordmark (nav / product chrome) */
+  logoHorizontal: "/brand/logo-horizontal.svg",
+  logoHorizontalLight: "/brand/logo-horizontal-light.svg",
+  /** Wordmark + tagline (path artwork — never CSS text) */
+  wordmark: "/brand/wordmark.svg",
+  wordmarkLight: "/brand/wordmark-light.svg",
+  /** Wordmark name only (custom A + AI dot) */
+  wordmarkName: "/brand/wordmark-name.svg",
+  wordmarkNameLight: "/brand/wordmark-name-light.svg",
+  /** Icon only — The C Mark with signal dots */
+  logoIcon: "/brand/logo-icon.svg",
+  /** AI Spark — intelligence features only */
+  spark: "/brand/spark.svg",
   favicon: "/brand/favicon.svg",
   appleTouchIcon: "/brand/apple-touch-icon.png",
+  manifestIcon: "/brand/manifest-icon.png",
+  appIcon1024: "/brand/app-icon-1024.png",
+
+  /** Compatibility aliases */
+  logo: "/brand/logo-icon.svg",
+  logoDark: "/brand/logo-icon.svg",
+  logoLight: "/brand/logo-light.svg",
+  icon: "/brand/logo-icon.svg",
 } as const;
 
+/** Brand Identity board palette */
 export const BRAND_COLORS = {
-  primary: "#1d4ed8",
+  primary: "#2563EB",
+  deepBlue: "#1E40AF",
+  purple: "#7C3AED",
+  darkNavy: "#0B1324",
+  slate: "#334155",
+  lightGray: "#F1F5F9",
   primaryForeground: "#ffffff",
-  ink: "#0c1222",
-  spark: "#0f766e",
+  ink: "#0B1324",
+  spark: "#7C3AED",
 } as const;
 
 export const BRAND_NAME = "Chasum";

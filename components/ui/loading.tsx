@@ -1,5 +1,5 @@
 import { Logo } from "@/components/brand/logo";
-import { SparkMark } from "@/components/brand/marks";
+import { Spark } from "@/components/brand/spark";
 import { cn } from "@/lib/utils";
 
 export function Spinner({ className }: { className?: string }) {
@@ -27,7 +27,7 @@ export function SplashScreen({ label = "Loading Chasum…" }: { label?: string }
       <div className="relative">
         <Logo size="xl" href={null} />
         <span className="absolute -right-2 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-spark text-spark-foreground shadow-sm animate-spark-pulse">
-          <SparkMark className="h-3.5 w-3.5" />
+          <Spark className="h-3.5 w-3.5" size={14} animate />
         </span>
       </div>
       <p className="text-sm text-muted-foreground">{label}</p>
@@ -42,7 +42,7 @@ export function PageLoader({ label = "Loading…" }: { label?: string }) {
       <div className="relative">
         <Logo size="lg" href={null} showText={false} />
         <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-spark text-spark-foreground shadow-sm animate-spark-pulse">
-          <SparkMark className="h-3 w-3" />
+          <Spark className="h-3 w-3" size={12} animate />
         </span>
       </div>
       <p className="text-sm text-muted-foreground">{label}</p>
@@ -105,7 +105,7 @@ export function DashboardSkeleton() {
       <div className="flex items-center gap-2 opacity-70">
         <Logo size="sm" href={null} showText={false} />
         <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-spark/20 text-spark">
-          <SparkMark className="h-3 w-3 animate-spark-pulse" />
+          <Spark className="h-3 w-3" size={12} animate />
         </span>
       </div>
     </div>

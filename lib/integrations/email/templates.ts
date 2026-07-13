@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import type { AppointmentNotificationContext } from "@/lib/types/integrations";
 
 function brandLogoUrl(): string {
-  return `${getAppUrl()}${BRAND_ASSETS.logo}`;
+  return `${getAppUrl()}${BRAND_ASSETS.logoIcon}`;
 }
 
 function layout(content: string, businessName: string): string {
@@ -12,19 +12,19 @@ function layout(content: string, businessName: string): string {
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f7f8fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f8fa;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 16px;">
     <tr><td align="center">
-      <table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e7ef;">
+      <table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
         <tr><td style="padding:28px 32px 12px;">
-          <img src="${logo}" width="36" height="36" alt="${BRAND_NAME}" style="display:block;border:0;border-radius:8px;" />
-          <p style="margin:14px 0 0;font-size:12px;font-weight:600;color:#1d4ed8;letter-spacing:0.04em;text-transform:uppercase;">${BRAND_NAME}</p>
-          <h1 style="margin:6px 0 0;font-size:22px;font-weight:600;color:#0c1222;">${businessName}</h1>
+          <img src="${logo}" width="40" height="40" alt="${BRAND_NAME}" style="display:block;border:0;" />
+          <p style="margin:14px 0 0;font-size:12px;font-weight:600;color:#2563eb;letter-spacing:0.04em;text-transform:uppercase;">${BRAND_NAME}</p>
+          <h1 style="margin:6px 0 0;font-size:22px;font-weight:600;color:#0b1324;">${businessName}</h1>
         </td></tr>
-        <tr><td style="padding:8px 32px 32px;color:#5b6578;font-size:15px;line-height:1.6;">
+        <tr><td style="padding:8px 32px 32px;color:#334155;font-size:15px;line-height:1.6;">
           ${content}
         </td></tr>
-        <tr><td style="padding:16px 32px;background:#fafafa;border-top:1px solid #e2e7ef;font-size:12px;color:#5b6578;">
+        <tr><td style="padding:16px 32px;background:#fafafa;border-top:1px solid #e2e8f0;font-size:12px;color:#334155;">
           Sent by ${BRAND_NAME} · ${BRAND_TAGLINE}
         </td></tr>
       </table>
