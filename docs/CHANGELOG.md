@@ -9,14 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed (Brand V1.0 — Official)
+### Changed (Brand V1.0 — FINAL / FROZEN)
 
-- Official Brand Identity Board locked as single source of truth
-- Production SVG lockups: `logo-full`, `logo-horizontal`, `logo-stacked`, `wordmark`, `logo-icon`, `spark`
-- C Mark signal, custom A + gradient AI dot, Spark with board accent dots
-- App icons on Dark Navy; dashboard sidebar Dark Navy + light lockup
-- Landing, auth, emails, metadata/PWA use official assets only (no temporary logos)
-- Board palette + Inter UI
+- Official Brand Identity Board locked as sole visual source of truth
+- Production assets: `logo-full`, `logo-horizontal`, `logo-stacked`, `wordmark`, `logo-icon`, `spark`, favicon, apple/manifest/app icons
+- C Mark (center node + trail), custom open A + Primary AI dot, Spark with accent dots
+- App icons on Dark Navy `#0B1324`; dashboard sidebar Dark Navy + light lockup
+- Landing, auth, emails, loaders, metadata, PWA use official assets only
 
 ### Changed (Sprint 2 — Reception Workspace Excellence)
 
