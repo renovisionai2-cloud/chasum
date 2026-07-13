@@ -141,12 +141,12 @@ export function LogoIcon({
   );
 }
 
-/** Standalone wordmark (custom A + blue AI dot). Never CSS text. */
+/** Standalone wordmark (custom A + AI dot). Never CSS text. */
 export function Wordmark({
   className,
   size = "md",
   tone = "dark",
-  showTagline = true,
+  showTagline = false,
   priority = false,
 }: CommonProps & {
   size?: LogoSize;
@@ -155,11 +155,11 @@ export function Wordmark({
 }) {
   const src = showTagline
     ? tone === "light"
-      ? BRAND_ASSETS.wordmarkLight
-      : BRAND_ASSETS.wordmark
+      ? BRAND_ASSETS.wordmarkTaglineLight
+      : BRAND_ASSETS.wordmarkTagline
     : tone === "light"
-      ? BRAND_ASSETS.wordmarkNameLight
-      : BRAND_ASSETS.wordmarkName;
+      ? BRAND_ASSETS.wordmarkLight
+      : BRAND_ASSETS.wordmark;
 
   const width = wordmarkWidth[size];
   const height = showTagline

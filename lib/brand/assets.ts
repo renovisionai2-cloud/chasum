@@ -7,12 +7,18 @@ export const BRAND_ASSETS = {
   /** Horizontal: icon + wordmark (nav / product chrome) */
   logoHorizontal: "/brand/logo-horizontal.svg",
   logoHorizontalLight: "/brand/logo-horizontal-light.svg",
-  /** Wordmark + tagline (path artwork — never CSS text) */
+  /** Wordmark name only — custom A + AI dot (never CSS text) */
   wordmark: "/brand/wordmark.svg",
   wordmarkLight: "/brand/wordmark-light.svg",
-  /** Wordmark name only (custom A + AI dot) */
-  wordmarkName: "/brand/wordmark-name.svg",
-  wordmarkNameLight: "/brand/wordmark-name-light.svg",
+  /** Wordmark + tagline */
+  wordmarkTagline: "/brand/wordmark-tagline.svg",
+  wordmarkTaglineLight: "/brand/wordmark-tagline-light.svg",
+  /** @deprecated Alias — same as wordmark */
+  wordmarkName: "/brand/wordmark.svg",
+  wordmarkNameLight: "/brand/wordmark-light.svg",
+  /** Stacked lockup (C above wordmark + tagline) */
+  logoStacked: "/brand/logo-stacked.svg",
+  logoStackedLight: "/brand/logo-stacked-light.svg",
   /** Icon only — The C Mark with signal dots */
   logoIcon: "/brand/logo-icon.svg",
   /** AI Spark — intelligence features only */

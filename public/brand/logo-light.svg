@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 64" fill="none" role="img" aria-label="Chasum">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 74 64" fill="none" role="img" aria-label="Chasum">
   <title>Chasum</title>
   <defs>
-    <linearGradient id="lt-g" x1="15%" y1="0%" x2="85%" y2="100%">
+    <linearGradient id="lt-g" x1="12%" y1="0%" x2="88%" y2="100%">
       <stop offset="0%" stop-color="#93C5FD"/>
-      <stop offset="50%" stop-color="#60A5FA"/>
+      <stop offset="45%" stop-color="#60A5FA"/>
       <stop offset="100%" stop-color="#C4B5FD"/>
     </linearGradient>
   </defs>
-  <path fill="url(#lt-g)" d="M 44.584 12.236 A 25.8 25.8 0 1 0 44.584 51.764 L 37.642 43.491 A 15 15 0 1 1 37.642 20.509 Z"/>
-  <rect x="13.8" y="30.5" width="8.45" height="3" rx="1.5" fill="#FFFFFF"/>
-  <circle cx="28" cy="32" r="4.4" fill="#FFFFFF"/>
-  <rect x="33.55" y="31.1" width="5.0" height="1.8" rx="0.9" fill="#FFFFFF"/>
-  <circle cx="41.4" cy="32" r="2.4" fill="#FFFFFF"/>
-  <circle cx="47.3" cy="32" r="1.7" fill="#FFFFFF"/>
-  <circle cx="52.1" cy="32" r="1.15" fill="#FFFFFF"/>
+  <path fill="url(#lt-g)" d="M 43.761 11.827 A 25.6 25.6 0 1 0 43.761 52.173 L 37.173 43.741 A 14.9 14.9 0 1 1 37.173 20.259 Z"/>
+  <rect x="13.7" y="30.55" width="8.5" height="2.9" rx="1.45" fill="#FFFFFF"/>
+  <circle cx="28" cy="32" r="4.5" fill="#FFFFFF"/>
+  <rect x="33.7" y="31.15" width="5.4" height="1.7" rx="0.85" fill="#FFFFFF"/>
+  <circle cx="41.8" cy="32" r="2.45" fill="#FFFFFF"/>
+  <circle cx="47.8" cy="32" r="1.7" fill="#FFFFFF"/>
+  <circle cx="52.7" cy="32" r="1.15" fill="#FFFFFF"/>
 </svg>

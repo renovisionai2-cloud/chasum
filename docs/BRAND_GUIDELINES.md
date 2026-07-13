@@ -1,124 +1,73 @@
 # Chasum Brand Guidelines
 
 **Status:** Brand V1.0 — Official  
-**Source of truth:** Approved Chasum Brand Identity board.
+**Source of truth:** Approved Chasum Brand Identity Board (attached / design system).
 
-Do not redesign, reinterpret, or recreate the logo with fonts or CSS.
+Do not redesign, reinterpret, substitute fonts, or change proportions.
 
 ---
 
 ## Brand meaning
 
 - The **C** represents Chasum, Connection, and Commitment.
-- The **signal dots** represent Workflow, Intelligence, and Growth.
-- The **Spark** represents intelligence, innovation, and AI-powered features only.
+- The **three dots** represent Workflow, Intelligence, and Growth.
+- The **Spark** represents intelligence and AI-powered features only.
 
 Tagline: **AI Business Operating System**
 
 ---
 
-## Asset locations
-
-All official files live in [`/public/brand/`](../public/brand/):
+## Assets (`/public/brand/`)
 
 | File | Use |
 |------|-----|
-| `logo-full.svg` | Icon + wordmark + tagline (marketing) |
-| `logo-horizontal.svg` | Icon + wordmark (product nav / auth) |
-| `wordmark.svg` | Wordmark + tagline |
-| `wordmark-name.svg` | Wordmark only (custom A + blue AI dot) |
-| `logo-icon.svg` | C Mark icon |
-| `spark.svg` | AI Spark |
-| `favicon.svg` | Browser favicon |
+| `logo-full.svg` | C Mark + wordmark + tagline |
+| `logo-horizontal.svg` | C Mark + wordmark (nav / product) |
+| `logo-stacked.svg` | Stacked lockup |
+| `wordmark.svg` | CHASUM (custom A + AI dot) |
+| `wordmark-tagline.svg` | Wordmark + tagline |
+| `logo-icon.svg` | C Mark |
+| `spark.svg` | AI Spark (AI features only) |
+| `favicon.svg` | Favicon |
 | `apple-touch-icon.png` | 180×180 |
 | `manifest-icon.png` | 512×512 PWA |
-| `app-icon-1024.png` | 1024×1024 app icon |
-| `*-light.svg` | Light ink lockups for dark backgrounds |
+| `app-icon-1024.png` | 1024×1024 |
+| `*-light.svg` | Light ink on dark surfaces |
 
-Constants: [`lib/brand/assets.ts`](../lib/brand/assets.ts)
+Constants: `lib/brand/assets.ts`
 
 ---
 
 ## React components
 
-Import from `@/components/brand/logo` and `@/components/brand/spark`:
-
-| Component | Asset |
-|-----------|--------|
-| `<Logo />` | `logo-horizontal.svg` (or `logo-full` with `withTagline`) |
+| Component | Default asset |
+|-----------|----------------|
+| `<Logo />` | `logo-horizontal.svg` (`withTagline` → `logo-full`) |
 | `<LogoIcon />` | `logo-icon.svg` |
-| `<Wordmark />` | `wordmark.svg` / `wordmark-name.svg` |
-| `<Spark />` | `spark.svg` — AI features only |
+| `<Wordmark />` | `wordmark.svg` |
+| `<Spark />` | `spark.svg` — AI only |
 
-`@/components/ui/logo` re-exports for compatibility.  
-`SparkMark` / `ChasumMark` in `marks.tsx` wrap the official components.
-
-**Never** paste wordmark text as CSS/HTML as a substitute for the artwork.
+Never recreate the wordmark with CSS/Inter text in feature code.
 
 ---
 
-## Colors (Brand Identity board)
+## Colors
 
-| Token | Hex | Role |
-|-------|-----|------|
-| Primary Blue | `#2563EB` | CTAs, links, AI dot |
-| Deep Blue | `#1E40AF` | Logo gradient mid |
-| Purple | `#7C3AED` | Logo/Spark gradient, AI accent |
-| Dark Navy | `#0B1324` | Ink / dark surfaces |
-| Slate | `#334155` | Secondary text |
-| Light Gray | `#F1F5F9` | App canvas |
-
-Product tokens: `app/globals.css`.
+| Token | Hex |
+|-------|-----|
+| Primary Blue | `#2563EB` |
+| Deep Blue | `#1E40AF` |
+| Purple | `#7C3AED` |
+| Dark Navy | `#0B1324` |
+| Slate | `#334155` |
+| Light Gray | `#F1F5F9` |
 
 ---
 
-## Typography
+## Rules
 
-- **UI / product:** Inter (Regular → ExtraBold)
-- **Wordmark:** official SVG artwork only — preserves custom **A** and blue AI dot
-- **Code:** JetBrains Mono
-
----
-
-## Clear space & minimum size
-
-- Clear space around lockups ≥ height of the **C** icon on all sides.
-- Digital minimum logo height: **32px**
-- Icon / favicon: 16–32px SVG
-- Do not rotate, stretch, recolor arbitrarily, or add effects that obscure the mark.
-
----
-
-## Do’s
-
-- Use `Logo` / `LogoIcon` / `Wordmark` / `Spark` everywhere.
-- Pair Spark only with AI features.
-- Use light lockups (`tone="light"`) on dark navy chrome.
-- Keep contrast and clear space.
-
-## Don’ts
-
-- Don’t redraw the C, wordmark, or Spark.
-- Don’t use Spark as the company logo.
-- Don’t recreate “CHASUM” with Inter/CSS instead of the wordmark asset.
-- Don’t place the mark on busy photography without a scrim.
-
----
-
-## Application map
-
-| Surface | Implementation |
-|---------|----------------|
-| Landing | `Logo` (+ `withTagline` in hero), `Spark` on AI copy |
-| Dashboard sidebar | `Logo` |
-| Auth | `Logo` via `AuthForm` |
-| Public booking | `Logo` + tenant logo |
-| Loaders | `Logo` / `Spark` |
-| Emails | Hosted `/brand/logo-icon.svg` or horizontal |
-| Favicon / PWA | Metadata + `site.webmanifest` |
-
----
-
-## Change control
-
-Brand V1.0 is **final**. Geometry or wordmark changes require an explicit brand update — not a drive-by UI tweak.
+- Clear space ≥ height of the C Mark
+- Digital minimum height: 32px
+- Do not rotate, stretch, recolor, or add effects
+- Spark only for AI-powered features
+- Dark Navy sidebar uses light lockups (`tone="light"`)
