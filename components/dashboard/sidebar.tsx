@@ -59,12 +59,12 @@ export function DashboardSidebar({
   return (
     <aside
       className={cn(
-        "flex h-full w-64 flex-col border-r border-border bg-card/95 backdrop-blur-sm",
+        "flex h-full w-64 flex-col border-r border-white/10 bg-[#0B1324] text-white",
         className,
       )}
     >
-      <div className="flex h-16 items-center border-b border-border px-5">
-        <Logo href="/dashboard" priority />
+      <div className="flex h-16 items-center border-b border-white/10 px-5">
+        <Logo href="/dashboard" tone="light" priority />
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Dashboard">
@@ -81,7 +81,9 @@ export function DashboardSidebar({
               onClick={onNavigate}
               className={cn(
                 "ds-nav-item",
-                isActive ? "ds-nav-item-active" : "ds-nav-item-idle",
+                isActive
+                  ? "bg-white/10 text-white"
+                  : "text-slate-300 hover:bg-white/5 hover:text-white",
               )}
               aria-current={isActive ? "page" : undefined}
             >
@@ -98,20 +100,20 @@ export function DashboardSidebar({
         })}
       </nav>
 
-      <div className="space-y-2 border-t border-border p-3">
+      <div className="space-y-2 border-t border-white/10 p-3">
         {userEmail && (
-          <div className="rounded-[var(--radius-md)] bg-muted/50 px-3 py-2.5">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <div className="rounded-[var(--radius-md)] bg-white/5 px-3 py-2.5">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
               Signed in
             </p>
-            <p className="mt-0.5 truncate text-xs text-foreground">{userEmail}</p>
+            <p className="mt-0.5 truncate text-xs text-slate-200">{userEmail}</p>
           </div>
         )}
         <form action={signOut}>
           <Button
             type="submit"
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+            className="w-full justify-start gap-3 text-slate-300 hover:bg-white/5 hover:text-white"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
             Sign out

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Chasum AI Spark">
   <title>Chasum AI Spark</title>
-
   <defs>
-    <linearGradient id="sd-s" x1="50%" y1="0%" x2="50%" y2="100%">
+    <linearGradient id="spd-g" x1="50%" y1="0%" x2="50%" y2="100%">
       <stop offset="0%" stop-color="#2563EB"/>
       <stop offset="100%" stop-color="#7C3AED"/>
     </linearGradient>
   </defs>
-  <path fill="url(#sd-s)" d="M32 2C34.6 15.2 41.2 21.4 54 23.5C41.2 25.6 34.6 32.2 32 46C29.4 32.2 22.8 25.6 10 23.5C22.8 21.4 29.4 15.2 32 2Z"/>
-
+  <path fill="url(#spd-g)" d="M32 1.5C34.9 15.4 41.8 21.8 55 23.8C41.8 25.8 34.9 32.6 32 48.5C29.1 32.6 22.2 25.8 9 23.8C22.2 21.8 29.1 15.4 32 1.5Z"/>
 </svg>

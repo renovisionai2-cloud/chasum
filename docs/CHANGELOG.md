@@ -11,11 +11,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed (Brand V1.0 — Official)
 
-- Approved Brand Identity board locked as source of truth
-- Production assets: `logo-full`, `logo-horizontal`, `wordmark`, `logo-icon`, `spark`, favicon, apple/manifest/app icons
-- Exact C Mark (piercing signal + central node + trail), open custom A with floating blue AI dot, gradient Spark
-- Components: `Logo`, `LogoIcon`, `Wordmark`, `Spark` — no CSS/font wordmarks
-- Board palette + Inter UI type; Spark reserved for AI features with pulse animation
+- Approved Brand Identity board locked as single source of truth
+- Production SVG lockups recreated to match board geometry: C Mark signal, custom A + AI dot, Spark
+- Components: `Logo`, `LogoIcon`, `Wordmark`, `Spark` — no temporary CSS/font logos
+- Dashboard sidebar uses Dark Navy + light lockup per board mockups
+- Board palette + Inter UI; Spark reserved for AI features
 - Transactional emails use official horizontal lockup artwork
 
 ### Changed (Sprint 2 — Reception Workspace Excellence)
