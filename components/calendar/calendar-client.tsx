@@ -11,6 +11,12 @@ import {
   WeekView,
 } from "@/components/calendar/calendar-views";
 import { ColorLegend } from "@/components/reception/color-legend";
+import {
+  BlockTimeDialog,
+  InternalNoteDialog,
+  NewCustomerDialog,
+} from "@/components/reception/quick-action-dialogs";
+import { QuickActionsFab } from "@/components/reception/quick-actions-fab";
 import { ReceptionPanel } from "@/components/reception/reception-panel";
 import { EmptyState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -20,6 +26,10 @@ import {
 } from "@/lib/actions/appointments";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
+import {
+  RECEPTION_ACTION_EVENT,
+  type ReceptionActionDetail,
+} from "@/lib/reception/workflow-events";
 import { useToast } from "@/providers/toast-provider";
 import type {
   AppointmentWithRelations,
@@ -41,7 +51,14 @@ import {
 } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useOptimistic, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useOptimistic,
+  useState,
+  useTransition,
+} from "react";
 
 type CalendarClientProps = {
   appointments: AppointmentWithRelations[];
@@ -53,6 +70,7 @@ type CalendarClientProps = {
   initialView: CalendarView;
   insights?: DashboardInsight[];
   showReceptionPanel?: boolean;
+  focusAppointmentId?: string | null;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -82,17 +100,31 @@ export function CalendarClient({
   initialView,
   insights = [],
   showReceptionPanel = true,
+  focusAppointmentId = null,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [view, setView] = useState<CalendarView>(initialView);
   const [date, setDate] = useState(new Date(initialDate));
   const [colorMode, setColorMode] = useState<CalendarColorMode>("service");
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const urlAppointment = useMemo(
+    () =>
+      focusAppointmentId
+        ? (serverAppointments.find((a) => a.id === focusAppointmentId) ?? null)
+        : null,
+    [focusAppointmentId, serverAppointments],
+  );
+  const [dialogOpen, setDialogOpen] = useState(!!urlAppointment);
   const [selectedAppointment, setSelectedAppointment] =
-    useState<AppointmentWithRelations | null>(null);
+    useState<AppointmentWithRelations | null>(urlAppointment);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
   const [panelOpen, setPanelOpen] = useState(true);
+  const [newCustomerOpen, setNewCustomerOpen] = useState(false);
+  const [blockTimeOpen, setBlockTimeOpen] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [searchFocusSignal, setSearchFocusSignal] = useState(0);
+  const [bookFocusSignal, setBookFocusSignal] = useState(0);
+  const [walkInSignal, setWalkInSignal] = useState(0);
   const [appointments, setOptimisticAppointments] = useOptimistic(
     serverAppointments,
     (
@@ -107,6 +139,38 @@ export function CalendarClient({
       router.refresh();
     });
   }, [router]);
+
+  useEffect(() => {
+    function onAction(e: Event) {
+      const detail = (e as CustomEvent<ReceptionActionDetail>).detail;
+      if (!detail?.action) return;
+      switch (detail.action) {
+        case "new-customer":
+          setNewCustomerOpen(true);
+          break;
+        case "book-appointment":
+          setPanelOpen(true);
+          setBookFocusSignal((n) => n + 1);
+          break;
+        case "walk-in":
+          setPanelOpen(true);
+          setWalkInSignal((n) => n + 1);
+          break;
+        case "block-time":
+          setBlockTimeOpen(true);
+          break;
+        case "add-note":
+          setNoteOpen(true);
+          break;
+        case "focus-customer-search":
+          setPanelOpen(true);
+          setSearchFocusSignal((n) => n + 1);
+          break;
+      }
+    }
+    window.addEventListener(RECEPTION_ACTION_EVENT, onAction);
+    return () => window.removeEventListener(RECEPTION_ACTION_EVENT, onAction);
+  }, []);
 
   const hasSetup = services.length > 0 && staff.length > 0;
 
@@ -311,6 +375,9 @@ export function CalendarClient({
             onOpenChange={setPanelOpen}
             onBooked={refresh}
             onOpenFullDialog={() => openNew()}
+            searchFocusSignal={searchFocusSignal}
+            bookFocusSignal={bookFocusSignal}
+            walkInSignal={walkInSignal}
           />
         )}
       </div>
@@ -327,6 +394,28 @@ export function CalendarClient({
           </Button>
         </div>
       )}
+
+      {showReceptionPanel && <QuickActionsFab />}
+
+      <NewCustomerDialog
+        open={newCustomerOpen}
+        onClose={() => setNewCustomerOpen(false)}
+        onCreated={() => {
+          refresh();
+          setPanelOpen(true);
+          setSearchFocusSignal((n) => n + 1);
+        }}
+      />
+      <BlockTimeDialog
+        open={blockTimeOpen}
+        onClose={() => setBlockTimeOpen(false)}
+        staff={staff}
+        onSaved={refresh}
+      />
+      <InternalNoteDialog
+        open={noteOpen}
+        onClose={() => setNoteOpen(false)}
+      />
 
       <AppointmentDialog
         key={

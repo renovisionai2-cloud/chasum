@@ -10,6 +10,10 @@ import { createAppointment } from "@/lib/actions/appointments";
 import { quickCreateCustomer } from "@/lib/actions/customers";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { useFormAction } from "@/hooks/use-form-action";
+import {
+  useBookingPreferences,
+  writeBookingPreferences,
+} from "@/lib/reception/use-booking-preferences";
 import type {
   ActionState,
   Customer,
@@ -19,7 +23,14 @@ import type {
 } from "@/lib/types/booking";
 import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
-import { useActionState, useCallback, useMemo, useState } from "react";
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 type QuickAppointmentProps = {
   customers: Customer[];
@@ -30,6 +41,9 @@ type QuickAppointmentProps = {
   defaultSlotIso?: string | null;
   defaultServiceId?: string | null;
   defaultStaffId?: string | null;
+  /** When true, prefer today and focus customer field (walk-in shortcut). */
+  walkInMode?: boolean;
+  focusSignal?: number;
   onSuccess: () => void;
   onCustomerCreated?: (customer: Customer) => void;
 };
@@ -43,10 +57,15 @@ export function QuickAppointmentForm({
   defaultSlotIso,
   defaultServiceId,
   defaultStaffId,
+  walkInMode = false,
+  focusSignal = 0,
   onSuccess,
   onCustomerCreated,
 }: QuickAppointmentProps) {
   const { toast } = useToast();
+  const customerRef = useRef<HTMLSelectElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const prefs = useBookingPreferences();
   const [extraCustomers, setExtraCustomers] = useState<Customer[]>([]);
   const customers = useMemo(() => {
     const map = new Map<string, Customer>();
@@ -55,20 +74,47 @@ export function QuickAppointmentForm({
     return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
   }, [initialCustomers, extraCustomers]);
 
-  const [customerId, setCustomerId] = useState(preselectedCustomerId ?? "");
-  const [serviceId, setServiceId] = useState(
-    defaultServiceId ?? services.find((s) => s.is_active)?.id ?? "",
+  const activeServices = services.filter((s) => s.is_active);
+
+  const preferredService =
+    defaultServiceId ??
+    (prefs.serviceId &&
+    activeServices.some((s) => s.id === prefs.serviceId)
+      ? prefs.serviceId
+      : null) ??
+    activeServices[0]?.id ??
+    "";
+
+  const preferredLocation =
+    (prefs.locationId &&
+    locations.some((l) => l.id === prefs.locationId)
+      ? prefs.locationId
+      : null) ??
+    locations.find((l) => l.is_default)?.id ??
+    locations[0]?.id ??
+    "";
+
+  const preferredStaff = defaultStaffId ?? prefs.staffId ?? "";
+
+  const [customerId, setCustomerId] = useState(
+    preselectedCustomerId ?? "",
   );
-  const [staffId, setStaffId] = useState(defaultStaffId ?? "");
-  const [locationId, setLocationId] = useState(
-    locations.find((l) => l.is_default)?.id ?? locations[0]?.id ?? "",
+  const [serviceOverride, setServiceOverride] = useState<string | null>(null);
+  const [staffOverride, setStaffOverride] = useState<string | null>(null);
+  const [locationOverride, setLocationOverride] = useState<string | null>(
+    null,
   );
+  const serviceId = serviceOverride ?? preferredService;
+  const staffId = staffOverride ?? preferredStaff;
+  const locationId = locationOverride ?? preferredLocation;
   const [date, setDate] = useState(
-    defaultSlotIso
-      ? format(new Date(defaultSlotIso), "yyyy-MM-dd")
-      : format(new Date(), "yyyy-MM-dd"),
+    walkInMode || !defaultSlotIso
+      ? format(new Date(), "yyyy-MM-dd")
+      : format(new Date(defaultSlotIso), "yyyy-MM-dd"),
   );
-  const [slot, setSlot] = useState<string | null>(defaultSlotIso ?? null);
+  const [slot, setSlot] = useState<string | null>(
+    walkInMode ? null : (defaultSlotIso ?? null),
+  );
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -80,16 +126,31 @@ export function QuickAppointmentForm({
     {} as ActionState,
   );
 
-  useFormAction(state, onSuccess);
+  useFormAction(state, () => {
+    writeBookingPreferences({ serviceId, staffId, locationId });
+    onSuccess();
+  });
 
-  const eligibleStaff = useMemo(() => {
-    if (!serviceId) return staff.filter((m) => m.is_active);
-    return staff.filter(
-      (m) =>
-        m.is_active &&
-        m.staff_services.some((ss) => ss.service_id === serviceId),
-    );
-  }, [staff, serviceId]);
+  useEffect(() => {
+    if (focusSignal <= 0 && !walkInMode) return;
+    const t = window.setTimeout(() => {
+      if (showCreate) nameRef.current?.focus();
+      else customerRef.current?.focus();
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [focusSignal, walkInMode, showCreate]);
+
+  const eligibleStaff = !serviceId
+    ? staff.filter((m) => m.is_active)
+    : staff.filter(
+        (m) =>
+          m.is_active &&
+          m.staff_services.some((ss) => ss.service_id === serviceId),
+      );
+
+  const activeStaffId = eligibleStaff.some((m) => m.id === staffId)
+    ? staffId
+    : (eligibleStaff[0]?.id ?? "");
 
   const loadSlots = useCallback(
     (svcId: string, stfId: string, day: string) =>
@@ -134,17 +195,27 @@ export function QuickAppointmentForm({
     toast("Customer added.", "success");
   }
 
+  const resolvedCustomerId = preselectedCustomerId || customerId;
+
   return (
     <section className="space-y-3">
-      <h3 className="ds-section-title text-sm">Quick appointment</h3>
+      <h3 className="ds-section-title text-sm">
+        {walkInMode ? "Walk-in appointment" : "Quick appointment"}
+      </h3>
 
       {!showCreate ? (
         <div className="space-y-2">
           <Label htmlFor="qa_customer">Customer</Label>
           <Select
+            ref={customerRef}
             id="qa_customer"
-            value={customerId}
+            value={resolvedCustomerId}
             onChange={(e) => setCustomerId(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                (e.target as HTMLSelectElement).blur();
+              }
+            }}
           >
             <option value="">Select customer…</option>
             {customers.map((c) => (
@@ -167,9 +238,26 @@ export function QuickAppointmentForm({
         <div className="space-y-2 rounded-[var(--radius-md)] border border-dashed border-border p-3">
           <Label htmlFor="qa_new_name">Name</Label>
           <Input
+            ref={nameRef}
             id="qa_new_name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                e.preventDefault();
+                setShowCreate(false);
+              }
+              if (
+                e.key === "Enter" &&
+                newName.trim() &&
+                newEmail.trim() &&
+                !creating
+              ) {
+                e.preventDefault();
+                void handleQuickCreate();
+              }
+            }}
           />
           <Label htmlFor="qa_new_email">Email</Label>
           <Input
@@ -208,9 +296,9 @@ export function QuickAppointmentForm({
       )}
 
       <form action={formAction} className="space-y-3">
-        <input type="hidden" name="customer_id" value={customerId} />
+        <input type="hidden" name="customer_id" value={resolvedCustomerId} />
         <input type="hidden" name="service_id" value={serviceId} />
-        <input type="hidden" name="staff_id" value={staffId} />
+        <input type="hidden" name="staff_id" value={activeStaffId} />
         <input type="hidden" name="location_id" value={locationId} />
         <input type="hidden" name="start_time" value={slot ?? ""} />
         <input type="hidden" name="status" value="confirmed" />
@@ -221,18 +309,17 @@ export function QuickAppointmentForm({
             id="qa_service"
             value={serviceId}
             onChange={(e) => {
-              setServiceId(e.target.value);
-              setStaffId("");
+              setServiceOverride(e.target.value);
+              setStaffOverride("");
               setSlot(null);
+              writeBookingPreferences({ serviceId: e.target.value });
             }}
           >
-            {services
-              .filter((s) => s.is_active)
-              .map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
+            {activeServices.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
           </Select>
         </div>
 
@@ -243,8 +330,9 @@ export function QuickAppointmentForm({
               id="qa_location"
               value={locationId}
               onChange={(e) => {
-                setLocationId(e.target.value);
+                setLocationOverride(e.target.value);
                 setSlot(null);
+                writeBookingPreferences({ locationId: e.target.value });
               }}
             >
               {locations.map((l) => (
@@ -260,10 +348,11 @@ export function QuickAppointmentForm({
           <Label htmlFor="qa_staff">Staff</Label>
           <Select
             id="qa_staff"
-            value={staffId}
+            value={activeStaffId}
             onChange={(e) => {
-              setStaffId(e.target.value);
+              setStaffOverride(e.target.value);
               setSlot(null);
+              writeBookingPreferences({ staffId: e.target.value });
             }}
           >
             <option value="">Select staff…</option>
@@ -275,10 +364,10 @@ export function QuickAppointmentForm({
           </Select>
         </div>
 
-        {serviceId && staffId && (
+        {serviceId && activeStaffId && (
           <SlotPicker
             serviceId={serviceId}
-            staffId={staffId}
+            staffId={activeStaffId}
             date={date}
             selectedSlot={slot}
             onDateChange={(d) => {
@@ -294,9 +383,19 @@ export function QuickAppointmentForm({
         <Button
           type="submit"
           className="w-full"
-          disabled={pending || !customerId || !serviceId || !staffId || !slot}
+          disabled={
+            pending ||
+            !resolvedCustomerId ||
+            !serviceId ||
+            !activeStaffId ||
+            !slot
+          }
         >
-          {pending ? "Saving…" : "Save appointment"}
+          {pending
+            ? "Saving…"
+            : walkInMode
+              ? "Book walk-in"
+              : "Save appointment"}
         </Button>
       </form>
     </section>

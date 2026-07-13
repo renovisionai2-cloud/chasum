@@ -1,5 +1,6 @@
 "use client";
 
+import { CommandPalette } from "@/components/command-palette/command-palette";
 import {
   DashboardSidebar,
   DashboardTopNav,
@@ -52,6 +53,8 @@ export function DashboardShell({
         userEmail={userEmail}
         onClose={() => setMobileOpen(false)}
       />
+
+      <CommandPalette />
     </div>
   );
 }

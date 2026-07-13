@@ -17,7 +17,7 @@ import type {
   StaffWithServices,
 } from "@/lib/types/booking";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type ReceptionPanelProps = {
   customers: Customer[];
@@ -29,6 +29,9 @@ type ReceptionPanelProps = {
   onOpenChange: (open: boolean) => void;
   onBooked: () => void;
   onOpenFullDialog: () => void;
+  searchFocusSignal?: number;
+  bookFocusSignal?: number;
+  walkInSignal?: number;
 };
 
 export function ReceptionPanel({
@@ -41,6 +44,9 @@ export function ReceptionPanel({
   onOpenChange,
   onBooked,
   onOpenFullDialog,
+  searchFocusSignal = 0,
+  bookFocusSignal = 0,
+  walkInSignal = 0,
 }: ReceptionPanelProps) {
   const [selected, setSelected] = useState<Customer | null>(null);
   const [extraCustomers, setExtraCustomers] = useState<Customer[]>([]);
@@ -49,6 +55,10 @@ export function ReceptionPanel({
     serviceId?: string;
     staffId?: string;
   }>({});
+  const formAnchorRef = useRef<HTMLDivElement>(null);
+
+  const walkInMode = walkInSignal > 0;
+  const apptFocusSignal = bookFocusSignal + walkInSignal;
 
   const allCustomers = (() => {
     const map = new Map<string, Customer>();
@@ -98,6 +108,8 @@ export function ReceptionPanel({
 
       <CustomerSearch
         selectedId={selected?.id}
+        autoFocus
+        focusSignal={searchFocusSignal}
         onSelect={(c) => {
           setSelected(c);
           setExtraCustomers((prev) =>
@@ -108,22 +120,33 @@ export function ReceptionPanel({
 
       <CustomerPreview customer={selected} />
 
-      <QuickAppointmentForm
-        key={`${selected?.id ?? "none"}-${slotDefaults.start ?? "blank"}`}
-        customers={allCustomers}
-        services={services}
-        staff={staff}
-        locations={locations}
-        preselectedCustomerId={selected?.id}
-        defaultSlotIso={slotDefaults.start}
-        defaultServiceId={slotDefaults.serviceId}
-        defaultStaffId={slotDefaults.staffId}
-        onSuccess={onBooked}
-        onCustomerCreated={(c) => {
-          setExtraCustomers((prev) => [...prev, c]);
-          setSelected(c);
+      <div
+        ref={formAnchorRef}
+        onFocusCapture={() => {
+          /* keep form in view when quick actions focus it */
         }}
-      />
+      >
+        <QuickAppointmentForm
+          key={`${selected?.id ?? "none"}-${slotDefaults.start ?? "blank"}-${walkInMode ? "wi" : "std"}-${walkInSignal}-${bookFocusSignal}`}
+          customers={allCustomers}
+          services={services}
+          staff={staff}
+          locations={locations}
+          preselectedCustomerId={selected?.id}
+          defaultSlotIso={slotDefaults.start}
+          defaultServiceId={slotDefaults.serviceId}
+          defaultStaffId={slotDefaults.staffId}
+          walkInMode={walkInMode}
+          focusSignal={apptFocusSignal}
+          onSuccess={() => {
+            onBooked();
+          }}
+          onCustomerCreated={(c) => {
+            setExtraCustomers((prev) => [...prev, c]);
+            setSelected(c);
+          }}
+        />
+      </div>
 
       <div className="flex gap-2">
         <Button

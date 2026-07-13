@@ -25,7 +25,11 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams: Promise<{ view?: string; date?: string }>;
+  searchParams: Promise<{
+    view?: string;
+    date?: string;
+    appointment?: string;
+  }>;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -88,6 +92,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         locations={locations}
         initialDate={range.start.toISOString()}
         initialView={view}
+        focusAppointmentId={params.appointment ?? null}
       />
     </div>
   );

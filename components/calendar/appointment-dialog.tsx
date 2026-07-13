@@ -27,10 +27,21 @@ import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
 import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
 import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
+import {
+  useBookingPreferences,
+  writeBookingPreferences,
+} from "@/lib/reception/use-booking-preferences";
 import { format } from "date-fns";
 import { parseISO } from "@/lib/calendar/utils";
 import { Plus } from "lucide-react";
-import { useActionState, useCallback, useMemo, useState } from "react";
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 type AppointmentDialogProps = {
   open: boolean;
@@ -106,17 +117,75 @@ export function AppointmentDialog({
   const action = isEditing ? updateAppointment : createAppointment;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
   const { toast } = useToast();
+  const customerSearchRef = useRef<HTMLInputElement>(null);
+  const prefs = useBookingPreferences();
 
-  const initial = getInitialState(appointment, services, locations, defaultDate);
+  const preferred = useMemo(() => {
+    const base = getInitialState(appointment, services, locations, defaultDate);
+    if (isEditing) return base;
+    const locationId =
+      (prefs.locationId &&
+        locations.some((l) => l.id === prefs.locationId) &&
+        prefs.locationId) ||
+      base.locationId;
+    const locationServices = services.filter(
+      (s) =>
+        s.is_active && (!locationId || s.location_id === locationId),
+    );
+    const serviceId =
+      (prefs.serviceId &&
+        locationServices.some((s) => s.id === prefs.serviceId) &&
+        prefs.serviceId) ||
+      base.serviceId;
+    const eligible = staff.filter(
+      (m) =>
+        m.is_active &&
+        (!locationId || m.location_id === locationId) &&
+        m.staff_services.some((ss) => ss.service_id === serviceId),
+    );
+    const staffId =
+      (prefs.staffId &&
+        eligible.some((m) => m.id === prefs.staffId) &&
+        prefs.staffId) ||
+      base.staffId;
+    const svc = services.find((s) => s.id === serviceId);
+    return {
+      ...base,
+      locationId,
+      serviceId,
+      staffId,
+      duration: svc?.duration_minutes ?? base.duration,
+    };
+  }, [
+    appointment,
+    services,
+    locations,
+    defaultDate,
+    isEditing,
+    prefs.locationId,
+    prefs.serviceId,
+    prefs.staffId,
+    staff,
+  ]);
+
   const [customers, setCustomers] = useState(initialCustomers);
   const [customerSearch, setCustomerSearch] = useState("");
-  const [selectedCustomerId, setSelectedCustomerId] = useState(initial.customerId);
-  const [selectedService, setSelectedService] = useState(initial.serviceId);
-  const [selectedStaff, setSelectedStaff] = useState(initial.staffId);
-  const [selectedLocation, setSelectedLocation] = useState(initial.locationId);
-  const [selectedDate, setSelectedDate] = useState(initial.date);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(initial.slot);
-  const [durationMinutes, setDurationMinutes] = useState(initial.duration);
+  const [customerHighlight, setCustomerHighlight] = useState(0);
+  const [selectedCustomerId, setSelectedCustomerId] = useState(
+    preferred.customerId,
+  );
+  const [serviceOverride, setServiceOverride] = useState<string | null>(null);
+  const [staffOverride, setStaffOverride] = useState<string | null>(null);
+  const [locationOverride, setLocationOverride] = useState<string | null>(
+    null,
+  );
+  const [selectedDate, setSelectedDate] = useState(preferred.date);
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(preferred.slot);
+  const [durationOverride, setDurationOverride] = useState<number | null>(null);
+  const selectedService = serviceOverride ?? preferred.serviceId;
+  const selectedStaff = staffOverride ?? preferred.staffId;
+  const selectedLocation = locationOverride ?? preferred.locationId;
+  const durationMinutes = durationOverride ?? preferred.duration;
   const [showNewCustomer, setShowNewCustomer] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
     name: "",
@@ -143,6 +212,12 @@ export function AppointmentDialog({
   );
 
   useFormAction(state, onSuccess, onClose);
+
+  useEffect(() => {
+    if (!open || isEditing || showNewCustomer) return;
+    const t = window.setTimeout(() => customerSearchRef.current?.focus(), 0);
+    return () => window.clearTimeout(t);
+  }, [open, isEditing, showNewCustomer]);
 
   const selectedServiceRow = services.find((s) => s.id === selectedService);
 
@@ -302,10 +377,46 @@ export function AppointmentDialog({
           ) : (
             <>
               <Input
+                ref={customerSearchRef}
                 id="customer_search"
                 placeholder="Search by name, email, or phone…"
                 value={customerSearch}
-                onChange={(e) => setCustomerSearch(e.target.value)}
+                onChange={(e) => {
+                  setCustomerSearch(e.target.value);
+                  setCustomerHighlight(0);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    e.preventDefault();
+                    if (customerSearch) setCustomerSearch("");
+                    else onClose();
+                    return;
+                  }
+                  if (filteredCustomers.length === 0) return;
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setCustomerHighlight((i) =>
+                      Math.min(i + 1, filteredCustomers.length - 1),
+                    );
+                    return;
+                  }
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setCustomerHighlight((i) => Math.max(i - 1, 0));
+                    return;
+                  }
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const pick =
+                      filteredCustomers[customerHighlight] ??
+                      filteredCustomers[0];
+                    if (pick) {
+                      setSelectedCustomerId(pick.id);
+                      setCustomerSearch(pick.name);
+                    }
+                  }
+                }}
+                aria-autocomplete="list"
               />
               <Select
                 aria-label="Select customer"
@@ -331,10 +442,13 @@ export function AppointmentDialog({
               id="location_id_select"
               value={selectedLocation}
               onChange={(e) => {
-                setSelectedLocation(e.target.value);
-                setSelectedService("");
-                setSelectedStaff("");
+                setLocationOverride(e.target.value);
+                setServiceOverride("");
+                setStaffOverride("");
                 setSelectedSlot(null);
+                if (!isEditing) {
+                  writeBookingPreferences({ locationId: e.target.value });
+                }
               }}
               required
             >
@@ -358,11 +472,12 @@ export function AppointmentDialog({
             value={selectedService}
             onChange={(e) => {
               const next = e.target.value;
-              setSelectedService(next);
-              setSelectedStaff("");
+              setServiceOverride(next);
+              setStaffOverride("");
               setSelectedSlot(null);
               const svc = services.find((s) => s.id === next);
-              if (svc) setDurationMinutes(svc.duration_minutes);
+              if (svc) setDurationOverride(svc.duration_minutes);
+              if (!isEditing) writeBookingPreferences({ serviceId: next });
             }}
             required
           >
@@ -383,8 +498,11 @@ export function AppointmentDialog({
               name="staff_id"
               value={activeStaffId}
               onChange={(e) => {
-                setSelectedStaff(e.target.value);
+                setStaffOverride(e.target.value);
                 setSelectedSlot(null);
+                if (!isEditing) {
+                  writeBookingPreferences({ staffId: e.target.value });
+                }
               }}
               required
             >
@@ -404,7 +522,9 @@ export function AppointmentDialog({
               min={5}
               step={5}
               value={durationMinutes}
-              onChange={(e) => setDurationMinutes(Number(e.target.value) || 0)}
+              onChange={(e) =>
+                setDurationOverride(Number(e.target.value) || 0)
+              }
             />
             {selectedServiceRow && (
               <p className="text-xs text-muted-foreground">
@@ -437,7 +557,7 @@ export function AppointmentDialog({
           <Select
             id="status"
             name="status"
-            defaultValue={initial.status}
+            defaultValue={preferred.status}
           >
             {(Object.keys(APPOINTMENT_STATUS_LABELS) as AppointmentStatus[]).map(
               (status) => (

@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Milestone 1.3 — Workflow Optimization)
+
+- Floating Quick Actions on Reception: New Customer, Book Appointment, Walk-In, Block Time, Add Internal Note
+- Global command palette (⌘/Ctrl+K) searching customers, staff, services, appointments, and dashboard pages
+- Customer search keyboard navigation (arrows, Enter selects first/highlighted, Escape clears)
+- Booking preferences remembered locally (service, staff, location); autofocus on first fields
+- Quick dialogs for new customer, block time, and internal notes without leaving the calendar
+
 ### Added (Milestone 1.1 — Reception Workspace)
 
 - Reception workspace on Calendar: Business Brief KPIs from live data only

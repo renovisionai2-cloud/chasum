@@ -294,6 +294,22 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Milestone 1.3 — Workflow Optimization ✅ Shipped
+
+**Goal:** Reduce friction in the receptionist workflow (speed/usability) without changing scheduling business rules.
+
+| Deliverable | Status |
+|-------------|--------|
+| Floating Quick Actions (New Customer, Book, Walk-In, Block Time, Internal Note) | ✅ |
+| Global command palette (⌘/Ctrl+K) for customers, staff, services, appointments, pages | ✅ |
+| Instant customer search with arrow/Enter/Escape keyboard navigation | ✅ |
+| Booking flow: autofocus, remembered service/staff/location, stay on one screen | ✅ |
+| Keyboard accessibility across search, dialogs, and quick actions | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -355,8 +371,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.3.0` | Shipped | Sprint 6 Booking Engine 2.0 |
 | `0.3.1` | Shipped | Sprint 7 public booking experience |
 | `0.3.2` | Shipped | Sprint 8 GVM Baby World go-live |
-| `0.3.3` | Current | Milestone 1.1 Reception Workspace |
-| `0.3.4` | Next | Production SMTP + live GVM traffic |
+| `0.3.3` | Shipped | Milestone 1.1 Reception Workspace |
+| `0.3.4` | Current | Milestone 1.3 Workflow Optimization |
+| `0.3.5` | Next | Production SMTP + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

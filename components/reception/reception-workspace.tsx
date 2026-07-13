@@ -23,6 +23,7 @@ type ReceptionWorkspaceProps = {
   locations: Location[];
   initialDate: string;
   initialView: CalendarView;
+  focusAppointmentId?: string | null;
 };
 
 export function ReceptionWorkspace({
@@ -35,6 +36,7 @@ export function ReceptionWorkspace({
   locations,
   initialDate,
   initialView,
+  focusAppointmentId = null,
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
@@ -49,6 +51,7 @@ export function ReceptionWorkspace({
         initialView={initialView}
         insights={insights}
         showReceptionPanel
+        focusAppointmentId={focusAppointmentId}
       />
     </div>
   );
