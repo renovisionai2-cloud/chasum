@@ -1,23 +1,31 @@
+import { getAppUrl } from "@/lib/env";
+import { BRAND_ASSETS, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand/assets";
 import { format, parseISO } from "date-fns";
 import type { AppointmentNotificationContext } from "@/lib/types/integrations";
 
+function brandLogoUrl(): string {
+  return `${getAppUrl()}${BRAND_ASSETS.logo}`;
+}
+
 function layout(content: string, businessName: string): string {
+  const logo = brandLogoUrl();
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#f7f8fa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f7f8fa;padding:40px 16px;">
     <tr><td align="center">
-      <table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e4e4e7;">
-        <tr><td style="padding:32px 32px 8px;">
-          <p style="margin:0;font-size:13px;font-weight:600;color:#2563eb;letter-spacing:0.02em;">CHASUM</p>
-          <h1 style="margin:8px 0 0;font-size:22px;font-weight:600;color:#0a0a0a;">${businessName}</h1>
+      <table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e7ef;">
+        <tr><td style="padding:28px 32px 12px;">
+          <img src="${logo}" width="36" height="36" alt="${BRAND_NAME}" style="display:block;border:0;border-radius:8px;" />
+          <p style="margin:14px 0 0;font-size:12px;font-weight:600;color:#1d4ed8;letter-spacing:0.04em;text-transform:uppercase;">${BRAND_NAME}</p>
+          <h1 style="margin:6px 0 0;font-size:22px;font-weight:600;color:#0c1222;">${businessName}</h1>
         </td></tr>
-        <tr><td style="padding:8px 32px 32px;color:#3f3f46;font-size:15px;line-height:1.6;">
+        <tr><td style="padding:8px 32px 32px;color:#5b6578;font-size:15px;line-height:1.6;">
           ${content}
         </td></tr>
-        <tr><td style="padding:16px 32px;background:#fafafa;border-top:1px solid #e4e4e7;font-size:12px;color:#71717a;">
-          Sent by Chasum · Appointment booking, reimagined.
+        <tr><td style="padding:16px 32px;background:#fafafa;border-top:1px solid #e2e7ef;font-size:12px;color:#5b6578;">
+          Sent by ${BRAND_NAME} · ${BRAND_TAGLINE}
         </td></tr>
       </table>
     </td></tr>
@@ -34,9 +42,9 @@ function detailBlock(ctx: AppointmentNotificationContext): string {
   return `
     <p style="margin:0 0 16px;">Hi ${ctx.customerName},</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-      <tr><td style="padding:8px 0;color:#71717a;width:100px;">Service</td><td style="padding:8px 0;font-weight:500;">${ctx.serviceName}</td></tr>
-      <tr><td style="padding:8px 0;color:#71717a;">Provider</td><td style="padding:8px 0;font-weight:500;">${ctx.staffName}</td></tr>
-      <tr><td style="padding:8px 0;color:#71717a;">When</td><td style="padding:8px 0;font-weight:500;">${formatAppointmentTime(ctx.startTime)}</td></tr>
+      <tr><td style="padding:8px 0;color:#71717a;width:100px;">Service</td><td style="padding:8px 0;font-weight:500;color:#0c1222;">${ctx.serviceName}</td></tr>
+      <tr><td style="padding:8px 0;color:#71717a;">Provider</td><td style="padding:8px 0;font-weight:500;color:#0c1222;">${ctx.staffName}</td></tr>
+      <tr><td style="padding:8px 0;color:#71717a;">When</td><td style="padding:8px 0;font-weight:500;color:#0c1222;">${formatAppointmentTime(ctx.startTime)}</td></tr>
     </table>`;
 }
 

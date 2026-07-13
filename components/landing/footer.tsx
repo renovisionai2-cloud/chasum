@@ -1,4 +1,4 @@
-import { Logo } from "@/components/ui/logo";
+import { Logo } from "@/components/brand/logo";
 import Link from "next/link";
 
 const footerLinks = {

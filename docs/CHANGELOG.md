@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Official Brand — The C Mark)
+
+- Locked Option 01 “The C Mark” as the permanent Chasum logo; assets in `/public/brand/`
+- Single `Logo` / `LogoMark` component (`components/brand/logo.tsx`) used across landing, dashboard, auth, booking, loaders
+- Favicon, Apple touch icon, PWA manifest, and root metadata point at brand assets
+- Transactional emails include branded header logo + footer
+- Brand guidelines: `docs/BRAND_GUIDELINES.md`
+
 ### Added (Milestone 1.4 — Production Readiness)
 
 - Calendar polish: overlap packing, half-hour drop ghosts, richer appointment cards, today/now highlights, smooth scroll to current time

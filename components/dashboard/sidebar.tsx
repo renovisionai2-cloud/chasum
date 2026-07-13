@@ -3,7 +3,7 @@
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LocationSwitcher } from "@/components/dashboard/location-switcher";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/ui/logo";
+import { Logo } from "@/components/brand/logo";
 import { DASHBOARD_NAV } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/actions/auth";
@@ -64,7 +64,7 @@ export function DashboardSidebar({
       )}
     >
       <div className="flex h-16 items-center border-b border-border px-5">
-        <Logo href="/dashboard" />
+        <Logo href="/dashboard" priority />
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Dashboard">

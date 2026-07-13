@@ -18,7 +18,8 @@ Design system reference for building consistent interfaces in Chasum.
 
 **Font:** Geist Sans (primary), Geist Mono (code)
 
-**Brand marks:** The C (primary logo), The Spark (AI accent) — see `components/brand/marks.tsx`
+**Brand marks:** Option 01 — The C Mark (primary logo), Option 02 — The Spark (AI accent).  
+See [`docs/BRAND_GUIDELINES.md`](./BRAND_GUIDELINES.md), assets in `/public/brand/`, React via `@/components/brand/logo`.
 
 ### Light Mode
 

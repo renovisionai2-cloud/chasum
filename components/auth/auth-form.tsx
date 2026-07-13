@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Logo } from "@/components/ui/logo";
+import { Logo } from "@/components/brand/logo";
 import type { AuthState } from "@/lib/actions/auth";
 import Link from "next/link";
 import { useActionState } from "react";

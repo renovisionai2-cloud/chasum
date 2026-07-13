@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Logo } from "@/components/ui/logo";
+import { Logo } from "@/components/brand/logo";
 import { buildSimpleIcsEvent } from "@/lib/calendar/ics";
 import type { Business, PublicBookingSummary } from "@/lib/types/booking";
 import { formatTime, parseISO } from "@/lib/calendar/utils";

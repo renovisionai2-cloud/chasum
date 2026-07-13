@@ -1,0 +1,23 @@
+{
+  "name": "Chasum",
+  "short_name": "Chasum",
+  "description": "AI Business Operating System for service businesses.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {
+      "src": "/brand/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

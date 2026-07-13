@@ -1,40 +1,23 @@
+import { LogoMark } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
 type MarkProps = {
   className?: string;
-  /** When true, mark uses currentColor; otherwise inherits from parent. */
   title?: string;
 };
 
 /**
- * Option 01 — "The C"
- * Primary Chasum lettermark: an open geometric C.
+ * Option 01 — "The C Mark"
+ * Thin wrapper around the official brand asset. Do not redraw the path here.
  */
-export function ChasumMark({ className, title = "Chasum" }: MarkProps) {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0", className)}
-      role="img"
-      aria-label={title}
-    >
-      <title>{title}</title>
-      <path
-        d="M22.5 8.2C20.6 6.5 18.1 5.5 15.4 5.5 9.6 5.5 4.9 10.2 4.9 16s4.7 10.5 10.5 10.5c2.7 0 5.2-1 7.1-2.7"
-        stroke="currentColor"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+export function ChasumMark({ className }: MarkProps) {
+  return <LogoMark className={className} variant="dark" size={20} />;
 }
 
 /**
  * Option 02 — "The Spark"
  * AI symbol used for intelligence, automation, and loading accents.
+ * Not the primary logo — do not substitute for The C Mark.
  */
 export function SparkMark({ className, title = "Chasum AI" }: MarkProps) {
   return (
@@ -67,34 +50,51 @@ type BrandBadgeProps = {
 };
 
 const sizeMap = {
-  sm: "h-8 w-8 rounded-lg",
-  md: "h-9 w-9 rounded-xl",
-  lg: "h-11 w-11 rounded-2xl",
+  sm: "h-8 w-8",
+  md: "h-9 w-9",
+  lg: "h-11 w-11",
 } as const;
 
-const iconSizeMap = {
-  sm: "h-4 w-4",
-  md: "h-5 w-5",
-  lg: "h-6 w-6",
+const iconPx = {
+  sm: 32,
+  md: 36,
+  lg: 44,
 } as const;
 
-/** Framed brand mark for nav, auth, and product chrome. */
+/**
+ * Framed brand mark for nav, auth, and product chrome.
+ * Uses official `/brand/logo.svg` for The C Mark (never a redrawn letter).
+ */
 export function BrandBadge({
   className,
   size = "md",
   mark = "c",
 }: BrandBadgeProps) {
-  const Icon = mark === "spark" ? SparkMark : ChasumMark;
+  if (mark === "spark") {
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center justify-center rounded-[22%] bg-spark text-spark-foreground shadow-sm shadow-spark/25",
+          sizeMap[size],
+          className,
+        )}
+        aria-hidden
+      >
+        <SparkMark className="h-[55%] w-[55%]" />
+      </span>
+    );
+  }
+
   return (
     <span
-      className={cn(
-        "inline-flex items-center justify-center bg-primary text-primary-foreground shadow-sm shadow-primary/20",
-        sizeMap[size],
-        className,
-      )}
-      aria-hidden={true}
+      className={cn("inline-flex shrink-0", sizeMap[size], className)}
+      aria-hidden
     >
-      <Icon className={iconSizeMap[size]} />
+      <LogoMark
+        variant="color"
+        size={iconPx[size]}
+        className="h-full w-full rounded-[22%]"
+      />
     </span>
   );
 }

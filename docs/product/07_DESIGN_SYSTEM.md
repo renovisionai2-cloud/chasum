@@ -7,10 +7,12 @@ Also see [`../UI_GUIDELINES.md`](../UI_GUIDELINES.md), [18_UX_PRINCIPLES.md](./1
 
 | Asset | Name | Usage |
 |-------|------|-------|
-| **Option 01** | The C | Primary logo / wordmark badge (`ChasumMark`, `BrandBadge`, `Logo`) |
-| **Option 02** | The Spark | AI symbol (`SparkMark`) for intelligence, automation, loaders |
+| **Option 01** | The C Mark | Permanent logo — `/public/brand/*`, `Logo` / `LogoMark` |
+| **Option 02** | The Spark | AI symbol (`SparkMark`) only — never a logo substitute |
 
-- Do not invent alternate lettermarks.
+See [`../BRAND_GUIDELINES.md`](../BRAND_GUIDELINES.md).
+
+- Do not invent alternate lettermarks or generic letter Cs.
 - Spark accent color is teal (`--spark`), never purple glow.
 - Primary brand color is signal blue (`--primary`).
 
