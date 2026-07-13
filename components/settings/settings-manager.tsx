@@ -15,8 +15,10 @@ import {
   updateLocationSettings,
 } from "@/lib/actions/location";
 import type { LocationScope } from "@/lib/location/constants";
-import type {
-  ActionState,
+import { ImageUploadField } from "@/components/ui/image-upload-field";
+import {
+  PUBLIC_BOOKING_MODES,
+  type ActionState,
   Availability,
   Business,
   Holiday,
@@ -74,19 +76,22 @@ function ProfileForm({ business }: { business: Business }) {
               <p className="text-center text-xs text-muted-foreground">Logo</p>
             </div>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="logo_url">Logo URL</Label>
-                <Input
-                  id="logo_url"
-                  name="logo_url"
-                  type="url"
-                  placeholder="https://…"
-                  defaultValue={business.logo_url ?? ""}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Host your logo and paste the public image URL.
-                </p>
-              </div>
+              <ImageUploadField
+                id="logo_url"
+                name="logo_url"
+                label="Logo"
+                folder="logo"
+                defaultValue={business.logo_url}
+              />
+              <ImageUploadField
+                id="cover_url"
+                name="cover_url"
+                label="Cover image"
+                folder="cover"
+                defaultValue={business.cover_url}
+                hint="Wide hero image for your public booking page."
+                previewClassName="sm:w-48 sm:h-24"
+              />
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">Business name</Label>
@@ -262,6 +267,41 @@ function ProfileForm({ business }: { business: Business }) {
               placeholder="e.g. Cancel or reschedule at least 24 hours before…"
               defaultValue={business.cancellation_policy ?? ""}
             />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="public_booking_mode">Public booking access</Label>
+              <Select
+                id="public_booking_mode"
+                name="public_booking_mode"
+                defaultValue={business.public_booking_mode ?? "public"}
+              >
+                {PUBLIC_BOOKING_MODES.map((mode) => (
+                  <option key={mode.value} value={mode.value}>
+                    {mode.label}
+                  </option>
+                ))}
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {PUBLIC_BOOKING_MODES.find(
+                  (m) => m.value === (business.public_booking_mode ?? "public"),
+                )?.description}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="booking_invite_code">Invite code</Label>
+              <Input
+                id="booking_invite_code"
+                name="booking_invite_code"
+                placeholder="Required for invite-only mode"
+                defaultValue={business.booking_invite_code ?? ""}
+              />
+              <p className="text-xs text-muted-foreground">
+                Share as <span className="font-mono">?invite=your-code</span> on
+                your booking link.
+              </p>
+            </div>
           </div>
 
           <div className="rounded-[var(--radius-md)] border border-border bg-muted/30 p-4">

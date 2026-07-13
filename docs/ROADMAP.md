@@ -257,6 +257,26 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Sprint 8 — GVM Baby World Go-Live ✅ Shipped
+
+**Goal:** Production readiness so GVM Baby World Ultrasound can replace Picktime for daily operations.
+
+| Deliverable | Status |
+|-------------|--------|
+| Business profile: logo/cover upload, description, contact, address, social | ✅ |
+| Services: internal notes, per-service cancellation policy, online booking guard | ✅ |
+| Staff profiles (photo, bio, qualifications, services, location, hours, time off) | ✅ (Sprint 2+) |
+| Customer profiles: referral source, documents upload, LTV metrics | ✅ |
+| Booking access modes: Staff Only / Request Approval / Public / Invite Only | ✅ |
+| Dashboard: Today's schedule, recent clients/bookings, today's revenue, business alerts | ✅ |
+| Supabase storage bucket + migration `013_sprint8_gvm_go_live.sql` | ✅ |
+
+**Prerequisite:** Run migration `013` in Supabase. Configure Resend SMTP for production email.  
+**Setup:** `node scripts/setup-gvm-baby-world.mjs`  
+**Verify:** `npm run lint` && `npm run build` && `node scripts/verify-sprint2-gvm-go-live.mjs`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -316,8 +336,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.2.8` | Shipped | Sprint 4 AI Workforce foundation |
 | `0.2.9` | Shipped | Sprint 5 premium dashboard experience |
 | `0.3.0` | Shipped | Sprint 6 Booking Engine 2.0 |
-| `0.3.1` | Current | Sprint 7 public booking experience |
-| `0.3.2` | Next | Production SMTP + Stripe + live GVM traffic |
+| `0.3.1` | Shipped | Sprint 7 public booking experience |
+| `0.3.2` | Current | Sprint 8 GVM Baby World go-live |
+| `0.3.3` | Next | Production SMTP + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

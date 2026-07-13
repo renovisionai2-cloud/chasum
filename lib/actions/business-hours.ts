@@ -86,6 +86,9 @@ export async function updateBusinessProfile(
   const cancellationPolicy = emptyToNull(formData.get("cancellation_policy"));
   const bookingPolicy = emptyToNull(formData.get("booking_policy"));
   const description = emptyToNull(formData.get("description"));
+  const publicBookingMode =
+    (formData.get("public_booking_mode") as string) || "public";
+  const inviteCode = emptyToNull(formData.get("booking_invite_code"));
 
   const { error } = await supabase
     .from("businesses")
@@ -94,6 +97,7 @@ export async function updateBusinessProfile(
       slug,
       timezone,
       logo_url: emptyToNull(formData.get("logo_url")),
+      cover_url: emptyToNull(formData.get("cover_url")),
       phone: emptyToNull(formData.get("phone")),
       email: emptyToNull(formData.get("email")),
       website: emptyToNull(formData.get("website")),
@@ -106,6 +110,8 @@ export async function updateBusinessProfile(
       description,
       booking_policy: bookingPolicy,
       cancellation_policy: cancellationPolicy,
+      public_booking_mode: publicBookingMode,
+      booking_invite_code: inviteCode,
       social_links,
     })
     .eq("id", business.id);

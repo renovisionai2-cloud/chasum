@@ -1,4 +1,5 @@
 import { PublicBookingPage } from "@/components/booking/public-booking-page";
+import { BusinessContact } from "@/components/booking/business-contact";
 import { getBusinessBySlug } from "@/lib/actions/business";
 import {
   getPublicLocationBySlug,
@@ -6,12 +7,16 @@ import {
 } from "@/lib/actions/location";
 import { getPublicServices } from "@/lib/actions/services";
 import { getPublicStaff } from "@/lib/actions/staff";
+import {
+  isPublicBookingAllowed,
+  publicBookingBlockedMessage,
+} from "@/lib/booking/access";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ location?: string }>;
+  searchParams: Promise<{ location?: string; invite?: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -28,10 +33,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BookPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
-  const { location: locationSlug } = await searchParams;
+  const { location: locationSlug, invite } = await searchParams;
   const business = await getBusinessBySlug(slug);
 
   if (!business) notFound();
+
+  if (!isPublicBookingAllowed(business, invite)) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex flex-1 items-center justify-center px-6 py-12">
+          <div className="max-w-md text-center">
+            <h1 className="text-2xl font-semibold">{business.name}</h1>
+            <p className="mt-3 text-muted-foreground">
+              {publicBookingBlockedMessage(business)}
+            </p>
+            {(business.phone || business.email) && (
+              <p className="mt-4 text-sm text-muted-foreground">
+                {business.phone && <>Phone: {business.phone}</>}
+                {business.phone && business.email && " · "}
+                {business.email && <>Email: {business.email}</>}
+              </p>
+            )}
+          </div>
+        </div>
+        <BusinessContact business={business} className="border-t border-border" />
+      </div>
+    );
+  }
 
   const locations = await getPublicLocations(business.id);
   if (locations.length === 0) notFound();
@@ -49,16 +77,19 @@ export default async function BookPage({ params, searchParams }: PageProps) {
 
   if (services.length === 0 || staff.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold">{business.name}</h1>
-          {selectedLocation && locations.length > 1 && (
-            <p className="mt-1 text-muted-foreground">{selectedLocation.name}</p>
-          )}
-          <p className="mt-2 text-muted-foreground">
-            Online booking is not available yet. Please check back soon.
-          </p>
+      <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex flex-1 items-center justify-center px-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold">{business.name}</h1>
+            {selectedLocation && locations.length > 1 && (
+              <p className="mt-1 text-muted-foreground">{selectedLocation.name}</p>
+            )}
+            <p className="mt-2 text-muted-foreground">
+              Online booking is not available yet. Please check back soon.
+            </p>
+          </div>
         </div>
+        <BusinessContact business={business} className="border-t border-border" />
       </div>
     );
   }
@@ -70,6 +101,7 @@ export default async function BookPage({ params, searchParams }: PageProps) {
       initialLocationId={locationId}
       services={services}
       staff={staff}
+      inviteCode={invite}
     />
   );
 }

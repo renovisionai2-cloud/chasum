@@ -209,6 +209,7 @@ export function AppointmentDialog({
       phone: newCustomer.phone.trim() || null,
       notes: null,
       tags: [],
+      referral_source: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

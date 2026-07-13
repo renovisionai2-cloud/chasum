@@ -1,4 +1,3 @@
-import { AiEmployeeAvatar } from "@/components/ai-workforce/employee-avatar";
 import {
   Card,
   CardContent,
@@ -11,13 +10,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { WeekBars } from "@/components/ui/chart";
-import { AI_EMPLOYEES } from "@/lib/ai-workforce/roster";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDashboardStats } from "@/lib/actions/appointments";
 import { getLocationScope } from "@/lib/actions/location";
 import {
   buildAiSummary,
-  buildDashboardInsights,
   firstNameFromUser,
   formatComparison,
   greetingForHour,
@@ -27,6 +24,7 @@ import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import {
   ArrowRight,
+  Bell,
   Calendar,
   CalendarPlus,
   Clock,
@@ -62,25 +60,12 @@ export async function DashboardOverview() {
       null,
   });
   const greeting = greetingForHour(now.getHours());
-  const weekdayName = format(now, "EEEE");
 
   const aiSummary = buildAiSummary({
     todayCount: stats.todayCount,
     pendingConfirmations: stats.pendingConfirmations,
     todayRevenue: stats.todayRevenue,
     weekCount: stats.weekCount,
-  });
-
-  const insights = buildDashboardInsights({
-    todayCount: stats.todayCount,
-    yesterdayCount: stats.yesterdayCount,
-    lastWeekSameDayCount: stats.lastWeekSameDayCount,
-    weekCount: stats.weekCount,
-    previousWeekCount: stats.previousWeekCount,
-    pendingConfirmations: stats.pendingConfirmations,
-    upcomingCount: stats.upcoming.length,
-    customerCount: stats.customerCount,
-    weekdayName,
   });
 
   const quickActions = [
@@ -191,6 +176,15 @@ export async function DashboardOverview() {
           style={{ animationDelay: "40ms" }}
         />
         <StatCard
+          title="Today's revenue"
+          value={`$${stats.todayRevenue.toFixed(0)}`}
+          description="From completed appointments today"
+          icon={DollarSign}
+          href="/dashboard/calendar"
+          accent="success"
+          style={{ animationDelay: "80ms" }}
+        />
+        <StatCard
           title="This week"
           value={stats.weekCount.toString()}
           description="Active bookings this week"
@@ -199,19 +193,6 @@ export async function DashboardOverview() {
           accent="spark"
           sparkline={weekSpark}
           comparison={formatComparison(stats.weekCount, stats.previousWeekCount)}
-          style={{ animationDelay: "80ms" }}
-        />
-        <StatCard
-          title="Monthly revenue"
-          value={`$${stats.monthlyRevenue.toFixed(0)}`}
-          description="From completed appointments"
-          icon={DollarSign}
-          href="/dashboard/calendar"
-          accent="success"
-          comparison={formatComparison(
-            stats.monthlyRevenue,
-            stats.previousMonthRevenue,
-          )}
           style={{ animationDelay: "120ms" }}
         />
         <StatCard
@@ -225,77 +206,51 @@ export async function DashboardOverview() {
         />
       </div>
 
-      {/* Insights + Quick actions */}
+      {/* Business alerts + Quick actions */}
       <div className="grid gap-6 xl:grid-cols-5">
         <Card className="xl:col-span-3 animate-fade-in-up" style={{ animationDelay: "180ms" }}>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-spark-muted text-spark">
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                <Bell className="h-4 w-4" aria-hidden="true" />
               </span>
               <div>
-                <CardTitle>Today&apos;s recommendations</CardTitle>
+                <CardTitle>Business alerts</CardTitle>
                 <CardDescription>
-                  Generated from your live booking data only
+                  Unread notifications from your live operations
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            {insights.length === 0 ? (
+            {stats.businessAlerts.length === 0 ? (
               <EmptyState
                 variant="panel"
-                icon="spark"
-                title="No recommendations yet"
-                description="When appointments, confirmations, or week-over-week changes give a clear signal, your AI Workforce will surface it here."
+                glyph={Bell}
+                title="No alerts right now"
+                description="New bookings, confirmations, and changes appear here as they happen."
               >
-                <div className="flex flex-wrap justify-center gap-2">
-                  <Link href="/dashboard/calendar">
-                    <Button size="sm">Open calendar</Button>
-                  </Link>
-                  <Link href="/dashboard/ai-workforce">
-                    <Button size="sm" variant="outline">
-                      Meet the team
-                    </Button>
-                  </Link>
-                </div>
-                <p className="mt-4 text-xs text-muted-foreground">
-                  Tip: Keep services and hours up to date so recommendations stay
-                  grounded in real capacity.
-                </p>
+                <Link href="/dashboard/notifications">
+                  <Button size="sm" variant="outline">
+                    Notification center
+                  </Button>
+                </Link>
               </EmptyState>
             ) : (
               <ul className="space-y-3">
-                {insights.map((insight) => {
-                  const employee = AI_EMPLOYEES.find(
-                    (e) => e.id === insight.employeeId,
-                  );
-                  return (
-                    <li key={insight.id}>
-                      <Link
-                        href={insight.href}
-                        className="group flex items-start gap-3 rounded-[var(--radius-md)] border border-border bg-muted/20 p-3.5 transition-all duration-200 hover:border-primary/35 hover:bg-accent/30 ds-focus-ring"
-                      >
-                        {employee ? (
-                          <AiEmployeeAvatar employee={employee} size="sm" />
-                        ) : (
-                          <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-spark-muted text-spark">
-                            <Sparkles className="h-4 w-4" />
-                          </span>
-                        )}
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-xs font-medium text-muted-foreground">
-                            {insight.employeeName} · {insight.role}
-                          </span>
-                          <span className="mt-1 block text-sm text-foreground">
-                            {insight.message}
-                          </span>
-                        </span>
-                        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                      </Link>
-                    </li>
-                  );
-                })}
+                {stats.businessAlerts.map((alert) => (
+                  <li key={alert.id}>
+                    <Link
+                      href="/dashboard/notifications"
+                      className="group block rounded-[var(--radius-md)] border border-border bg-muted/20 p-3.5 transition-colors hover:border-primary/35 hover:bg-accent/30 ds-focus-ring"
+                    >
+                      <p className="text-sm font-medium">{alert.title}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {alert.body}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
               </ul>
             )}
           </CardContent>
@@ -446,8 +401,8 @@ export async function DashboardOverview() {
         <Card className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: "300ms" }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
-              <CardTitle>New clients</CardTitle>
-              <CardDescription>This month</CardDescription>
+              <CardTitle>Recent clients</CardTitle>
+              <CardDescription>Latest client records</CardDescription>
             </div>
             <Link href="/dashboard/clients">
               <Button variant="ghost" size="sm">
@@ -456,12 +411,12 @@ export async function DashboardOverview() {
             </Link>
           </CardHeader>
           <CardContent>
-            {stats.newCustomers.length === 0 ? (
+            {stats.recentCustomers.length === 0 ? (
               <EmptyState
                 variant="inline"
                 glyph={Users}
                 icon="none"
-                title="No new clients yet"
+                title="No clients yet"
                 description="Public bookings and manual adds appear here."
               >
                 <Link href="/dashboard/clients">
@@ -470,13 +425,10 @@ export async function DashboardOverview() {
                     Add client
                   </Button>
                 </Link>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Tip: Clients are shared across all locations.
-                </p>
               </EmptyState>
             ) : (
               <ul className="space-y-3">
-                {stats.newCustomers.map((c) => (
+                {stats.recentCustomers.map((c) => (
                   <li key={c.id}>
                     <Link
                       href={`/dashboard/clients/${c.id}`}
@@ -497,12 +449,12 @@ export async function DashboardOverview() {
         </Card>
       </div>
 
-      {/* Upcoming */}
+      {/* Recent bookings */}
       <Card className="animate-fade-in-up" style={{ animationDelay: "320ms" }}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <div>
-            <CardTitle>Upcoming</CardTitle>
-            <CardDescription>Next appointments on the books</CardDescription>
+            <CardTitle>Recent bookings</CardTitle>
+            <CardDescription>Latest appointments created</CardDescription>
           </div>
           <Link href="/dashboard/calendar">
             <Button variant="outline" size="sm">
@@ -511,57 +463,49 @@ export async function DashboardOverview() {
           </Link>
         </CardHeader>
         <CardContent>
-          {stats.upcoming.length === 0 ? (
+          {stats.recentBookings.length === 0 ? (
             <EmptyState
               variant="panel"
               glyph={Calendar}
-              title="Nothing upcoming"
-              description="Schedule the next visit to keep the calendar full."
+              title="No bookings yet"
+              description="Appointments from the calendar or public page appear here."
             >
-              <div className="flex flex-wrap justify-center gap-2">
-                <Link href="/dashboard/calendar">
-                  <Button size="sm">Schedule appointment</Button>
-                </Link>
-                <Link href="/dashboard/clients">
-                  <Button size="sm" variant="outline">
-                    Browse clients
-                  </Button>
-                </Link>
-              </div>
-              <p className="mt-4 text-xs text-muted-foreground">
-                Tip: Upcoming visits power reminders once notifications are
-                enabled.
-              </p>
+              <Link href="/dashboard/calendar">
+                <Button size="sm">Schedule appointment</Button>
+              </Link>
             </EmptyState>
           ) : (
             <ul className="divide-y divide-border/80">
-              {stats.upcoming.map((appt) => (
+              {stats.recentBookings.map((row) => {
+                const customer = Array.isArray(row.customer)
+                  ? row.customer[0]
+                  : row.customer;
+                const service = Array.isArray(row.service)
+                  ? row.service[0]
+                  : row.service;
+                const location = Array.isArray(row.location)
+                  ? row.location[0]
+                  : row.location;
+                return (
                 <li
-                  key={appt.id}
+                  key={row.id}
                   className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="flex min-w-0 items-center gap-4">
-                    <div className="shrink-0 text-left">
-                      <p className="text-sm font-semibold tabular-nums text-primary">
-                        {formatTime(parseISO(appt.start_time))}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {format(parseISO(appt.start_time), "MMM d")}
-                      </p>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {appt.customer?.name ?? "Client"}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {appt.service?.name ?? "Service"}
-                        {appt.location?.name ? ` · ${appt.location.name}` : ""}
-                      </p>
-                    </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">
+                      {customer?.name ?? "Client"} ·{" "}
+                      {service?.name ?? "Service"}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {format(parseISO(row.start_time), "MMM d, yyyy")} at{" "}
+                      {formatTime(parseISO(row.start_time))}
+                      {location?.name ? ` · ${location.name}` : ""}
+                    </p>
                   </div>
-                  <StatusBadge status={appt.status} />
+                  <StatusBadge status={row.status} />
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </CardContent>

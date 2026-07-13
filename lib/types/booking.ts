@@ -5,6 +5,39 @@ export type AppointmentStatus =
   | "completed"
   | "no_show";
 
+export type PublicBookingMode =
+  | "staff_only"
+  | "request_approval"
+  | "public"
+  | "invite_only";
+
+export const PUBLIC_BOOKING_MODES: {
+  value: PublicBookingMode;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "public",
+    label: "Public booking",
+    description: "Anyone with your link can book available times.",
+  },
+  {
+    value: "request_approval",
+    label: "Request approval",
+    description: "Clients submit requests; you confirm before they are final.",
+  },
+  {
+    value: "staff_only",
+    label: "Staff only",
+    description: "No public booking — schedule from the dashboard only.",
+  },
+  {
+    value: "invite_only",
+    label: "Invite only",
+    description: "Public page requires your invite code in the URL.",
+  },
+];
+
 export type Business = {
   id: string;
   owner_id: string;
@@ -17,6 +50,7 @@ export type Business = {
   max_daily_bookings: number | null;
   subscription_plan_key?: string;
   logo_url?: string | null;
+  cover_url?: string | null;
   phone?: string | null;
   email?: string | null;
   website?: string | null;
@@ -28,6 +62,8 @@ export type Business = {
   country?: string | null;
   booking_policy?: string | null;
   description?: string | null;
+  public_booking_mode?: PublicBookingMode;
+  booking_invite_code?: string | null;
   social_links?: BusinessSocialLinks | null;
   created_at: string;
   updated_at: string;
@@ -109,6 +145,8 @@ export type Service = {
   is_active: boolean;
   online_booking: boolean;
   preparation_instructions: string | null;
+  internal_notes: string | null;
+  cancellation_policy: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -196,8 +234,19 @@ export type Customer = {
   phone: string | null;
   notes: string | null;
   tags: string[];
+  referral_source: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type CustomerDocument = {
+  id: string;
+  business_id: string;
+  customer_id: string;
+  name: string;
+  file_url: string;
+  file_type: string | null;
+  created_at: string;
 };
 
 export type Appointment = {

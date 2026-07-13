@@ -1,3 +1,4 @@
+import { CustomerDocumentsPanel } from "@/components/customers/customer-documents-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge, TagBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -82,7 +83,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
 
   if (!profile) notFound();
 
-  const { customer, upcoming, history, cancellations, noShows, metrics } =
+  const { customer, documents, upcoming, history, cancellations, noShows, metrics } =
     profile;
 
   return (
@@ -151,6 +152,11 @@ export default async function CustomerProfilePage({ params }: PageProps) {
             {customer.phone && (
               <p className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" aria-hidden="true" /> {customer.phone}
+              </p>
+            )}
+            {customer.referral_source && (
+              <p className="text-sm text-muted-foreground">
+                Referral: {customer.referral_source}
               </p>
             )}
             {customer.tags?.length > 0 && (
@@ -225,6 +231,15 @@ export default async function CustomerProfilePage({ params }: PageProps) {
           </Card>
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Documents</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CustomerDocumentsPanel customerId={customer.id} documents={documents} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

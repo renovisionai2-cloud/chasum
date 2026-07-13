@@ -37,6 +37,8 @@ export async function createCustomer(
   const email = (formData.get("email") as string)?.trim();
   const phone = (formData.get("phone") as string) || null;
   const notes = (formData.get("notes") as string) || null;
+  const referralSource =
+    (formData.get("referral_source") as string)?.trim() || null;
 
   if (!name) return { error: "Customer name is required." };
   if (!email) return { error: "Email is required." };
@@ -54,6 +56,7 @@ export async function createCustomer(
     phone,
     notes,
     tags,
+    referral_source: referralSource,
   });
 
   if (error) {
@@ -127,6 +130,8 @@ export async function updateCustomer(
       email: (formData.get("email") as string).trim(),
       phone: (formData.get("phone") as string) || null,
       notes: (formData.get("notes") as string) || null,
+      referral_source:
+        (formData.get("referral_source") as string)?.trim() || null,
       tags,
     })
     .eq("id", id)
@@ -176,6 +181,13 @@ export async function getCustomerProfile(id: string) {
     .eq("business_id", business.id)
     .order("start_time", { ascending: false });
 
+  const { data: documents } = await supabase
+    .from("customer_documents")
+    .select("*")
+    .eq("customer_id", id)
+    .eq("business_id", business.id)
+    .order("created_at", { ascending: false });
+
   const rows = appointments ?? [];
   const now = new Date();
 
@@ -202,6 +214,7 @@ export async function getCustomerProfile(id: string) {
 
   return {
     customer,
+    documents: documents ?? [],
     appointments: rows,
     upcoming,
     history,

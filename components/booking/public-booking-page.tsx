@@ -1,6 +1,7 @@
 "use client";
 
 import { BookingConfirmation } from "@/components/booking/booking-confirmation";
+import { BusinessContact } from "@/components/booking/business-contact";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ type BookingPageProps = {
   initialLocationId?: string;
   services: Service[];
   staff: StaffWithServices[];
+  inviteCode?: string;
 };
 
 type Step =
@@ -59,6 +61,7 @@ export function PublicBookingPage({
   initialLocationId,
   services,
   staff,
+  inviteCode,
 }: BookingPageProps) {
   const defaultLocation =
     locations.find((l) => l.id === initialLocationId) ??
@@ -216,7 +219,18 @@ export function PublicBookingPage({
       : selectedStaff?.name ?? "—";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
+      {business.cover_url && (
+        <div className="relative h-36 w-full overflow-hidden sm:h-44">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={business.cover_url}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        </div>
+      )}
       <header className="border-b border-border bg-card px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -648,12 +662,13 @@ export function PublicBookingPage({
             {business.cancellation_policy && (
               <p className="rounded-xl border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
                 <strong className="text-foreground">Cancellation policy:</strong>{" "}
-                {business.cancellation_policy}
+                {selectedService.cancellation_policy || business.cancellation_policy}
               </p>
             )}
 
             <form action={formAction} className="space-y-3">
               <input type="hidden" name="slug" value={business.slug} />
+              <input type="hidden" name="invite_code" value={inviteCode ?? ""} />
               <input
                 type="hidden"
                 name="location_id"
@@ -678,6 +693,7 @@ export function PublicBookingPage({
           </section>
         )}
       </main>
+      <BusinessContact business={business} className="mt-auto border-t border-border" />
     </div>
   );
 }

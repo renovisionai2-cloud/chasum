@@ -53,6 +53,10 @@ export async function createService(
   const bufferAfter = Number(formData.get("buffer_after_minutes")) || 0;
   const preparationInstructions =
     (formData.get("preparation_instructions") as string)?.trim() || null;
+  const internalNotes =
+    (formData.get("internal_notes") as string)?.trim() || null;
+  const serviceCancellationPolicy =
+    (formData.get("cancellation_policy") as string)?.trim() || null;
   const onlineBooking = formData.get("online_booking") === "true";
 
   const { error } = await supabase.from("services").insert({
@@ -67,6 +71,8 @@ export async function createService(
     buffer_before_minutes: bufferBefore,
     buffer_after_minutes: bufferAfter,
     preparation_instructions: preparationInstructions,
+    internal_notes: internalNotes,
+    cancellation_policy: serviceCancellationPolicy,
     online_booking: onlineBooking,
   });
 
@@ -98,6 +104,10 @@ export async function updateService(
       buffer_after_minutes: Number(formData.get("buffer_after_minutes")) || 0,
       preparation_instructions:
         (formData.get("preparation_instructions") as string)?.trim() || null,
+      internal_notes:
+        (formData.get("internal_notes") as string)?.trim() || null,
+      cancellation_policy:
+        (formData.get("cancellation_policy") as string)?.trim() || null,
       online_booking: formData.get("online_booking") === "true",
       is_active: formData.get("is_active") === "true",
     })

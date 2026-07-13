@@ -127,6 +127,9 @@ export async function getDashboardStats() {
     previousMonthRevenueRes,
     pendingRes,
     todayCompletedRevenueRes,
+    recentCustomersRes,
+    recentBookingsRes,
+    businessAlertsRes,
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -224,6 +227,27 @@ export async function getDashboardStats() {
       .eq("status", "completed")
       .gte("start_time", todayStart.toISOString())
       .lte("start_time", todayEnd.toISOString()),
+    supabase
+      .from("customers")
+      .select("id, name, email, created_at")
+      .eq("business_id", business.id)
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("appointments")
+      .select(
+        `id, start_time, status, created_at, service:services(name), customer:customers(name), location:locations(name)`,
+      )
+      .match(apptFilter)
+      .order("created_at", { ascending: false })
+      .limit(5),
+    supabase
+      .from("notifications")
+      .select("id, title, body, created_at, read_at")
+      .eq("business_id", business.id)
+      .is("read_at", null)
+      .order("created_at", { ascending: false })
+      .limit(5),
   ]);
 
   const monthCustomersRes = await supabase
@@ -286,6 +310,9 @@ export async function getDashboardStats() {
     upcoming: upcomingRes.data ?? [],
     todayAppointments: todayApptsRes.data ?? [],
     newCustomers: newCustomersRes.data ?? [],
+    recentCustomers: recentCustomersRes.data ?? [],
+    recentBookings: recentBookingsRes.data ?? [],
+    businessAlerts: businessAlertsRes.data ?? [],
     monthlyRevenue: revenue,
     previousMonthRevenue,
     todayRevenue,

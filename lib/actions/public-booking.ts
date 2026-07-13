@@ -3,6 +3,7 @@
 import { addMinutes, parseISO } from "date-fns";
 import { getBusinessBySlug } from "@/lib/actions/business";
 import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
+import { isPublicBookingAllowed } from "@/lib/booking/access";
 import { createClient } from "@/lib/supabase/server";
 import type {
   PublicBookingState,
@@ -116,6 +117,7 @@ export async function bookAppointment(
   const customerEmail = (formData.get("customer_email") as string)?.trim();
   const customerPhone = (formData.get("customer_phone") as string) || null;
   const notes = (formData.get("notes") as string) || null;
+  const inviteCode = (formData.get("invite_code") as string) || null;
 
   if (!slug || !serviceId || !staffId || !startTime || !customerName || !customerEmail) {
     return { error: "Please fill in all required fields." };
@@ -124,13 +126,19 @@ export async function bookAppointment(
   const business = await getBusinessBySlug(slug);
   if (!business) return { error: "Business not found." };
 
+  if (!isPublicBookingAllowed(business, inviteCode)) {
+    return { error: "Public booking is not available for this business." };
+  }
+
   const supabase = await createClient();
+  const appointmentStatus =
+    business.public_booking_mode === "request_approval" ? "pending" : "confirmed";
 
   const [{ data: service }, { data: staffMember }, locationResult] =
     await Promise.all([
       supabase
         .from("services")
-        .select("duration_minutes, name, price")
+        .select("duration_minutes, name, price, online_booking")
         .eq("id", serviceId)
         .eq("business_id", business.id)
         .eq("is_active", true)
@@ -153,6 +161,9 @@ export async function bookAppointment(
     ]);
 
   if (!service) return { error: "Service not available." };
+  if (service.online_booking === false) {
+    return { error: "This service is not available for online booking." };
+  }
   if (!staffMember) return { error: "Provider not available." };
 
   const start = parseISO(startTime);
@@ -183,6 +194,7 @@ export async function bookAppointment(
       p_end_time: end.toISOString(),
       p_notes: notes,
       p_location_id: locationId,
+      p_status: appointmentStatus,
     },
   );
 
@@ -198,8 +210,11 @@ export async function bookAppointment(
     const { handleAppointmentEvent } = await import(
       "@/lib/integrations/notifications/orchestrator"
     );
-    await handleAppointmentEvent(appointmentId as string, "confirmed");
-    emailQueued = true;
+    await handleAppointmentEvent(
+      appointmentId as string,
+      appointmentStatus === "pending" ? "created" : "confirmed",
+    );
+    emailQueued = appointmentStatus === "confirmed";
   }
 
   revalidatePath("/dashboard");
@@ -212,7 +227,10 @@ export async function bookAppointment(
   const reference = bookingReference(id);
 
   return {
-    success: `Your ${service.name} appointment is confirmed.`,
+    success:
+      appointmentStatus === "pending"
+        ? `Your ${service.name} request was submitted. We will confirm shortly.`
+        : `Your ${service.name} appointment is confirmed.`,
     appointmentId: id,
     reference,
     emailQueued,

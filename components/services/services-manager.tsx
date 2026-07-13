@@ -56,6 +56,26 @@ function ServiceForm({
           defaultValue={service?.preparation_instructions ?? ""}
         />
       </div>
+      <div className="space-y-2">
+        <Label htmlFor="cancellation_policy">Cancellation policy</Label>
+        <Textarea
+          id="cancellation_policy"
+          name="cancellation_policy"
+          rows={2}
+          placeholder="Optional — overrides business default for this service"
+          defaultValue={service?.cancellation_policy ?? ""}
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="internal_notes">Internal notes</Label>
+        <Textarea
+          id="internal_notes"
+          name="internal_notes"
+          rows={2}
+          placeholder="Staff-only — not shown to clients"
+          defaultValue={service?.internal_notes ?? ""}
+        />
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>

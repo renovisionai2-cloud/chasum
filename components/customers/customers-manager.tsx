@@ -50,6 +50,15 @@ function CustomerForm({
         <Input id="phone" name="phone" type="tel" defaultValue={customer?.phone ?? ""} />
       </div>
       <div className="space-y-2">
+        <Label htmlFor="referral_source">Referral source</Label>
+        <Input
+          id="referral_source"
+          name="referral_source"
+          placeholder="Google, Instagram, friend referral…"
+          defaultValue={customer?.referral_source ?? ""}
+        />
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="tags">Tags (comma-separated)</Label>
         <Input id="tags" name="tags" placeholder="VIP, Regular, New" defaultValue={customer?.tags?.join(", ") ?? ""} />
       </div>

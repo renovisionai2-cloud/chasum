@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 8 — GVM Baby World Go-Live)
+
+- Business profile: logo/cover file upload (Supabase Storage), public booking access modes
+- Booking modes: Staff Only, Request Approval, Public, Invite Only — enforced on `/book/[slug]`
+- Services: internal notes, per-service cancellation policy; server-side `online_booking` guard
+- Customers: referral source, document uploads (`customer_documents` + storage)
+- Dashboard: Today's revenue KPI, recent clients/bookings, business alerts from notifications
+- Public booking: cover hero, business contact footer; request-approval creates pending appointments
+- Migration `013_sprint8_gvm_go_live.sql`
+
 ### Added (Sprint 7 — Public Booking Experience)
 
 - Premium multi-step public booking: service → optional staff (or any available) → date → time → customer info → review → confirmation

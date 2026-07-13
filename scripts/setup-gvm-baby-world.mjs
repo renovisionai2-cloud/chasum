@@ -188,6 +188,7 @@ async function main() {
       booking_policy: business.booking_policy || BOOKING_POLICY,
       cancellation_policy:
         business.cancellation_policy || CANCELLATION_POLICY,
+      public_booking_mode: "public",
       country: business.country || "US",
     })
     .eq("id", business.id);
