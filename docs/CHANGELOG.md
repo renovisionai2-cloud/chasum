@@ -9,6 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 7 — Public Booking Experience)
+
+- Premium multi-step public booking: service → optional staff (or any available) → date → time → customer info → review → confirmation
+- Business description on booking page + Settings field; migration `012_sprint7_public_booking.sql`
+- Returning-customer lookup by email (`lookup_booking_customer` RPC) with welcome-back prefill
+- Confirmation screen: reference number, booking summary, cancellation policy, Download .ics, Google Calendar
+- Confirmation / staff / business emails attach `appointment.ics` (Resend when configured)
+- `getPublicSlotOptions` merges real `get_available_slots` across staff — never invents times
+- Public book path revalidates dashboard calendar, overview, clients, appointments, and staff
+
+### Changed (Sprint 7)
+
+- `bookAppointment` returns structured summary + reference for the confirmation UI
+- Email provider payload supports attachments
+
 ### Added (Sprint 6 — Booking Engine 2.0)
 
 - Appointment modal: customer search/create, service, staff, location, date, SlotPicker, duration, notes, status

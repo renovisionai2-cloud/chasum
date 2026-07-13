@@ -233,6 +233,17 @@ function ProfileForm({ business }: { business: Business }) {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="description">Public description</Label>
+            <Textarea
+              id="description"
+              name="description"
+              rows={3}
+              placeholder="Short intro shown on your public booking page…"
+              defaultValue={business.description ?? ""}
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="booking_policy">Booking policy</Label>
             <Textarea
               id="booking_policy"

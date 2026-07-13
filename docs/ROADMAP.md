@@ -236,6 +236,27 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Sprint 7 — Public Booking Experience ✅ Shipped
+
+**Goal:** Premium online booking experience businesses can share with customers.
+
+| Deliverable | Status |
+|-------------|--------|
+| Branded public page (logo, description, services, staff, location) | ✅ |
+| Multi-step flow: service → staff (optional) → date → time → info → review → confirmation | ✅ |
+| Real slots only via scheduling engine (`get_available_slots`) | ✅ |
+| Mobile-first responsive layout | ✅ |
+| Customer info + returning-customer email lookup + auto-create | ✅ |
+| Confirmation page with reference, summary, policies, Add to calendar (.ics / Google) | ✅ |
+| Customer + business confirmation emails with `.ics` (Resend when configured) | ✅ |
+| Dashboard revalidation (calendar, KPIs, clients, staff) | ✅ |
+| Migration `012_sprint7_public_booking.sql` | ✅ |
+
+**Prerequisite:** Run migration `012` in Supabase.  
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -294,8 +315,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.2.7` | Shipped | Sprint 3 premium dashboard & design system |
 | `0.2.8` | Shipped | Sprint 4 AI Workforce foundation |
 | `0.2.9` | Shipped | Sprint 5 premium dashboard experience |
-| `0.3.0` | Current | Sprint 6 Booking Engine 2.0 |
-| `0.3.1` | Next | Production SMTP + Stripe + live GVM traffic |
+| `0.3.0` | Shipped | Sprint 6 Booking Engine 2.0 |
+| `0.3.1` | Current | Sprint 7 public booking experience |
+| `0.3.2` | Next | Production SMTP + Stripe + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

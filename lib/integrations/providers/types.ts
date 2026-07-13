@@ -1,8 +1,15 @@
+export type EmailAttachment = {
+  filename: string;
+  content: string; // base64
+  contentType?: string;
+};
+
 export type EmailPayload = {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  attachments?: EmailAttachment[];
 };
 
 export type EmailResult = {

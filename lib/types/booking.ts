@@ -27,6 +27,7 @@ export type Business = {
   postal_code?: string | null;
   country?: string | null;
   booking_policy?: string | null;
+  description?: string | null;
   social_links?: BusinessSocialLinks | null;
   created_at: string;
   updated_at: string;
@@ -226,6 +227,25 @@ export type CalendarView = "day" | "week" | "month";
 export type ActionState = {
   error?: string;
   success?: string;
+};
+
+export type PublicBookingSummary = {
+  serviceName: string;
+  staffName: string;
+  locationName: string | null;
+  startTime: string;
+  endTime: string;
+  customerName: string;
+  customerEmail: string;
+  durationMinutes: number;
+  price: number;
+};
+
+export type PublicBookingState = ActionState & {
+  appointmentId?: string;
+  reference?: string;
+  summary?: PublicBookingSummary;
+  emailQueued?: boolean;
 };
 
 export const DAY_NAMES = [

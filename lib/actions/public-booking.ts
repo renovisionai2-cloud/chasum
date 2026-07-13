@@ -4,7 +4,17 @@ import { addMinutes, parseISO } from "date-fns";
 import { getBusinessBySlug } from "@/lib/actions/business";
 import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
 import { createClient } from "@/lib/supabase/server";
-import type { ActionState } from "@/lib/types/booking";
+import type {
+  PublicBookingState,
+  StaffWithServices,
+} from "@/lib/types/booking";
+import { revalidatePath } from "next/cache";
+
+export type PublicSlotOption = {
+  start: string;
+  staffId: string;
+  staffName: string;
+};
 
 export async function getAvailableSlots(
   slug: string,
@@ -16,10 +26,87 @@ export async function getAvailableSlots(
   return getPublicAvailableSlots(slug, serviceId, staffId, date, locationId);
 }
 
+/**
+ * Real slots only — merges get_available_slots across eligible staff.
+ * Never invents times; empty when nobody is free.
+ */
+export async function getPublicSlotOptions(input: {
+  slug: string;
+  serviceId: string;
+  date: string;
+  locationId?: string;
+  staffId?: string | null;
+  staff: Pick<StaffWithServices, "id" | "name" | "staff_services" | "location_id">[];
+}): Promise<PublicSlotOption[]> {
+  const eligible = input.staff.filter((member) => {
+    if (input.locationId && member.location_id !== input.locationId) return false;
+    if (input.staffId && member.id !== input.staffId) return false;
+    return member.staff_services.some((ss) => ss.service_id === input.serviceId);
+  });
+
+  const options: PublicSlotOption[] = [];
+
+  for (const member of eligible) {
+    const slots = await getPublicAvailableSlots(
+      input.slug,
+      input.serviceId,
+      member.id,
+      input.date,
+      input.locationId,
+    );
+    for (const start of slots) {
+      options.push({
+        start,
+        staffId: member.id,
+        staffName: member.name,
+      });
+    }
+  }
+
+  options.sort(
+    (a, b) =>
+      new Date(a.start).getTime() - new Date(b.start).getTime() ||
+      a.staffName.localeCompare(b.staffName),
+  );
+
+  return options;
+}
+
+/** Returning customer prefill — exact email match within the tenant only. */
+export async function lookupPublicCustomer(
+  slug: string,
+  email: string,
+): Promise<{ found: boolean; name?: string; phone?: string | null }> {
+  const trimmed = email.trim();
+  if (!trimmed || !trimmed.includes("@")) return { found: false };
+
+  const business = await getBusinessBySlug(slug);
+  if (!business) return { found: false };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("lookup_booking_customer", {
+    p_business_id: business.id,
+    p_email: trimmed,
+  });
+
+  if (error || !data?.length) return { found: false };
+
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    found: true,
+    name: row.name as string,
+    phone: (row.phone as string | null) ?? null,
+  };
+}
+
+function bookingReference(appointmentId: string): string {
+  return `CHS-${appointmentId.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+}
+
 export async function bookAppointment(
-  _prev: ActionState,
+  _prev: PublicBookingState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<PublicBookingState> {
   const slug = formData.get("slug") as string;
   const locationId = (formData.get("location_id") as string) || null;
   const serviceId = formData.get("service_id") as string;
@@ -39,15 +126,34 @@ export async function bookAppointment(
 
   const supabase = await createClient();
 
-  const { data: service } = await supabase
-    .from("services")
-    .select("duration_minutes, name")
-    .eq("id", serviceId)
-    .eq("business_id", business.id)
-    .eq("is_active", true)
-    .single();
+  const [{ data: service }, { data: staffMember }, locationResult] =
+    await Promise.all([
+      supabase
+        .from("services")
+        .select("duration_minutes, name, price")
+        .eq("id", serviceId)
+        .eq("business_id", business.id)
+        .eq("is_active", true)
+        .single(),
+      supabase
+        .from("staff")
+        .select("id, name")
+        .eq("id", staffId)
+        .eq("business_id", business.id)
+        .eq("is_active", true)
+        .single(),
+      locationId
+        ? supabase
+            .from("locations")
+            .select("name")
+            .eq("id", locationId)
+            .eq("business_id", business.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
 
   if (!service) return { error: "Service not available." };
+  if (!staffMember) return { error: "Provider not available." };
 
   const start = parseISO(startTime);
   const end = addMinutes(start, service.duration_minutes);
@@ -87,14 +193,39 @@ export async function bookAppointment(
     return { error: message };
   }
 
+  let emailQueued = false;
   if (appointmentId) {
     const { handleAppointmentEvent } = await import(
       "@/lib/integrations/notifications/orchestrator"
     );
     await handleAppointmentEvent(appointmentId as string, "confirmed");
+    emailQueued = true;
   }
 
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/calendar");
+  revalidatePath("/dashboard/clients");
+  revalidatePath("/dashboard/appointments");
+  revalidatePath("/dashboard/staff");
+
+  const id = appointmentId as string;
+  const reference = bookingReference(id);
+
   return {
-    success: `Your ${service.name} appointment is confirmed for ${start.toLocaleString()}.`,
+    success: `Your ${service.name} appointment is confirmed.`,
+    appointmentId: id,
+    reference,
+    emailQueued,
+    summary: {
+      serviceName: service.name,
+      staffName: staffMember.name,
+      locationName: locationResult.data?.name ?? null,
+      startTime: start.toISOString(),
+      endTime: end.toISOString(),
+      customerName,
+      customerEmail,
+      durationMinutes: service.duration_minutes,
+      price: Number(service.price),
+    },
   };
 }

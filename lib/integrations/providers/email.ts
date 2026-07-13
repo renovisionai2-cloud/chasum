@@ -22,6 +22,15 @@ class ResendEmailProvider implements EmailProvider {
         subject: payload.subject,
         html: payload.html,
         text: payload.text,
+        ...(payload.attachments?.length
+          ? {
+              attachments: payload.attachments.map((file) => ({
+                filename: file.filename,
+                content: file.content,
+                content_type: file.contentType ?? "application/octet-stream",
+              })),
+            }
+          : {}),
       }),
     });
 
@@ -37,7 +46,14 @@ class ConsoleEmailProvider implements EmailProvider {
   readonly name = "console";
 
   async send(payload: EmailPayload): Promise<EmailResult> {
-    console.info("[email]", payload.to, payload.subject);
+    console.info(
+      "[email]",
+      payload.to,
+      payload.subject,
+      payload.attachments?.length
+        ? `(${payload.attachments.length} attachment(s))`
+        : "",
+    );
     return { success: true, messageId: `console-${Date.now()}` };
   }
 }

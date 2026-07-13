@@ -85,6 +85,7 @@ export async function updateBusinessProfile(
 
   const cancellationPolicy = emptyToNull(formData.get("cancellation_policy"));
   const bookingPolicy = emptyToNull(formData.get("booking_policy"));
+  const description = emptyToNull(formData.get("description"));
 
   const { error } = await supabase
     .from("businesses")
@@ -102,6 +103,7 @@ export async function updateBusinessProfile(
       state: emptyToNull(formData.get("state")),
       postal_code: emptyToNull(formData.get("postal_code")),
       country: emptyToNull(formData.get("country")) ?? "US",
+      description,
       booking_policy: bookingPolicy,
       cancellation_policy: cancellationPolicy,
       social_links,

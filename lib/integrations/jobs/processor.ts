@@ -14,6 +14,7 @@ import {
   renderSmsReschedule,
 } from "@/lib/integrations/email/templates";
 import { syncCalendarConnection } from "@/lib/integrations/calendar/sync";
+import { generateSingleEventIcs } from "@/lib/integrations/calendar/apple";
 import { dispatchWebhooks } from "@/lib/integrations/webhooks/dispatch";
 import { generateRecurringOccurrences } from "@/lib/integrations/automation/recurring";
 import { notifyWaitlistForSlot } from "@/lib/integrations/automation/waitlist";
@@ -133,6 +134,19 @@ async function processEmailJob(payload: Record<string, unknown>) {
     subject: template.subject,
     html: template.html,
     text: template.text,
+    attachments:
+      templateKey === "appointment.confirmation" ||
+      templateKey === "appointment.staff" ||
+      templateKey === "appointment.business" ||
+      templateKey === "appointment.reschedule"
+        ? [
+            {
+              filename: "appointment.ics",
+              content: Buffer.from(generateSingleEventIcs(ctx)).toString("base64"),
+              contentType: "text/calendar; charset=utf-8",
+            },
+          ]
+        : undefined,
   });
 
   await logDelivery(

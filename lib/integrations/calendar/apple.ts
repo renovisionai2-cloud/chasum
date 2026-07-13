@@ -38,12 +38,24 @@ export function generateIcsFeed(
 }
 
 export function generateSingleEventIcs(ctx: AppointmentNotificationContext): string {
-  const calendar = ical({ name: ctx.businessName, method: ICalCalendarMethod.PUBLISH });
+  const calendar = ical({
+    name: ctx.businessName,
+    method: ICalCalendarMethod.PUBLISH,
+    timezone: "UTC",
+  });
   calendar.createEvent({
+    id: ctx.appointmentId,
     start: new Date(ctx.startTime),
     end: new Date(ctx.endTime),
     summary: `${ctx.serviceName} with ${ctx.staffName}`,
-    description: `Client: ${ctx.customerName}`,
+    description: [
+      `Client: ${ctx.customerName}`,
+      ctx.notes ? `Notes: ${ctx.notes}` : null,
+      `Booked via ${ctx.businessName}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    status: ICalEventStatus.CONFIRMED,
   });
   return calendar.toString();
 }

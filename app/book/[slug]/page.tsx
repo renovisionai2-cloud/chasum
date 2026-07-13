@@ -20,7 +20,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!business) return { title: "Not Found" };
   return {
     title: `Book with ${business.name}`,
-    description: `Schedule an appointment with ${business.name} on Chasum.`,
+    description:
+      business.description?.trim() ||
+      `Schedule an appointment with ${business.name} on Chasum.`,
   };
 }
 
