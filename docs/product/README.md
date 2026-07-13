@@ -14,7 +14,7 @@ Product strategy, roadmap, and planning docs. Engineering reference lives alongs
 | [05_ARCHITECTURE.md](./05_ARCHITECTURE.md) | Product-level system view |
 | [06_DATABASE.md](./06_DATABASE.md) | Data model (product lens) |
 | [07_DESIGN_SYSTEM.md](./07_DESIGN_SYSTEM.md) | UI/UX standards |
-| [08_AI_WORKFORCE.md](./08_AI_WORKFORCE.md) | AI agents and automation vision |
+| [08_AI_WORKFORCE.md](./08_AI_WORKFORCE.md) | Early AI agent sketch (scheduling-era) |
 | [09_PRICING_AND_PLANS.md](./09_PRICING_AND_PLANS.md) | Monetization model |
 | [10_MULTI_LOCATION.md](./10_MULTI_LOCATION.md) | Multi-location strategy |
 | [11_ENTERPRISE.md](./11_ENTERPRISE.md) | Enterprise tier |
@@ -26,6 +26,7 @@ Product strategy, roadmap, and planning docs. Engineering reference lives alongs
 | [17_PLATFORM_PRINCIPLES.md](./17_PLATFORM_PRINCIPLES.md) | Architecture, modules, scale |
 | [18_UX_PRINCIPLES.md](./18_UX_PRINCIPLES.md) | Clicks, typing, waiting, design quality |
 | [19_AI_PRINCIPLES.md](./19_AI_PRINCIPLES.md) | Automation, recommendations, truthfulness |
+| [20_AI_WORKFORCE.md](./20_AI_WORKFORCE.md) | **Strategic vision — AI Workforce & AI Business OS** |
 | [99_IDEA_PARKING_LOT.md](./99_IDEA_PARKING_LOT.md) | Unscoped ideas |
 
 ## Engineering cross-reference
