@@ -1,14 +1,22 @@
+import { SparkMark } from "@/components/brand/marks";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Bot,
   Calendar,
   Clock,
   Globe,
   Shield,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
 
-const features = [
+type Feature = {
+  title: string;
+  description: string;
+  icon?: LucideIcon;
+  spark?: boolean;
+};
+
+const features: Feature[] = [
   {
     icon: Zap,
     title: "Lightning fast",
@@ -16,10 +24,10 @@ const features = [
       "Book appointments in seconds. No clunky forms, no unnecessary steps.",
   },
   {
-    icon: Bot,
-    title: "AI-powered",
+    spark: true,
+    title: "AI that removes work",
     description:
-      "Smart scheduling suggestions, automated reminders, and intelligent availability.",
+      "Reminders, suggestions, and automation powered by The Spark — never invented availability.",
   },
   {
     icon: Calendar,
@@ -43,7 +51,7 @@ const features = [
     icon: Shield,
     title: "Enterprise-ready",
     description:
-      "SOC 2 compliant infrastructure with end-to-end encryption for your data.",
+      "Multi-location foundations with tenant isolation built for growth.",
   },
 ];
 
@@ -53,11 +61,10 @@ export function Features() {
       <div className="mx-auto max-w-6xl">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-            Everything you need, nothing you don&apos;t
+            Everything you need to run the business
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Built for speed and simplicity. Chasum strips away the complexity
-            so you can focus on your clients.
+            Built as an operating system — not a single-purpose booking widget.
           </p>
         </div>
 
@@ -65,11 +72,21 @@ export function Features() {
           {features.map((feature) => (
             <Card
               key={feature.title}
-              className="group border-border/60 bg-card/50 transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5"
+              className="group border-border/60 bg-card/80 transition-all duration-300 hover:border-primary/30 hover:shadow-md"
             >
               <CardContent className="p-6">
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                  <feature.icon className="h-5 w-5" />
+                <div
+                  className={
+                    feature.spark
+                      ? "mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-spark text-spark-foreground"
+                      : "mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent text-accent-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground"
+                  }
+                >
+                  {feature.spark ? (
+                    <SparkMark className="h-5 w-5" />
+                  ) : (
+                    feature.icon && <feature.icon className="h-5 w-5" />
+                  )}
                 </div>
                 <h3 className="text-base font-semibold text-foreground">
                   {feature.title}

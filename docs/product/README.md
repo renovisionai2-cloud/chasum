@@ -22,6 +22,10 @@ Product strategy, roadmap, and planning docs. Engineering reference lives alongs
 | [13_COMPETITIVE_RESEARCH.md](./13_COMPETITIVE_RESEARCH.md) | Market landscape |
 | [14_DECISION_LOG.md](./14_DECISION_LOG.md) | Architecture and product decisions |
 | [15_RELEASE_PLAN.md](./15_RELEASE_PLAN.md) | Version targets and release criteria |
+| [16_PRODUCT_PRINCIPLES.md](./16_PRODUCT_PRINCIPLES.md) | Decision rules for what/how we build |
+| [17_PLATFORM_PRINCIPLES.md](./17_PLATFORM_PRINCIPLES.md) | Architecture, modules, scale |
+| [18_UX_PRINCIPLES.md](./18_UX_PRINCIPLES.md) | Clicks, typing, waiting, design quality |
+| [19_AI_PRINCIPLES.md](./19_AI_PRINCIPLES.md) | Automation, recommendations, truthfulness |
 | [99_IDEA_PARKING_LOT.md](./99_IDEA_PARKING_LOT.md) | Unscoped ideas |
 
 ## Engineering cross-reference

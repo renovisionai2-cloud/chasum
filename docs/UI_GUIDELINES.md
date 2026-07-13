@@ -14,37 +14,25 @@ Design system reference for building consistent interfaces in Chasum.
 
 ---
 
-## Typography
+## Typography & color
 
 **Font:** Geist Sans (primary), Geist Mono (code)
 
-| Element | Classes |
-|---------|---------|
-| Page title | `text-2xl font-semibold tracking-tight` |
-| Section title | `text-lg font-semibold` |
-| Card title | `text-sm font-medium text-muted-foreground` (stat cards) or default `CardTitle` |
-| Body | `text-sm` (default), `text-base` (marketing) |
-| Muted text | `text-sm text-muted-foreground` |
-| Labels | `Label` component (`text-sm font-medium`) |
-
----
-
-## Color System
-
-Defined as CSS custom properties in `app/globals.css`. Referenced via Tailwind tokens.
+**Brand marks:** The C (primary logo), The Spark (AI accent) — see `components/brand/marks.tsx`
 
 ### Light Mode
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| `--background` | `#fafafa` | Page background |
-| `--foreground` | `#0a0a0a` | Primary text |
+| `--background` | `#f7f8fa` | Page background |
+| `--foreground` | `#0c1222` | Primary text |
 | `--card` | `#ffffff` | Card surfaces |
-| `--primary` | `#2563eb` | Buttons, links, accents |
-| `--muted` | `#f4f4f5` | Subtle backgrounds |
-| `--border` | `#e4e4e7` | Borders, dividers |
-| `--destructive` | `#ef4444` | Errors, delete actions |
-| `--success` | `#22c55e` | Success states |
+| `--primary` | `#1d4ed8` | Buttons, links, accents |
+| `--spark` | `#0f766e` | AI / The Spark accent |
+| `--muted` | `#eef1f6` | Subtle backgrounds |
+| `--border` | `#e2e7ef` | Borders, dividers |
+| `--destructive` | `#dc2626` | Errors, delete actions |
+| `--success` | `#16a34a` | Success states |
 
 ### Dark Mode
 

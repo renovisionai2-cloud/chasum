@@ -18,6 +18,7 @@ High-level phases. Detailed engineering status: [`../ROADMAP.md`](../ROADMAP.md)
 
 | Milestone | Owner | Target |
 |-----------|-------|--------|
+| **Sprint 1 — Brand Integration** | Product | Official C + Spark identity across app |
 | **GVM Baby World go-live** | Product + GVM | First real customer on Chasum |
 | Custom SMTP (Resend) | Ops | Production auth emails |
 

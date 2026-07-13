@@ -88,7 +88,7 @@ export function Dialog({
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         className={cn(
-          "relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-card shadow-xl sm:max-w-lg sm:rounded-2xl",
+          "relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-[var(--radius-lg)] border border-border bg-card shadow-lg sm:max-w-lg sm:rounded-[var(--radius-lg)]",
           className,
         )}
       >

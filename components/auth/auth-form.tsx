@@ -44,7 +44,7 @@ export function AuthForm({
         <Logo />
       </div>
 
-      <Card className="w-full max-w-md border-border/60 shadow-lg shadow-black/5 dark:shadow-black/20">
+      <Card className="w-full max-w-md border-border/60 shadow-md">
         {alert && <div className="px-6 pt-6">{alert}</div>}
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{title}</CardTitle>

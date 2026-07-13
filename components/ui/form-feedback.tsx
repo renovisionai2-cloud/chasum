@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function AlertMessage({
@@ -16,7 +17,7 @@ export function AlertMessage({
       {error && (
         <p
           role="alert"
-          className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          className="rounded-[var(--radius-md)] border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
@@ -24,7 +25,7 @@ export function AlertMessage({
       {success && (
         <p
           role="status"
-          className="rounded-xl border border-success/20 bg-success/10 px-4 py-3 text-sm text-success"
+          className="rounded-[var(--radius-md)] border border-success/20 bg-success/10 px-4 py-3 text-sm text-success"
         >
           {success}
         </p>
@@ -49,21 +50,13 @@ export function FormFooter({
   return (
     <div className="flex justify-end gap-2 pt-2">
       {onCancel && (
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-5 text-sm font-medium hover:bg-muted"
-        >
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
-        </button>
+        </Button>
       )}
-      <button
-        type="submit"
-        disabled={pending || submitDisabled}
-        className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending || submitDisabled}>
         {pending ? pendingLabel : submitLabel}
-      </button>
+      </Button>
     </div>
   );
 }

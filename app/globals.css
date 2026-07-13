@@ -1,41 +1,73 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #0a0a0a;
+  /* Surfaces */
+  --background: #f7f8fa;
+  --foreground: #0c1222;
   --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --border: #e4e4e7;
-  --primary: #2563eb;
+  --card-foreground: #0c1222;
+  --muted: #eef1f6;
+  --muted-foreground: #5b6578;
+  --border: #e2e7ef;
+
+  /* Brand — deep signal blue */
+  --primary: #1d4ed8;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --accent: #eff6ff;
-  --accent-foreground: #1d4ed8;
-  --ring: #2563eb;
-  --destructive: #ef4444;
-  --success: #22c55e;
+  --secondary: #eef1f6;
+  --secondary-foreground: #0c1222;
+  --accent: #e8eefc;
+  --accent-foreground: #1e3a8a;
+  --ring: #1d4ed8;
+
+  /* AI Spark accent (teal — not purple) */
+  --spark: #0f766e;
+  --spark-foreground: #ffffff;
+  --spark-muted: #ccfbf1;
+
+  /* Status */
+  --destructive: #dc2626;
+  --success: #16a34a;
+  --warning: #d97706;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgb(12 18 34 / 0.04);
+  --shadow-sm: 0 1px 3px rgb(12 18 34 / 0.06), 0 1px 2px rgb(12 18 34 / 0.04);
+  --shadow-md: 0 4px 12px rgb(12 18 34 / 0.08), 0 2px 4px rgb(12 18 34 / 0.04);
+  --shadow-lg: 0 12px 32px rgb(12 18 34 / 0.1), 0 4px 8px rgb(12 18 34 / 0.04);
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --border: #27272a;
+  --background: #070b14;
+  --foreground: #f4f6fb;
+  --card: #101726;
+  --card-foreground: #f4f6fb;
+  --muted: #1a2336;
+  --muted-foreground: #9aa6bc;
+  --border: #243049;
+
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
+  --secondary: #1a2336;
+  --secondary-foreground: #f4f6fb;
   --accent: #172554;
   --accent-foreground: #93c5fd;
   --ring: #3b82f6;
+
+  --spark: #2dd4bf;
+  --spark-foreground: #042f2e;
+  --spark-muted: #134e4a;
+
   --destructive: #f87171;
   --success: #4ade80;
+  --warning: #fbbf24;
+
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.5);
 }
 
 @theme inline {
@@ -55,8 +87,19 @@
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
   --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-spark: var(--spark);
+  --color-spark-foreground: var(--spark-foreground);
+  --color-spark-muted: var(--spark-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
 }
 
 * {
@@ -71,10 +114,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-feature-settings: "ss01" on, "cv11" on;
+  letter-spacing: -0.011em;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 @keyframes fade-in-up {
@@ -88,8 +133,24 @@ body {
   }
 }
 
+@keyframes spark-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(0.94);
+  }
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-spark-pulse {
+  animation: spark-pulse 1.6s ease-in-out infinite;
 }
 
 .animation-delay-100 {
@@ -106,4 +167,19 @@ body {
 
 .animation-delay-400 {
   animation-delay: 400ms;
+}
+
+/* Soft brand atmosphere for marketing / auth */
+.brand-glow {
+  background:
+    radial-gradient(
+      60% 50% at 50% -10%,
+      color-mix(in srgb, var(--primary) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 40% at 90% 20%,
+      color-mix(in srgb, var(--spark) 10%, transparent),
+      transparent 65%
+    );
 }

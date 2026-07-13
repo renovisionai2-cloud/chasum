@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 1 — Brand Integration)
+
+- Official brand marks: Option 01 “The C” (`ChasumMark`) and Option 02 “The Spark” (`SparkMark`)
+- Design tokens for spark accent, elevation shadows, and radius scale in `app/globals.css`
+- Reusable UI primitives: `table`, `alert`, `chart`; expanded `button` / `badge` variants
+- Brand applied across landing, auth, dashboard chrome, public booking, loaders, and empty states
+
+### Changed (Sprint 1)
+
+- Logo and product chrome use The C lettermark instead of the temporary grid icon
+- Marketing copy positioned as AI Business Operating System
+- Tag/status accent palette avoids purple bias; AI moments use teal Spark
+
 ### Added (Phase 5 — Multi-Location Foundation)
 
 - Migration `008_phase5_multi_location.sql`: `locations`, `location_settings`, `location_hours`, `subscription_plans`; `location_id` on staff/services/appointments/availability; default location backfill for all businesses

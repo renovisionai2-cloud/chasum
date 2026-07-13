@@ -17,11 +17,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Chasum — Appointment booking, reimagined",
+    default: "Chasum — AI Business Operating System",
     template: "%s | Chasum",
   },
   description:
-    "The fastest, cleanest way to schedule appointments. AI-powered booking for modern businesses.",
+    "The AI-powered Business Operating System for service businesses. Scheduling, clients, locations, and intelligent automation in one platform.",
 };
 
 export default function RootLayout({

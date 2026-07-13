@@ -26,7 +26,7 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-4 text-sm text-muted-foreground">
-              The fastest, cleanest way to schedule appointments.
+              The AI Business Operating System for service businesses.
             </p>
           </div>
 

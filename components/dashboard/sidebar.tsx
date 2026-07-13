@@ -61,7 +61,7 @@ export function DashboardSidebar({
       )}
     >
       <div className="flex h-16 items-center border-b border-border px-5">
-        <Logo />
+        <Logo href="/dashboard" />
       </div>
 
       <nav className="flex-1 space-y-1 p-4">
@@ -164,7 +164,7 @@ export function DashboardTopNav({
   const pageTitle = getPageTitle(pathname);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/80 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/90 px-4 backdrop-blur-xl md:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Button
           variant="ghost"

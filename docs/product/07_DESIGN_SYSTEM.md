@@ -1,6 +1,18 @@
 # Design System
 
-Product UX standards. Implementation detail: [`../UI_GUIDELINES.md`](../UI_GUIDELINES.md).
+Product UX standards. Implementation: `app/globals.css`, `components/ui/*`, `components/brand/*`.
+Also see [`../UI_GUIDELINES.md`](../UI_GUIDELINES.md), [18_UX_PRINCIPLES.md](./18_UX_PRINCIPLES.md).
+
+## Brand identity
+
+| Asset | Name | Usage |
+|-------|------|-------|
+| **Option 01** | The C | Primary logo / wordmark badge (`ChasumMark`, `BrandBadge`, `Logo`) |
+| **Option 02** | The Spark | AI symbol (`SparkMark`) for intelligence, automation, loaders |
+
+- Do not invent alternate lettermarks.
+- Spark accent color is teal (`--spark`), never purple glow.
+- Primary brand color is signal blue (`--primary`).
 
 ## Principles
 
@@ -8,39 +20,37 @@ Product UX standards. Implementation detail: [`../UI_GUIDELINES.md`](../UI_GUIDE
 2. **Mobile-first** — booking and dashboard usable on phones
 3. **Accessible by default** — keyboard, screen reader, focus management
 4. **Feedback always** — loading, empty, error, and success on every action
+5. **Premium OS feel** — consistent radius, shadow, and typography tokens
 
-## Brand feel
+## Core components
 
-- Professional but warm (health/wellness, family services)
-- Trustworthy for medical-adjacent services (ultrasound)
-- Not corporate-generic; room for per-business branding (Phase 5)
+| Component | Path |
+|-----------|------|
+| Buttons | `components/ui/button.tsx` (`primary`, `secondary`, `outline`, `ghost`, `spark`, `destructive`) |
+| Cards | `components/ui/card.tsx` |
+| Forms | `input`, `select`, `textarea`, `label`, `form-feedback` |
+| Dialogs | `components/ui/dialog.tsx` |
+| Tables | `components/ui/table.tsx` |
+| Charts | `components/ui/chart.tsx` (presentational) |
+| Badges | `components/ui/badge.tsx` |
+| Alerts | `components/ui/alert.tsx` + `AlertMessage` |
+| Loading / empty | `loading.tsx`, `EmptyState` in `page-header.tsx` |
 
-## Key flows
+## Tokens (CSS)
 
-| Flow | UX priority |
-|------|-------------|
-| Public booking | Minimal steps; large tap targets; clear service descriptions |
-| Dashboard calendar | At-a-glance day; fast create/edit appointment |
-| Settings | Grouped cards; save feedback per section |
-| Empty states | Actionable ("Add your first service") not dead ends |
+Defined in `app/globals.css`:
 
-## Components (shared)
+- Surfaces: `--background`, `--card`, `--muted`, `--border`
+- Brand: `--primary`, `--spark`
+- Elevation: `--shadow-xs` → `--shadow-lg`
+- Radius: `--radius-sm` / `--md` / `--lg`
 
-- `SlotPicker` — date + available time chips (dashboard + public)
-- `Dialog` — appointment create/edit, mobile bottom-sheet
-- `StatusBadge` — appointment status colors
-- Toast system — CRUD feedback
+## Typography
 
-## Typography & color
+- **Font:** Geist Sans (UI), Geist Mono (code)
+- Page title: `text-2xl font-semibold tracking-tight`
+- Body: `text-sm` (product) / `text-base`–`text-lg` (marketing)
 
-- **Font:** Geist Sans
-- **Primary:** Blue `#2563eb` (light) / `#3b82f6` (dark)
-- **Status colors:** pending amber, confirmed blue, cancelled red, completed green
+## Status colors
 
-## GVM Baby World notes
-
-When configuring their public page:
-
-- Service names should match what clients expect (2D, 3D/4D, Gender Reveal, etc.)
-- Consider service descriptions with duration and prep instructions
-- Photo/logo upload deferred to custom branding phase
+Use `StatusBadge` — pending amber, confirmed blue, cancelled red, completed green, no-show muted.

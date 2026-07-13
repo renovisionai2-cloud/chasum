@@ -104,7 +104,7 @@ export function PublicBookingPage({
               {selectedLocation ? `${selectedLocation.name} · Book an appointment` : "Book an appointment"}
             </p>
           </div>
-          <Logo showText={false} />
+          <Logo showText={false} href={null} />
         </div>
       </header>
 
