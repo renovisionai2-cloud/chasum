@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import type { AppointmentNotificationContext } from "@/lib/types/integrations";
 
 function brandLogoUrl(): string {
-  return `${getAppUrl()}${BRAND_ASSETS.logoIcon}`;
+  return `${getAppUrl()}${BRAND_ASSETS.logoHorizontal}`;
 }
 
 function layout(content: string, businessName: string): string {
@@ -17,9 +17,8 @@ function layout(content: string, businessName: string): string {
     <tr><td align="center">
       <table width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0;">
         <tr><td style="padding:28px 32px 12px;">
-          <img src="${logo}" width="40" height="40" alt="${BRAND_NAME}" style="display:block;border:0;" />
-          <p style="margin:14px 0 0;font-size:12px;font-weight:600;color:#2563eb;letter-spacing:0.04em;text-transform:uppercase;">${BRAND_NAME}</p>
-          <h1 style="margin:6px 0 0;font-size:22px;font-weight:600;color:#0b1324;">${businessName}</h1>
+          <img src="${logo}" width="168" height="36" alt="${BRAND_NAME}" style="display:block;border:0;height:36px;width:auto;max-width:168px;" />
+          <h1 style="margin:18px 0 0;font-size:22px;font-weight:600;color:#0b1324;">${businessName}</h1>
         </td></tr>
         <tr><td style="padding:8px 32px 32px;color:#334155;font-size:15px;line-height:1.6;">
           ${content}
