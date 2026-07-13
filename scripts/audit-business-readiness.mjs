@@ -53,7 +53,7 @@ const sb = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-async function resolveOwnerEmail(preferredSlug = "dardin-gvm") {
+async function resolveOwnerEmail(preferredSlug = "gvm-baby-world") {
   if (ownerEmail) return ownerEmail;
 
   const { data: business } = await sb

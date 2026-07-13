@@ -23,13 +23,16 @@ Dogfood the product with a real ultrasound studio before optimizing for hypothet
 
 Checklist for GVM Baby World:
 
-- [ ] Business profile: GVM Baby World Ultrasound
-- [ ] Staff: owner/operator
-- [ ] Services: 2D, Gender Reveal, 3D/4D, 5D HDLive, Heartbeat Recording
-- [ ] Business hours configured
+- [x] Business profile: GVM Baby World Ultrasound
+- [x] Staff: owner/operator
+- [x] Services: 2D, Gender Reveal, 3D/4D, 5D HDLive, Heartbeat Recording
+- [x] Business hours configured
 - [ ] First real appointment created in dashboard
-- [ ] Public booking page live and tested
+- [x] Public booking page live and tested
 - [ ] Client receives confirmation (email when SMTP live)
+
+Public URL: `/book/gvm-baby-world`  
+Verify: `node scripts/verify-sprint2-gvm-go-live.mjs`
 
 ## Quality bar
 

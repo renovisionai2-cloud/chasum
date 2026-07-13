@@ -16,8 +16,28 @@ export type Business = {
   cancellation_policy: string | null;
   max_daily_bookings: number | null;
   subscription_plan_key?: string;
+  logo_url?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  address_line1?: string | null;
+  address_line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+  booking_policy?: string | null;
+  social_links?: BusinessSocialLinks | null;
   created_at: string;
   updated_at: string;
+};
+
+export type BusinessSocialLinks = {
+  instagram?: string;
+  facebook?: string;
+  tiktok?: string;
+  youtube?: string;
+  twitter?: string;
 };
 
 export type Location = {
@@ -86,6 +106,8 @@ export type Service = {
   buffer_before_minutes: number;
   buffer_after_minutes: number;
   is_active: boolean;
+  online_booking: boolean;
+  preparation_instructions: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -98,6 +120,8 @@ export type Staff = {
   email: string | null;
   title: string | null;
   photo_url: string | null;
+  biography: string | null;
+  qualifications: string | null;
   color: string;
   is_active: boolean;
   created_at: string;
@@ -216,6 +240,7 @@ export const DAY_NAMES = [
 
 export const SERVICE_CATEGORIES = [
   "General",
+  "Ultrasound",
   "Consultation",
   "Treatment",
   "Follow-up",

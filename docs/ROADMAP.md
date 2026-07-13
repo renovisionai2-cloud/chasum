@@ -136,6 +136,34 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 
 ---
 
+## Sprint 1 — Brand Integration ✅ Shipped
+
+Official C + Spark marks, design tokens, and UI primitives across landing, auth, dashboard, and booking.
+
+---
+
+## Sprint 2 — GVM Baby World Go-Live ✅ Shipped
+
+**Goal:** Make Chasum capable of running a real ultrasound business end to end.
+
+| Deliverable | Status |
+|-------------|--------|
+| Business profile fields (logo, contact, address, timezone, policies, social) | ✅ |
+| Polished Settings UI | ✅ |
+| Ultrasound service catalog (5 services) with prep, online booking, buffers | ✅ |
+| Staff photo, biography, qualifications, hours, services, location | ✅ |
+| Tenant rename → GVM Baby World Ultrasound (`gvm-baby-world`) | ✅ |
+| Public booking E2E (customer → calendar → location) | ✅ |
+| Migration `011_sprint2_gvm_go_live.sql` | ✅ |
+| Setup + verify scripts | ✅ |
+
+**Setup:** `node scripts/setup-gvm-baby-world.mjs`  
+**Verify:** `node scripts/verify-sprint2-gvm-go-live.mjs`
+
+Remaining for live traffic: Resend SMTP, first real client appointment, website link cutover.
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -188,8 +216,10 @@ The items below were previously listed under Phase 4 and remain planned for late
 | Version | Target | Scope |
 |---------|--------|-------|
 | `0.1.0` | Shipped | Phase 1 + 2 + architecture review |
-| `0.2.0` | Current | Phase 3 integrations & communication |
-| `0.3.0` | Q4 2026 | Stripe billing + calendar webhooks |
+| `0.2.0` | Shipped | Phase 3 integrations & communication |
+| `0.2.5` | Shipped | Phase 5 multi-location |
+| `0.2.6` | Current | Sprint 1 brand + Sprint 2 GVM go-live |
+| `0.3.0` | Next | Production SMTP + Stripe + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

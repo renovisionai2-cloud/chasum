@@ -4,14 +4,14 @@ Playbooks for moving businesses onto Chasum.
 
 ## GVM Baby World — Picktime migration
 
-**Status:** In progress (first real customer).
+**Status:** Configured on Chasum (Sprint 2). Parallel run with Picktime until cutover.
 
 ### Phase 1 — Parallel run
 
-1. Configure Chasum business (profile, hours, services, staff)
+1. ~~Configure Chasum business (profile, hours, services, staff)~~ ✅
 2. Keep Picktime active for live bookings
-3. Test Chasum public booking with internal/test clients
-4. Verify reminders and calendar sync
+3. Test Chasum public booking at `/book/gvm-baby-world`
+4. Verify reminders and calendar sync (requires Resend SMTP for inbox delivery)
 
 ### Phase 2 — Cutover
 
@@ -53,6 +53,8 @@ Automated import tool: backlog item after GVM manual migration.
 ## Verification before go-live
 
 ```bash
+node scripts/setup-gvm-baby-world.mjs
+node scripts/verify-sprint2-gvm-go-live.mjs
 node scripts/audit-business-readiness.mjs
 node scripts/verify-phase4-scheduling.mjs
 ```

@@ -17,7 +17,7 @@
 
 - [ ] Custom SMTP (Resend) configured in Supabase
 - [ ] Production env vars set (see `.env.example`)
-- [ ] GVM Baby World configured with real services
+- [x] GVM Baby World configured with real services
 - [ ] First real appointment booked end-to-end
 
 ---
@@ -28,7 +28,7 @@
 
 ### Scope
 
-- GVM business configuration (production data)
+- ~~GVM business configuration (production data)~~ ✅ Sprint 2
 - Picktime cutover ([12_CUSTOMER_MIGRATION.md](./12_CUSTOMER_MIGRATION.md))
 - Resend SMTP live
 - Stripe billing (optional for v0.3.0 if GVM is comped)

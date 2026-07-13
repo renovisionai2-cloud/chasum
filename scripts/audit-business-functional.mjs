@@ -33,13 +33,14 @@ async function main() {
   const { data: canonical, error: bizError } = await sb
     .from("businesses")
     .select("*")
-    .eq("slug", "dardin-gvm")
+    .eq("slug", "gvm-baby-world")
     .single();
 
   if (bizError || !canonical) {
-    throw new Error(bizError?.message ?? "Canonical business not found");
+    throw new Error(bizError?.message ?? "Canonical business not found (gvm-baby-world)");
   }
 
+  const originalName = canonical.name;
   const newName = "GVM Audit Test Name";
   const { error: updateError } = await sb
     .from("businesses")
@@ -60,7 +61,7 @@ async function main() {
 
   await sb
     .from("businesses")
-    .update({ name: canonical.name })
+    .update({ name: originalName })
     .eq("id", canonical.id);
 
   console.log("✓ Settings-style update targets canonical business row");

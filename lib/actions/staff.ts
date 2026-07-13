@@ -17,7 +17,7 @@ export async function getStaff() {
 
   let query = supabase
     .from("staff")
-    .select("*, staff_services(service_id)")
+    .select("*, staff_services(service_id), location:locations(id, name)")
     .eq("business_id", business.id)
     .order("name");
 
@@ -29,12 +29,36 @@ export async function getStaff() {
   return data;
 }
 
+async function resolveStaffLocationId(
+  businessId: string,
+  formData: FormData,
+): Promise<string | { error: string }> {
+  const requested = (formData.get("location_id") as string)?.trim();
+  const supabase = await createClient();
+
+  if (requested) {
+    const { data } = await supabase
+      .from("locations")
+      .select("id")
+      .eq("id", requested)
+      .eq("business_id", businessId)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!data) return { error: "Selected location was not found." };
+    return data.id;
+  }
+
+  return getActiveLocationId();
+}
+
 export async function createStaff(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
-  const locationId = await getActiveLocationId();
+  const locationResult = await resolveStaffLocationId(business.id, formData);
+  if (typeof locationResult === "object") return locationResult;
+
   const supabase = await createClient();
 
   const name = formData.get("name") as string;
@@ -46,22 +70,29 @@ export async function createStaff(
   if (!name?.trim()) return { error: "Staff name is required." };
 
   const photoUrl = (formData.get("photo_url") as string) || null;
+  const biography = (formData.get("biography") as string)?.trim() || null;
+  const qualifications =
+    (formData.get("qualifications") as string)?.trim() || null;
 
   const { data: staffMember, error } = await supabase
     .from("staff")
     .insert({
       business_id: business.id,
-      location_id: locationId,
+      location_id: locationResult,
       name: name.trim(),
       email,
       title,
       color,
       photo_url: photoUrl,
+      biography,
+      qualifications,
     })
     .select("id")
     .single();
 
-  if (error || !staffMember) return { error: error?.message ?? "Failed to create staff." };
+  if (error || !staffMember) {
+    return { error: error?.message ?? "Failed to create staff." };
+  }
 
   if (serviceIds.length > 0) {
     await supabase.from("staff_services").insert(
@@ -82,6 +113,9 @@ export async function updateStaff(
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
+  const locationResult = await resolveStaffLocationId(business.id, formData);
+  if (typeof locationResult === "object") return locationResult;
+
   const supabase = await createClient();
   const id = formData.get("id") as string;
   const serviceIds = formData.getAll("service_ids") as string[];
@@ -94,6 +128,9 @@ export async function updateStaff(
       title: (formData.get("title") as string) || null,
       color: (formData.get("color") as string) || "#3b82f6",
       photo_url: (formData.get("photo_url") as string) || null,
+      biography: (formData.get("biography") as string)?.trim() || null,
+      qualifications: (formData.get("qualifications") as string)?.trim() || null,
+      location_id: locationResult,
       is_active: formData.get("is_active") === "true",
     })
     .eq("id", id)

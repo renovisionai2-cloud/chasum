@@ -23,6 +23,8 @@ Record of significant product and architecture decisions.
 | 2026-07 | Customers business-scoped, ops location-scoped | Shared client history; staff/services per site | ✅ Shipped (008) |
 | 2026-07 | Location limits from `subscription_plans` table | Avoid hard-coded caps; Stripe wiring later | ✅ Shipped (008) |
 | 2026-07 | Active location via HTTP-only cookie | Server actions filter consistently | ✅ Shipped (008) |
+| 2026-07 | GVM production slug `gvm-baby-world` | Stable public URL for website cutover | ✅ Shipped (Sprint 2) |
+| 2026-07 | Business profile fields on `businesses` (logo, contact, policies, social) | Settings + public booking parity | ✅ Shipped (011) |
 
 ## Rejected
 

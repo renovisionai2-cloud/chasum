@@ -9,6 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 2 — GVM Baby World Go-Live)
+
+- Migration `011_sprint2_gvm_go_live.sql`: business logo/contact/address/policies/`social_links`; service `online_booking` + `preparation_instructions`; staff `biography` + `qualifications`
+- Polished Settings profile: logo, phone, email, website, address, timezone, booking & cancellation policies, social links
+- Services: online booking toggle, preparation instructions, buffer display; Ultrasound category
+- Staff: photo URL, biography, qualifications, assigned location, working-hours summary
+- Public booking shows business logo, prep instructions, staff photo/bio/quals, booking + cancellation policies
+- Production setup: `scripts/setup-gvm-baby-world.mjs` (idempotent; no demo customers/appointments)
+- Verification: `scripts/verify-sprint2-gvm-go-live.mjs` (25 checks, temporary book + cleanup)
+
+### Changed (Sprint 2)
+
+- First production tenant renamed to **GVM Baby World Ultrasound** (`/book/gvm-baby-world`)
+- Default location labeled **Studio**; five elective ultrasound services configured with duration, price, color, buffers, prep
+- Audit scripts prefer slug `gvm-baby-world`
+
 ### Added (Sprint 1 — Brand Integration)
 
 - Official brand marks: Option 01 “The C” (`ChasumMark`) and Option 02 “The Spark” (`SparkMark`)

@@ -32,6 +32,10 @@ Bootstrap: `ensure_business_for_owner()` RPC (idempotent under concurrent reques
 - `customers` stay at `business_id` only — shared across locations
 - Scheduling RPCs accept optional `p_location_id` (defaults to default location)
 
+## Business profile (Sprint 2)
+
+`businesses` includes production profile fields: `logo_url`, `phone`, `email`, `website`, address columns, `booking_policy`, `social_links` (jsonb). Services add `online_booking` and `preparation_instructions`. Staff add `biography` and `qualifications`. Migration: `011_sprint2_gvm_go_live.sql`.
+
 ## Appointment lifecycle
 
 ```
@@ -64,4 +68,4 @@ Cancelled appointments immediately free their slot in availability queries.
 
 Table columns, indexes, RLS policies, and migration history: [`../DATABASE.md`](../DATABASE.md).
 
-Migrations: `supabase/migrations/001`–`009`.
+Migrations: `supabase/migrations/001`–`011`.

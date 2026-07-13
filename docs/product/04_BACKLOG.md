@@ -6,12 +6,12 @@ Prioritized product + engineering work. Use GitHub issues with `[roadmap]` or `[
 
 | Item | Type | Notes |
 |------|------|-------|
-| Configure GVM business profile + slug | Product | Settings → rename, public URL |
-| Add ultrasound services (5 types) | Product | Duration, price, buffers per service |
-| Add staff + assign services | Product | Owner as provider |
-| Set business hours | Product | Match studio schedule |
-| First real appointment | Product | Dashboard calendar |
-| Public booking end-to-end test | Product | `/book/[slug]` |
+| ~~Configure GVM business profile + slug~~ | Product | ✅ `/book/gvm-baby-world` |
+| ~~Add ultrasound services (5 types)~~ | Product | ✅ Duration, price, buffers, prep, online booking |
+| ~~Add staff + assign services~~ | Product | ✅ Owner as provider; bio/quals/location |
+| ~~Set business hours~~ | Product | ✅ Mon–Fri 9–5 (Studio location) |
+| ~~Public booking end-to-end test~~ | Product | ✅ `verify-sprint2-gvm-go-live.mjs` |
+| First real appointment | Product | Dashboard or public — real client |
 | Resend SMTP in Supabase | Ops | Production email templates |
 
 ## P1 — Post-go-live polish

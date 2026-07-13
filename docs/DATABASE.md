@@ -13,6 +13,8 @@ Run in order in the Supabase SQL Editor or via `supabase db push`:
 | `001_booking_engine.sql` | Core tables, RLS policies, `is_business_owner()` helper |
 | `002_booking_enhancements.sql` | Categories, buffers, staff schedules, holidays, `pending` status |
 | `003_rls_hardening.sql` | Tenant indexes, PII policy removal, public booking RPCs |
+| `004`–`010` | Integrations, scheduling engine, one-business-per-owner, multi-location |
+| `011_sprint2_gvm_go_live.sql` | Business profile, service online booking/prep, staff bio/quals |
 
 ---
 
@@ -55,6 +57,11 @@ Tenant root. One business per owner (current model).
 | `booking_limit_days` | integer | Default 60 |
 | `cancellation_policy` | text | Nullable |
 | `max_daily_bookings` | integer | Nullable |
+| `logo_url` | text | Nullable (011) |
+| `phone` / `email` / `website` | text | Nullable (011) |
+| `address_line1` … `country` | text | Nullable (011) |
+| `booking_policy` | text | Nullable (011) |
+| `social_links` | jsonb | Default `{}` (011) |
 | `created_at` / `updated_at` | timestamptz | Auto-updated via trigger |
 
 ### `services`
@@ -72,6 +79,8 @@ Tenant root. One business per owner (current model).
 | `buffer_before_minutes` | integer | Default 0 |
 | `buffer_after_minutes` | integer | Default 0 |
 | `is_active` | boolean | Default true |
+| `online_booking` | boolean | Default true (011) |
+| `preparation_instructions` | text | Nullable (011) |
 
 ### `staff`
 
@@ -83,6 +92,8 @@ Tenant root. One business per owner (current model).
 | `email` | text | Nullable |
 | `title` | text | Nullable |
 | `photo_url` | text | Nullable |
+| `biography` | text | Nullable (011) |
+| `qualifications` | text | Nullable (011) |
 | `color` | text | Hex |
 | `is_active` | boolean | Default true |
 

@@ -97,12 +97,28 @@ export function PublicBookingPage({
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card px-6 py-4">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">{business.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              {selectedLocation ? `${selectedLocation.name} · Book an appointment` : "Book an appointment"}
-            </p>
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            {business.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={business.logo_url}
+                alt=""
+                className="h-11 w-11 shrink-0 rounded-xl object-cover"
+              />
+            ) : (
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
+                {business.name.charAt(0)}
+              </span>
+            )}
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-semibold">{business.name}</h1>
+              <p className="text-sm text-muted-foreground">
+                {selectedLocation
+                  ? `${selectedLocation.name} · Book an appointment`
+                  : "Book an appointment"}
+              </p>
+            </div>
           </div>
           <Logo showText={false} href={null} />
         </div>
@@ -193,6 +209,11 @@ export function PublicBookingPage({
                   {service.description && (
                     <p className="mt-2 text-sm text-muted-foreground">{service.description}</p>
                   )}
+                  {service.preparation_instructions && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Prep: {service.preparation_instructions}
+                    </p>
+                  )}
                 </button>
               ))}
             </div>
@@ -205,6 +226,12 @@ export function PublicBookingPage({
               <ChevronLeft className="h-4 w-4" /> Back
             </button>
             <h2 className="text-lg font-semibold">Choose a provider</h2>
+            {selectedService.preparation_instructions && (
+              <p className="rounded-[var(--radius-md)] border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+                <strong className="text-foreground">Preparation:</strong>{" "}
+                {selectedService.preparation_instructions}
+              </p>
+            )}
             <div className="grid gap-3">
               {availableStaff.map((member) => (
                 <button
@@ -214,14 +241,38 @@ export function PublicBookingPage({
                     setSelectedStaff(member);
                     setStep("datetime");
                   }}
-                  className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/50"
+                  className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/50"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white" style={{ backgroundColor: member.color }}>
-                    {member.name.charAt(0)}
+                  <span
+                    className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white"
+                    style={{ backgroundColor: member.color }}
+                  >
+                    {member.photo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={member.photo_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      member.name.charAt(0)
+                    )}
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium">{member.name}</p>
-                    <p className="text-sm text-muted-foreground">{member.title ?? "Team member"}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {member.title ?? "Team member"}
+                    </p>
+                    {member.qualifications && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {member.qualifications}
+                      </p>
+                    )}
+                    {member.biography && (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {member.biography}
+                      </p>
+                    )}
                   </div>
                 </button>
               ))}
@@ -280,6 +331,11 @@ export function PublicBookingPage({
             </p>
           )}
 
+          {business.booking_policy && step === "details" && (
+            <p className="rounded-xl border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+              <strong>Booking policy:</strong> {business.booking_policy}
+            </p>
+          )}
             <form action={formAction} className="space-y-4">
               <input type="hidden" name="slug" value={business.slug} />
               <input type="hidden" name="location_id" value={selectedLocation?.id ?? ""} />

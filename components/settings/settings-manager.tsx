@@ -3,12 +3,13 @@
 import { WorkingHoursGrid } from "@/components/forms/working-hours-grid";
 import { AvailabilityBlocksForm } from "@/components/settings/availability-blocks-form";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   updateLocationHours,
   updateLocationSettings,
@@ -26,12 +27,8 @@ import type {
 } from "@/lib/types/booking";
 import { TIMEZONES } from "@/lib/constants";
 import { getAppUrl } from "@/lib/env";
-import {
-  createHoliday,
-  deleteHoliday,
-} from "@/lib/actions/holidays";
+import { createHoliday, deleteHoliday } from "@/lib/actions/holidays";
 import { updateBusinessProfile } from "@/lib/actions/business-hours";
-import { Textarea } from "@/components/ui/textarea";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { Copy, ExternalLink, Trash2 } from "lucide-react";
@@ -44,40 +41,228 @@ function ProfileForm({ business }: { business: Business }) {
     {} as ActionState,
   );
   const bookingUrl = `${getAppUrl()}/book/${business.slug}`;
+  const social = business.social_links ?? {};
 
   useFormAction(state);
 
   return (
-    <Card className="border-border/60">
+    <Card className="border-border/70 shadow-sm lg:col-span-2">
       <CardHeader>
         <CardTitle>Business profile</CardTitle>
+        <CardDescription>
+          Public identity for your booking page, invoices, and client communications.
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Business name</Label>
-            <Input id="name" name="name" defaultValue={business.name} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="slug">Booking URL slug</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">/book/</span>
-              <Input id="slug" name="slug" defaultValue={business.slug} required />
+        <form action={formAction} className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-[120px_1fr]">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted">
+                {business.logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={business.logo_url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-2xl font-semibold text-muted-foreground">
+                    {business.name.charAt(0)}
+                  </span>
+                )}
+              </div>
+              <p className="text-center text-xs text-muted-foreground">Logo</p>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="logo_url">Logo URL</Label>
+                <Input
+                  id="logo_url"
+                  name="logo_url"
+                  type="url"
+                  placeholder="https://…"
+                  defaultValue={business.logo_url ?? ""}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Host your logo and paste the public image URL.
+                </p>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Business name</Label>
+                  <Input id="name" name="name" defaultValue={business.name} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timezone">Timezone</Label>
+                  <Select
+                    id="timezone"
+                    name="timezone"
+                    defaultValue={business.timezone}
+                  >
+                    {TIMEZONES.map((tz) => (
+                      <option key={tz} value={tz}>
+                        {tz}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="timezone">Timezone</Label>
-            <Select id="timezone" name="timezone" defaultValue={business.timezone}>
-              {TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>{tz}</option>
-              ))}
-            </Select>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="slug">Booking URL slug</Label>
+              <div className="flex items-center gap-2">
+                <span className="shrink-0 text-sm text-muted-foreground">/book/</span>
+                <Input id="slug" name="slug" defaultValue={business.slug} required />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                name="website"
+                type="url"
+                placeholder="https://…"
+                defaultValue={business.website ?? ""}
+              />
+            </div>
           </div>
-          <div className="rounded-xl border border-border bg-muted/30 p-4">
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Business phone</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                defaultValue={business.phone ?? ""}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Business email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue={business.email ?? ""}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-foreground">Physical address</p>
+            <div className="space-y-2">
+              <Label htmlFor="address_line1">Street address</Label>
+              <Input
+                id="address_line1"
+                name="address_line1"
+                defaultValue={business.address_line1 ?? ""}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address_line2">Address line 2</Label>
+              <Input
+                id="address_line2"
+                name="address_line2"
+                defaultValue={business.address_line2 ?? ""}
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-4">
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="city">City</Label>
+                <Input id="city" name="city" defaultValue={business.city ?? ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="state">State</Label>
+                <Input id="state" name="state" defaultValue={business.state ?? ""} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postal_code">Postal code</Label>
+                <Input
+                  id="postal_code"
+                  name="postal_code"
+                  defaultValue={business.postal_code ?? ""}
+                />
+              </div>
+            </div>
+            <input type="hidden" name="country" value={business.country ?? "US"} />
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-foreground">Social media</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="social_instagram">Instagram</Label>
+                <Input
+                  id="social_instagram"
+                  name="social_instagram"
+                  placeholder="https://instagram.com/…"
+                  defaultValue={social.instagram ?? ""}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="social_facebook">Facebook</Label>
+                <Input
+                  id="social_facebook"
+                  name="social_facebook"
+                  placeholder="https://facebook.com/…"
+                  defaultValue={social.facebook ?? ""}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="social_tiktok">TikTok</Label>
+                <Input
+                  id="social_tiktok"
+                  name="social_tiktok"
+                  placeholder="https://tiktok.com/@…"
+                  defaultValue={social.tiktok ?? ""}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="social_youtube">YouTube</Label>
+                <Input
+                  id="social_youtube"
+                  name="social_youtube"
+                  placeholder="https://youtube.com/…"
+                  defaultValue={social.youtube ?? ""}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="booking_policy">Booking policy</Label>
+            <Textarea
+              id="booking_policy"
+              name="booking_policy"
+              rows={3}
+              placeholder="Arrival instructions, deposit rules, late policy…"
+              defaultValue={business.booking_policy ?? ""}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cancellation_policy">Cancellation policy</Label>
+            <Textarea
+              id="cancellation_policy"
+              name="cancellation_policy"
+              rows={3}
+              placeholder="e.g. Cancel or reschedule at least 24 hours before…"
+              defaultValue={business.cancellation_policy ?? ""}
+            />
+          </div>
+
+          <div className="rounded-[var(--radius-md)] border border-border bg-muted/30 p-4">
             <p className="text-sm font-medium">Public booking page</p>
             <p className="mt-1 break-all text-sm text-muted-foreground">{bookingUrl}</p>
-            <div className="mt-3 flex gap-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(bookingUrl)}>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigator.clipboard.writeText(bookingUrl)}
+              >
                 <Copy className="h-4 w-4" /> Copy link
               </Button>
               <Link href={`/book/${business.slug}`} target="_blank">
@@ -87,15 +272,24 @@ function ProfileForm({ business }: { business: Business }) {
               </Link>
             </div>
           </div>
+
           <AlertMessage error={state.error} success={state.success} />
-          <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save profile"}</Button>
+          <Button type="submit" disabled={pending}>
+            {pending ? "Saving..." : "Save profile"}
+          </Button>
         </form>
       </CardContent>
     </Card>
   );
 }
 
-function HoursForm({ hours, locationName }: { hours: LocationHours[]; locationName: string }) {
+function HoursForm({
+  hours,
+  locationName,
+}: {
+  hours: LocationHours[];
+  locationName: string;
+}) {
   const [state, formAction, pending] = useActionState(
     updateLocationHours,
     {} as ActionState,
@@ -104,16 +298,18 @@ function HoursForm({ hours, locationName }: { hours: LocationHours[]; locationNa
   useFormAction(state);
 
   return (
-    <Card className="border-border/60">
+    <Card className="border-border/70 shadow-sm">
       <CardHeader>
         <CardTitle>Location hours</CardTitle>
-        <p className="text-sm text-muted-foreground">{locationName}</p>
+        <CardDescription>{locationName}</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-3">
           <WorkingHoursGrid hours={hours} namePrefix="day" openField="open" />
           <AlertMessage error={state.error} success={state.success} />
-          <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save hours"}</Button>
+          <Button type="submit" disabled={pending}>
+            {pending ? "Saving..." : "Save hours"}
+          </Button>
         </form>
       </CardContent>
     </Card>
@@ -135,33 +331,59 @@ function BookingSettingsForm({
   useFormAction(state);
 
   return (
-    <Card className="border-border/60">
+    <Card className="border-border/70 shadow-sm">
       <CardHeader>
-        <CardTitle>Booking settings</CardTitle>
-        <p className="text-sm text-muted-foreground">{locationName}</p>
+        <CardTitle>Scheduling rules</CardTitle>
+        <CardDescription>
+          Slot interval and booking window for {locationName}.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="appointment_interval_minutes">Appointment interval (min)</Label>
-              <Input id="appointment_interval_minutes" name="appointment_interval_minutes" type="number" min={5} step={5} defaultValue={settings.appointment_interval_minutes ?? 30} />
+              <Label htmlFor="appointment_interval_minutes">
+                Appointment interval (min)
+              </Label>
+              <Input
+                id="appointment_interval_minutes"
+                name="appointment_interval_minutes"
+                type="number"
+                min={5}
+                step={5}
+                defaultValue={settings.appointment_interval_minutes ?? 30}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="booking_limit_days">Booking limit (days ahead)</Label>
-              <Input id="booking_limit_days" name="booking_limit_days" type="number" min={1} defaultValue={settings.booking_limit_days ?? 60} />
+              <Input
+                id="booking_limit_days"
+                name="booking_limit_days"
+                type="number"
+                min={1}
+                defaultValue={settings.booking_limit_days ?? 60}
+              />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="max_daily_bookings">Max daily bookings (optional)</Label>
-            <Input id="max_daily_bookings" name="max_daily_bookings" type="number" min={1} defaultValue={settings.max_daily_bookings ?? ""} />
+            <Input
+              id="max_daily_bookings"
+              name="max_daily_bookings"
+              type="number"
+              min={1}
+              defaultValue={settings.max_daily_bookings ?? ""}
+            />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="cancellation_policy">Cancellation policy</Label>
-            <Textarea id="cancellation_policy" name="cancellation_policy" placeholder="e.g. Cancel at least 24 hours before your appointment..." defaultValue={settings.cancellation_policy ?? ""} />
-          </div>
+          <input
+            type="hidden"
+            name="cancellation_policy"
+            value={settings.cancellation_policy ?? ""}
+          />
           <AlertMessage error={state.error} success={state.success} />
-          <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save settings"}</Button>
+          <Button type="submit" disabled={pending}>
+            {pending ? "Saving..." : "Save scheduling rules"}
+          </Button>
         </form>
       </CardContent>
     </Card>
@@ -185,17 +407,30 @@ function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
   }
 
   return (
-    <Card className="border-border/60">
+    <Card className="border-border/70 shadow-sm">
       <CardHeader>
-        <CardTitle>Holidays</CardTitle>
+        <CardTitle>Holidays & closures</CardTitle>
+        <CardDescription>Dates when the location does not accept bookings.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {holidays.length > 0 ? (
           <ul className="space-y-2">
             {holidays.map((holiday) => (
-              <li key={holiday.id} className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-2 text-sm">
-                <span>{holiday.name} — {holiday.date}</span>
-                <IconButton label={`Remove ${holiday.name}`} className="text-destructive hover:text-destructive" onClick={() => handleDelete(holiday.id)}>
+              <li
+                key={holiday.id}
+                className="flex items-center justify-between gap-2 rounded-[var(--radius-md)] border border-border px-3 py-2 text-sm"
+              >
+                <span>
+                  {holiday.name} — {holiday.date}
+                  {!holiday.location_id ? (
+                    <span className="ml-2 text-xs text-muted-foreground">(all locations)</span>
+                  ) : null}
+                </span>
+                <IconButton
+                  label={`Remove ${holiday.name}`}
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => handleDelete(holiday.id)}
+                >
                   <Trash2 className="h-4 w-4" />
                 </IconButton>
               </li>
@@ -222,7 +457,9 @@ function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
             <input type="checkbox" name="business_wide" /> Apply to all locations
           </label>
           <AlertMessage error={state.error} success={state.success} />
-          <Button type="submit" size="sm" disabled={pending}>{pending ? "Adding..." : "Add holiday"}</Button>
+          <Button type="submit" size="sm" disabled={pending}>
+            {pending ? "Adding..." : "Add holiday"}
+          </Button>
         </form>
       </CardContent>
     </Card>
@@ -252,14 +489,17 @@ export function SettingsManager({
   return (
     <div className="space-y-4">
       {scopeNote && (
-        <p className="rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        <p className="rounded-[var(--radius-md)] border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
           {scopeNote}
         </p>
       )}
       <div className="grid gap-6 lg:grid-cols-2">
         <ProfileForm business={business} />
         <HoursForm hours={location.hours} locationName={location.name} />
-        <BookingSettingsForm settings={location.settings} locationName={location.name} />
+        <BookingSettingsForm
+          settings={location.settings}
+          locationName={location.name}
+        />
         <HolidaysForm holidays={holidays} />
         <AvailabilityBlocksForm blocks={availabilityBlocks} staff={staff} />
       </div>

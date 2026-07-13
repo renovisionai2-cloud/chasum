@@ -51,6 +51,9 @@ export async function createService(
   const category = (formData.get("category") as string) || null;
   const bufferBefore = Number(formData.get("buffer_before_minutes")) || 0;
   const bufferAfter = Number(formData.get("buffer_after_minutes")) || 0;
+  const preparationInstructions =
+    (formData.get("preparation_instructions") as string)?.trim() || null;
+  const onlineBooking = formData.get("online_booking") === "true";
 
   const { error } = await supabase.from("services").insert({
     business_id: business.id,
@@ -63,6 +66,8 @@ export async function createService(
     color,
     buffer_before_minutes: bufferBefore,
     buffer_after_minutes: bufferAfter,
+    preparation_instructions: preparationInstructions,
+    online_booking: onlineBooking,
   });
 
   if (error) return { error: error.message };
@@ -91,6 +96,9 @@ export async function updateService(
       color: (formData.get("color") as string) || "#2563eb",
       buffer_before_minutes: Number(formData.get("buffer_before_minutes")) || 0,
       buffer_after_minutes: Number(formData.get("buffer_after_minutes")) || 0,
+      preparation_instructions:
+        (formData.get("preparation_instructions") as string)?.trim() || null,
+      online_booking: formData.get("online_booking") === "true",
       is_active: formData.get("is_active") === "true",
     })
     .eq("id", id)
@@ -130,6 +138,7 @@ export async function getPublicServices(
     .select("*")
     .eq("business_id", businessId)
     .eq("is_active", true)
+    .eq("online_booking", true)
     .order("name");
 
   if (locationId) {
