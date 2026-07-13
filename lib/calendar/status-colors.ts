@@ -7,11 +7,11 @@ export function getStatusColor(status: AppointmentStatus): string {
 
 export function getAppointmentBlockStyle(
   status: AppointmentStatus,
-  serviceColor: string,
+  color: string,
 ): { backgroundColor: string; borderLeft: string; opacity: number } {
   const statusColor = getStatusColor(status);
   return {
-    backgroundColor: serviceColor,
+    backgroundColor: color,
     borderLeft: `4px solid ${statusColor}`,
     opacity: status === "cancelled" ? 0.5 : 1,
   };

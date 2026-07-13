@@ -4,6 +4,7 @@ import {
   AppointmentBlock,
   CurrentTimeIndicator,
   TimeSlotDropZone,
+  type CalendarColorMode,
 } from "@/components/calendar/appointment-block";
 import {
   CALENDAR_END_HOUR,
@@ -23,6 +24,8 @@ type ViewProps = {
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
   onSelectSlot: (date: Date) => void;
   onReschedule?: (appointment: AppointmentWithRelations, newStart: Date) => void;
+  onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
+  colorMode?: CalendarColorMode;
 };
 
 export function DayView({
@@ -31,6 +34,8 @@ export function DayView({
   onSelectAppointment,
   onSelectSlot,
   onReschedule,
+  onResize,
+  colorMode = "service",
 }: ViewProps) {
   const hours = getHourSlots();
   const dayAppointments = appointments.filter((appt) =>
@@ -75,6 +80,8 @@ export function DayView({
               key={appt.id}
               appointment={appt}
               onSelect={onSelectAppointment}
+              onResize={onResize}
+              colorMode={colorMode}
               draggable={!!onReschedule}
             />
           ))}
@@ -89,6 +96,9 @@ export function WeekView({
   appointments,
   onSelectAppointment,
   onSelectSlot,
+  onReschedule,
+  onResize,
+  colorMode = "service",
 }: ViewProps) {
   const hours = getHourSlots();
   const weekStart = new Date(date);
@@ -137,7 +147,16 @@ export function WeekView({
                   hour={hour}
                   className="min-h-[48px] border-l border-border"
                   onClick={onSelectSlot}
-                  onDrop={onSelectSlot}
+                  onDrop={(slot, appointmentId) => {
+                    if (appointmentId && onReschedule) {
+                      const appointment = appointments.find(
+                        (appt) => appt.id === appointmentId,
+                      );
+                      if (appointment) onReschedule(appointment, slot);
+                      return;
+                    }
+                    onSelectSlot(slot);
+                  }}
                 />
               ))}
             </div>
@@ -158,8 +177,10 @@ export function WeekView({
                       key={appt.id}
                       appointment={appt}
                       onSelect={onSelectAppointment}
+                      onResize={onResize}
+                      colorMode={colorMode}
                       compact
-                      draggable={false}
+                      draggable={!!onReschedule}
                     />
                   ))}
                 </div>
@@ -177,6 +198,7 @@ type MonthViewProps = {
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
   onSelectDay: (date: Date) => void;
+  colorMode?: CalendarColorMode;
 };
 
 export function MonthView({
@@ -184,6 +206,7 @@ export function MonthView({
   appointments,
   onSelectAppointment,
   onSelectDay,
+  colorMode = "service",
 }: MonthViewProps) {
   const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
   const gridStart = new Date(monthStart);
@@ -235,13 +258,18 @@ export function MonthView({
                 {day.getDate()}
               </span>
               <div className="mt-1 space-y-1">
-                {dayAppts.slice(0, 3).map((appt) => (
+                {dayAppts.slice(0, 3).map((appt) => {
+                  const fill =
+                    colorMode === "staff"
+                      ? appt.staff?.color ?? appt.service.color
+                      : appt.service.color;
+                  return (
                   <div
                     key={appt.id}
                     role="button"
                     tabIndex={0}
                     className="truncate rounded-md border-l-2 px-1.5 py-0.5 text-[10px] text-white sm:text-xs"
-                    style={getAppointmentBlockStyle(appt.status, appt.service.color)}
+                    style={getAppointmentBlockStyle(appt.status, fill)}
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelectAppointment(appt);
@@ -255,7 +283,8 @@ export function MonthView({
                   >
                     {formatTime(parseISO(appt.start_time))} {appt.customer.name}
                   </div>
-                ))}
+                  );
+                })}
                 {dayAppts.length > 3 && (
                   <p className="text-[10px] text-muted-foreground">
                     +{dayAppts.length - 3} more

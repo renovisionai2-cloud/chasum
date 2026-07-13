@@ -9,6 +9,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 6 — Booking Engine 2.0)
+
+- Appointment modal: customer search/create, service, staff, location, date, SlotPicker, duration, notes, status
+- Calendar: color by service or staff; week-view drag reschedule; resize handle to change duration (`resizeAppointment`)
+- Customer profile metrics: total visits, lifetime revenue, no-shows, cancellations; upcoming vs history lists
+- Alex AI Scheduler: `getAlexAvailabilityRecommendations` via real `get_available_slots` only (Command Center + Alex detail panel)
+- Never invents appointment times — empty messaging when no slots exist
+
+### Changed (Sprint 6)
+
+- Create/update appointments accept location, duration override, and status
+- Reschedule preserves existing duration; dashboard slot fetch accepts location scope
+- Calendar page loads locations for the appointment dialog
+
 ### Added (Sprint 5 — Premium Dashboard Experience)
 
 - Personalized Overview hero (greeting, date, today’s appointments/revenue/pending, AI summary from real metrics only)

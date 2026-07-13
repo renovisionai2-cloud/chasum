@@ -216,6 +216,26 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Sprint 6 — Booking Engine 2.0 ✅ Shipped
+
+**Goal:** Transform Chasum from a UI prototype into a fully functional appointment platform.
+
+| Deliverable | Status |
+|-------------|--------|
+| New Appointment modal (customer search/create, service, staff, location, date, slots, duration, notes, status) | ✅ |
+| Calendar Day / Week / Month with appointments rendered | ✅ |
+| Drag-and-drop rescheduling (day + week) | ✅ |
+| Resize appointments to change duration | ✅ |
+| Color by service / color by staff | ✅ |
+| Scheduling engine: hours, staff availability, duration, buffers, double-book prevention, location | ✅ |
+| Customer profile: history, upcoming, notes, tags, visits, revenue, no-shows, cancellations | ✅ |
+| Dashboard KPIs from real appointment data | ✅ |
+| Alex (AI Scheduler) recommendations from `get_available_slots` only | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -273,8 +293,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.2.6` | Shipped | Sprint 1 brand + Sprint 2 GVM go-live |
 | `0.2.7` | Shipped | Sprint 3 premium dashboard & design system |
 | `0.2.8` | Shipped | Sprint 4 AI Workforce foundation |
-| `0.2.9` | Current | Sprint 5 premium dashboard experience |
-| `0.3.0` | Next | Production SMTP + Stripe + live GVM traffic |
+| `0.2.9` | Shipped | Sprint 5 premium dashboard experience |
+| `0.3.0` | Current | Sprint 6 Booking Engine 2.0 |
+| `0.3.1` | Next | Production SMTP + Stripe + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

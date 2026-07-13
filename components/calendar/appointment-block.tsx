@@ -11,11 +11,16 @@ import {
 import { getAppointmentBlockStyle, getCurrentTimePosition } from "@/lib/calendar/status-colors";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
+import { addMinutes } from "date-fns";
 import { useEffect, useState } from "react";
+
+export type CalendarColorMode = "service" | "staff";
 
 type AppointmentBlockProps = {
   appointment: AppointmentWithRelations;
   onSelect: (appointment: AppointmentWithRelations) => void;
+  onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
+  colorMode?: CalendarColorMode;
   draggable?: boolean;
   compact?: boolean;
 };
@@ -23,6 +28,8 @@ type AppointmentBlockProps = {
 export function AppointmentBlock({
   appointment,
   onSelect,
+  onResize,
+  colorMode = "service",
   draggable = false,
   compact = false,
 }: AppointmentBlockProps) {
@@ -30,12 +37,59 @@ export function AppointmentBlock({
     appointment.start_time,
     appointment.end_time,
   );
+  const fillColor =
+    colorMode === "staff"
+      ? appointment.staff?.color ?? appointment.service.color
+      : appointment.service.color;
 
   function handleDragStart(e: React.DragEvent) {
     e.dataTransfer.setData("appointmentId", appointment.id);
-    e.dataTransfer.setData("duration", String(
-      (parseISO(appointment.end_time).getTime() - parseISO(appointment.start_time).getTime()) / 60000,
-    ));
+    e.dataTransfer.setData(
+      "duration",
+      String(
+        (parseISO(appointment.end_time).getTime() -
+          parseISO(appointment.start_time).getTime()) /
+          60000,
+      ),
+    );
+  }
+
+  function handleResizePointerDown(e: React.PointerEvent) {
+    if (!onResize || appointment.status === "cancelled") return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startY = e.clientY;
+    const startEnd = parseISO(appointment.end_time);
+    const totalMinutes = (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * 60;
+    const parent = (e.currentTarget.parentElement?.parentElement ??
+      null) as HTMLElement | null;
+    const columnHeight = parent?.clientHeight || 600;
+
+    function onMove(ev: PointerEvent) {
+      const deltaPx = ev.clientY - startY;
+      const deltaMinutes = Math.round((deltaPx / columnHeight) * totalMinutes / 5) * 5;
+      const next = addMinutes(startEnd, deltaMinutes);
+      const minEnd = addMinutes(parseISO(appointment.start_time), 5);
+      if (next.getTime() >= minEnd.getTime()) {
+        (e.currentTarget as HTMLElement).dataset.previewEnd = next.toISOString();
+      }
+    }
+
+    function onUp(ev: PointerEvent) {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      const deltaPx = ev.clientY - startY;
+      const deltaMinutes = Math.round((deltaPx / columnHeight) * totalMinutes / 5) * 5;
+      const next = addMinutes(startEnd, deltaMinutes);
+      const minEnd = addMinutes(parseISO(appointment.start_time), 5);
+      if (next.getTime() >= minEnd.getTime() && deltaMinutes !== 0) {
+        onResize?.(appointment, next);
+      }
+    }
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
   }
 
   return (
@@ -51,7 +105,7 @@ export function AppointmentBlock({
         top: `${top}%`,
         height: `${height}%`,
         minHeight: compact ? "20px" : "28px",
-        ...getAppointmentBlockStyle(appointment.status, appointment.service.color),
+        ...getAppointmentBlockStyle(appointment.status, fillColor),
       }}
       onClick={() => onSelect(appointment)}
       aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${formatTime(parseISO(appointment.start_time))}`}
@@ -59,6 +113,15 @@ export function AppointmentBlock({
       <p className="truncate font-medium">{appointment.customer.name}</p>
       {!compact && (
         <p className="truncate opacity-90">{appointment.service.name}</p>
+      )}
+      {onResize && !compact && appointment.status !== "cancelled" && (
+        <span
+          role="separator"
+          aria-label="Resize duration"
+          className="absolute inset-x-1 bottom-0 h-2 cursor-ns-resize rounded-b bg-white/20"
+          onPointerDown={handleResizePointerDown}
+          onClick={(ev) => ev.stopPropagation()}
+        />
       )}
     </button>
   );

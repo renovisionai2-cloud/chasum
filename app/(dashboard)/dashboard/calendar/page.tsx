@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getAppointments } from "@/lib/actions/appointments";
 import { getCustomers } from "@/lib/actions/customers";
+import { getLocations } from "@/lib/actions/location";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
 import type { CalendarView } from "@/lib/types/booking";
@@ -45,12 +46,14 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const date = params.date ? new Date(params.date) : new Date();
   const range = getRange(view, date);
 
-  const [appointments, services, staff, customers] = await Promise.all([
-    getAppointments(range.start.toISOString(), range.end.toISOString()),
-    getServices(),
-    getStaff(),
-    getCustomers(),
-  ]);
+  const [appointments, services, staff, customers, locations] =
+    await Promise.all([
+      getAppointments(range.start.toISOString(), range.end.toISOString()),
+      getServices(),
+      getStaff(),
+      getCustomers(),
+      getLocations(),
+    ]);
 
   return (
     <div className="space-y-6">
@@ -63,6 +66,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         services={services}
         staff={staff}
         customers={customers}
+        locations={locations}
         initialDate={range.start.toISOString()}
         initialView={view}
       />

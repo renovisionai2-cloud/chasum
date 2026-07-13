@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,12 +12,14 @@ import {
   createAppointment,
   updateAppointment,
 } from "@/lib/actions/appointments";
+import { quickCreateCustomer } from "@/lib/actions/customers";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import type {
   ActionState,
   AppointmentStatus,
   AppointmentWithRelations,
   Customer,
+  Location,
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
@@ -26,6 +29,7 @@ import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
 import { parseISO } from "@/lib/calendar/utils";
+import { Plus } from "lucide-react";
 import { useActionState, useCallback, useMemo, useState } from "react";
 
 type AppointmentDialogProps = {
@@ -35,6 +39,7 @@ type AppointmentDialogProps = {
   services: Service[];
   staff: StaffWithServices[];
   customers: Customer[];
+  locations: Location[];
   defaultDate?: Date;
   onSuccess: () => void;
 };
@@ -46,20 +51,43 @@ function slotDateInLocalTimezone(iso: string): string {
 function getInitialState(
   appointment: AppointmentWithRelations | null | undefined,
   services: Service[],
+  locations: Location[],
   defaultDate?: Date,
 ) {
   const initialStart = appointment
     ? appointment.start_time
     : defaultDate?.toISOString() ?? null;
 
+  const service =
+    services.find((s) => s.id === appointment?.service_id) ??
+    services.find((s) => s.is_active);
+
+  const duration = appointment
+    ? Math.max(
+        5,
+        Math.round(
+          (parseISO(appointment.end_time).getTime() -
+            parseISO(appointment.start_time).getTime()) /
+            60_000,
+        ),
+      )
+    : service?.duration_minutes ?? 30;
+
   return {
-    serviceId:
-      appointment?.service_id ?? services.find((s) => s.is_active)?.id ?? "",
+    serviceId: service?.id ?? "",
     staffId: appointment?.staff_id ?? "",
+    customerId: appointment?.customer_id ?? "",
+    locationId:
+      appointment?.location_id ??
+      locations.find((l) => l.is_default)?.id ??
+      locations[0]?.id ??
+      "",
     date: initialStart
       ? slotDateInLocalTimezone(initialStart)
       : format(new Date(), "yyyy-MM-dd"),
     slot: initialStart,
+    duration,
+    status: (appointment?.status ?? "pending") as AppointmentStatus,
   };
 }
 
@@ -69,7 +97,8 @@ export function AppointmentDialog({
   appointment,
   services,
   staff,
-  customers,
+  customers: initialCustomers,
+  locations,
   defaultDate,
   onSuccess,
 }: AppointmentDialogProps) {
@@ -78,11 +107,23 @@ export function AppointmentDialog({
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
   const { toast } = useToast();
 
-  const initial = getInitialState(appointment, services, defaultDate);
+  const initial = getInitialState(appointment, services, locations, defaultDate);
+  const [customers, setCustomers] = useState(initialCustomers);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [selectedCustomerId, setSelectedCustomerId] = useState(initial.customerId);
   const [selectedService, setSelectedService] = useState(initial.serviceId);
   const [selectedStaff, setSelectedStaff] = useState(initial.staffId);
+  const [selectedLocation, setSelectedLocation] = useState(initial.locationId);
   const [selectedDate, setSelectedDate] = useState(initial.date);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(initial.slot);
+  const [durationMinutes, setDurationMinutes] = useState(initial.duration);
+  const [showNewCustomer, setShowNewCustomer] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [creatingCustomer, setCreatingCustomer] = useState(false);
 
   const loadSlots = useCallback(
     (
@@ -90,20 +131,51 @@ export function AppointmentDialog({
       staffId: string,
       date: string,
       excludeAppointmentId?: string,
-    ) => getDashboardAvailableSlots(serviceId, staffId, date, excludeAppointmentId),
-    [],
+    ) =>
+      getDashboardAvailableSlots(
+        serviceId,
+        staffId,
+        date,
+        excludeAppointmentId,
+        selectedLocation || undefined,
+      ),
+    [selectedLocation],
   );
 
   useFormAction(state, onSuccess, onClose);
+
+  const selectedServiceRow = services.find((s) => s.id === selectedService);
+
+  const filteredCustomers = useMemo(() => {
+    const q = customerSearch.trim().toLowerCase();
+    if (!q) return customers;
+    return customers.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        (c.phone ?? "").toLowerCase().includes(q),
+    );
+  }, [customers, customerSearch]);
 
   const filteredStaff = useMemo(
     () =>
       staff.filter(
         (member) =>
           member.is_active &&
+          (!selectedLocation || member.location_id === selectedLocation) &&
           member.staff_services.some((ss) => ss.service_id === selectedService),
       ),
-    [staff, selectedService],
+    [staff, selectedService, selectedLocation],
+  );
+
+  const locationServices = useMemo(
+    () =>
+      services.filter(
+        (s) =>
+          s.is_active &&
+          (!selectedLocation || s.location_id === selectedLocation),
+      ),
+    [services, selectedLocation],
   );
 
   const activeStaffId = useMemo(() => {
@@ -113,7 +185,39 @@ export function AppointmentDialog({
     return filteredStaff[0]?.id ?? "";
   }, [filteredStaff, selectedStaff]);
 
-  const canSubmit = !!selectedService && !!activeStaffId && !!selectedSlot;
+  const canSubmit =
+    !!selectedCustomerId &&
+    !!selectedService &&
+    !!activeStaffId &&
+    !!selectedSlot &&
+    !!selectedLocation &&
+    durationMinutes > 0;
+
+  async function handleQuickCreateCustomer() {
+    setCreatingCustomer(true);
+    const result = await quickCreateCustomer(newCustomer);
+    setCreatingCustomer(false);
+    if (result.error || !result.customerId) {
+      toast(result.error ?? "Could not create customer.", "error");
+      return;
+    }
+    const created: Customer = {
+      id: result.customerId,
+      business_id: "",
+      name: newCustomer.name.trim(),
+      email: newCustomer.email.trim(),
+      phone: newCustomer.phone.trim() || null,
+      notes: null,
+      tags: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setCustomers((prev) => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+    setSelectedCustomerId(result.customerId);
+    setShowNewCustomer(false);
+    setCustomerSearch(created.name);
+    toast(result.success ?? "Customer added.", "success");
+  }
 
   async function handleCancel() {
     if (!appointment) return;
@@ -134,31 +238,116 @@ export function AppointmentDialog({
       title={isEditing ? "Edit appointment" : "New appointment"}
       description={
         isEditing
-          ? "Update appointment details or pick a new available time."
-          : "Select service, staff, and an available time slot."
+          ? "Update details or pick a new available time from the scheduling engine."
+          : "Search or create a client, then choose service, staff, location, and a real open slot."
       }
     >
       <form action={formAction} className="space-y-4">
-        {isEditing && (
-          <input type="hidden" name="id" value={appointment.id} />
-        )}
+        {isEditing && <input type="hidden" name="id" value={appointment.id} />}
+        <input type="hidden" name="customer_id" value={selectedCustomerId} />
+        <input type="hidden" name="start_time" value={selectedSlot ?? ""} />
+        <input type="hidden" name="location_id" value={selectedLocation} />
+        <input type="hidden" name="duration_minutes" value={durationMinutes} />
 
         <div className="space-y-2">
-          <Label htmlFor="customer_id">Customer</Label>
-          <Select
-            id="customer_id"
-            name="customer_id"
-            defaultValue={appointment?.customer_id ?? ""}
-            required
-          >
-            <option value="">Select customer</option>
-            {customers.map((customer) => (
-              <option key={customer.id} value={customer.id}>
-                {customer.name} ({customer.email})
-              </option>
-            ))}
-          </Select>
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="customer_search">Customer</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 text-xs"
+              onClick={() => setShowNewCustomer((v) => !v)}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {showNewCustomer ? "Cancel" : "New client"}
+            </Button>
+          </div>
+          {showNewCustomer ? (
+            <div className="space-y-2 rounded-[var(--radius-md)] border border-border bg-muted/20 p-3">
+              <Input
+                placeholder="Full name"
+                value={newCustomer.name}
+                onChange={(e) =>
+                  setNewCustomer((c) => ({ ...c, name: e.target.value }))
+                }
+                required
+              />
+              <Input
+                type="email"
+                placeholder="Email"
+                value={newCustomer.email}
+                onChange={(e) =>
+                  setNewCustomer((c) => ({ ...c, email: e.target.value }))
+                }
+                required
+              />
+              <Input
+                placeholder="Phone (optional)"
+                value={newCustomer.phone}
+                onChange={(e) =>
+                  setNewCustomer((c) => ({ ...c, phone: e.target.value }))
+                }
+              />
+              <Button
+                type="button"
+                size="sm"
+                disabled={creatingCustomer}
+                onClick={handleQuickCreateCustomer}
+              >
+                {creatingCustomer ? "Saving…" : "Save client"}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Input
+                id="customer_search"
+                placeholder="Search by name, email, or phone…"
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+              />
+              <Select
+                aria-label="Select customer"
+                value={selectedCustomerId}
+                onChange={(e) => setSelectedCustomerId(e.target.value)}
+                required
+              >
+                <option value="">Select customer</option>
+                {filteredCustomers.map((customer) => (
+                  <option key={customer.id} value={customer.id}>
+                    {customer.name} ({customer.email})
+                  </option>
+                ))}
+              </Select>
+            </>
+          )}
         </div>
+
+        {locations.length > 0 && (
+          <div className="space-y-2">
+            <Label htmlFor="location_id_select">Location</Label>
+            <Select
+              id="location_id_select"
+              value={selectedLocation}
+              onChange={(e) => {
+                setSelectedLocation(e.target.value);
+                setSelectedService("");
+                setSelectedStaff("");
+                setSelectedSlot(null);
+              }}
+              required
+            >
+              {locations
+                .filter((l) => l.is_active)
+                .map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
+                    {location.is_default ? " (default)" : ""}
+                  </option>
+                ))}
+            </Select>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="service_id">Service</Label>
@@ -167,14 +356,17 @@ export function AppointmentDialog({
             name="service_id"
             value={selectedService}
             onChange={(e) => {
-              setSelectedService(e.target.value);
+              const next = e.target.value;
+              setSelectedService(next);
               setSelectedStaff("");
               setSelectedSlot(null);
+              const svc = services.find((s) => s.id === next);
+              if (svc) setDurationMinutes(svc.duration_minutes);
             }}
             required
           >
             <option value="">Select service</option>
-            {services.filter((s) => s.is_active).map((service) => (
+            {locationServices.map((service) => (
               <option key={service.id} value={service.id}>
                 {service.name} ({service.duration_minutes} min)
               </option>
@@ -182,25 +374,45 @@ export function AppointmentDialog({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="staff_id">Staff</Label>
-          <Select
-            id="staff_id"
-            name="staff_id"
-            value={activeStaffId}
-            onChange={(e) => {
-              setSelectedStaff(e.target.value);
-              setSelectedSlot(null);
-            }}
-            required
-          >
-            <option value="">Select staff</option>
-            {filteredStaff.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.name}
-              </option>
-            ))}
-          </Select>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="staff_id">Staff</Label>
+            <Select
+              id="staff_id"
+              name="staff_id"
+              value={activeStaffId}
+              onChange={(e) => {
+                setSelectedStaff(e.target.value);
+                setSelectedSlot(null);
+              }}
+              required
+            >
+              <option value="">Select staff</option>
+              {filteredStaff.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="duration_minutes_input">Duration (minutes)</Label>
+            <Input
+              id="duration_minutes_input"
+              type="number"
+              min={5}
+              step={5}
+              value={durationMinutes}
+              onChange={(e) => setDurationMinutes(Number(e.target.value) || 0)}
+            />
+            {selectedServiceRow && (
+              <p className="text-xs text-muted-foreground">
+                Service default {selectedServiceRow.duration_minutes} min · buffers{" "}
+                {selectedServiceRow.buffer_before_minutes}/
+                {selectedServiceRow.buffer_after_minutes} min
+              </p>
+            )}
+          </div>
         </div>
 
         {selectedService && activeStaffId ? (
@@ -219,26 +431,22 @@ export function AppointmentDialog({
           />
         ) : null}
 
-        <input type="hidden" name="start_time" value={selectedSlot ?? ""} />
-
-        {isEditing && (
-          <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <Select
-              id="status"
-              name="status"
-              defaultValue={appointment.status}
-            >
-              {(Object.keys(APPOINTMENT_STATUS_LABELS) as AppointmentStatus[]).map(
-                (status) => (
-                  <option key={status} value={status}>
-                    {APPOINTMENT_STATUS_LABELS[status]}
-                  </option>
-                ),
-              )}
-            </Select>
-          </div>
-        )}
+        <div className="space-y-2">
+          <Label htmlFor="status">Status</Label>
+          <Select
+            id="status"
+            name="status"
+            defaultValue={initial.status}
+          >
+            {(Object.keys(APPOINTMENT_STATUS_LABELS) as AppointmentStatus[]).map(
+              (status) => (
+                <option key={status} value={status}>
+                  {APPOINTMENT_STATUS_LABELS[status]}
+                </option>
+              ),
+            )}
+          </Select>
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="notes">Notes</Label>

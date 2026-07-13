@@ -20,6 +20,7 @@ import { getEmployeeActivity } from "@/lib/ai-workforce/roster";
 import type { AiEmployee } from "@/lib/ai-workforce/types";
 import { ArrowLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { useState } from "react";
 
 const TABS = [
@@ -30,7 +31,13 @@ const TABS = [
   { id: "future", label: "Future" },
 ];
 
-export function AiEmployeeDetail({ employee }: { employee: AiEmployee }) {
+export function AiEmployeeDetail({
+  employee,
+  liveAvailability,
+}: {
+  employee: AiEmployee;
+  liveAvailability?: ReactNode;
+}) {
   const [tab, setTab] = useState("overview");
   const activity = getEmployeeActivity(employee.id);
 
@@ -93,25 +100,32 @@ export function AiEmployeeDetail({ employee }: { employee: AiEmployee }) {
               </ul>
             </CardContent>
           </Card>
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Today</CardTitle>
-              <CardDescription>Placeholder until live automation</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="ds-label">Tasks completed</p>
-                <p className="text-3xl font-semibold tabular-nums">
-                  {employee.tasksCompletedToday}
+          <div className="space-y-6 lg:col-span-2">
+            {liveAvailability}
+            <Card>
+              <CardHeader>
+                <CardTitle>Today</CardTitle>
+                <CardDescription>
+                  {liveAvailability
+                    ? "Live availability above · other metrics stay assistive"
+                    : "Placeholder until live automation"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="ds-label">Tasks completed</p>
+                  <p className="text-3xl font-semibold tabular-nums">
+                    {employee.tasksCompletedToday}
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {employee.name} follows Chasum AI principles: remove work,
+                  recommend actions, never invent business data, and keep you in
+                  control.
                 </p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {employee.name} follows Chasum AI principles: remove work,
-                recommend actions, never invent business data, and keep you in
-                control.
-              </p>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       )}
 

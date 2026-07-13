@@ -11,12 +11,17 @@ import {
 } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  getAlexAvailabilityRecommendations,
+  type AlexSlotRecommendation,
+} from "@/lib/ai-workforce/alex";
 import { AI_EMPLOYEES } from "@/lib/ai-workforce/roster";
 import type { AiEmployee } from "@/lib/ai-workforce/types";
+import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Send, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 
 type ChatMessage = {
   id: string;
@@ -26,25 +31,32 @@ type ChatMessage = {
 };
 
 const STARTERS = [
+  "What open slots does Alex see this week?",
   "Who on my AI team can help fill a quiet Friday?",
   "Summarize what each AI employee is responsible for.",
-  "What will Alex do before inventing any available slots?",
 ];
 
-function placeholderReply(prompt: string): ChatMessage {
+function formatAlexSlots(recs: AlexSlotRecommendation[]): string {
+  return recs
+    .map((r) => {
+      const times = r.slots
+        .map((iso) => formatTime(parseISO(iso)))
+        .join(", ");
+      return `• ${r.date} — ${r.serviceName} with ${r.staffName}: ${times}`;
+    })
+    .join("\n");
+}
+
+function staticReply(prompt: string): ChatMessage {
   const lower = prompt.toLowerCase();
   let employee = AI_EMPLOYEES.find((e) => e.id === "leo")!;
   let content =
-    "I'm in preview mode — live reasoning comes later. I can already route you to the right AI employee and explain their responsibilities. I will never invent appointment times, prices, or client records.";
+    "I can route you to the right AI employee and explain responsibilities. For real openings, ask Alex about available slots — recommendations come only from the scheduling engine.";
 
   if (lower.includes("friday") || lower.includes("fill") || lower.includes("quiet")) {
     employee = AI_EMPLOYEES.find((e) => e.id === "maya")!;
     content =
-      "Maya (Marketing) and Alex (Scheduler) would collaborate here: Alex only proposes real openings from your calendar engine; Maya drafts outreach for your approval. Nothing sends without you.";
-  } else if (lower.includes("alex") || lower.includes("slot") || lower.includes("schedul")) {
-    employee = AI_EMPLOYEES.find((e) => e.id === "alex")!;
-    content =
-      "Alex only uses Chasum’s availability engine. If a slot is not returned by get_available_slots, Alex will not offer it — AI never invents openings.";
+      "Maya (Marketing) and Alex (Scheduler) collaborate here: Alex only proposes real openings from your calendar engine; Maya drafts outreach for your approval. Nothing sends without you.";
   } else if (lower.includes("responsib") || lower.includes("each") || lower.includes("team")) {
     employee = AI_EMPLOYEES.find((e) => e.id === "noah")!;
     content =
@@ -59,16 +71,29 @@ function placeholderReply(prompt: string): ChatMessage {
   };
 }
 
+function wantsAlexAvailability(prompt: string): boolean {
+  const lower = prompt.toLowerCase();
+  return (
+    lower.includes("alex") ||
+    lower.includes("slot") ||
+    lower.includes("schedul") ||
+    lower.includes("availab") ||
+    lower.includes("opening") ||
+    lower.includes("open time")
+  );
+}
+
 export function AiCommandCenter() {
   const [input, setInput] = useState("");
   const idRef = useRef(0);
+  const [pending, startTransition] = useTransition();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
       role: "assistant",
       employee: AI_EMPLOYEES.find((e) => e.id === "noah"),
       content:
-        "Welcome to the Command Center. Ask your AI Workforce anything about operations — answers are preview placeholders until live intelligence is connected. Your business data stays the source of truth.",
+        "Welcome to the Command Center. Ask about operations — when you ask Alex for openings, answers come only from get_available_slots. Alex never invents appointment times.",
     },
   ]);
 
@@ -79,17 +104,51 @@ export function AiCommandCenter() {
 
   function send(text: string) {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed || pending) return;
 
     const userMessage: ChatMessage = {
       id: nextId("u"),
       role: "user",
       content: trimmed,
     };
-    const reply = placeholderReply(trimmed);
-    reply.id = nextId("a");
-    setMessages((prev) => [...prev, userMessage, reply]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+
+    startTransition(async () => {
+      const alex = AI_EMPLOYEES.find((e) => e.id === "alex")!;
+      let reply: ChatMessage;
+
+      if (wantsAlexAvailability(trimmed)) {
+        try {
+          const result = await getAlexAvailabilityRecommendations({
+            daysAhead: 5,
+          });
+          const body =
+            result.recommendations.length > 0
+              ? `${result.message}\n\n${formatAlexSlots(result.recommendations)}\n\nThese times come from the scheduling engine only — nothing was invented.`
+              : result.message;
+          reply = {
+            id: nextId("a"),
+            role: "assistant",
+            employee: alex,
+            content: body,
+          };
+        } catch {
+          reply = {
+            id: nextId("a"),
+            role: "assistant",
+            employee: alex,
+            content:
+              "Alex could not reach the scheduling engine right now. No times were invented — try again from the calendar when the connection is back.",
+          };
+        }
+      } else {
+        reply = staticReply(trimmed);
+        reply.id = nextId("a");
+      }
+
+      setMessages((prev) => [...prev, reply]);
+    });
   }
 
   return (
@@ -107,7 +166,7 @@ export function AiCommandCenter() {
         </Link>
         <PageHeader
           title="Command Center"
-          description="Talk to your AI Workforce. Preview intelligence only — architecture first."
+          description="Talk to your AI Workforce. Alex uses real availability only."
         />
       </div>
 
@@ -146,7 +205,9 @@ export function AiCommandCenter() {
               </span>
               <div>
                 <CardTitle className="text-base">Conversation</CardTitle>
-                <CardDescription>Enterprise-ready shell · preview replies</CardDescription>
+                <CardDescription>
+                  Alex · live slots · other replies are routing previews
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -166,7 +227,7 @@ export function AiCommandCenter() {
                   )}
                   <div
                     className={cn(
-                      "max-w-[85%] rounded-[var(--radius-md)] px-4 py-3 text-sm",
+                      "max-w-[85%] whitespace-pre-wrap rounded-[var(--radius-md)] px-4 py-3 text-sm",
                       message.role === "user"
                         ? "bg-primary text-primary-foreground"
                         : "border border-border bg-muted/40 text-foreground",
@@ -181,6 +242,9 @@ export function AiCommandCenter() {
                   </div>
                 </div>
               ))}
+              {pending && (
+                <p className="text-xs text-muted-foreground">Checking real availability…</p>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -189,7 +253,8 @@ export function AiCommandCenter() {
                   key={starter}
                   type="button"
                   onClick={() => send(starter)}
-                  className="rounded-full border border-border bg-card px-3 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground"
+                  disabled={pending}
+                  className="rounded-full border border-border bg-card px-3 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground disabled:opacity-50"
                 >
                   {starter}
                 </button>
@@ -210,8 +275,9 @@ export function AiCommandCenter() {
                 rows={2}
                 className="min-h-[2.75rem] flex-1 resize-none"
                 aria-label="Message the AI Workforce"
+                disabled={pending}
               />
-              <Button type="submit" className="sm:h-11">
+              <Button type="submit" className="sm:h-11" disabled={pending}>
                 <Send className="h-4 w-4" aria-hidden="true" />
                 Send
               </Button>

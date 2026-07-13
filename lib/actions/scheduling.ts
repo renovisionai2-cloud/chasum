@@ -33,16 +33,17 @@ export async function getDashboardAvailableSlots(
   staffId: string,
   date: string,
   excludeAppointmentId?: string,
+  locationId?: string,
 ): Promise<string[]> {
   const business = await getOrCreateBusiness();
-  const locationId = await getActiveLocationId();
+  const resolvedLocationId = locationId || (await getActiveLocationId());
   return fetchAvailableSlots(
     business.id,
     serviceId,
     staffId,
     date,
     excludeAppointmentId,
-    locationId,
+    resolvedLocationId,
   );
 }
 

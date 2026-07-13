@@ -299,13 +299,17 @@ export async function createAppointment(
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
-  const locationId = await getActiveLocationId();
   const supabase = await createClient();
 
   const serviceId = formData.get("service_id") as string;
   const staffId = formData.get("staff_id") as string;
   const customerId = formData.get("customer_id") as string;
   const notes = (formData.get("notes") as string) || null;
+  const status =
+    (formData.get("status") as AppointmentStatus) || "pending";
+  const locationFromForm = (formData.get("location_id") as string) || null;
+  const locationId = locationFromForm || (await getActiveLocationId());
+  const durationOverride = Number(formData.get("duration_minutes"));
 
   if (!serviceId || !staffId || !customerId) {
     return { error: "All required fields must be filled." };
@@ -324,7 +328,11 @@ export async function createAppointment(
 
   if (!service) return { error: "Service not found." };
 
-  const endTime = addMinutes(startTime, service.duration_minutes);
+  const durationMinutes =
+    Number.isFinite(durationOverride) && durationOverride > 0
+      ? durationOverride
+      : service.duration_minutes;
+  const endTime = addMinutes(startTime, durationMinutes);
 
   const validation = await validateAppointmentSlot({
     businessId: business.id,
@@ -348,17 +356,21 @@ export async function createAppointment(
     start_time: startTime.toISOString(),
     end_time: endTime.toISOString(),
     notes,
-    status: "pending",
+    status,
   }).select("id").single();
 
   if (error) return { error: error.message };
 
   if (created?.id) {
-    await handleAppointmentEvent(created.id, "created");
+    await handleAppointmentEvent(
+      created.id,
+      status === "confirmed" ? "confirmed" : "created",
+    );
   }
 
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/clients");
   return { success: "Appointment created." };
 }
 
@@ -375,6 +387,8 @@ export async function updateAppointment(
   const customerId = formData.get("customer_id") as string;
   const status = formData.get("status") as AppointmentStatus;
   const notes = (formData.get("notes") as string) || null;
+  const locationFromForm = (formData.get("location_id") as string) || null;
+  const durationOverride = Number(formData.get("duration_minutes"));
 
   const { data: service } = await supabase
     .from("services")
@@ -389,7 +403,11 @@ export async function updateAppointment(
     return { error: "Select an available time slot." };
   }
 
-  const endTime = addMinutes(startTime, service.duration_minutes);
+  const durationMinutes =
+    Number.isFinite(durationOverride) && durationOverride > 0
+      ? durationOverride
+      : service.duration_minutes;
+  const endTime = addMinutes(startTime, durationMinutes);
 
   const { data: existing } = await supabase
     .from("appointments")
@@ -400,6 +418,8 @@ export async function updateAppointment(
 
   if (!existing) return { error: "Appointment not found." };
 
+  const locationId = locationFromForm || existing.location_id;
+
   if (status !== "cancelled") {
     const validation = await validateAppointmentSlot({
       businessId: business.id,
@@ -408,7 +428,7 @@ export async function updateAppointment(
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
       excludeAppointmentId: id,
-      locationId: existing.location_id,
+      locationId,
     });
 
     if (!validation.ok) {
@@ -422,6 +442,7 @@ export async function updateAppointment(
       service_id: serviceId,
       staff_id: staffId,
       customer_id: customerId,
+      location_id: locationId,
       start_time: startTime.toISOString(),
       end_time: endTime.toISOString(),
       status,
@@ -481,14 +502,17 @@ export async function rescheduleAppointment(
 
   if (!appointment) return { error: "Appointment not found." };
 
-  const service = appointment.service as {
-    duration_minutes: number;
-    buffer_before_minutes: number;
-    buffer_after_minutes: number;
-  };
+  const existingDurationMinutes = Math.max(
+    5,
+    Math.round(
+      (parseISO(appointment.end_time).getTime() -
+        parseISO(appointment.start_time).getTime()) /
+        60_000,
+    ),
+  );
 
   const startTime = parseISO(newStartTime);
-  const endTime = addMinutes(startTime, service.duration_minutes);
+  const endTime = addMinutes(startTime, existingDurationMinutes);
 
   const validation = await validateAppointmentSlot({
     businessId: business.id,
@@ -521,6 +545,60 @@ export async function rescheduleAppointment(
   revalidatePath("/dashboard/calendar");
   revalidatePath("/dashboard");
   return { success: "Appointment rescheduled." };
+}
+
+/** Change appointment end time while keeping start — validated by scheduling engine. */
+export async function resizeAppointment(
+  id: string,
+  newEndTime: string,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const { data: appointment } = await supabase
+    .from("appointments")
+    .select("*")
+    .eq("id", id)
+    .eq("business_id", business.id)
+    .single();
+
+  if (!appointment) return { error: "Appointment not found." };
+  if (appointment.status === "cancelled") {
+    return { error: "Cancelled appointments cannot be resized." };
+  }
+
+  const startTime = parseISO(appointment.start_time);
+  const endTime = parseISO(newEndTime);
+  if (endTime.getTime() <= startTime.getTime()) {
+    return { error: "End time must be after start time." };
+  }
+
+  const validation = await validateAppointmentSlot({
+    businessId: business.id,
+    serviceId: appointment.service_id,
+    staffId: appointment.staff_id,
+    startTime: startTime.toISOString(),
+    endTime: endTime.toISOString(),
+    excludeAppointmentId: id,
+    locationId: appointment.location_id,
+  });
+
+  if (!validation.ok) {
+    return { error: validation.error };
+  }
+
+  const { error } = await supabase
+    .from("appointments")
+    .update({ end_time: endTime.toISOString() })
+    .eq("id", id)
+    .eq("business_id", business.id);
+
+  if (error) return { error: error.message };
+
+  await handleAppointmentEvent(id, "updated");
+  revalidatePath("/dashboard/calendar");
+  revalidatePath("/dashboard");
+  return { success: "Appointment duration updated." };
 }
 
 export async function getPublicAppointments(

@@ -1,6 +1,9 @@
 "use client";
 
 import { AppointmentDialog } from "@/components/calendar/appointment-dialog";
+import {
+  type CalendarColorMode,
+} from "@/components/calendar/appointment-block";
 import { CalendarToolbar } from "@/components/calendar/calendar-toolbar";
 import {
   DayView,
@@ -9,13 +12,17 @@ import {
 } from "@/components/calendar/calendar-views";
 import { EmptyState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
-import { rescheduleAppointment } from "@/lib/actions/appointments";
+import {
+  rescheduleAppointment,
+  resizeAppointment,
+} from "@/lib/actions/appointments";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { useToast } from "@/providers/toast-provider";
 import type {
   AppointmentWithRelations,
   CalendarView,
   Customer,
+  Location,
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
@@ -38,6 +45,7 @@ type CalendarClientProps = {
   services: Service[];
   staff: StaffWithServices[];
   customers: Customer[];
+  locations: Location[];
   initialDate: string;
   initialView: CalendarView;
 };
@@ -64,6 +72,7 @@ export function CalendarClient({
   services,
   staff,
   customers,
+  locations,
   initialDate,
   initialView,
 }: CalendarClientProps) {
@@ -71,6 +80,7 @@ export function CalendarClient({
   const { toast } = useToast();
   const [view, setView] = useState<CalendarView>(initialView);
   const [date, setDate] = useState(new Date(initialDate));
+  const [colorMode, setColorMode] = useState<CalendarColorMode>("service");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentWithRelations | null>(null);
@@ -96,12 +106,13 @@ export function CalendarClient({
     appointment: AppointmentWithRelations,
     newStart: Date,
   ) {
-    const date = format(newStart, "yyyy-MM-dd");
+    const dateStr = format(newStart, "yyyy-MM-dd");
     const slots = await getDashboardAvailableSlots(
       appointment.service_id,
       appointment.staff_id,
-      date,
+      dateStr,
       appointment.id,
+      appointment.location_id,
     );
 
     const targetMs = newStart.getTime();
@@ -125,6 +136,22 @@ export function CalendarClient({
       return;
     }
     toast(result.success ?? "Appointment rescheduled.", "success");
+    refresh();
+  }
+
+  async function handleResize(
+    appointment: AppointmentWithRelations,
+    newEnd: Date,
+  ) {
+    const result = await resizeAppointment(
+      appointment.id,
+      newEnd.toISOString(),
+    );
+    if (result.error) {
+      toast(result.error, "error");
+      return;
+    }
+    toast(result.success ?? "Duration updated.", "success");
     refresh();
   }
 
@@ -169,8 +196,10 @@ export function CalendarClient({
       <CalendarToolbar
         view={view}
         date={date}
+        colorMode={colorMode}
         onViewChange={handleViewChange}
         onDateChange={handleDateChange}
+        onColorModeChange={setColorMode}
         onNewAppointment={() => openNew()}
       />
 
@@ -181,6 +210,8 @@ export function CalendarClient({
           onSelectAppointment={openEdit}
           onSelectSlot={openNew}
           onReschedule={handleReschedule}
+          onResize={handleResize}
+          colorMode={colorMode}
         />
       )}
       {view === "week" && (
@@ -189,6 +220,9 @@ export function CalendarClient({
           appointments={appointments}
           onSelectAppointment={openEdit}
           onSelectSlot={openNew}
+          onReschedule={handleReschedule}
+          onResize={handleResize}
+          colorMode={colorMode}
         />
       )}
       {view === "month" && (
@@ -200,6 +234,7 @@ export function CalendarClient({
             setView("day");
             setDate(day);
           }}
+          colorMode={colorMode}
         />
       )}
 
@@ -214,6 +249,7 @@ export function CalendarClient({
         services={services}
         staff={staff}
         customers={customers}
+        locations={locations}
         defaultDate={defaultSlot}
         onSuccess={refresh}
       />

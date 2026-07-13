@@ -68,6 +68,44 @@ export async function createCustomer(
   return { success: "Customer added." };
 }
 
+/** Inline create from appointment modal — returns new customer id. */
+export async function quickCreateCustomer(input: {
+  name: string;
+  email: string;
+  phone?: string;
+}): Promise<ActionState & { customerId?: string }> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const name = input.name.trim();
+  const email = input.email.trim();
+  if (!name) return { error: "Customer name is required." };
+  if (!email) return { error: "Email is required." };
+
+  const { data, error } = await supabase
+    .from("customers")
+    .insert({
+      business_id: business.id,
+      name,
+      email,
+      phone: input.phone?.trim() || null,
+      tags: [],
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    if (error.code === "23505") {
+      return { error: "A customer with this email already exists." };
+    }
+    return { error: error.message };
+  }
+
+  revalidatePath("/dashboard/clients");
+  revalidatePath("/dashboard/calendar");
+  return { success: "Customer added.", customerId: data.id };
+}
+
 export async function updateCustomer(
   _prev: ActionState,
   formData: FormData,
@@ -132,10 +170,49 @@ export async function getCustomerProfile(id: string) {
   const { data: appointments } = await supabase
     .from("appointments")
     .select(
-      `*, service:services(name, color), staff:staff(name), location:locations(name)`,
+      `*, service:services(name, color, price), staff:staff(name), location:locations(name)`,
     )
     .eq("customer_id", id)
+    .eq("business_id", business.id)
     .order("start_time", { ascending: false });
 
-  return { customer, appointments: appointments ?? [] };
+  const rows = appointments ?? [];
+  const now = new Date();
+
+  const upcoming = rows.filter(
+    (a) =>
+      a.status !== "cancelled" &&
+      new Date(a.start_time).getTime() >= now.getTime(),
+  );
+  const history = rows.filter(
+    (a) =>
+      a.status !== "cancelled" &&
+      new Date(a.start_time).getTime() < now.getTime(),
+  );
+  const cancellations = rows.filter((a) => a.status === "cancelled");
+  const noShows = rows.filter((a) => a.status === "no_show");
+  const completed = rows.filter((a) => a.status === "completed");
+
+  const lifetimeRevenue = completed.reduce((sum, a) => {
+    const price = (a.service as { price?: number } | null)?.price ?? 0;
+    return sum + Number(price);
+  }, 0);
+
+  const totalVisits = completed.length;
+
+  return {
+    customer,
+    appointments: rows,
+    upcoming,
+    history,
+    cancellations,
+    noShows,
+    metrics: {
+      totalVisits,
+      lifetimeRevenue,
+      noShowCount: noShows.length,
+      cancellationCount: cancellations.length,
+      upcomingCount: upcoming.length,
+    },
+  };
 }

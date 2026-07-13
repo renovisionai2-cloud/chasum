@@ -9,14 +9,17 @@ import {
   formatWeekRange,
 } from "@/lib/calendar/utils";
 import type { CalendarView } from "@/lib/types/booking";
+import type { CalendarColorMode } from "@/components/calendar/appointment-block";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { addDays, addMonths, addWeeks, subDays, subMonths, subWeeks } from "date-fns";
 
 type CalendarToolbarProps = {
   view: CalendarView;
   date: Date;
+  colorMode: CalendarColorMode;
   onViewChange: (view: CalendarView) => void;
   onDateChange: (date: Date) => void;
+  onColorModeChange: (mode: CalendarColorMode) => void;
   onNewAppointment: () => void;
 };
 
@@ -47,8 +50,10 @@ function navigate(view: CalendarView, date: Date, direction: "prev" | "next"): D
 export function CalendarToolbar({
   view,
   date,
+  colorMode,
   onViewChange,
   onDateChange,
+  onColorModeChange,
   onNewAppointment,
 }: CalendarToolbarProps) {
   return (
@@ -82,7 +87,31 @@ export function CalendarToolbar({
         </h2>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex rounded-xl border border-border bg-muted/50 p-1">
+          <button
+            type="button"
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              colorMode === "service"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => onColorModeChange("service")}
+          >
+            By service
+          </button>
+          <button
+            type="button"
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              colorMode === "staff"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => onColorModeChange("staff")}
+          >
+            By staff
+          </button>
+        </div>
         <Tabs
           tabs={viewTabs}
           activeTab={view}
