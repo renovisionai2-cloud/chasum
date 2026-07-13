@@ -241,7 +241,10 @@ export function CalendarClient({
       refresh();
       return;
     }
-    toast(result.success ?? "Appointment rescheduled.", "success");
+    toast(
+      `Rescheduled · ${appointment.customer.name} · ${format(parseISO(match), "MMM d · h:mm a")}`,
+      "success",
+    );
     refresh();
   }
 

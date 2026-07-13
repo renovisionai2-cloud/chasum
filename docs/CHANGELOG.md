@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Sprint 2 — Reception Workspace Excellence)
+
+- Instant customer search: local seed filter, server fallback, recent customers, clear control, loading spinner
+- Faster booking: selected-customer chip, remembered service/staff, inline validation, richer book/cancel toasts
+- Reception panel hierarchy, shortcuts labels, AI Suggestions use Spark mark (AI-only)
+- Spark pulse animation with glow + reduced-motion support
+
 ### Changed (Official Brand — The C Mark)
 
 - Locked Option 01 “The C Mark” as the permanent Chasum logo; assets in `/public/brand/`

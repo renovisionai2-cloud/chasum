@@ -9,6 +9,7 @@ import { TodayNotes } from "@/components/reception/today-notes";
 import { WaitlistPlaceholder } from "@/components/reception/waitlist-placeholder";
 import { Button } from "@/components/ui/button";
 import type { NextAvailableSlot } from "@/lib/actions/reception";
+import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
   Customer,
@@ -86,19 +87,34 @@ export function ReceptionPanel({
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-5 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:w-[22rem] lg:overflow-y-auto xl:w-[24rem]">
-      <div className="flex items-center justify-between gap-2">
+    <aside className="flex w-full shrink-0 flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:w-[22rem] lg:overflow-y-auto xl:w-[24rem]">
+      <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-base font-semibold">Reception</h2>
-          <p className="text-xs text-muted-foreground">
-            / search · N new · B book · W walk-in · ⌘K palette
+          <h2 className="text-base font-semibold tracking-tight">Reception</h2>
+          <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+            <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+              /
+            </kbd>{" "}
+            search ·{" "}
+            <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+              N
+            </kbd>{" "}
+            new ·{" "}
+            <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+              B
+            </kbd>{" "}
+            book ·{" "}
+            <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+              W
+            </kbd>{" "}
+            walk-in
           </p>
         </div>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 shrink-0 p-0"
           onClick={() => onOpenChange(false)}
           aria-label="Close reception panel"
         >
@@ -110,22 +126,25 @@ export function ReceptionPanel({
         selectedId={selected?.id}
         autoFocus
         focusSignal={searchFocusSignal}
+        seedCustomers={allCustomers}
         onSelect={(c) => {
+          pushRecentCustomer(c);
           setSelected(c);
           setExtraCustomers((prev) =>
             prev.some((x) => x.id === c.id) ? prev : [...prev, c],
           );
+          window.setTimeout(() => {
+            formAnchorRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }, 50);
         }}
       />
 
       <CustomerPreview customer={selected} />
 
-      <div
-        ref={formAnchorRef}
-        onFocusCapture={() => {
-          /* keep form in view when quick actions focus it */
-        }}
-      >
+      <div ref={formAnchorRef} className="scroll-mt-4">
         <QuickAppointmentForm
           key={`${selected?.id ?? "none"}-${slotDefaults.start ?? "blank"}-${walkInMode ? "wi" : "std"}-${walkInSignal}-${bookFocusSignal}`}
           customers={allCustomers}
@@ -138,9 +157,8 @@ export function ReceptionPanel({
           defaultStaffId={slotDefaults.staffId}
           walkInMode={walkInMode}
           focusSignal={apptFocusSignal}
-          onSuccess={() => {
-            onBooked();
-          }}
+          onClearCustomer={() => setSelected(null)}
+          onSuccess={onBooked}
           onCustomerCreated={(c) => {
             setExtraCustomers((prev) => [...prev, c]);
             setSelected(c);
@@ -148,31 +166,34 @@ export function ReceptionPanel({
         />
       </div>
 
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="flex-1"
-          onClick={onOpenFullDialog}
-        >
-          Full appointment form
-        </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="w-full text-xs text-muted-foreground"
+        onClick={onOpenFullDialog}
+      >
+        Open full appointment editor
+      </Button>
+
+      <div className="space-y-4 border-t border-border/80 pt-4">
+        <NextSlotCard
+          onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
+            setSlotDefaults({
+              start: slot.start,
+              serviceId: slot.serviceId,
+              staffId: slot.staffId,
+            });
+            formAnchorRef.current?.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }}
+        />
+        <TodayNotes />
+        <AiSuggestionsCard insights={insights} />
+        <WaitlistPlaceholder />
       </div>
-
-      <NextSlotCard
-        onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
-          setSlotDefaults({
-            start: slot.start,
-            serviceId: slot.serviceId,
-            staffId: slot.staffId,
-          });
-        }}
-      />
-
-      <WaitlistPlaceholder />
-      <TodayNotes />
-      <AiSuggestionsCard insights={insights} />
     </aside>
   );
 }

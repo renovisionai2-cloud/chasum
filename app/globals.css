@@ -158,10 +158,12 @@ body {
   100% {
     opacity: 1;
     transform: scale(1);
+    filter: drop-shadow(0 0 0 transparent);
   }
   50% {
-    opacity: 0.72;
-    transform: scale(0.94);
+    opacity: 0.85;
+    transform: scale(0.96);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--spark) 45%, transparent));
   }
 }
 
@@ -170,7 +172,16 @@ body {
 }
 
 .animate-spark-pulse {
-  animation: spark-pulse 1.6s ease-in-out infinite;
+  animation: spark-pulse 1.8s ease-in-out infinite;
+  will-change: transform, opacity, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-spark-pulse {
+    animation: none !important;
+    filter: none !important;
+  }
 }
 
 .animation-delay-100 {

@@ -326,6 +326,21 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Sprint 2 — Reception Workspace Excellence ✅ Shipped
+
+**Goal:** Best-in-class receptionist speed — find, create, book, reschedule, cancel with minimal friction.
+
+| Deliverable | Status |
+|-------------|--------|
+| Instant customer search + recent customers | ✅ |
+| Fast create/book with defaults, validation, clear toasts | ✅ |
+| Reception panel hierarchy + keyboard shortcuts | ✅ |
+| Calendar readability preserved from 1.4 | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.

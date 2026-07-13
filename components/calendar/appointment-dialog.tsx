@@ -297,11 +297,12 @@ export function AppointmentDialog({
 
   async function handleCancel() {
     if (!appointment) return;
-    if (!confirm("Cancel this appointment?")) return;
+    const who = appointment.customer?.name ?? "this appointment";
+    if (!confirm(`Cancel ${who}?`)) return;
     const result = await cancelAppointment(appointment.id);
     if (result.error) toast(result.error, "error");
     else {
-      toast(result.success ?? "Appointment cancelled.", "success");
+      toast(`Cancelled · ${who}`, "success");
       onSuccess();
       onClose();
     }
