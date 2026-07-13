@@ -50,7 +50,7 @@ export function LocationSwitcher({
     return (
       <div
         className={cn(
-          "flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground",
+          "flex items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground transition-colors",
           className,
         )}
       >

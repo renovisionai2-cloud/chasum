@@ -65,11 +65,12 @@ Use the `ColorPicker` component for selection UI.
 
 | Pattern | Value |
 |---------|-------|
-| Page padding | `p-4 md:p-6` (via dashboard shell) |
-| Section gap | `space-y-6` or `space-y-8` |
+| Page padding | `px-4 py-5 md:px-6 md:py-7 lg:px-8` (via dashboard shell) |
+| Section gap | `ds-page` (`space-y-8`) or `space-y-6` |
 | Card grid gap | `gap-4` |
-| Card padding | `p-4` to `p-5` |
+| Card padding | `p-5` to `p-6` |
 | Form field gap | `space-y-2` (label + input), `space-y-4` (form sections) |
+| Spacing tokens | `--space-1` … `--space-12` in `globals.css` |
 
 ### Dashboard Shell
 

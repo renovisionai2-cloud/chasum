@@ -218,7 +218,16 @@ export function StaffManager({
         <EmptyState
           title="No staff yet"
           description="Add team members who will provide services."
-        />
+        >
+          <Button
+            onClick={() => {
+              setEditing(undefined);
+              setOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" /> Add staff
+          </Button>
+        </EmptyState>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {staff.map((member) => {
@@ -229,7 +238,7 @@ export function StaffManager({
               .join(", ");
 
             return (
-              <Card key={member.id} className="border-border/70 shadow-sm">
+              <Card key={member.id} className="ds-card-interactive">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-3">

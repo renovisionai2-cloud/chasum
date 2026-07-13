@@ -42,6 +42,7 @@ export function NotificationsCenter({
 
       {notifications.length === 0 ? (
         <EmptyState
+          icon="spark"
           title="No notifications"
           description="Appointment activity, waitlist updates, and system alerts will appear here."
         />
@@ -50,7 +51,7 @@ export function NotificationsCenter({
           {notifications.map((n) => (
             <Card
               key={n.id}
-              className={`border-border/60 ${!n.read_at ? "border-primary/30 bg-accent/20" : ""}`}
+              className={!n.read_at ? "border-primary/30 bg-accent/20" : "ds-card-interactive"}
             >
               <CardContent className="flex items-start justify-between gap-3 p-4">
                 <div>

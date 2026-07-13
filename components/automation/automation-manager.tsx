@@ -88,11 +88,19 @@ export function AutomationManager({
           </Button>
         </div>
         {waitlist.filter((w) => w.status === "waiting" || w.status === "notified").length === 0 ? (
-          <EmptyState title="Waitlist empty" description="Clients waiting for open slots will appear here." />
+          <EmptyState
+            variant="panel"
+            title="Waitlist empty"
+            description="Clients waiting for open slots will appear here."
+          >
+            <Button size="sm" onClick={() => setWaitlistOpen(true)}>
+              <Plus className="h-4 w-4" /> Add to waitlist
+            </Button>
+          </EmptyState>
         ) : (
           <div className="space-y-2">
             {waitlist.filter((w) => w.status !== "cancelled").map((entry) => (
-              <Card key={entry.id} className="border-border/60">
+              <Card key={entry.id} className="ds-card-interactive">
                 <CardContent className="flex items-center justify-between p-4">
                   <div>
                     <p className="font-medium">{entry.customer?.name} — {entry.service?.name}</p>
@@ -120,11 +128,19 @@ export function AutomationManager({
           </Button>
         </div>
         {recurringRules.length === 0 ? (
-          <EmptyState title="No recurring rules" description="Automate repeating appointments for regular clients." />
+          <EmptyState
+            variant="panel"
+            title="No recurring rules"
+            description="Automate repeating appointments for regular clients."
+          >
+            <Button size="sm" variant="outline" onClick={() => setRecurringOpen(true)}>
+              <Plus className="h-4 w-4" /> Add rule
+            </Button>
+          </EmptyState>
         ) : (
           <div className="space-y-2">
             {recurringRules.map((rule) => (
-              <Card key={rule.id} className="border-border/60">
+              <Card key={rule.id} className="ds-card-interactive">
                 <CardContent className="flex items-center justify-between p-4">
                   <div>
                     <p className="font-medium">{rule.customer?.name} — {rule.service?.name}</p>

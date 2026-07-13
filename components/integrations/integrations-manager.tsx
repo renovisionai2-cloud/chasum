@@ -100,13 +100,14 @@ export function IntegrationsManager({
         <h2 className="text-lg font-semibold">Connected calendars</h2>
         {connections.length === 0 ? (
           <EmptyState
+            variant="panel"
             title="No calendars connected"
             description="Connect Google, Outlook, or Apple Calendar to sync appointments and detect conflicts."
           />
         ) : (
           <div className="grid gap-3">
             {connections.map((conn) => (
-              <Card key={conn.id} className="border-border/60">
+              <Card key={conn.id} className="ds-card-interactive">
                 <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-medium capitalize">

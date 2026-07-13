@@ -15,6 +15,7 @@ High-level phases. Detailed engineering status: [`../ROADMAP.md`](../ROADMAP.md)
 | **5** | Multi-location foundation | Locations, shared customers, plan limits, location switcher |
 | **Sprint 1** | Brand Integration | Official C + Spark marks, design tokens, UI primitives |
 | **Sprint 2** | GVM Baby World go-live | Production tenant profile, ultrasound catalog, staff profiles, booking E2E |
+| **Sprint 3** | Premium Dashboard & Design System | Shared DS primitives, overview health UI, premium nav, consistent empties |
 
 ## In progress
 
@@ -48,6 +49,7 @@ High-level phases. Detailed engineering status: [`../ROADMAP.md`](../ROADMAP.md)
 |---------|-------|
 | `0.2.0` | Phase 3 + 4 |
 | `0.2.5` | Phase 5 multi-location foundation |
-| `0.2.6` | Sprint 1 brand + Sprint 2 GVM go-live (current) |
+| `0.2.6` | Sprint 1 brand + Sprint 2 GVM go-live |
+| `0.2.7` | Sprint 3 premium dashboard & design system (current) |
 | `0.3.0` | GVM live traffic + Stripe + production SMTP |
 | `1.0.0` | GA with billing, AI assistant, embed widget |

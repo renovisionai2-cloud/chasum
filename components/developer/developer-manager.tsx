@@ -8,6 +8,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/ui/page-header";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   createApiKey,
   createWebhook,
@@ -54,7 +55,7 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
         <div className="flex gap-4">
           {["read", "write", "webhooks"].map((scope) => (
             <label key={scope} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="scopes" value={scope} defaultChecked />
+              <Checkbox name="scopes" value={scope} defaultChecked />
               {scope}
             </label>
           ))}
@@ -112,11 +113,19 @@ export function DeveloperManager({
           <Button size="sm" onClick={() => setKeyOpen(true)}>Create key</Button>
         </div>
         {apiKeys.length === 0 ? (
-          <EmptyState title="No API keys" description="Create an API key to access the REST API." />
+          <EmptyState
+            variant="panel"
+            title="No API keys"
+            description="Create an API key to access the REST API."
+          >
+            <Button size="sm" onClick={() => setKeyOpen(true)}>
+              Create key
+            </Button>
+          </EmptyState>
         ) : (
           <div className="space-y-2">
             {apiKeys.map((key) => (
-              <Card key={key.id} className="border-border/60">
+              <Card key={key.id} className="ds-card-interactive">
                 <CardContent className="flex items-center justify-between p-4">
                   <div>
                     <p className="font-medium">{key.name}</p>
@@ -141,11 +150,19 @@ export function DeveloperManager({
           <Button size="sm" variant="outline" onClick={() => setWebhookOpen(true)}>Add webhook</Button>
         </div>
         {webhooks.length === 0 ? (
-          <EmptyState title="No webhooks" description="Receive real-time events for Zapier, Make.com, or custom integrations." />
+          <EmptyState
+            variant="panel"
+            title="No webhooks"
+            description="Receive real-time events for Zapier, Make.com, or custom integrations."
+          >
+            <Button size="sm" variant="outline" onClick={() => setWebhookOpen(true)}>
+              Add webhook
+            </Button>
+          </EmptyState>
         ) : (
           <div className="space-y-2">
             {webhooks.map((wh) => (
-              <Card key={wh.id} className="border-border/60">
+              <Card key={wh.id} className="ds-card-interactive">
                 <CardContent className="flex items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{wh.url}</p>
@@ -201,7 +218,7 @@ export function DeveloperManager({
             <div className="max-h-40 space-y-1 overflow-y-auto rounded-xl border border-border p-3">
               {WEBHOOK_EVENTS.map((event) => (
                 <label key={event} className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" name="events" value={event} defaultChecked />
+                  <Checkbox name="events" value={event} defaultChecked />
                   {event}
                 </label>
               ))}

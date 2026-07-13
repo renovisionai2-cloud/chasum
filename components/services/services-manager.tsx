@@ -190,11 +190,20 @@ export function ServicesManager({ services }: { services: Service[] }) {
         <EmptyState
           title="No services yet"
           description="Create your first service to start accepting bookings."
-        />
+        >
+          <Button
+            onClick={() => {
+              setEditing(undefined);
+              setOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" /> Add service
+          </Button>
+        </EmptyState>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
-            <Card key={service.id} className="border-border/70 shadow-sm">
+            <Card key={service.id} className="ds-card-interactive">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-3">

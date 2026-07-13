@@ -17,6 +17,7 @@ import {
   Menu,
   Plug,
   Repeat,
+  Search,
   Settings,
   UserCog,
   Users,
@@ -56,7 +57,7 @@ export function DashboardSidebar({
   return (
     <aside
       className={cn(
-        "flex h-full w-64 flex-col border-r border-border bg-card",
+        "flex h-full w-64 flex-col border-r border-border bg-card/95 backdrop-blur-sm",
         className,
       )}
     >
@@ -64,7 +65,7 @@ export function DashboardSidebar({
         <Logo href="/dashboard" />
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Dashboard">
         {DASHBOARD_NAV.map((item) => {
           const Icon = iconMap[item.icon as keyof typeof iconMap];
           const isActive =
@@ -77,32 +78,40 @@ export function DashboardSidebar({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                "ds-nav-item",
+                isActive ? "ds-nav-item-active" : "ds-nav-item-idle",
               )}
+              aria-current={isActive ? "page" : undefined}
             >
-              <Icon className="h-4 w-4" />
-              {item.label}
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="truncate">{item.label}</span>
+              {isActive && (
+                <span
+                  className="ml-auto h-1.5 w-1.5 rounded-full bg-primary"
+                  aria-hidden="true"
+                />
+              )}
             </Link>
           );
         })}
       </nav>
 
-      <div className="border-t border-border p-4">
+      <div className="space-y-2 border-t border-border p-3">
         {userEmail && (
-          <p className="mb-3 truncate px-3 text-xs text-muted-foreground">
-            {userEmail}
-          </p>
+          <div className="rounded-[var(--radius-md)] bg-muted/50 px-3 py-2.5">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Signed in
+            </p>
+            <p className="mt-0.5 truncate text-xs text-foreground">{userEmail}</p>
+          </div>
         )}
         <form action={signOut}>
           <Button
             type="submit"
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4" aria-hidden="true" />
             Sign out
           </Button>
         </form>
@@ -124,15 +133,15 @@ function UserBadge({ email }: { email?: string }) {
   const initial = email?.charAt(0).toUpperCase() ?? "?";
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted/40">
       <div className="hidden text-right sm:block">
-        <p className="text-sm font-medium text-foreground">Account</p>
-        <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+        <p className="text-sm font-medium leading-tight text-foreground">Account</p>
+        <p className="max-w-[160px] truncate text-[11px] text-muted-foreground">
           {email}
         </p>
       </div>
       <div
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground"
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20"
         aria-hidden="true"
       >
         {initial}
@@ -160,11 +169,8 @@ export function DashboardTopNav({
   locationQuota,
   onMenuOpen,
 }: DashboardTopNavProps) {
-  const pathname = usePathname();
-  const pageTitle = getPageTitle(pathname);
-
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/90 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/85 px-4 backdrop-blur-xl md:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Button
           variant="ghost"
@@ -178,18 +184,34 @@ export function DashboardTopNav({
         <div className="lg:hidden">
           <Logo showText={false} />
         </div>
-        <h1 className="truncate text-base font-semibold tracking-tight text-foreground sm:text-lg lg:text-lg">
-          {pageTitle}
-        </h1>
+
+        <Link
+          href="/dashboard/clients"
+          className="hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:bg-muted md:flex lg:max-w-sm ds-focus-ring"
+          aria-label="Search clients"
+        >
+          <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span className="truncate">Search clients…</span>
+        </Link>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <LocationSwitcher
           locations={locations}
           scope={locationScope}
           quota={locationQuota}
           className="hidden sm:flex"
         />
+        <Link href="/dashboard/notifications">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="relative h-9 w-9 rounded-xl p-0"
+            aria-label="Notifications"
+          >
+            <Bell className="h-4 w-4" />
+          </Button>
+        </Link>
         <ThemeToggle />
         <UserBadge email={userEmail} />
       </div>
@@ -209,10 +231,11 @@ export function MobileSidebar({ open, userEmail, onClose }: MobileSidebarProps) 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={onClose}
+        aria-hidden="true"
       />
-      <div className="absolute inset-y-0 left-0 w-64 shadow-xl">
+      <div className="absolute inset-y-0 left-0 w-[min(100%,16rem)] animate-fade-in-up shadow-lg">
         <div className="absolute right-3 top-3 z-10">
           <Button
             variant="ghost"

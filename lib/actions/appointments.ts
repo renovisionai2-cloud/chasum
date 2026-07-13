@@ -83,7 +83,7 @@ export async function getDashboardStats() {
 
   const apptFilter = appointmentFilter();
 
-  const [todayRes, weekRes, customersRes, upcomingRes, todayApptsRes, newCustomersRes, revenueRes] = await Promise.all([
+  const [todayRes, weekRes, customersRes, upcomingRes, todayApptsRes, newCustomersRes, revenueRes, weekSeriesRes] = await Promise.all([
     supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
@@ -132,6 +132,13 @@ export async function getDashboardStats() {
       .eq("status", "completed")
       .gte("start_time", monthStart.toISOString())
       .lte("start_time", monthEnd.toISOString()),
+    supabase
+      .from("appointments")
+      .select("start_time")
+      .match(apptFilter)
+      .neq("status", "cancelled")
+      .gte("start_time", weekStart.toISOString())
+      .lte("start_time", weekEnd.toISOString()),
   ]);
 
   const monthCustomersRes = await supabase
@@ -145,6 +152,26 @@ export async function getDashboardStats() {
     return sum + Number(price);
   }, 0);
 
+  const weekDayCounts = Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + i);
+    const y = day.getFullYear();
+    const m = String(day.getMonth() + 1).padStart(2, "0");
+    const d = String(day.getDate()).padStart(2, "0");
+    const key = `${y}-${m}-${d}`;
+    const count = (weekSeriesRes.data ?? []).filter((a) => {
+      const start = new Date(a.start_time);
+      const ay = start.getFullYear();
+      const am = String(start.getMonth() + 1).padStart(2, "0");
+      const ad = String(start.getDate()).padStart(2, "0");
+      return `${ay}-${am}-${ad}` === key;
+    }).length;
+    return {
+      label: day.toLocaleDateString("en-US", { weekday: "short" }),
+      value: count,
+    };
+  });
+
   return {
     todayCount: todayRes.count ?? 0,
     weekCount: weekRes.count ?? 0,
@@ -154,6 +181,7 @@ export async function getDashboardStats() {
     todayAppointments: todayApptsRes.data ?? [],
     newCustomers: newCustomersRes.data ?? [],
     monthlyRevenue: revenue,
+    weekDayCounts,
   };
 }
 

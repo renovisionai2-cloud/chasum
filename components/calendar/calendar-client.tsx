@@ -8,6 +8,7 @@ import {
   WeekView,
 } from "@/components/calendar/calendar-views";
 import { EmptyState } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
 import { rescheduleAppointment } from "@/lib/actions/appointments";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { useToast } from "@/providers/toast-provider";
@@ -28,6 +29,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
@@ -147,7 +149,18 @@ export function CalendarClient({
       <EmptyState
         title="Set up your booking engine"
         description="Add at least one service and one staff member before scheduling appointments."
-      />
+      >
+        <div className="flex flex-wrap justify-center gap-2">
+          <Link href="/dashboard/services">
+            <Button size="sm">Add service</Button>
+          </Link>
+          <Link href="/dashboard/staff">
+            <Button size="sm" variant="outline">
+              Add staff
+            </Button>
+          </Link>
+        </div>
+      </EmptyState>
     );
   }
 

@@ -46,7 +46,7 @@ function ProfileForm({ business }: { business: Business }) {
   useFormAction(state);
 
   return (
-    <Card className="border-border/70 shadow-sm lg:col-span-2">
+    <Card className="lg:col-span-2">
       <CardHeader>
         <CardTitle>Business profile</CardTitle>
         <CardDescription>
@@ -298,7 +298,7 @@ function HoursForm({
   useFormAction(state);
 
   return (
-    <Card className="border-border/70 shadow-sm">
+    <Card>
       <CardHeader>
         <CardTitle>Location hours</CardTitle>
         <CardDescription>{locationName}</CardDescription>
@@ -331,7 +331,7 @@ function BookingSettingsForm({
   useFormAction(state);
 
   return (
-    <Card className="border-border/70 shadow-sm">
+    <Card>
       <CardHeader>
         <CardTitle>Scheduling rules</CardTitle>
         <CardDescription>
@@ -407,7 +407,7 @@ function HolidaysForm({ holidays }: { holidays: Holiday[] }) {
   }
 
   return (
-    <Card className="border-border/70 shadow-sm">
+    <Card>
       <CardHeader>
         <CardTitle>Holidays & closures</CardTitle>
         <CardDescription>Dates when the location does not accept bookings.</CardDescription>

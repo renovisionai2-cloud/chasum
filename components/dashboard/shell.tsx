@@ -44,7 +44,7 @@ export function DashboardShell({
           locationQuota={locationQuota}
           onMenuOpen={() => setMobileOpen(true)}
         />
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main className="flex-1 px-4 py-5 md:px-6 md:py-7 lg:px-8">{children}</main>
       </div>
 
       <MobileSidebar

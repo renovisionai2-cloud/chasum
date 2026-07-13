@@ -34,9 +34,28 @@
   --shadow-sm: 0 1px 3px rgb(12 18 34 / 0.06), 0 1px 2px rgb(12 18 34 / 0.04);
   --shadow-md: 0 4px 12px rgb(12 18 34 / 0.08), 0 2px 4px rgb(12 18 34 / 0.04);
   --shadow-lg: 0 12px 32px rgb(12 18 34 / 0.1), 0 4px 8px rgb(12 18 34 / 0.04);
+
+  /* Radius */
   --radius-sm: 0.625rem;
   --radius-md: 0.875rem;
   --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
 }
 
 .dark {
@@ -100,6 +119,7 @@
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
 }
 
 * {
@@ -182,4 +202,37 @@ body {
       color-mix(in srgb, var(--spark) 10%, transparent),
       transparent 65%
     );
+}
+
+/* Design system — surface & type utilities */
+.ds-page {
+  @apply space-y-8;
+}
+
+.ds-section-title {
+  @apply text-lg font-semibold tracking-tight text-foreground;
+}
+
+.ds-label {
+  @apply text-xs font-medium uppercase tracking-wide text-muted-foreground;
+}
+
+.ds-card-interactive {
+  @apply transition-all duration-200 hover:border-primary/35 hover:shadow-md;
+}
+
+.ds-nav-item {
+  @apply flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium transition-all duration-200;
+}
+
+.ds-nav-item-active {
+  @apply bg-accent text-accent-foreground shadow-xs;
+}
+
+.ds-nav-item-idle {
+  @apply text-muted-foreground hover:bg-muted/80 hover:text-foreground;
+}
+
+.ds-focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
 }

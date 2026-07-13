@@ -104,12 +104,27 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
       {filtered.length === 0 ? (
         <EmptyState
           title={search ? "No clients found" : "No clients yet"}
-          description={search ? "Try a different search term." : "Clients will appear here when you add them or receive bookings."}
-        />
+          description={
+            search
+              ? "Try a different search term."
+              : "Clients appear when you add them or receive bookings."
+          }
+        >
+          {!search && (
+            <Button
+              onClick={() => {
+                setEditing(undefined);
+                setOpen(true);
+              }}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" /> Add client
+            </Button>
+          )}
+        </EmptyState>
       ) : (
         <div className="grid gap-3">
           {filtered.map((customer) => (
-            <Card key={customer.id} className="border-border/60">
+            <Card key={customer.id} className="ds-card-interactive">
               <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <Link href={`/dashboard/clients/${customer.id}`} className="font-semibold hover:text-primary">

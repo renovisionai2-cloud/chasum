@@ -1,14 +1,25 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
-import { EmptyState, PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/ui/stat-card";
+import { WeekBars } from "@/components/ui/chart";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDashboardStats, getAppointments } from "@/lib/actions/appointments";
 import { getLocationScope } from "@/lib/actions/location";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { format, startOfDay, endOfDay } from "date-fns";
 import {
+  ArrowRight,
   Calendar,
+  CalendarPlus,
   Clock,
   DollarSign,
   Plus,
@@ -27,199 +38,303 @@ export async function DashboardOverview() {
     endOfDay(now).toISOString(),
   );
 
-  const statCards = [
-    {
-      title: "Today's appointments",
-      value: stats.todayCount.toString(),
-      icon: Calendar,
-      href: "/dashboard/calendar",
-    },
-    {
-      title: "This week",
-      value: stats.weekCount.toString(),
-      icon: Clock,
-      href: "/dashboard/calendar",
-    },
-    {
-      title: "Monthly revenue",
-      value: `$${stats.monthlyRevenue.toFixed(0)}`,
-      change: "From completed appointments",
-      icon: DollarSign,
-      href: "/dashboard/calendar",
-    },
-    {
-      title: "Total clients",
-      value: stats.customerCount.toString(),
-      change: `+${stats.newCustomersThisMonth} this month`,
-      icon: Users,
-      href: "/dashboard/clients",
-    },
-  ];
+  const weekSpark = (stats.weekDayCounts ?? []).map((d) => d.value);
+  const scopeLabel =
+    locationScope.mode === "all" ? "all locations" : "this location";
 
   const quickActions = [
-    { label: "New appointment", href: "/dashboard/calendar", icon: Plus },
-    { label: "Add client", href: "/dashboard/clients", icon: UserPlus },
-    { label: "View calendar", href: "/dashboard/calendar", icon: Calendar },
+    {
+      label: "New appointment",
+      description: "Book on the calendar",
+      href: "/dashboard/calendar",
+      icon: CalendarPlus,
+    },
+    {
+      label: "Add client",
+      description: "Grow your client list",
+      href: "/dashboard/clients",
+      icon: UserPlus,
+    },
+    {
+      label: "Manage services",
+      description: "Pricing and duration",
+      href: "/dashboard/services",
+      icon: Plus,
+    },
   ];
 
-  const scopeLabel =
-    locationScope.mode === "all"
-      ? "all locations"
-      : "this location";
-
   return (
-    <div className="space-y-8">
+    <div className="ds-page">
       <PageHeader
         title="Overview"
-        description={`Welcome back. Here's what's happening at ${business.name} (${scopeLabel}).`}
-      />
+        description={`Business health for ${business.name} · ${scopeLabel}`}
+      >
+        <Link href="/dashboard/calendar">
+          <Button size="sm">
+            <CalendarPlus className="h-4 w-4" aria-hidden="true" />
+            New appointment
+          </Button>
+        </Link>
+      </PageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {statCards.map((stat) => (
-          <Link key={stat.title} href={stat.href}>
-            <Card className="border-border/60 transition-colors hover:border-primary/30">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-semibold tracking-tight">
-                  {stat.value}
-                </div>
-                {stat.change && (
-                  <p className="mt-1 truncate text-xs text-muted-foreground">
-                    {stat.change}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+        <StatCard
+          title="Today"
+          value={stats.todayCount.toString()}
+          description={
+            stats.todayCount === 1
+              ? "1 appointment scheduled"
+              : `${stats.todayCount} appointments scheduled`
+          }
+          icon={Calendar}
+          href="/dashboard/calendar"
+          accent="primary"
+          sparkline={weekSpark}
+        />
+        <StatCard
+          title="This week"
+          value={stats.weekCount.toString()}
+          description="Active bookings this week"
+          icon={Clock}
+          href="/dashboard/calendar"
+          accent="spark"
+          sparkline={weekSpark}
+        />
+        <StatCard
+          title="Monthly revenue"
+          value={`$${stats.monthlyRevenue.toFixed(0)}`}
+          description="From completed appointments"
+          icon={DollarSign}
+          href="/dashboard/calendar"
+          accent="success"
+        />
+        <StatCard
+          title="Clients"
+          value={stats.customerCount.toString()}
+          description={`+${stats.newCustomersThisMonth} new this month`}
+          icon={Users}
+          href="/dashboard/clients"
+          accent="warning"
+        />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="border-border/60 lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Today&apos;s schedule</CardTitle>
+      <div className="grid gap-6 xl:grid-cols-5">
+        <Card className="xl:col-span-3">
+          <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+            <div>
+              <CardTitle>This week</CardTitle>
+              <CardDescription>Appointment volume by day</CardDescription>
+            </div>
             <Link href="/dashboard/calendar">
-              <Button variant="outline" size="sm">Open calendar</Button>
+              <Button variant="outline" size="sm">
+                Calendar
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {(stats.weekDayCounts ?? []).every((d) => d.value === 0) ? (
+              <EmptyState
+                variant="panel"
+                glyph={Calendar}
+                title="Quiet week so far"
+                description="Bookings will show here as they come in."
+              >
+                <Link href="/dashboard/calendar">
+                  <Button size="sm">Open calendar</Button>
+                </Link>
+              </EmptyState>
+            ) : (
+              <WeekBars data={stats.weekDayCounts ?? []} />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="xl:col-span-2">
+          <CardHeader>
+            <CardTitle>Quick actions</CardTitle>
+            <CardDescription>Common tasks, one tap away</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {quickActions.map((action) => (
+              <Link
+                key={action.label}
+                href={action.href}
+                className="group flex items-center gap-3 rounded-[var(--radius-md)] border border-border/80 bg-card px-3.5 py-3 transition-all duration-200 hover:border-primary/35 hover:bg-accent/40 ds-focus-ring"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] bg-muted text-foreground transition-colors group-hover:bg-accent group-hover:text-primary">
+                  <action.icon className="h-4 w-4" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="block text-sm font-medium text-foreground">
+                    {action.label}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {action.description}
+                  </span>
+                </span>
+                <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-5">
+        <Card className="lg:col-span-3">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div>
+              <CardTitle>Today&apos;s schedule</CardTitle>
+              <CardDescription>
+                {format(now, "EEEE, MMM d")}
+              </CardDescription>
+            </div>
+            <Link href="/dashboard/calendar">
+              <Button variant="outline" size="sm">
+                Open
+              </Button>
             </Link>
           </CardHeader>
           <CardContent>
             {todayAppts.length === 0 ? (
               <EmptyState
+                variant="panel"
+                glyph={Calendar}
                 title="No appointments today"
-                description="Your schedule is clear. Open the calendar to add one."
-              />
+                description="Your schedule is clear. Add one when you're ready."
+              >
+                <Link href="/dashboard/calendar">
+                  <Button size="sm">
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    Schedule
+                  </Button>
+                </Link>
+              </EmptyState>
             ) : (
-              <div className="space-y-2">
+              <ul className="divide-y divide-border/80">
                 {todayAppts.map((appt) => (
-                  <div
+                  <li
                     key={appt.id}
-                    className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-3"
+                    className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                   >
-                    <div className="flex items-center gap-4">
-                      <span className="w-16 text-sm font-medium text-primary">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="w-14 shrink-0 text-sm font-semibold tabular-nums text-primary">
                         {formatTime(parseISO(appt.start_time))}
                       </span>
-                      <div>
-                        <p className="text-sm font-medium">{appt.customer.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">
+                          {appt.customer.name}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
                           {appt.service.name} · {appt.staff.name}
                         </p>
                       </div>
                     </div>
                     <StatusBadge status={appt.status} />
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </CardContent>
         </Card>
 
-        <div className="space-y-6">
-          <Card className="border-border/60">
-            <CardHeader>
-              <CardTitle>Quick actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {quickActions.map((action) => (
-                <Link key={action.label} href={action.href}>
-                  <Button variant="outline" className="w-full justify-start gap-2">
-                    <action.icon className="h-4 w-4" />
-                    {action.label}
-                  </Button>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/60">
-            <CardHeader>
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div>
               <CardTitle>New clients</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats.newCustomers.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No new clients this month.</p>
-              ) : (
-                <ul className="space-y-2">
-                  {stats.newCustomers.map((c) => (
-                    <li key={c.id} className="text-sm">
-                      <Link href={`/dashboard/clients/${c.id}`} className="font-medium hover:text-primary">
+              <CardDescription>This month</CardDescription>
+            </div>
+            <Link href="/dashboard/clients">
+              <Button variant="ghost" size="sm">
+                View
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {stats.newCustomers.length === 0 ? (
+              <EmptyState
+                variant="inline"
+                glyph={Users}
+                icon="none"
+                title="No new clients yet"
+                description="Public bookings and manual adds appear here."
+              />
+            ) : (
+              <ul className="space-y-3">
+                {stats.newCustomers.map((c) => (
+                  <li key={c.id}>
+                    <Link
+                      href={`/dashboard/clients/${c.id}`}
+                      className="group block rounded-[var(--radius-sm)] transition-colors hover:bg-muted/50 -mx-2 px-2 py-1.5 ds-focus-ring"
+                    >
+                      <p className="text-sm font-medium group-hover:text-primary">
                         {c.name}
-                      </Link>
-                      <p className="text-xs text-muted-foreground">{c.email}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {c.email}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      <Card className="border-border/60">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Upcoming appointments</CardTitle>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle>Upcoming</CardTitle>
+            <CardDescription>Next appointments on the books</CardDescription>
+          </div>
           <Link href="/dashboard/calendar">
-            <Button variant="outline" size="sm">View all</Button>
+            <Button variant="outline" size="sm">
+              View all
+            </Button>
           </Link>
         </CardHeader>
         <CardContent>
           {stats.upcoming.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              No upcoming appointments.{" "}
-              <Link href="/dashboard/calendar" className="text-primary hover:underline">
-                Schedule one
+            <EmptyState
+              variant="panel"
+              glyph={Calendar}
+              title="Nothing upcoming"
+              description="Schedule the next visit to keep the calendar full."
+            >
+              <Link href="/dashboard/calendar">
+                <Button size="sm">Schedule appointment</Button>
               </Link>
-            </p>
+            </EmptyState>
           ) : (
-            <div className="space-y-3">
+            <ul className="divide-y divide-border/80">
               {stats.upcoming.map((appt) => (
-                <div
+                <li
                   key={appt.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-4 py-3"
+                  className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                 >
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium text-primary">
-                      {formatTime(parseISO(appt.start_time))}
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <div className="shrink-0 text-left">
+                      <p className="text-sm font-semibold tabular-nums text-primary">
+                        {formatTime(parseISO(appt.start_time))}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {format(parseISO(appt.start_time), "MMM d")}
+                      </p>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
                         {appt.customer?.name ?? "Client"}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {appt.service?.name ?? "Service"} ·{" "}
-                        {format(parseISO(appt.start_time), "MMM d")}
+                      <p className="truncate text-xs text-muted-foreground">
+                        {appt.service?.name ?? "Service"}
+                        {appt.location?.name ? ` · ${appt.location.name}` : ""}
                       </p>
                     </div>
                   </div>
                   <StatusBadge status={appt.status} />
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </CardContent>
       </Card>

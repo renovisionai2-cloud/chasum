@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 3 — Premium Dashboard & Design System)
+
+- Design tokens: spacing scale, `--radius-xl`, motion easing; `.ds-*` surface/nav utilities
+- Shared primitives: `StatCard`, `Checkbox`, enhanced `EmptyState` (page/panel/inline), `WeekBars` chart
+- Overview redesign: KPI cards with sparklines, weekly volume chart, quick actions, polished schedule/client panels
+- Premium navigation: sidebar active states, client search shortcut, notifications bell, refined location switcher & account badge
+- Empty states with primary CTAs across services, staff, clients, calendar setup, automation, developer, and client profile
+
+### Changed (Sprint 3)
+
+- Dashboard shell spacing and card surfaces unified; dual topbar page title removed in favor of content `PageHeader`
+- Calendar views use design-system radius and shadow tokens
+
 ### Added (Sprint 2 — GVM Baby World Go-Live)
 
 - Migration `011_sprint2_gvm_go_live.sql`: business logo/contact/address/policies/`social_links`; service `online_booking` + `preparation_instructions`; staff `biography` + `qualifications`

@@ -39,7 +39,7 @@ export function DayView({
   const showNow = isSameDay(date, new Date());
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
       <div className="relative">
         {hours.map((hour) => (
           <div
@@ -101,7 +101,7 @@ export function WeekView({
   const todayInWeek = days.some((d) => isSameDay(d, new Date()));
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+    <div className="overflow-x-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
       <div className="min-w-[700px]">
         <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border">
           <div />
@@ -196,7 +196,7 @@ export function MonthView({
   });
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
       <div className="grid grid-cols-7 border-b border-border">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div
