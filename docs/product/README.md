@@ -27,6 +27,7 @@ Product strategy, roadmap, and planning docs. Engineering reference lives alongs
 | [18_UX_PRINCIPLES.md](./18_UX_PRINCIPLES.md) | Clicks, typing, waiting, design quality |
 | [19_AI_PRINCIPLES.md](./19_AI_PRINCIPLES.md) | Automation, recommendations, truthfulness |
 | [20_AI_WORKFORCE.md](./20_AI_WORKFORCE.md) | **Strategic vision — AI Workforce & AI Business OS** |
+| [21_INDUSTRY_FRAMEWORK.md](./21_INDUSTRY_FRAMEWORK.md) | **One platform, many industries — configure, don’t fork** |
 | [99_IDEA_PARKING_LOT.md](./99_IDEA_PARKING_LOT.md) | Unscoped ideas |
 
 ## Engineering cross-reference
