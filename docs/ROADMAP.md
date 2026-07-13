@@ -181,6 +181,24 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Sprint 4 — AI Workforce Foundation ✅ Shipped
+
+**Goal:** Begin the AI Business Operating System surface — architecture and UI first, placeholder intelligence only.
+
+| Deliverable | Status |
+|-------------|--------|
+| Top-level AI Workforce nav + dashboard | ✅ |
+| Employee grid (Emma, Alex, Maya, Leo, Sophia, Noah) | ✅ |
+| Activity feed | ✅ |
+| Employee detail (overview / metrics / activity / settings / future) | ✅ |
+| Command Center conversational shell | ✅ |
+| Reusable `components/ai-workforce/*` + `lib/ai-workforce/*` | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`  
+**Next:** Connect employees to real tools/actions without inventing business data ([20_AI_WORKFORCE.md](./product/20_AI_WORKFORCE.md)).
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -236,7 +254,8 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.2.0` | Shipped | Phase 3 integrations & communication |
 | `0.2.5` | Shipped | Phase 5 multi-location |
 | `0.2.6` | Shipped | Sprint 1 brand + Sprint 2 GVM go-live |
-| `0.2.7` | Current | Sprint 3 premium dashboard & design system |
+| `0.2.7` | Shipped | Sprint 3 premium dashboard & design system |
+| `0.2.8` | Current | Sprint 4 AI Workforce foundation |
 | `0.3.0` | Next | Production SMTP + Stripe + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 

@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 4 — AI Workforce)
+
+- Dashboard section **AI Workforce** (`/dashboard/ai-workforce`) with employee grid, status, tasks, and quick actions
+- Named AI employees (preview): Emma, Alex, Maya, Leo, Sophia, Noah
+- Activity feed timeline with preview system events
+- Employee detail pages with Overview, Metrics, Activity, Settings, and Future tabs
+- AI Command Center conversational shell (`/dashboard/ai-workforce/command`) with placeholder intelligence
+- Reusable components under `components/ai-workforce/` and roster types in `lib/ai-workforce/`
+
+### Changed (Sprint 4)
+
+- Sidebar includes AI Workforce (Sparkles) between Staff and Notifications
+
 ### Added (Sprint 3 — Premium Dashboard & Design System)
 
 - Design tokens: spacing scale, `--radius-xl`, motion easing; `.ds-*` surface/nav utilities
