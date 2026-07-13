@@ -199,6 +199,23 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Sprint 5 — Premium Dashboard Experience ✅ Shipped
+
+**Goal:** Elevate Overview into a premium AI Business OS home — polish only, no new business features.
+
+| Deliverable | Status |
+|-------------|--------|
+| Personalized hero + real-data AI summary | ✅ |
+| KPI cards with comparisons / motion | ✅ |
+| Premium quick actions | ✅ |
+| Today’s recommendations (evidence-only) | ✅ |
+| Empty states with CTAs + tips | ✅ |
+| Suspense skeleton loading | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -255,7 +272,8 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.2.5` | Shipped | Phase 5 multi-location |
 | `0.2.6` | Shipped | Sprint 1 brand + Sprint 2 GVM go-live |
 | `0.2.7` | Shipped | Sprint 3 premium dashboard & design system |
-| `0.2.8` | Current | Sprint 4 AI Workforce foundation |
+| `0.2.8` | Shipped | Sprint 4 AI Workforce foundation |
+| `0.2.9` | Current | Sprint 5 premium dashboard experience |
 | `0.3.0` | Next | Production SMTP + Stripe + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 

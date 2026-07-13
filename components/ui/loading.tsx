@@ -39,17 +39,29 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function DashboardSkeleton() {
   return (
-    <div className="space-y-6 p-1">
-      <div className="flex items-center gap-3">
-        <BrandBadge size="sm" mark="c" className="opacity-40" />
-        <Skeleton className="h-8 w-48" />
-      </div>
+    <div className="ds-page" aria-busy="true" aria-label="Loading dashboard">
+      <Skeleton className="h-48 w-full rounded-[var(--radius-lg)]" />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-28" />
+          <Skeleton key={i} className="h-36" />
         ))}
       </div>
-      <Skeleton className="h-64" />
+      <div className="grid gap-6 xl:grid-cols-5">
+        <Skeleton className="h-72 xl:col-span-3" />
+        <div className="space-y-3 xl:col-span-2">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+        </div>
+      </div>
+      <Skeleton className="h-56 w-full" />
+      <div className="flex items-center gap-2 opacity-60">
+        <BrandBadge size="sm" mark="c" className="opacity-40" />
+        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-spark/20 text-spark">
+          <SparkMark className="h-3 w-3 animate-spark-pulse" />
+        </span>
+      </div>
     </div>
   );
 }

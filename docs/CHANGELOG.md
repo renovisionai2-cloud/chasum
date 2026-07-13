@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Sprint 5 — Premium Dashboard Experience)
+
+- Personalized Overview hero (greeting, date, today’s appointments/revenue/pending, AI summary from real metrics only)
+- KPI cards with prior-period comparison when data exists, sparklines, hover motion
+- Premium quick-action cards including AI Command Center
+- “Today’s recommendations” panel driven by evidence-based rules (`lib/dashboard/insights.ts`) — empty state when none apply
+- Richer empty states (primary + secondary CTAs, tips) and Overview skeleton via Suspense
+
+### Changed (Sprint 5)
+
+- Overview layout hierarchy, spacing, and micro-interactions aligned to Sprint 3 design system
+- `getDashboardStats` extended with yesterday / prior-week / prior-month / pending / today revenue (read-only metrics; no booking logic changes)
+
 ### Added (Sprint 4 — AI Workforce)
 
 - Dashboard section **AI Workforce** (`/dashboard/ai-workforce`) with employee grid, status, tasks, and quick actions

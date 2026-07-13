@@ -83,7 +83,51 @@ export async function getDashboardStats() {
 
   const apptFilter = appointmentFilter();
 
-  const [todayRes, weekRes, customersRes, upcomingRes, todayApptsRes, newCustomersRes, revenueRes, weekSeriesRes] = await Promise.all([
+  const yesterdayStart = new Date(todayStart);
+  yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+  const yesterdayEnd = new Date(todayEnd);
+  yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
+
+  const lastWeekSameDayStart = new Date(todayStart);
+  lastWeekSameDayStart.setDate(lastWeekSameDayStart.getDate() - 7);
+  const lastWeekSameDayEnd = new Date(todayEnd);
+  lastWeekSameDayEnd.setDate(lastWeekSameDayEnd.getDate() - 7);
+
+  const previousWeekStart = new Date(weekStart);
+  previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+  const previousWeekEnd = new Date(weekStart);
+  previousWeekEnd.setMilliseconds(-1);
+
+  const previousMonthStart = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1,
+  );
+  const previousMonthEnd = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    0,
+    23,
+    59,
+    59,
+  );
+
+  const [
+    todayRes,
+    weekRes,
+    customersRes,
+    upcomingRes,
+    todayApptsRes,
+    newCustomersRes,
+    revenueRes,
+    weekSeriesRes,
+    yesterdayRes,
+    lastWeekSameDayRes,
+    previousWeekRes,
+    previousMonthRevenueRes,
+    pendingRes,
+    todayCompletedRevenueRes,
+  ] = await Promise.all([
     supabase
       .from("appointments")
       .select("id", { count: "exact", head: true })
@@ -139,6 +183,47 @@ export async function getDashboardStats() {
       .neq("status", "cancelled")
       .gte("start_time", weekStart.toISOString())
       .lte("start_time", weekEnd.toISOString()),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .match(apptFilter)
+      .neq("status", "cancelled")
+      .gte("start_time", yesterdayStart.toISOString())
+      .lte("start_time", yesterdayEnd.toISOString()),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .match(apptFilter)
+      .neq("status", "cancelled")
+      .gte("start_time", lastWeekSameDayStart.toISOString())
+      .lte("start_time", lastWeekSameDayEnd.toISOString()),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .match(apptFilter)
+      .neq("status", "cancelled")
+      .gte("start_time", previousWeekStart.toISOString())
+      .lte("start_time", previousWeekEnd.toISOString()),
+    supabase
+      .from("appointments")
+      .select("service:services(price)")
+      .match(apptFilter)
+      .eq("status", "completed")
+      .gte("start_time", previousMonthStart.toISOString())
+      .lte("start_time", previousMonthEnd.toISOString()),
+    supabase
+      .from("appointments")
+      .select("id", { count: "exact", head: true })
+      .match(apptFilter)
+      .eq("status", "pending")
+      .gte("start_time", now.toISOString()),
+    supabase
+      .from("appointments")
+      .select("service:services(price)")
+      .match(apptFilter)
+      .eq("status", "completed")
+      .gte("start_time", todayStart.toISOString())
+      .lte("start_time", todayEnd.toISOString()),
   ]);
 
   const monthCustomersRes = await supabase
@@ -147,10 +232,28 @@ export async function getDashboardStats() {
     .eq("business_id", business.id)
     .gte("created_at", monthStart.toISOString());
 
-  const revenue = (revenueRes.data ?? []).reduce((sum, appt) => {
-    const price = (appt.service as { price?: number } | null)?.price ?? 0;
-    return sum + Number(price);
-  }, 0);
+  function sumServicePrices(
+    rows: { service: { price?: number } | null }[] | null,
+  ) {
+    return (rows ?? []).reduce((sum, appt) => {
+      const price = (appt.service as { price?: number } | null)?.price ?? 0;
+      return sum + Number(price);
+    }, 0);
+  }
+
+  const revenue = sumServicePrices(
+    revenueRes.data as { service: { price?: number } | null }[] | null,
+  );
+  const previousMonthRevenue = sumServicePrices(
+    previousMonthRevenueRes.data as
+      | { service: { price?: number } | null }[]
+      | null,
+  );
+  const todayRevenue = sumServicePrices(
+    todayCompletedRevenueRes.data as
+      | { service: { price?: number } | null }[]
+      | null,
+  );
 
   const weekDayCounts = Array.from({ length: 7 }, (_, i) => {
     const day = new Date(weekStart);
@@ -174,13 +277,19 @@ export async function getDashboardStats() {
 
   return {
     todayCount: todayRes.count ?? 0,
+    yesterdayCount: yesterdayRes.count ?? 0,
+    lastWeekSameDayCount: lastWeekSameDayRes.count ?? 0,
     weekCount: weekRes.count ?? 0,
+    previousWeekCount: previousWeekRes.count ?? 0,
     customerCount: customersRes.count ?? 0,
     newCustomersThisMonth: monthCustomersRes.count ?? 0,
     upcoming: upcomingRes.data ?? [],
     todayAppointments: todayApptsRes.data ?? [],
     newCustomers: newCustomersRes.data ?? [],
     monthlyRevenue: revenue,
+    previousMonthRevenue,
+    todayRevenue,
+    pendingConfirmations: pendingRes.count ?? 0,
     weekDayCounts,
   };
 }
