@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Milestone 1.1 — Reception Workspace)
+
+- Reception workspace on Calendar: Business Brief KPIs from live data only
+- Docked reception panel: customer search, profile preview, quick add, quick appointment, next available slot
+- Preferred staff/location derived from appointment history (never invented)
+- Today's notes (device-local), waitlist placeholder, AI Suggestions (empty: "No recommendations available.")
+- Calendar polish: sticky time column & day headers, color legend, smoother DnD/resize, optimistic reschedule/resize
+- `getReceptionBrief` + `getNextAvailableSlot` via existing scheduling engine
+
 ### Added (Sprint 8 — GVM Baby World Go-Live)
 
 - Business profile: logo/cover file upload (Supabase Storage), public booking access modes

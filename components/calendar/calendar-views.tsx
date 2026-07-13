@@ -28,6 +28,8 @@ type ViewProps = {
   colorMode?: CalendarColorMode;
 };
 
+const TIME_COL = "w-16 shrink-0 sm:w-[4.25rem]";
+
 export function DayView({
   date,
   appointments,
@@ -44,20 +46,34 @@ export function DayView({
   const showNow = isSameDay(date, new Date());
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-      <div className="relative">
+    <div className="max-h-[min(70vh,52rem)] overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+      <div className="sticky top-0 z-20 border-b border-border bg-card/95 px-3 py-2.5 backdrop-blur-sm">
+        <p className="text-sm font-semibold">
+          {date.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "short",
+            day: "numeric",
+          })}
+        </p>
+      </div>
+      <div className="relative min-w-0">
         {hours.map((hour) => (
           <div
             key={hour}
-            className="grid grid-cols-[60px_1fr] border-b border-border last:border-b-0"
+            className="flex border-b border-border/80 last:border-b-0"
           >
-            <div className="border-r border-border px-2 py-4 text-xs text-muted-foreground">
+            <div
+              className={cn(
+                "sticky left-0 z-10 border-r border-border bg-card px-2 py-5 text-right text-[11px] tabular-nums text-muted-foreground sm:text-xs",
+                TIME_COL,
+              )}
+            >
               {formatTime(new Date(2024, 0, 1, hour))}
             </div>
             <TimeSlotDropZone
               date={date}
               hour={hour}
-              className="relative min-h-[60px] w-full"
+              className="relative min-h-[64px] w-full border-l border-transparent"
               onClick={onSelectSlot}
               onDrop={(slot, appointmentId) => {
                 if (appointmentId && onReschedule) {
@@ -73,7 +89,7 @@ export function DayView({
           </div>
         ))}
 
-        <div className="pointer-events-none absolute inset-0 ml-[60px]">
+        <div className={cn("pointer-events-none absolute inset-0", "pl-16 sm:pl-[4.25rem]")}>
           <CurrentTimeIndicator show={showNow} />
           {dayAppointments.map((appt) => (
             <AppointmentBlock
@@ -111,33 +127,40 @@ export function WeekView({
   const todayInWeek = days.some((d) => isSameDay(d, new Date()));
 
   return (
-    <div className="overflow-x-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-      <div className="min-w-[700px]">
-        <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border">
-          <div />
+    <div className="max-h-[min(70vh,52rem)] overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+      <div className="min-w-[780px]">
+        <div className="sticky top-0 z-20 flex border-b border-border bg-card/95 backdrop-blur-sm">
+          <div
+            className={cn(
+              "sticky left-0 z-30 border-r border-border bg-card",
+              TIME_COL,
+            )}
+          />
           {days.map((day) => (
             <div
               key={day.toISOString()}
               className={cn(
-                "border-l border-border px-2 py-3 text-center",
-                isSameDay(day, new Date()) && "bg-accent/30",
+                "flex-1 border-l border-border px-1 py-2.5 text-center sm:px-2",
+                isSameDay(day, new Date()) && "bg-accent/40",
               )}
             >
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
                 {day.toLocaleDateString("en-US", { weekday: "short" })}
               </p>
-              <p className="text-sm font-semibold">{day.getDate()}</p>
+              <p className="text-sm font-semibold tabular-nums">{day.getDate()}</p>
             </div>
           ))}
         </div>
 
         <div className="relative">
           {hours.map((hour) => (
-            <div
-              key={hour}
-              className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border last:border-b-0"
-            >
-              <div className="px-2 py-4 text-xs text-muted-foreground">
+            <div key={hour} className="flex border-b border-border/80 last:border-b-0">
+              <div
+                className={cn(
+                  "sticky left-0 z-10 border-r border-border bg-card px-2 py-4 text-right text-[11px] tabular-nums text-muted-foreground sm:text-xs",
+                  TIME_COL,
+                )}
+              >
                 {formatTime(new Date(2024, 0, 1, hour))}
               </div>
               {days.map((day) => (
@@ -145,7 +168,7 @@ export function WeekView({
                   key={`${day.toISOString()}-${hour}`}
                   date={day}
                   hour={hour}
-                  className="min-h-[48px] border-l border-border"
+                  className="min-h-[52px] flex-1 border-l border-border/60"
                   onClick={onSelectSlot}
                   onDrop={(slot, appointmentId) => {
                     if (appointmentId && onReschedule) {
@@ -162,13 +185,21 @@ export function WeekView({
             </div>
           ))}
 
-          <div className="pointer-events-none absolute inset-0 ml-[60px] grid grid-cols-7">
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-0 grid grid-cols-7",
+              "pl-16 sm:pl-[4.25rem]",
+            )}
+          >
             {days.map((day) => {
               const dayAppts = appointments.filter((appt) =>
                 isSameDay(parseISO(appt.start_time), day),
               );
               return (
-                <div key={day.toISOString()} className="relative border-l border-border">
+                <div
+                  key={day.toISOString()}
+                  className="relative border-l border-border/40"
+                >
                   {isSameDay(day, new Date()) && (
                     <CurrentTimeIndicator show={todayInWeek} />
                   )}
@@ -220,7 +251,7 @@ export function MonthView({
 
   return (
     <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-      <div className="grid grid-cols-7 border-b border-border">
+      <div className="sticky top-0 z-10 grid grid-cols-7 border-b border-border bg-card">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div
             key={day}
@@ -242,7 +273,7 @@ export function MonthView({
               key={day.toISOString()}
               type="button"
               className={cn(
-                "min-h-[100px] border-b border-r border-border p-2 text-left hover:bg-muted/30 sm:min-h-[120px]",
+                "min-h-[100px] border-b border-r border-border p-2 text-left transition-colors hover:bg-muted/40 sm:min-h-[120px]",
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
                 isSameDay(day, new Date()) && "bg-accent/20",
               )}
@@ -264,25 +295,25 @@ export function MonthView({
                       ? appt.staff?.color ?? appt.service.color
                       : appt.service.color;
                   return (
-                  <div
-                    key={appt.id}
-                    role="button"
-                    tabIndex={0}
-                    className="truncate rounded-md border-l-2 px-1.5 py-0.5 text-[10px] text-white sm:text-xs"
-                    style={getAppointmentBlockStyle(appt.status, fill)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectAppointment(appt);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
+                    <div
+                      key={appt.id}
+                      role="button"
+                      tabIndex={0}
+                      className="truncate rounded-md border-l-2 px-1.5 py-0.5 text-[10px] text-white sm:text-xs"
+                      style={getAppointmentBlockStyle(appt.status, fill)}
+                      onClick={(e) => {
                         e.stopPropagation();
                         onSelectAppointment(appt);
-                      }
-                    }}
-                  >
-                    {formatTime(parseISO(appt.start_time))} {appt.customer.name}
-                  </div>
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.stopPropagation();
+                          onSelectAppointment(appt);
+                        }
+                      }}
+                    >
+                      {formatTime(parseISO(appt.start_time))} {appt.customer.name}
+                    </div>
                   );
                 })}
                 {dayAppts.length > 3 && (

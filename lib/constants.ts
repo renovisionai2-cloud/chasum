@@ -1,6 +1,6 @@
 export const DASHBOARD_NAV = [
   { href: "/dashboard", label: "Overview", icon: "layout-dashboard" },
-  { href: "/dashboard/calendar", label: "Calendar", icon: "calendar" },
+  { href: "/dashboard/calendar", label: "Reception", icon: "calendar" },
   { href: "/dashboard/clients", label: "Clients", icon: "users" },
   { href: "/dashboard/services", label: "Services", icon: "briefcase" },
   { href: "/dashboard/staff", label: "Staff", icon: "user-cog" },

@@ -98,13 +98,14 @@ export function AppointmentBlock({
       draggable={draggable && appointment.status !== "cancelled"}
       onDragStart={handleDragStart}
       className={cn(
-        "pointer-events-auto absolute overflow-hidden rounded-lg px-2 py-1 text-left text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "pointer-events-auto absolute overflow-hidden rounded-lg px-2 py-1 text-left text-white shadow-sm transition-shadow hover:shadow-md hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         compact ? "inset-x-0.5 text-[10px]" : "inset-x-2 text-xs",
+        draggable && appointment.status !== "cancelled" && "cursor-grab active:cursor-grabbing",
       )}
       style={{
         top: `${top}%`,
         height: `${height}%`,
-        minHeight: compact ? "20px" : "28px",
+        minHeight: compact ? "22px" : "32px",
         ...getAppointmentBlockStyle(appointment.status, fillColor),
       }}
       onClick={() => onSelect(appointment)}
@@ -118,10 +119,12 @@ export function AppointmentBlock({
         <span
           role="separator"
           aria-label="Resize duration"
-          className="absolute inset-x-1 bottom-0 h-2 cursor-ns-resize rounded-b bg-white/20"
+          className="absolute inset-x-0 bottom-0 flex h-3 cursor-ns-resize items-end justify-center rounded-b bg-gradient-to-t from-black/25 to-transparent"
           onPointerDown={handleResizePointerDown}
           onClick={(ev) => ev.stopPropagation()}
-        />
+        >
+          <span className="mb-0.5 h-0.5 w-8 rounded-full bg-white/80" />
+        </span>
       )}
     </button>
   );
@@ -175,16 +178,27 @@ export function TimeSlotDropZone({
 }: DropZoneProps) {
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
-    e.currentTarget.classList.add("bg-primary/10");
+    e.dataTransfer.dropEffect = "move";
+    e.currentTarget.classList.add("bg-primary/15", "ring-1", "ring-inset", "ring-primary/30");
   }
 
   function handleDragLeave(e: React.DragEvent) {
-    e.currentTarget.classList.remove("bg-primary/10");
+    e.currentTarget.classList.remove(
+      "bg-primary/15",
+      "ring-1",
+      "ring-inset",
+      "ring-primary/30",
+    );
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
-    e.currentTarget.classList.remove("bg-primary/10");
+    e.currentTarget.classList.remove(
+      "bg-primary/15",
+      "ring-1",
+      "ring-inset",
+      "ring-primary/30",
+    );
     const appointmentId = e.dataTransfer.getData("appointmentId");
     if (!appointmentId) return;
 

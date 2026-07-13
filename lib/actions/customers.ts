@@ -16,8 +16,9 @@ export async function getCustomers(search?: string) {
     .order("name");
 
   if (search?.trim()) {
+    const q = search.trim();
     query = query.or(
-      `name.ilike.%${search.trim()}%,email.ilike.%${search.trim()}%`,
+      `name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`,
     );
   }
 

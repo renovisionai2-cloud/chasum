@@ -10,6 +10,8 @@ import {
   MonthView,
   WeekView,
 } from "@/components/calendar/calendar-views";
+import { ColorLegend } from "@/components/reception/color-legend";
+import { ReceptionPanel } from "@/components/reception/reception-panel";
 import { EmptyState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +19,7 @@ import {
   resizeAppointment,
 } from "@/lib/actions/appointments";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
+import type { DashboardInsight } from "@/lib/dashboard/insights";
 import { useToast } from "@/providers/toast-provider";
 import type {
   AppointmentWithRelations,
@@ -38,7 +41,7 @@ import {
 } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useOptimistic, useState, useTransition } from "react";
 
 type CalendarClientProps = {
   appointments: AppointmentWithRelations[];
@@ -48,6 +51,8 @@ type CalendarClientProps = {
   locations: Location[];
   initialDate: string;
   initialView: CalendarView;
+  insights?: DashboardInsight[];
+  showReceptionPanel?: boolean;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -68,13 +73,15 @@ function getRange(view: CalendarView, date: Date) {
 }
 
 export function CalendarClient({
-  appointments,
+  appointments: serverAppointments,
   services,
   staff,
   customers,
   locations,
   initialDate,
   initialView,
+  insights = [],
+  showReceptionPanel = true,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -85,8 +92,21 @@ export function CalendarClient({
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentWithRelations | null>(null);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [appointments, setOptimisticAppointments] = useOptimistic(
+    serverAppointments,
+    (
+      current: AppointmentWithRelations[],
+      update: AppointmentWithRelations[],
+    ) => update,
+  );
+  const [, startTransition] = useTransition();
 
-  const refresh = useCallback(() => router.refresh(), [router]);
+  const refresh = useCallback(() => {
+    startTransition(() => {
+      router.refresh();
+    });
+  }, [router]);
 
   const hasSetup = services.length > 0 && staff.length > 0;
 
@@ -106,6 +126,25 @@ export function CalendarClient({
     appointment: AppointmentWithRelations,
     newStart: Date,
   ) {
+    const duration =
+      parseISO(appointment.end_time).getTime() -
+      parseISO(appointment.start_time).getTime();
+    const optimisticEnd = new Date(newStart.getTime() + duration);
+
+    startTransition(() => {
+      setOptimisticAppointments(
+        appointments.map((a) =>
+          a.id === appointment.id
+            ? {
+                ...a,
+                start_time: newStart.toISOString(),
+                end_time: optimisticEnd.toISOString(),
+              }
+            : a,
+        ),
+      );
+    });
+
     const dateStr = format(newStart, "yyyy-MM-dd");
     const slots = await getDashboardAvailableSlots(
       appointment.service_id,
@@ -127,12 +166,14 @@ export function CalendarClient({
 
     if (!match) {
       toast("No available slot at that time.", "error");
+      refresh();
       return;
     }
 
     const result = await rescheduleAppointment(appointment.id, match);
     if (result.error) {
       toast(result.error, "error");
+      refresh();
       return;
     }
     toast(result.success ?? "Appointment rescheduled.", "success");
@@ -143,12 +184,23 @@ export function CalendarClient({
     appointment: AppointmentWithRelations,
     newEnd: Date,
   ) {
+    startTransition(() => {
+      setOptimisticAppointments(
+        appointments.map((a) =>
+          a.id === appointment.id
+            ? { ...a, end_time: newEnd.toISOString() }
+            : a,
+        ),
+      );
+    });
+
     const result = await resizeAppointment(
       appointment.id,
       newEnd.toISOString(),
     );
     if (result.error) {
       toast(result.error, "error");
+      refresh();
       return;
     }
     toast(result.success ?? "Duration updated.", "success");
@@ -160,6 +212,7 @@ export function CalendarClient({
     const range = getRange(newView, date);
     router.replace(
       `/dashboard/calendar?view=${newView}&date=${range.start.toISOString()}`,
+      { scroll: false },
     );
   }
 
@@ -168,6 +221,7 @@ export function CalendarClient({
     const range = getRange(view, newDate);
     router.replace(
       `/dashboard/calendar?view=${view}&date=${range.start.toISOString()}`,
+      { scroll: false },
     );
   }
 
@@ -191,8 +245,8 @@ export function CalendarClient({
     );
   }
 
-  return (
-    <div className="space-y-6">
+  const calendarBody = (
+    <div className="space-y-4">
       <CalendarToolbar
         view={view}
         date={date}
@@ -202,6 +256,8 @@ export function CalendarClient({
         onColorModeChange={setColorMode}
         onNewAppointment={() => openNew()}
       />
+
+      <ColorLegend colorMode={colorMode} services={services} staff={staff} />
 
       {view === "day" && (
         <DayView
@@ -236,6 +292,40 @@ export function CalendarClient({
           }}
           colorMode={colorMode}
         />
+      )}
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-1">{calendarBody}</div>
+        {showReceptionPanel && (
+          <ReceptionPanel
+            customers={customers}
+            services={services}
+            staff={staff}
+            locations={locations}
+            insights={insights}
+            open={panelOpen}
+            onOpenChange={setPanelOpen}
+            onBooked={refresh}
+            onOpenFullDialog={() => openNew()}
+          />
+        )}
+      </div>
+
+      {showReceptionPanel && !panelOpen && (
+        <div className="lg:hidden">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => setPanelOpen(true)}
+          >
+            Open reception panel
+          </Button>
+        </div>
       )}
 
       <AppointmentDialog

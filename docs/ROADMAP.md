@@ -277,6 +277,23 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Milestone 1.1 — Reception Workspace ✅ Shipped
+
+**Goal:** Transform Calendar into a Reception Workspace so front-desk staff can manage customer interactions from one screen.
+
+| Deliverable | Status |
+|-------------|--------|
+| Business Brief (appointments, revenue, customers today, open slots, pending) | ✅ |
+| Docked reception panel (search, quick add, quick book, next slot, notes) | ✅ |
+| Customer preview (avatar, contact, notes, history, upcoming, preferred staff/location) | ✅ |
+| Quick appointment flow without leaving the workspace | ✅ |
+| Waitlist + AI Suggestions placeholders (evidence-only AI) | ✅ |
+| Calendar polish (sticky time/headers, legend, DnD/resize, optimistic updates) | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -337,8 +354,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.2.9` | Shipped | Sprint 5 premium dashboard experience |
 | `0.3.0` | Shipped | Sprint 6 Booking Engine 2.0 |
 | `0.3.1` | Shipped | Sprint 7 public booking experience |
-| `0.3.2` | Current | Sprint 8 GVM Baby World go-live |
-| `0.3.3` | Next | Production SMTP + live GVM traffic |
+| `0.3.2` | Shipped | Sprint 8 GVM Baby World go-live |
+| `0.3.3` | Current | Milestone 1.1 Reception Workspace |
+| `0.3.4` | Next | Production SMTP + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---
