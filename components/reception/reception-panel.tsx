@@ -91,7 +91,7 @@ export function ReceptionPanel({
         <div>
           <h2 className="text-base font-semibold">Reception</h2>
           <p className="text-xs text-muted-foreground">
-            Search, book, and assist without leaving the calendar
+            / search · N new · B book · W walk-in · ⌘K palette
           </p>
         </div>
         <Button

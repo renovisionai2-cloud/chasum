@@ -7,7 +7,15 @@ import { preferredFromHistory } from "@/lib/reception/preferences";
 import { getCustomerProfile } from "@/lib/actions/customers";
 import type { Customer } from "@/lib/types/booking";
 import { format } from "date-fns";
-import { Mail, MapPin, Phone, User } from "lucide-react";
+import {
+  Briefcase,
+  ExternalLink,
+  Mail,
+  MapPin,
+  Phone,
+  User,
+} from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 
 type ProfilePayload = NonNullable<Awaited<ReturnType<typeof getCustomerProfile>>>;
@@ -55,6 +63,7 @@ export function CustomerPreview({
   const prefs = preferredFromHistory(profile?.appointments ?? []);
   const upcoming = profile?.upcoming?.slice(0, 3) ?? [];
   const history = profile?.history?.slice(0, 3) ?? [];
+  const metrics = profile?.metrics;
 
   return (
     <div className="space-y-3 rounded-[var(--radius-md)] border border-border bg-muted/20 p-3">
@@ -62,40 +71,84 @@ export function CustomerPreview({
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
           {customer.name.charAt(0).toUpperCase()}
         </span>
-        <div className="min-w-0">
-          <p className="truncate font-semibold">{customer.name}</p>
-          {pending && !profile && (
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="truncate font-semibold">{customer.name}</p>
+            <Link
+              href={`/dashboard/clients/${customer.id}`}
+              className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+            >
+              Profile
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+          </div>
+          {pending && !profile ? (
             <p className="text-xs text-muted-foreground">Loading profile…</p>
-          )}
+          ) : null}
         </div>
       </div>
+
+      {metrics ? (
+        <div className="grid grid-cols-3 gap-2 rounded-[var(--radius-md)] border border-border/70 bg-card/60 px-2 py-2 text-center">
+          <div>
+            <p className="text-sm font-semibold tabular-nums">
+              {metrics.totalVisits}
+            </p>
+            <p className="text-[10px] text-muted-foreground">Visits</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold tabular-nums">
+              ${metrics.lifetimeRevenue.toFixed(0)}
+            </p>
+            <p className="text-[10px] text-muted-foreground">Revenue</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold tabular-nums">
+              {metrics.cancellationCount}
+            </p>
+            <p className="text-[10px] text-muted-foreground">Cancels</p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="space-y-1.5 text-xs text-muted-foreground">
         <p className="flex items-center gap-1.5 truncate">
           <Mail className="h-3.5 w-3.5 shrink-0" /> {customer.email}
         </p>
-        {customer.phone && (
+        {customer.phone ? (
           <p className="flex items-center gap-1.5">
             <Phone className="h-3.5 w-3.5 shrink-0" /> {customer.phone}
           </p>
-        )}
-        {prefs.preferredStaffName && (
+        ) : null}
+        {prefs.preferredStaffName ? (
           <p className="flex items-center gap-1.5">
-            <User className="h-3.5 w-3.5 shrink-0" /> Preferred:{" "}
+            <User className="h-3.5 w-3.5 shrink-0" /> Preferred staff:{" "}
             {prefs.preferredStaffName}
           </p>
-        )}
-        {prefs.preferredLocationName && (
+        ) : null}
+        {prefs.preferredServiceName ? (
+          <p className="flex items-center gap-1.5">
+            <Briefcase className="h-3.5 w-3.5 shrink-0" /> Preferred service:{" "}
+            {prefs.preferredServiceName}
+          </p>
+        ) : null}
+        {prefs.preferredLocationName ? (
           <p className="flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 shrink-0" />{" "}
             {prefs.preferredLocationName}
           </p>
-        )}
+        ) : null}
+        {(profile?.customer.referral_source || customer.referral_source) ? (
+          <p className="text-xs">
+            Referral:{" "}
+            {profile?.customer.referral_source || customer.referral_source}
+          </p>
+        ) : null}
       </div>
 
       {(profile?.customer.notes || customer.notes) && (
         <div>
-          <p className="ds-label mb-1">Notes</p>
+          <p className="ds-label mb-1">Internal notes</p>
           <p className="text-xs text-muted-foreground">
             {profile?.customer.notes || customer.notes}
           </p>

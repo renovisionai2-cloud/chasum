@@ -18,6 +18,7 @@ import {
 } from "@/components/reception/quick-action-dialogs";
 import { QuickActionsFab } from "@/components/reception/quick-actions-fab";
 import { ReceptionPanel } from "@/components/reception/reception-panel";
+import { ReceptionShortcuts } from "@/components/reception/reception-shortcuts";
 import { EmptyState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -132,7 +133,7 @@ export function CalendarClient({
       update: AppointmentWithRelations[],
     ) => update,
   );
-  const [, startTransition] = useTransition();
+  const [isRefreshing, startTransition] = useTransition();
 
   const refresh = useCallback(() => {
     startTransition(() => {
@@ -361,9 +362,22 @@ export function CalendarClient({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="relative space-y-4">
+      {showReceptionPanel ? <ReceptionShortcuts /> : null}
+      {isRefreshing ? (
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-30 h-0.5 overflow-hidden rounded-full bg-primary/15"
+          aria-hidden
+        >
+          <div className="h-full w-1/3 animate-pulse bg-primary" />
+        </div>
+      ) : null}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-        <div className="min-w-0 flex-1">{calendarBody}</div>
+        <div
+          className={`min-w-0 flex-1 transition-opacity ${isRefreshing ? "opacity-80" : ""}`}
+        >
+          {calendarBody}
+        </div>
         {showReceptionPanel && (
           <ReceptionPanel
             customers={customers}

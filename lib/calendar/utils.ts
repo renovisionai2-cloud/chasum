@@ -90,6 +90,65 @@ export function getAppointmentPosition(
   };
 }
 
+/** Pack overlapping appointments into columns so side-by-side cards stay readable. */
+export function assignOverlapLayout(
+  appointments: { id: string; start_time: string; end_time: string }[],
+): Map<string, { column: number; columns: number }> {
+  const layout = new Map<string, { column: number; columns: number }>();
+  if (appointments.length === 0) return layout;
+
+  const sorted = [...appointments].sort(
+    (a, b) =>
+      parseISO(a.start_time).getTime() - parseISO(b.start_time).getTime() ||
+      parseISO(a.end_time).getTime() - parseISO(b.end_time).getTime(),
+  );
+
+  type Active = { id: string; end: number; column: number };
+  const active: Active[] = [];
+  const clusterIds: string[] = [];
+  let clusterMaxCol = 0;
+
+  function flushCluster() {
+    for (const id of clusterIds) {
+      const prev = layout.get(id);
+      if (prev) layout.set(id, { column: prev.column, columns: clusterMaxCol + 1 });
+    }
+    clusterIds.length = 0;
+    clusterMaxCol = 0;
+  }
+
+  for (const appt of sorted) {
+    const start = parseISO(appt.start_time).getTime();
+    const end = parseISO(appt.end_time).getTime();
+
+    for (let i = active.length - 1; i >= 0; i--) {
+      if (active[i].end <= start) active.splice(i, 1);
+    }
+
+    if (active.length === 0 && clusterIds.length > 0) {
+      flushCluster();
+    }
+
+    const used = new Set(active.map((a) => a.column));
+    let column = 0;
+    while (used.has(column)) column += 1;
+
+    active.push({ id: appt.id, end, column });
+    clusterIds.push(appt.id);
+    clusterMaxCol = Math.max(clusterMaxCol, column);
+    layout.set(appt.id, { column, columns: clusterMaxCol + 1 });
+  }
+
+  flushCluster();
+  return layout;
+}
+
+export function snapMinutesInHour(offsetY: number, height: number): number {
+  if (height <= 0) return 0;
+  const ratio = offsetY / height;
+  return ratio < 0.5 ? 0 : 30;
+}
+
 export function isWithinBusinessHours(
   date: Date,
   hours: BusinessHours[],

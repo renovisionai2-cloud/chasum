@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Milestone 1.4 — Production Readiness)
+
+- Calendar polish: overlap packing, half-hour drop ghosts, richer appointment cards, today/now highlights, smooth scroll to current time
+- Customer profile + reception preview: preferred staff/service/location from history, visits/revenue snapshot, profile deep link
+- Reception shortcuts (`/`, `N`, `B`, `W`, `T`, `I`) and calendar refresh indicator
+- `docs/PRODUCTION_READINESS.md` go-live checklist for GVM Baby World
+
 ### Added (Milestone 1.3 — Workflow Optimization)
 
 - Floating Quick Actions on Reception: New Customer, Book Appointment, Walk-In, Block Time, Add Internal Note

@@ -310,6 +310,22 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Milestone 1.4 — Production Readiness ✅ Shipped
+
+**Goal:** Stability and polish so Chasum can replace Picktime for daily GVM Baby World operations (no major new business features).
+
+| Deliverable | Status |
+|-------------|--------|
+| Reception workflow audit (create, search, book, walk-in, reschedule, cancel) | ✅ |
+| Calendar polish (spacing, overlap layout, DnD half-hour feedback, today/now, scroll) | ✅ |
+| Customer profile preferences + metrics (never invented) | ✅ |
+| Reception shortcuts, refresh loading, clearer empty/loading states | ✅ |
+| `docs/PRODUCTION_READINESS.md` go-live checklist | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -372,8 +388,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.3.1` | Shipped | Sprint 7 public booking experience |
 | `0.3.2` | Shipped | Sprint 8 GVM Baby World go-live |
 | `0.3.3` | Shipped | Milestone 1.1 Reception Workspace |
-| `0.3.4` | Current | Milestone 1.3 Workflow Optimization |
-| `0.3.5` | Next | Production SMTP + live GVM traffic |
+| `0.3.4` | Shipped | Milestone 1.3 Workflow Optimization |
+| `0.3.5` | Current | Milestone 1.4 Production Readiness |
+| `0.3.6` | Next | Production SMTP + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

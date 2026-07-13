@@ -9,6 +9,7 @@ import {
 import {
   CALENDAR_END_HOUR,
   CALENDAR_START_HOUR,
+  assignOverlapLayout,
   formatTime,
   getHourSlots,
   isSameDay,
@@ -43,18 +44,38 @@ export function DayView({
   const dayAppointments = appointments.filter((appt) =>
     isSameDay(parseISO(appt.start_time), date),
   );
+  const layout = assignOverlapLayout(dayAppointments);
   const showNow = isSameDay(date, new Date());
+  const isToday = showNow;
 
   return (
-    <div className="max-h-[min(70vh,52rem)] overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-      <div className="sticky top-0 z-20 border-b border-border bg-card/95 px-3 py-2.5 backdrop-blur-sm">
+    <div className="max-h-[min(70vh,52rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+      <div
+        className={cn(
+          "sticky top-0 z-20 border-b border-border px-3 py-2.5 backdrop-blur-sm",
+          isToday ? "bg-accent/50" : "bg-card/95",
+        )}
+      >
         <p className="text-sm font-semibold">
           {date.toLocaleDateString("en-US", {
             weekday: "long",
             month: "short",
             day: "numeric",
           })}
+          {isToday ? (
+            <span className="ml-2 text-xs font-medium text-primary">Today</span>
+          ) : null}
         </p>
+        {dayAppointments.length === 0 ? (
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Nothing scheduled — click a slot or use Quick Actions to book.
+          </p>
+        ) : (
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {dayAppointments.length} appointment
+            {dayAppointments.length === 1 ? "" : "s"}
+          </p>
+        )}
       </div>
       <div className="relative min-w-0">
         {hours.map((hour) => (
@@ -73,7 +94,7 @@ export function DayView({
             <TimeSlotDropZone
               date={date}
               hour={hour}
-              className="relative min-h-[64px] w-full border-l border-transparent"
+              className="relative min-h-[68px] w-full border-l border-transparent"
               onClick={onSelectSlot}
               onDrop={(slot, appointmentId) => {
                 if (appointmentId && onReschedule) {
@@ -91,16 +112,21 @@ export function DayView({
 
         <div className={cn("pointer-events-none absolute inset-0", "pl-16 sm:pl-[4.25rem]")}>
           <CurrentTimeIndicator show={showNow} />
-          {dayAppointments.map((appt) => (
-            <AppointmentBlock
-              key={appt.id}
-              appointment={appt}
-              onSelect={onSelectAppointment}
-              onResize={onResize}
-              colorMode={colorMode}
-              draggable={!!onReschedule}
-            />
-          ))}
+          {dayAppointments.map((appt) => {
+            const pack = layout.get(appt.id);
+            return (
+              <AppointmentBlock
+                key={appt.id}
+                appointment={appt}
+                onSelect={onSelectAppointment}
+                onResize={onResize}
+                colorMode={colorMode}
+                draggable={!!onReschedule}
+                column={pack?.column ?? 0}
+                columns={pack?.columns ?? 1}
+              />
+            );
+          })}
         </div>
       </div>
     </div>
@@ -127,7 +153,7 @@ export function WeekView({
   const todayInWeek = days.some((d) => isSameDay(d, new Date()));
 
   return (
-    <div className="max-h-[min(70vh,52rem)] overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+    <div className="max-h-[min(70vh,52rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
       <div className="min-w-[780px]">
         <div className="sticky top-0 z-20 flex border-b border-border bg-card/95 backdrop-blur-sm">
           <div
@@ -136,20 +162,31 @@ export function WeekView({
               TIME_COL,
             )}
           />
-          {days.map((day) => (
-            <div
-              key={day.toISOString()}
-              className={cn(
-                "flex-1 border-l border-border px-1 py-2.5 text-center sm:px-2",
-                isSameDay(day, new Date()) && "bg-accent/40",
-              )}
-            >
-              <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
-                {day.toLocaleDateString("en-US", { weekday: "short" })}
-              </p>
-              <p className="text-sm font-semibold tabular-nums">{day.getDate()}</p>
-            </div>
-          ))}
+          {days.map((day) => {
+            const isToday = isSameDay(day, new Date());
+            return (
+              <div
+                key={day.toISOString()}
+                className={cn(
+                  "flex-1 border-l border-border px-1 py-2.5 text-center sm:px-2",
+                  isToday && "bg-accent/50",
+                )}
+              >
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground sm:text-xs">
+                  {day.toLocaleDateString("en-US", { weekday: "short" })}
+                </p>
+                <p
+                  className={cn(
+                    "mx-auto flex h-7 w-7 items-center justify-center text-sm font-semibold tabular-nums",
+                    isToday &&
+                      "rounded-full bg-primary text-primary-foreground",
+                  )}
+                >
+                  {day.getDate()}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
         <div className="relative">
@@ -168,7 +205,10 @@ export function WeekView({
                   key={`${day.toISOString()}-${hour}`}
                   date={day}
                   hour={hour}
-                  className="min-h-[52px] flex-1 border-l border-border/60"
+                  className={cn(
+                    "min-h-[56px] flex-1 border-l border-border/60",
+                    isSameDay(day, new Date()) && "bg-accent/10",
+                  )}
                   onClick={onSelectSlot}
                   onDrop={(slot, appointmentId) => {
                     if (appointmentId && onReschedule) {
@@ -195,6 +235,7 @@ export function WeekView({
               const dayAppts = appointments.filter((appt) =>
                 isSameDay(parseISO(appt.start_time), day),
               );
+              const layout = assignOverlapLayout(dayAppts);
               return (
                 <div
                   key={day.toISOString()}
@@ -203,17 +244,22 @@ export function WeekView({
                   {isSameDay(day, new Date()) && (
                     <CurrentTimeIndicator show={todayInWeek} />
                   )}
-                  {dayAppts.map((appt) => (
-                    <AppointmentBlock
-                      key={appt.id}
-                      appointment={appt}
-                      onSelect={onSelectAppointment}
-                      onResize={onResize}
-                      colorMode={colorMode}
-                      compact
-                      draggable={!!onReschedule}
-                    />
-                  ))}
+                  {dayAppts.map((appt) => {
+                    const pack = layout.get(appt.id);
+                    return (
+                      <AppointmentBlock
+                        key={appt.id}
+                        appointment={appt}
+                        onSelect={onSelectAppointment}
+                        onResize={onResize}
+                        colorMode={colorMode}
+                        compact
+                        draggable={!!onReschedule}
+                        column={pack?.column ?? 0}
+                        columns={pack?.columns ?? 1}
+                      />
+                    );
+                  })}
                 </div>
               );
             })}
@@ -267,6 +313,7 @@ export function MonthView({
             isSameDay(parseISO(appt.start_time), day),
           );
           const isCurrentMonth = day.getMonth() === date.getMonth();
+          const isToday = isSameDay(day, new Date());
 
           return (
             <button
@@ -275,15 +322,14 @@ export function MonthView({
               className={cn(
                 "min-h-[100px] border-b border-r border-border p-2 text-left transition-colors hover:bg-muted/40 sm:min-h-[120px]",
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
-                isSameDay(day, new Date()) && "bg-accent/20",
+                isToday && "bg-accent/30",
               )}
               onClick={() => onSelectDay(day)}
             >
               <span
                 className={cn(
                   "inline-flex h-7 w-7 items-center justify-center rounded-full text-sm",
-                  isSameDay(day, new Date()) &&
-                    "bg-primary font-semibold text-primary-foreground",
+                  isToday && "bg-primary font-semibold text-primary-foreground",
                 )}
               >
                 {day.getDate()}
@@ -306,7 +352,8 @@ export function MonthView({
                         onSelectAppointment(appt);
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
                           e.stopPropagation();
                           onSelectAppointment(appt);
                         }

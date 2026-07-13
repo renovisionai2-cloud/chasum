@@ -7,12 +7,13 @@ import {
   getAppointmentPosition,
   isSameDay,
   parseISO,
+  snapMinutesInHour,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle, getCurrentTimePosition } from "@/lib/calendar/status-colors";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { addMinutes } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type CalendarColorMode = "service" | "staff";
 
@@ -23,6 +24,8 @@ type AppointmentBlockProps = {
   colorMode?: CalendarColorMode;
   draggable?: boolean;
   compact?: boolean;
+  column?: number;
+  columns?: number;
 };
 
 export function AppointmentBlock({
@@ -32,7 +35,11 @@ export function AppointmentBlock({
   colorMode = "service",
   draggable = false,
   compact = false,
+  column = 0,
+  columns = 1,
 }: AppointmentBlockProps) {
+  const [dragging, setDragging] = useState(false);
+  const [previewHeight, setPreviewHeight] = useState<number | null>(null);
   const { top, height } = getAppointmentPosition(
     appointment.start_time,
     appointment.end_time,
@@ -42,7 +49,13 @@ export function AppointmentBlock({
       ? appointment.staff?.color ?? appointment.service.color
       : appointment.service.color;
 
+  const widthPct = 100 / columns;
+  const leftPct = column * widthPct;
+  const startLabel = formatTime(parseISO(appointment.start_time));
+  const endLabel = formatTime(parseISO(appointment.end_time));
+
   function handleDragStart(e: React.DragEvent) {
+    setDragging(true);
     e.dataTransfer.setData("appointmentId", appointment.id);
     e.dataTransfer.setData(
       "duration",
@@ -52,6 +65,11 @@ export function AppointmentBlock({
           60000,
       ),
     );
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragEnd() {
+    setDragging(false);
   }
 
   function handleResizePointerDown(e: React.PointerEvent) {
@@ -60,7 +78,8 @@ export function AppointmentBlock({
     e.stopPropagation();
 
     const startY = e.clientY;
-    const startEnd = parseISO(appointment.end_time);
+    const startEnd = parseISO(appointment.start_time);
+    const originalEnd = parseISO(appointment.end_time);
     const totalMinutes = (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * 60;
     const parent = (e.currentTarget.parentElement?.parentElement ??
       null) as HTMLElement | null;
@@ -68,21 +87,29 @@ export function AppointmentBlock({
 
     function onMove(ev: PointerEvent) {
       const deltaPx = ev.clientY - startY;
-      const deltaMinutes = Math.round((deltaPx / columnHeight) * totalMinutes / 5) * 5;
-      const next = addMinutes(startEnd, deltaMinutes);
-      const minEnd = addMinutes(parseISO(appointment.start_time), 5);
+      const deltaMinutes =
+        Math.round(((deltaPx / columnHeight) * totalMinutes) / 5) * 5;
+      const next = addMinutes(originalEnd, deltaMinutes);
+      const minEnd = addMinutes(startEnd, 5);
       if (next.getTime() >= minEnd.getTime()) {
-        (e.currentTarget as HTMLElement).dataset.previewEnd = next.toISOString();
+        const nextHeight =
+          ((next.getTime() - parseISO(appointment.start_time).getTime()) /
+            60000 /
+            totalMinutes) *
+          100;
+        setPreviewHeight(Math.max(nextHeight, 3));
       }
     }
 
     function onUp(ev: PointerEvent) {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      setPreviewHeight(null);
       const deltaPx = ev.clientY - startY;
-      const deltaMinutes = Math.round((deltaPx / columnHeight) * totalMinutes / 5) * 5;
-      const next = addMinutes(startEnd, deltaMinutes);
-      const minEnd = addMinutes(parseISO(appointment.start_time), 5);
+      const deltaMinutes =
+        Math.round(((deltaPx / columnHeight) * totalMinutes) / 5) * 5;
+      const next = addMinutes(originalEnd, deltaMinutes);
+      const minEnd = addMinutes(startEnd, 5);
       if (next.getTime() >= minEnd.getTime() && deltaMinutes !== 0) {
         onResize?.(appointment, next);
       }
@@ -97,33 +124,53 @@ export function AppointmentBlock({
       type="button"
       draggable={draggable && appointment.status !== "cancelled"}
       onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      title={`${appointment.customer.name} · ${appointment.service.name} · ${startLabel}–${endLabel}${appointment.staff?.name ? ` · ${appointment.staff.name}` : ""}`}
       className={cn(
-        "pointer-events-auto absolute overflow-hidden rounded-lg px-2 py-1 text-left text-white shadow-sm transition-shadow hover:shadow-md hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        compact ? "inset-x-0.5 text-[10px]" : "inset-x-2 text-xs",
-        draggable && appointment.status !== "cancelled" && "cursor-grab active:cursor-grabbing",
+        "pointer-events-auto absolute overflow-hidden rounded-[0.55rem] border border-white/20 px-1.5 py-1 text-left text-white shadow-sm transition-[box-shadow,opacity,transform] hover:z-20 hover:scale-[1.01] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        compact ? "text-[10px] leading-tight" : "text-xs",
+        draggable &&
+          appointment.status !== "cancelled" &&
+          "cursor-grab active:cursor-grabbing",
+        dragging && "opacity-55 ring-2 ring-white/70",
       )}
       style={{
         top: `${top}%`,
-        height: `${height}%`,
-        minHeight: compact ? "22px" : "32px",
+        height: `${previewHeight ?? height}%`,
+        left: `calc(${leftPct}% + 2px)`,
+        width: `calc(${widthPct}% - 4px)`,
+        minHeight: compact ? "24px" : "34px",
         ...getAppointmentBlockStyle(appointment.status, fillColor),
       }}
       onClick={() => onSelect(appointment)}
-      aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${formatTime(parseISO(appointment.start_time))}`}
+      aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${startLabel}`}
     >
-      <p className="truncate font-medium">{appointment.customer.name}</p>
-      {!compact && (
-        <p className="truncate opacity-90">{appointment.service.name}</p>
+      <p className="truncate font-semibold tracking-tight">
+        {appointment.customer.name}
+      </p>
+      {compact ? (
+        <p className="truncate opacity-90">
+          {startLabel}
+          {appointment.service?.name ? ` · ${appointment.service.name}` : ""}
+        </p>
+      ) : (
+        <>
+          <p className="truncate opacity-95">{appointment.service.name}</p>
+          <p className="truncate text-[10px] opacity-80">
+            {startLabel}–{endLabel}
+            {appointment.staff?.name ? ` · ${appointment.staff.name}` : ""}
+          </p>
+        </>
       )}
       {onResize && !compact && appointment.status !== "cancelled" && (
         <span
           role="separator"
           aria-label="Resize duration"
-          className="absolute inset-x-0 bottom-0 flex h-3 cursor-ns-resize items-end justify-center rounded-b bg-gradient-to-t from-black/25 to-transparent"
+          className="absolute inset-x-0 bottom-0 flex h-3 cursor-ns-resize items-end justify-center rounded-b bg-gradient-to-t from-black/30 to-transparent"
           onPointerDown={handleResizePointerDown}
           onClick={(ev) => ev.stopPropagation()}
         >
-          <span className="mb-0.5 h-0.5 w-8 rounded-full bg-white/80" />
+          <span className="mb-0.5 h-0.5 w-8 rounded-full bg-white/85" />
         </span>
       )}
     </button>
@@ -132,30 +179,46 @@ export function AppointmentBlock({
 
 export function CurrentTimeIndicator({ show }: { show: boolean }) {
   const [position, setPosition] = useState<number | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const didScroll = useRef(false);
 
   useEffect(() => {
-    if (!show) return;
+    if (!show) {
+      didScroll.current = false;
+      return;
+    }
 
     function update() {
       setPosition(getCurrentTimePosition(CALENDAR_START_HOUR, CALENDAR_END_HOUR));
     }
 
     update();
-    const interval = setInterval(update, 60000);
+    const interval = setInterval(update, 30000);
     return () => clearInterval(interval);
   }, [show]);
+
+  useEffect(() => {
+    if (!show || position === null || !ref.current || didScroll.current) return;
+    didScroll.current = true;
+    const el = ref.current;
+    const timer = window.setTimeout(() => {
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [show, position]);
 
   if (!show || position === null) return null;
 
   return (
     <div
+      ref={ref}
       className="pointer-events-none absolute inset-x-0 z-10"
       style={{ top: `${position}%` }}
       aria-hidden="true"
     >
       <div className="relative">
-        <div className="absolute -left-1 h-2.5 w-2.5 rounded-full bg-red-500" />
-        <div className="h-0.5 bg-red-500" />
+        <div className="absolute -left-1.5 h-3 w-3 rounded-full border-2 border-white bg-red-500 shadow-sm" />
+        <div className="h-0.5 bg-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]" />
       </div>
     </div>
   );
@@ -176,50 +239,69 @@ export function TimeSlotDropZone({
   onClick,
   className,
 }: DropZoneProps) {
+  const [overHalf, setOverHalf] = useState<0 | 30 | null>(null);
+
+  function minutesFromEvent(e: React.DragEvent | React.MouseEvent): 0 | 30 {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const offsetY = e.clientY - rect.top;
+    return snapMinutesInHour(offsetY, rect.height) as 0 | 30;
+  }
+
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    e.currentTarget.classList.add("bg-primary/15", "ring-1", "ring-inset", "ring-primary/30");
+    setOverHalf(minutesFromEvent(e));
   }
 
-  function handleDragLeave(e: React.DragEvent) {
-    e.currentTarget.classList.remove(
-      "bg-primary/15",
-      "ring-1",
-      "ring-inset",
-      "ring-primary/30",
-    );
+  function handleDragLeave() {
+    setOverHalf(null);
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
-    e.currentTarget.classList.remove(
-      "bg-primary/15",
-      "ring-1",
-      "ring-inset",
-      "ring-primary/30",
-    );
+    const minutes = minutesFromEvent(e);
+    setOverHalf(null);
     const appointmentId = e.dataTransfer.getData("appointmentId");
     if (!appointmentId) return;
 
     const slot = new Date(date);
-    slot.setHours(hour, 0, 0, 0);
-    onDrop(slot, appointmentId || undefined);
+    slot.setHours(hour, minutes, 0, 0);
+    onDrop(slot, appointmentId);
   }
 
   return (
     <button
       type="button"
-      className={cn("hover:bg-muted/30", className)}
+      className={cn(
+        "relative transition-colors hover:bg-muted/35",
+        overHalf !== null && "bg-primary/12 ring-1 ring-inset ring-primary/35",
+        className,
+      )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => {
+      onClick={(e) => {
+        const minutes = minutesFromEvent(e);
         const slot = new Date(date);
-        slot.setHours(hour, 0, 0, 0);
+        slot.setHours(hour, minutes, 0, 0);
         onClick(slot);
       }}
-    />
+    >
+      {overHalf !== null && (
+        <span
+          className="pointer-events-none absolute inset-x-1 rounded-sm border border-dashed border-primary/50 bg-primary/10"
+          style={{
+            top: overHalf === 0 ? "4%" : "52%",
+            height: "44%",
+          }}
+          aria-hidden
+        />
+      )}
+      <span
+        className="pointer-events-none absolute inset-x-0 top-1/2 border-t border-dashed border-border/50"
+        aria-hidden
+      />
+    </button>
   );
 }
 

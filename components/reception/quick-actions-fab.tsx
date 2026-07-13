@@ -20,13 +20,24 @@ import { useEffect, useId, useRef, useState } from "react";
 const ACTIONS: {
   action: ReceptionQuickAction;
   label: string;
+  shortcut: string;
   icon: typeof UserPlus;
 }[] = [
-  { action: "new-customer", label: "New Customer", icon: UserPlus },
-  { action: "book-appointment", label: "Book Appointment", icon: CalendarPlus },
-  { action: "walk-in", label: "Walk-In", icon: Footprints },
-  { action: "block-time", label: "Block Time", icon: Clock },
-  { action: "add-note", label: "Add Internal Note", icon: StickyNote },
+  { action: "new-customer", label: "New Customer", shortcut: "N", icon: UserPlus },
+  {
+    action: "book-appointment",
+    label: "Book Appointment",
+    shortcut: "B",
+    icon: CalendarPlus,
+  },
+  { action: "walk-in", label: "Walk-In", shortcut: "W", icon: Footprints },
+  { action: "block-time", label: "Block Time", shortcut: "T", icon: Clock },
+  {
+    action: "add-note",
+    label: "Add Internal Note",
+    shortcut: "I",
+    icon: StickyNote,
+  },
 ];
 export function QuickActionsFab() {
   const [open, setOpen] = useState(false);
@@ -66,7 +77,7 @@ export function QuickActionsFab() {
           aria-label="Quick actions"
           className="pointer-events-auto flex w-56 flex-col gap-1 rounded-[var(--radius-lg)] border border-border bg-card p-2 shadow-lg"
         >
-          {ACTIONS.map(({ action, label, icon: Icon }) => (
+          {ACTIONS.map(({ action, label, shortcut, icon: Icon }) => (
             <button
               key={action}
               type="button"
@@ -75,9 +86,26 @@ export function QuickActionsFab() {
               onClick={() => run(action)}
             >
               <Icon className="h-4 w-4 text-muted-foreground" />
-              {label}
+              <span className="flex-1">{label}</span>
+              <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                {shortcut}
+              </kbd>
             </button>
           ))}
+          <button
+            type="button"
+            role="menuitem"
+            className="flex items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={() => {
+              setOpen(false);
+              dispatchReceptionAction("focus-customer-search");
+            }}
+          >
+            Search customer
+            <kbd className="ml-auto rounded border border-border bg-muted px-1.5 py-0.5 text-[10px]">
+              /
+            </kbd>
+          </button>
           <button
             type="button"
             role="menuitem"

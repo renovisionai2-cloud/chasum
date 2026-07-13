@@ -7,17 +7,21 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { getCustomerProfile } from "@/lib/actions/customers";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
+import { preferredFromHistory } from "@/lib/reception/preferences";
 import { format } from "date-fns";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   Ban,
+  Briefcase,
   Calendar,
   CalendarX2,
   DollarSign,
   Mail,
+  MapPin,
   Phone,
+  User,
   UserCheck,
 } from "lucide-react";
 
@@ -83,8 +87,9 @@ export default async function CustomerProfilePage({ params }: PageProps) {
 
   if (!profile) notFound();
 
-  const { customer, documents, upcoming, history, cancellations, noShows, metrics } =
+  const { customer, documents, upcoming, history, cancellations, noShows, metrics, appointments } =
     profile;
+  const prefs = preferredFromHistory(appointments);
 
   return (
     <div className="ds-page">
@@ -159,6 +164,31 @@ export default async function CustomerProfilePage({ params }: PageProps) {
                 Referral: {customer.referral_source}
               </p>
             )}
+            {(prefs.preferredStaffName ||
+              prefs.preferredServiceName ||
+              prefs.preferredLocationName) && (
+              <div className="space-y-2 border-t border-border/70 pt-3">
+                <p className="ds-label">Preferences from history</p>
+                {prefs.preferredStaffName ? (
+                  <p className="flex items-center gap-2 text-muted-foreground">
+                    <User className="h-4 w-4" aria-hidden="true" />
+                    Preferred staff: {prefs.preferredStaffName}
+                  </p>
+                ) : null}
+                {prefs.preferredServiceName ? (
+                  <p className="flex items-center gap-2 text-muted-foreground">
+                    <Briefcase className="h-4 w-4" aria-hidden="true" />
+                    Preferred service: {prefs.preferredServiceName}
+                  </p>
+                ) : null}
+                {prefs.preferredLocationName ? (
+                  <p className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-4 w-4" aria-hidden="true" />
+                    Preferred location: {prefs.preferredLocationName}
+                  </p>
+                ) : null}
+              </div>
+            )}
             {customer.tags?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-2">
                 {(customer.tags ?? []).map((tag: string, i: number) => (
@@ -168,7 +198,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
             )}
             {customer.notes ? (
               <div className="pt-2">
-                <p className="ds-label mb-1">Notes</p>
+                <p className="ds-label mb-1">Internal notes</p>
                 <p className="text-muted-foreground">{customer.notes}</p>
               </div>
             ) : (
