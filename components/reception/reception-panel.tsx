@@ -18,7 +18,7 @@ import type {
   StaffWithServices,
 } from "@/lib/types/booking";
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ReceptionPanelProps = {
   customers: Customer[];
@@ -33,6 +33,7 @@ type ReceptionPanelProps = {
   searchFocusSignal?: number;
   bookFocusSignal?: number;
   walkInSignal?: number;
+  createCustomerSignal?: number;
 };
 
 export function ReceptionPanel({
@@ -48,6 +49,7 @@ export function ReceptionPanel({
   searchFocusSignal = 0,
   bookFocusSignal = 0,
   walkInSignal = 0,
+  createCustomerSignal = 0,
 }: ReceptionPanelProps) {
   const [selected, setSelected] = useState<Customer | null>(null);
   const [extraCustomers, setExtraCustomers] = useState<Customer[]>([]);
@@ -60,6 +62,16 @@ export function ReceptionPanel({
 
   const walkInMode = walkInSignal > 0;
   const apptFocusSignal = bookFocusSignal + walkInSignal;
+
+  useEffect(() => {
+    if (createCustomerSignal <= 0) return;
+    window.setTimeout(() => {
+      formAnchorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }, 40);
+  }, [createCustomerSignal]);
 
   const allCustomers = (() => {
     const map = new Map<string, Customer>();
@@ -75,7 +87,7 @@ export function ReceptionPanel({
           type="button"
           variant="outline"
           size="sm"
-          className="sticky top-4"
+          className="sticky top-4 transition-shadow hover:shadow-sm"
           onClick={() => onOpenChange(true)}
           aria-label="Open reception panel"
         >
@@ -87,11 +99,11 @@ export function ReceptionPanel({
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:w-[22rem] lg:overflow-y-auto xl:w-[24rem]">
+    <aside className="flex w-full shrink-0 flex-col gap-5 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm sm:p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:w-[22rem] lg:overflow-y-auto xl:w-[24rem]">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h2 className="text-base font-semibold tracking-tight">Reception</h2>
-          <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
             <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
               /
             </kbd>{" "}
@@ -114,7 +126,7 @@ export function ReceptionPanel({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 w-8 shrink-0 p-0"
+          className="h-8 w-8 shrink-0 p-0 transition-colors"
           onClick={() => onOpenChange(false)}
           aria-label="Close reception panel"
         >
@@ -157,11 +169,18 @@ export function ReceptionPanel({
           defaultStaffId={slotDefaults.staffId}
           walkInMode={walkInMode}
           focusSignal={apptFocusSignal}
+          openCreateSignal={createCustomerSignal}
           onClearCustomer={() => setSelected(null)}
           onSuccess={onBooked}
           onCustomerCreated={(c) => {
             setExtraCustomers((prev) => [...prev, c]);
             setSelected(c);
+            window.setTimeout(() => {
+              formAnchorRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+              });
+            }, 80);
           }}
         />
       </div>
@@ -170,13 +189,13 @@ export function ReceptionPanel({
         type="button"
         variant="ghost"
         size="sm"
-        className="w-full text-xs text-muted-foreground"
+        className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
         onClick={onOpenFullDialog}
       >
         Open full appointment editor
       </Button>
 
-      <div className="space-y-4 border-t border-border/80 pt-4">
+      <div className="space-y-5 border-t border-border/80 pt-5">
         <NextSlotCard
           onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
             setSlotDefaults({

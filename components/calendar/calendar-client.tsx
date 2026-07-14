@@ -14,7 +14,6 @@ import { ColorLegend } from "@/components/reception/color-legend";
 import {
   BlockTimeDialog,
   InternalNoteDialog,
-  NewCustomerDialog,
 } from "@/components/reception/quick-action-dialogs";
 import { QuickActionsFab } from "@/components/reception/quick-actions-fab";
 import { ReceptionPanel } from "@/components/reception/reception-panel";
@@ -120,12 +119,12 @@ export function CalendarClient({
     useState<AppointmentWithRelations | null>(urlAppointment);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
   const [panelOpen, setPanelOpen] = useState(true);
-  const [newCustomerOpen, setNewCustomerOpen] = useState(false);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [searchFocusSignal, setSearchFocusSignal] = useState(0);
   const [bookFocusSignal, setBookFocusSignal] = useState(0);
   const [walkInSignal, setWalkInSignal] = useState(0);
+  const [createCustomerSignal, setCreateCustomerSignal] = useState(0);
   const [appointments, setOptimisticAppointments] = useOptimistic(
     serverAppointments,
     (
@@ -147,7 +146,8 @@ export function CalendarClient({
       if (!detail?.action) return;
       switch (detail.action) {
         case "new-customer":
-          setNewCustomerOpen(true);
+          setPanelOpen(true);
+          setCreateCustomerSignal((n) => n + 1);
           break;
         case "book-appointment":
           setPanelOpen(true);
@@ -395,6 +395,7 @@ export function CalendarClient({
             searchFocusSignal={searchFocusSignal}
             bookFocusSignal={bookFocusSignal}
             walkInSignal={walkInSignal}
+            createCustomerSignal={createCustomerSignal}
           />
         )}
       </div>
@@ -414,15 +415,6 @@ export function CalendarClient({
 
       {showReceptionPanel && <QuickActionsFab />}
 
-      <NewCustomerDialog
-        open={newCustomerOpen}
-        onClose={() => setNewCustomerOpen(false)}
-        onCreated={() => {
-          refresh();
-          setPanelOpen(true);
-          setSearchFocusSignal((n) => n + 1);
-        }}
-      />
       <BlockTimeDialog
         open={blockTimeOpen}
         onClose={() => setBlockTimeOpen(false)}

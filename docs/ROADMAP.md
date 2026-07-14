@@ -343,6 +343,22 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Sprint 3 — Reception Workspace (Premium Experience) ✅ Shipped
+
+**Goal:** Best receptionist workspace — fewest clicks, premium feel, zero brand redesign.
+
+| Deliverable | Status |
+|-------------|--------|
+| Instant search by name/phone/email + highlight + keyboard nav | ✅ |
+| Fastest new customer (fields, phone format, validation, success → book) | ✅ |
+| Booking smart defaults, one-click save, confirmation polish | ✅ |
+| Customer profile: upcoming, history, notes, revenue, last visit, preferences | ✅ |
+| Reception layout polish (spacing, hierarchy, states, motion) | ✅ |
+
+**Verify:** `npm run lint` && `npm run build`
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -406,8 +422,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.3.2` | Shipped | Sprint 8 GVM Baby World go-live |
 | `0.3.3` | Shipped | Milestone 1.1 Reception Workspace |
 | `0.3.4` | Shipped | Milestone 1.3 Workflow Optimization |
-| `0.3.5` | Current | Milestone 1.4 Production Readiness |
-| `0.3.6` | Next | Production SMTP + live GVM traffic |
+| `0.3.5` | Shipped | Milestone 1.4 + Sprint 2 Reception Excellence |
+| `0.3.6` | Current | Sprint 3 Reception Workspace Premium |
+| `0.3.7` | Next | Production SMTP + live GVM traffic |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

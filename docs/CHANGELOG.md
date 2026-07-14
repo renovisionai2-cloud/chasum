@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Sprint 3 — Reception Workspace Premium)
+
+- Customer search: match highlighting, Esc closes list first, empty/loading polish, recent customers
+- Fastest new customer: first/last name, phone formatting, email validation, notes, Enter field flow, success animation, returns to booking (`N` opens inline create)
+- Booking: remembered service/staff, ⌘Enter one-click save, richer confirmation toast, inline “still need” / ready hints
+- Customer profile panel: upcoming, history, notes, revenue, last visit, preferred staff/service, skeleton loading
+- Reception layout: spacing, hierarchy, hover/focus, micro-animations (no brand asset or color token changes)
+
 ### Changed (Brand V1.0 — FINAL / FROZEN)
 
 - Official Brand Identity Board locked as sole visual source of truth

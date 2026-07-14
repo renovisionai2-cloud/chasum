@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { getCustomers } from "@/lib/actions/customers";
+import { HighlightMatch } from "@/lib/reception/highlight-match";
 import {
   filterCustomersLocal,
   pushRecentCustomer,
@@ -101,6 +102,7 @@ export function CustomerSearch({
   const showRecent = listOpen && !deferred && recent.length > 0;
   const showResults = listOpen && !!deferred;
   const listItems = showRecent ? recent : results;
+  const highlightQuery = deferred;
 
   function select(customer: Customer) {
     pushRecentCustomer(customer);
@@ -119,13 +121,20 @@ export function CustomerSearch({
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Escape") {
       e.preventDefault();
-      if (query) clear();
-      else setListOpen(false);
+      if (listOpen) {
+        setListOpen(false);
+        return;
+      }
+      if (query) {
+        clear();
+        return;
+      }
+      inputRef.current?.blur();
       return;
     }
 
     if (!listOpen || listItems.length === 0) {
-      if (e.key === "ArrowDown" && (showRecent || showResults)) {
+      if (e.key === "ArrowDown" && (showRecent || showResults || recent.length > 0)) {
         e.preventDefault();
         setListOpen(true);
       }
@@ -153,7 +162,9 @@ export function CustomerSearch({
     <section className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="ds-section-title text-sm">Find customer</h3>
-        <span className="text-[10px] text-muted-foreground">↑↓ · Enter · Esc</span>
+        <span className="text-[10px] tabular-nums text-muted-foreground">
+          ↑↓ · Enter · Esc
+        </span>
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -171,7 +182,7 @@ export function CustomerSearch({
           }}
           onFocus={() => setListOpen(true)}
           placeholder="Name, phone, or email…"
-          className="pl-9 pr-9"
+          className="pl-9 pr-9 transition-shadow focus-visible:shadow-sm"
           aria-label="Search customers"
           aria-controls={listId}
           aria-autocomplete="list"
@@ -202,7 +213,8 @@ export function CustomerSearch({
         <ul
           id={listId}
           role="listbox"
-          className="max-h-52 space-y-0.5 overflow-y-auto rounded-[var(--radius-md)] border border-border bg-card shadow-xs"
+          className="max-h-56 space-y-0.5 overflow-y-auto rounded-[var(--radius-md)] border border-border bg-card shadow-xs animate-fade-in-up"
+          style={{ animationDuration: "200ms" }}
         >
           {showRecent ? (
             <li className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -210,45 +222,77 @@ export function CustomerSearch({
             </li>
           ) : null}
           {showResults && pending && results.length === 0 ? (
-            <li className="flex items-center gap-2 px-3 py-2.5 text-xs text-muted-foreground">
+            <li className="flex items-center gap-2 px-3 py-3 text-xs text-muted-foreground">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Searching…
             </li>
           ) : showResults && results.length === 0 ? (
-            <li className="px-3 py-2.5 text-xs text-muted-foreground">
-              No matches. Try phone or email, or add a new customer below.
+            <li className="px-3 py-3 text-xs leading-relaxed text-muted-foreground">
+              No matches for &ldquo;{deferred}&rdquo;. Try phone or email, or add a
+              new customer below.
             </li>
           ) : (
-            listItems.map((customer, index) => (
-              <li key={customer.id} role="presentation">
-                <button
-                  type="button"
-                  id={`${listId}-option-${index}`}
-                  role="option"
-                  aria-selected={
-                    selectedId === customer.id || index === activeIndex
-                  }
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => select(customer)}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  className={`flex w-full flex-col px-3 py-2 text-left text-sm transition-colors hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none ${
-                    selectedId === customer.id || index === activeIndex
-                      ? "bg-accent/45"
-                      : ""
-                  }`}
-                >
-                  <span className="font-medium leading-tight">
-                    {customer.name}
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {customer.phone ? `${customer.phone} · ` : ""}
-                    {customer.email}
-                  </span>
-                </button>
-              </li>
-            ))
+            listItems.map((customer, index) => {
+              const active =
+                selectedId === customer.id || index === activeIndex;
+              return (
+                <li key={customer.id} role="presentation">
+                  <button
+                    type="button"
+                    id={`${listId}-option-${index}`}
+                    role="option"
+                    aria-selected={active}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => select(customer)}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    className={`flex w-full flex-col px-3 py-2 text-left text-sm transition-colors duration-150 hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
+                      active ? "bg-accent/45" : ""
+                    }`}
+                  >
+                    <span className="font-medium leading-tight">
+                      {showResults ? (
+                        <HighlightMatch
+                          text={customer.name}
+                          query={highlightQuery}
+                        />
+                      ) : (
+                        customer.name
+                      )}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {customer.phone ? (
+                        <>
+                          {showResults ? (
+                            <HighlightMatch
+                              text={customer.phone}
+                              query={highlightQuery}
+                            />
+                          ) : (
+                            customer.phone
+                          )}
+                          {" · "}
+                        </>
+                      ) : null}
+                      {showResults ? (
+                        <HighlightMatch
+                          text={customer.email}
+                          query={highlightQuery}
+                        />
+                      ) : (
+                        customer.email
+                      )}
+                    </span>
+                  </button>
+                </li>
+              );
+            })
           )}
         </ul>
+      ) : listOpen && !deferred && recent.length === 0 ? (
+        <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 py-2.5 text-xs text-muted-foreground">
+          Type a name, phone, or email to search. Recent customers appear here
+          after you select them.
+        </p>
       ) : null}
     </section>
   );

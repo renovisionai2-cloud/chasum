@@ -167,6 +167,21 @@ body {
   }
 }
 
+@keyframes success-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out forwards;
 }
@@ -176,9 +191,14 @@ body {
   will-change: transform, opacity, filter;
 }
 
+.animate-success-pop {
+  animation: success-pop 0.45s ease-out forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up,
-  .animate-spark-pulse {
+  .animate-spark-pulse,
+  .animate-success-pop {
     animation: none !important;
     filter: none !important;
   }

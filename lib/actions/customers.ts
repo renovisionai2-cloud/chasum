@@ -77,6 +77,7 @@ export async function quickCreateCustomer(input: {
   name: string;
   email: string;
   phone?: string;
+  notes?: string;
 }): Promise<ActionState & { customerId?: string }> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
@@ -93,6 +94,7 @@ export async function quickCreateCustomer(input: {
       name,
       email,
       phone: input.phone?.trim() || null,
+      notes: input.notes?.trim() || null,
       tags: [],
     })
     .select("id")
@@ -212,6 +214,7 @@ export async function getCustomerProfile(id: string) {
   }, 0);
 
   const totalVisits = completed.length;
+  const lastVisit = history[0]?.start_time ?? null;
 
   return {
     customer,
@@ -227,6 +230,7 @@ export async function getCustomerProfile(id: string) {
       noShowCount: noShows.length,
       cancellationCount: cancellations.length,
       upcomingCount: upcoming.length,
+      lastVisit,
     },
   };
 }
