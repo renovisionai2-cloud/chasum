@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Chasum AI Spark">
-  <title>Chasum AI Spark</title>
-  <defs>
-    <linearGradient id="spd-g" x1="20%" y1="0%" x2="80%" y2="100%">
-      <stop offset="0%" stop-color="#2563EB"/>
-      <stop offset="50%" stop-color="#1E40AF"/>
-      <stop offset="100%" stop-color="#7C3AED"/>
-    </linearGradient>
-  </defs>
-  <path fill="url(#spd-g)" d="M32 1.8C35.1 15.6 42.2 22 55.2 23.9C42.2 25.8 35.1 32.8 32 48.2C28.9 32.8 21.8 25.8 8.8 23.9C21.8 22 28.9 15.6 32 1.8Z"/>
-  <circle cx="47" cy="14" r="2.5" fill="url(#spd-g)"/>
-  <circle cx="17" cy="50" r="2.5" fill="url(#spd-g)"/>
+<title>Chasum AI Spark</title>
+<defs><linearGradient id="spg" x1="18%" y1="0%" x2="82%" y2="100%"><stop offset="0%" stop-color="#2563EB"/><stop offset="48%" stop-color="#1E40AF"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs>
+<path fill="url(#spg)" d="M32 2C34.8 15.2 41.6 21.4 54.2 23.2C41.6 25 34.8 31.8 32 48C29.2 31.8 22.4 25 9.8 23.2C22.4 21.4 29.2 15.2 32 2Z"/>
+<circle cx="47.5" cy="13.5" r="2.6" fill="url(#spg)"/><circle cx="16.5" cy="50.5" r="2.6" fill="url(#spg)"/>
 </svg>
