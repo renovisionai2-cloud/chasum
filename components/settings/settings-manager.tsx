@@ -546,6 +546,21 @@ export function SettingsManager({
       )}
       <div className="grid gap-6 lg:grid-cols-2">
         <ProfileForm business={business} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Billing</CardTitle>
+            <CardDescription>
+              Current plan, trials, invoices, upgrades, and cancellations.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/settings/billing">
+              <Button type="button" variant="outline" className="w-full sm:w-auto">
+                Manage billing
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
         <HoursForm hours={location.hours} locationName={location.name} />
         <BookingSettingsForm
           settings={location.settings}

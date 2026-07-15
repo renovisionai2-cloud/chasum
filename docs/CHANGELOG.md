@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Billing Phase 1)
+
+- Subscription foundation for Free, Professional, Business, Enterprise (catalog + list prices)
+- Customer Billing page at `/dashboard/settings/billing` — current plan, trial, renewal, upgrade/downgrade/cancel, history, invoice download
+- Mock billing provider + `BillingProvider` interface ready for Stripe swap (`lib/billing/*`)
+- Migration `015_billing_phase1.sql` — billing interval, periods, `subscription_events`, `billing_invoices`
+- Owner metrics: active subscriptions, 30d churn, revenue chart (layout unchanged)
+
 ### Added (Owner Platform — Phase 1)
 
 - Secure `/owner` dashboard for Chasum platform owners only (separate from customer `/dashboard`)

@@ -48,12 +48,16 @@ export type OwnerOverviewMetrics = {
   activeBusinesses: number;
   trialBusinesses: number;
   paidBusinesses: number;
+  activeSubscriptions: number;
+  churnRate30d: number;
+  canceled30d: number;
   mrrCents: number;
   arrCents: number;
   newSignups7d: number;
   newSignups30d: number;
   mrrLabel: string;
   arrLabel: string;
+  revenueChart: { label: string; value: number }[];
   systemHealth: {
     ok: boolean;
     checks: {
@@ -174,7 +178,7 @@ export async function getOwnerOverviewMetrics(): Promise<OwnerOverviewMetrics> {
     const businesses = (fallback.data ?? []).map((row) =>
       mapBusiness({ ...row, subscription_status: "active" }),
     );
-    return summarize(businesses, prices, []);
+    return summarize(businesses, prices, [], 0, []);
   }
 
   const businesses = (businessRows ?? []).map((row) =>
@@ -200,13 +204,82 @@ export async function getOwnerOverviewMetrics(): Promise<OwnerOverviewMetrics> {
     alerts = [];
   }
 
-  return summarize(businesses, prices, alerts);
+  let canceled30d = 0;
+  let invoiceMonths: { created_at: string; amount_cents: number }[] = [];
+  try {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { count } = await service
+      .from("subscription_events")
+      .select("id", { count: "exact", head: true })
+      .eq("event_type", "canceled")
+      .gte("created_at", since);
+    canceled30d = count ?? 0;
+  } catch {
+    canceled30d = businesses.filter((b) => b.subscription_status === "canceled")
+      .length;
+  }
+
+  try {
+    const since = new Date();
+    since.setMonth(since.getMonth() - 5);
+    since.setDate(1);
+    const { data: invoices } = await service
+      .from("billing_invoices")
+      .select("created_at, amount_cents, status")
+      .eq("status", "paid")
+      .gte("created_at", since.toISOString());
+    invoiceMonths = (invoices ?? []).map((row) => ({
+      created_at: row.created_at as string,
+      amount_cents: Number(row.amount_cents ?? 0),
+    }));
+  } catch {
+    invoiceMonths = [];
+  }
+
+  return summarize(businesses, prices, alerts, canceled30d, invoiceMonths);
+}
+
+function buildRevenueChart(
+  invoiceMonths: { created_at: string; amount_cents: number }[],
+  fallbackMrrCents: number,
+): { label: string; value: number }[] {
+  const months: { label: string; key: string; value: number }[] = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i -= 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    months.push({
+      key,
+      label: d.toLocaleString("en-US", { month: "short" }),
+      value: 0,
+    });
+  }
+
+  for (const invoice of invoiceMonths) {
+    const d = new Date(invoice.created_at);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    const bucket = months.find((m) => m.key === key);
+    if (bucket) bucket.value += invoice.amount_cents;
+  }
+
+  const hasAny = months.some((m) => m.value > 0);
+  if (!hasAny && fallbackMrrCents > 0) {
+    // Soft estimate: show current MRR on the latest month until invoice history exists.
+    months[months.length - 1]!.value = fallbackMrrCents;
+  }
+
+  return months.map((m) => ({
+    label: m.label,
+    value: Math.round(m.value / 100),
+  }));
 }
 
 function summarize(
   businesses: OwnerBusinessRow[],
   prices: Map<string, number | null>,
   alerts: OwnerAlert[],
+  canceled30d: number,
+  invoiceMonths: { created_at: string; amount_cents: number }[],
 ): OwnerOverviewMetrics {
   const now = Date.now();
   const day7 = now - 7 * 24 * 60 * 60 * 1000;
@@ -226,6 +299,12 @@ function summarize(
   }).length;
 
   const paidBusinesses = businesses.filter((b) => isPaid(b, prices)).length;
+  const activeSubscriptions = businesses.filter(
+    (b) =>
+      (b.subscription_status === "active" ||
+        b.subscription_status === "past_due") &&
+      isPaid(b, prices),
+  ).length;
 
   let mrrCents = 0;
   const planMap = new Map<string, { count: number; mrrCents: number }>();
@@ -239,6 +318,9 @@ function summarize(
     planMap.set(key, entry);
   }
 
+  const churnBase = Math.max(activeSubscriptions + canceled30d, 1);
+  const churnRate30d = Math.round((canceled30d / churnBase) * 1000) / 10;
+
   const supabase = Boolean(getSupabaseEnv());
   const serviceRole = Boolean(getServiceRoleKey());
   const email = Boolean(getResendApiKey());
@@ -250,6 +332,9 @@ function summarize(
     activeBusinesses,
     trialBusinesses,
     paidBusinesses,
+    activeSubscriptions,
+    churnRate30d,
+    canceled30d,
     mrrCents,
     arrCents: mrrCents * 12,
     newSignups7d: businesses.filter(
@@ -260,6 +345,7 @@ function summarize(
     ).length,
     mrrLabel: formatUsdFromCents(mrrCents),
     arrLabel: formatUsdFromCents(mrrCents * 12),
+    revenueChart: buildRevenueChart(invoiceMonths, mrrCents),
     systemHealth: {
       ok: supabase && serviceRole && email && cronSecret,
       checks: {

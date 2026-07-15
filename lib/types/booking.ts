@@ -55,8 +55,13 @@ export type Business = {
     | "past_due"
     | "canceled"
     | "paused";
+  billing_interval?: "monthly" | "yearly";
   trial_starts_at?: string | null;
   trial_ends_at?: string | null;
+  current_period_start?: string | null;
+  current_period_end?: string | null;
+  cancel_at_period_end?: boolean;
+  canceled_at?: string | null;
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
   logo_url?: string | null;
@@ -137,6 +142,8 @@ export type SubscriptionPlan = {
   max_locations: number | null;
   description: string | null;
   monthly_price_cents?: number | null;
+  yearly_price_cents?: number | null;
+  sort_order?: number;
   is_active: boolean;
   created_at: string;
 };

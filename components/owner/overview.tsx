@@ -15,6 +15,7 @@ import {
   CircleDollarSign,
   Clock,
   CreditCard,
+  TrendingDown,
   UserPlus,
 } from "lucide-react";
 import Link from "next/link";
@@ -109,6 +110,32 @@ export function OwnerOverview({ metrics }: { metrics: OwnerOverviewMetrics }) {
           accent={metrics.systemHealth.ok ? "success" : "warning"}
           href="/owner/health"
           description="Core production dependencies"
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StatCard
+          title="Active Subscriptions"
+          value={String(metrics.activeSubscriptions)}
+          icon={CreditCard}
+          href="/owner/subscriptions"
+          description="Paid active / past_due seats"
+        />
+        <StatCard
+          title="Trial Accounts"
+          value={String(metrics.trialBusinesses)}
+          icon={Clock}
+          accent="warning"
+          href="/owner/trials"
+          description="Currently on a free trial"
+        />
+        <StatCard
+          title="Churn (30d)"
+          value={`${metrics.churnRate30d}%`}
+          icon={TrendingDown}
+          accent="warning"
+          href="/owner/revenue"
+          description={`${metrics.canceled30d} cancellations`}
         />
       </div>
 

@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WeekBars } from "@/components/ui/chart";
 import { StatCard } from "@/components/ui/stat-card";
 import { OwnerPageFrame } from "@/components/owner/page-frame";
 import { formatUsdFromCents } from "@/lib/owner/constants";
 import { getOwnerOverviewMetrics } from "@/lib/owner/data";
-import { CircleDollarSign } from "lucide-react";
+import { CircleDollarSign, CreditCard, TrendingDown } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,21 +19,52 @@ export default async function OwnerRevenuePage() {
       title="Revenue"
       description="Estimated recurring revenue from configured list prices. Stripe settlement will replace estimates once billing is wired."
     >
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Monthly Recurring Revenue"
+          title="Total MRR"
           value={metrics.mrrLabel}
           icon={CircleDollarSign}
           description="Active paid plans only"
         />
         <StatCard
-          title="Annual Recurring Revenue"
+          title="Total ARR"
           value={metrics.arrLabel}
           icon={CircleDollarSign}
           accent="spark"
           description="MRR × 12"
         />
+        <StatCard
+          title="Active subscriptions"
+          value={String(metrics.activeSubscriptions)}
+          icon={CreditCard}
+          description="Paid active / past_due"
+        />
+        <StatCard
+          title="Churn (30d)"
+          value={`${metrics.churnRate30d}%`}
+          icon={TrendingDown}
+          accent="warning"
+          description={`${metrics.canceled30d} cancellations`}
+        />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Revenue chart</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <WeekBars
+            data={metrics.revenueChart.map((point) => ({
+              label: point.label,
+              value: point.value,
+            }))}
+          />
+          <p className="mt-3 text-xs text-muted-foreground">
+            Values shown in USD from paid invoices (or current MRR estimate when
+            invoice history is empty).
+          </p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
