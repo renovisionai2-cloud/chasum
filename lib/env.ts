@@ -6,6 +6,14 @@ export function getAppUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 }
 
+/** True on Vercel/production deploys (not local Next.js). */
+export function isProductionRuntime(): boolean {
+  return (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production"
+  );
+}
+
 /**
  * Builds the Supabase auth callback URL with an optional post-auth redirect.
  */

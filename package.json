@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:env": "node scripts/verify-production-env.mjs",
+    "verify:gvm": "node scripts/verify-sprint2-gvm-go-live.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

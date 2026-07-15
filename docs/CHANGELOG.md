@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (GVM Baby World — Production Launch)
+
+- `docs/GVM_GO_LIVE.md` — deployment, env, verification, smoke test, cutover, parallel run, rollback, future roadmap
+- `GET /api/health` — production readiness probe (no secrets exposed)
+- `scripts/verify-production-env.mjs` + `npm run verify:env`
+- Production hardening: cron requires `CRON_SECRET` in production; failed emails retry; production never fake-sends email/SMS via console
+
+### Changed (GVM Baby World — Production Launch)
+
+- Email/SMS providers: Resend required in production; Twilio optional (skipped when unset)
+- Job processor throws on failed email/SMS delivery so queue retries
+- `.env.example` and `PRODUCTION_READINESS.md` smoke checklist expanded (confirm → complete → history → revenue)
+
 ### Changed (Sprint 3 — Reception Workspace Premium)
 
 - Customer search: match highlighting, Esc closes list first, empty/loading polish, recent customers

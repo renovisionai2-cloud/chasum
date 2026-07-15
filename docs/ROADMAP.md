@@ -359,6 +359,25 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## GVM Baby World — Production Launch ✅ Shipped (ops package)
+
+**Goal:** Make Chasum production-ready so GVM can replace Picktime — no new product features, no brand redesign.
+
+| Deliverable | Status |
+|-------------|--------|
+| Production infra hardening (cron auth, email/SMS delivery honesty, health probe) | ✅ |
+| Email/job processor retry behavior for failed Resend sends | ✅ |
+| `docs/GVM_GO_LIVE.md` cutover plan + expanded smoke checklist | ✅ |
+| `verify-production-env` script + `.env.example` production notes | ✅ |
+
+**Ops still required on production host:** apply migrations 001–013, set secrets, Resend + Supabase Auth SMTP, Vercel cron, pass smoke test.
+
+**Verify:** `npm run lint` && `npm run build` && `npm run verify:env` (with prod secrets)
+
+**Future Roadmap (not in this launch):** client self-service cancel/reschedule, deposits/Stripe, embed widget, custom domain, multi-staff roles, deep analytics, Picktime import.
+
+---
+
 ## Phase 6 — Monetization & AI 🔜 Planned
 
 **Goal:** Differentiate with intelligence and scale features.
@@ -423,8 +442,9 @@ The items below were previously listed under Phase 4 and remain planned for late
 | `0.3.3` | Shipped | Milestone 1.1 Reception Workspace |
 | `0.3.4` | Shipped | Milestone 1.3 Workflow Optimization |
 | `0.3.5` | Shipped | Milestone 1.4 + Sprint 2 Reception Excellence |
-| `0.3.6` | Current | Sprint 3 Reception Workspace Premium |
-| `0.3.7` | Next | Production SMTP + live GVM traffic |
+| `0.3.6` | Shipped | Sprint 3 Reception Workspace Premium |
+| `0.3.7` | Current | GVM Baby World Production Launch (ops) |
+| `0.3.8` | Next | Live GVM traffic + optional Twilio / embed |
 | `1.0.0` | Q1 2027 | GA with AI features |
 
 ---

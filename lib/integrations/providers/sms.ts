@@ -1,4 +1,4 @@
-import { getTwilioConfig } from "@/lib/env";
+import { getTwilioConfig, isProductionRuntime } from "@/lib/env";
 import type { SmsPayload, SmsProvider, SmsResult } from "./types";
 
 class TwilioSmsProvider implements SmsProvider {
@@ -49,17 +49,42 @@ class ConsoleSmsProvider implements SmsProvider {
   }
 }
 
+/** Optional channel — production without Twilio should skip, not fake success. */
+class DisabledSmsProvider implements SmsProvider {
+  readonly name = "disabled";
+
+  async send(_payload: SmsPayload): Promise<SmsResult> {
+    return {
+      success: false,
+      error: "Twilio is not configured.",
+      skipped: true,
+    };
+  }
+}
+
 let smsProvider: SmsProvider | null = null;
 
 export function getSmsProvider(): SmsProvider {
   if (!smsProvider) {
-    smsProvider = getTwilioConfig()
-      ? new TwilioSmsProvider()
-      : new ConsoleSmsProvider();
+    if (getTwilioConfig()) {
+      smsProvider = new TwilioSmsProvider();
+    } else if (isProductionRuntime()) {
+      smsProvider = new DisabledSmsProvider();
+    } else {
+      smsProvider = new ConsoleSmsProvider();
+    }
   }
   return smsProvider;
 }
 
+export function resetSmsProvider(): void {
+  smsProvider = null;
+}
+
 export async function sendSms(payload: SmsPayload): Promise<SmsResult> {
   return getSmsProvider().send(payload);
+}
+
+export function isSmsDeliverable(): boolean {
+  return Boolean(getTwilioConfig());
 }

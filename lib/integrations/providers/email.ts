@@ -1,4 +1,8 @@
-import { getEmailFromAddress, getResendApiKey } from "@/lib/env";
+import {
+  getEmailFromAddress,
+  getResendApiKey,
+  isProductionRuntime,
+} from "@/lib/env";
 import type { EmailProvider, EmailPayload, EmailResult } from "./types";
 
 class ResendEmailProvider implements EmailProvider {
@@ -58,17 +62,43 @@ class ConsoleEmailProvider implements EmailProvider {
   }
 }
 
+/** Production without Resend must not pretend to send. */
+class DisabledEmailProvider implements EmailProvider {
+  readonly name = "disabled";
+
+  async send(_payload: EmailPayload): Promise<EmailResult> {
+    return {
+      success: false,
+      error:
+        "RESEND_API_KEY is not configured. Patient emails cannot be sent in production.",
+    };
+  }
+}
+
 let emailProvider: EmailProvider | null = null;
 
 export function getEmailProvider(): EmailProvider {
   if (!emailProvider) {
-    emailProvider = getResendApiKey()
-      ? new ResendEmailProvider()
-      : new ConsoleEmailProvider();
+    if (getResendApiKey()) {
+      emailProvider = new ResendEmailProvider();
+    } else if (isProductionRuntime()) {
+      emailProvider = new DisabledEmailProvider();
+    } else {
+      emailProvider = new ConsoleEmailProvider();
+    }
   }
   return emailProvider;
 }
 
+/** Reset cached provider (tests / env changes). */
+export function resetEmailProvider(): void {
+  emailProvider = null;
+}
+
 export async function sendEmail(payload: EmailPayload): Promise<EmailResult> {
   return getEmailProvider().send(payload);
+}
+
+export function isEmailDeliverable(): boolean {
+  return Boolean(getResendApiKey());
 }

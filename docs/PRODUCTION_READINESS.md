@@ -77,13 +77,14 @@ Last updated: Milestone 1.4 (2026-07-13).
 
 | Item | Severity | Mitigation |
 |------|----------|------------|
-| Production SMTP / Resend | High for email confirmations | Configure Resend (or SMTP) before patient emails |
-| Twilio SMS | Medium | Optional; configure if SMS reminders required |
+| Production SMTP / Resend | **Blocker** until configured on host | Follow `docs/GVM_GO_LIVE.md`; `/api/health` must show email configured |
+| Cron + `CRON_SECRET` | **Blocker** until configured | Vercel Cron + env; production rejects unauthenticated cron |
+| Twilio SMS | Medium / optional | Skip or configure Twilio; unset → SMS jobs skipped |
 | Waitlist in Reception panel | Low | Placeholder → Automation page |
 | AI Suggestions beyond rule insights | Low | Evidence-only; empty when no rules fire |
 | Today’s notes sync across devices | Low | Device-local by design for now |
 | Overlap conflict prevention UI | Low | Engine still validates on save; DnD finds nearest legal slot |
-| Automated E2E suite | Medium | Manual checklist below until Playwright lands |
+| Automated E2E suite | Medium | Manual checklist in GVM_GO_LIVE until Playwright lands |
 | Multi-staff login / roles | Out of scope | Single owner/admin session for MVP |
 
 ---
@@ -110,20 +111,24 @@ Ignored while typing in inputs, textareas, selects, or dialogs.
 1. Create a test customer (FAB or Clients).
 2. Search and open preview → open full profile.
 3. Book via Quick appointment using a real slot.
-4. Drag the appointment to a new time; confirm toast success.
-5. Open appointment → cancel; confirm removal on calendar.
-6. Walk-in shortcut → book for today.
-7. Toggle public booking mode to Staff Only → confirm `/book/[slug]` blocked.
-8. Toggle back to Public → complete a test public booking.
-9. Confirm notification rows appear after booking (and email if provider configured).
-10. ⌘K → jump to client, service, and an appointment.
+4. Confirm customer email (Resend) + in-app notification / completed `background_jobs` row.
+5. Drag the appointment to a new time; confirm toast success.
+6. Open appointment → cancel; confirm removal on calendar.
+7. Book again → mark **completed**; confirm **history** and **revenue** (profile LTV / dashboard).
+8. Walk-in shortcut → book for today.
+9. Toggle public booking mode to Staff Only → confirm `/book/[slug]` blocked.
+10. Toggle back to Public → complete a test public booking.
+11. Confirm `/api/health` returns `ok: true` on production.
+12. ⌘K → jump to client, service, and an appointment.
+
+Full cutover plan: [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md).
 
 ---
 
 ## Go / No-go
 
-**Go** when: smoke test passes, SMTP configured if email is required, staff trained on shortcuts, Picktime parallel day optional.
+**Go** when: smoke test passes, SMTP/Resend configured, cron secured, staff trained on shortcuts, Picktime parallel day optional.
 
-**No-go** if: scheduling RPCs fail, staff-only gate broken, or customer create/book/cancel regressions.
+**No-go** if: scheduling RPCs fail, staff-only gate broken, email/cron unhealthy, or customer create/book/cancel regressions.
 
-See also: [`docs/ROADMAP.md`](./ROADMAP.md), [`docs/CHANGELOG.md`](./CHANGELOG.md).
+See also: [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md), [`docs/ROADMAP.md`](./ROADMAP.md), [`docs/CHANGELOG.md`](./CHANGELOG.md).

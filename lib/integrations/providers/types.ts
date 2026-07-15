@@ -32,6 +32,8 @@ export type SmsResult = {
   success: boolean;
   messageId?: string;
   error?: string;
+  /** True when the channel is intentionally disabled (e.g. no Twilio in production). */
+  skipped?: boolean;
 };
 
 export interface SmsProvider {

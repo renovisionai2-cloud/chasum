@@ -159,6 +159,10 @@ async function processEmailJob(payload: Record<string, unknown>) {
     result.messageId,
     result.error,
   );
+
+  if (!result.success) {
+    throw new Error(result.error ?? "Email send failed");
+  }
 }
 
 async function processSmsJob(payload: Record<string, unknown>) {
@@ -188,6 +192,21 @@ async function processSmsJob(payload: Record<string, unknown>) {
   }
 
   const result = await sendSms({ to: ctx.customerPhone, body });
+
+  if (result.skipped || result.error === "Twilio is not configured.") {
+    await logDelivery(
+      ctx.businessId,
+      "sms",
+      ctx.customerPhone,
+      templateKey,
+      "skipped",
+      appointmentId,
+      undefined,
+      result.error,
+    );
+    return;
+  }
+
   await logDelivery(
     ctx.businessId,
     "sms",
@@ -198,6 +217,10 @@ async function processSmsJob(payload: Record<string, unknown>) {
     result.messageId,
     result.error,
   );
+
+  if (!result.success) {
+    throw new Error(result.error ?? "SMS send failed");
+  }
 }
 
 async function processReminderJob(payload: Record<string, unknown>) {
