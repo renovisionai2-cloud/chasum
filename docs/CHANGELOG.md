@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Owner Platform — Phase 1)
+
+- Secure `/owner` dashboard for Chasum platform owners only (separate from customer `/dashboard`)
+- Pages: Overview, Businesses, Subscriptions, Revenue, Free Trials, Support, Platform Health, Security, Settings
+- Overview metrics: total/active/trial/paid businesses, MRR/ARR estimates, signups, recent activity, system health, alerts
+- Authorization via `PLATFORM_OWNER_EMAILS` and/or `platform_admins` table; service-role reads after gate
+- Migration `014_owner_platform.sql` (admins, alerts, subscription status/trial fields, plan list prices)
+- Docs: `docs/OWNER_PLATFORM.md`
+
 ### Changed (Pricing & marketing messaging)
 
 - Headline: “Simple pricing that grows with your business.”

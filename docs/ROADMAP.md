@@ -359,6 +359,21 @@ Remaining for live traffic: Resend SMTP, first real client appointment, website 
 
 ---
 
+## Owner Platform — Phase 1 ✅ Shipped
+
+**Goal:** Give Chasum platform owners a secure ops console without changing the customer dashboard.
+
+| Deliverable | Status |
+|-------------|--------|
+| `/owner` shell + nav (Overview → Settings) | ✅ |
+| Overview KPIs (businesses, trials, paid, MRR/ARR, health, alerts) | ✅ |
+| Super-admin auth (`PLATFORM_OWNER_EMAILS` + `platform_admins`) | ✅ |
+| Migration `014_owner_platform.sql` | ✅ |
+
+**Verify:** `npm run lint` && `npm run build` · set `PLATFORM_OWNER_EMAILS` · apply migration 014
+
+---
+
 ## GVM Baby World — Production Launch ✅ Shipped (ops package)
 
 **Goal:** Make Chasum production-ready so GVM can replace Picktime — no new product features, no brand redesign.

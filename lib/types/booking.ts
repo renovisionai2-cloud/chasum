@@ -49,6 +49,16 @@ export type Business = {
   cancellation_policy: string | null;
   max_daily_bookings: number | null;
   subscription_plan_key?: string;
+  subscription_status?:
+    | "trialing"
+    | "active"
+    | "past_due"
+    | "canceled"
+    | "paused";
+  trial_starts_at?: string | null;
+  trial_ends_at?: string | null;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
   logo_url?: string | null;
   cover_url?: string | null;
   phone?: string | null;
@@ -126,6 +136,7 @@ export type SubscriptionPlan = {
   name: string;
   max_locations: number | null;
   description: string | null;
+  monthly_price_cents?: number | null;
   is_active: boolean;
   created_at: string;
 };

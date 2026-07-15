@@ -12,11 +12,12 @@ export async function updateSession(request: NextRequest) {
 
   const isResetPasswordRoute = pathname.startsWith("/reset-password");
   const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isOwnerRoute = pathname.startsWith("/owner");
 
   const env = getSupabaseEnv();
 
   if (!env) {
-    if (isDashboardRoute || isResetPasswordRoute) {
+    if (isDashboardRoute || isOwnerRoute || isResetPasswordRoute) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("error", "supabase_not_configured");
@@ -49,7 +50,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (isDashboardRoute && !user) {
+  if ((isDashboardRoute || isOwnerRoute) && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);

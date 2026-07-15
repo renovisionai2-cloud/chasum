@@ -101,3 +101,12 @@ export function getMicrosoftOAuthConfig() {
   if (!clientId || !clientSecret) return null;
   return { clientId, clientSecret, tenantId };
 }
+
+/** Comma-separated emails allowed to access /owner (platform super admins). */
+export function getPlatformOwnerEmails(): string[] {
+  const raw = process.env.PLATFORM_OWNER_EMAILS ?? "";
+  return raw
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
