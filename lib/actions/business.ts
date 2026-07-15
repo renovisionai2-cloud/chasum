@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
 import type { Business } from "@/lib/types/booking";
 import { redirect } from "next/navigation";
 
@@ -54,7 +55,24 @@ export async function getOrCreateBusiness(): Promise<Business> {
     throw new Error(error.message);
   }
 
-  return data as Business;
+  const business = data as Business;
+  const preferred = user.user_metadata?.preferred_plan as string | undefined;
+  if (preferred) {
+    const planKey = marketingPlanIdToDbKey(preferred);
+    if (business.subscription_plan_key !== planKey) {
+      const { data: updated, error: planError } = await supabase
+        .from("businesses")
+        .update({ subscription_plan_key: planKey })
+        .eq("id", business.id)
+        .select("*")
+        .single();
+      if (!planError && updated) {
+        return updated as Business;
+      }
+    }
+  }
+
+  return business;
 }
 
 export async function getBusinessBySlug(slug: string): Promise<Business | null> {

@@ -17,7 +17,7 @@ export const APP_NAME = "Chasum";
 export const NAV_LINKS = [
   { href: "/#features", label: "Features" },
   { href: "/#how-it-works", label: "How it works" },
-  { href: "/#pricing", label: "Pricing" },
+  { href: "/pricing", label: "Pricing" },
 ] as const;
 
 export const TIMEZONES = [

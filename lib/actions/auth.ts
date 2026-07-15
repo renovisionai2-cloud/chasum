@@ -42,7 +42,10 @@ export async function signUp(
     email,
     password,
     options: {
-      data: { full_name: fullName },
+      data: {
+        full_name: fullName,
+        preferred_plan: formData.get("plan") as string | null,
+      },
       emailRedirectTo: getAuthCallbackUrl("/dashboard"),
     },
   });

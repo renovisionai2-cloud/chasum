@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Pricing & marketing messaging)
+
+- Headline: “Simple pricing that grows with your business.”
+- Subhead: Start free / upgrade when ready / no hidden fees / no appointment commissions
+- Plans: Free, Professional (⭐ Most Popular), Business, Enterprise with new taglines, descriptions, and CTAs
+- Shared constants in `lib/marketing/pricing.ts`; reusable `PlanCards`, upgrade modal, onboarding plan select
+- Free-plan limit prompt: congratulatory Professional upgrade message + CTA
+- Dedicated `/pricing` page; signup plan selection; location quota upgrade entry points
+
 ### Added (GVM Baby World — Production Launch)
 
 - `docs/GVM_GO_LIVE.md` — deployment, env, verification, smoke test, cutover, parallel run, rollback, future roadmap

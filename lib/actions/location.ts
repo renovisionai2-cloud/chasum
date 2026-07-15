@@ -1,5 +1,6 @@
 "use server";
 
+import { FREE_PLAN_LIMIT_MESSAGE } from "@/lib/marketing/pricing";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
   ALL_LOCATIONS,
@@ -135,8 +136,7 @@ export async function createLocation(
   });
   if (!canAdd) {
     return {
-      error:
-        "Your plan does not allow more locations. Upgrade your subscription to add another location.",
+      error: FREE_PLAN_LIMIT_MESSAGE,
     };
   }
 

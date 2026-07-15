@@ -1,11 +1,13 @@
 "use client";
 
 import { AddLocationDialog } from "@/components/dashboard/add-location-dialog";
+import { UpgradeToProfessionalModal } from "@/components/marketing/upgrade-to-professional-modal";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { ALL_LOCATIONS } from "@/lib/location/constants";
 import { setLocationScope } from "@/lib/actions/location";
 import type { LocationScope } from "@/lib/location/constants";
+import { FREE_PLAN_UPGRADE_CTA } from "@/lib/marketing/pricing";
 import type { Location, SubscriptionPlan } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { MapPin, Plus } from "lucide-react";
@@ -36,6 +38,7 @@ export function LocationSwitcher({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [addOpen, setAddOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   function handleChange(value: string) {
     startTransition(async () => {
@@ -48,14 +51,24 @@ export function LocationSwitcher({
     const only = locations[0];
     if (!only) return null;
     return (
-      <div
-        className={cn(
-          "flex items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground transition-colors",
-          className,
-        )}
-      >
-        <MapPin className="h-3.5 w-3.5 shrink-0" />
-        <span className="truncate">{only.name}</span>
+      <div className={cn("flex items-center gap-2", className)}>
+        <div className="flex min-w-0 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground transition-colors">
+          <MapPin className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">{only.name}</span>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-9 shrink-0 px-2.5 text-xs"
+          onClick={() => setUpgradeOpen(true)}
+        >
+          {FREE_PLAN_UPGRADE_CTA}
+        </Button>
+        <UpgradeToProfessionalModal
+          open={upgradeOpen}
+          onClose={() => setUpgradeOpen(false)}
+        />
       </div>
     );
   }
@@ -82,7 +95,7 @@ export function LocationSwitcher({
           ))}
         </Select>
       </div>
-      {quota.canAdd && (
+      {quota.canAdd ? (
         <Button
           type="button"
           variant="outline"
@@ -93,11 +106,25 @@ export function LocationSwitcher({
         >
           <Plus className="h-4 w-4" />
         </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-9 shrink-0 px-2.5 text-xs"
+          onClick={() => setUpgradeOpen(true)}
+        >
+          {FREE_PLAN_UPGRADE_CTA}
+        </Button>
       )}
       <AddLocationDialog
         open={addOpen}
         onOpenChange={setAddOpen}
         defaultTimezone={locations[0]?.timezone ?? undefined}
+      />
+      <UpgradeToProfessionalModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
       />
     </div>
   );
