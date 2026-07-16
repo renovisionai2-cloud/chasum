@@ -195,12 +195,62 @@ body {
   animation: success-pop 0.45s ease-out forwards;
 }
 
+@keyframes marketing-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes marketing-pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marketing-dashboard-float {
+  animation: marketing-float 5.5s ease-in-out infinite;
+}
+
+.marketing-pane-fade {
+  animation: marketing-pane-in 0.35s ease-out;
+}
+
+.marketing-card-lift {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.marketing-card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -16px color-mix(in srgb, var(--foreground) 28%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up,
   .animate-spark-pulse,
-  .animate-success-pop {
+  .animate-success-pop,
+  .marketing-dashboard-float,
+  .marketing-pane-fade {
     animation: none !important;
     filter: none !important;
+  }
+
+  .marketing-card-lift,
+  .marketing-card-lift:hover {
+    transition: none !important;
+    transform: none !important;
+    box-shadow: none !important;
   }
 }
 

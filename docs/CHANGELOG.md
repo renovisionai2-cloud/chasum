@@ -9,7 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed (Public marketing website)
+### Changed (Public marketing website — Phase 2)
+
+- Sticky glassmorphic nav with scroll spy, smooth section scrolling, and active-link highlighting
+- Hero: animated stats, floating dashboard preview, primary Start Free / secondary Book Demo hierarchy
+- Interactive platform showcase with clickable department tabs (AI Receptionist, CRM, Calendar, Employees, Business, Reports, Communication, Billing) that update the dashboard preview
+- Expandable industry cards (challenges, how Chasum helps, recommended modules)
+- Visual customer-journey timeline with connected steps through payment and reports
+- Comparison table readability (sticky capability column, highlighted Chasum column); pricing/FAQ/final CTA polish with subtle motion
+- Tasteful reveal/count-up/card-lift animations with `prefers-reduced-motion` respect; no auth or dashboard app changes
+
+### Changed (Public marketing website — Phase 1)
 
 - Rebuilt homepage storytelling around real Chasum departments (AI Receptionist, CRM, Calendar, Employees, Business, Reports, Communication, Billing, AI Workforce)
 - New sections: Trusted platform, Platform overview, interactive dashboard showcase, industries, customer journey, AI Workforce (Coming Soon), honest competitor comparison scaffold, expanded FAQ, stronger final CTA

@@ -61,7 +61,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     href: "/signup?plan=professional",
     price: "$79",
     priceSuffix: "/month",
-    badge: "⭐ Most Popular",
+    badge: "Most Popular",
     highlighted: true,
     features: [
       "Unlimited appointments",

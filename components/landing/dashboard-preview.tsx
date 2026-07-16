@@ -32,8 +32,18 @@ const WEEK = [
 
 type DashboardPreviewProps = {
   className?: string;
-  variant?: "overview" | "reception" | "crm" | "reports" | "emma";
+  variant?:
+    | "overview"
+    | "reception"
+    | "crm"
+    | "reports"
+    | "emma"
+    | "employees"
+    | "business"
+    | "communication"
+    | "billing";
   compact?: boolean;
+  animated?: boolean;
 };
 
 /** Presentational mirror of the real Chasum dashboard — marketing only, no live data. */
@@ -41,14 +51,15 @@ export function DashboardPreview({
   className,
   variant = "overview",
   compact = false,
+  animated = false,
 }: DashboardPreviewProps) {
   return (
     <div
       className={cn(
         "overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-lg",
+        animated && "marketing-dashboard-float",
         className,
       )}
-      aria-hidden={compact ? undefined : true}
       role="img"
       aria-label="Chasum dashboard preview"
     >
@@ -72,14 +83,18 @@ export function DashboardPreview({
               const active =
                 (variant === "overview" && item.label === "Overview") ||
                 (variant === "reception" && item.label === "Reception") ||
-                (variant === "crm" && item.label === "CRM") ||
-                (variant === "reports" && item.label === "Reports") ||
+                ((variant === "crm" || variant === "communication") &&
+                  item.label === "CRM") ||
+                ((variant === "reports" || variant === "billing") &&
+                  item.label === "Reports") ||
+                (variant === "employees" && item.label === "Employees") ||
+                (variant === "business" && item.label === "Business") ||
                 (variant === "emma" && item.label === "AI Workforce");
               return (
                 <li
                   key={item.label}
                   className={cn(
-                    "flex items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs",
+                    "flex items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs transition-colors duration-300",
                     active
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground",
@@ -93,12 +108,19 @@ export function DashboardPreview({
           </ul>
         </aside>
 
-        <div className="min-w-0 flex-1 p-4 md:p-5">
-          {variant === "overview" ? <OverviewPane compact={compact} /> : null}
-          {variant === "reception" ? <ReceptionPane /> : null}
-          {variant === "crm" ? <CrmPane /> : null}
-          {variant === "reports" ? <ReportsPane /> : null}
-          {variant === "emma" ? <EmmaPane /> : null}
+        <div className="min-w-0 flex-1 p-4 md:p-5" key={variant}>
+          <div className="marketing-pane-fade">
+            {variant === "overview" ? <OverviewPane compact={compact} /> : null}
+            {variant === "reception" ? <ReceptionPane /> : null}
+            {variant === "crm" || variant === "communication" ? (
+              <CrmPane communication={variant === "communication"} />
+            ) : null}
+            {variant === "reports" ? <ReportsPane /> : null}
+            {variant === "billing" ? <BillingPane /> : null}
+            {variant === "emma" ? <EmmaPane /> : null}
+            {variant === "employees" ? <EmployeesPane /> : null}
+            {variant === "business" ? <BusinessPane /> : null}
+          </div>
         </div>
       </div>
     </div>
@@ -183,10 +205,12 @@ function ReceptionPane() {
   );
 }
 
-function CrmPane() {
+function CrmPane({ communication = false }: { communication?: boolean }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold">CRM · Customer profile</p>
+      <p className="text-sm font-semibold">
+        {communication ? "Communication Center" : "CRM · Customer profile"}
+      </p>
       <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
         <p className="text-base font-semibold">Alex Rivera</p>
         <p className="text-xs text-muted-foreground">Preferred: SMS · Active</p>
@@ -195,7 +219,9 @@ function CrmPane() {
             Appointment confirmed · Today 9:00
           </li>
           <li className="rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
-            SMS reminder logged · Communication Center
+            {communication
+              ? "Quick Text / Email actions ready"
+              : "SMS reminder logged · Communication Center"}
           </li>
           <li className="rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
             Note: Prefers morning appointments
@@ -227,6 +253,71 @@ function ReportsPane() {
             <p className="mt-1 text-xl font-semibold tabular-nums">{value}</p>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function BillingPane() {
+  return (
+    <div className="space-y-3">
+      <p className="text-sm font-semibold">Billing · Current plan</p>
+      <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
+        <p className="text-base font-semibold">Professional</p>
+        <p className="text-xs text-muted-foreground">$79/month · Active</p>
+        <div className="mt-4 grid gap-2 text-xs">
+          <div className="flex justify-between rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
+            <span>Next invoice</span>
+            <span className="font-medium">Aug 1</span>
+          </div>
+          <div className="flex justify-between rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
+            <span>Trial / Stripe path</span>
+            <span className="font-medium">Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmployeesPane() {
+  return (
+    <div className="space-y-3">
+      <p className="text-sm font-semibold">Employees · Directory</p>
+      <ul className="space-y-2">
+        {[
+          ["Jordan Lee", "Manager · Front desk"],
+          ["Sam Patel", "Provider · Full time"],
+          ["Casey Ng", "Provider · Part time"],
+        ].map(([name, role]) => (
+          <li
+            key={name}
+            className="flex items-center justify-between rounded-[var(--radius-md)] border border-border/80 bg-background px-3 py-2"
+          >
+            <span className="text-sm font-medium">{name}</span>
+            <span className="text-xs text-muted-foreground">{role}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function BusinessPane() {
+  return (
+    <div className="space-y-3">
+      <p className="text-sm font-semibold">Business · Control center</p>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {["Locations", "Categories", "Rooms", "Taxes", "Forms", "Automation"].map(
+          (item) => (
+            <div
+              key={item}
+              className="rounded-[var(--radius-md)] border border-border/80 bg-background px-3 py-2.5 text-sm font-medium"
+            >
+              {item}
+            </div>
+          ),
+        )}
       </div>
     </div>
   );

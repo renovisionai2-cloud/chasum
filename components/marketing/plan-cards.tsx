@@ -20,8 +20,8 @@ function PlanCard({ plan }: { plan: MarketingPlan }) {
     <Card
       className={
         plan.highlighted
-          ? "relative border-primary shadow-lg shadow-primary/10"
-          : "border-border/60"
+          ? "marketing-card-lift relative scale-[1.02] border-primary shadow-lg shadow-primary/10"
+          : "marketing-card-lift border-border/60"
       }
     >
       {plan.badge ? (

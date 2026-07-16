@@ -7,11 +7,11 @@ export const DEMO_HREF =
   "mailto:sales@chasum.app?subject=Book%20a%20Chasum%20Demo";
 
 export const TRUSTED_STATS = [
-  { label: "Businesses", value: "Growing", hint: "Multi-tenant platform" },
-  { label: "Appointments", value: "Live", hint: "Scheduling engine" },
-  { label: "Revenue managed", value: "Tracked", hint: "Reports & billing" },
-  { label: "AI conversations", value: "Emma", hint: "Receptionist Phase 1" },
-  { label: "Hours saved", value: "Daily", hint: "Automation & AI assist" },
+  { label: "Departments", value: 9, suffix: "+", hint: "Real product modules" },
+  { label: "Industries served", value: 10, suffix: "+", hint: "One configurable OS" },
+  { label: "Plan tiers", value: 4, suffix: "", hint: "Free → Enterprise" },
+  { label: "AI employees named", value: 6, suffix: "", hint: "Emma live · more coming" },
+  { label: "Journey steps", value: 7, suffix: "", hint: "Book → report connected" },
 ] as const;
 
 export type PlatformModule = {
@@ -135,72 +135,87 @@ export const INDUSTRIES = [
     problem: "Intake, providers, rooms, and follow-ups scatter across tools.",
     solution:
       "Chasum unifies booking, CRM notes, forms readiness, and reception workflows with tenant-safe records.",
+    modules: ["Calendar & Booking", "CRM", "Business Management", "Communication"],
   },
   {
     name: "Salons",
     problem: "Stylist schedules, rebooking, and no-shows drain the front desk.",
     solution:
       "Staff-aware slots, CRM history, reminders, and reports show who drives revenue.",
+    modules: ["Employees", "Calendar & Booking", "CRM", "Reports"],
   },
   {
     name: "Spas",
     problem: "Packages, memberships, and treatment rooms are hard to track.",
     solution:
       "Business Management supports packages, memberships, rooms/resources, and location hours.",
+    modules: ["Business Management", "Calendar & Booking", "Billing", "CRM"],
   },
   {
     name: "Gyms",
     problem: "Classes, trainers, and memberships need one operating layer.",
     solution:
       "Employees, services, recurring patterns, and membership scaffolds sit beside CRM and billing.",
+    modules: ["Employees", "Business Management", "CRM", "Reports"],
   },
   {
     name: "Automotive",
     problem: "Bays, techs, and customer vehicles create scheduling chaos.",
     solution:
       "Resources/rooms, staff assignment, and CRM timelines keep jobs and clients connected.",
+    modules: ["Business Management", "Employees", "Calendar & Booking", "CRM"],
   },
   {
     name: "Contractors",
-    problem: "Field jobs, estimates follow-ups, and calendars rarely sync.",
+    problem: "Field jobs, estimate follow-ups, and calendars rarely sync.",
     solution:
       "Location-aware booking, CRM follow-ups, and Communication Center keep jobs moving.",
+    modules: ["Calendar & Booking", "CRM", "Communication", "Employees"],
   },
   {
     name: "Photography",
     problem: "Sessions, edits, and client communication live in inboxes.",
     solution:
       "Public booking, deposits/commercial appointment fields, and CRM keep shoots organized.",
+    modules: ["Calendar & Booking", "CRM", "Billing", "Reports"],
   },
   {
     name: "Pet Services",
     problem: "Recurring visits and pet notes get lost between bookings.",
     solution:
       "CRM profiles, notes, reminders, and calendar protect the relationship and the schedule.",
+    modules: ["CRM", "Calendar & Booking", "Communication", "AI Receptionist"],
   },
   {
     name: "Cleaning",
     problem: "Recurring routes and last-minute changes overwhelm dispatch.",
     solution:
       "Scheduling engine, waitlist, automation rules, and employee assignments reduce scramble.",
+    modules: ["Calendar & Booking", "Employees", "Business Management", "Reports"],
   },
   {
     name: "Professional Services",
     problem: "Consultants need polished booking without a full clinic stack.",
     solution:
       "Branded booking pages, CRM, reports, and Free → Enterprise plans scale with the practice.",
+    modules: ["Calendar & Booking", "CRM", "Reports", "Billing"],
   },
 ] as const;
 
 export const CUSTOMER_JOURNEY = [
-  { step: "1", title: "Customer books", detail: "Public booking page or reception creates the visit." },
-  { step: "2", title: "AI Receptionist responds", detail: "Emma answers from real hours, services, and staff." },
-  { step: "3", title: "Appointment scheduled", detail: "Slots come only from get_available_slots — never invented." },
-  { step: "4", title: "CRM updated", detail: "Customer profile and timeline capture the interaction." },
-  { step: "5", title: "Calendar updated", detail: "Reception calendar reflects the booking across views." },
-  { step: "6", title: "Reminder sent", detail: "Communication Center / jobs send email or SMS when configured." },
-  { step: "7", title: "Payment collected", detail: "Deposits, CRM payment events, and billing stay linked." },
-  { step: "8", title: "Reports updated", detail: "Revenue and appointment KPIs refresh for the owner." },
+  { step: "1", title: "Customer books", detail: "Public booking or reception creates the visit." },
+  { step: "2", title: "Emma responds", detail: "AI Receptionist answers from real business data." },
+  { step: "3", title: "CRM updates", detail: "Profile and timeline capture the interaction." },
+  { step: "4", title: "Appointment confirmed", detail: "Scheduling engine books a real open slot." },
+  { step: "5", title: "Reminder sent", detail: "Communication Center delivers email or SMS." },
+  { step: "6", title: "Payment collected", detail: "Deposits and payment events stay linked." },
+  { step: "7", title: "Reports updated", detail: "Owner KPIs refresh across the business." },
+] as const;
+
+export const HERO_STATS = [
+  { label: "Departments", value: 9, suffix: "+" },
+  { label: "AI Receptionist", value: 1, suffix: " live" },
+  { label: "Plan options", value: 4, suffix: "" },
 ] as const;
 
 export const AI_EMPLOYEES_PREVIEW = [

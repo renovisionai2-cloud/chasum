@@ -1,4 +1,5 @@
 import { SparkMark } from "@/components/brand/marks";
+import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
 import { DEMO_HREF } from "@/lib/marketing/homepage";
 import { ArrowRight } from "lucide-react";
@@ -6,45 +7,50 @@ import Link from "next/link";
 
 export function CTA() {
   return (
-    <section className="px-6 py-20 md:py-28" aria-labelledby="final-cta-heading">
-      <div className="mx-auto max-w-4xl">
-        <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-primary px-8 py-16 text-center shadow-lg md:px-16">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_50%)]" />
-          <div className="relative mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-primary-foreground">
-            <SparkMark className="h-6 w-6" />
+    <section
+      className="relative overflow-hidden px-6 py-24 md:py-32"
+      aria-labelledby="final-cta-heading"
+    >
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/40 via-background to-muted/30" />
+        <div className="absolute inset-0 brand-glow opacity-80" />
+        <div className="absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute -right-16 bottom-0 h-64 w-64 rounded-full bg-spark/20 blur-3xl" />
+      </div>
+
+      <Reveal>
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mb-8 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-border/60 bg-card/80 text-primary shadow-sm backdrop-blur-sm">
+            <SparkMark className="h-7 w-7" />
           </div>
           <h2
             id="final-cta-heading"
-            className="relative text-3xl font-semibold tracking-tight text-primary-foreground md:text-4xl"
+            className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl md:leading-[1.1]"
           >
-            Ready to run your business on Chasum?
+            Your business deserves an operating system.
           </h2>
-          <p className="relative mx-auto mt-4 max-w-xl text-primary-foreground/80">
+          <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
             Start free with the real product — CRM, calendar, reports, billing,
             and Emma — or book a demo with our team.
           </p>
-          <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/signup">
-              <Button
-                size="lg"
-                className="min-w-[180px] bg-white text-primary hover:bg-white/90"
-              >
+              <Button size="lg" className="min-w-[200px] shadow-md shadow-primary/25">
                 Start Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <a href={DEMO_HREF}>
-              <Button
-                size="lg"
-                variant="outline"
-                className="min-w-[180px] border-white/40 bg-transparent text-primary-foreground hover:bg-white/10"
-              >
+              <Button variant="outline" size="lg" className="min-w-[200px]">
                 Book Demo
               </Button>
             </a>
           </div>
+          <p className="mt-6 text-sm text-muted-foreground">
+            No credit card required · Cancel anytime
+          </p>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
