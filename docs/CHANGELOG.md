@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Communication Center Phase 1)
+
+- Customer profile communication tools: Call / Text / Email, copy phone & email, Open Maps
+- Communication Center on client profiles — timeline, email/SMS/reminder history, internal notes, follow-up reminders
+- Appointment dialog Quick Call / Quick Text / Quick Email (booking engine unchanged)
+- `communication_history` + `communication_follow_ups` tables (migration `016_communication_center_phase1.sql`)
+- Pluggable communication service (`lib/communication/*`) ready for Twilio, Resend, push, WhatsApp, and AI adapters
+- Optional customer `address` field for Maps
+
 ### Added (Billing Phase 1)
 
 - Subscription foundation for Free, Professional, Business, Enterprise (catalog + list prices)

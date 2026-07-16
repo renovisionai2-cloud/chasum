@@ -50,6 +50,15 @@ function CustomerForm({
         <Input id="phone" name="phone" type="tel" defaultValue={customer?.phone ?? ""} />
       </div>
       <div className="space-y-2">
+        <Label htmlFor="address">Address</Label>
+        <Input
+          id="address"
+          name="address"
+          placeholder="Street, city, state…"
+          defaultValue={customer?.address ?? ""}
+        />
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="referral_source">Referral source</Label>
         <Input
           id="referral_source"

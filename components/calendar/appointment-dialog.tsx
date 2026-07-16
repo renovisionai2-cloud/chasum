@@ -1,5 +1,6 @@
 "use client";
 
+import { QuickCommActions } from "@/components/communication/quick-comm-actions";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -432,6 +433,25 @@ export function AppointmentDialog({
                   </option>
                 ))}
               </Select>
+              {selectedCustomerId
+                ? (() => {
+                    const selected =
+                      customers.find((c) => c.id === selectedCustomerId) ??
+                      appointment?.customer;
+                    if (!selected) return null;
+                    return (
+                      <QuickCommActions
+                        customer={{
+                          id: selected.id,
+                          name: selected.name,
+                          email: selected.email,
+                          phone: selected.phone,
+                        }}
+                        appointmentId={appointment?.id}
+                      />
+                    );
+                  })()
+                : null}
             </>
           )}
         </div>

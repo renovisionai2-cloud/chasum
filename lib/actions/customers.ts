@@ -1,6 +1,7 @@
 "use server";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import { getCommunicationService } from "@/lib/communication/service";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -37,6 +38,7 @@ export async function createCustomer(
   const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim();
   const phone = (formData.get("phone") as string) || null;
+  const address = (formData.get("address") as string)?.trim() || null;
   const notes = (formData.get("notes") as string) || null;
   const referralSource =
     (formData.get("referral_source") as string)?.trim() || null;
@@ -55,6 +57,7 @@ export async function createCustomer(
     name,
     email,
     phone,
+    address,
     notes,
     tags,
     referral_source: referralSource,
@@ -132,6 +135,7 @@ export async function updateCustomer(
       name: (formData.get("name") as string).trim(),
       email: (formData.get("email") as string).trim(),
       phone: (formData.get("phone") as string) || null,
+      address: (formData.get("address") as string)?.trim() || null,
       notes: (formData.get("notes") as string) || null,
       referral_source:
         (formData.get("referral_source") as string)?.trim() || null,
@@ -178,7 +182,7 @@ export async function getCustomerProfile(id: string) {
   const { data: appointments } = await supabase
     .from("appointments")
     .select(
-      `*, service:services(name, color, price), staff:staff(name), location:locations(name)`,
+      `*, service:services(name, color, price), staff:staff(name), location:locations(name, address_line1, address_line2, city, state, postal_code)`,
     )
     .eq("customer_id", id)
     .eq("business_id", business.id)
@@ -190,6 +194,11 @@ export async function getCustomerProfile(id: string) {
     .eq("customer_id", id)
     .eq("business_id", business.id)
     .order("created_at", { ascending: false });
+
+  const communications = await getCommunicationService().listForCustomer(
+    business.id,
+    id,
+  );
 
   const rows = appointments ?? [];
   const now = new Date();
@@ -219,6 +228,7 @@ export async function getCustomerProfile(id: string) {
   return {
     customer,
     documents: documents ?? [],
+    communications,
     appointments: rows,
     upcoming,
     history,

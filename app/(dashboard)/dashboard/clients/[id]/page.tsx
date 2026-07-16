@@ -1,3 +1,4 @@
+import { CommunicationCenter } from "@/components/communication/communication-center";
 import { CustomerDocumentsPanel } from "@/components/customers/customer-documents-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge, TagBadge } from "@/components/ui/badge";
@@ -28,6 +29,23 @@ import {
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+function formatLocationAddress(location: {
+  address_line1?: string | null;
+  address_line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+} | null | undefined): string | null {
+  if (!location) return null;
+  const parts = [
+    location.address_line1,
+    location.address_line2,
+    [location.city, location.state].filter(Boolean).join(", "),
+    location.postal_code,
+  ].filter((part) => Boolean(part && String(part).trim()));
+  return parts.length > 0 ? parts.join(", ") : null;
+}
 
 function AppointmentList({
   items,
@@ -87,9 +105,32 @@ export default async function CustomerProfilePage({ params }: PageProps) {
 
   if (!profile) notFound();
 
-  const { customer, documents, upcoming, history, cancellations, noShows, metrics, appointments } =
-    profile;
+  const {
+    customer,
+    documents,
+    communications,
+    upcoming,
+    history,
+    cancellations,
+    noShows,
+    metrics,
+    appointments,
+  } = profile;
   const prefs = preferredFromHistory(appointments);
+  const preferredLocation = appointments.find(
+    (appt) => appt.location?.name === prefs.preferredLocationName,
+  )?.location as
+    | {
+        name?: string;
+        address_line1?: string | null;
+        address_line2?: string | null;
+        city?: string | null;
+        state?: string | null;
+        postal_code?: string | null;
+      }
+    | undefined;
+  const mapsAddress =
+    customer.address?.trim() || formatLocationAddress(preferredLocation);
 
   return (
     <div className="ds-page">
@@ -159,6 +200,12 @@ export default async function CustomerProfilePage({ params }: PageProps) {
                 <Phone className="h-4 w-4" aria-hidden="true" /> {customer.phone}
               </p>
             )}
+            {customer.address ? (
+              <p className="flex items-start gap-2 text-muted-foreground">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>{customer.address}</span>
+              </p>
+            ) : null}
             {customer.referral_source && (
               <p className="text-sm text-muted-foreground">
                 Referral: {customer.referral_source}
@@ -196,14 +243,6 @@ export default async function CustomerProfilePage({ params }: PageProps) {
                 ))}
               </div>
             )}
-            {customer.notes ? (
-              <div className="pt-2">
-                <p className="ds-label mb-1">Internal notes</p>
-                <p className="text-muted-foreground">{customer.notes}</p>
-              </div>
-            ) : (
-              <p className="pt-2 text-xs text-muted-foreground">No notes yet.</p>
-            )}
           </CardContent>
         </Card>
 
@@ -220,6 +259,19 @@ export default async function CustomerProfilePage({ params }: PageProps) {
           </CardContent>
         </Card>
       </div>
+
+      <CommunicationCenter
+        customer={{
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          address: customer.address,
+          notes: customer.notes,
+        }}
+        mapsAddress={mapsAddress}
+        bundle={communications}
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
