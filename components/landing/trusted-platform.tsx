@@ -8,7 +8,7 @@ export function TrustedPlatform() {
   return (
     <section
       id="trusted"
-      className="scroll-mt-20 border-y border-border bg-muted/30 px-6 py-14 md:py-16"
+      className="scroll-mt-20 border-y border-border bg-muted/30 px-6 py-20 md:py-24"
       aria-labelledby="trusted-heading"
     >
       <div className="mx-auto max-w-6xl">

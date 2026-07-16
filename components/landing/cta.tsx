@@ -8,7 +8,7 @@ import Link from "next/link";
 export function CTA() {
   return (
     <section
-      className="relative overflow-hidden px-6 py-24 md:py-32"
+      className="relative overflow-hidden px-6 py-28 md:py-40"
       aria-labelledby="final-cta-heading"
     >
       <div className="pointer-events-none absolute inset-0 -z-10">

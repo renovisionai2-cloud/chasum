@@ -11,7 +11,7 @@ export function AiWorkforceSection() {
   return (
     <section
       id="ai-workforce"
-      className="relative isolate scroll-mt-20 overflow-hidden px-6 py-20 md:py-28"
+      className="relative isolate scroll-mt-20 overflow-hidden px-6 py-24 md:py-36"
       aria-labelledby="ai-workforce-heading"
     >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-background via-primary/[0.035] to-background" />

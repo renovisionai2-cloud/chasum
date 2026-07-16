@@ -136,7 +136,7 @@ export function DashboardShowcase() {
   return (
     <section
       id="showcase"
-      className="scroll-mt-20 overflow-hidden border-y border-border bg-muted/30 px-6 py-20 md:py-28"
+      className="scroll-mt-20 overflow-hidden border-y border-border bg-muted/30 px-6 py-24 md:py-36"
       aria-labelledby="showcase-heading"
     >
       <div className="mx-auto max-w-7xl">
@@ -160,7 +160,7 @@ export function DashboardShowcase() {
 
         <Reveal delayMs={80}>
           <div
-            className="mt-10 flex gap-2 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-center"
+            className="mt-10 -mx-1 flex gap-2 overflow-x-auto px-1 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-center"
             role="tablist"
             aria-label="Departments"
           >
@@ -174,13 +174,16 @@ export function DashboardShowcase() {
                 aria-selected={selectedTab === item.id}
                 onClick={() => selectTourTab(item.id)}
                 className={cn(
-                  "group flex shrink-0 items-center gap-2 rounded-[var(--radius-md)] border px-3 py-2.5 text-xs font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "group flex min-h-11 shrink-0 items-center gap-2 rounded-[var(--radius-md)] border px-3.5 py-2.5 text-xs font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-sm",
                   selectedTab === item.id
                     ? "border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20"
                     : "border-border/70 bg-card/80 text-muted-foreground hover:-translate-y-0.5 hover:border-primary/30 hover:bg-card hover:text-foreground hover:shadow-sm",
                 )}
               >
-                <item.icon className="h-3.5 w-3.5 transition-transform duration-300 group-hover:scale-110" />
+                <item.icon
+                  className="h-4 w-4 transition-transform duration-300 group-hover:scale-110"
+                  strokeWidth={1.75}
+                />
                 {item.label}
               </button>
             ))}
@@ -225,7 +228,8 @@ export function DashboardShowcase() {
 
               <DashboardPreview
                 variant={active.preview}
-                className="marketing-preview-glow min-h-[420px] shadow-2xl md:min-h-[520px]"
+                live
+                className="marketing-preview-glow min-h-[360px] w-full max-w-full shadow-2xl md:min-h-[520px]"
               />
 
               <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-5 sm:flex-row">

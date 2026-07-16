@@ -5,7 +5,7 @@ export function Faq() {
   return (
     <section
       id="faq"
-      className="scroll-mt-20 px-6 py-20 md:py-28"
+      className="scroll-mt-20 px-6 py-24 md:py-36"
       aria-labelledby="faq-heading"
     >
       <div className="mx-auto max-w-3xl">

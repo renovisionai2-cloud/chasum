@@ -6,7 +6,7 @@ export function CustomerJourney() {
   return (
     <section
       id="journey"
-      className="scroll-mt-20 border-y border-border bg-muted/30 px-6 py-20 md:py-28"
+      className="scroll-mt-20 border-y border-border bg-muted/30 px-6 py-24 md:py-36"
       aria-labelledby="journey-heading"
     >
       <div className="mx-auto max-w-2xl">

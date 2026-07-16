@@ -5,9 +5,13 @@ import { CustomerJourney } from "@/components/landing/customer-journey";
 import { DashboardShowcase } from "@/components/landing/dashboard-showcase";
 import { Faq } from "@/components/landing/faq";
 import { Hero } from "@/components/landing/hero";
+import { ImpactCounters } from "@/components/landing/impact-counters";
 import { Industries } from "@/components/landing/industries";
+import { LogoCloud } from "@/components/landing/logo-cloud";
+import { PageFade } from "@/components/landing/page-fade";
 import { PlatformOverview } from "@/components/landing/platform-overview";
 import { Pricing } from "@/components/landing/pricing";
+import { Testimonials } from "@/components/landing/testimonials";
 import { TrustedPlatform } from "@/components/landing/trusted-platform";
 import type { Metadata } from "next";
 
@@ -24,18 +28,21 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <>
+    <PageFade>
       <Hero />
+      <LogoCloud />
+      <ImpactCounters />
       <TrustedPlatform />
       <PlatformOverview />
       <DashboardShowcase />
       <Industries />
       <CustomerJourney />
       <AiWorkforceSection />
+      <Testimonials />
       <Comparison />
       <Pricing />
       <Faq />
       <CTA />
-    </>
+    </PageFade>
   );
 }

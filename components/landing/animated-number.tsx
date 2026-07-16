@@ -12,16 +12,20 @@ function getReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/** Animates an integer when it enters the viewport. */
+/** Animates a number when it enters the viewport. */
 export function AnimatedNumber({
   value,
   suffix = "",
+  prefix = "",
   durationMs = 1100,
+  decimals = 0,
   className,
 }: {
   value: number;
   suffix?: string;
+  prefix?: string;
   durationMs?: number;
+  decimals?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -44,7 +48,7 @@ export function AnimatedNumber({
           observer.disconnect();
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.35 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -57,18 +61,23 @@ export function AnimatedNumber({
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / durationMs);
       const eased = 1 - (1 - t) ** 3;
-      setDisplay(Math.round(value * eased));
+      setDisplay(value * eased);
       if (t < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [started, value, durationMs, reducedMotion]);
 
-  const shown = reducedMotion ? value : display;
+  const raw = reducedMotion ? value : display;
+  const formatted =
+    decimals > 0
+      ? raw.toFixed(decimals)
+      : Math.round(raw).toLocaleString("en-US");
 
   return (
     <span ref={ref} className={className}>
-      {shown}
+      {prefix}
+      {formatted}
       {suffix}
     </span>
   );

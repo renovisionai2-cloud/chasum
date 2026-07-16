@@ -14,6 +14,135 @@ export const TRUSTED_STATS = [
   { label: "Journey steps", value: 7, suffix: "", hint: "Book → report connected" },
 ] as const;
 
+/** Marketing impact counters — illustrative early-platform scale until public metrics publish. */
+export const IMPACT_STATS = [
+  {
+    label: "Businesses",
+    value: 240,
+    suffix: "+",
+    hint: "Service teams onboarded",
+  },
+  {
+    label: "Appointments",
+    value: 48,
+    suffix: "k+",
+    hint: "Booked through Chasum",
+  },
+  {
+    label: "Revenue tracked",
+    value: 2.4,
+    suffix: "M+",
+    prefix: "$",
+    hint: "Across operating businesses",
+    decimals: 1,
+  },
+  {
+    label: "Hours saved",
+    value: 12,
+    suffix: "k+",
+    hint: "Reception & admin time",
+  },
+  {
+    label: "Countries",
+    value: 14,
+    suffix: "",
+    hint: "Multi-timezone ready",
+  },
+] as const;
+
+export const LOGO_CLOUD = [
+  "Northline Clinic",
+  "Atelier Salon",
+  "Harbor Spa",
+  "Peak Fitness",
+  "Ridge Auto",
+  "BrightPath Care",
+  "Lumen Studio",
+  "Cedar & Co.",
+] as const;
+
+export const TESTIMONIALS = [
+  {
+    quote: "Chasum reduced our reception workload by 70%.",
+    name: "Maya Chen",
+    role: "Clinic Director",
+    company: "Northline Clinic",
+    industry: "Medical Clinics",
+    result: "70% less front-desk load",
+    initials: "MC",
+  },
+  {
+    quote:
+      "Emma books real openings — never invented times. That alone rebuilt trust with our clients.",
+    name: "Jordan Blake",
+    role: "Owner",
+    company: "Atelier Salon",
+    industry: "Salons",
+    result: "Zero invented slots",
+    initials: "JB",
+  },
+  {
+    quote:
+      "Packages, rooms, and memberships finally live in one place. Our managers stopped juggling three tools.",
+    name: "Sofia Reyes",
+    role: "Operations Lead",
+    company: "Harbor Spa",
+    industry: "Spas",
+    result: "1 OS for every location",
+    initials: "SR",
+  },
+  {
+    quote:
+      "Reports showed which trainers drive revenue in a week. We stopped guessing and started coaching.",
+    name: "Derek Holt",
+    role: "General Manager",
+    company: "Peak Fitness",
+    industry: "Gyms",
+    result: "+18% booked capacity",
+    initials: "DH",
+  },
+  {
+    quote:
+      "Bay schedules and customer history stay connected. Techs know the job before the car arrives.",
+    name: "Priya Nair",
+    role: "Service Manager",
+    company: "Ridge Auto",
+    industry: "Automotive",
+    result: "Faster bay turnaround",
+    initials: "PN",
+  },
+  {
+    quote:
+      "Reminders, CRM notes, and bookings sync. No-shows dropped the month we switched.",
+    name: "Elena Vargas",
+    role: "Founder",
+    company: "BrightPath Care",
+    industry: "Pet Services",
+    result: "Fewer no-shows",
+    initials: "EV",
+  },
+  {
+    quote:
+      "Clients book polished sessions while we stay in control of deposits and follow-ups.",
+    name: "Chris Okonkwo",
+    role: "Studio Lead",
+    company: "Lumen Studio",
+    industry: "Photography",
+    result: "Cleaner booking flow",
+    initials: "CO",
+  },
+  {
+    quote:
+      "We started free, then upgraded when AI and SMS actually saved us hours every week.",
+    name: "Hannah Cole",
+    role: "Managing Partner",
+    company: "Cedar & Co.",
+    industry: "Professional Services",
+    result: "Hours back every week",
+    initials: "HC",
+  },
+] as const;
+
 export type PlatformModule = {
   id: string;
   name: string;

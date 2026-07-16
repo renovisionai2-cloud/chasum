@@ -274,11 +274,60 @@ body {
 }
 
 .marketing-pane-fade {
-  animation: marketing-pane-in 0.35s ease-out;
+  animation: marketing-pane-in 0.28s ease-out;
 }
 
 .marketing-tour-transition {
-  animation: marketing-pane-in 0.45s ease-out;
+  animation: marketing-pane-in 0.32s ease-out;
+}
+
+@keyframes marketing-preview-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.marketing-preview-enter {
+  animation: marketing-preview-enter 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes marketing-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.marketing-toast {
+  animation: marketing-toast-in 0.4s ease-out;
+}
+
+@keyframes marketing-row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.marketing-row-in {
+  animation: marketing-row-in 0.35s ease-out;
+}
+
+.marketing-section {
+  @apply px-6 py-24 md:py-36;
 }
 
 .marketing-preview-glow {
@@ -350,6 +399,9 @@ body {
   .marketing-dashboard-float,
   .marketing-pane-fade,
   .marketing-tour-transition,
+  .marketing-preview-enter,
+  .marketing-toast,
+  .marketing-row-in,
   .marketing-orb {
     animation: none !important;
     filter: none !important;

@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Public marketing website — Phase 3)
+
+- Replaced static department previews with live interactive demos: animated charts, changing appointments, growing revenue, notifications, AI typing responses, and status updates (respects reduced motion)
+- Added impact counters (Businesses, Appointments, Revenue, Hours saved, Countries), logo cloud placeholders, and an 8-story testimonial section with photo placeholders and results chips
+- Soft page-load fade-in; dashboard previews animate into place; premium icon treatments on Platform modules; larger tour tap targets and more breathing room across sections
+- Mobile-safe tour tabs (no horizontal page scroll); kept brand, auth, and dashboard app code untouched
+
 ### Changed (Public marketing website — Phase 2.2)
 
 - Refined the existing visual system with a softly animated hero atmosphere, stronger type hierarchy, floating dashboard stage, animated statistics, trust badges, and smoother CTA interactions
