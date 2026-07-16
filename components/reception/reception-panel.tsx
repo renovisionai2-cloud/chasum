@@ -6,7 +6,7 @@ import { CustomerSearch } from "@/components/reception/customer-search";
 import { NextSlotCard } from "@/components/reception/next-slot-card";
 import { QuickAppointmentForm } from "@/components/reception/quick-appointment";
 import { TodayNotes } from "@/components/reception/today-notes";
-import { WaitlistPlaceholder } from "@/components/reception/waitlist-placeholder";
+import { ReceptionWaitlistPanel } from "@/components/reception/reception-waitlist-panel";
 import { Button } from "@/components/ui/button";
 import type { NextAvailableSlot } from "@/lib/actions/reception";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
@@ -20,12 +20,24 @@ import type {
 import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
+type WaitlistEntry = {
+  id: string;
+  status: string;
+  preferred_date: string;
+  notes: string | null;
+  priority?: number;
+  customer?: { name?: string; email?: string } | null;
+  service?: { name?: string } | null;
+  staff?: { name?: string } | null;
+};
+
 type ReceptionPanelProps = {
   customers: Customer[];
   services: Service[];
   staff: StaffWithServices[];
   locations: Location[];
   insights: DashboardInsight[];
+  waitlist?: WaitlistEntry[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBooked: () => void;
@@ -42,6 +54,7 @@ export function ReceptionPanel({
   staff,
   locations,
   insights,
+  waitlist = [],
   open,
   onOpenChange,
   onBooked,
@@ -211,7 +224,7 @@ export function ReceptionPanel({
         />
         <TodayNotes />
         <AiSuggestionsCard insights={insights} />
-        <WaitlistPlaceholder />
+        <ReceptionWaitlistPanel entries={waitlist} />
       </div>
     </aside>
   );

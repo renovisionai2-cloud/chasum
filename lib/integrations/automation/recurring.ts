@@ -1,11 +1,11 @@
-import { addDays, addWeeks, addMonths, parseISO } from "date-fns";
+import { addDays, addWeeks, addMonths, addYears, parseISO } from "date-fns";
 import { createServiceClient } from "@/lib/supabase/service";
 import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchestrator";
 import type { RecurrenceFrequency } from "@/lib/types/integrations";
 
 function nextOccurrenceDate(
   current: Date,
-  frequency: RecurrenceFrequency,
+  frequency: RecurrenceFrequency | "yearly",
   interval: number,
 ): Date {
   switch (frequency) {
@@ -17,6 +17,10 @@ function nextOccurrenceDate(
       return addWeeks(current, 2 * interval);
     case "monthly":
       return addMonths(current, interval);
+    case "yearly":
+      return addYears(current, interval);
+    default:
+      return addWeeks(current, interval);
   }
 }
 
@@ -40,6 +44,17 @@ export async function generateRecurringOccurrences(ruleId: string) {
 
   if (!service) return;
 
+  let locationId = (rule.location_id as string | null) ?? null;
+  if (!locationId) {
+    const { data: staff } = await supabase
+      .from("staff")
+      .select("location_id")
+      .eq("id", rule.staff_id)
+      .maybeSingle();
+    locationId = (staff?.location_id as string | null) ?? null;
+  }
+  if (!locationId) return;
+
   const { count } = await supabase
     .from("appointments")
     .select("id", { count: "exact", head: true })
@@ -53,23 +68,39 @@ export async function generateRecurringOccurrences(ruleId: string) {
   while (currentDate <= now) {
     currentDate = nextOccurrenceDate(
       currentDate,
-      rule.frequency as RecurrenceFrequency,
+      rule.frequency as RecurrenceFrequency | "yearly",
       rule.interval_count,
     );
   }
 
   if (rule.end_date && currentDate > parseISO(rule.end_date)) return;
 
-  const [hours, minutes] = rule.start_time.split(":").map(Number);
+  const [hours, minutes] = String(rule.start_time).split(":").map(Number);
   const startTime = new Date(currentDate);
   startTime.setHours(hours, minutes, 0, 0);
   const endTime = new Date(startTime);
   endTime.setMinutes(endTime.getMinutes() + service.duration_minutes);
 
+  const { error: validationError } = await supabase.rpc(
+    "validate_appointment_slot",
+    {
+      p_business_id: rule.business_id,
+      p_service_id: rule.service_id,
+      p_staff_id: rule.staff_id,
+      p_start_time: startTime.toISOString(),
+      p_end_time: endTime.toISOString(),
+      p_exclude_appointment_id: null,
+      p_location_id: locationId,
+    },
+  );
+
+  if (validationError) return;
+
   const { data: appointment, error } = await supabase
     .from("appointments")
     .insert({
       business_id: rule.business_id,
+      location_id: locationId,
       service_id: rule.service_id,
       staff_id: rule.staff_id,
       customer_id: rule.customer_id,

@@ -31,7 +31,12 @@ export type JobType =
 
 export type WaitlistStatus = "waiting" | "notified" | "booked" | "cancelled";
 
-export type RecurrenceFrequency = "daily" | "weekly" | "biweekly" | "monthly";
+export type RecurrenceFrequency =
+  | "daily"
+  | "weekly"
+  | "biweekly"
+  | "monthly"
+  | "yearly";
 
 export type CalendarConnection = {
   id: string;

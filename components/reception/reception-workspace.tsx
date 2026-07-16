@@ -21,6 +21,16 @@ type ReceptionWorkspaceProps = {
   staff: StaffWithServices[];
   customers: Customer[];
   locations: Location[];
+  waitlist?: Array<{
+    id: string;
+    status: string;
+    preferred_date: string;
+    notes: string | null;
+    priority?: number;
+    customer?: { name?: string; email?: string } | null;
+    service?: { name?: string } | null;
+    staff?: { name?: string } | null;
+  }>;
   initialDate: string;
   initialView: CalendarView;
   focusAppointmentId?: string | null;
@@ -34,6 +44,7 @@ export function ReceptionWorkspace({
   staff,
   customers,
   locations,
+  waitlist = [],
   initialDate,
   initialView,
   focusAppointmentId = null,
@@ -47,6 +58,7 @@ export function ReceptionWorkspace({
         staff={staff}
         customers={customers}
         locations={locations}
+        waitlist={waitlist}
         initialDate={initialDate}
         initialView={initialView}
         insights={insights}

@@ -324,6 +324,19 @@ export type Appointment = {
   end_time: string;
   status: AppointmentStatus;
   notes: string | null;
+  recurring_rule_id?: string | null;
+  external_event_id?: string | null;
+  room_id?: string | null;
+  color?: string | null;
+  price_cents?: number | null;
+  tax_cents?: number;
+  discount_cents?: number;
+  deposit_cents?: number;
+  invoice_number?: string | null;
+  internal_notes?: string | null;
+  custom_fields?: Record<string, unknown>;
+  travel_minutes?: number;
+  timezone?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -335,7 +348,15 @@ export type AppointmentWithRelations = Appointment & {
   location?: Pick<Location, "id" | "name">;
 };
 
-export type CalendarView = "day" | "week" | "month";
+export type CalendarView =
+  | "day"
+  | "week"
+  | "month"
+  | "agenda"
+  | "timeline"
+  | "resource"
+  | "locations"
+  | "employees";
 
 export type ActionState = {
   error?: string;

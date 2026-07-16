@@ -3,15 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Tabs } from "@/components/ui/tabs";
 import {
-  formatDate,
   formatDayHeader,
   formatMonthYear,
   formatWeekRange,
 } from "@/lib/calendar/utils";
 import type { CalendarView } from "@/lib/types/booking";
 import type { CalendarColorMode } from "@/components/calendar/appointment-block";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import { addDays, addMonths, addWeeks, subDays, subMonths, subWeeks } from "date-fns";
+import { ChevronLeft, ChevronRight, Plus, Undo2 } from "lucide-react";
+import { addDays, addMonths, addWeeks, format } from "date-fns";
 
 type CalendarToolbarProps = {
   view: CalendarView;
@@ -21,30 +20,45 @@ type CalendarToolbarProps = {
   onDateChange: (date: Date) => void;
   onColorModeChange: (mode: CalendarColorMode) => void;
   onNewAppointment: () => void;
+  onUndo?: () => void;
+  onDuplicate?: () => void;
+  canDuplicate?: boolean;
 };
 
 const viewTabs = [
   { id: "day", label: "Day" },
   { id: "week", label: "Week" },
   { id: "month", label: "Month" },
+  { id: "agenda", label: "Agenda" },
+  { id: "timeline", label: "Timeline" },
+  { id: "employees", label: "Employees" },
+  { id: "locations", label: "Locations" },
+  { id: "resource", label: "Resources" },
 ];
 
 function getTitle(view: CalendarView, date: Date): string {
   switch (view) {
     case "day":
+    case "timeline":
+    case "employees":
+    case "locations":
+    case "resource":
       return formatDayHeader(date);
     case "week":
+    case "agenda":
       return formatWeekRange(date);
     case "month":
       return formatMonthYear(date);
+    default:
+      return format(date, "MMM d, yyyy");
   }
 }
 
 function navigate(view: CalendarView, date: Date, direction: "prev" | "next"): Date {
-  const fn = direction === "prev"
-    ? { day: subDays, week: subWeeks, month: subMonths }
-    : { day: addDays, week: addWeeks, month: addMonths };
-  return fn[view](date, 1);
+  const delta = direction === "prev" ? -1 : 1;
+  if (view === "month") return addMonths(date, delta);
+  if (view === "week" || view === "agenda") return addWeeks(date, delta);
+  return addDays(date, delta);
 }
 
 export function CalendarToolbar({
@@ -55,6 +69,9 @@ export function CalendarToolbar({
   onDateChange,
   onColorModeChange,
   onNewAppointment,
+  onUndo,
+  onDuplicate,
+  canDuplicate,
 }: CalendarToolbarProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -117,6 +134,23 @@ export function CalendarToolbar({
           activeTab={view}
           onChange={(id) => onViewChange(id as CalendarView)}
         />
+        {onUndo ? (
+          <Button type="button" size="sm" variant="outline" onClick={onUndo}>
+            <Undo2 className="h-4 w-4" />
+            Undo
+          </Button>
+        ) : null}
+        {onDuplicate ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={!canDuplicate}
+            onClick={onDuplicate}
+          >
+            Duplicate
+          </Button>
+        ) : null}
         <Button size="sm" onClick={onNewAppointment}>
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">New appointment</span>
@@ -127,4 +161,4 @@ export function CalendarToolbar({
   );
 }
 
-export { formatDate };
+export { format };

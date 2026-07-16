@@ -112,6 +112,8 @@ export async function addToWaitlist(
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/waitlist");
+  revalidatePath("/dashboard/calendar");
+  revalidatePath("/dashboard/automation");
   return { success: "Added to waitlist." };
 }
 
@@ -128,6 +130,8 @@ export async function removeFromWaitlist(id: string): Promise<ActionState> {
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/waitlist");
+  revalidatePath("/dashboard/calendar");
+  revalidatePath("/dashboard/automation");
   return { success: "Removed from waitlist." };
 }
 

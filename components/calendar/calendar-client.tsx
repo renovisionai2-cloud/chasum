@@ -10,6 +10,11 @@ import {
   MonthView,
   WeekView,
 } from "@/components/calendar/calendar-views";
+import {
+  AgendaView,
+  ResourceView,
+  TimelineView,
+} from "@/components/calendar/calendar-views-extended";
 import { ColorLegend } from "@/components/reception/color-legend";
 import {
   BlockTimeDialog,
@@ -24,6 +29,10 @@ import {
   rescheduleAppointment,
   resizeAppointment,
 } from "@/lib/actions/appointments";
+import {
+  duplicateAppointment,
+  undoLastAppointmentChange,
+} from "@/lib/actions/booking-engine";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import {
@@ -69,6 +78,16 @@ type CalendarClientProps = {
   initialDate: string;
   initialView: CalendarView;
   insights?: DashboardInsight[];
+  waitlist?: Array<{
+    id: string;
+    status: string;
+    preferred_date: string;
+    notes: string | null;
+    priority?: number;
+    customer?: { name?: string; email?: string } | null;
+    service?: { name?: string } | null;
+    staff?: { name?: string } | null;
+  }>;
   showReceptionPanel?: boolean;
   focusAppointmentId?: string | null;
 };
@@ -76,8 +95,13 @@ type CalendarClientProps = {
 function getRange(view: CalendarView, date: Date) {
   switch (view) {
     case "day":
+    case "timeline":
+    case "employees":
+    case "locations":
+    case "resource":
       return { start: startOfDay(date), end: endOfDay(date) };
     case "week":
+    case "agenda":
       return {
         start: startOfWeek(date, { weekStartsOn: 0 }),
         end: endOfWeek(date, { weekStartsOn: 0 }),
@@ -99,6 +123,7 @@ export function CalendarClient({
   initialDate,
   initialView,
   insights = [],
+  waitlist = [],
   showReceptionPanel = true,
   focusAppointmentId = null,
 }: CalendarClientProps) {
@@ -323,6 +348,31 @@ export function CalendarClient({
         onDateChange={handleDateChange}
         onColorModeChange={setColorMode}
         onNewAppointment={() => openNew()}
+        onUndo={() => {
+          startTransition(async () => {
+            const result = await undoLastAppointmentChange();
+            if (result.error) toast(result.error, "error");
+            else {
+              toast(result.success ?? "Undone.", "success");
+              router.refresh();
+            }
+          });
+        }}
+        onDuplicate={() => {
+          if (!selectedAppointment) {
+            toast("Select an appointment to duplicate.", "error");
+            return;
+          }
+          startTransition(async () => {
+            const result = await duplicateAppointment(selectedAppointment.id);
+            if (result.error) toast(result.error, "error");
+            else {
+              toast(result.success ?? "Duplicated.", "success");
+              router.refresh();
+            }
+          });
+        }}
+        canDuplicate={Boolean(selectedAppointment)}
       />
 
       <ColorLegend colorMode={colorMode} services={services} staff={staff} />
@@ -361,6 +411,40 @@ export function CalendarClient({
           colorMode={colorMode}
         />
       )}
+      {view === "agenda" && (
+        <AgendaView
+          date={date}
+          appointments={appointments}
+          onSelectAppointment={openEdit}
+        />
+      )}
+      {view === "timeline" && (
+        <TimelineView
+          date={date}
+          appointments={appointments}
+          onSelectAppointment={openEdit}
+        />
+      )}
+      {(view === "employees" || view === "resource") && (
+        <ResourceView
+          date={date}
+          appointments={appointments}
+          staff={staff}
+          locations={locations}
+          mode="employees"
+          onSelectAppointment={openEdit}
+        />
+      )}
+      {view === "locations" && (
+        <ResourceView
+          date={date}
+          appointments={appointments}
+          staff={staff}
+          locations={locations}
+          mode="locations"
+          onSelectAppointment={openEdit}
+        />
+      )}
     </div>
   );
 
@@ -388,6 +472,7 @@ export function CalendarClient({
             staff={staff}
             locations={locations}
             insights={insights}
+            waitlist={waitlist}
             open={panelOpen}
             onOpenChange={setPanelOpen}
             onBooked={refresh}

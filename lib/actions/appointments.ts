@@ -13,6 +13,7 @@ import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
 import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchestrator";
 import { enqueueWaitlistNotification } from "@/lib/integrations/automation/waitlist";
+import { logAppointmentChange } from "@/lib/booking-engine/conflicts";
 
 function parseAppointmentStart(formData: FormData): Date | null {
   const startTime = formData.get("start_time") as string | null;
@@ -555,6 +556,13 @@ export async function rescheduleAppointment(
     return { error: validation.error };
   }
 
+  const beforeState = {
+    start_time: appointment.start_time,
+    end_time: appointment.end_time,
+    staff_id: appointment.staff_id,
+    location_id: appointment.location_id,
+  };
+
   const { error } = await supabase
     .from("appointments")
     .update({
@@ -564,6 +572,17 @@ export async function rescheduleAppointment(
     .eq("id", id);
 
   if (error) return { error: error.message };
+
+  await logAppointmentChange({
+    businessId: business.id,
+    appointmentId: id,
+    action: "reschedule",
+    beforeState,
+    afterState: {
+      start_time: startTime.toISOString(),
+      end_time: endTime.toISOString(),
+    },
+  });
 
   await handleAppointmentEvent(id, "rescheduled", {
     previousStartTime: appointment.start_time,
@@ -614,6 +633,13 @@ export async function resizeAppointment(
     return { error: validation.error };
   }
 
+  const beforeState = {
+    start_time: appointment.start_time,
+    end_time: appointment.end_time,
+    staff_id: appointment.staff_id,
+    location_id: appointment.location_id,
+  };
+
   const { error } = await supabase
     .from("appointments")
     .update({ end_time: endTime.toISOString() })
@@ -621,6 +647,17 @@ export async function resizeAppointment(
     .eq("business_id", business.id);
 
   if (error) return { error: error.message };
+
+  await logAppointmentChange({
+    businessId: business.id,
+    appointmentId: id,
+    action: "resize",
+    beforeState,
+    afterState: {
+      start_time: appointment.start_time,
+      end_time: endTime.toISOString(),
+    },
+  });
 
   await handleAppointmentEvent(id, "updated");
   revalidatePath("/dashboard/calendar");

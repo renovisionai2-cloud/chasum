@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Calendar & Booking Engine 2.0)
+
+- Extended calendar views: Agenda, Timeline, Employees, Locations, Resources (alongside Day/Week/Month)
+- Drag/drop undo + appointment duplicate on Reception calendar
+- Migration `019_booking_engine_2.sql` — rooms/resources, commercial appointment fields (price/tax/discount/deposit/invoice), attachments, internal notes, custom fields, change log, customer portal tokens, waitlist priority/location, recurring yearly + location
+- Customer portal at `/portal/[token]` — upcoming/past appointments, cancel, invoice/deposit display; memberships/packages/gift cards scaffold
+- Reception waitlist panel (priority queue) replaces placeholder
+- Recurring generator hardened: location_id + slot validation
+- Booking engine module (`lib/booking-engine/*`) for CRM/Communication/Billing/Employees integration without breaking multi-tenant FKs
+
 ### Added (CRM Department)
 
 - Full CRM hub at `/dashboard/clients` (nav label: CRM) — directory with search, status, location, assigned employee, tags, recently active
