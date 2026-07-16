@@ -78,10 +78,10 @@ export function LandingHeader() {
                 type="button"
                 onClick={() => scrollToSection(link.href)}
                 className={cn(
-                  "rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium transition-colors",
+                  "relative rounded-[var(--radius-sm)] px-3 py-1.5 text-sm font-medium transition-all duration-300 after:absolute after:inset-x-3 after:-bottom-1 after:h-px after:origin-center after:bg-primary after:transition-transform after:duration-300",
                   active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
+                    ? "bg-primary/10 text-primary after:scale-x-100"
+                    : "text-muted-foreground after:scale-x-0 hover:-translate-y-0.5 hover:bg-muted/70 hover:text-foreground",
                 )}
                 aria-current={active ? "true" : undefined}
               >
@@ -99,7 +99,9 @@ export function LandingHeader() {
             </Button>
           </Link>
           <Link href="/signup">
-            <Button size="sm">Start Free</Button>
+            <Button size="sm" className="marketing-cta-button">
+              Start Free
+            </Button>
           </Link>
         </div>
 

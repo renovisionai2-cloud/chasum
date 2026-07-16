@@ -208,11 +208,54 @@ body {
 @keyframes marketing-pane-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px) scale(0.992);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+.marketing-hero-grid {
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--border) 42%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--border) 42%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black 0%, transparent 82%);
+  opacity: 0.34;
+}
+
+.marketing-orb {
+  height: 22rem;
+  width: 22rem;
+  border-radius: 9999px;
+  filter: blur(64px);
+  opacity: 0.22;
+  animation: marketing-orb-drift 12s ease-in-out infinite alternate;
+}
+
+.marketing-orb-primary {
+  background: var(--primary);
+}
+
+.marketing-orb-spark {
+  background: var(--spark);
+  animation-delay: -5s;
+}
+
+@keyframes marketing-orb-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(0.95);
+  }
+  to {
+    transform: translate3d(22px, -18px, 0) scale(1.05);
   }
 }
 
@@ -220,8 +263,72 @@ body {
   animation: marketing-float 5.5s ease-in-out infinite;
 }
 
+.marketing-dashboard-stage {
+  perspective: 1200px;
+  transform: rotateY(-1.5deg) rotateX(0.5deg);
+  transition: transform 0.5s ease;
+}
+
+.marketing-dashboard-stage:hover {
+  transform: rotateY(0) rotateX(0) translateY(-2px);
+}
+
 .marketing-pane-fade {
   animation: marketing-pane-in 0.35s ease-out;
+}
+
+.marketing-tour-transition {
+  animation: marketing-pane-in 0.45s ease-out;
+}
+
+.marketing-preview-glow {
+  border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+  box-shadow:
+    0 32px 72px -40px color-mix(in srgb, var(--primary) 50%, transparent),
+    0 18px 36px -28px color-mix(in srgb, var(--foreground) 28%, transparent);
+}
+
+.marketing-cta-button {
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.marketing-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+.marketing-cta-button:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.marketing-stat-card {
+  transition:
+    transform 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+.marketing-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 32%, var(--border));
+  box-shadow: 0 12px 28px -22px var(--primary);
+}
+
+.marketing-emma-card {
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.marketing-emma-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--border));
+  box-shadow: 0 28px 64px -36px color-mix(in srgb, var(--primary) 60%, transparent);
 }
 
 .marketing-card-lift {
@@ -241,13 +348,23 @@ body {
   .animate-spark-pulse,
   .animate-success-pop,
   .marketing-dashboard-float,
-  .marketing-pane-fade {
+  .marketing-pane-fade,
+  .marketing-tour-transition,
+  .marketing-orb {
     animation: none !important;
     filter: none !important;
   }
 
   .marketing-card-lift,
-  .marketing-card-lift:hover {
+  .marketing-card-lift:hover,
+  .marketing-dashboard-stage,
+  .marketing-dashboard-stage:hover,
+  .marketing-cta-button,
+  .marketing-cta-button:hover,
+  .marketing-stat-card,
+  .marketing-stat-card:hover,
+  .marketing-emma-card,
+  .marketing-emma-card:hover {
     transition: none !important;
     transform: none !important;
     box-shadow: none !important;

@@ -68,7 +68,10 @@ export function Comparison() {
               </thead>
               <tbody className="divide-y divide-border/80">
                 {COMPARISON_ROWS.map((row) => (
-                  <tr key={row.feature} className="hover:bg-muted/20">
+                  <tr
+                    key={row.feature}
+                    className="transition-colors duration-200 hover:bg-muted/30"
+                  >
                     <th className="sticky left-0 z-10 bg-card px-4 py-3.5 align-top text-sm font-medium text-foreground">
                       {row.feature}
                       {row.note ? (

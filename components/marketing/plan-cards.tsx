@@ -20,8 +20,8 @@ function PlanCard({ plan }: { plan: MarketingPlan }) {
     <Card
       className={
         plan.highlighted
-          ? "marketing-card-lift relative scale-[1.02] border-primary shadow-lg shadow-primary/10"
-          : "marketing-card-lift border-border/60"
+          ? "marketing-card-lift relative h-full scale-[1.02] overflow-visible border-primary bg-gradient-to-b from-primary/[0.06] to-card shadow-xl shadow-primary/10"
+          : "marketing-card-lift h-full border-border/60"
       }
     >
       {plan.badge ? (
@@ -58,7 +58,7 @@ function PlanCard({ plan }: { plan: MarketingPlan }) {
           <a href={plan.href} className="mt-8 block">
             <Button
               variant={plan.highlighted ? "primary" : "outline"}
-              className="w-full"
+              className="marketing-cta-button w-full"
             >
               {plan.cta}
             </Button>
@@ -67,7 +67,7 @@ function PlanCard({ plan }: { plan: MarketingPlan }) {
           <Link href={plan.href} className="mt-8 block">
             <Button
               variant={plan.highlighted ? "primary" : "outline"}
-              className="w-full"
+              className="marketing-cta-button w-full"
             >
               {plan.cta}
             </Button>

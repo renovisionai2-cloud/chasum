@@ -14,8 +14,8 @@ export function CTA() {
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-muted/40 via-background to-muted/30" />
         <div className="absolute inset-0 brand-glow opacity-80" />
-        <div className="absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-        <div className="absolute -right-16 bottom-0 h-64 w-64 rounded-full bg-spark/20 blur-3xl" />
+        <div className="marketing-orb marketing-orb-primary absolute -left-24 top-1/3" />
+        <div className="marketing-orb marketing-orb-spark absolute -right-16 bottom-0" />
       </div>
 
       <Reveal>
@@ -35,13 +35,20 @@ export function CTA() {
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/signup">
-              <Button size="lg" className="min-w-[200px] shadow-md shadow-primary/25">
+              <Button
+                size="lg"
+                className="marketing-cta-button min-w-[200px] shadow-md shadow-primary/25"
+              >
                 Start Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <a href={DEMO_HREF}>
-              <Button variant="outline" size="lg" className="min-w-[200px]">
+              <Button
+                variant="outline"
+                size="lg"
+                className="marketing-cta-button min-w-[200px] bg-background/70 backdrop-blur-sm"
+              >
                 Book Demo
               </Button>
             </a>

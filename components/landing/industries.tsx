@@ -3,8 +3,34 @@
 import { Reveal } from "@/components/landing/reveal";
 import { INDUSTRIES } from "@/lib/marketing/homepage";
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  Camera,
+  Car,
+  ChevronDown,
+  Dumbbell,
+  Hammer,
+  PawPrint,
+  Scissors,
+  Sparkles,
+  SprayCan,
+  Stethoscope,
+  type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
+
+const INDUSTRY_ICONS: Record<string, LucideIcon> = {
+  "Medical Clinics": Stethoscope,
+  Salons: Scissors,
+  Spas: Sparkles,
+  Gyms: Dumbbell,
+  Automotive: Car,
+  Contractors: Hammer,
+  Photography: Camera,
+  "Pet Services": PawPrint,
+  Cleaning: SprayCan,
+  "Professional Services": BriefcaseBusiness,
+};
 
 export function Industries() {
   const [open, setOpen] = useState<string | null>(INDUSTRIES[0]?.name ?? null);
@@ -31,43 +57,54 @@ export function Industries() {
           </div>
         </Reveal>
 
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {INDUSTRIES.map((industry, index) => {
             const expanded = open === industry.name;
+            const Icon = INDUSTRY_ICONS[industry.name] ?? BriefcaseBusiness;
             return (
               <Reveal key={industry.name} delayMs={(index % 3) * 70}>
                 <article
                   className={cn(
-                    "marketing-card-lift rounded-[var(--radius-md)] border bg-card transition-colors",
-                    expanded ? "border-primary/40" : "border-border/70",
+                    "marketing-card-lift group overflow-hidden rounded-[var(--radius-lg)] border bg-card transition-colors",
+                    expanded
+                      ? "border-primary/40 shadow-lg shadow-primary/[0.06]"
+                      : "border-border/70",
                   )}
                 >
                   <button
                     type="button"
-                    className="flex w-full items-start justify-between gap-3 p-5 text-left"
+                    className="flex min-h-36 w-full items-start justify-between gap-4 p-6 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                     aria-expanded={expanded}
                     onClick={() =>
                       setOpen(expanded ? null : industry.name)
                     }
                   >
-                    <h3 className="text-base font-semibold text-foreground">
-                      {industry.name}
-                    </h3>
+                    <span>
+                      <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <h3 className="text-lg font-semibold tracking-tight text-foreground">
+                        {industry.name}
+                      </h3>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        Explore workflows and modules
+                      </span>
+                    </span>
                     <ChevronDown
                       className={cn(
-                        "mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                        "mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300",
                         expanded && "rotate-180",
                       )}
                     />
                   </button>
                   <div
                     className={cn(
-                      "grid transition-[grid-template-rows] duration-300 ease-out",
+                      "grid transition-[grid-template-rows] duration-500 ease-out",
                       expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
                     )}
                   >
                     <div className="overflow-hidden">
-                      <div className="space-y-3 border-t border-border/60 px-5 pb-5 pt-3">
+                      <div className="space-y-4 border-t border-border/60 bg-muted/20 px-6 pb-6 pt-5">
                         <p className="text-sm text-muted-foreground">
                           <span className="font-medium text-foreground">
                             Challenges:{" "}

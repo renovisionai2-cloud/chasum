@@ -4,7 +4,9 @@ import {
   BarChart3,
   Building2,
   Calendar,
+  CreditCard,
   LayoutDashboard,
+  MessageSquareText,
   Sparkles,
   UserCog,
   Users,
@@ -17,6 +19,8 @@ const NAV = [
   { label: "Business", icon: Building2 },
   { label: "Employees", icon: UserCog },
   { label: "Reports", icon: BarChart3 },
+  { label: "Communication", icon: MessageSquareText },
+  { label: "Billing", icon: CreditCard },
   { label: "AI Workforce", icon: Sparkles },
 ] as const;
 
@@ -56,7 +60,7 @@ export function DashboardPreview({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-lg",
+        "overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-lg transition-[transform,box-shadow,border-color] duration-500",
         animated && "marketing-dashboard-float",
         className,
       )}
@@ -68,11 +72,11 @@ export function DashboardPreview({
         <div className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
         <div className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
         <span className="ml-2 truncate text-xs text-muted-foreground">
-          app.chasum.com/dashboard
+          app.chasum.com/dashboard/{variant === "overview" ? "" : variant}
         </span>
       </div>
 
-      <div className={cn("flex", compact ? "min-h-[220px]" : "min-h-[320px] md:min-h-[420px]")}>
+      <div className={cn("flex", compact ? "min-h-[220px]" : "min-h-[360px] md:min-h-[480px]")}>
         <aside className="hidden w-44 shrink-0 border-r border-border bg-muted/20 p-3 sm:block">
           <p className="mb-3 px-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
             Chasum
@@ -83,12 +87,13 @@ export function DashboardPreview({
               const active =
                 (variant === "overview" && item.label === "Overview") ||
                 (variant === "reception" && item.label === "Reception") ||
-                ((variant === "crm" || variant === "communication") &&
-                  item.label === "CRM") ||
-                ((variant === "reports" || variant === "billing") &&
-                  item.label === "Reports") ||
+                (variant === "crm" && item.label === "CRM") ||
+                (variant === "reports" && item.label === "Reports") ||
                 (variant === "employees" && item.label === "Employees") ||
                 (variant === "business" && item.label === "Business") ||
+                (variant === "communication" &&
+                  item.label === "Communication") ||
+                (variant === "billing" && item.label === "Billing") ||
                 (variant === "emma" && item.label === "AI Workforce");
               return (
                 <li
@@ -112,9 +117,8 @@ export function DashboardPreview({
           <div className="marketing-pane-fade">
             {variant === "overview" ? <OverviewPane compact={compact} /> : null}
             {variant === "reception" ? <ReceptionPane /> : null}
-            {variant === "crm" || variant === "communication" ? (
-              <CrmPane communication={variant === "communication"} />
-            ) : null}
+            {variant === "crm" ? <CrmPane /> : null}
+            {variant === "communication" ? <CommunicationPane /> : null}
             {variant === "reports" ? <ReportsPane /> : null}
             {variant === "billing" ? <BillingPane /> : null}
             {variant === "emma" ? <EmmaPane /> : null}
@@ -205,28 +209,98 @@ function ReceptionPane() {
   );
 }
 
-function CrmPane({ communication = false }: { communication?: boolean }) {
+function CrmPane() {
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold">
-        {communication ? "Communication Center" : "CRM · Customer profile"}
-      </p>
-      <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
-        <p className="text-base font-semibold">Alex Rivera</p>
-        <p className="text-xs text-muted-foreground">Preferred: SMS · Active</p>
-        <ul className="mt-4 space-y-2 text-xs text-muted-foreground">
-          <li className="rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
-            Appointment confirmed · Today 9:00
-          </li>
-          <li className="rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
-            {communication
-              ? "Quick Text / Email actions ready"
-              : "SMS reminder logged · Communication Center"}
-          </li>
-          <li className="rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
-            Note: Prefers morning appointments
-          </li>
-        </ul>
+      <p className="text-sm font-semibold">CRM · Customer profile</p>
+      <div className="grid gap-3 md:grid-cols-[0.72fr_1.28fr]">
+        <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+            AR
+          </div>
+          <p className="mt-3 text-base font-semibold">Alex Rivera</p>
+          <p className="text-xs text-muted-foreground">Active · Prefers SMS</p>
+          <dl className="mt-4 space-y-2 text-xs">
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Visits</dt>
+              <dd className="font-medium">14</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Lifetime value</dt>
+              <dd className="font-medium">$2,480</dd>
+            </div>
+          </dl>
+        </div>
+        <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Customer timeline
+          </p>
+          <ul className="mt-4 space-y-3 text-xs text-muted-foreground">
+            {[
+              "Appointment confirmed · Today 9:00",
+              "SMS reminder delivered",
+              "Payment received · $180",
+              "Note · Prefers morning appointments",
+            ].map((event) => (
+              <li key={event} className="flex gap-2">
+                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                {event}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CommunicationPane() {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold">Communication Center</p>
+        <span className="rounded-full bg-success/10 px-2 py-1 text-[10px] font-medium text-success">
+          All caught up
+        </span>
+      </div>
+      <div className="grid gap-3 md:grid-cols-[0.7fr_1.3fr]">
+        <div className="space-y-2">
+          {[
+            ["Alex Rivera", "Confirming tomorrow", "2m"],
+            ["Jordan Lee", "Thanks for the reminder", "18m"],
+            ["Sam Patel", "Need to reschedule", "1h"],
+          ].map(([name, message, time], index) => (
+            <div
+              key={name}
+              className={cn(
+                "rounded-[var(--radius-md)] border p-3",
+                index === 0
+                  ? "border-primary/35 bg-primary/5"
+                  : "border-border/80 bg-background",
+              )}
+            >
+              <div className="flex justify-between gap-2">
+                <p className="text-xs font-semibold">{name}</p>
+                <span className="text-[10px] text-muted-foreground">{time}</span>
+              </div>
+              <p className="mt-1 truncate text-[11px] text-muted-foreground">{message}</p>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
+          <p className="text-xs font-semibold">Alex Rivera</p>
+          <div className="mt-5 space-y-2 text-xs">
+            <p className="max-w-[82%] rounded-xl rounded-bl-sm bg-muted px-3 py-2">
+              Can you confirm my appointment tomorrow?
+            </p>
+            <p className="ml-auto max-w-[86%] rounded-xl rounded-br-sm bg-primary px-3 py-2 text-primary-foreground">
+              You&apos;re confirmed for 9:00 AM. We&apos;ll see you then.
+            </p>
+          </div>
+          <div className="mt-5 rounded-[var(--radius-sm)] border border-border/80 px-3 py-2 text-[11px] text-muted-foreground">
+            Reply by SMS or email…
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -235,7 +309,12 @@ function CrmPane({ communication = false }: { communication?: boolean }) {
 function ReportsPane() {
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold">Reports · Executive</p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold">Reports · Executive</p>
+        <span className="rounded-[var(--radius-sm)] border border-border px-2 py-1 text-[10px] text-muted-foreground">
+          Last 30 days
+        </span>
+      </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {[
           ["Revenue MTD", "$24.1k"],
@@ -254,6 +333,21 @@ function ReportsPane() {
           </div>
         ))}
       </div>
+      <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium">Revenue trend</p>
+          <p className="text-[10px] font-medium text-success">+18.4%</p>
+        </div>
+        <div className="mt-4 flex h-28 items-end gap-2">
+          {[42, 58, 49, 72, 64, 86, 93, 80, 96, 100].map((height, index) => (
+            <div
+              key={`${height}-${index}`}
+              className="flex-1 rounded-t-sm bg-gradient-to-t from-primary to-primary/45"
+              style={{ height: `${height}%` }}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -261,11 +355,46 @@ function ReportsPane() {
 function BillingPane() {
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold">Billing · Current plan</p>
-      <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
-        <p className="text-base font-semibold">Professional</p>
-        <p className="text-xs text-muted-foreground">$79/month · Active</p>
-        <div className="mt-4 grid gap-2 text-xs">
+      <p className="text-sm font-semibold">Billing & subscription</p>
+      <div className="grid gap-3 md:grid-cols-[0.8fr_1.2fr]">
+        <div className="rounded-[var(--radius-md)] border border-primary/30 bg-primary/5 p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">
+            Current plan
+          </p>
+          <p className="mt-2 text-lg font-semibold">Professional</p>
+          <p className="text-xs text-muted-foreground">$79/month · Active</p>
+          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-primary/10">
+            <div className="h-full w-3/4 rounded-full bg-primary" />
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground">
+            3 of 4 team seats used
+          </p>
+        </div>
+        <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
+          <p className="text-xs font-semibold">Recent invoices</p>
+          <div className="mt-3 grid gap-2 text-xs">
+            {[
+              ["INV-2048", "Jul 1", "$79.00", "Paid"],
+              ["INV-1982", "Jun 1", "$79.00", "Paid"],
+              ["INV-1910", "May 1", "$79.00", "Paid"],
+            ].map(([invoice, date, amount, status]) => (
+              <div
+                key={invoice}
+                className="grid grid-cols-[1fr_auto_auto] items-center gap-3 rounded-[var(--radius-sm)] bg-muted/50 px-2 py-2"
+              >
+                <div>
+                  <p className="font-medium">{invoice}</p>
+                  <p className="text-[10px] text-muted-foreground">{date}</p>
+                </div>
+                <span>{amount}</span>
+                <span className="text-success">{status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-3">
+        <div className="grid gap-2 text-xs sm:grid-cols-2">
           <div className="flex justify-between rounded-[var(--radius-sm)] bg-muted/50 px-2 py-1.5">
             <span>Next invoice</span>
             <span className="font-medium">Aug 1</span>

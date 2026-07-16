@@ -219,12 +219,55 @@ export const HERO_STATS = [
 ] as const;
 
 export const AI_EMPLOYEES_PREVIEW = [
-  { name: "Emma", role: "AI Receptionist", status: "Phase 1 live", summary: "Grounded answers, real slots, escalation, CRM logging." },
-  { name: "Alex", role: "AI Scheduler", status: "Coming soon", summary: "Protects the calendar with real availability only." },
-  { name: "Maya", role: "Marketing", status: "Coming soon", summary: "Owner-approved outreach — never spam on autopilot." },
-  { name: "Leo", role: "Business Advisor", status: "Coming soon", summary: "Summarizes what worked and what to try next." },
-  { name: "Sophia", role: "Customer Success", status: "Coming soon", summary: "Prep, follow-up, and relationship care after booking." },
-  { name: "Noah", role: "Operations", status: "Coming soon", summary: "Coordinates handoffs across the AI Workforce." },
+  {
+    name: "Emma",
+    role: "AI Receptionist",
+    specialty: "Front desk & booking",
+    status: "Live",
+    availability: "Available Today",
+    summary:
+      "Answers from real business data, checks real slots, starts bookings, escalates to staff, and logs every handoff.",
+  },
+  {
+    name: "Alex",
+    role: "AI Scheduler",
+    specialty: "Calendar optimization",
+    status: "Planned",
+    availability: "Coming Soon",
+    summary: "Protects the calendar and coordinates availability without inventing times.",
+  },
+  {
+    name: "Maya",
+    role: "AI Marketer",
+    specialty: "Customer outreach",
+    status: "Planned",
+    availability: "Coming Soon",
+    summary: "Prepares owner-approved campaigns and thoughtful follow-up without spam.",
+  },
+  {
+    name: "Leo",
+    role: "AI Business Advisor",
+    specialty: "Performance insights",
+    status: "Planned",
+    availability: "Coming Soon",
+    summary: "Turns operational signals into clear summaries and practical next steps.",
+  },
+  {
+    name: "Sophia",
+    role: "AI Customer Success",
+    specialty: "Customer care",
+    status: "Planned",
+    availability: "Coming Soon",
+    summary: "Coordinates preparation, follow-up, and relationship care after booking.",
+  },
+  {
+    name: "Noah",
+    role: "AI Operations",
+    specialty: "Cross-team coordination",
+    status: "Planned",
+    availability: "Coming Soon",
+    summary: "Coordinates handoffs across the AI Workforce with owner control.",
+  },
 ] as const;
 
 /** Honest comparison scaffold — update cells as capabilities ship. Avoid unverified competitor claims. */

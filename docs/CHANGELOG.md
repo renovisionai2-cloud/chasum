@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Public marketing website — Phase 2.2)
+
+- Refined the existing visual system with a softly animated hero atmosphere, stronger type hierarchy, floating dashboard stage, animated statistics, trust badges, and smoother CTA interactions
+- Upgraded the product tour to nine departments (Dashboard, AI Receptionist, CRM, Calendar, Employees, Business, Reports, Communication, Billing) with remembered selection, synchronized copy/benefits, and animated product-surface transitions
+- Expanded department previews into larger, distinct dashboard surfaces based on the real Chasum product structure, including dedicated CRM, Communication, Reports, and Billing views
+- Enlarged industry cards with industry-specific icons, premium hover motion, and retained expandable challenge/solution/module details
+- Featured Emma as available today with a dedicated AI Receptionist experience; added avatars, specialties, availability, status, and descriptions for the planned AI workforce
+- Added subtle navigation, comparison, pricing, card, and final-CTA micro-interactions while respecting `prefers-reduced-motion`
+
 ### Changed (Public marketing website — Phase 2)
 
 - Sticky glassmorphic nav with scroll spy, smooth section scrolling, and active-link highlighting
