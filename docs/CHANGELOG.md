@@ -9,6 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Reports & Analytics Department)
+
+- Business Intelligence hub at `/dashboard/reports` — Executive, Revenue, Appointments, Customers, Employees, Services, Locations, Financial, Inventory (future-ready), Export, Scheduled
+- Executive KPIs: revenue (today/week/month/year), appointments, new/returning customers, active employees, outstanding invoices, membership & gift card revenue
+- Breakdowns by employee, location, service, category; booking trends, peak hours/days, CLV, retention, birthdays, top/inactive customers
+- Employee productivity + commission estimates; location occupancy/growth; financial invoices/payments/refunds/taxes/discounts/deposits
+- CSV export (Excel-compatible), print/PDF, scheduled email report CRUD
+- Migration `021_reports_analytics.sql` — `report_schedules` + `report_exports` (multi-tenant)
+- Shared `getBusinessIntelligenceSnapshot()` for Owner Platform, Business Dashboard, and future AI Workforce
+- Dashboard nav: Reports (extends existing design system; location-scoped; no breaking changes)
+
 ### Added (Business Management Department)
 
 - Business hub at `/dashboard/business` — control center for how each tenant operates (single/multi location, multi-business, enterprise-ready)

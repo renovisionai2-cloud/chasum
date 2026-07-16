@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import {
   ArrowRight,
+  BarChart3,
   Bell,
   Calendar,
   CalendarPlus,
@@ -152,6 +153,12 @@ export async function DashboardOverview() {
               <Button variant="outline">
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 AI Workforce
+              </Button>
+            </Link>
+            <Link href="/dashboard/reports">
+              <Button variant="outline">
+                <BarChart3 className="h-4 w-4" aria-hidden="true" />
+                Reports
               </Button>
             </Link>
           </div>

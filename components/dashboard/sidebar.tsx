@@ -8,6 +8,7 @@ import { DASHBOARD_NAV } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/actions/auth";
 import {
+  BarChart3,
   Bell,
   Briefcase,
   Building2,
@@ -37,6 +38,7 @@ const iconMap = {
   briefcase: Briefcase,
   "building-2": Building2,
   "user-cog": UserCog,
+  "bar-chart-3": BarChart3,
   sparkles: Sparkles,
   bell: Bell,
   plug: Plug,
