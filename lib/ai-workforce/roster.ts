@@ -29,9 +29,21 @@ export const AI_EMPLOYEES: AiEmployee[] = [
       "Soft qualification using your configured rules only",
     ],
     metrics: [
-      { label: "Inquiries handled", value: "—", hint: "Connects when live" },
-      { label: "Booking assists", value: "—", hint: "Awaiting activation" },
-      { label: "Escalations", value: "—", hint: "Healthy escalations are good" },
+      {
+        label: "Inquiries handled",
+        value: "Live",
+        hint: "Phase 1 console + Command Center",
+      },
+      {
+        label: "Booking assists",
+        value: "Ready",
+        hint: "Routes to public booking + real slots",
+      },
+      {
+        label: "Escalations",
+        value: "Ready",
+        hint: "CRM log + Communication follow-ups",
+      },
     ],
     accent: "primary",
   },

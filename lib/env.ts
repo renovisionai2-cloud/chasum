@@ -87,6 +87,11 @@ export function getTwilioConfig() {
   return { accountSid, authToken, phoneNumber };
 }
 
+/** Optional OpenAI key for Emma AI Receptionist (falls back to grounded provider). */
+export function getOpenAiApiKey(): string | null {
+  return process.env.OPENAI_API_KEY ?? null;
+}
+
 export function getGoogleOAuthConfig() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;

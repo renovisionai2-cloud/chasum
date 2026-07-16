@@ -15,6 +15,7 @@ import {
   getAlexAvailabilityRecommendations,
   type AlexSlotRecommendation,
 } from "@/lib/ai-workforce/alex";
+import { sendReceptionistMessage } from "@/lib/actions/ai-receptionist";
 import { AI_EMPLOYEES } from "@/lib/ai-workforce/roster";
 import type { AiEmployee } from "@/lib/ai-workforce/types";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
@@ -31,8 +32,9 @@ type ChatMessage = {
 };
 
 const STARTERS = [
+  "What are our business hours?",
   "What open slots does Alex see this week?",
-  "Who on my AI team can help fill a quiet Friday?",
+  "Emma, help me start a booking",
   "Summarize what each AI employee is responsible for.",
 ];
 
@@ -73,6 +75,7 @@ function staticReply(prompt: string): ChatMessage {
 
 function wantsAlexAvailability(prompt: string): boolean {
   const lower = prompt.toLowerCase();
+  if (wantsEmmaReception(lower)) return false;
   return (
     lower.includes("alex") ||
     lower.includes("slot") ||
@@ -80,6 +83,20 @@ function wantsAlexAvailability(prompt: string): boolean {
     lower.includes("availab") ||
     lower.includes("opening") ||
     lower.includes("open time")
+  );
+}
+
+function wantsEmmaReception(prompt: string): boolean {
+  const lower = prompt.toLowerCase();
+  return (
+    lower.includes("emma") ||
+    lower.includes("hours") ||
+    lower.includes("receptionist") ||
+    lower.includes("book") ||
+    lower.includes("service") ||
+    lower.includes("escalate") ||
+    lower.includes("speak to staff") ||
+    lower.includes("location")
   );
 }
 
@@ -116,9 +133,35 @@ export function AiCommandCenter() {
 
     startTransition(async () => {
       const alex = AI_EMPLOYEES.find((e) => e.id === "alex")!;
+      const emma = AI_EMPLOYEES.find((e) => e.id === "emma")!;
       let reply: ChatMessage;
 
-      if (wantsAlexAvailability(trimmed)) {
+      if (wantsEmmaReception(trimmed)) {
+        try {
+          const result = await sendReceptionistMessage({ message: trimmed });
+          let content = result.reply;
+          if (result.bookingUrl) {
+            content += `\n\nStart booking: ${result.bookingUrl}`;
+          }
+          if (result.escalated) {
+            content += "\n\nEscalated for staff follow-up.";
+          }
+          reply = {
+            id: nextId("a"),
+            role: "assistant",
+            employee: emma,
+            content,
+          };
+        } catch {
+          reply = {
+            id: nextId("a"),
+            role: "assistant",
+            employee: emma,
+            content:
+              "Emma could not load business knowledge right now. No answers were invented — try again from Emma’s profile.",
+          };
+        }
+      } else if (wantsAlexAvailability(trimmed)) {
         try {
           const result = await getAlexAvailabilityRecommendations({
             daysAhead: 5,
@@ -166,7 +209,7 @@ export function AiCommandCenter() {
         </Link>
         <PageHeader
           title="Command Center"
-          description="Talk to your AI Workforce. Alex uses real availability only."
+          description="Talk to your AI Workforce. Emma uses grounded business data; Alex uses real availability only."
         />
       </div>
 
@@ -206,7 +249,7 @@ export function AiCommandCenter() {
               <div>
                 <CardTitle className="text-base">Conversation</CardTitle>
                 <CardDescription>
-                  Alex · live slots · other replies are routing previews
+                  Emma · grounded desk · Alex · live slots
                 </CardDescription>
               </div>
             </div>
@@ -243,7 +286,9 @@ export function AiCommandCenter() {
                 </div>
               ))}
               {pending && (
-                <p className="text-xs text-muted-foreground">Checking real availability…</p>
+                <p className="text-xs text-muted-foreground">
+                  Working with Chasum data…
+                </p>
               )}
             </div>
 

@@ -7,7 +7,8 @@ export type CommunicationChannel =
   | "whatsapp"
   | "note"
   | "reminder"
-  | "ai";
+  | "ai"
+  | "voice";
 
 export type CommunicationDirection = "outbound" | "inbound" | "internal";
 

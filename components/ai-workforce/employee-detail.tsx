@@ -34,9 +34,11 @@ const TABS = [
 export function AiEmployeeDetail({
   employee,
   liveAvailability,
+  liveReceptionist,
 }: {
   employee: AiEmployee;
   liveAvailability?: ReactNode;
+  liveReceptionist?: ReactNode;
 }) {
   const [tab, setTab] = useState("overview");
   const activity = getEmployeeActivity(employee.id);
@@ -79,53 +81,58 @@ export function AiEmployeeDetail({
       <Tabs tabs={TABS} activeTab={tab} onChange={setTab} />
 
       {tab === "overview" && (
-        <div className="grid gap-6 lg:grid-cols-5">
-          <Card className="lg:col-span-3">
-            <CardHeader>
-              <CardTitle>Overview</CardTitle>
-              <CardDescription>{employee.summary}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="ds-label mb-3">Primary responsibilities</p>
-              <ul className="space-y-2">
-                {employee.responsibilities.map((item) => (
-                  <li
-                    key={item}
-                    className="flex gap-2 text-sm text-muted-foreground"
-                  >
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-spark" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-          <div className="space-y-6 lg:col-span-2">
-            {liveAvailability}
-            <Card>
+        <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-5">
+            <Card className="lg:col-span-3">
               <CardHeader>
-                <CardTitle>Today</CardTitle>
-                <CardDescription>
-                  {liveAvailability
-                    ? "Live availability above · other metrics stay assistive"
-                    : "Placeholder until live automation"}
-                </CardDescription>
+                <CardTitle>Overview</CardTitle>
+                <CardDescription>{employee.summary}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="ds-label">Tasks completed</p>
-                  <p className="text-3xl font-semibold tabular-nums">
-                    {employee.tasksCompletedToday}
-                  </p>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {employee.name} follows Chasum AI principles: remove work,
-                  recommend actions, never invent business data, and keep you in
-                  control.
-                </p>
+              <CardContent>
+                <p className="ds-label mb-3">Primary responsibilities</p>
+                <ul className="space-y-2">
+                  {employee.responsibilities.map((item) => (
+                    <li
+                      key={item}
+                      className="flex gap-2 text-sm text-muted-foreground"
+                    >
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-spark" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
+            <div className="space-y-6 lg:col-span-2">
+              {liveAvailability}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Today</CardTitle>
+                  <CardDescription>
+                    {liveReceptionist
+                      ? "Phase 1 receptionist console below"
+                      : liveAvailability
+                        ? "Live availability above · other metrics stay assistive"
+                        : "Placeholder until live automation"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="ds-label">Tasks completed</p>
+                    <p className="text-3xl font-semibold tabular-nums">
+                      {employee.tasksCompletedToday}
+                    </p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {employee.name} follows Chasum AI principles: remove work,
+                    recommend actions, never invent business data, and keep you
+                    in control.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
+          {liveReceptionist}
         </div>
       )}
 

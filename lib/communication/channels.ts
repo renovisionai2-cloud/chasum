@@ -166,10 +166,10 @@ export class WhatsAppChannelAdapter implements CommunicationChannelAdapter {
   }
 }
 
-/** Stub — future AI outreach / copilots. */
+/** Phase 1: outbound AI channel reserved; Emma conversations use the receptionist service. */
 export class AiChannelAdapter implements CommunicationChannelAdapter {
   readonly channel = "ai" as const;
-  readonly providerName = "ai_stub";
+  readonly providerName = "emma_receptionist";
 
   async send(input: SendMessageInput): Promise<ChannelSendResult> {
     void input;
@@ -178,7 +178,8 @@ export class AiChannelAdapter implements CommunicationChannelAdapter {
       status: "skipped",
       provider: this.providerName,
       skipped: true,
-      error: "AI communication is not configured yet.",
+      error:
+        "AI outbound messaging is reserved. Use Emma’s receptionist console for Phase 1 conversations.",
     };
   }
 }

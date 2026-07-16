@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (AI Receptionist Phase 1 — Emma)
+
+- Production foundation for Emma as an AI employee (not a generic chatbot): grounded answers from Chasum hours, services, employees, locations, and policies
+- Availability recommendations and booking-flow handoff via the scheduling engine + public booking URL (never invents times)
+- Escalation to staff with Communication Center follow-ups + CRM notes / `channel: "ai"` timeline logging when a customer is linked
+- Reusable provider layer (`emma_grounded` default, optional OpenAI via `OPENAI_API_KEY`) with conversation history store
+- Migration `022_ai_receptionist.sql` — multi-tenant conversations/messages; `voice` channel reserved (not implemented)
+- Practice console on `/dashboard/ai-workforce/emma` + Command Center routing; integrates CRM, Calendar, Business, Employees, Communication, Reports surfaces without redesign
+
 ### Added (Reports & Analytics Department)
 
 - Business Intelligence hub at `/dashboard/reports` — Executive, Revenue, Appointments, Customers, Employees, Services, Locations, Financial, Inventory (future-ready), Export, Scheduled

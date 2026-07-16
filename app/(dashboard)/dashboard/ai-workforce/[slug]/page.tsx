@@ -1,5 +1,6 @@
 import { AlexAvailabilityPanel } from "@/components/ai-workforce/alex-availability-panel";
 import { AiEmployeeDetail } from "@/components/ai-workforce/employee-detail";
+import { EmmaReceptionistServerPanel } from "@/components/ai-workforce/emma-receptionist-server-panel";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getAiEmployee } from "@/lib/ai-workforce/roster";
 import type { Metadata } from "next";
@@ -38,7 +39,24 @@ export default async function AiEmployeePage({ params }: PageProps) {
       </Suspense>
     ) : null;
 
+  const emmaPanel =
+    employee.id === "emma" ? (
+      <Suspense
+        fallback={
+          <p className="text-sm text-muted-foreground">
+            Loading Emma receptionist…
+          </p>
+        }
+      >
+        <EmmaReceptionistServerPanel />
+      </Suspense>
+    ) : null;
+
   return (
-    <AiEmployeeDetail employee={employee} liveAvailability={alexPanel} />
+    <AiEmployeeDetail
+      employee={employee}
+      liveAvailability={alexPanel}
+      liveReceptionist={emmaPanel}
+    />
   );
 }
