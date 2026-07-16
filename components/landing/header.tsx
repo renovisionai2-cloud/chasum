@@ -37,7 +37,7 @@ export function LandingHeader() {
             </Button>
           </Link>
           <Link href="/signup">
-            <Button size="sm">Get started</Button>
+            <Button size="sm">Start Free</Button>
           </Link>
         </div>
 
@@ -62,10 +62,9 @@ export function LandingHeader() {
       <div
         className={cn(
           "overflow-hidden border-t border-border/60 md:hidden",
-          mobileOpen ? "max-h-80" : "max-h-0",
+          mobileOpen ? "max-h-[28rem]" : "max-h-0",
         )}
-      >
-        <nav className="flex flex-col gap-1 px-6 py-4">
+      >        <nav className="flex flex-col gap-1 px-6 py-4">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
@@ -83,7 +82,7 @@ export function LandingHeader() {
               </Button>
             </Link>
             <Link href="/signup" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full">Get started</Button>
+              <Button className="w-full">Start Free</Button>
             </Link>
           </div>
         </nav>

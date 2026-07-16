@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Public marketing website)
+
+- Rebuilt homepage storytelling around real Chasum departments (AI Receptionist, CRM, Calendar, Employees, Business, Reports, Communication, Billing, AI Workforce)
+- New sections: Trusted platform, Platform overview, interactive dashboard showcase, industries, customer journey, AI Workforce (Coming Soon), honest competitor comparison scaffold, expanded FAQ, stronger final CTA
+- Kept brand colors, logo, typography, and pricing plans; presentational dashboard preview mirrors product UI without changing auth or dashboard code
+- Updated marketing nav/footer anchors for the new structure
+
 ### Fixed
 
 - Signup page no longer imports `resolveInitialPlan` from the client `SignUpForm` module — moved to shared `lib/marketing/pricing.ts` so server pages can resolve `?plan=` without a Client/Server boundary error

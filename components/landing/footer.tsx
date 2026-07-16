@@ -3,18 +3,23 @@ import Link from "next/link";
 
 const footerLinks = {
   Product: [
-    { label: "Features", href: "/#features" },
+    { label: "Platform", href: "/#platform" },
+    { label: "Product tour", href: "/#showcase" },
+    { label: "Industries", href: "/#industries" },
     { label: "Pricing", href: "/pricing" },
-    { label: "How it works", href: "/#how-it-works" },
+    { label: "FAQ", href: "/#faq" },
+  ],
+  Platform: [
+    { label: "AI Receptionist", href: "/#platform-emma" },
+    { label: "CRM", href: "/#platform-crm" },
+    { label: "Calendar & Booking", href: "/#platform-calendar" },
+    { label: "Reports", href: "/#platform-reports" },
+    { label: "AI Workforce", href: "/#ai-workforce" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Careers", href: "#" },
-  ],
-  Legal: [
-    { label: "Privacy", href: "#" },
-    { label: "Terms", href: "#" },
+    { label: "Compare", href: "/#compare" },
+    { label: "Book demo", href: "mailto:sales@chasum.app?subject=Book%20a%20Chasum%20Demo" },
+    { label: "Start free", href: "/signup" },
   ],
 };
 
