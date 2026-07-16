@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (CRM Department)
+
+- Full CRM hub at `/dashboard/clients` (nav label: CRM) — directory with search, status, location, assigned employee, tags, recently active
+- Customer profiles with photo, name fields, emergency contact, preferred communication, status, assignments
+- Unified timeline: appointments, calls, SMS, email, notes, documents, payments, cancellations, no-shows
+- Appointment history buckets: upcoming, completed, cancelled, no-shows, recurring
+- Reuses Communication Center + documents; CRM notes (pinned/private); insights + marketing/loyalty fields
+- Spark AI stub provider for future summarize / inactive / top spenders / birthday campaigns
+- Migration `018_crm_department.sql` — CRM columns, `customer_notes`, `customer_payment_events`, document signing readiness
+
 ### Added (Employee Management Department)
 
 - Full Employee Management module at `/dashboard/employees` (legacy `/dashboard/staff` redirects)

@@ -1,0 +1,319 @@
+"use server";
+
+import { getOrCreateBusiness } from "@/lib/actions/business";
+import { runCrmAiQuery } from "@/lib/crm/ai";
+import { loadCrmProfile, touchCustomerActivity } from "@/lib/crm/service";
+import { displayCustomerName } from "@/lib/crm/display";
+import type { CrmProfile } from "@/lib/crm/types";
+import { createClient } from "@/lib/supabase/server";
+import type { ActionState, Customer, Location, Staff } from "@/lib/types/booking";
+import { revalidatePath } from "next/cache";
+
+function revalidateCrm(customerId?: string) {
+  revalidatePath("/dashboard/clients");
+  revalidatePath("/dashboard/crm");
+  revalidatePath("/dashboard/calendar");
+  if (customerId) {
+    revalidatePath(`/dashboard/clients/${customerId}`);
+    revalidatePath(`/dashboard/crm/${customerId}`);
+  }
+}
+
+async function currentUserId() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user?.id ?? null;
+}
+
+function composeName(first?: string | null, last?: string | null, fallback?: string | null) {
+  const composed = [first, last].filter(Boolean).join(" ").trim();
+  return composed || fallback?.trim() || "";
+}
+
+function parseCustomerPayload(formData: FormData) {
+  const firstName = (formData.get("first_name") as string)?.trim() || null;
+  const lastName = (formData.get("last_name") as string)?.trim() || null;
+  const preferredName = (formData.get("preferred_name") as string)?.trim() || null;
+  const legacyName = (formData.get("name") as string)?.trim() || null;
+  const name = composeName(firstName, lastName, legacyName);
+
+  const tagsRaw = (formData.get("tags") as string) || "";
+  const tags = tagsRaw
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const isVip = formData.get("is_vip") === "on" || formData.get("is_vip") === "true";
+  let crmStatus = (formData.get("crm_status") as string)?.trim() || "active";
+  if (isVip && crmStatus === "active") crmStatus = "vip";
+
+  return {
+    name,
+    first_name: firstName,
+    last_name: lastName,
+    preferred_name: preferredName,
+    email: (formData.get("email") as string)?.trim() || "",
+    phone: (formData.get("phone") as string)?.trim() || null,
+    address: (formData.get("address") as string)?.trim() || null,
+    photo_url: (formData.get("photo_url") as string)?.trim() || null,
+    date_of_birth: (formData.get("date_of_birth") as string)?.trim() || null,
+    gender: (formData.get("gender") as string)?.trim() || null,
+    emergency_contact_name:
+      (formData.get("emergency_contact_name") as string)?.trim() || null,
+    emergency_contact_phone:
+      (formData.get("emergency_contact_phone") as string)?.trim() || null,
+    emergency_contact_relationship:
+      (formData.get("emergency_contact_relationship") as string)?.trim() || null,
+    preferred_communication_method:
+      (formData.get("preferred_communication_method") as string)?.trim() || null,
+    crm_status: crmStatus,
+    assigned_staff_id: (formData.get("assigned_staff_id") as string)?.trim() || null,
+    preferred_location_id:
+      (formData.get("preferred_location_id") as string)?.trim() || null,
+    is_vip: isVip,
+    anniversary_date: (formData.get("anniversary_date") as string)?.trim() || null,
+    loyalty_status: (formData.get("loyalty_status") as string)?.trim() || "standard",
+    referral_source: (formData.get("referral_source") as string)?.trim() || null,
+    notes: (formData.get("notes") as string)?.trim() || null,
+    tags,
+    last_activity_at: new Date().toISOString(),
+  };
+}
+
+export type CrmDirectoryCustomer = Customer & {
+  first_name?: string | null;
+  last_name?: string | null;
+  preferred_name?: string | null;
+  photo_url?: string | null;
+  crm_status?: string;
+  assigned_staff_id?: string | null;
+  preferred_location_id?: string | null;
+  is_vip?: boolean;
+  loyalty_status?: string;
+  last_activity_at?: string | null;
+  date_of_birth?: string | null;
+  anniversary_date?: string | null;
+  assigned_staff?: Pick<Staff, "id" | "name"> | null;
+  preferred_location?: Pick<Location, "id" | "name"> | null;
+};
+
+export async function getCrmDirectory(): Promise<CrmDirectoryCustomer[]> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("customers")
+    .select(
+      `*, assigned_staff:staff!customers_assigned_staff_id_fkey(id, name), preferred_location:locations!customers_preferred_location_id_fkey(id, name)`,
+    )
+    .eq("business_id", business.id)
+    .order("last_activity_at", { ascending: false, nullsFirst: false });
+
+  if (error) {
+    const fallback = await supabase
+      .from("customers")
+      .select("*")
+      .eq("business_id", business.id)
+      .order("name");
+    if (fallback.error) throw new Error(fallback.error.message);
+    return (fallback.data ?? []) as CrmDirectoryCustomer[];
+  }
+
+  return (data ?? []) as CrmDirectoryCustomer[];
+}
+
+export async function loadCrmCustomerProfile(
+  customerId: string,
+): Promise<CrmProfile | null> {
+  const business = await getOrCreateBusiness();
+  return loadCrmProfile(business.id, customerId);
+}
+
+export async function createCrmCustomer(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const payload = parseCustomerPayload(formData);
+
+  if (!payload.name) return { error: "Customer name is required." };
+  if (!payload.email) return { error: "Email is required." };
+
+  const { data, error } = await supabase
+    .from("customers")
+    .insert({
+      business_id: business.id,
+      ...payload,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    if (error.code === "23505") {
+      return { error: "A customer with this email already exists." };
+    }
+    // Pre-migration soft fallback
+    if (error.message.includes("crm_status") || error.message.includes("first_name")) {
+      const legacy = await supabase.from("customers").insert({
+        business_id: business.id,
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        address: payload.address,
+        notes: payload.notes,
+        tags: payload.tags,
+        referral_source: payload.referral_source,
+      });
+      if (legacy.error) return { error: legacy.error.message };
+      revalidateCrm();
+      return { success: "Customer added." };
+    }
+    return { error: error.message };
+  }
+
+  revalidateCrm(data.id);
+  return { success: "Customer added." };
+}
+
+export async function updateCrmCustomer(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Customer id is required." };
+
+  const payload = parseCustomerPayload(formData);
+  if (!payload.name) return { error: "Customer name is required." };
+  if (!payload.email) return { error: "Email is required." };
+
+  const { error } = await supabase
+    .from("customers")
+    .update(payload)
+    .eq("id", id)
+    .eq("business_id", business.id);
+
+  if (error) {
+    return {
+      error:
+        error.message.includes("crm_status") || error.message.includes("first_name")
+          ? "Could not save CRM profile. Apply migration 018_crm_department if needed."
+          : error.message,
+    };
+  }
+
+  revalidateCrm(id);
+  return { success: "Customer profile saved." };
+}
+
+export async function addCrmNoteAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const customerId = String(formData.get("customer_id") ?? "");
+  const body = String(formData.get("body") ?? "").trim();
+  if (!customerId || !body) return { error: "Note cannot be empty." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("customer_notes").insert({
+    business_id: business.id,
+    customer_id: customerId,
+    body,
+    is_pinned: formData.get("is_pinned") === "on",
+    is_private: formData.get("is_private") === "on",
+    created_by: await currentUserId(),
+  });
+
+  if (error) {
+    return {
+      error:
+        error.message.includes("customer_notes")
+          ? "Could not save note. Apply migration 018_crm_department if needed."
+          : error.message,
+    };
+  }
+
+  await touchCustomerActivity(business.id, customerId);
+  revalidateCrm(customerId);
+  return { success: "Note saved." };
+}
+
+export async function deleteCrmNoteAction(
+  noteId: string,
+  customerId: string,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("customer_notes")
+    .delete()
+    .eq("id", noteId)
+    .eq("business_id", business.id)
+    .eq("customer_id", customerId);
+
+  if (error) return { error: error.message };
+  revalidateCrm(customerId);
+  return { success: "Note deleted." };
+}
+
+export async function recordCrmPaymentAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const customerId = String(formData.get("customer_id") ?? "");
+  const amount = Number(String(formData.get("amount") ?? "").replace(/[^0-9.]/g, ""));
+  if (!customerId || Number.isNaN(amount)) {
+    return { error: "Amount is required." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("customer_payment_events").insert({
+    business_id: business.id,
+    customer_id: customerId,
+    amount_cents: Math.round(amount * 100),
+    status: (formData.get("status") as string) || "paid",
+    method: (formData.get("method") as string)?.trim() || null,
+    description: (formData.get("description") as string)?.trim() || null,
+    provider: "manual",
+  });
+
+  if (error) {
+    return {
+      error:
+        error.message.includes("customer_payment_events")
+          ? "Could not record payment. Apply migration 018_crm_department if needed."
+          : error.message,
+    };
+  }
+
+  await touchCustomerActivity(business.id, customerId);
+  revalidateCrm(customerId);
+  return { success: "Payment recorded." };
+}
+
+export async function sparkCrmQueryAction(input: {
+  kind:
+    | "summarize_customer"
+    | "inactive_customers"
+    | "top_spenders"
+    | "birthday_promotions"
+    | "custom";
+  customerId?: string;
+  prompt?: string;
+}) {
+  const business = await getOrCreateBusiness();
+  return runCrmAiQuery({
+    businessId: business.id,
+    kind: input.kind,
+    customerId: input.customerId,
+    prompt: input.prompt,
+  });
+}
+
+export { displayCustomerName };

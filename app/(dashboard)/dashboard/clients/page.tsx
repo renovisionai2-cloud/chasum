@@ -1,24 +1,30 @@
-import { CustomersManager } from "@/components/customers/customers-manager";
+import { CrmManager } from "@/components/crm/crm-manager";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
-import { getCustomers } from "@/lib/actions/customers";
+import { getCrmDirectory } from "@/lib/actions/crm";
+import { getLocations } from "@/lib/actions/location";
+import { getStaff } from "@/lib/actions/staff";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Clients",
+  title: "CRM",
 };
 
 export default async function ClientsPage() {
   await getOrCreateBusiness();
-  const customers = await getCustomers();
+  const [customers, staff, locations] = await Promise.all([
+    getCrmDirectory(),
+    getStaff(),
+    getLocations(),
+  ]);
 
   return (
-    <div className="space-y-6">
+    <div className="ds-page">
       <PageHeader
-        title="Clients"
-        description="Your customer database — everyone who has booked with you."
+        title="CRM"
+        description="Customer Relationship Management — directory, profiles, timeline, communication, and insights."
       />
-      <CustomersManager customers={customers} />
+      <CrmManager customers={customers} staff={staff} locations={locations} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 export const DASHBOARD_NAV = [
   { href: "/dashboard", label: "Overview", icon: "layout-dashboard" },
   { href: "/dashboard/calendar", label: "Reception", icon: "calendar" },
-  { href: "/dashboard/clients", label: "Clients", icon: "users" },
+  { href: "/dashboard/clients", label: "CRM", icon: "users" },
   { href: "/dashboard/services", label: "Services", icon: "briefcase" },
   { href: "/dashboard/employees", label: "Employees", icon: "user-cog" },
   { href: "/dashboard/ai-workforce", label: "AI Workforce", icon: "sparkles" },

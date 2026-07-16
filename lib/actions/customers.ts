@@ -147,6 +147,7 @@ export async function updateCustomer(
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/clients");
+  revalidatePath(`/dashboard/clients/${id}`);
   return { success: "Customer updated." };
 }
 
