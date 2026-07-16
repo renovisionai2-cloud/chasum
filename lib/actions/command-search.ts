@@ -120,7 +120,7 @@ export async function searchCommandPalette(
       category: "staff",
       title: s.name,
       subtitle: s.is_active ? s.email ?? "Staff" : "Inactive",
-      href: "/dashboard/staff",
+      href: `/dashboard/employees/${s.id}`,
     });
   }
 

@@ -86,12 +86,54 @@ export async function createStaff(
       photo_url: photoUrl,
       biography,
       qualifications,
+      role_key: "employee",
+      employment_status: "active",
+      permissions: [
+        "appointments:read",
+        "appointments:write",
+        "clients:read",
+        "calendar:manage",
+        "time_clock:use",
+      ],
     })
     .select("id")
     .single();
 
   if (error || !staffMember) {
-    return { error: error?.message ?? "Failed to create staff." };
+    // Pre-migration fallback without HR columns
+    if (error?.message?.includes("role_key") || error?.message?.includes("permissions")) {
+      const fallback = await supabase
+        .from("staff")
+        .insert({
+          business_id: business.id,
+          location_id: locationResult,
+          name: name.trim(),
+          email,
+          title,
+          color,
+          photo_url: photoUrl,
+          biography,
+          qualifications,
+        })
+        .select("id")
+        .single();
+      if (fallback.error || !fallback.data) {
+        return { error: fallback.error?.message ?? "Failed to create employee." };
+      }
+      if (serviceIds.length > 0) {
+        await supabase.from("staff_services").insert(
+          serviceIds.map((serviceId) => ({
+            staff_id: fallback.data.id,
+            service_id: serviceId,
+          })),
+        );
+      }
+      revalidatePath("/dashboard/staff");
+      revalidatePath("/dashboard/employees");
+      revalidatePath("/dashboard/calendar");
+      return { success: "Employee added." };
+    }
+    return { error: error?.message ?? "Failed to create employee." };
   }
 
   if (serviceIds.length > 0) {
@@ -103,9 +145,17 @@ export async function createStaff(
     );
   }
 
+  await supabase.from("staff_locations").upsert({
+    staff_id: staffMember.id,
+    location_id: locationResult,
+    is_primary: true,
+  });
+
   revalidatePath("/dashboard/staff");
+  revalidatePath("/dashboard/employees");
+  revalidatePath(`/dashboard/employees/${staffMember.id}`);
   revalidatePath("/dashboard/calendar");
-  return { success: "Staff member added." };
+  return { success: "Employee added." };
 }
 
 export async function updateStaff(
@@ -150,8 +200,9 @@ export async function updateStaff(
   }
 
   revalidatePath("/dashboard/staff");
+  revalidatePath("/dashboard/employees");
   revalidatePath("/dashboard/calendar");
-  return { success: "Staff member updated." };
+  return { success: "Employee updated." };
 }
 
 export async function deleteStaff(id: string): Promise<ActionState> {
@@ -167,7 +218,8 @@ export async function deleteStaff(id: string): Promise<ActionState> {
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/staff");
-  return { success: "Staff member removed." };
+  revalidatePath("/dashboard/employees");
+  return { success: "Employee removed." };
 }
 
 export async function getPublicStaff(

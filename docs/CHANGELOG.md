@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Employee Management Department)
+
+- Full Employee Management module at `/dashboard/employees` (legacy `/dashboard/staff` redirects)
+- Employee Directory with search and filters (status, department, location)
+- Employee Profile: photo, contact, emergency contact, role & permissions, locations, services, working hours, vacation, availability, payroll & commission, documents, performance dashboard, activity timeline, notes
+- Migration `017_employee_management.sql` — departments, HR columns on `staff`, `staff_locations`, `staff_documents`, `staff_activity`
+- Role/permission catalog ready for multi-staff login, payroll, AI Workforce, and time clock (`lib/employees/*`)
+- Reusable components under `components/employees/`
+
 ### Added (Communication Center Phase 1)
 
 - Customer profile communication tools: Call / Text / Email, copy phone & email, Open Maps

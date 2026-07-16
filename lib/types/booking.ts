@@ -175,14 +175,42 @@ export type Staff = {
   location_id: string;
   name: string;
   email: string | null;
+  phone?: string | null;
   title: string | null;
   photo_url: string | null;
   biography: string | null;
   qualifications: string | null;
   color: string;
   is_active: boolean;
+  department_id?: string | null;
+  employment_status?: string;
+  role_key?: string;
+  permissions?: string[];
+  hire_date?: string | null;
+  termination_date?: string | null;
+  notes?: string | null;
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
+  emergency_contact_relationship?: string | null;
+  pay_type?: string;
+  hourly_rate_cents?: number | null;
+  salary_cents?: number | null;
+  commission_rate_bps?: number | null;
+  payroll_notes?: string | null;
+  user_id?: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type StaffDocument = {
+  id: string;
+  business_id: string;
+  staff_id: string;
+  name: string;
+  category?: string;
+  file_url: string;
+  file_type: string | null;
+  created_at: string;
 };
 
 export type StaffWithServices = Staff & {
