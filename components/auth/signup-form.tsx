@@ -18,7 +18,6 @@ import { Logo } from "@/components/brand/logo";
 import { signUp } from "@/lib/actions/auth";
 import {
   getMarketingPlan,
-  isMarketingPlanId,
   type MarketingPlanId,
 } from "@/lib/marketing/pricing";
 import { useState } from "react";
@@ -96,12 +95,4 @@ export function SignUpForm({
       />
     </AuthForm>
   );
-}
-
-export function resolveInitialPlan(
-  planParam: string | string[] | undefined,
-): MarketingPlanId {
-  const raw = Array.isArray(planParam) ? planParam[0] : planParam;
-  if (raw && isMarketingPlanId(raw)) return raw;
-  return "free";
 }

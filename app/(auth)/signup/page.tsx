@@ -1,7 +1,5 @@
-import {
-  resolveInitialPlan,
-  SignUpForm,
-} from "@/components/auth/signup-form";
+import { SignUpForm } from "@/components/auth/signup-form";
+import { resolveInitialPlan } from "@/lib/marketing/pricing";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

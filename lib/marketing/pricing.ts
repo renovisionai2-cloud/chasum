@@ -129,3 +129,12 @@ export function marketingPlanIdToDbKey(
 export function isMarketingPlanId(value: string): value is MarketingPlanId {
   return MARKETING_PLANS.some((plan) => plan.id === value);
 }
+
+/** Resolve signup `?plan=` for server or client — pure, shared utility. */
+export function resolveInitialPlan(
+  planParam: string | string[] | undefined,
+): MarketingPlanId {
+  const raw = Array.isArray(planParam) ? planParam[0] : planParam;
+  if (raw && isMarketingPlanId(raw)) return raw;
+  return "free";
+}

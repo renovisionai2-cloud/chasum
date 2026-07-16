@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Signup page no longer imports `resolveInitialPlan` from the client `SignUpForm` module — moved to shared `lib/marketing/pricing.ts` so server pages can resolve `?plan=` without a Client/Server boundary error
+
 ### Added (Company Operating System)
 
 - Permanent company docs in `docs/company/` — mandatory reading before development sessions
