@@ -81,6 +81,8 @@ export async function updateStaffWorkingHours(
   }
 
   revalidatePath("/dashboard/staff");
+  revalidatePath("/dashboard/employees");
+  revalidatePath(`/dashboard/employees/${staffId}`);
   return { success: "Working hours updated." };
 }
 
@@ -110,6 +112,8 @@ export async function addStaffVacation(
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/staff");
+  revalidatePath("/dashboard/employees");
+  revalidatePath(`/dashboard/employees/${staffId}`);
   return { success: "Vacation added." };
 }
 
@@ -125,6 +129,7 @@ export async function deleteStaffVacation(id: string): Promise<ActionState> {
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/staff");
+  revalidatePath("/dashboard/employees");
   return { success: "Vacation removed." };
 }
 
