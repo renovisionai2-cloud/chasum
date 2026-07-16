@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Business Management Department)
+
+- Business hub at `/dashboard/business` — control center for how each tenant operates (single/multi location, multi-business, enterprise-ready)
+- Profile: name, logo, cover, description, industry, website, email, phone, tax number, currency, timezone, address, social links
+- Catalog ops: service categories (CRUD/sort/icon/color), rooms & resources, links into Services / Settings hours / Employees / Automation
+- Commerce scaffolds: memberships (weekly/monthly/yearly, limited/unlimited), packages (prepaid visits, expiry, transfer), gift cards (issue + redeem)
+- Taxes (inclusive/exclusive by country/region), discount/promo codes, custom form templates (consent/medical/intake/waiver + e-sign flag), automation rules
+- Migration `020_business_management.sql` — additive multi-tenant tables + business profile columns; soft-fallback when migrations not yet applied
+- Dashboard nav: Business entry (extends existing design system; no UI redesign)
+
 ### Added (Calendar & Booking Engine 2.0)
 
 - Extended calendar views: Agenda, Timeline, Employees, Locations, Resources (alongside Day/Week/Month)

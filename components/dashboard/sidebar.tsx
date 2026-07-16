@@ -10,6 +10,7 @@ import { signOut } from "@/lib/actions/auth";
 import {
   Bell,
   Briefcase,
+  Building2,
   Calendar,
   Code,
   LayoutDashboard,
@@ -34,6 +35,7 @@ const iconMap = {
   calendar: Calendar,
   users: Users,
   briefcase: Briefcase,
+  "building-2": Building2,
   "user-cog": UserCog,
   sparkles: Sparkles,
   bell: Bell,

@@ -77,6 +77,9 @@ export type Business = {
   country?: string | null;
   booking_policy?: string | null;
   description?: string | null;
+  industry?: string | null;
+  tax_number?: string | null;
+  currency?: string;
   public_booking_mode?: PublicBookingMode;
   booking_invite_code?: string | null;
   social_links?: BusinessSocialLinks | null;
