@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Company Operating System)
+
+- Permanent company docs in `docs/company/` — mandatory reading before development sessions
+- `CHASUM_BIBLE.md` — constitution (mission, vision, values, engineering/UI/AI/security/multi-tenant standards, production & release rules)
+- `PRODUCT_PRINCIPLES.md` — feature decision filter (time, money, stress, AI, mobile, enterprise)
+- `MASTER_ROADMAP.md` — official completed departments + future themes
+- `MASTER_TASKS.md` — active backlog, sprint focus, lint/build/CHANGELOG/commit/push rules
+
 ### Added (AI Receptionist Phase 1 — Emma)
 
 - Production foundation for Emma as an AI employee (not a generic chatbot): grounded answers from Chasum hours, services, employees, locations, and policies
