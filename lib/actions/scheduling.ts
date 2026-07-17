@@ -2,9 +2,15 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId, getLocationScope } from "@/lib/actions/location";
-import { createClient } from "@/lib/supabase/server";
+import {
+  previewAvailableSlots,
+  validateBooking,
+} from "@/lib/booking-engine";
 
-/** Single RPC entry point for all slot queries — public and dashboard share this. */
+/**
+ * Thin server-action adapters over the Booking Engine.
+ * Slot authority remains SQL RPCs; TypeScript orchestrates via the facade.
+ */
 export async function fetchAvailableSlots(
   businessId: string,
   serviceId: string,
@@ -13,19 +19,19 @@ export async function fetchAvailableSlots(
   excludeAppointmentId?: string,
   locationId?: string,
 ): Promise<string[]> {
-  const supabase = await createClient();
+  if (!locationId) return [];
 
-  const { data, error } = await supabase.rpc("get_available_slots", {
-    p_business_id: businessId,
-    p_service_id: serviceId,
-    p_staff_id: staffId,
-    p_date: date,
-    p_exclude_appointment_id: excludeAppointmentId ?? null,
-    p_location_id: locationId ?? null,
+  const result = await previewAvailableSlots({
+    channel: "staff",
+    businessId,
+    locationId,
+    serviceId,
+    staffId,
+    date,
+    excludeAppointmentId,
   });
 
-  if (error) throw new Error(error.message);
-  return (data ?? []) as string[];
+  return result.slots.map((slot) => slot.start);
 }
 
 export async function getDashboardAvailableSlots(
@@ -56,15 +62,18 @@ export async function getPublicAvailableSlots(
 ): Promise<string[]> {
   const { getBusinessBySlug } = await import("@/lib/actions/business");
   const business = await getBusinessBySlug(slug);
-  if (!business) return [];
-  return fetchAvailableSlots(
-    business.id,
+  if (!business || !locationId) return [];
+
+  const result = await previewAvailableSlots({
+    channel: "public",
+    businessId: business.id,
+    locationId,
     serviceId,
     staffId,
     date,
-    undefined,
-    locationId,
-  );
+  });
+
+  return result.slots.map((slot) => slot.start);
 }
 
 export async function validateAppointmentSlot(params: {
@@ -76,23 +85,26 @@ export async function validateAppointmentSlot(params: {
   excludeAppointmentId?: string;
   locationId?: string;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  const supabase = await createClient();
+  if (!params.locationId) {
+    return { ok: false, error: "Location is required." };
+  }
 
-  const { error } = await supabase.rpc("validate_appointment_slot", {
-    p_business_id: params.businessId,
-    p_service_id: params.serviceId,
-    p_staff_id: params.staffId,
-    p_start_time: params.startTime,
-    p_end_time: params.endTime,
-    p_exclude_appointment_id: params.excludeAppointmentId ?? null,
-    p_location_id: params.locationId ?? null,
+  const result = await validateBooking({
+    channel: "staff",
+    businessId: params.businessId,
+    locationId: params.locationId,
+    serviceId: params.serviceId,
+    staffId: params.staffId,
+    requestedStart: params.startTime,
+    requestedEnd: params.endTime,
+    excludeAppointmentId: params.excludeAppointmentId,
   });
 
-  if (error) {
-    const message = error.message.includes("Time slot")
-      ? "This time slot is not available."
-      : error.message;
-    return { ok: false, error: message };
+  if (!result.ok) {
+    return {
+      ok: false,
+      error: result.conflicts[0]?.message ?? "This time slot is not available.",
+    };
   }
 
   return { ok: true };

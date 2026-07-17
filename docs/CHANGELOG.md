@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5.0 — Booking Engine Foundation)
+
+- `lib/booking-engine/` facade: `createBooking`, `updateBooking`, `rescheduleBooking`, `resizeBooking`, `cancelBooking`, `previewAvailableSlots`, `validateBooking`
+- Strongly typed `BookingIntent`, `AvailabilityContext`, structured conflict codes, domain event contracts, and optimistic `MutationResult` phases
+- Channel adapters for staff, reception, public, Summer, and API; Chase read projections via `queryUtilizationProjection`
+- Appointment server actions and scheduling helpers route through the facade (SQL RPCs remain authoritative)
+
 ### Added (Phase 4 — Complete Employees Module Foundation)
 
 - Migration `025_employees_module.sql` — first/last/preferred names, booking rules, custom roles, service duration overrides, lunch/overtime hours, hour segments, staff closures, license documents

@@ -1,19 +1,25 @@
 "use server";
 
-import { addMinutes, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
   getActiveLocationId,
   getLocationScope,
 } from "@/lib/actions/location";
-import { validateAppointmentSlot } from "@/lib/actions/scheduling";
-import { withLocationFilter } from "@/lib/location/constants";
+import {
+  cancelBooking,
+  createBooking,
+  queryAppointmentsInRange,
+  rescheduleBooking,
+  resizeBooking,
+  updateBooking,
+  type MutationResult,
+} from "@/lib/booking-engine";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
 import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchestrator";
 import { enqueueWaitlistNotification } from "@/lib/integrations/automation/waitlist";
-import { logAppointmentChange } from "@/lib/booking-engine/conflicts";
 
 function parseAppointmentStart(formData: FormData): Date | null {
   const startTime = formData.get("start_time") as string | null;
@@ -26,33 +32,36 @@ function parseAppointmentStart(formData: FormData): Date | null {
   return null;
 }
 
+function mutationToAction(
+  result: MutationResult,
+  successMessage: string,
+): ActionState {
+  if (result.phase === "success") {
+    return { success: successMessage };
+  }
+  return {
+    error:
+      result.error ??
+      result.conflicts?.[0]?.message ??
+      "Booking could not be completed.",
+  };
+}
+
+function revalidateCalendar() {
+  revalidatePath("/dashboard/calendar");
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/clients");
+}
+
 export async function getAppointments(start: string, end: string) {
   const business = await getOrCreateBusiness();
   const scope = await getLocationScope();
-  const supabase = await createClient();
-
-  let query = supabase
-    .from("appointments")
-    .select(
-      `
-      *,
-      service:services(id, name, color, duration_minutes, buffer_before_minutes, buffer_after_minutes),
-      staff:staff(id, name, color, photo_url),
-      customer:customers(id, name, email, phone),
-      location:locations(id, name)
-    `,
-    )
-    .eq("business_id", business.id)
-    .gte("start_time", start)
-    .lte("start_time", end)
-    .order("start_time");
-
-  query = withLocationFilter(query, scope);
-
-  const { data, error } = await query;
-
-  if (error) throw new Error(error.message);
-  return data;
+  return queryAppointmentsInRange({
+    businessId: business.id,
+    startIso: start,
+    endIso: end,
+    scope,
+  });
 }
 
 export async function getDashboardStats() {
@@ -327,7 +336,6 @@ export async function createAppointment(
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
-  const supabase = await createClient();
 
   const serviceId = formData.get("service_id") as string;
   const staffId = formData.get("staff_id") as string;
@@ -348,58 +356,31 @@ export async function createAppointment(
     return { error: "Select an available time slot." };
   }
 
-  const { data: service } = await supabase
-    .from("services")
-    .select("duration_minutes, buffer_before_minutes, buffer_after_minutes")
-    .eq("id", serviceId)
-    .single();
-
-  if (!service) return { error: "Service not found." };
-
-  const durationMinutes =
-    Number.isFinite(durationOverride) && durationOverride > 0
-      ? durationOverride
-      : service.duration_minutes;
-  const endTime = addMinutes(startTime, durationMinutes);
-
-  const validation = await validateAppointmentSlot({
+  const result = await createBooking({
+    channel: "staff",
     businessId: business.id,
+    locationId,
     serviceId,
     staffId,
-    startTime: startTime.toISOString(),
-    endTime: endTime.toISOString(),
-    locationId,
+    customerId,
+    requestedStart: startTime.toISOString(),
+    notes,
+    requestedStatus: status,
+    durationMinutes:
+      Number.isFinite(durationOverride) && durationOverride > 0
+        ? durationOverride
+        : undefined,
   });
 
-  if (!validation.ok) {
-    return { error: validation.error };
-  }
-
-  const { data: created, error } = await supabase.from("appointments").insert({
-    business_id: business.id,
-    location_id: locationId,
-    service_id: serviceId,
-    staff_id: staffId,
-    customer_id: customerId,
-    start_time: startTime.toISOString(),
-    end_time: endTime.toISOString(),
-    notes,
-    status,
-  }).select("id").single();
-
-  if (error) return { error: error.message };
-
-  if (created?.id) {
+  const action = mutationToAction(result, "Appointment created.");
+  if (result.phase === "success" && result.data?.appointmentId) {
     await handleAppointmentEvent(
-      created.id,
+      result.data.appointmentId,
       status === "confirmed" ? "confirmed" : "created",
     );
+    revalidateCalendar();
   }
-
-  revalidatePath("/dashboard/calendar");
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/clients");
-  return { success: "Appointment created." };
+  return action;
 }
 
 export async function updateAppointment(
@@ -418,100 +399,70 @@ export async function updateAppointment(
   const locationFromForm = (formData.get("location_id") as string) || null;
   const durationOverride = Number(formData.get("duration_minutes"));
 
-  const { data: service } = await supabase
-    .from("services")
-    .select("duration_minutes, buffer_before_minutes, buffer_after_minutes")
-    .eq("id", serviceId)
-    .single();
-
-  if (!service) return { error: "Service not found." };
-
   const startTime = parseAppointmentStart(formData);
   if (!startTime) {
     return { error: "Select an available time slot." };
   }
-
-  const durationMinutes =
-    Number.isFinite(durationOverride) && durationOverride > 0
-      ? durationOverride
-      : service.duration_minutes;
-  const endTime = addMinutes(startTime, durationMinutes);
 
   const { data: existing } = await supabase
     .from("appointments")
     .select("location_id")
     .eq("id", id)
     .eq("business_id", business.id)
-    .single();
+    .maybeSingle();
 
   if (!existing) return { error: "Appointment not found." };
 
   const locationId = locationFromForm || existing.location_id;
 
-  if (status !== "cancelled") {
-    const validation = await validateAppointmentSlot({
-      businessId: business.id,
-      serviceId,
-      staffId,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-      excludeAppointmentId: id,
-      locationId,
-    });
+  const result = await updateBooking({
+    channel: "staff",
+    appointmentId: id,
+    businessId: business.id,
+    locationId,
+    serviceId,
+    staffId,
+    customerId,
+    requestedStart: startTime.toISOString(),
+    notes,
+    requestedStatus: status,
+    durationMinutes:
+      Number.isFinite(durationOverride) && durationOverride > 0
+        ? durationOverride
+        : undefined,
+    excludeAppointmentId: id,
+  });
 
-    if (!validation.ok) {
-      return { error: validation.error };
-    }
+  const action = mutationToAction(result, "Appointment updated.");
+  if (result.phase === "success") {
+    const event =
+      status === "cancelled"
+        ? "cancelled"
+        : status === "confirmed"
+          ? "confirmed"
+          : "updated";
+    await handleAppointmentEvent(id, event);
+    revalidateCalendar();
   }
-
-  const { error } = await supabase
-    .from("appointments")
-    .update({
-      service_id: serviceId,
-      staff_id: staffId,
-      customer_id: customerId,
-      location_id: locationId,
-      start_time: startTime.toISOString(),
-      end_time: endTime.toISOString(),
-      status,
-      notes,
-    })
-    .eq("id", id)
-    .eq("business_id", business.id);
-
-  if (error) return { error: error.message };
-
-  const event =
-    status === "cancelled"
-      ? "cancelled"
-      : status === "confirmed"
-        ? "confirmed"
-        : "updated";
-  await handleAppointmentEvent(id, event);
-
-  revalidatePath("/dashboard/calendar");
-  revalidatePath("/dashboard");
-  return { success: "Appointment updated." };
+  return action;
 }
 
 export async function cancelAppointment(id: string): Promise<ActionState> {
   const business = await getOrCreateBusiness();
-  const supabase = await createClient();
 
-  const { error } = await supabase
-    .from("appointments")
-    .update({ status: "cancelled" })
-    .eq("id", id)
-    .eq("business_id", business.id);
+  const result = await cancelBooking({
+    channel: "staff",
+    businessId: business.id,
+    appointmentId: id,
+  });
 
-  if (error) return { error: error.message };
-
-  await handleAppointmentEvent(id, "cancelled");
-  await enqueueWaitlistNotification(business.id, id);
-
-  revalidatePath("/dashboard/calendar");
-  revalidatePath("/dashboard");
-  return { success: "Appointment cancelled." };
+  const action = mutationToAction(result, "Appointment cancelled.");
+  if (result.phase === "success") {
+    await handleAppointmentEvent(id, "cancelled");
+    await enqueueWaitlistNotification(business.id, id);
+    revalidateCalendar();
+  }
+  return action;
 }
 
 export async function rescheduleAppointment(
@@ -523,146 +474,50 @@ export async function rescheduleAppointment(
 
   const { data: appointment } = await supabase
     .from("appointments")
-    .select("*, service:services(duration_minutes, buffer_before_minutes, buffer_after_minutes)")
+    .select("start_time")
     .eq("id", id)
     .eq("business_id", business.id)
-    .single();
+    .maybeSingle();
 
   if (!appointment) return { error: "Appointment not found." };
 
-  const existingDurationMinutes = Math.max(
-    5,
-    Math.round(
-      (parseISO(appointment.end_time).getTime() -
-        parseISO(appointment.start_time).getTime()) /
-        60_000,
-    ),
-  );
-
-  const startTime = parseISO(newStartTime);
-  const endTime = addMinutes(startTime, existingDurationMinutes);
-
-  const validation = await validateAppointmentSlot({
-    businessId: business.id,
-    serviceId: appointment.service_id,
-    staffId: appointment.staff_id,
-    startTime: startTime.toISOString(),
-    endTime: endTime.toISOString(),
-    excludeAppointmentId: id,
-    locationId: appointment.location_id,
-  });
-
-  if (!validation.ok) {
-    return { error: validation.error };
-  }
-
-  const beforeState = {
-    start_time: appointment.start_time,
-    end_time: appointment.end_time,
-    staff_id: appointment.staff_id,
-    location_id: appointment.location_id,
-  };
-
-  const { error } = await supabase
-    .from("appointments")
-    .update({
-      start_time: startTime.toISOString(),
-      end_time: endTime.toISOString(),
-    })
-    .eq("id", id);
-
-  if (error) return { error: error.message };
-
-  await logAppointmentChange({
+  const result = await rescheduleBooking({
+    channel: "staff",
     businessId: business.id,
     appointmentId: id,
-    action: "reschedule",
-    beforeState,
-    afterState: {
-      start_time: startTime.toISOString(),
-      end_time: endTime.toISOString(),
-    },
+    requestedStart: newStartTime,
   });
 
-  await handleAppointmentEvent(id, "rescheduled", {
-    previousStartTime: appointment.start_time,
-  });
-
-  revalidatePath("/dashboard/calendar");
-  revalidatePath("/dashboard");
-  return { success: "Appointment rescheduled." };
+  const action = mutationToAction(result, "Appointment rescheduled.");
+  if (result.phase === "success") {
+    await handleAppointmentEvent(id, "rescheduled", {
+      previousStartTime: appointment.start_time,
+    });
+    revalidateCalendar();
+  }
+  return action;
 }
 
-/** Change appointment end time while keeping start — validated by scheduling engine. */
+/** Change appointment end time while keeping start — validated by booking engine. */
 export async function resizeAppointment(
   id: string,
   newEndTime: string,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
-  const supabase = await createClient();
 
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select("*")
-    .eq("id", id)
-    .eq("business_id", business.id)
-    .single();
-
-  if (!appointment) return { error: "Appointment not found." };
-  if (appointment.status === "cancelled") {
-    return { error: "Cancelled appointments cannot be resized." };
-  }
-
-  const startTime = parseISO(appointment.start_time);
-  const endTime = parseISO(newEndTime);
-  if (endTime.getTime() <= startTime.getTime()) {
-    return { error: "End time must be after start time." };
-  }
-
-  const validation = await validateAppointmentSlot({
-    businessId: business.id,
-    serviceId: appointment.service_id,
-    staffId: appointment.staff_id,
-    startTime: startTime.toISOString(),
-    endTime: endTime.toISOString(),
-    excludeAppointmentId: id,
-    locationId: appointment.location_id,
-  });
-
-  if (!validation.ok) {
-    return { error: validation.error };
-  }
-
-  const beforeState = {
-    start_time: appointment.start_time,
-    end_time: appointment.end_time,
-    staff_id: appointment.staff_id,
-    location_id: appointment.location_id,
-  };
-
-  const { error } = await supabase
-    .from("appointments")
-    .update({ end_time: endTime.toISOString() })
-    .eq("id", id)
-    .eq("business_id", business.id);
-
-  if (error) return { error: error.message };
-
-  await logAppointmentChange({
+  const result = await resizeBooking({
+    channel: "staff",
     businessId: business.id,
     appointmentId: id,
-    action: "resize",
-    beforeState,
-    afterState: {
-      start_time: appointment.start_time,
-      end_time: endTime.toISOString(),
-    },
+    requestedEnd: newEndTime,
   });
 
-  await handleAppointmentEvent(id, "updated");
-  revalidatePath("/dashboard/calendar");
-  revalidatePath("/dashboard");
-  return { success: "Appointment duration updated." };
+  const action = mutationToAction(result, "Appointment duration updated.");
+  if (result.phase === "success") {
+    await handleAppointmentEvent(id, "updated");
+    revalidateCalendar();
+  }
+  return action;
 }
 
 export async function getPublicAppointments(

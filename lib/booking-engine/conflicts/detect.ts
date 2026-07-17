@@ -1,9 +1,10 @@
-import type { BookingConflict } from "@/lib/booking-engine/types";
+import { conflictFromCode } from "@/lib/booking-engine/conflicts/codes";
+import type { BookingConflict, BookingConflictReport } from "@/lib/booking-engine/types";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Soft conflict helpers for Booking Engine 2.0.
- * Hard prevention remains in validate_appointment_slot / staff gist exclusion.
+ * Soft resource conflict helpers.
+ * Hard staff prevention remains in validate_appointment_slot / gist exclusion.
  */
 export async function findRoomConflicts(input: {
   businessId: string;
@@ -11,7 +12,7 @@ export async function findRoomConflicts(input: {
   startIso: string;
   endIso: string;
   excludeAppointmentId?: string;
-}): Promise<BookingConflict[]> {
+}): Promise<BookingConflictReport[]> {
   const supabase = await createClient();
   let query = supabase
     .from("appointments")
@@ -28,15 +29,31 @@ export async function findRoomConflicts(input: {
 
   const { data, error } = await query;
   if (error) {
-    // Column may not exist pre-migration
     return [];
   }
 
-  return (data ?? []).map((row) => ({
+  return (data ?? []).map((row) =>
+    conflictFromCode("RESOURCE_BUSY", "Room is already booked for this time.", {
+      appointmentId: row.id as string,
+      resourceId: input.roomId,
+    }),
+  );
+}
+
+/** @deprecated Legacy shape for callers still using BookingConflict */
+export async function findRoomConflictsLegacy(input: {
+  businessId: string;
+  roomId: string;
+  startIso: string;
+  endIso: string;
+  excludeAppointmentId?: string;
+}): Promise<BookingConflict[]> {
+  const reports = await findRoomConflicts(input);
+  return reports.map((r) => ({
     kind: "room" as const,
-    message: "Room is already booked for this time.",
-    appointmentId: row.id as string,
-    resourceId: input.roomId,
+    message: r.message,
+    appointmentId: r.appointmentId,
+    resourceId: r.resourceId,
   }));
 }
 

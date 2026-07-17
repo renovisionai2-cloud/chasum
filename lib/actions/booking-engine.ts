@@ -1,9 +1,11 @@
 "use server";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
-import { logAppointmentChange } from "@/lib/booking-engine/conflicts";
+import {
+  createBooking,
+  logAppointmentChange,
+} from "@/lib/booking-engine";
 import type { BookingResource, PortalAppointment } from "@/lib/booking-engine/types";
-import { validateAppointmentSlot } from "@/lib/actions/scheduling";
 import { logQueryError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -58,32 +60,33 @@ export async function duplicateAppointment(
   const newStart = addMinutes(start, durationMin + 30);
   const newEnd = addMinutes(newStart, durationMin);
 
-  const validation = await validateAppointmentSlot({
+  const result = await createBooking({
+    channel: "staff",
     businessId: business.id,
-    staffId: source.staff_id as string,
-    serviceId: source.service_id as string,
     locationId: source.location_id as string,
-    startTime: newStart.toISOString(),
-    endTime: newEnd.toISOString(),
+    serviceId: source.service_id as string,
+    staffId: source.staff_id as string,
+    customerId: source.customer_id as string,
+    requestedStart: newStart.toISOString(),
+    requestedEnd: newEnd.toISOString(),
+    durationMinutes: durationMin,
+    notes: (source.notes as string | null) ?? null,
+    requestedStatus: "pending",
+    roomId: (source.room_id as string | null) ?? null,
   });
 
-  if (!validation.ok) {
-    return { error: validation.error ?? "Cannot duplicate into a conflicting slot." };
+  if (result.phase !== "success" || !result.data?.appointmentId) {
+    return {
+      error:
+        result.error ??
+        result.conflicts?.[0]?.message ??
+        "Cannot duplicate into a conflicting slot.",
+    };
   }
 
-  const { data: created, error: insertError } = await supabase
+  await supabase
     .from("appointments")
-    .insert({
-      business_id: business.id,
-      location_id: source.location_id,
-      service_id: source.service_id,
-      staff_id: source.staff_id,
-      customer_id: source.customer_id,
-      start_time: newStart.toISOString(),
-      end_time: newEnd.toISOString(),
-      status: "pending",
-      notes: source.notes,
-      room_id: source.room_id ?? null,
+    .update({
       color: source.color ?? null,
       price_cents: source.price_cents ?? null,
       tax_cents: source.tax_cents ?? 0,
@@ -93,16 +96,12 @@ export async function duplicateAppointment(
       custom_fields: source.custom_fields ?? {},
       travel_minutes: source.travel_minutes ?? 0,
     })
-    .select("id")
-    .single();
-
-  if (insertError || !created) {
-    return { error: insertError?.message ?? "Failed to duplicate." };
-  }
+    .eq("id", result.data.appointmentId)
+    .eq("business_id", business.id);
 
   await logAppointmentChange({
     businessId: business.id,
-    appointmentId: created.id,
+    appointmentId: result.data.appointmentId,
     action: "duplicate",
     beforeState: { sourceId: appointmentId },
     afterState: { start_time: newStart.toISOString() },

@@ -1,7 +1,203 @@
 /**
- * Booking Engine 2.0 — shared types for calendar, portal, resources, conflicts.
- * Integrates with CRM, Communication, Employees, Locations (no breaking FK changes).
+ * Booking Engine Foundation — shared contracts.
+ * Surfaces (staff, public, Summer, API) speak BookingIntent.
+ * SQL RPCs remain authoritative for slot validation.
  */
+
+import type { AppointmentStatus } from "@/lib/types/booking";
+
+// —— Channels & intent ——
+
+export type BookingChannel =
+  | "staff"
+  | "reception"
+  | "public"
+  | "summer"
+  | "api";
+
+export type BookingIntent = {
+  channel: BookingChannel;
+  businessId: string;
+  locationId: string;
+  serviceId: string;
+  staffId: string;
+  /** Required for create/update mutations; optional for validate-only calls */
+  customerId?: string;
+  resourceIds?: string[];
+  /** ISO timestamptz */
+  requestedStart: string;
+  /** ISO timestamptz — derived from duration when omitted */
+  requestedEnd?: string;
+  notes?: string | null;
+  requestedStatus?: AppointmentStatus;
+  /** Minutes override (staff duration override / resize context) */
+  durationMinutes?: number;
+  /** Exclude self when validating updates / reschedules */
+  excludeAppointmentId?: string;
+  roomId?: string | null;
+};
+
+export type RescheduleIntent = {
+  channel: BookingChannel;
+  businessId: string;
+  appointmentId: string;
+  requestedStart: string;
+  staffId?: string;
+  locationId?: string;
+};
+
+export type ResizeIntent = {
+  channel: BookingChannel;
+  businessId: string;
+  appointmentId: string;
+  requestedEnd: string;
+};
+
+export type CancelIntent = {
+  channel: BookingChannel;
+  businessId: string;
+  appointmentId: string;
+  reason?: string | null;
+};
+
+export type UpdateBookingIntent = BookingIntent & {
+  appointmentId: string;
+};
+
+export type PreviewSlotsInput = {
+  channel: BookingChannel;
+  businessId: string;
+  locationId: string;
+  serviceId: string;
+  staffId: string;
+  /** YYYY-MM-DD */
+  date: string;
+  excludeAppointmentId?: string;
+};
+
+// —— Availability context (composed from Business / Services / Employees) ——
+
+export type AvailabilityContext = {
+  businessId: string;
+  locationId: string;
+  serviceId: string;
+  staffId: string;
+  channel: BookingChannel;
+  /** Service duration in minutes (staff override applied when present) */
+  durationMinutes: number;
+  cleanupMinutes: number;
+  bufferBeforeMinutes: number;
+  bufferAfterMinutes: number;
+  minNoticeMinutes: number | null;
+  maxBookingDaysAhead: number | null;
+  maxAppointmentsPerDay: number | null;
+  allowDoubleBooking: boolean;
+  acceptOnlineBookings: boolean;
+  bookingVisibility: "online" | "hidden" | "internal" | null;
+  confirmationMode: "inherit" | "auto_confirm" | "require_approval" | null;
+  priorityScheduling: number;
+  serviceActive: boolean;
+  staffActive: boolean;
+  /** Effective end = start + duration (cleanup/buffers applied by RPC candidate expansion) */
+  composedAt: string;
+};
+
+// —— Conflicts ——
+
+export type BookingConflictCode =
+  | "STAFF_BUSY"
+  | "RESOURCE_BUSY"
+  | "OUTSIDE_BUSINESS_HOURS"
+  | "OUTSIDE_EMPLOYEE_HOURS"
+  | "VACATION"
+  | "LUNCH_BREAK"
+  | "SERVICE_BLACKOUT"
+  | "BUSINESS_CLOSURE"
+  | "MIN_NOTICE"
+  | "MAX_BOOKING_WINDOW"
+  | "MAX_APPOINTMENTS"
+  | "DOUBLE_BOOKING"
+  | "NOT_AUTHORIZED"
+  | "UNKNOWN";
+
+export type BookingConflictReport = {
+  code: BookingConflictCode;
+  message: string;
+  severity: "error" | "warning";
+  recoverable: boolean;
+  appointmentId?: string;
+  resourceId?: string;
+  details?: Record<string, unknown>;
+};
+
+/** @deprecated Prefer BookingConflictReport — kept for existing resource helpers */
+export type ConflictKind =
+  | "employee"
+  | "room"
+  | "resource"
+  | "vacation"
+  | "holiday"
+  | "double_booking";
+
+/** @deprecated Prefer BookingConflictReport */
+export type BookingConflict = {
+  kind: ConflictKind;
+  message: string;
+  appointmentId?: string;
+  resourceId?: string;
+};
+
+// —— Mutation result (optimistic UI contract) ——
+
+export type MutationPhase = "pending" | "success" | "rollback" | "conflict";
+
+export type MutationResult<T = { appointmentId: string }> = {
+  phase: MutationPhase;
+  data?: T;
+  conflicts?: BookingConflictReport[];
+  error?: string;
+  events?: BookingDomainEvent[];
+};
+
+export type SlotCandidate = {
+  start: string;
+  end?: string;
+  staffId: string;
+  locationId: string;
+  serviceId: string;
+};
+
+export type PreviewSlotsResult = {
+  slots: SlotCandidate[];
+  context: AvailabilityContext;
+  conflicts?: BookingConflictReport[];
+};
+
+export type ValidateBookingResult =
+  | { ok: true; context: AvailabilityContext; endTime: string }
+  | { ok: false; conflicts: BookingConflictReport[]; context?: AvailabilityContext };
+
+// —— Domain events ——
+
+export type BookingDomainEventType =
+  | "appointment.created"
+  | "appointment.updated"
+  | "appointment.cancelled"
+  | "appointment.rescheduled"
+  | "appointment.completed"
+  | "appointment.no_show"
+  | "appointment.checked_in";
+
+export type BookingDomainEvent = {
+  type: BookingDomainEventType;
+  businessId: string;
+  appointmentId: string;
+  channel: BookingChannel;
+  occurredAt: string;
+  payload?: Record<string, unknown>;
+};
+
+// —— Legacy resource / portal types (unchanged contracts) ——
 
 export type BookingResourceType = "room" | "equipment" | "vehicle" | "other";
 
@@ -31,21 +227,6 @@ export type AppointmentCommercial = {
   custom_fields?: Record<string, unknown>;
   travel_minutes?: number;
   timezone?: string | null;
-};
-
-export type ConflictKind =
-  | "employee"
-  | "room"
-  | "resource"
-  | "vacation"
-  | "holiday"
-  | "double_booking";
-
-export type BookingConflict = {
-  kind: ConflictKind;
-  message: string;
-  appointmentId?: string;
-  resourceId?: string;
 };
 
 export type CalendarViewMode =
