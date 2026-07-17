@@ -45,6 +45,8 @@ type DashboardPreviewProps = {
     | "billing";
   compact?: boolean;
   animated?: boolean;
+  /** Larger product stage for the marketing hero. */
+  hero?: boolean;
   /** Enable live micro-demos inside panes. Defaults to true when not compact. */
   live?: boolean;
 };
@@ -80,6 +82,7 @@ export function DashboardPreview({
   variant = "overview",
   compact = false,
   animated = false,
+  hero = false,
   live,
 }: DashboardPreviewProps) {
   const isLive = live ?? !compact;
@@ -112,7 +115,11 @@ export function DashboardPreview({
       <div
         className={cn(
           "flex",
-          compact ? "min-h-[220px]" : "min-h-[360px] md:min-h-[480px]",
+          compact
+            ? "min-h-[220px]"
+            : hero
+              ? "min-h-[320px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[560px] xl:min-h-[600px]"
+              : "min-h-[360px] md:min-h-[480px]",
         )}
       >
         <aside className="hidden w-44 shrink-0 border-r border-border bg-muted/20 p-3 sm:block">

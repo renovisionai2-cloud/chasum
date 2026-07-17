@@ -216,22 +216,130 @@ body {
   }
 }
 
-.marketing-hero-grid {
-  background-image:
-    linear-gradient(
-      color-mix(in srgb, var(--border) 42%, transparent) 1px,
-      transparent 1px
+/* World-class hero atmosphere — quiet white + soft blue */
+.marketing-hero-atmosphere {
+  background:
+    radial-gradient(
+      70% 55% at 50% -5%,
+      color-mix(in srgb, var(--primary) 14%, transparent),
+      transparent 68%
     ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--border) 42%, transparent) 1px,
-      transparent 1px
+    radial-gradient(
+      45% 40% at 50% 42%,
+      color-mix(in srgb, var(--primary) 6%, transparent),
+      transparent 70%
     );
-  background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, black 0%, transparent 82%);
-  opacity: 0.34;
 }
 
+.marketing-hero-glow {
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    color-mix(in srgb, var(--primary) 28%, transparent),
+    color-mix(in srgb, var(--spark) 8%, transparent) 42%,
+    transparent 72%
+  );
+  filter: blur(40px);
+  opacity: 0.9;
+}
+
+@keyframes marketing-hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marketing-hero-enter {
+  animation: marketing-hero-enter 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.marketing-hero-enter-delay-1 {
+  animation-delay: 80ms;
+}
+
+.marketing-hero-enter-delay-2 {
+  animation-delay: 160ms;
+}
+
+.marketing-hero-enter-delay-3 {
+  animation-delay: 240ms;
+}
+
+.marketing-hero-enter-delay-4 {
+  animation-delay: 320ms;
+}
+
+.marketing-dashboard-float {
+  animation: marketing-float 7s ease-in-out infinite;
+}
+
+.marketing-dashboard-stage {
+  perspective: 1400px;
+  transform: rotateX(1.25deg);
+  transition: transform 0.55s ease;
+}
+
+.marketing-dashboard-stage:hover {
+  transform: rotateX(0deg) translateY(-3px);
+}
+
+/* Full-width product stage with glass edge */
+.marketing-hero-stage {
+  perspective: 1600px;
+  transform-style: preserve-3d;
+}
+
+.marketing-hero-stage .marketing-hero-frame {
+  transform: rotateX(1.5deg) translateZ(0);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.marketing-hero-stage:hover .marketing-hero-frame {
+  transform: rotateX(0deg) translateY(-4px);
+}
+
+.marketing-hero-frame {
+  width: 100%;
+  min-height: 300px;
+  border-color: color-mix(in srgb, var(--border) 70%, transparent) !important;
+  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, white 40%, transparent),
+    0 2px 4px color-mix(in srgb, var(--foreground) 4%, transparent),
+    0 24px 48px -20px color-mix(in srgb, var(--foreground) 18%, transparent),
+    0 64px 120px -48px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+@media (min-width: 640px) {
+  .marketing-hero-frame {
+    min-height: 380px;
+  }
+}
+
+@media (min-width: 768px) {
+  .marketing-hero-frame {
+    min-height: 480px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .marketing-hero-frame {
+    min-height: 560px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .marketing-hero-frame {
+    min-height: 600px;
+  }
+}
+
+/* Legacy orb utilities still used by final CTA */
 .marketing-orb {
   height: 22rem;
   width: 22rem;
@@ -256,59 +364,6 @@ body {
   }
   to {
     transform: translate3d(22px, -18px, 0) scale(1.05);
-  }
-}
-
-.marketing-dashboard-float {
-  animation: marketing-float 5.5s ease-in-out infinite;
-}
-
-.marketing-dashboard-stage {
-  perspective: 1200px;
-  transform: rotateY(-1.5deg) rotateX(0.5deg);
-  transition: transform 0.5s ease;
-}
-
-.marketing-dashboard-stage:hover {
-  transform: rotateY(0) rotateX(0) translateY(-2px);
-}
-
-.marketing-hero-product {
-  position: relative;
-  border-radius: var(--radius-xl);
-  padding: 1px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--primary) 28%, transparent),
-    color-mix(in srgb, var(--border) 70%, transparent) 40%,
-    color-mix(in srgb, var(--spark) 18%, transparent)
-  );
-  box-shadow:
-    0 1px 0 color-mix(in srgb, white 55%, transparent),
-    0 48px 96px -48px color-mix(in srgb, var(--foreground) 35%, transparent);
-}
-
-.marketing-hero-product > * {
-  border-radius: calc(var(--radius-xl) - 1px);
-}
-
-.marketing-hero-product-light {
-  background: radial-gradient(
-    ellipse at center,
-    color-mix(in srgb, var(--primary) 22%, transparent),
-    color-mix(in srgb, var(--spark) 10%, transparent) 45%,
-    transparent 70%
-  );
-  filter: blur(28px);
-}
-
-.marketing-hero-dashboard {
-  min-height: 340px;
-}
-
-@media (min-width: 768px) {
-  .marketing-hero-dashboard {
-    min-height: 520px;
   }
 }
 
@@ -441,6 +496,7 @@ body {
   .marketing-preview-enter,
   .marketing-toast,
   .marketing-row-in,
+  .marketing-hero-enter,
   .marketing-orb {
     animation: none !important;
     filter: none !important;
@@ -450,6 +506,8 @@ body {
   .marketing-card-lift:hover,
   .marketing-dashboard-stage,
   .marketing-dashboard-stage:hover,
+  .marketing-hero-stage .marketing-hero-frame,
+  .marketing-hero-stage:hover .marketing-hero-frame,
   .marketing-cta-button,
   .marketing-cta-button:hover,
   .marketing-stat-card,

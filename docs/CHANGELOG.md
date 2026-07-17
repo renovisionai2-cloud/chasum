@@ -9,11 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed (Public marketing website — Phase 1 visual craft)
+### Changed (Public marketing website — Phase 1 world-class hero)
 
-- Redesigned the hero into a centered, product-first composition: dramatically larger headline (up to ~88px), larger subhead/CTAs, Apple-style floating dashboard presentation with soft light and glass edge, clearer hierarchy (headline → product → CTA → trust)
-- Elevated the trust band immediately after the hero — larger logo cloud marks, bigger trusted-platform typography and stat cards; kept brand, logo artwork, colors, and messaging unchanged
-- Stopped after Hero + Trust; no other section redesigns in this pass
+- Rebuilt the homepage hero from first principles: centered 1400px composition, commanding 80–96px headline, product-dominant floating dashboard (glass edge, soft shadow, slight perspective, live micro-motion), two CTAs only + tour link, and three trust lines under the CTA
+- Quiet white + soft blue atmosphere with a glow behind the dashboard — no busy graphics, logo-in-hero, or hero stat cards
+- Brand colors and core headline/subhead messaging preserved; no other marketing sections redesigned in this pass
 
 ### Changed (Public marketing website — Phase 3)
 
