@@ -1,7 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="Chasum AI Spark">
-<title>Chasum AI Spark</title>
-<defs><linearGradient id="spg" x1="18%" y1="0%" x2="82%" y2="100%"><stop offset="0%" stop-color="#2563EB"/><stop offset="48%" stop-color="#1E40AF"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient></defs>
-<path fill="url(#spg)" d="M32 2C34.8 15.2 41.6 21.4 54.2 23.2C41.6 25 34.8 31.8 32 48C29.2 31.8 22.4 25 9.8 23.2C22.4 21.4 29.2 15.2 32 2Z"/>
-<circle cx="47.5" cy="13.5" r="2.6" fill="url(#spg)"/><circle cx="16.5" cy="50.5" r="2.6" fill="url(#spg)"/>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1200px"
+	 height="1200px" viewBox="0 0 1200 1200" enable-background="new 0 0 1200 1200" xml:space="preserve">
+<g id="master_logo">
+</g>
+<g id="Logo_icon">
+</g>
+<g id="Spark">
+	<g>
+		<linearGradient id="spark-1_" gradientUnits="userSpaceOnUse" x1="446.8597" y1="396.9437" x2="754.3083" y2="804.6052">
+			<stop  offset="0" style="stop-color:#0178FB"/>
+			<stop  offset="0.3687" style="stop-color:#003CE6"/>
+			<stop  offset="0.5434" style="stop-color:#2731EC"/>
+			<stop  offset="0.729" style="stop-color:#4926F1"/>
+			<stop  offset="0.8821" style="stop-color:#5E20F5"/>
+			<stop  offset="0.9824" style="stop-color:#661EF6"/>
+		</linearGradient>
+		<path fill="url(#spark-1_)" d="M30.946,600c0,5.114,3.772,9.426,8.848,10.043c47.477,5.767,274.132,37.757,388.587,134.479
+			c112.871,95.383,150.198,344.649,157.532,403.104c0.893,7.113,6.92,12.395,14.088,12.395h0.001
+			c7.168,0,13.195-5.283,14.088-12.395c7.334-58.455,44.661-307.721,157.531-403.104c114.454-96.722,341.11-128.712,388.586-134.479
+			c5.076-0.617,8.848-4.929,8.848-10.043l0,0c0-5.114-3.771-9.426-8.848-10.043c-47.476-5.767-274.132-37.757-388.586-134.479
+			c-112.87-95.383-150.197-344.65-157.531-403.105c-0.893-7.112-6.92-12.395-14.088-12.395H600c-7.168,0-13.195,5.283-14.088,12.395
+			c-7.334,58.455-44.661,307.722-157.532,403.105C313.926,552.201,87.27,584.19,39.794,589.957
+			C34.718,590.574,30.946,594.886,30.946,600L30.946,600z"/>
+		<linearGradient id="spark-2_" gradientUnits="userSpaceOnUse" x1="118.5622" y1="1029.049" x2="252.2448" y2="1029.049">
+			<stop  offset="0.0608" style="stop-color:#0D6AFD"/>
+			<stop  offset="1" style="stop-color:#003CE6"/>
+		</linearGradient>
+		<circle fill="url(#spark-2_)" cx="185.404" cy="1029.049" r="66.841"/>
+		<linearGradient id="spark-3_" gradientUnits="userSpaceOnUse" x1="944.1424" y1="206.1785" x2="1077.825" y2="206.1785">
+			<stop  offset="0.0608" style="stop-color:#0D6AFD"/>
+			<stop  offset="1" style="stop-color:#003CE6"/>
+		</linearGradient>
+		<circle fill="url(#spark-3_)" cx="1010.984" cy="206.179" r="66.841"/>
+	</g>
+</g>
+<g id="Wordmark">
+</g>
 </svg>

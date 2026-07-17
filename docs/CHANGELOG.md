@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Brand integration complete)
+
+- Wired official Chasum brand pack (SVG/PNG) into web assets: C Mark, spark, wordmark, horizontal/full lockups, favicon package, apple/android icons, and `/og-image.png`
+- Restored `@/components/brand/*` as the single React logo source; updated root metadata (icons, Open Graph, Twitter, robots, theme-color) and PWA manifest
+- Added branded `not-found` and `global-error` surfaces using the official Logo component
+
 ### Changed (Public marketing website — Launch polish sprint)
 
 - Premium motion and micro-interactions: smoother scroll reveals, FAQ accordion height animation, nav underline/dropdown transitions, card/button hover-active-focus states, product-frame lift

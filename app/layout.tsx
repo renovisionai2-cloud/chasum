@@ -17,7 +17,10 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   applicationName: BRAND_NAME,
   title: {
     default: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
@@ -25,14 +28,24 @@ export const metadata: Metadata = {
   },
   description:
     "The AI-powered Business Operating System for service businesses. Scheduling, clients, locations, and intelligent automation in one platform.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-  ),
+  keywords: [
+    "Chasum",
+    "AI Business Operating System",
+    "service business software",
+    "scheduling",
+    "CRM",
+    "AI receptionist",
+  ],
+  authors: [{ name: BRAND_NAME }],
+  creator: BRAND_NAME,
+  publisher: BRAND_NAME,
   manifest: "/site.webmanifest",
   icons: {
     icon: [
-      { url: BRAND_ASSETS.favicon, type: "image/svg+xml" },
-      { url: BRAND_ASSETS.icon, type: "image/svg+xml" },
+      { url: BRAND_ASSETS.favicon, sizes: "any" },
+      { url: BRAND_ASSETS.favicon16, sizes: "16x16", type: "image/png" },
+      { url: BRAND_ASSETS.favicon32, sizes: "32x32", type: "image/png" },
+      { url: BRAND_ASSETS.faviconSvg, type: "image/svg+xml" },
     ],
     apple: [{ url: BRAND_ASSETS.appleTouchIcon, sizes: "180x180" }],
     shortcut: BRAND_ASSETS.favicon,
@@ -44,10 +57,38 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
+    locale: "en_US",
+    url: appUrl,
     siteName: BRAND_NAME,
     title: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
     description:
       "Scheduling, clients, locations, and intelligent automation in one platform.",
+    images: [
+      {
+        url: BRAND_ASSETS.ogImage,
+        width: 1200,
+        height: 630,
+        alt: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
+    description:
+      "Scheduling, clients, locations, and intelligent automation in one platform.",
+    images: [BRAND_ASSETS.ogImage],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 
@@ -72,8 +113,22 @@ export default function RootLayout({
       <head>
         <ThemeScript />
         <link rel="manifest" href="/site.webmanifest" />
-        <link rel="icon" href={BRAND_ASSETS.favicon} type="image/svg+xml" />
+        <link rel="icon" href={BRAND_ASSETS.favicon} sizes="any" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href={BRAND_ASSETS.favicon32}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href={BRAND_ASSETS.favicon16}
+        />
+        <link rel="icon" href={BRAND_ASSETS.faviconSvg} type="image/svg+xml" />
         <link rel="apple-touch-icon" href={BRAND_ASSETS.appleTouchIcon} />
+        <meta name="theme-color" content="#2563eb" />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>

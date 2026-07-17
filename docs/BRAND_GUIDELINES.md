@@ -22,17 +22,17 @@ Tagline: **AI Business Operating System**
 
 | File | Use |
 |------|-----|
-| `logo-full.svg` | C Mark + wordmark + tagline |
-| `logo-horizontal.svg` | C Mark + wordmark |
+| `logo-full.png` / `.svg` | C Mark + wordmark + tagline |
+| `logo-horizontal.png` | C Mark + wordmark (nav / chrome) |
 | `logo-stacked.svg` | Stacked lockup |
-| `wordmark.svg` | CHASUM (custom A + AI dot) |
-| `logo-icon.svg` | C Mark |
-| `spark.svg` | AI Spark |
-| `favicon.svg` | Favicon |
-| `apple-touch-icon.png` | 180×180 |
-| `manifest-icon.png` | 512×512 |
-| `app-icon-1024.png` | 1024×1024 |
-| `*-light.svg` | Light ink on dark surfaces |
+| `wordmark.png` / `.svg` | CHASUM (custom A + AI dot) |
+| `logo-icon.png` / `.svg` | C Mark |
+| `spark.png` / `.svg` | AI Spark |
+| `favicon.svg` | Favicon (SVG) |
+| `SVG/`, `PNG/` | Official Illustrator exports (source masters) |
+| `*-light.png` | Light ink on dark surfaces |
+
+Root public icons: `/favicon.ico`, `/favicon-16x16.png`, `/favicon-32x32.png`, `/apple-touch-icon.png`, `/android-chrome-*.png`, `/og-image.png`, `/site.webmanifest`.
 
 Constants: `lib/brand/assets.ts`
 
@@ -43,9 +43,9 @@ Constants: `lib/brand/assets.ts`
 | Component | Asset |
 |-----------|--------|
 | `<Logo />` | horizontal (`withTagline` → full) |
-| `<LogoIcon />` | `logo-icon.svg` |
-| `<Wordmark />` | `wordmark.svg` |
-| `<Spark />` | `spark.svg` |
+| `<LogoIcon />` | `logo-icon.png` |
+| `<Wordmark />` | `wordmark.png` |
+| `<Spark />` | `spark.png` |
 
 Import only from `@/components/brand/*`. Never recreate the wordmark with CSS text.
 

@@ -23,6 +23,14 @@ export const metadata: Metadata = {
     title: "Chasum — Run your business. Let AI handle the rest.",
     description:
       "The AI Business Operating System built for service businesses. Start free.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Chasum — AI Business Operating System",
+      },
+    ],
   },
 };
 

@@ -1,37 +1,45 @@
 /** Official Chasum Brand V1.0 — assets from the approved Brand Identity board. */
 
 export const BRAND_ASSETS = {
-  /** Full lockup: icon + wordmark + tagline */
-  logoFull: "/brand/logo-full.svg",
-  logoFullLight: "/brand/logo-full-light.svg",
+  /** Full lockup: icon + wordmark + tagline (official master) */
+  logoFull: "/brand/logo-full.png",
+  logoFullLight: "/brand/logo-full-light.png",
   /** Horizontal: icon + wordmark (nav / product chrome) */
-  logoHorizontal: "/brand/logo-horizontal.svg",
-  logoHorizontalLight: "/brand/logo-horizontal-light.svg",
+  logoHorizontal: "/brand/logo-horizontal.png",
+  logoHorizontalLight: "/brand/logo-horizontal-light.png",
   /** Wordmark name only — custom A + AI dot (never CSS text) */
-  wordmark: "/brand/wordmark.svg",
-  wordmarkLight: "/brand/wordmark-light.svg",
+  wordmark: "/brand/wordmark.png",
+  wordmarkLight: "/brand/wordmark-light.png",
   /** Wordmark + tagline */
-  wordmarkTagline: "/brand/wordmark-tagline.svg",
-  wordmarkTaglineLight: "/brand/wordmark-tagline-light.svg",
+  wordmarkTagline: "/brand/wordmark-tagline.png",
+  wordmarkTaglineLight: "/brand/wordmark-tagline-light.png",
   /** @deprecated Alias — same as wordmark */
-  wordmarkName: "/brand/wordmark.svg",
-  wordmarkNameLight: "/brand/wordmark-light.svg",
+  wordmarkName: "/brand/wordmark.png",
+  wordmarkNameLight: "/brand/wordmark-light.png",
   /** Stacked lockup (C above wordmark + tagline) */
   logoStacked: "/brand/logo-stacked.svg",
   logoStackedLight: "/brand/logo-stacked-light.svg",
-  /** Icon only — The C Mark with signal dots */
-  logoIcon: "/brand/logo-icon.svg",
+  /** Icon only — The C Mark with signal dots (official) */
+  logoIcon: "/brand/logo-icon.png",
+  logoIconSvg: "/brand/logo-icon.svg",
   /** AI Spark — intelligence features only */
-  spark: "/brand/spark.svg",
-  favicon: "/brand/favicon.svg",
-  appleTouchIcon: "/brand/apple-touch-icon.png",
+  spark: "/brand/spark.png",
+  sparkSvg: "/brand/spark.svg",
+  favicon: "/favicon.ico",
+  faviconSvg: "/brand/favicon.svg",
+  favicon16: "/favicon-16x16.png",
+  favicon32: "/favicon-32x32.png",
+  appleTouchIcon: "/apple-touch-icon.png",
+  androidChrome192: "/android-chrome-192x192.png",
+  androidChrome512: "/android-chrome-512x512.png",
   manifestIcon: "/brand/manifest-icon.png",
   appIcon1024: "/brand/app-icon-1024.png",
+  ogImage: "/og-image.png",
 
   /** Compatibility aliases */
-  logo: "/brand/logo-icon.svg",
-  logoDark: "/brand/logo-icon.svg",
-  logoLight: "/brand/logo-light.svg",
+  logo: "/brand/logo-icon.png",
+  logoDark: "/brand/logo-icon.png",
+  logoLight: "/brand/logo-icon.png",
   icon: "/brand/logo-icon.svg",
 } as const;
 

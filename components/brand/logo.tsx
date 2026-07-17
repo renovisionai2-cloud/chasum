@@ -127,16 +127,15 @@ export function LogoIcon({
   const px = typeof size === "number" ? size : iconPx[size];
   const src =
     tone === "light" ? BRAND_ASSETS.logoLight : BRAND_ASSETS.logoIcon;
-  const width = Math.round((px * 74) / 64);
 
   return (
     <Image
       src={src}
       alt={BRAND_NAME}
-      width={width}
+      width={px}
       height={px}
       className={cn("shrink-0 object-contain", className)}
-      style={{ height: px, width: "auto" }}
+      style={{ height: px, width: px }}
       priority={priority}
       unoptimized
     />
