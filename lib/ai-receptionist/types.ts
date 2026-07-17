@@ -101,8 +101,14 @@ export type BusinessKnowledge = {
     name: string;
     description: string | null;
     durationMinutes: number;
+    cleanupMinutes?: number;
     price: number;
     category: string | null;
+    bufferBeforeMinutes?: number;
+    bufferAfterMinutes?: number;
+    employeeIds?: string[];
+    bookingVisibility?: string;
+    confirmationMode?: string;
   }>;
   employees: Array<{
     id: string;

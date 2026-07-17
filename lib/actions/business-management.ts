@@ -172,7 +172,9 @@ export async function upsertServiceCategory(
     icon: emptyToNull(formData.get("icon")),
     color: (formData.get("color") as string) || "#64748b",
     sort_order: Number(formData.get("sort_order") ?? 0) || 0,
-    is_active: formData.get("is_active") !== "false",
+    is_active:
+      formData.get("is_active") === "true" ||
+      formData.get("is_active") === "on",
   };
 
   const { error } = id
@@ -188,6 +190,7 @@ export async function upsertServiceCategory(
     };
   }
   revalidateBusiness();
+  revalidatePath("/dashboard/services");
   return { success: id ? "Category updated." : "Category created." };
 }
 
@@ -201,7 +204,34 @@ export async function deleteServiceCategory(id: string): Promise<ActionState> {
     .eq("business_id", business.id);
   if (error) return { error: error.message };
   revalidateBusiness();
+  revalidatePath("/dashboard/services");
   return { success: "Category deleted." };
+}
+
+export async function reorderServiceCategories(
+  orderedIds: string[],
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  for (let index = 0; index < orderedIds.length; index += 1) {
+    const { error } = await supabase
+      .from("service_categories")
+      .update({ sort_order: index })
+      .eq("id", orderedIds[index])
+      .eq("business_id", business.id);
+    if (error) {
+      return {
+        error: error.message.includes("service_categories")
+          ? "Apply migration 020_business_management to enable categories."
+          : error.message,
+      };
+    }
+  }
+
+  revalidateBusiness();
+  revalidatePath("/dashboard/services");
+  return { success: "Category order updated." };
 }
 
 // —— Resources (rooms / equipment) ——

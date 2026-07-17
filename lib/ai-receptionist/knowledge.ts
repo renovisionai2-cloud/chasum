@@ -43,12 +43,25 @@ export async function loadBusinessKnowledge(input?: {
   const supabase = await createClient();
   const locationId = input?.locationId ?? (await getActiveLocationId());
 
-  const [
-    hoursRes,
-    locationsRes,
-    servicesRes,
-    staffRes,
-  ] = await Promise.all([
+  const richServices = await supabase
+    .from("services")
+    .select(
+      "id, name, description, duration_minutes, cleanup_minutes, price, category, location_id, is_active, buffer_before_minutes, buffer_after_minutes, booking_visibility, confirmation_mode, staff_services(staff_id)",
+    )
+    .eq("business_id", business.id)
+    .eq("is_active", true);
+
+  const servicesRes = richServices.error
+    ? await supabase
+        .from("services")
+        .select(
+          "id, name, description, duration_minutes, price, category, location_id, is_active, buffer_before_minutes, buffer_after_minutes, staff_services(staff_id)",
+        )
+        .eq("business_id", business.id)
+        .eq("is_active", true)
+    : richServices;
+
+  const [hoursRes, locationsRes, staffRes] = await Promise.all([
     supabase
       .from("business_hours")
       .select("day_of_week, is_open, open_time, close_time")
@@ -62,13 +75,6 @@ export async function loadBusinessKnowledge(input?: {
       .eq("business_id", business.id)
       .eq("is_active", true)
       .order("name"),
-    supabase
-      .from("services")
-      .select(
-        "id, name, description, duration_minutes, price, category, location_id, is_active",
-      )
-      .eq("business_id", business.id)
-      .eq("is_active", true),
     supabase
       .from("staff")
       .select(
@@ -119,14 +125,26 @@ export async function loadBusinessKnowledge(input?: {
       address: formatAddress(l),
       isDefault: Boolean(l.is_default),
     })),
-    services: services.map((s) => ({
-      id: s.id as string,
-      name: s.name as string,
-      description: (s.description as string | null) ?? null,
-      durationMinutes: Number(s.duration_minutes ?? 0),
-      price: Number(s.price ?? 0),
-      category: (s.category as string | null) ?? null,
-    })),
+    services: services.map((s) => {
+      const row = s as Record<string, unknown>;
+      const staffLinks =
+        (row.staff_services as { staff_id: string }[] | null) ?? [];
+      return {
+        id: row.id as string,
+        name: row.name as string,
+        description: (row.description as string | null) ?? null,
+        durationMinutes: Number(row.duration_minutes ?? 0),
+        cleanupMinutes: Number(row.cleanup_minutes ?? 0),
+        price: Number(row.price ?? 0),
+        category: (row.category as string | null) ?? null,
+        bufferBeforeMinutes: Number(row.buffer_before_minutes ?? 0),
+        bufferAfterMinutes: Number(row.buffer_after_minutes ?? 0),
+        employeeIds: staffLinks.map((link) => link.staff_id),
+        bookingVisibility:
+          (row.booking_visibility as string | null) ?? undefined,
+        confirmationMode: (row.confirmation_mode as string | null) ?? undefined,
+      };
+    }),
     employees,
   };
 }
@@ -141,12 +159,20 @@ export function knowledgeToPromptBlock(knowledge: BusinessKnowledge): string {
     .join("\n");
 
   const services = knowledge.services
-    .map(
-      (s) =>
-        `- ${s.name} (${s.durationMinutes} min, $${s.price.toFixed(2)}${
-          s.category ? `, ${s.category}` : ""
-        })${s.description ? `: ${s.description}` : ""}`,
-    )
+    .map((s) => {
+      const providers =
+        s.employeeIds && s.employeeIds.length > 0
+          ? knowledge.employees
+              .filter((e) => s.employeeIds?.includes(e.id))
+              .map((e) => e.name)
+              .join(", ")
+          : "";
+      return `- ${s.name} (${s.durationMinutes} min, $${s.price.toFixed(2)}${
+        s.category ? `, ${s.category}` : ""
+      }${s.cleanupMinutes ? `, cleanup ${s.cleanupMinutes}m` : ""})${
+        s.description ? `: ${s.description}` : ""
+      }${providers ? ` [staff: ${providers}]` : ""}`;
+    })
     .join("\n");
 
   const staff = knowledge.employees

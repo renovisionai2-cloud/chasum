@@ -24,8 +24,9 @@ Run in order in the Supabase SQL Editor or via `supabase db push`:
 | `020_business_management.sql` | Categories, memberships, packages, gift cards, taxes, discounts |
 | `021_reports_analytics.sql` | Report schedules + exports |
 | `023_business_management_settings.sql` | Legal name, branding, booking policies, AI config, closures, documents |
+| `024_services_module.sql` | Service catalog extensions, multi-location, staff price overrides, blackouts |
 
-**Current requirement:** every environment must be at migration **023** before relying on the full Business Management foundation (profile identity, branding, booking policies, Summer/Chase config).
+**Current requirement:** every environment must be at migration **024** before relying on the full Services Module foundation (cleanup/buffers policy fields, visibility modes, multi-location assignment, blackouts).
 
 ---
 

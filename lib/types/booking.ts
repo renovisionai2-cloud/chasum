@@ -180,18 +180,55 @@ export type Service = {
   name: string;
   description: string | null;
   category: string | null;
+  category_id?: string | null;
   duration_minutes: number;
+  cleanup_minutes?: number;
   price: number;
   color: string;
   buffer_before_minutes: number;
   buffer_after_minutes: number;
   is_active: boolean;
   online_booking: boolean;
+  taxable?: boolean;
+  deposit_required?: boolean;
+  deposit_cents?: number;
+  tax_rate_bps?: number;
+  sort_order?: number;
+  booking_visibility?: "online" | "hidden" | "internal";
+  confirmation_mode?: "inherit" | "auto_confirm" | "require_approval";
+  online_payment_required?: boolean;
+  max_appointments_per_day?: number | null;
+  min_booking_notice_minutes?: number | null;
+  max_booking_days_ahead?: number | null;
+  image_url?: string | null;
   preparation_instructions: string | null;
   internal_notes: string | null;
   cancellation_policy: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type ServiceLocationAssignment = {
+  service_id: string;
+  location_id: string;
+  is_primary: boolean;
+};
+
+export type ServiceStaffAssignment = {
+  service_id: string;
+  staff_id: string;
+  price_override: number | null;
+};
+
+export type ServiceBlackout = {
+  id: string;
+  business_id: string;
+  service_id: string;
+  location_id: string | null;
+  starts_at: string;
+  ends_at: string;
+  reason: string | null;
+  created_at: string;
 };
 
 export type Staff = {
@@ -419,6 +456,12 @@ export const DAY_NAMES = [
 
 export const SERVICE_CATEGORIES = [
   "General",
+  "Medical",
+  "Massage",
+  "Hair",
+  "Automotive",
+  "Photography",
+  "Cleaning",
   "Ultrasound",
   "Consultation",
   "Treatment",
@@ -426,6 +469,20 @@ export const SERVICE_CATEGORIES = [
   "Package",
   "Other",
 ] as const;
+
+export const SERVICE_CATEGORY_PRESETS: {
+  name: string;
+  icon: string;
+  color: string;
+}[] = [
+  { name: "Medical", icon: "stethoscope", color: "#2563EB" },
+  { name: "Massage", icon: "sparkles", color: "#7C3AED" },
+  { name: "Hair", icon: "scissors", color: "#DB2777" },
+  { name: "Automotive", icon: "wrench", color: "#EA580C" },
+  { name: "Photography", icon: "camera", color: "#0891B2" },
+  { name: "Cleaning", icon: "sparkle", color: "#16A34A" },
+  { name: "General", icon: "layers", color: "#64748B" },
+];
 
 export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
   pending: "Pending",

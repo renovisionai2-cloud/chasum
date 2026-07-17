@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 4 — Complete Services Module Foundation)
+
+- Migration `024_services_module.sql` — cleanup time, sort order, taxable/deposit flags, booking visibility & confirmation modes, availability windows, `service_locations`, `staff_services.price_override`, `service_blackouts`, example category seeds
+- Services dashboard: full CRUD with search/filters/sort/pagination, category management with drag-reorder, employee & location assignment, blackouts, and AI knowledge exposure of richer service fields
+
 ### Added (Phase 4 — Complete Business Module Foundation)
 
 - Migration `023_business_management_settings.sql` — legal identity, language, branding colors, booking policies, notification targets, Summer/Chase AI config JSON, business closures, documents, hour segments
