@@ -15,7 +15,7 @@ function PlanCard({ plan }: { plan: MarketingPlan }) {
       className={cn(
         "marketing-card-lift relative flex h-full flex-col rounded-[1.5rem] border p-6 md:p-7",
         plan.highlighted
-          ? "z-10 scale-[1.03] border-primary bg-gradient-to-b from-primary/[0.07] to-card shadow-xl shadow-primary/15"
+          ? "marketing-plan-featured z-10 scale-[1.03] border-primary bg-gradient-to-b from-primary/[0.07] to-card"
           : "border-border/60 bg-card",
       )}
     >

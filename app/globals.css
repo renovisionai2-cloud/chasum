@@ -601,6 +601,15 @@ body {
     0 24px 64px -28px color-mix(in srgb, var(--foreground) 22%, transparent),
     0 48px 96px -48px color-mix(in srgb, var(--primary) 18%, transparent);
   overflow: hidden;
+  transition:
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) {
+  .marketing-product-frame:hover {
+    transform: translateY(-2px);
+  }
 }
 
 .marketing-v3-dark .marketing-product-frame {
@@ -702,23 +711,6 @@ body {
     0 18px 36px -28px color-mix(in srgb, var(--foreground) 28%, transparent);
 }
 
-.marketing-cta-button {
-  transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    background-color 0.22s ease,
-    border-color 0.22s ease;
-}
-
-.marketing-cta-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--primary) 55%, transparent);
-}
-
-.marketing-cta-button:active {
-  transform: translateY(0) scale(0.985);
-}
-
 .marketing-stat-card {
   transition:
     transform 0.28s ease,
@@ -747,9 +739,9 @@ body {
 
 .marketing-card-lift {
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.35s ease;
 }
 
 .marketing-card-lift:hover {
@@ -758,6 +750,175 @@ body {
   box-shadow:
     0 1px 2px color-mix(in srgb, var(--foreground) 5%, transparent),
     0 16px 36px -18px color-mix(in srgb, var(--foreground) 24%, transparent);
+}
+
+.marketing-card-lift:active {
+  transform: translateY(-1px) scale(0.995);
+}
+
+/* Launch polish — focus, FAQ, nav, typing, performance */
+
+.marketing-focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+
+.marketing-hero-btn-primary:focus-visible,
+.marketing-hero-btn-secondary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--ring);
+}
+
+.marketing-hero-btn-primary:active,
+.marketing-hero-btn-secondary:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.marketing-cta-button {
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.marketing-cta-button:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+.marketing-cta-button:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.marketing-faq-item {
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.3s ease;
+}
+
+.marketing-faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-faq-panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.marketing-faq-panel-inner {
+  overflow: hidden;
+}
+
+.marketing-faq-icon {
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.marketing-faq-icon[data-open="true"] {
+  transform: rotate(45deg);
+}
+
+.marketing-nav-dropdown {
+  animation: marketing-nav-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes marketing-nav-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.marketing-nav-link {
+  position: relative;
+}
+
+.marketing-nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0.85rem;
+  bottom: 0.35rem;
+  height: 1.5px;
+  border-radius: 9999px;
+  background: var(--primary);
+  transform: scaleX(0);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-nav-link[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+@keyframes marketing-cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.marketing-typing-cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 0.95em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: marketing-cursor-blink 1s step-end infinite;
+}
+
+@keyframes marketing-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.marketing-shimmer {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--muted) 40%, transparent) 0%,
+    color-mix(in srgb, var(--card) 90%, transparent) 45%,
+    color-mix(in srgb, var(--muted) 40%, transparent) 90%
+  );
+  background-size: 200% 100%;
+  animation: marketing-shimmer 1.6s ease-in-out infinite;
+}
+
+.marketing-plan-featured {
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--foreground) 5%, transparent),
+    0 18px 40px -20px color-mix(in srgb, var(--primary) 35%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.marketing-section-contain {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+.marketing-chart-bar {
+  transition: height 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+}
+
+.marketing-chart-bar:hover {
+  filter: brightness(1.08);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -774,28 +935,40 @@ body {
   .marketing-hero-bezel,
   .marketing-orb,
   .marketing-marquee,
-  .marketing-live-dot {
+  .marketing-live-dot,
+  .marketing-nav-dropdown,
+  .marketing-typing-cursor,
+  .marketing-shimmer {
     animation: none !important;
     filter: none !important;
   }
 
   .marketing-card-lift,
   .marketing-card-lift:hover,
+  .marketing-card-lift:active,
   .marketing-dashboard-stage,
   .marketing-dashboard-stage:hover,
   .marketing-hero-bezel,
   .marketing-hero-perspective,
   .marketing-hero-stage:hover .marketing-hero-perspective,
   .marketing-hero-btn-primary:hover,
+  .marketing-hero-btn-primary:active,
   .marketing-hero-btn-secondary:hover,
+  .marketing-hero-btn-secondary:active,
   .marketing-cta-button,
   .marketing-cta-button:hover,
+  .marketing-cta-button:active,
   .marketing-stat-card,
   .marketing-stat-card:hover,
   .marketing-emma-card,
   .marketing-emma-card:hover,
   .marketing-journey-node,
-  .marketing-journey-node:hover {
+  .marketing-journey-node:hover,
+  .marketing-product-frame,
+  .marketing-product-frame:hover,
+  .marketing-faq-panel,
+  .marketing-faq-icon,
+  .marketing-nav-link::after {
     transition: none !important;
     transform: none !important;
     box-shadow: none !important;

@@ -9,7 +9,7 @@ export default function MarketingLayout({
   return (
     <>
       <LandingHeader />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 overflow-x-clip">{children}</main>
       <Footer />
     </>
   );

@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Public marketing website — Launch polish sprint)
+
+- Premium motion and micro-interactions: smoother scroll reveals, FAQ accordion height animation, nav underline/dropdown transitions, card/button hover-active-focus states, product-frame lift
+- Dashboard demos: live status badge, chart bar motion, Emma typing cursor; section `content-visibility` for paint performance; reduced-motion coverage expanded
+- Accessibility: visible focus rings on marketing controls, FAQ ARIA accordion, hero heading landmark; light copy clarity pass without layout changes
+
 ### Changed (Public marketing website — V3 world-class brand experience)
 
 - Complete creative redesign of the marketing experience: cinematic product-first hero, enterprise navigation (Platform / Product / Solutions / Customers / Resources / Pricing / Support), immersive dark sections, and story-led section rhythm

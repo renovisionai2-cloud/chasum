@@ -15,7 +15,7 @@ export function AiWorkforceSection() {
   return (
     <section
       id="ai-workforce"
-      className="marketing-v3-dark relative isolate scroll-mt-24 overflow-hidden px-6 py-24 md:py-36"
+      className="marketing-section-contain marketing-v3-dark relative isolate scroll-mt-24 overflow-hidden px-6 py-24 md:py-36"
       aria-labelledby="ai-workforce-heading"
     >
       <div className="mx-auto max-w-[1400px]">

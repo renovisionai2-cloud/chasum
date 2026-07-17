@@ -59,13 +59,14 @@ export function Reveal({
     <div
       ref={ref}
       className={cn(
-        "transition-[opacity,transform] duration-700 ease-out",
+        "transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[opacity,transform]",
         shown
           ? "translate-y-0 scale-100 opacity-100"
-          : "translate-y-5 scale-[0.985] opacity-0",
+          : "translate-y-6 scale-[0.985] opacity-0",
         className,
       )}
       style={{ transitionDelay: shown ? `${delayMs}ms` : "0ms" }}
+      data-revealed={shown ? "true" : "false"}
     >
       {children}
     </div>

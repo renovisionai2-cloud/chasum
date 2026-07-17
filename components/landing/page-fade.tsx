@@ -30,7 +30,7 @@ export function PageFade({ children }: { children: React.ReactNode }) {
     <div
       className={
         reduced || ready
-          ? "translate-y-0 opacity-100 transition-[opacity,transform] duration-700 ease-out"
+          ? "translate-y-0 opacity-100 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
           : "translate-y-2 opacity-0"
       }
     >

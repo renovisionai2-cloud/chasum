@@ -140,7 +140,7 @@ export function DashboardShowcase() {
   return (
     <section
       id="showcase"
-      className="marketing-surface-tint marketing-hairline-y scroll-mt-24 overflow-hidden px-4 py-24 sm:px-6 md:py-36"
+      className="marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 overflow-hidden px-4 py-24 sm:px-6 md:py-36"
       aria-labelledby="showcase-heading"
     >
       <div className="mx-auto max-w-[1480px]">
@@ -151,7 +151,7 @@ export function DashboardShowcase() {
               Feel the product before you sign up
             </h2>
             <p className="marketing-lede">
-              Choose a department. Watch the real surface update. Less reading —
+              Choose a department. Watch the live surface update. Less reading —
               more operating.
             </p>
           </div>
@@ -174,7 +174,7 @@ export function DashboardShowcase() {
                   aria-selected={selectedTab === item.id}
                   onClick={() => selectTourTab(item.id)}
                   className={cn(
-                    "group flex min-h-12 shrink-0 items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-all duration-250 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "group flex min-h-12 shrink-0 items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     selectedTab === item.id
                       ? "border-primary/30 bg-card text-foreground shadow-md shadow-foreground/[0.04]"
                       : "border-transparent bg-transparent text-muted-foreground hover:bg-card/70 hover:text-foreground",

@@ -119,6 +119,12 @@ export function DashboardPreview({
         >
           app.chasum.com/dashboard{variant === "overview" ? "" : `/${variant}`}
         </span>
+        {isLive ? (
+          <span className="ml-auto hidden items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success sm:inline-flex">
+            <span className="marketing-live-dot h-1.5 w-1.5 rounded-full bg-success" />
+            Live
+          </span>
+        ) : null}
       </div>
 
       <div
@@ -307,7 +313,7 @@ function OverviewPane({
                 className="flex flex-1 flex-col items-center gap-1.5"
               >
                 <div
-                  className="w-full max-w-10 rounded-t-md bg-gradient-to-t from-primary to-primary/55 transition-[height] duration-700 ease-out"
+                  className="marketing-chart-bar w-full max-w-10 rounded-t-md bg-gradient-to-t from-primary to-primary/55"
                   style={{ height: `${(value / 14) * 100}%` }}
                 />
                 <span className="text-[10px] text-muted-foreground">
@@ -716,7 +722,7 @@ function EmmaPane({ live }: { live: boolean }) {
         <div className="max-w-[90%] rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-2 text-xs leading-relaxed">
           {typed}
           {shouldAnimate && chars < full.length ? (
-            <span className="ml-0.5 inline-block h-3 w-0.5 animate-pulse bg-foreground/70 align-middle" />
+            <span className="marketing-typing-cursor" aria-hidden />
           ) : null}
         </div>
       </div>

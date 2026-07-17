@@ -35,7 +35,7 @@ export function Comparison() {
   return (
     <section
       id="compare"
-      className="marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-24 md:py-36"
+      className="marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="compare-heading"
     >
       <div className="mx-auto max-w-5xl">

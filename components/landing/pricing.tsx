@@ -89,7 +89,7 @@ export function Pricing() {
   return (
     <section
       id="pricing"
-      className="scroll-mt-24 px-6 py-24 md:py-36"
+      className="marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="pricing-heading"
     >
       <div className="mx-auto max-w-6xl">

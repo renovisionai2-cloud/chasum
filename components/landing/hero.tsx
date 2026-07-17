@@ -4,9 +4,9 @@ import { ArrowRight, Check, Play } from "lucide-react";
 import Link from "next/link";
 
 const TRUST_LINES = [
-  "No credit card",
+  "No credit card required",
   "Enterprise security",
-  "Built for real service businesses",
+  "Built for service businesses",
 ] as const;
 
 /**
@@ -15,13 +15,19 @@ const TRUST_LINES = [
  */
 export function Hero() {
   return (
-    <section className="marketing-hero marketing-v3-immersive relative isolate overflow-x-clip px-4 pb-20 pt-12 sm:px-6 md:pb-28 md:pt-16 lg:pt-20">
+    <section
+      className="marketing-hero marketing-v3-immersive relative isolate overflow-x-clip px-4 pb-20 pt-12 sm:px-6 md:pb-28 md:pt-16 lg:pt-20"
+      aria-labelledby="hero-heading"
+    >
       <div className="mx-auto flex w-full max-w-[1480px] flex-col items-center">
         <p className="marketing-hero-enter mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.28em] text-primary md:mb-8">
           AI Business Operating System
         </p>
 
-        <h1 className="marketing-hero-enter marketing-hero-headline text-center font-semibold tracking-[-0.055em] text-foreground">
+        <h1
+          id="hero-heading"
+          className="marketing-hero-enter marketing-hero-headline text-center font-semibold tracking-[-0.055em] text-foreground"
+        >
           Run Your Business.
           <br />
           <span className="bg-gradient-to-br from-primary via-primary to-spark bg-clip-text text-transparent">
@@ -55,13 +61,13 @@ export function Hero() {
 
           <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
             <Link href="/signup" className="group">
-              <span className="marketing-hero-btn-primary inline-flex h-[3.35rem] w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-primary-foreground transition-[transform,box-shadow] duration-300 sm:w-auto">
+              <span className="marketing-hero-btn-primary inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-primary-foreground transition-[transform,box-shadow] duration-300 sm:w-auto sm:min-w-[10.5rem]">
                 Start Free
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
               </span>
             </Link>
             <a href={DEMO_HREF} className="group">
-              <span className="marketing-hero-btn-secondary inline-flex h-[3.35rem] w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-foreground transition-[transform,background-color,border-color] duration-300 sm:w-auto">
+              <span className="marketing-hero-btn-secondary inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-foreground transition-[transform,background-color,border-color] duration-300 sm:w-auto sm:min-w-[10.5rem]">
                 Book Demo
               </span>
             </a>
@@ -69,7 +75,7 @@ export function Hero() {
 
           <Link
             href="/#showcase"
-            className="mt-6 inline-flex min-h-11 items-center gap-2 text-[13px] font-medium tracking-wide text-muted-foreground transition-colors duration-200 hover:text-foreground"
+            className="marketing-focus-ring mt-6 inline-flex min-h-11 items-center gap-2 rounded-full px-2 text-[13px] font-medium tracking-wide text-muted-foreground transition-colors duration-200 hover:text-foreground"
           >
             <Play className="h-3.5 w-3.5" />
             Experience the product

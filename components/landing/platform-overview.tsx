@@ -89,7 +89,7 @@ export function PlatformOverview() {
   return (
     <section
       id="platform"
-      className="scroll-mt-24 overflow-hidden px-6 py-24 md:py-36"
+      className="marketing-section-contain scroll-mt-24 overflow-hidden px-6 py-24 md:py-36"
       aria-labelledby="platform-heading"
     >
       <div className="mx-auto max-w-[1400px]">
@@ -100,8 +100,8 @@ export function PlatformOverview() {
               Real departments. One experience.
             </h2>
             <p className="marketing-lede">
-              Chasum ships the same modules you run in the dashboard — watch
-              them work, not just describe them.
+              Chasum ships the same modules you run in the dashboard — watch them
+              work together.
             </p>
           </div>
         </Reveal>

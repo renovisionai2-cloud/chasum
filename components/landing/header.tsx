@@ -112,8 +112,9 @@ export function LandingHeader() {
                 key={link.href}
                 type="button"
                 onClick={() => scrollToSection(link.href)}
+                data-active={active}
                 className={cn(
-                  "rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                  "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
                   active
                     ? "bg-foreground/[0.06] text-foreground"
                     : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -130,7 +131,7 @@ export function LandingHeader() {
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
                 resourcesOpen || resourceActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -141,7 +142,7 @@ export function LandingHeader() {
               Resources
               <ChevronDown
                 className={cn(
-                  "h-3.5 w-3.5 transition-transform duration-200",
+                  "h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                   resourcesOpen && "rotate-180",
                 )}
               />
@@ -149,7 +150,7 @@ export function LandingHeader() {
             {resourcesOpen ? (
               <div
                 role="menu"
-                className="marketing-nav-panel absolute left-1/2 top-[calc(100%+0.75rem)] z-50 w-[22rem] -translate-x-1/2 rounded-2xl p-2"
+                className="marketing-nav-panel marketing-nav-dropdown absolute left-1/2 top-[calc(100%+0.75rem)] z-50 w-[22rem] -translate-x-1/2 rounded-2xl p-2"
               >
                 {NAV_RESOURCES.map((item) => (
                   <button
@@ -157,7 +158,7 @@ export function LandingHeader() {
                     type="button"
                     role="menuitem"
                     onClick={() => scrollToSection(item.href)}
-                    className="flex w-full flex-col rounded-xl px-3.5 py-3 text-left transition-colors hover:bg-muted/70"
+                    className="marketing-focus-ring flex w-full flex-col rounded-xl px-3.5 py-3 text-left transition-colors hover:bg-muted/70"
                   >
                     <span className="text-sm font-semibold text-foreground">
                       {item.label}
@@ -173,7 +174,7 @@ export function LandingHeader() {
 
           <a
             href={NAV_SUPPORT_HREF}
-            className="rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight text-muted-foreground transition-colors duration-200 hover:bg-foreground/[0.04] hover:text-foreground"
+            className="marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight text-muted-foreground transition-colors duration-200 hover:bg-foreground/[0.04] hover:text-foreground"
           >
             Support
           </a>

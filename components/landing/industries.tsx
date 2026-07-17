@@ -47,7 +47,7 @@ export function Industries() {
   return (
     <section
       id="industries"
-      className="marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-24 md:py-36"
+      className="marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="industries-heading"
     >
       <div className="mx-auto max-w-[1400px]">
