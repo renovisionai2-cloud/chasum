@@ -7,7 +7,7 @@ Also see [`../UI_GUIDELINES.md`](../UI_GUIDELINES.md), [18_UX_PRINCIPLES.md](./1
 
 | Asset | Name | Usage |
 |-------|------|-------|
-| **Logo** | C Mark + wordmark | `/public/brand/*`, `Logo` / `LogoIcon` / `Wordmark` |
+| **Logo** | C Mark + wordmark | `/public/brand-v2/*`, `Logo` / `LogoIcon` / `Wordmark` |
 | **Spark** | AI Spark | `Spark` only — never a logo substitute |
 
 See [`../BRAND_GUIDELINES.md`](../BRAND_GUIDELINES.md).

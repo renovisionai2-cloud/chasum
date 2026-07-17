@@ -1,10 +1,12 @@
 # Chasum Brand Guidelines
 
-**Status:** Brand V1.0 — FINAL / FROZEN  
-**Source of truth:** Official Chasum Brand Identity Board.
+**Status:** Brand V2 — FINAL / FROZEN  
+**Source of truth:** `/public/brand-v2/`
 
 Do not redesign, reinterpret, substitute fonts, or change proportions.  
 Future brand changes require explicit product-owner approval.
+
+Legacy assets under `/public/brand/` and root `/public/favicon*` / `/og-image.png` are frozen archives — **do not reference them** in application code.
 
 ---
 
@@ -18,21 +20,15 @@ Tagline: **AI Business Operating System**
 
 ---
 
-## Assets (`/public/brand/`)
+## Folder layout (`/public/brand-v2/`)
 
-| File | Use |
+| Path | Use |
 |------|-----|
-| `logo-full.png` / `.svg` | C Mark + wordmark + tagline |
-| `logo-horizontal.png` | C Mark + wordmark (nav / chrome) |
-| `logo-stacked.svg` | Stacked lockup |
-| `wordmark.png` / `.svg` | CHASUM (custom A + AI dot) |
-| `logo-icon.png` / `.svg` | C Mark |
-| `spark.png` / `.svg` | AI Spark |
-| `favicon.svg` | Favicon (SVG) |
-| `SVG/`, `PNG/` | Official Illustrator exports (source masters) |
-| `*-light.png` | Light ink on dark surfaces |
-
-Root public icons: `/favicon.ico`, `/favicon-16x16.png`, `/favicon-32x32.png`, `/apple-touch-icon.png`, `/android-chrome-*.png`, `/og-image.png`, `/site.webmanifest`.
+| `svg/` | Web-ready SVGs (prefer these) |
+| `png/` | Web-ready lockups / light variants / app icon |
+| `favicon/` | Browser + PWA icons |
+| `social/` | Open Graph / Twitter image |
+| `source/` | Masters: `CHASUM.ai`, `CHASUM.pdf`, `EPS/`, `PSD/`, original `SVG/` + `PNG/` |
 
 Constants: `lib/brand/assets.ts`
 
@@ -42,10 +38,10 @@ Constants: `lib/brand/assets.ts`
 
 | Component | Asset |
 |-----------|--------|
-| `<Logo />` | horizontal (`withTagline` → full) |
-| `<LogoIcon />` | `logo-icon.png` |
-| `<Wordmark />` | `wordmark.png` |
-| `<Spark />` | `spark.png` |
+| `<Logo />` | horizontal PNG (`withTagline` → full SVG / light PNG) |
+| `<LogoIcon />` | `svg/logo-icon.svg` |
+| `<Wordmark />` | `png/wordmark.png` |
+| `<Spark />` | `svg/spark.svg` |
 
 Import only from `@/components/brand/*`. Never recreate the wordmark with CSS text.
 
@@ -71,3 +67,4 @@ Import only from `@/components/brand/*`. Never recreate the wordmark with CSS te
 - Do not rotate, stretch, recolor, or add effects  
 - Spark only for AI features  
 - Dark Navy sidebar uses `Logo tone="light"`
+- Prefer SVG; use PNG only when SVG cannot serve (composited lockups, light ink, raster-only contexts like email / ICO)

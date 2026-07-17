@@ -19,7 +19,7 @@ Design system reference for building consistent interfaces in Chasum.
 **Font:** Inter (primary), JetBrains Mono (code)
 
 **Brand marks:** Brand V1.0 — C Mark + wordmark (`Logo` / `LogoIcon` / `Wordmark`), Spark (`Spark`) for AI only.  
-See [`docs/BRAND_GUIDELINES.md`](./BRAND_GUIDELINES.md), assets in `/public/brand/`.
+See [`docs/BRAND_GUIDELINES.md`](./BRAND_GUIDELINES.md), assets in `/public/brand-v2/`.
 
 ### Light Mode
 

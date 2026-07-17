@@ -1,46 +1,47 @@
-/** Official Chasum Brand V1.0 — assets from the approved Brand Identity board. */
+/** Official Chasum Brand V2 — single source of truth: `/public/brand-v2/`. */
+
+const V2 = "/brand-v2";
 
 export const BRAND_ASSETS = {
-  /** Full lockup: icon + wordmark + tagline (official master) */
-  logoFull: "/brand/logo-full.png",
-  logoFullLight: "/brand/logo-full-light.png",
-  /** Horizontal: icon + wordmark (nav / product chrome) */
-  logoHorizontal: "/brand/logo-horizontal.png",
-  logoHorizontalLight: "/brand/logo-horizontal-light.png",
+  /** Full lockup: icon + wordmark + tagline */
+  logoFull: `${V2}/svg/logo-full.svg`,
+  logoFullLight: `${V2}/png/logo-full-light.png`,
+  /** Horizontal: icon + wordmark (nav / product chrome / email) */
+  logoHorizontal: `${V2}/png/logo-horizontal.png`,
+  logoHorizontalLight: `${V2}/png/logo-horizontal-light.png`,
   /** Wordmark name only — custom A + AI dot (never CSS text) */
-  wordmark: "/brand/wordmark.png",
-  wordmarkLight: "/brand/wordmark-light.png",
+  wordmark: `${V2}/png/wordmark.png`,
+  wordmarkLight: `${V2}/png/wordmark-light.png`,
   /** Wordmark + tagline */
-  wordmarkTagline: "/brand/wordmark-tagline.png",
-  wordmarkTaglineLight: "/brand/wordmark-tagline-light.png",
+  wordmarkTagline: `${V2}/png/wordmark-tagline.png`,
+  wordmarkTaglineLight: `${V2}/png/wordmark-tagline-light.png`,
   /** @deprecated Alias — same as wordmark */
-  wordmarkName: "/brand/wordmark.png",
-  wordmarkNameLight: "/brand/wordmark-light.png",
-  /** Stacked lockup (C above wordmark + tagline) */
-  logoStacked: "/brand/logo-stacked.svg",
-  logoStackedLight: "/brand/logo-stacked-light.svg",
-  /** Icon only — The C Mark with signal dots (official) */
-  logoIcon: "/brand/logo-icon.png",
-  logoIconSvg: "/brand/logo-icon.svg",
+  wordmarkName: `${V2}/png/wordmark.png`,
+  wordmarkNameLight: `${V2}/png/wordmark-light.png`,
+  /** Icon only — The C Mark with signal dots (SVG preferred) */
+  logoIcon: `${V2}/svg/logo-icon.svg`,
+  logoIconPng: `${V2}/png/logo-icon.png`,
   /** AI Spark — intelligence features only */
-  spark: "/brand/spark.png",
-  sparkSvg: "/brand/spark.svg",
-  favicon: "/favicon.ico",
-  faviconSvg: "/brand/favicon.svg",
-  favicon16: "/favicon-16x16.png",
-  favicon32: "/favicon-32x32.png",
-  appleTouchIcon: "/apple-touch-icon.png",
-  androidChrome192: "/android-chrome-192x192.png",
-  androidChrome512: "/android-chrome-512x512.png",
-  manifestIcon: "/brand/manifest-icon.png",
-  appIcon1024: "/brand/app-icon-1024.png",
-  ogImage: "/og-image.png",
+  spark: `${V2}/svg/spark.svg`,
+  sparkPng: `${V2}/png/spark.png`,
+  /** Favicons / PWA */
+  favicon: `${V2}/favicon/favicon.ico`,
+  faviconSvg: `${V2}/favicon/favicon.svg`,
+  favicon16: `${V2}/favicon/favicon-16x16.png`,
+  favicon32: `${V2}/favicon/favicon-32x32.png`,
+  appleTouchIcon: `${V2}/favicon/apple-touch-icon.png`,
+  androidChrome192: `${V2}/favicon/android-chrome-192x192.png`,
+  androidChrome512: `${V2}/favicon/android-chrome-512x512.png`,
+  manifestIcon: `${V2}/favicon/manifest-icon.png`,
+  appIcon1024: `${V2}/png/app-icon-1024.png`,
+  ogImage: `${V2}/social/og-image.png`,
+  manifest: `${V2}/site.webmanifest`,
 
   /** Compatibility aliases */
-  logo: "/brand/logo-icon.png",
-  logoDark: "/brand/logo-icon.png",
-  logoLight: "/brand/logo-icon.png",
-  icon: "/brand/logo-icon.svg",
+  logo: `${V2}/svg/logo-icon.svg`,
+  logoDark: `${V2}/svg/logo-icon.svg`,
+  logoLight: `${V2}/svg/logo-icon.svg`,
+  icon: `${V2}/svg/logo-icon.svg`,
 } as const;
 
 /** Brand Identity board palette */

@@ -140,7 +140,7 @@ Chasum is an AI-powered appointment booking SaaS platform (Calendly-like) for mo
 
 Official Brand V1.0: C Mark + wordmark (custom A / AI dot) + Spark, Inter UI, board palette across landing, auth, dashboard, and booking.
 
-See `docs/BRAND_GUIDELINES.md` and `/public/brand/`.
+See `docs/BRAND_GUIDELINES.md` and `/public/brand-v2/`.
 
 ---
 

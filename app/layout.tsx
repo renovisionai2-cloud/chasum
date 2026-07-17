@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   authors: [{ name: BRAND_NAME }],
   creator: BRAND_NAME,
   publisher: BRAND_NAME,
-  manifest: "/site.webmanifest",
+  manifest: BRAND_ASSETS.manifest,
   icons: {
     icon: [
       { url: BRAND_ASSETS.favicon, sizes: "any" },
@@ -112,7 +112,7 @@ export default function RootLayout({
     >
       <head>
         <ThemeScript />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href={BRAND_ASSETS.manifest} />
         <link rel="icon" href={BRAND_ASSETS.favicon} sizes="any" />
         <link
           rel="icon"

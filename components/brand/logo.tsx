@@ -53,7 +53,7 @@ const wordmarkWidth: Record<LogoSize, number> = {
 
 /**
  * Official Chasum logo — Brand V1.0 horizontal lockup (icon + wordmark).
- * Artwork from `/public/brand/`. Never recreate with fonts/CSS.
+ * Artwork from `/public/brand-v2/`. Never recreate with fonts/CSS.
  */
 export function Logo({
   className,

@@ -13,6 +13,7 @@ import { PlatformOverview } from "@/components/landing/platform-overview";
 import { Pricing } from "@/components/landing/pricing";
 import { Testimonials } from "@/components/landing/testimonials";
 import { TrustedPlatform } from "@/components/landing/trusted-platform";
+import { BRAND_ASSETS, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand/assets";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,10 +26,10 @@ export const metadata: Metadata = {
       "The AI Business Operating System built for service businesses. Start free.",
     images: [
       {
-        url: "/og-image.png",
+        url: BRAND_ASSETS.ogImage,
         width: 1200,
         height: 630,
-        alt: "Chasum — AI Business Operating System",
+        alt: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
       },
     ],
   },

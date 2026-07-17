@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Brand V2 integration)
+
+- Made `/public/brand-v2/` the single source of truth (svg / png / favicon / social / source)
+- Pointed all app brand references through `lib/brand/assets.ts` to Brand V2 paths; legacy `/public/brand/` and root favicon/OG files are no longer referenced
+- Regenerated favicons, PWA icons, App Router icons, and Open Graph from Brand V2 masters
+
 ### Changed (Brand integration complete)
 
 - Wired official Chasum brand pack (SVG/PNG) into web assets: C Mark, spark, wordmark, horizontal/full lockups, favicon package, apple/android icons, and `/og-image.png`
