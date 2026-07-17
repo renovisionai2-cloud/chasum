@@ -90,26 +90,35 @@ export function DashboardPreview({
   return (
     <div
       className={cn(
-        "marketing-preview-enter overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-lg transition-[transform,box-shadow,border-color] duration-500",
-        animated && "marketing-dashboard-float",
+        "overflow-hidden border border-border/80 bg-card transition-[transform,box-shadow,border-color] duration-500",
+        hero
+          ? "rounded-[1.35rem] border-0 bg-transparent shadow-none"
+          : "marketing-preview-enter rounded-[var(--radius-lg)] shadow-lg",
+        animated && !hero && "marketing-dashboard-float",
         className,
       )}
       role="img"
       aria-label="Chasum interactive dashboard demo"
     >
-      <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2.5">
-        <div className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-        <div className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
-        <div className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
-        <span className="ml-2 truncate text-xs text-muted-foreground">
-          app.chasum.com/dashboard/{variant === "overview" ? "" : variant}
+      <div
+        className={cn(
+          "flex items-center gap-2 border-b border-border/70",
+          hero
+            ? "bg-white/55 px-5 py-3 backdrop-blur-xl dark:bg-white/5"
+            : "bg-muted/50 px-4 py-2.5",
+        )}
+      >
+        <div className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+        <div className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+        <div className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+        <span
+          className={cn(
+            "ml-2 truncate text-muted-foreground",
+            hero ? "text-[11px] tracking-wide" : "text-xs",
+          )}
+        >
+          app.chasum.com/dashboard{variant === "overview" ? "" : `/${variant}`}
         </span>
-        {isLive ? (
-          <span className="ml-auto hidden items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success sm:inline-flex">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
-            Live demo
-          </span>
-        ) : null}
       </div>
 
       <div
@@ -118,12 +127,22 @@ export function DashboardPreview({
           compact
             ? "min-h-[220px]"
             : hero
-              ? "min-h-[320px] sm:min-h-[400px] md:min-h-[500px] lg:min-h-[560px] xl:min-h-[600px]"
+              ? "min-h-[340px] sm:min-h-[420px] md:min-h-[520px] lg:min-h-[580px] xl:min-h-[640px]"
               : "min-h-[360px] md:min-h-[480px]",
         )}
       >
-        <aside className="hidden w-44 shrink-0 border-r border-border bg-muted/20 p-3 sm:block">
-          <p className="mb-3 px-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <aside
+          className={cn(
+            "hidden shrink-0 border-r border-border/70 sm:block",
+            hero ? "w-52 bg-muted/30 p-4" : "w-44 bg-muted/20 p-3",
+          )}
+        >
+          <p
+            className={cn(
+              "mb-3 px-2 font-semibold uppercase tracking-wide text-muted-foreground",
+              hero ? "text-[11px]" : "text-[10px]",
+            )}
+          >
             Chasum
           </p>
           <ul className="space-y-1">
@@ -144,13 +163,13 @@ export function DashboardPreview({
                 <li
                   key={item.label}
                   className={cn(
-                    "flex items-center gap-2 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs transition-colors duration-300",
+                    "flex items-center gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-xs transition-colors duration-300",
                     active
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                       : "text-muted-foreground",
                   )}
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <Icon className={hero ? "h-4 w-4" : "h-3.5 w-3.5"} />
                   {item.label}
                 </li>
               );
@@ -158,10 +177,16 @@ export function DashboardPreview({
           </ul>
         </aside>
 
-        <div className="relative min-w-0 flex-1 overflow-hidden p-4 md:p-5" key={variant}>
+        <div
+          className={cn(
+            "relative min-w-0 flex-1 overflow-hidden",
+            hero ? "bg-background/40 p-5 md:p-6" : "p-4 md:p-5",
+          )}
+          key={variant}
+        >
           <div className="marketing-pane-fade">
             {variant === "overview" ? (
-              <OverviewPane compact={compact} live={isLive} />
+              <OverviewPane compact={compact} live={isLive} hero={hero} />
             ) : null}
             {variant === "reception" ? <ReceptionPane live={isLive} /> : null}
             {variant === "crm" ? <CrmPane live={isLive} /> : null}
@@ -183,9 +208,11 @@ export function DashboardPreview({
 function OverviewPane({
   compact,
   live,
+  hero = false,
 }: {
   compact?: boolean;
   live: boolean;
+  hero?: boolean;
 }) {
   const tick = useTick(live, 2200);
   const revenue = 1.6 + (tick % 5) * 0.12;
@@ -194,24 +221,34 @@ function OverviewPane({
   const showToast = live && tick > 0 && tick % 3 === 0;
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", hero && "space-y-5")}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">Good morning · My Business</p>
-          <p className="text-lg font-semibold tracking-tight md:text-xl">
+          <p
+            className={cn(
+              "font-semibold tracking-tight",
+              hero ? "text-xl md:text-2xl" : "text-lg md:text-xl",
+            )}
+          >
             Run today from one operating system
           </p>
         </div>
         {showToast ? (
-          <div className="marketing-toast flex max-w-[11rem] items-start gap-2 rounded-[var(--radius-md)] border border-border bg-background px-2.5 py-2 shadow-md">
+          <div className="marketing-toast flex max-w-[12rem] items-start gap-2 rounded-2xl border border-border/60 bg-background/90 px-3 py-2.5 shadow-lg backdrop-blur-md">
             <Bell className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-            <p className="text-[10px] leading-snug text-muted-foreground">
+            <p className="text-[11px] leading-snug text-muted-foreground">
               New booking · Alex Rivera · 3:30
             </p>
           </div>
         ) : null}
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div
+        className={cn(
+          "grid gap-3",
+          hero ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-2 xl:grid-cols-4",
+        )}
+      >
         {[
           {
             title: "Today",
@@ -228,29 +265,49 @@ function OverviewPane({
         ].map((stat) => (
           <div
             key={stat.title}
-            className="rounded-[var(--radius-md)] border border-border/80 bg-background p-3"
+            className={cn(
+              "border border-border/60 bg-background/80",
+              hero
+                ? "rounded-2xl p-4 shadow-sm shadow-black/[0.03]"
+                : "rounded-[var(--radius-md)] p-3",
+            )}
           >
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
               {stat.title}
             </p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums transition-all duration-500">
+            <p
+              className={cn(
+                "mt-1 font-semibold tabular-nums transition-all duration-500",
+                hero ? "text-3xl" : "text-2xl",
+              )}
+            >
               {stat.value}
             </p>
-            <p className="text-xs text-muted-foreground">{stat.hint}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{stat.hint}</p>
           </div>
         ))}
       </div>
       {!compact ? (
-        <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
-          <p className="mb-3 text-sm font-medium">This week</p>
-          <div className="flex h-28 items-end gap-2">
+        <div
+          className={cn(
+            "border border-border/60 bg-background/80",
+            hero
+              ? "rounded-2xl p-5 shadow-sm shadow-black/[0.03]"
+              : "rounded-[var(--radius-md)] p-4",
+          )}
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm font-medium">This week</p>
+            <p className="text-[11px] font-medium text-success">+12% vs last week</p>
+          </div>
+          <div className={cn("flex items-end gap-2", hero ? "h-36" : "h-28")}>
             {week.map((value, i) => (
               <div
                 key={WEEK_LABELS[i]}
-                className="flex flex-1 flex-col items-center gap-1"
+                className="flex flex-1 flex-col items-center gap-1.5"
               >
                 <div
-                  className="w-full max-w-8 rounded-t-[var(--radius-sm)] bg-primary/85 transition-[height] duration-700 ease-out"
+                  className="w-full max-w-10 rounded-t-md bg-gradient-to-t from-primary to-primary/55 transition-[height] duration-700 ease-out"
                   style={{ height: `${(value / 14) * 100}%` }}
                 />
                 <span className="text-[10px] text-muted-foreground">

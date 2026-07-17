@@ -216,36 +216,43 @@ body {
   }
 }
 
-/* World-class hero atmosphere — quiet white + soft blue */
-.marketing-hero-atmosphere {
+/* ─── Keynote hero ─────────────────────────────────────────────── */
+.marketing-hero-keynote-bg {
   background:
     radial-gradient(
-      70% 55% at 50% -5%,
-      color-mix(in srgb, var(--primary) 14%, transparent),
-      transparent 68%
+      90% 55% at 50% -8%,
+      color-mix(in srgb, var(--primary) 18%, transparent),
+      transparent 62%
     ),
     radial-gradient(
-      45% 40% at 50% 42%,
-      color-mix(in srgb, var(--primary) 6%, transparent),
-      transparent 70%
+      55% 45% at 50% 48%,
+      color-mix(in srgb, var(--primary) 7%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--primary) 3%, var(--background)) 0%,
+      var(--background) 42%,
+      var(--background) 100%
     );
 }
 
-.marketing-hero-glow {
-  background: radial-gradient(
-    ellipse at 50% 40%,
-    color-mix(in srgb, var(--primary) 28%, transparent),
-    color-mix(in srgb, var(--spark) 8%, transparent) 42%,
-    transparent 72%
-  );
-  filter: blur(40px);
-  opacity: 0.9;
+.marketing-hero-headline {
+  font-size: clamp(2.75rem, 2rem + 5vw, 6.75rem);
+  line-height: 0.95;
+  max-width: 14ch;
+}
+
+@media (min-width: 1280px) {
+  .marketing-hero-headline {
+    font-size: 6.875rem; /* 110px */
+  }
 }
 
 @keyframes marketing-hero-enter {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(18px);
   }
   to {
     opacity: 1;
@@ -254,23 +261,119 @@ body {
 }
 
 .marketing-hero-enter {
-  animation: marketing-hero-enter 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: marketing-hero-enter 1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .marketing-hero-enter-delay-1 {
-  animation-delay: 80ms;
+  animation-delay: 100ms;
 }
 
 .marketing-hero-enter-delay-2 {
-  animation-delay: 160ms;
+  animation-delay: 180ms;
 }
 
 .marketing-hero-enter-delay-3 {
-  animation-delay: 240ms;
+  animation-delay: 260ms;
 }
 
 .marketing-hero-enter-delay-4 {
-  animation-delay: 320ms;
+  animation-delay: 340ms;
+}
+
+.marketing-hero-ambient {
+  background: radial-gradient(
+    ellipse at 50% 35%,
+    color-mix(in srgb, var(--primary) 32%, transparent),
+    color-mix(in srgb, var(--spark) 10%, transparent) 38%,
+    transparent 70%
+  );
+  filter: blur(48px);
+  opacity: 0.85;
+}
+
+.marketing-hero-stage {
+  perspective: 2200px;
+  transform-style: preserve-3d;
+}
+
+.marketing-hero-perspective {
+  transform: rotateX(2.4deg);
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.marketing-hero-stage:hover .marketing-hero-perspective {
+  transform: rotateX(0.35deg) translateY(-6px);
+}
+
+.marketing-hero-bezel {
+  position: relative;
+  border-radius: 1.65rem;
+  padding: 1px;
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, white 85%, transparent),
+    color-mix(in srgb, var(--primary) 35%, transparent) 28%,
+    color-mix(in srgb, var(--border) 55%, transparent) 62%,
+    color-mix(in srgb, var(--spark) 22%, transparent)
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 70%, transparent),
+    0 2px 8px color-mix(in srgb, var(--foreground) 5%, transparent),
+    0 28px 56px -24px color-mix(in srgb, var(--foreground) 22%, transparent),
+    0 80px 140px -60px color-mix(in srgb, var(--primary) 45%, transparent);
+  animation: marketing-float 8s ease-in-out infinite;
+}
+
+.marketing-hero-surface {
+  width: 100%;
+  border-radius: calc(1.65rem - 1px) !important;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, white 55%, transparent),
+      transparent 28%
+    ),
+    color-mix(in srgb, var(--card) 96%, transparent) !important;
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  overflow: hidden;
+}
+
+.marketing-hero-floor {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--background) 55%, transparent) 40%,
+    var(--background)
+  );
+  pointer-events: none;
+}
+
+.marketing-hero-btn-primary {
+  background: var(--primary);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 25%, transparent) inset,
+    0 10px 28px -12px color-mix(in srgb, var(--primary) 70%, transparent);
+}
+
+.marketing-hero-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 25%, transparent) inset,
+    0 16px 36px -12px color-mix(in srgb, var(--primary) 75%, transparent);
+}
+
+.marketing-hero-btn-secondary {
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  background: color-mix(in srgb, var(--background) 72%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.marketing-hero-btn-secondary:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--primary) 28%, var(--border));
+  background: color-mix(in srgb, var(--background) 90%, transparent);
 }
 
 .marketing-dashboard-float {
@@ -285,58 +388,6 @@ body {
 
 .marketing-dashboard-stage:hover {
   transform: rotateX(0deg) translateY(-3px);
-}
-
-/* Full-width product stage with glass edge */
-.marketing-hero-stage {
-  perspective: 1600px;
-  transform-style: preserve-3d;
-}
-
-.marketing-hero-stage .marketing-hero-frame {
-  transform: rotateX(1.5deg) translateZ(0);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.marketing-hero-stage:hover .marketing-hero-frame {
-  transform: rotateX(0deg) translateY(-4px);
-}
-
-.marketing-hero-frame {
-  width: 100%;
-  min-height: 300px;
-  border-color: color-mix(in srgb, var(--border) 70%, transparent) !important;
-  background: color-mix(in srgb, var(--card) 92%, transparent) !important;
-  backdrop-filter: blur(12px);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, white 40%, transparent),
-    0 2px 4px color-mix(in srgb, var(--foreground) 4%, transparent),
-    0 24px 48px -20px color-mix(in srgb, var(--foreground) 18%, transparent),
-    0 64px 120px -48px color-mix(in srgb, var(--primary) 35%, transparent);
-}
-
-@media (min-width: 640px) {
-  .marketing-hero-frame {
-    min-height: 380px;
-  }
-}
-
-@media (min-width: 768px) {
-  .marketing-hero-frame {
-    min-height: 480px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .marketing-hero-frame {
-    min-height: 560px;
-  }
-}
-
-@media (min-width: 1280px) {
-  .marketing-hero-frame {
-    min-height: 600px;
-  }
 }
 
 /* Legacy orb utilities still used by final CTA */
@@ -497,6 +548,7 @@ body {
   .marketing-toast,
   .marketing-row-in,
   .marketing-hero-enter,
+  .marketing-hero-bezel,
   .marketing-orb {
     animation: none !important;
     filter: none !important;
@@ -506,8 +558,11 @@ body {
   .marketing-card-lift:hover,
   .marketing-dashboard-stage,
   .marketing-dashboard-stage:hover,
-  .marketing-hero-stage .marketing-hero-frame,
-  .marketing-hero-stage:hover .marketing-hero-frame,
+  .marketing-hero-bezel,
+  .marketing-hero-perspective,
+  .marketing-hero-stage:hover .marketing-hero-perspective,
+  .marketing-hero-btn-primary:hover,
+  .marketing-hero-btn-secondary:hover,
   .marketing-cta-button,
   .marketing-cta-button:hover,
   .marketing-stat-card,

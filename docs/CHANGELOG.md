@@ -9,11 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed (Public marketing website — Phase 1 world-class hero)
+### Changed (Public marketing website — Phase 1 keynote hero)
 
-- Rebuilt the homepage hero from first principles: centered 1400px composition, commanding 80–96px headline, product-dominant floating dashboard (glass edge, soft shadow, slight perspective, live micro-motion), two CTAs only + tour link, and three trust lines under the CTA
-- Quiet white + soft blue atmosphere with a glow behind the dashboard — no busy graphics, logo-in-hero, or hero stat cards
-- Brand colors and core headline/subhead messaging preserved; no other marketing sections redesigned in this pass
+- Scrapped the previous hero and rebuilt it as an Apple-keynote composition: monumental headline (up to ~110px), cinematic floating product bezel with depth/glass/ambient light, denser live dashboard surface, custom pill CTAs, and quiet trust lines
+- Hierarchy locked to headline → product → CTA → trust; supporting sentence moved below the product so it never competes; removed template chrome (live-demo badge, generic button shells, busy hero graphics)
+- Brand colors and core messaging preserved; no other sections redesigned
 
 ### Changed (Public marketing website — Phase 3)
 
