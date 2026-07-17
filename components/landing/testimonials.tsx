@@ -18,7 +18,7 @@ export function Testimonials() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Customers</p>
             <h2 id="stories-heading" className="marketing-h2-xl">
-              Results operators can feel
+              Results Operators Can Feel
             </h2>
             <p className="marketing-lede">
               Illustrative early-partner stories — real photos and verified case
@@ -46,7 +46,7 @@ export function Testimonials() {
               </div>
               <div className="flex flex-col justify-center p-8 md:p-12">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                  Featured story
+                  Featured Story
                 </p>
                 <blockquote className="mt-5 text-2xl font-semibold leading-snug tracking-tight text-foreground md:text-3xl md:leading-snug">
                   “{featured.quote}”

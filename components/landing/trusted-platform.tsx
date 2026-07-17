@@ -17,7 +17,7 @@ export function TrustedPlatform() {
             <div>
               <p className="marketing-eyebrow">There must be a better way</p>
               <h2 id="trusted-heading" className="marketing-h2-xl max-w-xl">
-                A trusted operating platform
+                A Trusted Operating Platform
               </h2>
             </div>
             <p className="max-w-md text-lg leading-relaxed text-muted-foreground lg:pb-2">

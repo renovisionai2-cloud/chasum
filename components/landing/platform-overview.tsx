@@ -97,7 +97,7 @@ export function PlatformOverview() {
           <div className="mx-auto max-w-3xl text-center">
             <p className="marketing-eyebrow">One Operating System</p>
             <h2 id="platform-heading" className="marketing-h2-xl">
-              Real departments. One experience.
+              Real Departments. One Experience.
             </h2>
             <p className="marketing-lede">
               Chasum ships the same modules you run in the dashboard — watch them
@@ -184,7 +184,7 @@ export function PlatformOverview() {
         <Reveal delayMs={100}>
           <div className="mt-16 border-t border-border/60 pt-10">
             <p className="mb-5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              Also in the operating system
+              Also in the Operating System
             </p>
             <ul className="flex flex-wrap justify-center gap-2.5">
               {rest.map((mod) => {

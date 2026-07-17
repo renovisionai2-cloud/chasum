@@ -34,7 +34,7 @@ export const NAV_RESOURCES = [
   },
   {
     href: "/#journey",
-    label: "How it works",
+    label: "How It Works",
     description: "One connected customer journey",
   },
   {

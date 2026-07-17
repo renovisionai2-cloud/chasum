@@ -14,9 +14,9 @@ export function CustomerJourney() {
       <div className="mx-auto max-w-[1400px]">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">How it works</p>
+            <p className="marketing-eyebrow">How It Works</p>
             <h2 id="journey-heading" className="marketing-h2-xl">
-              One complete customer journey
+              One Complete Customer Journey
             </h2>
             <p className="marketing-lede">
               From first booking to reported revenue — every department stays

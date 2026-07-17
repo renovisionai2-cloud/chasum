@@ -29,7 +29,7 @@ export function AiWorkforceSection() {
               </span>
             </div>
             <h2 id="ai-workforce-heading" className="marketing-h2-xl">
-              A team of AI employees — with jobs, not chatbots
+              A Team of AI Employees — with Jobs, Not Chatbots
             </h2>
             <p className="marketing-lede">
               Emma is live in Phase 1. The broader workforce expands assist →
@@ -107,7 +107,7 @@ export function AiWorkforceSection() {
 
         <div className="mt-12">
           <p className="mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">
-            Joining the team
+            Joining the Team
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {comingSoon.map((employee, index) => (

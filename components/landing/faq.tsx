@@ -23,7 +23,7 @@ export function Faq() {
           <div className="text-center">
             <p className="marketing-eyebrow">Resources</p>
             <h2 id="faq-heading" className="marketing-h2-xl">
-              Frequently asked questions
+              Frequently Asked Questions
             </h2>
             <p className="marketing-lede">
               Clear answers about the product you will actually use.

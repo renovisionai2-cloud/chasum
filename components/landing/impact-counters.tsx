@@ -16,7 +16,7 @@ export function ImpactCounters() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Momentum</p>
             <h2 id="impact-heading" className="marketing-h2-xl">
-              Built to scale service businesses
+              Built to Scale Service Businesses
             </h2>
             <p className="marketing-lede">
               Early-platform outcomes that show why operators choose Chasum —

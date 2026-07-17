@@ -21,7 +21,7 @@ export type MarketingPlan = {
   features: string[];
 };
 
-export const PRICING_HEADLINE = "Simple pricing that grows with your business.";
+export const PRICING_HEADLINE = "Simple Pricing That Grows with Your Business.";
 
 export const PRICING_SUBHEADING =
   "Start free. Upgrade only when you're ready. No hidden fees. No appointment commissions.";

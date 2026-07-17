@@ -25,7 +25,7 @@ export function CTA() {
             id="final-cta-heading"
             className="text-4xl font-semibold tracking-[-0.035em] text-white md:text-6xl md:leading-[1.05]"
           >
-            Your business deserves an operating system.
+            Your Business Deserves an Operating System.
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg text-white/60 md:text-xl">
             Start free with the real product — CRM, calendar, reports, billing,

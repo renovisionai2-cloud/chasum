@@ -266,7 +266,7 @@ function OverviewPane({
             value: `$${revenue.toFixed(1)}k`,
             hint: "Completed today",
           },
-          { title: "This week", value: "54", hint: "Active bookings" },
+          { title: "This Week", value: "54", hint: "Active bookings" },
           { title: "Clients", value: "286", hint: "+18 this month" },
         ].map((stat) => (
           <div
@@ -303,7 +303,7 @@ function OverviewPane({
           )}
         >
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-medium">This week</p>
+            <p className="text-sm font-medium">This Week</p>
             <p className="text-[11px] font-medium text-success">+12% vs last week</p>
           </div>
           <div className={cn("flex items-end gap-2", hero ? "h-36" : "h-28")}>

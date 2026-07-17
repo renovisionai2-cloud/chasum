@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description:
     "Chasum unifies scheduling, CRM, employees, communication, reports, billing, and AI Receptionist — so service businesses run operations and growth in one platform.",
   openGraph: {
-    title: "Chasum — Run Your Business. Let AI Handle The Rest.",
+    title: "Chasum — Run your business. Let AI handle the rest.",
     description:
       "The AI Business Operating System built for service businesses. Start free.",
   },

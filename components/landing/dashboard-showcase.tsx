@@ -148,7 +148,7 @@ export function DashboardShowcase() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Product</p>
             <h2 id="showcase-heading" className="marketing-h2-xl">
-              Feel the product before you sign up
+              Feel the Product Before You Sign Up
             </h2>
             <p className="marketing-lede">
               Choose a department. Watch the live surface update. Less reading —

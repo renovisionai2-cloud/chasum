@@ -43,7 +43,7 @@ export function Comparison() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Compare</p>
             <h2 id="compare-heading" className="marketing-h2-xl">
-              How Chasum compares
+              How Chasum Compares
             </h2>
             <p className="marketing-lede">
               Structured for honesty. Competitor capabilities vary by plan —

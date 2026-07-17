@@ -28,10 +28,10 @@ export function Hero() {
           id="hero-heading"
           className="marketing-hero-enter marketing-hero-headline text-center font-semibold tracking-[-0.055em] text-foreground"
         >
-          Run Your Business.
+          Run your business.
           <br />
           <span className="bg-gradient-to-br from-primary via-primary to-spark bg-clip-text text-transparent">
-            Let AI Handle The Rest.
+            Let AI handle the rest.
           </span>
         </h1>
 

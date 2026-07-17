@@ -5,9 +5,9 @@ import Link from "next/link";
 const footerLinks = {
   Platform: [
     { label: "Platform", href: "/#platform" },
-    { label: "Product tour", href: "/#showcase" },
+    { label: "Product Tour", href: "/#showcase" },
     { label: "AI Workforce", href: "/#ai-workforce" },
-    { label: "How it works", href: "/#journey" },
+    { label: "How It Works", href: "/#journey" },
   ],
   Solutions: [
     { label: "Industries", href: "/#industries" },
@@ -18,8 +18,8 @@ const footerLinks = {
   Resources: [
     { label: "FAQ", href: "/#faq" },
     { label: "Support", href: NAV_SUPPORT_HREF },
-    { label: "Book demo", href: "mailto:sales@chasum.app?subject=Book%20a%20Chasum%20Demo" },
-    { label: "Start free", href: "/signup" },
+    { label: "Book Demo", href: "mailto:sales@chasum.app?subject=Book%20a%20Chasum%20Demo" },
+    { label: "Start Free", href: "/signup" },
   ],
 };
 

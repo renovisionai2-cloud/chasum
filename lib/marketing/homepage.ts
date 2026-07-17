@@ -8,10 +8,10 @@ export const DEMO_HREF =
 
 export const TRUSTED_STATS = [
   { label: "Departments", value: 9, suffix: "+", hint: "Real product modules" },
-  { label: "Industries served", value: 10, suffix: "+", hint: "One configurable OS" },
-  { label: "Plan tiers", value: 4, suffix: "", hint: "Free → Enterprise" },
-  { label: "AI employees named", value: 6, suffix: "", hint: "Emma live · more coming" },
-  { label: "Journey steps", value: 7, suffix: "", hint: "Book → report connected" },
+  { label: "Industries Served", value: 10, suffix: "+", hint: "One configurable OS" },
+  { label: "Plan Tiers", value: 4, suffix: "", hint: "Free → Enterprise" },
+  { label: "AI Employees Named", value: 6, suffix: "", hint: "Emma live · more coming" },
+  { label: "Journey Steps", value: 7, suffix: "", hint: "Book → report connected" },
 ] as const;
 
 /** Marketing impact counters — illustrative early-platform scale until public metrics publish. */
@@ -29,7 +29,7 @@ export const IMPACT_STATS = [
     hint: "Booked through Chasum",
   },
   {
-    label: "Revenue tracked",
+    label: "Revenue Tracked",
     value: 2.4,
     suffix: "M+",
     prefix: "$",
@@ -37,7 +37,7 @@ export const IMPACT_STATS = [
     decimals: 1,
   },
   {
-    label: "Hours saved",
+    label: "Hours Saved",
     value: 12,
     suffix: "k+",
     hint: "Reception & admin time",
@@ -332,19 +332,19 @@ export const INDUSTRIES = [
 ] as const;
 
 export const CUSTOMER_JOURNEY = [
-  { step: "1", title: "Customer books", detail: "Public booking or reception creates the visit." },
-  { step: "2", title: "Emma responds", detail: "AI Receptionist answers from real business data." },
-  { step: "3", title: "CRM updates", detail: "Profile and timeline capture the interaction." },
-  { step: "4", title: "Appointment confirmed", detail: "Scheduling engine books a real open slot." },
-  { step: "5", title: "Reminder sent", detail: "Communication Center delivers email or SMS." },
-  { step: "6", title: "Payment collected", detail: "Deposits and payment events stay linked." },
-  { step: "7", title: "Reports updated", detail: "Owner KPIs refresh across the business." },
+  { step: "1", title: "Customer Books", detail: "Public booking or reception creates the visit." },
+  { step: "2", title: "Emma Responds", detail: "AI Receptionist answers from real business data." },
+  { step: "3", title: "CRM Updates", detail: "Profile and timeline capture the interaction." },
+  { step: "4", title: "Appointment Confirmed", detail: "Scheduling engine books a real open slot." },
+  { step: "5", title: "Reminder Sent", detail: "Communication Center delivers email or SMS." },
+  { step: "6", title: "Payment Collected", detail: "Deposits and payment events stay linked." },
+  { step: "7", title: "Reports Updated", detail: "Owner KPIs refresh across the business." },
 ] as const;
 
 export const HERO_STATS = [
   { label: "Departments", value: 9, suffix: "+" },
   { label: "AI Receptionist", value: 1, suffix: " live" },
-  { label: "Plan options", value: 4, suffix: "" },
+  { label: "Plan Options", value: 4, suffix: "" },
 ] as const;
 
 export const AI_EMPLOYEES_PREVIEW = [
@@ -417,7 +417,7 @@ export const COMPARISON_ROWS: {
   note?: string;
 }[] = [
   {
-    feature: "AI Business Operating System positioning",
+    feature: "AI Business Operating System Positioning",
     values: {
       Chasum: "yes",
       Picktime: "varies",
@@ -429,7 +429,7 @@ export const COMPARISON_ROWS: {
     note: "Competitor scopes vary by plan; evaluate against your industry needs.",
   },
   {
-    feature: "Multi-tenant business + location architecture",
+    feature: "Multi-Tenant Business + Location Architecture",
     values: {
       Chasum: "yes",
       Picktime: "varies",
@@ -440,7 +440,7 @@ export const COMPARISON_ROWS: {
     },
   },
   {
-    feature: "CRM + Communication Center in-product",
+    feature: "CRM + Communication Center In-Product",
     values: {
       Chasum: "yes",
       Picktime: "varies",
@@ -451,7 +451,7 @@ export const COMPARISON_ROWS: {
     },
   },
   {
-    feature: "AI Receptionist grounded in live business data",
+    feature: "AI Receptionist Grounded in Live Business Data",
     values: {
       Chasum: "yes",
       Picktime: "roadmap",
@@ -463,7 +463,7 @@ export const COMPARISON_ROWS: {
     note: "Emma Phase 1 is live in Chasum; competitor AI features change frequently.",
   },
   {
-    feature: "Reports & Analytics department",
+    feature: "Reports & Analytics Department",
     values: {
       Chasum: "yes",
       Picktime: "partial",
@@ -474,7 +474,7 @@ export const COMPARISON_ROWS: {
     },
   },
   {
-    feature: "Named AI Workforce roadmap (assist → automate)",
+    feature: "Named AI Workforce Roadmap (Assist → Automate)",
     values: {
       Chasum: "roadmap",
       Picktime: "varies",
@@ -488,43 +488,43 @@ export const COMPARISON_ROWS: {
 
 export const FAQ_ITEMS = [
   {
-    q: "What is Chasum?",
+    q: "What Is Chasum?",
     a: "Chasum is an AI Business Operating System for service businesses — scheduling, CRM, employees, communication, reports, billing, and AI employees in one multi-tenant platform.",
   },
   {
-    q: "Is Chasum just another booking page?",
+    q: "Is Chasum Just Another Booking Page?",
     a: "No. Public booking is one surface. The product includes Reception calendar, CRM, Business Management, Reports, Communication Center, Billing, and AI Receptionist (Emma).",
   },
   {
-    q: "Does AI invent appointment times?",
+    q: "Does AI Invent Appointment Times?",
     a: "No. Availability recommendations come from Chasum’s scheduling engine (get_available_slots). If there are no openings, Chasum shows empty — it does not invent times.",
   },
   {
-    q: "Can I run multiple locations?",
+    q: "Can I Run Multiple Locations?",
     a: "Yes. The platform is built for single-location through multi-location operations with location scope across calendar, services, staff, and reports.",
   },
   {
-    q: "What is included in the Free plan?",
+    q: "What Is Included in the Free Plan?",
     a: "Free includes a booking page, core calendar & reception, email reminders, and a single location. Upgrade when you need more AI assistance, SMS, automation, or locations.",
   },
   {
-    q: "How does Emma the AI Receptionist work today?",
+    q: "How Does Emma the AI Receptionist Work Today?",
     a: "Phase 1 Emma answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; escalates to staff; and can log into CRM / Communication Center.",
   },
   {
-    q: "Do you support Google, Outlook, and Apple calendars?",
+    q: "Do You Support Google, Outlook, and Apple Calendars?",
     a: "Yes. Calendar integrations are part of the platform so external busy times can inform conflict detection — without replacing Chasum as the system of record for bookings.",
   },
   {
-    q: "Is my business data isolated from other customers?",
+    q: "Is My Business Data Isolated from Other Customers?",
     a: "Yes. Chasum is multi-tenant with business_id scoping and row-level security. Your data is not shared across tenants.",
   },
   {
-    q: "When is voice calling available?",
+    q: "When Is Voice Calling Available?",
     a: "Voice is architected for the future (channel reserved) but not implemented yet. Emma’s Phase 1 focus is grounded chat and booking assist.",
   },
   {
-    q: "How do I book a demo?",
+    q: "How Do I Book a Demo?",
     a: "Use Book Demo to email sales@chasum.app, or Start Free to explore the product with your own business data immediately.",
   },
 ] as const;

@@ -114,7 +114,7 @@ export function Pricing() {
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-4 font-medium">Compare plans</th>
+                  <th className="px-4 py-4 font-medium">Compare Plans</th>
                   {MARKETING_PLANS.map((plan) => (
                     <th
                       key={plan.id}

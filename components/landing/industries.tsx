@@ -55,7 +55,7 @@ export function Industries() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Solutions</p>
             <h2 id="industries-heading" className="marketing-h2-xl">
-              Built for service industries
+              Built for Service Industries
             </h2>
             <p className="marketing-lede">
               Every vertical deserves its own operating rhythm — explore
@@ -134,7 +134,7 @@ export function Industries() {
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    How Chasum helps
+                    How Chasum Helps
                   </p>
                   <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
                     {current.solution}
@@ -144,7 +144,7 @@ export function Industries() {
 
               <div className="mt-10 border-t border-border/60 pt-8">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Recommended modules
+                    Recommended Modules
                 </p>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {current.modules.map((mod) => (
