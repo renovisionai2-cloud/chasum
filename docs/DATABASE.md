@@ -13,8 +13,19 @@ Run in order in the Supabase SQL Editor or via `supabase db push`:
 | `001_booking_engine.sql` | Core tables, RLS policies, `is_business_owner()` helper |
 | `002_booking_enhancements.sql` | Categories, buffers, staff schedules, holidays, `pending` status |
 | `003_rls_hardening.sql` | Tenant indexes, PII policy removal, public booking RPCs |
-| `004`–`010` | Integrations, scheduling engine, one-business-per-owner, multi-location |
-| `011_sprint2_gvm_go_live.sql` | Business profile, service online booking/prep, staff bio/quals |
+| `004`–`011` | Integrations, scheduling engine, one-business-per-owner, multi-location, GVM profile |
+| `012`–`013` | Public booking + storage / go-live |
+| `014_owner_platform.sql` | Platform admins / owner console |
+| `015_billing_phase1.sql` | Subscription events + invoices |
+| `016_communication_center_phase1.sql` | Communication history + follow-ups |
+| `017_employee_management.sql` | Departments, staff HR columns, documents, activity |
+| `018_crm_department.sql` | Customer notes, payment events, CRM columns |
+| `019_booking_engine_2.sql` | Booking resources, portal tokens, appointment commercial columns |
+| `020_business_management.sql` | Categories, memberships, packages, gift cards, taxes, discounts |
+| `021_reports_analytics.sql` | Report schedules + exports |
+| `022_ai_receptionist.sql` | AI receptionist conversations + messages |
+
+**Current requirement:** every environment must be at migration **022** before relying on Business hub, Employees departments, Reports schedules, or AI Receptionist persistence.
 
 ---
 

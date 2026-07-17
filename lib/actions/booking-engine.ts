@@ -4,6 +4,7 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { logAppointmentChange } from "@/lib/booking-engine/conflicts";
 import type { BookingResource, PortalAppointment } from "@/lib/booking-engine/types";
 import { validateAppointmentSlot } from "@/lib/actions/scheduling";
+import { logQueryError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { ActionState } from "@/lib/types/booking";
@@ -27,7 +28,7 @@ export async function getBookingResources(): Promise<BookingResource[]> {
     .order("name");
 
   if (error) {
-    console.error("[booking-resources]", error.message);
+    logQueryError("booking-resources", error.message);
     return [];
   }
   return (data as BookingResource[]) ?? [];

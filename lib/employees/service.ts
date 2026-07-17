@@ -14,6 +14,7 @@ import type {
   StaffLocationAssignment,
 } from "@/lib/employees/types";
 import { createClient } from "@/lib/supabase/server";
+import { logQueryError } from "@/lib/supabase/errors";
 import type { StaffDocument } from "@/lib/types/booking";
 
 function asEmploymentStatus(value: unknown): EmploymentStatus {
@@ -116,7 +117,7 @@ export async function listDepartments(businessId: string): Promise<Department[]>
     .order("sort_order", { ascending: true });
 
   if (error) {
-    console.error("[employees] list departments:", error.message);
+    logQueryError("employees/list-departments", error.message);
     return [];
   }
   return (data ?? []).map((row) => mapDepartment(row as Record<string, unknown>));

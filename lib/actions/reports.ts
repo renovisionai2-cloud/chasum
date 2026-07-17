@@ -27,6 +27,7 @@ import type {
   ReportsBundle,
   BusinessIntelligenceSnapshot,
 } from "@/lib/reports/types";
+import { logQueryError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -45,7 +46,7 @@ async function listSchedules(businessId: string): Promise<ReportSchedule[]> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[report-schedules]", error.message);
+    logQueryError("report-schedules", error.message);
     return [];
   }
   return (data as ReportSchedule[]) ?? [];
@@ -60,10 +61,7 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
   const yearAgo = new Date(now);
   yearAgo.setFullYear(now.getFullYear() - 1);
 
-  let apptQuery = supabase
-    .from("appointments")
-    .select(
-      `
+  const apptSelectFull = `
       id, status, start_time, end_time, created_at, updated_at,
       location_id, staff_id, customer_id, service_id,
       price_cents, tax_cents, discount_cents, deposit_cents,
@@ -71,8 +69,19 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
       staff:staff(id, name, commission_rate_bps),
       customer:customers(id, name, created_at, date_of_birth),
       location:locations(id, name)
-    `,
-    )
+    `;
+  const apptSelectCompat = `
+      id, status, start_time, end_time, created_at, updated_at,
+      location_id, staff_id, customer_id, service_id,
+      service:services(id, name, price, category, duration_minutes),
+      staff:staff(id, name),
+      customer:customers(id, name, created_at, date_of_birth),
+      location:locations(id, name)
+    `;
+
+  let apptQuery = supabase
+    .from("appointments")
+    .select(apptSelectFull)
     .eq("business_id", business.id)
     .gte("start_time", yearAgo.toISOString())
     .order("start_time");
@@ -80,9 +89,9 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
   apptQuery = withLocationFilter(apptQuery, scope);
 
   const [
-    apptRes,
+    apptResPrimary,
     customersRes,
-    staffRes,
+    staffResPrimary,
     locationsRes,
     paymentsRes,
     waitlistRes,
@@ -129,22 +138,69 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
       .eq("is_active", true),
   ]);
 
-  const appointments = (apptRes.data as ReportAppointmentRow[] | null) ?? [];
-  if (apptRes.error) {
-    console.error("[reports-appointments]", apptRes.error.message);
+  let appointments: ReportAppointmentRow[] =
+    (apptResPrimary.data as ReportAppointmentRow[] | null) ?? [];
+  if (apptResPrimary.error) {
+    logQueryError("reports-appointments", apptResPrimary.error.message);
+    let fallback = supabase
+      .from("appointments")
+      .select(apptSelectCompat)
+      .eq("business_id", business.id)
+      .gte("start_time", yearAgo.toISOString())
+      .order("start_time");
+    fallback = withLocationFilter(fallback, scope);
+    const apptResFallback = await fallback;
+    if (apptResFallback.error) {
+      logQueryError("reports-appointments-fallback", apptResFallback.error.message);
+    } else {
+      appointments = (apptResFallback.data as ReportAppointmentRow[] | null) ?? [];
+    }
+  }
+
+  let staffRows: Array<{
+    id: string;
+    name: string;
+    is_active?: boolean | null;
+    location_id?: string | null;
+    commission_rate_bps?: number | null;
+  }> = (staffResPrimary.data as typeof staffRows | null) ?? [];
+  if (staffResPrimary.error) {
+    logQueryError("reports-staff", staffResPrimary.error.message);
+    const staffFallback = await supabase
+      .from("staff")
+      .select("id, name, is_active, location_id")
+      .eq("business_id", business.id);
+    if (staffFallback.error) {
+      logQueryError("reports-staff-fallback", staffFallback.error.message);
+    } else {
+      staffRows = (staffFallback.data as typeof staffRows | null) ?? [];
+    }
   }
 
   const customers = (customersRes.data as ReportCustomerRow[] | null) ?? [];
+  if (customersRes.error) {
+    logQueryError("reports-customers", customersRes.error.message);
+  }
   const payments = (
     paymentsRes.error
       ? []
       : ((paymentsRes.data as ReportPaymentRow[] | null) ?? [])
   );
-  const staff = staffRes.data ?? [];
+  if (paymentsRes.error) {
+    logQueryError("reports-payments", paymentsRes.error.message);
+  }
+  const staff = staffRows.map((s) => ({
+    ...s,
+    commission_rate_bps: s.commission_rate_bps ?? null,
+  }));
   const locations = locationsRes.data ?? [];
 
   const giftCards = giftRes.error ? [] : (giftRes.data ?? []);
+  if (giftRes.error) logQueryError("reports-gift-cards", giftRes.error.message);
   const memberships = membershipRes.error ? [] : (membershipRes.data ?? []);
+  if (membershipRes.error) {
+    logQueryError("reports-memberships", membershipRes.error.message);
+  }
   const giftCardRevenueCents = giftCards.reduce(
     (s, g) =>
       s +
@@ -192,7 +248,7 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
       id: s.id,
       name: s.name,
       commission_rate_bps: s.commission_rate_bps,
-      is_active: s.is_active,
+      is_active: s.is_active ?? undefined,
     })),
     now,
   );

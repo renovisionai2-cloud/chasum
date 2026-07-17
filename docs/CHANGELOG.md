@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (Phase 4 — Fix Existing Errors)
+
+- Applied outstanding Supabase migrations **012 → 022** on the linked project (clears missing `departments`, `booking_resources`, `report_schedules`, and related columns)
+- Softened schema-gap logging via `lib/supabase/errors.ts`; reports queries fall back when optional columns are unavailable
+- Documented migration floor through `022` in `DATABASE.md` / `GVM_GO_LIVE.md`
+
 ### Changed (Brand V2 integration)
 
 - Made `/public/brand-v2/` the single source of truth (svg / png / favicon / social / source)

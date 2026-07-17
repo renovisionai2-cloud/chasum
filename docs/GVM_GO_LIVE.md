@@ -16,7 +16,7 @@ Complete in order before accepting live patient traffic.
 |---|------|-------|------|
 | 1 | Deploy app to production host (Vercel recommended) from release commit | Eng | ☐ |
 | 2 | Set production environment variables (section 2) | Eng | ☐ |
-| 3 | Apply Supabase migrations **001 → 013** on production project | Eng | ☐ |
+| 3 | Apply Supabase migrations **001 → 022** on production project | Eng | ☐ |
 | 4 | Confirm `business-assets` storage bucket + RLS policies exist | Eng | ☐ |
 | 5 | Run `node scripts/setup-gvm-baby-world.mjs` (or verify tenant already seeded) | Eng | ☐ |
 | 6 | Configure Supabase Auth **custom SMTP** via Resend | Eng | ☐ |
