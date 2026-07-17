@@ -11,22 +11,20 @@ export function Faq() {
       <div className="mx-auto max-w-3xl">
         <Reveal>
           <div className="text-center">
-            <h2
-              id="faq-heading"
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-            >
+            <p className="marketing-eyebrow">FAQ</p>
+            <h2 id="faq-heading" className="marketing-h2">
               Frequently asked questions
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="marketing-lede">
               Straight answers about the product you will actually use.
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-12 space-y-3">
+        <div className="mt-14 space-y-3">
           {FAQ_ITEMS.map((item, index) => (
             <Reveal key={item.q} delayMs={Math.min(index * 40, 200)}>
-              <details className="marketing-card-lift group rounded-[var(--radius-md)] border border-border/70 bg-card px-4 py-3 open:border-primary/30">
+              <details className="marketing-card-lift group rounded-[var(--radius-md)] border border-border/70 bg-card px-5 py-4 open:border-primary/30 open:shadow-sm">
                 <summary className="cursor-pointer list-none text-sm font-semibold text-foreground marker:content-none [&::-webkit-details-marker]:hidden">
                   <span className="flex items-center justify-between gap-3">
                     {item.q}

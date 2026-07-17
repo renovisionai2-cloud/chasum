@@ -25,11 +25,11 @@ export function CTA() {
           </div>
           <h2
             id="final-cta-heading"
-            className="text-4xl font-semibold tracking-tight text-foreground md:text-5xl md:leading-[1.1]"
+            className="text-4xl font-semibold tracking-[-0.03em] text-foreground md:text-6xl md:leading-[1.05]"
           >
             Your business deserves an operating system.
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground md:text-xl">
             Start free with the real product — CRM, calendar, reports, billing,
             and Emma — or book a demo with our team.
           </p>

@@ -69,19 +69,17 @@ export function PlatformOverview() {
   return (
     <section
       id="platform"
-      className="scroll-mt-20 px-6 py-24 md:py-36"
+      className="marketing-surface-tint marketing-hairline-y scroll-mt-20 px-6 py-24 md:py-36"
       aria-labelledby="platform-heading"
     >
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <h2
-              id="platform-heading"
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-            >
+            <p className="marketing-eyebrow">The platform</p>
+            <h2 id="platform-heading" className="marketing-h2">
               Real departments. One operating system.
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="marketing-lede">
               Chasum ships the same modules you run in the dashboard — not generic
               SaaS feature cards.
             </p>

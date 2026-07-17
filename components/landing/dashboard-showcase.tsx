@@ -136,22 +136,17 @@ export function DashboardShowcase() {
   return (
     <section
       id="showcase"
-      className="scroll-mt-20 overflow-hidden border-y border-border bg-muted/30 px-6 py-24 md:py-36"
+      className="scroll-mt-20 overflow-hidden px-6 py-24 md:py-36"
       aria-labelledby="showcase-heading"
     >
       <div className="mx-auto max-w-7xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-              Product tour
-            </p>
-            <h2
-              id="showcase-heading"
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-            >
+            <p className="marketing-eyebrow">Product tour</p>
+            <h2 id="showcase-heading" className="marketing-h2">
               Tour the complete Chasum platform
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="marketing-lede">
               Choose a department to see its real product surface, purpose, and
               operational benefits.
             </p>
@@ -160,7 +155,7 @@ export function DashboardShowcase() {
 
         <Reveal delayMs={80}>
           <div
-            className="mt-10 -mx-1 flex gap-2 overflow-x-auto px-1 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-center"
+            className="mt-14 -mx-1 flex gap-2 overflow-x-auto px-1 pb-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:justify-center"
             role="tablist"
             aria-label="Departments"
           >
@@ -195,7 +190,7 @@ export function DashboardShowcase() {
             id="tour-panel"
             role="tabpanel"
             aria-labelledby={`tour-tab-${active.id}`}
-            className="mt-5 overflow-hidden rounded-[var(--radius-lg)] border border-border/70 bg-card/70 p-4 shadow-xl shadow-foreground/[0.04] backdrop-blur-sm md:p-6"
+            className="marketing-elevate-lg mt-6 overflow-hidden rounded-[var(--radius-xl)] border border-border/70 bg-card/80 p-4 backdrop-blur-sm md:p-6"
           >
             <div key={active.id} className="marketing-tour-transition">
               <div className="mb-6 grid gap-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">

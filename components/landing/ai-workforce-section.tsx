@@ -26,13 +26,10 @@ export function AiWorkforceSection() {
                 Emma available
               </span>
             </div>
-            <h2
-              id="ai-workforce-heading"
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-            >
+            <h2 id="ai-workforce-heading" className="marketing-h2">
               A team of AI employees — with jobs, not chatbots
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="marketing-lede">
               Emma is live in Phase 1. The broader workforce expands assist →
               automate with owner control, never inventing business data.
             </p>

@@ -24,19 +24,17 @@ export function Comparison() {
   return (
     <section
       id="compare"
-      className="scroll-mt-20 border-y border-border bg-muted/30 px-6 py-24 md:py-36"
+      className="scroll-mt-20 px-6 py-24 md:py-36"
       aria-labelledby="compare-heading"
     >
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <h2
-              id="compare-heading"
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-            >
+            <p className="marketing-eyebrow">Comparison</p>
+            <h2 id="compare-heading" className="marketing-h2">
               How Chasum compares
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="marketing-lede">
               Structured for honesty. Competitor capabilities vary by plan and
               change over time — use this as a starting checklist, not a final
               verdict.
@@ -45,7 +43,7 @@ export function Comparison() {
         </Reveal>
 
         <Reveal delayMs={80}>
-          <div className="mt-10 overflow-x-auto rounded-[var(--radius-md)] border border-border bg-card shadow-sm">
+          <div className="marketing-elevate mt-14 overflow-x-auto rounded-[var(--radius-lg)] border border-border/70 bg-card">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                 <tr>

@@ -89,30 +89,28 @@ export function Pricing() {
   return (
     <section
       id="pricing"
-      className="scroll-mt-20 px-6 py-24 md:py-36"
+      className="marketing-surface-tint marketing-hairline-y scroll-mt-20 px-6 py-24 md:py-36"
       aria-labelledby="pricing-heading"
     >
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <h2
-              id="pricing-heading"
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-            >
+            <p className="marketing-eyebrow">Pricing</p>
+            <h2 id="pricing-heading" className="marketing-h2">
               {PRICING_HEADLINE}
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">{PRICING_SUBHEADING}</p>
+            <p className="marketing-lede">{PRICING_SUBHEADING}</p>
           </div>
         </Reveal>
 
         <Reveal delayMs={80}>
-          <div className="mt-14">
+          <div className="mt-16">
             <PlanCards />
           </div>
         </Reveal>
 
         <Reveal delayMs={120}>
-          <div className="mt-16 overflow-x-auto rounded-[var(--radius-md)] border border-border bg-card">
+          <div className="marketing-elevate mt-16 overflow-x-auto rounded-[var(--radius-lg)] border border-border/70 bg-card">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                 <tr>

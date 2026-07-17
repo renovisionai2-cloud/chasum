@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Public marketing website — Premium visual polish pass)
+
+- Introduced an alternating surface rhythm so no two adjacent sections feel identical: a calm light-gray gradient (`marketing-surface-tint`) on Trusted, Platform, Industries, Testimonials, and Pricing; base surface elsewhere; softer hairline dividers replace hard 1px borders
+- Standardized section typography with a shared scale (`marketing-eyebrow`, `marketing-h2` up to ~48px, `marketing-lede`) for stronger, more confident hierarchy and consistent spacing rhythm
+- Refined elevation with layered, soft shadows (`marketing-elevate`/`marketing-elevate-lg`) and premium card hover lift; unified radii toward `--radius-lg`/`--radius-xl`; larger final-CTA headline
+- Structure, copy, layout, brand colors, and messaging unchanged; light and dark modes verified
+
 ### Changed (Public marketing website — Phase 1 keynote hero)
 
 - Scrapped the previous hero and rebuilt it as an Apple-keynote composition: monumental headline (up to ~110px), cinematic floating product bezel with depth/glass/ambient light, denser live dashboard surface, custom pill CTAs, and quiet trust lines

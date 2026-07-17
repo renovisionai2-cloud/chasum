@@ -38,26 +38,24 @@ export function Industries() {
   return (
     <section
       id="industries"
-      className="scroll-mt-20 px-6 py-24 md:py-36"
+      className="marketing-surface-tint marketing-hairline-y scroll-mt-20 px-6 py-24 md:py-36"
       aria-labelledby="industries-heading"
     >
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <h2
-              id="industries-heading"
-              className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-            >
+            <p className="marketing-eyebrow">Industries</p>
+            <h2 id="industries-heading" className="marketing-h2">
               Built for service industries
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="marketing-lede">
               Explore each vertical — challenges, how Chasum helps, and the
               modules that matter most.
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {INDUSTRIES.map((industry, index) => {
             const expanded = open === industry.name;
             const Icon = INDUSTRY_ICONS[industry.name] ?? BriefcaseBusiness;
@@ -65,10 +63,10 @@ export function Industries() {
               <Reveal key={industry.name} delayMs={(index % 3) * 70}>
                 <article
                   className={cn(
-                    "marketing-card-lift group overflow-hidden rounded-[var(--radius-lg)] border bg-card transition-colors",
+                    "marketing-card-lift marketing-elevate group overflow-hidden rounded-[var(--radius-lg)] border bg-card transition-colors",
                     expanded
                       ? "border-primary/40 shadow-lg shadow-primary/[0.06]"
-                      : "border-border/70",
+                      : "border-border/60",
                   )}
                 >
                   <button

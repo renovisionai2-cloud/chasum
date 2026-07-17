@@ -4,7 +4,7 @@ import { LOGO_CLOUD } from "@/lib/marketing/homepage";
 export function LogoCloud() {
   return (
     <section
-      className="border-b border-border/50 px-6 py-20 md:py-24"
+      className="marketing-hairline-b px-6 py-20 md:py-24"
       aria-labelledby="logo-cloud-heading"
     >
       <div className="mx-auto max-w-6xl">
@@ -12,7 +12,7 @@ export function LogoCloud() {
           <div className="text-center">
             <p
               id="logo-cloud-heading"
-              className="text-base font-medium tracking-tight text-muted-foreground md:text-lg"
+              className="text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground"
             >
               Trusted by growing service brands
             </p>
@@ -24,9 +24,9 @@ export function LogoCloud() {
             {LOGO_CLOUD.map((brand) => (
               <li
                 key={brand}
-                className="marketing-card-lift flex min-h-[4.5rem] items-center justify-center rounded-[var(--radius-lg)] border border-border/50 bg-card/80 px-5 py-6 text-center md:min-h-[5.5rem]"
+                className="marketing-card-lift marketing-panel flex min-h-[4.5rem] items-center justify-center rounded-[var(--radius-lg)] px-5 py-6 text-center md:min-h-[5.5rem]"
               >
-                <span className="text-base font-semibold tracking-tight text-foreground/65 md:text-lg">
+                <span className="text-base font-semibold tracking-tight text-foreground/60 transition-colors duration-300 hover:text-foreground/85 md:text-lg">
                   {brand}
                 </span>
               </li>
