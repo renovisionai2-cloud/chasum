@@ -23,9 +23,9 @@ Run in order in the Supabase SQL Editor or via `supabase db push`:
 | `019_booking_engine_2.sql` | Booking resources, portal tokens, appointment commercial columns |
 | `020_business_management.sql` | Categories, memberships, packages, gift cards, taxes, discounts |
 | `021_reports_analytics.sql` | Report schedules + exports |
-| `022_ai_receptionist.sql` | AI receptionist conversations + messages |
+| `023_business_management_settings.sql` | Legal name, branding, booking policies, AI config, closures, documents |
 
-**Current requirement:** every environment must be at migration **022** before relying on Business hub, Employees departments, Reports schedules, or AI Receptionist persistence.
+**Current requirement:** every environment must be at migration **023** before relying on the full Business Management foundation (profile identity, branding, booking policies, Summer/Chase config).
 
 ---
 

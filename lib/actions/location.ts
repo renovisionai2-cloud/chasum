@@ -320,6 +320,7 @@ export async function updateLocationHours(
   }
 
   revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/business");
   return { success: "Location hours updated." };
 }
 

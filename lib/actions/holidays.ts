@@ -48,6 +48,7 @@ export async function createHoliday(
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/business");
   return { success: "Holiday added." };
 }
 
@@ -64,6 +65,7 @@ export async function deleteHoliday(id: string): Promise<ActionState> {
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/business");
   return { success: "Holiday removed." };
 }
 

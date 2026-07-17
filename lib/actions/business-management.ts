@@ -73,6 +73,9 @@ export async function updateBusinessManagementProfile(
     timezone: (formData.get("timezone") as string) || business.timezone,
     description: emptyToNull(formData.get("description")),
     industry: emptyToNull(formData.get("industry")),
+    legal_name: emptyToNull(formData.get("legal_name")),
+    business_type: emptyToNull(formData.get("business_type")),
+    language: (formData.get("language") as string)?.trim() || "en",
     website: emptyToNull(formData.get("website")),
     email: emptyToNull(formData.get("email")),
     phone: emptyToNull(formData.get("phone")),
@@ -95,7 +98,13 @@ export async function updateBusinessManagementProfile(
     .eq("id", business.id);
 
   if (error) {
-    if (error.message.includes("industry") || error.message.includes("tax_number")) {
+    if (
+      error.message.includes("industry") ||
+      error.message.includes("tax_number") ||
+      error.message.includes("legal_name") ||
+      error.message.includes("language") ||
+      error.message.includes("business_type")
+    ) {
       // Soft fallback without new columns
       const { error: legacyError } = await supabase
         .from("businesses")
@@ -122,7 +131,7 @@ export async function updateBusinessManagementProfile(
       revalidateBusiness();
       return {
         success:
-          "Profile saved. Apply migration 020_business_management for industry, tax number, and currency.",
+          "Profile saved. Apply migration 023_business_management_settings for legal name, language, and related fields.",
       };
     }
     return { error: error.message };
@@ -727,3 +736,360 @@ export async function deleteAutomationRule(id: string): Promise<ActionState> {
   revalidateBusiness();
   return { success: "Rule deleted." };
 }
+
+// —— Booking / branding / notifications / AI settings ——
+
+function boolFromCheckbox(formData: FormData, key: string): boolean {
+  const raw = formData.get(key);
+  return raw === "on" || raw === "true" || raw === "1";
+}
+
+export async function updateBusinessBookingSettings(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const appointmentInterval =
+    Number(formData.get("appointment_interval_minutes")) ||
+    business.appointment_interval_minutes ||
+    30;
+  const bookingLimitDays =
+    Number(formData.get("booking_limit_days")) ||
+    business.booking_limit_days ||
+    60;
+  const minNotice = Math.max(0, Number(formData.get("min_notice_minutes")) || 0);
+  const cancelWindow = Math.max(
+    0,
+    Number(formData.get("cancellation_window_hours")) || 24,
+  );
+  const confirmationMode = (formData.get("booking_confirmation_mode") as string) ||
+    "auto";
+  if (!["auto", "manual", "request_approval"].includes(confirmationMode)) {
+    return { error: "Invalid booking confirmation mode." };
+  }
+
+  const onlineEnabled = boolFromCheckbox(formData, "online_booking_enabled");
+  const payload = {
+    appointment_interval_minutes: appointmentInterval,
+    booking_limit_days: bookingLimitDays,
+    min_notice_minutes: minNotice,
+    cancellation_window_hours: cancelWindow,
+    reschedule_policy: emptyToNull(formData.get("reschedule_policy")),
+    cancellation_policy: emptyToNull(formData.get("cancellation_policy")),
+    allow_double_booking: boolFromCheckbox(formData, "allow_double_booking"),
+    waitlist_enabled: boolFromCheckbox(formData, "waitlist_enabled"),
+    online_booking_enabled: onlineEnabled,
+    booking_confirmation_mode: confirmationMode,
+    public_booking_mode: (onlineEnabled
+      ? confirmationMode === "request_approval"
+        ? "request_approval"
+        : "public"
+      : "staff_only") as import("@/lib/types/booking").PublicBookingMode,
+  };
+
+  const { error } = await supabase
+    .from("businesses")
+    .update(payload)
+    .eq("id", business.id);
+
+  if (error) {
+    return {
+      error: error.message.includes("min_notice_minutes")
+        ? "Apply migration 023_business_management_settings to enable booking policies."
+        : error.message,
+    };
+  }
+
+  // Keep active location settings in sync for the engine
+  const { getActiveLocationId } = await import("@/lib/actions/location");
+  const locationId = await getActiveLocationId();
+  await supabase
+    .from("location_settings")
+    .update({
+      appointment_interval_minutes: appointmentInterval,
+      booking_limit_days: bookingLimitDays,
+      cancellation_policy: payload.cancellation_policy,
+    })
+    .eq("location_id", locationId);
+
+  revalidateBusiness();
+  return { success: "Booking settings saved." };
+}
+
+export async function updateBusinessBrandingSettings(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const brandColor =
+    (formData.get("brand_color") as string)?.trim() || "#2563EB";
+  const accentColor =
+    (formData.get("accent_color") as string)?.trim() || "#7C3AED";
+
+  const booking_page_branding = {
+    headline: emptyToNull(formData.get("booking_headline")) ?? "",
+    show_logo: boolFromCheckbox(formData, "show_logo"),
+    show_cover: boolFromCheckbox(formData, "show_cover"),
+    primary_button_label:
+      emptyToNull(formData.get("primary_button_label")) ?? "Book now",
+  };
+
+  const { error } = await supabase
+    .from("businesses")
+    .update({
+      logo_url: emptyToNull(formData.get("logo_url")),
+      favicon_url: emptyToNull(formData.get("favicon_url")),
+      cover_url: emptyToNull(formData.get("cover_url")),
+      brand_color: brandColor,
+      accent_color: accentColor,
+      email_signature: emptyToNull(formData.get("email_signature")),
+      booking_page_branding,
+    })
+    .eq("id", business.id);
+
+  if (error) {
+    return {
+      error: error.message.includes("brand_color")
+        ? "Apply migration 023_business_management_settings to enable branding."
+        : error.message,
+    };
+  }
+
+  revalidateBusiness();
+  return { success: "Branding saved." };
+}
+
+export async function updateBusinessNotificationSettings(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const reminderHours = Math.max(
+    1,
+    Number(formData.get("reminder_hours_before")) || 24,
+  );
+
+  const { error } = await supabase
+    .from("businesses")
+    .update({
+      email_notifications_enabled: boolFromCheckbox(
+        formData,
+        "email_notifications_enabled",
+      ),
+      sms_notifications_enabled: boolFromCheckbox(
+        formData,
+        "sms_notifications_enabled",
+      ),
+      owner_notifications_enabled: boolFromCheckbox(
+        formData,
+        "owner_notifications_enabled",
+      ),
+      staff_notifications_enabled: boolFromCheckbox(
+        formData,
+        "staff_notifications_enabled",
+      ),
+      reminder_hours_before: reminderHours,
+      notification_email: emptyToNull(formData.get("notification_email")),
+    })
+    .eq("id", business.id);
+
+  if (error) {
+    return {
+      error: error.message.includes("owner_notifications")
+        ? "Apply migration 023_business_management_settings for owner/staff notification toggles."
+        : error.message,
+    };
+  }
+
+  revalidateBusiness();
+  return { success: "Notification settings saved." };
+}
+
+export async function updateBusinessAiSettings(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const toneRaw = (formData.get("summer_tone") as string) || "professional";
+  const tone =
+    toneRaw === "friendly" || toneRaw === "concise" || toneRaw === "warm"
+      ? toneRaw
+      : "professional";
+
+  const ai_settings = {
+    summer: {
+      enabled: boolFromCheckbox(formData, "summer_enabled"),
+      greeting: emptyToNull(formData.get("summer_greeting")) ?? "",
+      tone,
+      escalation: emptyToNull(formData.get("summer_escalation")) ?? "",
+      business_knowledge:
+        emptyToNull(formData.get("summer_business_knowledge")) ?? "",
+    },
+    chase: {
+      enabled: boolFromCheckbox(formData, "chase_enabled"),
+      daily_summary: boolFromCheckbox(formData, "chase_daily_summary"),
+      weekly_summary: boolFromCheckbox(formData, "chase_weekly_summary"),
+      recommendations: boolFromCheckbox(formData, "chase_recommendations"),
+      business_analytics: boolFromCheckbox(
+        formData,
+        "chase_business_analytics",
+      ),
+    },
+  };
+
+  const { error } = await supabase
+    .from("businesses")
+    .update({ ai_settings })
+    .eq("id", business.id);
+
+  if (error) {
+    return {
+      error: error.message.includes("ai_settings")
+        ? "Apply migration 023_business_management_settings to enable AI configuration."
+        : error.message,
+    };
+  }
+
+  revalidateBusiness();
+  return { success: "AI settings saved. Summer and Chase will use these when enabled." };
+}
+
+// —— Closures ——
+
+export async function listBusinessClosures(): Promise<
+  import("@/lib/business/settings").BusinessClosure[]
+> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("business_closures")
+    .select("*")
+    .eq("business_id", business.id)
+    .order("starts_at", { ascending: true });
+  if (error) return [];
+  return (data as import("@/lib/business/settings").BusinessClosure[]) ?? [];
+}
+
+export async function createBusinessClosure(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const name = (formData.get("name") as string)?.trim();
+  const closureType = (formData.get("closure_type") as string) || "temporary";
+  const startsAt = formData.get("starts_at") as string;
+  const endsAt = formData.get("ends_at") as string;
+  if (!name || !startsAt || !endsAt) {
+    return { error: "Name, start, and end are required." };
+  }
+  if (!["holiday", "vacation", "temporary", "special_hours"].includes(closureType)) {
+    return { error: "Invalid closure type." };
+  }
+
+  const businessWide = formData.get("business_wide") === "on";
+  const { getActiveLocationId } = await import("@/lib/actions/location");
+  const locationId = businessWide ? null : await getActiveLocationId();
+
+  const { error } = await supabase.from("business_closures").insert({
+    business_id: business.id,
+    location_id: locationId,
+    closure_type: closureType,
+    name,
+    starts_at: new Date(startsAt).toISOString(),
+    ends_at: new Date(endsAt).toISOString(),
+    open_time: emptyToNull(formData.get("open_time")),
+    close_time: emptyToNull(formData.get("close_time")),
+    is_recurring: formData.get("is_recurring") === "on",
+    notes: emptyToNull(formData.get("notes")),
+  });
+
+  if (error) {
+    return {
+      error: error.message.includes("business_closures")
+        ? "Apply migration 023_business_management_settings to enable closures."
+        : error.message,
+    };
+  }
+  revalidateBusiness();
+  return { success: "Closure saved." };
+}
+
+export async function deleteBusinessClosure(id: string): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("business_closures")
+    .delete()
+    .eq("id", id)
+    .eq("business_id", business.id);
+  if (error) return { error: error.message };
+  revalidateBusiness();
+  return { success: "Closure removed." };
+}
+
+// —— Documents ——
+
+export async function listBusinessDocuments(): Promise<
+  import("@/lib/business/settings").BusinessDocument[]
+> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("business_documents")
+    .select("*")
+    .eq("business_id", business.id)
+    .order("created_at", { ascending: false });
+  if (error) return [];
+  return (data as import("@/lib/business/settings").BusinessDocument[]) ?? [];
+}
+
+export async function addBusinessDocument(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const name = (formData.get("name") as string)?.trim();
+  const fileUrl = emptyToNull(formData.get("file_url"));
+  if (!name || !fileUrl) return { error: "Name and file are required." };
+
+  const { error } = await supabase.from("business_documents").insert({
+    business_id: business.id,
+    name,
+    file_url: fileUrl,
+    file_type: emptyToNull(formData.get("file_type")),
+  });
+
+  if (error) {
+    return {
+      error: error.message.includes("business_documents")
+        ? "Apply migration 023_business_management_settings to enable documents."
+        : error.message,
+    };
+  }
+  revalidateBusiness();
+  return { success: "Document added." };
+}
+
+export async function deleteBusinessDocument(id: string): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("business_documents")
+    .delete()
+    .eq("id", id)
+    .eq("business_id", business.id);
+  if (error) return { error: error.message };
+  revalidateBusiness();
+  return { success: "Document removed." };
+}
+

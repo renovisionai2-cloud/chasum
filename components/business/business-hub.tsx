@@ -1,5 +1,11 @@
 "use client";
 
+import { AiSettingsPanel } from "@/components/business/ai-settings-panel";
+import { BookingSettingsPanel } from "@/components/business/booking-settings-panel";
+import { BrandingSettingsPanel } from "@/components/business/branding-settings-panel";
+import { BusinessDocumentsPanel } from "@/components/business/business-documents-panel";
+import { HoursSettingsPanel } from "@/components/business/hours-settings-panel";
+import { NotificationSettingsPanel } from "@/components/business/notification-settings-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -31,6 +37,12 @@ import {
   upsertTaxRate,
 } from "@/lib/actions/business-management";
 import { BUSINESS_INDUSTRIES } from "@/lib/business/types";
+import {
+  BUSINESS_LANGUAGES,
+  BUSINESS_TYPES,
+  type BusinessClosure,
+  type BusinessDocument,
+} from "@/lib/business/settings";
 import type {
   BusinessAutomationRule,
   CustomFormTemplate,
@@ -42,19 +54,30 @@ import type {
   TaxRate,
 } from "@/lib/business/types";
 import type { BookingResource } from "@/lib/booking-engine/types";
-import type { ActionState, Business, Location, Service } from "@/lib/types/booking";
+import type {
+  ActionState,
+  Business,
+  Holiday,
+  Location,
+  LocationHours,
+  Service,
+} from "@/lib/types/booking";
 import { TIMEZONES } from "@/lib/constants";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import {
+  Bell,
   Building2,
+  CalendarClock,
   ClipboardList,
+  FileText,
   Gift,
   Layers,
   MapPin,
   Package,
+  Palette,
   Percent,
   Settings2,
   Sparkles,
@@ -64,6 +87,12 @@ import {
 
 type TabKey =
   | "profile"
+  | "hours"
+  | "booking"
+  | "branding"
+  | "notifications"
+  | "ai"
+  | "documents"
   | "locations"
   | "services"
   | "categories"
@@ -74,11 +103,16 @@ type TabKey =
   | "taxes"
   | "discounts"
   | "forms"
-  | "hours"
   | "automation";
 
 const TABS: { key: TabKey; label: string; icon: typeof Building2 }[] = [
   { key: "profile", label: "Profile", icon: Building2 },
+  { key: "hours", label: "Hours", icon: CalendarClock },
+  { key: "booking", label: "Booking", icon: Settings2 },
+  { key: "branding", label: "Branding", icon: Palette },
+  { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "ai", label: "AI", icon: Sparkles },
+  { key: "documents", label: "Documents", icon: FileText },
   { key: "locations", label: "Locations", icon: MapPin },
   { key: "services", label: "Services", icon: Layers },
   { key: "categories", label: "Categories", icon: Tag },
@@ -89,7 +123,6 @@ const TABS: { key: TabKey; label: string; icon: typeof Building2 }[] = [
   { key: "taxes", label: "Taxes", icon: Percent },
   { key: "discounts", label: "Discounts", icon: Percent },
   { key: "forms", label: "Custom forms", icon: ClipboardList },
-  { key: "hours", label: "Hours", icon: Settings2 },
   { key: "automation", label: "Automation", icon: Sparkles },
 ];
 
@@ -162,6 +195,10 @@ export function BusinessHub({
   discounts,
   forms,
   automationRules,
+  hours,
+  holidays,
+  closures,
+  documents,
 }: {
   business: Business;
   locations: Location[];
@@ -175,6 +212,10 @@ export function BusinessHub({
   discounts: DiscountCode[];
   forms: CustomFormTemplate[];
   automationRules: BusinessAutomationRule[];
+  hours: LocationHours[];
+  holidays: Holiday[];
+  closures: BusinessClosure[];
+  documents: BusinessDocument[];
 }) {
   const [tab, setTab] = useState<TabKey>("profile");
   const refresh = useRefresh();
@@ -306,8 +347,31 @@ export function BusinessHub({
                   <Input id="name" name="name" defaultValue={business.name} required />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="legal_name">Legal name</Label>
+                  <Input
+                    id="legal_name"
+                    name="legal_name"
+                    defaultValue={business.legal_name ?? ""}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="slug">Booking slug</Label>
                   <Input id="slug" name="slug" defaultValue={business.slug} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="business_type">Business type</Label>
+                  <Select
+                    id="business_type"
+                    name="business_type"
+                    defaultValue={business.business_type ?? ""}
+                  >
+                    <option value="">Select type</option>
+                    {BUSINESS_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="description">Description</Label>
@@ -329,6 +393,20 @@ export function BusinessHub({
                     {BUSINESS_INDUSTRIES.map((industry) => (
                       <option key={industry} value={industry}>
                         {industry}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="language">Language</Label>
+                  <Select
+                    id="language"
+                    name="language"
+                    defaultValue={business.language ?? "en"}
+                  >
+                    {BUSINESS_LANGUAGES.map((lang) => (
+                      <option key={lang.value} value={lang.value}>
+                        {lang.label}
                       </option>
                     ))}
                   </Select>
@@ -883,20 +961,17 @@ export function BusinessHub({
       ) : null}
 
       {tab === "hours" ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Business hours</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Working hours, lunch breaks, holidays, seasonal hours, and emergency
-              closures are managed in Settings — shared with the booking engine.
-            </p>
-            <Link href="/dashboard/settings">
-              <Button size="sm">Open hours & holidays</Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <HoursSettingsPanel hours={hours} holidays={holidays} closures={closures} />
+      ) : null}
+
+      {tab === "booking" ? <BookingSettingsPanel business={business} /> : null}
+      {tab === "branding" ? <BrandingSettingsPanel business={business} /> : null}
+      {tab === "notifications" ? (
+        <NotificationSettingsPanel business={business} />
+      ) : null}
+      {tab === "ai" ? <AiSettingsPanel business={business} /> : null}
+      {tab === "documents" ? (
+        <BusinessDocumentsPanel documents={documents} />
       ) : null}
 
       {tab === "automation" ? (

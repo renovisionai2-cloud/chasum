@@ -4,6 +4,8 @@ import { getBookingResources } from "@/lib/actions/booking-engine";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
   listAutomationRules,
+  listBusinessClosures,
+  listBusinessDocuments,
   listDiscountCodes,
   listFormTemplates,
   listGiftCards,
@@ -12,8 +14,10 @@ import {
   listServiceCategories,
   listTaxRates,
 } from "@/lib/actions/business-management";
-import { getLocations } from "@/lib/actions/location";
+import { getHolidays } from "@/lib/actions/holidays";
+import { getLocationHours, getLocations } from "@/lib/actions/location";
 import { getServices } from "@/lib/actions/services";
+import type { Holiday } from "@/lib/types/booking";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -34,6 +38,10 @@ export default async function BusinessPage() {
     discounts,
     forms,
     automationRules,
+    hours,
+    holidays,
+    closures,
+    documents,
   ] = await Promise.all([
     getLocations(),
     getServices(),
@@ -46,13 +54,17 @@ export default async function BusinessPage() {
     listDiscountCodes(),
     listFormTemplates(),
     listAutomationRules(),
+    getLocationHours(),
+    getHolidays().catch(() => [] as Holiday[]),
+    listBusinessClosures(),
+    listBusinessDocuments(),
   ]);
 
   return (
     <div className="ds-page">
       <PageHeader
         title="Business"
-        description="Business Management — profile, locations, catalog, commerce, hours, forms, and automation for every location and tenant."
+        description="Configure your company profile, hours, booking, branding, notifications, and AI before running Calendar, CRM, and Summer."
       />
       <BusinessHub
         business={business}
@@ -67,6 +79,10 @@ export default async function BusinessPage() {
         discounts={discounts}
         forms={forms}
         automationRules={automationRules}
+        hours={hours}
+        holidays={holidays}
+        closures={closures}
+        documents={documents}
       />
     </div>
   );

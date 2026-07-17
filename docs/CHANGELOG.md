@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 4 — Complete Business Module Foundation)
+
+- Migration `023_business_management_settings.sql` — legal identity, language, branding colors, booking policies, notification targets, Summer/Chase AI config JSON, business closures, documents, hour segments
+- Business hub tabs for Hours, Booking, Branding, Notifications, AI, and Documents with full Supabase persistence
+
 ### Fixed (Phase 4 — Fix Existing Errors)
 
 - Applied outstanding Supabase migrations **012 → 022** on the linked project (clears missing `departments`, `booking_resources`, `report_schedules`, and related columns)
