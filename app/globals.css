@@ -273,6 +273,45 @@ body {
   transform: rotateY(0) rotateX(0) translateY(-2px);
 }
 
+.marketing-hero-product {
+  position: relative;
+  border-radius: var(--radius-xl);
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--primary) 28%, transparent),
+    color-mix(in srgb, var(--border) 70%, transparent) 40%,
+    color-mix(in srgb, var(--spark) 18%, transparent)
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 55%, transparent),
+    0 48px 96px -48px color-mix(in srgb, var(--foreground) 35%, transparent);
+}
+
+.marketing-hero-product > * {
+  border-radius: calc(var(--radius-xl) - 1px);
+}
+
+.marketing-hero-product-light {
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--primary) 22%, transparent),
+    color-mix(in srgb, var(--spark) 10%, transparent) 45%,
+    transparent 70%
+  );
+  filter: blur(28px);
+}
+
+.marketing-hero-dashboard {
+  min-height: 340px;
+}
+
+@media (min-width: 768px) {
+  .marketing-hero-dashboard {
+    min-height: 520px;
+  }
+}
+
 .marketing-pane-fade {
   animation: marketing-pane-in 0.28s ease-out;
 }

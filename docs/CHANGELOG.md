@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Public marketing website — Phase 1 visual craft)
+
+- Redesigned the hero into a centered, product-first composition: dramatically larger headline (up to ~88px), larger subhead/CTAs, Apple-style floating dashboard presentation with soft light and glass edge, clearer hierarchy (headline → product → CTA → trust)
+- Elevated the trust band immediately after the hero — larger logo cloud marks, bigger trusted-platform typography and stat cards; kept brand, logo artwork, colors, and messaging unchanged
+- Stopped after Hero + Trust; no other section redesigns in this pass
+
 ### Changed (Public marketing website — Phase 3)
 
 - Replaced static department previews with live interactive demos: animated charts, changing appointments, growing revenue, notifications, AI typing responses, and status updates (respects reduced motion)

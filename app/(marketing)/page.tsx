@@ -31,8 +31,8 @@ export default function HomePage() {
     <PageFade>
       <Hero />
       <LogoCloud />
-      <ImpactCounters />
       <TrustedPlatform />
+      <ImpactCounters />
       <PlatformOverview />
       <DashboardShowcase />
       <Industries />
