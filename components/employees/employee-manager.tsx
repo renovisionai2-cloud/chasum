@@ -43,9 +43,23 @@ function CreateEmployeeForm({
         label="Photo"
         folder="staff-photos"
       />
-      <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" required />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="first_name">First name</Label>
+          <Input id="first_name" name="first_name" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="last_name">Last name</Label>
+          <Input id="last_name" name="last_name" />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor="preferred_name">Preferred display name</Label>
+          <Input
+            id="preferred_name"
+            name="preferred_name"
+            placeholder="Optional — shown on calendar and booking"
+          />
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
@@ -53,8 +67,16 @@ function CreateEmployeeForm({
           <Input id="email" name="email" type="email" />
         </div>
         <div className="space-y-2">
+          <Label htmlFor="phone">Phone</Label>
+          <Input id="phone" name="phone" type="tel" />
+        </div>
+        <div className="space-y-2">
           <Label htmlFor="title">Job title</Label>
           <Input id="title" name="title" placeholder="Stylist, Trainer, Tech…" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="hire_date">Hire date</Label>
+          <Input id="hire_date" name="hire_date" type="date" />
         </div>
       </div>
       <div className="space-y-2">

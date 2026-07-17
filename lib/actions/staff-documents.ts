@@ -61,15 +61,39 @@ export async function addStaffDocument(
     category,
     file_url: upload.url,
     file_type: file?.type ?? null,
+    expires_on: (formData.get("expires_on") as string)?.trim() || null,
+    issued_by: (formData.get("issued_by") as string)?.trim() || null,
   });
 
   if (error) {
-    return {
-      error:
-        error.message.includes("staff_documents")
-          ? "Could not save document. Apply migration 017_employee_management if needed."
-          : error.message,
-    };
+    if (
+      error.message.includes("expires_on") ||
+      error.message.includes("issued_by") ||
+      error.message.includes("license")
+    ) {
+      const retry = await supabase.from("staff_documents").insert({
+        business_id: business.id,
+        staff_id: staffId,
+        name,
+        category: category === "license" ? "certification" : category,
+        file_url: upload.url,
+        file_type: file?.type ?? null,
+      });
+      if (retry.error) {
+        return {
+          error: retry.error.message.includes("staff_documents")
+            ? "Could not save document. Apply migration 025_employees_module if needed."
+            : retry.error.message,
+        };
+      }
+    } else {
+      return {
+        error:
+          error.message.includes("staff_documents")
+            ? "Could not save document. Apply migration 017_employee_management if needed."
+            : error.message,
+      };
+    }
   }
 
   const {

@@ -19,12 +19,13 @@ import {
   updateEmployeeProfile,
 } from "@/lib/actions/employees";
 import {
-  ALL_PERMISSIONS,
   EMPLOYMENT_STATUS_LABELS,
   PAY_TYPE_LABELS,
   PERMISSION_LABELS,
   ROLE_DEFINITIONS,
+  UI_PERMISSIONS,
   type EmployeeRoleKey,
+  type PermissionKey,
 } from "@/lib/employees/roles";
 import type { Department, EmployeeProfile } from "@/lib/employees/types";
 import type { ActionState, Location, Service } from "@/lib/types/booking";
@@ -43,6 +44,7 @@ import { useActionState, useMemo, useState } from "react";
 type TabKey =
   | "overview"
   | "role"
+  | "booking"
   | "schedule"
   | "assignments"
   | "payroll"
@@ -54,6 +56,7 @@ type TabKey =
 const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "role", label: "Roles & permissions" },
+  { key: "booking", label: "Booking rules" },
   { key: "schedule", label: "Hours & time off" },
   { key: "assignments", label: "Services & locations" },
   { key: "payroll", label: "Payroll" },
@@ -62,6 +65,21 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "activity", label: "Activity" },
   { key: "notes", label: "Notes" },
 ];
+
+function roleDefinition(key: EmployeeRoleKey): {
+  label: string;
+  description: string;
+  permissions: PermissionKey[];
+} {
+  if (key === "custom") {
+    return {
+      label: "Custom",
+      description: "Permissions defined on this employee.",
+      permissions: [],
+    };
+  }
+  return ROLE_DEFINITIONS[key];
+}
 
 function dollarsFromCents(cents: number | null | undefined) {
   if (cents == null) return "";
@@ -103,12 +121,17 @@ export function EmployeeProfileView({
     () =>
       employee.permissions.length > 0
         ? employee.permissions
-        : ROLE_DEFINITIONS[employee.role_key].permissions,
+        : roleDefinition(employee.role_key).permissions,
     [employee],
   );
 
   const assignedLocationIds = employee.staff_locations.map((l) => l.location_id);
-  const assignedServiceIds = employee.staff_services.map((s) => s.service_id);
+  const assignedServices = employee.staff_services;
+  const assignedServiceIds = assignedServices.map((s) => s.service_id);
+  const serviceById = useMemo(
+    () => new Map(assignedServices.map((s) => [s.service_id, s])),
+    [assignedServices],
+  );
 
   return (
     <div className="space-y-6">
@@ -146,7 +169,7 @@ export function EmployeeProfileView({
               {employee.department?.name ? ` · ${employee.department.name}` : ""}
             </p>
             <p className="text-xs text-muted-foreground">
-              {ROLE_DEFINITIONS[employee.role_key].label} ·{" "}
+              {roleDefinition(employee.role_key).label} ·{" "}
               {EMPLOYMENT_STATUS_LABELS[employee.employment_status]}
               {employee.location?.name ? ` · ${employee.location.name}` : ""}
             </p>
@@ -333,6 +356,7 @@ export function EmployeeProfileView({
 
       {(tab === "overview" ||
         tab === "role" ||
+        tab === "booking" ||
         tab === "assignments" ||
         tab === "payroll") && (
         <Card>
@@ -340,6 +364,7 @@ export function EmployeeProfileView({
             <CardTitle>
               {tab === "overview" && "Contact & employment"}
               {tab === "role" && "Roles & permissions"}
+              {tab === "booking" && "Booking rules"}
               {tab === "assignments" && "Assigned services & locations"}
               {tab === "payroll" && "Payroll & commission"}
             </CardTitle>
@@ -359,11 +384,31 @@ export function EmployeeProfileView({
                   />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Name</Label>
-                      <Input id="name" name="name" defaultValue={employee.name} required />
+                      <Label htmlFor="first_name">First name</Label>
+                      <Input
+                        id="first_name"
+                        name="first_name"
+                        defaultValue={employee.first_name ?? ""}
+                      />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="title">Job title</Label>
+                      <Label htmlFor="last_name">Last name</Label>
+                      <Input
+                        id="last_name"
+                        name="last_name"
+                        defaultValue={employee.last_name ?? ""}
+                      />
+                    </div>
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="preferred_name">Preferred display name</Label>
+                      <Input
+                        id="preferred_name"
+                        name="preferred_name"
+                        defaultValue={employee.preferred_name ?? employee.name}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Job title / Position</Label>
                       <Input
                         id="title"
                         name="title"
@@ -428,7 +473,7 @@ export function EmployeeProfileView({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="is_active">Active for booking</Label>
+                      <Label htmlFor="is_active">Status</Label>
                       <Select
                         id="is_active"
                         name="is_active"
@@ -532,9 +577,10 @@ export function EmployeeProfileView({
                           {def.label}
                         </option>
                       ))}
+                      <option value="custom">Custom</option>
                     </Select>
                     <p className="text-xs text-muted-foreground">
-                      {ROLE_DEFINITIONS[roleKey].description}
+                      {roleDefinition(roleKey).description}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -542,7 +588,7 @@ export function EmployeeProfileView({
                       <Shield className="h-3.5 w-3.5" /> Permissions
                     </p>
                     <div key={roleKey} className="grid gap-2 sm:grid-cols-2">
-                      {ALL_PERMISSIONS.map((perm) => (
+                      {UI_PERMISSIONS.map((perm) => (
                         <label
                           key={perm}
                           className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-border/80 px-3 py-2 text-sm"
@@ -551,9 +597,11 @@ export function EmployeeProfileView({
                             type="checkbox"
                             name="permissions"
                             value={perm}
-                            defaultChecked={ROLE_DEFINITIONS[roleKey].permissions.includes(
-                              perm,
-                            )}
+                            defaultChecked={
+                              roleKey === "custom"
+                                ? defaultPermissions.includes(perm)
+                                : roleDefinition(roleKey).permissions.includes(perm)
+                            }
                           />
                           {PERMISSION_LABELS[perm]}
                         </label>
@@ -563,6 +611,13 @@ export function EmployeeProfileView({
                       Stored now for role-based authorization; enforced when multi-staff login ships.
                     </p>
                   </div>
+                  <input type="hidden" name="first_name" value={employee.first_name ?? ""} />
+                  <input type="hidden" name="last_name" value={employee.last_name ?? ""} />
+                  <input
+                    type="hidden"
+                    name="preferred_name"
+                    value={employee.preferred_name ?? employee.name}
+                  />
                   <input type="hidden" name="name" value={employee.name} />
                   <input type="hidden" name="email" value={employee.email ?? ""} />
                   <input type="hidden" name="phone" value={employee.phone ?? ""} />
@@ -591,22 +646,166 @@ export function EmployeeProfileView({
                 </>
               ) : null}
 
+              {tab === "booking" ? (
+                <>
+                  <input type="hidden" name="booking_rules_present" value="1" />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="max_appointments_per_day">Max appointments / day</Label>
+                      <Input
+                        id="max_appointments_per_day"
+                        name="max_appointments_per_day"
+                        type="number"
+                        min={1}
+                        placeholder="Unlimited"
+                        defaultValue={
+                          employee.booking_rules.max_appointments_per_day ?? ""
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="min_break_minutes">Minimum break (min)</Label>
+                      <Input
+                        id="min_break_minutes"
+                        name="min_break_minutes"
+                        type="number"
+                        min={0}
+                        defaultValue={employee.booking_rules.min_break_minutes}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="buffer_before_minutes">Buffer before (min)</Label>
+                      <Input
+                        id="buffer_before_minutes"
+                        name="buffer_before_minutes"
+                        type="number"
+                        min={0}
+                        defaultValue={employee.booking_rules.buffer_before_minutes}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="buffer_after_minutes">Buffer after (min)</Label>
+                      <Input
+                        id="buffer_after_minutes"
+                        name="buffer_after_minutes"
+                        type="number"
+                        min={0}
+                        defaultValue={employee.booking_rules.buffer_after_minutes}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="priority_scheduling">Priority scheduling</Label>
+                      <Input
+                        id="priority_scheduling"
+                        name="priority_scheduling"
+                        type="number"
+                        min={0}
+                        defaultValue={employee.booking_rules.priority_scheduling}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="accept_online_bookings"
+                        value="on"
+                        defaultChecked={employee.booking_rules.accept_online_bookings}
+                      />
+                      Accept online bookings
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="accept_new_clients"
+                        value="on"
+                        defaultChecked={employee.booking_rules.accept_new_clients}
+                      />
+                      Accept new clients
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="accept_walk_ins"
+                        value="on"
+                        defaultChecked={employee.booking_rules.accept_walk_ins}
+                      />
+                      Accept walk-ins
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="overtime_eligible"
+                        value="on"
+                        defaultChecked={employee.booking_rules.overtime_eligible}
+                      />
+                      Overtime eligible
+                    </label>
+                  </div>
+                  <input type="hidden" name="first_name" value={employee.first_name ?? ""} />
+                  <input type="hidden" name="last_name" value={employee.last_name ?? ""} />
+                  <input
+                    type="hidden"
+                    name="preferred_name"
+                    value={employee.preferred_name ?? employee.name}
+                  />
+                  <input type="hidden" name="name" value={employee.name} />
+                  <input type="hidden" name="role_key" value={employee.role_key} />
+                  <input type="hidden" name="pay_type" value={employee.pay_type} />
+                  <input
+                    type="hidden"
+                    name="employment_status"
+                    value={employee.employment_status}
+                  />
+                  <input type="hidden" name="is_active" value={employee.is_active ? "true" : "false"} />
+                  <input type="hidden" name="color" value={employee.color} />
+                  <input type="hidden" name="location_id" value={employee.location_id} />
+                  {assignedLocationIds.map((id) => (
+                    <input key={id} type="hidden" name="location_ids" value={id} />
+                  ))}
+                  {assignedServiceIds.map((id) => (
+                    <input key={id} type="hidden" name="service_ids" value={id} />
+                  ))}
+                  {defaultPermissions.map((perm) => (
+                    <input key={perm} type="hidden" name="permissions" value={perm} />
+                  ))}
+                </>
+              ) : null}
+
               {tab === "assignments" ? (
                 <>
-                  <div className="space-y-2">
-                    <Label htmlFor="location_id">Primary location</Label>
-                    <Select
-                      id="location_id"
-                      name="location_id"
-                      defaultValue={employee.location_id}
-                      required
-                    >
-                      {locations.map((location) => (
-                        <option key={location.id} value={location.id}>
-                          {location.name}
-                        </option>
-                      ))}
-                    </Select>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="location_id">Primary location</Label>
+                      <Select
+                        id="location_id"
+                        name="location_id"
+                        defaultValue={employee.location_id}
+                        required
+                      >
+                        {locations.map((location) => (
+                          <option key={location.id} value={location.id}>
+                            {location.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="default_location_id">Default location</Label>
+                      <Select
+                        id="default_location_id"
+                        name="default_location_id"
+                        defaultValue={
+                          employee.default_location_id ?? employee.location_id
+                        }
+                      >
+                        {locations.map((location) => (
+                          <option key={location.id} value={location.id}>
+                            {location.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <p className="ds-label">Assigned locations</p>
@@ -632,23 +831,75 @@ export function EmployeeProfileView({
                   </div>
                   <div className="space-y-2">
                     <p className="ds-label">Assigned services</p>
-                    <div className="grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
-                      {services.map((service) => (
-                        <label
-                          key={service.id}
-                          className="flex items-center gap-2 rounded-[var(--radius-sm)] border border-border/80 px-3 py-2 text-sm"
-                        >
-                          <input
-                            type="checkbox"
-                            name="service_ids"
-                            value={service.id}
-                            defaultChecked={assignedServiceIds.includes(service.id)}
-                          />
-                          {service.name}
-                        </label>
-                      ))}
-                    </div>
+                    <ul className="max-h-80 space-y-2 overflow-y-auto">
+                      {services.map((service) => {
+                        const link = serviceById.get(service.id);
+                        return (
+                          <li
+                            key={service.id}
+                            className="grid gap-2 rounded-[var(--radius-sm)] border border-border/80 p-3 sm:grid-cols-[1fr_7rem_7rem]"
+                          >
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                name="service_ids"
+                                value={service.id}
+                                defaultChecked={Boolean(link)}
+                              />
+                              {service.name}
+                            </label>
+                            <div className="space-y-1">
+                              <Label
+                                htmlFor={`price_override_${service.id}`}
+                                className="text-xs text-muted-foreground"
+                              >
+                                Price override
+                              </Label>
+                              <Input
+                                id={`price_override_${service.id}`}
+                                name={`price_override_${service.id}`}
+                                type="number"
+                                min={0}
+                                step={0.01}
+                                placeholder="Default"
+                                defaultValue={
+                                  link?.price_override != null
+                                    ? Number(link.price_override)
+                                    : ""
+                                }
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label
+                                htmlFor={`duration_override_${service.id}`}
+                                className="text-xs text-muted-foreground"
+                              >
+                                Duration override
+                              </Label>
+                              <Input
+                                id={`duration_override_${service.id}`}
+                                name={`duration_override_${service.id}`}
+                                type="number"
+                                min={5}
+                                step={5}
+                                placeholder="Default"
+                                defaultValue={
+                                  link?.duration_override_minutes ?? ""
+                                }
+                              />
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
+                  <input type="hidden" name="first_name" value={employee.first_name ?? ""} />
+                  <input type="hidden" name="last_name" value={employee.last_name ?? ""} />
+                  <input
+                    type="hidden"
+                    name="preferred_name"
+                    value={employee.preferred_name ?? employee.name}
+                  />
                   <input type="hidden" name="name" value={employee.name} />
                   <input type="hidden" name="role_key" value={employee.role_key} />
                   <input type="hidden" name="pay_type" value={employee.pay_type} />
@@ -726,6 +977,13 @@ export function EmployeeProfileView({
                   <p className="text-xs text-muted-foreground">
                     Payroll data is stored for owners now and ready for payroll providers, AI Workforce, and mobile time clock.
                   </p>
+                  <input type="hidden" name="first_name" value={employee.first_name ?? ""} />
+                  <input type="hidden" name="last_name" value={employee.last_name ?? ""} />
+                  <input
+                    type="hidden"
+                    name="preferred_name"
+                    value={employee.preferred_name ?? employee.name}
+                  />
                   <input type="hidden" name="name" value={employee.name} />
                   <input type="hidden" name="role_key" value={employee.role_key} />
                   <input type="hidden" name="location_id" value={employee.location_id} />

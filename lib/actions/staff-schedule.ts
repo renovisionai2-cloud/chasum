@@ -66,16 +66,39 @@ export async function updateStaffWorkingHours(
     const isWorking = formData.get(`day_${day}_working`) === "on";
     const startTime = (formData.get(`day_${day}_start`) as string) || "09:00";
     const endTime = (formData.get(`day_${day}_end`) as string) || "17:00";
+    const lunchStart =
+      (formData.get(`day_${day}_lunch_start`) as string)?.trim() || null;
+    const lunchEnd =
+      (formData.get(`day_${day}_lunch_end`) as string)?.trim() || null;
+    const overtime = formData.get(`day_${day}_overtime`) === "on";
 
-    const { error } = await supabase
+    const payload: Record<string, unknown> = {
+      is_working: isWorking,
+      start_time: startTime,
+      end_time: endTime,
+      lunch_start_time: lunchStart || null,
+      lunch_end_time: lunchEnd || null,
+      overtime_eligible: overtime,
+    };
+
+    let { error } = await supabase
       .from("staff_working_hours")
-      .update({
-        is_working: isWorking,
-        start_time: startTime,
-        end_time: endTime,
-      })
+      .update(payload)
       .eq("staff_id", staffId)
       .eq("day_of_week", day);
+
+    if (error && (error.message.includes("lunch_") || error.message.includes("overtime"))) {
+      const retry = await supabase
+        .from("staff_working_hours")
+        .update({
+          is_working: isWorking,
+          start_time: startTime,
+          end_time: endTime,
+        })
+        .eq("staff_id", staffId)
+        .eq("day_of_week", day);
+      error = retry.error;
+    }
 
     if (error) return { error: error.message };
   }
@@ -97,17 +120,29 @@ export async function addStaffVacation(
   const startDate = formData.get("start_date") as string;
   const endDate = formData.get("end_date") as string;
   const reason = (formData.get("reason") as string) || null;
+  const kind = (formData.get("kind") as string) || "vacation";
 
   if (!staffId || !startDate || !endDate) {
     return { error: "Staff and dates are required." };
   }
 
-  const { error } = await supabase.from("staff_vacations").insert({
+  let { error } = await supabase.from("staff_vacations").insert({
     staff_id: staffId,
     start_date: startDate,
     end_date: endDate,
     reason,
+    kind,
   });
+
+  if (error && error.message.includes("kind")) {
+    const retry = await supabase.from("staff_vacations").insert({
+      staff_id: staffId,
+      start_date: startDate,
+      end_date: endDate,
+      reason,
+    });
+    error = retry.error;
+  }
 
   if (error) return { error: error.message };
 

@@ -1,17 +1,23 @@
 import {
+  composeDisplayName,
   isEmployeeRoleKey,
   parsePermissions,
   permissionsForRole,
   type EmployeeRoleKey,
   type EmploymentStatus,
   type PayType,
+  type VacationKind,
 } from "@/lib/employees/roles";
 import type {
+  CustomRole,
   Department,
   EmployeePerformance,
   EmployeeProfile,
   StaffActivityEvent,
+  StaffClosure,
+  StaffHourSegment,
   StaffLocationAssignment,
+  StaffServiceAssignment,
 } from "@/lib/employees/types";
 import { createClient } from "@/lib/supabase/server";
 import { logQueryError } from "@/lib/supabase/errors";
@@ -40,6 +46,7 @@ function asPayType(value: unknown): PayType {
 }
 
 function asRole(value: unknown): EmployeeRoleKey {
+  if (value === "staff") return "employee";
   return isEmployeeRoleKey(value) ? value : "employee";
 }
 
@@ -52,6 +59,21 @@ export function mapDepartment(row: Record<string, unknown>): Department {
     color: String(row.color ?? "#64748b"),
     sort_order: Number(row.sort_order ?? 0),
     is_active: Boolean(row.is_active ?? true),
+    created_at: String(row.created_at),
+    updated_at: String(row.updated_at),
+  };
+}
+
+export function mapCustomRole(row: Record<string, unknown>): CustomRole {
+  return {
+    id: String(row.id),
+    business_id: String(row.business_id),
+    key: String(row.key),
+    label: String(row.label),
+    description: (row.description as string) ?? null,
+    permissions: parsePermissions(row.permissions),
+    is_active: Boolean(row.is_active ?? true),
+    sort_order: Number(row.sort_order ?? 0),
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };
@@ -123,6 +145,22 @@ export async function listDepartments(businessId: string): Promise<Department[]>
   return (data ?? []).map((row) => mapDepartment(row as Record<string, unknown>));
 }
 
+export async function listCustomRoles(businessId: string): Promise<CustomRole[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("custom_roles")
+    .select("*")
+    .eq("business_id", businessId)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    logQueryError("employees/list-custom-roles", error.message);
+    return [];
+  }
+  return (data ?? []).map((row) => mapCustomRole(row as Record<string, unknown>));
+}
+
 async function computePerformance(
   businessId: string,
   staffId: string,
@@ -171,23 +209,102 @@ async function computePerformance(
   };
 }
 
+/** Structured employee payload for Summer / Chase (no AI calls). */
+export function toEmployeeAiExport(profile: EmployeeProfile) {
+  return {
+    id: profile.id,
+    displayName: composeDisplayName(profile),
+    firstName: profile.first_name,
+    lastName: profile.last_name,
+    preferredName: profile.preferred_name,
+    title: profile.title,
+    email: profile.email,
+    phone: profile.phone,
+    isActive: profile.is_active,
+    employmentStatus: profile.employment_status,
+    role: profile.role_key,
+    color: profile.color,
+    hireDate: profile.hire_date,
+    primaryLocationId: profile.location_id,
+    defaultLocationId: profile.default_location_id,
+    locationIds: profile.staff_locations.map((l) => l.location_id),
+    services: profile.staff_services.map((s) => ({
+      serviceId: s.service_id,
+      priceOverride: s.price_override,
+      durationOverrideMinutes: s.duration_override_minutes,
+    })),
+    workingHours: profile.hours.map((h) => ({
+      dayOfWeek: h.day_of_week,
+      isWorking: h.is_working,
+      startTime: String(h.start_time).slice(0, 5),
+      endTime: String(h.end_time).slice(0, 5),
+      lunchStart: h.lunch_start_time
+        ? String(h.lunch_start_time).slice(0, 5)
+        : null,
+      lunchEnd: h.lunch_end_time ? String(h.lunch_end_time).slice(0, 5) : null,
+      overtimeEligible: Boolean(h.overtime_eligible),
+    })),
+    hourSegments: profile.hour_segments.map((s) => ({
+      dayOfWeek: s.day_of_week,
+      startTime: String(s.start_time).slice(0, 5),
+      endTime: String(s.end_time).slice(0, 5),
+      type: s.segment_type,
+    })),
+    vacations: profile.vacations.map((v) => ({
+      startDate: v.start_date,
+      endDate: v.end_date,
+      kind: (v.kind as VacationKind | undefined) ?? "vacation",
+      reason: v.reason,
+    })),
+    closures: profile.closures.map((c) => ({
+      startsAt: c.starts_at,
+      endsAt: c.ends_at,
+      reason: c.reason,
+    })),
+    bookingRules: profile.booking_rules,
+    performance: {
+      completedAppointments: profile.performance.completedAppointments,
+      lifetimeRevenue: profile.performance.lifetimeRevenue,
+      completionRate: profile.performance.completionRate,
+      noShowRate: profile.performance.noShowRate,
+      upcomingAppointments: profile.performance.upcomingAppointments,
+    },
+  };
+}
+
 export async function getEmployeeProfile(
   businessId: string,
   staffId: string,
 ): Promise<EmployeeProfile | null> {
   const supabase = await createClient();
 
-  const { data: row, error } = await supabase
+  let { data: row, error } = await supabase
     .from("staff")
     .select(
       `*,
       department:departments(id, name, color),
-      location:locations(id, name),
-      staff_services(service_id)`,
+      location:locations!staff_location_id_fkey(id, name),
+      staff_services(service_id, price_override, duration_override_minutes)`,
     )
     .eq("id", staffId)
     .eq("business_id", businessId)
     .maybeSingle();
+
+  if (error) {
+    const retry = await supabase
+      .from("staff")
+      .select(
+        `*,
+        department:departments(id, name, color),
+        location:locations!staff_location_id_fkey(id, name),
+        staff_services(service_id)`,
+      )
+      .eq("id", staffId)
+      .eq("business_id", businessId)
+      .maybeSingle();
+    row = retry.data;
+    error = retry.error;
+  }
 
   if (error || !row) {
     if (error) console.error("[employees] get profile:", error.message);
@@ -208,7 +325,10 @@ export async function getEmployeeProfile(
 
   if (locRows) {
     locationAssignments = locRows.map((item) => {
-      const loc = item.location as { id: string; name: string } | { id: string; name: string }[] | null;
+      const loc = item.location as
+        | { id: string; name: string }
+        | { id: string; name: string }[]
+        | null;
       const location = Array.isArray(loc) ? loc[0] : loc;
       return {
         location_id: item.location_id as string,
@@ -228,39 +348,65 @@ export async function getEmployeeProfile(
     ];
   }
 
-  const [{ data: hours }, { data: vacations }, { data: documents }, { data: activity }, { data: blocks }] =
-    await Promise.all([
-      supabase
-        .from("staff_working_hours")
-        .select("*")
-        .eq("staff_id", staffId)
-        .order("day_of_week"),
-      supabase
-        .from("staff_vacations")
-        .select("*")
-        .eq("staff_id", staffId)
-        .order("start_date", { ascending: false }),
-      supabase
-        .from("staff_documents")
-        .select("*")
-        .eq("staff_id", staffId)
-        .eq("business_id", businessId)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("staff_activity")
-        .select("*")
-        .eq("staff_id", staffId)
-        .eq("business_id", businessId)
-        .order("created_at", { ascending: false })
-        .limit(50),
-      supabase
-        .from("availability")
-        .select("id, start_time, end_time, is_available, notes")
-        .eq("staff_id", staffId)
-        .eq("business_id", businessId)
-        .order("start_time", { ascending: false })
-        .limit(40),
-    ]);
+  const [
+    { data: hours },
+    { data: vacations },
+    { data: documents },
+    { data: activity },
+    { data: blocks },
+    segmentsRes,
+    closuresRes,
+  ] = await Promise.all([
+    supabase
+      .from("staff_working_hours")
+      .select("*")
+      .eq("staff_id", staffId)
+      .order("day_of_week"),
+    supabase
+      .from("staff_vacations")
+      .select("*")
+      .eq("staff_id", staffId)
+      .order("start_date", { ascending: false }),
+    supabase
+      .from("staff_documents")
+      .select("*")
+      .eq("staff_id", staffId)
+      .eq("business_id", businessId)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("staff_activity")
+      .select("*")
+      .eq("staff_id", staffId)
+      .eq("business_id", businessId)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("availability")
+      .select("id, start_time, end_time, is_available, notes")
+      .eq("staff_id", staffId)
+      .eq("business_id", businessId)
+      .order("start_time", { ascending: false })
+      .limit(40),
+    supabase
+      .from("staff_hour_segments")
+      .select("*")
+      .eq("staff_id", staffId)
+      .order("day_of_week")
+      .order("sort_order"),
+    supabase
+      .from("staff_closures")
+      .select("*")
+      .eq("staff_id", staffId)
+      .eq("business_id", businessId)
+      .order("starts_at", { ascending: false }),
+  ]);
+
+  const hourSegments: StaffHourSegment[] = segmentsRes.error
+    ? []
+    : ((segmentsRes.data ?? []) as StaffHourSegment[]);
+  const closures: StaffClosure[] = closuresRes.error
+    ? []
+    : ((closuresRes.data ?? []) as StaffClosure[]);
 
   const performance = await computePerformance(businessId, staffId);
   const dept = record.department as
@@ -268,11 +414,17 @@ export async function getEmployeeProfile(
     | { id: string; name: string; color: string }[]
     | null;
 
+  const serviceLinks = (record.staff_services as StaffServiceAssignment[] | null) ?? [];
+
   return {
     id: String(record.id),
     business_id: String(record.business_id),
     location_id: String(record.location_id),
+    default_location_id: (record.default_location_id as string) ?? null,
     name: String(record.name),
+    first_name: (record.first_name as string) ?? null,
+    last_name: (record.last_name as string) ?? null,
+    preferred_name: (record.preferred_name as string) ?? null,
     email: (record.email as string) ?? null,
     phone: (record.phone as string) ?? null,
     title: (record.title as string) ?? null,
@@ -284,6 +436,7 @@ export async function getEmployeeProfile(
     department_id: (record.department_id as string) ?? null,
     employment_status: asEmploymentStatus(record.employment_status),
     role_key: role,
+    custom_role_id: (record.custom_role_id as string) ?? null,
     permissions: effectivePermissions,
     hire_date: (record.hire_date as string) ?? null,
     termination_date: (record.termination_date as string) ?? null,
@@ -298,14 +451,36 @@ export async function getEmployeeProfile(
     commission_rate_bps: (record.commission_rate_bps as number) ?? null,
     payroll_notes: (record.payroll_notes as string) ?? null,
     user_id: (record.user_id as string) ?? null,
+    booking_rules: {
+      max_appointments_per_day:
+        (record.max_appointments_per_day as number | null) ?? null,
+      min_break_minutes: Number(record.min_break_minutes ?? 0),
+      buffer_before_minutes: Number(record.buffer_before_minutes ?? 0),
+      buffer_after_minutes: Number(record.buffer_after_minutes ?? 0),
+      accept_online_bookings: record.accept_online_bookings !== false,
+      accept_new_clients: record.accept_new_clients !== false,
+      accept_walk_ins: record.accept_walk_ins !== false,
+      priority_scheduling: Number(record.priority_scheduling ?? 0),
+      overtime_eligible: Boolean(record.overtime_eligible),
+    },
     created_at: String(record.created_at),
     updated_at: String(record.updated_at),
     department: Array.isArray(dept) ? dept[0] : dept,
     location: (record.location as { id: string; name: string }) ?? null,
-    staff_services: (record.staff_services as { service_id: string }[]) ?? [],
+    staff_services: serviceLinks.map((link) => ({
+      service_id: link.service_id,
+      price_override:
+        link.price_override == null ? null : Number(link.price_override),
+      duration_override_minutes:
+        link.duration_override_minutes == null
+          ? null
+          : Number(link.duration_override_minutes),
+    })),
     staff_locations: locationAssignments,
     hours: (hours as EmployeeProfile["hours"]) ?? [],
+    hour_segments: hourSegments,
     vacations: (vacations as EmployeeProfile["vacations"]) ?? [],
+    closures,
     documents: (documents as StaffDocument[]) ?? [],
     activity: (activity ?? []).map((item) =>
       mapActivity(item as Record<string, unknown>),

@@ -106,13 +106,24 @@ export function EmployeeDocumentsPanel({
           <Label htmlFor="staff_doc_category">Category</Label>
           <Select id="staff_doc_category" name="category" defaultValue="general">
             <option value="general">General</option>
-            <option value="contract">Contract</option>
+            <option value="contract">Contract / employment</option>
             <option value="certification">Certification</option>
+            <option value="license">License</option>
             <option value="id">ID</option>
             <option value="tax">Tax</option>
             <option value="training">Training</option>
             <option value="other">Other</option>
           </Select>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="staff_doc_expires">Expires on</Label>
+            <Input id="staff_doc_expires" name="expires_on" type="date" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="staff_doc_issued_by">Issued by</Label>
+            <Input id="staff_doc_issued_by" name="issued_by" placeholder="Optional" />
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="staff_doc_file">File</Label>

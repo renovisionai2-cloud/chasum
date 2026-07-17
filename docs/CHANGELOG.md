@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 4 — Complete Employees Module Foundation)
+
+- Migration `025_employees_module.sql` — first/last/preferred names, booking rules, custom roles, service duration overrides, lunch/overtime hours, hour segments, staff closures, license documents
+- Employees directory: sort, pagination, bulk activate/deactivate; profile booking rules + service price/duration overrides; richer AI knowledge export for Summer/Chase
+
 ### Added (Phase 4 — Complete Services Module Foundation)
 
 - Migration `024_services_module.sql` — cleanup time, sort order, taxable/deposit flags, booking visibility & confirmation modes, availability windows, `service_locations`, `staff_services.price_override`, `service_blackouts`, example category seeds

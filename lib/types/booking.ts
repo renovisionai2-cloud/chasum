@@ -235,7 +235,11 @@ export type Staff = {
   id: string;
   business_id: string;
   location_id: string;
+  default_location_id?: string | null;
   name: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  preferred_name?: string | null;
   email: string | null;
   phone?: string | null;
   title: string | null;
@@ -247,6 +251,7 @@ export type Staff = {
   department_id?: string | null;
   employment_status?: string;
   role_key?: string;
+  custom_role_id?: string | null;
   permissions?: string[];
   hire_date?: string | null;
   termination_date?: string | null;
@@ -260,6 +265,15 @@ export type Staff = {
   commission_rate_bps?: number | null;
   payroll_notes?: string | null;
   user_id?: string | null;
+  max_appointments_per_day?: number | null;
+  min_break_minutes?: number;
+  buffer_before_minutes?: number;
+  buffer_after_minutes?: number;
+  accept_online_bookings?: boolean;
+  accept_new_clients?: boolean;
+  accept_walk_ins?: boolean;
+  priority_scheduling?: number;
+  overtime_eligible?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -272,11 +286,17 @@ export type StaffDocument = {
   category?: string;
   file_url: string;
   file_type: string | null;
+  expires_on?: string | null;
+  issued_by?: string | null;
   created_at: string;
 };
 
 export type StaffWithServices = Staff & {
-  staff_services: { service_id: string }[];
+  staff_services: {
+    service_id: string;
+    price_override?: number | null;
+    duration_override_minutes?: number | null;
+  }[];
 };
 
 export type StaffScheduleMap = Record<
@@ -291,6 +311,9 @@ export type StaffWorkingHours = {
   is_working: boolean;
   start_time: string;
   end_time: string;
+  lunch_start_time?: string | null;
+  lunch_end_time?: string | null;
+  overtime_eligible?: boolean;
 };
 
 export type StaffVacation = {
@@ -299,6 +322,7 @@ export type StaffVacation = {
   start_date: string;
   end_date: string;
   reason: string | null;
+  kind?: string;
   created_at: string;
 };
 

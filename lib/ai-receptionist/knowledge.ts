@@ -78,7 +78,7 @@ export async function loadBusinessKnowledge(input?: {
     supabase
       .from("staff")
       .select(
-        "id, name, title, is_active, location_id, staff_services(service_id)",
+        "id, name, title, is_active, location_id, accept_online_bookings, staff_services(service_id), staff_working_hours(day_of_week, is_working, start_time, end_time)",
       )
       .eq("business_id", business.id)
       .eq("is_active", true),
@@ -87,16 +87,51 @@ export async function loadBusinessKnowledge(input?: {
   const services = (servicesRes.data ?? []).filter(
     (s) => !locationId || !s.location_id || s.location_id === locationId,
   );
-  const employees = (staffRes.data ?? [])
+  const employees = (staffRes.error
+    ? (
+        await supabase
+          .from("staff")
+          .select(
+            "id, name, title, is_active, location_id, staff_services(service_id)",
+          )
+          .eq("business_id", business.id)
+          .eq("is_active", true)
+      ).data
+    : staffRes.data) ?? [];
+
+  const mappedEmployees = employees
     .filter((s) => !locationId || !s.location_id || s.location_id === locationId)
-    .map((s) => ({
-      id: s.id as string,
-      name: s.name as string,
-      title: (s.title as string | null) ?? null,
-      serviceIds: (
-        (s.staff_services as { service_id: string }[] | null) ?? []
-      ).map((link) => link.service_id),
-    }));
+    .map((s) => {
+      const row = s as Record<string, unknown>;
+      const hours =
+        (row.staff_working_hours as
+          | {
+              day_of_week: number;
+              is_working: boolean;
+              start_time: string;
+              end_time: string;
+            }[]
+          | null) ?? [];
+      const hoursSummary = hours
+        .filter((h) => h.is_working)
+        .map(
+          (h) =>
+            `${DAY_LABELS[h.day_of_week] ?? h.day_of_week} ${String(h.start_time).slice(0, 5)}–${String(h.end_time).slice(0, 5)}`,
+        )
+        .join("; ");
+      return {
+        id: row.id as string,
+        name: row.name as string,
+        title: (row.title as string | null) ?? null,
+        serviceIds: (
+          (row.staff_services as { service_id: string }[] | null) ?? []
+        ).map((link) => link.service_id),
+        isActive: Boolean(row.is_active ?? true),
+        locationId: (row.location_id as string | null) ?? null,
+        acceptOnlineBookings: row.accept_online_bookings !== false,
+        workingHoursSummary: hoursSummary || undefined,
+      };
+    });
 
   return {
     businessId: business.id,
@@ -145,7 +180,7 @@ export async function loadBusinessKnowledge(input?: {
         confirmationMode: (row.confirmation_mode as string | null) ?? undefined,
       };
     }),
-    employees,
+    employees: mappedEmployees,
   };
 }
 
@@ -176,7 +211,14 @@ export function knowledgeToPromptBlock(knowledge: BusinessKnowledge): string {
     .join("\n");
 
   const staff = knowledge.employees
-    .map((e) => `- ${e.name}${e.title ? ` (${e.title})` : ""}`)
+    .map((e) => {
+      const hours = e.workingHoursSummary
+        ? ` · hours: ${e.workingHoursSummary}`
+        : "";
+      const online =
+        e.acceptOnlineBookings === false ? " · online booking off" : "";
+      return `- ${e.name}${e.title ? ` (${e.title})` : ""}${hours}${online}`;
+    })
     .join("\n");
 
   const locations = knowledge.locations

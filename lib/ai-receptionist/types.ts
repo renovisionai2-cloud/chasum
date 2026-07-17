@@ -115,6 +115,10 @@ export type BusinessKnowledge = {
     name: string;
     title: string | null;
     serviceIds: string[];
+    isActive?: boolean;
+    locationId?: string | null;
+    acceptOnlineBookings?: boolean;
+    workingHoursSummary?: string;
   }>;
 };
 

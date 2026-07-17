@@ -5,6 +5,10 @@ import {
   getActiveLocationId,
   getLocationScope,
 } from "@/lib/actions/location";
+import {
+  composeDisplayName,
+  permissionsForRole,
+} from "@/lib/employees/roles";
 import { withLocationFilter } from "@/lib/location/constants";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
@@ -94,13 +98,26 @@ export async function createStaff(
 
   const supabase = await createClient();
 
-  const name = formData.get("name") as string;
+  const firstName = (formData.get("first_name") as string)?.trim() || null;
+  const lastName = (formData.get("last_name") as string)?.trim() || null;
+  const preferredName =
+    (formData.get("preferred_name") as string)?.trim() || null;
+  const legacyName = (formData.get("name") as string)?.trim() || "";
+  const name =
+    composeDisplayName({
+      firstName,
+      lastName,
+      preferredName,
+      name: legacyName,
+    }) || legacyName;
   const email = (formData.get("email") as string) || null;
+  const phone = (formData.get("phone") as string)?.trim() || null;
   const title = (formData.get("title") as string) || null;
   const color = (formData.get("color") as string) || "#3b82f6";
   const serviceIds = formData.getAll("service_ids") as string[];
+  const hireDate = (formData.get("hire_date") as string)?.trim() || null;
 
-  if (!name?.trim()) return { error: "Staff name is required." };
+  if (!name) return { error: "Staff name is required." };
 
   const photoUrl = (formData.get("photo_url") as string) || null;
   const biography = (formData.get("biography") as string)?.trim() || null;
@@ -112,35 +129,44 @@ export async function createStaff(
     .insert({
       business_id: business.id,
       location_id: locationResult,
-      name: name.trim(),
+      default_location_id: locationResult,
+      name,
+      first_name: firstName,
+      last_name: lastName,
+      preferred_name: preferredName,
       email,
+      phone,
       title,
       color,
       photo_url: photoUrl,
       biography,
       qualifications,
+      hire_date: hireDate,
       role_key: "employee",
       employment_status: "active",
-      permissions: [
-        "appointments:read",
-        "appointments:write",
-        "clients:read",
-        "calendar:manage",
-        "time_clock:use",
-      ],
+      permissions: permissionsForRole("employee"),
+      accept_online_bookings: true,
+      accept_new_clients: true,
+      accept_walk_ins: true,
     })
     .select("id")
     .single();
 
   if (error || !staffMember) {
-    // Pre-migration fallback without HR columns
-    if (error?.message?.includes("role_key") || error?.message?.includes("permissions")) {
+    // Soft-fallback when newer columns are not applied yet
+    if (
+      error?.message?.includes("role_key") ||
+      error?.message?.includes("permissions") ||
+      error?.message?.includes("first_name") ||
+      error?.message?.includes("default_location") ||
+      error?.message?.includes("accept_online")
+    ) {
       const fallback = await supabase
         .from("staff")
         .insert({
           business_id: business.id,
           location_id: locationResult,
-          name: name.trim(),
+          name,
           email,
           title,
           color,
@@ -164,7 +190,10 @@ export async function createStaff(
       revalidatePath("/dashboard/staff");
       revalidatePath("/dashboard/employees");
       revalidatePath("/dashboard/calendar");
-      return { success: "Employee added." };
+      return {
+        success:
+          "Employee added. Apply migration 025_employees_module for name parts and booking rules.",
+      };
     }
     return { error: error?.message ?? "Failed to create employee." };
   }

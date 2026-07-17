@@ -7,11 +7,13 @@ import { AlertMessage } from "@/components/ui/form-feedback";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import {
   addStaffVacation,
   deleteStaffVacation,
   updateStaffWorkingHours,
 } from "@/lib/actions/staff-schedule";
+import { VACATION_KIND_LABELS } from "@/lib/employees/roles";
 import type {
   ActionState,
   Staff,
@@ -72,7 +74,12 @@ export function StaffScheduleDialog({
       <form action={hoursAction} className="mb-6 space-y-3">
         <input type="hidden" name="staff_id" value={staff.id} />
         <h3 className="text-sm font-semibold">Working hours</h3>
-        <WorkingHoursGrid hours={workingHours} namePrefix="staff_day" openField="working" />
+        <WorkingHoursGrid
+          hours={workingHours}
+          namePrefix="staff_day"
+          openField="working"
+          showLunchBreaks
+        />
         <AlertMessage error={hoursState.error} success={hoursState.success} />
         <Button type="submit" size="sm" disabled={hoursPending}>
           {hoursPending ? "Saving..." : "Save hours"}
@@ -105,6 +112,16 @@ export function StaffScheduleDialog({
             <div className="space-y-1">
               <Label htmlFor="end_date">End</Label>
               <Input id="end_date" name="end_date" type="date" required />
+            </div>
+            <div className="space-y-1 sm:col-span-2">
+              <Label htmlFor="kind">Type</Label>
+              <Select id="kind" name="kind" defaultValue="vacation">
+                {Object.entries(VACATION_KIND_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
             </div>
           </div>
           <Input name="reason" placeholder="Reason (optional)" aria-label="Vacation reason" />
