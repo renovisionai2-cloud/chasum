@@ -67,7 +67,7 @@ function ServiceForm({
 }: {
   service?: Service;
   categories: ServiceCategory[];
-  staff: Staff[];
+  staff: Pick<Staff, "id" | "name" | "title" | "is_active" | "location_id" | "color">[];
   locations: Location[];
   onClose: () => void;
 }) {
@@ -665,7 +665,7 @@ export function ServicesManager({
 }: {
   services: Service[];
   categories: ServiceCategory[];
-  staff: Staff[];
+  staff: Pick<Staff, "id" | "name" | "title" | "is_active" | "location_id" | "color">[];
   locations: Location[];
 }) {
   const [tab, setTab] = useState<TabKey>("catalog");

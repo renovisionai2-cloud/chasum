@@ -4,7 +4,7 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { listServiceCategories } from "@/lib/actions/business-management";
 import { getLocations } from "@/lib/actions/location";
 import { getServices } from "@/lib/actions/services";
-import { getStaff } from "@/lib/actions/staff";
+import { getStaffForAssignment } from "@/lib/actions/staff";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -16,7 +16,7 @@ export default async function ServicesPage() {
   const [services, categories, staff, locations] = await Promise.all([
     getServices(),
     listServiceCategories(),
-    getStaff(),
+    getStaffForAssignment(),
     getLocations(),
   ]);
 

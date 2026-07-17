@@ -17,7 +17,9 @@ export async function getStaff() {
 
   let query = supabase
     .from("staff")
-    .select("*, staff_services(service_id), location:locations(id, name)")
+    .select(
+      "*, staff_services(service_id), location:locations!staff_location_id_fkey(id, name)",
+    )
     .eq("business_id", business.id)
     .order("name");
 
@@ -25,8 +27,39 @@ export async function getStaff() {
 
   const { data, error } = await query;
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    // PostgREST can fail when multiple FKs exist between staff and locations.
+    let fallback = supabase
+      .from("staff")
+      .select("*, staff_services(service_id)")
+      .eq("business_id", business.id)
+      .order("name");
+    fallback = withLocationFilter(fallback, scope);
+    const retry = await fallback;
+    if (retry.error) throw new Error(retry.error.message);
+    return retry.data;
+  }
+
   return data;
+}
+
+/** Lightweight staff list for service assignment (no location embed). */
+export async function getStaffForAssignment() {
+  const business = await getOrCreateBusiness();
+  const scope = await getLocationScope();
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("staff")
+    .select("id, name, title, is_active, location_id, color")
+    .eq("business_id", business.id)
+    .order("name");
+
+  query = withLocationFilter(query, scope);
+
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
 async function resolveStaffLocationId(
