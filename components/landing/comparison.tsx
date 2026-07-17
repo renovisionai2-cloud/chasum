@@ -1,3 +1,5 @@
+"use client";
+
 import { Reveal } from "@/components/landing/reveal";
 import {
   COMPARISON_COLUMNS,
@@ -5,6 +7,7 @@ import {
   type ComparisonValue,
 } from "@/lib/marketing/homepage";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 const LABELS: Record<ComparisonValue, string> = {
   yes: "Yes",
@@ -14,95 +17,124 @@ const LABELS: Record<ComparisonValue, string> = {
 };
 
 const TONE: Record<ComparisonValue, string> = {
-  yes: "text-primary",
-  partial: "text-foreground",
-  roadmap: "text-spark",
-  varies: "text-muted-foreground",
+  yes: "bg-primary/10 text-primary border-primary/20",
+  partial: "bg-muted text-foreground border-border/60",
+  roadmap: "bg-spark-muted text-spark border-spark/20",
+  varies: "bg-transparent text-muted-foreground border-border/50",
 };
 
+/**
+ * V3 Comparison — visual, interactive, not a spreadsheet.
+ */
 export function Comparison() {
+  const competitors = COMPARISON_COLUMNS.filter((col) => col !== "Chasum");
+  const [active, setActive] = useState<(typeof competitors)[number]>(
+    competitors[0] ?? "Picktime",
+  );
+
   return (
     <section
       id="compare"
-      className="scroll-mt-20 px-6 py-24 md:py-36"
+      className="marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="compare-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-5xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">Comparison</p>
-            <h2 id="compare-heading" className="marketing-h2">
+            <p className="marketing-eyebrow">Compare</p>
+            <h2 id="compare-heading" className="marketing-h2-xl">
               How Chasum compares
             </h2>
             <p className="marketing-lede">
-              Structured for honesty. Competitor capabilities vary by plan and
-              change over time — use this as a starting checklist, not a final
-              verdict.
+              Structured for honesty. Competitor capabilities vary by plan —
+              use this as a starting checklist, not a final verdict.
             </p>
           </div>
         </Reveal>
 
-        <Reveal delayMs={80}>
-          <div className="marketing-elevate mt-14 overflow-x-auto rounded-[var(--radius-lg)] border border-border/70 bg-card">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                <tr>
-                  <th className="sticky left-0 z-10 bg-muted/40 px-4 py-3.5 font-medium backdrop-blur-sm">
-                    Capability
-                  </th>
-                  {COMPARISON_COLUMNS.map((col) => (
-                    <th
-                      key={col}
+        <Reveal delayMs={60}>
+          <div
+            className="mt-12 flex flex-wrap justify-center gap-2"
+            role="tablist"
+            aria-label="Competitors"
+          >
+            {competitors.map((col) => (
+              <button
+                key={col}
+                type="button"
+                role="tab"
+                aria-selected={active === col}
+                onClick={() => setActive(col)}
+                data-active={active === col}
+                className={cn(
+                  "marketing-compare-pill rounded-full border px-4 py-2.5 text-sm font-medium transition-all",
+                  active === col
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border/70 bg-card text-muted-foreground hover:text-foreground",
+                )}
+              >
+                vs {col}
+              </button>
+            ))}
+          </div>
+        </Reveal>
+
+        <Reveal delayMs={100}>
+          <div className="marketing-elevate-lg mt-10 overflow-hidden rounded-[1.5rem] border border-border/60 bg-card">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-px border-b border-border/60 bg-border/50">
+              <div className="bg-card px-5 py-4 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                Capability
+              </div>
+              <div className="bg-primary/10 px-6 py-4 text-center text-sm font-semibold text-primary">
+                Chasum
+              </div>
+              <div className="min-w-[8.5rem] bg-card px-6 py-4 text-center text-sm font-semibold text-foreground">
+                {active}
+              </div>
+            </div>
+
+            <ul className="divide-y divide-border/60">
+              {COMPARISON_ROWS.map((row) => (
+                <li
+                  key={row.feature}
+                  className="grid grid-cols-[1fr_auto_auto] items-center gap-px transition-colors hover:bg-muted/20"
+                >
+                  <div className="px-5 py-5">
+                    <p className="text-sm font-medium text-foreground">
+                      {row.feature}
+                    </p>
+                    {row.note ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {row.note}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="flex justify-center bg-primary/[0.03] px-6 py-5">
+                    <span
                       className={cn(
-                        "px-3 py-3.5 text-center font-medium",
-                        col === "Chasum" &&
-                          "bg-primary/10 text-primary ring-1 ring-inset ring-primary/20",
+                        "rounded-full border px-3 py-1 text-xs font-semibold",
+                        TONE[row.values.Chasum],
                       )}
                     >
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/80">
-                {COMPARISON_ROWS.map((row) => (
-                  <tr
-                    key={row.feature}
-                    className="transition-colors duration-200 hover:bg-muted/30"
-                  >
-                    <th className="sticky left-0 z-10 bg-card px-4 py-3.5 align-top text-sm font-medium text-foreground">
-                      {row.feature}
-                      {row.note ? (
-                        <p className="mt-1 text-xs font-normal text-muted-foreground">
-                          {row.note}
-                        </p>
-                      ) : null}
-                    </th>
-                    {COMPARISON_COLUMNS.map((col) => {
-                      const value = row.values[col];
-                      return (
-                        <td
-                          key={col}
-                          className={cn(
-                            "px-3 py-3.5 text-center align-top tabular-nums",
-                            col === "Chasum"
-                              ? "bg-primary/[0.06] font-semibold text-primary"
-                              : TONE[value],
-                          )}
-                        >
-                          {LABELS[value]}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {LABELS[row.values.Chasum]}
+                    </span>
+                  </div>
+                  <div className="flex min-w-[8.5rem] justify-center px-6 py-5">
+                    <span
+                      className={cn(
+                        "rounded-full border px-3 py-1 text-xs font-semibold",
+                        TONE[row.values[active]],
+                      )}
+                    >
+                      {LABELS[row.values[active]]}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground">
-            Comparison cells are data-driven — update{" "}
-            <code className="rounded bg-muted px-1 py-0.5">COMPARISON_ROWS</code>{" "}
-            as capabilities ship.
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Comparison cells are data-driven — update as capabilities ship.
           </p>
         </Reveal>
       </div>

@@ -8,14 +8,14 @@ export function ImpactCounters() {
   return (
     <section
       id="impact"
-      className="scroll-mt-20 px-6 py-24 md:py-32"
+      className="marketing-v3-dark scroll-mt-24 px-6 py-20 md:py-28"
       aria-labelledby="impact-heading"
     >
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Momentum</p>
-            <h2 id="impact-heading" className="marketing-h2">
+            <h2 id="impact-heading" className="marketing-h2-xl">
               Built to scale service businesses
             </h2>
             <p className="marketing-lede">
@@ -25,14 +25,14 @@ export function ImpactCounters() {
           </div>
         </Reveal>
 
-        <dl className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        <dl className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
           {IMPACT_STATS.map((stat, index) => (
-            <Reveal key={stat.label} delayMs={index * 70}>
-              <div className="marketing-card-lift marketing-elevate rounded-[var(--radius-lg)] border border-border/60 bg-card px-5 py-8 text-center">
-                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            <Reveal key={stat.label} delayMs={index * 60}>
+              <div className="text-center lg:text-left">
+                <dt className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/45">
                   {stat.label}
                 </dt>
-                <dd className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+                <dd className="mt-3 text-4xl font-semibold tracking-tight text-white md:text-5xl">
                   <AnimatedNumber
                     value={stat.value}
                     suffix={stat.suffix}
@@ -41,7 +41,7 @@ export function ImpactCounters() {
                     durationMs={1400}
                   />
                 </dd>
-                <p className="mt-2 text-xs text-muted-foreground">{stat.hint}</p>
+                <p className="mt-2 text-sm text-white/50">{stat.hint}</p>
               </div>
             </Reveal>
           ))}

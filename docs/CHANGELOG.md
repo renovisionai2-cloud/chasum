@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Public marketing website — V3 world-class brand experience)
+
+- Complete creative redesign of the marketing experience: cinematic product-first hero, enterprise navigation (Platform / Product / Solutions / Customers / Resources / Pricing / Support), immersive dark sections, and story-led section rhythm
+- Platform and Product Tour rebuilt around live software experiences; Industries, Journey, AI Workforce, Stories, Comparison, Pricing, FAQ, and final CTA redesigned for premium contrast and hierarchy
+- Brand colors, messaging sources, and section content preserved — presentation and composition challenged throughout
+
 ### Changed (Public marketing website — Premium visual polish pass)
 
 - Introduced an alternating surface rhythm so no two adjacent sections feel identical: a calm light-gray gradient (`marketing-surface-tint`) on Trusted, Platform, Industries, Testimonials, and Pricing; base surface elsewhere; softer hairline dividers replace hard 1px borders

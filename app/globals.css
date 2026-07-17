@@ -539,6 +539,162 @@ body {
   border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
 }
 
+/* ─── V3 cinematic brand experience ─────────────────────────────── */
+
+.marketing-v3-dark {
+  background:
+    radial-gradient(
+      80% 60% at 50% -20%,
+      color-mix(in srgb, var(--primary) 28%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #07101f 0%, #0b1324 45%, #0a1528 100%);
+  color: #f4f6fb;
+}
+
+.dark .marketing-v3-dark {
+  background:
+    radial-gradient(
+      80% 60% at 50% -20%,
+      color-mix(in srgb, var(--primary) 22%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #040a14 0%, #081324 50%, #0a1528 100%);
+}
+
+.marketing-v3-dark .marketing-eyebrow {
+  color: color-mix(in srgb, #93c5fd 90%, white);
+}
+
+.marketing-v3-dark .marketing-h2,
+.marketing-v3-dark h2,
+.marketing-v3-dark h3 {
+  color: #f8fafc;
+}
+
+.marketing-v3-dark .marketing-lede,
+.marketing-v3-dark p {
+  color: color-mix(in srgb, #cbd5e1 88%, transparent);
+}
+
+.marketing-v3-immersive {
+  background:
+    radial-gradient(
+      70% 50% at 70% 0%,
+      color-mix(in srgb, var(--primary) 12%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      50% 40% at 10% 80%,
+      color-mix(in srgb, var(--spark) 8%, transparent),
+      transparent 55%
+    ),
+    var(--background);
+}
+
+.marketing-product-frame {
+  border-radius: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: var(--card);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--foreground) 4%, transparent),
+    0 24px 64px -28px color-mix(in srgb, var(--foreground) 22%, transparent),
+    0 48px 96px -48px color-mix(in srgb, var(--primary) 18%, transparent);
+  overflow: hidden;
+}
+
+.marketing-v3-dark .marketing-product-frame {
+  border-color: color-mix(in srgb, white 12%, transparent);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.35),
+    0 32px 80px -24px rgb(0 0 0 / 0.55),
+    0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.marketing-h2-xl {
+  @apply text-[2.25rem] font-semibold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-5xl md:text-6xl;
+}
+
+.marketing-marquee {
+  display: flex;
+  width: max-content;
+  gap: 3rem;
+  animation: marketing-marquee 42s linear infinite;
+}
+
+.marketing-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marketing-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marketing-journey-line {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary) 10%, transparent),
+    color-mix(in srgb, var(--primary) 55%, transparent),
+    color-mix(in srgb, var(--spark) 45%, transparent),
+    color-mix(in srgb, var(--primary) 10%, transparent)
+  );
+}
+
+.marketing-journey-node {
+  transition:
+    transform 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out);
+}
+
+.marketing-journey-node:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--primary) 40%, var(--border));
+  box-shadow: 0 16px 40px -20px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+.marketing-nav-panel {
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--foreground) 4%, transparent),
+    0 24px 48px -24px color-mix(in srgb, var(--foreground) 18%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.marketing-compare-pill {
+  transition:
+    transform 0.25s ease,
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.marketing-compare-pill[data-active="true"] {
+  transform: translateY(-2px);
+}
+
+@keyframes marketing-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+}
+
+.marketing-live-dot {
+  animation: marketing-pulse-dot 2s ease-in-out infinite;
+}
+
 .marketing-preview-glow {
   border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
   box-shadow:
@@ -616,7 +772,9 @@ body {
   .marketing-row-in,
   .marketing-hero-enter,
   .marketing-hero-bezel,
-  .marketing-orb {
+  .marketing-orb,
+  .marketing-marquee,
+  .marketing-live-dot {
     animation: none !important;
     filter: none !important;
   }
@@ -635,7 +793,9 @@ body {
   .marketing-stat-card,
   .marketing-stat-card:hover,
   .marketing-emma-card,
-  .marketing-emma-card:hover {
+  .marketing-emma-card:hover,
+  .marketing-journey-node,
+  .marketing-journey-node:hover {
     transition: none !important;
     transform: none !important;
     box-shadow: none !important;

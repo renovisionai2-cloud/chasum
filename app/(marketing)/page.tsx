@@ -26,6 +26,11 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * V3 story flow:
+ * Meet Chasum → Trust → One OS → Real Product → Connected Journey →
+ * AI Workforce → Real Businesses → Real Results → Compare → Pricing → Start
+ */
 export default function HomePage() {
   return (
     <PageFade>
@@ -35,9 +40,9 @@ export default function HomePage() {
       <ImpactCounters />
       <PlatformOverview />
       <DashboardShowcase />
-      <Industries />
       <CustomerJourney />
       <AiWorkforceSection />
+      <Industries />
       <Testimonials />
       <Comparison />
       <Pricing />

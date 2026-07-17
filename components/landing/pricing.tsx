@@ -89,14 +89,14 @@ export function Pricing() {
   return (
     <section
       id="pricing"
-      className="marketing-surface-tint marketing-hairline-y scroll-mt-20 px-6 py-24 md:py-36"
+      className="scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="pricing-heading"
     >
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Pricing</p>
-            <h2 id="pricing-heading" className="marketing-h2">
+            <h2 id="pricing-heading" className="marketing-h2-xl">
               {PRICING_HEADLINE}
             </h2>
             <p className="marketing-lede">{PRICING_SUBHEADING}</p>
@@ -110,16 +110,16 @@ export function Pricing() {
         </Reveal>
 
         <Reveal delayMs={120}>
-          <div className="marketing-elevate mt-16 overflow-x-auto rounded-[var(--radius-lg)] border border-border/70 bg-card">
+          <div className="marketing-elevate mt-16 overflow-x-auto rounded-[1.35rem] border border-border/70 bg-card">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-3 font-medium">Compare plans</th>
+                  <th className="px-4 py-4 font-medium">Compare plans</th>
                   {MARKETING_PLANS.map((plan) => (
                     <th
                       key={plan.id}
                       className={cn(
-                        "px-3 py-3 text-center font-medium",
+                        "px-4 py-4 text-center font-medium",
                         plan.highlighted && "bg-primary/10 text-primary",
                       )}
                     >
@@ -131,19 +131,19 @@ export function Pricing() {
               <tbody className="divide-y divide-border/80">
                 {COMPARISON_FEATURES.map((row) => (
                   <tr key={row.name}>
-                    <th className="px-3 py-3 font-medium text-foreground">
+                    <th className="px-4 py-3.5 font-medium text-foreground">
                       {row.name}
                     </th>
-                    <td className="px-3 py-3 text-center">
+                    <td className="px-4 py-3.5 text-center">
                       <Cell value={row.free} />
                     </td>
-                    <td className="bg-primary/[0.04] px-3 py-3 text-center">
+                    <td className="bg-primary/[0.04] px-4 py-3.5 text-center">
                       <Cell value={row.professional} />
                     </td>
-                    <td className="px-3 py-3 text-center">
+                    <td className="px-4 py-3.5 text-center">
                       <Cell value={row.business} />
                     </td>
-                    <td className="px-3 py-3 text-center">
+                    <td className="px-4 py-3.5 text-center">
                       <Cell value={row.enterprise} />
                     </td>
                   </tr>

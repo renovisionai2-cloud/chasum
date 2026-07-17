@@ -1,23 +1,23 @@
 import { Logo } from "@/components/brand/logo";
+import { NAV_SUPPORT_HREF } from "@/lib/constants";
 import Link from "next/link";
 
 const footerLinks = {
-  Product: [
+  Platform: [
     { label: "Platform", href: "/#platform" },
     { label: "Product tour", href: "/#showcase" },
-    { label: "Industries", href: "/#industries" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "FAQ", href: "/#faq" },
-  ],
-  Platform: [
-    { label: "AI Receptionist", href: "/#platform-emma" },
-    { label: "CRM", href: "/#platform-crm" },
-    { label: "Calendar & Booking", href: "/#platform-calendar" },
-    { label: "Reports", href: "/#platform-reports" },
     { label: "AI Workforce", href: "/#ai-workforce" },
+    { label: "How it works", href: "/#journey" },
   ],
-  Company: [
+  Solutions: [
+    { label: "Industries", href: "/#industries" },
+    { label: "Customers", href: "/#stories" },
     { label: "Compare", href: "/#compare" },
+    { label: "Pricing", href: "/pricing" },
+  ],
+  Resources: [
+    { label: "FAQ", href: "/#faq" },
+    { label: "Support", href: NAV_SUPPORT_HREF },
     { label: "Book demo", href: "mailto:sales@chasum.app?subject=Book%20a%20Chasum%20Demo" },
     { label: "Start free", href: "/signup" },
   ],
@@ -25,12 +25,12 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-border px-6 py-12">
+    <footer className="border-t border-border px-6 py-14 md:py-16">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className="grid gap-10 md:grid-cols-4">
           <div>
             <Logo />
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               The AI Business Operating System for service businesses.
             </p>
           </div>
@@ -56,7 +56,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 border-t border-border pt-8 text-center text-sm text-muted-foreground">
+        <div className="mt-14 border-t border-border pt-8 text-center text-sm text-muted-foreground">
           © {new Date().getFullYear()} Chasum. All rights reserved.
         </div>
       </div>
