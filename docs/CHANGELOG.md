@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5.1 — Availability Engine)
+
+- Migration `026_availability_engine.sql` — enriched `get_available_slots` / `validate_appointment_slot` with lunch, split shifts, business/staff closures, service blackouts, cleanup buffers, min notice, max window, per-day caps, and double-booking policy
+- Rich `SlotCandidate` contract: start/end, employee, location, resources, score, reason, warnings
+- Memoized `composeAvailabilityContext`, scoring, and extension hooks for future calendar sync / travel / recurring / waitlist
+- All channels continue through `previewAvailableSlots()` (SQL authoritative; React never invents slots)
+
 ### Added (Phase 5.0 — Booking Engine Foundation)
 
 - `lib/booking-engine/` facade: `createBooking`, `updateBooking`, `rescheduleBooking`, `resizeBooking`, `cancelBooking`, `previewAvailableSlots`, `validateBooking`

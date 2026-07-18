@@ -27,14 +27,20 @@ export type {
   PreviewSlotsResult,
   RescheduleIntent,
   ResizeIntent,
+  SlotAvailabilityReason,
   SlotCandidate,
+  SlotWarning,
   UpdateBookingIntent,
   ValidateBookingResult,
 } from "@/lib/booking-engine/types";
 
 export {
+  clearAvailabilityCache,
   composeAvailabilityContext,
+  getAvailabilityExtensions,
   previewAvailableSlots,
+  registerAvailabilityExtensions,
+  resetAvailabilityExtensions,
   resolveRequestedStatus,
   validateBooking,
 } from "@/lib/booking-engine/availability";

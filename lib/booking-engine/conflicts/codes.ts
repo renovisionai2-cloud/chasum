@@ -25,17 +25,23 @@ export function mapRpcErrorToConflict(
     details: { ...details, raw: message },
   });
 
-  if (m.includes("not available") || m.includes("time slot")) {
-    return match("STAFF_BUSY", true, "This time slot is not available.");
-  }
   if (m.includes("vacation") || m.includes("time off")) {
     return match("VACATION", true, "Employee is on vacation or time off.");
   }
-  if (m.includes("holiday") || m.includes("closed")) {
+  if (m.includes("lunch") || m.includes("break")) {
+    return match("LUNCH_BREAK", true, "Conflicts with a lunch or break.");
+  }
+  if (m.includes("blacked out") || m.includes("blackout")) {
+    return match("SERVICE_BLACKOUT", true, "Service is blacked out for this time.");
+  }
+  if (m.includes("business is closed") || m.includes("closure")) {
+    return match("BUSINESS_CLOSURE", true, "Business is closed during this time.");
+  }
+  if (m.includes("employee is unavailable")) {
     return match(
-      "OUTSIDE_BUSINESS_HOURS",
+      "OUTSIDE_EMPLOYEE_HOURS",
       true,
-      "Location is closed for this date.",
+      "Employee is unavailable during this time.",
     );
   }
   if (m.includes("working hours") || m.includes("not working")) {
@@ -45,14 +51,18 @@ export function mapRpcErrorToConflict(
       "Outside employee working hours.",
     );
   }
-  if (m.includes("lunch") || m.includes("break")) {
-    return match("LUNCH_BREAK", true, "Conflicts with a lunch or break.");
+  if (m.includes("holiday") || m.includes("closed on this date")) {
+    return match(
+      "OUTSIDE_BUSINESS_HOURS",
+      true,
+      "Location is closed for this date.",
+    );
   }
-  if (m.includes("blackout")) {
-    return match("SERVICE_BLACKOUT", true, "Service is blacked out for this time.");
+  if (m.includes("overlaps an existing") || m.includes("double")) {
+    return match("DOUBLE_BOOKING", true, "Conflicts with an existing appointment.");
   }
-  if (m.includes("closure") || m.includes("business closed")) {
-    return match("BUSINESS_CLOSURE", true, "Business is closed during this time.");
+  if (m.includes("external calendar")) {
+    return match("STAFF_BUSY", true, "Conflicts with an external calendar event.");
   }
   if (m.includes("notice") || m.includes("too soon") || m.includes("minimum")) {
     return match("MIN_NOTICE", true, "Does not meet minimum booking notice.");
@@ -84,6 +94,9 @@ export function mapRpcErrorToConflict(
     m.includes("policy")
   ) {
     return match("NOT_AUTHORIZED", false, "Not authorized to book this slot.");
+  }
+  if (m.includes("not available") || m.includes("time slot")) {
+    return match("STAFF_BUSY", true, "This time slot is not available.");
   }
 
   return match(

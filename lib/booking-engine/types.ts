@@ -83,6 +83,10 @@ export type AvailabilityContext = {
   serviceId: string;
   staffId: string;
   channel: BookingChannel;
+  /** IANA timezone from location → business */
+  timezone: string | null;
+  /** Grid step from location_settings */
+  intervalMinutes: number;
   /** Service duration in minutes (staff override applied when present) */
   durationMinutes: number;
   cleanupMinutes: number;
@@ -101,6 +105,18 @@ export type AvailabilityContext = {
   /** Effective end = start + duration (cleanup/buffers applied by RPC candidate expansion) */
   composedAt: string;
 };
+
+/** Soft signals for UI / Summer — never invent availability */
+export type SlotWarning = {
+  code: BookingConflictCode | "LIMITED_AVAILABILITY" | "SHORT_NOTICE" | "PRIORITY_STAFF";
+  message: string;
+};
+
+export type SlotAvailabilityReason =
+  | "AVAILABLE"
+  | "FILTERED_MIN_NOTICE"
+  | "FILTERED_MAX_WINDOW"
+  | "RPC_EMPTY";
 
 // —— Conflicts ——
 
@@ -160,17 +176,28 @@ export type MutationResult<T = { appointmentId: string }> = {
 };
 
 export type SlotCandidate = {
+  /** ISO timestamptz */
   start: string;
-  end?: string;
+  /** ISO timestamptz — start + duration */
+  end: string;
+  /** Employee */
   staffId: string;
   locationId: string;
   serviceId: string;
+  /** Required / suggested resources (extension point; empty until resource scheduling) */
+  resourceIds: string[];
+  /** 0–100 preference score (priority, earliness, scarcity) */
+  score: number;
+  reason: SlotAvailabilityReason;
+  warnings: SlotWarning[];
 };
 
 export type PreviewSlotsResult = {
   slots: SlotCandidate[];
   context: AvailabilityContext;
   conflicts?: BookingConflictReport[];
+  /** Day-level explanation when zero slots */
+  emptyReason?: BookingConflictReport;
 };
 
 export type ValidateBookingResult =

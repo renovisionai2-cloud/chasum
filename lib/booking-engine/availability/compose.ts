@@ -1,3 +1,8 @@
+import {
+  cacheGet,
+  cacheKey,
+  cacheSet,
+} from "@/lib/booking-engine/availability/cache";
 import { conflictFromCode } from "@/lib/booking-engine/conflicts/codes";
 import type {
   AvailabilityContext,
@@ -14,57 +19,90 @@ export type ComposeAvailabilityInput = {
   channel: BookingChannel;
 };
 
+type ComposeResult =
+  | { ok: true; context: AvailabilityContext }
+  | { ok: false; conflicts: BookingConflictReport[] };
+
 /**
  * Compose AvailabilityContext from Business + Services + Employees.
+ * Memoized briefly to avoid duplicate reads during multi-staff previews.
  * Does not invent slots — SQL RPCs remain the slot authority.
  */
 export async function composeAvailabilityContext(
   input: ComposeAvailabilityInput,
-): Promise<
-  | { ok: true; context: AvailabilityContext }
-  | { ok: false; conflicts: BookingConflictReport[] }
-> {
+): Promise<ComposeResult> {
+  const key = cacheKey([
+    "compose",
+    input.businessId,
+    input.locationId,
+    input.serviceId,
+    input.staffId,
+    input.channel,
+  ]);
+  const cached = cacheGet<ComposeResult>(key);
+  if (cached) return cached;
+
+  const result = await composeAvailabilityContextUncached(input);
+  cacheSet(key, result);
+  return result;
+}
+
+async function composeAvailabilityContextUncached(
+  input: ComposeAvailabilityInput,
+): Promise<ComposeResult> {
   const supabase = await createClient();
 
-  const [businessRes, serviceRes, staffRes, linkRes, locationSettingsRes] =
-    await Promise.all([
-      supabase
-        .from("businesses")
-        .select(
-          "id, min_notice_minutes, allow_double_booking, booking_limit_days, booking_confirmation_mode",
-        )
-        .eq("id", input.businessId)
-        .maybeSingle(),
-      supabase
-        .from("services")
-        .select(
-          "id, is_active, duration_minutes, cleanup_minutes, buffer_before_minutes, buffer_after_minutes, max_appointments_per_day, min_booking_notice_minutes, max_booking_days_ahead, booking_visibility, confirmation_mode, online_booking, location_id",
-        )
-        .eq("id", input.serviceId)
-        .eq("business_id", input.businessId)
-        .maybeSingle(),
-      supabase
-        .from("staff")
-        .select(
-          "id, is_active, accept_online_bookings, max_appointments_per_day, buffer_before_minutes, buffer_after_minutes, min_break_minutes, priority_scheduling, location_id",
-        )
-        .eq("id", input.staffId)
-        .eq("business_id", input.businessId)
-        .maybeSingle(),
-      supabase
-        .from("staff_services")
-        .select("service_id, duration_override_minutes, price_override")
-        .eq("staff_id", input.staffId)
-        .eq("service_id", input.serviceId)
-        .maybeSingle(),
-      supabase
-        .from("location_settings")
-        .select(
-          "booking_limit_days, max_daily_bookings, min_booking_notice_minutes, appointment_interval_minutes",
-        )
-        .eq("location_id", input.locationId)
-        .maybeSingle(),
-    ]);
+  const [
+    businessRes,
+    serviceRes,
+    staffRes,
+    linkRes,
+    locationSettingsRes,
+    locationRes,
+  ] = await Promise.all([
+    supabase
+      .from("businesses")
+      .select(
+        "id, timezone, min_notice_minutes, allow_double_booking, booking_limit_days, booking_confirmation_mode",
+      )
+      .eq("id", input.businessId)
+      .maybeSingle(),
+    supabase
+      .from("services")
+      .select(
+        "id, is_active, duration_minutes, cleanup_minutes, buffer_before_minutes, buffer_after_minutes, max_appointments_per_day, min_booking_notice_minutes, max_booking_days_ahead, booking_visibility, confirmation_mode, online_booking, location_id",
+      )
+      .eq("id", input.serviceId)
+      .eq("business_id", input.businessId)
+      .maybeSingle(),
+    supabase
+      .from("staff")
+      .select(
+        "id, is_active, accept_online_bookings, max_appointments_per_day, buffer_before_minutes, buffer_after_minutes, min_break_minutes, priority_scheduling, location_id",
+      )
+      .eq("id", input.staffId)
+      .eq("business_id", input.businessId)
+      .maybeSingle(),
+    supabase
+      .from("staff_services")
+      .select("service_id, duration_override_minutes, price_override")
+      .eq("staff_id", input.staffId)
+      .eq("service_id", input.serviceId)
+      .maybeSingle(),
+    supabase
+      .from("location_settings")
+      .select(
+        "booking_limit_days, max_daily_bookings, min_booking_notice_minutes, appointment_interval_minutes",
+      )
+      .eq("location_id", input.locationId)
+      .maybeSingle(),
+    supabase
+      .from("locations")
+      .select("id, timezone")
+      .eq("id", input.locationId)
+      .eq("business_id", input.businessId)
+      .maybeSingle(),
+  ]);
 
   const conflicts: BookingConflictReport[] = [];
 
@@ -97,6 +135,7 @@ export async function composeAvailabilityContext(
     string,
     unknown
   > | null;
+  const location = locationRes.data as Record<string, unknown> | null;
 
   if (!service.is_active) {
     conflicts.push(
@@ -145,14 +184,11 @@ export async function composeAvailabilityContext(
     );
   }
 
-  // staff_services link optional for staff channel (owner may assign ad-hoc);
-  // required for public/summer when links exist in catalog.
   if (
     (input.channel === "public" || input.channel === "summer") &&
     linkRes.error == null &&
     !link
   ) {
-    // Soft check: if table query succeeded and no link, block online channels
     const { count } = await supabase
       .from("staff_services")
       .select("service_id", { count: "exact", head: true })
@@ -222,12 +258,21 @@ export async function composeAvailabilityContext(
       : null,
   ].filter((n): n is number => n != null && Number.isFinite(n) && n > 0);
 
+  const timezone =
+    (location?.timezone as string | null | undefined) ??
+    (business.timezone as string | null | undefined) ??
+    null;
+
   const context: AvailabilityContext = {
     businessId: input.businessId,
     locationId: input.locationId,
     serviceId: input.serviceId,
     staffId: input.staffId,
     channel: input.channel,
+    timezone,
+    intervalMinutes: Number(
+      locationSettings?.appointment_interval_minutes ?? 30,
+    ),
     durationMinutes,
     cleanupMinutes: Number(service.cleanup_minutes ?? 0),
     bufferBeforeMinutes: Math.max(serviceBufferBefore, staffBufferBefore),
@@ -262,7 +307,6 @@ export function resolveRequestedStatus(
   }
   if (context.confirmationMode === "require_approval") return "pending";
   if (context.confirmationMode === "auto_confirm") return "confirmed";
-  // inherit / null — channel defaults
   if (context.channel === "public" || context.channel === "summer") {
     return "confirmed";
   }

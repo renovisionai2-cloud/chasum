@@ -28,8 +28,8 @@ export async function getAvailableSlots(
 }
 
 /**
- * Real slots only — merges get_available_slots across eligible staff.
- * Never invents times; empty when nobody is free.
+ * Real slots only — merges Availability Engine results across eligible staff.
+ * Never invents times; empty when nobody is free. Sorted by engine score then time.
  */
 export async function getPublicSlotOptions(input: {
   slug: string;
@@ -39,38 +39,50 @@ export async function getPublicSlotOptions(input: {
   staffId?: string | null;
   staff: Pick<StaffWithServices, "id" | "name" | "staff_services" | "location_id">[];
 }): Promise<PublicSlotOption[]> {
+  const business = await getBusinessBySlug(input.slug);
+  if (!business || !input.locationId) return [];
+
   const eligible = input.staff.filter((member) => {
     if (input.locationId && member.location_id !== input.locationId) return false;
     if (input.staffId && member.id !== input.staffId) return false;
     return member.staff_services.some((ss) => ss.service_id === input.serviceId);
   });
 
-  const options: PublicSlotOption[] = [];
+  const { previewAvailableSlots } = await import("@/lib/booking-engine");
+
+  const scored: Array<PublicSlotOption & { score: number }> = [];
 
   for (const member of eligible) {
-    const slots = await getPublicAvailableSlots(
-      input.slug,
-      input.serviceId,
-      member.id,
-      input.date,
-      input.locationId,
-    );
-    for (const start of slots) {
-      options.push({
-        start,
+    const result = await previewAvailableSlots({
+      channel: "public",
+      businessId: business.id,
+      locationId: input.locationId,
+      serviceId: input.serviceId,
+      staffId: member.id,
+      date: input.date,
+    });
+    for (const slot of result.slots) {
+      scored.push({
+        start: slot.start,
         staffId: member.id,
         staffName: member.name,
+        score: slot.score,
       });
     }
   }
 
-  options.sort(
+  scored.sort(
     (a, b) =>
+      b.score - a.score ||
       new Date(a.start).getTime() - new Date(b.start).getTime() ||
       a.staffName.localeCompare(b.staffName),
   );
 
-  return options;
+  return scored.map(({ start, staffId, staffName }) => ({
+    start,
+    staffId,
+    staffName,
+  }));
 }
 
 /** Returning customer prefill — exact email match within the tenant only. */

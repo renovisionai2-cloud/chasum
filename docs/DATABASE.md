@@ -26,8 +26,9 @@ Run in order in the Supabase SQL Editor or via `supabase db push`:
 | `023_business_management_settings.sql` | Legal name, branding, booking policies, AI config, closures, documents |
 | `024_services_module.sql` | Service catalog extensions, multi-location, staff price overrides, blackouts |
 | `025_employees_module.sql` | Name parts, booking rules, custom roles, hour segments, closures, document licenses |
+| `026_availability_engine.sql` | Enriched `get_available_slots` / `validate_appointment_slot` — lunch, split shifts, closures, blackouts, cleanup, notice, caps |
 
-**Current requirement:** every environment must be at migration **025** before relying on the full Employees Module foundation (identity fields, booking rules, custom roles, schedule depth).
+**Current requirement:** every environment must be at migration **026** before relying on the Availability Engine (lunch/closures/blackouts/cleanup enforced in SQL).
 
 ---
 

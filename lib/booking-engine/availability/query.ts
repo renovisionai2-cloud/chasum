@@ -3,6 +3,8 @@ import {
   composeAvailabilityContext,
   resolveRequestedStatus,
 } from "@/lib/booking-engine/availability/compose";
+import { enrichSlotCandidates } from "@/lib/booking-engine/availability/enrich";
+import { applyPolicyChecks } from "@/lib/booking-engine/availability/query-policy";
 import { conflictFromCode } from "@/lib/booking-engine/conflicts/codes";
 import { mapRpcErrorToConflict } from "@/lib/booking-engine/conflicts/codes";
 import type {
@@ -14,52 +16,23 @@ import type {
 } from "@/lib/booking-engine/types";
 import { createClient } from "@/lib/supabase/server";
 
+export { applyPolicyChecks } from "@/lib/booking-engine/availability/query-policy";
+
 /**
- * Policy helpers composed from AvailabilityContext.
- * Full enforcement of lunch/blackouts/closures lands in enriched RPCs (Phase 5.1).
- * Here we apply notice / window checks that do not require inventing slots.
+ * Availability Engine entry — single source of truth for slot previews.
+ * SQL RPC generates starts; TypeScript composes policy, scores, and warnings.
  */
-export function applyPolicyChecks(
-  context: AvailabilityContext,
-  startIso: string,
-  now = new Date(),
-): ReturnType<typeof conflictFromCode>[] {
-  const conflicts: ReturnType<typeof conflictFromCode>[] = [];
-  const start = parseISO(startIso);
-
-  if (context.minNoticeMinutes != null && context.minNoticeMinutes > 0) {
-    const earliest = addMinutes(now, context.minNoticeMinutes);
-    if (start < earliest) {
-      conflicts.push(
-        conflictFromCode(
-          "MIN_NOTICE",
-          `Bookings require at least ${context.minNoticeMinutes} minutes notice.`,
-        ),
-      );
-    }
-  }
-
-  if (context.maxBookingDaysAhead != null && context.maxBookingDaysAhead > 0) {
-    const latest = addMinutes(now, context.maxBookingDaysAhead * 24 * 60);
-    if (start > latest) {
-      conflicts.push(
-        conflictFromCode(
-          "MAX_BOOKING_WINDOW",
-          `Bookings cannot be more than ${context.maxBookingDaysAhead} days ahead.`,
-        ),
-      );
-    }
-  }
-
-  return conflicts;
-}
-
 export async function previewAvailableSlots(
   input: PreviewSlotsInput,
 ): Promise<PreviewSlotsResult> {
   const composed = await composeAvailabilityContext(input);
   if (!composed.ok) {
-    return { slots: [], context: emptyContext(input), conflicts: composed.conflicts };
+    return {
+      slots: [],
+      context: emptyContext(input),
+      conflicts: composed.conflicts,
+      emptyReason: composed.conflicts[0],
+    };
   }
 
   const supabase = await createClient();
@@ -73,25 +46,44 @@ export async function previewAvailableSlots(
   });
 
   if (error) {
+    const conflict = mapRpcErrorToConflict(error.message);
     return {
       slots: [],
       context: composed.context,
-      conflicts: [mapRpcErrorToConflict(error.message)],
+      conflicts: [conflict],
+      emptyReason: conflict,
     };
   }
 
-  const slots = ((data ?? []) as string[]).map((start) => ({
-    start,
-    end: addMinutes(
-      parseISO(start),
-      composed.context.durationMinutes,
-    ).toISOString(),
-    staffId: input.staffId,
-    locationId: input.locationId,
-    serviceId: input.serviceId,
-  }));
+  const starts = (data ?? []) as string[];
+  const slots = await enrichSlotCandidates({
+    starts,
+    preview: input,
+    context: composed.context,
+  });
 
-  return { slots, context: composed.context };
+  let emptyReason = undefined;
+  if (slots.length === 0) {
+    if (starts.length > 0) {
+      emptyReason = conflictFromCode(
+        "MIN_NOTICE",
+        "Openings exist but none meet booking notice or window rules.",
+        { severity: "warning" },
+      );
+    } else {
+      emptyReason = conflictFromCode(
+        "STAFF_BUSY",
+        "No available slots for this employee on the selected date.",
+        { severity: "warning", recoverable: true },
+      );
+    }
+  }
+
+  return {
+    slots,
+    context: composed.context,
+    emptyReason,
+  };
 }
 
 export async function validateBooking(
@@ -165,6 +157,8 @@ function emptyContext(input: PreviewSlotsInput): AvailabilityContext {
     serviceId: input.serviceId,
     staffId: input.staffId,
     channel: input.channel,
+    timezone: null,
+    intervalMinutes: 30,
     durationMinutes: 0,
     cleanupMinutes: 0,
     bufferBeforeMinutes: 0,
