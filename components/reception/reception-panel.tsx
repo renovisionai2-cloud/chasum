@@ -205,7 +205,7 @@ export function ReceptionPanel({
         className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
         onClick={onOpenFullDialog}
       >
-        Open full appointment editor
+        Open Booking Sheet
       </Button>
 
       <div className="space-y-5 border-t border-border/80 pt-5">

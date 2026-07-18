@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5.3 — Unified Booking Sheet)
+
+- Right-drawer / mobile bottom-sheet Booking Sheet: Customer, Appointment, Availability, Payments, Timeline, Summer assistant, quick actions
+- Shared `Sheet` primitive with focus trap, Escape close, sticky save bar
+- `previewBookingSheetAvailability` + customer snapshot actions via Booking / Availability engines
+- Calendar + Reception full editor open Booking Sheet (`AppointmentDialog` is a thin alias)
+- Channel registry for staff, reception, public, Summer, API, mobile
+
 ### Added (Phase 5.2 — Day View Control Center)
 
 - Morning Brief strip: appointments, revenue, staff working, open slots, waitlist, no-shows, outstanding payments, Summer activity, Chase recommendations

@@ -1,6 +1,6 @@
 "use client";
 
-import { AppointmentDialog } from "@/components/calendar/appointment-dialog";
+import { BookingSheet } from "@/components/booking-sheet";
 import {
   type CalendarColorMode,
 } from "@/components/calendar/appointment-block";
@@ -604,7 +604,7 @@ export function CalendarClient({
         />
       ) : null}
 
-      <AppointmentDialog
+      <BookingSheet
         key={
           selectedAppointment?.id ??
           `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}`
@@ -617,6 +617,8 @@ export function CalendarClient({
         customers={customers}
         locations={locations}
         defaultDate={defaultSlot}
+        defaultStaffId={defaultStaffId}
+        channel={showReceptionPanel ? "reception" : "staff"}
         onSuccess={refresh}
       />
     </div>

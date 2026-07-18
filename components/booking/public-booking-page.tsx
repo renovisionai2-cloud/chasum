@@ -55,6 +55,12 @@ const STEP_ORDER: Step[] = [
   "review",
 ];
 
+/**
+ * Public multi-step booking UI.
+ * Slots still come from previewAvailableSlots (public channel).
+ * Staff/Reception create+edit use BookingSheet; public write path remains
+ * bookAppointment RPC until a dedicated public Booking Sheet shell lands.
+ */
 export function PublicBookingPage({
   business,
   locations,
