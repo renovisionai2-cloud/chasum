@@ -185,30 +185,64 @@ export const AI_EMPLOYEES: AiEmployee[] = [
     accent: "primary",
   },
   {
+    id: "chase",
+    slug: "chase",
+    name: "Chase",
+    role: "AI Operations Manager",
+    shortRole: "Operations",
+    status: "online",
+    tasksCompletedToday: 0,
+    summary:
+      "Sits beside the owner. Monitors performance, utilization, retention, and capacity — recommends actions, never changes data automatically.",
+    responsibilities: [
+      "Surface KPIs from Booking Engine, CRM, and Reports",
+      "Prioritize insights (high / medium / low)",
+      "Alert on closures, low capacity, and cancellation risk",
+      "Include Summer operational events in daily summaries",
+      "Reserve forecasting hooks without inventing predictions",
+    ],
+    futureCapabilities: [
+      "Revenue and capacity forecasting providers",
+      "Seasonal demand models",
+      "Live booking-event subscriptions",
+    ],
+    metrics: [
+      {
+        label: "Ops workspace",
+        value: "Live",
+        hint: "/dashboard/workforce/chase",
+      },
+      {
+        label: "Mutations",
+        value: "None",
+        hint: "Recommend only",
+      },
+      {
+        label: "Forecasting",
+        value: "Hooks",
+        hint: "Models not enabled",
+      },
+    ],
+    accent: "spark",
+  },
+  {
     id: "noah",
     slug: "noah",
     name: "Noah",
-    role: "AI Operations Manager",
+    role: "AI Operations Manager (legacy)",
     shortRole: "Operations",
     status: "idle",
     tasksCompletedToday: 0,
     summary:
-      "Keeps day-of operations tidy — runbooks, readiness checks, and cross-employee coordination as the workforce matures.",
-    responsibilities: [
-      "Surface day-of operational checklists",
-      "Coordinate handoffs between AI employees",
-      "Flag configuration gaps that block automation",
-      "Keep an audit-friendly trail of workforce actions",
-    ],
-    futureCapabilities: [
-      "Room and equipment readiness (industry packs)",
-      "Franchise / multi-site ops standards",
-      "Autonomous ops within owner-approved policies",
-    ],
+      "Legacy name for Chase. Use the Chase operations workspace for production analytics.",
+    responsibilities: ["Redirects to Chase operations workspace"],
+    futureCapabilities: [],
     metrics: [
-      { label: "Handoffs", value: "—", hint: "Collaboration layer" },
-      { label: "Gaps flagged", value: "—", hint: "Awaiting activation" },
-      { label: "Runbooks ready", value: "—", hint: "Coming soon" },
+      {
+        label: "Alias",
+        value: "Chase",
+        hint: "Prefer /workforce/chase",
+      },
     ],
     accent: "spark",
   },
@@ -218,11 +252,11 @@ export const AI_EMPLOYEES: AiEmployee[] = [
 export const AI_ACTIVITY_PREVIEW: AiActivityItem[] = [
   {
     id: "act-1",
-    employeeId: "noah",
+    employeeId: "chase",
     kind: "system",
-    title: "AI Workforce module ready",
+    title: "Chase operations workspace live",
     description:
-      "Your AI employees are configured and waiting for activation. No client data was invented.",
+      "Chase aggregates utilization, CRM, reports, and Summer change-log activity — never invents metrics.",
     createdAt: new Date(Date.now() - 12 * 60_000).toISOString(),
     preview: true,
   },

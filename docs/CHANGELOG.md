@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5.6 — Chase Operations Manager)
+
+- Chase operations workspace at `/dashboard/workforce/chase` (alias `/dashboard/ai-workforce/chase`)
+- `lib/chase/` read-only aggregator: KPIs, prioritized insights, grounded alerts, customer/employee/booking analytics, Summer daily activity, forecast extension hooks only
+- Composes Morning Brief, Reports, CRM Chase analytics, Booking Engine utilization — never invents metrics; never mutates data
+- Command palette “Open Chase”; AI Workforce roster prefers Chase (Noah redirects)
+
 ### Added (Phase 5.5 — Summer AI Receptionist)
 
 - Summer reception workspace at `/dashboard/ai-workforce/summer` — conversation, suggestions, booking cards, confirmations, conflicts, escalation

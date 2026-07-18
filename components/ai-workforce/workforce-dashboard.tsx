@@ -18,7 +18,9 @@ import { Bot, MessageSquare, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 
 export function AiWorkforceDashboard() {
-  const employees = AI_EMPLOYEES.filter((e) => e.id !== "emma");
+  const employees = AI_EMPLOYEES.filter(
+    (e) => e.id !== "emma" && e.id !== "noah",
+  );
   const onlineCount = employees.filter(
     (e) => e.status === "online" || e.status === "working",
   ).length;
@@ -33,6 +35,12 @@ export function AiWorkforceDashboard() {
         title="AI Workforce"
         description="Manage your AI employees — assistance first, automation when you are ready. Owners stay in control."
       >
+        <Link href="/dashboard/workforce/chase">
+          <Button variant="outline">
+            <Bot className="h-4 w-4" aria-hidden="true" />
+            Open Chase
+          </Button>
+        </Link>
         <Link href="/dashboard/ai-workforce/summer">
           <Button variant="outline">
             <Sparkles className="h-4 w-4" aria-hidden="true" />

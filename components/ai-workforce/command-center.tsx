@@ -60,9 +60,9 @@ function staticReply(prompt: string): ChatMessage {
     content =
       "Maya (Marketing) and Alex (Scheduler) collaborate here: Alex only proposes real openings from your calendar engine; Maya drafts outreach for your approval. Nothing sends without you.";
   } else if (lower.includes("responsib") || lower.includes("each") || lower.includes("team")) {
-    employee = AI_EMPLOYEES.find((e) => e.id === "noah")!;
+    employee = AI_EMPLOYEES.find((e) => e.id === "chase")!;
     content =
-      "Summer greets and books, Alex schedules, Maya markets (with approval), Leo advises, Sophia cares for clients after booking, and Noah coordinates operations. Each has one clear job.";
+      "Summer greets and books, Alex schedules, Maya markets (with approval), Leo advises, Sophia cares for clients after booking, and Chase monitors operations. Each has one clear job.";
   }
 
   return {
@@ -111,9 +111,9 @@ export function AiCommandCenter() {
     {
       id: "welcome",
       role: "assistant",
-      employee: AI_EMPLOYEES.find((e) => e.id === "noah"),
+      employee: AI_EMPLOYEES.find((e) => e.id === "chase"),
       content:
-        "Welcome to the Command Center. Ask about operations — when you ask Alex for openings, answers come only from get_available_slots. Alex never invents appointment times.",
+        "Welcome to the Command Center. Ask about operations — when you ask Alex for openings, answers come only from get_available_slots. Open Chase for the full operations workspace.",
     },
   ]);
 
@@ -223,10 +223,15 @@ export function AiCommandCenter() {
             <CardDescription>Route by responsibility</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {AI_EMPLOYEES.filter((e) => e.id !== "emma").map((employee) => (
+            {AI_EMPLOYEES.filter((e) => e.id !== "emma" && e.id !== "noah").map(
+              (employee) => (
               <Link
                 key={employee.id}
-                href={`/dashboard/ai-workforce/${employee.slug}`}
+                href={
+                  employee.id === "chase"
+                    ? "/dashboard/workforce/chase"
+                    : `/dashboard/ai-workforce/${employee.slug}`
+                }
                 className="flex items-center gap-3 rounded-[var(--radius-md)] border border-transparent px-2 py-2 transition-colors hover:border-border hover:bg-muted/50 ds-focus-ring"
               >
                 <AiEmployeeAvatar employee={employee} size="sm" />

@@ -36,7 +36,15 @@ export function AiEmployeeCard({ employee }: { employee: AiEmployee }) {
               {employee.tasksCompletedToday}
             </p>
           </div>
-          <Link href={`/dashboard/ai-workforce/${employee.slug}`}>
+          <Link
+            href={
+              employee.id === "chase"
+                ? "/dashboard/workforce/chase"
+                : employee.id === "summer"
+                  ? "/dashboard/ai-workforce/summer"
+                  : `/dashboard/ai-workforce/${employee.slug}`
+            }
+          >
             <Button size="sm" variant="outline">
               Open
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

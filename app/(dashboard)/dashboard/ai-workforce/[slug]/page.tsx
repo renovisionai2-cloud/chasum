@@ -18,6 +18,9 @@ export async function generateMetadata({
   if (slug === "emma") {
     return { title: "Summer · AI Receptionist" };
   }
+  if (slug === "noah" || slug === "chase") {
+    return { title: "Chase · Operations Manager" };
+  }
   const employee = getAiEmployee(slug);
   if (!employee) return { title: "AI Employee" };
   return { title: `${employee.name} · AI Workforce` };
@@ -29,6 +32,9 @@ export default async function AiEmployeePage({ params }: PageProps) {
 
   if (slug === "emma") {
     redirect("/dashboard/ai-workforce/summer");
+  }
+  if (slug === "noah" || slug === "chase") {
+    redirect("/dashboard/workforce/chase");
   }
 
   const employee = getAiEmployee(slug);
