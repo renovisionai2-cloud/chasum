@@ -1,8 +1,9 @@
 "use client";
 
 import { CalendarClient } from "@/components/calendar/calendar-client";
-import { BusinessBrief } from "@/components/reception/business-brief";
-import type { ReceptionBrief } from "@/lib/actions/reception";
+import { MorningBrief } from "@/components/day-view/morning-brief";
+import type { MorningBriefData } from "@/lib/actions/morning-brief";
+import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
   AppointmentWithRelations,
@@ -14,7 +15,7 @@ import type {
 } from "@/lib/types/booking";
 
 type ReceptionWorkspaceProps = {
-  brief: ReceptionBrief;
+  brief: MorningBriefData;
   insights: DashboardInsight[];
   appointments: AppointmentWithRelations[];
   services: Service[];
@@ -34,6 +35,8 @@ type ReceptionWorkspaceProps = {
   initialDate: string;
   initialView: CalendarView;
   focusAppointmentId?: string | null;
+  dayOverlays?: StaffDayOverlay[];
+  openBookOnLoad?: boolean;
 };
 
 export function ReceptionWorkspace({
@@ -48,10 +51,12 @@ export function ReceptionWorkspace({
   initialDate,
   initialView,
   focusAppointmentId = null,
+  dayOverlays = [],
+  openBookOnLoad = false,
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
-      <BusinessBrief brief={brief} />
+      <MorningBrief brief={brief} />
       <CalendarClient
         appointments={appointments}
         services={services}
@@ -64,6 +69,8 @@ export function ReceptionWorkspace({
         insights={insights}
         showReceptionPanel
         focusAppointmentId={focusAppointmentId}
+        dayOverlays={dayOverlays}
+        openBookOnLoad={openBookOnLoad}
       />
     </div>
   );

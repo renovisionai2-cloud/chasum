@@ -468,6 +468,7 @@ export async function cancelAppointment(id: string): Promise<ActionState> {
 export async function rescheduleAppointment(
   id: string,
   newStartTime: string,
+  options?: { staffId?: string; locationId?: string },
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
@@ -486,6 +487,8 @@ export async function rescheduleAppointment(
     businessId: business.id,
     appointmentId: id,
     requestedStart: newStartTime,
+    staffId: options?.staffId,
+    locationId: options?.locationId,
   });
 
   const action = mutationToAction(result, "Appointment rescheduled.");
@@ -493,6 +496,54 @@ export async function rescheduleAppointment(
     await handleAppointmentEvent(id, "rescheduled", {
       previousStartTime: appointment.start_time,
     });
+    revalidateCalendar();
+  }
+  return action;
+}
+
+/** Quick status transitions for Day View Control Center (check-in / complete / no-show). */
+export async function setAppointmentStatus(
+  id: string,
+  status: AppointmentStatus,
+): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("appointments")
+    .select(
+      "id, location_id, service_id, staff_id, customer_id, start_time, end_time, notes, status",
+    )
+    .eq("id", id)
+    .eq("business_id", business.id)
+    .maybeSingle();
+
+  if (!existing) return { error: "Appointment not found." };
+
+  const result = await updateBooking({
+    channel: "staff",
+    appointmentId: id,
+    businessId: business.id,
+    locationId: existing.location_id as string,
+    serviceId: existing.service_id as string,
+    staffId: existing.staff_id as string,
+    customerId: existing.customer_id as string,
+    requestedStart: existing.start_time as string,
+    requestedEnd: existing.end_time as string,
+    notes: (existing.notes as string | null) ?? null,
+    requestedStatus: status,
+    excludeAppointmentId: id,
+  });
+
+  const action = mutationToAction(result, "Appointment updated.");
+  if (result.phase === "success") {
+    const event =
+      status === "cancelled"
+        ? "cancelled"
+        : status === "confirmed"
+          ? "confirmed"
+          : "updated";
+    await handleAppointmentEvent(id, event);
     revalidateCalendar();
   }
   return action;

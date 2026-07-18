@@ -2,16 +2,33 @@ import type { Customer } from "@/lib/types/booking";
 
 const KEY = "chasum-recent-customers";
 const MAX = 8;
+const EMPTY: Customer[] = [];
+
+/** Cached so useSyncExternalStore getSnapshot stays referentially stable. */
+let cachedRaw: string | null = null;
+let cachedValue: Customer[] = EMPTY;
+
+function parseRecent(raw: string | null): Customer[] {
+  if (!raw) return EMPTY;
+  if (raw === cachedRaw) return cachedValue;
+  try {
+    const rows = JSON.parse(raw) as Customer[];
+    cachedRaw = raw;
+    cachedValue = Array.isArray(rows) ? rows.slice(0, MAX) : EMPTY;
+    return cachedValue;
+  } catch {
+    cachedRaw = raw;
+    cachedValue = EMPTY;
+    return EMPTY;
+  }
+}
 
 export function readRecentCustomers(): Customer[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return EMPTY;
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return [];
-    const rows = JSON.parse(raw) as Customer[];
-    return Array.isArray(rows) ? rows.slice(0, MAX) : [];
+    return parseRecent(localStorage.getItem(KEY));
   } catch {
-    return [];
+    return EMPTY;
   }
 }
 
@@ -20,7 +37,10 @@ export function pushRecentCustomer(customer: Customer) {
   try {
     const prev = readRecentCustomers().filter((c) => c.id !== customer.id);
     const next = [customer, ...prev].slice(0, MAX);
-    localStorage.setItem(KEY, JSON.stringify(next));
+    const raw = JSON.stringify(next);
+    localStorage.setItem(KEY, raw);
+    cachedRaw = raw;
+    cachedValue = next;
     window.dispatchEvent(new Event("chasum-recent-customers"));
   } catch {
     /* ignore quota */

@@ -177,7 +177,14 @@ export function AppointmentBlock({
   );
 }
 
-export function CurrentTimeIndicator({ show }: { show: boolean }) {
+export function CurrentTimeIndicator({
+  show,
+  autoScroll = true,
+}: {
+  show: boolean;
+  /** When false, skip scrollIntoView (multi-column day grids). */
+  autoScroll?: boolean;
+}) {
   const [position, setPosition] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const didScroll = useRef(false);
@@ -189,7 +196,11 @@ export function CurrentTimeIndicator({ show }: { show: boolean }) {
     }
 
     function update() {
-      setPosition(getCurrentTimePosition(CALENDAR_START_HOUR, CALENDAR_END_HOUR));
+      const next = getCurrentTimePosition(
+        CALENDAR_START_HOUR,
+        CALENDAR_END_HOUR,
+      );
+      setPosition((prev) => (prev === next ? prev : next));
     }
 
     update();
@@ -198,14 +209,22 @@ export function CurrentTimeIndicator({ show }: { show: boolean }) {
   }, [show]);
 
   useEffect(() => {
-    if (!show || position === null || !ref.current || didScroll.current) return;
+    if (
+      !autoScroll ||
+      !show ||
+      position === null ||
+      !ref.current ||
+      didScroll.current
+    ) {
+      return;
+    }
     didScroll.current = true;
     const el = ref.current;
     const timer = window.setTimeout(() => {
       el.scrollIntoView({ block: "center", behavior: "smooth" });
     }, 80);
     return () => window.clearTimeout(timer);
-  }, [show, position]);
+  }, [show, position, autoScroll]);
 
   if (!show || position === null) return null;
 
@@ -218,7 +237,7 @@ export function CurrentTimeIndicator({ show }: { show: boolean }) {
     >
       <div className="relative">
         <div className="absolute -left-1.5 h-3 w-3 rounded-full border-2 border-white bg-red-500 shadow-sm" />
-        <div className="h-0.5 bg-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]" />
+        <div className="h-0.5 w-full bg-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]" />
       </div>
     </div>
   );

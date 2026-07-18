@@ -2,7 +2,7 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getLocationScope } from "@/lib/actions/location";
-import { DASHBOARD_NAV } from "@/lib/constants";
+import { matchCommandRegistry } from "@/lib/command/registry";
 import { withLocationFilter } from "@/lib/location/constants";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
@@ -12,7 +12,8 @@ export type CommandSearchCategory =
   | "customers"
   | "staff"
   | "services"
-  | "appointments";
+  | "appointments"
+  | "actions";
 
 export type CommandSearchResult = {
   id: string;
@@ -22,26 +23,20 @@ export type CommandSearchResult = {
   href: string;
 };
 
-function matchesQuery(haystack: string, query: string) {
-  return haystack.toLowerCase().includes(query.toLowerCase());
-}
-
 export async function searchCommandPalette(
   rawQuery: string,
 ): Promise<CommandSearchResult[]> {
   const query = rawQuery.trim();
   const results: CommandSearchResult[] = [];
 
-  for (const page of DASHBOARD_NAV) {
-    if (!query || matchesQuery(page.label, query)) {
-      results.push({
-        id: `page-${page.href}`,
-        category: "pages",
-        title: page.label,
-        subtitle: page.href,
-        href: page.href,
-      });
-    }
+  for (const cmd of matchCommandRegistry(query)) {
+    results.push({
+      id: `cmd-${cmd.id}`,
+      category: cmd.group === "actions" ? "actions" : "pages",
+      title: cmd.title,
+      subtitle: cmd.subtitle,
+      href: cmd.href,
+    });
   }
 
   if (!query) {

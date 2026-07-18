@@ -6,7 +6,6 @@ import {
 } from "@/components/calendar/appointment-block";
 import { CalendarToolbar } from "@/components/calendar/calendar-toolbar";
 import {
-  DayView,
   MonthView,
   WeekView,
 } from "@/components/calendar/calendar-views";
@@ -15,6 +14,11 @@ import {
   ResourceView,
   TimelineView,
 } from "@/components/calendar/calendar-views-extended";
+import { AppointmentDrawer } from "@/components/day-view/appointment-drawer";
+import {
+  DayAgendaList,
+  DayControlCenter,
+} from "@/components/day-view/day-control-center";
 import { ColorLegend } from "@/components/reception/color-legend";
 import {
   BlockTimeDialog,
@@ -25,9 +29,11 @@ import { ReceptionPanel } from "@/components/reception/reception-panel";
 import { ReceptionShortcuts } from "@/components/reception/reception-shortcuts";
 import { EmptyState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
+import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
 import {
   rescheduleAppointment,
   resizeAppointment,
+  setAppointmentStatus,
 } from "@/lib/actions/appointments";
 import {
   duplicateAppointment,
@@ -41,6 +47,7 @@ import {
 } from "@/lib/reception/workflow-events";
 import { useToast } from "@/providers/toast-provider";
 import type {
+  AppointmentStatus,
   AppointmentWithRelations,
   CalendarView,
   Customer,
@@ -90,6 +97,8 @@ type CalendarClientProps = {
   }>;
   showReceptionPanel?: boolean;
   focusAppointmentId?: string | null;
+  dayOverlays?: StaffDayOverlay[];
+  openBookOnLoad?: boolean;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -126,6 +135,8 @@ export function CalendarClient({
   waitlist = [],
   showReceptionPanel = true,
   focusAppointmentId = null,
+  dayOverlays = [],
+  openBookOnLoad = false,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -139,11 +150,14 @@ export function CalendarClient({
         : null,
     [focusAppointmentId, serverAppointments],
   );
-  const [dialogOpen, setDialogOpen] = useState(!!urlAppointment);
+  const [dialogOpen, setDialogOpen] = useState(openBookOnLoad);
+  const [drawerOpen, setDrawerOpen] = useState(!!urlAppointment);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentWithRelations | null>(urlAppointment);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
+  const [defaultStaffId, setDefaultStaffId] = useState<string | undefined>();
   const [panelOpen, setPanelOpen] = useState(true);
+  const [isNarrow, setIsNarrow] = useState(false);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [searchFocusSignal, setSearchFocusSignal] = useState(0);
@@ -198,28 +212,50 @@ export function CalendarClient({
     return () => window.removeEventListener(RECEPTION_ACTION_EVENT, onAction);
   }, []);
 
-  const hasSetup = services.length > 0 && staff.length > 0;
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setIsNarrow(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
-  function openNew(slot?: Date) {
+  const hasSetup = services.length > 0 && staff.length > 0;
+  const effectiveView = view;
+
+  function openNew(slot?: Date, staffId?: string) {
     setSelectedAppointment(null);
     setDefaultSlot(slot);
+    setDefaultStaffId(staffId);
+    setDrawerOpen(false);
     setDialogOpen(true);
+  }
+
+  function openDrawer(appointment: AppointmentWithRelations) {
+    setSelectedAppointment(appointment);
+    setDefaultSlot(undefined);
+    setDrawerOpen(true);
   }
 
   function openEdit(appointment: AppointmentWithRelations) {
     setSelectedAppointment(appointment);
     setDefaultSlot(undefined);
+    setDrawerOpen(false);
     setDialogOpen(true);
   }
 
   async function handleReschedule(
     appointment: AppointmentWithRelations,
     newStart: Date,
+    targetStaffId?: string,
   ) {
     const duration =
       parseISO(appointment.end_time).getTime() -
       parseISO(appointment.start_time).getTime();
     const optimisticEnd = new Date(newStart.getTime() + duration);
+    const nextStaffId = targetStaffId ?? appointment.staff_id;
+    const nextStaff =
+      staff.find((s) => s.id === nextStaffId) ?? appointment.staff;
 
     startTransition(() => {
       setOptimisticAppointments(
@@ -229,6 +265,13 @@ export function CalendarClient({
                 ...a,
                 start_time: newStart.toISOString(),
                 end_time: optimisticEnd.toISOString(),
+                staff_id: nextStaffId,
+                staff: {
+                  id: nextStaff.id,
+                  name: nextStaff.name,
+                  color: nextStaff.color,
+                  photo_url: nextStaff.photo_url ?? null,
+                },
               }
             : a,
         ),
@@ -238,7 +281,7 @@ export function CalendarClient({
     const dateStr = format(newStart, "yyyy-MM-dd");
     const slots = await getDashboardAvailableSlots(
       appointment.service_id,
-      appointment.staff_id,
+      nextStaffId,
       dateStr,
       appointment.id,
       appointment.location_id,
@@ -260,7 +303,9 @@ export function CalendarClient({
       return;
     }
 
-    const result = await rescheduleAppointment(appointment.id, match);
+    const result = await rescheduleAppointment(appointment.id, match, {
+      staffId: nextStaffId !== appointment.staff_id ? nextStaffId : undefined,
+    });
     if (result.error) {
       toast(result.error, "error");
       refresh();
@@ -297,6 +342,27 @@ export function CalendarClient({
       return;
     }
     toast(result.success ?? "Duration updated.", "success");
+    refresh();
+  }
+
+  async function handleStatusChange(
+    appointment: AppointmentWithRelations,
+    status: AppointmentStatus,
+  ) {
+    startTransition(() => {
+      setOptimisticAppointments(
+        appointments.map((a) =>
+          a.id === appointment.id ? { ...a, status } : a,
+        ),
+      );
+    });
+    const result = await setAppointmentStatus(appointment.id, status);
+    if (result.error) {
+      toast(result.error, "error");
+      refresh();
+      return;
+    }
+    toast(result.success ?? "Updated.", "success");
     refresh();
   }
 
@@ -377,18 +443,28 @@ export function CalendarClient({
 
       <ColorLegend colorMode={colorMode} services={services} staff={staff} />
 
-      {view === "day" && (
-        <DayView
-          date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
-          onSelectSlot={openNew}
-          onReschedule={handleReschedule}
-          onResize={handleResize}
-          colorMode={colorMode}
-        />
+      {effectiveView === "day" && (
+        isNarrow ? (
+          <DayAgendaList
+            date={date}
+            appointments={appointments}
+            onSelectAppointment={openDrawer}
+          />
+        ) : (
+          <DayControlCenter
+            date={date}
+            appointments={appointments}
+            staff={staff}
+            overlays={dayOverlays}
+            onSelectAppointment={openDrawer}
+            onSelectSlot={openNew}
+            onReschedule={handleReschedule}
+            onResize={handleResize}
+            colorMode={colorMode}
+          />
+        )
       )}
-      {view === "week" && (
+      {effectiveView === "week" && (
         <WeekView
           date={date}
           appointments={appointments}
@@ -399,7 +475,7 @@ export function CalendarClient({
           colorMode={colorMode}
         />
       )}
-      {view === "month" && (
+      {effectiveView === "month" && (
         <MonthView
           date={date}
           appointments={appointments}
@@ -411,21 +487,21 @@ export function CalendarClient({
           colorMode={colorMode}
         />
       )}
-      {view === "agenda" && (
+      {effectiveView === "agenda" && (
         <AgendaView
           date={date}
           appointments={appointments}
           onSelectAppointment={openEdit}
         />
       )}
-      {view === "timeline" && (
+      {effectiveView === "timeline" && (
         <TimelineView
           date={date}
           appointments={appointments}
           onSelectAppointment={openEdit}
         />
       )}
-      {(view === "employees" || view === "resource") && (
+      {(effectiveView === "employees" || effectiveView === "resource") && (
         <ResourceView
           date={date}
           appointments={appointments}
@@ -435,7 +511,7 @@ export function CalendarClient({
           onSelectAppointment={openEdit}
         />
       )}
-      {view === "locations" && (
+      {effectiveView === "locations" && (
         <ResourceView
           date={date}
           appointments={appointments}
@@ -511,10 +587,27 @@ export function CalendarClient({
         onClose={() => setNoteOpen(false)}
       />
 
+
+      {drawerOpen && selectedAppointment ? (
+        <AppointmentDrawer
+          open={drawerOpen}
+          appointment={selectedAppointment}
+          locations={locations}
+          onClose={() => setDrawerOpen(false)}
+          onEdit={openEdit}
+          onStatusChange={handleStatusChange}
+          onRescheduleRequest={(appt) => {
+            setDrawerOpen(false);
+            openEdit(appt);
+          }}
+          onRefresh={refresh}
+        />
+      ) : null}
+
       <AppointmentDialog
         key={
           selectedAppointment?.id ??
-          `new-${defaultSlot?.toISOString() ?? "blank"}`
+          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}`
         }
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}

@@ -9,6 +9,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5.2 — Day View Control Center)
+
+- Morning Brief strip: appointments, revenue, staff working, open slots, waitlist, no-shows, outstanding payments, Summer activity, Chase recommendations
+- Multi-employee Day View columns with lunch/hours/vacation overlays, drag across staff, resize, optimistic updates
+- Appointment drawer with quick actions (check-in, complete, payment, reschedule, cancel, CRM, message, Ask Summer)
+- Command registry (`lib/command/registry.ts`) wired into ⌘K / Ctrl+K palette
+- Default Reception view is Day; mobile falls back to agenda mode
+
+### Fixed (Phase 5.2)
+
+- Reception Customer Search `useSyncExternalStore` returned a new array from `getSnapshot` every read, causing Maximum update depth exceeded on the calendar page
+
 ### Added (Phase 5.1 — Availability Engine)
 
 - Migration `026_availability_engine.sql` — enriched `get_available_slots` / `validate_appointment_slot` with lunch, split shifts, business/staff closures, service blackouts, cleanup buffers, min notice, max window, per-day caps, and double-booking policy

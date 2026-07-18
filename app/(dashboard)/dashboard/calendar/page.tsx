@@ -3,8 +3,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getAppointments, getDashboardStats } from "@/lib/actions/appointments";
 import { getCustomers } from "@/lib/actions/customers";
+import { getStaffDayOverlays } from "@/lib/actions/day-overlays";
 import { getLocations } from "@/lib/actions/location";
-import { getReceptionBrief } from "@/lib/actions/reception";
+import { getMorningBrief } from "@/lib/actions/morning-brief";
 import { getWaitlistEntries } from "@/lib/actions/notifications";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
@@ -23,7 +24,7 @@ import {
 } from "date-fns";
 
 export const metadata: Metadata = {
-  title: "Reception",
+  title: "Reception · Day View",
 };
 
 type PageProps = {
@@ -31,6 +32,7 @@ type PageProps = {
     view?: string;
     date?: string;
     appointment?: string;
+    book?: string;
   }>;
 };
 
@@ -52,8 +54,8 @@ function getRange(view: CalendarView, date: Date) {
       return { start: startOfMonth(date), end: endOfMonth(date) };
     default:
       return {
-        start: startOfWeek(date, { weekStartsOn: 0 }),
-        end: endOfWeek(date, { weekStartsOn: 0 }),
+        start: startOfDay(date),
+        end: endOfDay(date),
       };
   }
 }
@@ -61,21 +63,31 @@ function getRange(view: CalendarView, date: Date) {
 export default async function CalendarPage({ searchParams }: PageProps) {
   await getOrCreateBusiness();
   const params = await searchParams;
-  const view = (params.view as CalendarView) ?? "week";
+  const view = (params.view as CalendarView) ?? "day";
   const date = params.date ? new Date(params.date) : new Date();
   const range = getRange(view, date);
 
-  const [appointments, services, staff, customers, locations, brief, stats, waitlist] =
-    await Promise.all([
-      getAppointments(range.start.toISOString(), range.end.toISOString()),
-      getServices(),
-      getStaff(),
-      getCustomers(),
-      getLocations(),
-      getReceptionBrief(),
-      getDashboardStats(),
-      getWaitlistEntries(),
-    ]);
+  const [
+    appointments,
+    services,
+    staff,
+    customers,
+    locations,
+    brief,
+    stats,
+    waitlist,
+    dayOverlays,
+  ] = await Promise.all([
+    getAppointments(range.start.toISOString(), range.end.toISOString()),
+    getServices(),
+    getStaff(),
+    getCustomers(),
+    getLocations(),
+    getMorningBrief(),
+    getDashboardStats(),
+    getWaitlistEntries(),
+    getStaffDayOverlays(range.start.toISOString()),
+  ]);
 
   const insights = buildDashboardInsights({
     todayCount: stats.todayCount,
@@ -93,7 +105,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <PageHeader
         title="Reception"
-        description="Manage the front desk from one workspace — calendar, clients, and quick booking."
+        description="Day View Control Center — multi-employee floor, Morning Brief, and quick actions."
       />
       <ReceptionWorkspace
         brief={brief}
@@ -107,6 +119,8 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         initialDate={range.start.toISOString()}
         initialView={view}
         focusAppointmentId={params.appointment ?? null}
+        dayOverlays={dayOverlays}
+        openBookOnLoad={params.book === "1"}
       />
     </div>
   );

@@ -27,6 +27,7 @@ import {
 
 const CATEGORY_LABEL: Record<CommandSearchCategory, string> = {
   pages: "Pages",
+  actions: "Actions",
   customers: "Customers",
   staff: "Staff",
   services: "Services",
@@ -35,6 +36,7 @@ const CATEGORY_LABEL: Record<CommandSearchCategory, string> = {
 
 const CATEGORY_ICON: Record<CommandSearchCategory, typeof Search> = {
   pages: FileText,
+  actions: Search,
   customers: Users,
   staff: UserCog,
   services: Briefcase,

@@ -21,11 +21,13 @@ import {
   useTransition,
 } from "react";
 
+const EMPTY_RECENT: Customer[] = [];
+
 function useRecentCustomers() {
   return useSyncExternalStore(
     subscribeRecentCustomers,
     readRecentCustomers,
-    () => [] as Customer[],
+    () => EMPTY_RECENT,
   );
 }
 
