@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Simple pricing that grows with your business. Start free. Upgrade only when you're ready.",
+    "Founding pricing for Chasum design partners. Apply for Private Alpha — public self-serve checkout Coming Next.",
 };
 
 export default function PricingPage() {

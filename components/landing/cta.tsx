@@ -1,7 +1,14 @@
 import { SparkMark } from "@/components/brand/marks";
 import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
-import { DEMO_HREF } from "@/lib/marketing/homepage";
+import {
+  APPLY_HREF,
+  CTA_APPLY_LABEL,
+  CTA_DEMO_LABEL,
+  DEMO_HREF,
+  FOUNDER_PRICING_NOTE,
+  PRIVATE_ALPHA_HREF,
+} from "@/lib/marketing/alpha";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -28,16 +35,16 @@ export function CTA() {
             Your Business Deserves an Operating System.
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg text-white/60 md:text-xl">
-            Start free with the real product — CRM, calendar, reports, billing,
-            and Emma — or book a demo with our team.
+            Apply for Private Alpha to run scheduling, CRM, and Early Access
+            Summer + Chase with founder support — or book a walkthrough.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/signup">
+            <Link href={APPLY_HREF}>
               <Button
                 size="lg"
                 className="marketing-cta-button min-w-[200px] rounded-full shadow-md shadow-primary/30"
               >
-                Start Free
+                {CTA_APPLY_LABEL}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -47,12 +54,15 @@ export function CTA() {
                 size="lg"
                 className="marketing-cta-button min-w-[200px] rounded-full border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
               >
-                Book Demo
+                {CTA_DEMO_LABEL}
               </Button>
             </a>
           </div>
           <p className="mt-6 text-sm text-white/45">
-            No credit card required · Cancel anytime
+            {FOUNDER_PRICING_NOTE}{" "}
+            <Link href={PRIVATE_ALPHA_HREF} className="text-white/70 underline-offset-2 hover:underline">
+              Learn more
+            </Link>
           </p>
         </div>
       </Reveal>

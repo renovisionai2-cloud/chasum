@@ -1,7 +1,14 @@
 /**
  * Shared marketing pricing copy for landing, /pricing, signup, and upgrade prompts.
- * Plan keys align with `subscription_plans.plan_key` (Free maps to `starter`).
+ * During Private Alpha, paid CTAs route to the design partner application — not mock checkout.
  */
+
+import {
+  APPLY_HREF,
+  CTA_APPLY_LABEL,
+  CTA_EARLY_ACCESS_LABEL,
+  DEMO_HREF,
+} from "@/lib/marketing/alpha";
 
 export type MarketingPlanId = "free" | "professional" | "business" | "enterprise";
 
@@ -21,10 +28,10 @@ export type MarketingPlan = {
   features: string[];
 };
 
-export const PRICING_HEADLINE = "Simple Pricing That Grows with Your Business.";
+export const PRICING_HEADLINE = "Founding pricing for design partners.";
 
 export const PRICING_SUBHEADING =
-  "Start free. Upgrade only when you're ready. No hidden fees. No appointment commissions.";
+  "Private Alpha is invite-based. Public self-serve checkout launches after we earn it — apply to lock founding customer pricing.";
 
 /** Shown when a Free / starter plan limit is reached. */
 export const FREE_PLAN_LIMIT_MESSAGE =
@@ -37,10 +44,10 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     id: "free",
     planKey: "starter",
     title: "Free",
-    tagline: "Start your journey.",
-    description: "Everything you need to experience Chasum.",
-    cta: "Start Free",
-    href: "/signup?plan=free",
+    tagline: "Explore the core.",
+    description: "Core scheduling for design partners evaluating Chasum.",
+    cta: CTA_EARLY_ACCESS_LABEL,
+    href: APPLY_HREF,
     price: "$0",
     highlighted: false,
     features: [
@@ -56,20 +63,20 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     title: "Professional",
     tagline: "Grow your business.",
     description:
-      "Powerful scheduling, AI assistance, and automation for professionals.",
-    cta: "Start Professional",
-    href: "/signup?plan=professional",
+      "Powerful scheduling, Early Access AI assistance, and automation for professionals.",
+    cta: CTA_APPLY_LABEL,
+    href: APPLY_HREF,
     price: "$79",
     priceSuffix: "/month",
     badge: "Most Popular",
     highlighted: true,
     features: [
       "Unlimited appointments",
-      "AI scheduling assistance",
-      "SMS reminders",
+      "Summer & Chase (Early Access)",
+      "SMS reminders (when enabled)",
       "Automation & waitlist",
       "Up to 3 locations",
-      "Priority support",
+      "Priority design-partner support",
     ],
   },
   {
@@ -78,19 +85,19 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     title: "Business",
     tagline: "Scale with confidence.",
     description:
-      "Multi-location management, advanced automation, and collaboration for growing teams.",
-    cta: "Start Business",
-    href: "/signup?plan=business",
+      "Multi-location management and collaboration — staff invites coming next on the roadmap.",
+    cta: CTA_APPLY_LABEL,
+    href: APPLY_HREF,
     price: "$149",
     priceSuffix: "/month",
     highlighted: false,
     features: [
       "Everything in Professional",
       "Up to 10 locations",
-      "Team collaboration",
+      "Team collaboration (roadmap)",
       "API & webhooks",
       "Advanced automation",
-      "Dedicated support",
+      "Founder-backed support in alpha",
     ],
   },
   {
@@ -99,18 +106,18 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     title: "Enterprise",
     tagline: "Built for large organizations.",
     description:
-      "Custom onboarding, advanced security, dedicated support, and tailored solutions.",
+      "Custom onboarding and security conversations for larger operators.",
     cta: "Contact Sales",
-    href: "mailto:sales@chasum.app?subject=Chasum%20Enterprise",
+    href: DEMO_HREF,
     price: "Custom",
     highlighted: false,
     features: [
       "Unlimited locations",
       "Custom onboarding",
-      "Advanced security",
-      "Dedicated support",
+      "Security review",
+      "Dedicated support options",
       "Tailored solutions",
-      "SLA options",
+      "SLA options (post-alpha)",
     ],
   },
 ];

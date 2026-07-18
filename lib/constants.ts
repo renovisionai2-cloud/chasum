@@ -22,7 +22,7 @@ export const NAV_LINKS = [
   { href: "/#platform", label: "Platform" },
   { href: "/#showcase", label: "Product" },
   { href: "/#industries", label: "Solutions" },
-  { href: "/#stories", label: "Customers" },
+  { href: "/roadmap", label: "Roadmap" },
   { href: "/#pricing", label: "Pricing" },
 ] as const;
 
@@ -31,17 +31,17 @@ export const NAV_RESOURCES = [
   {
     href: "/#ai-workforce",
     label: "AI Workforce",
-    description: "Meet Emma and the expanding team",
+    description: "Summer & Chase in Early Access",
+  },
+  {
+    href: "/private-alpha",
+    label: "Why Private Alpha?",
+    description: "Design partner program",
   },
   {
     href: "/#journey",
     label: "How It Works",
     description: "One connected customer journey",
-  },
-  {
-    href: "/#compare",
-    label: "Compare",
-    description: "See how Chasum stacks up",
   },
   {
     href: "/#faq",
@@ -50,8 +50,7 @@ export const NAV_RESOURCES = [
   },
 ] as const;
 
-export const NAV_SUPPORT_HREF =
-  "mailto:sales@chasum.app?subject=Chasum%20Support";
+export const NAV_SUPPORT_HREF = "/contact";
 
 export const TIMEZONES = [
   "America/New_York",

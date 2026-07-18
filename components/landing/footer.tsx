@@ -1,5 +1,15 @@
 import { Logo } from "@/components/brand/logo";
-import { NAV_SUPPORT_HREF } from "@/lib/constants";
+import {
+  APPLY_HREF,
+  CONTACT_HREF,
+  CTA_APPLY_LABEL,
+  PRIVACY_HREF,
+  ROADMAP_HREF,
+  SECURITY_HREF,
+  STATUS_HREF,
+  TERMS_HREF,
+  PRIVATE_ALPHA_HREF,
+} from "@/lib/marketing/alpha";
 import Link from "next/link";
 
 const footerLinks = {
@@ -9,17 +19,18 @@ const footerLinks = {
     { label: "AI Workforce", href: "/#ai-workforce" },
     { label: "How It Works", href: "/#journey" },
   ],
-  Solutions: [
-    { label: "Industries", href: "/#industries" },
-    { label: "Customers", href: "/#stories" },
-    { label: "Compare", href: "/#compare" },
+  Company: [
+    { label: "Why Private Alpha?", href: PRIVATE_ALPHA_HREF },
+    { label: "Roadmap", href: ROADMAP_HREF },
     { label: "Pricing", href: "/pricing" },
+    { label: CTA_APPLY_LABEL, href: APPLY_HREF },
   ],
-  Resources: [
-    { label: "FAQ", href: "/#faq" },
-    { label: "Support", href: NAV_SUPPORT_HREF },
-    { label: "Book Demo", href: "mailto:sales@chasum.app?subject=Book%20a%20Chasum%20Demo" },
-    { label: "Start Free", href: "/signup" },
+  Trust: [
+    { label: "Privacy Policy", href: PRIVACY_HREF },
+    { label: "Terms", href: TERMS_HREF },
+    { label: "Security", href: SECURITY_HREF },
+    { label: "Status", href: STATUS_HREF },
+    { label: "Contact", href: CONTACT_HREF },
   ],
 };
 
@@ -31,7 +42,8 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              The AI Business Operating System for service businesses.
+              The AI Business Operating System for service businesses — currently
+              in Private Alpha with design partners.
             </p>
           </div>
 
@@ -56,8 +68,28 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Chasum. All rights reserved.
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row">
+          <p>© {new Date().getFullYear()} Chasum. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            <Link href={PRIVACY_HREF} className="hover:text-foreground">
+              Privacy Policy
+            </Link>
+            <Link href={TERMS_HREF} className="hover:text-foreground">
+              Terms
+            </Link>
+            <Link href={SECURITY_HREF} className="hover:text-foreground">
+              Security
+            </Link>
+            <Link href={ROADMAP_HREF} className="hover:text-foreground">
+              Roadmap
+            </Link>
+            <Link href={STATUS_HREF} className="hover:text-foreground">
+              Status
+            </Link>
+            <Link href={CONTACT_HREF} className="hover:text-foreground">
+              Contact
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

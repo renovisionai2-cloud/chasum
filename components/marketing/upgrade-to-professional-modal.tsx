@@ -18,7 +18,7 @@ type UpgradeToProfessionalModalProps = {
 export function UpgradeToProfessionalModal({
   open,
   onClose,
-  upgradeHref = "/signup?plan=professional",
+  upgradeHref = "/apply",
 }: UpgradeToProfessionalModalProps) {
   return (
     <Dialog

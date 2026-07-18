@@ -1,16 +1,16 @@
 /**
  * Homepage marketing content — grounded in real Chasum departments.
- * Keep claims conservative; mark future items clearly.
+ * Keep claims conservative; mark Early Access clearly for Private Alpha.
  */
 
-export const DEMO_HREF =
-  "mailto:sales@chasum.app?subject=Book%20a%20Chasum%20Demo";
+export { DEMO_HREF } from "@/lib/marketing/alpha";
+import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL } from "@/lib/marketing/alpha";
 
 export const TRUSTED_STATS = [
   { label: "Departments", value: 9, suffix: "+", hint: "Real product modules" },
   { label: "Industries Served", value: 10, suffix: "+", hint: "One configurable OS" },
-  { label: "Plan Tiers", value: 4, suffix: "", hint: "Free → Enterprise" },
-  { label: "AI Employees Named", value: 6, suffix: "", hint: "Emma live · more coming" },
+  { label: "Plan Tiers", value: 4, suffix: "", hint: "Founding pricing via alpha" },
+  { label: "AI Employees Live", value: 2, suffix: "", hint: "Summer & Chase · Early Access" },
   { label: "Journey Steps", value: 7, suffix: "", hint: "Book → report connected" },
 ] as const;
 
@@ -158,13 +158,13 @@ export type PlatformModule = {
 export const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: "emma",
-    name: "AI Receptionist",
+    name: "AI Receptionist (Summer)",
     href: "/#platform-emma",
     benefit: "Answer common questions and start bookings without inventing availability.",
     explanation:
-      "Emma uses your real hours, services, staff, and locations — then recommends slots from the scheduling engine and escalates to humans when needed.",
-    cta: "Meet Emma",
-    ctaHref: "/signup",
+      "Summer (Early Access) uses your real hours, services, staff, and locations — then recommends slots from the scheduling engine and escalates to humans when needed.",
+    cta: "Meet Summer",
+    ctaHref: APPLY_HREF,
     preview: "emma",
   },
   {
@@ -175,7 +175,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     explanation:
       "Directory, profiles, timeline, documents, and payment events — connected to appointments and Communication Center.",
     cta: "Explore CRM",
-    ctaHref: "/signup",
+    ctaHref: APPLY_HREF,
     preview: "crm",
   },
   {
@@ -186,7 +186,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     explanation:
       "Reception calendar, public booking pages, waitlist, buffers, rooms/resources, and a customer portal built on the same engine.",
     cta: "See booking",
-    ctaHref: "/signup",
+    ctaHref: APPLY_HREF,
     preview: "calendar",
   },
   {
@@ -195,9 +195,9 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     href: "/#platform-employees",
     benefit: "Run the team with schedules, roles, and performance in one place.",
     explanation:
-      "Directory, profiles, departments, location assignments, payroll fields, documents, and activity — ready for multi-staff operations.",
+      "Directory, profiles, departments, location assignments, payroll fields, documents, and activity — staff login invites are Coming Next.",
     cta: "Manage team",
-    ctaHref: "/signup",
+    ctaHref: APPLY_HREF,
     preview: "employees",
   },
   {
@@ -208,7 +208,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     explanation:
       "Profile, locations, categories, rooms & resources, memberships, packages, gift cards, taxes, forms, and automation rules.",
     cta: "Configure business",
-    ctaHref: "/signup",
+    ctaHref: APPLY_HREF,
     preview: "business",
   },
   {
@@ -219,7 +219,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     explanation:
       "Executive KPIs, revenue by employee/location/service, appointments, customers, financials, exports, and scheduled reports.",
     cta: "View reports",
-    ctaHref: "/signup",
+    ctaHref: APPLY_HREF,
     preview: "reports",
   },
   {
@@ -230,16 +230,16 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     explanation:
       "Unified timeline, notes, reminders, and pluggable providers (Resend, Twilio) ready for production messaging.",
     cta: "Open communications",
-    ctaHref: "/signup",
+    ctaHref: APPLY_HREF,
     preview: "communication",
   },
   {
     id: "billing",
     name: "Billing",
     href: "/#platform-billing",
-    benefit: "Plans, trials, and invoices with a path to live payments.",
+    benefit: "Manual commerce today; self-serve subscriptions Coming Next.",
     explanation:
-      "Free through Enterprise catalog, customer billing UI, subscription events, and a provider interface ready for Stripe.",
+      "Record payments and invoices for operators today. Public SaaS checkout is on the roadmap — apply for founding pricing in Private Alpha.",
     cta: "See pricing",
     ctaHref: "/pricing",
     preview: "billing",
@@ -248,12 +248,12 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     id: "workforce",
     name: "AI Workforce",
     href: "/#ai-workforce",
-    benefit: "A named team of AI employees that remove operational drag.",
+    benefit: "Summer and Chase in Early Access — more roles on the roadmap.",
     explanation:
-      "Emma is live in Phase 1. Alex, Maya, Leo, Sophia, and Noah deepen the vision — assist first, automate with owner control.",
-    cta: "See the vision",
-    ctaHref: "/#ai-workforce",
-    comingSoon: true,
+      "Summer handles reception assist; Chase surfaces grounded ops insights. Additional AI employees are Coming Next / Future Vision.",
+    cta: CTA_EARLY_ACCESS_LABEL,
+    ctaHref: APPLY_HREF,
+    comingSoon: false,
     preview: "workforce",
   },
 ];
@@ -333,36 +333,45 @@ export const INDUSTRIES = [
 
 export const CUSTOMER_JOURNEY = [
   { step: "1", title: "Customer Books", detail: "Public booking or reception creates the visit." },
-  { step: "2", title: "Emma Responds", detail: "AI Receptionist answers from real business data." },
+  { step: "2", title: "Summer Responds", detail: "AI receptionist (Early Access) answers from real business data." },
   { step: "3", title: "CRM Updates", detail: "Profile and timeline capture the interaction." },
   { step: "4", title: "Appointment Confirmed", detail: "Scheduling engine books a real open slot." },
   { step: "5", title: "Reminder Sent", detail: "Communication Center delivers email or SMS." },
-  { step: "6", title: "Payment Collected", detail: "Deposits and payment events stay linked." },
+  { step: "6", title: "Payment Recorded", detail: "Manual payments and ledger events stay linked (card checkout Coming Next)." },
   { step: "7", title: "Reports Updated", detail: "Owner KPIs refresh across the business." },
 ] as const;
 
 export const HERO_STATS = [
   { label: "Departments", value: 9, suffix: "+" },
-  { label: "AI Receptionist", value: 1, suffix: " live" },
+  { label: "AI teammates", value: 2, suffix: " Early Access" },
   { label: "Plan Options", value: 4, suffix: "" },
 ] as const;
 
 export const AI_EMPLOYEES_PREVIEW = [
   {
-    name: "Emma",
+    name: "Summer",
     role: "AI Receptionist",
     specialty: "Front desk & booking",
-    status: "Live",
-    availability: "Available Today",
+    status: "Early Access",
+    availability: "Early Access",
     summary:
       "Answers from real business data, checks real slots, starts bookings, escalates to staff, and logs every handoff.",
+  },
+  {
+    name: "Chase",
+    role: "AI Operations",
+    specialty: "Ops insights",
+    status: "Early Access",
+    availability: "Early Access",
+    summary:
+      "Surfaces grounded KPIs and alerts from your real bookings and CRM — read-only, never invents metrics.",
   },
   {
     name: "Alex",
     role: "AI Scheduler",
     specialty: "Calendar optimization",
     status: "Planned",
-    availability: "Coming Soon",
+    availability: "Coming Next",
     summary: "Protects the calendar and coordinates availability without inventing times.",
   },
   {
@@ -370,7 +379,7 @@ export const AI_EMPLOYEES_PREVIEW = [
     role: "AI Marketer",
     specialty: "Customer outreach",
     status: "Planned",
-    availability: "Coming Soon",
+    availability: "Future Vision",
     summary: "Prepares owner-approved campaigns and thoughtful follow-up without spam.",
   },
   {
@@ -378,7 +387,7 @@ export const AI_EMPLOYEES_PREVIEW = [
     role: "AI Business Advisor",
     specialty: "Performance insights",
     status: "Planned",
-    availability: "Coming Soon",
+    availability: "Future Vision",
     summary: "Turns operational signals into clear summaries and practical next steps.",
   },
   {
@@ -386,16 +395,8 @@ export const AI_EMPLOYEES_PREVIEW = [
     role: "AI Customer Success",
     specialty: "Customer care",
     status: "Planned",
-    availability: "Coming Soon",
+    availability: "Future Vision",
     summary: "Coordinates preparation, follow-up, and relationship care after booking.",
-  },
-  {
-    name: "Noah",
-    role: "AI Operations",
-    specialty: "Cross-team coordination",
-    status: "Planned",
-    availability: "Coming Soon",
-    summary: "Coordinates handoffs across the AI Workforce with owner control.",
   },
 ] as const;
 
@@ -460,7 +461,7 @@ export const COMPARISON_ROWS: {
       Calendly: "varies",
       "Square Appointments": "varies",
     },
-    note: "Emma Phase 1 is live in Chasum; competitor AI features change frequently.",
+    note: "Summer & Chase are Early Access in Chasum; competitor AI features change frequently.",
   },
   {
     feature: "Reports & Analytics Department",
@@ -493,7 +494,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Is Chasum Just Another Booking Page?",
-    a: "No. Public booking is one surface. The product includes Reception calendar, CRM, Business Management, Reports, Communication Center, Billing, and AI Receptionist (Emma).",
+    a: "No. Public booking is one surface. The product includes Reception calendar, CRM, Business Management, Reports, Communication Center, commerce tools, and Summer (Early Access AI receptionist).",
   },
   {
     q: "Does AI Invent Appointment Times?",
@@ -504,12 +505,12 @@ export const FAQ_ITEMS = [
     a: "Yes. The platform is built for single-location through multi-location operations with location scope across calendar, services, staff, and reports.",
   },
   {
-    q: "What Is Included in the Free Plan?",
-    a: "Free includes a booking page, core calendar & reception, email reminders, and a single location. Upgrade when you need more AI assistance, SMS, automation, or locations.",
+    q: "How Do I Get Access During Private Alpha?",
+    a: "Apply for Private Alpha or request early access. We onboard a limited number of design partners with founder support. Public self-serve checkout is Coming Next.",
   },
   {
-    q: "How Does Emma the AI Receptionist Work Today?",
-    a: "Phase 1 Emma answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; escalates to staff; and can log into CRM / Communication Center.",
+    q: "How Does Summer the AI Receptionist Work Today?",
+    a: "Summer (Early Access) answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; escalates to staff; and can log into CRM / Communication Center.",
   },
   {
     q: "Do You Support Google, Outlook, and Apple Calendars?",
@@ -521,10 +522,10 @@ export const FAQ_ITEMS = [
   },
   {
     q: "When Is Voice Calling Available?",
-    a: "Voice is architected for the future (channel reserved) but not implemented yet. Emma’s Phase 1 focus is grounded chat and booking assist.",
+    a: "Voice is Future Vision (channel reserved) but not implemented yet. Summer’s Early Access focus is grounded chat and booking assist.",
   },
   {
-    q: "How Do I Book a Demo?",
-    a: "Use Book Demo to email sales@chasum.app, or Start Free to explore the product with your own business data immediately.",
+    q: "How Do I Get Started?",
+    a: "Apply for Private Alpha on /apply, or book a walkthrough via Contact. We do not offer open self-serve paid signup during Private Alpha.",
   },
 ] as const;

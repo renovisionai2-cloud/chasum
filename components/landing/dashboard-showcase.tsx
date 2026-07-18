@@ -4,6 +4,7 @@ import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
 import { PLATFORM_MODULES } from "@/lib/marketing/homepage";
+import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL } from "@/lib/marketing/alpha";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -32,7 +33,7 @@ const SHOWCASE_TABS = [
       "Appointments, revenue, customers, and operational signals come together in one calm command center.",
     benefits: ["Live operating snapshot", "Today and weekly activity", "Fast access to every department"],
     cta: "Explore Chasum",
-    ctaHref: "/signup",
+    ctaHref: APPLY_HREF,
   },
   {
     id: "emma",
@@ -236,9 +237,9 @@ export function DashboardShowcase() {
                   <p className="text-xs text-muted-foreground">
                     Your selected department is remembered for your next visit.
                   </p>
-                  <Link href={moduleCopy?.ctaHref ?? "/signup"}>
+                  <Link href={moduleCopy?.ctaHref ?? APPLY_HREF}>
                     <Button className="marketing-cta-button rounded-full px-6">
-                      {moduleCopy?.cta ?? "Start Free"}
+                      {moduleCopy?.cta ?? CTA_EARLY_ACCESS_LABEL}
                     </Button>
                   </Link>
                 </div>

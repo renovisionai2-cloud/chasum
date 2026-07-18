@@ -8,17 +8,28 @@ import {
   NAV_RESOURCES,
   NAV_SUPPORT_HREF,
 } from "@/lib/constants";
+import {
+  APPLY_HREF,
+  CTA_APPLY_LABEL,
+  CTA_EARLY_ACCESS_LABEL,
+} from "@/lib/marketing/alpha";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const SECTION_IDS = [
-  ...NAV_LINKS.map((link) => link.href.replace("/#", "")),
-  ...NAV_RESOURCES.map((link) => link.href.replace("/#", "")),
+  ...NAV_LINKS.filter((link) => link.href.startsWith("/#")).map((link) =>
+    link.href.replace("/#", ""),
+  ),
+  ...NAV_RESOURCES.filter((link) => link.href.startsWith("/#")).map((link) =>
+    link.href.replace("/#", ""),
+  ),
 ];
 
 export function LandingHeader() {
+  const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>("");
@@ -74,19 +85,33 @@ export function LandingHeader() {
     };
   }, [resourcesOpen]);
 
-  const scrollToSection = useCallback((href: string) => {
-    const id = href.replace("/#", "");
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-    setActiveId(id);
-    setMobileOpen(false);
-    setResourcesOpen(false);
-  }, []);
-
-  const resourceActive = NAV_RESOURCES.some(
-    (item) => item.href.replace("/#", "") === activeId,
+  const goTo = useCallback(
+    (href: string) => {
+      setMobileOpen(false);
+      setResourcesOpen(false);
+      if (href.startsWith("/#")) {
+        const id = href.replace("/#", "");
+        if (window.location.pathname !== "/") {
+          router.push(`/${href}`);
+          return;
+        }
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        setActiveId(id);
+        return;
+      }
+      router.push(href);
+    },
+    [router],
   );
+
+  const resourceActive = NAV_RESOURCES.some((item) => {
+    if (item.href.startsWith("/#")) {
+      return item.href.replace("/#", "") === activeId;
+    }
+    return false;
+  });
 
   return (
     <header
@@ -105,13 +130,14 @@ export function LandingHeader() {
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
-            const id = link.href.replace("/#", "");
-            const active = activeId === id;
+            const isHash = link.href.startsWith("/#");
+            const id = isHash ? link.href.replace("/#", "") : link.href;
+            const active = isHash && activeId === id;
             return (
               <button
                 key={link.href}
                 type="button"
-                onClick={() => scrollToSection(link.href)}
+                onClick={() => goTo(link.href)}
                 data-active={active}
                 className={cn(
                   "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
@@ -157,7 +183,7 @@ export function LandingHeader() {
                     key={item.href}
                     type="button"
                     role="menuitem"
-                    onClick={() => scrollToSection(item.href)}
+                    onClick={() => goTo(item.href)}
                     className="marketing-focus-ring flex w-full flex-col rounded-xl px-3.5 py-3 text-left transition-colors hover:bg-muted/70"
                   >
                     <span className="text-sm font-semibold text-foreground">
@@ -172,12 +198,12 @@ export function LandingHeader() {
             ) : null}
           </div>
 
-          <a
+          <Link
             href={NAV_SUPPORT_HREF}
             className="marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight text-muted-foreground transition-colors duration-200 hover:bg-foreground/[0.04] hover:text-foreground"
           >
             Support
-          </a>
+          </Link>
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -187,9 +213,9 @@ export function LandingHeader() {
               Log in
             </Button>
           </Link>
-          <Link href="/signup">
+          <Link href={APPLY_HREF}>
             <Button size="sm" className="marketing-cta-button rounded-full px-5">
-              Start Free
+              {CTA_EARLY_ACCESS_LABEL}
             </Button>
           </Link>
         </div>
@@ -223,7 +249,7 @@ export function LandingHeader() {
               <button
                 key={link.href}
                 type="button"
-                onClick={() => scrollToSection(link.href)}
+                onClick={() => goTo(link.href)}
                 className={cn(
                   "rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors",
                   active
@@ -242,27 +268,27 @@ export function LandingHeader() {
             <button
               key={item.href}
               type="button"
-              onClick={() => scrollToSection(item.href)}
+              onClick={() => goTo(item.href)}
               className="rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               {item.label}
             </button>
           ))}
-          <a
+          <Link
             href={NAV_SUPPORT_HREF}
             className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
             onClick={() => setMobileOpen(false)}
           >
             Support
-          </a>
+          </Link>
           <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4">
             <Link href="/login" onClick={() => setMobileOpen(false)}>
               <Button variant="outline" className="w-full">
                 Log in
               </Button>
             </Link>
-            <Link href="/signup" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full">Start Free</Button>
+            <Link href={APPLY_HREF} onClick={() => setMobileOpen(false)}>
+              <Button className="w-full">{CTA_APPLY_LABEL}</Button>
             </Link>
           </div>
         </nav>

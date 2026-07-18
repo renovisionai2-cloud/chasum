@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Private Alpha marketing readiness)
+
+- Public CTAs now route to Apply / Request Early Access (`/apply`) instead of “Start Free” self-serve signup
+- Homepage removes fictional logos, impact counters, and placeholder testimonials; Private Alpha invite section instead
+- AI Workforce marketing centers Summer & Chase as Early Access; other roles labeled Coming Next / Future Vision
+- New public pages: `/roadmap`, `/apply`, `/private-alpha`, `/privacy`, `/terms`, `/security`, `/status`, `/contact`
+- Footer trust links: Privacy, Terms, Security, Roadmap, Status, Contact
+- Pricing CTAs apply for design partner access; founding pricing copy for Private Alpha
+
 ### Added (Milestone 6.1 — Production Hardening)
 
 - Vitest + React Testing Library + MSW unit/integration suite; Playwright e2e smoke

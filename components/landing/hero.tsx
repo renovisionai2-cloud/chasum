@@ -1,11 +1,17 @@
 import { DashboardPreview } from "@/components/landing/dashboard-preview";
-import { DEMO_HREF } from "@/lib/marketing/homepage";
+import {
+  ALPHA_BANNER,
+  APPLY_HREF,
+  CTA_APPLY_LABEL,
+  CTA_DEMO_LABEL,
+  DEMO_HREF,
+} from "@/lib/marketing/alpha";
 import { ArrowRight, Check, Play } from "lucide-react";
 import Link from "next/link";
 
 const TRUST_LINES = [
-  "No credit card required",
-  "Enterprise security",
+  "Private Alpha — limited partners",
+  "Founder-backed support",
   "Built for service businesses",
 ] as const;
 
@@ -21,7 +27,7 @@ export function Hero() {
     >
       <div className="mx-auto flex w-full max-w-[1480px] flex-col items-center">
         <p className="marketing-hero-enter mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.28em] text-primary md:mb-8">
-          AI Business Operating System
+          AI Business Operating System · Private Alpha
         </p>
 
         <h1
@@ -56,19 +62,19 @@ export function Hero() {
         <div className="marketing-hero-enter marketing-hero-enter-delay-2 mt-10 flex w-full max-w-3xl flex-col items-center md:mt-12">
           <p className="max-w-md text-center text-base text-muted-foreground md:text-lg">
             One operating system for scheduling, CRM, teams, and AI —
-            built for service businesses.
+            built for service businesses. Currently inviting design partners.
           </p>
 
           <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
-            <Link href="/signup" className="group">
+            <Link href={APPLY_HREF} className="group">
               <span className="marketing-hero-btn-primary inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-primary-foreground transition-[transform,box-shadow] duration-300 sm:w-auto sm:min-w-[10.5rem]">
-                Start Free
+                {CTA_APPLY_LABEL}
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
               </span>
             </Link>
             <a href={DEMO_HREF} className="group">
               <span className="marketing-hero-btn-secondary inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-foreground transition-[transform,background-color,border-color] duration-300 sm:w-auto sm:min-w-[10.5rem]">
-                Book Demo
+                {CTA_DEMO_LABEL}
               </span>
             </a>
           </div>
@@ -81,7 +87,11 @@ export function Hero() {
             Experience the product
           </Link>
 
-          <ul className="mt-10 flex flex-col items-center gap-2.5 sm:flex-row sm:gap-8">
+          <p className="mt-8 max-w-lg text-center text-[13px] text-muted-foreground">
+            {ALPHA_BANNER}
+          </p>
+
+          <ul className="mt-6 flex flex-col items-center gap-2.5 sm:flex-row sm:gap-8">
             {TRUST_LINES.map((line) => (
               <li
                 key={line}
