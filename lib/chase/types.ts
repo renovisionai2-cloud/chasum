@@ -126,4 +126,14 @@ export type ChaseOperationsSnapshot = {
   forecast: ChaseForecastHooks;
   pendingConfirmations: number;
   outstandingDeposits: number;
+  commerce: {
+    revenueTodayCents: number;
+    revenueWeekCents: number;
+    revenueMonthCents: number;
+    outstandingInvoicesCents: number;
+    outstandingDepositsCents: number;
+    refundsTrendCents: number;
+    averageTransactionCents: number | null;
+    averageCustomerValueCents: number | null;
+  };
 };

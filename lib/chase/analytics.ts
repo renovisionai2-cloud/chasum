@@ -21,6 +21,7 @@ import type {
   ChaseUpcomingClosure,
 } from "@/lib/chase/types";
 import { getChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
+import { getChaseCommerceMetrics } from "@/lib/commerce";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, format, startOfWeek, subDays } from "date-fns";
 
@@ -188,6 +189,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     priorWeekUtil,
     summer,
     closuresPack,
+    commerce,
     { data: bizSettings },
   ] = await Promise.all([
     getMorningBrief(),
@@ -207,6 +209,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     }),
     loadSummerActivity(business.id, todayStart, todayEnd),
     loadUpcomingClosures(business.id, todayStart, addDays(todayStart, 21)),
+    getChaseCommerceMetrics(business.id),
     supabase
       .from("businesses")
       .select("ai_settings, name")
@@ -372,6 +375,10 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     upcomingClosures: closuresPack.closures,
     forecast: CHASE_FORECAST_HOOKS,
     pendingConfirmations: brief.pendingConfirmations,
-    outstandingDeposits: brief.outstandingPayments,
+    outstandingDeposits:
+      commerce.outstandingDepositsCents > 0
+        ? Math.round(commerce.outstandingDepositsCents / 100)
+        : brief.outstandingPayments,
+    commerce,
   };
 }

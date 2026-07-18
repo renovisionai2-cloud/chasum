@@ -1,30 +1,69 @@
 "use client";
 
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
+import {
+  APPOINTMENT_PAYMENT_STATUS_LABELS,
+  type AppointmentPaymentStatus,
+} from "@/lib/commerce/types";
 import { Banknote, CreditCard, FileText, Info } from "lucide-react";
+import Link from "next/link";
 
 type PaymentsSectionProps = {
   service: Service | undefined;
   appointment: AppointmentWithRelations | null | undefined;
 };
 
+function deriveStatus(input: {
+  priceCents: number;
+  depositCents: number;
+  amountPaidCents: number;
+  amountRefundedCents: number;
+  paymentStatus?: string | null;
+  depositRequired: boolean;
+}): AppointmentPaymentStatus {
+  if (
+    input.paymentStatus &&
+    input.paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
+  ) {
+    return input.paymentStatus as AppointmentPaymentStatus;
+  }
+  const net = Math.max(0, input.amountPaidCents - input.amountRefundedCents);
+  if (input.amountRefundedCents > 0 && net <= 0) return "refunded";
+  if (net >= input.priceCents && input.priceCents > 0) return "fully_paid";
+  if (input.depositRequired && net <= 0) return "deposit_required";
+  if (input.depositRequired && net >= input.depositCents && net < input.priceCents) {
+    return "deposit_paid";
+  }
+  if (net > 0 && net < input.priceCents) return "partially_paid";
+  return "unpaid";
+}
+
 export function PaymentsSection({ service, appointment }: PaymentsSectionProps) {
-  const price =
+  const priceCents =
     appointment?.price_cents != null
-      ? Number(appointment.price_cents) / 100
+      ? Number(appointment.price_cents)
       : service
-        ? Number(service.price)
-        : null;
+        ? Math.round(Number(service.price) * 100)
+        : 0;
   const depositCents = Number(
     appointment?.deposit_cents ?? service?.deposit_cents ?? 0,
   );
+  const amountPaid = Number(
+    appointment?.amount_paid_cents ?? appointment?.deposit_cents ?? 0,
+  );
+  const amountRefunded = Number(appointment?.amount_refunded_cents ?? 0);
   const depositRequired =
     Boolean(service?.deposit_required) || depositCents > 0;
   const taxCents = Number(appointment?.tax_cents ?? 0);
-  const outstanding =
-    price != null
-      ? Math.max(0, price - depositCents / 100)
-      : null;
+  const outstanding = Math.max(0, priceCents - (amountPaid - amountRefunded));
+  const status = deriveStatus({
+    priceCents,
+    depositCents,
+    amountPaidCents: amountPaid,
+    amountRefundedCents: amountRefunded,
+    paymentStatus: appointment?.payment_status,
+    depositRequired,
+  });
 
   return (
     <section className="space-y-3" aria-labelledby="bs-pay-heading">
@@ -33,7 +72,16 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
           Payments
         </h3>
         <p className="text-xs text-muted-foreground">
-          Deposit and balance — Stripe collection ships in a later release
+          Commerce Platform — deposits, balance, invoices via Payments / CRM
+        </p>
+      </div>
+
+      <div className="rounded-[var(--radius-md)] border border-border px-3 py-2">
+        <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          Status
+        </p>
+        <p className="text-sm font-semibold">
+          {APPOINTMENT_PAYMENT_STATUS_LABELS[status]}
         </p>
       </div>
 
@@ -43,7 +91,7 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
             Price
           </p>
           <p className="text-sm font-semibold tabular-nums">
-            {price != null ? `$${price.toFixed(2)}` : "—"}
+            ${(priceCents / 100).toFixed(2)}
           </p>
         </div>
         <div className="rounded-[var(--radius-md)] border border-border px-3 py-2">
@@ -61,7 +109,7 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
             Paid
           </p>
           <p className="text-sm font-semibold tabular-nums">
-            ${(depositCents / 100).toFixed(2)}
+            ${(amountPaid / 100).toFixed(2)}
           </p>
         </div>
         <div className="rounded-[var(--radius-md)] border border-border px-3 py-2">
@@ -69,7 +117,7 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
             Outstanding
           </p>
           <p className="text-sm font-semibold tabular-nums">
-            {outstanding != null ? `$${outstanding.toFixed(2)}` : "—"}
+            ${(outstanding / 100).toFixed(2)}
           </p>
         </div>
       </div>
@@ -80,15 +128,22 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
           Invoice{" "}
           {appointment?.invoice_number
             ? `#${appointment.invoice_number}`
-            : "will generate on completion"}
+            : "generate from Payments dashboard or on collect"}
         </li>
         <li className="flex items-start gap-2">
           <CreditCard className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          Payment method / Stripe status — future support
+          Card via Stripe provider (refs only) · cash / e-transfer / gift card /
+          store credit supported
         </li>
         <li className="flex items-start gap-2">
           <Banknote className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          Collect Payment from quick actions when ready
+          <Link
+            href="/dashboard/payments"
+            className="underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Open Payments
+          </Link>{" "}
+          to record, refund, or download receipts
         </li>
         {taxCents > 0 || (service?.tax_rate_bps ?? 0) > 0 ? (
           <li className="flex items-start gap-2">

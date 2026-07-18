@@ -173,6 +173,63 @@ export function ChaseOpsWorkspace({
         </div>
       </div>
 
+      <Section
+        title="Commerce"
+        description="Payments ledger — Chase recommends collection, never charges."
+      >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Metric
+            label="Revenue today"
+            value={money(snapshot.commerce.revenueTodayCents / 100)}
+          />
+          <Metric
+            label="Revenue this week"
+            value={money(snapshot.commerce.revenueWeekCents / 100)}
+          />
+          <Metric
+            label="Revenue this month"
+            value={money(snapshot.commerce.revenueMonthCents / 100)}
+          />
+          <Metric
+            label="Avg transaction"
+            value={
+              snapshot.commerce.averageTransactionCents != null
+                ? money(snapshot.commerce.averageTransactionCents / 100)
+                : "—"
+            }
+          />
+          <Metric
+            label="Outstanding invoices"
+            value={money(snapshot.commerce.outstandingInvoicesCents / 100)}
+          />
+          <Metric
+            label="Outstanding deposits"
+            value={money(snapshot.commerce.outstandingDepositsCents / 100)}
+          />
+          <Metric
+            label="Refunds (month)"
+            value={money(snapshot.commerce.refundsTrendCents / 100)}
+          />
+          <Metric
+            label="Avg customer value"
+            value={
+              snapshot.commerce.averageCustomerValueCents != null
+                ? money(snapshot.commerce.averageCustomerValueCents / 100)
+                : "—"
+            }
+          />
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          <Link
+            href="/dashboard/payments"
+            className="underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Open Payments
+          </Link>{" "}
+          to collect, invoice, or refund.
+        </p>
+      </Section>
+
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <Section
           title="Insights"

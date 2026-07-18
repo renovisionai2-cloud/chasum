@@ -357,36 +357,11 @@ export async function recordCrmPaymentAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const business = await getOrCreateBusiness();
-  const customerId = String(formData.get("customer_id") ?? "");
-  const amount = Number(String(formData.get("amount") ?? "").replace(/[^0-9.]/g, ""));
-  if (!customerId || Number.isNaN(amount)) {
-    return { error: "Amount is required." };
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("customer_payment_events").insert({
-    business_id: business.id,
-    customer_id: customerId,
-    amount_cents: Math.round(amount * 100),
-    status: (formData.get("status") as string) || "paid",
-    method: (formData.get("method") as string)?.trim() || null,
-    description: (formData.get("description") as string)?.trim() || null,
-    provider: "manual",
-  });
-
-  if (error) {
-    return {
-      error:
-        error.message.includes("customer_payment_events")
-          ? "Could not record payment. Apply migration 018_crm_department if needed."
-          : error.message,
-    };
-  }
-
-  await touchCustomerActivity(business.id, customerId);
-  revalidateCrm(customerId);
-  return { success: "Payment recorded." };
+  // Delegate to Commerce Platform — never bypass the ledger
+  const { recordPaymentAction } = await import("@/lib/actions/commerce");
+  const result = await recordPaymentAction({}, formData);
+  if (result.error) return { error: result.error };
+  return { success: result.success ?? "Payment recorded." };
 }
 
 export async function sparkCrmQueryAction(input: {

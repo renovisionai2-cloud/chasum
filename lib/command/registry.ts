@@ -17,7 +17,8 @@ export type CommandId =
   | "go-business"
   | "go-ai"
   | "go-summer"
-  | "go-chase";
+  | "go-chase"
+  | "go-payments";
 
 export type CommandDefinition = {
   id: CommandId;
@@ -124,6 +125,14 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
     subtitle: "AI Operations Manager",
     href: "/dashboard/workforce/chase",
     keywords: ["ai", "chase", "operations", "analytics", "insights", "noah"],
+    group: "navigate",
+  },
+  {
+    id: "go-payments",
+    title: "Open Payments",
+    subtitle: "Commerce Platform",
+    href: "/dashboard/payments",
+    keywords: ["payments", "billing", "invoice", "receipt", "refund", "deposit", "stripe"],
     group: "navigate",
   },
   {

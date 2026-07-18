@@ -72,9 +72,17 @@ const RULES: Array<{ intent: SummerIntent; patterns: RegExp[] }> = [
     ],
   },
   {
+    intent: "commerce",
+    patterns: [
+      /\b(balance|outstanding|invoice|receipt|deposit|payment|owe|owing|bill)\b/i,
+      /\b(how much (do i|have i)|what (do i )?owe)\b/i,
+      /\b(pay(ment)? (status|due)|unpaid)\b/i,
+    ],
+  },
+  {
     intent: "policy",
     patterns: [
-      /\b(policy|policies|refund|deposit|late fee)\b/i,
+      /\b(policy|policies|refund|late fee)\b/i,
       /\bcancellation policy\b/i,
     ],
   },

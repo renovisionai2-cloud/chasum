@@ -434,6 +434,9 @@ export type Appointment = {
   tax_cents?: number;
   discount_cents?: number;
   deposit_cents?: number;
+  amount_paid_cents?: number;
+  amount_refunded_cents?: number;
+  payment_status?: string | null;
   invoice_number?: string | null;
   internal_notes?: string | null;
   custom_fields?: Record<string, unknown>;

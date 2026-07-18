@@ -1,6 +1,7 @@
 "use client";
 
 import { BookingSheet } from "@/components/booking-sheet";
+import { CustomerCommercePanel } from "@/components/commerce/customer-commerce-panel";
 import { CommunicationCenter } from "@/components/communication/communication-center";
 import { CustomerInsightsPanel } from "@/components/crm/customer-insights";
 import { CustomerNotesPanel } from "@/components/crm/customer-notes-panel";
@@ -20,11 +21,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { cancelAppointment } from "@/lib/actions/appointments";
 import {
   getCrmAppointmentForBooking,
-  recordCrmPaymentAction,
   sparkCrmQueryAction,
   updateCrmCustomer,
 } from "@/lib/actions/crm";
 import type { Membership } from "@/lib/business/types";
+import type { CustomerCommerceAccount } from "@/lib/commerce/types";
 import { chaseHintsFromInsights } from "@/lib/crm/chase-hints";
 import { displayCustomerName } from "@/lib/crm/display";
 import {
@@ -53,6 +54,7 @@ type TabKey =
   | "overview"
   | "timeline"
   | "appointments"
+  | "billing"
   | "communication"
   | "documents"
   | "notes"
@@ -64,6 +66,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "timeline", label: "Timeline" },
   { key: "appointments", label: "Appointments" },
+  { key: "billing", label: "Billing" },
   { key: "communication", label: "Communication" },
   { key: "documents", label: "Documents" },
   { key: "notes", label: "Notes" },
@@ -126,6 +129,7 @@ export function CustomerProfileView({
   customers,
   memberships,
   mapsAddress,
+  commerceAccount,
 }: {
   profile: CrmProfile;
   staff: StaffWithServices[];
@@ -134,15 +138,12 @@ export function CustomerProfileView({
   customers: Customer[];
   memberships: Membership[];
   mapsAddress?: string | null;
+  commerceAccount: CustomerCommerceAccount;
 }) {
   const { customer } = profile;
   const [tab, setTab] = useState<TabKey>("overview");
   const [state, formAction, pending] = useActionState(
     updateCrmCustomer,
-    {} as ActionState,
-  );
-  const [payState, payAction, payPending] = useActionState(
-    recordCrmPaymentAction,
     {} as ActionState,
   );
   const [sparkPending, startSpark] = useTransition();
@@ -154,7 +155,6 @@ export function CustomerProfileView({
   const refresh = useRefresh();
   const { toast } = useToast();
   useFormAction(state, () => refresh());
-  useFormAction(payState, () => refresh());
 
   const displayName = displayCustomerName(customer);
   const nextUpcoming = profile.appointments.upcoming[0] ?? null;
@@ -257,7 +257,7 @@ export function CustomerProfileView({
                 onBook={openBook}
                 onReschedule={openReschedule}
                 onCancel={cancelNext}
-                onCollectPayment={() => setTab("insights")}
+                onCollectPayment={() => setTab("billing")}
                 onMessage={() => setTab("communication")}
                 onEmail={() => {
                   if (customer.email) {
@@ -421,6 +421,20 @@ export function CustomerProfileView({
         </Card>
       ) : null}
 
+      {tab === "billing" ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Billing & payments</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CustomerCommercePanel
+              customerId={customer.id}
+              account={commerceAccount}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
+
       {tab === "insights" ? (
         <Card>
           <CardHeader>
@@ -428,22 +442,10 @@ export function CustomerProfileView({
           </CardHeader>
           <CardContent className="space-y-6">
             <CustomerInsightsPanel insights={profile.insights} />
-            <form
-              action={payAction}
-              className="space-y-3 rounded-[var(--radius-md)] border border-dashed border-border p-4"
-            >
-              <p className="ds-label">Collect payment</p>
-              <input type="hidden" name="customer_id" value={customer.id} />
-              <div className="grid gap-3 sm:grid-cols-3">
-                <Input name="amount" placeholder="Amount" required />
-                <Input name="method" placeholder="Method (card, cash…)" />
-                <Input name="description" placeholder="Description" />
-              </div>
-              <AlertMessage error={payState.error} success={payState.success} />
-              <Button type="submit" size="sm" disabled={payPending}>
-                {payPending ? "Saving…" : "Record payment"}
-              </Button>
-            </form>
+            <p className="text-sm text-muted-foreground">
+              Collect payments from the Billing tab — Commerce Platform records
+              invoices, receipts, and the ledger.
+            </p>
           </CardContent>
         </Card>
       ) : null}

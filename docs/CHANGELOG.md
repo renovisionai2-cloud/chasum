@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Milestone 4 / Phase 5.7 — Commerce Platform)
+
+- Migration `028_commerce_platform.sql` — invoices, lines, transactions ledger, receipts, refunds, audit log, appointment payment status, store credit
+- Provider abstraction (`lib/commerce/providers`) with Stripe (PaymentIntent refs only) + manual methods; never stores card numbers
+- Payments dashboard at `/dashboard/payments`; CRM Billing tab; booking sheet payment status
+- Summer `commerce` intent (balances/invoices — never charges); Chase commerce KPIs
+- Command palette “Open Payments”
+
 ### Added (Phase 5.6 — Chase Operations Manager)
 
 - Chase operations workspace at `/dashboard/workforce/chase` (alias `/dashboard/ai-workforce/chase`)

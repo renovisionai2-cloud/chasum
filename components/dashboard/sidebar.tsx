@@ -8,6 +8,7 @@ import { DASHBOARD_NAV } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { signOut } from "@/lib/actions/auth";
 import {
+  Banknote,
   BarChart3,
   Bell,
   Briefcase,
@@ -35,6 +36,7 @@ const iconMap = {
   "layout-dashboard": LayoutDashboard,
   calendar: Calendar,
   users: Users,
+  banknote: Banknote,
   briefcase: Briefcase,
   "building-2": Building2,
   "user-cog": UserCog,

@@ -22,6 +22,7 @@ import {
   summerPreviewForService,
   upcomingToCards,
 } from "@/lib/summer/tools";
+import { getSummerCommerceSnapshot } from "@/lib/commerce";
 import type {
   SummerIntent,
   SummerSessionContext,
@@ -203,6 +204,38 @@ export async function handleSummerTurn(
       : knowledge.address
         ? knowledge.address
         : "Location details are not configured yet.";
+  } else if (intent === "commerce") {
+    citations.push({ source: "policy", label: "Commerce Platform" });
+    if (!customerSnap?.customerId) {
+      reply =
+        "I can check balances and invoices once I recognize the guest (email or phone). I never process card payments — staff complete collection in Payments.";
+    } else {
+      const commerce = await getSummerCommerceSnapshot(
+        input.businessId,
+        customerSnap.customerId,
+      );
+      reply = [
+        `Account for ${customerSnap.displayName}:`,
+        `Outstanding balance: $${(commerce.outstandingBalanceCents / 100).toFixed(2)}`,
+        `Lifetime spend: $${(commerce.lifetimeSpendCents / 100).toFixed(2)}`,
+        `Deposits on file: $${(commerce.depositsCents / 100).toFixed(2)}`,
+        commerce.storeCreditCents > 0
+          ? `Store credit: $${(commerce.storeCreditCents / 100).toFixed(2)}`
+          : null,
+        commerce.openInvoiceCount
+          ? `Open invoices: ${commerce.openInvoices
+              .map(
+                (i) =>
+                  `${i.number} ($${(i.balanceCents / 100).toFixed(2)}${i.dueDate ? `, due ${i.dueDate}` : ""})`,
+              )
+              .join("; ")}`
+          : "No open invoices.",
+        "",
+        "I can explain balances and request a deposit — I never charge cards directly. Staff confirm payments in the Commerce Platform.",
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
   } else if (intent === "policy") {
     citations.push({ source: "policy", label: "Policies" });
     const parts = [

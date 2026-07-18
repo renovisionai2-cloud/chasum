@@ -18,6 +18,7 @@ export type SummerIntent =
   | "cancel"
   | "customer"
   | "policy"
+  | "commerce"
   | "escalate"
   | "general";
 
