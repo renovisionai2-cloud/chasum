@@ -1,39 +1,32 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { unwrapRelation } from "@/lib/supabase/relations";
-import { sendEmail } from "@/lib/integrations/providers/email";
-import { sendSms } from "@/lib/integrations/providers/sms";
 import {
-  renderConfirmationEmail,
-  renderReminderEmail,
-  renderCancellationEmail,
-  renderRescheduleEmail,
-  renderStaffNotificationEmail,
-  renderBusinessNotificationEmail,
-  renderSmsReminder,
-  renderSmsCancellation,
-  renderSmsReschedule,
-} from "@/lib/integrations/email/templates";
-import { syncCalendarConnection } from "@/lib/integrations/calendar/sync";
+  computeBackoffMs,
+  sendEmail,
+  sendSMS,
+} from "@/lib/communications";
+import type { AppointmentTemplateContext } from "@/lib/communications";
 import { generateSingleEventIcs } from "@/lib/integrations/calendar/apple";
+import { syncCalendarConnection } from "@/lib/integrations/calendar/sync";
 import { dispatchWebhooks } from "@/lib/integrations/webhooks/dispatch";
 import { generateRecurringOccurrences } from "@/lib/integrations/automation/recurring";
 import { notifyWaitlistForSlot } from "@/lib/integrations/automation/waitlist";
-import type { AppointmentNotificationContext, BackgroundJob } from "@/lib/types/integrations";
+import type { BackgroundJob } from "@/lib/types/integrations";
 
 async function getAppointmentContext(
   appointmentId: string,
-): Promise<AppointmentNotificationContext | null> {
+): Promise<(AppointmentTemplateContext & { customerId: string | null }) | null> {
   const supabase = createServiceClient();
 
   const { data } = await supabase
     .from("appointments")
     .select(
       `
-      id, business_id, start_time, end_time, status, notes,
+      id, business_id, customer_id, start_time, end_time, status, notes,
       business:businesses(name, notification_email, email_notifications_enabled, sms_notifications_enabled),
       service:services(name),
       staff:staff(name, email),
-      customer:customers(name, email, phone)
+      customer:customers(id, name, email, phone)
     `,
     )
     .eq("id", appointmentId)
@@ -41,15 +34,14 @@ async function getAppointmentContext(
 
   if (!data) return null;
 
-  const business = unwrapRelation(data.business) as {
-    name: string;
-    notification_email: string | null;
-    email_notifications_enabled: boolean;
-    sms_notifications_enabled: boolean;
-  } | null;
+  const business = unwrapRelation(data.business) as { name: string } | null;
   const service = unwrapRelation(data.service) as { name: string };
-  const staff = unwrapRelation(data.staff) as { name: string; email: string | null };
+  const staff = unwrapRelation(data.staff) as {
+    name: string;
+    email: string | null;
+  };
   const customer = unwrapRelation(data.customer) as {
+    id: string;
     name: string;
     email: string;
     phone: string | null;
@@ -61,79 +53,59 @@ async function getAppointmentContext(
     appointmentId: data.id,
     businessId: data.business_id,
     businessName: business.name,
+    customerId: customer.id ?? data.customer_id,
     customerName: customer.name,
     customerEmail: customer.email,
     customerPhone: customer.phone,
     staffName: staff.name,
-    staffEmail: staff.email,
     serviceName: service.name,
     startTime: data.start_time,
     endTime: data.end_time,
     notes: data.notes,
-    status: data.status,
   };
-}
-
-async function logDelivery(
-  businessId: string,
-  channel: "email" | "sms",
-  recipient: string,
-  templateKey: string,
-  status: "sent" | "failed" | "skipped",
-  appointmentId?: string,
-  providerMessageId?: string,
-  errorMessage?: string,
-) {
-  const supabase = createServiceClient();
-  await supabase.from("notification_logs").insert({
-    business_id: businessId,
-    appointment_id: appointmentId ?? null,
-    channel,
-    recipient,
-    template_key: templateKey,
-    status,
-    provider_message_id: providerMessageId ?? null,
-    error_message: errorMessage ?? null,
-    sent_at: status === "sent" ? new Date().toISOString() : null,
-  });
 }
 
 async function processEmailJob(payload: Record<string, unknown>) {
   const templateKey = payload.templateKey as string;
-  const appointmentId = payload.appointmentId as string;
-  const previousStartTime = payload.previousStartTime as string | undefined;
+  const appointmentId = payload.appointmentId as string | undefined;
+
+  // Direct commerce / custom payloads (no appointment)
+  if (!appointmentId && payload.directContext) {
+    const ctx = payload.directContext as AppointmentTemplateContext;
+    const to = (payload.recipient as string) || ctx.customerEmail;
+    if (!to) throw new Error("Missing email recipient");
+    const result = await sendEmail({
+      businessId: ctx.businessId,
+      to,
+      templateKey,
+      context: ctx,
+      customerId: ctx.customerId,
+      skipPreferenceCheck: Boolean(payload.skipPreferenceCheck),
+    });
+    if (!result.ok && !result.skipped) {
+      throw new Error(result.error ?? "Email send failed");
+    }
+    return;
+  }
+
+  if (!appointmentId) throw new Error("Missing appointmentId");
   const ctx = await getAppointmentContext(appointmentId);
   if (!ctx) return;
 
-  let template;
-  switch (templateKey) {
-    case "appointment.confirmation":
-      template = renderConfirmationEmail(ctx);
-      break;
-    case "appointment.reminder":
-      template = renderReminderEmail(ctx);
-      break;
-    case "appointment.cancellation":
-      template = renderCancellationEmail(ctx);
-      break;
-    case "appointment.reschedule":
-      template = renderRescheduleEmail(ctx, previousStartTime ?? ctx.startTime);
-      break;
-    case "appointment.staff":
-      template = renderStaffNotificationEmail(ctx, payload.action as string);
-      break;
-    case "appointment.business":
-      template = renderBusinessNotificationEmail(ctx, payload.action as string);
-      break;
-    default:
-      throw new Error(`Unknown email template: ${templateKey}`);
-  }
+  const previousStartTime = payload.previousStartTime as string | undefined;
+  const action = payload.action as string | undefined;
 
   const result = await sendEmail({
-    to: (payload.recipient as string) ?? ctx.customerEmail,
-    subject: template.subject,
-    html: template.html,
-    text: template.text,
+    businessId: ctx.businessId,
+    to: (payload.recipient as string) ?? ctx.customerEmail!,
+    templateKey,
+    context: {
+      ...ctx,
+      previousStartTime,
+      customMessage: action,
+    },
+    customerId: ctx.customerId,
+    appointmentId,
     attachments:
       templateKey === "appointment.confirmation" ||
       templateKey === "appointment.staff" ||
@@ -142,83 +114,74 @@ async function processEmailJob(payload: Record<string, unknown>) {
         ? [
             {
               filename: "appointment.ics",
-              content: Buffer.from(generateSingleEventIcs(ctx)).toString("base64"),
+              content: Buffer.from(
+                generateSingleEventIcs({
+                  appointmentId: ctx.appointmentId!,
+                  businessId: ctx.businessId,
+                  businessName: ctx.businessName,
+                  customerName: ctx.customerName,
+                  customerEmail: ctx.customerEmail ?? "",
+                  customerPhone: ctx.customerPhone ?? null,
+                  staffName: ctx.staffName,
+                  staffEmail: null,
+                  serviceName: ctx.serviceName,
+                  startTime: ctx.startTime,
+                  endTime: ctx.endTime ?? ctx.startTime,
+                  notes: ctx.notes ?? null,
+                  status: "confirmed",
+                }),
+              ).toString("base64"),
               contentType: "text/calendar; charset=utf-8",
             },
           ]
         : undefined,
   });
 
-  await logDelivery(
-    ctx.businessId,
-    "email",
-    (payload.recipient as string) ?? ctx.customerEmail,
-    template.key,
-    result.success ? "sent" : "failed",
-    appointmentId,
-    result.messageId,
-    result.error,
-  );
-
-  if (!result.success) {
+  if (!result.ok && !result.skipped) {
     throw new Error(result.error ?? "Email send failed");
   }
 }
 
 async function processSmsJob(payload: Record<string, unknown>) {
   const templateKey = payload.templateKey as string;
-  const appointmentId = payload.appointmentId as string;
-  const ctx = await getAppointmentContext(appointmentId);
-  if (!ctx || !ctx.customerPhone) {
-    if (ctx) {
-      await logDelivery(ctx.businessId, "sms", "", templateKey, "skipped", appointmentId);
+  const appointmentId = payload.appointmentId as string | undefined;
+
+  if (!appointmentId && payload.directContext) {
+    const ctx = payload.directContext as AppointmentTemplateContext;
+    const to = (payload.recipient as string) || ctx.customerPhone;
+    if (!to) return;
+    const result = await sendSMS({
+      businessId: ctx.businessId,
+      to,
+      templateKey,
+      context: ctx,
+      customerId: ctx.customerId,
+    });
+    if (!result.ok && !result.skipped) {
+      throw new Error(result.error ?? "SMS send failed");
     }
     return;
   }
 
-  let body: string;
-  switch (templateKey) {
-    case "appointment.reminder":
-      body = renderSmsReminder(ctx);
-      break;
-    case "appointment.cancellation":
-      body = renderSmsCancellation(ctx);
-      break;
-    case "appointment.reschedule":
-      body = renderSmsReschedule(ctx);
-      break;
-    default:
-      throw new Error(`Unknown SMS template: ${templateKey}`);
-  }
+  if (!appointmentId) throw new Error("Missing appointmentId");
+  const ctx = await getAppointmentContext(appointmentId);
+  if (!ctx || !ctx.customerPhone) return;
 
-  const result = await sendSms({ to: ctx.customerPhone, body });
-
-  if (result.skipped || result.error === "Twilio is not configured.") {
-    await logDelivery(
-      ctx.businessId,
-      "sms",
-      ctx.customerPhone,
-      templateKey,
-      "skipped",
-      appointmentId,
-      undefined,
-      result.error,
-    );
-    return;
-  }
-
-  await logDelivery(
-    ctx.businessId,
-    "sms",
-    ctx.customerPhone,
+  const result = await sendSMS({
+    businessId: ctx.businessId,
+    to: ctx.customerPhone,
     templateKey,
-    result.success ? "sent" : "failed",
+    context: {
+      ...ctx,
+      previousStartTime: payload.previousStartTime as string | undefined,
+      amountCents: payload.amountCents as number | undefined,
+      customMessage: payload.customMessage as string | undefined,
+    },
+    customerId: ctx.customerId,
     appointmentId,
-    result.messageId,
-    result.error,
-  );
+  });
 
-  if (!result.success) {
+  if (!result.ok && !result.skipped) {
     throw new Error(result.error ?? "SMS send failed");
   }
 }
@@ -272,13 +235,15 @@ export async function processJob(job: BackgroundJob): Promise<void> {
 
 export async function processPendingJobs(limit = 25): Promise<number> {
   const supabase = createServiceClient();
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
 
   const { data: jobs, error } = await supabase
     .from("background_jobs")
     .select("*")
     .eq("status", "pending")
-    .lte("scheduled_at", now)
+    .lte("scheduled_at", nowIso)
+    .or(`next_retry_at.is.null,next_retry_at.lte.${nowIso}`)
     .order("scheduled_at")
     .limit(limit);
 
@@ -292,7 +257,7 @@ export async function processPendingJobs(limit = 25): Promise<number> {
       .from("background_jobs")
       .update({
         status: "processing",
-        started_at: new Date().toISOString(),
+        started_at: nowIso,
         attempts: job.attempts + 1,
       })
       .eq("id", job.id);
@@ -305,18 +270,24 @@ export async function processPendingJobs(limit = 25): Promise<number> {
           status: "completed",
           completed_at: new Date().toISOString(),
           error_message: null,
+          next_retry_at: null,
         })
         .eq("id", job.id);
       processed += 1;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Job failed";
-      const failed = job.attempts + 1 >= job.max_attempts;
+      const attempts = job.attempts + 1;
+      const failed = attempts >= job.max_attempts;
+      const retryAt = new Date(Date.now() + computeBackoffMs(attempts));
+
       await supabase
         .from("background_jobs")
         .update({
           status: failed ? "failed" : "pending",
           error_message: message,
           completed_at: failed ? new Date().toISOString() : null,
+          next_retry_at: failed ? null : retryAt.toISOString(),
+          scheduled_at: failed ? job.scheduled_at : retryAt.toISOString(),
         })
         .eq("id", job.id);
     }

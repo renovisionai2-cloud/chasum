@@ -9,8 +9,22 @@ export type BookingEventHandler = (
 ) => void | Promise<void>;
 
 const handlers = new Set<BookingEventHandler>();
+let communicationsBridgeReady = false;
 
-/** Register a listener (notifications / Chase / realtime will subscribe later). */
+async function ensureCommunicationsBridge() {
+  if (communicationsBridgeReady) return;
+  communicationsBridgeReady = true;
+  try {
+    const { registerCommunicationsBookingBridge } = await import(
+      "@/lib/communications/events/booking-bridge"
+    );
+    registerCommunicationsBookingBridge();
+  } catch (error) {
+    console.error("[booking-engine] communications bridge failed:", error);
+  }
+}
+
+/** Register a listener (Communications / Chase / realtime). */
 export function onBookingEvent(handler: BookingEventHandler): () => void {
   handlers.add(handler);
   return () => {
@@ -21,7 +35,7 @@ export function onBookingEvent(handler: BookingEventHandler): () => void {
 export async function emitBookingEvent(
   event: BookingDomainEvent,
 ): Promise<BookingDomainEvent> {
-  // Infrastructure only — no notification side effects yet.
+  await ensureCommunicationsBridge();
   for (const handler of handlers) {
     try {
       await handler(event);

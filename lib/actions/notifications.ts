@@ -51,6 +51,28 @@ export async function markNotificationRead(id: string): Promise<ActionState> {
   return { success: "Marked as read." };
 }
 
+export async function archiveNotification(id: string): Promise<ActionState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("notifications")
+    .update({ archived_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("business_id", business.id);
+
+  if (error) {
+    return {
+      error: error.message.includes("archived_at")
+        ? "Apply migration 029_communications_platform for archive support."
+        : error.message,
+    };
+  }
+
+  revalidatePath("/dashboard/notifications");
+  return { success: "Archived." };
+}
+
 export async function markAllNotificationsRead(): Promise<ActionState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();

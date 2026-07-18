@@ -230,6 +230,54 @@ export function ChaseOpsWorkspace({
         </p>
       </Section>
 
+      <Section
+        title="Communications"
+        description="Delivery health — Chase monitors, never sends."
+      >
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <Metric
+            label="Sent today"
+            value={String(snapshot.communications.sentToday)}
+          />
+          <Metric
+            label="Failed today"
+            value={String(snapshot.communications.failedToday)}
+          />
+          <Metric
+            label="Delivery success"
+            value={
+              snapshot.communications.deliverySuccessRate != null
+                ? `${snapshot.communications.deliverySuccessRate}%`
+                : "—"
+            }
+          />
+          <Metric
+            label="SMS failures"
+            value={String(snapshot.communications.smsFailures)}
+          />
+          <Metric
+            label="Queued / unsent"
+            value={String(snapshot.communications.unsentQueued)}
+          />
+          <Metric
+            label="Fail rate"
+            value={
+              snapshot.communications.bounceOrFailRate != null
+                ? `${snapshot.communications.bounceOrFailRate}%`
+                : "—"
+            }
+          />
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          <Link
+            href="/dashboard/notifications"
+            className="underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Open Notification Center
+          </Link>
+        </p>
+      </Section>
+
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <Section
           title="Insights"

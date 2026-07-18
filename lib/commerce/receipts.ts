@@ -159,19 +159,77 @@ export async function listReceipts(input: {
   return (data ?? []).map((r) => mapReceipt(r as Record<string, unknown>));
 }
 
-/** Future email hook — queues status only; no send yet. */
+/** Queue receipt email via Communications Platform (never send directly). */
 export async function queueReceiptEmail(
   businessId: string,
   receiptId: string,
 ): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data: receipt, error } = await supabase
     .from("commerce_receipts")
-    .update({ email_status: "queued" })
+    .select("*")
+    .eq("id", receiptId)
+    .eq("business_id", businessId)
+    .maybeSingle();
+
+  if (error || !receipt) {
+    return { ok: false, error: error?.message ?? "Receipt not found." };
+  }
+
+  const { data: customer } = await supabase
+    .from("customers")
+    .select("id, name, email")
+    .eq("id", receipt.customer_id)
+    .maybeSingle();
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name")
+    .eq("id", businessId)
+    .maybeSingle();
+
+  if (!customer?.email) {
+    await supabase
+      .from("commerce_receipts")
+      .update({ email_status: "failed" })
+      .eq("id", receiptId);
+    return { ok: false, error: "Customer has no email on file." };
+  }
+
+  const { queueNotification } = await import("@/lib/communications");
+  const queued = await queueNotification({
+    businessId,
+    channel: "email",
+    templateKey: "commerce.receipt",
+    recipient: customer.email,
+    customerId: customer.id,
+    payload: {
+      directContext: {
+        businessId,
+        businessName: business?.name ?? "Business",
+        customerName: customer.name ?? "Customer",
+        customerEmail: customer.email,
+        customerId: customer.id,
+        staffName: "",
+        serviceName: "Payment",
+        startTime: new Date().toISOString(),
+        amountCents: receipt.amount_cents,
+        receiptNumber: receipt.receipt_number,
+      },
+      skipPreferenceCheck: false,
+    },
+  });
+
+  await supabase
+    .from("commerce_receipts")
+    .update({
+      email_status: queued.ok ? "queued" : "failed",
+    })
     .eq("id", receiptId)
     .eq("business_id", businessId);
-  if (error) {
-    return { ok: false, error: error.message };
+
+  if (!queued.ok) {
+    return { ok: false, error: queued.error };
   }
   return { ok: true };
 }

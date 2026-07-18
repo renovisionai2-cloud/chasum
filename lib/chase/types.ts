@@ -136,4 +136,12 @@ export type ChaseOperationsSnapshot = {
     averageTransactionCents: number | null;
     averageCustomerValueCents: number | null;
   };
+  communications: {
+    sentToday: number;
+    failedToday: number;
+    deliverySuccessRate: number | null;
+    smsFailures: number;
+    unsentQueued: number;
+    bounceOrFailRate: number | null;
+  };
 };

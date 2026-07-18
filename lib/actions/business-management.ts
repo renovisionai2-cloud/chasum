@@ -905,36 +905,61 @@ export async function updateBusinessNotificationSettings(
     Number(formData.get("reminder_hours_before")) || 24,
   );
 
+  const patch: Record<string, unknown> = {
+    email_notifications_enabled: boolFromCheckbox(
+      formData,
+      "email_notifications_enabled",
+    ),
+    sms_notifications_enabled: boolFromCheckbox(
+      formData,
+      "sms_notifications_enabled",
+    ),
+    owner_notifications_enabled: boolFromCheckbox(
+      formData,
+      "owner_notifications_enabled",
+    ),
+    staff_notifications_enabled: boolFromCheckbox(
+      formData,
+      "staff_notifications_enabled",
+    ),
+    reminder_hours_before: reminderHours,
+    notification_email: emptyToNull(formData.get("notification_email")),
+    marketing_email_enabled: boolFromCheckbox(
+      formData,
+      "marketing_email_enabled",
+    ),
+    quiet_hours_start: emptyToNull(formData.get("quiet_hours_start")),
+    quiet_hours_end: emptyToNull(formData.get("quiet_hours_end")),
+    communications_opt_out_footer: emptyToNull(
+      formData.get("communications_opt_out_footer"),
+    ),
+  };
+
   const { error } = await supabase
     .from("businesses")
-    .update({
-      email_notifications_enabled: boolFromCheckbox(
-        formData,
-        "email_notifications_enabled",
-      ),
-      sms_notifications_enabled: boolFromCheckbox(
-        formData,
-        "sms_notifications_enabled",
-      ),
-      owner_notifications_enabled: boolFromCheckbox(
-        formData,
-        "owner_notifications_enabled",
-      ),
-      staff_notifications_enabled: boolFromCheckbox(
-        formData,
-        "staff_notifications_enabled",
-      ),
-      reminder_hours_before: reminderHours,
-      notification_email: emptyToNull(formData.get("notification_email")),
-    })
+    .update(patch)
     .eq("id", business.id);
 
   if (error) {
-    return {
-      error: error.message.includes("owner_notifications")
-        ? "Apply migration 023_business_management_settings for owner/staff notification toggles."
-        : error.message,
-    };
+    // Soft-fallback without new preference columns
+    const { error: err2 } = await supabase
+      .from("businesses")
+      .update({
+        email_notifications_enabled: patch.email_notifications_enabled,
+        sms_notifications_enabled: patch.sms_notifications_enabled,
+        owner_notifications_enabled: patch.owner_notifications_enabled,
+        staff_notifications_enabled: patch.staff_notifications_enabled,
+        reminder_hours_before: reminderHours,
+        notification_email: patch.notification_email,
+      })
+      .eq("id", business.id);
+    if (err2) {
+      return {
+        error: err2.message.includes("owner_notifications")
+          ? "Apply migration 023_business_management_settings for owner/staff notification toggles."
+          : err2.message,
+      };
+    }
   }
 
   revalidateBusiness();

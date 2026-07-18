@@ -99,6 +99,10 @@ export type Business = {
   staff_notifications_enabled?: boolean;
   email_notifications_enabled?: boolean;
   sms_notifications_enabled?: boolean;
+  marketing_email_enabled?: boolean;
+  quiet_hours_start?: string | null;
+  quiet_hours_end?: string | null;
+  communications_opt_out_footer?: string | null;
   reminder_hours_before?: number;
   notification_email?: string | null;
   ai_settings?: Record<string, unknown> | null;

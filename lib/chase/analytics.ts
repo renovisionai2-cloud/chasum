@@ -22,6 +22,7 @@ import type {
 } from "@/lib/chase/types";
 import { getChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
 import { getChaseCommerceMetrics } from "@/lib/commerce";
+import { getChaseCommunicationsMetrics } from "@/lib/communications";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, format, startOfWeek, subDays } from "date-fns";
 
@@ -190,6 +191,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     summer,
     closuresPack,
     commerce,
+    communications,
     { data: bizSettings },
   ] = await Promise.all([
     getMorningBrief(),
@@ -210,6 +212,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     loadSummerActivity(business.id, todayStart, todayEnd),
     loadUpcomingClosures(business.id, todayStart, addDays(todayStart, 21)),
     getChaseCommerceMetrics(business.id),
+    getChaseCommunicationsMetrics(business.id),
     supabase
       .from("businesses")
       .select("ai_settings, name")
@@ -380,5 +383,6 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
         ? Math.round(commerce.outstandingDepositsCents / 100)
         : brief.outstandingPayments,
     commerce,
+    communications,
   };
 }

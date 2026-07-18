@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Milestone 5 / Phase 5.8 — Communications Platform)
+
+- Migration `029_communications_platform.sql` — quiet hours, marketing toggle, notification priority/archive, job backoff, communications audit log
+- `lib/communications/` public API: `sendEmail`, `sendSMS`, `queueNotification`, `cancelNotification`, `retryNotification`, `previewTemplate`
+- Provider abstraction (Resend email, Twilio SMS); templates with Business branding; CRM timeline mirroring
+- Booking Engine event bridge so Summer/staff/API confirmations flow through Communications
+- Notification Center filters (unread/archived/priority/search); Chase delivery metrics; Commerce receipt email queue
+
 ### Added (Milestone 4 / Phase 5.7 — Commerce Platform)
 
 - Migration `028_commerce_platform.sql` — invoices, lines, transactions ledger, receipts, refunds, audit log, appointment payment status, store credit

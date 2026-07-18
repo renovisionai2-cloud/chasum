@@ -29,6 +29,7 @@ Run in order in the Supabase SQL Editor or via `supabase db push`:
 | `026_availability_engine.sql` | Enriched `get_available_slots` / `validate_appointment_slot` — lunch, split shifts, closures, blackouts, cleanup, notice, caps |
 | `027_crm_phase_5_4.sql` | Marketing consent, membership link, note types |
 | `028_commerce_platform.sql` | Client commerce: invoices, ledger, receipts, refunds, audit, appointment payment status |
+| `029_communications_platform.sql` | Quiet hours, marketing prefs, notification priority/archive, job retry backoff, communications audit |
 
 **Current requirement:** every environment must be at migration **026** before relying on the Availability Engine (lunch/closures/blackouts/cleanup enforced in SQL).
 

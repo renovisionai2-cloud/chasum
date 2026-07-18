@@ -39,7 +39,15 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 name="sms_notifications_enabled"
                 defaultChecked={business.sms_notifications_enabled === true}
               />
-              SMS reminders (future)
+              SMS confirmations & reminders
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="marketing_email_enabled"
+                defaultChecked={business.marketing_email_enabled === true}
+              />
+              Marketing email campaigns
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -80,12 +88,49 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 placeholder={business.email ?? "owner@business.com"}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="quiet_hours_start">Quiet hours start</Label>
+              <Input
+                id="quiet_hours_start"
+                name="quiet_hours_start"
+                type="time"
+                defaultValue={
+                  business.quiet_hours_start
+                    ? String(business.quiet_hours_start).slice(0, 5)
+                    : ""
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="quiet_hours_end">Quiet hours end</Label>
+              <Input
+                id="quiet_hours_end"
+                name="quiet_hours_end"
+                type="time"
+                defaultValue={
+                  business.quiet_hours_end
+                    ? String(business.quiet_hours_end).slice(0, 5)
+                    : ""
+                }
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="communications_opt_out_footer">
+                Email footer / opt-out text
+              </Label>
+              <Input
+                id="communications_opt_out_footer"
+                name="communications_opt_out_footer"
+                defaultValue={business.communications_opt_out_footer ?? ""}
+                placeholder="Reply STOP to opt out · Sent by your business"
+              />
+            </div>
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Appointment confirmations and cancellations follow these toggles via
-            the notification orchestrator. SMS delivery remains gated until the
-            SMS provider is enabled.
+            All email and SMS flow through the Communications Platform (Resend /
+            Twilio). Quiet hours defer outbound sends. Customer marketing consent
+            is respected for campaign templates.
           </p>
 
           <AlertMessage error={state.error} success={state.success} />

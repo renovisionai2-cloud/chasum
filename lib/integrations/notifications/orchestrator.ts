@@ -137,8 +137,8 @@ export async function handleAppointmentEvent(
 
   if (settings?.sms_notifications_enabled) {
     const smsMap: Record<AppointmentEvent, string | null> = {
-      created: null,
-      confirmed: null,
+      created: "appointment.confirmation",
+      confirmed: "appointment.confirmation",
       cancelled: "appointment.cancellation",
       rescheduled: "appointment.reschedule",
       updated: null,

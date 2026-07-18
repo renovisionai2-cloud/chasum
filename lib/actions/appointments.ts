@@ -18,7 +18,6 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
-import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchestrator";
 import { enqueueWaitlistNotification } from "@/lib/integrations/automation/waitlist";
 
 function parseAppointmentStart(formData: FormData): Date | null {
@@ -374,10 +373,6 @@ export async function createAppointment(
 
   const action = mutationToAction(result, "Appointment created.");
   if (result.phase === "success" && result.data?.appointmentId) {
-    await handleAppointmentEvent(
-      result.data.appointmentId,
-      status === "confirmed" ? "confirmed" : "created",
-    );
     revalidateCalendar();
   }
   return action;
@@ -435,13 +430,6 @@ export async function updateAppointment(
 
   const action = mutationToAction(result, "Appointment updated.");
   if (result.phase === "success") {
-    const event =
-      status === "cancelled"
-        ? "cancelled"
-        : status === "confirmed"
-          ? "confirmed"
-          : "updated";
-    await handleAppointmentEvent(id, event);
     revalidateCalendar();
   }
   return action;
@@ -458,7 +446,6 @@ export async function cancelAppointment(id: string): Promise<ActionState> {
 
   const action = mutationToAction(result, "Appointment cancelled.");
   if (result.phase === "success") {
-    await handleAppointmentEvent(id, "cancelled");
     await enqueueWaitlistNotification(business.id, id);
     revalidateCalendar();
   }
@@ -471,16 +458,6 @@ export async function rescheduleAppointment(
   options?: { staffId?: string; locationId?: string },
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
-  const supabase = await createClient();
-
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select("start_time")
-    .eq("id", id)
-    .eq("business_id", business.id)
-    .maybeSingle();
-
-  if (!appointment) return { error: "Appointment not found." };
 
   const result = await rescheduleBooking({
     channel: "staff",
@@ -493,9 +470,6 @@ export async function rescheduleAppointment(
 
   const action = mutationToAction(result, "Appointment rescheduled.");
   if (result.phase === "success") {
-    await handleAppointmentEvent(id, "rescheduled", {
-      previousStartTime: appointment.start_time,
-    });
     revalidateCalendar();
   }
   return action;
@@ -537,13 +511,6 @@ export async function setAppointmentStatus(
 
   const action = mutationToAction(result, "Appointment updated.");
   if (result.phase === "success") {
-    const event =
-      status === "cancelled"
-        ? "cancelled"
-        : status === "confirmed"
-          ? "confirmed"
-          : "updated";
-    await handleAppointmentEvent(id, event);
     revalidateCalendar();
   }
   return action;
@@ -565,7 +532,6 @@ export async function resizeAppointment(
 
   const action = mutationToAction(result, "Appointment duration updated.");
   if (result.phase === "success") {
-    await handleAppointmentEvent(id, "updated");
     revalidateCalendar();
   }
   return action;

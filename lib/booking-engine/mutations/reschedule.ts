@@ -104,7 +104,13 @@ export async function rescheduleBooking(
       businessId: intent.businessId,
       appointmentId: intent.appointmentId,
       channel: intent.channel,
-      payload: { beforeState },
+      payload: {
+        beforeState,
+        previousStartTime:
+          typeof beforeState.start_time === "string"
+            ? beforeState.start_time
+            : undefined,
+      },
     }),
   );
 

@@ -18,7 +18,7 @@ export default async function NotificationsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Notifications"
-        description="In-app alerts and delivery logs for email and SMS."
+        description="Communications Platform — inbox, delivery status, and queue health for email and SMS."
       />
       <NotificationsCenter notifications={notifications} />
       {logs.length > 0 && (
