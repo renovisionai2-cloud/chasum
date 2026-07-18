@@ -10,7 +10,7 @@ import type { ReceptionistCitation } from "@/lib/ai-receptionist/types";
  * Production-ready foundation that works without external LLM keys.
  */
 export class GroundedReceptionistProvider implements ReceptionistAiProvider {
-  readonly name = "emma_grounded";
+  readonly name = "summer_grounded";
   readonly ready = true;
 
   async complete(
@@ -35,7 +35,7 @@ export class GroundedReceptionistProvider implements ReceptionistAiProvider {
         provider: this.name,
         escalate: false,
         citations: [],
-        reply: `Hi — I'm Emma, the AI receptionist for ${knowledge.businessName}. I can help with hours, services, team members, locations, availability, and starting a booking. What do you need?`,
+        reply: `Hi — I'm Summer, the AI receptionist for ${knowledge.businessName}. I can help with hours, services, team members, locations, availability, and booking through the Booking Engine. What do you need?`,
       };
     }
 

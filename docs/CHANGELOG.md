@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5.5 — Summer AI Receptionist)
+
+- Summer reception workspace at `/dashboard/ai-workforce/summer` — conversation, suggestions, booking cards, confirmations, conflicts, escalation
+- `lib/summer/` orchestrator + tools: intents for book/reschedule/cancel/CRM lookup; mutations only via `adapters/summer` (Booking Engine); slots only via Availability Engine
+- CRM recognition via `getSummerCrmSnapshot`; business answers from Business / Services / Employees knowledge
+- Command Center + roster prefer Summer (Emma redirects to Summer)
+
 ### Added (Phase 5.4 — Customer Relationship Management)
 
 - Migration `027_crm_phase_5_4.sql` — marketing consent, membership link, note types, document categories

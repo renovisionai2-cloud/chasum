@@ -8,41 +8,66 @@ import type { AiActivityItem, AiEmployee } from "@/lib/ai-workforce/types";
  */
 export const AI_EMPLOYEES: AiEmployee[] = [
   {
-    id: "emma",
-    slug: "emma",
-    name: "Emma",
+    id: "summer",
+    slug: "summer",
+    name: "Summer",
     role: "AI Receptionist",
     shortRole: "Receptionist",
     status: "online",
     tasksCompletedToday: 0,
     summary:
-      "Always-on front desk. Greets clients, answers configured FAQs, and routes people into booking — without inventing answers.",
+      "Digital front desk. Books, reschedules, and cancels through the Booking Engine, answers from live business data, and escalates when a human is needed — never invents times or prices.",
     responsibilities: [
-      "Respond to booking-page inquiries with approved FAQs",
-      "Capture client intent and contact details",
-      "Guide visitors into public booking or waitlist",
-      "Escalate edge cases to your human team",
+      "Book, reschedule, and cancel via Booking Engine",
+      "Preview openings via Availability Engine only",
+      "Answer hours, services, employees, locations, and policies",
+      "Recognize returning guests from CRM",
+      "Escalate when availability, policy, or a human is required",
     ],
     futureCapabilities: [
-      "Multi-channel chat and SMS reception",
-      "Location-aware answers for multi-site businesses",
-      "Soft qualification using your configured rules only",
+      "Multi-channel SMS and voice reception",
+      "Prior conversation memory across visits",
+      "Soft qualification using configured rules only",
     ],
     metrics: [
       {
-        label: "Inquiries handled",
+        label: "Reception workspace",
         value: "Live",
-        hint: "Phase 1 console + Command Center",
+        hint: "/dashboard/ai-workforce/summer",
       },
       {
-        label: "Booking assists",
-        value: "Ready",
-        hint: "Routes to public booking + real slots",
+        label: "Booking channel",
+        value: "summer",
+        hint: "Booking Engine adapter",
       },
       {
         label: "Escalations",
         value: "Ready",
-        hint: "CRM log + Communication follow-ups",
+        hint: "CRM follow-ups + communication log",
+      },
+    ],
+    accent: "primary",
+  },
+  {
+    id: "emma",
+    slug: "emma",
+    name: "Emma",
+    role: "AI Receptionist (legacy)",
+    shortRole: "Receptionist",
+    status: "online",
+    tasksCompletedToday: 0,
+    summary:
+      "Legacy name for Summer. Use the Summer reception workspace for production booking flows.",
+    responsibilities: [
+      "Redirects to Summer reception workspace",
+      "Shares conversation history tables with Summer",
+    ],
+    futureCapabilities: [],
+    metrics: [
+      {
+        label: "Alias",
+        value: "Summer",
+        hint: "Prefer /ai-workforce/summer",
       },
     ],
     accent: "primary",
@@ -203,11 +228,11 @@ export const AI_ACTIVITY_PREVIEW: AiActivityItem[] = [
   },
   {
     id: "act-2",
-    employeeId: "emma",
+    employeeId: "summer",
     kind: "recommendation",
-    title: "Reception FAQ draft available",
+    title: "Summer reception workspace live",
     description:
-      "Emma can answer from your Settings policies once FAQs are published. Review before going live.",
+      "Summer books through the Booking Engine and answers only from configured business data.",
     createdAt: new Date(Date.now() - 45 * 60_000).toISOString(),
     preview: true,
   },

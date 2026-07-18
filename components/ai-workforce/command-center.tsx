@@ -15,7 +15,7 @@ import {
   getAlexAvailabilityRecommendations,
   type AlexSlotRecommendation,
 } from "@/lib/ai-workforce/alex";
-import { sendReceptionistMessage } from "@/lib/actions/ai-receptionist";
+import { sendSummerMessage } from "@/lib/actions/summer";
 import { AI_EMPLOYEES } from "@/lib/ai-workforce/roster";
 import type { AiEmployee } from "@/lib/ai-workforce/types";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
@@ -34,7 +34,7 @@ type ChatMessage = {
 const STARTERS = [
   "What are our business hours?",
   "What open slots does Alex see this week?",
-  "Emma, help me start a booking",
+  "Summer, help me start a booking",
   "Summarize what each AI employee is responsible for.",
 ];
 
@@ -62,7 +62,7 @@ function staticReply(prompt: string): ChatMessage {
   } else if (lower.includes("responsib") || lower.includes("each") || lower.includes("team")) {
     employee = AI_EMPLOYEES.find((e) => e.id === "noah")!;
     content =
-      "Emma greets, Alex schedules, Maya markets (with approval), Leo advises, Sophia cares for clients after booking, and Noah coordinates operations. Each has one clear job.";
+      "Summer greets and books, Alex schedules, Maya markets (with approval), Leo advises, Sophia cares for clients after booking, and Noah coordinates operations. Each has one clear job.";
   }
 
   return {
@@ -75,7 +75,7 @@ function staticReply(prompt: string): ChatMessage {
 
 function wantsAlexAvailability(prompt: string): boolean {
   const lower = prompt.toLowerCase();
-  if (wantsEmmaReception(lower)) return false;
+  if (wantsSummerReception(lower)) return false;
   return (
     lower.includes("alex") ||
     lower.includes("slot") ||
@@ -86,9 +86,10 @@ function wantsAlexAvailability(prompt: string): boolean {
   );
 }
 
-function wantsEmmaReception(prompt: string): boolean {
+function wantsSummerReception(prompt: string): boolean {
   const lower = prompt.toLowerCase();
   return (
+    lower.includes("summer") ||
     lower.includes("emma") ||
     lower.includes("hours") ||
     lower.includes("receptionist") ||
@@ -96,7 +97,9 @@ function wantsEmmaReception(prompt: string): boolean {
     lower.includes("service") ||
     lower.includes("escalate") ||
     lower.includes("speak to staff") ||
-    lower.includes("location")
+    lower.includes("location") ||
+    lower.includes("cancel") ||
+    lower.includes("reschedule")
   );
 }
 
@@ -133,15 +136,15 @@ export function AiCommandCenter() {
 
     startTransition(async () => {
       const alex = AI_EMPLOYEES.find((e) => e.id === "alex")!;
-      const emma = AI_EMPLOYEES.find((e) => e.id === "emma")!;
+      const summer = AI_EMPLOYEES.find((e) => e.id === "summer")!;
       let reply: ChatMessage;
 
-      if (wantsEmmaReception(trimmed)) {
+      if (wantsSummerReception(trimmed)) {
         try {
-          const result = await sendReceptionistMessage({ message: trimmed });
+          const result = await sendSummerMessage({ message: trimmed });
           let content = result.reply;
-          if (result.bookingUrl) {
-            content += `\n\nStart booking: ${result.bookingUrl}`;
+          if (result.bookingOptions.length > 0) {
+            content += `\n\n${result.bookingOptions.length} live openings ready — open Summer’s reception workspace to confirm.`;
           }
           if (result.escalated) {
             content += "\n\nEscalated for staff follow-up.";
@@ -149,16 +152,16 @@ export function AiCommandCenter() {
           reply = {
             id: nextId("a"),
             role: "assistant",
-            employee: emma,
+            employee: summer,
             content,
           };
         } catch {
           reply = {
             id: nextId("a"),
             role: "assistant",
-            employee: emma,
+            employee: summer,
             content:
-              "Emma could not load business knowledge right now. No answers were invented — try again from Emma’s profile.",
+              "Summer could not load business knowledge right now. No answers were invented — try again from Summer’s reception workspace.",
           };
         }
       } else if (wantsAlexAvailability(trimmed)) {
@@ -209,7 +212,7 @@ export function AiCommandCenter() {
         </Link>
         <PageHeader
           title="Command Center"
-          description="Talk to your AI Workforce. Emma uses grounded business data; Alex uses real availability only."
+          description="Talk to your AI Workforce. Summer uses grounded business data and the Booking Engine; Alex uses real availability only."
         />
       </div>
 
@@ -220,7 +223,7 @@ export function AiCommandCenter() {
             <CardDescription>Route by responsibility</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            {AI_EMPLOYEES.map((employee) => (
+            {AI_EMPLOYEES.filter((e) => e.id !== "emma").map((employee) => (
               <Link
                 key={employee.id}
                 href={`/dashboard/ai-workforce/${employee.slug}`}
@@ -249,7 +252,7 @@ export function AiCommandCenter() {
               <div>
                 <CardTitle className="text-base">Conversation</CardTitle>
                 <CardDescription>
-                  Emma · grounded desk · Alex · live slots
+                  Summer · receptionist · Alex · live slots
                 </CardDescription>
               </div>
             </div>

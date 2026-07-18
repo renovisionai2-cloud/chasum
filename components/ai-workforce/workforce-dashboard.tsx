@@ -18,10 +18,11 @@ import { Bot, MessageSquare, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 
 export function AiWorkforceDashboard() {
-  const onlineCount = AI_EMPLOYEES.filter(
+  const employees = AI_EMPLOYEES.filter((e) => e.id !== "emma");
+  const onlineCount = employees.filter(
     (e) => e.status === "online" || e.status === "working",
   ).length;
-  const tasksToday = AI_EMPLOYEES.reduce(
+  const tasksToday = employees.reduce(
     (sum, e) => sum + e.tasksCompletedToday,
     0,
   );
@@ -32,6 +33,12 @@ export function AiWorkforceDashboard() {
         title="AI Workforce"
         description="Manage your AI employees — assistance first, automation when you are ready. Owners stay in control."
       >
+        <Link href="/dashboard/ai-workforce/summer">
+          <Button variant="outline">
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            Open Summer
+          </Button>
+        </Link>
         <Link href="/dashboard/ai-workforce/command">
           <Button>
             <MessageSquare className="h-4 w-4" aria-hidden="true" />
@@ -44,9 +51,10 @@ export function AiWorkforceDashboard() {
         <p className="flex items-start gap-2">
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-spark" aria-hidden="true" />
           <span>
-            <strong className="font-medium">Preview mode.</strong> Layout and
-            navigation are production-ready. Live intelligence connects later —
-            AI will never invent availability, prices, or client data.
+            <strong className="font-medium">Summer is live.</strong> Book,
+            reschedule, and cancel through the Booking Engine. Other AI
+            employees assist as the workforce expands — never inventing
+            availability or prices.
           </span>
         </p>
       </div>
@@ -54,7 +62,7 @@ export function AiWorkforceDashboard() {
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           title="AI employees"
-          value={String(AI_EMPLOYEES.length)}
+          value={String(employees.length)}
           description="Named roles with clear responsibilities"
           icon={Users}
           accent="spark"
@@ -86,7 +94,7 @@ export function AiWorkforceDashboard() {
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {AI_EMPLOYEES.map((employee) => (
+          {employees.map((employee) => (
             <AiEmployeeCard key={employee.id} employee={employee} />
           ))}
         </div>

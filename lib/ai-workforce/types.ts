@@ -1,6 +1,7 @@
 export type AiEmployeeStatus = "online" | "working" | "idle";
 
 export type AiEmployeeId =
+  | "summer"
   | "emma"
   | "alex"
   | "maya"

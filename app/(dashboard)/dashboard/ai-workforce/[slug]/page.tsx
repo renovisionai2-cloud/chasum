@@ -1,10 +1,10 @@
 import { AlexAvailabilityPanel } from "@/components/ai-workforce/alex-availability-panel";
 import { AiEmployeeDetail } from "@/components/ai-workforce/employee-detail";
-import { EmmaReceptionistServerPanel } from "@/components/ai-workforce/emma-receptionist-server-panel";
+import { SummerReceptionServerPanel } from "@/components/summer/summer-reception-server";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getAiEmployee } from "@/lib/ai-workforce/roster";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 type PageProps = {
@@ -15,6 +15,9 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === "emma") {
+    return { title: "Summer · AI Receptionist" };
+  }
   const employee = getAiEmployee(slug);
   if (!employee) return { title: "AI Employee" };
   return { title: `${employee.name} · AI Workforce` };
@@ -23,6 +26,11 @@ export async function generateMetadata({
 export default async function AiEmployeePage({ params }: PageProps) {
   await getOrCreateBusiness();
   const { slug } = await params;
+
+  if (slug === "emma") {
+    redirect("/dashboard/ai-workforce/summer");
+  }
+
   const employee = getAiEmployee(slug);
   if (!employee) notFound();
 
@@ -39,16 +47,14 @@ export default async function AiEmployeePage({ params }: PageProps) {
       </Suspense>
     ) : null;
 
-  const emmaPanel =
-    employee.id === "emma" ? (
+  const summerPanel =
+    employee.id === "summer" ? (
       <Suspense
         fallback={
-          <p className="text-sm text-muted-foreground">
-            Loading Emma receptionist…
-          </p>
+          <p className="text-sm text-muted-foreground">Starting Summer…</p>
         }
       >
-        <EmmaReceptionistServerPanel />
+        <SummerReceptionServerPanel />
       </Suspense>
     ) : null;
 
@@ -56,7 +62,7 @@ export default async function AiEmployeePage({ params }: PageProps) {
     <AiEmployeeDetail
       employee={employee}
       liveAvailability={alexPanel}
-      liveReceptionist={emmaPanel}
+      liveReceptionist={summerPanel}
     />
   );
 }

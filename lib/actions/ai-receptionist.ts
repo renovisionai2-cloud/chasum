@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 function revalidateReceptionist() {
   revalidatePath("/dashboard/ai-workforce");
   revalidatePath("/dashboard/ai-workforce/emma");
+  revalidatePath("/dashboard/ai-workforce/summer");
   revalidatePath("/dashboard/ai-workforce/command");
   revalidatePath("/dashboard/clients");
   revalidatePath("/dashboard/reports");
