@@ -49,6 +49,11 @@ function parseCustomerPayload(formData: FormData) {
   let crmStatus = (formData.get("crm_status") as string)?.trim() || "active";
   if (isVip && crmStatus === "active") crmStatus = "vip";
 
+  const marketingConsent =
+    formData.get("marketing_consent") === "on" ||
+    formData.get("marketing_consent") === "true";
+  const membershipId = (formData.get("membership_id") as string)?.trim() || null;
+
   return {
     name,
     first_name: firstName,
@@ -72,9 +77,12 @@ function parseCustomerPayload(formData: FormData) {
     assigned_staff_id: (formData.get("assigned_staff_id") as string)?.trim() || null,
     preferred_location_id:
       (formData.get("preferred_location_id") as string)?.trim() || null,
+    membership_id: membershipId,
     is_vip: isVip,
     anniversary_date: (formData.get("anniversary_date") as string)?.trim() || null,
     loyalty_status: (formData.get("loyalty_status") as string)?.trim() || "standard",
+    marketing_consent: marketingConsent,
+    marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
     referral_source: (formData.get("referral_source") as string)?.trim() || null,
     notes: (formData.get("notes") as string)?.trim() || null,
     tags,
@@ -155,6 +163,39 @@ export async function createCrmCustomer(
     if (error.code === "23505") {
       return { error: "A customer with this email already exists." };
     }
+    if (
+      error.message.includes("marketing_consent") ||
+      error.message.includes("membership_id")
+    ) {
+      const {
+        marketing_consent: _mc,
+        marketing_consent_at: _mca,
+        membership_id: _mid,
+        ...legacyPayload
+      } = payload;
+      void _mc;
+      void _mca;
+      void _mid;
+      const retry = await supabase
+        .from("customers")
+        .insert({
+          business_id: business.id,
+          ...legacyPayload,
+        })
+        .select("id")
+        .single();
+      if (retry.error) {
+        if (retry.error.code === "23505") {
+          return { error: "A customer with this email already exists." };
+        }
+      } else {
+        revalidateCrm(retry.data.id);
+        return {
+          success:
+            "Customer added. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
+        };
+      }
+    }
     // Pre-migration soft fallback
     if (error.message.includes("crm_status") || error.message.includes("first_name")) {
       const legacy = await supabase.from("customers").insert({
@@ -198,9 +239,36 @@ export async function updateCrmCustomer(
     .eq("business_id", business.id);
 
   if (error) {
+    if (
+      error.message.includes("marketing_consent") ||
+      error.message.includes("membership_id")
+    ) {
+      const {
+        marketing_consent: _mc,
+        marketing_consent_at: _mca,
+        membership_id: _mid,
+        ...legacyPayload
+      } = payload;
+      void _mc;
+      void _mca;
+      void _mid;
+      const retry = await supabase
+        .from("customers")
+        .update(legacyPayload)
+        .eq("id", id)
+        .eq("business_id", business.id);
+      if (!retry.error) {
+        revalidateCrm(id);
+        return {
+          success:
+            "Customer profile saved. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
+        };
+      }
+    }
     return {
       error:
-        error.message.includes("crm_status") || error.message.includes("first_name")
+        error.message.includes("crm_status") ||
+        error.message.includes("first_name")
           ? "Could not save CRM profile. Apply migration 018_crm_department if needed."
           : error.message,
     };
@@ -220,16 +288,40 @@ export async function addCrmNoteAction(
   if (!customerId || !body) return { error: "Note cannot be empty." };
 
   const supabase = await createClient();
+  const noteTypeRaw = String(formData.get("note_type") ?? "general").trim();
+  const noteType =
+    noteTypeRaw === "warning" ||
+    noteTypeRaw === "medical" ||
+    noteTypeRaw === "service"
+      ? noteTypeRaw
+      : "general";
+
   const { error } = await supabase.from("customer_notes").insert({
     business_id: business.id,
     customer_id: customerId,
     body,
+    note_type: noteType,
     is_pinned: formData.get("is_pinned") === "on",
     is_private: formData.get("is_private") === "on",
     created_by: await currentUserId(),
   });
 
   if (error) {
+    if (error.message.includes("note_type")) {
+      const retry = await supabase.from("customer_notes").insert({
+        business_id: business.id,
+        customer_id: customerId,
+        body,
+        is_pinned: formData.get("is_pinned") === "on",
+        is_private: formData.get("is_private") === "on",
+        created_by: await currentUserId(),
+      });
+      if (!retry.error) {
+        await touchCustomerActivity(business.id, customerId);
+        revalidateCrm(customerId);
+        return { success: "Note saved." };
+      }
+    }
     return {
       error:
         error.message.includes("customer_notes")
@@ -314,6 +406,27 @@ export async function sparkCrmQueryAction(input: {
     customerId: input.customerId,
     prompt: input.prompt,
   });
+}
+
+/** Fetch a single appointment with relations for CRM reschedule/cancel. */
+export async function getCrmAppointmentForBooking(
+  appointmentId: string,
+): Promise<import("@/lib/types/booking").AppointmentWithRelations | null> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("appointments")
+    .select(
+      `*, service:services(id, name, color, duration_minutes, buffer_before_minutes, buffer_after_minutes),
+       staff:staff(id, name, color, photo_url),
+       customer:customers(id, name, email, phone),
+       location:locations(id, name)`,
+    )
+    .eq("id", appointmentId)
+    .eq("business_id", business.id)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as import("@/lib/types/booking").AppointmentWithRelations;
 }
 
 export { displayCustomerName };

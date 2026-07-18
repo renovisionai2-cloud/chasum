@@ -1,8 +1,10 @@
 "use client";
 
+import { BookingSheet } from "@/components/booking-sheet";
 import { CommunicationCenter } from "@/components/communication/communication-center";
 import { CustomerInsightsPanel } from "@/components/crm/customer-insights";
 import { CustomerNotesPanel } from "@/components/crm/customer-notes-panel";
+import { CustomerQuickActions } from "@/components/crm/customer-quick-actions";
 import { CustomerTimeline } from "@/components/crm/customer-timeline";
 import { CustomerDocumentsPanel } from "@/components/customers/customer-documents-panel";
 import { Button } from "@/components/ui/button";
@@ -15,11 +17,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { cancelAppointment } from "@/lib/actions/appointments";
 import {
+  getCrmAppointmentForBooking,
   recordCrmPaymentAction,
   sparkCrmQueryAction,
   updateCrmCustomer,
 } from "@/lib/actions/crm";
+import type { Membership } from "@/lib/business/types";
+import { chaseHintsFromInsights } from "@/lib/crm/chase-hints";
 import { displayCustomerName } from "@/lib/crm/display";
 import {
   COMM_METHOD_LABELS,
@@ -28,8 +34,16 @@ import {
   type CrmProfile,
 } from "@/lib/crm/types";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
-import type { ActionState, Location, Staff } from "@/lib/types/booking";
-import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import type {
+  ActionState,
+  AppointmentWithRelations,
+  Customer,
+  Location,
+  Service,
+  StaffWithServices,
+} from "@/lib/types/booking";
+import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
 import { Calendar, Sparkles } from "lucide-react";
 import Image from "next/image";
@@ -55,7 +69,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "notes", label: "Notes" },
   { key: "insights", label: "Insights" },
   { key: "marketing", label: "Marketing" },
-  { key: "spark", label: "Spark AI" },
+  { key: "spark", label: "Summer / Chase" },
 ];
 
 function AppointmentList({
@@ -108,11 +122,17 @@ export function CustomerProfileView({
   profile,
   staff,
   locations,
+  services,
+  customers,
+  memberships,
   mapsAddress,
 }: {
   profile: CrmProfile;
-  staff: Staff[];
+  staff: StaffWithServices[];
   locations: Location[];
+  services: Service[];
+  customers: Customer[];
+  memberships: Membership[];
   mapsAddress?: string | null;
 }) {
   const { customer } = profile;
@@ -126,16 +146,60 @@ export function CustomerProfileView({
     {} as ActionState,
   );
   const [sparkPending, startSpark] = useTransition();
+  const [actionBusy, startAction] = useTransition();
   const [sparkResult, setSparkResult] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetAppointment, setSheetAppointment] =
+    useState<AppointmentWithRelations | null>(null);
   const refresh = useRefresh();
+  const { toast } = useToast();
   useFormAction(state, () => refresh());
   useFormAction(payState, () => refresh());
 
   const displayName = displayCustomerName(customer);
+  const nextUpcoming = profile.appointments.upcoming[0] ?? null;
+  const chaseHints = chaseHintsFromInsights(profile.insights);
+
+  function openBook() {
+    setSheetAppointment(null);
+    setSheetOpen(true);
+  }
+
+  function openReschedule() {
+    if (!nextUpcoming) return;
+    startAction(async () => {
+      const full = await getCrmAppointmentForBooking(nextUpcoming.id);
+      if (!full) {
+        toast("Could not load appointment for reschedule.", "error");
+        return;
+      }
+      setSheetAppointment(full);
+      setSheetOpen(true);
+    });
+  }
+
+  function cancelNext() {
+    if (!nextUpcoming) return;
+    startAction(async () => {
+      if (
+        !(await confirmDelete(
+          `Cancel ${nextUpcoming.service?.name ?? "upcoming appointment"}?`,
+        ))
+      ) {
+        return;
+      }
+      const result = await cancelAppointment(nextUpcoming.id);
+      if (result.error) toast(result.error, "error");
+      else {
+        toast(result.success ?? "Appointment cancelled.", "success");
+        refresh();
+      }
+    });
+  }
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="print:shadow-none">
         <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
           <div className="relative mx-auto h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted sm:mx-0">
             {customer.photo_url ? (
@@ -166,12 +230,18 @@ export function CustomerProfileView({
               {customer.phone ? ` · ${customer.phone}` : ""}
             </p>
             <p className="text-xs text-muted-foreground">
-              {CRM_STATUS_LABELS[(customer.crm_status as keyof typeof CRM_STATUS_LABELS) ?? "active"] ??
-                "Active"}
+              {CRM_STATUS_LABELS[
+                (customer.crm_status as keyof typeof CRM_STATUS_LABELS) ??
+                  "active"
+              ] ?? "Active"}
               {profile.assignedStaff?.name
-                ? ` · Assigned: ${profile.assignedStaff.name}`
+                ? ` · Preferred: ${profile.assignedStaff.name}`
+                : ""}
+              {profile.membership?.name
+                ? ` · ${profile.membership.name}`
                 : ""}
               {customer.is_vip ? " · VIP" : ""}
+              {customer.marketing_consent ? " · Marketing OK" : ""}
             </p>
             {(customer.tags?.length ?? 0) > 0 ? (
               <div className="flex flex-wrap justify-center gap-1 pt-1 sm:justify-start">
@@ -180,17 +250,51 @@ export function CustomerProfileView({
                 ))}
               </div>
             ) : null}
+            <div className="pt-2">
+              <CustomerQuickActions
+                hasUpcoming={Boolean(nextUpcoming)}
+                busy={actionBusy}
+                onBook={openBook}
+                onReschedule={openReschedule}
+                onCancel={cancelNext}
+                onCollectPayment={() => setTab("insights")}
+                onMessage={() => setTab("communication")}
+                onEmail={() => {
+                  if (customer.email) {
+                    window.location.href = `mailto:${customer.email}`;
+                  } else {
+                    setTab("communication");
+                  }
+                }}
+                onPrint={() => window.print()}
+                onOpenTimeline={() => setTab("timeline")}
+                onAskSummer={() => setTab("spark")}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="-mx-1 flex gap-1 overflow-x-auto pb-1">
+      {chaseHints.length > 0 ? (
+        <div className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-4 py-3 print:hidden">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Chase
+          </p>
+          <ul className="space-y-1 text-sm text-muted-foreground">
+            {chaseHints.map((hint) => (
+              <li key={hint}>{hint}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <div className="-mx-1 flex gap-1 overflow-x-auto pb-1 print:hidden">
         {TABS.map((item) => (
           <button
             key={item.key}
             type="button"
             onClick={() => setTab(item.key)}
-            className={`shrink-0 rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors ${
+            className={`shrink-0 rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               tab === item.key
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -222,7 +326,7 @@ export function CustomerProfileView({
               <AppointmentList
                 items={profile.appointments.upcoming}
                 emptyTitle="No upcoming appointments"
-                emptyDescription="Book the next visit from Reception."
+                emptyDescription="Book the next visit with Quick Actions."
               />
             </CardContent>
           </Card>
@@ -264,14 +368,10 @@ export function CustomerProfileView({
           </Card>
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Recurring</CardTitle>
+              <CardTitle>Booking history</CardTitle>
             </CardHeader>
             <CardContent>
-              <AppointmentList
-                items={profile.appointments.recurring}
-                emptyTitle="No recurring appointments"
-                emptyDescription="Recurring series linked to this customer appear here."
-              />
+              <CustomerInsightsPanel insights={profile.insights} />
             </CardContent>
           </Card>
         </div>
@@ -332,7 +432,7 @@ export function CustomerProfileView({
               action={payAction}
               className="space-y-3 rounded-[var(--radius-md)] border border-dashed border-border p-4"
             >
-              <p className="ds-label">Record payment (timeline)</p>
+              <p className="ds-label">Collect payment</p>
               <input type="hidden" name="customer_id" value={customer.id} />
               <div className="grid gap-3 sm:grid-cols-3">
                 <Input name="amount" placeholder="Amount" required />
@@ -352,22 +452,22 @@ export function CustomerProfileView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" /> Spark AI
+              <Sparkles className="h-4 w-4" /> Summer & Chase
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Architecture is ready for Spark. These prompts will summarize
-              relationships, find inactive customers, top spenders, and birthday
-              campaigns once AI Workforce is connected.
+              Summer reads CRM history and preferences (never writes). Chase
+              surfaces retention and follow-up signals. Booking changes still go
+              through the Booking Engine.
             </p>
             <div className="flex flex-wrap gap-2">
               {(
                 [
-                  ["summarize_customer", "Summarize this customer"],
-                  ["inactive_customers", "Inactive 6+ months"],
-                  ["top_spenders", "Who spends the most?"],
-                  ["birthday_promotions", "Birthday promotions"],
+                  ["summarize_customer", "Summarize for Summer"],
+                  ["inactive_customers", "Chase · Inactive"],
+                  ["top_spenders", "Chase · High value"],
+                  ["birthday_promotions", "Chase · Birthday"],
                 ] as const
               ).map(([kind, label]) => (
                 <Button
@@ -463,7 +563,7 @@ export function CustomerProfileView({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="date_of_birth">Date of birth</Label>
+                      <Label htmlFor="date_of_birth">Birthday</Label>
                       <Input
                         id="date_of_birth"
                         name="date_of_birth"
@@ -490,11 +590,13 @@ export function CustomerProfileView({
                           customer.preferred_communication_method ?? "any"
                         }
                       >
-                        {Object.entries(COMM_METHOD_LABELS).map(([key, label]) => (
-                          <option key={key} value={key}>
-                            {label}
-                          </option>
-                        ))}
+                        {Object.entries(COMM_METHOD_LABELS).map(
+                          ([key, label]) => (
+                            <option key={key} value={key}>
+                              {label}
+                            </option>
+                          ),
+                        )}
                       </Select>
                     </div>
                     <div className="space-y-2 sm:col-span-2">
@@ -538,15 +640,19 @@ export function CustomerProfileView({
                         name="crm_status"
                         defaultValue={customer.crm_status ?? "active"}
                       >
-                        {Object.entries(CRM_STATUS_LABELS).map(([key, label]) => (
-                          <option key={key} value={key}>
-                            {label}
-                          </option>
-                        ))}
+                        {Object.entries(CRM_STATUS_LABELS).map(
+                          ([key, label]) => (
+                            <option key={key} value={key}>
+                              {label}
+                            </option>
+                          ),
+                        )}
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="assigned_staff_id">Assigned employee</Label>
+                      <Label htmlFor="assigned_staff_id">
+                        Preferred employee
+                      </Label>
                       <Select
                         id="assigned_staff_id"
                         name="assigned_staff_id"
@@ -561,7 +667,9 @@ export function CustomerProfileView({
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="preferred_location_id">Location</Label>
+                      <Label htmlFor="preferred_location_id">
+                        Preferred location
+                      </Label>
                       <Select
                         id="preferred_location_id"
                         name="preferred_location_id"
@@ -575,8 +683,42 @@ export function CustomerProfileView({
                         ))}
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="membership_id">Membership</Label>
+                      <Select
+                        id="membership_id"
+                        name="membership_id"
+                        defaultValue={customer.membership_id ?? ""}
+                      >
+                        <option value="">None</option>
+                        {memberships.map((plan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.name}
+                          </option>
+                        ))}
+                      </Select>
+                    </div>
                   </div>
-                  <input type="hidden" name="is_vip" value={customer.is_vip ? "true" : "false"} />
+                  <input
+                    type="hidden"
+                    name="is_vip"
+                    value={customer.is_vip ? "true" : "false"}
+                  />
+                  <input
+                    type="hidden"
+                    name="marketing_consent"
+                    value={customer.marketing_consent ? "true" : "false"}
+                  />
+                  <input
+                    type="hidden"
+                    name="tags"
+                    value={(customer.tags ?? []).join(", ")}
+                  />
+                  <input
+                    type="hidden"
+                    name="loyalty_status"
+                    value={customer.loyalty_status ?? "standard"}
+                  />
                   <div className="space-y-2">
                     <Label htmlFor="notes">Profile notes</Label>
                     <Textarea
@@ -614,9 +756,26 @@ export function CustomerProfileView({
                         name="loyalty_status"
                         defaultValue={customer.loyalty_status ?? "standard"}
                       >
-                        {Object.entries(LOYALTY_STATUS_LABELS).map(([key, label]) => (
-                          <option key={key} value={key}>
-                            {label}
+                        {Object.entries(LOYALTY_STATUS_LABELS).map(
+                          ([key, label]) => (
+                            <option key={key} value={key}>
+                              {label}
+                            </option>
+                          ),
+                        )}
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="membership_id_mkt">Membership</Label>
+                      <Select
+                        id="membership_id_mkt"
+                        name="membership_id"
+                        defaultValue={customer.membership_id ?? ""}
+                      >
+                        <option value="">None</option>
+                        {memberships.map((plan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.name}
                           </option>
                         ))}
                       </Select>
@@ -647,22 +806,75 @@ export function CustomerProfileView({
                       />
                       VIP customer
                     </label>
+                    <label className="flex items-center gap-2 self-end pb-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="marketing_consent"
+                        defaultChecked={Boolean(customer.marketing_consent)}
+                      />
+                      Marketing consent
+                    </label>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Marketing fields are campaign-ready for Spark birthday and loyalty outreach.
+                    Marketing consent gates promotional email/SMS. Summer reads
+                    preferences; Chase ranks retention opportunities.
                   </p>
-                  <input type="hidden" name="first_name" value={customer.first_name ?? ""} />
-                  <input type="hidden" name="last_name" value={customer.last_name ?? ""} />
-                  <input type="hidden" name="preferred_name" value={customer.preferred_name ?? ""} />
+                  <input
+                    type="hidden"
+                    name="first_name"
+                    value={customer.first_name ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="last_name"
+                    value={customer.last_name ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="preferred_name"
+                    value={customer.preferred_name ?? ""}
+                  />
                   <input type="hidden" name="email" value={customer.email} />
-                  <input type="hidden" name="phone" value={customer.phone ?? ""} />
-                  <input type="hidden" name="address" value={customer.address ?? ""} />
-                  <input type="hidden" name="photo_url" value={customer.photo_url ?? ""} />
-                  <input type="hidden" name="crm_status" value={customer.crm_status ?? "active"} />
-                  <input type="hidden" name="assigned_staff_id" value={customer.assigned_staff_id ?? ""} />
-                  <input type="hidden" name="preferred_location_id" value={customer.preferred_location_id ?? ""} />
-                  <input type="hidden" name="preferred_communication_method" value={customer.preferred_communication_method ?? "any"} />
-                  <input type="hidden" name="notes" value={customer.notes ?? ""} />
+                  <input
+                    type="hidden"
+                    name="phone"
+                    value={customer.phone ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="address"
+                    value={customer.address ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="photo_url"
+                    value={customer.photo_url ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="crm_status"
+                    value={customer.crm_status ?? "active"}
+                  />
+                  <input
+                    type="hidden"
+                    name="assigned_staff_id"
+                    value={customer.assigned_staff_id ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="preferred_location_id"
+                    value={customer.preferred_location_id ?? ""}
+                  />
+                  <input
+                    type="hidden"
+                    name="preferred_communication_method"
+                    value={customer.preferred_communication_method ?? "any"}
+                  />
+                  <input
+                    type="hidden"
+                    name="notes"
+                    value={customer.notes ?? ""}
+                  />
                 </>
               )}
 
@@ -672,6 +884,31 @@ export function CustomerProfileView({
           </CardContent>
         </Card>
       )}
+
+      <BookingSheet
+        key={
+          sheetAppointment?.id ??
+          `crm-new-${customer.id}-${sheetOpen ? "open" : "closed"}`
+        }
+        open={sheetOpen}
+        onClose={() => {
+          setSheetOpen(false);
+          setSheetAppointment(null);
+        }}
+        appointment={sheetAppointment}
+        services={services}
+        staff={staff}
+        customers={customers}
+        locations={locations}
+        defaultCustomerId={customer.id}
+        defaultStaffId={customer.assigned_staff_id ?? undefined}
+        channel="staff"
+        onSuccess={() => {
+          setSheetOpen(false);
+          setSheetAppointment(null);
+          refresh();
+        }}
+      />
     </div>
   );
 }

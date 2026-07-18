@@ -52,11 +52,10 @@ export async function searchCommandPalette(
     await Promise.all([
       supabase
         .from("customers")
-        .select("id, name, email, phone")
+        .select("id, name, preferred_name, email, phone, tags")
         .eq("business_id", business.id)
-        .or(`name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`)
-        .order("name")
-        .limit(8),
+        .order("last_activity_at", { ascending: false, nullsFirst: false })
+        .limit(80),
       (() => {
         let staffQuery = supabase
           .from("staff")
@@ -99,11 +98,34 @@ export async function searchCommandPalette(
       })(),
     ]);
 
-  for (const c of customersRes.data ?? []) {
+  const needle = q.toLowerCase();
+  const digits = q.replace(/\D/g, "");
+  const customerMatches = (customersRes.data ?? [])
+    .filter((c) => {
+      const hay = [
+        c.name,
+        c.preferred_name,
+        c.email,
+        c.phone,
+        ...((c.tags as string[] | null) ?? []),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (hay.includes(needle)) return true;
+      const phoneDigits = String(c.phone ?? "").replace(/\D/g, "");
+      if (digits.length >= 3 && phoneDigits.includes(digits)) return true;
+      return ((c.tags as string[] | null) ?? []).some((t) =>
+        t.toLowerCase().includes(needle),
+      );
+    })
+    .slice(0, 8);
+
+  for (const c of customerMatches) {
     results.push({
       id: `customer-${c.id}`,
       category: "customers",
-      title: c.name,
+      title: (c.preferred_name as string | null)?.trim() || c.name,
       subtitle: [c.email, c.phone].filter(Boolean).join(" · "),
       href: `/dashboard/clients/${c.id}`,
     });
@@ -129,7 +151,6 @@ export async function searchCommandPalette(
     });
   }
 
-  const needle = q.toLowerCase();
   for (const a of appointmentsRes.data ?? []) {
     const customerName =
       (a.customer as { name?: string } | null)?.name?.toLowerCase() ?? "";

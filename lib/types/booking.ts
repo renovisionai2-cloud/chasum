@@ -384,10 +384,23 @@ export type Customer = {
   is_vip?: boolean;
   anniversary_date?: string | null;
   loyalty_status?: string;
+  marketing_consent?: boolean;
+  marketing_consent_at?: string | null;
+  membership_id?: string | null;
   last_activity_at?: string | null;
   created_at: string;
   updated_at: string;
 };
+
+export type CustomerDocumentCategory =
+  | "general"
+  | "waiver"
+  | "consent"
+  | "intake"
+  | "photo"
+  | "id"
+  | "insurance"
+  | "other";
 
 export type CustomerDocument = {
   id: string;
@@ -396,6 +409,9 @@ export type CustomerDocument = {
   name: string;
   file_url: string;
   file_type: string | null;
+  category?: CustomerDocumentCategory | string | null;
+  signature_status?: string | null;
+  signed_at?: string | null;
   created_at: string;
 };
 

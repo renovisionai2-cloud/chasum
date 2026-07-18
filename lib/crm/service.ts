@@ -14,11 +14,20 @@ import { displayCustomerName } from "@/lib/crm/display";
 export { displayCustomerName };
 
 function mapNote(row: Record<string, unknown>): CrmCustomerNote {
+  const rawType = String(row.note_type ?? "general");
+  const noteType =
+    rawType === "warning" ||
+    rawType === "medical" ||
+    rawType === "service" ||
+    rawType === "general"
+      ? rawType
+      : "general";
   return {
     id: String(row.id),
     businessId: String(row.business_id),
     customerId: String(row.customer_id),
     body: String(row.body),
+    noteType,
     isPinned: Boolean(row.is_pinned),
     isPrivate: Boolean(row.is_private),
     createdBy: (row.created_by as string) ?? null,
@@ -184,12 +193,25 @@ function buildTimeline(input: {
   }
 
   for (const note of input.notes) {
+    const typeLabel =
+      note.noteType === "warning"
+        ? "Warning"
+        : note.noteType === "medical"
+          ? "Medical note"
+          : note.noteType === "service"
+            ? "Service note"
+            : note.isPinned
+              ? "Pinned note"
+              : note.isPrivate
+                ? "Private note"
+                : "Note";
     items.push({
       id: `note-${note.id}`,
       type: "note",
-      title: note.isPinned ? "Pinned note" : note.isPrivate ? "Private note" : "Note",
+      title: typeLabel,
       body: note.body,
       occurredAt: note.createdAt,
+      meta: { noteType: note.noteType, pinned: note.isPinned, private: note.isPrivate },
     });
   }
 
@@ -307,6 +329,16 @@ export async function loadCrmProfile(
     if (location) preferredLocation = location as { id: string; name: string };
   }
 
+  let membership: { id: string; name: string } | null = null;
+  if (customer.membership_id) {
+    const { data: plan } = await supabase
+      .from("memberships")
+      .select("id, name")
+      .eq("id", customer.membership_id)
+      .maybeSingle();
+    if (plan) membership = plan as { id: string; name: string };
+  }
+
   const insights = buildInsights(appointments);
   const timeline = buildTimeline({
     appointments,
@@ -320,6 +352,7 @@ export async function loadCrmProfile(
     customer: customer as CrmProfile["customer"],
     assignedStaff,
     preferredLocation,
+    membership,
     documents: documents ?? [],
     notes,
     payments,

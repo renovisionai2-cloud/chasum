@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Phase 5.4 — Customer Relationship Management)
+
+- Migration `027_crm_phase_5_4.sql` — marketing consent, membership link, note types, document categories
+- CRM quick actions on customer profile (Book / Reschedule / Cancel / Collect / Message / Email / Print / Timeline / Ask Summer) wired to Booking Sheet
+- Chase directory analytics (overdue follow-up, high-value, inactive, retention) + Summer/Chase read-only CRM projections
+- Note types (general / warning / medical / service), document categories, marketing consent + membership on profiles
+- Faster ⌘K / directory customer search (preferred name, tags, phone digit matching)
+
 ### Added (Phase 5.3 — Unified Booking Sheet)
 
 - Right-drawer / mobile bottom-sheet Booking Sheet: Customer, Appointment, Availability, Payments, Timeline, Summer assistant, quick actions

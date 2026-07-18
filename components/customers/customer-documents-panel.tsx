@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import {
   addCustomerDocument,
   deleteCustomerDocument,
@@ -14,6 +15,17 @@ import { useToast } from "@/providers/toast-provider";
 import { confirmDelete } from "@/hooks/use-form-action";
 import { ExternalLink, FileText, Trash2, Upload } from "lucide-react";
 import { useActionState } from "react";
+
+const CATEGORIES = [
+  { value: "general", label: "General" },
+  { value: "waiver", label: "Waiver" },
+  { value: "consent", label: "Consent form" },
+  { value: "intake", label: "Intake" },
+  { value: "photo", label: "Photo" },
+  { value: "id", label: "ID" },
+  { value: "insurance", label: "Insurance" },
+  { value: "other", label: "Other" },
+] as const;
 
 export function CustomerDocumentsPanel({
   customerId,
@@ -54,14 +66,26 @@ export function CustomerDocumentsPanel({
             >
               <div className="flex min-w-0 items-center gap-2">
                 <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span className="truncate text-sm font-medium">{doc.name}</span>
+                <div className="min-w-0">
+                  <span className="block truncate text-sm font-medium">
+                    {doc.name}
+                  </span>
+                  {doc.category ? (
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                      {doc.category}
+                      {doc.signature_status
+                        ? ` · ${doc.signature_status}`
+                        : ""}
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <div className="flex shrink-0 gap-1">
                 <a
                   href={doc.file_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={`Open ${doc.name}`}
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -82,12 +106,32 @@ export function CustomerDocumentsPanel({
         </ul>
       )}
 
-      <form action={formAction} className="space-y-3 rounded-[var(--radius-md)] border border-dashed border-border p-4">
+      <form
+        action={formAction}
+        className="space-y-3 rounded-[var(--radius-md)] border border-dashed border-border p-4"
+      >
         <input type="hidden" name="customer_id" value={customerId} />
         <input type="hidden" name="folder" value="client-documents" />
-        <div className="space-y-2">
-          <Label htmlFor="doc_name">Document name</Label>
-          <Input id="doc_name" name="name" placeholder="Consent form, referral letter…" required />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="doc_name">Document name</Label>
+            <Input
+              id="doc_name"
+              name="name"
+              placeholder="Consent form, waiver…"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="doc_category">Category</Label>
+            <Select id="doc_category" name="category" defaultValue="general">
+              {CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </Select>
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="doc_file">File</Label>
@@ -99,6 +143,9 @@ export function CustomerDocumentsPanel({
             required
           />
         </div>
+        <p className="text-xs text-muted-foreground">
+          Waivers, consents, and photos. Signature capture ships in a later phase.
+        </p>
         <AlertMessage error={state.error} success={state.success} />
         <Button type="submit" disabled={pending}>
           <Upload className="h-4 w-4" aria-hidden="true" />

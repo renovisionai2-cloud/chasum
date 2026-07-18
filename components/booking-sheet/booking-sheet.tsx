@@ -57,6 +57,8 @@ export type BookingSheetProps = {
   locations: Location[];
   defaultDate?: Date;
   defaultStaffId?: string;
+  /** Prefill customer when opening from CRM / Reception without an appointment. */
+  defaultCustomerId?: string;
   channel?: BookingSheetChannel;
   onSuccess: () => void;
 };
@@ -80,6 +82,7 @@ export function BookingSheet({
   locations,
   defaultDate,
   defaultStaffId,
+  defaultCustomerId,
   channel = "staff",
   onSuccess,
 }: BookingSheetProps) {
@@ -150,7 +153,7 @@ export function BookingSheet({
     return {
       serviceId,
       staffId,
-      customerId: appointment?.customer_id ?? "",
+      customerId: appointment?.customer_id ?? defaultCustomerId ?? "",
       locationId,
       date: initialStart
         ? slotDateInLocalTimezone(initialStart)
@@ -167,6 +170,7 @@ export function BookingSheet({
     staff,
     defaultDate,
     defaultStaffId,
+    defaultCustomerId,
     prefs.locationId,
     prefs.serviceId,
     prefs.staffId,

@@ -15,16 +15,26 @@ export type LoyaltyStatus =
 
 export type PreferredCommunicationMethod = "call" | "sms" | "email" | "any";
 
+export type CrmNoteType = "general" | "warning" | "medical" | "service";
+
 export type CrmCustomerNote = {
   id: string;
   businessId: string;
   customerId: string;
   body: string;
+  noteType: CrmNoteType;
   isPinned: boolean;
   isPrivate: boolean;
   createdBy: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export const CRM_NOTE_TYPE_LABELS: Record<CrmNoteType, string> = {
+  general: "General",
+  warning: "Warning",
+  medical: "Medical",
+  service: "Service",
 };
 
 export type CrmPaymentEvent = {
@@ -124,12 +134,16 @@ export type CrmProfile = {
     is_vip?: boolean;
     anniversary_date?: string | null;
     loyalty_status?: LoyaltyStatus;
+    marketing_consent?: boolean;
+    marketing_consent_at?: string | null;
+    membership_id?: string | null;
     last_activity_at?: string | null;
     created_at: string;
     updated_at: string;
   };
   assignedStaff?: { id: string; name: string } | null;
   preferredLocation?: { id: string; name: string } | null;
+  membership?: { id: string; name: string } | null;
   documents: CustomerDocument[];
   notes: CrmCustomerNote[];
   payments: CrmPaymentEvent[];

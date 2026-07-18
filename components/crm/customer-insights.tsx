@@ -15,18 +15,18 @@ export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Lifetime revenue"
-          value={`$${insights.lifetimeRevenue.toFixed(0)}`}
-          description={`Avg spend $${insights.averageSpend.toFixed(0)}`}
-          icon={CircleDollarSign}
-          accent="success"
-        />
-        <StatCard
-          title="Total appointments"
-          value={String(insights.totalAppointments)}
-          description={`${insights.completedAppointments} completed`}
+          title="Lifetime visits"
+          value={String(insights.completedAppointments)}
+          description={`Avg booking $${insights.averageSpend.toFixed(0)}`}
           icon={CalendarCheck2}
           accent="primary"
+        />
+        <StatCard
+          title="Lifetime revenue"
+          value={`$${insights.lifetimeRevenue.toFixed(0)}`}
+          description={`${insights.upcomingCount} upcoming`}
+          icon={CircleDollarSign}
+          accent="success"
         />
         <StatCard
           title="No-show rate"
@@ -61,7 +61,7 @@ export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
         </p>
         <p className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          Next appointment:{" "}
+          Next visit:{" "}
           {insights.nextAppointment
             ? format(new Date(insights.nextAppointment), "MMM d, yyyy")
             : "—"}

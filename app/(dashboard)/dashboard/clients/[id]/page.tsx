@@ -2,9 +2,17 @@ import { CustomerProfileView } from "@/components/crm/customer-profile";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import { listMemberships } from "@/lib/actions/business-management";
 import { displayCustomerName, loadCrmCustomerProfile } from "@/lib/actions/crm";
+import { getCustomers } from "@/lib/actions/customers";
 import { getLocations } from "@/lib/actions/location";
+import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
+import type {
+  Customer,
+  Service,
+  StaffWithServices,
+} from "@/lib/types/booking";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -44,11 +52,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CustomerProfilePage({ params }: PageProps) {
   const { id } = await params;
   await getOrCreateBusiness();
-  const [profile, staff, locations] = await Promise.all([
-    loadCrmCustomerProfile(id),
-    getStaff(),
-    getLocations(),
-  ]);
+  const [profile, staff, locations, services, customers, memberships] =
+    await Promise.all([
+      loadCrmCustomerProfile(id),
+      getStaff(),
+      getLocations(),
+      getServices(),
+      getCustomers(),
+      listMemberships(),
+    ]);
 
   if (!profile) notFound();
 
@@ -83,13 +95,16 @@ export default async function CustomerProfilePage({ params }: PageProps) {
         </Link>
         <PageHeader
           title="Customer profile"
-          description="Timeline, appointments, communication, documents, insights, and marketing."
+          description="Source of truth — timeline, bookings, notes, documents, and Chase signals."
         />
       </div>
       <CustomerProfileView
         profile={profile}
-        staff={staff}
+        staff={staff as StaffWithServices[]}
         locations={locations}
+        services={services as Service[]}
+        customers={(customers ?? []) as Customer[]}
+        memberships={memberships}
         mapsAddress={mapsAddress}
       />
     </div>

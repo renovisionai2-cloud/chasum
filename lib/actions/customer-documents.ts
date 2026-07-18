@@ -49,9 +49,25 @@ export async function addCustomerDocument(
     name,
     file_url: upload.url,
     file_type: file?.type ?? null,
+    category: (formData.get("category") as string)?.trim() || "general",
   });
 
-  if (error) return { error: error.message };
+  if (error) {
+    if (error.message.includes("category")) {
+      const retry = await supabase.from("customer_documents").insert({
+        business_id: business.id,
+        customer_id: customerId,
+        name,
+        file_url: upload.url,
+        file_type: file?.type ?? null,
+      });
+      if (!retry.error) {
+        revalidatePath(`/dashboard/clients/${customerId}`);
+        return { success: "Document uploaded." };
+      }
+    }
+    return { error: error.message };
+  }
 
   revalidatePath(`/dashboard/clients/${customerId}`);
   return { success: "Document uploaded." };

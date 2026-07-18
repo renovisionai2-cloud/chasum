@@ -68,6 +68,8 @@ export function CustomerDirectory({
         if (activity < weekAgo) return false;
       }
       if (!q) return true;
+      const digits = q.replace(/\D/g, "");
+      const phoneDigits = (customer.phone ?? "").replace(/\D/g, "");
       const haystack = [
         customer.name,
         customer.preferred_name,
@@ -80,7 +82,11 @@ export function CustomerDirectory({
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
-      return haystack.includes(q);
+      if (haystack.includes(q)) return true;
+      if (digits.length >= 3 && phoneDigits.includes(digits)) return true;
+      // Light fuzzy: all query tokens must appear
+      const tokens = q.split(/\s+/).filter(Boolean);
+      return tokens.every((t) => haystack.includes(t));
     });
   }, [customers, search, status, locationId, staffId, tag, recentOnly, nowMs]);
 
