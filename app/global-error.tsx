@@ -13,6 +13,12 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error(error);
+    void import("@/lib/observability/sentry").then(
+      ({ captureException, initSentry }) => {
+        initSentry("client");
+        captureException(error, { domain: "ui", digest: error.digest });
+      },
+    );
   }, [error]);
 
   return (
@@ -30,7 +36,7 @@ export default function GlobalError({
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button onClick={reset}>Try again</Button>
           <Button variant="outline" onClick={() => (window.location.href = "/")}>
-            Back to home
+            Back home
           </Button>
         </div>
       </body>

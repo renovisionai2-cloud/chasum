@@ -2,7 +2,7 @@ import type {
   CommunicationsPreferences,
   CustomerCommPreferences,
 } from "@/lib/communications/types";
-import { isMissingSchemaError, logQueryError } from "@/lib/supabase/errors";
+import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
@@ -61,7 +61,7 @@ export async function loadBusinessCommPreferences(
     .eq("id", businessId)
     .maybeSingle();
 
-  if (error && !isMissingSchemaError(error.message)) {
+  if (error && !isSoftSchemaFallbackAllowed(error.message)) {
     // Fallback select without new columns
     const { data: fallback } = await supabase
       .from("businesses")
@@ -120,7 +120,7 @@ export async function loadCustomerCommPreferences(
     .maybeSingle();
 
   if (error) {
-    if (!isMissingSchemaError(error.message)) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
       logQueryError("comms.customer.prefs", error.message);
     }
     return {

@@ -8,7 +8,7 @@ import type {
   ChaseCommerceMetrics,
   CommerceDashboardSnapshot,
 } from "@/lib/commerce/types";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import {
   endOfMonth,
@@ -48,7 +48,7 @@ export async function getCommerceDashboardSnapshot(
     .eq("business_id", businessId)
     .limit(1);
 
-  if (probe.error && isMissingSchemaError(probe.error.message)) {
+  if (probe.error && isSoftSchemaFallbackAllowed(probe.error.message)) {
     return {
       businessId,
       businessName,

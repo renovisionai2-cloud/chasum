@@ -3,7 +3,7 @@ import { listTransactions } from "@/lib/commerce/payments";
 import { listReceipts } from "@/lib/commerce/receipts";
 import { listRefunds } from "@/lib/commerce/refunds";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export async function getCustomerCommerceAccount(
@@ -31,7 +31,7 @@ export async function getCustomerCommerceAccount(
     .eq("business_id", businessId)
     .maybeSingle();
 
-  if (custErr && isMissingSchemaError(custErr.message)) {
+  if (custErr && isSoftSchemaFallbackAllowed(custErr.message)) {
     return empty;
   }
 

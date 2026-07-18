@@ -7,7 +7,7 @@ import {
 import { writeCommsAudit } from "@/lib/communications/timeline";
 import type { QueueNotificationInput } from "@/lib/communications/types";
 import { enqueueJob } from "@/lib/integrations/jobs/queue";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export type QueueResult = {
@@ -134,7 +134,7 @@ async function queueInApp(input: QueueNotificationInput): Promise<QueueResult> {
 
   if (error) {
     // Retry without new columns
-    if (isMissingSchemaError(error.message) || error.message.includes("priority")) {
+    if (isSoftSchemaFallbackAllowed(error.message) || error.message.includes("priority")) {
       const { data: fallback, error: err2 } = await supabase
         .from("notifications")
         .insert({

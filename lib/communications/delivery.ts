@@ -23,7 +23,7 @@ import type {
   AppointmentTemplateContext,
   SendResult,
 } from "@/lib/communications/types";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createServiceClient } from "@/lib/supabase/service";
 
 async function logDelivery(input: {
@@ -61,7 +61,7 @@ async function logDelivery(input: {
   if (input.attempt) row.attempt = input.attempt;
 
   const { error } = await supabase.from("notification_logs").insert(row);
-  if (error && !isMissingSchemaError(error.message)) {
+  if (error && !isSoftSchemaFallbackAllowed(error.message)) {
     // Retry minimal columns
     await supabase.from("notification_logs").insert({
       business_id: input.businessId,

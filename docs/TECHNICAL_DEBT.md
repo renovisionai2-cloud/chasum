@@ -12,12 +12,12 @@ No fixes in this document — tracking only.
 
 | ID | Debt | Location / evidence | Interest |
 |----|------|---------------------|----------|
-| TD-C1 | **No automated test suite** | `package.json` has no `test`; 0 `*.test.*` / `*.spec.*` | Every change risks booking regressions |
-| TD-C2 | **Soft schema fallbacks** | `lib/supabase/errors.ts`, CRM/commerce/comms/reports actions | Hides undeployed migrations in “prod-looking” UI |
-| TD-C3 | **Zod unused** | Dependency present; zero imports | Invalid API/action payloads accepted |
-| TD-C4 | **No rate limiting** | Public book + `/api/v1/*` | Abuse cost + availability scraping |
-| TD-C5 | **Dual communications stacks** | `lib/communications/*` vs `lib/integrations/notifications/orchestrator.ts` + jobs | Divergent templates/behavior |
-| TD-C6 | **Mock SaaS billing** | `MockBillingProvider` in `lib/billing/` | Pricing page lies by omission |
+| TD-C1 | **No automated test suite** | ~~Was empty~~ **Resolved 6.1** — Vitest + Playwright + CI | Paid down |
+| TD-C2 | **Soft schema fallbacks** | ~~Silent empty~~ **Resolved 6.1** — `CHASUM_ALLOW_SOFT_SCHEMA` opt-in | Paid down |
+| TD-C3 | **Zod unused** | ~~Unused~~ **Resolved 6.1** for API v1 write bodies | Paid down (API); expand to more actions |
+| TD-C4 | **No rate limiting** | ~~Open~~ **Resolved 6.1** — in-memory limiter | Paid down; Redis for multi-instance remains |
+| TD-C5 | **Dual communications stacks** | `lib/communications/*` vs orchestrator | Still open |
+| TD-C6 | **Mock SaaS billing** | `MockBillingProvider` | Still open |
 
 ---
 

@@ -2,7 +2,7 @@ import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapRefund, mapTransaction } from "@/lib/commerce/mappers";
 import { resolvePaymentProvider } from "@/lib/commerce/providers";
 import type { CommerceRefund, PaymentMethod } from "@/lib/commerce/types";
-import { isMissingSchemaError, logQueryError } from "@/lib/supabase/errors";
+import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type ProcessRefundInput = {
@@ -138,7 +138,7 @@ export async function processCommerceRefund(
     .single();
 
   if (error || !refundRow) {
-    if (error && isMissingSchemaError(error.message)) {
+    if (error && isSoftSchemaFallbackAllowed(error.message)) {
       return {
         ok: false,
         error:
@@ -275,7 +275,7 @@ export async function listRefunds(input: {
   if (input.customerId) q = q.eq("customer_id", input.customerId);
   const { data, error } = await q;
   if (error) {
-    if (!isMissingSchemaError(error.message)) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
       logQueryError("commerce.refund.list", error.message);
     }
     return [];

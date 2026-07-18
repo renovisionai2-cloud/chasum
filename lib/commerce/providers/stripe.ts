@@ -13,9 +13,10 @@ import type {
 } from "@/lib/commerce/providers/types";
 import { isCardMethod } from "@/lib/commerce/providers/types";
 import type { PaymentMethod } from "@/lib/commerce/types";
+import { getStripeSecretKey } from "@/lib/env";
 
 function stripeSecret(): string | null {
-  const key = process.env.STRIPE_SECRET_KEY?.trim();
+  const key = getStripeSecretKey()?.trim();
   return key || null;
 }
 

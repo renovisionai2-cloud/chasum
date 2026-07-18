@@ -2,7 +2,7 @@ import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import type { CommerceReceipt } from "@/lib/commerce/types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
-import { isMissingSchemaError, logQueryError } from "@/lib/supabase/errors";
+import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 
@@ -38,7 +38,7 @@ export async function createReceiptForTransaction(input: {
     .maybeSingle();
 
   if (error || !tx) {
-    if (error && !isMissingSchemaError(error.message)) {
+    if (error && !isSoftSchemaFallbackAllowed(error.message)) {
       logQueryError("commerce.receipt.tx", error.message);
     }
     return null;
@@ -104,7 +104,7 @@ export async function createReceiptForTransaction(input: {
     .single();
 
   if (recErr || !receipt) {
-    if (recErr && isMissingSchemaError(recErr.message)) return null;
+    if (recErr && isSoftSchemaFallbackAllowed(recErr.message)) return null;
     if (recErr) logQueryError("commerce.receipt.create", recErr.message);
     return null;
   }
@@ -151,7 +151,7 @@ export async function listReceipts(input: {
   if (input.customerId) q = q.eq("customer_id", input.customerId);
   const { data, error } = await q;
   if (error) {
-    if (!isMissingSchemaError(error.message)) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
       logQueryError("commerce.receipt.list", error.message);
     }
     return [];

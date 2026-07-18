@@ -22,7 +22,7 @@ import type {
   PaymentMethod,
   TransactionKind,
 } from "@/lib/commerce/types";
-import { isMissingSchemaError, logQueryError } from "@/lib/supabase/errors";
+import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type RecordPaymentInput = {
@@ -223,7 +223,7 @@ export async function recordCommercePayment(
       .single();
 
     if (pendingErr) {
-      if (isMissingSchemaError(pendingErr.message)) {
+      if (isSoftSchemaFallbackAllowed(pendingErr.message)) {
         return {
           ok: false,
           error:
@@ -269,7 +269,7 @@ export async function recordCommercePayment(
     .single();
 
   if (error || !row) {
-    if (error && isMissingSchemaError(error.message)) {
+    if (error && isSoftSchemaFallbackAllowed(error.message)) {
       return {
         ok: false,
         error:
@@ -358,7 +358,7 @@ export async function listTransactions(input: {
 
   const { data, error } = await q;
   if (error) {
-    if (!isMissingSchemaError(error.message)) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
       logQueryError("commerce.tx.list", error.message);
     }
     return [];

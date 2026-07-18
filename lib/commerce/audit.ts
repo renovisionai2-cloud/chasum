@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { isMissingSchemaError, logQueryError } from "@/lib/supabase/errors";
+import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 
 export async function writeCommerceAudit(input: {
   businessId: string;
@@ -24,7 +24,7 @@ export async function writeCommerceAudit(input: {
       after_state: input.afterState ?? null,
     });
     if (error) {
-      if (isMissingSchemaError(error.message)) return;
+      if (isSoftSchemaFallbackAllowed(error.message)) return;
       logQueryError("commerce.audit", error.message);
     }
   } catch {

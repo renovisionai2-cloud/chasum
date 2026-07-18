@@ -16,7 +16,7 @@ import {
   logStaffActivity,
 } from "@/lib/employees/service";
 import type { CustomRole, Department, EmployeeProfile } from "@/lib/employees/types";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -227,7 +227,7 @@ export async function updateEmployeeProfile(
     .eq("id", id)
     .eq("business_id", business.id);
 
-  if (error && isMissingSchemaError(error.message)) {
+  if (error && isSoftSchemaFallbackAllowed(error.message)) {
     const legacy = {
       name: fullPayload.name,
       email: fullPayload.email,
@@ -437,7 +437,7 @@ export async function upsertCustomRole(
     : await supabase.from("custom_roles").insert(payload);
 
   if (error) {
-    if (isMissingSchemaError(error.message)) {
+    if (isSoftSchemaFallbackAllowed(error.message)) {
       return {
         error: "Apply migration 025_employees_module to enable custom roles.",
       };

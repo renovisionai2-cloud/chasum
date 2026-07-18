@@ -1,12 +1,15 @@
 import { NextRequest } from "next/server";
-import { authenticateApiKey, requireScope } from "@/lib/api/auth";
-import { apiSuccess, apiUnauthorized, apiForbidden, apiError } from "@/lib/api/response";
+import { isApiAuth, requireApiAuth } from "@/lib/api/guard";
+import { apiSuccess, apiError } from "@/lib/api/response";
 import { createServiceClient } from "@/lib/supabase/service";
+import {
+  createCustomerBodySchema,
+  formatZodError,
+} from "@/lib/validation/schemas";
 
 export async function GET(request: NextRequest) {
-  const auth = await authenticateApiKey(request.headers.get("authorization"));
-  if (!auth) return apiUnauthorized();
-  if (!requireScope(auth.scopes, "read")) return apiForbidden();
+  const auth = await requireApiAuth(request, "read");
+  if (!isApiAuth(auth)) return auth;
 
   const supabase = createServiceClient();
   const { data, error } = await supabase
@@ -20,11 +23,21 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await authenticateApiKey(request.headers.get("authorization"));
-  if (!auth) return apiUnauthorized();
-  if (!requireScope(auth.scopes, "write")) return apiForbidden();
+  const auth = await requireApiAuth(request, "write");
+  if (!isApiAuth(auth)) return auth;
 
-  const body = await request.json();
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return apiError("Invalid JSON body", 400);
+  }
+
+  const parsed = createCustomerBodySchema.safeParse(json);
+  if (!parsed.success) {
+    return apiError(formatZodError(parsed.error), 400);
+  }
+  const body = parsed.data;
   const supabase = createServiceClient();
 
   const { data, error } = await supabase

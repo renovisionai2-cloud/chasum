@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { getCronSecret, isProductionRuntime } from "@/lib/env";
 import { processPendingJobs } from "@/lib/integrations/jobs/processor";
+import { logger } from "@/lib/observability/logger";
+import {
+  RATE_LIMITS,
+  checkRateLimit,
+  clientIpFromHeaders,
+  rateLimitHeaders,
+} from "@/lib/security/rate-limit";
 
 function authorize(request: Request): NextResponse | null {
   const secret = getCronSecret();
@@ -19,7 +26,6 @@ function authorize(request: Request): NextResponse | null {
     return null;
   }
 
-  // Local / preview: require bearer only when a secret is configured.
   if (secret && authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -27,14 +33,39 @@ function authorize(request: Request): NextResponse | null {
   return null;
 }
 
-export async function GET(request: Request) {
+async function run(request: Request) {
   const denied = authorize(request);
   if (denied) return denied;
 
+  const ip = clientIpFromHeaders(request.headers);
+  const limit = checkRateLimit({
+    key: `cron:process-jobs:${ip}`,
+    ...RATE_LIMITS.cron,
+  });
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded" },
+      { status: 429, headers: rateLimitHeaders(limit) },
+    );
+  }
+
+  const started = Date.now();
   const processed = await processPendingJobs(50);
-  return NextResponse.json({ processed, timestamp: new Date().toISOString() });
+  logger.info("cron", "processed jobs", {
+    processed,
+    latencyMs: Date.now() - started,
+  });
+
+  return NextResponse.json(
+    { processed, timestamp: new Date().toISOString() },
+    { headers: rateLimitHeaders(limit) },
+  );
+}
+
+export async function GET(request: Request) {
+  return run(request);
 }
 
 export async function POST(request: Request) {
-  return GET(request);
+  return run(request);
 }

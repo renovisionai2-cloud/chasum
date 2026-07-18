@@ -6,7 +6,7 @@ import {
   getLocationScope,
 } from "@/lib/actions/location";
 import { withLocationFilter } from "@/lib/location/constants";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type {
   ActionState,
@@ -162,7 +162,7 @@ async function syncServiceLocations(
     .from("service_locations")
     .delete()
     .eq("service_id", serviceId);
-  if (deleteError && !isMissingSchemaError(deleteError.message)) {
+  if (deleteError && !isSoftSchemaFallbackAllowed(deleteError.message)) {
     return deleteError.message;
   }
 
@@ -175,7 +175,7 @@ async function syncServiceLocations(
   }));
 
   const { error } = await supabase.from("service_locations").insert(rows);
-  if (error && !isMissingSchemaError(error.message)) return error.message;
+  if (error && !isSoftSchemaFallbackAllowed(error.message)) return error.message;
   return null;
 }
 
@@ -300,7 +300,7 @@ export async function getServiceLocationIds(serviceId: string): Promise<string[]
     .order("is_primary", { ascending: false });
 
   if (error) {
-    if (isMissingSchemaError(error.message)) return [];
+    if (isSoftSchemaFallbackAllowed(error.message)) return [];
     return [];
   }
   return (data ?? []).map((row) => row.location_id as string);
@@ -319,7 +319,7 @@ export async function getServiceBlackouts(
     .order("starts_at", { ascending: true });
 
   if (error) {
-    if (isMissingSchemaError(error.message)) return [];
+    if (isSoftSchemaFallbackAllowed(error.message)) return [];
     return [];
   }
   return (data as ServiceBlackout[]) ?? [];
@@ -352,7 +352,7 @@ export async function createService(
     .select("id")
     .single();
 
-  if (error && isMissingSchemaError(error.message)) {
+  if (error && isSoftSchemaFallbackAllowed(error.message)) {
     const core = pickCorePayload(payload);
     const retry = await supabase
       .from("services")
@@ -408,7 +408,7 @@ export async function updateService(
     .eq("id", id)
     .eq("business_id", business.id);
 
-  if (error && isMissingSchemaError(error.message)) {
+  if (error && isSoftSchemaFallbackAllowed(error.message)) {
     const core = pickCorePayload(updatePayload);
     const retry = await supabase
       .from("services")
@@ -459,7 +459,7 @@ export async function reorderServices(
       .eq("id", orderedIds[index])
       .eq("business_id", business.id);
     if (error) {
-      if (isMissingSchemaError(error.message)) {
+      if (isSoftSchemaFallbackAllowed(error.message)) {
         return {
           error:
             "Apply migration 024_services_module to enable service ordering.",
@@ -510,7 +510,7 @@ export async function upsertServiceBlackout(
     : await supabase.from("service_blackouts").insert(payload);
 
   if (error) {
-    if (isMissingSchemaError(error.message)) {
+    if (isSoftSchemaFallbackAllowed(error.message)) {
       return {
         error:
           "Apply migration 024_services_module to enable service blackouts.",
@@ -533,7 +533,7 @@ export async function deleteServiceBlackout(id: string): Promise<ActionState> {
     .eq("business_id", business.id);
 
   if (error) {
-    if (isMissingSchemaError(error.message)) {
+    if (isSoftSchemaFallbackAllowed(error.message)) {
       return {
         error:
           "Apply migration 024_services_module to enable service blackouts.",

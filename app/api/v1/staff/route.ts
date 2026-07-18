@@ -1,12 +1,11 @@
 import { NextRequest } from "next/server";
-import { authenticateApiKey, requireScope } from "@/lib/api/auth";
-import { apiSuccess, apiUnauthorized, apiForbidden, apiError } from "@/lib/api/response";
+import { isApiAuth, requireApiAuth } from "@/lib/api/guard";
+import { apiSuccess, apiError } from "@/lib/api/response";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export async function GET(request: NextRequest) {
-  const auth = await authenticateApiKey(request.headers.get("authorization"));
-  if (!auth) return apiUnauthorized();
-  if (!requireScope(auth.scopes, "read")) return apiForbidden();
+  const auth = await requireApiAuth(request, "read");
+  if (!isApiAuth(auth)) return auth;
 
   const supabase = createServiceClient();
   const { data, error } = await supabase

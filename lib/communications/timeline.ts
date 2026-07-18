@@ -1,4 +1,4 @@
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createServiceClient } from "@/lib/supabase/service";
 
 /** Mirror outbound communications into CRM timeline (communication_history). */
@@ -35,7 +35,7 @@ export async function appendCrmTimeline(input: {
       provider_message_id: input.providerMessageId ?? null,
       metadata: input.metadata ?? {},
     });
-    if (error && !isMissingSchemaError(error.message)) {
+    if (error && !isSoftSchemaFallbackAllowed(error.message)) {
       console.warn("[comms.timeline]", error.message);
     }
   } catch {
@@ -67,7 +67,7 @@ export async function writeCommsAudit(input: {
       summary: input.summary,
       metadata: input.metadata ?? {},
     });
-    if (error && !isMissingSchemaError(error.message)) {
+    if (error && !isSoftSchemaFallbackAllowed(error.message)) {
       console.warn("[comms.audit]", error.message);
     }
   } catch {

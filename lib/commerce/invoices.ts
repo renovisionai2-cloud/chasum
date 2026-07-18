@@ -1,7 +1,7 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapInvoice, mapInvoiceLine } from "@/lib/commerce/mappers";
 import type { CommerceInvoice } from "@/lib/commerce/types";
-import { isMissingSchemaError, logQueryError } from "@/lib/supabase/errors";
+import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, format } from "date-fns";
 
@@ -20,7 +20,7 @@ async function nextInvoiceNumber(businessId: string): Promise<string | null> {
       prefix: "INV",
     });
     if (error) {
-      if (isMissingSchemaError(error.message)) return null;
+      if (isSoftSchemaFallbackAllowed(error.message)) return null;
       logQueryError("commerce.invoice.seq", error.message);
       return null;
     }
@@ -154,7 +154,7 @@ export async function createInvoiceForAppointment(input: {
     .single();
 
   if (invErr || !inv) {
-    if (invErr && isMissingSchemaError(invErr.message)) {
+    if (invErr && isSoftSchemaFallbackAllowed(invErr.message)) {
       return {
         invoice: null,
         error:
@@ -211,7 +211,7 @@ export async function getInvoiceById(
     .maybeSingle();
 
   if (error) {
-    if (!isMissingSchemaError(error.message)) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
       logQueryError("commerce.invoice.get", error.message);
     }
     return null;
@@ -249,7 +249,7 @@ export async function listInvoices(input: {
 
   const { data, error } = await q;
   if (error) {
-    if (!isMissingSchemaError(error.message)) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
       logQueryError("commerce.invoice.list", error.message);
     }
     return [];

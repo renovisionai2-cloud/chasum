@@ -1,5 +1,5 @@
 import type { ChaseCommunicationsMetrics } from "@/lib/communications/types";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { endOfDay, startOfDay } from "date-fns";
 
@@ -29,7 +29,7 @@ export async function getChaseCommunicationsMetrics(
     .limit(500);
 
   if (error) {
-    if (!isMissingSchemaError(error.message)) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
       console.warn("[comms.chase]", error.message);
     }
     return empty;

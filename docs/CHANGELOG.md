@@ -9,6 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Milestone 6.1 — Production Hardening)
+
+- Vitest + React Testing Library + MSW unit/integration suite; Playwright e2e smoke
+- CI quality gates template (`docs/ci/github-actions-ci.yml`) — lint, typecheck, unit tests, build, e2e must pass (copy to `.github/workflows/ci.yml` when the deploy token has `workflow` scope)
+- Rate limiting on public booking, `/api/v1/*`, cron, Zapier discovery, health, inbound webhooks
+- Zod schemas for API appointment/customer bodies; PATCH appointments no longer mass-assigns
+- Soft schema fallbacks disabled by default (`CHASUM_ALLOW_SOFT_SCHEMA=1` opt-in only)
+- Structured JSON logger + optional Sentry (`instrumentation.ts`, failure capture for booking/payment/comms)
+- Inbound webhook routes with signature verification: Stripe, Resend, Twilio
+- Health check exposes stripe/sentry/soft-schema status + latency
+
 ### Added (Milestone 5 / Phase 5.8 — Communications Platform)
 
 - Migration `029_communications_platform.sql` — quiet hours, marketing toggle, notification priority/archive, job backoff, communications audit log

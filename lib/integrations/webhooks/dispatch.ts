@@ -1,5 +1,7 @@
 import { createHmac } from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
+import { verifyChasumWebhookSignature } from "@/lib/security/webhooks";
+import { logger } from "@/lib/observability/logger";
 
 function signPayload(secret: string, body: string): string {
   return createHmac("sha256", secret).update(body).digest("hex");
@@ -44,10 +46,14 @@ export async function dispatchWebhooks(
       });
 
       if (!res.ok) {
-        console.error(`Webhook failed for ${endpoint.url}: ${res.status}`);
+        logger.error("webhooks", `dispatch failed for ${endpoint.url}`, {
+          status: res.status,
+        });
       }
     } catch (err) {
-      console.error(`Webhook error for ${endpoint.url}:`, err);
+      logger.error("webhooks", `dispatch error for ${endpoint.url}`, {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 }
@@ -61,6 +67,5 @@ export function verifyWebhookSignature(
   body: string,
   signature: string,
 ): boolean {
-  const expected = signPayload(secret, body);
-  return expected === signature;
+  return verifyChasumWebhookSignature(secret, body, signature);
 }

@@ -7,10 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "node scripts/e2e-smoke.mjs",
+    "test:e2e:playwright": "playwright test",
+    "test:e2e:install": "playwright install chromium",
     "verify:env": "node scripts/verify-production-env.mjs",
     "verify:gvm": "node scripts/verify-sprint2-gvm-go-live.mjs"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.66.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.110.2",
     "clsx": "^2.1.1",
@@ -27,13 +35,22 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "jsdom": "^29.1.1",
+    "msw": "^2.15.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

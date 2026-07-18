@@ -14,14 +14,14 @@ Must resolve before **open beta** or any paid public acquisition.
 
 | ID | Item | Why it blocks |
 |----|------|----------------|
-| B1 | **Zero automated tests** on booking, availability RPCs, auth middleware, public book | Regressions will ship unnoticed; scheduling is the product |
-| B2 | **No rate limiting** on public booking / API / auth-adjacent surfaces | Abuse, slot scraping, cost amplification |
-| B3 | **Soft schema fallbacks in production** silently disable features | Operators think Commerce/Comms “work” while empty |
-| B4 | **Marketing overclaims** (full AI Workforce, card payments, SaaS plans) vs reality | Trust destruction; refund/chargeback risk |
-| B5 | **Stripe checkout incomplete** while product mentions card/Stripe | Book Sheet still toasts “Stripe soon”; no Elements |
-| B6 | **SaaS billing is mock** while Pricing page sells plans | Cannot collect subscription revenue honestly |
-| B7 | **Migrations 028–029** not guaranteed applied on all envs | Commerce + Communications soft-fail |
-| B8 | **No production error monitoring** (Sentry/OTel) | Cannot operate a beta blind |
+| B1 | **Zero automated tests** on booking, availability RPCs, auth middleware, public book | **Resolved in 6.1** — Vitest + Playwright |
+| B2 | **No rate limiting** on public booking / API / auth-adjacent surfaces | **Resolved in 6.1** |
+| B3 | **Soft schema fallbacks in production** silently disable features | **Resolved in 6.1** — opt-in only |
+| B4 | **Marketing overclaims** (full AI Workforce, card payments, SaaS plans) vs reality | Still open — product copy |
+| B5 | **Stripe checkout incomplete** while product mentions card/Stripe | Still open — Elements |
+| B6 | **SaaS billing is mock** while Pricing page sells plans | Still open |
+| B7 | **Migrations 028–029** not guaranteed applied on all envs | Soft-fail removed; apply migrations |
+| B8 | **No production error monitoring** (Sentry/OTel) | **Mostly resolved** — Sentry optional + structured logs |
 
 ---
 

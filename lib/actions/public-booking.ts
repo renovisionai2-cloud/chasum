@@ -1,9 +1,16 @@
 "use server";
 
 import { addMinutes, parseISO } from "date-fns";
+import { headers } from "next/headers";
 import { getBusinessBySlug } from "@/lib/actions/business";
 import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
 import { isPublicBookingAllowed } from "@/lib/booking/access";
+import { captureBookingFailure } from "@/lib/observability/logger";
+import {
+  RATE_LIMITS,
+  checkRateLimit,
+  clientIpFromHeaders,
+} from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import type {
   PublicBookingState,
@@ -16,6 +23,23 @@ export type PublicSlotOption = {
   staffId: string;
   staffName: string;
 };
+
+async function publicRateLimit(
+  action: "publicBooking" | "publicSlots" | "publicLookup",
+  slug: string,
+): Promise<string | null> {
+  const h = await headers();
+  const ip = clientIpFromHeaders(h);
+  const preset = RATE_LIMITS[action];
+  const result = checkRateLimit({
+    key: `public:${action}:${slug}:${ip}`,
+    ...preset,
+  });
+  if (!result.allowed) {
+    return "Too many requests. Please wait a moment and try again.";
+  }
+  return null;
+}
 
 export async function getAvailableSlots(
   slug: string,
@@ -39,6 +63,9 @@ export async function getPublicSlotOptions(input: {
   staffId?: string | null;
   staff: Pick<StaffWithServices, "id" | "name" | "staff_services" | "location_id">[];
 }): Promise<PublicSlotOption[]> {
+  const limited = await publicRateLimit("publicSlots", input.slug);
+  if (limited) return [];
+
   const business = await getBusinessBySlug(input.slug);
   if (!business || !input.locationId) return [];
 
@@ -89,7 +116,10 @@ export async function getPublicSlotOptions(input: {
 export async function lookupPublicCustomer(
   slug: string,
   email: string,
-): Promise<{ found: boolean; name?: string; phone?: string | null }> {
+): Promise<{ found: boolean; name?: string; phone?: string | null; error?: string }> {
+  const limited = await publicRateLimit("publicLookup", slug);
+  if (limited) return { found: false, error: limited };
+
   const trimmed = email.trim();
   if (!trimmed || !trimmed.includes("@")) return { found: false };
 
@@ -134,6 +164,9 @@ export async function bookAppointment(
   if (!slug || !serviceId || !staffId || !startTime || !customerName || !customerEmail) {
     return { error: "Please fill in all required fields." };
   }
+
+  const limited = await publicRateLimit("publicBooking", slug);
+  if (limited) return { error: limited };
 
   const business = await getBusinessBySlug(slug);
   if (!business) return { error: "Business not found." };
@@ -192,6 +225,10 @@ export async function bookAppointment(
   );
 
   if (customerError || !customerId) {
+    await captureBookingFailure(
+      customerError ?? new Error("customer upsert failed"),
+      { slug, channel: "public" },
+    );
     return { error: customerError?.message ?? "Failed to save customer details." };
   }
 
@@ -211,6 +248,10 @@ export async function bookAppointment(
   );
 
   if (appointmentError) {
+    await captureBookingFailure(appointmentError, {
+      slug,
+      channel: "public",
+    });
     const message = appointmentError.message.includes("Time slot")
       ? "This time slot is no longer available."
       : appointmentError.message;

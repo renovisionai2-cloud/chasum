@@ -1,12 +1,16 @@
 import { NextRequest } from "next/server";
-import { authenticateApiKey, requireScope } from "@/lib/api/auth";
-import { apiSuccess, apiUnauthorized, apiForbidden, apiError } from "@/lib/api/response";
+import { isApiAuth, requireApiAuth } from "@/lib/api/guard";
+import { apiSuccess, apiError } from "@/lib/api/response";
 import { createServiceClient } from "@/lib/supabase/service";
+import {
+  createAppointmentBodySchema,
+  formatZodError,
+} from "@/lib/validation/schemas";
+import { captureBookingFailure } from "@/lib/observability/logger";
 
 export async function GET(request: NextRequest) {
-  const auth = await authenticateApiKey(request.headers.get("authorization"));
-  if (!auth) return apiUnauthorized();
-  if (!requireScope(auth.scopes, "read")) return apiForbidden();
+  const auth = await requireApiAuth(request, "read");
+  if (!isApiAuth(auth)) return auth;
 
   const supabase = createServiceClient();
   const start = request.nextUrl.searchParams.get("start");
@@ -30,11 +34,21 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await authenticateApiKey(request.headers.get("authorization"));
-  if (!auth) return apiUnauthorized();
-  if (!requireScope(auth.scopes, "write")) return apiForbidden();
+  const auth = await requireApiAuth(request, "write");
+  if (!isApiAuth(auth)) return auth;
 
-  const body = await request.json();
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return apiError("Invalid JSON body", 400);
+  }
+
+  const parsed = createAppointmentBodySchema.safeParse(json);
+  if (!parsed.success) {
+    return apiError(formatZodError(parsed.error), 400);
+  }
+  const body = parsed.data;
   const supabase = createServiceClient();
 
   const validation = await supabase.rpc("validate_appointment_slot", {
@@ -46,6 +60,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (validation.error) {
+    await captureBookingFailure(validation.error, {
+      businessId: auth.businessId,
+      channel: "api",
+    });
     return apiError(validation.error.message, 400);
   }
 
@@ -64,7 +82,13 @@ export async function POST(request: NextRequest) {
     .select("*")
     .single();
 
-  if (error) return apiError(error.message, 400);
+  if (error) {
+    await captureBookingFailure(error, {
+      businessId: auth.businessId,
+      channel: "api",
+    });
+    return apiError(error.message, 400);
+  }
 
   const { handleAppointmentEvent } = await import(
     "@/lib/integrations/notifications/orchestrator"
