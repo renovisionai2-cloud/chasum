@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Operation GVM — Founding Partner #001)
+
+- Live onboarding friction audit: `docs/OPERATION_GVM_REPORT.md`
+- Official onboarding playbook: `docs/GVM_ONBOARDING_CHECKLIST.md`
+- Journey screenshots: `docs/operation-gvm/screenshots/`
+
 ### Added (Milestone 7 — Private Alpha Management Platform)
 
 - Internal ops surface at `/dashboard/hq/private-alpha` for four Founding Design Partners
