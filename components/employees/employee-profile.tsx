@@ -246,8 +246,18 @@ export function EmployeeProfileView({
                   variant="inline"
                   glyph={Clock3}
                   title="No hours configured"
-                  description="Use Edit schedule to set weekly working hours."
-                />
+                  description="Set weekly working hours so this provider appears in availability."
+                >
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => setScheduleOpen(true)}
+                  >
+                    <CalendarClock className="h-4 w-4" />
+                    Edit schedule
+                  </Button>
+                </EmptyState>
               ) : (
                 <ul className="space-y-2 text-sm">
                   {employee.hours.map((hour) => (

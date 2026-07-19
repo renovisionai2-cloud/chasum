@@ -12,6 +12,7 @@ import {
   APPOINTMENT_PAYMENT_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
   centsToDollars,
+  type TransactionStatus,
 } from "@/lib/commerce/types";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,22 @@ import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 
 const initial: CommerceActionState = {};
+
+const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
+  pending: "Pending",
+  requires_action: "Needs action",
+  succeeded: "Succeeded",
+  failed: "Failed",
+  canceled: "Canceled",
+  refunded: "Refunded",
+  partially_refunded: "Partially refunded",
+};
+
+function statusLabel(status: string): string {
+  const known = TRANSACTION_STATUS_LABELS[status as TransactionStatus];
+  if (known) return known;
+  return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 function Metric({
   label,
@@ -63,8 +80,14 @@ function Metric({
 
 export function PaymentsDashboard({
   snapshot,
+  customers = [],
+  initialCustomerId = "",
+  initialAppointmentId = "",
 }: {
   snapshot: CommerceDashboardSnapshot;
+  customers?: Array<{ id: string; label: string }>;
+  initialCustomerId?: string;
+  initialAppointmentId?: string;
 }) {
   const [payState, payAction, payPending] = useActionState(
     recordPaymentAction,
@@ -79,7 +102,7 @@ export function PaymentsDashboard({
     body: string;
   } | null>(null);
   const [pending, startTransition] = useTransition();
-  const [invoiceApptId, setInvoiceApptId] = useState("");
+  const [invoiceApptId, setInvoiceApptId] = useState(initialAppointmentId);
   const [invoiceMsg, setInvoiceMsg] = useState<CommerceActionState>({});
 
   function openText(title: string, body: string) {
@@ -132,7 +155,7 @@ export function PaymentsDashboard({
               href="/dashboard/workforce/chase"
               className="inline-flex h-8 items-center rounded-[var(--radius-sm)] border border-border px-3 text-xs font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              Open Chase
+              Chase insights
             </Link>
           </div>
         </div>
@@ -198,15 +221,46 @@ export function PaymentsDashboard({
           <CardContent>
             <form action={payAction} className="space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
-                <Input
-                  name="customer_id"
-                  placeholder="Customer ID"
-                  required
-                  aria-label="Customer ID"
-                />
+                {customers.length > 0 ? (
+                  <select
+                    name="customer_id"
+                    className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm sm:col-span-2"
+                    defaultValue={initialCustomerId}
+                    required
+                    aria-label="Customer"
+                  >
+                    <option value="">Select customer…</option>
+                    {customers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="space-y-1 sm:col-span-2">
+                    <Input
+                      name="customer_id"
+                      placeholder="Customer ID"
+                      defaultValue={initialCustomerId}
+                      required
+                      aria-label="Customer ID"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      No customers yet —{" "}
+                      <Link
+                        href="/dashboard/clients"
+                        className="underline underline-offset-2"
+                      >
+                        add one in CRM
+                      </Link>{" "}
+                      first.
+                    </p>
+                  </div>
+                )}
                 <Input
                   name="appointment_id"
                   placeholder="Appointment ID (optional)"
+                  defaultValue={initialAppointmentId}
                   aria-label="Appointment ID"
                 />
                 <Input
@@ -360,7 +414,10 @@ export function PaymentsDashboard({
           </CardHeader>
           <CardContent>
             {snapshot.recentTransactions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No transactions yet.</p>
+              <p className="text-sm text-muted-foreground">
+                No transactions yet. Record a payment after your first booking,
+                or use Collect payment from the calendar.
+              </p>
             ) : (
               <ul className="divide-y divide-border" role="list">
                 {snapshot.recentTransactions.map((tx) => (
@@ -374,7 +431,7 @@ export function PaymentsDashboard({
                         {PAYMENT_METHOD_LABELS[tx.method]}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {tx.kind} · {tx.status} · {tx.id.slice(0, 8)}…
+                        {tx.kind} · {statusLabel(tx.status)} · {tx.id.slice(0, 8)}…
                         {tx.description ? ` · ${tx.description}` : ""}
                       </p>
                     </div>
@@ -395,7 +452,9 @@ export function PaymentsDashboard({
           </CardHeader>
           <CardContent>
             {snapshot.openInvoices.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No open invoices.</p>
+              <p className="text-sm text-muted-foreground">
+                No open invoices. Generate one from a completed appointment above.
+              </p>
             ) : (
               <ul className="divide-y divide-border" role="list">
                 {snapshot.openInvoices.map((inv) => (
@@ -406,7 +465,8 @@ export function PaymentsDashboard({
                     <div>
                       <p className="font-medium">{inv.invoiceNumber}</p>
                       <p className="text-xs text-muted-foreground">
-                        {inv.status} · balance {centsToDollars(inv.balanceCents)}
+                        {statusLabel(inv.status)} · balance{" "}
+                        {centsToDollars(inv.balanceCents)}
                       </p>
                     </div>
                     <Button

@@ -311,7 +311,10 @@ export function CustomerProfileView({
             <CardTitle>Customer timeline</CardTitle>
           </CardHeader>
           <CardContent>
-            <CustomerTimeline items={profile.timeline} />
+            <CustomerTimeline
+              items={profile.timeline}
+              onAddNote={() => setTab("notes")}
+            />
           </CardContent>
         </Card>
       ) : null}

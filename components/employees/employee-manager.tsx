@@ -14,6 +14,7 @@ import type { Department } from "@/lib/employees/types";
 import type { ActionState, Location, Service } from "@/lib/types/booking";
 import { STAFF_COLORS } from "@/lib/types/booking";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import Link from "next/link";
 import { useActionState, useState } from "react";
 
 function CreateEmployeeForm({
@@ -109,17 +110,34 @@ function CreateEmployeeForm({
       </div>
       <div className="space-y-2">
         <p className="ds-label">Services</p>
+        <p className="text-xs text-muted-foreground">
+          Select at least one service this provider can perform.
+        </p>
         <div className="grid max-h-40 gap-2 overflow-y-auto sm:grid-cols-2">
           {services.map((service) => (
             <label key={service.id} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" name="service_ids" value={service.id} />
+              <input
+                type="checkbox"
+                name="service_ids"
+                value={service.id}
+                defaultChecked={services.length === 1}
+              />
               {service.name}
             </label>
           ))}
         </div>
+        {services.length === 0 ? (
+          <p className="text-xs text-amber-800 dark:text-amber-200">
+            No services yet —{" "}
+            <Link href="/dashboard/services" className="underline underline-offset-2">
+              add a service
+            </Link>{" "}
+            next so this provider can take bookings.
+          </p>
+        ) : null}
       </div>
       <AlertMessage error={state.error} />
-      <FormFooter onCancel={onClose} pending={pending} submitLabel="Add employee" />
+      <FormFooter onCancel={onClose} pending={pending} submitLabel="Add provider" />
     </form>
   );
 }
@@ -149,8 +167,8 @@ export function EmployeeManager({
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
-        title="Add employee"
-        description="Create a team member for bookings, schedules, and HR records."
+        title="Add provider"
+        description="Create a bookable team member. Assign services so customers can pick them."
       >
         <CreateEmployeeForm
           services={services}

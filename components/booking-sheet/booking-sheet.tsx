@@ -160,7 +160,7 @@ export function BookingSheet({
         : format(new Date(), "yyyy-MM-dd"),
       slot: initialStart,
       duration,
-      status: (appointment?.status ?? "pending") as AppointmentStatus,
+      status: (appointment?.status ?? "confirmed") as AppointmentStatus,
       notes: appointment?.notes ?? "",
     };
   }, [
@@ -480,7 +480,9 @@ export function BookingSheet({
 
           <p className="flex-1 text-xs text-muted-foreground">
             {canSubmit
-              ? "Ready to save through the Booking Engine."
+              ? isEditing
+                ? "Ready to save changes through the Booking Engine."
+                : "Ready to book — saves as confirmed unless you change status."
               : "Still need customer, service, employee, and a valid time."}
           </p>
           <div className="flex gap-2">

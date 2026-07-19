@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { CrmTimelineItem } from "@/lib/crm/types";
 import { format } from "date-fns";
@@ -16,6 +17,7 @@ import {
   NotebookPen,
   Phone,
 } from "lucide-react";
+import Link from "next/link";
 
 const ICONS = {
   appointment: Calendar,
@@ -31,15 +33,35 @@ const ICONS = {
   other: History,
 } as const;
 
-export function CustomerTimeline({ items }: { items: CrmTimelineItem[] }) {
+export function CustomerTimeline({
+  items,
+  onAddNote,
+}: {
+  items: CrmTimelineItem[];
+  onAddNote?: () => void;
+}) {
   if (items.length === 0) {
     return (
       <EmptyState
         variant="panel"
         glyph={History}
         title="No timeline activity yet"
-        description="Appointments, calls, messages, notes, documents, and payments will appear here."
-      />
+        description="Appointments, notes, and payments will show up here after the first visit."
+      >
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <Link
+            href="/dashboard/calendar"
+            className="inline-flex h-9 items-center rounded-[var(--radius-sm)] bg-primary px-3.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+          >
+            Book appointment
+          </Link>
+          {onAddNote ? (
+            <Button type="button" size="sm" variant="outline" onClick={onAddNote}>
+              Add note
+            </Button>
+          ) : null}
+        </div>
+      </EmptyState>
     );
   }
 

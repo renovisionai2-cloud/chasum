@@ -84,9 +84,10 @@ export function HoursSettingsPanel({
           <form action={hoursAction} className="space-y-4">
             <WorkingHoursGrid hours={hours} namePrefix="day" />
             <p className="text-xs text-muted-foreground">
-              Closed days: uncheck a day. Split shifts and special windows can be
-              added as temporary / special-hour closures below until the calendar
-              engine consumes multi-segment hours.
+              Closed days: uncheck a day. If Saturday or Sunday is closed, public
+              booking and Reception show zero slots those days — open weekend
+              hours if you take appointments then. Split shifts can be added as
+              temporary closures below until multi-segment hours ship.
             </p>
             <AlertMessage error={hoursState.error} success={hoursState.success} />
             <FormFooter pending={hoursPending} submitLabel="Save weekly hours" />

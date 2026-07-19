@@ -35,21 +35,19 @@ import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { Copy, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useState } from "react";
 
 function ProfileForm({ business }: { business: Business }) {
   const [state, formAction, pending] = useActionState(
     updateBusinessProfile,
     {} as ActionState,
   );
-  const [bookingOrigin, setBookingOrigin] = useState(getAppUrl());
+  const [bookingOrigin] = useState(() =>
+    typeof window !== "undefined" ? window.location.origin : getAppUrl(),
+  );
   const bookingPath = `/book/${business.slug}`;
   const bookingUrl = `${bookingOrigin}${bookingPath}`;
   const social = business.social_links ?? {};
-
-  useEffect(() => {
-    setBookingOrigin(window.location.origin);
-  }, []);
 
   useFormAction(state);
 

@@ -322,6 +322,10 @@ export function BusinessHub({
         <Card>
           <CardHeader>
             <CardTitle>Business profile</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Customers see your business name and booking slug on the public
+              booking page.
+            </p>
           </CardHeader>
           <CardContent>
             <form action={profileAction} className="space-y-4">
@@ -357,6 +361,10 @@ export function BusinessHub({
                 <div className="space-y-2">
                   <Label htmlFor="slug">Booking slug</Label>
                   <Input id="slug" name="slug" defaultValue={business.slug} required />
+                  <p className="text-xs text-muted-foreground">
+                    Letters, numbers, and hyphens only. Public link:{" "}
+                    <span className="font-mono">/book/{business.slug || "your-slug"}</span>
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="business_type">Business type</Label>

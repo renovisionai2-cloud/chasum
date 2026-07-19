@@ -9,6 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Operation GVM Sprint 2 — deployment readiness)
+
+- Business: slug reserved/ugly-name validation, live `/book/{slug}` helper, weekend-hours warning
+- Services: no $0 price default, staff-assignment hints, clearer empty state
+- Employees: provider-first create copy, auto-check sole service, schedule empty → Edit schedule CTA
+- Bookings: new appointments default to **confirmed**
+- CRM: phone-aware search copy, timeline empty CTAs (book / add note)
+- Payments: customer picker + Collect payment query prefills, human status labels, Chase insights link
+- Summer: incomplete-knowledge banner with setup links (never invents missing facts)
+- Chase: empty insights show actionable get-started guidance instead of misleading “steady”
+
 ### Changed (GVM go-live readiness — onboarding & friction)
 
 - Overview shows a **Get operational** setup checklist until profile, hours, services, and staff are ready; quick actions switch to setup tasks

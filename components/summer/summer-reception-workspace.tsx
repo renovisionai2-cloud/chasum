@@ -53,6 +53,11 @@ export function SummerReceptionWorkspace({
     hoursConfigured: number;
   };
 }) {
+  const knowledgeGaps: string[] = [];
+  if (knowledgeReady.serviceCount === 0) knowledgeGaps.push("services");
+  if (knowledgeReady.employeeCount === 0) knowledgeGaps.push("employees");
+  if (knowledgeReady.hoursConfigured === 0) knowledgeGaps.push("business hours");
+  const knowledgeIncomplete = knowledgeGaps.length > 0;
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [visitorEmail, setVisitorEmail] = useState("");
@@ -253,6 +258,52 @@ export function SummerReceptionWorkspace({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+      {knowledgeIncomplete ? (
+        <div
+          className="col-span-full flex flex-wrap items-start gap-3 rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm"
+          role="status"
+        >
+          <AlertTriangle
+            className="mt-0.5 size-4 shrink-0 text-amber-700 dark:text-amber-300"
+            aria-hidden
+          />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-foreground">
+              Summer needs more business data before answering confidently
+            </p>
+            <p className="mt-0.5 text-muted-foreground">
+              Missing: {knowledgeGaps.join(", ")}. Summer will say when something
+              is not on file — she never invents hours, prices, or availability.
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {knowledgeReady.serviceCount === 0 ? (
+                <Link
+                  href="/dashboard/services"
+                  className="text-xs font-medium underline underline-offset-2"
+                >
+                  Add services
+                </Link>
+              ) : null}
+              {knowledgeReady.employeeCount === 0 ? (
+                <Link
+                  href="/dashboard/employees"
+                  className="text-xs font-medium underline underline-offset-2"
+                >
+                  Add employees
+                </Link>
+              ) : null}
+              {knowledgeReady.hoursConfigured === 0 ? (
+                <Link
+                  href="/dashboard/business"
+                  className="text-xs font-medium underline underline-offset-2"
+                >
+                  Set hours
+                </Link>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
       <Card className="overflow-hidden border-border/80">
         <CardHeader className="border-b border-border/80 bg-gradient-to-br from-spark/10 via-background to-background">
           <div className="flex items-start gap-3">
@@ -501,10 +552,16 @@ export function SummerReceptionWorkspace({
             <p>{knowledgeReady.serviceCount} services</p>
             <p>{knowledgeReady.employeeCount} employees</p>
             <p>{knowledgeReady.hoursConfigured} days with hours</p>
-            <p className="pt-1 text-xs">
-              Answers and prices come from Business, Services, and Employees —
-              never invented.
-            </p>
+            {knowledgeIncomplete ? (
+              <p className="pt-1 text-xs text-amber-800 dark:text-amber-200">
+                Incomplete setup — Summer will refuse to guess missing facts.
+              </p>
+            ) : (
+              <p className="pt-1 text-xs">
+                Answers and prices come from Business, Services, and Employees —
+                never invented.
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>

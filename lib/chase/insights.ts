@@ -141,15 +141,31 @@ export function buildChaseInsights(input: {
   }
 
   if (list.length === 0) {
-    list.push(
-      insight(
-        "steady",
-        "Operations look steady",
-        "No urgent signals from today's data. Keep confirming bookings and watching capacity.",
-        "low",
-        "ops",
-      ),
-    );
+    const hasActivity =
+      kpis.todayAppointments > 0 ||
+      kpis.weekBookings > 0 ||
+      kpis.todayRevenue > 0;
+    if (!hasActivity) {
+      list.push(
+        insight(
+          "get-started",
+          "No operating data yet — here is what to do next",
+          "Add a service, set provider hours, book a customer, then collect payment. Chase only shows insights from real activity — never invented metrics.",
+          "medium",
+          "ops",
+        ),
+      );
+    } else {
+      list.push(
+        insight(
+          "steady",
+          "Operations look steady",
+          "No urgent signals from today's data. Keep confirming bookings and watching capacity.",
+          "low",
+          "ops",
+        ),
+      );
+    }
   }
 
   const order: Record<ChasePriority, number> = { high: 0, medium: 1, low: 2 };

@@ -97,10 +97,10 @@ export function CustomerDirectory({
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search customers…"
+            placeholder="Search name, email, or phone…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search customers"
+            aria-label="Search customers by name, email, or phone"
           />
         </div>
         <Button type="button" onClick={onAdd}>
@@ -175,8 +175,8 @@ export function CustomerDirectory({
           title={customers.length === 0 ? "No customers yet" : "No matches"}
           description={
             customers.length === 0
-              ? "Add your first customer to start building relationships."
-              : "Try a different search or filter."
+              ? "Add a walk-in with phone only, or a full profile — about 30 seconds."
+              : "Try a different name, email, phone, or filter."
           }
         >
           {customers.length === 0 ? (

@@ -284,7 +284,13 @@ export function ChaseOpsWorkspace({
           description="Prioritized recommendations from real data."
         >
           <ul className="space-y-2">
-            {snapshot.insights.map((item) => (
+            {snapshot.insights.length === 0 ? (
+              <li className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/30 p-3 text-sm text-muted-foreground">
+                Insights are off or unavailable. Enable recommendations in Chase
+                settings, or complete a few bookings so Chase has real data.
+              </li>
+            ) : (
+              snapshot.insights.map((item) => (
               <li
                 key={item.id}
                 className="rounded-[var(--radius-md)] border border-border bg-background p-3"
@@ -305,7 +311,8 @@ export function ChaseOpsWorkspace({
                 <p className="mt-1.5 text-sm font-medium">{item.title}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{item.body}</p>
               </li>
-            ))}
+              ))
+            )}
           </ul>
         </Section>
 

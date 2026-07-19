@@ -58,6 +58,20 @@ export async function updateBusinessManagementProfile(
     .replace(/[^a-z0-9-]/g, "-");
   if (!name) return { error: "Business name is required." };
   if (!slug) return { error: "Booking URL slug is required." };
+  if (slug.length < 3) {
+    return { error: "Booking slug must be at least 3 characters." };
+  }
+  if (
+    slug === "my-business" ||
+    slug.startsWith("prod-auth") ||
+    slug.startsWith("biz-") ||
+    /^\d+$/.test(slug)
+  ) {
+    return {
+      error:
+        "Choose a memorable slug (for example gvm-baby-world) — placeholders are not allowed.",
+    };
+  }
 
   const social_links: BusinessSocialLinks = {
     instagram: emptyToNull(formData.get("social_instagram")) ?? undefined,

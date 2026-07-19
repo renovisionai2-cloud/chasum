@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><title>GVM Sprint 2 — Friction reductions</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--primary:#1d4ed8;--amber:#fef3c7;--amberb:#f59e0b;--navy:#0B1324}
+*{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:960px;margin:0 auto;padding:32px 24px 64px}
+h1{font-size:26px;letter-spacing:-.03em;margin:0 0 6px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 28px}
+section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin-bottom:18px}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h2{font-size:17px;margin:0 0 10px;letter-spacing:-.02em}
+p{font-size:13px;color:var(--muted);line-height:1.45;margin:0 0 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid var(--border);background:#fff;color:var(--text);text-decoration:none}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.warn{background:var(--amber);border:1px solid #fcd34d;border-radius:12px;padding:14px 16px;font-size:13px;margin-top:8px}
+.warn strong{display:block;margin-bottom:4px;color:var(--text)}
+.chip{display:inline-block;font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--border);background:#f8fafc;margin-right:6px;text-transform:uppercase;letter-spacing:.06em}
+.metric{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.m{border:1px solid var(--border);border-radius:12px;padding:12px}.m .l{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.08em}.m .v{font-size:20px;font-weight:600;margin-top:4px}
+input,select{height:38px;border:1px solid var(--border);border-radius:10px;padding:0 12px;font-size:13px;width:100%;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.empty{border:1px dashed var(--border);border-radius:14px;padding:28px;text-align:center;background:#fafbfc}
+.empty h3{margin:0 0 6px;font-size:15px}.empty p{margin:0 auto 14px;max-width:360px}
+</style></head><body>
+<div class="wrap">
+<h1>Operation GVM Sprint 2</h1>
+<p class="sub">Deployment readiness — friction reductions across setup → first payment (no new modules).</p>
+
+<section id="business">
+<p class="eyebrow">Business setup</p>
+<h2>Slug helper + reserved-name validation</h2>
+<p>Public booking URL preview and rejection of placeholder slugs (<code>my-business</code>, <code>biz-*</code>, <code>prod-auth*</code>).</p>
+<div class="grid2"><input value="gvm-baby-world" readonly/><div style="display:flex;align-items:center;font-size:13px;color:var(--muted)">→ /book/gvm-baby-world</div></div>
+<div class="warn"><strong>Weekend hours</strong>Saturdays/Sundays with zero open slots show a warning — public booking stays empty on those days otherwise.</div>
+</section>
+
+<section id="services">
+<p class="eyebrow">Services</p>
+<h2>Faster first service</h2>
+<div class="empty">
+<h3>No services yet</h3>
+<p>Create your first bookable service — about 2 minutes (name, duration, price, then assign an employee).</p>
+<span class="btn primary">+ Add service</span>
+</div>
+<p style="margin-top:14px">Price field starts blank (no $0 default). Staff assign hints when no employees exist.</p>
+</section>
+
+<section id="employees">
+<p class="eyebrow">Employees</p>
+<h2>Provider-first create + schedule CTA</h2>
+<p>Dialog: “Add provider” · auto-checks the only service · success reminds to assign services when skipped.</p>
+<div class="empty">
+<h3>No hours configured</h3>
+<p>Set weekly working hours so this provider appears in availability.</p>
+<span class="btn primary">Edit schedule</span>
+</div>
+</section>
+
+<section id="crm">
+<p class="eyebrow">CRM</p>
+<h2>Search + empty timeline</h2>
+<input placeholder="Search name, email, or phone…" style="max-width:320px"/>
+<div class="empty" style="margin-top:14px">
+<h3>No timeline activity yet</h3>
+<p>Appointments, notes, and payments will show up here after the first visit.</p>
+<div class="row" style="justify-content:center"><span class="btn primary">Book appointment</span><span class="btn">Add note</span></div>
+</div>
+</section>
+
+<section id="payments">
+<p class="eyebrow">Commerce</p>
+<h2>Customer picker + clear status</h2>
+<p>Collect payment deep-links prefill customer & appointment. Link renamed to <strong>Chase insights</strong>.</p>
+<div class="grid2">
+<select><option>Select customer…</option><option>Alex Rivera</option></select>
+<input placeholder="Appointment ID (optional)" value="appt-prefilled"/>
+</div>
+<div class="metric">
+<div class="m"><div class="l">Status</div><div class="v" style="font-size:14px;margin-top:8px">Succeeded</div></div>
+<div class="m"><div class="l">Booking</div><div class="v" style="font-size:14px;margin-top:8px">Fully paid</div></div>
+<div class="m"><div class="l">Method</div><div class="v" style="font-size:14px;margin-top:8px">Cash</div></div>
+<div class="m"><div class="l">Default booking</div><div class="v" style="font-size:14px;margin-top:8px">Confirmed</div></div>
+</div>
+</section>
+
+<section id="summer">
+<p class="eyebrow">Summer</p>
+<h2>Grounded knowledge banner</h2>
+<div class="warn"><strong>Summer needs more business data before answering confidently</strong>Missing: services, employees, business hours. Summer will say when something is not on file — she never invents hours, prices, or availability.
+<div class="row"><span class="btn">Add services</span><span class="btn">Add employees</span><span class="btn">Set hours</span></div>
+</div>
+</section>
+
+<section id="chase">
+<p class="eyebrow">Chase</p>
+<h2>Empty insights = actionable, not misleading</h2>
+<div style="border:1px solid var(--border);border-radius:12px;padding:14px">
+<span class="chip">medium</span><span class="chip">ops</span>
+<p style="margin-top:10px;color:var(--text);font-weight:600">No operating data yet — here is what to do next</p>
+<p>Add a service, set provider hours, book a customer, then collect payment. Chase only shows insights from real activity — never invented metrics.</p>
+</div>
+</section>
+</div>
+</body></html>

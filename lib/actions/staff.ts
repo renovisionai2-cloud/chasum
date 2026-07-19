@@ -217,7 +217,12 @@ export async function createStaff(
   revalidatePath("/dashboard/employees");
   revalidatePath(`/dashboard/employees/${staffMember.id}`);
   revalidatePath("/dashboard/calendar");
-  return { success: "Employee added." };
+  return {
+    success:
+      serviceIds.length === 0
+        ? "Provider added. Assign services on their profile so customers can book them."
+        : "Provider added.",
+  };
 }
 
 export async function updateStaff(

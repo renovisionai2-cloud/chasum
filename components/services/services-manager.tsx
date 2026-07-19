@@ -28,6 +28,7 @@ import {
   updateService,
   upsertServiceBlackout,
 } from "@/lib/actions/services";
+import Link from "next/link";
 import type {
   ActionState,
   Location,
@@ -285,8 +286,15 @@ function ServiceForm({
               type="number"
               min={0}
               step={0.01}
-              defaultValue={service?.price ?? 0}
+              defaultValue={service?.price ?? ""}
+              placeholder="e.g. 75.00"
+              required={!service}
             />
+            {!service ? (
+              <p className="text-xs text-muted-foreground">
+                Enter the customer-facing price. Use 0 only for free consults.
+              </p>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="tax_rate_bps">Tax rate (bps)</Label>
@@ -480,10 +488,18 @@ function ServiceForm({
           <p className="text-sm text-muted-foreground">Loading assignments…</p>
         ) : staff.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            No employees yet. Add employees to assign this service.
+            No employees yet.{" "}
+            <Link href="/dashboard/employees" className="underline underline-offset-2">
+              Add a provider
+            </Link>{" "}
+            and assign them here — public booking needs at least one employee on
+            this service.
           </p>
         ) : (
           <ul className="space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Assign at least one employee or customers cannot book this service.
+            </p>
             {staff
               .filter((member) => member.is_active)
               .map((member) => {
@@ -500,7 +516,10 @@ function ServiceForm({
                         type="checkbox"
                         name="staff_ids"
                         value={member.id}
-                        defaultChecked={Boolean(assignment)}
+                        defaultChecked={
+                          Boolean(assignment) ||
+                          (!service && staff.filter((s) => s.is_active).length === 1)
+                        }
                       />
                       {member.name}
                       {member.title ? (
@@ -871,6 +890,7 @@ export function ServicesManager({
                 <option value="duration">Duration</option>
               </Select>
               <Button
+                type="button"
                 onClick={() => {
                   setEditing(undefined);
                   setOpen(true);
@@ -886,12 +906,13 @@ export function ServicesManager({
               title={services.length === 0 ? "No services yet" : "No matches"}
               description={
                 services.length === 0
-                  ? "Create your first service to start accepting bookings."
+                  ? "Create your first bookable service — about 2 minutes (name, duration, price, then assign an employee)."
                   : "Try adjusting search or filters."
               }
             >
               {services.length === 0 && (
                 <Button
+                  type="button"
                   onClick={() => {
                     setEditing(undefined);
                     setOpen(true);
