@@ -19,6 +19,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Double-booking toggle marked coming soon; Chase empty-day copy no longer claims a “steady” schedule
 - CRM create accepts phone-only walk-ins; signup copy aligned to Private Alpha
 - Business hub warns when name/slug still look like placeholders
+- New-tenant slug prefers human name over opaque email local-parts
 
 ### Added (Operation GVM — Founding Partner #001)
 
