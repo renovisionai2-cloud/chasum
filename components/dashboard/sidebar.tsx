@@ -15,6 +15,7 @@ import {
   Building2,
   Calendar,
   Code,
+  Crown,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -32,6 +33,12 @@ import { usePathname } from "next/navigation";
 import type { LocationScope } from "@/lib/location/constants";
 import type { Location, SubscriptionPlan } from "@/lib/types/booking";
 
+const HQ_NAV_ITEM = {
+  href: "/dashboard/hq",
+  label: "HQ",
+  icon: "crown" as const,
+};
+
 const iconMap = {
   "layout-dashboard": LayoutDashboard,
   calendar: Calendar,
@@ -47,20 +54,24 @@ const iconMap = {
   repeat: Repeat,
   code: Code,
   settings: Settings,
+  crown: Crown,
 } as const;
 
 type SidebarProps = {
   userEmail?: string;
+  showHq?: boolean;
   className?: string;
   onNavigate?: () => void;
 };
 
 export function DashboardSidebar({
   userEmail,
+  showHq = false,
   className,
   onNavigate,
 }: SidebarProps) {
   const pathname = usePathname();
+  const navItems = showHq ? [HQ_NAV_ITEM, ...DASHBOARD_NAV] : [...DASHBOARD_NAV];
 
   return (
     <aside
@@ -74,7 +85,7 @@ export function DashboardSidebar({
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Dashboard">
-        {DASHBOARD_NAV.map((item) => {
+        {navItems.map((item) => {
           const Icon = iconMap[item.icon as keyof typeof iconMap];
           const isActive =
             pathname === item.href ||
@@ -90,6 +101,7 @@ export function DashboardSidebar({
                 isActive
                   ? "bg-white/10 text-white"
                   : "text-slate-300 hover:bg-white/5 hover:text-white",
+                item.href === "/dashboard/hq" && !isActive && "text-amber-200/90",
               )}
               aria-current={isActive ? "page" : undefined}
             >
@@ -131,6 +143,7 @@ export function DashboardSidebar({
 }
 
 export function getPageTitle(pathname: string): string {
+  if (pathname.startsWith("/dashboard/hq")) return "Chasum HQ";
   const match = DASHBOARD_NAV.find(
     (item) =>
       pathname === item.href ||
@@ -232,10 +245,16 @@ export function DashboardTopNav({
 type MobileSidebarProps = {
   open: boolean;
   userEmail?: string;
+  showHq?: boolean;
   onClose: () => void;
 };
 
-export function MobileSidebar({ open, userEmail, onClose }: MobileSidebarProps) {
+export function MobileSidebar({
+  open,
+  userEmail,
+  showHq = false,
+  onClose,
+}: MobileSidebarProps) {
   if (!open) return null;
 
   return (
@@ -257,7 +276,11 @@ export function MobileSidebar({ open, userEmail, onClose }: MobileSidebarProps) 
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <DashboardSidebar userEmail={userEmail} onNavigate={onClose} />
+        <DashboardSidebar
+          userEmail={userEmail}
+          showHq={showHq}
+          onNavigate={onClose}
+        />
       </div>
     </div>
   );

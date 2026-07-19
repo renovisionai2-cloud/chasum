@@ -7,6 +7,7 @@ import {
   getLocationScope,
   getLocations,
 } from "@/lib/actions/location";
+import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -28,10 +29,11 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const [locations, locationScope, locationQuota] = await Promise.all([
+  const [locations, locationScope, locationQuota, showHq] = await Promise.all([
     getLocations(),
     getLocationScope(),
     getLocationQuota(),
+    isPlatformOwner(user),
   ]);
 
   return (
@@ -40,6 +42,7 @@ export default async function DashboardLayout({
       locations={locations}
       locationScope={locationScope}
       locationQuota={locationQuota}
+      showHq={showHq}
     >
       {children}
     </DashboardShell>

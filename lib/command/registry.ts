@@ -18,7 +18,8 @@ export type CommandId =
   | "go-ai"
   | "go-summer"
   | "go-chase"
-  | "go-payments";
+  | "go-payments"
+  | "go-hq";
 
 export type CommandDefinition = {
   id: CommandId;
@@ -141,6 +142,14 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
     subtitle: "Team roster",
     href: "/dashboard/ai-workforce",
     keywords: ["ai", "workforce", "alex"],
+    group: "navigate",
+  },
+  {
+    id: "go-hq",
+    title: "Open Chasum HQ",
+    subtitle: "Founder operating system",
+    href: "/dashboard/hq",
+    keywords: ["hq", "founder", "ceo", "pipeline", "launch", "owner"],
     group: "navigate",
   },
 ];

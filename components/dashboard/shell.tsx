@@ -19,6 +19,7 @@ type DashboardShellProps = {
     currentCount: number;
     canAdd: boolean;
   };
+  showHq?: boolean;
   children: React.ReactNode;
 };
 
@@ -27,6 +28,7 @@ export function DashboardShell({
   locations,
   locationScope,
   locationQuota,
+  showHq = false,
   children,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -34,7 +36,11 @@ export function DashboardShell({
   return (
     <div className="flex min-h-screen bg-background">
       <div className="hidden lg:block">
-        <DashboardSidebar userEmail={userEmail} className="fixed inset-y-0" />
+        <DashboardSidebar
+          userEmail={userEmail}
+          showHq={showHq}
+          className="fixed inset-y-0"
+        />
       </div>
 
       <div className="flex flex-1 flex-col lg:pl-64">
@@ -51,6 +57,7 @@ export function DashboardShell({
       <MobileSidebar
         open={mobileOpen}
         userEmail={userEmail}
+        showHq={showHq}
         onClose={() => setMobileOpen(false)}
       />
 

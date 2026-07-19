@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Chasum HQ</title>
+<style>
+  :root { --bg:#f8fafc; --card:#fff; --border:#e2e8f0; --text:#0f172a; --muted:#64748b; --primary:#2563eb; --navy:#0B1324; }
+  *{box-sizing:border-box} body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}
+  .shell{display:flex;min-height:100vh}
+  .side{width:220px;background:var(--navy);color:#fff;padding:20px 14px;flex-shrink:0}
+  .side .brand{font-weight:700;letter-spacing:-.02em;margin-bottom:24px;padding:0 8px}
+  .side a{display:block;padding:8px 10px;border-radius:8px;color:#cbd5e1;font-size:13px;text-decoration:none;margin-bottom:2px}
+  .side a.active{background:rgba(255,255,255,.1);color:#fff}
+  .side a.hq{color:#fde68a}
+  .main{flex:1;padding:28px 36px 64px}
+  h1{font-size:28px;letter-spacing:-.03em;margin:0}
+  .sub{color:var(--muted);font-size:14px;margin:6px 0 28px}
+  .nav{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:28px}
+  .nav span{font-size:11px;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--border);color:var(--muted)}
+  .eyebrow{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0}
+  h2{font-size:20px;margin:4px 0 16px;letter-spacing:-.02em}
+  section{margin-bottom:48px}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(5,1fr);margin-bottom:12px}
+  .grid4{grid-template-columns:repeat(4,1fr)}
+  .grid3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+  .label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .val{font-size:28px;font-weight:600;letter-spacing:-.03em;margin-top:6px}
+  .desc{font-size:12px;color:var(--muted);margin-top:8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--border);background:#f1f5f9}
+  td{padding:12px 16px;border-bottom:1px solid #f1f5f9}
+  .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;border:1px solid var(--border)}
+  .risk-low{background:#dcfce7;color:#166534}.risk-med{background:#fef3c7;color:#92400e}.risk-high{background:#fee2e2;color:#991b1b}
+  .rings{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ring{text-align:center;padding:28px;border:1px solid var(--border);border-radius:16px;background:#fff}
+  .pct{font-size:36px;font-weight:600;letter-spacing:-.04em}
+  .lane{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .chip{background:#f1f5f9;border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:6px}
+  .note{font-size:12px;color:var(--muted);background:#f1f5f9;border-radius:10px;padding:12px 14px;margin-bottom:24px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="brand">Chasum</div>
+    <a class="hq active" href="#">HQ</a>
+    <a href="#">Overview</a>
+    <a href="#">Reception</a>
+    <a href="#">CRM</a>
+    <a href="#">Reports</a>
+  </aside>
+  <div class="main">
+    <h1>Chasum HQ</h1>
+    <p class="sub">Founder operating system — pipeline, health, revenue, and launch readiness. Internal only.</p>
+    <div class="nav">
+      <span>Executive</span><span>Pipeline</span><span>Customer Health</span><span>Revenue</span><span>Product</span><span>Roadmap</span><span>Launch</span>
+    </div>
+    <p class="note">Pipeline, bugs, and roadmap are founder-curated until applications and issue trackers are persisted. Platform MRR/business counts use live Owner metrics when available.</p>
+
+    <section id="executive">
+      <p class="eyebrow">Command</p>
+      <h2>Executive Dashboard</h2>
+      <div class="grid">
+        <div class="card"><div class="label">Applications</div><div class="val">5</div><div class="desc">Design partner pipeline</div></div>
+        <div class="card"><div class="label">Accepted</div><div class="val">2</div><div class="desc">Accepted + onboarded</div></div>
+        <div class="card"><div class="label">Active Businesses</div><div class="val">3</div><div class="desc">Platform tenants</div></div>
+        <div class="card"><div class="label">Weekly Active</div><div class="val">2</div><div class="desc">Engaged partners</div></div>
+        <div class="card"><div class="label">MRR</div><div class="val">$0</div><div class="desc">Estimated list-price</div></div>
+      </div>
+      <div class="grid">
+        <div class="card"><div class="label">Bookings (7d)</div><div class="val">76</div></div>
+        <div class="card"><div class="label">Summer Conversations</div><div class="val">47</div></div>
+        <div class="card"><div class="label">Chase Reports</div><div class="val">12</div></div>
+        <div class="card"><div class="label">Support Tickets</div><div class="val">3</div></div>
+        <div class="card"><div class="label">Production Health</div><div class="val">Healthy</div></div>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <p class="eyebrow">Growth</p>
+      <h2>Design Partner Pipeline</h2>
+      <div class="grid">
+        <div class="card"><div class="label">Applied</div><div class="val">1</div></div>
+        <div class="card"><div class="label">Interview</div><div class="val">1</div></div>
+        <div class="card"><div class="label">Accepted</div><div class="val">1</div></div>
+        <div class="card"><div class="label">Declined</div><div class="val">1</div></div>
+        <div class="card"><div class="label">Onboarded</div><div class="val">1</div></div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;margin-top:12px">
+        <table>
+          <thead><tr><th>Business</th><th>Industry</th><th>Stage</th><th>Volume</th><th>Applied</th></tr></thead>
+          <tbody>
+            <tr><td><strong>GVM Ultrasound</strong></td><td>Medical imaging</td><td><span class="badge">onboarded</span></td><td>400+/mo</td><td>2026-06-12</td></tr>
+            <tr><td><strong>Northline Wellness</strong></td><td>Clinic</td><td><span class="badge">interview</span></td><td>180/mo</td><td>2026-07-14</td></tr>
+            <tr><td><strong>Atelier Studio</strong></td><td>Salon</td><td><span class="badge">applied</span></td><td>220/mo</td><td>2026-07-16</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="health">
+      <p class="eyebrow">Success</p>
+      <h2>Customer Health</h2>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table>
+          <thead><tr><th>Partner</th><th>Status</th><th>Weekly</th><th>Last login</th><th>Bookings</th><th>Messages</th><th>Support</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>GVM Ultrasound</td><td>active</td><td>92%</td><td>2026-07-18</td><td>64</td><td>18</td><td>1</td><td><span class="badge risk-low">low</span></td></tr>
+            <tr><td>Harbor Spa</td><td>onboarding</td><td>41%</td><td>2026-07-17</td><td>12</td><td>6</td><td>2</td><td><span class="badge risk-med">medium</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="revenue">
+      <p class="eyebrow">Finance</p>
+      <h2>Revenue</h2>
+      <div class="grid grid4">
+        <div class="card"><div class="label">MRR</div><div class="val">$0</div></div>
+        <div class="card"><div class="label">Bookings (7d)</div><div class="val">76</div></div>
+        <div class="card"><div class="label">Active Businesses</div><div class="val">3</div></div>
+        <div class="card"><div class="label">Pipeline accepted</div><div class="val">2</div></div>
+      </div>
+    </section>
+
+    <section id="product">
+      <p class="eyebrow">Engineering</p>
+      <h2>Product Health</h2>
+      <div class="grid grid3">
+        <div class="card"><div class="label">Production Readiness</div><div class="val">85%</div></div>
+        <div class="card"><div class="label">Critical Bugs</div><div class="val">1</div></div>
+        <div class="card"><div class="label">Open Bugs</div><div class="val">3</div></div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <p class="eyebrow">Product</p>
+      <h2>Roadmap Progress</h2>
+      <div class="lane">
+        <div class="card"><div class="label">Completed</div><div class="chip">Milestone 6.1</div><div class="chip">Private Alpha marketing</div></div>
+        <div class="card"><div class="label">Current</div><div class="chip">Chasum HQ</div><div class="chip">Persist applications</div></div>
+        <div class="card"><div class="label">Next</div><div class="chip">Stripe Billing</div><div class="chip">Staff RBAC</div></div>
+        <div class="card"><div class="label">Future</div><div class="chip">Full AI Workforce</div><div class="chip">Native mobile</div></div>
+      </div>
+    </section>
+
+    <section id="launch">
+      <p class="eyebrow">Go-to-market</p>
+      <h2>Launch Readiness</h2>
+      <div class="rings">
+        <div class="ring"><div class="pct">88%</div><div class="desc">Private Alpha</div></div>
+        <div class="ring"><div class="pct">72%</div><div class="desc">Closed Beta</div></div>
+        <div class="ring"><div class="pct">48%</div><div class="desc">Public Launch</div></div>
+      </div>
+    </section>
+  </div>
+</div>
+</body>
+</html>

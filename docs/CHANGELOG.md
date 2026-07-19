@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Chasum HQ — Founder Operating System)
+
+- Internal founder dashboard at `/dashboard/hq` (platform owners only)
+- Executive KPIs, design-partner pipeline, customer health, revenue, product health, bugs, feature requests, roadmap, release notes, launch readiness rings
+- Live Owner metrics when available; curated seed for pipeline/bugs/roadmap until persisted
+- Architecture: `docs/HQ_ARCHITECTURE.md`
+
 ### Changed (Private Alpha marketing readiness)
 
 - Public CTAs now route to Apply / Request Early Access (`/apply`) instead of “Start Free” self-serve signup
