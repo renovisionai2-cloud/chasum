@@ -148,6 +148,16 @@ export async function createCrmCustomer(
   const payload = parseCustomerPayload(formData);
 
   if (!payload.name) return { error: "Customer name is required." };
+  if (!payload.email && !payload.phone) {
+    return {
+      error: "Add an email or phone number so you can reach this customer.",
+    };
+  }
+  // Schema requires email (unique per business). Phone-only walk-ins get a stable placeholder.
+  if (!payload.email && payload.phone) {
+    const digits = payload.phone.replace(/\D/g, "") || "unknown";
+    payload.email = `phone.${digits}@chasum.local`;
+  }
   if (!payload.email) return { error: "Email is required." };
 
   const { data, error } = await supabase

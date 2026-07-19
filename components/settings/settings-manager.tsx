@@ -35,15 +35,21 @@ import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { Copy, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 function ProfileForm({ business }: { business: Business }) {
   const [state, formAction, pending] = useActionState(
     updateBusinessProfile,
     {} as ActionState,
   );
-  const bookingUrl = `${getAppUrl()}/book/${business.slug}`;
+  const [bookingOrigin, setBookingOrigin] = useState(getAppUrl());
+  const bookingPath = `/book/${business.slug}`;
+  const bookingUrl = `${bookingOrigin}${bookingPath}`;
   const social = business.social_links ?? {};
+
+  useEffect(() => {
+    setBookingOrigin(window.location.origin);
+  }, []);
 
   useFormAction(state);
 
@@ -307,6 +313,9 @@ function ProfileForm({ business }: { business: Business }) {
           <div className="rounded-[var(--radius-md)] border border-border bg-muted/30 p-4">
             <p className="text-sm font-medium">Public booking page</p>
             <p className="mt-1 break-all text-sm text-muted-foreground">{bookingUrl}</p>
+            <p className="mt-1 font-mono text-xs text-muted-foreground">
+              Path: {bookingPath}
+            </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Button
                 type="button"
@@ -316,7 +325,7 @@ function ProfileForm({ business }: { business: Business }) {
               >
                 <Copy className="h-4 w-4" /> Copy link
               </Button>
-              <Link href={`/book/${business.slug}`} target="_blank">
+              <Link href={bookingPath} target="_blank">
                 <Button type="button" variant="outline" size="sm">
                   <ExternalLink className="h-4 w-4" /> Preview
                 </Button>

@@ -388,15 +388,15 @@ export function CalendarClient({
     return (
       <EmptyState
         title="Set up your booking engine"
-        description="Add at least one service and one staff member before scheduling appointments."
+        description="Add at least one service and one bookable employee before scheduling appointments."
       >
         <div className="flex flex-wrap justify-center gap-2">
           <Link href="/dashboard/services">
             <Button size="sm">Add service</Button>
           </Link>
-          <Link href="/dashboard/staff">
+          <Link href="/dashboard/employees">
             <Button size="sm" variant="outline">
-              Add staff
+              Add employee
             </Button>
           </Link>
         </div>

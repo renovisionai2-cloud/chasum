@@ -42,9 +42,19 @@ export async function getOrCreateBusiness(): Promise<Business> {
   const supabase = await createClient();
 
   const baseName =
-    (user.user_metadata?.full_name as string | undefined) ?? "My Business";
+    (user.user_metadata?.full_name as string | undefined)?.trim() ||
+    (user.user_metadata?.name as string | undefined)?.trim() ||
+    "My Business";
   const emailPrefix = user.email?.split("@")[0] ?? "business";
-  const preferredSlug = slugify(emailPrefix);
+  // Prefer a human slug from the display name; avoid long opaque email local-parts.
+  const fromName = slugify(baseName);
+  const fromEmail = slugify(emailPrefix);
+  const preferredSlug =
+    fromName && fromName !== "my-business" && fromName.length >= 3
+      ? fromName
+      : fromEmail && !/\d{8,}/.test(fromEmail) && fromEmail.length <= 32
+        ? fromEmail
+        : `biz-${user.id.replace(/-/g, "").slice(0, 8)}`;
 
   const { data, error } = await supabase.rpc("ensure_business_for_owner", {
     p_name: baseName,

@@ -9,6 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (GVM go-live readiness — onboarding & friction)
+
+- Overview shows a **Get operational** setup checklist until profile, hours, services, and staff are ready; quick actions switch to setup tasks
+- Clearer public booking empty state (lists missing service/staff); calendar setup links to Employees
+- **Add myself as provider** one-click on empty Employees
+- Booking Sheet / Day View Collect payment deep-links to Payments (no stub toast)
+- Settings booking URL uses the current browser origin; AI settings no longer claim “Phase 4 later”
+- Double-booking toggle marked coming soon; Chase empty-day copy no longer claims a “steady” schedule
+- CRM create accepts phone-only walk-ins; signup copy aligned to Private Alpha
+- Business hub warns when name/slug still look like placeholders
+
 ### Added (Operation GVM — Founding Partner #001)
 
 - Live onboarding friction audit: `docs/OPERATION_GVM_REPORT.md`

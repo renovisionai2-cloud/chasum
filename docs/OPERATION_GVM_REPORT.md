@@ -4,7 +4,8 @@
 **Partner:** Founding Design Partner #001 — GVM Baby World  
 **Method:** Live product walk on a signed-in empty/near-empty tenant + code-path review of the 25-step journey.  
 **Date:** 2026-07-18  
-**Status:** Identify only — do not fix in this pass.
+**Status:** Identify only — do not fix in this pass.  
+**Follow-up (2026-07-19):** P0 friction addressed in product — setup checklist, provider one-click, payment deep-links, booking empty-state, AI/Chase copy, booking URL origin. See changelog *GVM go-live readiness*.
 
 Screenshots: [`docs/operation-gvm/screenshots/`](./operation-gvm/screenshots/)  
 Playbook: [`GVM_ONBOARDING_CHECKLIST.md`](./GVM_ONBOARDING_CHECKLIST.md)

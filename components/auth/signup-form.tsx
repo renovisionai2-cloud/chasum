@@ -39,7 +39,9 @@ export function SignUpForm({
         <Card className="w-full max-w-md border-border/60 shadow-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Create your account</CardTitle>
-            <CardDescription>Start scheduling smarter in minutes</CardDescription>
+            <CardDescription>
+              Create your Chasum account for Private Alpha
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <OnboardingPlanSelect value={plan} onChange={setPlan} />
@@ -63,7 +65,7 @@ export function SignUpForm({
   return (
     <AuthForm
       title="Create your account"
-      description="Start scheduling smarter in minutes"
+      description="Create your Chasum account for Private Alpha"
       action={signUp}
       submitLabel={selected.cta}
       footer={

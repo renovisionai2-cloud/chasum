@@ -209,8 +209,13 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
         ? 100
         : null;
 
-  let recommendation = "Schedule looks steady — keep confirming pending bookings.";
-  if (availableSlots >= 5 && activeRows.length < staffWorking * 2) {
+  let recommendation =
+    activeRows.length === 0
+      ? availableSlots > 0
+        ? `No appointments yet today — ${availableSlots} open slots are ready when bookings come in.`
+        : "No appointments on the board yet. Confirm hours and staff availability if you expect walk-ins."
+      : "Schedule looks steady — keep confirming pending bookings.";
+  if (activeRows.length > 0 && availableSlots >= 5 && activeRows.length < staffWorking * 2) {
     recommendation = `${format(now, "EEEE")} looks underbooked — ${availableSlots} open slots remain.`;
   } else if ((pendingCount ?? 0) > 3) {
     recommendation = `${pendingCount} confirmations waiting — clear the queue first.`;

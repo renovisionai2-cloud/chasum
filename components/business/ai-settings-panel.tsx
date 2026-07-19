@@ -127,8 +127,10 @@ export function AiSettingsPanel({ business }: { business: Business }) {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Configuration only — Summer and Chase will never invent business
-              data. Runtime AI features ship in later Phase 4 modules.
+              Configuration only — Summer and Chase never invent business data.
+              Enable Summer, then open AI Workforce → Summer to ask real
+              questions and take bookings. Chase surfaces ops insights without
+              changing your data.
             </p>
 
             <AlertMessage error={state.error} success={state.success} />

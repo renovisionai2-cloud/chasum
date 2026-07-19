@@ -253,7 +253,12 @@ export function AppointmentDrawer({
               size="sm"
               variant="outline"
               onClick={() => {
-                toast("Open CRM payments to collect.", "success");
+                const params = new URLSearchParams();
+                if (appointment.customer_id) {
+                  params.set("customer", appointment.customer_id);
+                }
+                params.set("appointment", appointment.id);
+                window.location.href = `/dashboard/payments?${params.toString()}`;
               }}
             >
               <Banknote className="size-3.5" />

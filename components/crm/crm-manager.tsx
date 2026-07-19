@@ -46,7 +46,10 @@ function CreateCustomerForm({
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required />
+        <Input id="email" name="email" type="email" />
+        <p className="text-xs text-muted-foreground">
+          Email or phone required — phone-only walk-ins are fine.
+        </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

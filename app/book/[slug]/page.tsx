@@ -76,16 +76,26 @@ export default async function BookPage({ params, searchParams }: PageProps) {
   ]);
 
   if (services.length === 0 || staff.length === 0) {
+    const missing: string[] = [];
+    if (services.length === 0) missing.push("at least one service");
+    if (staff.length === 0) missing.push("at least one bookable employee");
+
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <div className="flex flex-1 items-center justify-center px-6">
-          <div className="text-center">
+        <div className="flex flex-1 items-center justify-center px-6 py-12">
+          <div className="max-w-md text-center">
             <h1 className="text-2xl font-semibold">{business.name}</h1>
             {selectedLocation && locations.length > 1 && (
               <p className="mt-1 text-muted-foreground">{selectedLocation.name}</p>
             )}
-            <p className="mt-2 text-muted-foreground">
-              Online booking is not available yet. Please check back soon.
+            <p className="mt-3 text-muted-foreground">
+              Online booking is not available yet. This business still needs{" "}
+              {missing.join(" and ")} before customers can book.
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              If you operate this business, finish setup in Chasum — add a
+              service and an employee (or add yourself as the provider), then
+              return here.
             </p>
           </div>
         </div>

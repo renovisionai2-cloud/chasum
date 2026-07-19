@@ -122,16 +122,19 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
               />
               Waitlist enabled
             </label>
-            <label className="flex items-start gap-2 text-sm sm:col-span-2">
+            <label className="flex items-start gap-2 text-sm sm:col-span-2 opacity-70">
               <input
                 type="checkbox"
                 name="allow_double_booking"
                 className="mt-0.5"
-                defaultChecked={business.allow_double_booking === true}
+                defaultChecked={false}
+                disabled
               />
               <span>
-                Allow double booking (stored preference — calendar engine still
-                prevents conflicts until Phase 4 Calendar wires this flag)
+                Allow double booking{" "}
+                <span className="text-muted-foreground">
+                  (coming soon — calendar still prevents conflicts)
+                </span>
               </span>
             </label>
           </div>

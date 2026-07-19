@@ -1,5 +1,6 @@
 "use client";
 
+import { AddMyselfAsProviderButton } from "@/components/employees/add-myself-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -313,15 +314,18 @@ export function EmployeeDirectory({
           title={employees.length === 0 ? "No employees yet" : "No matches"}
           description={
             employees.length === 0
-              ? "Add your first team member to manage schedules, roles, and payroll."
+              ? "Add yourself as a bookable provider, or invite your first team member. Public booking needs at least one employee."
               : "Try a different search or filter."
           }
         >
           {employees.length === 0 ? (
-            <Button type="button" onClick={onAdd} className="mt-4">
-              <Plus className="h-4 w-4" />
-              Add employee
-            </Button>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <Button type="button" onClick={onAdd}>
+                <Plus className="h-4 w-4" />
+                Add employee
+              </Button>
+              <AddMyselfAsProviderButton />
+            </div>
           ) : null}
         </EmptyState>
       ) : (

@@ -425,9 +425,19 @@ export function BookingSheet({
               }
             });
           }}
-          onCollectPayment={() =>
-            toast("Open CRM payments to collect — Stripe arrives soon.", "success")
-          }
+          onCollectPayment={() => {
+            const params = new URLSearchParams();
+            if (selectedCustomer?.id) {
+              params.set("customer", selectedCustomer.id);
+            }
+            if (appointment?.id) {
+              params.set("appointment", appointment.id);
+            }
+            const qs = params.toString();
+            window.location.href = qs
+              ? `/dashboard/payments?${qs}`
+              : "/dashboard/payments";
+          }}
           onPrint={() => window.print()}
           onMessage={() =>
             toast("Compose from the customer profile in CRM.", "success")

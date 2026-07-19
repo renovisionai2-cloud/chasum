@@ -10,15 +10,22 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/components/ui/stat-card";
 import { WeekBars } from "@/components/ui/chart";
+import { SetupChecklist } from "@/components/dashboard/setup-checklist";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDashboardStats } from "@/lib/actions/appointments";
 import { getLocationScope } from "@/lib/actions/location";
+import { getServices } from "@/lib/actions/services";
+import { getStaff } from "@/lib/actions/staff";
 import {
   buildAiSummary,
   firstNameFromUser,
   formatComparison,
   greetingForHour,
 } from "@/lib/dashboard/insights";
+import {
+  buildSetupSteps,
+  isSetupComplete,
+} from "@/lib/onboarding/setup-progress";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
@@ -26,6 +33,8 @@ import {
   ArrowRight,
   BarChart3,
   Bell,
+  Briefcase,
+  Building2,
   Calendar,
   CalendarPlus,
   Clock,
@@ -33,6 +42,7 @@ import {
   MessageSquare,
   Plus,
   Sparkles,
+  UserCog,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -46,7 +56,37 @@ export async function DashboardOverview() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const stats = await getDashboardStats();
+  const [stats, services, staff, locationsRes] = await Promise.all([
+    getDashboardStats(),
+    getServices(),
+    getStaff(),
+    supabase
+      .from("locations")
+      .select("id")
+      .eq("business_id", business.id)
+      .limit(5),
+  ]);
+
+  const locationIds = (locationsRes.data ?? []).map((l) => l.id);
+  let hasHours = false;
+  if (locationIds.length > 0) {
+    const { data: hoursRows } = await supabase
+      .from("location_hours")
+      .select("id, is_open")
+      .in("location_id", locationIds)
+      .eq("is_open", true)
+      .limit(1);
+    hasHours = (hoursRows?.length ?? 0) > 0;
+  }
+
+  const setupSteps = buildSetupSteps({
+    business,
+    serviceCount: services.length,
+    staffCount: staff.length,
+    hasHours,
+  });
+  const setupDone = isSetupComplete(setupSteps);
+
   const now = new Date();
   const todayAppts = stats.todayAppointments;
 
@@ -69,32 +109,59 @@ export async function DashboardOverview() {
     weekCount: stats.weekCount,
   });
 
-  const quickActions = [
-    {
-      label: "New appointment",
-      description: "Book a visit on the calendar",
-      href: "/dashboard/calendar",
-      icon: CalendarPlus,
-    },
-    {
-      label: "Add client",
-      description: "Create or update a client record",
-      href: "/dashboard/clients",
-      icon: UserPlus,
-    },
-    {
-      label: "Open calendar",
-      description: "Day, week, and month views",
-      href: "/dashboard/calendar",
-      icon: Calendar,
-    },
-    {
-      label: "AI Command Center",
-      description: "Talk to your AI Workforce",
-      href: "/dashboard/ai-workforce/command",
-      icon: MessageSquare,
-    },
-  ];
+  const quickActions = setupDone
+    ? [
+        {
+          label: "New appointment",
+          description: "Book a visit on the calendar",
+          href: "/dashboard/calendar",
+          icon: CalendarPlus,
+        },
+        {
+          label: "Add client",
+          description: "Create or update a client record",
+          href: "/dashboard/clients",
+          icon: UserPlus,
+        },
+        {
+          label: "Open calendar",
+          description: "Day, week, and month views",
+          href: "/dashboard/calendar",
+          icon: Calendar,
+        },
+        {
+          label: "AI Command Center",
+          description: "Talk to your AI Workforce",
+          href: "/dashboard/ai-workforce/command",
+          icon: MessageSquare,
+        },
+      ]
+    : [
+        {
+          label: "Business profile",
+          description: "Name, slug, contact, branding",
+          href: "/dashboard/business",
+          icon: Building2,
+        },
+        {
+          label: "Add a service",
+          description: "What customers can book",
+          href: "/dashboard/services",
+          icon: Briefcase,
+        },
+        {
+          label: "Add an employee",
+          description: "Someone who can take appointments",
+          href: "/dashboard/employees",
+          icon: UserCog,
+        },
+        {
+          label: "Booking settings",
+          description: "Hours and public booking link",
+          href: "/dashboard/settings",
+          icon: Calendar,
+        },
+      ];
 
   return (
     <div className="ds-page">
@@ -117,53 +184,86 @@ export async function DashboardOverview() {
               {greeting}, {firstName}.
             </h1>
             <p className="text-muted-foreground md:text-[0.975rem]">
-              Here&apos;s what&apos;s happening at {business.name} today.
+              {setupDone
+                ? `Here's what's happening at ${business.name} today.`
+                : `Welcome to Chasum — finish setup so ${business.name} can take real bookings.`}
             </p>
-            <div className="flex flex-wrap gap-3 pt-1 text-sm">
-              <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
-                {stats.todayCount} appointment{stats.todayCount === 1 ? "" : "s"}
-              </span>
-              <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
-                ${stats.todayRevenue.toFixed(0)} completed today
-              </span>
-              <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
-                {stats.pendingConfirmations} pending confirmation
-                {stats.pendingConfirmations === 1 ? "" : "s"}
-              </span>
-            </div>
-            <p className="flex items-start gap-2 rounded-[var(--radius-md)] border border-spark/20 bg-spark-muted/30 px-3 py-2.5 text-sm text-foreground">
-              <Sparkles
-                className="mt-0.5 h-4 w-4 shrink-0 text-spark"
-                aria-hidden="true"
-              />
-              <span>
-                <strong className="font-medium">AI summary · </strong>
-                {aiSummary}
-              </span>
-            </p>
+            {setupDone ? (
+              <>
+                <div className="flex flex-wrap gap-3 pt-1 text-sm">
+                  <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
+                    {stats.todayCount} appointment
+                    {stats.todayCount === 1 ? "" : "s"}
+                  </span>
+                  <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
+                    ${stats.todayRevenue.toFixed(0)} completed today
+                  </span>
+                  <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
+                    {stats.pendingConfirmations} pending confirmation
+                    {stats.pendingConfirmations === 1 ? "" : "s"}
+                  </span>
+                </div>
+                <p className="flex items-start gap-2 rounded-[var(--radius-md)] border border-spark/20 bg-spark-muted/30 px-3 py-2.5 text-sm text-foreground">
+                  <Sparkles
+                    className="mt-0.5 h-4 w-4 shrink-0 text-spark"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <strong className="font-medium">AI summary · </strong>
+                    {aiSummary}
+                  </span>
+                </p>
+              </>
+            ) : null}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Link href="/dashboard/calendar">
-              <Button>
-                <CalendarPlus className="h-4 w-4" aria-hidden="true" />
-                New appointment
-              </Button>
-            </Link>
-            <Link href="/dashboard/ai-workforce">
-              <Button variant="outline">
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
-                AI Workforce
-              </Button>
-            </Link>
-            <Link href="/dashboard/reports">
-              <Button variant="outline">
-                <BarChart3 className="h-4 w-4" aria-hidden="true" />
-                Reports
-              </Button>
-            </Link>
+            {setupDone ? (
+              <>
+                <Link href="/dashboard/calendar">
+                  <Button>
+                    <CalendarPlus className="h-4 w-4" aria-hidden="true" />
+                    New appointment
+                  </Button>
+                </Link>
+                <Link href="/dashboard/ai-workforce">
+                  <Button variant="outline">
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
+                    AI Workforce
+                  </Button>
+                </Link>
+                <Link href="/dashboard/reports">
+                  <Button variant="outline">
+                    <BarChart3 className="h-4 w-4" aria-hidden="true" />
+                    Reports
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/dashboard/business">
+                  <Button>
+                    <Building2 className="h-4 w-4" aria-hidden="true" />
+                    Set up business
+                  </Button>
+                </Link>
+                <Link href="/dashboard/services">
+                  <Button variant="outline">Add service</Button>
+                </Link>
+                <Link href="/dashboard/employees">
+                  <Button variant="outline">Add employee</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
+
+      {!setupDone ? (
+        <SetupChecklist
+          steps={setupSteps}
+          bookingPath={`/book/${business.slug}`}
+        />
+      ) : null}
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -267,7 +367,9 @@ export async function DashboardOverview() {
           <div>
             <h2 className="ds-section-title">Quick actions</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Common tasks, one tap away
+              {setupDone
+                ? "Common tasks, one tap away"
+                : "Finish setup first — then day-to-day ops live here"}
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
@@ -327,8 +429,8 @@ export async function DashboardOverview() {
                 </Link>
               </div>
               <p className="mt-4 text-xs text-muted-foreground">
-                Tip: Share your public booking link from Settings once hours and
-                services are set.
+                Tip: Share your public booking link from Settings once hours,
+                services, and staff are set.
               </p>
             </EmptyState>
           ) : (
