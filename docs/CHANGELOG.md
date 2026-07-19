@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Milestone 7 — Private Alpha Management Platform)
+
+- Internal ops surface at `/dashboard/hq/private-alpha` for four Founding Design Partners
+- Partner dossiers, 12-step onboarding checklist, feedback board, support log, weekly founder review, owner-only notes
+- Architecture: `docs/PRIVATE_ALPHA_ARCHITECTURE.md`
+
 ### Added (Chasum HQ — Founder Operating System)
 
 - Internal founder dashboard at `/dashboard/hq` (platform owners only)

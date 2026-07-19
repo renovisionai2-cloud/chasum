@@ -143,6 +143,9 @@ export function DashboardSidebar({
 }
 
 export function getPageTitle(pathname: string): string {
+  if (pathname.startsWith("/dashboard/hq/private-alpha")) {
+    return "Private Alpha";
+  }
   if (pathname.startsWith("/dashboard/hq")) return "Chasum HQ";
   const match = DASHBOARD_NAV.find(
     (item) =>

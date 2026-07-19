@@ -66,6 +66,10 @@ Quiet density: hairline borders, uppercase micro-labels, large numerals, muted t
 
 ---
 
+## Related
+
+- **Private Alpha Management:** `/dashboard/hq/private-alpha` — see `docs/PRIVATE_ALPHA_ARCHITECTURE.md`
+
 ## Screenshots
 
 See `docs/hq/screenshots/` for executive, roadmap/launch, and full-page captures.

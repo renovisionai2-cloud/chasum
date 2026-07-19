@@ -19,7 +19,8 @@ export type CommandId =
   | "go-summer"
   | "go-chase"
   | "go-payments"
-  | "go-hq";
+  | "go-hq"
+  | "go-private-alpha";
 
 export type CommandDefinition = {
   id: CommandId;
@@ -150,6 +151,22 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
     subtitle: "Founder operating system",
     href: "/dashboard/hq",
     keywords: ["hq", "founder", "ceo", "pipeline", "launch", "owner"],
+    group: "navigate",
+  },
+  {
+    id: "go-private-alpha",
+    title: "Open Private Alpha",
+    subtitle: "Founding Design Partner ops",
+    href: "/dashboard/hq/private-alpha",
+    keywords: [
+      "private alpha",
+      "design partner",
+      "gvm",
+      "carstar",
+      "shoppers",
+      "onboarding",
+      "founder",
+    ],
     group: "navigate",
   },
 ];

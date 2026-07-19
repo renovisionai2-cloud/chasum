@@ -160,6 +160,12 @@ export function HqWorkspace({ snapshot }: { snapshot: HqSnapshot }) {
             Updated {generated}
           </Badge>
           <Link
+            href="/dashboard/hq/private-alpha"
+            className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            Private Alpha
+          </Link>
+          <Link
             href="/owner"
             className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
           >
