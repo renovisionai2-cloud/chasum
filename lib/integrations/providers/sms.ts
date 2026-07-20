@@ -32,9 +32,19 @@ class TwilioSmsProvider implements SmsProvider {
       },
     );
 
-    const data = (await res.json()) as { sid?: string; message?: string };
+    const data = (await res.json()) as {
+      sid?: string;
+      message?: string;
+      error_message?: string;
+    };
     if (!res.ok) {
-      return { success: false, error: data.message ?? "Failed to send SMS." };
+      return {
+        success: false,
+        error:
+          data.message ??
+          data.error_message ??
+          "Failed to send SMS. Check Twilio credentials and the destination phone number.",
+      };
     }
     return { success: true, messageId: data.sid };
   }
@@ -56,7 +66,8 @@ class DisabledSmsProvider implements SmsProvider {
   async send(_payload: SmsPayload): Promise<SmsResult> {
     return {
       success: false,
-      error: "Twilio is not configured.",
+      error:
+        "SMS is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER, then enable SMS in Business → Notifications.",
       skipped: true,
     };
   }

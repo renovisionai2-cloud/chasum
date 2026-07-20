@@ -4,6 +4,7 @@ import { AiSettingsPanel } from "@/components/business/ai-settings-panel";
 import { BookingSettingsPanel } from "@/components/business/booking-settings-panel";
 import { BrandingSettingsPanel } from "@/components/business/branding-settings-panel";
 import { BusinessDocumentsPanel } from "@/components/business/business-documents-panel";
+import { EditLocationDialog } from "@/components/business/edit-location-dialog";
 import { HoursSettingsPanel } from "@/components/business/hours-settings-panel";
 import { NotificationSettingsPanel } from "@/components/business/notification-settings-panel";
 import { Button } from "@/components/ui/button";
@@ -185,6 +186,7 @@ function CatalogList({
 export function BusinessHub({
   business,
   locations,
+  locationQuota,
   services,
   categories,
   resources,
@@ -202,6 +204,11 @@ export function BusinessHub({
 }: {
   business: Business;
   locations: Location[];
+  locationQuota?: {
+    plan: { name?: string | null; max_locations?: number | null } | null;
+    currentCount: number;
+    canAdd: boolean;
+  };
   services: Service[];
   categories: ServiceCategory[];
   resources: BookingResource[];
@@ -218,6 +225,7 @@ export function BusinessHub({
   documents: BusinessDocument[];
 }) {
   const [tab, setTab] = useState<TabKey>("profile");
+  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const refresh = useRefresh();
   const { toast } = useToast();
   const [deleting, startDelete] = useTransition();
@@ -542,20 +550,40 @@ export function BusinessHub({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Unlimited locations for single-site, multi-site, and enterprise
-              tenants. Manage hours, employees, rooms, and services per location.
+              {locationQuota?.plan?.max_locations == null
+                ? "Your plan allows unlimited locations. Manage hours, employees, and services per site."
+                : `Your plan allows ${locationQuota.plan.max_locations} location${
+                    locationQuota.plan.max_locations === 1 ? "" : "s"
+                  } (${locationQuota.currentCount} in use). ${
+                    locationQuota.canAdd
+                      ? "Add another from the location switcher when ready."
+                      : "Upgrade to add more sites."
+                  }`}
             </p>
             <ul className="divide-y divide-border/80 rounded-[var(--radius-md)] border border-border">
               {locations.map((location) => (
-                <li key={location.id} className="px-3 py-2.5 text-sm">
-                  <p className="font-medium">{location.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {[location.address_line1, location.city, location.state]
-                      .filter(Boolean)
-                      .join(", ") || "No address yet"}
-                    {location.phone ? ` · ${location.phone}` : ""}
-                    {location.is_default ? " · Default" : ""}
-                  </p>
+                <li
+                  key={location.id}
+                  className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-sm"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium">{location.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {[location.address_line1, location.city, location.state]
+                        .filter(Boolean)
+                        .join(", ") || "No address yet"}
+                      {location.phone ? ` · ${location.phone}` : ""}
+                      {location.is_default ? " · Default" : ""}
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingLocation(location)}
+                  >
+                    Edit
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -571,6 +599,11 @@ export function BusinessHub({
                 </Button>
               </Link>
             </div>
+            <EditLocationDialog
+              location={editingLocation}
+              open={Boolean(editingLocation)}
+              onClose={() => setEditingLocation(null)}
+            />
           </CardContent>
         </Card>
       ) : null}

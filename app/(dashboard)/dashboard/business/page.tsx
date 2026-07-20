@@ -15,7 +15,11 @@ import {
   listTaxRates,
 } from "@/lib/actions/business-management";
 import { getHolidays } from "@/lib/actions/holidays";
-import { getLocationHours, getLocations } from "@/lib/actions/location";
+import {
+  getLocationHours,
+  getLocationQuota,
+  getLocations,
+} from "@/lib/actions/location";
 import { getServices } from "@/lib/actions/services";
 import { isPlaceholderBusiness } from "@/lib/onboarding/setup-progress";
 import type { Holiday } from "@/lib/types/booking";
@@ -30,6 +34,7 @@ export default async function BusinessPage() {
   const business = await getOrCreateBusiness();
   const [
     locations,
+    locationQuota,
     services,
     categories,
     resources,
@@ -46,6 +51,7 @@ export default async function BusinessPage() {
     documents,
   ] = await Promise.all([
     getLocations(),
+    getLocationQuota(),
     getServices(),
     listServiceCategories(),
     getBookingResources(),
@@ -96,6 +102,7 @@ export default async function BusinessPage() {
       <BusinessHub
         business={business}
         locations={locations}
+        locationQuota={locationQuota}
         services={services}
         categories={categories}
         resources={resources}

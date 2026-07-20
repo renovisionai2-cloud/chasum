@@ -20,6 +20,7 @@ import type {
 } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 function slugify(value: string): string {
   return value
@@ -29,7 +30,7 @@ function slugify(value: string): string {
     .slice(0, 48);
 }
 
-export async function getLocations(): Promise<Location[]> {
+export const getLocations = cache(async (): Promise<Location[]> => {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
@@ -43,21 +44,21 @@ export async function getLocations(): Promise<Location[]> {
 
   if (error) throw new Error(error.message);
   return data ?? [];
-}
+});
 
-export async function getDefaultLocation(): Promise<Location | null> {
+export const getDefaultLocation = cache(async (): Promise<Location | null> => {
   const locations = await getLocations();
   return locations.find((l) => l.is_default) ?? locations[0] ?? null;
-}
+});
 
-export async function getLocationScope(): Promise<LocationScope> {
+export const getLocationScope = cache(async (): Promise<LocationScope> => {
   const defaultLocation = await getDefaultLocation();
   if (!defaultLocation) {
     throw new Error("No locations configured for this business.");
   }
   const cookieValue = await readLocationScopeCookie();
   return parseLocationScope(cookieValue, defaultLocation.id);
-}
+});
 
 /** Active location for mutations — falls back to default when scope is ALL. */
 export async function getActiveLocationId(): Promise<string> {
@@ -96,11 +97,11 @@ export async function setLocationScope(
   revalidatePath("/dashboard", "layout");
 }
 
-export async function getLocationQuota(): Promise<{
+export const getLocationQuota = cache(async (): Promise<{
   plan: SubscriptionPlan | null;
   currentCount: number;
   canAdd: boolean;
-}> {
+}> => {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
@@ -119,7 +120,7 @@ export async function getLocationQuota(): Promise<{
     currentCount: locations.length,
     canAdd: canAddRes.data === true,
   };
-}
+});
 
 export async function createLocation(
   _prev: ActionState,
@@ -135,6 +136,13 @@ export async function createLocation(
     p_business_id: business.id,
   });
   if (!canAdd) {
+    const quota = await getLocationQuota();
+    const max = quota.plan?.max_locations;
+    if (max != null) {
+      return {
+        error: `${FREE_PLAN_LIMIT_MESSAGE} Your plan allows ${max} location${max === 1 ? "" : "s"} (${quota.currentCount} in use).`,
+      };
+    }
     return {
       error: FREE_PLAN_LIMIT_MESSAGE,
     };
@@ -200,7 +208,17 @@ export async function createLocation(
 
 export async function updateLocation(
   locationId: string,
-  updates: { name?: string; slug?: string; phone?: string | null },
+  updates: {
+    name?: string;
+    slug?: string;
+    phone?: string | null;
+    timezone?: string;
+    address_line1?: string | null;
+    address_line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postal_code?: string | null;
+  },
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
@@ -209,6 +227,18 @@ export async function updateLocation(
   if (updates.name?.trim()) payload.name = updates.name.trim();
   if (updates.slug?.trim()) payload.slug = slugify(updates.slug.trim());
   if (updates.phone !== undefined) payload.phone = updates.phone;
+  if (updates.timezone?.trim()) payload.timezone = updates.timezone.trim();
+  if (updates.address_line1 !== undefined) {
+    payload.address_line1 = updates.address_line1;
+  }
+  if (updates.address_line2 !== undefined) {
+    payload.address_line2 = updates.address_line2;
+  }
+  if (updates.city !== undefined) payload.city = updates.city;
+  if (updates.state !== undefined) payload.state = updates.state;
+  if (updates.postal_code !== undefined) {
+    payload.postal_code = updates.postal_code;
+  }
 
   if (Object.keys(payload).length === 0) {
     return { error: "No updates provided." };
@@ -228,7 +258,34 @@ export async function updateLocation(
   }
 
   revalidatePath("/dashboard", "layout");
+  revalidatePath("/dashboard/business");
+  revalidatePath("/dashboard/settings");
   return { success: "Location updated." };
+}
+
+export async function updateLocationFromForm(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const locationId = String(formData.get("location_id") ?? "").trim();
+  if (!locationId) return { error: "Location is required." };
+
+  const emptyToNull = (key: string) => {
+    const v = String(formData.get(key) ?? "").trim();
+    return v.length > 0 ? v : null;
+  };
+
+  return updateLocation(locationId, {
+    name: String(formData.get("name") ?? ""),
+    slug: String(formData.get("slug") ?? ""),
+    phone: emptyToNull("phone"),
+    timezone: String(formData.get("timezone") ?? "").trim() || undefined,
+    address_line1: emptyToNull("address_line1"),
+    address_line2: emptyToNull("address_line2"),
+    city: emptyToNull("city"),
+    state: emptyToNull("state"),
+    postal_code: emptyToNull("postal_code"),
+  });
 }
 
 export async function renameLocation(

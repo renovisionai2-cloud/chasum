@@ -130,7 +130,10 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
           <p className="text-xs text-muted-foreground">
             All email and SMS flow through the Communications Platform (Resend /
             Twilio). Quiet hours defer outbound sends. Customer marketing consent
-            is respected for campaign templates.
+            is respected for campaign templates. If sends fail: verify RESEND_API_KEY
+            and a verified sender for email, Twilio env vars for SMS, and that the
+            job cron is running. Skipped or misconfigured deliveries now fail with
+            a clear error instead of looking successful.
           </p>
 
           <AlertMessage error={state.error} success={state.success} />

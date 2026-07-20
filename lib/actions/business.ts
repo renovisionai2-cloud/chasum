@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
 import type { Business } from "@/lib/types/booking";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 function slugify(value: string): string {
   return value
@@ -11,7 +12,7 @@ function slugify(value: string): string {
     .slice(0, 48);
 }
 
-export async function requireUser() {
+export const requireUser = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -22,9 +23,9 @@ export async function requireUser() {
   }
 
   return user;
-}
+});
 
-export async function getBusiness(): Promise<Business | null> {
+export const getBusiness = cache(async (): Promise<Business | null> => {
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -35,9 +36,10 @@ export async function getBusiness(): Promise<Business | null> {
     .maybeSingle();
 
   return data;
-}
+});
 
-export async function getOrCreateBusiness(): Promise<Business> {
+/** Deduped per request — layout + pages often call this many times. */
+export const getOrCreateBusiness = cache(async (): Promise<Business> => {
   const user = await requireUser();
   const supabase = await createClient();
 
@@ -83,7 +85,7 @@ export async function getOrCreateBusiness(): Promise<Business> {
   }
 
   return business;
-}
+});
 
 export async function getBusinessBySlug(slug: string): Promise<Business | null> {
   const supabase = await createClient();

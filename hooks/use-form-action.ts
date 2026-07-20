@@ -1,16 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useToast } from "@/providers/toast-provider";
 import type { ActionState } from "@/lib/types/booking";
-import { useEffect } from "react";
 
 export function useRefresh() {
   const router = useRouter();
   return useCallback(() => router.refresh(), [router]);
 }
 
+/**
+ * Toasts once per distinct success/error message and refreshes.
+ * Callbacks are held in refs so unstable inline lambdas do not re-fire toasts.
+ */
 export function useFormAction(
   state: ActionState,
   onSuccess?: () => void,
@@ -18,18 +21,38 @@ export function useFormAction(
 ) {
   const { toast } = useToast();
   const refresh = useRefresh();
+  const onSuccessRef = useRef(onSuccess);
+  const onCloseRef = useRef(onClose);
+  const lastErrorRef = useRef<string | null>(null);
+  const lastSuccessRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onCloseRef.current = onClose;
+  }, [onSuccess, onClose]);
 
   useEffect(() => {
     if (state.error) {
-      toast(state.error, "error");
+      if (lastErrorRef.current !== state.error) {
+        lastErrorRef.current = state.error;
+        toast(state.error, "error");
+      }
+      return;
     }
+    lastErrorRef.current = null;
+
     if (state.success) {
-      toast(state.success, "success");
-      refresh();
-      onSuccess?.();
-      onClose?.();
+      if (lastSuccessRef.current !== state.success) {
+        lastSuccessRef.current = state.success;
+        toast(state.success, "success");
+        refresh();
+        onSuccessRef.current?.();
+        onCloseRef.current?.();
+      }
+      return;
     }
-  }, [state.error, state.success, toast, refresh, onSuccess, onClose]);
+    lastSuccessRef.current = null;
+  }, [state.error, state.success, toast, refresh]);
 }
 
 export async function confirmDelete(message: string): Promise<boolean> {

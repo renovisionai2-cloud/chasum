@@ -4,9 +4,11 @@
  */
 
 import {
+  getEmailProvider as getIntegrationEmailProvider,
   sendEmail as integrationSendEmail,
 } from "@/lib/integrations/providers/email";
 import {
+  getSmsProvider as getIntegrationSmsProvider,
   sendSms as integrationSendSms,
 } from "@/lib/integrations/providers/sms";
 import type {
@@ -17,32 +19,35 @@ import type {
 } from "@/lib/integrations/providers/types";
 
 export interface CommunicationsEmailProvider {
-  readonly name: "resend" | "console" | "disabled" | "other";
+  readonly name: string;
   send(payload: EmailPayload): Promise<EmailResult>;
 }
 
 export interface CommunicationsSmsProvider {
-  readonly name: "twilio" | "console" | "disabled" | "other";
+  readonly name: string;
   send(payload: SmsPayload): Promise<SmsResult>;
 }
 
-class ResendAdapter implements CommunicationsEmailProvider {
-  readonly name = "resend" as const;
+class IntegrationEmailAdapter implements CommunicationsEmailProvider {
+  get name() {
+    return getIntegrationEmailProvider().name;
+  }
   send(payload: EmailPayload) {
     return integrationSendEmail(payload);
   }
 }
 
-class TwilioAdapter implements CommunicationsSmsProvider {
-  readonly name = "twilio" as const;
+class IntegrationSmsAdapter implements CommunicationsSmsProvider {
+  get name() {
+    return getIntegrationSmsProvider().name;
+  }
   send(payload: SmsPayload) {
     return integrationSendSms(payload);
   }
 }
 
-/** Future providers register here (SendGrid, MessageBird, etc.). */
-const emailProvider: CommunicationsEmailProvider = new ResendAdapter();
-const smsProvider: CommunicationsSmsProvider = new TwilioAdapter();
+const emailProvider: CommunicationsEmailProvider = new IntegrationEmailAdapter();
+const smsProvider: CommunicationsSmsProvider = new IntegrationSmsAdapter();
 
 export function getEmailProvider(): CommunicationsEmailProvider {
   return emailProvider;

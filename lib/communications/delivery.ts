@@ -108,6 +108,16 @@ export async function sendEmail(input: {
         marketing: input.templateKey.startsWith("marketing."),
       })
     ) {
+      await logDelivery({
+        businessId: input.businessId,
+        channel: "email",
+        recipient: input.to,
+        templateKey: input.templateKey,
+        status: "skipped",
+        appointmentId: input.appointmentId,
+        customerId: input.customerId,
+        errorMessage: "Email disabled by preferences.",
+      });
       return { ok: false, skipped: true, error: "Email disabled by preferences." };
     }
     input.context = {
@@ -200,6 +210,16 @@ export async function sendSMS(input: {
         customer: customerPrefs,
       })
     ) {
+      await logDelivery({
+        businessId: input.businessId,
+        channel: "sms",
+        recipient: input.to,
+        templateKey: input.templateKey,
+        status: "skipped",
+        appointmentId: input.appointmentId,
+        customerId: input.customerId,
+        errorMessage: "SMS disabled by preferences.",
+      });
       return { ok: false, skipped: true, error: "SMS disabled by preferences." };
     }
   }
@@ -222,7 +242,20 @@ export async function sendSMS(input: {
       provider: result.provider,
       errorMessage: result.error,
     });
-    return { ok: true, skipped: true, provider: result.provider };
+    await writeCommsAudit({
+      businessId: input.businessId,
+      action: "sms.skipped",
+      channel: "sms",
+      templateKey: template.key,
+      recipient: input.to,
+      summary: result.error ?? "SMS skipped",
+    });
+    return {
+      ok: false,
+      skipped: true,
+      error: result.error ?? "SMS skipped — not delivered.",
+      provider: result.provider,
+    };
   }
 
   await logDelivery({

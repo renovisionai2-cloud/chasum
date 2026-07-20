@@ -45,7 +45,11 @@ export function AddLocationDialog({
     }
   }, [state.success, onOpenChange, router]);
 
-  const hitFreeLimit = state.error === FREE_PLAN_LIMIT_MESSAGE;
+  const hitFreeLimit =
+    Boolean(state.error) &&
+    (state.error === FREE_PLAN_LIMIT_MESSAGE ||
+      state.error?.includes("Your plan allows") === true ||
+      state.error?.startsWith(FREE_PLAN_LIMIT_MESSAGE) === true);
 
   return (
     <>

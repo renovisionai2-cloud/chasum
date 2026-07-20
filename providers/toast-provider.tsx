@@ -39,9 +39,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const toast = useCallback(
     (message: string, variant: ToastVariant = "info") => {
-      const id = crypto.randomUUID();
-      setToasts((prev) => [...prev, { id, message, variant }]);
-      window.setTimeout(() => dismiss(id), 4000);
+      setToasts((prev) => {
+        // Avoid stacking identical toasts (repeated save blink).
+        if (prev.some((t) => t.message === message && t.variant === variant)) {
+          return prev;
+        }
+        const id = crypto.randomUUID();
+        window.setTimeout(() => dismiss(id), 4000);
+        return [...prev, { id, message, variant }];
+      });
     },
     [dismiss],
   );

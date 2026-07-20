@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (Operation GVM — Bug Fix Sprint 1)
+
+- Dashboard load: request-scoped `cache()` for business, locations, and location scope to stop repeated auth/RPC waterfalls
+- Save toasts: `useFormAction` + toast provider dedupe — no more repeated success blinks after refresh
+- Email/SMS: real provider names in logs; permanent failure (not silent complete) when context/phone/config missing; clearer Resend/Twilio errors
+- Locations: Edit dialog for name/address/phone; hub shows plan location quota instead of “unlimited”
+- Starter plan location limit copy clarifies quota and upgrade path
+
 ### Changed (Operation GVM Sprint 2 — deployment readiness)
 
 - Business: slug reserved/ugly-name validation, live `/book/{slug}` helper, weekend-hours warning

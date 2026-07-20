@@ -40,7 +40,12 @@ class ResendEmailProvider implements EmailProvider {
 
     const data = (await res.json()) as { id?: string; message?: string };
     if (!res.ok) {
-      return { success: false, error: data.message ?? "Failed to send email." };
+      const detail = data.message ?? "Failed to send email.";
+      const from = getEmailFromAddress();
+      return {
+        success: false,
+        error: `${detail} (from ${from}). Verify RESEND_API_KEY and that the sender domain is verified in Resend.`,
+      };
     }
     return { success: true, messageId: data.id };
   }

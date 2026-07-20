@@ -35,7 +35,7 @@ export const PRICING_SUBHEADING =
 
 /** Shown when a Free / starter plan limit is reached. */
 export const FREE_PLAN_LIMIT_MESSAGE =
-  "Congratulations! Your business has grown to the point where Professional will save you even more time.";
+  "Your current plan has reached its location limit. Upgrade to Professional to add more sites.";
 
 export const FREE_PLAN_UPGRADE_CTA = "Upgrade to Professional";
 

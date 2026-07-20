@@ -5,6 +5,7 @@ import {
   sendEmail,
   sendSMS,
 } from "@/lib/communications";
+import { PermanentDeliverySkip, isPermanentDeliverySkip } from "@/lib/communications/errors";
 import type { AppointmentTemplateContext } from "@/lib/communications";
 import { generateSingleEventIcs } from "@/lib/integrations/calendar/apple";
 import { syncCalendarConnection } from "@/lib/integrations/calendar/sync";
@@ -85,12 +86,26 @@ async function processEmailJob(payload: Record<string, unknown>) {
     if (!result.ok && !result.skipped) {
       throw new Error(result.error ?? "Email send failed");
     }
+    if (result.skipped) {
+      throw new PermanentDeliverySkip(
+        result.error ?? "Email skipped — not delivered.",
+      );
+    }
     return;
   }
 
   if (!appointmentId) throw new Error("Missing appointmentId");
   const ctx = await getAppointmentContext(appointmentId);
-  if (!ctx) return;
+  if (!ctx) {
+    throw new PermanentDeliverySkip(
+      "Could not load appointment for email (missing customer, service, or staff).",
+    );
+  }
+  if (!ctx.customerEmail && !(payload.recipient as string | undefined)) {
+    throw new PermanentDeliverySkip(
+      "Customer has no email address — confirmation email was not sent.",
+    );
+  }
 
   const previousStartTime = payload.previousStartTime as string | undefined;
   const action = payload.action as string | undefined;
@@ -140,6 +155,11 @@ async function processEmailJob(payload: Record<string, unknown>) {
   if (!result.ok && !result.skipped) {
     throw new Error(result.error ?? "Email send failed");
   }
+  if (result.skipped) {
+    throw new PermanentDeliverySkip(
+      result.error ?? "Email skipped — not delivered.",
+    );
+  }
 }
 
 async function processSmsJob(payload: Record<string, unknown>) {
@@ -149,7 +169,11 @@ async function processSmsJob(payload: Record<string, unknown>) {
   if (!appointmentId && payload.directContext) {
     const ctx = payload.directContext as AppointmentTemplateContext;
     const to = (payload.recipient as string) || ctx.customerPhone;
-    if (!to) return;
+    if (!to) {
+      throw new PermanentDeliverySkip(
+        "Missing SMS recipient — customer has no phone number.",
+      );
+    }
     const result = await sendSMS({
       businessId: ctx.businessId,
       to,
@@ -160,12 +184,26 @@ async function processSmsJob(payload: Record<string, unknown>) {
     if (!result.ok && !result.skipped) {
       throw new Error(result.error ?? "SMS send failed");
     }
+    if (result.skipped) {
+      throw new PermanentDeliverySkip(
+        result.error ?? "SMS skipped — not delivered.",
+      );
+    }
     return;
   }
 
   if (!appointmentId) throw new Error("Missing appointmentId");
   const ctx = await getAppointmentContext(appointmentId);
-  if (!ctx || !ctx.customerPhone) return;
+  if (!ctx) {
+    throw new PermanentDeliverySkip(
+      "Could not load appointment for SMS (missing customer, service, or staff).",
+    );
+  }
+  if (!ctx.customerPhone) {
+    throw new PermanentDeliverySkip(
+      "Customer has no phone number — SMS was not sent.",
+    );
+  }
 
   const result = await sendSMS({
     businessId: ctx.businessId,
@@ -183,6 +221,11 @@ async function processSmsJob(payload: Record<string, unknown>) {
 
   if (!result.ok && !result.skipped) {
     throw new Error(result.error ?? "SMS send failed");
+  }
+  if (result.skipped) {
+    throw new PermanentDeliverySkip(
+      result.error ?? "SMS skipped — not delivered.",
+    );
   }
 }
 
@@ -276,8 +319,9 @@ export async function processPendingJobs(limit = 25): Promise<number> {
       processed += 1;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Job failed";
+      const permanent = isPermanentDeliverySkip(err);
       const attempts = job.attempts + 1;
-      const failed = attempts >= job.max_attempts;
+      const failed = permanent || attempts >= job.max_attempts;
       const retryAt = new Date(Date.now() + computeBackoffMs(attempts));
 
       await supabase
