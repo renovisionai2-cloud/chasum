@@ -147,6 +147,26 @@ export function renderEmailTemplate(
         text: `Receipt ${ctx.receiptNumber ?? ""} for ${money(ctx.amountCents)} from ${ctx.businessName}.`,
       };
     }
+    case "commerce.gift_certificate": {
+      const code = ctx.invoiceNumber ?? "GIFT";
+      const content = `
+        <p style="margin:0 0 16px;">Hi ${ctx.customerName || "there"},</p>
+        <p>You've received a gift certificate from <strong>${ctx.businessName}</strong>.</p>
+        <p style="font-size:22px;font-weight:700;letter-spacing:0.06em;margin:20px 0;font-family:ui-monospace,monospace;">${code}</p>
+        <p style="font-size:18px;font-weight:600;margin:0 0 12px;">Value ${money(ctx.amountCents)}</p>
+        <pre style="white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;">${
+          ctx.customMessage ?? ""
+        }</pre>
+        <p style="margin:16px 0 0;color:#64748b;font-size:13px;">Present this code when redeeming.</p>`;
+      return {
+        key,
+        subject: `Gift certificate from ${ctx.businessName}`,
+        html: layout(content, b),
+        text:
+          ctx.customMessage ||
+          `Gift certificate ${code} for ${money(ctx.amountCents)} from ${ctx.businessName}.`,
+      };
+    }
     case "commerce.deposit_request": {
       const content = `${appointmentDetails(ctx)}
         <p style="margin:16px 0 0;">A deposit of <strong>${money(ctx.amountCents)}</strong> is requested to hold your appointment.</p>`;

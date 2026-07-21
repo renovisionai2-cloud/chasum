@@ -304,7 +304,7 @@ export function AppointmentDrawer({
               size="sm"
               variant="outline"
               onClick={() =>
-                toast("Compose message from the customer profile.", "success")
+                toast("Compose message from the customer profile.", "info")
               }
             >
               <MessageSquare className="size-3.5" />

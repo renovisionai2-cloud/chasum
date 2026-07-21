@@ -44,6 +44,30 @@ export async function queueNotification(
     return { ok: false, error: "Channel disabled by preferences." };
   }
 
+  if (input.channel === "sms") {
+    const { createServiceClient } = await import("@/lib/supabase/service");
+    const supabase = createServiceClient();
+    const { data: biz } = await supabase
+      .from("businesses")
+      .select("subscription_plan_key")
+      .eq("id", input.businessId)
+      .maybeSingle();
+    const {
+      planIncludesSms,
+      SMS_PLAN_UPGRADE_MESSAGE,
+      SMS_PROVIDER_MISSING_MESSAGE,
+    } = await import("@/lib/billing/plan-features");
+    if (!planIncludesSms(biz?.subscription_plan_key as string | null)) {
+      return { ok: false, error: SMS_PLAN_UPGRADE_MESSAGE };
+    }
+    const { isSmsDeliverable } = await import(
+      "@/lib/integrations/providers/sms"
+    );
+    if (!isSmsDeliverable()) {
+      return { ok: false, error: SMS_PROVIDER_MISSING_MESSAGE };
+    }
+  }
+
   let scheduledAt = input.scheduledAt ?? new Date();
   const deferred = isQuietDeferred(
     scheduledAt,

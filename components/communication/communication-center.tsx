@@ -33,10 +33,14 @@ export function CommunicationCenter({
   customer,
   mapsAddress,
   bundle,
+  smsAllowed = true,
+  smsBlockedReason = null,
 }: {
   customer: ContactTarget & { notes?: string | null };
   mapsAddress?: string | null;
   bundle: CustomerCommunicationBundle;
+  smsAllowed?: boolean;
+  smsBlockedReason?: string | null;
 }) {
   const [tab, setTab] = useState<TabKey>("timeline");
   const [compose, setCompose] = useState<"sms" | "email" | null>(null);
@@ -126,6 +130,8 @@ export function CommunicationCenter({
           customerId={customer.id}
           recipient={customer.phone}
           customerName={customer.name}
+          smsAllowed={smsAllowed}
+          smsBlockedReason={smsBlockedReason}
         />
       ) : null}
       {compose === "email" ? (

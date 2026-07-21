@@ -38,13 +38,22 @@ class ResendEmailProvider implements EmailProvider {
       }),
     });
 
-    const data = (await res.json()) as { id?: string; message?: string };
+    const data = (await res.json()) as {
+      id?: string;
+      message?: string;
+      name?: string;
+    };
     if (!res.ok) {
-      const detail = data.message ?? "Failed to send email.";
       const from = getEmailFromAddress();
+      let detail = data.message ?? data.name ?? "Failed to send email.";
+      if (/smtp|icloud|550|553|554|blocked|not verified|domain|rejected/i.test(detail)) {
+        detail = `${detail} Chasum attempted delivery via Resend; the mail provider rejected it. Verify the From address (${from}) domain in Resend and that the recipient inbox can accept mail.`;
+      } else {
+        detail = `${detail} (from ${from}). Verify RESEND_API_KEY and that the sender domain is verified in Resend.`;
+      }
       return {
         success: false,
-        error: `${detail} (from ${from}). Verify RESEND_API_KEY and that the sender domain is verified in Resend.`,
+        error: detail,
       };
     }
     return { success: true, messageId: data.id };

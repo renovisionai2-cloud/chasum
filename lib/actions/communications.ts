@@ -68,6 +68,23 @@ export async function sendCustomerSmsAction(
   }
 
   const business = await getOrCreateBusiness();
+  const {
+    planIncludesSms,
+    SMS_PLAN_UPGRADE_MESSAGE,
+    SMS_PROVIDER_MISSING_MESSAGE,
+  } = await import("@/lib/billing/plan-features");
+  const { isSmsDeliverable } = await import(
+    "@/lib/integrations/providers/sms"
+  );
+
+  if (!planIncludesSms(business.subscription_plan_key)) {
+    return { error: SMS_PLAN_UPGRADE_MESSAGE };
+  }
+
+  if (!isSmsDeliverable()) {
+    return { error: SMS_PROVIDER_MISSING_MESSAGE };
+  }
+
   const userId = await currentUserId();
   const result = await getCommunicationService().sendAndLog("sms", {
     businessId: business.id,
@@ -80,13 +97,11 @@ export async function sendCustomerSmsAction(
 
   revalidateCustomer(customerId);
 
-  if (!result.success && !result.skipped) {
-    return { error: result.error ?? "Failed to send text.", deepLink: result.deepLink };
-  }
-
-  if (result.skipped) {
+  if (!result.success) {
     return {
-      success: "SMS provider unavailable — opened device SMS instead.",
+      error:
+        result.error ??
+        "SMS was not delivered. Check Twilio configuration and the phone number.",
       deepLink: result.deepLink,
     };
   }
@@ -109,6 +124,17 @@ export async function sendCustomerEmailAction(
   }
 
   const business = await getOrCreateBusiness();
+  const { isEmailDeliverable } = await import(
+    "@/lib/integrations/providers/email"
+  );
+  const { getEmailFromAddress } = await import("@/lib/env");
+
+  if (!isEmailDeliverable()) {
+    return {
+      error: `Email cannot be sent: RESEND_API_KEY is not configured (from ${getEmailFromAddress()}).`,
+    };
+  }
+
   const userId = await currentUserId();
   const result = await getCommunicationService().sendAndLog("email", {
     businessId: business.id,
@@ -123,8 +149,13 @@ export async function sendCustomerEmailAction(
   revalidateCustomer(customerId);
 
   if (!result.success) {
+    const provider =
+      "provider" in result && typeof result.provider === "string"
+        ? result.provider
+        : null;
+    const providerHint = provider ? ` Provider: ${provider}.` : "";
     return {
-      error: result.error ?? "Failed to send email.",
+      error: `${result.error ?? "Failed to send email."}${providerHint}`,
       deepLink: result.deepLink,
     };
   }

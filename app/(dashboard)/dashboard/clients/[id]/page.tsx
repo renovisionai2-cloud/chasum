@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CustomerProfilePage({ params }: PageProps) {
   const { id } = await params;
-  await getOrCreateBusiness();
+  const business = await getOrCreateBusiness();
   const [profile, staff, locations, services, customers, memberships, commerceAccount] =
     await Promise.all([
       loadCrmCustomerProfile(id),
@@ -65,6 +65,12 @@ export default async function CustomerProfilePage({ params }: PageProps) {
     ]);
 
   if (!profile) notFound();
+
+  const { planIncludesSms, SMS_PLAN_UPGRADE_MESSAGE } = await import(
+    "@/lib/billing/plan-features"
+  );
+  const smsAllowed = planIncludesSms(business.subscription_plan_key);
+  const smsBlockedReason = smsAllowed ? null : SMS_PLAN_UPGRADE_MESSAGE;
 
   const preferredLocationFromHistory = profile.appointments.all.find(
     (appt) => appt.location?.name === profile.insights.preferredLocationName,
@@ -109,6 +115,8 @@ export default async function CustomerProfilePage({ params }: PageProps) {
         memberships={memberships}
         mapsAddress={mapsAddress}
         commerceAccount={commerceAccount}
+        smsAllowed={smsAllowed}
+        smsBlockedReason={smsBlockedReason}
       />
     </div>
   );

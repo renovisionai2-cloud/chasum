@@ -29,3 +29,12 @@ Annotated friction-reduction panels (`sprint-2/`):
 | `s2-06-summer.png` | Incomplete knowledge banner |
 | `s2-07-chase.png` | Actionable empty insights |
 | `_preview.html` | Source board used for captures |
+
+## Bug Fix Sprint 2 — customer validation
+
+| File | Focus |
+|------|--------|
+| `sprint-2-bugs/bf2-00-overview.png` | SMS honesty + email errors + gift certificate |
+| `sprint-2-bugs/bf2-01-sms.png` | Free plan SMS blocked |
+| `sprint-2-bugs/bf2-02-email.png` | Provider rejection diagnostics |
+| `sprint-2-bugs/bf2-03-gift-certificate.png` | Certificate preview actions |

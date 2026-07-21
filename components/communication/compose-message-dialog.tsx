@@ -10,8 +10,14 @@ import {
   sendCustomerEmailAction,
   sendCustomerSmsAction,
 } from "@/lib/actions/communications";
+import {
+  SMS_PLAN_UPGRADE_CTA,
+  SMS_PLAN_UPGRADE_HREF,
+  SMS_PLAN_UPGRADE_MESSAGE,
+} from "@/lib/billing/plan-features";
 import type { ActionState } from "@/lib/types/booking";
 import { useFormAction } from "@/hooks/use-form-action";
+import Link from "next/link";
 import { useActionState } from "react";
 
 type ComposeMode = "sms" | "email";
@@ -24,6 +30,9 @@ type ComposeMessageDialogProps = {
   appointmentId?: string | null;
   recipient: string;
   customerName: string;
+  /** When false, SMS submit is blocked with upgrade messaging. */
+  smsAllowed?: boolean;
+  smsBlockedReason?: string | null;
 };
 
 export function ComposeMessageDialog({
@@ -34,6 +43,8 @@ export function ComposeMessageDialog({
   appointmentId,
   recipient,
   customerName,
+  smsAllowed = true,
+  smsBlockedReason = null,
 }: ComposeMessageDialogProps) {
   const action = mode === "sms" ? sendCustomerSmsAction : sendCustomerEmailAction;
   const [state, formAction, pending] = useActionState(
@@ -41,19 +52,11 @@ export function ComposeMessageDialog({
     {} as ActionState & { deepLink?: string },
   );
 
-  useFormAction(
-    state,
-    () => {
-      if (
-        mode === "sms" &&
-        state.deepLink &&
-        state.success?.includes("device SMS")
-      ) {
-        window.open(state.deepLink, "_self");
-      }
-    },
-    onClose,
-  );
+  const smsBlocked = mode === "sms" && !smsAllowed;
+
+  useFormAction(state, undefined, () => {
+    if (state.success) onClose();
+  });
 
   return (
     <Dialog
@@ -70,6 +73,27 @@ export function ComposeMessageDialog({
         ) : (
           <input type="hidden" name="email" value={recipient} />
         )}
+
+        {smsBlocked ? (
+          <div
+            className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-3 text-sm"
+            role="status"
+          >
+            <p className="font-medium text-foreground">
+              SMS requires Professional
+            </p>
+            <p className="mt-1 text-muted-foreground">
+              {smsBlockedReason ?? SMS_PLAN_UPGRADE_MESSAGE}
+            </p>
+            <Link
+              href={SMS_PLAN_UPGRADE_HREF}
+              className="mt-2 inline-flex text-sm font-medium underline underline-offset-2"
+              onClick={onClose}
+            >
+              {SMS_PLAN_UPGRADE_CTA}
+            </Link>
+          </div>
+        ) : null}
 
         <div className="space-y-2">
           <Label>{mode === "sms" ? "To phone" : "To email"}</Label>
@@ -94,7 +118,8 @@ export function ComposeMessageDialog({
             id="comm_body"
             name="body"
             rows={5}
-            required
+            required={!smsBlocked}
+            disabled={smsBlocked}
             placeholder={
               mode === "sms"
                 ? "Write a text message…"
@@ -109,8 +134,14 @@ export function ComposeMessageDialog({
           <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" disabled={pending}>
-            {pending ? "Sending…" : mode === "sms" ? "Send text" : "Send email"}
+          <Button type="submit" disabled={pending || smsBlocked}>
+            {smsBlocked
+              ? "SMS unavailable"
+              : pending
+                ? "Sending…"
+                : mode === "sms"
+                  ? "Send text"
+                  : "Send email"}
           </Button>
         </div>
       </form>

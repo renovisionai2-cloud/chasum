@@ -52,16 +52,19 @@ export class SmsChannelAdapter implements CommunicationChannelAdapter {
 
     const result = await sendSms({ to: phone, body: input.body });
     const deepLink = `sms:${phone.replace(/[^\d+]/g, "")}?body=${encodeBody(input.body)}`;
+    const { getSmsProvider } = await import("@/lib/integrations/providers/sms");
+    const providerName = getSmsProvider().name;
 
     if (result.skipped) {
       return {
-        success: true,
+        success: false,
         status: "skipped",
-        provider: result.messageId ? this.providerName : "sms_link",
-        providerMessageId: result.messageId,
+        provider: providerName,
         skipped: true,
         deepLink,
-        error: result.error,
+        error:
+          result.error ??
+          "SMS was not sent. The messaging provider is unavailable.",
       };
     }
 
@@ -69,7 +72,7 @@ export class SmsChannelAdapter implements CommunicationChannelAdapter {
       return {
         success: false,
         status: "failed",
-        provider: this.providerName,
+        provider: providerName,
         error: result.error ?? "Failed to send SMS.",
         deepLink,
       };
@@ -78,7 +81,7 @@ export class SmsChannelAdapter implements CommunicationChannelAdapter {
     return {
       success: true,
       status: "sent",
-      provider: this.providerName,
+      provider: providerName,
       providerMessageId: result.messageId,
       deepLink,
     };
@@ -103,6 +106,10 @@ export class EmailChannelAdapter implements CommunicationChannelAdapter {
 
     const subject = input.subject?.trim() || "Message from your provider";
     const html = `<p>${input.body.replace(/\n/g, "<br/>")}</p>`;
+    const { getEmailProvider } = await import(
+      "@/lib/integrations/providers/email"
+    );
+    const providerName = getEmailProvider().name;
     const result = await sendEmail({
       to: email,
       subject,
@@ -116,16 +123,28 @@ export class EmailChannelAdapter implements CommunicationChannelAdapter {
       return {
         success: false,
         status: "failed",
-        provider: this.providerName,
+        provider: providerName,
         error: result.error ?? "Failed to send email.",
         deepLink,
+      };
+    }
+
+    if (providerName === "console") {
+      return {
+        success: false,
+        status: "skipped",
+        provider: providerName,
+        skipped: true,
+        deepLink,
+        error:
+          "Email was only logged locally (dev console). It was not delivered to the customer. Configure RESEND_API_KEY for real delivery.",
       };
     }
 
     return {
       success: true,
       status: "sent",
-      provider: this.providerName,
+      provider: providerName,
       providerMessageId: result.messageId,
       deepLink,
     };

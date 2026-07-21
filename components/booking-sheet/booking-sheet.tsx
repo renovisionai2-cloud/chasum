@@ -440,7 +440,7 @@ export function BookingSheet({
           }}
           onPrint={() => window.print()}
           onMessage={() =>
-            toast("Compose from the customer profile in CRM.", "success")
+            toast("Compose from the customer profile in CRM.", "info")
           }
         />
       }

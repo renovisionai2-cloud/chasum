@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (Operation GVM — Customer Validation Bug Fix Sprint 2)
+
+- SMS: Free/starter plan blocks Send SMS with upgrade copy (no fake “Sending…” success); Twilio skip/failure returns errors; stub Message toasts use info
+- Email: clearer Resend rejection diagnostics (SMTP/iCloud-style errors); CRM compose refuses to claim success without RESEND_API_KEY; console-only sends are not reported as delivered
+- Gift cards: printable branded gift certificate with preview, print/save-as-PDF, HTML download, and email via Communications
+
 ### Fixed (Operation GVM — Bug Fix Sprint 1)
 
 - Dashboard load: request-scoped `cache()` for business, locations, and location scope to stop repeated auth/RPC waterfalls

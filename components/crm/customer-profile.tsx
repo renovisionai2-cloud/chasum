@@ -130,6 +130,8 @@ export function CustomerProfileView({
   memberships,
   mapsAddress,
   commerceAccount,
+  smsAllowed = true,
+  smsBlockedReason = null,
 }: {
   profile: CrmProfile;
   staff: StaffWithServices[];
@@ -139,6 +141,8 @@ export function CustomerProfileView({
   memberships: Membership[];
   mapsAddress?: string | null;
   commerceAccount: CustomerCommerceAccount;
+  smsAllowed?: boolean;
+  smsBlockedReason?: string | null;
 }) {
   const { customer } = profile;
   const [tab, setTab] = useState<TabKey>("overview");
@@ -392,6 +396,8 @@ export function CustomerProfileView({
           }}
           mapsAddress={mapsAddress}
           bundle={profile.communications}
+          smsAllowed={smsAllowed}
+          smsBlockedReason={smsBlockedReason}
         />
       ) : null}
 

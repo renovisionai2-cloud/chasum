@@ -5,6 +5,7 @@ import { BookingSettingsPanel } from "@/components/business/booking-settings-pan
 import { BrandingSettingsPanel } from "@/components/business/branding-settings-panel";
 import { BusinessDocumentsPanel } from "@/components/business/business-documents-panel";
 import { EditLocationDialog } from "@/components/business/edit-location-dialog";
+import { GiftCertificateDialog } from "@/components/business/gift-certificate-dialog";
 import { HoursSettingsPanel } from "@/components/business/hours-settings-panel";
 import { NotificationSettingsPanel } from "@/components/business/notification-settings-panel";
 import { Button } from "@/components/ui/button";
@@ -136,11 +137,15 @@ function CatalogList({
   emptyDescription,
   items,
   onDelete,
+  onAction,
+  actionLabel = "Open",
 }: {
   emptyTitle: string;
   emptyDescription: string;
   items: { id: string; title: string; subtitle?: string }[];
   onDelete?: (id: string) => void;
+  onAction?: (id: string) => void;
+  actionLabel?: string;
 }) {
   if (items.length === 0) {
     return (
@@ -166,17 +171,29 @@ function CatalogList({
               </p>
             ) : null}
           </div>
-          {onDelete ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              className="text-destructive"
-              onClick={() => onDelete(item.id)}
-            >
-              Delete
-            </Button>
-          ) : null}
+          <div className="flex shrink-0 items-center gap-1">
+            {onAction ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => onAction(item.id)}
+              >
+                {actionLabel}
+              </Button>
+            ) : null}
+            {onDelete ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="text-destructive"
+                onClick={() => onDelete(item.id)}
+              >
+                Delete
+              </Button>
+            ) : null}
+          </div>
         </li>
       ))}
     </ul>
@@ -226,6 +243,7 @@ export function BusinessHub({
 }) {
   const [tab, setTab] = useState<TabKey>("profile");
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [certificateId, setCertificateId] = useState<string | null>(null);
   const refresh = useRefresh();
   const { toast } = useToast();
   const [deleting, startDelete] = useTransition();
@@ -252,7 +270,7 @@ export function BusinessHub({
   );
   const [gcState, gcAction, gcPending] = useActionState(
     createGiftCard,
-    {} as ActionState,
+    {} as ActionState & { giftCardId?: string },
   );
   const [redeemState, redeemAction, redeemPending] = useActionState(
     redeemGiftCard,
@@ -280,7 +298,14 @@ export function BusinessHub({
   useFormAction(resState, () => refresh());
   useFormAction(memState, () => refresh());
   useFormAction(pkgState, () => refresh());
-  useFormAction(gcState, () => refresh());
+  useFormAction(
+    gcState,
+    () => {
+      refresh();
+      const id = (gcState as ActionState & { giftCardId?: string }).giftCardId;
+      if (id) setCertificateId(id);
+    },
+  );
   useFormAction(redeemState, () => refresh());
   useFormAction(taxState, () => refresh());
   useFormAction(discState, () => refresh());
@@ -824,12 +849,14 @@ export function BusinessHub({
             <CardContent>
               <CatalogList
                 emptyTitle="No gift cards"
-                emptyDescription="Issue digital or fixed-value cards with redeemable balances."
+                emptyDescription="Issue a card, then preview or email a professional gift certificate."
                 items={giftCards.map((g) => ({
                   id: g.id,
                   title: g.code,
                   subtitle: `${dollars(g.balance_cents)} remaining · ${g.status}`,
                 }))}
+                actionLabel="Certificate"
+                onAction={(id) => setCertificateId(id)}
               />
             </CardContent>
           </Card>
@@ -842,7 +869,11 @@ export function BusinessHub({
                 <form action={gcAction} className="space-y-3">
                   <Input name="amount" placeholder="Value" required />
                   <Input name="code" placeholder="Custom code (optional)" />
-                  <Input name="expires_after_days" type="number" placeholder="Expires after days" />
+                  <Input
+                    name="expires_after_days"
+                    type="number"
+                    placeholder="Expires after days"
+                  />
                   <AlertMessage error={gcState.error} success={gcState.success} />
                   <FormFooter pending={gcPending} submitLabel="Issue card" />
                 </form>
@@ -856,12 +887,20 @@ export function BusinessHub({
                 <form action={redeemAction} className="space-y-3">
                   <Input name="code" placeholder="Gift card code" required />
                   <Input name="amount" placeholder="Amount to redeem" required />
-                  <AlertMessage error={redeemState.error} success={redeemState.success} />
+                  <AlertMessage
+                    error={redeemState.error}
+                    success={redeemState.success}
+                  />
                   <FormFooter pending={redeemPending} submitLabel="Redeem" />
                 </form>
               </CardContent>
             </Card>
           </div>
+          <GiftCertificateDialog
+            giftCardId={certificateId}
+            open={Boolean(certificateId)}
+            onClose={() => setCertificateId(null)}
+          />
         </div>
       ) : null}
 

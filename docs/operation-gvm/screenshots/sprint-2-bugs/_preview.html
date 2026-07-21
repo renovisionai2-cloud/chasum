@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><title>GVM Bug Fix Sprint 2</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--primary:#1d4ed8;--amber:#fef3c7;--red:#fef2f2;--redb:#fecaca}
+*{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:900px;margin:0 auto;padding:32px 24px 64px}h1{font-size:24px;margin:0 0 6px}.sub{color:var(--muted);font-size:14px;margin:0 0 24px}
+section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin-bottom:16px}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h2{font-size:16px;margin:0 0 8px}p{font-size:13px;color:var(--muted);line-height:1.45;margin:0 0 8px}
+.warn{background:var(--amber);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;font-size:13px;margin-top:8px}
+.err{background:var(--red);border:1px solid var(--redb);border-radius:12px;padding:12px 14px;font-size:13px;margin-top:8px;color:#991b1b}
+.btn{display:inline-flex;height:34px;align-items:center;padding:0 12px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;font-weight:600;margin-right:8px}
+.btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}.btn:disabled{opacity:.5}
+.cert{border:2px dashed #cbd5e1;border-radius:12px;padding:20px;text-align:center;margin-top:10px;background:#f8fafc}
+.cert .code{font-family:ui-monospace,monospace;font-size:22px;font-weight:700;letter-spacing:.08em;margin:10px 0}
+</style></head><body>
+<div class="wrap">
+<h1>Operation GVM — Bug Fix Sprint 2</h1>
+<p class="sub">Customer validation fixes: SMS plan honesty, email diagnostics, gift certificates.</p>
+
+<section id="sms">
+<p class="eyebrow">Priority 1 — SMS</p>
+<h2>Free plan no longer pretends to send</h2>
+<p>Starter/Free plans block Send SMS. Paid plans still require Twilio.</p>
+<div class="warn"><strong>SMS requires Professional</strong><br/>SMS is not included on the Free plan. Upgrade to Professional to text customers from Chasum — your plan includes email only.</div>
+<p style="margin-top:12px"><span class="btn" disabled>SMS unavailable</span></p>
+</section>
+
+<section id="email">
+<p class="eyebrow">Priority 2 — Email</p>
+<h2>Clear failure when provider rejects</h2>
+<div class="err">550 5.1.1 The email account does not exist… Chasum attempted delivery via Resend; the mail provider rejected it. Verify the From address (Chasum &lt;notifications@chasum.app&gt;) domain in Resend and that the recipient inbox can accept mail. Provider: resend.</div>
+</section>
+
+<section id="gift">
+<p class="eyebrow">Priority 3 — Gift cards</p>
+<h2>Professional gift certificate</h2>
+<div class="cert">
+<p class="eyebrow">Gift certificate</p>
+<strong>GVM Baby World</strong>
+<div class="code">GC-A1B2C3D4</div>
+<p>Original $100.00 · Remaining $100.00 · Issued Jul 20, 2026</p>
+</div>
+<p style="margin-top:12px">
+<span class="btn primary">Print / Save as PDF</span>
+<span class="btn">Download</span>
+<span class="btn">Email to customer</span>
+</p>
+</section>
+</div>
+</body></html>

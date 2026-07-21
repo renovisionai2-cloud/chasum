@@ -464,16 +464,20 @@ export async function createGiftCard(
       ? new Date(Date.now() + expiresDays * 86400000).toISOString()
       : null;
 
-  const { error } = await supabase.from("gift_cards").insert({
-    business_id: business.id,
-    code,
-    initial_balance_cents: amount,
-    balance_cents: amount,
-    is_digital: formData.get("is_digital") !== "false",
-    expires_at,
-    notes: emptyToNull(formData.get("notes")),
-    status: "active",
-  });
+  const { data, error } = await supabase
+    .from("gift_cards")
+    .insert({
+      business_id: business.id,
+      code,
+      initial_balance_cents: amount,
+      balance_cents: amount,
+      is_digital: formData.get("is_digital") !== "false",
+      expires_at,
+      notes: emptyToNull(formData.get("notes")),
+      status: "active",
+    })
+    .select("*")
+    .single();
 
   if (error) {
     if (error.code === "23505") return { error: "Gift card code already exists." };
@@ -484,7 +488,10 @@ export async function createGiftCard(
     };
   }
   revalidateBusiness();
-  return { success: `Gift card ${code} created.` };
+  return {
+    success: `Gift card ${code} created.`,
+    giftCardId: data?.id as string,
+  } as ActionState & { giftCardId?: string };
 }
 
 export async function redeemGiftCard(
@@ -524,6 +531,99 @@ export async function redeemGiftCard(
   return {
     success: `Redeemed $${(amount / 100).toFixed(2)}. Remaining $${(nextBalance / 100).toFixed(2)}.`,
   };
+}
+
+export async function loadGiftCertificate(cardId: string): Promise<{
+  card: GiftCard;
+  html: string;
+  text: string;
+  brandName: string;
+} | null> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("gift_cards")
+    .select("*")
+    .eq("id", cardId)
+    .eq("business_id", business.id)
+    .maybeSingle();
+  if (!data) return null;
+
+  const {
+    formatGiftCertificateHtml,
+    formatGiftCertificateText,
+  } = await import("@/lib/business/gift-certificate");
+
+  const brand = {
+    businessName: business.name,
+    logoUrl: business.logo_url,
+    email: business.email,
+    phone: business.phone,
+    addressLine: [business.address_line1, business.city, business.state]
+      .filter(Boolean)
+      .join(", "),
+  };
+  const card = data as GiftCard;
+  return {
+    card,
+    html: formatGiftCertificateHtml(card, brand),
+    text: formatGiftCertificateText(card, brand),
+    brandName: business.name,
+  };
+}
+
+export async function emailGiftCertificateAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const cardId = String(formData.get("gift_card_id") ?? "").trim();
+  const to = String(formData.get("email") ?? "").trim();
+  const recipientName = String(formData.get("recipient_name") ?? "").trim();
+  if (!cardId || !to) {
+    return { error: "Gift card and recipient email are required." };
+  }
+
+  const pack = await loadGiftCertificate(cardId);
+  if (!pack) return { error: "Gift card not found." };
+
+  const { isEmailDeliverable } = await import(
+    "@/lib/integrations/providers/email"
+  );
+  if (!isEmailDeliverable()) {
+    return {
+      error:
+        "Email cannot be sent: RESEND_API_KEY is not configured. Fix Communications before emailing certificates.",
+    };
+  }
+
+  const business = await getOrCreateBusiness();
+  const { sendEmail } = await import("@/lib/communications/delivery");
+  const result = await sendEmail({
+    businessId: business.id,
+    to,
+    templateKey: "commerce.gift_certificate",
+    skipPreferenceCheck: true,
+    context: {
+      businessId: business.id,
+      businessName: pack.brandName,
+      customerName: recipientName || "there",
+      customerEmail: to,
+      staffName: "Team",
+      serviceName: "Gift certificate",
+      startTime: new Date().toISOString(),
+      amountCents: pack.card.initial_balance_cents,
+      invoiceNumber: pack.card.code,
+      customMessage: pack.text,
+    },
+  });
+
+  if (!result.ok) {
+    return {
+      error: result.error ?? "Failed to email gift certificate.",
+    };
+  }
+
+  return { success: `Gift certificate emailed to ${to}.` };
 }
 
 // —— Taxes ——

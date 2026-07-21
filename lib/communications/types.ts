@@ -25,6 +25,7 @@ export type EmailTemplateKey =
   | "commerce.invoice"
   | "commerce.receipt"
   | "commerce.deposit_request"
+  | "commerce.gift_certificate"
   | "auth.welcome"
   | "auth.password_reset"
   | "staff.invitation"
