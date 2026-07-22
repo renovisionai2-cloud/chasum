@@ -19,6 +19,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Operator errors: no migration jargon in payment/invoice/refund messages
 - Subtle page enter + card shadow transitions (respects reduced motion)
 
+### Added (Vercel deployment docs)
+
+- `docs/deployment/VERCEL_DEPLOYMENT.md` — full env catalog
+- `docs/deployment/VERCEL_SETUP_WALKTHROUGH.md` — click-path entry order
+- `docs/deployment/GVM_VERCEL_COMPLETION_CHECKLIST.md` — verified status + GVM iPad go-live steps
+- `supabase/migrations/030_repair_commerce_payment_columns.sql` — idempotent repair for partial 028 gaps
+
 ### Added (Premium Experience Sprint 1)
 
 - Design System v1 documented (`docs/product/23_DESIGN_SYSTEM_V1.md`)

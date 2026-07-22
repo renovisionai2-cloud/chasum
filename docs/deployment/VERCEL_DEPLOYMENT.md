@@ -6,7 +6,8 @@
 
 This document lists every environment variable Chasum uses, where each value comes from, which Vercel environments need it, and what else must be configured besides env vars.
 
-**Hands-on click path (exact entry order):** [`VERCEL_SETUP_WALKTHROUGH.md`](./VERCEL_SETUP_WALKTHROUGH.md)
+**Hands-on click path (exact entry order):** [`VERCEL_SETUP_WALKTHROUGH.md`](./VERCEL_SETUP_WALKTHROUGH.md)  
+**GVM completion checklist (verified status):** [`GVM_VERCEL_COMPLETION_CHECKLIST.md`](./GVM_VERCEL_COMPLETION_CHECKLIST.md)
 
 **Never paste secret values into git, chat, or this file.** Names only.
 
