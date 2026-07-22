@@ -132,14 +132,22 @@ export function GiftCertificateDialog({
               <p className="text-sm font-medium">Email to customer</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="gc_recipient_name">Recipient name</Label>
+                  <Label htmlFor="gc_recipient_name">Recipient</Label>
                   <Input
                     id="gc_recipient_name"
                     name="recipient_name"
-                    placeholder="Optional"
+                    placeholder="Who receives this"
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="gc_sender_name">From</Label>
+                  <Input
+                    id="gc_sender_name"
+                    name="sender_name"
+                    placeholder="Sender name"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="gc_email">Email</Label>
                   <Input
                     id="gc_email"
@@ -148,6 +156,14 @@ export function GiftCertificateDialog({
                     required
                     defaultValue={defaultEmail}
                     placeholder="customer@email.com"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="gc_personal_message">Personal message</Label>
+                  <Input
+                    id="gc_personal_message"
+                    name="personal_message"
+                    placeholder="Optional note on the certificate"
                   />
                 </div>
               </div>

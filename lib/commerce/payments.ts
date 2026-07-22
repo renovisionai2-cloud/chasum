@@ -54,9 +54,9 @@ async function syncAppointmentPayment(
   businessId: string,
   appointmentId: string,
   paidDeltaCents: number,
-): Promise<void> {
+): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();
-  const { data: appt } = await supabase
+  let { data: appt, error: apptErr } = await supabase
     .from("appointments")
     .select(
       "id, price_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(price, deposit_cents, deposit_required)",
@@ -65,7 +65,25 @@ async function syncAppointmentPayment(
     .eq("business_id", businessId)
     .maybeSingle();
 
-  if (!appt) return;
+  if (apptErr) {
+    // Retry without commerce columns if schema is behind.
+    if (
+      apptErr.message.includes("payment_status") ||
+      apptErr.message.includes("amount_paid") ||
+      apptErr.message.includes("price_cents")
+    ) {
+      return {
+        ok: false,
+        error:
+          "Appointment payment columns missing. Apply migration 028_commerce_platform so deposits and balances can sync.",
+      };
+    }
+    return { ok: false, error: apptErr.message };
+  }
+
+  if (!appt) {
+    return { ok: false, error: "Appointment not found for payment sync." };
+  }
 
   const service = appt.services as
     | {
@@ -99,9 +117,10 @@ async function syncAppointmentPayment(
     amountRefundedCents: amountRefunded,
   });
 
-  await supabase
+  const { error: updErr } = await supabase
     .from("appointments")
     .update({
+      price_cents: priceCents || null,
       amount_paid_cents: amountPaid,
       payment_status: paymentStatus,
       deposit_cents: Math.max(
@@ -110,6 +129,16 @@ async function syncAppointmentPayment(
       ),
     })
     .eq("id", appointmentId);
+
+  if (updErr) {
+    return {
+      ok: false,
+      error: updErr.message.includes("payment_status")
+        ? "Could not update appointment payment_status. Apply migration 028_commerce_platform."
+        : updErr.message,
+    };
+  }
+  return { ok: true };
 }
 
 async function applyInvoicePayment(
@@ -156,19 +185,58 @@ export async function recordCommercePayment(
     invoiceId = created.invoice?.id ?? null;
   }
 
-  const { data: customer } = await supabase
+  const { data: customer, error: customerErr } = await supabase
     .from("customers")
     .select("id, payment_provider_customer_id, store_credit_cents")
     .eq("id", input.customerId)
     .eq("business_id", input.businessId)
     .maybeSingle();
 
-  if (!customer) {
-    return { ok: false, error: "Customer not found." };
+  let customerRow = customer as {
+    id: string;
+    payment_provider_customer_id?: string | null;
+    store_credit_cents?: number | null;
+  } | null;
+
+  if (customerErr) {
+    if (
+      customerErr.message.includes("store_credit") ||
+      customerErr.message.includes("payment_provider") ||
+      isSoftSchemaFallbackAllowed(customerErr.message)
+    ) {
+      const fallback = await supabase
+        .from("customers")
+        .select("id")
+        .eq("id", input.customerId)
+        .eq("business_id", input.businessId)
+        .maybeSingle();
+      if (fallback.error) {
+        return {
+          ok: false,
+          error: fallback.error.message.includes("schema")
+            ? "Commerce schema not ready. Apply migration 028_commerce_platform."
+            : fallback.error.message,
+        };
+      }
+      if (!fallback.data) {
+        return { ok: false, error: "Customer not found for this business." };
+      }
+      customerRow = {
+        id: String(fallback.data.id),
+        payment_provider_customer_id: null,
+        store_credit_cents: 0,
+      };
+    } else {
+      return { ok: false, error: customerErr.message };
+    }
+  }
+
+  if (!customerRow) {
+    return { ok: false, error: "Customer not found for this business." };
   }
 
   if (input.method === "store_credit") {
-    const credit = Number(customer.store_credit_cents ?? 0);
+    const credit = Number(customerRow.store_credit_cents ?? 0);
     if (credit < input.amountCents) {
       return {
         ok: false,
@@ -188,7 +256,7 @@ export async function recordCommercePayment(
     currency: input.currency ?? "usd",
     method: input.method,
     description: input.description ?? undefined,
-    providerCustomerId: customer.payment_provider_customer_id as string | null,
+    providerCustomerId: customerRow.payment_provider_customer_id as string | null,
     metadata: {
       appointment_id: input.appointmentId ?? "",
       invoice_id: invoiceId ?? "",
@@ -280,7 +348,7 @@ export async function recordCommercePayment(
   }
 
   if (input.method === "store_credit") {
-    const credit = Number(customer.store_credit_cents ?? 0);
+    const credit = Number(customerRow.store_credit_cents ?? 0);
     await supabase
       .from("customers")
       .update({ store_credit_cents: credit - input.amountCents })
@@ -288,11 +356,20 @@ export async function recordCommercePayment(
   }
 
   if (input.appointmentId) {
-    await syncAppointmentPayment(
+    const sync = await syncAppointmentPayment(
       input.businessId,
       input.appointmentId,
       input.amountCents,
     );
+    if (!sync.ok) {
+      return {
+        ok: false,
+        error:
+          sync.error ??
+          "Payment recorded but appointment balance could not sync.",
+        transaction: mapTransaction(row as Record<string, unknown>),
+      };
+    }
   }
 
   if (invoiceId) {

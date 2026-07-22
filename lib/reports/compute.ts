@@ -28,6 +28,8 @@ export type ReportAppointmentRow = {
   tax_cents?: number | null;
   discount_cents?: number | null;
   deposit_cents?: number | null;
+  amount_paid_cents?: number | null;
+  payment_status?: string | null;
   service?: {
     id?: string;
     name?: string;
@@ -97,12 +99,42 @@ function startOfYear(d: Date) {
   return new Date(d.getFullYear(), 0, 1);
 }
 
+function isCancelledOrNoShow(a: ReportAppointmentRow) {
+  return a.status === "cancelled" || a.status === "no_show";
+}
+
+/** Booked work that should appear in volume KPIs (not only completed). */
+function activeBookings(appts: ReportAppointmentRow[]) {
+  return appts.filter((a) => !isCancelledOrNoShow(a));
+}
+
+/**
+ * Revenue recognition — shared source of truth for dashboards/reports.
+ * Counts completed visits OR any visit where money was collected.
+ */
+function recognizesRevenue(a: ReportAppointmentRow): boolean {
+  if (isCancelledOrNoShow(a)) return false;
+  if (a.status === "completed") return true;
+  const paid = Number(a.amount_paid_cents ?? a.deposit_cents ?? 0);
+  if (paid > 0) return true;
+  const ps = String(a.payment_status ?? "");
+  return ["deposit_paid", "partially_paid", "fully_paid"].includes(ps);
+}
+
 function completed(appts: ReportAppointmentRow[]) {
   return appts.filter((a) => a.status === "completed");
 }
 
+function revenueAppts(appts: ReportAppointmentRow[]) {
+  return appts.filter(recognizesRevenue);
+}
+
 function sumRevenue(appts: ReportAppointmentRow[]) {
-  return completed(appts).reduce((s, a) => s + moneyFromAppt(a), 0);
+  return revenueAppts(appts).reduce((s, a) => {
+    const paid = Number(a.amount_paid_cents ?? 0);
+    if (paid > 0) return s + paid / 100;
+    return s + moneyFromAppt(a);
+  }, 0);
 }
 
 function topN(map: Map<string, number>, n: number): ChartPoint[] {
@@ -158,11 +190,11 @@ export function buildExecutive(input: {
       .filter((c) => inRange(c.created_at, monthStart, now))
       .map((c) => c.id),
   );
-  const completedThisMonth = completed(
+  const bookedThisMonth = activeBookings(
     appointments.filter((a) => inRange(a.start_time, monthStart, now)),
   );
   const returning = new Set(
-    completedThisMonth
+    bookedThisMonth
       .filter((a) => a.customer_id && !monthCustomerIds.has(a.customer_id))
       .map((a) => a.customer_id as string),
   );
@@ -199,7 +231,7 @@ export function buildRevenueBreakdown(
   const yearAppts = appointments.filter((a) =>
     inRange(a.start_time, yearStart, now),
   );
-  const done = completed(yearAppts);
+  const done = revenueAppts(yearAppts);
 
   const daily = new Map<string, number>();
   const weekly = new Map<string, number>();
@@ -283,11 +315,13 @@ export function buildAppointmentReport(
     inRange(a.start_time, monthStart, now),
   );
   const done = completed(month);
+  const booked = activeBookings(month);
+  const valued = revenueAppts(month);
   const hourMap = new Map<string, number>();
   const dayMap = new Map<string, number>();
   const trend = new Map<string, number>();
 
-  for (const a of month.filter((x) => x.status !== "cancelled")) {
+  for (const a of booked) {
     const d = new Date(a.start_time);
     const hour = `${String(d.getHours()).padStart(2, "0")}:00`;
     hourMap.set(hour, (hourMap.get(hour) ?? 0) + 1);
@@ -308,11 +342,12 @@ export function buildAppointmentReport(
   }).length;
 
   const avg =
-    done.length === 0
+    valued.length === 0
       ? 0
-      : done.reduce((s, a) => s + moneyFromAppt(a), 0) / done.length;
+      : valued.reduce((s, a) => s + moneyFromAppt(a), 0) / valued.length;
 
   return {
+    booked: booked.length,
     completed: done.length,
     cancelled: month.filter((a) => a.status === "cancelled").length,
     noShows: month.filter((a) => a.status === "no_show").length,
@@ -467,9 +502,10 @@ export function buildEmployeeReports(
 
   for (const s of staff.filter((x) => x.is_active !== false)) {
     const theirs = month.filter((a) => a.staff_id === s.id);
+    const booked = activeBookings(theirs);
     const done = completed(theirs);
     const revenue = sumRevenue(theirs);
-    const minutes = done.reduce((sum, a) => {
+    const minutes = booked.reduce((sum, a) => {
       const start = new Date(a.start_time).getTime();
       const end = new Date(a.end_time).getTime();
       const dur =
@@ -483,12 +519,12 @@ export function buildEmployeeReports(
       id: s.id,
       name: s.name,
       revenue: Math.round(revenue * 100) / 100,
-      completed: done.length,
+      completed: Math.max(done.length, booked.length),
       averageRating: null,
       averageServiceMinutes:
-        done.length === 0 ? 0 : Math.round(minutes / done.length),
+        booked.length === 0 ? 0 : Math.round(minutes / booked.length),
       commissionCents: Math.round(revenue * 100 * (rate / 10000)),
-      productivity: done.length,
+      productivity: booked.length,
     });
   }
 
@@ -503,7 +539,7 @@ export function buildServiceReport(
   now: Date,
 ): ServiceReport {
   const monthStart = startOfMonth(now);
-  const done = completed(
+  const done = revenueAppts(
     appointments.filter((a) => inRange(a.start_time, monthStart, now)),
   );
   const counts = new Map<string, number>();

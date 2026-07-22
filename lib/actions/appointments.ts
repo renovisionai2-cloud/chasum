@@ -183,9 +183,12 @@ export async function getDashboardStats() {
       .limit(5),
     supabase
       .from("appointments")
-      .select("service:services(price)")
+      .select(
+        "status, price_cents, amount_paid_cents, deposit_cents, payment_status, service:services(price)",
+      )
       .match(apptFilter)
-      .eq("status", "completed")
+      .neq("status", "cancelled")
+      .neq("status", "no_show")
       .gte("start_time", monthStart.toISOString())
       .lte("start_time", monthEnd.toISOString()),
     supabase
@@ -218,9 +221,12 @@ export async function getDashboardStats() {
       .lte("start_time", previousWeekEnd.toISOString()),
     supabase
       .from("appointments")
-      .select("service:services(price)")
+      .select(
+        "status, price_cents, amount_paid_cents, deposit_cents, payment_status, service:services(price)",
+      )
       .match(apptFilter)
-      .eq("status", "completed")
+      .neq("status", "cancelled")
+      .neq("status", "no_show")
       .gte("start_time", previousMonthStart.toISOString())
       .lte("start_time", previousMonthEnd.toISOString()),
     supabase
@@ -231,9 +237,12 @@ export async function getDashboardStats() {
       .gte("start_time", now.toISOString()),
     supabase
       .from("appointments")
-      .select("service:services(price)")
+      .select(
+        "status, price_cents, amount_paid_cents, deposit_cents, payment_status, service:services(price)",
+      )
       .match(apptFilter)
-      .eq("status", "completed")
+      .neq("status", "cancelled")
+      .neq("status", "no_show")
       .gte("start_time", todayStart.toISOString())
       .lte("start_time", todayEnd.toISOString()),
     supabase
@@ -265,27 +274,44 @@ export async function getDashboardStats() {
     .eq("business_id", business.id)
     .gte("created_at", monthStart.toISOString());
 
-  function sumServicePrices(
-    rows: { service: { price?: number } | null }[] | null,
-  ) {
+  type RevenueApptRow = {
+    status?: string | null;
+    price_cents?: number | null;
+    amount_paid_cents?: number | null;
+    deposit_cents?: number | null;
+    payment_status?: string | null;
+    service: { price?: number } | null;
+  };
+
+  function recognizesRevenue(row: RevenueApptRow) {
+    if (row.status === "completed") return true;
+    const paid = Number(row.amount_paid_cents ?? row.deposit_cents ?? 0);
+    if (paid > 0) return true;
+    const ps = String(row.payment_status ?? "");
+    return ["deposit_paid", "partially_paid", "fully_paid"].includes(ps);
+  }
+
+  function sumRecognizedRevenue(rows: RevenueApptRow[] | null) {
     return (rows ?? []).reduce((sum, appt) => {
+      if (!recognizesRevenue(appt)) return sum;
+      const paid = Number(appt.amount_paid_cents ?? 0);
+      if (paid > 0) return sum + paid / 100;
+      if (appt.price_cents != null && appt.price_cents > 0) {
+        return sum + appt.price_cents / 100;
+      }
       const price = (appt.service as { price?: number } | null)?.price ?? 0;
       return sum + Number(price);
     }, 0);
   }
 
-  const revenue = sumServicePrices(
-    revenueRes.data as { service: { price?: number } | null }[] | null,
+  const revenue = sumRecognizedRevenue(
+    revenueRes.data as RevenueApptRow[] | null,
   );
-  const previousMonthRevenue = sumServicePrices(
-    previousMonthRevenueRes.data as
-      | { service: { price?: number } | null }[]
-      | null,
+  const previousMonthRevenue = sumRecognizedRevenue(
+    previousMonthRevenueRes.data as RevenueApptRow[] | null,
   );
-  const todayRevenue = sumServicePrices(
-    todayCompletedRevenueRes.data as
-      | { service: { price?: number } | null }[]
-      | null,
+  const todayRevenue = sumRecognizedRevenue(
+    todayCompletedRevenueRes.data as RevenueApptRow[] | null,
   );
 
   const weekDayCounts = Array.from({ length: 7 }, (_, i) => {
@@ -346,6 +372,12 @@ export async function createAppointment(
   const locationId = locationFromForm || (await getActiveLocationId());
   const durationOverride = Number(formData.get("duration_minutes"));
 
+  const packageId = String(formData.get("package_id") ?? "").trim() || null;
+  const packageName = String(formData.get("package_name") ?? "").trim() || null;
+  const priceCentsRaw = Number(formData.get("price_cents"));
+  const priceCents =
+    Number.isFinite(priceCentsRaw) && priceCentsRaw > 0 ? priceCentsRaw : undefined;
+
   if (!serviceId || !staffId || !customerId) {
     return { error: "All required fields must be filled." };
   }
@@ -369,6 +401,9 @@ export async function createAppointment(
       Number.isFinite(durationOverride) && durationOverride > 0
         ? durationOverride
         : undefined,
+    priceCents,
+    packageId: packageId ?? undefined,
+    packageName: packageName ?? undefined,
   });
 
   const action = mutationToAction(result, "Appointment created.");

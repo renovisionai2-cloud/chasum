@@ -40,6 +40,7 @@ export type ExecutiveDashboard = {
 };
 
 export type AppointmentReport = {
+  booked: number;
   completed: number;
   cancelled: number;
   noShows: number;
@@ -153,6 +154,7 @@ export type BusinessIntelligenceSnapshot = {
 };
 
 export type ReportsBundle = {
+  currency: string;
   executive: ExecutiveDashboard;
   revenue: RevenueBreakdown;
   appointments: AppointmentReport;

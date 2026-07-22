@@ -15,6 +15,7 @@ import {
   upsertReportSchedule,
 } from "@/lib/actions/reports";
 import type { ReportsBundle, ReportType } from "@/lib/reports/types";
+import { currencyCode } from "@/lib/commerce/money";
 import type { ActionState } from "@/lib/types/booking";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
@@ -60,18 +61,18 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "scheduled", label: "Scheduled" },
 ];
 
-function money(n: number) {
+function money(n: number, currency = "usd") {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: currencyCode(currency),
     maximumFractionDigits: 0,
   }).format(n);
 }
 
-function moneyExact(cents: number) {
+function moneyExact(cents: number, currency = "usd") {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: currencyCode(currency),
   }).format(cents / 100);
 }
 
@@ -80,11 +81,13 @@ function MetricList({
   items,
   empty,
   format = "number",
+  currency = "usd",
 }: {
   title: string;
   items: { label: string; value: number; meta?: string }[];
   empty: string;
   format?: "number" | "money" | "plain";
+  currency?: string;
 }) {
   return (
     <Card>
@@ -111,7 +114,7 @@ function MetricList({
                 </div>
                 <span className="shrink-0 tabular-nums text-muted-foreground">
                   {format === "money"
-                    ? money(item.value)
+                    ? money(item.value, currency)
                     : format === "plain"
                       ? item.value
                       : item.value.toLocaleString()}
@@ -131,6 +134,9 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
   const refresh = useRefresh();
   const [exporting, startExport] = useTransition();
   const [deleting, startDelete] = useTransition();
+  const currency = bundle.currency ?? "usd";
+  const $ = (n: number) => money(n, currency);
+  const $c = (cents: number) => moneyExact(cents, currency);
 
   const [schedState, schedAction, schedPending] = useActionState(
     upsertReportSchedule,
@@ -193,26 +199,26 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
               title="Revenue today"
-              value={money(e.revenueToday)}
+              value={$(e.revenueToday)}
               icon={Wallet}
               accent="success"
               href="/dashboard/calendar"
             />
             <StatCard
               title="Revenue this week"
-              value={money(e.revenueWeek)}
+              value={$(e.revenueWeek)}
               icon={BarChart3}
               accent="primary"
             />
             <StatCard
               title="Revenue this month"
-              value={money(e.revenueMonth)}
+              value={$(e.revenueMonth)}
               icon={BarChart3}
               accent="spark"
             />
             <StatCard
               title="Revenue this year"
-              value={money(e.revenueYear)}
+              value={$(e.revenueYear)}
               icon={Wallet}
               accent="primary"
             />
@@ -250,19 +256,19 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             />
             <StatCard
               title="Outstanding invoices"
-              value={moneyExact(e.outstandingInvoicesCents)}
+              value={$c(e.outstandingInvoicesCents)}
               icon={FileSpreadsheet}
               accent="warning"
             />
             <StatCard
               title="Membership revenue"
-              value={moneyExact(e.membershipRevenueCents)}
+              value={$c(e.membershipRevenueCents)}
               icon={Package}
               description="Active plans"
             />
             <StatCard
               title="Gift card revenue"
-              value={moneyExact(e.giftCardRevenueCents)}
+              value={$c(e.giftCardRevenueCents)}
               icon={Gift}
               description="Redeemed value"
             />
@@ -348,6 +354,12 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <StatCard
+              title="Booked"
+              value={String(bundle.appointments.booked)}
+              icon={CalendarDays}
+              description="This month"
+            />
+            <StatCard
               title="Completed"
               value={String(bundle.appointments.completed)}
               icon={CalendarDays}
@@ -377,7 +389,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             />
             <StatCard
               title="Avg booking value"
-              value={money(bundle.appointments.averageBookingValue)}
+              value={$(bundle.appointments.averageBookingValue)}
               icon={Wallet}
             />
           </div>
@@ -427,7 +439,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             />
             <StatCard
               title="Avg lifetime value"
-              value={money(bundle.customers.lifetimeValueAvg)}
+              value={$(bundle.customers.lifetimeValueAvg)}
               icon={Wallet}
             />
             <StatCard
@@ -451,18 +463,18 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               items={bundle.customers.birthdaysThisMonth}
               empty="No birthdays this month."
               format="plain"
-            />
+             currency={currency} />
             <MetricList
               title="Top customers"
               items={bundle.customers.topCustomers}
               empty="No customer spend yet."
               format="money"
-            />
+             currency={currency} />
             <MetricList
               title="Inactive customers"
               items={bundle.customers.inactiveCustomers}
               empty="No inactive customers."
-            />
+             currency={currency} />
           </div>
         </div>
       ) : null}
@@ -498,7 +510,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                       <tr key={row.id}>
                         <td className="px-2 py-2.5 font-medium">{row.name}</td>
                         <td className="px-2 py-2.5 tabular-nums">
-                          {money(row.revenue)}
+                          {$(row.revenue)}
                         </td>
                         <td className="px-2 py-2.5 tabular-nums">
                           {row.completed}
@@ -507,7 +519,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                           {row.averageServiceMinutes}m
                         </td>
                         <td className="px-2 py-2.5 tabular-nums">
-                          {moneyExact(row.commissionCents)}
+                          {$c(row.commissionCents)}
                         </td>
                         <td className="px-2 py-2.5 tabular-nums">
                           {row.productivity}
@@ -549,12 +561,12 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               title="Most popular"
               items={bundle.services.mostPopular}
               empty="No completed services this month."
-            />
+             currency={currency} />
             <MetricList
               title="Least popular"
               items={bundle.services.leastPopular}
               empty="No service data yet."
-            />
+             currency={currency} />
             <Card>
               <CardHeader>
                 <CardTitle>Revenue by service</CardTitle>
@@ -611,7 +623,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                           </span>
                         </td>
                         <td className="px-2 py-2.5 tabular-nums">
-                          {money(row.revenue)}
+                          {$(row.revenue)}
                         </td>
                         <td className="px-2 py-2.5 tabular-nums">
                           {row.appointments}
@@ -642,39 +654,39 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             title="Invoices"
-            value={moneyExact(bundle.financial.invoicesCents)}
+            value={$c(bundle.financial.invoicesCents)}
             icon={FileSpreadsheet}
           />
           <StatCard
             title="Payments"
-            value={moneyExact(bundle.financial.paymentsCents)}
+            value={$c(bundle.financial.paymentsCents)}
             icon={Wallet}
             accent="success"
           />
           <StatCard
             title="Refunds"
-            value={moneyExact(bundle.financial.refundsCents)}
+            value={$c(bundle.financial.refundsCents)}
             icon={Wallet}
             accent="warning"
           />
           <StatCard
             title="Taxes"
-            value={moneyExact(bundle.financial.taxesCents)}
+            value={$c(bundle.financial.taxesCents)}
             icon={FileSpreadsheet}
           />
           <StatCard
             title="Discounts"
-            value={moneyExact(bundle.financial.discountsCents)}
+            value={$c(bundle.financial.discountsCents)}
             icon={FileSpreadsheet}
           />
           <StatCard
             title="Deposits"
-            value={moneyExact(bundle.financial.depositsCents)}
+            value={$c(bundle.financial.depositsCents)}
             icon={Wallet}
           />
           <StatCard
             title="Outstanding balances"
-            value={moneyExact(bundle.financial.outstandingCents)}
+            value={$c(bundle.financial.outstandingCents)}
             icon={FileSpreadsheet}
             accent="warning"
           />

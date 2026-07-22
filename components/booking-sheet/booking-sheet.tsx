@@ -1,6 +1,6 @@
 "use client";
 
-import { AppointmentSection } from "@/components/booking-sheet/appointment-section";
+import { AppointmentSection, type BookingOfferType } from "@/components/booking-sheet/appointment-section";
 import { AvailabilitySection } from "@/components/booking-sheet/availability-section";
 import { CustomerSection } from "@/components/booking-sheet/customer-section";
 import { PaymentsSection } from "@/components/booking-sheet/payments-section";
@@ -15,6 +15,7 @@ import {
   setAppointmentStatus,
   updateAppointment,
 } from "@/lib/actions/appointments";
+import { listPackages } from "@/lib/actions/business-management";
 import { duplicateAppointment } from "@/lib/actions/booking-engine";
 import {
   getBookingSheetCustomerSnapshot,
@@ -22,6 +23,7 @@ import {
   type BookingSheetAvailability,
 } from "@/lib/actions/booking-sheet";
 import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
+import type { ServicePackage } from "@/lib/business/types";
 import { parseISO } from "@/lib/calendar/utils";
 import {
   useBookingPreferences,
@@ -55,6 +57,7 @@ export type BookingSheetProps = {
   staff: StaffWithServices[];
   customers: Customer[];
   locations: Location[];
+  packages?: ServicePackage[];
   defaultDate?: Date;
   defaultStaffId?: string;
   /** Prefill customer when opening from CRM / Reception without an appointment. */
@@ -80,6 +83,7 @@ export function BookingSheet({
   staff,
   customers: initialCustomers,
   locations,
+  packages: packagesProp,
   defaultDate,
   defaultStaffId,
   defaultCustomerId,
@@ -177,6 +181,9 @@ export function BookingSheet({
   ]);
 
   const [customers, setCustomers] = useState(initialCustomers);
+  const [packages, setPackages] = useState<ServicePackage[]>(packagesProp ?? []);
+  const [offerType, setOfferType] = useState<BookingOfferType>("service");
+  const [packageId, setPackageId] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     () =>
       initialCustomers.find((c) => c.id === preferred.customerId) ?? null,
@@ -217,8 +224,49 @@ export function BookingSheet({
     : (eligibleStaff[0]?.id ?? "");
 
   const selectedService = services.find((s) => s.id === serviceId);
+  const selectedPackage = packages.find((p) => p.id === packageId);
   const excludeId = appointment?.id;
   const staffOptionKey = eligibleStaff.map((m) => m.id).join(",");
+
+  useEffect(() => {
+    if (packagesProp) {
+      setPackages(packagesProp);
+      return;
+    }
+    if (!open) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const rows = await listPackages();
+        if (!cancelled) setPackages(rows.filter((p) => p.is_active));
+      } catch {
+        if (!cancelled) setPackages([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, packagesProp]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (offerType !== "package") return;
+    const active = packages.filter((p) => p.is_active);
+    if (active.length === 0) return;
+    const pkg =
+      active.find((p) => p.id === packageId) ?? active[0] ?? null;
+    if (!pkg) return;
+    if (pkg.id !== packageId) setPackageId(pkg.id);
+    const firstServiceId =
+      pkg.service_ids.find((id) =>
+        services.some((s) => s.id === id && s.is_active),
+      ) ?? "";
+    if (firstServiceId && firstServiceId !== serviceId) {
+      setServiceId(firstServiceId);
+      const svc = services.find((s) => s.id === firstServiceId);
+      if (svc) setDurationMinutes(svc.duration_minutes);
+    }
+  }, [open, offerType, packageId, packages, services, serviceId]);
 
   useEffect(() => {
     if (!open) return;
@@ -322,6 +370,30 @@ export function BookingSheet({
     setSlot(null);
   }
 
+  function handleOfferTypeChange(type: BookingOfferType) {
+    setOfferType(type);
+    setSlot(null);
+    if (type === "service") {
+      setPackageId("");
+    }
+  }
+
+  function handlePackageChange(id: string) {
+    setPackageId(id);
+    const pkg = packages.find((p) => p.id === id);
+    if (!pkg) return;
+    const firstServiceId =
+      pkg.service_ids.find((sid) =>
+        services.some((s) => s.id === sid && s.is_active),
+      ) ?? "";
+    if (firstServiceId) {
+      setServiceId(firstServiceId);
+      const svc = services.find((s) => s.id === firstServiceId);
+      if (svc) setDurationMinutes(svc.duration_minutes);
+    }
+    setSlot(null);
+  }
+
   function handleStaffChange(id: string) {
     setStaffId(id);
     setSlot(null);
@@ -336,6 +408,13 @@ export function BookingSheet({
     setDate(next);
     setSlot(null);
   }
+
+  const priceCentsForSubmit =
+    offerType === "package" && selectedPackage
+      ? selectedPackage.price_cents
+      : selectedService
+        ? Math.round(Number(selectedService.price) * 100)
+        : 0;
 
   function scrollToAvailability() {
     document
@@ -477,6 +556,25 @@ export function BookingSheet({
           />
           <input type="hidden" name="status" value={status} />
           <input type="hidden" name="notes" value={notes} />
+          <input
+            type="hidden"
+            name="package_id"
+            value={offerType === "package" ? packageId : ""}
+          />
+          <input
+            type="hidden"
+            name="package_name"
+            value={
+              offerType === "package" && selectedPackage
+                ? selectedPackage.name
+                : ""
+            }
+          />
+          <input
+            type="hidden"
+            name="price_cents"
+            value={String(priceCentsForSubmit || "")}
+          />
 
           <p className="flex-1 text-xs text-muted-foreground">
             {canSubmit
@@ -514,8 +612,11 @@ export function BookingSheet({
 
         <AppointmentSection
           services={services}
+          packages={packages}
           staff={staff}
           locations={locations}
+          offerType={offerType}
+          packageId={packageId}
           serviceId={serviceId}
           staffId={activeStaffId}
           locationId={locationId}
@@ -524,6 +625,8 @@ export function BookingSheet({
           status={status}
           notes={notes}
           bookingSource={bookingSourceLabel}
+          onOfferTypeChange={handleOfferTypeChange}
+          onPackageChange={handlePackageChange}
           onServiceChange={handleServiceChange}
           onStaffChange={handleStaffChange}
           onLocationChange={handleLocationChange}

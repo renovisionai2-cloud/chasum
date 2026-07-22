@@ -482,18 +482,22 @@ export function BusinessHub({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Currency</Label>
+                  <Label htmlFor="currency">Business currency</Label>
                   <Select
                     id="currency"
                     name="currency"
                     defaultValue={business.currency ?? "usd"}
                   >
-                    <option value="usd">USD</option>
-                    <option value="cad">CAD</option>
-                    <option value="eur">EUR</option>
-                    <option value="gbp">GBP</option>
-                    <option value="aud">AUD</option>
+                    <option value="cad">CAD — Canadian Dollar</option>
+                    <option value="usd">USD — US Dollar</option>
+                    <option value="gbp">GBP — British Pound</option>
+                    <option value="eur">EUR — Euro</option>
+                    <option value="aud">AUD — Australian Dollar</option>
                   </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Payroll, payments, invoices, gift cards, reports, receipts,
+                    taxes, and dashboards inherit this currency.
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="timezone">Time zone</Label>
@@ -640,8 +644,11 @@ export function BusinessHub({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Duration, price, buffers, online booking, and policies are managed
-              in Services. Categories, deposits, and images are extended here.
+              <strong className="font-medium text-foreground">Services</strong>{" "}
+              are individual appointment offerings — one visit, one price
+              (example: Haircut, Facial, Consultation). Duration, price,
+              buffers, online booking, and policies are managed in Services.
+              Categories, deposits, and images are extended here.
             </p>
             <p className="text-sm">
               {services.length} service{services.length === 1 ? "" : "s"} configured.
@@ -795,10 +802,17 @@ export function BusinessHub({
             <CardHeader>
               <CardTitle>Packages</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                <strong className="font-medium text-foreground">Packages</strong>{" "}
+                are bundles of one or more services — prepaid visit series or
+                multi-service offers (example: Bridal package, 5-visit massage
+                series). When booking a package, price and included services
+                populate automatically.
+              </p>
               <CatalogList
                 emptyTitle="No packages"
-                emptyDescription="Prepaid visit bundles with expiry and transfer rules."
+                emptyDescription="Create a bundle of services with a package price, visit count, and optional expiry."
                 items={packages.map((p) => ({
                   id: p.id,
                   title: p.name,

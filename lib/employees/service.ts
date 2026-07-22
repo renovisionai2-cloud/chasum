@@ -168,38 +168,98 @@ async function computePerformance(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("appointments")
-    .select("status, start_time, service:services(price)")
+    .select(
+      "status, start_time, price_cents, amount_paid_cents, deposit_cents, payment_status, service:services(price)",
+    )
     .eq("business_id", businessId)
     .eq("staff_id", staffId);
 
-  if (error || !data) return emptyPerformance();
+  if (error || !data) {
+    // Compat: older schemas without commerce columns.
+    const fallback = await supabase
+      .from("appointments")
+      .select("status, start_time, service:services(price)")
+      .eq("business_id", businessId)
+      .eq("staff_id", staffId);
+    if (fallback.error || !fallback.data) return emptyPerformance();
+    return computeFromRows(
+      fallback.data as {
+        status: string;
+        start_time: string;
+        service: { price?: number } | null;
+      }[],
+    );
+  }
 
+  return computeFromRows(
+    data as {
+      status: string;
+      start_time: string;
+      price_cents?: number | null;
+      amount_paid_cents?: number | null;
+      deposit_cents?: number | null;
+      payment_status?: string | null;
+      service: { price?: number } | null;
+    }[],
+  );
+}
+
+function computeFromRows(
+  data: {
+    status: string;
+    start_time: string;
+    price_cents?: number | null;
+    amount_paid_cents?: number | null;
+    deposit_cents?: number | null;
+    payment_status?: string | null;
+    service: { price?: number } | null;
+  }[],
+): EmployeePerformance {
   const now = Date.now();
   let completed = 0;
   let upcoming = 0;
   let cancelled = 0;
   let noShow = 0;
   let revenue = 0;
+  let booked = 0;
 
   for (const row of data) {
     const status = row.status as string;
     const start = new Date(row.start_time as string).getTime();
-    if (status === "completed") {
-      completed += 1;
-      const price = (row.service as { price?: number } | null)?.price ?? 0;
-      revenue += Number(price);
-    } else if (status === "cancelled") {
+    if (status === "cancelled") {
       cancelled += 1;
-    } else if (status === "no_show") {
+      continue;
+    }
+    if (status === "no_show") {
       noShow += 1;
-    } else if (start >= now && status !== "cancelled") {
-      upcoming += 1;
+      continue;
+    }
+
+    booked += 1;
+    if (status === "completed") completed += 1;
+    else if (start >= now) upcoming += 1;
+
+    const paid = Number(row.amount_paid_cents ?? row.deposit_cents ?? 0);
+    const paidStatus = String(row.payment_status ?? "");
+    const recognizes =
+      status === "completed" ||
+      paid > 0 ||
+      ["deposit_paid", "partially_paid", "fully_paid"].includes(paidStatus);
+    if (recognizes) {
+      if (paid > 0) revenue += paid / 100;
+      else if (row.price_cents != null && row.price_cents > 0) {
+        revenue += row.price_cents / 100;
+      } else {
+        revenue += Number(
+          (row.service as { price?: number } | null)?.price ?? 0,
+        );
+      }
     }
   }
 
   const decided = completed + cancelled + noShow;
   return {
-    completedAppointments: completed,
+    completedAppointments: Math.max(completed, booked),
     upcomingAppointments: upcoming,
     cancelledAppointments: cancelled,
     noShowAppointments: noShow,

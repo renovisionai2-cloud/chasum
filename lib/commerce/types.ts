@@ -156,6 +156,8 @@ export type CustomerCommerceAccount = {
   outstandingBalanceCents: number;
   lifetimeSpendCents: number;
   depositsCents: number;
+  remainingBalanceCents: number;
+  totalPaidCents: number;
   storeCreditCents: number;
   invoices: CommerceInvoice[];
   receipts: CommerceReceipt[];
@@ -222,8 +224,10 @@ export const APPOINTMENT_PAYMENT_STATUS_LABELS: Record<
   voided: "Voided",
 };
 
-export function centsToDollars(cents: number): string {
-  return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
+import { formatMoneyCents } from "@/lib/commerce/money";
+
+export function centsToDollars(cents: number, currency?: string | null): string {
+  return formatMoneyCents(cents, currency);
 }
 
 export function parsePaymentMethod(value: unknown): PaymentMethod {

@@ -533,7 +533,14 @@ export async function redeemGiftCard(
   };
 }
 
-export async function loadGiftCertificate(cardId: string): Promise<{
+export async function loadGiftCertificate(
+  cardId: string,
+  message?: {
+    recipientName?: string;
+    senderName?: string;
+    personalMessage?: string;
+  },
+): Promise<{
   card: GiftCard;
   html: string;
   text: string;
@@ -562,12 +569,15 @@ export async function loadGiftCertificate(cardId: string): Promise<{
     addressLine: [business.address_line1, business.city, business.state]
       .filter(Boolean)
       .join(", "),
+    brandColor: business.brand_color,
+    accentColor: business.accent_color,
+    currency: business.currency,
   };
   const card = data as GiftCard;
   return {
     card,
-    html: formatGiftCertificateHtml(card, brand),
-    text: formatGiftCertificateText(card, brand),
+    html: formatGiftCertificateHtml(card, brand, message),
+    text: formatGiftCertificateText(card, brand, message),
     brandName: business.name,
   };
 }
@@ -579,22 +589,28 @@ export async function emailGiftCertificateAction(
   const cardId = String(formData.get("gift_card_id") ?? "").trim();
   const to = String(formData.get("email") ?? "").trim();
   const recipientName = String(formData.get("recipient_name") ?? "").trim();
+  const senderName = String(formData.get("sender_name") ?? "").trim();
+  const personalMessage = String(formData.get("personal_message") ?? "").trim();
   if (!cardId || !to) {
     return { error: "Gift card and recipient email are required." };
   }
 
-  const pack = await loadGiftCertificate(cardId);
-  if (!pack) return { error: "Gift card not found." };
-
+  const {
+    giftCertificateEmailConfigError,
+  } = await import("@/lib/business/gift-certificate");
   const { isEmailDeliverable } = await import(
     "@/lib/integrations/providers/email"
   );
   if (!isEmailDeliverable()) {
-    return {
-      error:
-        "Email cannot be sent: RESEND_API_KEY is not configured. Fix Communications before emailing certificates.",
-    };
+    return { error: giftCertificateEmailConfigError() };
   }
+
+  const pack = await loadGiftCertificate(cardId, {
+    recipientName,
+    senderName,
+    personalMessage,
+  });
+  if (!pack) return { error: "Gift card not found." };
 
   const business = await getOrCreateBusiness();
   const { sendEmail } = await import("@/lib/communications/delivery");
@@ -608,7 +624,7 @@ export async function emailGiftCertificateAction(
       businessName: pack.brandName,
       customerName: recipientName || "there",
       customerEmail: to,
-      staffName: "Team",
+      staffName: senderName || "Team",
       serviceName: "Gift certificate",
       startTime: new Date().toISOString(),
       amountCents: pack.card.initial_balance_cents,
@@ -618,8 +634,13 @@ export async function emailGiftCertificateAction(
   });
 
   if (!result.ok) {
+    const raw = result.error ?? "Failed to email gift certificate.";
+    if (/RESEND_API_KEY|not configured/i.test(raw)) {
+      return { error: giftCertificateEmailConfigError() };
+    }
     return {
-      error: result.error ?? "Failed to email gift certificate.",
+      error:
+        "We couldn't deliver the gift certificate email. Check that email delivery is configured in Communications, then try again.",
     };
   }
 

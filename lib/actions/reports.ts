@@ -2,6 +2,7 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getLocationScope } from "@/lib/actions/location";
+import { normalizeCurrency } from "@/lib/commerce/money";
 import { withLocationFilter } from "@/lib/location/constants";
 import {
   buildAppointmentReport,
@@ -65,6 +66,7 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
       id, status, start_time, end_time, created_at, updated_at,
       location_id, staff_id, customer_id, service_id,
       price_cents, tax_cents, discount_cents, deposit_cents,
+      amount_paid_cents, payment_status,
       service:services(id, name, price, category, duration_minutes),
       staff:staff(id, name, commission_rate_bps),
       customer:customers(id, name, created_at, date_of_birth),
@@ -295,6 +297,7 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
   });
 
   return {
+    currency: normalizeCurrency(business.currency),
     executive,
     revenue,
     appointments: appointmentsReport,

@@ -15,6 +15,7 @@ import {
   queueReceiptEmail,
   recordCommercePayment,
 } from "@/lib/commerce";
+import { normalizeCurrency } from "@/lib/commerce/money";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -82,6 +83,7 @@ export async function recordPaymentAction(
     method,
     description,
     kind: kindRaw === "deposit" ? "deposit" : "payment",
+    currency: normalizeCurrency(business.currency),
     actorId: user?.id ?? null,
     ensureInvoice: Boolean(appointmentId),
     forceManual,

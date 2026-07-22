@@ -36,10 +36,11 @@ export function CustomerCommercePanel({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Outstanding" value={centsToDollars(account.outstandingBalanceCents)} />
-        <Stat label="Lifetime spend" value={centsToDollars(account.lifetimeSpendCents)} />
-        <Stat label="Deposits" value={centsToDollars(account.depositsCents)} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <Stat label="Outstanding balance" value={centsToDollars(account.outstandingBalanceCents)} />
+        <Stat label="Deposit paid" value={centsToDollars(account.depositsCents)} />
+        <Stat label="Remaining balance" value={centsToDollars(account.remainingBalanceCents)} />
+        <Stat label="Total paid" value={centsToDollars(account.totalPaidCents)} />
         <Stat label="Store credit" value={centsToDollars(account.storeCreditCents)} />
       </div>
 

@@ -151,16 +151,18 @@ export function renderEmailTemplate(
       const code = ctx.invoiceNumber ?? "GIFT";
       const content = `
         <p style="margin:0 0 16px;">Hi ${ctx.customerName || "there"},</p>
-        <p>You've received a gift certificate from <strong>${ctx.businessName}</strong>.</p>
-        <p style="font-size:22px;font-weight:700;letter-spacing:0.06em;margin:20px 0;font-family:ui-monospace,monospace;">${code}</p>
-        <p style="font-size:18px;font-weight:600;margin:0 0 12px;">Value ${money(ctx.amountCents)}</p>
-        <pre style="white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;">${
-          ctx.customMessage ?? ""
-        }</pre>
-        <p style="margin:16px 0 0;color:#64748b;font-size:13px;">Present this code when redeeming.</p>`;
+        <p style="margin:0 0 12px;">${ctx.staffName && ctx.staffName !== "Team" ? `<strong>${ctx.staffName}</strong> sent you` : "You've received"} a gift certificate from <strong>${ctx.businessName}</strong>.</p>
+        <p style="font-size:28px;font-weight:700;letter-spacing:0.08em;margin:24px 0 8px;font-family:ui-monospace,monospace;color:#0f172a;">${code}</p>
+        <p style="font-size:18px;font-weight:600;margin:0 0 16px;">Value ${money(ctx.amountCents)}</p>
+        <p style="margin:0 0 8px;color:#475569;font-size:14px;">Keep this email handy — present the code when redeeming in-store or online.</p>
+        ${
+          ctx.customMessage
+            ? `<pre style="white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;margin:16px 0 0;">${ctx.customMessage}</pre>`
+            : ""
+        }`;
       return {
         key,
-        subject: `Gift certificate from ${ctx.businessName}`,
+        subject: `A gift certificate from ${ctx.businessName}`,
         html: layout(content, b),
         text:
           ctx.customMessage ||

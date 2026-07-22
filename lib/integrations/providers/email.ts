@@ -11,7 +11,11 @@ class ResendEmailProvider implements EmailProvider {
   async send(payload: EmailPayload): Promise<EmailResult> {
     const apiKey = getResendApiKey();
     if (!apiKey) {
-      return { success: false, error: "RESEND_API_KEY is not configured." };
+      return {
+        success: false,
+        error:
+          "Email delivery is not configured yet. Set up email in Communications before sending messages to customers.",
+      };
     }
 
     const res = await fetch("https://api.resend.com/emails", {
@@ -49,7 +53,7 @@ class ResendEmailProvider implements EmailProvider {
       if (/smtp|icloud|550|553|554|blocked|not verified|domain|rejected/i.test(detail)) {
         detail = `${detail} Chasum attempted delivery via Resend; the mail provider rejected it. Verify the From address (${from}) domain in Resend and that the recipient inbox can accept mail.`;
       } else {
-        detail = `${detail} (from ${from}). Verify RESEND_API_KEY and that the sender domain is verified in Resend.`;
+        detail = `${detail} (from ${from}). Confirm the sender domain is verified for email delivery.`;
       }
       return {
         success: false,
@@ -84,7 +88,7 @@ class DisabledEmailProvider implements EmailProvider {
     return {
       success: false,
       error:
-        "RESEND_API_KEY is not configured. Patient emails cannot be sent in production.",
+        "Email delivery is not configured yet. Set up email in Communications before sending messages to customers.",
     };
   }
 }

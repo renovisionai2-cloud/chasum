@@ -45,17 +45,52 @@ export async function createInvoiceForAppointment(input: {
 }): Promise<{ invoice: CommerceInvoice | null; error?: string }> {
   const supabase = await createClient();
 
-  const { data: appt, error: apptErr } = await supabase
+  const apptSelectFull =
+    "id, business_id, customer_id, service_id, price_cents, tax_cents, discount_cents, deposit_cents, invoice_number, payment_status, amount_paid_cents, services(name, price)";
+  const apptSelectCompat =
+    "id, business_id, customer_id, service_id, deposit_cents, invoice_number, services(name, price)";
+
+  let { data: appt, error: apptErr } = await supabase
     .from("appointments")
-    .select(
-      "id, business_id, customer_id, service_id, price_cents, tax_cents, discount_cents, deposit_cents, invoice_number, payment_status, amount_paid_cents, services(name, price)",
-    )
+    .select(apptSelectFull)
     .eq("id", input.appointmentId)
     .eq("business_id", input.businessId)
     .maybeSingle();
 
+  if (
+    apptErr &&
+    (apptErr.message.includes("payment_status") ||
+      apptErr.message.includes("price_cents") ||
+      apptErr.message.includes("amount_paid") ||
+      apptErr.message.includes("tax_cents") ||
+      apptErr.message.includes("discount_cents"))
+  ) {
+    const fallback = await supabase
+      .from("appointments")
+      .select(apptSelectCompat)
+      .eq("id", input.appointmentId)
+      .eq("business_id", input.businessId)
+      .maybeSingle();
+    appt = fallback.data
+      ? ({
+          ...fallback.data,
+          price_cents: null,
+          tax_cents: 0,
+          discount_cents: 0,
+          payment_status: null,
+          amount_paid_cents: Number(fallback.data.deposit_cents ?? 0),
+        } as typeof appt)
+      : null;
+    apptErr = fallback.error;
+  }
+
   if (apptErr || !appt) {
-    return { invoice: null, error: apptErr?.message ?? "Appointment not found." };
+    return {
+      invoice: null,
+      error: apptErr?.message?.includes("payment_status")
+        ? "Could not load appointment for invoicing. Apply migration 028_commerce_platform."
+        : (apptErr?.message ?? "Appointment not found."),
+    };
   }
 
   // Prefer existing invoice for this appointment

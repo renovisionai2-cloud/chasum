@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { ServicePackage } from "@/lib/business/types";
 import type {
   AppointmentStatus,
   Location,
@@ -12,10 +13,15 @@ import type {
 } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
 
+export type BookingOfferType = "service" | "package";
+
 type AppointmentSectionProps = {
   services: Service[];
+  packages: ServicePackage[];
   staff: StaffWithServices[];
   locations: Location[];
+  offerType: BookingOfferType;
+  packageId: string;
   serviceId: string;
   staffId: string;
   locationId: string;
@@ -24,6 +30,8 @@ type AppointmentSectionProps = {
   status: AppointmentStatus;
   notes: string;
   bookingSource: string;
+  onOfferTypeChange: (type: BookingOfferType) => void;
+  onPackageChange: (id: string) => void;
   onServiceChange: (id: string) => void;
   onStaffChange: (id: string) => void;
   onLocationChange: (id: string) => void;
@@ -36,8 +44,11 @@ type AppointmentSectionProps = {
 
 export function AppointmentSection({
   services,
+  packages,
   staff,
   locations,
+  offerType,
+  packageId,
   serviceId,
   staffId,
   locationId,
@@ -46,6 +57,8 @@ export function AppointmentSection({
   status,
   notes,
   bookingSource,
+  onOfferTypeChange,
+  onPackageChange,
   onServiceChange,
   onStaffChange,
   onLocationChange,
@@ -58,6 +71,8 @@ export function AppointmentSection({
   const locationServices = services.filter(
     (s) => s.is_active && (!locationId || s.location_id === locationId),
   );
+  const activePackages = packages.filter((p) => p.is_active);
+  const selectedPackage = activePackages.find((p) => p.id === packageId);
   const selectedService = services.find((s) => s.id === serviceId);
   const eligibleStaff = staff.filter(
     (m) =>
@@ -74,7 +89,9 @@ export function AppointmentSection({
     ),
   );
 
-  const price =
+  const packagePriceDollars =
+    selectedPackage != null ? selectedPackage.price_cents / 100 : null;
+  const servicePrice =
     selectedService != null
       ? Number(
           eligibleStaff
@@ -83,6 +100,13 @@ export function AppointmentSection({
             ?.price_override ?? selectedService.price,
         )
       : null;
+  const price =
+    offerType === "package" ? packagePriceDollars : servicePrice;
+
+  const includedNames =
+    selectedPackage?.service_ids
+      .map((id) => services.find((s) => s.id === id)?.name)
+      .filter((n): n is string => Boolean(n)) ?? [];
 
   const bufferBefore = selectedService?.buffer_before_minutes ?? 0;
   const bufferAfter = selectedService?.buffer_after_minutes ?? 0;
@@ -98,7 +122,8 @@ export function AppointmentSection({
           Appointment
         </h3>
         <p className="text-xs text-muted-foreground">
-          Service, team, timing, and commercial details
+          Book a single service or a package. Packages use the package price and
+          include one or more services.
         </p>
       </div>
 
@@ -119,16 +144,70 @@ export function AppointmentSection({
         </div>
 
         <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor="bs-service">Service</Label>
+          <Label htmlFor="bs-offer-type">Book</Label>
+          <Select
+            id="bs-offer-type"
+            value={offerType}
+            onChange={(e) =>
+              onOfferTypeChange(e.target.value as BookingOfferType)
+            }
+          >
+            <option value="service">Service — individual appointment</option>
+            <option value="package">Package — bundled visits / services</option>
+          </Select>
+          <p className="text-[11px] text-muted-foreground">
+            {offerType === "service"
+              ? "Example: Haircut, Facial, Consultation — one visit, one price."
+              : "Example: Bridal package or 5-visit massage series — package price applies; first included service is scheduled."}
+          </p>
+        </div>
+
+        {offerType === "package" ? (
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="bs-package">Package</Label>
+            <Select
+              id="bs-package"
+              value={packageId}
+              onChange={(e) => onPackageChange(e.target.value)}
+            >
+              {activePackages.length === 0 ? (
+                <option value="">No active packages</option>
+              ) : (
+                activePackages.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} · ${(p.price_cents / 100).toFixed(2)} ·{" "}
+                    {p.total_visits} visits
+                  </option>
+                ))
+              )}
+            </Select>
+            {includedNames.length > 0 ? (
+              <p className="text-[11px] text-muted-foreground">
+                Includes: {includedNames.join(", ")}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label htmlFor="bs-service">
+            {offerType === "package" ? "Service for this visit" : "Service"}
+          </Label>
           <Select
             id="bs-service"
             value={serviceId}
             onChange={(e) => onServiceChange(e.target.value)}
+            disabled={offerType === "package" && includedNames.length > 0}
           >
             {locationServices.length === 0 ? (
               <option value="">No active services</option>
             ) : (
-              locationServices.map((s) => (
+              (offerType === "package" && selectedPackage
+                ? locationServices.filter((s) =>
+                    selectedPackage.service_ids.includes(s.id),
+                  )
+                : locationServices
+              ).map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.category ? `${s.category} · ` : ""}
                   {s.name} ({s.duration_minutes}m)
@@ -136,7 +215,7 @@ export function AppointmentSection({
               ))
             )}
           </Select>
-          {categories.length > 0 ? (
+          {offerType === "service" && categories.length > 0 ? (
             <p className="text-[11px] text-muted-foreground">
               Categories: {categories.slice(0, 4).join(", ")}
               {categories.length > 4 ? "…" : ""}
@@ -223,7 +302,9 @@ export function AppointmentSection({
           </p>
         </div>
         <div>
-          <p className="text-muted-foreground">Price</p>
+          <p className="text-muted-foreground">
+            {offerType === "package" ? "Package price" : "Price"}
+          </p>
           <p className="font-medium tabular-nums">
             {price != null ? `$${price.toFixed(2)}` : "—"}
           </p>
@@ -246,14 +327,9 @@ export function AppointmentSection({
           rows={2}
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
-          placeholder="Preferences, allergies, prep…"
+          placeholder="Optional notes for the visit"
         />
       </div>
-
-      <p className="text-[11px] text-muted-foreground">
-        Room / resource assignment is prepared for a later release — availability
-        still validates through the Booking Engine.
-      </p>
     </section>
   );
 }

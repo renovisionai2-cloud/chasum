@@ -32,6 +32,11 @@ export type BookingIntent = {
   requestedStatus?: AppointmentStatus;
   /** Minutes override (staff duration override / resize context) */
   durationMinutes?: number;
+  /** Commercial stamp — package or service price in cents */
+  priceCents?: number;
+  depositCents?: number;
+  packageId?: string;
+  packageName?: string;
   /** Exclude self when validating updates / reschedules */
   excludeAppointmentId?: string;
   roomId?: string | null;
