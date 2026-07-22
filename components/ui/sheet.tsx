@@ -99,7 +99,7 @@ export function Sheet({
       <button
         type="button"
         className="absolute inset-0 bg-black/40 backdrop-blur-[1px] motion-safe:transition-opacity"
-        aria-label="Close booking sheet"
+        aria-label="Close panel"
         onClick={onClose}
       />
       <div
@@ -110,17 +110,15 @@ export function Sheet({
         aria-describedby={description ? descriptionId : undefined}
         className={cn(
           "relative z-10 flex w-full flex-col border-border bg-card shadow-xl",
-          "max-h-[92vh] rounded-t-[var(--radius-lg)] border",
-          "md:h-full md:max-h-none md:w-[min(34rem,100%)] md:rounded-none",
+          "max-h-[92dvh] rounded-t-[var(--radius-lg)] border",
+          "pb-[env(safe-area-inset-bottom)]",
+          "md:h-full md:max-h-none md:w-[min(34rem,100%)] md:rounded-none md:pb-0",
           side === "right" ? "md:border-l md:border-y-0 md:border-r-0" : "md:border-r md:border-y-0 md:border-l-0",
           className,
         )}
       >
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              Booking Sheet
-            </p>
             <h2 id={titleId} className="truncate text-lg font-semibold tracking-tight">
               {title}
             </h2>
@@ -136,7 +134,7 @@ export function Sheet({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0"
+              className="h-10 w-10 p-0 touch-manipulation"
               onClick={onClose}
               aria-label="Close"
             >

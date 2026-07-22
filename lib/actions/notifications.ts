@@ -48,7 +48,7 @@ export async function markNotificationRead(id: string): Promise<ActionState> {
   if (error) return { error: error.message };
 
   revalidatePath("/dashboard/notifications");
-  return { success: "Marked as read." };
+  return { success: "Notification marked as read." };
 }
 
 export async function archiveNotification(id: string): Promise<ActionState> {
@@ -70,7 +70,7 @@ export async function archiveNotification(id: string): Promise<ActionState> {
   }
 
   revalidatePath("/dashboard/notifications");
-  return { success: "Archived." };
+  return { success: "Notification archived." };
 }
 
 export async function markAllNotificationsRead(): Promise<ActionState> {

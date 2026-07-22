@@ -89,7 +89,7 @@ export async function createInvoiceForAppointment(input: {
     return {
       invoice: null,
       error: apptErr?.message?.includes("payment_status")
-        ? "Could not load appointment for invoicing. Apply migration 028_commerce_platform."
+        ? "Couldn't load this appointment for invoicing. Payments may not be fully set up yet."
         : (apptErr?.message ?? "Appointment not found."),
     };
   }
@@ -146,7 +146,7 @@ export async function createInvoiceForAppointment(input: {
     return {
       invoice: null,
       error:
-        "Commerce schema not ready. Apply migration 028_commerce_platform.",
+        "Payments aren't fully set up yet. Contact support to finish commerce setup.",
     };
   }
 
@@ -194,7 +194,7 @@ export async function createInvoiceForAppointment(input: {
       return {
         invoice: null,
         error:
-          "Commerce schema not ready. Apply migration 028_commerce_platform.",
+          "Payments aren't fully set up yet. Contact support to finish commerce setup.",
       };
     }
     return { invoice: null, error: invErr?.message ?? "Could not create invoice." };
@@ -327,10 +327,18 @@ export function formatInvoiceText(invoice: CommerceInvoice): string {
   };
   const currency = invoice.currency;
   const money = (cents: number) => formatMoneyCents(cents, currency);
+  const statusLabels: Record<string, string> = {
+    open: "Open",
+    partial: "Partially paid",
+    paid: "Paid",
+    overdue: "Overdue",
+    void: "Void",
+    draft: "Draft",
+  };
   const lines = [
-    `INVOICE ${invoice.invoiceNumber}`,
-    `Status: ${invoice.status}`,
-    `Issue: ${invoice.issueDate}`,
+    `Invoice ${invoice.invoiceNumber}`,
+    `Status: ${statusLabels[invoice.status] ?? invoice.status}`,
+    `Issued: ${invoice.issueDate}`,
     invoice.dueDate ? `Due: ${invoice.dueDate}` : null,
     "",
     `From: ${biz.name ?? "Business"}`,
@@ -351,9 +359,9 @@ export function formatInvoiceText(invoice: CommerceInvoice): string {
     `Discount: ${money(invoice.discountCents)}`,
     `Total: ${money(invoice.totalCents)}`,
     `Paid: ${money(invoice.amountPaidCents)}`,
-    `Balance: ${money(invoice.balanceCents)}`,
+    `Balance due: ${money(invoice.balanceCents)}`,
     "",
-    `Thank you for choosing ${biz.name ?? "us"}.`,
+    `Thank you for visiting ${biz.name ?? "us"}. We look forward to seeing you again.`,
   ].filter(Boolean);
 
   return lines.join("\n");

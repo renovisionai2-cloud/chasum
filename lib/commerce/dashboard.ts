@@ -55,7 +55,7 @@ export async function getCommerceDashboardSnapshot(
       generatedAt: now.toISOString(),
       schemaReady: false,
       schemaMessage:
-        "Apply migration 028_commerce_platform to enable the Commerce Platform.",
+        "Payments aren't fully set up yet. Contact support or your admin to finish commerce setup.",
       revenueTodayCents: 0,
       revenueWeekCents: 0,
       revenueMonthCents: 0,

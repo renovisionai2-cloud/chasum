@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Premium Experience Sprint 2 — Craftsmanship)
+
+- Dashboard hierarchy: clearer hero CTAs, quieter attention chips, less duplicate quick actions
+- Premium tables: sticky headers wired into reports; friendlier payments ledger (no raw IDs)
+- Toasts & sheets: safe-area, alert role on errors, generic sheet chrome
+- Success / empty / status copy: calmer staff language; customer CRM “Email receipt”
+- Customer-facing invoices, receipts, and email templates: warmer tone, brand-forward closings
+- Operator errors: no migration jargon in payment/invoice/refund messages
+- Subtle page enter + card shadow transitions (respects reduced motion)
+
 ### Added (Premium Experience Sprint 1)
 
 - Design System v1 documented (`docs/product/23_DESIGN_SYSTEM_V1.md`)

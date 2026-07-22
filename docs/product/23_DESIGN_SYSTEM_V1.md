@@ -168,10 +168,21 @@ Never ship technical config strings to customers (e.g. raw API key names).
 Use existing utilities:
 
 - `animate-fade-in-up` for page sections / stat cards
+- `.ds-page` subtle enter (opacity + 4px rise) — disabled under `prefers-reduced-motion`
 - `animate-spark-pulse` for AI affordances only
 - Short hover transitions on cards and buttons (`duration-200`)
+- Button `active:scale-[0.98]` for tactile feedback
 
 Motion clarifies hierarchy — never decoration for its own sake.
+
+---
+
+## Craftsmanship notes (Sprint 2)
+
+- Prefer friendlier operator copy over migration/schema jargon.
+- Customer documents (invoice, receipt, emails) reinforce the business brand with warm closings.
+- Tables use sticky headers via `components/ui/table`.
+- High-frequency dashboards: one clear next action; less chrome.
 
 ---
 
@@ -186,4 +197,4 @@ Motion clarifies hierarchy — never decoration for its own sake.
 
 ---
 
-*Premium Experience Sprint 1 — Design System v1.*
+*Premium Experience Sprint 2 — Craftsmanship.*

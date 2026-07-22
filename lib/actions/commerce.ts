@@ -103,7 +103,7 @@ export async function recordPaymentAction(
     };
   }
 
-  return { success: "Payment recorded." };
+  return { success: "Payment saved." };
 }
 
 export async function createInvoiceAction(

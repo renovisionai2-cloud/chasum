@@ -51,6 +51,7 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 | Locale / datetime | `lib/locale.ts`, `lib/business/datetime.ts` |
 | Scheduling truth | Booking Engine + Postgres RPCs |
 | Design System v1 | `docs/product/23_DESIGN_SYSTEM_V1.md`, `components/ui/*` |
+| Craftsmanship (Sprint 2) | Dashboards, tables, toasts/sheets, customer docs, operator copy |
 
 ---
 
@@ -77,4 +78,4 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 
 ---
 
-*Last updated: Premium Experience Sprint 1 — Design System v1.*
+*Last updated: Premium Experience Sprint 2 — Craftsmanship.*

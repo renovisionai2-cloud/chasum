@@ -72,7 +72,7 @@ export async function createCustomer(
 
   revalidatePath("/dashboard/clients");
   revalidatePath("/dashboard/calendar");
-  return { success: "Customer added." };
+  return { success: "Client added." };
 }
 
 /** Inline create from appointment modal — returns new customer id. */
@@ -112,7 +112,7 @@ export async function quickCreateCustomer(input: {
 
   revalidatePath("/dashboard/clients");
   revalidatePath("/dashboard/calendar");
-  return { success: "Customer added.", customerId: data.id };
+  return { success: "Client added.", customerId: data.id };
 }
 
 export async function updateCustomer(

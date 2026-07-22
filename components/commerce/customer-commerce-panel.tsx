@@ -83,7 +83,7 @@ export function CustomerCommercePanel({
                 className="flex items-center justify-between gap-2 text-sm"
               >
                 <span>
-                  {inv.invoiceNumber} · {inv.status} ·{" "}
+                  {inv.invoiceNumber} · {invoiceStatusLabel(inv.status)} ·{" "}
                   {centsToDollars(inv.balanceCents)} due
                 </span>
                 <Button
@@ -118,7 +118,7 @@ export function CustomerCommercePanel({
               >
                 <span>
                   {r.receiptNumber} · {centsToDollars(r.amountCents)} ·{" "}
-                  {r.emailStatus}
+                  {receiptEmailLabel(r.emailStatus)}
                 </span>
                 <div className="flex gap-2">
                   <Button
@@ -147,7 +147,7 @@ export function CustomerCommercePanel({
                       });
                     }}
                   >
-                    Queue email
+                    Email receipt
                   </Button>
                 </div>
               </li>
@@ -203,7 +203,7 @@ export function CustomerCommercePanel({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex justify-between">
-              <p className="font-semibold">Document</p>
+              <p className="font-semibold">Preview</p>
               <Button type="button" size="sm" variant="outline" onClick={() => setViewer(null)}>
                 Close
               </Button>
@@ -219,7 +219,7 @@ export function CustomerCommercePanel({
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = "commerce-document.txt";
+                a.download = "chasum-document.txt";
                 a.click();
                 URL.revokeObjectURL(url);
               }}
@@ -265,4 +265,26 @@ function Empty() {
       Nothing here yet — activity appears after bookings and payments.
     </p>
   );
+}
+
+function invoiceStatusLabel(status: string) {
+  const map: Record<string, string> = {
+    open: "Open",
+    partial: "Partially paid",
+    paid: "Paid",
+    overdue: "Overdue",
+    void: "Void",
+    draft: "Draft",
+  };
+  return map[status] ?? status;
+}
+
+function receiptEmailLabel(status: string) {
+  const map: Record<string, string> = {
+    not_sent: "Not emailed",
+    queued: "Queued",
+    sent: "Emailed",
+    failed: "Email failed",
+  };
+  return map[status] ?? status;
 }

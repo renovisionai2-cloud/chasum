@@ -202,7 +202,7 @@ export async function createCrmCustomer(
         revalidateCrm(retry.data.id);
         return {
           success:
-            "Customer added. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
+            "Client added. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
         };
       }
     }
@@ -220,13 +220,13 @@ export async function createCrmCustomer(
       });
       if (legacy.error) return { error: legacy.error.message };
       revalidateCrm();
-      return { success: "Customer added." };
+      return { success: "Client added." };
     }
     return { error: error.message };
   }
 
   revalidateCrm(data.id);
-  return { success: "Customer added." };
+  return { success: "Client added." };
 }
 
 export async function updateCrmCustomer(
@@ -371,7 +371,7 @@ export async function recordCrmPaymentAction(
   const { recordPaymentAction } = await import("@/lib/actions/commerce");
   const result = await recordPaymentAction({}, formData);
   if (result.error) return { error: result.error };
-  return { success: result.success ?? "Payment recorded." };
+  return { success: result.success ?? "Payment saved." };
 }
 
 export async function sparkCrmQueryAction(input: {

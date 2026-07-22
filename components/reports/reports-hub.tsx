@@ -9,6 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { StatCard } from "@/components/ui/stat-card";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   buildReportCsv,
   deleteReportSchedule,
   logReportExport,
@@ -496,46 +504,44 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                 description="Add team members to see revenue and productivity."
               />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] text-left text-sm">
-                  <thead className="border-b border-border text-xs text-muted-foreground">
-                    <tr>
-                      <th className="px-2 py-2 font-medium">Employee</th>
-                      <th className="px-2 py-2 font-medium">Revenue</th>
-                      <th className="px-2 py-2 font-medium">Completed</th>
-                      <th className="px-2 py-2 font-medium">Avg time</th>
-                      <th className="px-2 py-2 font-medium">Commission</th>
-                      <th className="px-2 py-2 font-medium">Productivity</th>
-                      <th className="px-2 py-2 font-medium">Rating</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/80">
-                    {bundle.employees.map((row) => (
-                      <tr key={row.id}>
-                        <td className="px-2 py-2.5 font-medium">{row.name}</td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {$(row.revenue)}
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.completed}
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.averageServiceMinutes}m
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {$c(row.commissionCents)}
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.productivity}
-                        </td>
-                        <td className="px-2 py-2.5 text-muted-foreground">
-                          {row.averageRating ?? "—"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table className="min-w-[640px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Employee</TableHead>
+                    <TableHead>Revenue</TableHead>
+                    <TableHead>Completed</TableHead>
+                    <TableHead>Avg time</TableHead>
+                    <TableHead>Commission</TableHead>
+                    <TableHead>Productivity</TableHead>
+                    <TableHead>Rating</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bundle.employees.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell className="font-medium">{row.name}</TableCell>
+                      <TableCell className="tabular-nums">
+                        {$(row.revenue)}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.completed}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.averageServiceMinutes}m
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {$c(row.commissionCents)}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.productivity}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {row.averageRating ?? "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>
@@ -604,51 +610,49 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                 description="Add locations in Business Management."
               />
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[640px] text-left text-sm">
-                  <thead className="border-b border-border text-xs text-muted-foreground">
-                    <tr>
-                      <th className="px-2 py-2 font-medium">Location</th>
-                      <th className="px-2 py-2 font-medium">Revenue</th>
-                      <th className="px-2 py-2 font-medium">Appointments</th>
-                      <th className="px-2 py-2 font-medium">Customers</th>
-                      <th className="px-2 py-2 font-medium">Employees</th>
-                      <th className="px-2 py-2 font-medium">Occupancy</th>
-                      <th className="px-2 py-2 font-medium">Growth</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/80">
-                    {bundle.locations.map((row) => (
-                      <tr key={row.id}>
-                        <td className="px-2 py-2.5 font-medium">
-                          <span className="inline-flex items-center gap-1.5">
-                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                            {row.name}
-                          </span>
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {$(row.revenue)}
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.appointments}
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.customers}
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.employees}
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.occupancyPct}%
-                        </td>
-                        <td className="px-2 py-2.5 tabular-nums">
-                          {row.growthPct}%
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <Table className="min-w-[640px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Revenue</TableHead>
+                    <TableHead>Appointments</TableHead>
+                    <TableHead>Customers</TableHead>
+                    <TableHead>Employees</TableHead>
+                    <TableHead>Occupancy</TableHead>
+                    <TableHead>Growth</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bundle.locations.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell className="font-medium">
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                          {row.name}
+                        </span>
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {$(row.revenue)}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.appointments}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.customers}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.employees}
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.occupancyPct}%
+                      </TableCell>
+                      <TableCell className="tabular-nums">
+                        {row.growthPct}%
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>

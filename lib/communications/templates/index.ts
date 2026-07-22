@@ -81,20 +81,20 @@ export function renderEmailTemplate(
   switch (key) {
     case "appointment.confirmation": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">Your appointment is confirmed. We look forward to seeing you!</p>`;
+        <p style="margin:16px 0 0;">You're all set — we look forward to seeing you.</p>`;
       return {
         key,
-        subject: `Confirmed: ${ctx.serviceName} on ${format(parseISO(ctx.startTime), "MMM d")}`,
+        subject: `You're booked — ${ctx.serviceName} on ${format(parseISO(ctx.startTime), "MMM d")}`,
         html: layout(content, b),
-        text: `Your ${ctx.serviceName} with ${ctx.staffName} is confirmed for ${whenLabel(ctx.startTime)}.`,
+        text: `You're booked for ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}.`,
       };
     }
     case "appointment.reminder": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">This is a friendly reminder about your upcoming appointment.</p>`;
+        <p style="margin:16px 0 0;">Just a friendly reminder — we can't wait to see you.</p>`;
       return {
         key,
-        subject: `Reminder: ${ctx.serviceName}`,
+        subject: `Reminder: ${ctx.serviceName} coming up`,
         html: layout(content, b),
         text: `Reminder: ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}.`,
       };
@@ -104,20 +104,20 @@ export function renderEmailTemplate(
         ? `<p style="margin:8px 0 0;color:#64748b;font-size:14px;">Previously: ${whenLabel(ctx.previousStartTime)}</p>`
         : "";
       const content = `${appointmentDetails(ctx)}${prev}
-        <p style="margin:16px 0 0;">Your appointment has been rescheduled.</p>`;
+        <p style="margin:16px 0 0;">Your appointment has a new time. See you then.</p>`;
       return {
         key,
-        subject: `Rescheduled: ${ctx.serviceName}`,
+        subject: `Updated time — ${ctx.serviceName}`,
         html: layout(content, b),
-        text: `Your ${ctx.serviceName} appointment has been rescheduled to ${whenLabel(ctx.startTime)}.`,
+        text: `Your ${ctx.serviceName} appointment is now ${whenLabel(ctx.startTime)}.`,
       };
     }
     case "appointment.cancellation": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">Your appointment has been cancelled. Contact us if you'd like to rebook.</p>`;
+        <p style="margin:16px 0 0;">This appointment has been cancelled. Reply anytime if you'd like to rebook — we'd love to have you back.</p>`;
       return {
         key,
-        subject: `Cancelled: ${ctx.serviceName} on ${format(parseISO(ctx.startTime), "MMM d")}`,
+        subject: `Cancelled — ${ctx.serviceName} on ${format(parseISO(ctx.startTime), "MMM d")}`,
         html: layout(content, b),
         text: `Your ${ctx.serviceName} on ${whenLabel(ctx.startTime)} has been cancelled.`,
       };
@@ -125,9 +125,9 @@ export function renderEmailTemplate(
     case "commerce.invoice": {
       const content = `
         <p style="margin:0 0 16px;">Hi ${ctx.customerName},</p>
-        <p>Your invoice ${ctx.invoiceNumber ?? ""} is ready.</p>
+        <p>Your invoice ${ctx.invoiceNumber ?? ""} from <strong>${ctx.businessName}</strong> is ready.</p>
         <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>
-        <p style="margin:0;">Pay or view details in your account with ${ctx.businessName}.</p>`;
+        <p style="margin:0;color:#475569;font-size:14px;">Questions? Reply to this email or contact the studio directly.</p>`;
       return {
         key,
         subject: `Invoice ${ctx.invoiceNumber ?? ""} from ${ctx.businessName}`,
@@ -138,13 +138,14 @@ export function renderEmailTemplate(
     case "commerce.receipt": {
       const content = `
         <p style="margin:0 0 16px;">Hi ${ctx.customerName},</p>
-        <p>Thank you — here is your receipt ${ctx.receiptNumber ?? ""}.</p>
-        <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>`;
+        <p>Thank you — payment received. Here's your receipt ${ctx.receiptNumber ?? ""}.</p>
+        <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>
+        <p style="margin:0;color:#475569;font-size:14px;">We appreciate your business.</p>`;
       return {
         key,
-        subject: `Receipt ${ctx.receiptNumber ?? ""} from ${ctx.businessName}`,
+        subject: `Your receipt from ${ctx.businessName}`,
         html: layout(content, b),
-        text: `Receipt ${ctx.receiptNumber ?? ""} for ${money(ctx.amountCents)} from ${ctx.businessName}.`,
+        text: `Receipt ${ctx.receiptNumber ?? ""} for ${money(ctx.amountCents)} from ${ctx.businessName}. Thank you!`,
       };
     }
     case "commerce.gift_certificate": {
@@ -154,15 +155,15 @@ export function renderEmailTemplate(
         <p style="margin:0 0 12px;">${ctx.staffName && ctx.staffName !== "Team" ? `<strong>${ctx.staffName}</strong> sent you` : "You've received"} a gift certificate from <strong>${ctx.businessName}</strong>.</p>
         <p style="font-size:28px;font-weight:700;letter-spacing:0.08em;margin:24px 0 8px;font-family:ui-monospace,monospace;color:#0f172a;">${code}</p>
         <p style="font-size:18px;font-weight:600;margin:0 0 16px;">Value ${money(ctx.amountCents)}</p>
-        <p style="margin:0 0 8px;color:#475569;font-size:14px;">Keep this email handy — present the code when redeeming in-store or online.</p>
+        <p style="margin:0 0 8px;color:#475569;font-size:14px;">Save this email — present the code when you redeem in-store or online.</p>
         ${
           ctx.customMessage
-            ? `<pre style="white-space:pre-wrap;font-size:13px;background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;margin:16px 0 0;">${ctx.customMessage}</pre>`
+            ? `<div style="white-space:pre-wrap;font-size:14px;line-height:1.5;background:#f8fafc;padding:16px;border-radius:10px;border:1px solid #e2e8f0;margin:16px 0 0;color:#334155;">${ctx.customMessage}</div>`
             : ""
         }`;
       return {
         key,
-        subject: `A gift certificate from ${ctx.businessName}`,
+        subject: `A gift for you from ${ctx.businessName}`,
         html: layout(content, b),
         text:
           ctx.customMessage ||
@@ -171,10 +172,10 @@ export function renderEmailTemplate(
     }
     case "commerce.deposit_request": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">A deposit of <strong>${money(ctx.amountCents)}</strong> is requested to hold your appointment.</p>`;
+        <p style="margin:16px 0 0;">A deposit of <strong>${money(ctx.amountCents)}</strong> holds your appointment. Pay at your convenience — we'll confirm once it's received.</p>`;
       return {
         key,
-        subject: `Deposit requested — ${ctx.serviceName}`,
+        subject: `Deposit to hold your ${ctx.serviceName}`,
         html: layout(content, b),
         text: `Deposit of ${money(ctx.amountCents)} requested for ${ctx.serviceName} on ${whenLabel(ctx.startTime)}.`,
       };

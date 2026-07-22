@@ -142,7 +142,7 @@ export async function processCommerceRefund(
       return {
         ok: false,
         error:
-          "Commerce schema not ready. Apply migration 028_commerce_platform.",
+          "Payments aren't fully set up yet. Contact support to finish commerce setup.",
       };
     }
     return { ok: false, error: error?.message ?? "Could not create refund." };

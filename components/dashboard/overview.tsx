@@ -32,7 +32,6 @@ import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import {
   ArrowRight,
-  BarChart3,
   Bell,
   Briefcase,
   Building2,
@@ -40,7 +39,6 @@ import {
   CalendarPlus,
   Clock,
   DollarSign,
-  MessageSquare,
   Plus,
   Sparkles,
   UserCog,
@@ -125,16 +123,10 @@ export async function DashboardOverview() {
           icon: UserPlus,
         },
         {
-          label: "Open calendar",
-          description: "Day, week, and month views",
-          href: "/dashboard/calendar",
-          icon: Calendar,
-        },
-        {
-          label: "AI Command Center",
-          description: "Talk to your AI Workforce",
-          href: "/dashboard/ai-workforce/command",
-          icon: MessageSquare,
+          label: "Record payment",
+          description: "Deposits, balances, and receipts",
+          href: "/dashboard/payments",
+          icon: DollarSign,
         },
       ]
     : [
@@ -192,22 +184,15 @@ export async function DashboardOverview() {
             {setupDone ? (
               <>
                 <div className="flex flex-wrap gap-2 pt-1 text-sm">
-                  <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-border/80 bg-background/90 px-3 py-1.5 tabular-nums shadow-xs">
-                    <span className="mr-1.5 text-muted-foreground">Today</span>
-                    {stats.todayCount}
-                  </span>
-                  <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-border/80 bg-background/90 px-3 py-1.5 tabular-nums shadow-xs">
-                    <span className="mr-1.5 text-muted-foreground">Revenue</span>
-                    {formatMoneyDollars(stats.todayRevenue, business.currency)}
-                  </span>
                   {stats.pendingConfirmations > 0 ? (
                     <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-warning/30 bg-warning/10 px-3 py-1.5 tabular-nums text-warning shadow-xs">
-                      <span className="mr-1.5">Needs attention</span>
-                      {stats.pendingConfirmations} pending
+                      Needs attention · {stats.pendingConfirmations} pending
+                      confirmation
+                      {stats.pendingConfirmations === 1 ? "" : "s"}
                     </span>
                   ) : (
                     <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-success/25 bg-success/10 px-3 py-1.5 text-success shadow-xs">
-                      Clear · no pending confirmations
+                      You&apos;re clear · nothing pending
                     </span>
                   )}
                 </div>
@@ -233,16 +218,10 @@ export async function DashboardOverview() {
                     New appointment
                   </Button>
                 </Link>
-                <Link href="/dashboard/ai-workforce">
+                <Link href="/dashboard/payments">
                   <Button variant="outline">
-                    <Sparkles className="h-4 w-4" aria-hidden="true" />
-                    AI Workforce
-                  </Button>
-                </Link>
-                <Link href="/dashboard/reports">
-                  <Button variant="outline">
-                    <BarChart3 className="h-4 w-4" aria-hidden="true" />
-                    Reports
+                    <DollarSign className="h-4 w-4" aria-hidden="true" />
+                    Payments
                   </Button>
                 </Link>
               </>
@@ -409,8 +388,8 @@ export async function DashboardOverview() {
       <Card className="animate-fade-in-up" style={{ animationDelay: "240ms" }}>
         <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
           <div>
-            <CardTitle>This week</CardTitle>
-            <CardDescription>Appointment volume by day</CardDescription>
+            <CardTitle>Appointment volume</CardTitle>
+            <CardDescription>Bookings by day this week</CardDescription>
           </div>
           <Link href="/dashboard/calendar">
             <Button variant="outline" size="sm">

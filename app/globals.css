@@ -925,6 +925,7 @@ body {
   .animate-fade-in-up,
   .animate-spark-pulse,
   .animate-success-pop,
+  .ds-page,
   .marketing-dashboard-float,
   .marketing-pane-fade,
   .marketing-tour-transition,
@@ -1011,6 +1012,18 @@ body {
   @apply space-y-6 sm:space-y-8;
   max-width: 100%;
   overflow-x: clip;
+  animation: ds-page-in var(--duration-normal, 200ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+@keyframes ds-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .ds-section-title {

@@ -69,10 +69,10 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
     <section className="space-y-3" aria-labelledby="bs-pay-heading">
       <div>
         <h3 id="bs-pay-heading" className="text-sm font-semibold tracking-tight">
-          Payments
+          Balance & deposits
         </h3>
         <p className="text-xs text-muted-foreground">
-          Commerce Platform — deposits, balance, invoices via Payments / CRM
+          See what&apos;s owed and collect payment without leaving the booking.
         </p>
       </div>
 
@@ -125,25 +125,23 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
       <ul className="space-y-2 text-xs text-muted-foreground">
         <li className="flex items-start gap-2">
           <FileText className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          Invoice{" "}
           {appointment?.invoice_number
-            ? `#${appointment.invoice_number}`
-            : "generate from Payments dashboard or on collect"}
+            ? `Invoice #${appointment.invoice_number}`
+            : "Invoice creates automatically when you collect payment"}
         </li>
         <li className="flex items-start gap-2">
           <CreditCard className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          Card via Stripe provider (refs only) · cash / e-transfer / gift card /
-          store credit supported
+          Cash, card, e-transfer, gift card, and store credit supported
         </li>
         <li className="flex items-start gap-2">
           <Banknote className="mt-0.5 size-3.5 shrink-0" aria-hidden />
           <Link
             href="/dashboard/payments"
-            className="underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Open Payments
           </Link>{" "}
-          to record, refund, or download receipts
+          to collect, refund, or download a receipt
         </li>
         {taxCents > 0 || (service?.tax_rate_bps ?? 0) > 0 ? (
           <li className="flex items-start gap-2">

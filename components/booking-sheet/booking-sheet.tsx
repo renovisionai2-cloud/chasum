@@ -443,7 +443,7 @@ export function BookingSheet({
       const result = await setAppointmentStatus(appointment.id, next);
       if (result.error) toast(result.error, "error");
       else {
-        toast(result.success ?? "Updated.", "success");
+        toast(result.success ?? "Status updated.", "success");
         onSuccess();
         onClose();
       }
@@ -469,7 +469,7 @@ export function BookingSheet({
               const result = await cancelAppointment(appointment.id);
               if (result.error) toast(result.error, "error");
               else {
-                toast(result.success ?? "Cancelled.", "success");
+                toast(result.success ?? "Appointment cancelled.", "success");
                 onSuccess();
                 onClose();
               }
@@ -482,7 +482,7 @@ export function BookingSheet({
               const result = await duplicateAppointment(appointment.id);
               if (result.error) toast(result.error, "error");
               else {
-                toast(result.success ?? "Duplicated.", "success");
+                toast(result.success ?? "Appointment duplicated.", "success");
                 onSuccess();
               }
             });
@@ -562,9 +562,9 @@ export function BookingSheet({
           <p className="flex-1 text-xs text-muted-foreground">
             {canSubmit
               ? isEditing
-                ? "Ready to save changes through the Booking Engine."
+                ? "Ready to save your changes."
                 : "Ready to book — saves as confirmed unless you change status."
-              : "Still need customer, service, employee, and a valid time."}
+              : "Still need a client, service, employee, and a valid time."}
           </p>
           <div className="flex gap-2">
             <Button

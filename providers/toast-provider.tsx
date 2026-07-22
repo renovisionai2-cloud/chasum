@@ -58,24 +58,26 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       <div
-        className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-full max-w-sm flex-col gap-2 px-4 sm:px-0"
+        className={cn(
+          "pointer-events-none fixed inset-x-0 bottom-0 z-[100] flex flex-col items-end gap-2 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 sm:inset-x-auto sm:right-4 sm:max-w-sm sm:px-0",
+        )}
         aria-live="polite"
         aria-relevant="additions"
       >
         {toasts.map((t) => (
           <div
             key={t.id}
-            role="status"
+            role={t.variant === "error" ? "alert" : "status"}
             className={cn(
-              "pointer-events-auto flex items-start justify-between gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg",
+              "pointer-events-auto flex w-full items-start justify-between gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg animate-fade-in-up",
               variantStyles[t.variant],
             )}
           >
-            <span>{t.message}</span>
+            <span className="leading-snug">{t.message}</span>
             <button
               type="button"
               onClick={() => dismiss(t.id)}
-              className="shrink-0 rounded-md p-0.5 opacity-70 hover:opacity-100"
+              className="h-8 w-8 shrink-0 rounded-md p-1.5 opacity-70 touch-manipulation hover:opacity-100 ds-focus-ring"
               aria-label="Dismiss notification"
             >
               <X className="h-4 w-4" />

@@ -42,7 +42,7 @@ const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
   pending: "Pending",
   requires_action: "Needs action",
   succeeded: "Succeeded",
-  failed: "Failed",
+  failed: "Didn't go through",
   canceled: "Canceled",
   refunded: "Refunded",
   partially_refunded: "Partially refunded",
@@ -431,7 +431,8 @@ export function PaymentsDashboard({
                         {PAYMENT_METHOD_LABELS[tx.method]}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {tx.kind} · {statusLabel(tx.status)} · {tx.id.slice(0, 8)}…
+                        {tx.kind === "deposit" ? "Deposit" : "Payment"} ·{" "}
+                        {statusLabel(tx.status)}
                         {tx.description ? ` · ${tx.description}` : ""}
                       </p>
                     </div>

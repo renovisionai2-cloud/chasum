@@ -75,7 +75,7 @@ async function syncAppointmentPayment(
       return {
         ok: false,
         error:
-          "Appointment payment columns missing. Apply migration 028_commerce_platform so deposits and balances can sync.",
+          "Payments aren't fully set up yet. Contact support to finish commerce setup so deposits and balances can sync.",
       };
     }
     return { ok: false, error: apptErr.message };
@@ -134,7 +134,7 @@ async function syncAppointmentPayment(
     return {
       ok: false,
       error: updErr.message.includes("payment_status")
-        ? "Could not update appointment payment_status. Apply migration 028_commerce_platform."
+        ? "Couldn't update the appointment payment status. Payments may not be fully set up yet."
         : updErr.message,
     };
   }
@@ -214,7 +214,7 @@ export async function recordCommercePayment(
         return {
           ok: false,
           error: fallback.error.message.includes("schema")
-            ? "Commerce schema not ready. Apply migration 028_commerce_platform."
+            ? "Payments aren't fully set up yet. Contact support to finish commerce setup."
             : fallback.error.message,
         };
       }
@@ -295,7 +295,7 @@ export async function recordCommercePayment(
         return {
           ok: false,
           error:
-            "Commerce schema not ready. Apply migration 028_commerce_platform.",
+            "Payments aren't fully set up yet. Contact support to finish commerce setup.",
         };
       }
       return { ok: false, error: pendingErr.message };
@@ -341,7 +341,7 @@ export async function recordCommercePayment(
       return {
         ok: false,
         error:
-          "Commerce schema not ready. Apply migration 028_commerce_platform.",
+          "Payments aren't fully set up yet. Contact support to finish commerce setup.",
       };
     }
     return { ok: false, error: error?.message ?? "Could not record payment." };

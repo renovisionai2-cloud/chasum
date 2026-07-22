@@ -389,7 +389,7 @@ export async function createAppointment(
     packageName: packageName ?? undefined,
   });
 
-  const action = mutationToAction(result, "Appointment created.");
+  const action = mutationToAction(result, "Booked — you're all set.");
   if (result.phase === "success" && result.data?.appointmentId) {
     revalidateCalendar();
   }
@@ -446,7 +446,7 @@ export async function updateAppointment(
     excludeAppointmentId: id,
   });
 
-  const action = mutationToAction(result, "Appointment updated.");
+  const action = mutationToAction(result, "Changes saved.");
   if (result.phase === "success") {
     revalidateCalendar();
   }
@@ -486,7 +486,7 @@ export async function rescheduleAppointment(
     locationId: options?.locationId,
   });
 
-  const action = mutationToAction(result, "Appointment rescheduled.");
+  const action = mutationToAction(result, "Rescheduled.");
   if (result.phase === "success") {
     revalidateCalendar();
   }
@@ -527,7 +527,7 @@ export async function setAppointmentStatus(
     excludeAppointmentId: id,
   });
 
-  const action = mutationToAction(result, "Appointment updated.");
+  const action = mutationToAction(result, "Changes saved.");
   if (result.phase === "success") {
     revalidateCalendar();
   }
@@ -548,7 +548,7 @@ export async function resizeAppointment(
     requestedEnd: newEndTime,
   });
 
-  const action = mutationToAction(result, "Appointment duration updated.");
+  const action = mutationToAction(result, "Duration updated.");
   if (result.phase === "success") {
     revalidateCalendar();
   }
