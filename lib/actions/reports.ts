@@ -32,6 +32,7 @@ import { logQueryError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
+import { cache } from "react";
 
 function revalidateReports() {
   revalidatePath("/dashboard/reports");
@@ -54,7 +55,7 @@ async function listSchedules(businessId: string): Promise<ReportSchedule[]> {
 }
 
 /** Full BI bundle for Dashboard → Reports (location-scoped). */
-export async function getReportsBundle(): Promise<ReportsBundle> {
+export const getReportsBundle = cache(async function getReportsBundle(): Promise<ReportsBundle> {
   const business = await getOrCreateBusiness();
   const scope = await getLocationScope();
   const supabase = await createClient();
@@ -310,7 +311,7 @@ export async function getReportsBundle(): Promise<ReportsBundle> {
     snapshot,
     schedules,
   };
-}
+});
 
 /** Shared snapshot for Owner Platform hooks, Overview, and future AI Workforce. */
 export async function getBusinessIntelligenceSnapshot(): Promise<BusinessIntelligenceSnapshot> {

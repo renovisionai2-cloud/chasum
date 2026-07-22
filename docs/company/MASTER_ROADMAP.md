@@ -26,6 +26,10 @@ This is the durable map of what Chasum has completed and what comes next. Update
 
 Also foundational (earlier phases): design system, multi-tenant schema + RLS, services/staff/clients, integrations (Google/Outlook/Apple calendars), notifications, automation jobs, developer API surface.
 
+| Milestone | Notes |
+|-----------|--------|
+| **OS Kernel (Foundation Sprint)** | Shared revenue recognition, commerce + platform event buses, business operating context, locale/datetime helpers, responsive DS polish — see `COMPANY_MEMORY.md` + `docs/product/22_OS_KERNEL.md` |
+
 ---
 
 ## Future

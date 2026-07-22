@@ -487,6 +487,22 @@ export async function createGiftCard(
         : error.message,
     };
   }
+
+  const { createCommerceEvent, emitCommerceEvent } = await import(
+    "@/lib/commerce/events"
+  );
+  await emitCommerceEvent(
+    createCommerceEvent({
+      type: "gift_certificate.sold",
+      businessId: business.id,
+      entityId: data?.id ? String(data.id) : null,
+      payload: {
+        code,
+        amount_cents: amount,
+      },
+    }),
+  );
+
   revalidateBusiness();
   return {
     success: `Gift card ${code} created.`,

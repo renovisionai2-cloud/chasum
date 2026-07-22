@@ -283,35 +283,18 @@ export async function getDashboardStats() {
     service: { price?: number } | null;
   };
 
-  function recognizesRevenue(row: RevenueApptRow) {
-    if (row.status === "completed") return true;
-    const paid = Number(row.amount_paid_cents ?? row.deposit_cents ?? 0);
-    if (paid > 0) return true;
-    const ps = String(row.payment_status ?? "");
-    return ["deposit_paid", "partially_paid", "fully_paid"].includes(ps);
-  }
-
-  function sumRecognizedRevenue(rows: RevenueApptRow[] | null) {
-    return (rows ?? []).reduce((sum, appt) => {
-      if (!recognizesRevenue(appt)) return sum;
-      const paid = Number(appt.amount_paid_cents ?? 0);
-      if (paid > 0) return sum + paid / 100;
-      if (appt.price_cents != null && appt.price_cents > 0) {
-        return sum + appt.price_cents / 100;
-      }
-      const price = (appt.service as { price?: number } | null)?.price ?? 0;
-      return sum + Number(price);
-    }, 0);
-  }
-
-  const revenue = sumRecognizedRevenue(
-    revenueRes.data as RevenueApptRow[] | null,
+  const { sumRecognizedRevenueDollars } = await import(
+    "@/lib/commerce/recognize"
   );
-  const previousMonthRevenue = sumRecognizedRevenue(
-    previousMonthRevenueRes.data as RevenueApptRow[] | null,
+
+  const revenue = sumRecognizedRevenueDollars(
+    (revenueRes.data as RevenueApptRow[] | null) ?? [],
   );
-  const todayRevenue = sumRecognizedRevenue(
-    todayCompletedRevenueRes.data as RevenueApptRow[] | null,
+  const previousMonthRevenue = sumRecognizedRevenueDollars(
+    (previousMonthRevenueRes.data as RevenueApptRow[] | null) ?? [],
+  );
+  const todayRevenue = sumRecognizedRevenueDollars(
+    (todayCompletedRevenueRes.data as RevenueApptRow[] | null) ?? [],
   );
 
   const weekDayCounts = Array.from({ length: 7 }, (_, i) => {

@@ -5,7 +5,7 @@ export const Table = forwardRef<
   HTMLTableElement,
   HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto rounded-[var(--radius-lg)] border border-border/80 bg-card shadow-xs">
+  <div className="relative w-full overflow-x-auto overscroll-x-contain rounded-[var(--radius-lg)] border border-border/80 bg-card shadow-xs [-webkit-overflow-scrolling:touch]">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}

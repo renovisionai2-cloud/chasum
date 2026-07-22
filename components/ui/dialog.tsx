@@ -88,12 +88,13 @@ export function Dialog({
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         className={cn(
-          "relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-t-[var(--radius-lg)] border border-border bg-card shadow-lg sm:max-w-lg sm:rounded-[var(--radius-lg)]",
+          "relative z-10 flex max-h-[min(92dvh,90vh)] w-full flex-col overflow-hidden rounded-t-[var(--radius-lg)] border border-border bg-card shadow-lg",
+          "pb-[env(safe-area-inset-bottom)] sm:max-w-lg sm:rounded-[var(--radius-lg)] sm:pb-0",
           className,
         )}
       >
-        <div className="flex items-start justify-between border-b border-border px-6 py-4">
-          <div>
+        <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
+          <div className="min-w-0">
             <h2 id={titleId} className="text-lg font-semibold text-foreground">
               {title}
             </h2>
@@ -106,14 +107,16 @@ export function Dialog({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 shrink-0 p-0"
+            className="h-10 w-10 shrink-0 p-0 touch-manipulation"
             onClick={onClose}
             aria-label="Close dialog"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <div className="overflow-y-auto px-6 py-4">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-4 py-4 sm:px-6">
+          {children}
+        </div>
       </div>
     </div>
   );

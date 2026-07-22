@@ -64,4 +64,6 @@ Recording history is table stakes. Intelligence means proposing and, when author
 - Product principles: [16_PRODUCT_PRINCIPLES.md](./16_PRODUCT_PRINCIPLES.md)
 - AI workforce: [08_AI_WORKFORCE.md](./08_AI_WORKFORCE.md)
 - Architecture (scheduling engine): [05_ARCHITECTURE.md](./05_ARCHITECTURE.md)
+- OS kernel (events, memory, money SSoT): [22_OS_KERNEL.md](./22_OS_KERNEL.md)
 - Platform principles: [17_PLATFORM_PRINCIPLES.md](./17_PLATFORM_PRINCIPLES.md)
+- Company memory: [../../COMPANY_MEMORY.md](../../COMPANY_MEMORY.md)

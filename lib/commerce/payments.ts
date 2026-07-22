@@ -56,7 +56,7 @@ async function syncAppointmentPayment(
   paidDeltaCents: number,
 ): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();
-  let { data: appt, error: apptErr } = await supabase
+  const { data: appt, error: apptErr } = await supabase
     .from("appointments")
     .select(
       "id, price_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(price, deposit_cents, deposit_required)",
@@ -409,6 +409,24 @@ export async function recordCommercePayment(
       provider: charge.provider,
     },
   });
+
+  const { createCommerceEvent, emitCommerceEvent } = await import(
+    "@/lib/commerce/events"
+  );
+  await emitCommerceEvent(
+    createCommerceEvent({
+      type: kind === "deposit" ? "deposit.received" : "payment.received",
+      businessId: input.businessId,
+      customerId: input.customerId,
+      appointmentId: input.appointmentId,
+      entityId: String(row.id),
+      payload: {
+        amount_cents: input.amountCents,
+        method: input.method,
+        currency: input.currency ?? "usd",
+      },
+    }),
+  );
 
   return {
     ok: true,

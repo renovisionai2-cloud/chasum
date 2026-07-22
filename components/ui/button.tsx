@@ -24,9 +24,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "h-9 px-3.5 text-sm rounded-[var(--radius-sm)]",
-  md: "h-11 px-5 text-sm rounded-[var(--radius-md)]",
-  lg: "h-12 px-6 text-base rounded-[var(--radius-md)]",
+  sm: "h-10 min-h-10 px-3.5 text-sm rounded-[var(--radius-sm)] touch-manipulation",
+  md: "h-11 min-h-11 px-5 text-sm rounded-[var(--radius-md)] touch-manipulation",
+  lg: "h-12 min-h-12 px-6 text-base rounded-[var(--radius-md)] touch-manipulation",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

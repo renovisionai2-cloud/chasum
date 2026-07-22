@@ -3,6 +3,7 @@ import { getActiveLocationId } from "@/lib/actions/location";
 import { getAppUrl } from "@/lib/env";
 import type { BusinessKnowledge } from "@/lib/ai-receptionist/types";
 import { createClient } from "@/lib/supabase/server";
+import { cache } from "react";
 
 const DAY_LABELS = [
   "Sunday",
@@ -35,8 +36,9 @@ function formatAddress(parts: {
 /**
  * Load grounded business knowledge from Chasum data.
  * Never invent hours, services, staff, or policies.
+ * Request-deduped via React cache().
  */
-export async function loadBusinessKnowledge(input?: {
+export const loadBusinessKnowledge = cache(async function loadBusinessKnowledge(input?: {
   locationId?: string | null;
 }): Promise<BusinessKnowledge> {
   const business = await getOrCreateBusiness();
@@ -182,7 +184,7 @@ export async function loadBusinessKnowledge(input?: {
     }),
     employees: mappedEmployees,
   };
-}
+});
 
 export function knowledgeToPromptBlock(knowledge: BusinessKnowledge): string {
   const hours = knowledge.hours

@@ -1008,7 +1008,9 @@ body {
 
 /* Design system — surface & type utilities */
 .ds-page {
-  @apply space-y-8;
+  @apply space-y-6 sm:space-y-8;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .ds-section-title {
@@ -1025,6 +1027,7 @@ body {
 
 .ds-nav-item {
   @apply flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium transition-all duration-200;
+  min-height: 2.75rem;
 }
 
 .ds-nav-item-active {
@@ -1037,4 +1040,19 @@ body {
 
 .ds-focus-ring {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+
+/* OS shell — responsive helpers */
+.ds-table-scroll {
+  @apply w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch];
+}
+
+.ds-form-stack {
+  @apply space-y-3 sm:space-y-4;
+}
+
+.ds-safe-pad {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }

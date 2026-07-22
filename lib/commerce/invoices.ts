@@ -230,6 +230,24 @@ export async function createInvoiceForAppointment(input: {
   });
 
   const invoice = await getInvoiceById(input.businessId, String(inv.id));
+
+  const { createCommerceEvent, emitCommerceEvent } = await import(
+    "@/lib/commerce/events"
+  );
+  await emitCommerceEvent(
+    createCommerceEvent({
+      type: "invoice.generated",
+      businessId: input.businessId,
+      customerId: String(appt.customer_id),
+      appointmentId: input.appointmentId,
+      entityId: String(inv.id),
+      payload: {
+        invoice_number: invoiceNumber,
+        total_cents: total,
+      },
+    }),
+  );
+
   return { invoice };
 }
 

@@ -181,7 +181,8 @@ export function BookingSheet({
   ]);
 
   const [customers, setCustomers] = useState(initialCustomers);
-  const [packages, setPackages] = useState<ServicePackage[]>(packagesProp ?? []);
+  const [loadedPackages, setLoadedPackages] = useState<ServicePackage[]>([]);
+  const packages = packagesProp ?? loadedPackages;
   const [offerType, setOfferType] = useState<BookingOfferType>("service");
   const [packageId, setPackageId] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -229,44 +230,20 @@ export function BookingSheet({
   const staffOptionKey = eligibleStaff.map((m) => m.id).join(",");
 
   useEffect(() => {
-    if (packagesProp) {
-      setPackages(packagesProp);
-      return;
-    }
-    if (!open) return;
+    if (packagesProp || !open) return;
     let cancelled = false;
     void (async () => {
       try {
         const rows = await listPackages();
-        if (!cancelled) setPackages(rows.filter((p) => p.is_active));
+        if (!cancelled) setLoadedPackages(rows.filter((p) => p.is_active));
       } catch {
-        if (!cancelled) setPackages([]);
+        if (!cancelled) setLoadedPackages([]);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [open, packagesProp]);
-
-  useEffect(() => {
-    if (!open) return;
-    if (offerType !== "package") return;
-    const active = packages.filter((p) => p.is_active);
-    if (active.length === 0) return;
-    const pkg =
-      active.find((p) => p.id === packageId) ?? active[0] ?? null;
-    if (!pkg) return;
-    if (pkg.id !== packageId) setPackageId(pkg.id);
-    const firstServiceId =
-      pkg.service_ids.find((id) =>
-        services.some((s) => s.id === id && s.is_active),
-      ) ?? "";
-    if (firstServiceId && firstServiceId !== serviceId) {
-      setServiceId(firstServiceId);
-      const svc = services.find((s) => s.id === firstServiceId);
-      if (svc) setDurationMinutes(svc.duration_minutes);
-    }
-  }, [open, offerType, packageId, packages, services, serviceId]);
 
   useEffect(() => {
     if (!open) return;
@@ -375,6 +352,12 @@ export function BookingSheet({
     setSlot(null);
     if (type === "service") {
       setPackageId("");
+      return;
+    }
+    const active = packages.filter((p) => p.is_active);
+    const pkg = active.find((p) => p.id === packageId) ?? active[0] ?? null;
+    if (pkg) {
+      handlePackageChange(pkg.id);
     }
   }
 

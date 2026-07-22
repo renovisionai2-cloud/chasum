@@ -12,20 +12,6 @@ export async function getCustomerCommerceAccount(
 ): Promise<CustomerCommerceAccount> {
   const supabase = await createClient();
 
-  const empty: CustomerCommerceAccount = {
-    customerId,
-    outstandingBalanceCents: 0,
-    lifetimeSpendCents: 0,
-    depositsCents: 0,
-    remainingBalanceCents: 0,
-    totalPaidCents: 0,
-    storeCreditCents: 0,
-    invoices: [],
-    receipts: [],
-    refunds: [],
-    timeline: [],
-  };
-
   const { data: customer, error: custErr } = await supabase
     .from("customers")
     .select("id, store_credit_cents")

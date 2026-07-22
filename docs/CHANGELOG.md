@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Foundation Sprint — AI Operating System kernel)
+
+- `COMPANY_MEMORY.md` — living founder memory (Operation GVM still Priority #1)
+- Shared revenue recognition (`lib/commerce/recognize.ts`) used by reports, dashboard, employees
+- Commerce + platform event buses (`lib/commerce/events.ts`, `lib/os/events.ts`) for future Summer/Chase
+- Business operating context / memory facade (`lib/business/context.ts`)
+- Locale + business-day helpers (`lib/locale.ts`, `lib/business/datetime.ts`)
+- Design-system responsive polish (dialog safe-area, touch targets, table scroll, OS CSS utilities)
+- Docs: [`docs/product/22_OS_KERNEL.md`](./product/22_OS_KERNEL.md)
+
 ### Fixed (Operation GVM — Customer Validation Bug Fix Sprint 2)
 
 - SMS: Free/starter plan blocks Send SMS with upgrade copy (no fake “Sending…” success); Twilio skip/failure returns errors; stub Message toasts use info

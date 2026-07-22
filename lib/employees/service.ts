@@ -19,6 +19,10 @@ import type {
   StaffLocationAssignment,
   StaffServiceAssignment,
 } from "@/lib/employees/types";
+import {
+  appointmentRecognizedCents,
+  isActiveBooking,
+} from "@/lib/commerce/recognize";
 import { createClient } from "@/lib/supabase/server";
 import { logQueryError } from "@/lib/supabase/errors";
 import type { StaffDocument } from "@/lib/types/booking";
@@ -235,26 +239,11 @@ function computeFromRows(
       continue;
     }
 
-    booked += 1;
+    if (isActiveBooking(status)) booked += 1;
     if (status === "completed") completed += 1;
     else if (start >= now) upcoming += 1;
 
-    const paid = Number(row.amount_paid_cents ?? row.deposit_cents ?? 0);
-    const paidStatus = String(row.payment_status ?? "");
-    const recognizes =
-      status === "completed" ||
-      paid > 0 ||
-      ["deposit_paid", "partially_paid", "fully_paid"].includes(paidStatus);
-    if (recognizes) {
-      if (paid > 0) revenue += paid / 100;
-      else if (row.price_cents != null && row.price_cents > 0) {
-        revenue += row.price_cents / 100;
-      } else {
-        revenue += Number(
-          (row.service as { price?: number } | null)?.price ?? 0,
-        );
-      }
-    }
+    revenue += appointmentRecognizedCents(row) / 100;
   }
 
   const decided = completed + cancelled + noShow;

@@ -1,3 +1,9 @@
+import {
+  appointmentPriceCents,
+  isActiveBooking,
+  recognizesAppointmentRevenue,
+  sumRecognizedRevenueDollars,
+} from "@/lib/commerce/recognize";
 import type {
   AppointmentReport,
   BusinessIntelligenceSnapshot,
@@ -63,8 +69,7 @@ export type ReportPaymentRow = {
 };
 
 function moneyFromAppt(a: ReportAppointmentRow): number {
-  if (a.price_cents != null && a.price_cents > 0) return a.price_cents / 100;
-  return Number(a.service?.price ?? 0);
+  return appointmentPriceCents(a) / 100;
 }
 
 function inRange(iso: string, start: Date, end: Date) {
@@ -99,42 +104,20 @@ function startOfYear(d: Date) {
   return new Date(d.getFullYear(), 0, 1);
 }
 
-function isCancelledOrNoShow(a: ReportAppointmentRow) {
-  return a.status === "cancelled" || a.status === "no_show";
-}
-
-/** Booked work that should appear in volume KPIs (not only completed). */
-function activeBookings(appts: ReportAppointmentRow[]) {
-  return appts.filter((a) => !isCancelledOrNoShow(a));
-}
-
-/**
- * Revenue recognition — shared source of truth for dashboards/reports.
- * Counts completed visits OR any visit where money was collected.
- */
-function recognizesRevenue(a: ReportAppointmentRow): boolean {
-  if (isCancelledOrNoShow(a)) return false;
-  if (a.status === "completed") return true;
-  const paid = Number(a.amount_paid_cents ?? a.deposit_cents ?? 0);
-  if (paid > 0) return true;
-  const ps = String(a.payment_status ?? "");
-  return ["deposit_paid", "partially_paid", "fully_paid"].includes(ps);
-}
-
 function completed(appts: ReportAppointmentRow[]) {
   return appts.filter((a) => a.status === "completed");
 }
 
+function activeBookings(appts: ReportAppointmentRow[]) {
+  return appts.filter((a) => isActiveBooking(a.status));
+}
+
 function revenueAppts(appts: ReportAppointmentRow[]) {
-  return appts.filter(recognizesRevenue);
+  return appts.filter((a) => recognizesAppointmentRevenue(a));
 }
 
 function sumRevenue(appts: ReportAppointmentRow[]) {
-  return revenueAppts(appts).reduce((s, a) => {
-    const paid = Number(a.amount_paid_cents ?? 0);
-    if (paid > 0) return s + paid / 100;
-    return s + moneyFromAppt(a);
-  }, 0);
+  return sumRecognizedRevenueDollars(appts);
 }
 
 function topN(map: Map<string, number>, n: number): ChartPoint[] {

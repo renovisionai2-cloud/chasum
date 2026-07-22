@@ -79,3 +79,5 @@ All slot queries and validation go through PostgreSQL RPCs:
 ## Engineering detail
 
 Full schema and RPC docs: [`../DATABASE.md`](../DATABASE.md), [`../API.md`](../API.md).
+
+OS kernel (money recognition, domain events, business memory, locale): [`22_OS_KERNEL.md`](./22_OS_KERNEL.md). Founder memory: [`../../COMPANY_MEMORY.md`](../../COMPANY_MEMORY.md).

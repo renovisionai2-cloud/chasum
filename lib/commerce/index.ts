@@ -58,3 +58,22 @@ export {
   getChaseCommerceMetrics,
   getCommerceDashboardSnapshot,
 } from "@/lib/commerce/dashboard";
+
+export {
+  appointmentPriceCents,
+  appointmentRecognizedCents,
+  isActiveBooking,
+  recognizesAppointmentRevenue,
+  sumRecognizedRevenueCents,
+  sumRecognizedRevenueDollars,
+} from "@/lib/commerce/recognize";
+
+export {
+  createCommerceEvent,
+  emitCommerceEvent,
+  onCommerceEvent,
+} from "@/lib/commerce/events";
+export type {
+  CommerceDomainEvent,
+  CommerceDomainEventType,
+} from "@/lib/commerce/events";
