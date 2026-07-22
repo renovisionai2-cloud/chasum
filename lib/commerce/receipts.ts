@@ -59,6 +59,7 @@ export async function createReceiptForTransaction(input: {
     .eq("id", transaction.customerId)
     .maybeSingle();
 
+  const { formatMoneyCents } = await import("@/lib/commerce/money");
   const bodyText = [
     `RECEIPT ${receiptNumber}`,
     `Issued: ${format(issuedAt, "MMM d, yyyy h:mm a")}`,
@@ -70,17 +71,15 @@ export async function createReceiptForTransaction(input: {
     `Customer: ${cust?.name ?? "Guest"}`,
     cust?.email ? String(cust.email) : null,
     "",
-    `Amount: $${(transaction.amountCents / 100).toFixed(2)} ${transaction.currency.toUpperCase()}`,
+    `Amount: ${formatMoneyCents(transaction.amountCents, transaction.currency)}`,
     `Method: ${PAYMENT_METHOD_LABELS[transaction.method]}`,
-    `Provider: ${transaction.provider}`,
+    transaction.description ? `Note: ${transaction.description}` : null,
     transaction.providerReference
       ? `Reference: ${transaction.providerReference}`
       : null,
-    transaction.description ? `Note: ${transaction.description}` : null,
     "",
-    "Thank you for your business.",
-    "",
-    "(Email delivery: not_sent — future support ready)",
+    `Thank you for choosing ${biz?.name ?? "us"}.`,
+    "Powered by Chasum",
   ]
     .filter(Boolean)
     .join("\n");

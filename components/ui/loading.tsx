@@ -77,7 +77,10 @@ export function AppLoader({
 export function Skeleton({ className }: { className?: string }) {
   return (
     <div
-      className={cn("animate-pulse rounded-[var(--radius-md)] bg-muted", className)}
+      className={cn(
+        "ds-skeleton-shimmer animate-pulse rounded-[var(--radius-md)] bg-muted",
+        className,
+      )}
       aria-hidden="true"
     />
   );
@@ -86,7 +89,7 @@ export function Skeleton({ className }: { className?: string }) {
 export function DashboardSkeleton() {
   return (
     <div className="ds-page" aria-busy="true" aria-label="Loading dashboard">
-      <Skeleton className="h-48 w-full rounded-[var(--radius-lg)]" />
+      <Skeleton className="h-40 w-full rounded-[var(--radius-lg)] sm:h-48" />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-36" />
@@ -108,6 +111,58 @@ export function DashboardSkeleton() {
           <Spark className="h-3 w-3" size={12} animate />
         </span>
       </div>
+    </div>
+  );
+}
+
+/** Settings / profile form placeholder. */
+export function FormSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div
+      className="ds-form-stack animate-fade-in-up"
+      aria-busy="true"
+      aria-label="Loading form"
+    >
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-11 w-full" />
+        </div>
+      ))}
+      <div className="flex justify-end gap-2 pt-2">
+        <Skeleton className="h-11 w-24" />
+        <Skeleton className="h-11 w-28" />
+      </div>
+    </div>
+  );
+}
+
+/** List / directory placeholder. */
+export function ListSkeleton({ rows = 6 }: { rows?: number }) {
+  return (
+    <div className="space-y-3" aria-busy="true" aria-label="Loading list">
+      {Array.from({ length: rows }).map((_, i) => (
+        <Skeleton key={i} className="h-16 w-full rounded-[var(--radius-md)]" />
+      ))}
+    </div>
+  );
+}
+
+/** Table placeholder. */
+export function TableSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div
+      className="overflow-hidden rounded-[var(--radius-lg)] border border-border"
+      aria-busy="true"
+      aria-label="Loading table"
+    >
+      <Skeleton className="h-11 w-full rounded-none" />
+      {Array.from({ length: rows }).map((_, i) => (
+        <Skeleton
+          key={i}
+          className="h-12 w-full rounded-none border-t border-border/60"
+        />
+      ))}
     </div>
   );
 }

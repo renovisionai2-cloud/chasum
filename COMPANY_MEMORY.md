@@ -50,6 +50,7 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 | Business memory / context | `lib/business/context.ts` |
 | Locale / datetime | `lib/locale.ts`, `lib/business/datetime.ts` |
 | Scheduling truth | Booking Engine + Postgres RPCs |
+| Design System v1 | `docs/product/23_DESIGN_SYSTEM_V1.md`, `components/ui/*` |
 
 ---
 
@@ -59,6 +60,7 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 - Multi-tenant: every business-owned row carries `business_id`; respect location scope.
 - Soft-fail when optional migrations are missing.
 - Surgical diffs — no drive-by refactors of unrelated modules.
+- **Extend, don’t redesign** — Premium Experience polish uses Design System v1; no parallel UI languages.
 
 ---
 
@@ -71,7 +73,8 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 | BusinessOperatingContext facade | One memory shape for AI; no new AI features |
 | Locale/datetime helpers without i18n catalogs | Global-ready architecture; translate later |
 | Operation GVM still #1 | Design partner truth > roadmap novelty |
+| Design System v1 before more features | Experience quality compounds; competitors win on features, we win on craft |
 
 ---
 
-*Last updated: Foundation Sprint (AI Operating System kernel).*
+*Last updated: Premium Experience Sprint 1 — Design System v1.*

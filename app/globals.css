@@ -1051,8 +1051,39 @@ body {
   @apply space-y-3 sm:space-y-4;
 }
 
-.ds-safe-pad {
-  padding-left: max(1rem, env(safe-area-inset-left));
-  padding-right: max(1rem, env(safe-area-inset-right));
-  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+.ds-field label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.ds-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.ds-skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--foreground) 6%, transparent),
+    transparent
+  );
+  animation: ds-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes ds-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-skeleton-shimmer::after {
+    animation: none;
+  }
 }

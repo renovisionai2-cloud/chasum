@@ -29,6 +29,7 @@ Product strategy, roadmap, and planning docs. Engineering reference lives alongs
 | [20_AI_WORKFORCE.md](./20_AI_WORKFORCE.md) | **Strategic vision — AI Workforce & AI Business OS** |
 | [21_INDUSTRY_FRAMEWORK.md](./21_INDUSTRY_FRAMEWORK.md) | **One platform, many industries — configure, don’t fork** |
 | [22_OS_KERNEL.md](./22_OS_KERNEL.md) | **OS kernel — money SSoT, events, business memory, locale** |
+| [23_DESIGN_SYSTEM_V1.md](./23_DESIGN_SYSTEM_V1.md) | **Premium Design System v1 — craft contract for every page** |
 | [99_IDEA_PARKING_LOT.md](./99_IDEA_PARKING_LOT.md) | Unscoped ideas |
 
 ## Engineering cross-reference

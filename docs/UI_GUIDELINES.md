@@ -16,7 +16,8 @@ Design system reference for building consistent interfaces in Chasum.
 
 ## Typography & color
 
-**Font:** Inter (primary), JetBrains Mono (code)
+**Font:** Geist Sans (UI), Geist Mono (code) — see Design System v1.  
+Canonical craft contract: [`docs/product/23_DESIGN_SYSTEM_V1.md`](./product/23_DESIGN_SYSTEM_V1.md).
 
 **Brand marks:** Brand V1.0 — C Mark + wordmark (`Logo` / `LogoIcon` / `Wordmark`), Spark (`Spark`) for AI only.  
 See [`docs/BRAND_GUIDELINES.md`](./BRAND_GUIDELINES.md), assets in `/public/brand-v2/`.

@@ -260,5 +260,9 @@ function Section({
 }
 
 function Empty() {
-  return <p className="text-sm text-muted-foreground">None yet.</p>;
+  return (
+    <p className="text-sm text-muted-foreground">
+      Nothing here yet — activity appears after bookings and payments.
+    </p>
+  );
 }

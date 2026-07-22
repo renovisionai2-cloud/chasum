@@ -311,10 +311,12 @@ export function EmployeeDirectory({
         <EmptyState
           variant="panel"
           glyph={UserCog}
-          title={employees.length === 0 ? "No employees yet" : "No matches"}
+          title={
+            employees.length === 0 ? "Invite your first employee" : "No matches"
+          }
           description={
             employees.length === 0
-              ? "Add yourself as a bookable provider, or invite your first team member. Public booking needs at least one employee."
+              ? "Providers power your calendar — add yourself or invite a teammate so bookings can start."
               : "Try a different search or filter."
           }
         >

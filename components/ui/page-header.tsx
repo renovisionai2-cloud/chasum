@@ -3,11 +3,14 @@ import { cn } from "@/lib/utils";
 export function PageHeader({
   title,
   description,
+  eyebrow,
   children,
   className,
 }: {
   title: string;
   description?: string;
+  /** Optional quiet context above the title (date, scope, module). */
+  eyebrow?: string;
   children?: React.ReactNode;
   className?: string;
 }) {
@@ -19,11 +22,12 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0 space-y-1.5">
+        {eyebrow ? <p className="ds-label">{eyebrow}</p> : null}
         <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-[1.75rem]">
           {title}
         </h1>
         {description && (
-          <p className="max-w-2xl text-sm text-muted-foreground md:text-[0.9375rem]">
+          <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-[0.9375rem]">
             {description}
           </p>
         )}

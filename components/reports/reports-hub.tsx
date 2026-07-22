@@ -96,7 +96,11 @@ function MetricList({
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <EmptyState variant="panel" title="No data" description={empty} />
+          <EmptyState
+            variant="panel"
+            title="Nothing here yet"
+            description={empty}
+          />
         ) : (
           <ul className="divide-y divide-border/80 rounded-[var(--radius-md)] border border-border">
             {items.map((item) => (

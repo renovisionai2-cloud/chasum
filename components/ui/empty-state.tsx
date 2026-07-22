@@ -15,8 +15,9 @@ type EmptyStateProps = {
 };
 
 const variantStyles: Record<EmptyStateVariant, string> = {
-  page: "rounded-[var(--radius-lg)] border border-dashed border-border bg-muted/20 px-6 py-16",
-  panel: "rounded-[var(--radius-md)] border border-dashed border-border/80 bg-muted/15 px-4 py-10",
+  page: "rounded-[var(--radius-lg)] border border-dashed border-border/90 bg-gradient-to-b from-muted/25 to-transparent px-6 py-14 sm:py-16",
+  panel:
+    "rounded-[var(--radius-md)] border border-dashed border-border/80 bg-muted/15 px-4 py-10",
   inline: "rounded-[var(--radius-md)] bg-muted/20 px-3 py-6",
 };
 
@@ -61,21 +62,30 @@ export function EmptyState({
       )}
       <h3
         className={cn(
-          "font-semibold text-foreground",
-          variant === "page" ? "text-base" : "text-sm",
+          "font-semibold tracking-tight text-foreground",
+          variant === "page" ? "text-base sm:text-lg" : "text-sm",
         )}
       >
         {title}
       </h3>
       <p
         className={cn(
-          "mt-2 max-w-sm text-muted-foreground",
+          "mt-2 max-w-md text-muted-foreground leading-relaxed",
           variant === "page" ? "text-sm" : "text-xs",
         )}
       >
         {description}
       </p>
-      {children && <div className={cn("mt-5", variant === "inline" && "mt-3")}>{children}</div>}
+      {children && (
+        <div
+          className={cn(
+            "mt-6 flex flex-wrap items-center justify-center gap-2",
+            variant === "inline" && "mt-3",
+          )}
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }

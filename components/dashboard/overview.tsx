@@ -26,6 +26,7 @@ import {
   buildSetupSteps,
   isSetupComplete,
 } from "@/lib/onboarding/setup-progress";
+import { formatMoneyDollars } from "@/lib/commerce/money";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
@@ -190,26 +191,33 @@ export async function DashboardOverview() {
             </p>
             {setupDone ? (
               <>
-                <div className="flex flex-wrap gap-3 pt-1 text-sm">
-                  <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
-                    {stats.todayCount} appointment
-                    {stats.todayCount === 1 ? "" : "s"}
+                <div className="flex flex-wrap gap-2 pt-1 text-sm">
+                  <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-border/80 bg-background/90 px-3 py-1.5 tabular-nums shadow-xs">
+                    <span className="mr-1.5 text-muted-foreground">Today</span>
+                    {stats.todayCount}
                   </span>
-                  <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
-                    ${stats.todayRevenue.toFixed(0)} completed today
+                  <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-border/80 bg-background/90 px-3 py-1.5 tabular-nums shadow-xs">
+                    <span className="mr-1.5 text-muted-foreground">Revenue</span>
+                    {formatMoneyDollars(stats.todayRevenue, business.currency)}
                   </span>
-                  <span className="rounded-full border border-border bg-background/80 px-3 py-1 tabular-nums">
-                    {stats.pendingConfirmations} pending confirmation
-                    {stats.pendingConfirmations === 1 ? "" : "s"}
-                  </span>
+                  {stats.pendingConfirmations > 0 ? (
+                    <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-warning/30 bg-warning/10 px-3 py-1.5 tabular-nums text-warning shadow-xs">
+                      <span className="mr-1.5">Needs attention</span>
+                      {stats.pendingConfirmations} pending
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center rounded-[var(--radius-sm)] border border-success/25 bg-success/10 px-3 py-1.5 text-success shadow-xs">
+                      Clear · no pending confirmations
+                    </span>
+                  )}
                 </div>
-                <p className="flex items-start gap-2 rounded-[var(--radius-md)] border border-spark/20 bg-spark-muted/30 px-3 py-2.5 text-sm text-foreground">
+                <p className="flex items-start gap-2 rounded-[var(--radius-md)] border border-border/80 bg-background/70 px-3.5 py-3 text-sm leading-relaxed text-foreground shadow-xs">
                   <Sparkles
-                    className="mt-0.5 h-4 w-4 shrink-0 text-spark"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-primary"
                     aria-hidden="true"
                   />
                   <span>
-                    <strong className="font-medium">AI summary · </strong>
+                    <strong className="font-medium">Today&apos;s focus · </strong>
                     {aiSummary}
                   </span>
                 </p>
@@ -284,10 +292,10 @@ export async function DashboardOverview() {
         />
         <StatCard
           title="Today's revenue"
-          value={`$${stats.todayRevenue.toFixed(0)}`}
-          description="From completed appointments today"
+          value={formatMoneyDollars(stats.todayRevenue, business.currency)}
+          description="Recognized from today's visits and payments"
           icon={DollarSign}
-          href="/dashboard/calendar"
+          href="/dashboard/payments"
           accent="success"
           style={{ animationDelay: "80ms" }}
         />

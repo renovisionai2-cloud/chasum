@@ -12,26 +12,33 @@ type TabsProps = {
 export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
   return (
     <div
+      role="tablist"
       className={cn(
-        "inline-flex rounded-xl border border-border bg-muted/50 p-1",
+        "inline-flex max-w-full flex-wrap rounded-xl border border-border bg-muted/50 p-1",
         className,
       )}
     >
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          type="button"
-          onClick={() => onChange(tab.id)}
-          className={cn(
-            "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-            activeTab === tab.id
-              ? "bg-card text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
+      {tabs.map((tab) => {
+        const selected = activeTab === tab.id;
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            onClick={() => onChange(tab.id)}
+            className={cn(
+              "min-h-10 rounded-lg px-4 py-2 text-sm font-medium touch-manipulation",
+              "transition-colors duration-200 ds-focus-ring",
+              selected
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

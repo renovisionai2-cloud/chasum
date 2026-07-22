@@ -811,8 +811,8 @@ export function BusinessHub({
                 populate automatically.
               </p>
               <CatalogList
-                emptyTitle="No packages"
-                emptyDescription="Create a bundle of services with a package price, visit count, and optional expiry."
+                emptyTitle="No packages yet"
+                emptyDescription="Let's create your first package — a bundle of services with one price (example: bridal package or 5-visit series)."
                 items={packages.map((p) => ({
                   id: p.id,
                   title: p.name,
@@ -862,8 +862,8 @@ export function BusinessHub({
             </CardHeader>
             <CardContent>
               <CatalogList
-                emptyTitle="No gift cards"
-                emptyDescription="Issue a card, then preview or email a professional gift certificate."
+                emptyTitle="Create your first gift card"
+                emptyDescription="Issue a card, then preview, print, or email a professional gift certificate with your branding."
                 items={giftCards.map((g) => ({
                   id: g.id,
                   title: g.code,

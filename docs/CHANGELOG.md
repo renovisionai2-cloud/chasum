@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Premium Experience Sprint 1)
+
+- Design System v1 documented (`docs/product/23_DESIGN_SYSTEM_V1.md`)
+- `Field` form primitive; form skeletons; shimmer loading; tab a11y
+- Onboarding-forward empty states (customers, services, employees, packages, gift cards)
+- Dashboard clarity: currency-aware revenue, attention chips, “Today’s focus”
+- Premium invoice/receipt formatting with business currency and thank-you close
+
 ### Added (Foundation Sprint — AI Operating System kernel)
 
 - `COMPANY_MEMORY.md` — living founder memory (Operation GVM still Priority #1)

@@ -1,5 +1,6 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapInvoice, mapInvoiceLine } from "@/lib/commerce/mappers";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import type { CommerceInvoice } from "@/lib/commerce/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
@@ -314,8 +315,18 @@ export async function listInvoices(input: {
 }
 
 export function formatInvoiceText(invoice: CommerceInvoice): string {
-  const biz = invoice.businessSnapshot;
-  const cust = invoice.customerSnapshot;
+  const biz = invoice.businessSnapshot as {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+  const cust = invoice.customerSnapshot as {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+  const currency = invoice.currency;
+  const money = (cents: number) => formatMoneyCents(cents, currency);
   const lines = [
     `INVOICE ${invoice.invoiceNumber}`,
     `Status: ${invoice.status}`,
@@ -332,16 +343,17 @@ export function formatInvoiceText(invoice: CommerceInvoice): string {
     "",
     "Services",
     ...invoice.lines.map(
-      (l) =>
-        `  ${l.description} × ${l.quantity} — $${(l.totalCents / 100).toFixed(2)}`,
+      (l) => `  ${l.description} × ${l.quantity} — ${money(l.totalCents)}`,
     ),
     "",
-    `Subtotal: $${(invoice.subtotalCents / 100).toFixed(2)}`,
-    `Tax: $${(invoice.taxCents / 100).toFixed(2)}`,
-    `Discount: $${(invoice.discountCents / 100).toFixed(2)}`,
-    `Total: $${(invoice.totalCents / 100).toFixed(2)}`,
-    `Paid: $${(invoice.amountPaidCents / 100).toFixed(2)}`,
-    `Balance: $${(invoice.balanceCents / 100).toFixed(2)}`,
+    `Subtotal: ${money(invoice.subtotalCents)}`,
+    `Tax: ${money(invoice.taxCents)}`,
+    `Discount: ${money(invoice.discountCents)}`,
+    `Total: ${money(invoice.totalCents)}`,
+    `Paid: ${money(invoice.amountPaidCents)}`,
+    `Balance: ${money(invoice.balanceCents)}`,
+    "",
+    `Thank you for choosing ${biz.name ?? "us"}.`,
   ].filter(Boolean);
 
   return lines.join("\n");

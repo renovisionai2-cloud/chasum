@@ -1,6 +1,7 @@
 # Design System
 
-Product UX standards. Implementation: `app/globals.css`, `components/ui/*`, `components/brand/*`.
+Product UX standards. **Canonical craft contract:** [`23_DESIGN_SYSTEM_V1.md`](./23_DESIGN_SYSTEM_V1.md).  
+Implementation: `app/globals.css`, `components/ui/*`, `components/brand/*`.  
 Also see [`../UI_GUIDELINES.md`](../UI_GUIDELINES.md), [18_UX_PRINCIPLES.md](./18_UX_PRINCIPLES.md).
 
 ## Brand identity

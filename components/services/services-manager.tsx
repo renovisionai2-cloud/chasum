@@ -903,10 +903,12 @@ export function ServicesManager({
 
           {pageRows.length === 0 ? (
             <EmptyState
-              title={services.length === 0 ? "No services yet" : "No matches"}
+              title={
+                services.length === 0 ? "Let's add your first service" : "No matches"
+              }
               description={
                 services.length === 0
-                  ? "Create your first bookable service — about 2 minutes (name, duration, price, then assign an employee)."
+                  ? "Individual appointment offerings — name, duration, and price. Then assign an employee so bookings can start."
                   : "Try adjusting search or filters."
               }
             >

@@ -172,10 +172,10 @@ export function CustomerDirectory({
         <EmptyState
           variant="panel"
           glyph={Users}
-          title={customers.length === 0 ? "No customers yet" : "No matches"}
+          title={customers.length === 0 ? "Let's add your first customer" : "No matches"}
           description={
             customers.length === 0
-              ? "Add a walk-in with phone only, or a full profile — about 30 seconds."
+              ? "Start with a walk-in phone number or a full profile — about 30 seconds."
               : "Try a different name, email, phone, or filter."
           }
         >
