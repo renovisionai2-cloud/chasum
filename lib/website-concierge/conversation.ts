@@ -1,3 +1,4 @@
+import { runKnowledgeEngine } from "@/lib/website-concierge/knowledge-engine";
 import { buildConciergeContext } from "@/lib/website-concierge/context-engine";
 import { buildConciergePrompt } from "@/lib/website-concierge/prompt-builder";
 import {
@@ -31,8 +32,8 @@ export type RunConciergeTurnResult = {
 };
 
 /**
- * Single turn orchestration: context → prompt → provider → memory update.
- * UI components call this instead of embedding response logic.
+ * Single turn: Knowledge Engine retrieve → prompt → provider → memory.
+ * UI never embeds product answers.
  */
 export async function runConciergeTurn(
   input: RunConciergeTurnInput,
@@ -49,17 +50,33 @@ export async function runConciergeTurn(
     messages: input.messages,
   });
 
-  const intentTags = inferInterestsFromText(input.userMessage);
+  const engine = runKnowledgeEngine({
+    query: input.userMessage,
+    memory,
+    recentMessages: context.recentMessages,
+  });
+
+  const intentTags = [
+    ...inferInterestsFromText(input.userMessage),
+    engine.retrieval.intent,
+  ];
   const prompt = buildConciergePrompt({
     context,
     userMessage: input.userMessage,
     intentTags,
+    retrieval: engine.retrieval,
   });
 
   const result: ConciergeCompletionResult = await provider.complete({
     prompt,
     context,
     userMessage: input.userMessage,
+    retrieval: engine.retrieval,
+    groundedDraft: {
+      message: engine.message,
+      suggestions: engine.suggestions,
+      memoryPatch: engine.memoryPatch,
+    },
   });
 
   memory = applyMemoryPatch(memory, result.memoryPatch);

@@ -34,4 +34,16 @@ export {
   recordPageVisit,
   saveSessionMemory,
 } from "@/lib/website-concierge/session-memory";
-export { searchKnowledge, WEBSITE_KNOWLEDGE } from "@/lib/website-concierge/knowledge-base";
+export {
+  searchKnowledge,
+  WEBSITE_KNOWLEDGE,
+} from "@/lib/website-concierge/knowledge-base";
+export {
+  retrieveKnowledge,
+  runKnowledgeEngine,
+} from "@/lib/website-concierge/knowledge-engine";
+export {
+  getKnowledgeById,
+  KNOWLEDGE_CATALOG,
+  listKnowledgeByCategory,
+} from "@/lib/website-concierge/knowledge/catalog";

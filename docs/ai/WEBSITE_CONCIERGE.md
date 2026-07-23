@@ -1,12 +1,12 @@
 # Website Concierge (Marketing Summer)
 
-**Status:** Phase 1 — architecture + placeholder provider  
+**Status:** Phase 2 — Knowledge Engine + placeholder provider  
 **Surface:** Public marketing website only (`app/(marketing)/*`)  
 **Not in scope:** Dashboard, CRM, Calendar, Reception, Payments, or in-app Summer (`lib/summer`, `components/summer`)
 
 ## Vision
 
-Summer is the first experience every visitor has with Chasum on the marketing site: an intelligent AI consultant, not a scripted chatbot. Phase 1 ships the floating UI and a clean module boundary so future model-backed AI (and other OS roles) can plug in without redesigning the product.
+Summer is the first experience every visitor has with Chasum on the marketing site: an intelligent AI consultant, not a scripted chatbot. Phase 1 shipped the floating UI and module boundary. **Phase 2 adds the Knowledge Engine** — see [`KNOWLEDGE_ENGINE.md`](./KNOWLEDGE_ENGINE.md).
 
 ## Architecture
 
