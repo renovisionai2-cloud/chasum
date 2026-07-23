@@ -4,6 +4,7 @@ import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
 import { PLATFORM_MODULES } from "@/lib/marketing/homepage";
+import type { MarketingDemoVariant } from "@/lib/marketing/demo";
 import { cn } from "@/lib/utils";
 import {
   ArrowRight,
@@ -20,16 +21,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 
-type PreviewVariant =
-  | "overview"
-  | "reception"
-  | "crm"
-  | "reports"
-  | "summer"
-  | "employees"
-  | "business"
-  | "communication"
-  | "billing";
+type PreviewVariant = MarketingDemoVariant;
 
 const MODULE_ICONS: Record<string, LucideIcon> = {
   summer: Sparkles,

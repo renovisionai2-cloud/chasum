@@ -30,10 +30,13 @@ Do **not** introduce additional AI names on the marketing site unless intentiona
 ## Surfaces covered
 
 - Landing / platform modules / product tour demos
+- Embedded marketing dashboard mock (`DashboardPreview` — address bar must show `/dashboard/ai-workforce/summer`, never `/dashboard/emma`)
 - AI Workforce marketing section
 - FAQ and homepage copy
 - Website Concierge widget (`components/website-concierge`)
 - Knowledge Engine copy (`lib/website-concierge`)
+
+Demo chrome constants live in `lib/marketing/demo.ts`.
 
 ## Authenticated application
 

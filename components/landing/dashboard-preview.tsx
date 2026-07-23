@@ -1,6 +1,11 @@
 "use client";
 
 import { Spark } from "@/components/brand/spark";
+import {
+  MARKETING_SUMMER_DEMO_LABEL,
+  marketingDemoPath,
+  type MarketingDemoVariant,
+} from "@/lib/marketing/demo";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -33,16 +38,7 @@ const WEEK_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 type DashboardPreviewProps = {
   className?: string;
-  variant?:
-    | "overview"
-    | "reception"
-    | "crm"
-    | "reports"
-    | "summer"
-    | "employees"
-    | "business"
-    | "communication"
-    | "billing";
+  variant?: MarketingDemoVariant;
   compact?: boolean;
   animated?: boolean;
   /** Larger product stage for the marketing hero. */
@@ -117,7 +113,7 @@ export function DashboardPreview({
             hero ? "text-[11px] tracking-wide" : "text-xs",
           )}
         >
-          app.chasum.com/dashboard{variant === "overview" ? "" : `/${variant}`}
+          {marketingDemoPath(variant)}
         </span>
         {isLive ? (
           <span className="ml-auto hidden items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success sm:inline-flex">
@@ -710,7 +706,7 @@ function SummerPane({ live }: { live: boolean }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Spark className="h-5 w-5" size={20} animate={shouldAnimate} />
-        <p className="text-sm font-semibold">Summer · AI Business Assistant</p>
+        <p className="text-sm font-semibold">{MARKETING_SUMMER_DEMO_LABEL}</p>
         <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
           {shouldAnimate && chars < full.length ? "Typing" : "Online"}
         </span>

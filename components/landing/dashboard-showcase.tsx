@@ -38,9 +38,15 @@ const SHOWCASE_TABS = [
   {
     id: "summer",
     label: "Summer",
+    name: "Summer — AI Business Assistant",
     preview: "summer" as const,
     icon: Sparkles,
+    benefit: "Grounded answers from real business data — never invented availability.",
+    explanation:
+      "Summer is Chasum's AI Business Assistant: website concierge, receptionist assist, and product guide for design partners in Early Access.",
     benefits: ["Grounded business answers", "Real availability only", "Human escalation"],
+    cta: "Meet Summer",
+    ctaHref: APPLY_HREF,
   },
   {
     id: "crm",

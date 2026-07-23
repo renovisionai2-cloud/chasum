@@ -452,7 +452,7 @@ export const COMPARISON_ROWS: {
     },
   },
   {
-    feature: "AI Receptionist Grounded in Live Business Data",
+    feature: "Summer — Grounded AI Business Assistant",
     values: {
       Chasum: "yes",
       Picktime: "roadmap",
