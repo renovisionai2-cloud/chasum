@@ -73,6 +73,14 @@ function writeOpen(open: boolean) {
 }
 
 function defaultSuggestions(pageId: string): string[] {
+  if (pageId === "meet-summer") {
+    return [
+      "I run an ultrasound clinic",
+      "We use Picktime",
+      "Our biggest issue is reporting",
+      "How is Chasum different?",
+    ];
+  }
   if (pageId === "home") {
     return ["I run a salon", "What is Chasum?", "Show me pricing"];
   }

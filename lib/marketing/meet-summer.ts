@@ -4,9 +4,9 @@
  */
 
 export const MEET_SUMMER_PROMPTS = [
-  "What industries do you support?",
-  "Can you replace my receptionist?",
-  "Show me pricing.",
+  "I run an ultrasound clinic",
+  "We use Picktime",
+  "Our biggest issue is reporting",
   "How is Chasum different?",
 ] as const;
 
@@ -14,12 +14,24 @@ export const MEET_SUMMER_HERO = {
   brand: "Meet Summer",
   headline: "Your AI Business Assistant.",
   lines: [
-    "Not software.",
-    "Not automation.",
+    "Not a chatbot.",
+    "Not live support.",
     "Business intelligence that understands your company.",
   ],
   lede:
-    "The future of Chasum begins here — an introduction to the intelligence layer of the AI Business Operating System.",
+    "You're meeting the intelligence layer of Chasum — an AI Business Operating System built to understand businesses, not menus.",
+} as const;
+
+export const MEET_SUMMER_FIRST_IMPRESSION = {
+  eyebrow: "First impression",
+  headline: "What you should feel in the first ten seconds.",
+  points: [
+    "Chasum is an AI Business Operating System.",
+    "Summer is not a support chatbot.",
+    "Summer understands businesses.",
+    "Summer helps owners make better decisions.",
+    "Chasum is built around intelligence, not menus.",
+  ],
 } as const;
 
 export const MEET_SUMMER_PROBLEM = {

@@ -1454,3 +1454,110 @@ body {
     transform: none;
   }
 }
+
+/* Phase 6 — Premium Conversation Experience */
+
+.meet-summer-workspace {
+  position: relative;
+}
+
+.meet-summer-workspace-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .meet-summer-workspace-grid {
+    grid-template-columns: minmax(0, 1.35fr) minmax(17rem, 0.75fr);
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+}
+
+.meet-summer-understand {
+  border-radius: 1.75rem;
+  border: 1px solid color-mix(in srgb, white 14%, transparent);
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--primary) 14%, transparent),
+      transparent 42%
+    ),
+    color-mix(in srgb, #0b1324 78%, transparent);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 8%, transparent) inset,
+    0 28px 64px -28px rgb(0 0 0 / 0.5);
+  overflow: hidden;
+}
+
+.meet-summer-understand-pop {
+  animation: meet-summer-understand-in 0.5s var(--meet-summer-ease) both;
+}
+
+@keyframes meet-summer-understand-in {
+  from {
+    opacity: 0.4;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.meet-summer-intel-viz {
+  border-radius: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  background: color-mix(in srgb, var(--primary) 12%, rgb(11 19 36 / 0.55));
+  padding: 1rem 1.15rem;
+  box-shadow: 0 0 40px -18px color-mix(in srgb, var(--primary) 70%, transparent);
+}
+
+.meet-summer-intel-pulse {
+  margin-top: 0.35rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 9999px;
+  background: #93c5fd;
+  box-shadow: 0 0 0 0 color-mix(in srgb, #93c5fd 55%, transparent);
+  animation: meet-summer-intel-breathe 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes meet-summer-intel-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, #93c5fd 45%, transparent);
+    opacity: 0.75;
+  }
+  50% {
+    box-shadow: 0 0 0 8px transparent;
+    opacity: 1;
+  }
+}
+
+.meet-summer-impression-line {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+.meet-summer-impression-index {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: color-mix(in srgb, var(--primary) 75%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meet-summer-understand-pop,
+  .meet-summer-intel-pulse {
+    animation: none !important;
+  }
+}
