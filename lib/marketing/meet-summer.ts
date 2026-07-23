@@ -1,5 +1,5 @@
 /**
- * Meet Summer — premium marketing story copy (Phase 5).
+ * Meet Summer — flagship AI marketing experience.
  * Narrative-first; Private Alpha apply remains the final chapter only.
  */
 
@@ -12,25 +12,63 @@ export const MEET_SUMMER_PROMPTS = [
 
 export const MEET_SUMMER_HERO = {
   brand: "Meet Summer",
-  headline: "Your AI Business Assistant.",
+  headline: "The intelligence behind Chasum.",
   lines: [
     "Not a chatbot.",
-    "Not live support.",
-    "Business intelligence that understands your company.",
+    "Not customer support.",
+    "Not simply an AI receptionist.",
   ],
   lede:
-    "You're meeting the intelligence layer of Chasum — an AI Business Operating System built to understand businesses, not menus.",
+    "Summer is the intelligence layer of an AI Business Operating System — built to understand your company, connect what matters, and help owners decide what to do next.",
+} as const;
+
+export const MEET_SUMMER_MANIFESTO = {
+  eyebrow: "What you are meeting",
+  headline: "Scheduling software was never meant to feel like this.",
+  body:
+    "Most products bolt AI onto menus. Chasum starts with intelligence — and Summer is how you meet it.",
+  pillars: [
+    {
+      title: "Not a chatbot",
+      detail: "No scripted FAQ theater. Summer learns your business before she recommends.",
+    },
+    {
+      title: "Not customer support",
+      detail: "She is not a ticket queue. She is a consultant for how your operation runs.",
+    },
+    {
+      title: "Not only reception",
+      detail: "Reception is one job. Summer is the shared brain behind every department.",
+    },
+    {
+      title: "AI Business Operating System",
+      detail: "Chasum connects customers, appointments, staff, revenue, and decisions — with Summer as the intelligence layer.",
+    },
+  ],
+} as const;
+
+export const MEET_SUMMER_INTELLIGENCE = {
+  eyebrow: "Designed to feel intelligent",
+  headline: "Most companies make AI feel human. We make it feel sharp.",
+  cues: [
+    { id: "understanding", label: "Understanding" },
+    { id: "remembering", label: "Remembering" },
+    { id: "connecting", label: "Connecting information" },
+    { id: "patterns", label: "Recognizing patterns" },
+    { id: "recommendations", label: "Building recommendations" },
+    { id: "thinking", label: "Thinking before responding" },
+  ],
 } as const;
 
 export const MEET_SUMMER_FIRST_IMPRESSION = {
-  eyebrow: "First impression",
-  headline: "What you should feel in the first ten seconds.",
+  eyebrow: "Leave with this feeling",
+  headline: "I've never seen scheduling software presented like this.",
   points: [
+    "Summer is the intelligence behind Chasum.",
     "Chasum is an AI Business Operating System.",
-    "Summer is not a support chatbot.",
-    "Summer understands businesses.",
-    "Summer helps owners make better decisions.",
-    "Chasum is built around intelligence, not menus.",
+    "Summer understands businesses — she does not mimic small talk.",
+    "Curiosity, trust, and confidence should already be rising.",
+    "You are looking at the future of business software.",
   ],
 } as const;
 

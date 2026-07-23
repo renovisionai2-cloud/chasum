@@ -11,6 +11,7 @@ describe("Meet Summer intelligence presentation", () => {
     const greeting = getPageGreeting("meet-summer");
     expect(greeting).toMatch(/Welcome/i);
     expect(greeting).toMatch(/understand your business/i);
+    expect(greeting).toMatch(/intelligence behind Chasum/i);
     expect(greeting).not.toMatch(/FAQ bot/i);
   });
 

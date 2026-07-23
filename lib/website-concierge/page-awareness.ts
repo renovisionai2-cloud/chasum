@@ -120,7 +120,7 @@ export function getPageGreeting(pageId: MarketingPageId): string {
     case "apply":
       return "Private Alpha is invite-based design partnership. I can clarify fit, expectations, and next steps — what's your business type?";
     case "meet-summer":
-      return "Welcome.\n\nI'm Summer — Chasum's AI Business Assistant.\n\nBefore recommending software, I'd like to understand your business.\n\nWhat kind of appointment-based business do you run?";
+      return "Welcome.\n\nI'm Summer — the intelligence behind Chasum.\n\nI'm not a chatbot, and I'm not customer support. Before I recommend anything, I want to understand your business.\n\nWhat kind of appointment-based business do you run?";
     default:
       return "Hi — I'm Summer, Chasum's AI Business Assistant. Tell me about your business and I'll help you see if Chasum is a fit.";
   }

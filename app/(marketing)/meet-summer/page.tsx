@@ -11,7 +11,9 @@ import {
 import {
   MEET_SUMMER_FIRST_IMPRESSION,
   MEET_SUMMER_HERO,
+  MEET_SUMMER_INTELLIGENCE,
   MEET_SUMMER_JOURNEY,
+  MEET_SUMMER_MANIFESTO,
   MEET_SUMMER_MEMORY,
   MEET_SUMMER_OS,
   MEET_SUMMER_PROBLEM,
@@ -23,13 +25,13 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Meet Summer — AI Business Assistant",
+  title: "Meet Summer — Intelligence behind Chasum",
   description:
-    "Meet Summer, Chasum’s AI Business Assistant. A premium conversation experience that understands your business — then Private Alpha.",
+    "Meet Summer, the intelligence layer of Chasum’s AI Business Operating System — not a chatbot, not support, not simply reception.",
   openGraph: {
-    title: "Meet Summer — Chasum’s AI Business Assistant",
+    title: "Meet Summer — The intelligence behind Chasum",
     description:
-      "Talk with Summer in a premium AI workspace — live business understanding, then Private Alpha.",
+      "Chasum’s flagship AI experience. Talk with Summer in an intelligence console that understands your business.",
     images: [
       {
         url: BRAND_ASSETS.ogImage,
@@ -42,67 +44,130 @@ export const metadata: Metadata = {
 };
 
 /**
- * Premium Conversation Experience (Phase 6) — presentation only.
+ * Flagship Meet Summer experience — emotional centerpiece of marketing.
  * Engines unchanged: Knowledge, Discovery, Session Memory, Provider Registry.
  */
 export default function MeetSummerPage() {
   return (
     <PageFade>
-      <div className="meet-summer-premium">
-        {/* Hero — Summer is the focal point */}
-        <section className="relative isolate overflow-hidden px-4 pb-16 pt-14 sm:px-6 md:pb-24 md:pt-20">
-          <div className="meet-summer-hero-atmosphere" aria-hidden />
+      <div className="meet-summer-premium meet-summer-flagship">
+        {/* Flagship stage — brand + intelligence console */}
+        <section className="meet-summer-stage relative isolate overflow-hidden px-4 pb-20 pt-16 sm:px-6 md:pb-28 md:pt-24">
+          <div className="meet-summer-stage-glow" aria-hidden />
           <div className="meet-summer-hero-orb meet-summer-hero-orb-a" aria-hidden />
           <div className="meet-summer-hero-orb meet-summer-hero-orb-b" aria-hidden />
 
           <div className="relative mx-auto max-w-6xl">
             <Reveal>
               <div className="mx-auto max-w-3xl text-center">
-                <p className="meet-summer-brand-mark">{MEET_SUMMER_HERO.brand}</p>
-                <h1 className="meet-summer-display mt-5">{MEET_SUMMER_HERO.headline}</h1>
-                <div className="mx-auto mt-8 max-w-xl space-y-1.5">
-                  {MEET_SUMMER_HERO.lines.map((line, i) => (
-                    <p
-                      key={line}
-                      className={
-                        i === MEET_SUMMER_HERO.lines.length - 1
-                          ? "text-base font-medium text-foreground md:text-lg"
-                          : "text-base text-muted-foreground md:text-lg"
-                      }
-                    >
-                      {line}
-                    </p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-primary/90">
+                  Flagship AI experience
+                </p>
+                <p className="meet-summer-brand-mark mt-5 text-white">
+                  {MEET_SUMMER_HERO.brand}
+                </p>
+                <h1 className="mt-6 text-[clamp(1.75rem,4vw,2.85rem)] font-semibold tracking-[-0.035em] text-white/90">
+                  {MEET_SUMMER_HERO.headline}
+                </h1>
+                <ul className="mx-auto mt-8 flex max-w-lg flex-col gap-2 text-base text-white/55 md:text-lg">
+                  {MEET_SUMMER_HERO.lines.map((line) => (
+                    <li key={line}>{line}</li>
                   ))}
-                </div>
-                <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed text-muted-foreground md:text-base">
+                </ul>
+                <p className="mx-auto mt-8 max-w-xl text-sm leading-relaxed text-white/60 md:text-base">
                   {MEET_SUMMER_HERO.lede}
                 </p>
               </div>
             </Reveal>
 
-            <Reveal delayMs={90}>
+            <Reveal delayMs={100}>
               <div className="mt-12 md:mt-14">
                 <SummerWorkspace />
               </div>
             </Reveal>
 
-            <Reveal delayMs={140}>
-              <p className="mt-8 text-center text-sm text-muted-foreground">
-                Prefer to keep reading first?{" "}
-                <a
-                  href="#problem"
-                  className="font-medium text-primary hover:underline"
-                >
-                  Continue the story
+            <Reveal delayMs={160}>
+              <p className="mt-10 text-center text-sm text-white/45">
+                Keep exploring the story{" "}
+                <a href="#manifesto" className="text-white/80 hover:underline">
+                  below
                 </a>
                 {" · "}
                 <a
                   href="#private-alpha"
-                  className="font-medium text-primary hover:underline"
+                  className="inline-flex items-center text-white/80 hover:underline"
                 >
                   Private Alpha
-                  <ArrowRight className="ml-1 inline size-3.5" />
+                  <ArrowRight className="ml-1 size-3.5" />
                 </a>
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Manifesto — success criteria */}
+        <section
+          id="manifesto"
+          className="relative scroll-mt-24 px-6 py-24 md:py-32"
+        >
+          <div className="mx-auto max-w-5xl">
+            <Reveal>
+              <div className="mx-auto max-w-2xl text-center">
+                <p className="marketing-eyebrow">{MEET_SUMMER_MANIFESTO.eyebrow}</p>
+                <h2 className="meet-summer-section-title">
+                  {MEET_SUMMER_MANIFESTO.headline}
+                </h2>
+                <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+                  {MEET_SUMMER_MANIFESTO.body}
+                </p>
+              </div>
+            </Reveal>
+            <ul className="mt-16 grid gap-8 sm:grid-cols-2">
+              {MEET_SUMMER_MANIFESTO.pillars.map((pillar, i) => (
+                <Reveal key={pillar.title} delayMs={(i % 2) * 60}>
+                  <li className="meet-summer-pillar">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+                      {String(i + 1).padStart(2, "0")}
+                    </p>
+                    <h3 className="mt-3 text-xl font-semibold tracking-tight text-foreground">
+                      {pillar.title}
+                    </h3>
+                    <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+                      {pillar.detail}
+                    </p>
+                  </li>
+                </Reveal>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* Intelligence posture */}
+        <section
+          id="intelligence"
+          className="marketing-v3-dark relative scroll-mt-24 overflow-hidden px-6 py-24 md:py-32"
+        >
+          <div className="meet-summer-interactive-aura" aria-hidden />
+          <div className="relative mx-auto max-w-4xl text-center">
+            <Reveal>
+              <p className="marketing-eyebrow text-white/50">
+                {MEET_SUMMER_INTELLIGENCE.eyebrow}
+              </p>
+              <h2 className="meet-summer-section-title text-white">
+                {MEET_SUMMER_INTELLIGENCE.headline}
+              </h2>
+            </Reveal>
+            <ul className="mt-14 flex flex-wrap justify-center gap-3">
+              {MEET_SUMMER_INTELLIGENCE.cues.map((cue, i) => (
+                <Reveal key={cue.id} delayMs={(i % 3) * 50}>
+                  <li className="meet-summer-intel-cue">{cue.label}</li>
+                </Reveal>
+              ))}
+            </ul>
+            <Reveal delayMs={120}>
+              <p className="mx-auto mt-12 max-w-lg text-sm leading-relaxed text-white/55">
+                The interface should communicate intelligence visually — not by
+                pretending Summer is human, and not by looking like live chat.
               </p>
             </Reveal>
           </div>
@@ -224,6 +289,12 @@ export default function MeetSummerPage() {
                 </Reveal>
               ))}
             </ul>
+            <Reveal delayMs={120}>
+              <p className="mx-auto mt-12 max-w-xl text-sm font-medium tracking-wide text-primary/90">
+                Chasum is not another scheduling platform. It is the AI Business
+                Operating System.
+              </p>
+            </Reveal>
           </div>
         </section>
 
@@ -269,7 +340,7 @@ export default function MeetSummerPage() {
           </div>
         </section>
 
-        {/* Premium AI First Impression */}
+        {/* Emotional close */}
         <section
           id="first-impression"
           className="relative scroll-mt-24 px-6 py-24 md:py-32"
@@ -324,8 +395,8 @@ export default function MeetSummerPage() {
                 Apply for Private Alpha
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-                You have met Summer — intelligent, curious, and grounded in your
-                business. If Chasum is a fit, apply as a design partner.
+                You have met the intelligence behind Chasum. If this is the
+                future you want to build with, apply as a design partner.
               </p>
               <p className="mt-4 text-sm text-muted-foreground">
                 Prefer context on the program?{" "}
