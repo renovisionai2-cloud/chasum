@@ -38,6 +38,9 @@ export function SummerWebsiteConcierge() {
 
   if (!hydrated) return null;
 
+  // Meet Summer page embeds Summer inline — hide the floating launcher there.
+  if (page.pageId === "meet-summer") return null;
+
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     const value = draft;

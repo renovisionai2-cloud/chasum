@@ -3,6 +3,8 @@ import {
   APPLY_HREF,
   CONTACT_HREF,
   CTA_APPLY_LABEL,
+  CTA_MEET_SUMMER_LABEL,
+  MEET_SUMMER_HREF,
   PRIVACY_HREF,
   ROADMAP_HREF,
   SECURITY_HREF,
@@ -16,6 +18,7 @@ const footerLinks = {
   Platform: [
     { label: "Platform", href: "/#platform" },
     { label: "Product Tour", href: "/#showcase" },
+    { label: CTA_MEET_SUMMER_LABEL, href: MEET_SUMMER_HREF },
     { label: "AI Workforce", href: "/#ai-workforce" },
     { label: "How It Works", href: "/#journey" },
   ],

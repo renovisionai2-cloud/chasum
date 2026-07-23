@@ -17,6 +17,7 @@ describe("website concierge page awareness", () => {
     expect(detectMarketingPage("/pricing").pageId).toBe("pricing");
     expect(detectMarketingPage("/contact").pageId).toBe("contact");
     expect(detectMarketingPage("/apply").pageId).toBe("apply");
+    expect(detectMarketingPage("/meet-summer").pageId).toBe("meet-summer");
     expect(detectMarketingPage("/private-alpha").pageId).toBe("about");
     expect(detectMarketingPage("/roadmap/").pageId).toBe("about");
   });

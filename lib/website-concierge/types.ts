@@ -10,6 +10,7 @@ export type MarketingPageId =
   | "about"
   | "contact"
   | "apply"
+  | "meet-summer"
   | "general";
 
 export type ConciergeRole = "user" | "assistant" | "system";

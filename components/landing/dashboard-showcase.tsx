@@ -4,7 +4,7 @@ import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
 import { PLATFORM_MODULES } from "@/lib/marketing/homepage";
-import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL } from "@/lib/marketing/alpha";
+import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL, MEET_SUMMER_HREF } from "@/lib/marketing/alpha";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -46,7 +46,7 @@ const SHOWCASE_TABS = [
       "Summer is Chasum's AI Business Assistant: website concierge, receptionist assist, and product guide for design partners in Early Access.",
     benefits: ["Grounded business answers", "Real availability only", "Human escalation"],
     cta: "Meet Summer",
-    ctaHref: APPLY_HREF,
+    ctaHref: MEET_SUMMER_HREF,
   },
   {
     id: "crm",

@@ -54,6 +54,15 @@ const PAGE_META: Record<
       "Set honest expectations",
     ],
   },
+  "meet-summer": {
+    title: "Meet Summer",
+    goals: [
+      "Introduce Summer as AI Business Assistant",
+      "Invite a live Knowledge Engine conversation",
+      "Explain today vs inside-Chasum vision",
+      "Guide toward Private Alpha when ready",
+    ],
+  },
   general: {
     title: "Marketing",
     goals: [
@@ -75,6 +84,7 @@ export function detectMarketingPage(pathname: string): PageContext {
   else if (path === "/pricing") pageId = "pricing";
   else if (path === "/contact") pageId = "contact";
   else if (path === "/apply") pageId = "apply";
+  else if (path === "/meet-summer") pageId = "meet-summer";
   else if (
     path === "/private-alpha" ||
     path === "/roadmap" ||
@@ -108,6 +118,8 @@ export function getPageGreeting(pageId: MarketingPageId): string {
       return "Before you reach out — I can answer product questions or help you book a walkthrough. What would help most?";
     case "apply":
       return "Private Alpha is invite-based design partnership. I can clarify fit, expectations, and next steps.";
+    case "meet-summer":
+      return "You found me — I'm Summer, Chasum's AI Business Assistant. Ask about industries, pricing, reception, or how I'm different from a chatbot.";
     default:
       return "Hi — I'm Summer, Chasum's AI Business Assistant. Ask me anything about Chasum, pricing, or whether it's a fit for your business.";
   }

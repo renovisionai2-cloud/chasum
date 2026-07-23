@@ -34,6 +34,7 @@ Do **not** introduce additional AI names on the marketing site unless intentiona
 - AI Workforce marketing section
 - FAQ and homepage copy
 - Website Concierge widget (`components/website-concierge`)
+- Meet Summer experience (`/meet-summer` — see [`MEET_SUMMER_EXPERIENCE.md`](./MEET_SUMMER_EXPERIENCE.md))
 - Knowledge Engine copy (`lib/website-concierge`)
 
 Demo chrome constants live in `lib/marketing/demo.ts`.

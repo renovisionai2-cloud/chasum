@@ -4,6 +4,7 @@
  */
 
 export const APPLY_HREF = "/apply";
+export const MEET_SUMMER_HREF = "/meet-summer";
 export const PRIVATE_ALPHA_HREF = "/private-alpha";
 export const ROADMAP_HREF = "/roadmap";
 export const CONTACT_HREF = "/contact";
@@ -17,6 +18,9 @@ export const CTA_APPLY_LABEL = "Apply for Private Alpha";
 
 /** Secondary / softer CTA */
 export const CTA_EARLY_ACCESS_LABEL = "Request Early Access";
+
+/** Meet Summer — flagship AI introduction */
+export const CTA_MEET_SUMMER_LABEL = "Meet Summer";
 
 export const CTA_DEMO_LABEL = "Book a Walkthrough";
 

@@ -4,7 +4,7 @@
  */
 
 export { DEMO_HREF } from "@/lib/marketing/alpha";
-import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL } from "@/lib/marketing/alpha";
+import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL, MEET_SUMMER_HREF } from "@/lib/marketing/alpha";
 
 export const TRUSTED_STATS = [
   { label: "Departments", value: 9, suffix: "+", hint: "Real product modules" },
@@ -164,7 +164,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     explanation:
       "Summer — Chasum's AI Business Assistant (Early Access) — uses your real hours, services, staff, and locations, recommends slots from the scheduling engine, and escalates to humans when needed.",
     cta: "Meet Summer",
-    ctaHref: APPLY_HREF,
+    ctaHref: MEET_SUMMER_HREF,
     preview: "summer",
   },
   {
