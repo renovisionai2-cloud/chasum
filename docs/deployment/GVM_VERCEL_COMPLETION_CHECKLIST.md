@@ -161,10 +161,10 @@ If `"ok": false`, one of the required env vars is still missing — recheck sect
 
 ### Database & storage
 
-- [ ] Confirmed **not** re-applying 001–029 in full
-- [ ] Ran `030_repair_commerce_payment_columns.sql` once
-- [ ] `business-assets` bucket present (already verified ✓)
-- [ ] GVM business `gvm-baby-world` present (already verified ✓)
+- Confirmed **not** re-applying 001–029 in full
+- [x] Ran commerce finalization (028/030/031 applied on linked Supabase; ledger visible)
+- [x] `business-assets` bucket present (already verified ✓)
+- [x] GVM business `gvm-baby-world` present (already verified ✓)
 
 ### Auth & email
 

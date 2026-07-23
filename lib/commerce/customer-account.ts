@@ -1,4 +1,5 @@
 import { listInvoices } from "@/lib/commerce/invoices";
+import { listActiveGiftCardsForCustomer } from "@/lib/commerce/gift-cards";
 import { listTransactions } from "@/lib/commerce/payments";
 import { listReceipts } from "@/lib/commerce/receipts";
 import { listRefunds } from "@/lib/commerce/refunds";
@@ -23,7 +24,8 @@ export async function getCustomerCommerceAccount(
     // Continue — billing can still aggregate from appointments / ledger.
   }
 
-  const [invoices, receipts, refunds, timeline, apptRes] = await Promise.all([
+  const [invoices, receipts, refunds, timeline, apptRes, giftCards] =
+    await Promise.all([
     listInvoices({ businessId, customerId, limit: 40 }),
     listReceipts({ businessId, customerId, limit: 40 }),
     listRefunds({ businessId, customerId, limit: 40 }),
@@ -36,6 +38,7 @@ export async function getCustomerCommerceAccount(
       .eq("business_id", businessId)
       .eq("customer_id", customerId)
       .neq("status", "cancelled"),
+    listActiveGiftCardsForCustomer(businessId, customerId),
   ]);
 
   let appointments = apptRes.data ?? [];
@@ -94,7 +97,10 @@ export async function getCustomerCommerceAccount(
     .filter(
       (t) =>
         t.status === "succeeded" &&
-        (t.kind === "payment" || t.kind === "deposit"),
+        (t.kind === "payment" ||
+          t.kind === "deposit" ||
+          t.kind === "gift_card" ||
+          t.method === "gift_card"),
     )
     .reduce((s, t) => s + t.amountCents, 0);
 
@@ -120,6 +126,11 @@ export async function getCustomerCommerceAccount(
     remainingBalanceCents: outstandingBalanceCents,
     totalPaidCents,
     storeCreditCents: Number(customer?.store_credit_cents ?? 0),
+    giftCards: giftCards.map((g) => ({
+      id: g.id,
+      code: g.code,
+      balanceCents: g.balance_cents,
+    })),
     invoices,
     receipts,
     refunds,

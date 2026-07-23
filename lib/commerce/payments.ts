@@ -40,6 +40,10 @@ export type RecordPaymentInput = {
   ensureInvoice?: boolean;
   /** Force manual recording for cards when Stripe not completing client-side */
   forceManual?: boolean;
+  /** Gift certificate code when method is gift_card */
+  giftCardCode?: string | null;
+  /** Gift certificate id when method is gift_card */
+  giftCardId?: string | null;
 };
 
 export type RecordPaymentResult = {
@@ -245,6 +249,50 @@ export async function recordCommercePayment(
     }
   }
 
+  let giftCardRow: {
+    id: string;
+    code: string;
+    balance_cents: number;
+    status: string;
+  } | null = null;
+
+  if (input.method === "gift_card") {
+    const code = (input.giftCardCode ?? "").trim().toUpperCase();
+    const giftId = (input.giftCardId ?? "").trim();
+    let query = supabase
+      .from("gift_cards")
+      .select("id, code, balance_cents, status")
+      .eq("business_id", input.businessId)
+      .eq("status", "active");
+    if (giftId) query = query.eq("id", giftId);
+    else if (code) query = query.eq("code", code);
+    else {
+      return {
+        ok: false,
+        error: "Select a gift certificate or enter its code.",
+      };
+    }
+    const { data: card, error: cardErr } = await query.maybeSingle();
+    if (cardErr) {
+      return { ok: false, error: cardErr.message };
+    }
+    if (!card) {
+      return { ok: false, error: "Gift certificate not found or inactive." };
+    }
+    if (Number(card.balance_cents) < input.amountCents) {
+      return {
+        ok: false,
+        error: `Insufficient gift certificate balance (available $${(Number(card.balance_cents) / 100).toFixed(2)}).`,
+      };
+    }
+    giftCardRow = {
+      id: String(card.id),
+      code: String(card.code),
+      balance_cents: Number(card.balance_cents),
+      status: String(card.status),
+    };
+  }
+
   const provider = input.forceManual
     ? resolvePaymentProvider("cash")
     : resolvePaymentProvider(input.method);
@@ -330,8 +378,15 @@ export async function recordCommercePayment(
       provider: charge.provider,
       provider_reference: charge.providerReference,
       provider_payment_intent_id: charge.providerPaymentIntentId,
-      description: input.description ?? null,
+      description:
+        input.description ??
+        (giftCardRow
+          ? `Gift certificate ${giftCardRow.code}`
+          : null),
       created_by: input.actorId ?? null,
+      metadata: giftCardRow
+        ? { gift_card_id: giftCardRow.id, gift_card_code: giftCardRow.code }
+        : {},
     })
     .select("*")
     .single();
@@ -353,6 +408,26 @@ export async function recordCommercePayment(
       .from("customers")
       .update({ store_credit_cents: credit - input.amountCents })
       .eq("id", input.customerId);
+  }
+
+  if (input.method === "gift_card" && giftCardRow) {
+    const nextBalance = giftCardRow.balance_cents - input.amountCents;
+    const { error: giftErr } = await supabase
+      .from("gift_cards")
+      .update({
+        balance_cents: nextBalance,
+        status: nextBalance <= 0 ? "redeemed" : "active",
+        redeemed_by_customer_id: input.customerId,
+      })
+      .eq("id", giftCardRow.id)
+      .eq("business_id", input.businessId);
+    if (giftErr) {
+      return {
+        ok: false,
+        error: `Payment recorded but gift certificate could not update: ${giftErr.message}`,
+        transaction: mapTransaction(row as Record<string, unknown>),
+      };
+    }
   }
 
   if (input.appointmentId) {

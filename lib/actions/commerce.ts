@@ -69,6 +69,9 @@ export async function recordPaymentAction(
   const description = String(formData.get("description") ?? "").trim() || null;
   const kindRaw = String(formData.get("kind") ?? "");
   const forceManual = String(formData.get("force_manual") ?? "") === "1";
+  const giftCardCode =
+    String(formData.get("gift_card_code") ?? "").trim() || null;
+  const giftCardId = String(formData.get("gift_card_id") ?? "").trim() || null;
 
   if (!customerId || Number.isNaN(amount) || amount <= 0) {
     return { error: "Customer and a valid amount are required." };
@@ -87,6 +90,8 @@ export async function recordPaymentAction(
     actorId: user?.id ?? null,
     ensureInvoice: Boolean(appointmentId),
     forceManual,
+    giftCardCode,
+    giftCardId,
   });
 
   if (!result.ok) {

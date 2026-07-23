@@ -33,6 +33,10 @@ export function CustomerCommercePanel({
   const [viewer, setViewer] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [emailMsg, setEmailMsg] = useState<CommerceActionState>({});
+  const [method, setMethod] = useState("cash");
+  const [giftCardId, setGiftCardId] = useState(
+    account.giftCards[0]?.id ?? "",
+  );
 
   return (
     <div className="space-y-6">
@@ -55,7 +59,8 @@ export function CustomerCommercePanel({
           <select
             name="method"
             className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
-            defaultValue="cash"
+            value={method}
+            onChange={(e) => setMethod(e.target.value)}
             aria-label="Method"
           >
             {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
@@ -66,6 +71,41 @@ export function CustomerCommercePanel({
           </select>
           <Input name="description" placeholder="Description" />
         </div>
+        {method === "gift_card" ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {account.giftCards.length > 0 ? (
+              <select
+                name="gift_card_id"
+                className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
+                value={giftCardId}
+                onChange={(e) => setGiftCardId(e.target.value)}
+                aria-label="Gift certificate"
+              >
+                {account.giftCards.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.code} · {centsToDollars(g.balanceCents)} left
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <Input
+                name="gift_card_code"
+                placeholder="Gift certificate code"
+                required
+                aria-label="Gift certificate code"
+              />
+            )}
+            {account.giftCards.length > 0 ? (
+              <p className="self-center text-xs text-muted-foreground">
+                Customer gift certificates appear here automatically.
+              </p>
+            ) : (
+              <p className="self-center text-xs text-muted-foreground">
+                No linked certificates — enter the code to redeem.
+              </p>
+            )}
+          </div>
+        ) : null}
         <AlertMessage error={payState.error} success={payState.success} />
         <Button type="submit" size="sm" disabled={payPending}>
           {payPending ? "Saving…" : "Record payment"}

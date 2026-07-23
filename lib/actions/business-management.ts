@@ -516,8 +516,14 @@ export async function redeemGiftCard(
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const code = (formData.get("code") as string)?.trim().toUpperCase();
   const amount = cents(formData.get("amount"));
+  const customerId =
+    emptyToNull(formData.get("customer_id")) ??
+    emptyToNull(formData.get("redeemed_by_customer_id"));
   if (!code || amount <= 0) return { error: "Code and amount are required." };
 
   const { data: card } = await supabase
@@ -533,19 +539,38 @@ export async function redeemGiftCard(
     return { error: "Insufficient gift card balance." };
   }
 
-  const nextBalance = (card.balance_cents as number) - amount;
-  const { error } = await supabase
-    .from("gift_cards")
-    .update({
-      balance_cents: nextBalance,
-      status: nextBalance === 0 ? "redeemed" : "active",
-    })
-    .eq("id", card.id);
+  const payerId =
+    customerId ||
+    (card.purchaser_customer_id as string | null) ||
+    (card.redeemed_by_customer_id as string | null);
 
-  if (error) return { error: error.message };
+  if (!payerId) {
+    return {
+      error:
+        "Link this gift certificate to a customer before redeeming, or redeem from Customer Billing.",
+    };
+  }
+
+  const { recordCommercePayment } = await import("@/lib/commerce/payments");
+  const { normalizeCurrency } = await import("@/lib/commerce/money");
+  const result = await recordCommercePayment({
+    businessId: business.id,
+    customerId: payerId,
+    amountCents: amount,
+    method: "gift_card",
+    kind: "payment",
+    description: `Gift certificate ${code}`,
+    currency: normalizeCurrency(business.currency),
+    actorId: user?.id ?? null,
+    giftCardCode: code,
+    giftCardId: String(card.id),
+  });
+
+  if (!result.ok) return { error: result.error ?? "Could not redeem gift card." };
+
   revalidateBusiness();
   return {
-    success: `Redeemed $${(amount / 100).toFixed(2)}. Remaining $${(nextBalance / 100).toFixed(2)}.`,
+    success: `Redeemed $${(amount / 100).toFixed(2)}. Remaining $${(((card.balance_cents as number) - amount) / 100).toFixed(2)}.`,
   };
 }
 

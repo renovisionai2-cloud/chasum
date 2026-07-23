@@ -1,9 +1,46 @@
 export type AppointmentStatus =
   | "pending"
   | "confirmed"
+  | "arrived"
+  | "waiting"
+  | "in_progress"
   | "cancelled"
   | "completed"
   | "no_show";
+
+/** Default arrival workflow for appointment businesses (excludes pending request-approval). */
+export const DEFAULT_APPOINTMENT_STATUS_WORKFLOW: AppointmentStatus[] = [
+  "confirmed",
+  "arrived",
+  "waiting",
+  "in_progress",
+  "completed",
+  "cancelled",
+  "no_show",
+];
+
+export function resolveAppointmentStatusWorkflow(
+  raw: unknown,
+): AppointmentStatus[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    return [...DEFAULT_APPOINTMENT_STATUS_WORKFLOW];
+  }
+  const allowed = new Set<AppointmentStatus>([
+    "pending",
+    "confirmed",
+    "arrived",
+    "waiting",
+    "in_progress",
+    "cancelled",
+    "completed",
+    "no_show",
+  ]);
+  const picked = raw.filter(
+    (v): v is AppointmentStatus =>
+      typeof v === "string" && allowed.has(v as AppointmentStatus),
+  );
+  return picked.length > 0 ? picked : [...DEFAULT_APPOINTMENT_STATUS_WORKFLOW];
+}
 
 export type PublicBookingMode =
   | "staff_only"
@@ -88,6 +125,8 @@ export type Business = {
   accent_color?: string;
   email_signature?: string | null;
   booking_page_branding?: Record<string, unknown> | null;
+  /** Enabled appointment arrival statuses; null = Chasum defaults */
+  appointment_status_workflow?: AppointmentStatus[] | null;
   min_notice_minutes?: number;
   cancellation_window_hours?: number;
   reschedule_policy?: string | null;
@@ -533,7 +572,10 @@ export const SERVICE_CATEGORY_PRESETS: {
 
 export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
   pending: "Pending",
-  confirmed: "Confirmed",
+  confirmed: "Booked",
+  arrived: "Arrived",
+  waiting: "Waiting",
+  in_progress: "In Progress",
   cancelled: "Cancelled",
   completed: "Completed",
   no_show: "No Show",
@@ -542,6 +584,9 @@ export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
 export const APPOINTMENT_STATUS_COLORS: Record<AppointmentStatus, string> = {
   pending: "#f59e0b",
   confirmed: "#2563eb",
+  arrived: "#0ea5e9",
+  waiting: "#8b5cf6",
+  in_progress: "#f97316",
   cancelled: "#ef4444",
   completed: "#22c55e",
   no_show: "#71717a",

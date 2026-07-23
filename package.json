@@ -15,7 +15,8 @@
     "test:e2e:playwright": "playwright test",
     "test:e2e:install": "playwright install chromium",
     "verify:env": "node scripts/verify-production-env.mjs",
-    "verify:gvm": "node scripts/verify-sprint2-gvm-go-live.mjs"
+    "verify:gvm": "node scripts/verify-sprint2-gvm-go-live.mjs",
+    "verify:commerce": "node scripts/verify-commerce-engine.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.66.0",

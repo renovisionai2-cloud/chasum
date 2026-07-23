@@ -227,12 +227,12 @@ export function AppointmentDrawer({
               disabled={pending || appointment.status === "cancelled"}
               onClick={() =>
                 startTransition(() =>
-                  onStatusChange(appointment, "confirmed"),
+                  onStatusChange(appointment, "arrived"),
                 )
               }
             >
               <CheckCircle2 className="size-3.5" />
-              Check in
+              Arrived
             </Button>
             <Button
               type="button"

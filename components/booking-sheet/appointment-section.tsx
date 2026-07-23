@@ -11,7 +11,11 @@ import type {
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
-import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
+import {
+  APPOINTMENT_STATUS_LABELS,
+  DEFAULT_APPOINTMENT_STATUS_WORKFLOW,
+  resolveAppointmentStatusWorkflow,
+} from "@/lib/types/booking";
 
 export type BookingOfferType = "service" | "package";
 
@@ -40,6 +44,8 @@ type AppointmentSectionProps = {
   onStatusChange: (status: AppointmentStatus) => void;
   onNotesChange: (notes: string) => void;
   minDate?: string;
+  /** Optional business-configured arrival workflow */
+  statusWorkflow?: AppointmentStatus[] | null;
 };
 
 export function AppointmentSection({
@@ -67,6 +73,7 @@ export function AppointmentSection({
   onStatusChange,
   onNotesChange,
   minDate,
+  statusWorkflow,
 }: AppointmentSectionProps) {
   const locationServices = services.filter(
     (s) => s.is_active && (!locationId || s.location_id === locationId),
@@ -79,6 +86,13 @@ export function AppointmentSection({
       m.is_active &&
       (!locationId || m.location_id === locationId) &&
       m.staff_services.some((ss) => ss.service_id === serviceId),
+  );
+
+  const workflow = resolveAppointmentStatusWorkflow(
+    statusWorkflow ?? DEFAULT_APPOINTMENT_STATUS_WORKFLOW,
+  );
+  const statusOptions = Array.from(
+    new Set<AppointmentStatus>(["pending", ...workflow, status]),
   );
 
   const categories = Array.from(
@@ -276,9 +290,9 @@ export function AppointmentSection({
             value={status}
             onChange={(e) => onStatusChange(e.target.value as AppointmentStatus)}
           >
-            {Object.entries(APPOINTMENT_STATUS_LABELS).map(([value, label]) => (
+            {statusOptions.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {APPOINTMENT_STATUS_LABELS[value]}
               </option>
             ))}
           </Select>

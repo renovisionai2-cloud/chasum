@@ -78,4 +78,4 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 
 ---
 
-*Last updated: Premium Experience Sprint 2 — Craftsmanship.*
+*Last updated: Operation GVM — Commerce Engine Finalization.*

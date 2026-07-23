@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (Operation GVM — Commerce Engine Finalization)
+
+- Root cause: `commerce_transactions` missing from Postgres / PostgREST schema cache — applied commerce platform + grants + `NOTIFY pgrst`
+- Appointment payment columns (`payment_status`, `amount_paid_cents`, …) and store credit columns restored
+- Gift certificate redemption now writes the commerce ledger and is selectable in customer billing
+- Arrival workflow: Booked / Arrived / Waiting / In Progress (+ configurable `appointment_status_workflow`)
+- Migrations `030`/`031`; verify script `scripts/verify-commerce-engine.mjs`
+
 ### Changed (Premium Experience Sprint 2 — Craftsmanship)
 
 - Dashboard hierarchy: clearer hero CTAs, quieter attention chips, less duplicate quick actions

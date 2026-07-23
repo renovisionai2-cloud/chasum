@@ -60,6 +60,10 @@ export {
 } from "@/lib/commerce/dashboard";
 
 export {
+  listActiveGiftCardsForCustomer,
+} from "@/lib/commerce/gift-cards";
+
+export {
   appointmentPriceCents,
   appointmentRecognizedCents,
   isActiveBooking,

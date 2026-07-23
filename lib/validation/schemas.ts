@@ -9,7 +9,16 @@ export const createAppointmentBodySchema = z.object({
   start_time: z.string().min(1),
   end_time: z.string().min(1),
   status: z
-    .enum(["pending", "confirmed", "cancelled", "completed", "no_show"])
+    .enum([
+      "pending",
+      "confirmed",
+      "arrived",
+      "waiting",
+      "in_progress",
+      "cancelled",
+      "completed",
+      "no_show",
+    ])
     .optional(),
   notes: z.string().max(4000).nullable().optional(),
 });
@@ -22,7 +31,16 @@ export const patchAppointmentBodySchema = z
     start_time: z.string().min(1).optional(),
     end_time: z.string().min(1).optional(),
     status: z
-      .enum(["pending", "confirmed", "cancelled", "completed", "no_show"])
+      .enum([
+        "pending",
+        "confirmed",
+        "arrived",
+        "waiting",
+        "in_progress",
+        "cancelled",
+        "completed",
+        "no_show",
+      ])
       .optional(),
     notes: z.string().max(4000).nullable().optional(),
   })

@@ -282,6 +282,11 @@ export function PaymentsDashboard({
                     </option>
                   ))}
                 </select>
+                <Input
+                  name="gift_card_code"
+                  placeholder="Gift cert code (if gift card)"
+                  aria-label="Gift certificate code"
+                />
                 <select
                   name="kind"
                   className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm sm:col-span-2"

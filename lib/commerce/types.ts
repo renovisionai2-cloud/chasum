@@ -159,6 +159,11 @@ export type CustomerCommerceAccount = {
   remainingBalanceCents: number;
   totalPaidCents: number;
   storeCreditCents: number;
+  giftCards: {
+    id: string;
+    code: string;
+    balanceCents: number;
+  }[];
   invoices: CommerceInvoice[];
   receipts: CommerceReceipt[];
   refunds: CommerceRefund[];

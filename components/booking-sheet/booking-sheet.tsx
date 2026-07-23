@@ -461,7 +461,7 @@ export function BookingSheet({
           isEditing={isEditing}
           customerId={selectedCustomer?.id}
           disabled={pending || busy}
-          onCheckIn={() => void runStatus("confirmed")}
+          onCheckIn={() => void runStatus("arrived")}
           onComplete={() => void runStatus("completed")}
           onCancel={() => {
             if (!appointment) return;

@@ -66,7 +66,7 @@ export function QuickActionsMenu({
 
   const items = [
     {
-      label: "Check In",
+      label: "Arrived",
       icon: CheckCircle2,
       onClick: onCheckIn,
       show: isEditing,

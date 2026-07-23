@@ -3,6 +3,8 @@
  * Dashboards, reports, CRM, employees, and AI snapshots must use this.
  *
  * Rule: count revenue when the visit is completed OR money was collected.
+ * Collected money is stamped onto appointments from `commerce_transactions`
+ * (amount_paid_cents / payment_status) — never invent parallel formulas.
  * Cancelled / no-show visits never recognize revenue.
  */
 
