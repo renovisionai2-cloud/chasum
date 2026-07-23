@@ -1,86 +1,111 @@
-# Premium AI Experience — Meet Summer (Phase 5)
+# Premium AI Experience — Meet Summer
 
-**Status:** Marketing presentation sprint  
+**Status:** Complete experience rebuild  
 **Route:** `/meet-summer`  
 **Scope:** Public marketing website only  
 
 ## Design philosophy
 
-Meet Summer should feel like unveiling a new technology — closer to Apple, OpenAI, Stripe, Linear, Vercel, and Notion product launches than a dense SaaS feature page.
+Most AI companies try to make AI feel human.  
+**Chasum should make AI feel intelligent.**
 
-Every decision reinforces one message:
+Visitors should constantly feel that Summer is:
 
-> Chasum is not another scheduling platform. It is the AI Business Operating System.
+- understanding  
+- remembering  
+- connecting information  
+- recognizing patterns  
+- building recommendations  
+- thinking before responding  
 
-### Principles
+The interface communicates intelligence visually.
 
-- Generous whitespace and large typography
-- One idea per section — chapters, not feature grids
-- Premium glass, soft blue glow, and tasteful motion
-- Conversation as the emotional centerpiece (real AI — never faked)
-- Private Alpha application only as the final chapter
+Do **not** make Summer feel like customer support, live chat, a floating widget, or an FAQ assistant.
 
-## Storytelling approach
+Visitors should feel they are interacting with the **intelligence layer of an AI Business Operating System**.
 
-| Chapter | Intent |
-|---------|--------|
-| Hero | Cinematic introduction — Meet Summer as brand signal |
-| The Problem | Storage vs understanding |
-| How Summer Thinks | Visual chain: Customers → Appointments → Employees → Revenue → Decisions |
-| Business Memory | Timeline of learning over time |
-| AI Business Operating System | Long-term vision — one brain, many roles |
-| Experience Summer | Live conversation (Knowledge Engine + Discovery) |
-| Roadmap | Premium vertical journey to the complete OS |
-| Private Alpha | Existing `DesignPartnerForm` |
+Emotional close:
 
-## Motion principles
+> “I've never seen business software introduced like this.”
 
-- Prefer fade / soft translate reveals via existing `Reveal` + `PageFade`
-- Hero atmosphere orbs drift slowly; disabled under `prefers-reduced-motion`
-- Message enter + thinking dots in the conversation panel respect reduced motion
-- Hover glow on OS role chips and glass focus ring — never distracting loops
+## Visitor journey (story chapters)
+
+| Chapter | Experience |
+|---------|------------|
+| **01 Meet Summer** | Cinematic hero — huge type, minimal copy. Headline: *The Intelligence Behind Every Business Decision.* |
+| **02 Summer Appears** | Summer enters with a natural introduction (not a chat widget open). |
+| **03 Business Discovery** | One question at a time via Business Discovery Engine. |
+| **04 Visible Intelligence** | Animated reasoning cues derived from Session Memory / Discovery. |
+| **05 Business Understanding** | Live side panel of discovered facts (business, employees, software, pain, recommendations). |
+| **06 Personalized Recommendations** | Discovery-driven recommendations with reasoning (Knowledge Engine grounded). |
+| **07 AI Business Operating System** | Today → Next → Future roadmap. |
+| **08 Private Alpha** | Existing `DesignPartnerForm` — natural conclusion, not the destination. |
+
+Chapters 02–06 share one intelligence surface (`SummerWorkspace`).
+
+## Page architecture
+
+```text
+Chapter 01  cinematic hero
+     ↓
+Chapters 02–06  experience shell
+     ├── conversation (Summer appears + discovery + recommendations)
+     ├── visible intelligence list
+     └── business understanding panel
+     ↓
+Chapter 07  OS roadmap
+     ↓
+Chapter 08  Private Alpha form
+```
+
+### Reused (do not rewrite)
+
+- Business Discovery Engine  
+- Knowledge Engine  
+- Session Memory  
+- Provider Registry  
+
+### Presentation files
+
+- `app/(marketing)/meet-summer/page.tsx`  
+- `lib/marketing/meet-summer.ts`  
+- `lib/marketing/meet-summer-intelligence.ts`  
+- `components/website-concierge/summer-workspace.tsx`  
+- `components/website-concierge/summer-embedded-panel.tsx`  
+- `components/website-concierge/summer-understanding-panel.tsx`  
+- `components/website-concierge/summer-thinking-viz.tsx`  
+- `app/globals.css` (`.msx-*` experience styles)
 
 ## Visual language
 
-| Token / class | Role |
-|---------------|------|
-| `.meet-summer-premium` | Page scope |
-| `.meet-summer-brand-mark` | Hero brand (primary signal) |
-| `.meet-summer-display` | Supporting hero line |
-| `.meet-summer-glass` | Premium conversation shell |
-| `.meet-summer-think-chain` | Decision graph |
-| `.meet-summer-memory-rail` | Memory timeline |
-| `.meet-summer-journey` | Roadmap journey |
+- Cinematic layouts, generous whitespace, large typography  
+- Elegant motion via `Reveal` / `PageFade` (respect `prefers-reduced-motion`)  
+- Soft gradients and glass where appropriate  
+- Primary blue accent (`--primary`)  
+- New namespace: `.msx` (Meet Summer Experience) — prior hero hierarchy intentionally discarded  
 
-Accent: Chasum primary blue (`--primary`). Avoid purple-on-white clichés and cream/serif terracotta tropes.
+## Success criteria
 
-## Architecture (unchanged)
+A visitor should immediately understand:
 
-Do **not** modify:
-
-- Knowledge Engine
-- Business Discovery Engine
-- Session Memory
-- Prompt Builder
-- Provider Registry
-- Authenticated application / CRM / Dashboard / Calendar / Commerce / Reception / Reports / GVM
-
-Presentation files:
-
-- `app/(marketing)/meet-summer/page.tsx`
-- `lib/marketing/meet-summer.ts`
-- `components/website-concierge/summer-embedded-panel.tsx`
-- `app/globals.css` (`.meet-summer-*` utilities)
+- Summer is not a chatbot  
+- Summer is not an AI receptionist alone  
+- Summer is an AI Business Assistant  
+- Chasum is an AI Business Operating System  
+- The AI understands businesses  
+- The AI helps owners make better decisions  
 
 ## Future enhancements
 
-- Optional scroll-linked chapter progress indicator
-- Deeper product-tour deep links from suggested prompts
-- Industry-specific narrative variants
-- Lightweight WebGL / canvas atmosphere only if performance budget allows
+- Scroll-linked chapter progress  
+- Stronger recommendation “because…” narrative cards when Discovery phase is `recommending`  
+- Industry-specific cinematic variants  
+- Optional ambient audio / reduced-motion-safe depth layers  
 
 ## Related
 
-- [`../ai/MEET_SUMMER_EXPERIENCE.md`](../ai/MEET_SUMMER_EXPERIENCE.md)
-- [`../ai/AI_IDENTITY.md`](../ai/AI_IDENTITY.md)
-- [`../ai/BUSINESS_DISCOVERY_ENGINE.md`](../ai/BUSINESS_DISCOVERY_ENGINE.md)
+- [`FLAGSHIP_MEET_SUMMER.md`](./FLAGSHIP_MEET_SUMMER.md)  
+- [`PREMIUM_CONVERSATION_EXPERIENCE.md`](./PREMIUM_CONVERSATION_EXPERIENCE.md)  
+- [`../ai/MEET_SUMMER_EXPERIENCE.md`](../ai/MEET_SUMMER_EXPERIENCE.md)  
+- [`../ai/BUSINESS_DISCOVERY_ENGINE.md`](../ai/BUSINESS_DISCOVERY_ENGINE.md)  
+- [`../ai/AI_IDENTITY.md`](../ai/AI_IDENTITY.md)  

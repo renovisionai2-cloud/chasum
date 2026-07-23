@@ -3,72 +3,64 @@
 import { SummerEmbeddedPanel } from "@/components/website-concierge/summer-embedded-panel";
 import { SummerUnderstandingPanel } from "@/components/website-concierge/summer-understanding-panel";
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
+import { MEET_SUMMER_VISIBLE_INTEL } from "@/lib/marketing/meet-summer";
 import { cn } from "@/lib/utils";
 
 /**
- * Flagship intelligence console — conversation + live Business Understanding.
- * Presentation only; Knowledge / Discovery / Session Memory unchanged.
+ * Chapters 02–06 — Summer appears, discovers, shows intelligence, understands, recommends.
+ * Presentation rebuild; engines unchanged.
  */
 export function SummerWorkspace({ className }: { className?: string }) {
   const { hydrated, memory, pending, reducedMotion } =
     useConciergeConversation();
 
-  const status = !hydrated
-    ? "Initializing"
-    : pending
-      ? "Reasoning"
-      : memory.businessType !== "unknown"
-        ? "Understanding active"
-        : "Listening";
-
   return (
-    <div
-      id="try-summer"
-      className={cn("meet-summer-workspace scroll-mt-24", className)}
-    >
-      <div className="meet-summer-console">
-        <div className="meet-summer-console-bar">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
-              Intelligence layer
-            </span>
-            <span className="hidden text-white/20 sm:inline" aria-hidden>
-              ·
-            </span>
-            <span className="text-xs text-white/55">
-              Summer · AI Business Assistant
-            </span>
+    <div id="experience" className={cn("msx-experience scroll-mt-28", className)}>
+      <div className="msx-experience-shell">
+        <div className="msx-experience-grid">
+          <div className="msx-experience-main">
+            <p className="msx-kicker">Chapters 02 · 03 · 04 · 06</p>
+            <h2 className="msx-experience-title">Summer appears.</h2>
+            <p className="msx-experience-lede">
+              One question at a time. Real discovery. Recommendations with
+              reasoning — never a support widget.
+            </p>
+            <SummerEmbeddedPanel className="msx-conversation mt-8 min-h-[36rem] md:min-h-[40rem]" />
           </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "size-1.5 rounded-full bg-emerald-400",
-                !reducedMotion && pending && "marketing-live-dot",
-              )}
-              aria-hidden
-            />
-            <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/60">
-              {status}
-            </span>
-          </div>
-        </div>
 
-        <div className="meet-summer-workspace-grid">
-          <SummerEmbeddedPanel className="min-h-[38rem] rounded-none border-0 shadow-none md:min-h-[44rem]" />
-          {hydrated ? (
-            <SummerUnderstandingPanel
-              memory={memory}
-              reducedMotion={reducedMotion}
-              className="rounded-none border-0 border-t border-white/10 shadow-none md:min-h-[44rem] md:border-l md:border-t-0"
-            />
-          ) : (
-            <div
-              className="meet-summer-understand flex min-h-[14rem] items-center justify-center rounded-none border-0 border-t border-white/10 md:min-h-[44rem] md:border-l md:border-t-0"
-              aria-hidden
-            >
-              <p className="text-sm text-white/45">Preparing understanding…</p>
+          <aside className="msx-experience-side">
+            <div className="msx-side-block">
+              <p className="msx-kicker">Chapter 04 · Visible intelligence</p>
+              <ul className="msx-intel-list" aria-label="How Summer reasons">
+                {MEET_SUMMER_VISIBLE_INTEL.map((label) => (
+                  <li
+                    key={label}
+                    className={cn(
+                      "msx-intel-item",
+                      pending && !reducedMotion && "msx-intel-item-active",
+                    )}
+                  >
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </div>
-          )}
+
+            <div className="msx-side-block mt-6 flex-1">
+              <p className="msx-kicker mb-3">Chapter 05 · Business understanding</p>
+              {hydrated ? (
+                <SummerUnderstandingPanel
+                  memory={memory}
+                  reducedMotion={reducedMotion}
+                  className="msx-understand h-full min-h-[22rem]"
+                />
+              ) : (
+                <div className="msx-understand flex min-h-[22rem] items-center justify-center">
+                  <p className="text-sm text-white/45">Preparing understanding…</p>
+                </div>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
     </div>

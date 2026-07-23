@@ -90,7 +90,7 @@ export function SummerEmbeddedPanel({ className }: { className?: string }) {
             Summer
           </p>
           <p className="text-xs text-white/50">
-            AI Business Assistant · intelligence layer
+            AI Business Assistant · discovering your business
           </p>
         </div>
       </header>

@@ -1662,3 +1662,313 @@ body {
     transform: none;
   }
 }
+
+/* ─── Meet Summer Experience Rebuild (.msx) ─────────────────────── */
+
+.msx {
+  --msx-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.msx-chapter-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--primary) 80%, transparent);
+}
+
+.msx-section-title {
+  margin-top: 1rem;
+  font-size: clamp(1.85rem, 4.2vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.msx-section-lede {
+  margin-top: 1.25rem;
+  max-width: 34rem;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+}
+
+.msx-kicker {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #93c5fd 75%, white);
+}
+
+/* Chapter 01 — cinematic hero (new hierarchy) */
+
+.msx-ch1 {
+  position: relative;
+  isolation: isolate;
+  min-height: min(100vh, 56rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem 5rem;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      65% 50% at 50% 0%,
+      color-mix(in srgb, var(--primary) 30%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(180deg, #040910 0%, #0a1324 55%, #0c1629 100%);
+  color: #f8fafc;
+}
+
+.msx-ch1-atmosphere {
+  position: absolute;
+  inset: 20% 15%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 18%, transparent),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.msx-ch1-inner {
+  position: relative;
+  z-index: 1;
+  width: min(52rem, 100%);
+  text-align: center;
+}
+
+.msx-ch1-brand {
+  margin-top: 1.75rem;
+  font-size: clamp(3.25rem, 11vw, 6.5rem);
+  font-weight: 650;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+}
+
+.msx-ch1-headline {
+  margin: 1.75rem auto 0;
+  max-width: 18ch;
+  font-size: clamp(1.35rem, 3.2vw, 2.15rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  color: color-mix(in srgb, white 72%, transparent);
+}
+
+.msx-ch1-aside {
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #93c5fd 70%, white);
+}
+
+.msx-ch1-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 4rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, white 55%, transparent);
+  transition: color 0.25s var(--msx-ease);
+}
+
+.msx-ch1-continue:hover {
+  color: white;
+}
+
+/* Chapters 02–06 */
+
+.msx-ch-experience {
+  padding: 5rem 1.25rem 6rem;
+  background:
+    radial-gradient(
+      80% 40% at 50% 0%,
+      color-mix(in srgb, var(--primary) 22%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #0a1324 0%, #07101f 100%);
+  color: #f8fafc;
+}
+
+.msx-ch-experience-intro {
+  max-width: 40rem;
+  margin: 0 auto 3rem;
+  text-align: center;
+}
+
+.msx-experience-shell {
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.msx-experience-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1100px) {
+  .msx-experience-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(17rem, 0.85fr);
+    gap: 1.75rem;
+    align-items: start;
+  }
+}
+
+.msx-experience-title {
+  margin-top: 0.75rem;
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  color: white;
+}
+
+.msx-experience-lede {
+  margin-top: 0.85rem;
+  max-width: 32rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, white 55%, transparent);
+}
+
+.msx-conversation.meet-summer-glass {
+  border-radius: 1.5rem;
+  border: 1px solid color-mix(in srgb, white 12%, transparent);
+  background: color-mix(in srgb, #050b16 70%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, white 6%, transparent) inset,
+    0 32px 80px -40px rgb(0 0 0 / 0.7);
+}
+
+.msx-experience-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.msx-side-block {
+  border-radius: 1.35rem;
+  border: 1px solid color-mix(in srgb, white 10%, transparent);
+  background: color-mix(in srgb, #081224 75%, transparent);
+  padding: 1.15rem 1.25rem;
+}
+
+.msx-intel-list {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.msx-intel-item {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, white 35%, transparent);
+  transition: color 0.4s var(--msx-ease), transform 0.4s var(--msx-ease);
+}
+
+.msx-intel-item-active {
+  color: color-mix(in srgb, white 85%, transparent);
+  animation: msx-intel-pulse 2.4s var(--msx-ease) infinite;
+}
+
+@keyframes msx-intel-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.msx-understand.meet-summer-understand,
+.msx-understand {
+  border-radius: 1.15rem;
+  border: 1px solid color-mix(in srgb, white 10%, transparent);
+  background: color-mix(in srgb, #050b16 80%, transparent);
+  box-shadow: none;
+}
+
+/* Chapter 07 */
+
+.msx-ch7 {
+  padding: 6rem 1.5rem;
+}
+
+.msx-ch7-inner {
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.msx-roadmap {
+  margin-top: 3rem;
+  list-style: none;
+  padding: 0;
+}
+
+.msx-roadmap-phase {
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.msx-roadmap-phase-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.msx-roadmap-items {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  list-style: none;
+  padding: 0;
+  font-size: 1.25rem;
+  font-weight: 550;
+  letter-spacing: -0.02em;
+}
+
+.msx-roadmap-arrow {
+  display: block;
+  margin-top: 1.25rem;
+  color: color-mix(in srgb, var(--primary) 45%, transparent);
+  font-size: 1.1rem;
+}
+
+/* Chapter 08 */
+
+.msx-ch8 {
+  padding: 5rem 1.5rem 7rem;
+  border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+}
+
+.msx-ch8-inner {
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+.msx-apply {
+  border-radius: 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  background: color-mix(in srgb, var(--card) 90%, transparent);
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 28px 64px -40px color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msx-intel-item-active {
+    animation: none;
+  }
+}

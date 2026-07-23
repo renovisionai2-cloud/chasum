@@ -14,7 +14,6 @@ export type ThinkingCue = {
 
 /**
  * Live Business Understanding fields — derived from Session Memory / Discovery.
- * Presentation only; does not change discovery logic.
  */
 export function buildUnderstandingFields(
   memory: SessionMemory,
@@ -79,8 +78,7 @@ export function buildUnderstandingFields(
 }
 
 /**
- * Genuine reasoning cues from current discovery state — not random fake thinking.
- * Steps reflect what Summer already knows / is about to do next.
+ * Genuine reasoning cues from discovery state — labels match Visible Intelligence.
  */
 export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
   const cues: ThinkingCue[] = [];
@@ -92,58 +90,45 @@ export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
     });
   } else {
     cues.push({
-      id: "connect-business",
-      label: `Connecting context for ${formatBusinessType(memory.businessType)}…`,
+      id: "load-industry",
+      label: "Loading industry knowledge…",
     });
   }
 
-  if (memory.previousQuestions.length > 0 || memory.visitorName) {
+  if (memory.challenges.length > 0 || memory.goals.length > 0) {
     cues.push({
-      id: "connect-previous",
-      label: "Connecting previous information…",
+      id: "recognize-patterns",
+      label: "Recognizing patterns…",
     });
   }
 
   if (memory.currentSoftware) {
     cues.push({
       id: "compare-workflows",
-      label: `Comparing workflows with ${memory.currentSoftware}…`,
-    });
-  }
-
-  if (memory.challenges.length > 0 || memory.goals.length > 0) {
-    cues.push({
-      id: "identify-patterns",
-      label: "Identifying patterns…",
+      label: "Comparing workflows…",
     });
   }
 
   if (
     memory.discoveryPhase === "recommending" ||
     memory.recommendationsMade.length > 0 ||
-    (memory.businessType !== "unknown" && memory.challenges.length > 0)
+    (memory.businessType !== "unknown" &&
+      (memory.challenges.length > 0 || !!memory.currentSoftware))
   ) {
     cues.push({
-      id: "build-recommendations",
-      label: "Building recommendations…",
+      id: "prepare-recommendations",
+      label: "Preparing recommendations…",
     });
-  }
-
-  if (
-    memory.discoveryPhase === "touring" ||
-    memory.tourStepId ||
-    memory.recommendationsMade.length > 0
-  ) {
     cues.push({
-      id: "prepare-tour",
-      label: "Preparing a personalized tour…",
+      id: "personalized-guidance",
+      label: "Building personalized guidance…",
     });
   }
 
   if (cues.length < 2) {
     cues.push({
-      id: "prepare-response",
-      label: "Preparing a thoughtful response…",
+      id: "recognize-patterns-soft",
+      label: "Recognizing patterns…",
     });
   }
 

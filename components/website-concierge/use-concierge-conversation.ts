@@ -76,9 +76,9 @@ function defaultSuggestions(pageId: string): string[] {
   if (pageId === "meet-summer") {
     return [
       "I run an ultrasound clinic",
+      "We have 4 employees",
       "We use Picktime",
-      "Our biggest issue is reporting",
-      "How is Chasum different?",
+      "Reporting is our biggest challenge",
     ];
   }
   if (pageId === "home") {

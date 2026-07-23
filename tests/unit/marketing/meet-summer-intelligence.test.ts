@@ -7,12 +7,11 @@ import { createEmptySessionMemory } from "@/lib/website-concierge/session-memory
 import { getPageGreeting } from "@/lib/website-concierge/page-awareness";
 
 describe("Meet Summer intelligence presentation", () => {
-  it("opens Meet Summer with a consultant introduction", () => {
+  it("opens Meet Summer with Summer appearing naturally", () => {
     const greeting = getPageGreeting("meet-summer");
     expect(greeting).toMatch(/Welcome/i);
+    expect(greeting).toMatch(/I'm Summer/i);
     expect(greeting).toMatch(/understand your business/i);
-    expect(greeting).toMatch(/intelligence behind Chasum/i);
-    expect(greeting).not.toMatch(/FAQ bot/i);
   });
 
   it("builds understanding fields from session memory", () => {
@@ -33,7 +32,7 @@ describe("Meet Summer intelligence presentation", () => {
     expect(byId.recommendations?.discovered).toBe(true);
   });
 
-  it("derives thinking cues from discovery state (not random)", () => {
+  it("derives visible intelligence cues from discovery state", () => {
     const empty = buildThinkingCues(createEmptySessionMemory());
     expect(empty.some((c) => /Understanding your business/i.test(c.label))).toBe(
       true,
@@ -46,8 +45,9 @@ describe("Meet Summer intelligence presentation", () => {
       challenges: ["no-shows"],
       recommendationsMade: ["deposits"],
     });
-    expect(rich.some((c) => /Picktime/i.test(c.label))).toBe(true);
+    expect(rich.some((c) => /industry knowledge/i.test(c.label))).toBe(true);
+    expect(rich.some((c) => /Comparing workflows/i.test(c.label))).toBe(true);
     expect(rich.some((c) => /recommendations/i.test(c.label))).toBe(true);
-    expect(rich.some((c) => /tour/i.test(c.label))).toBe(true);
+    expect(rich.some((c) => /personalized guidance/i.test(c.label))).toBe(true);
   });
 });
