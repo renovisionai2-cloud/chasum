@@ -7,7 +7,8 @@ import { Send, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
 /**
- * Inline Summer panel for Meet Summer — same Knowledge Engine as the floating concierge.
+ * Premium AI conversation showcase for Meet Summer.
+ * Same Knowledge Engine / Discovery stack as the floating concierge — presentation only.
  */
 export function SummerEmbeddedPanel({ className }: { className?: string }) {
   const {
@@ -20,6 +21,7 @@ export function SummerEmbeddedPanel({ className }: { className?: string }) {
     reducedMotion,
   } = useConciergeConversation();
   const [draft, setDraft] = useState("");
+  const [focused, setFocused] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -36,9 +38,10 @@ export function SummerEmbeddedPanel({ className }: { className?: string }) {
     return (
       <div
         className={cn(
-          "flex min-h-[28rem] items-center justify-center rounded-2xl border border-border/70 bg-card/60",
+          "meet-summer-glass flex min-h-[32rem] items-center justify-center",
           className,
         )}
+        aria-busy="true"
       >
         <p className="text-sm text-muted-foreground">Summer is joining…</p>
       </div>
@@ -58,62 +61,89 @@ export function SummerEmbeddedPanel({ className }: { className?: string }) {
   return (
     <section
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-background/95 shadow-[0_24px_64px_-28px_rgba(37,99,235,0.4)]",
+        "meet-summer-glass relative flex flex-col overflow-hidden",
+        focused && "meet-summer-glass-focus",
         className,
       )}
       aria-label="Talk with Summer"
     >
-      <header className="flex items-center gap-3 border-b border-border/70 bg-gradient-to-r from-primary/10 via-background to-spark/10 px-4 py-3.5 sm:px-5">
-        <span className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 meet-summer-panel-glow"
+        aria-hidden
+      />
+
+      <header className="flex items-center gap-4 border-b border-white/10 px-5 py-4 sm:px-7 sm:py-5">
+        <span className="relative flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[#1d4ed8] text-primary-foreground shadow-[0_12px_32px_-12px_rgba(37,99,235,0.85)]">
           <Sparkles className="size-5" aria-hidden />
+          <span
+            className={cn(
+              "absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-[#0b1324] bg-emerald-400",
+              !reducedMotion && "marketing-live-dot",
+            )}
+            aria-hidden
+          />
         </span>
         <div>
-          <p className="text-sm font-semibold text-foreground">Summer</p>
-          <p className="text-xs text-muted-foreground">
-            AI Business Assistant · ask anything about Chasum
+          <p className="text-base font-semibold tracking-tight text-white">
+            Summer
+          </p>
+          <p className="text-xs text-white/55">
+            AI Business Assistant · live · grounded answers
           </p>
         </div>
       </header>
 
       <div
         ref={listRef}
-        className="flex max-h-[min(48vh,22rem)] min-h-[16rem] flex-col gap-3 overflow-y-auto px-4 py-4 sm:px-5"
+        className="flex max-h-[min(56vh,28rem)] min-h-[18rem] flex-col gap-3.5 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6"
       >
-        {messages.map((m) => (
+        {messages.map((m, index) => (
           <div
             key={m.id}
             className={cn(
-              "max-w-[92%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+              "max-w-[92%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed",
               m.role === "assistant"
-                ? "self-start border border-border/60 bg-card text-foreground"
-                : "self-end bg-primary text-primary-foreground",
-              !reducedMotion &&
-                "transition-[opacity,transform] duration-300 ease-out",
+                ? "self-start border border-white/10 bg-white/[0.06] text-white/92 backdrop-blur-sm"
+                : "self-end bg-primary text-primary-foreground shadow-[0_12px_28px_-16px_rgba(37,99,235,0.9)]",
+              !reducedMotion && "meet-summer-msg-enter",
             )}
+            style={
+              !reducedMotion
+                ? { animationDelay: `${Math.min(index, 6) * 30}ms` }
+                : undefined
+            }
           >
             {m.content}
           </div>
         ))}
         {pending ? (
-          <div className="self-start rounded-2xl border border-border/60 bg-card px-3.5 py-2.5 text-sm text-muted-foreground">
-            <span className="inline-flex gap-1">
-              <span className="size-1.5 animate-pulse rounded-full bg-primary/70" />
-              <span className="size-1.5 animate-pulse rounded-full bg-primary/70 [animation-delay:120ms]" />
-              <span className="size-1.5 animate-pulse rounded-full bg-primary/70 [animation-delay:240ms]" />
+          <div
+            className="meet-summer-thinking self-start rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="sr-only">Summer is thinking</span>
+            <span className="inline-flex items-center gap-2 text-sm text-white/60">
+              <span className="inline-flex gap-1.5" aria-hidden>
+                <span className="meet-summer-think-dot" />
+                <span className="meet-summer-think-dot [animation-delay:140ms]" />
+                <span className="meet-summer-think-dot [animation-delay:280ms]" />
+              </span>
+              Thinking
             </span>
           </div>
         ) : null}
-        {error ? <p className="text-xs text-destructive">{error}</p> : null}
+        {error ? <p className="text-xs text-red-300">{error}</p> : null}
       </div>
 
       {!pending ? (
-        <div className="flex flex-wrap gap-2 border-t border-border/50 px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap gap-2 border-t border-white/8 px-5 py-3.5 sm:px-7">
           {chips.map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => void send(s)}
-              className="rounded-full border border-primary/25 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/10"
+              className="rounded-full border border-white/12 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-white/75 transition hover:border-primary/45 hover:bg-primary/15 hover:text-white"
             >
               {s}
             </button>
@@ -123,7 +153,7 @@ export function SummerEmbeddedPanel({ className }: { className?: string }) {
 
       <form
         onSubmit={onSubmit}
-        className="flex items-center gap-2 border-t border-border/70 p-3 sm:p-4"
+        className="flex items-center gap-2.5 border-t border-white/10 p-4 sm:p-5"
       >
         <label className="sr-only" htmlFor="meet-summer-input">
           Message Summer
@@ -133,15 +163,17 @@ export function SummerEmbeddedPanel({ className }: { className?: string }) {
           ref={inputRef}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask Summer a question…"
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder="Ask Summer anything about Chasum…"
           disabled={pending}
-          className="min-w-0 flex-1 rounded-xl border border-border/80 bg-background px-3 py-2.5 text-sm outline-none ring-primary/30 placeholder:text-muted-foreground focus:ring-2"
+          className="min-w-0 flex-1 rounded-2xl border border-white/12 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none ring-primary/40 placeholder:text-white/35 focus:border-primary/50 focus:ring-2"
           autoComplete="off"
         />
         <button
           type="submit"
           disabled={pending || !draft.trim()}
-          className="inline-flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:brightness-105 disabled:opacity-40"
+          className="inline-flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-[0_12px_28px_-10px_rgba(37,99,235,0.85)] transition hover:brightness-110 disabled:opacity-40"
           aria-label="Send message"
         >
           <Send className="size-4" />

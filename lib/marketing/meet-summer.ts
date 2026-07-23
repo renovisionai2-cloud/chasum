@@ -1,6 +1,6 @@
 /**
- * Meet Summer experience — marketing story copy.
- * Keep narrative-focused; Private Alpha apply is the final CTA only.
+ * Meet Summer — premium marketing story copy (Phase 5).
+ * Narrative-first; Private Alpha apply remains the final chapter only.
  */
 
 export const MEET_SUMMER_PROMPTS = [
@@ -10,6 +10,105 @@ export const MEET_SUMMER_PROMPTS = [
   "How is Chasum different?",
 ] as const;
 
+export const MEET_SUMMER_HERO = {
+  brand: "Meet Summer",
+  headline: "Your AI Business Assistant.",
+  lines: [
+    "Not software.",
+    "Not automation.",
+    "Business intelligence that understands your company.",
+  ],
+  lede:
+    "The future of Chasum begins here — an introduction to the intelligence layer of the AI Business Operating System.",
+} as const;
+
+export const MEET_SUMMER_PROBLEM = {
+  eyebrow: "The Problem",
+  headline: "Traditional software stores information.",
+  accent: "Summer understands it.",
+  body:
+    "Calendars, CRMs, and chat tools keep rows. What service businesses lack is something that turns those rows into judgment — what to do next for this company.",
+} as const;
+
+export const MEET_SUMMER_THINKS = {
+  eyebrow: "How Summer Thinks",
+  headline: "From customers to decisions.",
+  body:
+    "Summer connects the operating graph — not as separate tools, but as one chain of understanding.",
+  chain: [
+    { id: "customers", label: "Customers" },
+    { id: "appointments", label: "Appointments" },
+    { id: "employees", label: "Employees" },
+    { id: "revenue", label: "Revenue" },
+    { id: "decisions", label: "Business Decisions" },
+  ],
+} as const;
+
+export const MEET_SUMMER_MEMORY = {
+  eyebrow: "Business Memory",
+  headline: "She learns with your business.",
+  body:
+    "Every season compounds. Summer is built toward memory that deepens — patterns, relationships, and priorities that a chatbot never keeps.",
+  stages: [
+    {
+      title: "Session",
+      detail: "Remembers this conversation — who you are and what you asked.",
+    },
+    {
+      title: "Context",
+      detail: "Connects customers, bookings, and staff to the question at hand.",
+    },
+    {
+      title: "Patterns",
+      detail: "Sees trends across the calendar — quiet days, loyal clients, risk.",
+    },
+    {
+      title: "Judgment",
+      detail: "Recommends the next action: who to call, what to fill, what to watch.",
+    },
+  ],
+} as const;
+
+export const MEET_SUMMER_OS = {
+  eyebrow: "AI Business Operating System",
+  headline: "One brain. Many roles.",
+  body:
+    "Chasum is not another scheduling platform. It is the operating system where Summer — and the assistants that follow — share one Business Brain across every department.",
+  roles: [
+    "AI Reception",
+    "CRM Intelligence",
+    "Scheduling Assist",
+    "Billing Assist",
+    "Marketing Intelligence",
+    "Reporting Assist",
+    "Executive Advisor",
+  ],
+} as const;
+
+export const MEET_SUMMER_INTERACTIVE = {
+  eyebrow: "Experience Summer",
+  headline: "Talk with her now.",
+  body:
+    "This is a live conversation powered by Chasum’s Knowledge Engine and Business Discovery — not a scripted demo.",
+} as const;
+
+export const MEET_SUMMER_JOURNEY = {
+  eyebrow: "Roadmap",
+  headline: "A journey toward the complete system.",
+  steps: [
+    { label: "Today", detail: "Website concierge & Early Access reception" },
+    { label: "AI Reception", detail: "Front desk grounded in real availability" },
+    { label: "CRM Intelligence", detail: "Context before every conversation" },
+    { label: "Marketing Intelligence", detail: "Who to reach — and why" },
+    { label: "Executive Advisor", detail: "Owner-level priorities across the business" },
+    {
+      label: "Complete AI Business Operating System",
+      detail: "One shared brain across every department",
+    },
+  ],
+} as const;
+
+/** Legacy exports kept for Knowledge Engine prompts / older references */
 export const MEET_SUMMER_TODAY = [
   {
     title: "Answer questions",

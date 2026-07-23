@@ -1,9 +1,10 @@
 # Meet Summer Experience
 
-**Status:** Phase 3 — public marketing introduction  
+**Status:** Phase 3+ — public marketing introduction (Phase 5 premium presentation)  
 **Route:** `/meet-summer`  
 **CTA constant:** `MEET_SUMMER_HREF` in `lib/marketing/alpha.ts`  
-**Scope:** Marketing website only — no authenticated app changes
+**Scope:** Marketing website only — no authenticated app changes  
+**Presentation:** See [`../marketing/PREMIUM_AI_EXPERIENCE.md`](../marketing/PREMIUM_AI_EXPERIENCE.md)
 
 ## Purpose
 
