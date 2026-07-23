@@ -29,6 +29,11 @@ export const NAV_LINKS = [
 /** Resources mega-menu — scales as Chasum grows */
 export const NAV_RESOURCES = [
   {
+    href: "/meet-summer",
+    label: "Meet Summer",
+    description: "Chasum’s AI Business Assistant",
+  },
+  {
     href: "/#ai-workforce",
     label: "AI Workforce",
     description: "Summer & Chase in Early Access",

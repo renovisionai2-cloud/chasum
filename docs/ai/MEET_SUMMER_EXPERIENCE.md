@@ -22,6 +22,15 @@ By the time visitors reach the Private Alpha application, they should clearly un
 
 The **Vision** section (`#vision`) carries that promise in prose; later sections are chapters of the same story, not a disconnected feature catalog.
 
+## Routing (critical)
+
+| Label | Must go to | Must NOT go to |
+|-------|------------|----------------|
+| Meet Summer | `/meet-summer` (`MEET_SUMMER_HREF`) | `/apply` |
+| Apply for Private Alpha | `/apply` or `#private-alpha` on Meet Summer | — |
+
+Production must deploy a build that includes `app/(marketing)/meet-summer/page.tsx`. If Production tracks `main` while Phase 3 only exists on a feature branch, Meet Summer CTAs on `main` still point at `/apply` and the new experience never appears.
+
 ## Page architecture
 
 | Section | Role in the story |

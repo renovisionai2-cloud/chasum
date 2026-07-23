@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import {
   APPLY_HREF,
   CTA_EARLY_ACCESS_LABEL,
+  CTA_MEET_SUMMER_LABEL,
+  MEET_SUMMER_HREF,
 } from "@/lib/marketing/alpha";
 import { AI_EMPLOYEES_PREVIEW } from "@/lib/marketing/homepage";
 import { ArrowRight, CheckCircle2, Clock3 } from "lucide-react";
@@ -98,12 +100,20 @@ export function AiWorkforceSection() {
                   ))}
                 </ul>
 
-                <Link href={APPLY_HREF} className="mt-8 inline-block">
-                  <Button className="marketing-cta-button rounded-full px-7">
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Link href={MEET_SUMMER_HREF} className="inline-block">
+                    <Button className="marketing-cta-button rounded-full px-7">
+                      {CTA_MEET_SUMMER_LABEL}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link
+                    href={APPLY_HREF}
+                    className="text-sm font-medium text-white/65 underline-offset-4 transition-colors hover:text-white hover:underline"
+                  >
                     {CTA_EARLY_ACCESS_LABEL}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
+                  </Link>
+                </div>
               </article>
 
               <div className="marketing-product-frame">

@@ -143,6 +143,15 @@ export function DashboardShowcase() {
       ? active
       : PLATFORM_MODULES.find((module) => module.id === active.id);
   const Icon = active.icon;
+  // Prefer tab-level CTA when present so Summer never silently falls back to /apply.
+  const ctaHref =
+    "ctaHref" in active && typeof active.ctaHref === "string"
+      ? active.ctaHref
+      : (moduleCopy?.ctaHref ?? APPLY_HREF);
+  const ctaLabel =
+    "cta" in active && typeof active.cta === "string"
+      ? active.cta
+      : (moduleCopy?.cta ?? CTA_EARLY_ACCESS_LABEL);
 
   return (
     <section
@@ -243,9 +252,9 @@ export function DashboardShowcase() {
                   <p className="text-xs text-muted-foreground">
                     Your selected department is remembered for your next visit.
                   </p>
-                  <Link href={moduleCopy?.ctaHref ?? APPLY_HREF}>
+                  <Link href={ctaHref}>
                     <Button className="marketing-cta-button rounded-full px-6">
-                      {moduleCopy?.cta ?? CTA_EARLY_ACCESS_LABEL}
+                      {ctaLabel}
                     </Button>
                   </Link>
                 </div>
