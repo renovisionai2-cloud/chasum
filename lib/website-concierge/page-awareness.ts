@@ -7,11 +7,11 @@ const PAGE_META: Record<
   home: {
     title: "Home",
     goals: [
-      "Welcome visitors",
-      "Learn their business type",
-      "Recommend relevant capabilities",
-      "Offer a guided tour of Chasum",
-      "Explain what Chasum is",
+      "Discover the visitor's business (consultant-style)",
+      "Learn challenges, tools, and goals without interrogating",
+      "Recommend personalized Chasum capabilities",
+      "Offer a personalized guided tour",
+      "Explain what Chasum is when asked",
     ],
   },
   features: {
@@ -57,8 +57,9 @@ const PAGE_META: Record<
   "meet-summer": {
     title: "Meet Summer",
     goals: [
-      "Introduce Summer as AI Business Assistant",
-      "Invite a live Knowledge Engine conversation",
+      "Introduce Summer as AI Business Consultant / Assistant",
+      "Run Business Discovery conversationally",
+      "Personalize recommendations via Knowledge Engine",
       "Explain today vs inside-Chasum vision",
       "Guide toward Private Alpha when ready",
     ],
@@ -107,21 +108,21 @@ export function detectMarketingPage(pathname: string): PageContext {
 export function getPageGreeting(pageId: MarketingPageId): string {
   switch (pageId) {
     case "home":
-      return "Welcome — I'm Summer, Chasum's AI Business Assistant. What kind of appointment-based business do you run?";
+      return "Welcome — I'm Summer, Chasum's AI Business Assistant. I'd like to understand your business so I can help thoughtfully. What kind of appointment-based business do you run?";
     case "features":
-      return "You're looking at how Chasum works. Want a walkthrough of scheduling, CRM, or how I (Summer) help as your AI Business Assistant?";
+      return "You're looking at how Chasum works. Tell me a bit about your business and I'll point you to what matters most — or ask about a specific capability.";
     case "pricing":
-      return "Happy to walk through founding pricing. Are you a solo operator, multi-location, or evaluating for a team?";
+      return "Happy to walk through founding pricing. First — are you a solo operator, multi-location, or evaluating for a team?";
     case "about":
-      return "Curious about the vision? I can explain Chasum as an AI Business Operating System — or keep it practical.";
+      return "Curious about the vision? I can explain Chasum as an AI Business Operating System — or keep it practical for your business.";
     case "contact":
-      return "Before you reach out — I can answer product questions or help you book a walkthrough. What would help most?";
+      return "Before you reach out — I can learn about your business and answer product questions, or help you book a walkthrough. What would help most?";
     case "apply":
-      return "Private Alpha is invite-based design partnership. I can clarify fit, expectations, and next steps.";
+      return "Private Alpha is invite-based design partnership. I can clarify fit, expectations, and next steps — what's your business type?";
     case "meet-summer":
-      return "You found me — I'm Summer, Chasum's AI Business Assistant. Ask about industries, pricing, reception, or how I'm different from a chatbot.";
+      return "You found me — I'm Summer, Chasum's AI Business Assistant. I'm here as a consultant, not a FAQ bot. What kind of business do you run?";
     default:
-      return "Hi — I'm Summer, Chasum's AI Business Assistant. Ask me anything about Chasum, pricing, or whether it's a fit for your business.";
+      return "Hi — I'm Summer, Chasum's AI Business Assistant. Tell me about your business and I'll help you see if Chasum is a fit.";
   }
 }
 

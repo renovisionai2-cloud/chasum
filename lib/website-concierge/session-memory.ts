@@ -1,10 +1,12 @@
 import type {
   BusinessType,
+  DiscoveryFieldId,
+  DiscoveryFollowUpId,
   MarketingPageId,
   SessionMemory,
 } from "@/lib/website-concierge/types";
 
-export const SESSION_STORAGE_KEY = "chasum.website-concierge.v1";
+export const SESSION_STORAGE_KEY = "chasum.website-concierge.v2";
 
 export function createEmptySessionMemory(): SessionMemory {
   return {
@@ -16,6 +18,17 @@ export function createEmptySessionMemory(): SessionMemory {
     answeredArticleIds: [],
     lastTopicIds: [],
     tourStepId: null,
+    employeeCount: null,
+    locationCount: null,
+    currentSoftware: null,
+    monthlyVolume: null,
+    challenges: [],
+    goals: [],
+    growthPlans: null,
+    discoveryAskedIds: [],
+    recommendationsMade: [],
+    discoveryPhase: "opening",
+    pendingFollowUpId: null,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -23,7 +36,9 @@ export function createEmptySessionMemory(): SessionMemory {
 export function loadSessionMemory(): SessionMemory {
   if (typeof window === "undefined") return createEmptySessionMemory();
   try {
-    const raw = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
+    const raw =
+      window.sessionStorage.getItem(SESSION_STORAGE_KEY) ??
+      window.sessionStorage.getItem("chasum.website-concierge.v1");
     if (!raw) return createEmptySessionMemory();
     const parsed = JSON.parse(raw) as Partial<SessionMemory>;
     return {
@@ -43,6 +58,22 @@ export function loadSessionMemory(): SessionMemory {
         ? parsed.lastTopicIds
         : [],
       tourStepId: parsed.tourStepId ?? null,
+      employeeCount: parsed.employeeCount ?? null,
+      locationCount: parsed.locationCount ?? null,
+      currentSoftware: parsed.currentSoftware ?? null,
+      monthlyVolume: parsed.monthlyVolume ?? null,
+      challenges: Array.isArray(parsed.challenges) ? parsed.challenges : [],
+      goals: Array.isArray(parsed.goals) ? parsed.goals : [],
+      growthPlans: parsed.growthPlans ?? null,
+      discoveryAskedIds: Array.isArray(parsed.discoveryAskedIds)
+        ? (parsed.discoveryAskedIds as DiscoveryFieldId[])
+        : [],
+      recommendationsMade: Array.isArray(parsed.recommendationsMade)
+        ? parsed.recommendationsMade
+        : [],
+      discoveryPhase: parsed.discoveryPhase ?? "opening",
+      pendingFollowUpId:
+        (parsed.pendingFollowUpId as DiscoveryFollowUpId | null) ?? null,
     };
   } catch {
     return createEmptySessionMemory();
@@ -81,24 +112,55 @@ export function recordQuestion(
   return { ...memory, previousQuestions, updatedAt: new Date().toISOString() };
 }
 
+type MemoryPatch = Partial<
+  Pick<
+    SessionMemory,
+    | "businessType"
+    | "visitorName"
+    | "interests"
+    | "answeredArticleIds"
+    | "lastTopicIds"
+    | "tourStepId"
+    | "employeeCount"
+    | "locationCount"
+    | "currentSoftware"
+    | "monthlyVolume"
+    | "challenges"
+    | "goals"
+    | "growthPlans"
+    | "discoveryAskedIds"
+    | "recommendationsMade"
+    | "discoveryPhase"
+    | "pendingFollowUpId"
+  >
+>;
+
 export function applyMemoryPatch(
   memory: SessionMemory,
-  patch?: Partial<
-    Pick<
-      SessionMemory,
-      | "businessType"
-      | "visitorName"
-      | "interests"
-      | "answeredArticleIds"
-      | "lastTopicIds"
-      | "tourStepId"
-    >
-  >,
+  patch?: MemoryPatch,
 ): SessionMemory {
   if (!patch) return memory;
   const interests = patch.interests
     ? uniqueStrings([...memory.interests, ...patch.interests])
     : memory.interests;
+  const challenges = patch.challenges
+    ? uniquePreserve([...memory.challenges, ...patch.challenges])
+    : memory.challenges;
+  const goals = patch.goals
+    ? uniquePreserve([...memory.goals, ...patch.goals])
+    : memory.goals;
+  const discoveryAskedIds = patch.discoveryAskedIds
+    ? ([
+        ...new Set([...memory.discoveryAskedIds, ...patch.discoveryAskedIds]),
+      ] as DiscoveryFieldId[])
+    : memory.discoveryAskedIds;
+  const recommendationsMade = patch.recommendationsMade
+    ? uniquePreserve([
+        ...memory.recommendationsMade,
+        ...patch.recommendationsMade,
+      ])
+    : memory.recommendationsMade;
+
   return {
     ...memory,
     businessType: patch.businessType ?? memory.businessType,
@@ -109,6 +171,20 @@ export function applyMemoryPatch(
     lastTopicIds: patch.lastTopicIds ?? memory.lastTopicIds,
     tourStepId:
       patch.tourStepId !== undefined ? patch.tourStepId : memory.tourStepId,
+    employeeCount: patch.employeeCount ?? memory.employeeCount,
+    locationCount: patch.locationCount ?? memory.locationCount,
+    currentSoftware: patch.currentSoftware ?? memory.currentSoftware,
+    monthlyVolume: patch.monthlyVolume ?? memory.monthlyVolume,
+    challenges,
+    goals,
+    growthPlans: patch.growthPlans ?? memory.growthPlans,
+    discoveryAskedIds,
+    recommendationsMade,
+    discoveryPhase: patch.discoveryPhase ?? memory.discoveryPhase,
+    pendingFollowUpId:
+      patch.pendingFollowUpId !== undefined
+        ? patch.pendingFollowUpId
+        : memory.pendingFollowUpId,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -175,7 +251,7 @@ export function inferInterestsFromText(text: string): string[] {
   if (/\b(alpha|apply|early\s*access)\b/i.test(text)) {
     interests.push("private-alpha");
   }
-  if (/\b(fresha|vagaro|square|mindbody|compar)\b/i.test(text)) {
+  if (/\b(fresha|vagaro|square|mindbody|picktime|compar)\b/i.test(text)) {
     interests.push("competitive");
   }
   return interests;
@@ -185,4 +261,16 @@ function uniqueStrings(values: string[]): string[] {
   return [
     ...new Set(values.map((v) => v.trim().toLowerCase()).filter(Boolean)),
   ];
+}
+
+function uniquePreserve(values: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const v of values) {
+    const key = v.trim().toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(v.trim());
+  }
+  return out;
 }

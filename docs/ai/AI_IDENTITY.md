@@ -47,4 +47,5 @@ In-app routes and code may still reference legacy **Emma** paths (redirects, rec
 
 - [`WEBSITE_CONCIERGE.md`](./WEBSITE_CONCIERGE.md)
 - [`KNOWLEDGE_ENGINE.md`](./KNOWLEDGE_ENGINE.md)
+- [`BUSINESS_DISCOVERY_ENGINE.md`](./BUSINESS_DISCOVERY_ENGINE.md)
 - [`../product/30_CHASUM_BLUEPRINT.md`](../product/30_CHASUM_BLUEPRINT.md)

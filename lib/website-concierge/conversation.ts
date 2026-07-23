@@ -1,3 +1,4 @@
+import { runDiscoveryEngine } from "@/lib/website-concierge/discovery/engine";
 import { runKnowledgeEngine } from "@/lib/website-concierge/knowledge-engine";
 import { buildConciergeContext } from "@/lib/website-concierge/context-engine";
 import { buildConciergePrompt } from "@/lib/website-concierge/prompt-builder";
@@ -32,8 +33,8 @@ export type RunConciergeTurnResult = {
 };
 
 /**
- * Single turn: Knowledge Engine retrieve → prompt → provider → memory.
- * UI never embeds product answers.
+ * Single turn: Discovery Engine → (optional) Knowledge Engine → prompt → provider → memory.
+ * Marketing website only. UI never embeds product answers.
  */
 export async function runConciergeTurn(
   input: RunConciergeTurnInput,
@@ -43,6 +44,26 @@ export async function runConciergeTurn(
   memory = applyMemoryPatch(memory, {
     interests: inferInterestsFromText(input.userMessage),
   });
+
+  const discovery = runDiscoveryEngine({
+    userMessage: input.userMessage,
+    memory,
+  });
+  memory = discovery.memory;
+
+  if (discovery.result) {
+    return {
+      assistantMessage: {
+        id: createId(),
+        role: "assistant",
+        content: discovery.result.message,
+        createdAt: new Date().toISOString(),
+      },
+      memory,
+      suggestions: discovery.result.suggestions,
+      providerId: "business-discovery-v1",
+    };
+  }
 
   const context = buildConciergeContext({
     pathname: input.pathname,
@@ -59,6 +80,7 @@ export async function runConciergeTurn(
   const intentTags = [
     ...inferInterestsFromText(input.userMessage),
     engine.retrieval.intent,
+    "discovery-aware",
   ];
   const prompt = buildConciergePrompt({
     context,

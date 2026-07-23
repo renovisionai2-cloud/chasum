@@ -4,11 +4,18 @@ import {
   retrieveKnowledge,
   runKnowledgeEngine,
 } from "@/lib/website-concierge/knowledge-engine";
+import {
+  extractDiscoveryFacts,
+  runDiscoveryEngine,
+  selectNextDiscoveryField,
+  toDiscoveryProfile,
+} from "@/lib/website-concierge/discovery";
 import { detectMarketingPage } from "@/lib/website-concierge/page-awareness";
 import { buildConciergePrompt } from "@/lib/website-concierge/prompt-builder";
 import { createPlaceholderProvider } from "@/lib/website-concierge/providers/placeholder";
 import { createEmptySessionMemory } from "@/lib/website-concierge/session-memory";
 import { buildConciergeContext } from "@/lib/website-concierge/context-engine";
+import { runConciergeTurn } from "@/lib/website-concierge/conversation";
 import { searchKnowledge } from "@/lib/website-concierge/knowledge-base";
 
 describe("website concierge page awareness", () => {
@@ -20,6 +27,86 @@ describe("website concierge page awareness", () => {
     expect(detectMarketingPage("/meet-summer").pageId).toBe("meet-summer");
     expect(detectMarketingPage("/private-alpha").pageId).toBe("about");
     expect(detectMarketingPage("/roadmap/").pageId).toBe("about");
+  });
+});
+
+describe("business discovery engine", () => {
+  it("extracts business facts from natural language", () => {
+    const facts = extractDiscoveryFacts(
+      "I run an ultrasound studio, we use Picktime, and no-shows are killing us",
+    );
+    expect(facts.businessType).toBe("ultrasound");
+    expect(facts.currentSoftware).toBe("Picktime");
+    expect(facts.challenges).toContain("no-shows");
+  });
+
+  it("asks intelligent follow-up after software mention", () => {
+    const { result, memory } = runDiscoveryEngine({
+      userMessage: "We currently use Picktime",
+      memory: {
+        ...createEmptySessionMemory(),
+        businessType: "salon",
+        discoveryPhase: "discovering",
+      },
+    });
+    expect(result?.message).toMatch(/improve compared with Picktime/i);
+    expect(memory.currentSoftware).toBe("Picktime");
+    expect(memory.pendingFollowUpId).toBe("software_improvement");
+  });
+
+  it("never re-asks a discovery field", () => {
+    const memory = {
+      ...createEmptySessionMemory(),
+      businessType: "salon" as const,
+      discoveryAskedIds: ["business_type" as const, "challenges" as const],
+      challenges: ["no-shows"],
+      discoveryPhase: "discovering" as const,
+    };
+    const next = selectNextDiscoveryField(toDiscoveryProfile(memory));
+    expect(next?.id).not.toBe("business_type");
+    expect(next?.id).not.toBe("challenges");
+  });
+
+  it("personalizes recommendations for ultrasound clinics", () => {
+    const { result, memory } = runDiscoveryEngine({
+      userMessage: "Our biggest issue is front desk overload",
+      memory: {
+        ...createEmptySessionMemory(),
+        businessType: "ultrasound",
+        discoveryPhase: "discovering",
+        discoveryAskedIds: ["business_type", "challenges"],
+      },
+    });
+    expect(result?.offerTour).toBe(true);
+    expect(result?.message).toMatch(/ultrasound/i);
+    expect(result?.message).toMatch(
+      /personalized tour|help your business most/i,
+    );
+    expect(memory.recommendationsMade.length).toBeGreaterThan(0);
+    expect(memory.discoveryPhase).toBe("recommending");
+  });
+
+  it("defers product questions to the Knowledge Engine path", async () => {
+    const turn = await runConciergeTurn({
+      pathname: "/",
+      userMessage: "What is Chasum and how does pricing work?",
+      messages: [],
+      memory: createEmptySessionMemory(),
+    });
+    expect(turn.providerId).not.toBe("business-discovery-v1");
+    expect(turn.assistantMessage.content.length).toBeGreaterThan(40);
+  });
+
+  it("runs discovery on the first consultant turn", async () => {
+    const turn = await runConciergeTurn({
+      pathname: "/meet-summer",
+      userMessage: "I run a salon",
+      messages: [],
+      memory: createEmptySessionMemory(),
+    });
+    expect(turn.memory.businessType).toBe("salon");
+    expect(turn.providerId).toBe("business-discovery-v1");
+    expect(turn.assistantMessage.content).toMatch(/\?/);
   });
 });
 
@@ -140,5 +227,6 @@ describe("website concierge knowledge + placeholder provider", () => {
     expect(result.message.length).toBeGreaterThan(40);
     expect(result.memoryPatch?.businessType).toBe("spa");
     expect(prompt.system).toMatch(/Retrieved knowledge/);
+    expect(prompt.system).toMatch(/Discovery phase/);
   });
 });

@@ -35,6 +35,14 @@ export {
   saveSessionMemory,
 } from "@/lib/website-concierge/session-memory";
 export {
+  applyDiscoveryExtraction,
+  buildPersonalizedRecommendations,
+  extractDiscoveryFacts,
+  runDiscoveryEngine,
+  selectNextDiscoveryField,
+  toDiscoveryProfile,
+} from "@/lib/website-concierge/discovery";
+export {
   searchKnowledge,
   WEBSITE_KNOWLEDGE,
 } from "@/lib/website-concierge/knowledge-base";

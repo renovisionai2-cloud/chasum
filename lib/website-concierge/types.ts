@@ -3,6 +3,18 @@
  * Separate from in-app Summer (`lib/summer`). Designed for future shared AI OS roles.
  */
 
+import type {
+  DiscoveryFieldId,
+  DiscoveryFollowUpId,
+  DiscoveryPhase,
+} from "@/lib/website-concierge/discovery/types";
+
+export type {
+  DiscoveryFieldId,
+  DiscoveryFollowUpId,
+  DiscoveryPhase,
+} from "@/lib/website-concierge/discovery/types";
+
 export type MarketingPageId =
   | "home"
   | "features"
@@ -51,6 +63,18 @@ export type SessionMemory = {
   lastTopicIds: string[];
   /** Guided tour cursor */
   tourStepId: string | null;
+  /** Business Discovery Engine profile */
+  employeeCount: string | null;
+  locationCount: string | null;
+  currentSoftware: string | null;
+  monthlyVolume: string | null;
+  challenges: string[];
+  goals: string[];
+  growthPlans: string | null;
+  discoveryAskedIds: DiscoveryFieldId[];
+  recommendationsMade: string[];
+  discoveryPhase: DiscoveryPhase;
+  pendingFollowUpId: DiscoveryFollowUpId | null;
   updatedAt: string;
 };
 
@@ -110,6 +134,17 @@ export type ConciergeCompletionResult = {
       | "answeredArticleIds"
       | "lastTopicIds"
       | "tourStepId"
+      | "employeeCount"
+      | "locationCount"
+      | "currentSoftware"
+      | "monthlyVolume"
+      | "challenges"
+      | "goals"
+      | "growthPlans"
+      | "discoveryAskedIds"
+      | "recommendationsMade"
+      | "discoveryPhase"
+      | "pendingFollowUpId"
     >
   >;
 };
