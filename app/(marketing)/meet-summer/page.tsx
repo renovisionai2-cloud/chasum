@@ -14,6 +14,7 @@ import {
   MEET_SUMMER_ROADMAP,
   MEET_SUMMER_STORY,
   MEET_SUMMER_TODAY,
+  MEET_SUMMER_VISION,
 } from "@/lib/marketing/meet-summer";
 import { BRAND_ASSETS, BRAND_NAME } from "@/lib/brand/assets";
 import type { Metadata } from "next";
@@ -90,49 +91,55 @@ export default function MeetSummerPage() {
         </div>
       </section>
 
-      {/* Story beat */}
-      <section className="marketing-section-contain border-t border-border/60 px-6 py-20 md:py-28">
-        <div className="mx-auto max-w-5xl">
+      {/* Vision — story, not features */}
+      <section
+        id="vision"
+        className="marketing-section-contain scroll-mt-24 border-t border-border/60 px-6 py-20 md:py-28"
+      >
+        <div className="mx-auto max-w-3xl">
           <Reveal>
-            <p className="marketing-eyebrow">The introduction</p>
-            <h2 className="marketing-h2 max-w-2xl">
-              A flagship product — told as a story, not a feature list
-            </h2>
-            <p className="marketing-lede mt-4 max-w-2xl">
-              By the time you reach Private Alpha, you should know who Summer is,
-              why she exists, how she helps, and why she is not a traditional
-              chatbot.
+            <p className="marketing-eyebrow">{MEET_SUMMER_VISION.eyebrow}</p>
+            <h2 className="marketing-h2">{MEET_SUMMER_VISION.headline}</h2>
+            <p className="mt-6 text-lg leading-relaxed text-foreground/90 md:text-xl">
+              {MEET_SUMMER_VISION.lead}
+            </p>
+            <p className="mt-5 text-base leading-relaxed text-muted-foreground md:text-lg">
+              {MEET_SUMMER_VISION.promise}
             </p>
           </Reveal>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2">
-            {MEET_SUMMER_STORY.map((item, i) => (
-              <Reveal key={item.title} delayMs={i * 60}>
-                <article className="h-full rounded-2xl border border-border/70 bg-card/50 p-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                    {String(i + 1).padStart(2, "0")}
-                  </p>
-                  <h3 className="mt-3 text-lg font-semibold text-foreground">
-                    {item.title}
+
+          <ol className="mt-14 space-y-10 border-l border-primary/25 pl-6 sm:pl-8">
+            {MEET_SUMMER_STORY.map((chapter, i) => (
+              <Reveal key={chapter.title} delayMs={i * 70}>
+                <li className="relative">
+                  <span
+                    className="absolute -left-[1.9rem] top-1 flex size-6 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground sm:-left-[2.4rem]"
+                    aria-hidden
+                  >
+                    {i + 1}
+                  </span>
+                  <h3 className="text-xl font-semibold tracking-tight text-foreground">
+                    {chapter.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {item.detail}
+                  <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+                    {chapter.detail}
                   </p>
-                </article>
+                </li>
               </Reveal>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
-      {/* 2. What Summer can do today */}
+      {/* 2. What Summer can do today — next chapter of the story */}
       <section className="marketing-section-contain marketing-surface-tint px-6 py-20 md:py-28">
         <div className="mx-auto max-w-5xl">
           <Reveal>
-            <p className="marketing-eyebrow">Today</p>
+            <p className="marketing-eyebrow">Chapter · Today</p>
             <h2 className="marketing-h2">What Summer can do today</h2>
             <p className="marketing-lede mt-4 max-w-2xl">
-              On the public site, Summer is already useful — grounded in the
-              Knowledge Engine, not inventing answers.
+              These are not a feature dump — they are how the story starts on the
+              public site, grounded in the Knowledge Engine.
             </p>
           </Reveal>
           <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -154,7 +161,7 @@ export default function MeetSummerPage() {
       <section className="marketing-section-contain px-6 py-20 md:py-28">
         <div className="mx-auto max-w-5xl">
           <Reveal>
-            <p className="marketing-eyebrow">Inside Chasum</p>
+            <p className="marketing-eyebrow">Chapter · Inside Chasum</p>
             <h2 className="marketing-h2 max-w-2xl">
               What Summer will do inside the AI Business Operating System
             </h2>
@@ -203,6 +210,12 @@ export default function MeetSummerPage() {
               <SummerEmbeddedPanel />
             </div>
           </Reveal>
+          <Reveal>
+            <p className="mt-8 text-sm text-white/55">
+              Prefer to keep reading first? Scroll on — the application waits at
+              the end of the story.
+            </p>
+          </Reveal>
         </div>
       </section>
 
@@ -210,7 +223,7 @@ export default function MeetSummerPage() {
       <section className="marketing-section-contain px-6 py-20 md:py-28">
         <div className="mx-auto max-w-5xl">
           <Reveal>
-            <p className="marketing-eyebrow">The problem</p>
+            <p className="marketing-eyebrow">Chapter · The problem</p>
             <h2 className="marketing-h2 max-w-2xl">
               Traditional software stores information. Summer understands it.
             </h2>
@@ -238,7 +251,7 @@ export default function MeetSummerPage() {
       <section className="marketing-section-contain marketing-surface-tint px-6 py-20 md:py-28">
         <div className="mx-auto max-w-5xl">
           <Reveal>
-            <p className="marketing-eyebrow">Roadmap</p>
+            <p className="marketing-eyebrow">Chapter · Roadmap</p>
             <h2 className="marketing-h2">How Summer evolves</h2>
           </Reveal>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -272,11 +285,12 @@ export default function MeetSummerPage() {
       >
         <div className="mx-auto max-w-xl">
           <Reveal>
-            <p className="marketing-eyebrow">Next step</p>
+            <p className="marketing-eyebrow">The end of the introduction</p>
             <h2 className="marketing-h2">Apply for Private Alpha</h2>
             <p className="marketing-lede mt-4">
-              You have met Summer. If Chasum is a fit, apply as a design partner —
-              limited seats, founder access, founding pricing.
+              You have met Summer — who she is, why she exists, how she helps,
+              and why she is not a chatbot. If Chasum is a fit, apply as a design
+              partner: limited seats, founder access, founding pricing.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
               Prefer context on the program?{" "}

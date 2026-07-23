@@ -9,25 +9,31 @@
 
 When a visitor clicks **Meet Summer**, they should feel they are meeting Chasum’s flagship AI Business Assistant — not immediately filling out a form. Private Alpha remains, but only after the story lands.
 
-By the apply section, visitors should understand:
+### Addition 1 — Tell a story, don’t build another feature
+
+This page should feel like visitors are being introduced to one of Chasum’s **flagship products**. It tells a story — not simply a list of features.
+
+By the time visitors reach the Private Alpha application, they should clearly understand:
 
 1. Who Summer is  
 2. Why Summer exists  
 3. How Summer helps businesses  
 4. Why Summer is different from a traditional chatbot  
 
+The **Vision** section (`#vision`) carries that promise in prose; later sections are chapters of the same story, not a disconnected feature catalog.
+
 ## Page architecture
 
 | Section | Role in the story |
 |---------|-------------------|
 | Hero | Name + “Your AI Business Assistant” + Try Summer / Continue to Private Alpha |
-| Introduction | Story beats (who / why / how / different) |
-| What Summer can do today | Current Knowledge Engine capabilities |
-| Inside Chasum | Future roles in the AI Business Operating System |
+| Vision | Flagship introduction + four story chapters (who / why / how / different) |
+| What Summer can do today | Chapter · how the story starts on the public site |
+| Inside Chasum | Chapter · AI Business Operating System roles |
 | Talk with Summer | Embedded concierge (`SummerEmbeddedPanel`) |
-| Why businesses need Summer | Storage vs understanding |
+| Why businesses need Summer | Chapter · storage vs understanding |
 | Roadmap | Today → Next → Future |
-| Private Alpha | Existing `DesignPartnerForm` as final CTA |
+| Private Alpha | Existing `DesignPartnerForm` — end of the introduction |
 
 **Files**
 
@@ -44,11 +50,9 @@ Platform / Showcase “Meet Summer”
         ↓
    /meet-summer hero
         ↓
-   Story → Today → Inside OS
+   Vision story (who / why / how / different)
         ↓
-   Live chat (Knowledge Engine)
-        ↓
-   Need + Roadmap
+   Chapters: Today → Inside OS → Live chat → Need → Roadmap
         ↓
    Private Alpha application
 ```

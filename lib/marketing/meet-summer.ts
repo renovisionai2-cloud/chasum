@@ -106,25 +106,34 @@ export const MEET_SUMMER_ROADMAP = [
   },
 ] as const;
 
+export const MEET_SUMMER_VISION = {
+  eyebrow: "Vision",
+  headline: "Not another feature page — an introduction",
+  lead:
+    "This page should feel like you are being introduced to one of Chasum’s flagship products. It tells a story — not simply a list of features.",
+  promise:
+    "By the time you reach the Private Alpha application, you should clearly understand who Summer is, why she exists, how she helps businesses, and why she is different from a traditional chatbot.",
+} as const;
+
 export const MEET_SUMMER_STORY = [
   {
     title: "Who Summer is",
     detail:
-      "Summer is Chasum’s AI Business Assistant — the intelligence layer of the operating system, not a disposable chat widget.",
+      "Summer is Chasum’s AI Business Assistant — the intelligence layer of the operating system. She is the first face of the product for many visitors, and the companion that will grow with the business inside Chasum.",
   },
   {
     title: "Why Summer exists",
     detail:
-      "Appointment businesses drown in tools that store data but never explain it. Summer exists to understand the business.",
+      "Service businesses already have calendars, CRMs, and chat tools that store information. What they lack is something that understands that information. Summer exists to close that gap.",
   },
   {
-    title: "How Summer helps",
+    title: "How Summer helps businesses",
     detail:
-      "She answers, guides, recommends, and — inside Chasum — will assist reception, CRM, schedule, money, and owner decisions.",
+      "Today she answers questions, explains the product, recommends plans, and guides a tour. Inside Chasum she is designed to assist reception, CRM, scheduling, billing, marketing, reporting, and eventually executive decisions — one shared Business Brain, different jobs.",
   },
   {
-    title: "Why she’s different",
+    title: "Why Summer is different from a chatbot",
     detail:
-      "Traditional chatbots script replies. Summer is built on a Knowledge Engine and Business Brain vision — grounded, role-aware, and compounding.",
+      "A traditional chatbot scripts replies and forgets the business. Summer is grounded in a Knowledge Engine, remembers this session, and is built toward business memory — understanding trends, customers, and what to do next — not clever small talk.",
   },
 ] as const;
