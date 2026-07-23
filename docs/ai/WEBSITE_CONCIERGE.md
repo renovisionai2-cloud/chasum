@@ -2,11 +2,12 @@
 
 **Status:** Phase 2 — Knowledge Engine + placeholder provider  
 **Surface:** Public marketing website only (`app/(marketing)/*`)  
+**Public AI identity:** **Summer — Chasum's AI Business Assistant** (see [`AI_IDENTITY.md`](./AI_IDENTITY.md))  
 **Not in scope:** Dashboard, CRM, Calendar, Reception, Payments, or in-app Summer (`lib/summer`, `components/summer`)
 
 ## Vision
 
-Summer is the first experience every visitor has with Chasum on the marketing site: an intelligent AI consultant, not a scripted chatbot. Phase 1 shipped the floating UI and module boundary. **Phase 2 adds the Knowledge Engine** — see [`KNOWLEDGE_ENGINE.md`](./KNOWLEDGE_ENGINE.md).
+Summer is the first experience every visitor has with Chasum on the marketing site: an intelligent AI Business Assistant — website concierge, product guide, and receptionist assist — not a scripted chatbot. Phase 1 shipped the floating UI and module boundary. **Phase 2 adds the Knowledge Engine** — see [`KNOWLEDGE_ENGINE.md`](./KNOWLEDGE_ENGINE.md).
 
 ## Architecture
 

@@ -108,7 +108,7 @@ export function AiWorkforceSection() {
 
               <div className="marketing-product-frame">
                 <DashboardPreview
-                  variant="emma"
+                  variant="summer"
                   live
                   animated
                   className="min-h-[360px] border-0 shadow-none md:min-h-[480px]"

@@ -56,7 +56,7 @@ Not an engineering bug list; a **commercial integrity** register.
 | ID | Risk | Why it matters | Likelihood | Mitigation | Owner | Target |
 |----|------|----------------|------------|------------|-------|--------|
 | R-M1 | **No funnel analytics** | Can’t learn; burn cash later | M | PostHog or equivalent on signup → first booking | Eng | Days 30–60 |
-| R-M2 | **Dual AI branding (Emma vs Summer)** | Confused demos and docs | L | One name everywhere | Marketing | Week 2 |
+| R-M2 | **Dual AI branding (Emma vs Summer)** | Confused demos and docs | L | **Mitigated on marketing:** Summer is the sole public AI identity (`docs/ai/AI_IDENTITY.md`) | Marketing | Done |
 | R-M3 | **Owner MRR estimated / mock** | Bad internal decisions | M | Separate “estimated” vs “Stripe cash” dashboards | Founder | Days 60–90 |
 | R-M4 | **Multi-location / RBAC oversell** | Implementation regret | M | Scope contracts to locations/staff that work | Sales | Per deal |
 | R-M5 | **SMS optional / easy to assume included** | Expectation gap | M | Explicit “email-first; SMS add-on” in partner packet | Sales | Week 1 |

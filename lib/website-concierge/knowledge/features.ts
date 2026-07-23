@@ -126,9 +126,9 @@ export const FEATURE_KNOWLEDGE: KnowledgeEntry[] = [
     id: "feature-ai",
     category: "features",
     title: "AI Features",
-    summary: "Summer, Chase, and a shared Business Brain roadmap.",
+    summary: "Summer (AI Business Assistant) & Chase, plus a shared Business Brain roadmap.",
     body:
-      "Early Access AI includes Summer (reception-style and website concierge) and Chase (insights). Long-term AI roles share one Business Brain with different permissions — Reception, Manager, Owner, Marketing — without siloed “truth.”",
+      "Early Access AI centers on Summer — Chasum's AI Business Assistant (website concierge, receptionist assist, product guide) — and Chase (insights). Long-term AI roles share one Business Brain with different permissions — Reception, Manager, Owner, Marketing — without siloed “truth.”",
     tags: ["ai", "summer", "chase", "automation", "workforce"],
     followUps: ["Would you like a two-minute tour?", "How is this different from chatbot widgets?"],
     relatedIds: ["tour-ai-vision", "company-bos", "competitive-philosophy"],

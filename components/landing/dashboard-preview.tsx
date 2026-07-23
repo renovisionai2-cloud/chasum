@@ -38,7 +38,7 @@ type DashboardPreviewProps = {
     | "reception"
     | "crm"
     | "reports"
-    | "emma"
+    | "summer"
     | "employees"
     | "business"
     | "communication"
@@ -164,7 +164,7 @@ export function DashboardPreview({
                 (variant === "communication" &&
                   item.label === "Communication") ||
                 (variant === "billing" && item.label === "Billing") ||
-                (variant === "emma" && item.label === "AI Workforce");
+                (variant === "summer" && item.label === "AI Workforce");
               return (
                 <li
                   key={item.label}
@@ -201,7 +201,7 @@ export function DashboardPreview({
             ) : null}
             {variant === "reports" ? <ReportsPane live={isLive} /> : null}
             {variant === "billing" ? <BillingPane live={isLive} /> : null}
-            {variant === "emma" ? <EmmaPane live={isLive} /> : null}
+            {variant === "summer" ? <SummerPane live={isLive} /> : null}
             {variant === "employees" ? <EmployeesPane live={isLive} /> : null}
             {variant === "business" ? <BusinessPane live={isLive} /> : null}
           </div>
@@ -404,7 +404,7 @@ function CrmPane({ live }: { live: boolean }) {
     "SMS reminder delivered",
     "Payment received · $180",
     "Note · Prefers morning appointments",
-    "Emma logged conversation",
+    "Summer logged conversation",
   ];
   const visible = live ? events.slice(0, 3 + (tick % 3)) : events.slice(0, 4);
 
@@ -686,7 +686,7 @@ function BusinessPane({ live }: { live: boolean }) {
   );
 }
 
-function EmmaPane({ live }: { live: boolean }) {
+function SummerPane({ live }: { live: boolean }) {
   const reduced = useReducedMotion();
   const full =
     "Here are this location's hours from Business Management. I can also check real availability or start a booking — I never invent open slots.";
@@ -710,7 +710,7 @@ function EmmaPane({ live }: { live: boolean }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Spark className="h-5 w-5" size={20} animate={shouldAnimate} />
-        <p className="text-sm font-semibold">Emma · AI Receptionist</p>
+        <p className="text-sm font-semibold">Summer · AI Business Assistant</p>
         <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
           {shouldAnimate && chars < full.length ? "Typing" : "Online"}
         </span>

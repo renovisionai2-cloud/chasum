@@ -724,14 +724,14 @@ body {
   box-shadow: 0 12px 28px -22px var(--primary);
 }
 
-.marketing-emma-card {
+.marketing-summer-card {
   transition:
     transform 0.35s ease,
     box-shadow 0.35s ease,
     border-color 0.35s ease;
 }
 
-.marketing-emma-card:hover {
+.marketing-summer-card:hover {
   transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--primary) 48%, var(--border));
   box-shadow: 0 28px 64px -36px color-mix(in srgb, var(--primary) 60%, transparent);
@@ -961,8 +961,8 @@ body {
   .marketing-cta-button:active,
   .marketing-stat-card,
   .marketing-stat-card:hover,
-  .marketing-emma-card,
-  .marketing-emma-card:hover,
+  .marketing-summer-card,
+  .marketing-summer-card:hover,
   .marketing-journey-node,
   .marketing-journey-node:hover,
   .marketing-product-frame,

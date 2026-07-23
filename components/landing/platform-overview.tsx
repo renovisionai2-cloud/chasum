@@ -25,14 +25,14 @@ type PreviewVariant =
   | "reception"
   | "crm"
   | "reports"
-  | "emma"
+  | "summer"
   | "employees"
   | "business"
   | "communication"
   | "billing";
 
 const MODULE_ICONS: Record<string, LucideIcon> = {
-  emma: Sparkles,
+  summer: Sparkles,
   crm: Users,
   calendar: CalendarDays,
   employees: UserCog,
@@ -61,22 +61,22 @@ function previewFor(
       return "employees";
     case "business":
       return "business";
-    case "emma":
+    case "summer":
     case "workforce":
-      return "emma";
+      return "summer";
     default:
       return "overview";
   }
 }
 
 /** Featured cinematic experiences — product first, not feature cards */
-const FEATURED_IDS = ["emma", "calendar", "crm", "reports"] as const;
+const FEATURED_IDS = ["summer", "calendar", "crm", "reports"] as const;
 
 export function PlatformOverview() {
   const featured = PLATFORM_MODULES.filter((mod) =>
     FEATURED_IDS.includes(mod.id as (typeof FEATURED_IDS)[number]),
   );
-  const [activeId, setActiveId] = useState(featured[0]?.id ?? "emma");
+  const [activeId, setActiveId] = useState(featured[0]?.id ?? "summer");
   const active = featured.find((mod) => mod.id === activeId) ?? featured[0];
   const rest = PLATFORM_MODULES.filter(
     (mod) => !FEATURED_IDS.includes(mod.id as (typeof FEATURED_IDS)[number]),

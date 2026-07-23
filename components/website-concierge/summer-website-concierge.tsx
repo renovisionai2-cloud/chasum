@@ -71,7 +71,7 @@ export function SummerWebsiteConcierge() {
                       Summer
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      AI Website Concierge · {page.title}
+                      AI Business Assistant · {page.title}
                     </p>
                   </div>
                 </div>

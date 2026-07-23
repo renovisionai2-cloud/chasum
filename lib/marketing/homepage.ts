@@ -73,7 +73,7 @@ export const TESTIMONIALS = [
   },
   {
     quote:
-      "Emma books real openings — never invented times. That alone rebuilt trust with our clients.",
+      "Summer books real openings — never invented times. That alone rebuilt trust with our clients.",
     name: "Jordan Blake",
     role: "Owner",
     company: "Atelier Salon",
@@ -152,20 +152,20 @@ export type PlatformModule = {
   cta: string;
   ctaHref: string;
   comingSoon?: boolean;
-  preview: "emma" | "crm" | "calendar" | "employees" | "business" | "reports" | "communication" | "billing" | "workforce";
+  preview: "summer" | "crm" | "calendar" | "employees" | "business" | "reports" | "communication" | "billing" | "workforce";
 };
 
 export const PLATFORM_MODULES: PlatformModule[] = [
   {
-    id: "emma",
-    name: "AI Receptionist (Summer)",
-    href: "/#platform-emma",
+    id: "summer",
+    name: "Summer — AI Business Assistant",
+    href: "/#platform-summer",
     benefit: "Answer common questions and start bookings without inventing availability.",
     explanation:
-      "Summer (Early Access) uses your real hours, services, staff, and locations — then recommends slots from the scheduling engine and escalates to humans when needed.",
+      "Summer — Chasum's AI Business Assistant (Early Access) — uses your real hours, services, staff, and locations, recommends slots from the scheduling engine, and escalates to humans when needed.",
     cta: "Meet Summer",
     ctaHref: APPLY_HREF,
-    preview: "emma",
+    preview: "summer",
   },
   {
     id: "crm",
@@ -313,7 +313,7 @@ export const INDUSTRIES = [
     problem: "Recurring visits and pet notes get lost between bookings.",
     solution:
       "CRM profiles, notes, reminders, and calendar protect the relationship and the schedule.",
-    modules: ["CRM", "Calendar & Booking", "Communication", "AI Receptionist"],
+      modules: ["CRM", "Calendar & Booking", "Communication", "Summer"],
   },
   {
     name: "Cleaning",
@@ -333,7 +333,7 @@ export const INDUSTRIES = [
 
 export const CUSTOMER_JOURNEY = [
   { step: "1", title: "Customer Books", detail: "Public booking or reception creates the visit." },
-  { step: "2", title: "Summer Responds", detail: "AI receptionist (Early Access) answers from real business data." },
+  { step: "2", title: "Summer Responds", detail: "AI Business Assistant (Early Access) answers from real business data." },
   { step: "3", title: "CRM Updates", detail: "Profile and timeline capture the interaction." },
   { step: "4", title: "Appointment Confirmed", detail: "Scheduling engine books a real open slot." },
   { step: "5", title: "Reminder Sent", detail: "Communication Center delivers email or SMS." },
@@ -350,12 +350,12 @@ export const HERO_STATS = [
 export const AI_EMPLOYEES_PREVIEW = [
   {
     name: "Summer",
-    role: "AI Receptionist",
-    specialty: "Front desk & booking",
+    role: "AI Business Assistant",
+    specialty: "Concierge, reception & product guide",
     status: "Early Access",
     availability: "Early Access",
     summary:
-      "Answers from real business data, checks real slots, starts bookings, escalates to staff, and logs every handoff.",
+      "Chasum's official public AI identity — website concierge, receptionist assist, product guide, and future business/executive assistant. Answers from real business data, checks real slots, starts bookings, and escalates to staff.",
   },
   {
     name: "Chase",
@@ -494,7 +494,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Is Chasum Just Another Booking Page?",
-    a: "No. Public booking is one surface. The product includes Reception calendar, CRM, Business Management, Reports, Communication Center, commerce tools, and Summer (Early Access AI receptionist).",
+    a: "No. Public booking is one surface. The product includes Reception calendar, CRM, Business Management, Reports, Communication Center, commerce tools, and Summer — Chasum's AI Business Assistant (Early Access).",
   },
   {
     q: "Does AI Invent Appointment Times?",
@@ -509,8 +509,8 @@ export const FAQ_ITEMS = [
     a: "Apply for Private Alpha or request early access. We onboard a limited number of design partners with founder support. Public self-serve checkout is Coming Next.",
   },
   {
-    q: "How Does Summer the AI Receptionist Work Today?",
-    a: "Summer (Early Access) answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; escalates to staff; and can log into CRM / Communication Center.",
+    q: "How Does Summer Work Today?",
+    a: "Summer — Chasum's AI Business Assistant (Early Access) — answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; escalates to staff; and can log into CRM / Communication Center. On the marketing site she also acts as website concierge and product guide.",
   },
   {
     q: "Do You Support Google, Outlook, and Apple Calendars?",
@@ -522,7 +522,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "When Is Voice Calling Available?",
-    a: "Voice is Future Vision (channel reserved) but not implemented yet. Summer’s Early Access focus is grounded chat and booking assist.",
+    a: "Voice is Future Vision (channel reserved) but not implemented yet. Summer’s Early Access focus is grounded chat, website concierge, and booking assist.",
   },
   {
     q: "How Do I Get Started?",

@@ -36,9 +36,9 @@ const SHOWCASE_TABS = [
     ctaHref: APPLY_HREF,
   },
   {
-    id: "emma",
-    label: "AI Receptionist",
-    preview: "emma" as const,
+    id: "summer",
+    label: "Summer",
+    preview: "summer" as const,
     icon: Sparkles,
     benefits: ["Grounded business answers", "Real availability only", "Human escalation"],
   },

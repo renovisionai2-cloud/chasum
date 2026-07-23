@@ -97,9 +97,9 @@ export function detectMarketingPage(pathname: string): PageContext {
 export function getPageGreeting(pageId: MarketingPageId): string {
   switch (pageId) {
     case "home":
-      return "Welcome — I'm Summer, Chasum's AI website concierge. What kind of appointment-based business do you run?";
+      return "Welcome — I'm Summer, Chasum's AI Business Assistant. What kind of appointment-based business do you run?";
     case "features":
-      return "You're looking at how Chasum works. Want a walkthrough of scheduling, CRM, or Early Access AI?";
+      return "You're looking at how Chasum works. Want a walkthrough of scheduling, CRM, or how I (Summer) help as your AI Business Assistant?";
     case "pricing":
       return "Happy to walk through founding pricing. Are you a solo operator, multi-location, or evaluating for a team?";
     case "about":
@@ -109,7 +109,7 @@ export function getPageGreeting(pageId: MarketingPageId): string {
     case "apply":
       return "Private Alpha is invite-based design partnership. I can clarify fit, expectations, and next steps.";
     default:
-      return "Hi — I'm Summer. Ask me anything about Chasum, pricing, or whether it's a fit for your business.";
+      return "Hi — I'm Summer, Chasum's AI Business Assistant. Ask me anything about Chasum, pricing, or whether it's a fit for your business.";
   }
 }
 

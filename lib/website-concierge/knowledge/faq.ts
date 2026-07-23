@@ -95,7 +95,7 @@ export const FAQ_KNOWLEDGE: KnowledgeEntry[] = [
     title: "AI FAQ",
     summary: "Grounded assistants — not generic chat widgets.",
     body:
-      "Chasum AI is designed to share one Business Brain with role-specific permissions. Marketing Summer uses the Knowledge Engine today (no OpenAI wired yet). In-product Summer/Chase are Early Access for design partners and must stay grounded in business truth.",
+      "Chasum AI is designed to share one Business Brain with role-specific permissions. On the public site, Summer is Chasum's AI Business Assistant (Knowledge Engine today; no OpenAI wired yet). In-product Summer/Chase are Early Access for design partners and must stay grounded in business truth.",
     tags: ["ai faq", "chatgpt", "openai", "hallucination"],
     followUps: ["AI features overview", "Product tour — AI vision"],
     relatedIds: ["feature-ai", "tour-ai-vision"],
