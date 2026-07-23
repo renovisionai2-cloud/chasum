@@ -77,6 +77,13 @@ for (const { key, required, note } of checks) {
   if (!present && required) failed += 1;
   const hint = note ? ` — ${note}` : "";
   console.log(`[${label}] ${key}${hint}`);
+
+  if (key === "NEXT_PUBLIC_SUPABASE_URL" && present && /\/(rest|auth)\/v1\/?$/i.test(value)) {
+    failed += 1;
+    console.log(
+      `  ↳ INVALID: must be project origin only (https://xxxx.supabase.co), not ${value}`,
+    );
+  }
 }
 
 console.log("");

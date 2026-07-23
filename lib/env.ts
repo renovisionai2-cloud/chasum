@@ -37,6 +37,54 @@ export function getAppUrl(): string {
   return url;
 }
 
+/**
+ * Prefer the live request host for auth email redirects so a baked-in
+ * NEXT_PUBLIC_APP_URL (or localhost) cannot poison production reset links.
+ */
+export function getAppUrlFromRequestHeaders(headerList: Headers): string | null {
+  const host = (
+    headerList.get("x-forwarded-host") ||
+    headerList.get("host") ||
+    ""
+  )
+    .split(",")[0]
+    ?.trim();
+
+  if (!host || /localhost|127\.0\.0\.1/i.test(host)) {
+    return null;
+  }
+
+  const proto = (
+    headerList.get("x-forwarded-proto") ||
+    "https"
+  )
+    .split(",")[0]
+    ?.trim() || "https";
+
+  return `${proto}://${host}`.replace(/\/+$/, "");
+}
+
+/**
+ * Supabase JS expects the project origin only (https://xxx.supabase.co).
+ * If the env value includes /rest/v1 (or other API prefixes), Auth calls hit
+ * PostgREST and fail with: "Invalid path specified in request URL".
+ */
+export function normalizeSupabaseUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return trimmed;
+
+  try {
+    const parsed = new URL(
+      /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`,
+    );
+    return parsed.origin;
+  } catch {
+    return trimmed
+      .replace(/\/+$/, "")
+      .replace(/\/(rest|auth|storage|functions|realtime|graphql)\/v1$/i, "");
+  }
+}
+
 function firstNonEmpty(
   ...values: Array<string | null | undefined>
 ): string | null {
@@ -79,8 +127,13 @@ export function getAuthCallbackUrl(next = "/dashboard"): string {
 /**
  * Password-recovery redirectTo for resetPasswordForEmail.
  * Existing app route is /reset-password (not /auth/update-password).
+ * Pass `originOverride` (e.g. from request headers) to avoid env drift.
  */
-export function getPasswordResetRedirectUrl(): string {
+export function getPasswordResetRedirectUrl(originOverride?: string | null): string {
+  if (originOverride && /^https?:\/\//i.test(originOverride)) {
+    const origin = originOverride.replace(/\/+$/, "");
+    return `${origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`;
+  }
   return getAuthCallbackUrl("/reset-password");
 }
 
@@ -93,14 +146,14 @@ type SupabaseEnv = {
  * Returns Supabase credentials when configured, otherwise null.
  */
 export function getSupabaseEnv(): SupabaseEnv | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !anonKey) {
+  if (!rawUrl || !anonKey) {
     return null;
   }
 
-  return { url, anonKey };
+  return { url: normalizeSupabaseUrl(rawUrl), anonKey };
 }
 
 /**

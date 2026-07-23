@@ -53,8 +53,9 @@ Do them in this order. Do not skip.
 | | |
 |--|--|
 | **Where to find** | Supabase → select project → **Project Settings** (gear) → **API** → **Project URL** |
-| **Looks like** | `https://xxxxxxxx.supabase.co` |
+| **Looks like** | `https://xxxxxxxx.supabase.co` (origin only — **do not** append `/rest/v1`) |
 | **Environments** | Production ✓ · Preview ✓ · Development ✓ |
+| **Common mistake** | Pasting the REST endpoint (`…/rest/v1`) makes password reset fail with `Invalid path specified in request URL` |
 
 ---
 

@@ -1,11 +1,14 @@
 "use server";
 
 import {
+  getAppUrl,
+  getAppUrlFromRequestHeaders,
   getAuthCallbackUrl,
   getPasswordResetRedirectUrl,
   getSupabaseEnv,
 } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export type AuthState = {
@@ -107,21 +110,49 @@ export async function resetPassword(
     return { error: "Email is required." };
   }
 
-  if (!getSupabaseEnv()) {
+  const supabaseEnv = getSupabaseEnv();
+  if (!supabaseEnv) {
     return supabaseNotConfiguredState();
   }
+
+  const headerList = await headers();
+  const requestOrigin = getAppUrlFromRequestHeaders(headerList);
+  const envAppUrl = getAppUrl();
+  const redirectTo = getPasswordResetRedirectUrl(requestOrigin ?? envAppUrl);
+  const rawSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const normalizedSupabaseUrl = supabaseEnv.url;
+
+  console.info("[auth.resetPassword]", {
+    redirectTo,
+    requestOrigin,
+    envAppUrl,
+    helperRedirect: getPasswordResetRedirectUrl(),
+    rawSupabaseUrl,
+    normalizedSupabaseUrl,
+    supabaseUrlHadApiPath: rawSupabaseUrl !== normalizedSupabaseUrl,
+  });
 
   const supabase = await createClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: getPasswordResetRedirectUrl(),
+    redirectTo,
   });
 
   if (error) {
+    console.error("[auth.resetPassword] supabase error", {
+      message: error.message,
+      status: error.status,
+      code: error.code,
+      name: error.name,
+      redirectTo,
+      normalizedSupabaseUrl,
+      rawSupabaseUrl,
+    });
+
     if (/invalid path/i.test(error.message)) {
       return {
         error:
-          "Password reset could not start because the app redirect URL is invalid. Set NEXT_PUBLIC_APP_URL to your live HTTPS site (for example https://chasum.vercel.app), add that URL’s /auth/callback to Supabase Auth redirect allow-list, then redeploy.",
+          "Password reset could not start because NEXT_PUBLIC_SUPABASE_URL is not the project origin (it must be https://YOUR_PROJECT.supabase.co with no /rest/v1 path). Fix the Vercel env var and redeploy.",
       };
     }
     return { error: error.message };
