@@ -1,9 +1,49 @@
 /**
  * Returns the public app URL used for auth redirects.
- * Falls back to localhost during development.
+ * Prefers NEXT_PUBLIC_APP_URL, then Vercel host, then localhost.
+ * Always absolute (with protocol) and without a trailing slash.
  */
 export function getAppUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const raw =
+    firstNonEmpty(
+      process.env.NEXT_PUBLIC_APP_URL,
+      process.env.NEXT_PUBLIC_SITE_URL,
+      process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : null,
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+    ) ?? "http://localhost:3000";
+
+  let url = raw.trim().replace(/\/+$/, "");
+
+  if (!/^https?:\/\//i.test(url)) {
+    url = `https://${url}`;
+  }
+
+  // Never use localhost for auth redirects on a live Vercel deploy.
+  if (
+    (process.env.VERCEL_ENV === "production" ||
+      process.env.VERCEL_ENV === "preview" ||
+      process.env.NODE_ENV === "production") &&
+    /localhost|127\.0\.0\.1/i.test(url)
+  ) {
+    const vercelHost =
+      process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+    if (vercelHost) {
+      url = `https://${vercelHost.replace(/^https?:\/\//i, "").replace(/\/+$/, "")}`;
+    }
+  }
+
+  return url;
+}
+
+function firstNonEmpty(
+  ...values: Array<string | null | undefined>
+): string | null {
+  for (const value of values) {
+    if (value && value.trim()) return value.trim();
+  }
+  return null;
 }
 
 /** True on Vercel/production deploys (not local Next.js). */
@@ -14,11 +54,34 @@ export function isProductionRuntime(): boolean {
   );
 }
 
+/** Keeps post-auth `next` paths relative and safe. */
+export function sanitizeAuthNextPath(next: string | null | undefined): string {
+  const value = (next ?? "/dashboard").trim() || "/dashboard";
+  if (
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.includes("://")
+  ) {
+    return "/dashboard";
+  }
+  return value;
+}
+
 /**
  * Builds the Supabase auth callback URL with an optional post-auth redirect.
+ * Example: https://chasum.vercel.app/auth/callback?next=%2Freset-password
  */
 export function getAuthCallbackUrl(next = "/dashboard"): string {
-  return `${getAppUrl()}/auth/callback?next=${encodeURIComponent(next)}`;
+  const path = sanitizeAuthNextPath(next);
+  return `${getAppUrl()}/auth/callback?next=${encodeURIComponent(path)}`;
+}
+
+/**
+ * Password-recovery redirectTo for resetPasswordForEmail.
+ * Existing app route is /reset-password (not /auth/update-password).
+ */
+export function getPasswordResetRedirectUrl(): string {
+  return getAuthCallbackUrl("/reset-password");
 }
 
 type SupabaseEnv = {

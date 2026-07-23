@@ -1,6 +1,10 @@
 "use server";
 
-import { getAuthCallbackUrl, getSupabaseEnv } from "@/lib/env";
+import {
+  getAuthCallbackUrl,
+  getPasswordResetRedirectUrl,
+  getSupabaseEnv,
+} from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -110,10 +114,16 @@ export async function resetPassword(
   const supabase = await createClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: getAuthCallbackUrl("/reset-password"),
+    redirectTo: getPasswordResetRedirectUrl(),
   });
 
   if (error) {
+    if (/invalid path/i.test(error.message)) {
+      return {
+        error:
+          "Password reset could not start because the app redirect URL is invalid. Set NEXT_PUBLIC_APP_URL to your live HTTPS site (for example https://chasum.vercel.app), add that URL’s /auth/callback to Supabase Auth redirect allow-list, then redeploy.",
+      };
+    }
     return { error: error.message };
   }
 
