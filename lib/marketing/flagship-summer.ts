@@ -26,18 +26,170 @@ export const FS_AWAKENING = {
   ],
 } as const;
 
-export const FS_BUSINESS_TYPES = [
-  { id: "ultrasound", label: "Ultrasound", prompt: "I run an ultrasound clinic" },
-  { id: "salon", label: "Salon", prompt: "I run a salon" },
-  { id: "spa", label: "Spa", prompt: "I run a spa" },
-  { id: "massage", label: "Massage", prompt: "I run a massage business" },
-  { id: "chiropractic", label: "Chiropractic", prompt: "I run a chiropractic practice" },
-  { id: "dental", label: "Dental", prompt: "I run a dental practice" },
-  { id: "veterinary", label: "Veterinary", prompt: "I run a veterinary clinic" },
-  { id: "fitness", label: "Fitness", prompt: "I run a fitness studio" },
-  { id: "pet_grooming", label: "Pet Grooming", prompt: "I run a pet grooming business" },
-  { id: "other", label: "Other", prompt: "I run an appointment-based service business" },
+export type FsBusinessIndustry = {
+  id: string;
+  label: string;
+  /** Natural-language prompt fed to the existing Discovery Engine via send() */
+  prompt: string;
+};
+
+export type FsBusinessCategory = {
+  id: string;
+  label: string;
+  industries: readonly FsBusinessIndustry[];
+};
+
+/**
+ * Phase 8 — category accordion for Business Discovery.
+ * Prompts stay natural language so Session Memory / extractors work unchanged.
+ */
+export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
+  {
+    id: "healthcare",
+    label: "Healthcare",
+    industries: [
+      { id: "ultrasound", label: "Ultrasound", prompt: "I run an ultrasound clinic" },
+      { id: "medical_clinic", label: "Medical Clinic", prompt: "I run a medical clinic" },
+      { id: "family_practice", label: "Family Practice", prompt: "I run a family practice clinic" },
+      { id: "walk_in_clinic", label: "Walk-in Clinic", prompt: "I run a walk-in clinic" },
+      { id: "dental", label: "Dental", prompt: "I run a dental practice" },
+      { id: "chiropractic", label: "Chiropractic", prompt: "I run a chiropractic practice" },
+      { id: "physiotherapy", label: "Physiotherapy", prompt: "I run a physiotherapy clinic" },
+      { id: "massage_therapy", label: "Massage Therapy", prompt: "I run a massage therapy business" },
+      { id: "osteopathy", label: "Osteopathy", prompt: "I run an osteopathy clinic" },
+      {
+        id: "psychology_counselling",
+        label: "Psychology / Counselling",
+        prompt: "I run a psychology counselling practice",
+      },
+      { id: "optometry", label: "Optometry", prompt: "I run an optometry clinic" },
+      { id: "veterinary_healthcare", label: "Veterinary", prompt: "I run a veterinary clinic" },
+    ],
+  },
+  {
+    id: "beauty",
+    label: "Beauty & Personal Care",
+    industries: [
+      { id: "hair_salon", label: "Hair Salon", prompt: "I run a hair salon" },
+      { id: "barber_shop", label: "Barber Shop", prompt: "I run a barber shop" },
+      { id: "spa", label: "Spa", prompt: "I run a spa" },
+      { id: "medical_spa", label: "Medical Spa", prompt: "I run a medical spa" },
+      { id: "nail_salon", label: "Nail Salon", prompt: "I run a nail salon" },
+      { id: "lash_studio", label: "Lash Studio", prompt: "I run a lash studio" },
+      { id: "brow_studio", label: "Brow Studio", prompt: "I run a brow studio" },
+      { id: "tattoo_studio", label: "Tattoo Studio", prompt: "I run a tattoo studio" },
+    ],
+  },
+  {
+    id: "fitness",
+    label: "Fitness & Wellness",
+    industries: [
+      { id: "gym", label: "Gym", prompt: "I run a gym" },
+      {
+        id: "personal_trainer",
+        label: "Personal Trainer",
+        prompt: "I run a personal training business",
+      },
+      { id: "yoga_studio", label: "Yoga Studio", prompt: "I run a yoga studio" },
+      { id: "pilates_studio", label: "Pilates Studio", prompt: "I run a pilates studio" },
+      { id: "fitness_studio", label: "Fitness Studio", prompt: "I run a fitness studio" },
+    ],
+  },
+  {
+    id: "pet",
+    label: "Pet Services",
+    industries: [
+      { id: "veterinary_pet", label: "Veterinary", prompt: "I run a veterinary clinic" },
+      { id: "pet_grooming", label: "Pet Grooming", prompt: "I run a pet grooming business" },
+      { id: "dog_training", label: "Dog Training", prompt: "I run a dog training business" },
+      { id: "pet_daycare", label: "Pet Daycare", prompt: "I run a pet daycare" },
+    ],
+  },
+  {
+    id: "automotive",
+    label: "Automotive",
+    industries: [
+      { id: "auto_repair", label: "Auto Repair", prompt: "I run an auto repair shop" },
+      {
+        id: "collision_repair",
+        label: "Collision Repair",
+        prompt: "I run a collision repair shop",
+      },
+      { id: "auto_detailing", label: "Auto Detailing", prompt: "I run an auto detailing business" },
+      { id: "tire_shop", label: "Tire Shop", prompt: "I run a tire shop" },
+    ],
+  },
+  {
+    id: "home",
+    label: "Home Services",
+    industries: [
+      { id: "cleaning", label: "Cleaning Service", prompt: "I run a cleaning service" },
+      { id: "hvac", label: "HVAC", prompt: "I run an HVAC business" },
+      { id: "plumbing", label: "Plumbing", prompt: "I run a plumbing business" },
+      { id: "electrical", label: "Electrical", prompt: "I run an electrical service business" },
+      { id: "landscaping", label: "Landscaping", prompt: "I run a landscaping business" },
+      { id: "painting", label: "Painting", prompt: "I run a painting business" },
+    ],
+  },
+  {
+    id: "professional",
+    label: "Professional Services",
+    industries: [
+      { id: "law_firm", label: "Law Firm", prompt: "I run a law firm" },
+      { id: "accounting", label: "Accounting", prompt: "I run an accounting practice" },
+      { id: "insurance", label: "Insurance", prompt: "I run an insurance agency" },
+      { id: "real_estate", label: "Real Estate", prompt: "I run a real estate office" },
+      { id: "consulting", label: "Consulting", prompt: "I run a consulting business" },
+    ],
+  },
+  {
+    id: "creative",
+    label: "Photography & Creative",
+    industries: [
+      {
+        id: "photography_studio",
+        label: "Photography Studio",
+        prompt: "I run a photography studio",
+      },
+      {
+        id: "videography_studio",
+        label: "Videography Studio",
+        prompt: "I run a videography studio",
+      },
+      {
+        id: "photo_booth",
+        label: "Photo Booth Rental",
+        prompt: "I run a photo booth rental business",
+      },
+    ],
+  },
+  {
+    id: "education",
+    label: "Education",
+    industries: [
+      { id: "tutoring", label: "Tutoring Centre", prompt: "I run a tutoring centre" },
+      { id: "music_school", label: "Music School", prompt: "I run a music school" },
+      { id: "driving_school", label: "Driving School", prompt: "I run a driving school" },
+      { id: "training_centre", label: "Training Centre", prompt: "I run a training centre" },
+    ],
+  },
+  {
+    id: "other",
+    label: "Other",
+    industries: [
+      {
+        id: "other",
+        label: "Other Appointment-Based Business",
+        prompt: "I run an appointment-based service business",
+      },
+    ],
+  },
 ] as const;
+
+/** Flat industry list (legacy consumers / tests). */
+export const FS_BUSINESS_TYPES = FS_BUSINESS_CATEGORIES.flatMap(
+  (category) => category.industries,
+);
 
 export const FS_THINKING_STEPS = [
   "Understanding your business…",
