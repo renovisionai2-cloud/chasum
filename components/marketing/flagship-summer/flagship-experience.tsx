@@ -10,8 +10,9 @@ import { FlagshipRoadmap } from "@/components/marketing/flagship-summer/flagship
 import { FlagshipThinking } from "@/components/marketing/flagship-summer/flagship-thinking";
 import { FlagshipUnderstanding } from "@/components/marketing/flagship-summer/flagship-understanding";
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
+import { FS_BUSINESS_TYPES, FS_GUIDED } from "@/lib/marketing/flagship-summer";
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 function subscribeReducedMotion(onChange: () => void) {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -24,8 +25,8 @@ function getReducedMotion() {
 }
 
 /**
- * Flagship Meet Summer — cinematic scrolling experience.
- * Hero transforms into the journey; engines unchanged.
+ * Flagship Meet Summer — cinematic consultation experience.
+ * Hero → guided discovery → live profile conversation; engines unchanged.
  */
 export function FlagshipExperience() {
   const [started, setStarted] = useState(false);
@@ -38,9 +39,16 @@ export function FlagshipExperience() {
     () => false,
   );
 
+  const industryLabel = useMemo(() => {
+    if (!selectedType) return null;
+    return FS_BUSINESS_TYPES.find((t) => t.id === selectedType)?.label ?? null;
+  }, [selectedType]);
+
+  const showConsult =
+    !!selectedType || memory.businessType !== "unknown";
+
   useEffect(() => {
     if (!started) return;
-    // Enter Summer's mind at the top — no jump-scroll from the hero CTA
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [started]);
 
@@ -50,7 +58,6 @@ export function FlagshipExperience() {
       return;
     }
     setExiting(true);
-    // Cinematic exit: orb pulse + fade before entering Summer's mind
     window.setTimeout(() => setStarted(true), 1200);
   }
 
@@ -83,17 +90,33 @@ export function FlagshipExperience() {
               disabled={!hydrated || pending}
               onSelect={onSelectType}
             />
-            <FlagshipThinking
-              memory={memory}
-              pending={pending}
-              reducedMotion={reducedMotion}
-            />
-            {selectedType || memory.businessType !== "unknown" ? (
-              <div className="fs-scene">
-                <FlagshipConversation />
-              </div>
+
+            {showConsult ? (
+              <section
+                className="fs-scene fs-consult"
+                aria-labelledby="fs-consult-title"
+              >
+                <h2 id="fs-consult-title" className="sr-only">
+                  Continue discovering with Summer
+                </h2>
+                <div className="fs-consult-main">
+                  <p className="fs-consult-bridge">{FS_GUIDED.continuePrompt}</p>
+                  <FlagshipThinking
+                    memory={memory}
+                    pending={pending}
+                    reducedMotion={reducedMotion}
+                    compact
+                  />
+                  <FlagshipConversation />
+                </div>
+                <FlagshipUnderstanding
+                  memory={memory}
+                  industryLabel={industryLabel}
+                  live
+                />
+              </section>
             ) : null}
-            <FlagshipUnderstanding memory={memory} />
+
             <FlagshipRecommendations memory={memory} />
             <FlagshipIntelligence />
             <FlagshipRoadmap />

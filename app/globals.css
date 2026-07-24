@@ -2584,7 +2584,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
-  max-width: 28rem;
+  max-width: 32rem;
 }
 
 .fs-guided-ack-line {
@@ -2609,6 +2609,111 @@ body {
 .fs-guided-ack-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.fs-guided-intel {
+  margin-top: 2rem;
+  max-width: 28rem;
+}
+
+.fs-guided-intel-list {
+  margin-top: 1rem;
+}
+
+.fs-think-item-active {
+  color: rgb(191 219 254 / 0.95);
+}
+
+/* Consultation: conversation + live profile */
+
+.fs-consult {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .fs-consult {
+    grid-template-columns: minmax(0, 1.15fr) minmax(16rem, 0.85fr);
+    gap: 2.5rem;
+  }
+}
+
+.fs-consult-bridge {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 520;
+  letter-spacing: -0.02em;
+  color: rgb(241 245 249 / 0.92);
+}
+
+.fs-consult-main {
+  min-width: 0;
+}
+
+.fs-thinking-compact {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  background: rgb(255 255 255 / 0.03);
+}
+
+.fs-thinking-compact-label {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(147 197 253 / 0.85);
+}
+
+.fs-thinking-layout-compact {
+  margin-top: 0;
+}
+
+.fs-profile-live {
+  position: sticky;
+  top: 1.5rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.02));
+  padding: 1.35rem 1.25rem;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 22px 60px -40px rgb(37 99 235 / 0.55);
+}
+
+.fs-profile-title {
+  margin: 0.35rem 0 1.15rem;
+  font-size: 1.15rem;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  color: rgb(241 245 249 / 0.94);
+}
+
+.fs-profile-stack {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.fs-profile-card-reveal {
+  animation: fs-profile-in 0.55s var(--fs-ease) both;
+}
+
+@keyframes fs-profile-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fs-cat-list {
@@ -3272,7 +3377,8 @@ body {
   .fs-guided-question,
   .fs-guided-cat,
   .fs-guided-ack-line,
-  .fs-guided-choices-dim {
+  .fs-guided-choices-dim,
+  .fs-profile-card-reveal {
     animation: none !important;
     transition: none !important;
   }

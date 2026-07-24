@@ -28,8 +28,21 @@ describe("Meet Summer intelligence presentation", () => {
     expect(byId.business?.discovered).toBe(true);
     expect(byId.business?.value).toMatch(/Ultrasound/i);
     expect(byId.software?.value).toBe("Picktime");
+    expect(byId.pain?.label).toMatch(/Biggest Challenge/i);
     expect(byId.pain?.value).toBe("reporting");
-    expect(byId.recommendations?.discovered).toBe(true);
+    expect(byId.employees?.discovered).toBe(true);
+    expect(byId.goals?.discovered).toBe(false);
+  });
+
+  it("seeds live profile scaffold with pending ellipsis fields", () => {
+    const fields = buildUnderstandingFields(createEmptySessionMemory(), {
+      businessOverride: "Medical Clinic",
+      showPending: true,
+    });
+    const byId = Object.fromEntries(fields.map((f) => [f.id, f]));
+    expect(byId.business?.value).toBe("Medical Clinic");
+    expect(byId.employees?.discovered).toBe(false);
+    expect(fields).toHaveLength(6);
   });
 
   it("derives visible intelligence cues from discovery state", () => {
@@ -46,8 +59,8 @@ describe("Meet Summer intelligence presentation", () => {
       recommendationsMade: ["deposits"],
     });
     expect(rich.some((c) => /industry knowledge/i.test(c.label))).toBe(true);
-    expect(rich.some((c) => /Comparing workflows/i.test(c.label))).toBe(true);
+    expect(rich.some((c) => /industry benchmarks/i.test(c.label))).toBe(true);
+    expect(rich.some((c) => /opportunities/i.test(c.label))).toBe(true);
     expect(rich.some((c) => /recommendations/i.test(c.label))).toBe(true);
-    expect(rich.some((c) => /personalized guidance/i.test(c.label))).toBe(true);
   });
 });

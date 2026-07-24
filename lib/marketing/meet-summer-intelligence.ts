@@ -1,4 +1,5 @@
 import type { SessionMemory } from "@/lib/website-concierge/types";
+import { FS_REASONING_STEPS } from "@/lib/marketing/flagship-summer";
 
 export type UnderstandingField = {
   id: string;
@@ -17,21 +18,19 @@ export type ThinkingCue = {
  */
 export function buildUnderstandingFields(
   memory: SessionMemory,
+  options?: {
+    businessOverride?: string | null;
+    /** When true, always return the full profile scaffold (ellipsis for empty) */
+    showPending?: boolean;
+  },
 ): UnderstandingField[] {
   const businessLabel =
-    memory.businessType !== "unknown"
+    options?.businessOverride?.trim() ||
+    (memory.businessType !== "unknown"
       ? formatBusinessType(memory.businessType)
-      : null;
+      : null);
 
-  const recommendations =
-    memory.recommendationsMade.length > 0
-      ? memory.recommendationsMade
-          .slice(0, 4)
-          .map(formatRecommendation)
-          .join(" · ")
-      : null;
-
-  return [
+  const fields: UnderstandingField[] = [
     {
       id: "business",
       label: "Business",
@@ -52,33 +51,33 @@ export function buildUnderstandingFields(
     },
     {
       id: "software",
-      label: "Current software",
+      label: "Current Software",
       value: memory.currentSoftware,
       discovered: !!memory.currentSoftware,
     },
     {
       id: "pain",
-      label: "Pain point",
+      label: "Biggest Challenge",
       value: memory.challenges[0] ?? null,
       discovered: memory.challenges.length > 0,
     },
     {
       id: "goals",
-      label: "Goal",
+      label: "Goals",
       value: memory.goals[0] ?? memory.growthPlans,
       discovered: memory.goals.length > 0 || !!memory.growthPlans,
     },
-    {
-      id: "recommendations",
-      label: "Recommendations",
-      value: recommendations,
-      discovered: !!recommendations,
-    },
   ];
+
+  if (!options?.showPending) {
+    return fields;
+  }
+
+  return fields;
 }
 
 /**
- * Genuine reasoning cues from discovery state — labels match Visible Intelligence.
+ * Genuine reasoning cues from discovery state — never invented facts.
  */
 export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
   const cues: ThinkingCue[] = [];
@@ -95,17 +94,24 @@ export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
     });
   }
 
+  if (memory.employeeCount || memory.monthlyVolume) {
+    cues.push({
+      id: "appointment-volume",
+      label: FS_REASONING_STEPS[0],
+    });
+  }
+
   if (memory.challenges.length > 0 || memory.goals.length > 0) {
     cues.push({
       id: "recognize-patterns",
-      label: "Recognizing patterns…",
+      label: "Finding opportunities…",
     });
   }
 
   if (memory.currentSoftware) {
     cues.push({
       id: "compare-workflows",
-      label: "Comparing workflows…",
+      label: "Comparing industry benchmarks…",
     });
   }
 
@@ -117,11 +123,7 @@ export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
   ) {
     cues.push({
       id: "prepare-recommendations",
-      label: "Preparing recommendations…",
-    });
-    cues.push({
-      id: "personalized-guidance",
-      label: "Building personalized guidance…",
+      label: "Building recommendations…",
     });
   }
 
@@ -138,14 +140,6 @@ export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
 function formatBusinessType(type: string): string {
   return type
     .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function formatRecommendation(id: string): string {
-  return id
-    .replace(/^challenge-/, "")
-    .split(/[-_]/)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
 }

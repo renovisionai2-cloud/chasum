@@ -24,16 +24,17 @@ export const FS_AWAKENING = {
     "Before I recommend software…",
     "I'd like to understand your business.",
     "I'll ask one simple question at a time.",
+    "Every business is unique.",
+    "My goal is to learn about yours before making recommendations.",
   ],
 } as const;
 
-/** Phase 8.1 — guided conversational discovery copy & timing */
+/** Phase 8 — guided conversational discovery copy & timing */
 export const FS_GUIDED = {
   question: "What type of business do you own?",
-  ackLead: "Perfect.",
-  ackMore: "Let me learn a little more.",
+  continuePrompt: "I'd like to learn a little more.",
   /** ms between intro sentences */
-  lineGapMs: 900,
+  lineGapMs: 850,
   /** pause after last intro line before the question */
   questionPauseMs: 1100,
   /** pause after question before categories begin appearing */
@@ -41,9 +42,19 @@ export const FS_GUIDED = {
   /** stagger between category cards */
   categoryStaggerMs: 100,
   /** pause between acknowledgment lines */
-  ackGapMs: 900,
-  /** pause after final ack line before sending to Discovery Engine */
-  ackCommitMs: 1000,
+  ackGapMs: 850,
+  /** pause between intelligence checklist steps */
+  intelligenceStepMs: 700,
+  /** pause after Ready. before sending to Discovery Engine */
+  ackCommitMs: 800,
+  intelligenceSteps: [
+    "Understanding your business…",
+    "Loading industry knowledge…",
+    "Connecting common workflows…",
+    "Analyzing operational challenges…",
+    "Preparing personalized questions…",
+    "Ready.",
+  ],
 } as const;
 
 export function fsAckBusinessLine(label: string): string {
@@ -54,6 +65,27 @@ export function fsAckBusinessLine(label: string): string {
   const startsWithVowel = /^[aeiou]/i.test(trimmed);
   const article = startsWithVowel ? "an" : "a";
   return `You run ${article} ${trimmed}.`;
+}
+
+export function fsAckDifferenceLine(label: string): string {
+  if (/clinic|practice|optometr|dental|chiro|physio|osteopath|psycholog|counsell|veterinar/i.test(label)) {
+    return "Every clinic is different.";
+  }
+  if (/salon|spa|studio|barber/i.test(label)) {
+    return "Every studio is different.";
+  }
+  return "Every business is different.";
+}
+
+/** Acknowledgment beat sheet after industry selection */
+export function fsBuildAckLines(label: string): string[] {
+  return [
+    "Perfect.",
+    fsAckBusinessLine(label),
+    "I've worked with businesses like yours before.",
+    fsAckDifferenceLine(label),
+    "I'd like to understand yours before I recommend anything.",
+  ];
 }
 
 export type FsBusinessIndustry = {
@@ -224,9 +256,17 @@ export const FS_BUSINESS_TYPES = FS_BUSINESS_CATEGORIES.flatMap(
 export const FS_THINKING_STEPS = [
   "Understanding your business…",
   "Loading industry knowledge…",
-  "Connecting workflows…",
+  "Connecting common workflows…",
+  "Analyzing operational challenges…",
+  "Preparing personalized questions…",
+  "Ready.",
+] as const;
+
+export const FS_REASONING_STEPS = [
+  "Understanding appointment volume…",
+  "Comparing industry benchmarks…",
   "Finding opportunities…",
-  "Preparing recommendations…",
+  "Building recommendations…",
 ] as const;
 
 export const FS_INTELLIGENCE = [
@@ -258,9 +298,15 @@ export const FS_ROADMAP = [
 ] as const;
 
 export const FS_ALPHA = {
-  title: "You've met Summer.",
-  body: "If you'd like to help shape the future of AI for service businesses… join our Private Alpha.",
+  title: "I think Chasum would be an excellent fit for your business.",
+  body: "I'd love your help building the future of AI-powered business management.",
   cta: "Apply for Private Alpha",
+} as const;
+
+export const FS_RECS_INTRO = {
+  kicker: "Personalized recommendations",
+  title: "Based on what I've learned…",
+  lede: "I believe Chasum could help your business in four important areas.",
 } as const;
 
 export const FS_RECOMMENDATION_COPY: Record<
@@ -269,52 +315,52 @@ export const FS_RECOMMENDATION_COPY: Record<
 > = {
   "ai-reception": {
     title: "AI Reception",
-    why: "Cover evenings and overflow so the front desk stays calm.",
+    why: "Because your team currently spends significant time answering calls.",
     tone: "blue",
   },
   crm: {
     title: "CRM Intelligence",
-    why: "Keep relationships warm with context before every conversation.",
+    why: "To strengthen customer relationships with context before every conversation.",
     tone: "purple",
   },
   "revenue-reporting": {
-    title: "Business Reports",
-    why: "See what changed — and what it means for the week ahead.",
+    title: "Executive Reports",
+    why: "To help you understand what is changing in your business.",
     tone: "teal",
   },
   reporting: {
-    title: "Business Reports",
-    why: "Turn numbers into judgment instead of another spreadsheet.",
+    title: "Executive Reports",
+    why: "To help you understand what is changing in your business.",
     tone: "teal",
   },
   marketing: {
     title: "Marketing Automation",
-    why: "Reach the right clients when the book needs filling.",
+    why: "To reach the right clients when the book needs filling.",
     tone: "amber",
   },
   retention: {
     title: "Customer Retention",
-    why: "Rebooking becomes a habit — not a chase.",
+    why: "So rebooking becomes a habit — not a chase.",
     tone: "purple",
   },
   deposits: {
     title: "Deposits",
-    why: "Protect longer appointments from costly no-shows.",
+    why: "To protect longer appointments from costly no-shows.",
     tone: "amber",
   },
   "online-booking": {
     title: "Scheduling",
-    why: "Fill real openings without inventing availability.",
+    why: "To fill real openings without inventing availability.",
     tone: "blue",
   },
   calendar: {
     title: "Scheduling",
-    why: "A dependable book is the foundation for everything else.",
+    why: "Because a dependable book is the foundation for everything else.",
     tone: "blue",
   },
   "staff-scheduling": {
     title: "Staff Scheduling",
-    why: "Match demand to who is on the floor.",
+    why: "To match demand to who is on the floor.",
     tone: "teal",
   },
 };

@@ -5,7 +5,7 @@ import {
   FS_AWAKENING,
   FS_BUSINESS_CATEGORIES,
   FS_GUIDED,
-  fsAckBusinessLine,
+  fsBuildAckLines,
   type FsBusinessIndustry,
 } from "@/lib/marketing/flagship-summer";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ import {
   Briefcase,
   Camera,
   Car,
+  Check,
   ChevronDown,
   Dumbbell,
   GraduationCap,
@@ -26,6 +27,7 @@ import {
 import {
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -54,11 +56,17 @@ function getReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-type GuidedPhase = "intro" | "question" | "choices" | "ack" | "committed";
+type GuidedPhase =
+  | "intro"
+  | "question"
+  | "choices"
+  | "ack"
+  | "intelligence"
+  | "committed";
 
 /**
- * Phase 8.1 — Guided Business Discovery.
- * Conversational progressive reveal; selection still feeds the Discovery Engine.
+ * Phase 8 — Guided Business Discovery consultation.
+ * Progressive reveal + intelligence moment; engines unchanged.
  */
 export function FlagshipDiscovery({
   selectedId,
@@ -83,9 +91,15 @@ export function FlagshipDiscovery({
   const [pendingIndustry, setPendingIndustry] =
     useState<FsBusinessIndustry | null>(null);
   const [ackStep, setAckStep] = useState(0);
+  const [intelStep, setIntelStep] = useState(0);
   const committedRef = useRef(false);
 
-  // Intro → question → choices timeline (timers only — no sync setState)
+  const ackLines = useMemo(
+    () => (pendingIndustry ? fsBuildAckLines(pendingIndustry.label) : []),
+    [pendingIndustry],
+  );
+
+  // Intro → question → choices
   useEffect(() => {
     const timers: number[] = [];
 
@@ -116,24 +130,23 @@ export function FlagshipDiscovery({
       (lines.length - 1) * FS_GUIDED.lineGapMs + FS_GUIDED.questionPauseMs;
 
     timers.push(
-      window.setTimeout(() => {
-        setPhase("question");
-      }, afterIntro),
+      window.setTimeout(() => setPhase("question"), afterIntro),
     );
 
     timers.push(
-      window.setTimeout(() => {
-        setPhase("choices");
-      }, afterIntro + FS_GUIDED.choicesPauseMs),
+      window.setTimeout(
+        () => setPhase("choices"),
+        afterIntro + FS_GUIDED.choicesPauseMs,
+      ),
     );
 
     FS_BUSINESS_CATEGORIES.forEach((_, i) => {
       timers.push(
         window.setTimeout(
-          () => {
-            setVisibleCategories(i + 1);
-          },
-          afterIntro + FS_GUIDED.choicesPauseMs + i * FS_GUIDED.categoryStaggerMs,
+          () => setVisibleCategories(i + 1),
+          afterIntro +
+            FS_GUIDED.choicesPauseMs +
+            i * FS_GUIDED.categoryStaggerMs,
         ),
       );
     });
@@ -143,18 +156,57 @@ export function FlagshipDiscovery({
     };
   }, [reducedMotion]);
 
-  // Acknowledgment → commit to Discovery Engine
+  // Acknowledgment beat sheet
   useEffect(() => {
-    if (phase !== "ack" || !pendingIndustry || committedRef.current) return;
+    if (phase !== "ack" || !pendingIndustry || ackLines.length === 0) return;
 
     const timers: number[] = [];
 
     if (reducedMotion) {
       timers.push(
         window.setTimeout(() => {
+          setAckStep(ackLines.length);
+          setPhase("intelligence");
+        }, 0),
+      );
+      return () => {
+        for (const t of timers) window.clearTimeout(t);
+      };
+    }
+
+    for (let i = 0; i < ackLines.length; i += 1) {
+      timers.push(
+        window.setTimeout(() => setAckStep(i + 1), 40 + i * FS_GUIDED.ackGapMs),
+      );
+    }
+
+    timers.push(
+      window.setTimeout(
+        () => setPhase("intelligence"),
+        40 + ackLines.length * FS_GUIDED.ackGapMs,
+      ),
+    );
+
+    return () => {
+      for (const t of timers) window.clearTimeout(t);
+    };
+  }, [phase, pendingIndustry, ackLines, reducedMotion]);
+
+  // Intelligence moment → commit to Discovery Engine
+  useEffect(() => {
+    if (phase !== "intelligence" || !pendingIndustry || committedRef.current) {
+      return;
+    }
+
+    const timers: number[] = [];
+    const steps = FS_GUIDED.intelligenceSteps;
+
+    if (reducedMotion) {
+      timers.push(
+        window.setTimeout(() => {
           if (committedRef.current) return;
           committedRef.current = true;
-          setAckStep(3);
+          setIntelStep(steps.length);
           setPhase("committed");
           onSelect(pendingIndustry.prompt, pendingIndustry.id);
         }, 0),
@@ -164,22 +216,25 @@ export function FlagshipDiscovery({
       };
     }
 
+    for (let i = 0; i < steps.length; i += 1) {
+      timers.push(
+        window.setTimeout(
+          () => setIntelStep(i + 1),
+          60 + i * FS_GUIDED.intelligenceStepMs,
+        ),
+      );
+    }
+
     timers.push(
-      window.setTimeout(() => setAckStep(1), 40),
-    );
-    timers.push(
-      window.setTimeout(() => setAckStep(2), 40 + FS_GUIDED.ackGapMs),
-    );
-    timers.push(
-      window.setTimeout(() => setAckStep(3), 40 + FS_GUIDED.ackGapMs * 2),
-    );
-    timers.push(
-      window.setTimeout(() => {
-        if (committedRef.current) return;
-        committedRef.current = true;
-        setPhase("committed");
-        onSelect(pendingIndustry.prompt, pendingIndustry.id);
-      }, 40 + FS_GUIDED.ackGapMs * 2 + FS_GUIDED.ackCommitMs),
+      window.setTimeout(
+        () => {
+          if (committedRef.current) return;
+          committedRef.current = true;
+          setPhase("committed");
+          onSelect(pendingIndustry.prompt, pendingIndustry.id);
+        },
+        60 + steps.length * FS_GUIDED.intelligenceStepMs + FS_GUIDED.ackCommitMs,
+      ),
     );
 
     return () => {
@@ -188,35 +243,56 @@ export function FlagshipDiscovery({
   }, [phase, pendingIndustry, reducedMotion, onSelect]);
 
   function toggleCategory(id: string) {
-    if (phase === "ack" || phase === "committed") return;
+    if (phase === "ack" || phase === "intelligence" || phase === "committed") {
+      return;
+    }
     setOpenId((prev) => (prev === id ? null : id));
   }
 
   function selectIndustry(industry: FsBusinessIndustry) {
-    if (phase === "ack" || phase === "committed" || disabled) return;
+    if (
+      phase === "ack" ||
+      phase === "intelligence" ||
+      phase === "committed" ||
+      disabled
+    ) {
+      return;
+    }
     setPendingIndustry(industry);
     setOpenId(null);
     setPhase("ack");
     setAckStep(0);
+    setIntelStep(0);
   }
 
   const activeSelectedId = selectedId ?? pendingIndustry?.id ?? null;
   const showQuestion = phase !== "intro";
   const showChoices =
-    phase === "choices" || phase === "ack" || phase === "committed";
+    phase === "choices" ||
+    phase === "ack" ||
+    phase === "intelligence" ||
+    phase === "committed";
+  const locked =
+    phase === "ack" || phase === "intelligence" || phase === "committed";
+  const showIntel = phase === "intelligence" || phase === "committed";
 
   return (
     <section
       className={cn(
         "fs-scene fs-guided",
-        phase === "ack" && "fs-guided-acking",
+        locked && "fs-guided-locked",
         phase === "committed" && "fs-guided-committed",
       )}
       aria-labelledby="fs-guided-title"
       aria-live="polite"
     >
       <div className="fs-guided-intro">
-        <SummerOrb size="xl" active cinematic className="fs-guided-orb" />
+        <SummerOrb
+          size="xl"
+          active
+          cinematic
+          className="fs-guided-orb"
+        />
         <div className="fs-guided-speech">
           <p className="fs-scene-kicker">Summer</p>
           <h2 id="fs-guided-title" className="sr-only">
@@ -251,7 +327,7 @@ export function FlagshipDiscovery({
         <div
           className={cn(
             "fs-cat-list fs-guided-choices",
-            (phase === "ack" || phase === "committed") && "fs-guided-choices-dim",
+            locked && "fs-guided-choices-dim",
           )}
           role="list"
         >
@@ -282,7 +358,7 @@ export function FlagshipDiscovery({
                   className="fs-cat-header"
                   aria-expanded={open}
                   aria-controls={panelId}
-                  disabled={phase === "ack" || phase === "committed"}
+                  disabled={locked}
                   onClick={() => toggleCategory(category.id)}
                 >
                   <span className="fs-cat-icon" aria-hidden>
@@ -315,11 +391,7 @@ export function FlagshipDiscovery({
                           <li key={industry.id}>
                             <button
                               type="button"
-                              disabled={
-                                disabled ||
-                                phase === "ack" ||
-                                phase === "committed"
-                              }
+                              disabled={disabled || locked}
                               tabIndex={open ? 0 : -1}
                               aria-pressed={selected}
                               className={cn(
@@ -343,34 +415,49 @@ export function FlagshipDiscovery({
         </div>
       ) : null}
 
-      {phase === "ack" || phase === "committed" ? (
+      {phase === "ack" || showIntel ? (
         <div className="fs-guided-ack" aria-live="polite">
-          <p
-            className={cn(
-              "fs-guided-ack-line",
-              ackStep >= 1 && "fs-guided-ack-visible",
-            )}
-          >
-            {FS_GUIDED.ackLead}
-          </p>
-          {pendingIndustry ? (
+          {ackLines.map((line, i) => (
             <p
+              key={line}
               className={cn(
                 "fs-guided-ack-line",
-                ackStep >= 2 && "fs-guided-ack-visible",
+                i === ackLines.length - 1 && "fs-guided-ack-soft",
+                i < ackStep && "fs-guided-ack-visible",
               )}
             >
-              {fsAckBusinessLine(pendingIndustry.label)}
+              {line}
             </p>
-          ) : null}
-          <p
-            className={cn(
-              "fs-guided-ack-line fs-guided-ack-soft",
-              ackStep >= 3 && "fs-guided-ack-visible",
-            )}
-          >
-            {FS_GUIDED.ackMore}
-          </p>
+          ))}
+        </div>
+      ) : null}
+
+      {showIntel ? (
+        <div className="fs-guided-intel" aria-live="polite">
+          <p className="fs-scene-kicker">Visible intelligence</p>
+          <ul className="fs-think-list fs-guided-intel-list">
+            {FS_GUIDED.intelligenceSteps.map((step, i) => {
+              const done = i < intelStep;
+              const active = i === intelStep - 1 && intelStep < FS_GUIDED.intelligenceSteps.length;
+              return (
+                <li
+                  key={step}
+                  className={cn(
+                    "fs-think-item",
+                    done && "fs-think-item-done",
+                    active && "fs-think-item-active",
+                  )}
+                >
+                  <span className="fs-think-mark" aria-hidden>
+                    {done ? (
+                      <Check className="size-3.5" strokeWidth={2.5} />
+                    ) : null}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       ) : null}
     </section>

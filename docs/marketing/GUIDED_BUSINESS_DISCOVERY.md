@@ -1,67 +1,91 @@
-# Guided Business Discovery (Phase 8.1)
+# Guided Business Discovery (Phase 8)
 
-Transforms Business Discovery from a selection screen into the beginning of a conversation with Summer.
+Transforms Meet Summer Business Discovery into a true AI consultation — UX, conversation, and presentation only.
 
-Marketing UI only. Engines unchanged: Business Discovery Engine, Knowledge Engine, Session Memory, Provider Registry. No OpenAI.
+Engines unchanged: Business Discovery Engine, Knowledge Engine, Session Memory, Provider Registry. No OpenAI. No authenticated-app changes.
 
 ## Conversation philosophy
 
-The visitor should never feel like they are completing a form.
+Summer does not collect information. Summer understands businesses.
 
-They should feel they have just met Summer — calm, confident, intelligent.
+The visitor should never feel like they are completing a software form. They should leave thinking:
 
-Primary emotional goal:
+> This AI actually understands my business.
 
-> I'm not filling out software. I'm talking with an intelligent business advisor.
+Principles:
 
-## Progressive reveal system
+1. Reveal only the next beat
+2. Speak in calm, complete sentences
+3. Acknowledge before advancing
+4. Show reasoning without spinners
+5. Grow a live profile from real Session Memory — never invent facts
 
-Owned by `FlagshipDiscovery` (`components/marketing/flagship-summer/flagship-discovery.tsx`).
+## Progressive reveal
 
-| Phase | What appears |
+Owned by `FlagshipDiscovery`.
+
+| Phase | Experience |
 | --- | --- |
-| `intro` | Summer orb + spoken lines, one at a time |
+| `intro` | Summer speaks line-by-line |
 | `question` | “What type of business do you own?” |
-| `choices` | Category cards stagger in; accordion starts collapsed |
-| `ack` | Summer acknowledges the selection |
-| `committed` | Existing `onSelect` → `send()` Discovery flow continues |
+| `choices` | Category cards stagger in; one accordion open at a time |
+| `ack` | Personalized acknowledgment beat sheet |
+| `intelligence` | Visible intelligence checklist → Ready. |
+| `committed` | `onSelect` → existing `send()` Discovery flow |
 
-Awakening is no longer a separate journey section — it lives inside guided discovery.
+Copy & timing: `FS_AWAKENING`, `FS_GUIDED`, `fsBuildAckLines()` in `lib/marketing/flagship-summer.ts`.
 
-## Animation timeline
+## Business profile architecture
 
-Constants: `FS_GUIDED` in `lib/marketing/flagship-summer.ts`.
+`FlagshipUnderstanding` (live panel) sits beside the conversation in `fs-consult`.
 
-| Moment | Timing |
-| --- | --- |
-| Intro lines | `lineGapMs` (900ms) between sentences |
-| Pause before question | `questionPauseMs` (1100ms) after last line |
-| Pause before choices | `choicesPauseMs` (750ms) after question |
-| Category stagger | `categoryStaggerMs` (100ms) each |
-| Ack lines | `ackGapMs` (900ms) between |
-| Commit to engine | `ackCommitMs` (1000ms) after final ack line |
+Fields (populated gradually from Session Memory):
 
-Motion vocabulary: fade, soft slide, opacity, elevation, glow. No bounce. No flashy effects.
+- Business
+- Employees
+- Locations
+- Current Software
+- Biggest Challenge
+- Goals
 
-`prefers-reduced-motion: reduce` skips the sequence and shows the question + all categories immediately; acknowledgment commits without delay.
+Undiscovered fields render as `…` with muted styling. Discovered fields animate in with a check. Optional `industryLabel` seeds Business before memory settles.
 
-## UX principles
+Helpers: `buildUnderstandingFields()` in `lib/marketing/meet-summer-intelligence.ts`.
 
-1. Reveal only what is needed next
-2. One open category at a time (premium accordion)
-3. Acknowledge before asking more — never jump-cut to the next form field
-4. Generous whitespace, glass cards, soft blue accent lighting
-5. Selection still feels conversational even though it triggers the same Discovery Engine prompt
+## Intelligence visualization
 
-## Integration
+Two surfaces, both checklist-based (never spinners):
 
-Selection path unchanged after acknowledgment:
+1. **Post-selection moment** — `FS_GUIDED.intelligenceSteps` inside discovery
+2. **Mid-conversation reasoning** — compact `FlagshipThinking` while `pending`, driven by `buildThinkingCues()` / `FS_REASONING_STEPS` from actual memory
 
-`selectIndustry` → ack sequence → `onSelect(prompt, id)` → `FlagshipExperience.send(prompt)` → Session Memory / Discovery / Knowledge / Provider Registry.
+## Recommendation strategy
 
-## Future expansion
+`FlagshipRecommendations` waits until Discovery has enough signal (engine recommendations or challenges + known business type).
 
-- Additional spoken intros per industry after selection
-- Soft typing indicator before Summer’s next discovery question
-- Shared timeline tokens for other Meet Summer chapters
-- Optional voice-over (user-initiated) locked to the same beat sheet
+Framing: outcomes first — title + why grounded in business impact (`FS_RECS_INTRO`, `FS_RECOMMENDATION_COPY`).
+
+## Private Alpha
+
+`FlagshipAlpha` uses a personal Summer invitation (`FS_ALPHA`) rather than a generic CTA, then the existing Design Partner form.
+
+## Integration path
+
+```
+select industry
+  → acknowledgment lines
+  → intelligence checklist
+  → onSelect(prompt, id)
+  → FlagshipExperience.send(prompt)
+  → Session Memory / Discovery / Knowledge / Provider Registry
+  → live profile + conversation chips
+  → recommendations when ready
+  → Private Alpha invite
+```
+
+## Future AI integration
+
+- Richer industry-specific acknowledgment templates
+- Shared motion timeline tokens across Meet Summer chapters
+- Optional user-initiated audio tied to the same beat sheet
+- Deeper playbook cues in Visible Intelligence without changing marketing ownership of engines

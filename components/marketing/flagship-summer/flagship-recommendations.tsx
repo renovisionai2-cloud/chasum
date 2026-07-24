@@ -4,6 +4,7 @@ import { Reveal } from "@/components/landing/reveal";
 import {
   FS_DEFAULT_RECS,
   FS_RECOMMENDATION_COPY,
+  FS_RECS_INTRO,
 } from "@/lib/marketing/flagship-summer";
 import type { SessionMemory } from "@/lib/website-concierge/types";
 import { cn } from "@/lib/utils";
@@ -37,14 +38,11 @@ export function FlagshipRecommendations({
   return (
     <section className="fs-scene" aria-labelledby="fs-recs-title">
       <Reveal>
-        <p className="fs-scene-kicker">Personalized recommendations</p>
+        <p className="fs-scene-kicker">{FS_RECS_INTRO.kicker}</p>
         <h2 id="fs-recs-title" className="fs-scene-title">
-          Based on what I&apos;ve learned…
+          {FS_RECS_INTRO.title}
         </h2>
-        <p className="fs-scene-lede">
-          Outcomes first — not a feature dump. Here is where Chasum tends to help
-          a business like yours.
-        </p>
+        <p className="fs-scene-lede">{FS_RECS_INTRO.lede}</p>
       </Reveal>
 
       <ul className="fs-rec-grid">
