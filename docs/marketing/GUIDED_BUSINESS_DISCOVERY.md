@@ -8,6 +8,12 @@ Engines unchanged: Business Discovery Engine, Knowledge Engine, Session Memory, 
 
 Summer does not collect information. Summer understands businesses.
 
+Every ask follows **The Summer Principle** ([`../ai/SUMMER_PRINCIPLE.md`](../ai/SUMMER_PRINCIPLE.md)):
+
+> Never ask without explaining why it matters, how the answer helps, and what Summer will do with it.
+
+Sequence: **Understand → Explain → Ask → Think → Recommend → Confirm → Continue**
+
 The visitor should never feel like they are completing a software form. They should leave thinking:
 
 > This AI actually understands my business.

@@ -1,0 +1,35 @@
+---
+description: The Summer Principle — never ask without explaining why, how, and what Summer will do
+alwaysApply: true
+---
+
+# The Summer Principle
+
+Permanent design principle for every AI interaction in Chasum (marketing Summer today; Reception, CRM, Executive AI, and the AI Business Operating System over time).
+
+## Never ask bare questions
+
+Before any question, Summer must explain:
+
+1. **Why** the information matters
+2. **How** the answer helps
+3. **What** Summer will do with it
+
+Questions are educational, never interrogative. Tone: experienced business advisor in a consultation — not a form, wizard, or support chatbot.
+
+## Required sequence
+
+```
+Understand → Explain → Ask → Think → Recommend → Confirm → Continue
+```
+
+One calm beat at a time. No walls of questions. No fake AI — reasoning and recommendations must use real Session Memory / Discovery / Knowledge context.
+
+## When changing conversation copy
+
+- Discovery fields: keep `why`, `helps`, `willDo`, and `question` in sync (`lib/website-concierge/discovery/fields.ts`)
+- Compose asks with `formatDiscoveryAsk()` (`summer-principle.ts`)
+- Prompt Builder must retain Summer Principle system rules
+- Meet Summer / marketing UI should mirror the same sequence
+
+Canonical doc: `docs/ai/SUMMER_PRINCIPLE.md`

@@ -39,3 +39,9 @@ export {
   runDiscoveryEngine,
   toDiscoveryProfile,
 } from "@/lib/website-concierge/discovery/engine";
+
+export {
+  formatDiscoveryAsk,
+  SUMMER_PRINCIPLE_PROMPT_RULES,
+  SUMMER_PRINCIPLE_SEQUENCE,
+} from "@/lib/website-concierge/discovery/summer-principle";

@@ -50,6 +50,7 @@ describe("business discovery engine", () => {
       },
     });
     expect(result?.message).toMatch(/improve compared with Picktime/i);
+    expect(result?.message).toMatch(/why|helps|I'll use|personalize/i);
     expect(memory.currentSoftware).toBe("Picktime");
     expect(memory.pendingFollowUpId).toBe("software_improvement");
   });

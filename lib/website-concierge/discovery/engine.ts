@@ -3,7 +3,6 @@ import {
   looksLikeProductQuestion,
   looksLikeTourRequest,
 } from "@/lib/website-concierge/discovery/extract";
-import { knownFieldCount } from "@/lib/website-concierge/discovery/fields";
 import {
   selectNextDiscoveryField,
   shouldOfferRecommendations,
@@ -13,6 +12,7 @@ import {
   buildRecommendationQuery,
   formatRecommendationsMessage,
 } from "@/lib/website-concierge/discovery/recommendations";
+import { formatDiscoveryAsk } from "@/lib/website-concierge/discovery/summer-principle";
 import type {
   DiscoveryFieldId,
   DiscoveryFollowUpId,
@@ -130,13 +130,17 @@ export function runDiscoveryEngine(input: {
     memory.challenges.length === 0
   ) {
     const ack = acknowledge(memory);
+    const software = memory.currentSoftware ?? "your current tool";
     const result: DiscoveryTurnResult = {
-      message: [
-        ack,
-        `What would you most like to improve compared with ${memory.currentSoftware}?`,
-      ]
-        .filter(Boolean)
-        .join(" "),
+      message: formatDiscoveryAsk(
+        {
+          why: `What you want to improve versus ${software} is more important than a feature list.`,
+          helps: "It tells me which gaps actually hurt your day — so I don't recommend noise.",
+          willDo: "I'll use that focus to personalize the next recommendations and keep the conversation practical.",
+          question: `What would you most like to improve compared with ${software}?`,
+        },
+        { understand: ack },
+      ),
       suggestions: [
         "Fewer no-shows",
         "Less admin time",
@@ -204,22 +208,17 @@ export function runDiscoveryEngine(input: {
     return { result: null, memory };
   }
 
-  // Continue discovery with next natural question
+  // Continue discovery — Summer Principle: Understand → Explain → Ask
   const next = selectNextDiscoveryField(toDiscoveryProfile(memory));
   if (next) {
     const ack = acknowledge(memory);
-    const known = knownFieldCount(toDiscoveryProfile(memory));
-    const bridge =
-      known === 0 && memory.discoveryPhase === "opening"
-        ? "I'd love to understand your business so I can be useful — not just answer random questions."
-        : null;
     memory = markAsked(memory, next.id, {
       discoveryPhase: "discovering",
       pendingFollowUpId: null,
     });
     return {
       result: {
-        message: [ack, bridge, next.question].filter(Boolean).join(" "),
+        message: formatDiscoveryAsk(next, { understand: ack }),
         suggestions: next.suggestions ?? [
           "Tell me more",
           "Skip for now",

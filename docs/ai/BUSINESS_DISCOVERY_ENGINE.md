@@ -15,6 +15,14 @@ Transform Summer from a reactive FAQ concierge into an **AI Business Consultant*
 
 The objective is not merely to answer questions — it is to **understand the business**.
 
+## The Summer Principle
+
+Discovery turns must follow [`SUMMER_PRINCIPLE.md`](./SUMMER_PRINCIPLE.md):
+
+**Understand → Explain → Ask → Think → Recommend → Confirm → Continue**
+
+Never ask a bare question. Each discovery field includes `why`, `helps`, and `willDo`, composed by `formatDiscoveryAsk()`.
+
 ## Architecture
 
 ```

@@ -2553,6 +2553,19 @@ body {
   color: rgb(248 250 252 / 0.96);
 }
 
+.fs-guided-explain {
+  margin: 0 0 0.55rem;
+  max-width: 36rem;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.55;
+  color: rgb(203 213 225 / 0.9);
+}
+
+.fs-guided-explain-soft {
+  margin-bottom: 1.15rem;
+  color: rgb(148 163 184 / 0.92);
+}
+
 .fs-guided-choices {
   margin-top: 1.75rem;
 }

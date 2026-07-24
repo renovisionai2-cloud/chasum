@@ -45,6 +45,7 @@ In-app routes and code may still reference legacy **Emma** paths (redirects, rec
 
 ## Related docs
 
+- [`SUMMER_PRINCIPLE.md`](./SUMMER_PRINCIPLE.md) — permanent conversation design for every Chasum AI interaction
 - [`WEBSITE_CONCIERGE.md`](./WEBSITE_CONCIERGE.md)
 - [`KNOWLEDGE_ENGINE.md`](./KNOWLEDGE_ENGINE.md)
 - [`BUSINESS_DISCOVERY_ENGINE.md`](./BUSINESS_DISCOVERY_ENGINE.md)

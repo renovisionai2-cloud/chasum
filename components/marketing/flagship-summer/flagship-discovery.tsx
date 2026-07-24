@@ -320,6 +320,11 @@ export function FlagshipDiscovery({
           showQuestion && "fs-guided-question-visible",
         )}
       >
+        <p className="fs-guided-explain">{FS_GUIDED.questionWhy}</p>
+        <p className="fs-guided-explain">{FS_GUIDED.questionHelps}</p>
+        <p className="fs-guided-explain fs-guided-explain-soft">
+          {FS_GUIDED.questionWillDo}
+        </p>
         <p className="fs-guided-question-text">{FS_GUIDED.question}</p>
       </div>
 

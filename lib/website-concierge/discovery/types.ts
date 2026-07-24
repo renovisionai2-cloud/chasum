@@ -24,6 +24,14 @@ export type DiscoveryFollowUpId = "software_improvement";
 
 export type DiscoveryField = {
   id: DiscoveryFieldId;
+  /**
+   * The Summer Principle — Explain before Ask:
+   * why it matters, how the answer helps, what Summer will do, then the question.
+   * @see docs/ai/SUMMER_PRINCIPLE.md
+   */
+  why: string;
+  helps: string;
+  willDo: string;
   /** Natural consultant-style question */
   question: string;
   /** Quick-reply chips */

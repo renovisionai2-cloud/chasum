@@ -32,6 +32,12 @@ export const FS_AWAKENING = {
 /** Phase 8 — guided conversational discovery copy & timing */
 export const FS_GUIDED = {
   question: "What type of business do you own?",
+  questionWhy:
+    "Every business runs differently — the right recommendation starts with knowing yours.",
+  questionHelps:
+    "Your answer lets me speak your industry's language instead of generic software talk.",
+  questionWillDo:
+    "I'll use it to load relevant patterns, then ask only what still matters — one question at a time.",
   continuePrompt: "I'd like to learn a little more.",
   /** ms between intro sentences */
   lineGapMs: 850,
