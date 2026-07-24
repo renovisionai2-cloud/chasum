@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
 /**
- * Live Business Profile — populates gradually from Session Memory.
- * Undiscovered fields show "Learning…" — never empty form placeholders.
+ * Business understanding woven into the consultation — grows as Summer learns.
+ * Not a separate dashboard panel.
  */
 export function FlagshipUnderstanding({
   memory,
@@ -15,9 +15,7 @@ export function FlagshipUnderstanding({
   live = false,
 }: {
   memory: SessionMemory;
-  /** Preferred business label from category selection (before memory settles) */
   industryLabel?: string | null;
-  /** Compact side-panel presentation beside conversation */
   live?: boolean;
 }) {
   const fields = buildUnderstandingFields(memory, {
@@ -25,12 +23,52 @@ export function FlagshipUnderstanding({
     showPending: live,
   });
 
-  const any = fields.some((f) => f.discovered);
-  if (!live && !any) return null;
+  const discovered = fields.filter((f) => f.discovered);
+  const learning = fields.filter((f) => !f.discovered).slice(0, 2);
+
+  if (!live && discovered.length === 0) return null;
+
+  if (live) {
+    const woven = [...discovered, ...learning];
+    if (woven.length === 0) return null;
+
+    return (
+      <aside
+        className="fs-learned"
+        aria-labelledby="fs-understand-title"
+      >
+        <p className="fs-learned-kicker" id="fs-understand-title">
+          What Summer has learned
+        </p>
+        <ul className="fs-learned-flow">
+          {woven.map((field) => (
+            <li
+              key={field.id}
+              className={cn(
+                "fs-learned-chip",
+                field.discovered
+                  ? "fs-learned-chip-known"
+                  : "fs-learned-chip-learning",
+                field.discovered && "fs-learned-chip-in",
+              )}
+            >
+              <span className="fs-learned-label">{field.label}</span>
+              <span className="fs-learned-value">
+                {field.discovered ? field.value : "Learning…"}
+              </span>
+              {field.discovered ? (
+                <Check className="size-3 opacity-70" strokeWidth={2.5} aria-hidden />
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </aside>
+    );
+  }
 
   return (
     <aside
-      className={cn("fs-profile", live && "fs-profile-live")}
+      className="fs-profile"
       aria-labelledby="fs-understand-title"
     >
       <p className="fs-scene-kicker">Business profile</p>
@@ -38,7 +76,7 @@ export function FlagshipUnderstanding({
         What Summer has learned
       </h2>
 
-      <ul className={cn(live ? "fs-profile-stack" : "fs-profile-grid")}>
+      <ul className="fs-profile-grid">
         {fields.map((field) => (
           <li
             key={field.id}

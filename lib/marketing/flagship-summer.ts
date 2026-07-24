@@ -38,7 +38,9 @@ export const FS_GUIDED = {
     "Your answer lets me speak your industry's language instead of generic software talk.",
   questionWillDo:
     "I'll use it to load relevant patterns, then ask only what still matters — one question at a time.",
-  continuePrompt: "I'd like to learn a little more.",
+  continuePrompt:
+    "A few more details will help me advise you with precision.",
+  backToCategories: "← Back to Categories",
   /** ms between intro sentences */
   lineGapMs: 850,
   /** pause after last intro line before the question */
@@ -85,14 +87,13 @@ export function fsAckDifferenceLine(label: string): string {
   return "Every business is different.";
 }
 
-/** Acknowledgment beat sheet after industry selection */
+/** Acknowledgment beat sheet after industry selection — warm, consultative */
 export function fsBuildAckLines(label: string): string[] {
   return [
-    "Perfect.",
-    fsAckBusinessLine(label),
-    "I've worked with businesses like yours before.",
+    fsAckBusinessLine(label).replace(/^You run/, "So you're running"),
+    "That already tells me a lot about how your days work.",
     fsAckDifferenceLine(label),
-    "I'd like to understand yours before I recommend anything.",
+    "Before I recommend anything, I want to understand what makes yours unique.",
   ];
 }
 

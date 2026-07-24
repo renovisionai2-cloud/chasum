@@ -448,7 +448,7 @@ export function FlagshipDiscovery({
                 setPhase("choices");
               }}
             >
-              ← Change Business Category
+              {FS_GUIDED.backToCategories}
             </button>
           ) : null}
         </div>

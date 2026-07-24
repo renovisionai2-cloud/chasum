@@ -9,6 +9,7 @@ import { FlagshipRecommendations } from "@/components/marketing/flagship-summer/
 import { FlagshipRoadmap } from "@/components/marketing/flagship-summer/flagship-roadmap";
 import { FlagshipThinking } from "@/components/marketing/flagship-summer/flagship-thinking";
 import { FlagshipUnderstanding } from "@/components/marketing/flagship-summer/flagship-understanding";
+import { SummerOrb } from "@/components/marketing/flagship-summer/summer-orb";
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
 import { FS_BUSINESS_TYPES, FS_GUIDED } from "@/lib/marketing/flagship-summer";
 import { cn } from "@/lib/utils";
@@ -31,8 +32,8 @@ function getReducedMotion() {
 }
 
 /**
- * Flagship Meet Summer — cinematic consultation experience.
- * Conversation presentation refined; engines unchanged.
+ * Flagship Meet Summer — cinematic consultation scenes.
+ * Presentation only; Discovery Engine unchanged.
  */
 export function FlagshipExperience() {
   const [started, setStarted] = useState(false);
@@ -57,14 +58,33 @@ export function FlagshipExperience() {
     return FS_BUSINESS_TYPES.find((t) => t.id === selectedType)?.label ?? null;
   }, [selectedType]);
 
-  const showConsult =
+  const inConsultation =
     !!selectedType ||
     (discoveryKey === 0 && memory.businessType !== "unknown");
+
+  const showAftercare =
+    memory.businessType !== "unknown" &&
+    (memory.employeeCount ||
+      memory.challenges.length > 0 ||
+      memory.goals.length > 0 ||
+      !!memory.currentSoftware);
 
   useEffect(() => {
     if (!started) return;
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [started]);
+
+  useEffect(() => {
+    if (!inConsultation || !started) return;
+    window.setTimeout(() => {
+      document
+        .getElementById("fs-consult-stage")
+        ?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "center",
+        });
+    }, 80);
+  }, [inConsultation, started, reducedMotion, selectedType]);
 
   function begin() {
     if (reducedMotion) {
@@ -78,20 +98,22 @@ export function FlagshipExperience() {
   const onSelectType = useCallback(
     async (prompt: string, id: string) => {
       setSelectedType(id);
-      // Replace any prior path understanding — never keep contradictory replies
       await refineUnderstanding(prompt);
     },
     [refineUnderstanding],
   );
 
-  const onChangeCategory = useCallback(() => {
+  const onBackToCategories = useCallback(() => {
     resetDiscoveryPath();
     setSelectedType(null);
     setDiscoveryKey((k) => k + 1);
     window.setTimeout(() => {
       document
         .getElementById("fs-guided-anchor")
-        ?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+        ?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "center",
+        });
     }, 40);
   }, [resetDiscoveryPath, reducedMotion]);
 
@@ -102,6 +124,7 @@ export function FlagshipExperience() {
         started && "fs-started",
         !started && "fs-hero-lock",
         exiting && "fs-exiting",
+        inConsultation && "fs-in-consult",
       )}
     >
       {!started ? (
@@ -112,44 +135,69 @@ export function FlagshipExperience() {
           <div className="fs-journey-atmosphere" aria-hidden />
           <div id="fs-journey" className="fs-journey scroll-mt-0">
             <div id="fs-guided-anchor" className="scroll-mt-8" />
-            <FlagshipDiscovery
-              key={discoveryKey}
-              selectedId={selectedType}
-              disabled={!hydrated || pending}
-              onSelect={onSelectType}
-              resumeAtChoices={discoveryKey > 0}
-            />
 
-            {showConsult ? (
+            {!inConsultation ? (
+              <div className="fs-stage fs-stage-discover fs-scene-rise">
+                <FlagshipDiscovery
+                  key={discoveryKey}
+                  selectedId={selectedType}
+                  disabled={!hydrated || pending}
+                  onSelect={onSelectType}
+                  resumeAtChoices={discoveryKey > 0}
+                />
+              </div>
+            ) : (
               <section
-                className="fs-scene fs-consult fs-consult-enter"
+                id="fs-consult-stage"
+                className="fs-stage fs-stage-consult fs-scene-rise"
                 aria-labelledby="fs-consult-title"
               >
-                <h2 id="fs-consult-title" className="sr-only">
-                  Continue discovering with Summer
-                </h2>
-                <div className="fs-consult-main">
-                  <p className="fs-consult-bridge">{FS_GUIDED.continuePrompt}</p>
-                  <FlagshipThinking
-                    memory={memory}
-                    pending={pending}
-                    reducedMotion={reducedMotion}
-                    compact
-                  />
-                  <FlagshipConversation onChangeCategory={onChangeCategory} />
+                <button
+                  type="button"
+                  className="fs-back-categories"
+                  onClick={onBackToCategories}
+                >
+                  {FS_GUIDED.backToCategories}
+                </button>
+
+                <div className="fs-consult-presence">
+                  <SummerOrb size="lg" active={pending} cinematic />
+                  <div className="fs-consult-copy">
+                    <p className="fs-scene-kicker">Consultation</p>
+                    <h2 id="fs-consult-title" className="fs-consult-heading">
+                      {industryLabel
+                        ? `Understanding your ${industryLabel}`
+                        : "Understanding your business"}
+                    </h2>
+                    <p className="fs-consult-bridge">{FS_GUIDED.continuePrompt}</p>
+                  </div>
                 </div>
+
+                <FlagshipThinking
+                  memory={memory}
+                  pending={pending}
+                  reducedMotion={reducedMotion}
+                  compact
+                />
+
+                <FlagshipConversation />
+
                 <FlagshipUnderstanding
                   memory={memory}
                   industryLabel={industryLabel}
                   live
                 />
               </section>
-            ) : null}
+            )}
 
-            <FlagshipRecommendations memory={memory} />
-            <FlagshipIntelligence />
-            <FlagshipRoadmap />
-            <FlagshipAlpha />
+            {showAftercare ? (
+              <div className="fs-aftercare fs-scene-rise">
+                <FlagshipRecommendations memory={memory} />
+                <FlagshipIntelligence />
+                <FlagshipRoadmap />
+                <FlagshipAlpha />
+              </div>
+            ) : null}
           </div>
         </>
       )}

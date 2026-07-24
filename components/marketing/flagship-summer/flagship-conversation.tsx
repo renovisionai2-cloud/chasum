@@ -1,19 +1,18 @@
 "use client";
 
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
+import { presentConsultationReply } from "@/lib/marketing/flagship-consultation-voice";
 import { cn } from "@/lib/utils";
 import { Send } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 /**
- * Evolving consultation transcript — one living understanding, not a form log.
+ * Evolving consultation — one living understanding, centered on stage.
  */
 export function FlagshipConversation({
   className,
-  onChangeCategory,
 }: {
   className?: string;
-  onChangeCategory?: () => void;
 }) {
   const {
     hydrated,
@@ -29,12 +28,19 @@ export function FlagshipConversation({
   const listRef = useRef<HTMLDivElement>(null);
 
   const understanding = useMemo(() => {
-    // Skip page greeting; show the latest Summer reply as the living understanding
     const assistants = messages.filter((m) => m.role === "assistant");
     return assistants.length > 1
       ? assistants[assistants.length - 1]
       : assistants[0] ?? null;
   }, [messages]);
+
+  const presented = useMemo(
+    () =>
+      understanding
+        ? presentConsultationReply(understanding.content)
+        : null,
+    [understanding],
+  );
 
   const lastUser = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i -= 1) {
@@ -72,43 +78,33 @@ export function FlagshipConversation({
       className={cn("fs-chat", className)}
       aria-label="Continue with Summer"
     >
-      {onChangeCategory ? (
-        <button
-          type="button"
-          className="fs-change-path"
-          onClick={onChangeCategory}
-        >
-          ← Change Business Category
-        </button>
-      ) : null}
-
       <div ref={listRef} className="fs-chat-log">
         {lastUser ? (
           <div
             className={cn(
               "fs-chat-bubble fs-chat-user",
-              !reducedMotion && "fs-fade-in",
+              !reducedMotion && "fs-scene-rise",
             )}
           >
             {lastUser.content}
           </div>
         ) : null}
 
-        {understanding && !pending ? (
+        {presented && !pending ? (
           <div
             key={fadeKey}
             className={cn(
               "fs-chat-bubble fs-chat-assistant fs-chat-understanding",
-              !reducedMotion && "fs-fade-in",
+              !reducedMotion && "fs-scene-rise",
             )}
           >
-            {understanding.content}
+            {presented}
           </div>
         ) : null}
 
         {pending ? (
           <p className="fs-chat-waiting" aria-live="polite">
-            Summer is updating her understanding…
+            Summer is gathering her thoughts…
           </p>
         ) : null}
 
@@ -138,7 +134,7 @@ export function FlagshipConversation({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           disabled={pending}
-          placeholder="Tell Summer more…"
+          placeholder="Share anything that helps me understand…"
           autoComplete="off"
         />
         <button
