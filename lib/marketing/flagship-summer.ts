@@ -23,8 +23,38 @@ export const FS_AWAKENING = {
     "I'm Summer.",
     "Before I recommend software…",
     "I'd like to understand your business.",
+    "I'll ask one simple question at a time.",
   ],
 } as const;
+
+/** Phase 8.1 — guided conversational discovery copy & timing */
+export const FS_GUIDED = {
+  question: "What type of business do you own?",
+  ackLead: "Perfect.",
+  ackMore: "Let me learn a little more.",
+  /** ms between intro sentences */
+  lineGapMs: 900,
+  /** pause after last intro line before the question */
+  questionPauseMs: 1100,
+  /** pause after question before categories begin appearing */
+  choicesPauseMs: 750,
+  /** stagger between category cards */
+  categoryStaggerMs: 100,
+  /** pause between acknowledgment lines */
+  ackGapMs: 900,
+  /** pause after final ack line before sending to Discovery Engine */
+  ackCommitMs: 1000,
+} as const;
+
+export function fsAckBusinessLine(label: string): string {
+  const trimmed = label.trim();
+  if (/^other\b/i.test(trimmed)) {
+    return "You run an appointment-based business.";
+  }
+  const startsWithVowel = /^[aeiou]/i.test(trimmed);
+  const article = startsWithVowel ? "an" : "a";
+  return `You run ${article} ${trimmed}.`;
+}
 
 export type FsBusinessIndustry = {
   id: string;

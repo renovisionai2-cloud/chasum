@@ -1,7 +1,6 @@
 "use client";
 
 import { FlagshipAlpha } from "@/components/marketing/flagship-summer/flagship-alpha";
-import { FlagshipAwakening } from "@/components/marketing/flagship-summer/flagship-awakening";
 import { FlagshipConversation } from "@/components/marketing/flagship-summer/flagship-conversation";
 import { FlagshipDiscovery } from "@/components/marketing/flagship-summer/flagship-discovery";
 import { FlagshipHero } from "@/components/marketing/flagship-summer/flagship-hero";
@@ -12,7 +11,7 @@ import { FlagshipThinking } from "@/components/marketing/flagship-summer/flagshi
 import { FlagshipUnderstanding } from "@/components/marketing/flagship-summer/flagship-understanding";
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
 import { cn } from "@/lib/utils";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 function subscribeReducedMotion(onChange: () => void) {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -55,10 +54,13 @@ export function FlagshipExperience() {
     window.setTimeout(() => setStarted(true), 1200);
   }
 
-  async function onSelectType(prompt: string, id: string) {
-    setSelectedType(id);
-    await send(prompt);
-  }
+  const onSelectType = useCallback(
+    async (prompt: string, id: string) => {
+      setSelectedType(id);
+      await send(prompt);
+    },
+    [send],
+  );
 
   return (
     <div
@@ -76,7 +78,6 @@ export function FlagshipExperience() {
           <div className="fs-journey-enter" aria-hidden />
           <div className="fs-journey-atmosphere" aria-hidden />
           <div id="fs-journey" className="fs-journey scroll-mt-0">
-            <FlagshipAwakening />
             <FlagshipDiscovery
               selectedId={selectedType}
               disabled={!hydrated || pending}

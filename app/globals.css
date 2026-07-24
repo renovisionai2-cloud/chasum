@@ -2488,6 +2488,129 @@ body {
   color: rgb(241 245 249 / 0.92);
 }
 
+/* Phase 8.1 — Guided conversational discovery */
+
+.fs-guided {
+  max-width: 44rem;
+}
+
+.fs-guided-intro {
+  display: grid;
+  gap: 1.75rem;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .fs-guided-intro {
+    grid-template-columns: auto 1fr;
+    gap: 2.5rem;
+  }
+}
+
+.fs-guided-orb {
+  justify-self: center;
+}
+
+.fs-guided-speech {
+  min-width: 0;
+}
+
+.fs-guided-line {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.7s var(--fs-ease),
+    transform 0.7s var(--fs-ease);
+}
+
+.fs-guided-line-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fs-guided-question {
+  margin-top: 2.5rem;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.75s var(--fs-ease),
+    transform 0.75s var(--fs-ease);
+  pointer-events: none;
+}
+
+.fs-guided-question-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.fs-guided-question-text {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.9rem);
+  font-weight: 560;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: rgb(248 250 252 / 0.96);
+}
+
+.fs-guided-choices {
+  margin-top: 1.75rem;
+}
+
+.fs-guided-cat {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.55s var(--fs-ease),
+    transform 0.55s var(--fs-ease),
+    border-color 0.35s var(--fs-ease),
+    box-shadow 0.35s var(--fs-ease),
+    background 0.35s var(--fs-ease);
+}
+
+.fs-guided-cat-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fs-guided-choices-dim {
+  opacity: 0.42;
+  pointer-events: none;
+  transition: opacity 0.6s var(--fs-ease);
+}
+
+.fs-guided-ack {
+  margin-top: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-width: 28rem;
+}
+
+.fs-guided-ack-line {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.4vw, 1.55rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: rgb(241 245 249 / 0.94);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.7s var(--fs-ease),
+    transform 0.7s var(--fs-ease);
+}
+
+.fs-guided-ack-soft {
+  color: rgb(148 163 184 / 0.95);
+  font-weight: 450;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+}
+
+.fs-guided-ack-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .fs-cat-list {
   margin-top: 2.25rem;
   display: flex;
@@ -3144,7 +3267,12 @@ body {
   .fs-cat,
   .fs-cat-panel,
   .fs-cat-chevron,
-  .fs-cat-industry {
+  .fs-cat-industry,
+  .fs-guided-line,
+  .fs-guided-question,
+  .fs-guided-cat,
+  .fs-guided-ack-line,
+  .fs-guided-choices-dim {
     animation: none !important;
     transition: none !important;
   }
