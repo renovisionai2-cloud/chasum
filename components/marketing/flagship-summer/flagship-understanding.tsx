@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 
 /**
  * Live Business Profile — populates gradually from Session Memory.
- * Never dumps every field at once; undiscovered fields stay as ellipsis.
+ * Undiscovered fields show "Learning…" — never empty form placeholders.
  */
 export function FlagshipUnderstanding({
   memory,
@@ -52,7 +52,7 @@ export function FlagshipUnderstanding({
               <div>
                 <p className="fs-profile-label">{field.label}</p>
                 <p className="fs-profile-value">
-                  {field.discovered ? field.value : "…"}
+                  {field.discovered ? field.value : "Learning…"}
                 </p>
               </div>
               {field.discovered ? (

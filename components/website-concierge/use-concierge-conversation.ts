@@ -202,6 +202,139 @@ export function useConciergeConversation() {
     suggestions: state.suggestions,
     pending: state.pending,
     error: state.error,
+    /**
+     * Presentation helper (Meet Summer): clear discovery transcript/profile so
+     * Summer can start a fresh path without contradictory messages.
+     * Does not change Discovery Engine code — only session presentation state.
+     */
+    resetDiscoveryPath() {
+      const pageId = detectMarketingPage(pathname).pageId;
+      const memory = recordPageVisit(createEmptySessionMemory(), pageId);
+      const greeting: ConciergeMessage = {
+        id: createId(),
+        role: "assistant",
+        content: getPageGreeting(pageId),
+        createdAt: new Date().toISOString(),
+      };
+      saveSessionMemory(memory);
+      saveMessages([greeting]);
+      setStore({
+        memory,
+        messages: [greeting],
+        suggestions: defaultSuggestions(pageId),
+        pending: false,
+        error: null,
+      });
+    },
+    /**
+     * Replace prior discovery turns with a single new understanding.
+     * Removes obsolete user/assistant pairs before sending the new path prompt.
+     */
+    async refineUnderstanding(text: string) {
+      const content = text.trim();
+      if (!content || store.pending) return;
+
+      const pageId = detectMarketingPage(pathname).pageId;
+      const memory = recordPageVisit(createEmptySessionMemory(), pageId);
+      const greeting: ConciergeMessage = {
+        id: createId(),
+        role: "assistant",
+        content: getPageGreeting(pageId),
+        createdAt: new Date().toISOString(),
+      };
+      const userMessage: ConciergeMessage = {
+        id: createId(),
+        role: "user",
+        content,
+        createdAt: new Date().toISOString(),
+      };
+      const transcript = [greeting, userMessage];
+      saveSessionMemory(memory);
+      saveMessages(transcript);
+      setStore({
+        memory,
+        messages: transcript,
+        pending: true,
+        error: null,
+        suggestions: [],
+      });
+
+      try {
+        const result = await runConciergeTurn({
+          pathname,
+          userMessage: content,
+          messages: transcript,
+          memory,
+        });
+        // Single evolving understanding: greeting + this answer + new Summer reply
+        const nextMessages = [greeting, userMessage, result.assistantMessage];
+        saveMessages(nextMessages);
+        saveSessionMemory(result.memory);
+        setStore({
+          messages: nextMessages,
+          memory: result.memory,
+          suggestions: result.suggestions,
+          pending: false,
+        });
+      } catch {
+        setStore({
+          pending: false,
+          error: "Something went wrong. Please try again.",
+        });
+      }
+    },
+    /**
+     * Meet Summer: continue consultation while replacing the prior reply.
+     * Session Memory keeps facts; transcript shows one evolving understanding.
+     */
+    async continueUnderstanding(text: string) {
+      const content = text.trim();
+      if (!content || store.pending) return;
+
+      const userMessage: ConciergeMessage = {
+        id: createId(),
+        role: "user",
+        content,
+        createdAt: new Date().toISOString(),
+      };
+      const greeting =
+        store.messages[0]?.role === "assistant" ? store.messages[0] : null;
+      const engineTranscript = [...store.messages, userMessage].slice(-12);
+      const waiting = greeting
+        ? [greeting, userMessage]
+        : [userMessage];
+      saveMessages(waiting);
+      setStore({
+        messages: waiting,
+        pending: true,
+        error: null,
+      });
+
+      try {
+        const result = await runConciergeTurn({
+          pathname,
+          userMessage: content,
+          messages: engineTranscript,
+          memory: store.memory,
+        });
+        const nextMessages = greeting
+          ? [greeting, userMessage, result.assistantMessage]
+          : [userMessage, result.assistantMessage];
+        saveMessages(nextMessages);
+        saveSessionMemory(result.memory);
+        setStore({
+          messages: nextMessages,
+          memory: result.memory,
+          suggestions: result.suggestions,
+          pending: false,
+        });
+      } catch {
+        setStore({
+          pending: false,
+          error: "Something went wrong. Please try again.",
+        });
+      }
+    },
     async send(text: string) {
       const content = text.trim();
       if (!content || store.pending) return;

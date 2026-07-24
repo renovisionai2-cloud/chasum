@@ -3,71 +3,126 @@
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
 import { cn } from "@/lib/utils";
 import { Send } from "lucide-react";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 /**
- * Calm follow-up conversation after card discovery — not a support widget.
+ * Evolving consultation transcript — one living understanding, not a form log.
  */
-export function FlagshipConversation({ className }: { className?: string }) {
+export function FlagshipConversation({
+  className,
+  onChangeCategory,
+}: {
+  className?: string;
+  onChangeCategory?: () => void;
+}) {
   const {
     hydrated,
     messages,
     suggestions,
     pending,
     error,
-    send,
+    continueUnderstanding,
     reducedMotion,
   } = useConciergeConversation();
   const [draft, setDraft] = useState("");
+  const [fadeKey, setFadeKey] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
+
+  const understanding = useMemo(() => {
+    // Skip page greeting; show the latest Summer reply as the living understanding
+    const assistants = messages.filter((m) => m.role === "assistant");
+    return assistants.length > 1
+      ? assistants[assistants.length - 1]
+      : assistants[0] ?? null;
+  }, [messages]);
+
+  const lastUser = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      if (messages[i]?.role === "user") return messages[i];
+    }
+    return null;
+  }, [messages]);
+
+  useEffect(() => {
+    setFadeKey((k) => k + 1);
+  }, [understanding?.id]);
 
   useEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, pending]);
+  }, [understanding?.id, pending, lastUser?.id]);
 
   if (!hydrated) {
     return (
       <div className={cn("fs-chat", className)} aria-busy="true">
-        <p className="text-sm text-white/45">Preparing Summer…</p>
+        <p className="fs-chat-preparing">Preparing Summer…</p>
       </div>
     );
   }
-
-  // Skip the greeting in the transcript display if we already showed awakening
-  const visible = messages.filter(
-    (m, i) => !(i === 0 && m.role === "assistant"),
-  );
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     const value = draft;
     setDraft("");
-    void send(value);
+    void continueUnderstanding(value);
   }
 
   return (
-    <section className={cn("fs-chat", className)} aria-label="Continue with Summer">
+    <section
+      className={cn("fs-chat", className)}
+      aria-label="Continue with Summer"
+    >
+      {onChangeCategory ? (
+        <button
+          type="button"
+          className="fs-change-path"
+          onClick={onChangeCategory}
+        >
+          ← Change Business Category
+        </button>
+      ) : null}
+
       <div ref={listRef} className="fs-chat-log">
-        {visible.map((m) => (
+        {lastUser ? (
           <div
-            key={m.id}
             className={cn(
-              "fs-chat-bubble",
-              m.role === "assistant" ? "fs-chat-assistant" : "fs-chat-user",
+              "fs-chat-bubble fs-chat-user",
               !reducedMotion && "fs-fade-in",
             )}
           >
-            {m.content}
+            {lastUser.content}
           </div>
-        ))}
-        {error ? <p className="text-xs text-red-300">{error}</p> : null}
+        ) : null}
+
+        {understanding && !pending ? (
+          <div
+            key={fadeKey}
+            className={cn(
+              "fs-chat-bubble fs-chat-assistant fs-chat-understanding",
+              !reducedMotion && "fs-fade-in",
+            )}
+          >
+            {understanding.content}
+          </div>
+        ) : null}
+
+        {pending ? (
+          <p className="fs-chat-waiting" aria-live="polite">
+            Summer is updating her understanding…
+          </p>
+        ) : null}
+
+        {error ? <p className="fs-chat-error">{error}</p> : null}
       </div>
 
       {!pending && suggestions.length > 0 ? (
         <div className="fs-chat-chips">
           {suggestions.slice(0, 4).map((s) => (
-            <button key={s} type="button" onClick={() => void send(s)}>
+            <button
+              key={s}
+              type="button"
+              onClick={() => void continueUnderstanding(s)}
+            >
               {s}
             </button>
           ))}

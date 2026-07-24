@@ -72,10 +72,13 @@ export function FlagshipDiscovery({
   selectedId,
   disabled,
   onSelect,
+  resumeAtChoices = false,
 }: {
   selectedId: string | null;
   disabled?: boolean;
   onSelect: (prompt: string, id: string) => void;
+  /** Skip intro and land on category cards (after path change) */
+  resumeAtChoices?: boolean;
 }) {
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
@@ -83,9 +86,15 @@ export function FlagshipDiscovery({
     () => false,
   );
 
-  const [phase, setPhase] = useState<GuidedPhase>("intro");
-  const [visibleLines, setVisibleLines] = useState(0);
-  const [visibleCategories, setVisibleCategories] = useState(0);
+  const [phase, setPhase] = useState<GuidedPhase>(
+    resumeAtChoices ? "choices" : "intro",
+  );
+  const [visibleLines, setVisibleLines] = useState(
+    resumeAtChoices ? FS_AWAKENING.lines.length : 0,
+  );
+  const [visibleCategories, setVisibleCategories] = useState(
+    resumeAtChoices ? FS_BUSINESS_CATEGORIES.length : 0,
+  );
   const [selectedCategory, setSelectedCategory] =
     useState<FsBusinessCategory | null>(null);
   const [pendingIndustry, setPendingIndustry] =
@@ -102,6 +111,8 @@ export function FlagshipDiscovery({
 
   // Intro → question → category cards
   useEffect(() => {
+    if (resumeAtChoices) return;
+
     const timers: number[] = [];
 
     if (reducedMotion) {
@@ -155,7 +166,7 @@ export function FlagshipDiscovery({
     return () => {
       for (const t of timers) window.clearTimeout(t);
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, resumeAtChoices]);
 
   // Category → industries progressive reveal
   useEffect(() => {
@@ -437,7 +448,7 @@ export function FlagshipDiscovery({
                 setPhase("choices");
               }}
             >
-              Choose a different path
+              ← Change Business Category
             </button>
           ) : null}
         </div>
@@ -465,22 +476,28 @@ export function FlagshipDiscovery({
           <p className="fs-scene-kicker">Visible intelligence</p>
           <ul className="fs-think-list fs-guided-intel-list">
             {FS_GUIDED.intelligenceSteps.map((step, i) => {
-              const done = i < intelStep;
-              const active =
-                i === intelStep - 1 &&
-                intelStep < FS_GUIDED.intelligenceSteps.length;
+              const activeIdx =
+                intelStep > 0 &&
+                intelStep < FS_GUIDED.intelligenceSteps.length
+                  ? intelStep - 1
+                  : -1;
+              const done =
+                i < intelStep && i !== activeIdx;
+              const active = i === activeIdx;
               return (
                 <li
                   key={step}
                   className={cn(
                     "fs-think-item",
                     done && "fs-think-item-done",
-                    active && "fs-think-item-active",
+                    active && "fs-think-item-live",
                   )}
                 >
                   <span className="fs-think-mark" aria-hidden>
                     {done ? (
                       <Check className="size-3.5" strokeWidth={2.5} />
+                    ) : active ? (
+                      <span className="fs-think-pulse" />
                     ) : null}
                   </span>
                   <span>{step}</span>
