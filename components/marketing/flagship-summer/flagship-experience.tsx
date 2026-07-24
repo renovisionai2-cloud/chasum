@@ -41,12 +41,9 @@ export function FlagshipExperience() {
 
   useEffect(() => {
     if (!started) return;
-    const el = document.getElementById("fs-journey");
-    el?.scrollIntoView({
-      behavior: reducedMotion ? "auto" : "smooth",
-      block: "start",
-    });
-  }, [started, reducedMotion]);
+    // Enter Summer's mind at the top — no jump-scroll from the hero CTA
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [started]);
 
   function begin() {
     if (reducedMotion) {
@@ -54,7 +51,8 @@ export function FlagshipExperience() {
       return;
     }
     setExiting(true);
-    window.setTimeout(() => setStarted(true), 700);
+    // Cinematic exit: orb pulse + fade before entering Summer's mind
+    window.setTimeout(() => setStarted(true), 1200);
   }
 
   async function onSelectType(prompt: string, id: string) {
@@ -63,11 +61,19 @@ export function FlagshipExperience() {
   }
 
   return (
-    <div className={cn("fs", started && "fs-started")}>
+    <div
+      className={cn(
+        "fs",
+        started && "fs-started",
+        !started && "fs-hero-lock",
+        exiting && "fs-exiting",
+      )}
+    >
       {!started ? (
         <FlagshipHero onBegin={begin} exiting={exiting} />
       ) : (
         <>
+          <div className="fs-journey-enter" aria-hidden />
           <div className="fs-journey-atmosphere" aria-hidden />
           <div id="fs-journey" className="fs-journey scroll-mt-0">
             <FlagshipAwakening />

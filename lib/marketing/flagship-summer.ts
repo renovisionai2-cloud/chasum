@@ -6,9 +6,15 @@
 export const FS_HERO = {
   brand: "Meet Summer",
   headline: "The Intelligence Behind Every Business Decision.",
-  support:
-    "Summer doesn't manage appointments.\nSummer understands businesses.",
+  micro: [
+    "Summer doesn't replace people.",
+    "She understands businesses.",
+    "She learns.",
+    "She recommends.",
+    "She remembers.",
+  ],
   cta: "Begin the Experience",
+  ctaHint: "A two-minute introduction to the future of business management.",
 } as const;
 
 export const FS_AWAKENING = {
