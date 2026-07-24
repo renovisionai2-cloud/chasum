@@ -52,4 +52,5 @@ In-app routes and code may still reference legacy **Emma** paths (redirects, rec
 - [`PREMIUM_AI_EXPERIENCE.md`](../marketing/PREMIUM_AI_EXPERIENCE.md)
 - [`PREMIUM_CONVERSATION_EXPERIENCE.md`](../marketing/PREMIUM_CONVERSATION_EXPERIENCE.md)
 - [`FLAGSHIP_MEET_SUMMER.md`](../marketing/FLAGSHIP_MEET_SUMMER.md)
+- [`FLAGSHIP_SUMMER_IMPLEMENTATION.md`](../marketing/FLAGSHIP_SUMMER_IMPLEMENTATION.md)
 - [`../product/30_CHASUM_BLUEPRINT.md`](../product/30_CHASUM_BLUEPRINT.md)
