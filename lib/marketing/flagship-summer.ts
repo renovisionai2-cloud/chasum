@@ -46,7 +46,9 @@ export const FS_GUIDED = {
   /** pause after question before categories begin appearing */
   choicesPauseMs: 750,
   /** stagger between category cards */
-  categoryStaggerMs: 100,
+  categoryStaggerMs: 140,
+  /** pause after category pick before industries appear */
+  industryRevealMs: 420,
   /** pause between acknowledgment lines */
   ackGapMs: 850,
   /** pause between intelligence checklist steps */
@@ -104,17 +106,20 @@ export type FsBusinessIndustry = {
 export type FsBusinessCategory = {
   id: string;
   label: string;
+  /** Short path description for floating category cards */
+  blurb: string;
   industries: readonly FsBusinessIndustry[];
 };
 
 /**
- * Phase 8 — category accordion for Business Discovery.
+ * Phase 9 — floating path cards for Business Discovery.
  * Prompts stay natural language so Session Memory / extractors work unchanged.
  */
 export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "healthcare",
     label: "Healthcare",
+    blurb: "Clinics · Dental · Medical · Veterinary",
     industries: [
       { id: "ultrasound", label: "Ultrasound", prompt: "I run an ultrasound clinic" },
       { id: "medical_clinic", label: "Medical Clinic", prompt: "I run a medical clinic" },
@@ -137,6 +142,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "beauty",
     label: "Beauty & Personal Care",
+    blurb: "Salons · Spa · Barber · Nails",
     industries: [
       { id: "hair_salon", label: "Hair Salon", prompt: "I run a hair salon" },
       { id: "barber_shop", label: "Barber Shop", prompt: "I run a barber shop" },
@@ -151,6 +157,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "fitness",
     label: "Fitness & Wellness",
+    blurb: "Gym · Training · Yoga · Pilates",
     industries: [
       { id: "gym", label: "Gym", prompt: "I run a gym" },
       {
@@ -166,6 +173,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "pet",
     label: "Pet Services",
+    blurb: "Veterinary · Grooming · Training · Daycare",
     industries: [
       { id: "veterinary_pet", label: "Veterinary", prompt: "I run a veterinary clinic" },
       { id: "pet_grooming", label: "Pet Grooming", prompt: "I run a pet grooming business" },
@@ -176,6 +184,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "automotive",
     label: "Automotive",
+    blurb: "Repair · Collision · Detailing · Tires",
     industries: [
       { id: "auto_repair", label: "Auto Repair", prompt: "I run an auto repair shop" },
       {
@@ -190,6 +199,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "home",
     label: "Home Services",
+    blurb: "Cleaning · HVAC · Plumbing · Electrical",
     industries: [
       { id: "cleaning", label: "Cleaning Service", prompt: "I run a cleaning service" },
       { id: "hvac", label: "HVAC", prompt: "I run an HVAC business" },
@@ -202,6 +212,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "professional",
     label: "Professional Services",
+    blurb: "Accounting · Law · Real Estate · Consulting",
     industries: [
       { id: "law_firm", label: "Law Firm", prompt: "I run a law firm" },
       { id: "accounting", label: "Accounting", prompt: "I run an accounting practice" },
@@ -213,6 +224,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "creative",
     label: "Photography & Creative",
+    blurb: "Photo · Video · Photo Booth",
     industries: [
       {
         id: "photography_studio",
@@ -234,6 +246,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "education",
     label: "Education",
+    blurb: "Tutoring · Music · Driving · Training",
     industries: [
       { id: "tutoring", label: "Tutoring Centre", prompt: "I run a tutoring centre" },
       { id: "music_school", label: "Music School", prompt: "I run a music school" },
@@ -244,6 +257,7 @@ export const FS_BUSINESS_CATEGORIES: readonly FsBusinessCategory[] = [
   {
     id: "other",
     label: "Other",
+    blurb: "Appointment-based businesses",
     industries: [
       {
         id: "other",

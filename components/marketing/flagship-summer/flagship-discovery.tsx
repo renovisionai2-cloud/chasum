@@ -6,6 +6,7 @@ import {
   FS_BUSINESS_CATEGORIES,
   FS_GUIDED,
   fsBuildAckLines,
+  type FsBusinessCategory,
   type FsBusinessIndustry,
 } from "@/lib/marketing/flagship-summer";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,6 @@ import {
   Camera,
   Car,
   Check,
-  ChevronDown,
   Dumbbell,
   GraduationCap,
   HeartPulse,
@@ -26,7 +26,6 @@ import {
 } from "lucide-react";
 import {
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
@@ -60,13 +59,14 @@ type GuidedPhase =
   | "intro"
   | "question"
   | "choices"
+  | "industries"
   | "ack"
   | "intelligence"
   | "committed";
 
 /**
- * Phase 8 — Guided Business Discovery consultation.
- * Progressive reveal + intelligence moment; engines unchanged.
+ * Phase 9 — AI Design Language guided discovery.
+ * Floating path cards + progressive industry reveal; engines unchanged.
  */
 export function FlagshipDiscovery({
   selectedId,
@@ -77,7 +77,6 @@ export function FlagshipDiscovery({
   disabled?: boolean;
   onSelect: (prompt: string, id: string) => void;
 }) {
-  const baseId = useId();
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotion,
@@ -87,11 +86,13 @@ export function FlagshipDiscovery({
   const [phase, setPhase] = useState<GuidedPhase>("intro");
   const [visibleLines, setVisibleLines] = useState(0);
   const [visibleCategories, setVisibleCategories] = useState(0);
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<FsBusinessCategory | null>(null);
   const [pendingIndustry, setPendingIndustry] =
     useState<FsBusinessIndustry | null>(null);
   const [ackStep, setAckStep] = useState(0);
   const [intelStep, setIntelStep] = useState(0);
+  const [industriesVisible, setIndustriesVisible] = useState(false);
   const committedRef = useRef(false);
 
   const ackLines = useMemo(
@@ -99,7 +100,7 @@ export function FlagshipDiscovery({
     [pendingIndustry],
   );
 
-  // Intro → question → choices
+  // Intro → question → category cards
   useEffect(() => {
     const timers: number[] = [];
 
@@ -156,6 +157,27 @@ export function FlagshipDiscovery({
     };
   }, [reducedMotion]);
 
+  // Category → industries progressive reveal
+  useEffect(() => {
+    if (phase !== "industries" || !selectedCategory) return;
+    const timers: number[] = [];
+    if (reducedMotion) {
+      timers.push(
+        window.setTimeout(() => setIndustriesVisible(true), 0),
+      );
+    } else {
+      timers.push(
+        window.setTimeout(
+          () => setIndustriesVisible(true),
+          FS_GUIDED.industryRevealMs,
+        ),
+      );
+    }
+    return () => {
+      for (const t of timers) window.clearTimeout(t);
+    };
+  }, [phase, selectedCategory, reducedMotion]);
+
   // Acknowledgment beat sheet
   useEffect(() => {
     if (phase !== "ack" || !pendingIndustry || ackLines.length === 0) return;
@@ -192,7 +214,7 @@ export function FlagshipDiscovery({
     };
   }, [phase, pendingIndustry, ackLines, reducedMotion]);
 
-  // Intelligence moment → commit to Discovery Engine
+  // Intelligence moment → commit
   useEffect(() => {
     if (phase !== "intelligence" || !pendingIndustry || committedRef.current) {
       return;
@@ -242,24 +264,16 @@ export function FlagshipDiscovery({
     };
   }, [phase, pendingIndustry, reducedMotion, onSelect]);
 
-  function toggleCategory(id: string) {
-    if (phase === "ack" || phase === "intelligence" || phase === "committed") {
-      return;
-    }
-    setOpenId((prev) => (prev === id ? null : id));
+  function chooseCategory(category: FsBusinessCategory) {
+    if (phase !== "choices" || disabled) return;
+    setSelectedCategory(category);
+    setIndustriesVisible(false);
+    setPhase("industries");
   }
 
   function selectIndustry(industry: FsBusinessIndustry) {
-    if (
-      phase === "ack" ||
-      phase === "intelligence" ||
-      phase === "committed" ||
-      disabled
-    ) {
-      return;
-    }
+    if (phase !== "industries" || disabled) return;
     setPendingIndustry(industry);
-    setOpenId(null);
     setPhase("ack");
     setAckStep(0);
     setIntelStep(0);
@@ -269,12 +283,17 @@ export function FlagshipDiscovery({
   const showQuestion = phase !== "intro";
   const showChoices =
     phase === "choices" ||
+    phase === "industries" ||
     phase === "ack" ||
     phase === "intelligence" ||
     phase === "committed";
   const locked =
     phase === "ack" || phase === "intelligence" || phase === "committed";
   const showIntel = phase === "intelligence" || phase === "committed";
+  const showIndustries =
+    (phase === "industries" || locked) &&
+    selectedCategory &&
+    industriesVisible;
 
   return (
     <section
@@ -287,12 +306,7 @@ export function FlagshipDiscovery({
       aria-live="polite"
     >
       <div className="fs-guided-intro">
-        <SummerOrb
-          size="xl"
-          active
-          cinematic
-          className="fs-guided-orb"
-        />
+        <SummerOrb size="xl" active cinematic className="fs-guided-orb" />
         <div className="fs-guided-speech">
           <p className="fs-scene-kicker">Summer</p>
           <h2 id="fs-guided-title" className="sr-only">
@@ -331,92 +345,101 @@ export function FlagshipDiscovery({
       {showChoices ? (
         <div
           className={cn(
-            "fs-cat-list fs-guided-choices",
+            "fs-path-grid fs-guided-choices",
+            (phase === "industries" || locked) && "fs-guided-choices-narrow",
             locked && "fs-guided-choices-dim",
           )}
           role="list"
         >
           {FS_BUSINESS_CATEGORIES.map((category, index) => {
             const Icon = CATEGORY_ICONS[category.id] ?? MoreHorizontal;
-            const open = openId === category.id;
-            const panelId = `${baseId}-${category.id}-panel`;
-            const headerId = `${baseId}-${category.id}-header`;
-            const hasSelected = category.industries.some(
-              (industry) => industry.id === activeSelectedId,
-            );
             const revealed = index < visibleCategories;
+            const active = selectedCategory?.id === category.id;
+            const faded =
+              selectedCategory &&
+              selectedCategory.id !== category.id &&
+              phase !== "choices";
+
+            if (faded) return null;
 
             return (
               <div
                 key={category.id}
                 role="listitem"
                 className={cn(
-                  "fs-cat fs-guided-cat",
+                  "fs-path-card-wrap fs-guided-cat",
                   revealed && "fs-guided-cat-visible",
-                  open && "fs-cat-open",
-                  hasSelected && "fs-cat-has-selection",
                 )}
               >
                 <button
                   type="button"
-                  id={headerId}
-                  className="fs-cat-header"
-                  aria-expanded={open}
-                  aria-controls={panelId}
-                  disabled={locked}
-                  onClick={() => toggleCategory(category.id)}
+                  className={cn(
+                    "fs-path-card",
+                    active && "fs-path-card-active",
+                  )}
+                  disabled={locked || phase === "industries"}
+                  aria-pressed={active}
+                  onClick={() => chooseCategory(category)}
                 >
-                  <span className="fs-cat-icon" aria-hidden>
+                  <span className="fs-path-icon" aria-hidden>
                     <Icon className="size-5" strokeWidth={1.5} />
                   </span>
-                  <span className="fs-cat-label">{category.label}</span>
-                  <span className="fs-cat-count" aria-hidden>
-                    {category.industries.length}
+                  <span className="fs-path-copy">
+                    <span className="fs-path-label">{category.label}</span>
+                    <span className="fs-path-blurb">{category.blurb}</span>
                   </span>
-                  <ChevronDown
-                    className="fs-cat-chevron"
-                    strokeWidth={1.75}
-                    aria-hidden
-                  />
                 </button>
-
-                <div
-                  id={panelId}
-                  role="region"
-                  aria-labelledby={headerId}
-                  className="fs-cat-panel"
-                  aria-hidden={!open}
-                  inert={open ? undefined : true}
-                >
-                  <div className="fs-cat-panel-inner">
-                    <ul className="fs-cat-industries">
-                      {category.industries.map((industry) => {
-                        const selected = activeSelectedId === industry.id;
-                        return (
-                          <li key={industry.id}>
-                            <button
-                              type="button"
-                              disabled={disabled || locked}
-                              tabIndex={open ? 0 : -1}
-                              aria-pressed={selected}
-                              className={cn(
-                                "fs-cat-industry",
-                                selected && "fs-cat-industry-selected",
-                              )}
-                              onClick={() => selectIndustry(industry)}
-                            >
-                              <span className="fs-cat-radio" aria-hidden />
-                              <span>{industry.label}</span>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </div>
               </div>
             );
           })}
+        </div>
+      ) : null}
+
+      {showIndustries && selectedCategory ? (
+        <div
+          className="fs-industry-panel"
+          role="region"
+          aria-label={`${selectedCategory.label} industries`}
+        >
+          <p className="fs-industry-prompt">
+            Which best describes your {selectedCategory.label.toLowerCase()}{" "}
+            business?
+          </p>
+          <ul className="fs-industry-grid">
+            {selectedCategory.industries.map((industry) => {
+              const selected = activeSelectedId === industry.id;
+              return (
+                <li key={industry.id}>
+                  <button
+                    type="button"
+                    disabled={disabled || locked}
+                    aria-pressed={selected}
+                    className={cn(
+                      "fs-industry-chip",
+                      selected && "fs-industry-chip-selected",
+                    )}
+                    onClick={() => selectIndustry(industry)}
+                  >
+                    <span className="fs-cat-radio" aria-hidden />
+                    <span>{industry.label}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          {phase === "industries" && !locked ? (
+            <button
+              type="button"
+              className="fs-industry-back"
+              onClick={() => {
+                setSelectedCategory(null);
+                setIndustriesVisible(false);
+                setPhase("choices");
+              }}
+            >
+              Choose a different path
+            </button>
+          ) : null}
         </div>
       ) : null}
 
@@ -443,7 +466,9 @@ export function FlagshipDiscovery({
           <ul className="fs-think-list fs-guided-intel-list">
             {FS_GUIDED.intelligenceSteps.map((step, i) => {
               const done = i < intelStep;
-              const active = i === intelStep - 1 && intelStep < FS_GUIDED.intelligenceSteps.length;
+              const active =
+                i === intelStep - 1 &&
+                intelStep < FS_GUIDED.intelligenceSteps.length;
               return (
                 <li
                   key={step}
