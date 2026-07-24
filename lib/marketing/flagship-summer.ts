@@ -18,18 +18,16 @@ export const FS_HERO = {
 } as const;
 
 export const FS_AWAKENING = {
+  greeting: "Welcome. I'm Summer.",
+  body: "Before I recommend anything, I'd like to understand your business so I can personalize my guidance.",
+  /** @deprecated Prefer greeting + body; kept for any legacy readers */
   lines: [
-    "Welcome.",
-    "I'm Summer.",
-    "Before I recommend software…",
-    "I'd like to understand your business.",
-    "I'll ask one simple question at a time.",
-    "Every business is unique.",
-    "My goal is to learn about yours before making recommendations.",
+    "Welcome. I'm Summer.",
+    "Before I recommend anything, I'd like to understand your business so I can personalize my guidance.",
   ],
 } as const;
 
-/** Phase 8 — guided conversational discovery copy & timing */
+/** Guided discovery copy & fast pacing */
 export const FS_GUIDED = {
   question: "What type of business do you own?",
   questionWhy:
@@ -41,22 +39,19 @@ export const FS_GUIDED = {
   continuePrompt:
     "A few more details will help me advise you with precision.",
   backToCategories: "← Back to Categories",
-  /** ms between intro sentences */
-  lineGapMs: 850,
-  /** pause after last intro line before the question */
-  questionPauseMs: 1100,
-  /** pause after question before categories begin appearing */
-  choicesPauseMs: 750,
-  /** stagger between category cards */
-  categoryStaggerMs: 140,
-  /** pause after category pick before industries appear */
-  industryRevealMs: 420,
-  /** pause between acknowledgment lines */
-  ackGapMs: 850,
-  /** pause between intelligence checklist steps */
-  intelligenceStepMs: 700,
-  /** pause after Ready. before sending to Discovery Engine */
-  ackCommitMs: 800,
+  continueWithSelections: "Continue with my selections",
+  addAnotherBusiness: "Add another business",
+  chooseAnotherCategory: "Choose from another category",
+  selectedSummary: "Your businesses",
+  industryPrompt: "Select every business that applies — you can change this anytime.",
+  /** Intro block fade delay */
+  introFadeMs: 120,
+  /** Question + cards usable after click */
+  readyMs: 280,
+  /** Stagger between category cards (full set ~500–700ms) */
+  categoryStaggerMs: 55,
+  /** Industry panel reveal */
+  industryRevealMs: 160,
   intelligenceSteps: [
     "Understanding your business…",
     "Loading industry knowledge…",
@@ -66,6 +61,40 @@ export const FS_GUIDED = {
     "Ready.",
   ],
 } as const;
+
+export type FsSelectedBusiness = {
+  id: string;
+  label: string;
+  prompt: string;
+  categoryId: string;
+};
+
+export function fsBuildMultiAck(labels: string[]): string {
+  const clean = labels.map((l) => l.trim()).filter(Boolean);
+  if (clean.length === 0) return "";
+  if (clean.length === 1) {
+    const article = /^[aeiou]/i.test(clean[0]!) ? "an" : "a";
+    return `Thanks. I understand that you operate ${article} ${clean[0]} business. That helps me tailor the next questions to your workflow.`;
+  }
+  if (clean.length === 2) {
+    return `Thanks. I understand that you operate both a ${clean[0]} and a ${clean[1]} business. That helps me tailor the next questions across both workflows.`;
+  }
+  const last = clean[clean.length - 1];
+  const rest = clean.slice(0, -1).join(", ");
+  return `Thanks. I understand that you operate ${rest}, and a ${last}. That helps me tailor the next questions across those workflows.`;
+}
+
+export function fsBuildMultiPrompt(selections: FsSelectedBusiness[]): string {
+  const labels = selections.map((s) => s.label);
+  if (labels.length === 0) return "";
+  if (labels.length === 1) {
+    return `${selections[0]!.prompt}. Please personalize your guidance for this business.`;
+  }
+  if (labels.length === 2) {
+    return `I operate both a ${labels[0]} and a ${labels[1]} business. Please personalize your guidance across both workflows.`;
+  }
+  return `I operate these businesses: ${labels.join(", ")}. Please personalize your guidance across those workflows.`;
+}
 
 export function fsAckBusinessLine(label: string): string {
   const trimmed = label.trim();
@@ -87,7 +116,7 @@ export function fsAckDifferenceLine(label: string): string {
   return "Every business is different.";
 }
 
-/** Acknowledgment beat sheet after industry selection — warm, consultative */
+/** @deprecated Single-industry ack — prefer fsBuildMultiAck */
 export function fsBuildAckLines(label: string): string[] {
   return [
     fsAckBusinessLine(label).replace(/^You run/, "So you're running"),

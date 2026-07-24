@@ -5,9 +5,9 @@ import {
   FS_AWAKENING,
   FS_BUSINESS_CATEGORIES,
   FS_GUIDED,
-  fsBuildAckLines,
   type FsBusinessCategory,
   type FsBusinessIndustry,
+  type FsSelectedBusiness,
 } from "@/lib/marketing/flagship-summer";
 import { cn } from "@/lib/utils";
 import {
@@ -22,12 +22,11 @@ import {
   MoreHorizontal,
   PawPrint,
   Sparkles,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import {
   useEffect,
-  useMemo,
-  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
@@ -55,29 +54,27 @@ function getReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-type GuidedPhase =
-  | "intro"
-  | "question"
-  | "choices"
-  | "industries"
-  | "ack"
-  | "intelligence"
-  | "committed";
+type BrowsePhase = "intro" | "ready" | "industries";
 
 /**
- * Phase 9 — AI Design Language guided discovery.
- * Floating path cards + progressive industry reveal; engines unchanged.
+ * Fast-paced multi-business discovery — editable selections, never locked.
  */
 export function FlagshipDiscovery({
-  selectedId,
+  selections,
   disabled,
-  onSelect,
+  onToggleIndustry,
+  onRemoveSelection,
+  onContinue,
   resumeAtChoices = false,
 }: {
-  selectedId: string | null;
+  selections: FsSelectedBusiness[];
   disabled?: boolean;
-  onSelect: (prompt: string, id: string) => void;
-  /** Skip intro and land on category cards (after path change) */
+  onToggleIndustry: (
+    industry: FsBusinessIndustry,
+    categoryId: string,
+  ) => void;
+  onRemoveSelection: (id: string) => void;
+  onContinue: () => void;
   resumeAtChoices?: boolean;
 }) {
   const reducedMotion = useSyncExternalStore(
@@ -86,30 +83,16 @@ export function FlagshipDiscovery({
     () => false,
   );
 
-  const [phase, setPhase] = useState<GuidedPhase>(
-    resumeAtChoices ? "choices" : "intro",
+  const [phase, setPhase] = useState<BrowsePhase>(
+    resumeAtChoices ? "ready" : "intro",
   );
-  const [visibleLines, setVisibleLines] = useState(
-    resumeAtChoices ? FS_AWAKENING.lines.length : 0,
-  );
+  const [introVisible, setIntroVisible] = useState(resumeAtChoices);
   const [visibleCategories, setVisibleCategories] = useState(
     resumeAtChoices ? FS_BUSINESS_CATEGORIES.length : 0,
   );
   const [selectedCategory, setSelectedCategory] =
     useState<FsBusinessCategory | null>(null);
-  const [pendingIndustry, setPendingIndustry] =
-    useState<FsBusinessIndustry | null>(null);
-  const [ackStep, setAckStep] = useState(0);
-  const [intelStep, setIntelStep] = useState(0);
-  const [industriesVisible, setIndustriesVisible] = useState(false);
-  const committedRef = useRef(false);
 
-  const ackLines = useMemo(
-    () => (pendingIndustry ? fsBuildAckLines(pendingIndustry.label) : []),
-    [pendingIndustry],
-  );
-
-  // Intro → question → category cards
   useEffect(() => {
     if (resumeAtChoices) return;
 
@@ -118,9 +101,9 @@ export function FlagshipDiscovery({
     if (reducedMotion) {
       timers.push(
         window.setTimeout(() => {
-          setVisibleLines(FS_AWAKENING.lines.length);
+          setIntroVisible(true);
           setVisibleCategories(FS_BUSINESS_CATEGORIES.length);
-          setPhase("choices");
+          setPhase("ready");
         }, 0),
       );
       return () => {
@@ -128,37 +111,18 @@ export function FlagshipDiscovery({
       };
     }
 
-    const lines = FS_AWAKENING.lines;
-
-    for (let i = 0; i < lines.length; i += 1) {
-      timers.push(
-        window.setTimeout(() => {
-          setVisibleLines(i + 1);
-        }, i * FS_GUIDED.lineGapMs),
-      );
-    }
-
-    const afterIntro =
-      (lines.length - 1) * FS_GUIDED.lineGapMs + FS_GUIDED.questionPauseMs;
-
     timers.push(
-      window.setTimeout(() => setPhase("question"), afterIntro),
+      window.setTimeout(() => setIntroVisible(true), FS_GUIDED.introFadeMs),
     );
-
     timers.push(
-      window.setTimeout(
-        () => setPhase("choices"),
-        afterIntro + FS_GUIDED.choicesPauseMs,
-      ),
+      window.setTimeout(() => setPhase("ready"), FS_GUIDED.readyMs),
     );
 
     FS_BUSINESS_CATEGORIES.forEach((_, i) => {
       timers.push(
         window.setTimeout(
           () => setVisibleCategories(i + 1),
-          afterIntro +
-            FS_GUIDED.choicesPauseMs +
-            i * FS_GUIDED.categoryStaggerMs,
+          FS_GUIDED.readyMs + i * FS_GUIDED.categoryStaggerMs,
         ),
       );
     });
@@ -168,173 +132,51 @@ export function FlagshipDiscovery({
     };
   }, [reducedMotion, resumeAtChoices]);
 
-  // Category → industries progressive reveal
-  useEffect(() => {
-    if (phase !== "industries" || !selectedCategory) return;
-    const timers: number[] = [];
-    if (reducedMotion) {
-      timers.push(
-        window.setTimeout(() => setIndustriesVisible(true), 0),
-      );
-    } else {
-      timers.push(
-        window.setTimeout(
-          () => setIndustriesVisible(true),
-          FS_GUIDED.industryRevealMs,
-        ),
-      );
-    }
-    return () => {
-      for (const t of timers) window.clearTimeout(t);
-    };
-  }, [phase, selectedCategory, reducedMotion]);
-
-  // Acknowledgment beat sheet
-  useEffect(() => {
-    if (phase !== "ack" || !pendingIndustry || ackLines.length === 0) return;
-
-    const timers: number[] = [];
-
-    if (reducedMotion) {
-      timers.push(
-        window.setTimeout(() => {
-          setAckStep(ackLines.length);
-          setPhase("intelligence");
-        }, 0),
-      );
-      return () => {
-        for (const t of timers) window.clearTimeout(t);
-      };
-    }
-
-    for (let i = 0; i < ackLines.length; i += 1) {
-      timers.push(
-        window.setTimeout(() => setAckStep(i + 1), 40 + i * FS_GUIDED.ackGapMs),
-      );
-    }
-
-    timers.push(
-      window.setTimeout(
-        () => setPhase("intelligence"),
-        40 + ackLines.length * FS_GUIDED.ackGapMs,
-      ),
-    );
-
-    return () => {
-      for (const t of timers) window.clearTimeout(t);
-    };
-  }, [phase, pendingIndustry, ackLines, reducedMotion]);
-
-  // Intelligence moment → commit
-  useEffect(() => {
-    if (phase !== "intelligence" || !pendingIndustry || committedRef.current) {
-      return;
-    }
-
-    const timers: number[] = [];
-    const steps = FS_GUIDED.intelligenceSteps;
-
-    if (reducedMotion) {
-      timers.push(
-        window.setTimeout(() => {
-          if (committedRef.current) return;
-          committedRef.current = true;
-          setIntelStep(steps.length);
-          setPhase("committed");
-          onSelect(pendingIndustry.prompt, pendingIndustry.id);
-        }, 0),
-      );
-      return () => {
-        for (const t of timers) window.clearTimeout(t);
-      };
-    }
-
-    for (let i = 0; i < steps.length; i += 1) {
-      timers.push(
-        window.setTimeout(
-          () => setIntelStep(i + 1),
-          60 + i * FS_GUIDED.intelligenceStepMs,
-        ),
-      );
-    }
-
-    timers.push(
-      window.setTimeout(
-        () => {
-          if (committedRef.current) return;
-          committedRef.current = true;
-          setPhase("committed");
-          onSelect(pendingIndustry.prompt, pendingIndustry.id);
-        },
-        60 + steps.length * FS_GUIDED.intelligenceStepMs + FS_GUIDED.ackCommitMs,
-      ),
-    );
-
-    return () => {
-      for (const t of timers) window.clearTimeout(t);
-    };
-  }, [phase, pendingIndustry, reducedMotion, onSelect]);
-
   function chooseCategory(category: FsBusinessCategory) {
-    if (phase !== "choices" || disabled) return;
+    if (disabled) return;
     setSelectedCategory(category);
-    setIndustriesVisible(false);
     setPhase("industries");
   }
 
-  function selectIndustry(industry: FsBusinessIndustry) {
-    if (phase !== "industries" || disabled) return;
-    setPendingIndustry(industry);
-    setPhase("ack");
-    setAckStep(0);
-    setIntelStep(0);
+  function backToCategories() {
+    setSelectedCategory(null);
+    setPhase("ready");
+    setVisibleCategories(FS_BUSINESS_CATEGORIES.length);
   }
 
-  const activeSelectedId = selectedId ?? pendingIndustry?.id ?? null;
-  const showQuestion = phase !== "intro";
-  const showChoices =
-    phase === "choices" ||
-    phase === "industries" ||
-    phase === "ack" ||
-    phase === "intelligence" ||
-    phase === "committed";
-  const locked =
-    phase === "ack" || phase === "intelligence" || phase === "committed";
-  const showIntel = phase === "intelligence" || phase === "committed";
-  const showIndustries =
-    (phase === "industries" || locked) &&
-    selectedCategory &&
-    industriesVisible;
+  function addAnotherCategory() {
+    backToCategories();
+  }
+
+  const selectedIds = new Set(selections.map((s) => s.id));
+  const showCategories = phase === "ready" || phase === "industries";
+  const showIndustries = phase === "industries" && !!selectedCategory;
 
   return (
     <section
-      className={cn(
-        "fs-scene fs-guided",
-        locked && "fs-guided-locked",
-        phase === "committed" && "fs-guided-committed",
-      )}
+      className="fs-scene fs-guided"
       aria-labelledby="fs-guided-title"
       aria-live="polite"
     >
-      <div className="fs-guided-intro">
+      <div
+        className={cn(
+          "fs-guided-intro fs-guided-intro-fast",
+          introVisible && "fs-guided-intro-visible",
+        )}
+      >
         <SummerOrb size="xl" active cinematic className="fs-guided-orb" />
         <div className="fs-guided-speech">
           <p className="fs-scene-kicker">Summer</p>
           <h2 id="fs-guided-title" className="sr-only">
             Guided business discovery
           </h2>
-          <div className="fs-awaken-lines">
-            {FS_AWAKENING.lines.map((line, i) => (
-              <p
-                key={line}
-                className={cn(
-                  "fs-awaken-line fs-guided-line",
-                  i < visibleLines && "fs-guided-line-visible",
-                )}
-              >
-                {line}
-              </p>
-            ))}
+          <div className="fs-awaken-block">
+            <p className="fs-awaken-line fs-guided-line-visible">
+              {FS_AWAKENING.greeting}
+            </p>
+            <p className="fs-awaken-line fs-awaken-body fs-guided-line-visible">
+              {FS_AWAKENING.body}
+            </p>
           </div>
         </div>
       </div>
@@ -342,23 +184,48 @@ export function FlagshipDiscovery({
       <div
         className={cn(
           "fs-guided-question",
-          showQuestion && "fs-guided-question-visible",
+          introVisible && "fs-guided-question-visible",
         )}
       >
-        <p className="fs-guided-explain">{FS_GUIDED.questionWhy}</p>
-        <p className="fs-guided-explain">{FS_GUIDED.questionHelps}</p>
-        <p className="fs-guided-explain fs-guided-explain-soft">
-          {FS_GUIDED.questionWillDo}
-        </p>
         <p className="fs-guided-question-text">{FS_GUIDED.question}</p>
+        <p className="fs-guided-explain fs-guided-explain-soft">
+          {FS_GUIDED.industryPrompt}
+        </p>
       </div>
 
-      {showChoices ? (
+      {selections.length > 0 ? (
+        <div
+          className="fs-selected-summary"
+          aria-label={FS_GUIDED.selectedSummary}
+        >
+          <p className="fs-selected-summary-label">{FS_GUIDED.selectedSummary}</p>
+          <ul className="fs-selected-chips">
+            {selections.map((item) => (
+              <li key={item.id}>
+                <span className="fs-selected-chip">
+                  <Check className="size-3.5" strokeWidth={2.5} aria-hidden />
+                  <span>{item.label}</span>
+                  <button
+                    type="button"
+                    className="fs-selected-chip-remove"
+                    aria-label={`Remove ${item.label}`}
+                    disabled={disabled}
+                    onClick={() => onRemoveSelection(item.id)}
+                  >
+                    <X className="size-3.5" strokeWidth={2.5} />
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {showCategories ? (
         <div
           className={cn(
             "fs-path-grid fs-guided-choices",
-            (phase === "industries" || locked) && "fs-guided-choices-narrow",
-            locked && "fs-guided-choices-dim",
+            phase === "industries" && "fs-guided-choices-narrow",
           )}
           role="list"
         >
@@ -366,12 +233,13 @@ export function FlagshipDiscovery({
             const Icon = CATEGORY_ICONS[category.id] ?? MoreHorizontal;
             const revealed = index < visibleCategories;
             const active = selectedCategory?.id === category.id;
-            const faded =
+            const hasPick = selections.some((s) => s.categoryId === category.id);
+            const hideOthers =
+              phase === "industries" &&
               selectedCategory &&
-              selectedCategory.id !== category.id &&
-              phase !== "choices";
+              selectedCategory.id !== category.id;
 
-            if (faded) return null;
+            if (hideOthers) return null;
 
             return (
               <div
@@ -387,8 +255,9 @@ export function FlagshipDiscovery({
                   className={cn(
                     "fs-path-card",
                     active && "fs-path-card-active",
+                    hasPick && "fs-path-card-has-pick",
                   )}
-                  disabled={locked || phase === "industries"}
+                  disabled={disabled || phase === "industries"}
                   aria-pressed={active}
                   onClick={() => chooseCategory(category)}
                 >
@@ -413,100 +282,84 @@ export function FlagshipDiscovery({
           aria-label={`${selectedCategory.label} industries`}
         >
           <p className="fs-industry-prompt">
-            Which best describes your {selectedCategory.label.toLowerCase()}{" "}
-            business?
+            Which {selectedCategory.label.toLowerCase()} businesses do you
+            operate?
           </p>
           <ul className="fs-industry-grid">
             {selectedCategory.industries.map((industry) => {
-              const selected = activeSelectedId === industry.id;
+              const selected = selectedIds.has(industry.id);
               return (
                 <li key={industry.id}>
                   <button
                     type="button"
-                    disabled={disabled || locked}
+                    disabled={disabled}
                     aria-pressed={selected}
                     className={cn(
                       "fs-industry-chip",
                       selected && "fs-industry-chip-selected",
                     )}
-                    onClick={() => selectIndustry(industry)}
+                    onClick={() =>
+                      onToggleIndustry(industry, selectedCategory.id)
+                    }
                   >
-                    <span className="fs-cat-radio" aria-hidden />
+                    <span
+                      className={cn(
+                        "fs-cat-check",
+                        selected && "fs-cat-check-on",
+                      )}
+                      aria-hidden
+                    >
+                      {selected ? (
+                        <Check className="size-3" strokeWidth={2.5} />
+                      ) : null}
+                    </span>
                     <span>{industry.label}</span>
                   </button>
                 </li>
               );
             })}
           </ul>
-          {phase === "industries" && !locked ? (
+
+          <div className="fs-selection-actions">
             <button
               type="button"
               className="fs-industry-back"
-              onClick={() => {
-                setSelectedCategory(null);
-                setIndustriesVisible(false);
-                setPhase("choices");
-              }}
+              onClick={backToCategories}
             >
               {FS_GUIDED.backToCategories}
             </button>
-          ) : null}
-        </div>
-      ) : null}
-
-      {phase === "ack" || showIntel ? (
-        <div className="fs-guided-ack" aria-live="polite">
-          {ackLines.map((line, i) => (
-            <p
-              key={line}
-              className={cn(
-                "fs-guided-ack-line",
-                i === ackLines.length - 1 && "fs-guided-ack-soft",
-                i < ackStep && "fs-guided-ack-visible",
-              )}
+            <button
+              type="button"
+              className="fs-selection-secondary"
+              onClick={addAnotherCategory}
             >
-              {line}
-            </p>
-          ))}
+              {FS_GUIDED.chooseAnotherCategory}
+            </button>
+          </div>
         </div>
       ) : null}
 
-      {showIntel ? (
-        <div className="fs-guided-intel" aria-live="polite">
-          <p className="fs-scene-kicker">Visible intelligence</p>
-          <ul className="fs-think-list fs-guided-intel-list">
-            {FS_GUIDED.intelligenceSteps.map((step, i) => {
-              const activeIdx =
-                intelStep > 0 &&
-                intelStep < FS_GUIDED.intelligenceSteps.length
-                  ? intelStep - 1
-                  : -1;
-              const done =
-                i < intelStep && i !== activeIdx;
-              const active = i === activeIdx;
-              return (
-                <li
-                  key={step}
-                  className={cn(
-                    "fs-think-item",
-                    done && "fs-think-item-done",
-                    active && "fs-think-item-live",
-                  )}
-                >
-                  <span className="fs-think-mark" aria-hidden>
-                    {done ? (
-                      <Check className="size-3.5" strokeWidth={2.5} />
-                    ) : active ? (
-                      <span className="fs-think-pulse" />
-                    ) : null}
-                  </span>
-                  <span>{step}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
+      <div className="fs-selection-footer">
+        <button
+          type="button"
+          className="fs-cta fs-selection-continue"
+          disabled={disabled || selections.length === 0}
+          onClick={onContinue}
+        >
+          {FS_GUIDED.continueWithSelections}
+        </button>
+        {selections.length > 0 ? (
+          <p className="fs-selection-hint">
+            {selections.length === 1
+              ? "1 business selected — add more from any category, or continue."
+              : `${selections.length} businesses selected — you can keep adding or continue.`}
+          </p>
+        ) : (
+          <p className="fs-selection-hint">
+            Select at least one business to continue.
+          </p>
+        )}
+      </div>
     </section>
   );
 }

@@ -11,7 +11,12 @@ import { FlagshipThinking } from "@/components/marketing/flagship-summer/flagshi
 import { FlagshipUnderstanding } from "@/components/marketing/flagship-summer/flagship-understanding";
 import { SummerOrb } from "@/components/marketing/flagship-summer/summer-orb";
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
-import { FS_BUSINESS_TYPES, FS_GUIDED } from "@/lib/marketing/flagship-summer";
+import {
+  FS_GUIDED,
+  fsBuildMultiPrompt,
+  type FsBusinessIndustry,
+  type FsSelectedBusiness,
+} from "@/lib/marketing/flagship-summer";
 import { cn } from "@/lib/utils";
 import {
   useCallback,
@@ -32,19 +37,20 @@ function getReducedMotion() {
 }
 
 /**
- * Flagship Meet Summer — cinematic consultation scenes.
- * Presentation only; Discovery Engine unchanged.
+ * Flagship Meet Summer — fast-paced multi-business consultation.
  */
 export function FlagshipExperience() {
   const [started, setStarted] = useState(false);
   const [exiting, setExiting] = useState(false);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selections, setSelections] = useState<FsSelectedBusiness[]>([]);
+  const [committed, setCommitted] = useState(false);
   const [discoveryKey, setDiscoveryKey] = useState(0);
   const {
     memory,
     pending,
     refineUnderstanding,
-    resetDiscoveryPath,
+    setBusinessSelections,
+    pauseConsultationKeepBusinesses,
     hydrated,
   } = useConciergeConversation();
   const reducedMotion = useSyncExternalStore(
@@ -54,15 +60,19 @@ export function FlagshipExperience() {
   );
 
   const industryLabel = useMemo(() => {
-    if (!selectedType) return null;
-    return FS_BUSINESS_TYPES.find((t) => t.id === selectedType)?.label ?? null;
-  }, [selectedType]);
+    if (memory.businessTypes.length > 0) {
+      return memory.businessTypes.join(" · ");
+    }
+    if (selections.length > 0) {
+      return selections.map((s) => s.label).join(" · ");
+    }
+    return null;
+  }, [memory.businessTypes, selections]);
 
-  const inConsultation =
-    !!selectedType ||
-    (discoveryKey === 0 && memory.businessType !== "unknown");
+  const inConsultation = committed;
 
   const showAftercare =
+    committed &&
     memory.businessType !== "unknown" &&
     (memory.employeeCount ||
       memory.challenges.length > 0 ||
@@ -84,7 +94,7 @@ export function FlagshipExperience() {
           block: "center",
         });
     }, 80);
-  }, [inConsultation, started, reducedMotion, selectedType]);
+  }, [inConsultation, started, reducedMotion, selections.length]);
 
   function begin() {
     if (reducedMotion) {
@@ -92,22 +102,67 @@ export function FlagshipExperience() {
       return;
     }
     setExiting(true);
-    window.setTimeout(() => setStarted(true), 1200);
+    window.setTimeout(() => setStarted(true), 420);
   }
 
-  const onSelectType = useCallback(
-    async (prompt: string, id: string) => {
-      setSelectedType(id);
-      await refineUnderstanding(prompt);
+  const onToggleIndustry = useCallback(
+    (industry: FsBusinessIndustry, categoryId: string) => {
+      setSelections((prev) => {
+        const exists = prev.some((s) => s.id === industry.id);
+        const next = exists
+          ? prev.filter((s) => s.id !== industry.id)
+          : [
+              ...prev,
+              {
+                id: industry.id,
+                label: industry.label,
+                prompt: industry.prompt,
+                categoryId,
+              },
+            ];
+        setBusinessSelections(
+          next.map((s) => s.label),
+          next[0]?.prompt,
+        );
+        return next;
+      });
     },
-    [refineUnderstanding],
+    [setBusinessSelections],
   );
 
+  const onRemoveSelection = useCallback(
+    (id: string) => {
+      setSelections((prev) => {
+        const next = prev.filter((s) => s.id !== id);
+        setBusinessSelections(
+          next.map((s) => s.label),
+          next[0]?.prompt,
+        );
+        return next;
+      });
+    },
+    [setBusinessSelections],
+  );
+
+  const onContinue = useCallback(async () => {
+    if (selections.length === 0 || pending) return;
+    setCommitted(true);
+    const prompt = fsBuildMultiPrompt(selections);
+    await refineUnderstanding(prompt, {
+      businessTypes: selections.map((s) => s.label),
+    });
+  }, [selections, pending, refineUnderstanding]);
+
   const onBackToCategories = useCallback(() => {
-    resetDiscoveryPath();
-    setSelectedType(null);
+    pauseConsultationKeepBusinesses();
+    setCommitted(false);
     setDiscoveryKey((k) => k + 1);
+    // Keep selections — re-sync labels into memory after pause
     window.setTimeout(() => {
+      setBusinessSelections(
+        selections.map((s) => s.label),
+        selections[0]?.prompt,
+      );
       document
         .getElementById("fs-guided-anchor")
         ?.scrollIntoView({
@@ -115,7 +170,12 @@ export function FlagshipExperience() {
           block: "center",
         });
     }, 40);
-  }, [resetDiscoveryPath, reducedMotion]);
+  }, [
+    pauseConsultationKeepBusinesses,
+    setBusinessSelections,
+    selections,
+    reducedMotion,
+  ]);
 
   return (
     <div
@@ -140,9 +200,11 @@ export function FlagshipExperience() {
               <div className="fs-stage fs-stage-discover fs-scene-rise">
                 <FlagshipDiscovery
                   key={discoveryKey}
-                  selectedId={selectedType}
+                  selections={selections}
                   disabled={!hydrated || pending}
-                  onSelect={onSelectType}
+                  onToggleIndustry={onToggleIndustry}
+                  onRemoveSelection={onRemoveSelection}
+                  onContinue={() => void onContinue()}
                   resumeAtChoices={discoveryKey > 0}
                 />
               </div>

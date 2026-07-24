@@ -62,7 +62,7 @@ export function FlagshipHero({
         <p id="fs-hero-brand" className="fs-hero-brand fs-hero-seq-headline">
           {FS_HERO.brand}
         </p>
-        <h1 className="fs-hero-headline fs-hero-seq-sub">{FS_HERO.headline}</h1>
+        <h1 className="fs-hero-headline fs-hero-seq-headline">{FS_HERO.headline}</h1>
 
         <ul className="fs-hero-micro fs-hero-seq-sub">
           {FS_HERO.micro.map((line) => (

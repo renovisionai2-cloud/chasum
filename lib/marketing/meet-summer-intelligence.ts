@@ -26,9 +26,11 @@ export function buildUnderstandingFields(
 ): UnderstandingField[] {
   const businessLabel =
     options?.businessOverride?.trim() ||
-    (memory.businessType !== "unknown"
-      ? formatBusinessType(memory.businessType)
-      : null);
+    (memory.businessTypes.length > 0
+      ? memory.businessTypes.join(" · ")
+      : memory.businessType !== "unknown"
+        ? formatBusinessType(memory.businessType)
+        : null);
 
   const fields: UnderstandingField[] = [
     {

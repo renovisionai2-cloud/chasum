@@ -43,24 +43,22 @@ export function FlagshipThinking({
     [cues, midConversation],
   );
 
+  const stepsKey = steps.join("|");
+
   // activeIndex: step currently animating; steps before it are complete
   const [activeIndex, setActiveIndex] = useState(0);
   const [runId, setRunId] = useState(0);
 
   useEffect(() => {
-    if (!pending) {
-      setActiveIndex(0);
-      return;
-    }
-    setActiveIndex(0);
-    setRunId((n) => n + 1);
-  }, [pending, steps.join("|")]);
+    const reset = window.setTimeout(() => {
+      setActiveIndex(pending && reducedMotion ? steps.length : 0);
+      if (pending) setRunId((n) => n + 1);
+    }, 0);
+    return () => window.clearTimeout(reset);
+  }, [pending, reducedMotion, stepsKey, steps.length]);
 
   useEffect(() => {
-    if (!pending || reducedMotion) {
-      if (pending && reducedMotion) setActiveIndex(steps.length);
-      return;
-    }
+    if (!pending || reducedMotion) return;
     let i = 0;
     const id = window.setInterval(() => {
       i += 1;

@@ -4,6 +4,7 @@ import {
   createEmptySessionMemory,
   createId,
   getPageGreeting,
+  inferBusinessTypeFromText,
   loadSessionMemory,
   recordPageVisit,
   runConciergeTurn,
@@ -205,7 +206,6 @@ export function useConciergeConversation() {
     /**
      * Presentation helper (Meet Summer): clear discovery transcript/profile so
      * Summer can start a fresh path without contradictory messages.
-     * Does not change Discovery Engine code — only session presentation state.
      */
     resetDiscoveryPath() {
       const pageId = detectMarketingPage(pathname).pageId;
@@ -227,15 +227,91 @@ export function useConciergeConversation() {
       });
     },
     /**
+     * Meet Summer: update multi-business labels immediately (profile live).
+     * First selection informs primary businessType when inferable.
+     */
+    setBusinessSelections(labels: string[], primaryPrompt?: string) {
+      const businessTypes = labels.map((l) => l.trim()).filter(Boolean);
+      const inferred = primaryPrompt
+        ? inferBusinessTypeFromText(primaryPrompt)
+        : businessTypes[0]
+          ? inferBusinessTypeFromText(businessTypes[0])
+          : null;
+      const memory: SessionMemory = {
+        ...store.memory,
+        businessTypes,
+        businessType: businessTypes.length
+          ? (inferred ?? store.memory.businessType)
+          : "unknown",
+        updatedAt: new Date().toISOString(),
+      };
+      if (businessTypes.length && memory.businessType === "unknown" && inferred) {
+        memory.businessType = inferred;
+      }
+      if (!businessTypes.length) {
+        memory.businessType = "unknown";
+      }
+      saveSessionMemory(memory);
+      setStore({ memory });
+    },
+    /**
+     * Leave consultation transcript while keeping selected businesses.
+     */
+    pauseConsultationKeepBusinesses() {
+      const pageId = detectMarketingPage(pathname).pageId;
+      const greeting: ConciergeMessage = {
+        id: createId(),
+        role: "assistant",
+        content: getPageGreeting(pageId),
+        createdAt: new Date().toISOString(),
+      };
+      const memory: SessionMemory = {
+        ...store.memory,
+        employeeCount: null,
+        locationCount: null,
+        currentSoftware: null,
+        monthlyVolume: null,
+        challenges: [],
+        goals: [],
+        growthPlans: null,
+        discoveryAskedIds: [],
+        recommendationsMade: [],
+        discoveryPhase: "opening",
+        pendingFollowUpId: null,
+        previousQuestions: [],
+        answeredArticleIds: [],
+        lastTopicIds: [],
+        updatedAt: new Date().toISOString(),
+      };
+      saveSessionMemory(memory);
+      saveMessages([greeting]);
+      setStore({
+        memory,
+        messages: [greeting],
+        suggestions: defaultSuggestions(pageId),
+        pending: false,
+        error: null,
+      });
+    },
+    /**
      * Replace prior discovery turns with a single new understanding.
      * Removes obsolete user/assistant pairs before sending the new path prompt.
      */
-    async refineUnderstanding(text: string) {
+    async refineUnderstanding(
+      text: string,
+      options?: { businessTypes?: string[] },
+    ) {
       const content = text.trim();
       if (!content || store.pending) return;
 
       const pageId = detectMarketingPage(pathname).pageId;
+      const businessTypes = (options?.businessTypes ?? store.memory.businessTypes)
+        .map((l) => l.trim())
+        .filter(Boolean);
+      const inferred = inferBusinessTypeFromText(content);
       const memory = recordPageVisit(createEmptySessionMemory(), pageId);
+      memory.businessTypes = businessTypes;
+      memory.businessType = inferred ?? "unknown";
       const greeting: ConciergeMessage = {
         id: createId(),
         role: "assistant",
@@ -266,13 +342,19 @@ export function useConciergeConversation() {
           messages: transcript,
           memory,
         });
-        // Single evolving understanding: greeting + this answer + new Summer reply
+        const nextMemory = {
+          ...result.memory,
+          businessTypes:
+            result.memory.businessTypes.length > 0
+              ? result.memory.businessTypes
+              : businessTypes,
+        };
         const nextMessages = [greeting, userMessage, result.assistantMessage];
         saveMessages(nextMessages);
-        saveSessionMemory(result.memory);
+        saveSessionMemory(nextMemory);
         setStore({
           messages: nextMessages,
-          memory: result.memory,
+          memory: nextMemory,
           suggestions: result.suggestions,
           pending: false,
         });

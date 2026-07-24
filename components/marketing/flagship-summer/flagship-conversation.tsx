@@ -24,7 +24,6 @@ export function FlagshipConversation({
     reducedMotion,
   } = useConciergeConversation();
   const [draft, setDraft] = useState("");
-  const [fadeKey, setFadeKey] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
   const understanding = useMemo(() => {
@@ -48,10 +47,6 @@ export function FlagshipConversation({
     }
     return null;
   }, [messages]);
-
-  useEffect(() => {
-    setFadeKey((k) => k + 1);
-  }, [understanding?.id]);
 
   useEffect(() => {
     const el = listRef.current;
@@ -92,7 +87,7 @@ export function FlagshipConversation({
 
         {presented && !pending ? (
           <div
-            key={fadeKey}
+            key={understanding?.id ?? "understanding"}
             className={cn(
               "fs-chat-bubble fs-chat-assistant fs-chat-understanding",
               !reducedMotion && "fs-scene-rise",

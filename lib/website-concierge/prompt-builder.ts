@@ -45,6 +45,9 @@ export function buildConciergePrompt(input: {
     "Never ask a discovery question the visitor already answered (see session memory).",
     `Current page: ${page.title} (${page.pathname}). Page goals: ${page.goals.join("; ")}.`,
     `Visitor business type: ${memory.businessType}.`,
+    memory.businessTypes.length
+      ? `Visitor businesses: ${memory.businessTypes.join(", ")}.`
+      : null,
     memory.visitorName ? `Visitor name: ${memory.visitorName}.` : null,
     memory.employeeCount ? `Team size: ${memory.employeeCount}.` : null,
     memory.locationCount ? `Locations: ${memory.locationCount}.` : null,

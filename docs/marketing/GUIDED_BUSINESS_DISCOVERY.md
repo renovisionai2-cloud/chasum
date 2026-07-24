@@ -1,97 +1,101 @@
-# Guided Business Discovery (Phase 8)
+# Guided Business Discovery
 
 Transforms Meet Summer Business Discovery into a true AI consultation — UX, conversation, and presentation only.
 
-Engines unchanged: Business Discovery Engine, Knowledge Engine, Session Memory, Provider Registry. No OpenAI. No authenticated-app changes.
+Engines unchanged: Business Discovery Engine, Knowledge Engine, Session Memory schema extensions for multi-business labels, Provider Registry. No OpenAI. No authenticated-app changes.
 
 ## Conversation philosophy
 
 Summer does not collect information. Summer understands businesses.
 
-Every ask follows **The Summer Principle** ([`../ai/SUMMER_PRINCIPLE.md`](../ai/SUMMER_PRINCIPLE.md)):
-
-> Never ask without explaining why it matters, how the answer helps, and what Summer will do with it.
+Every ask follows **The Summer Principle** ([`../ai/SUMMER_PRINCIPLE.md`](../ai/SUMMER_PRINCIPLE.md)).
 
 Sequence: **Understand → Explain → Ask → Think → Recommend → Confirm → Continue**
 
-The visitor should never feel like they are completing a software form. They should leave thinking:
+## Fast pacing rules
 
-> This AI actually understands my business.
+Motion must feel premium **and** quick. Prefer 150–300ms fades with short card stagger. Avoid long cinematic delays, word-by-word reveals, and sentence-by-sentence waiting.
 
-Principles:
+### Hero timing (`FlagshipHero` / `.fs-hero-seq`)
 
-1. Reveal only the next beat
-2. Speak in calm, complete sentences
-3. Acknowledge before advancing
-4. Show reasoning without spinners
-5. Grow a live profile from real Session Memory — never invent facts
-
-## Progressive reveal
-
-Owned by `FlagshipDiscovery`.
-
-| Phase | Experience |
+| Time | Group |
 | --- | --- |
-| `intro` | Summer speaks line-by-line |
-| `question` | “What type of business do you own?” |
-| `choices` | Category cards stagger in; one accordion open at a time |
-| `ack` | Personalized acknowledgment beat sheet |
-| `intelligence` | Visible intelligence checklist → Ready. |
-| `committed` | `onSelect` → existing `send()` Discovery flow |
+| 0ms | Background / ambient glow |
+| 150ms | Summer orb |
+| 300ms | Brand + headline together |
+| 500ms | Supporting copy as one group |
+| 700ms | “Begin the Experience” CTA |
 
-Copy & timing: `FS_AWAKENING`, `FS_GUIDED`, `fsBuildAckLines()` in `lib/marketing/flagship-summer.ts`.
+Fully usable within ~1–1.5s. Exit transition ~420ms, then discovery fades in.
 
-## Business profile architecture
+### Begin Experience → discovery (`FlagshipDiscovery`)
 
-`FlagshipUnderstanding` (live panel) sits beside the conversation in `fs-consult`.
+- One smooth hero → journey fade (veil ~400ms).
+- Introduction appears as **one coordinated block** (`FS_AWAKENING.greeting` + `body`) — not line-by-line.
+- Question + category cards usable within ~1s after click (`introFadeMs` / `readyMs` / `categoryStaggerMs` ≈ 55ms).
+- Full category set visible within ~500–700ms of ready.
 
-Fields (populated gradually from Session Memory):
+Copy: `FS_AWAKENING`, `FS_GUIDED` in `lib/marketing/flagship-summer.ts`.
 
-- Business
-- Employees
-- Locations
-- Current Software
-- Biggest Challenge
-- Goals
+## Editable multi-business selection
 
-Undiscovered fields render as `…` with muted styling. Discovered fields animate in with a check. Optional `industryLabel` seeds Business before memory settles.
+Industries are **never locked or greyed out** after a click. Toggle freely:
 
-Helpers: `buildUnderstandingFields()` in `lib/marketing/meet-summer-intelligence.ts`.
+- Click Ultrasound → selected
+- Click Dental → Ultrasound stays if multi-select; both can be selected
+- Click Ultrasound again → removes it
+- Changing categories preserves existing selections (chips + session memory)
 
-## Intelligence visualization
+### Confirmation flow
 
-Two surfaces, both checklist-based (never spinners):
+Do **not** auto-advance on first industry click.
 
-1. **Post-selection moment** — `FS_GUIDED.intelligenceSteps` inside discovery
-2. **Mid-conversation reasoning** — compact `FlagshipThinking` while `pending`, driven by `buildThinkingCues()` / `FS_REASONING_STEPS` from actual memory
+1. Select one or more industries (checkmarks)
+2. Optional: **Choose from another category** / **← Back to Categories** (keeps chips)
+3. **Continue with my selections** (disabled until ≥1 selection)
 
-## Recommendation strategy
+Continue calls `refineUnderstanding` with `fsBuildMultiPrompt()` so Summer acknowledges the full set and prior contradictory transcript turns are replaced.
 
-`FlagshipRecommendations` waits until Discovery has enough signal (engine recommendations or challenges + known business type).
+### Selected summary
 
-Framing: outcomes first — title + why grounded in business impact (`FS_RECS_INTRO`, `FS_RECOMMENDATION_COPY`).
+Persistent chips:
 
-## Private Alpha
+```
+Your businesses:
+[Medical Clinic ×] [Ultrasound ×]
+```
 
-`FlagshipAlpha` uses a personal Summer invitation (`FS_ALPHA`) rather than a generic CTA, then the existing Design Partner form.
+Remove via ×; profile and memory update immediately.
+
+## Session memory
+
+`SessionMemory.businessTypes: string[]` stores display labels.
+
+- First selection informs primary `businessType` (engine compatibility) via `inferBusinessTypeFromText`.
+- `setBusinessSelections()` updates labels live before Continue.
+- `refineUnderstanding(prompt, { businessTypes })` reseeds memory then runs the existing Discovery turn.
+- `pauseConsultationKeepBusinesses()` clears consult transcript facts but **keeps** `businessTypes` when returning to categories.
+
+Live profile (`buildUnderstandingFields`) shows joined labels: `Medical Clinic · Ultrasound`.
 
 ## Integration path
 
 ```
-select industry
-  → acknowledgment lines
-  → intelligence checklist
-  → onSelect(prompt, id)
-  → FlagshipExperience.send(prompt)
+multi-select industries (editable)
+  → Continue with my selections
+  → refineUnderstanding(multi prompt, businessTypes)
   → Session Memory / Discovery / Knowledge / Provider Registry
-  → live profile + conversation chips
-  → recommendations when ready
-  → Private Alpha invite
+  → consultation scene (evolving transcript + woven profile)
 ```
+
+## Accessibility
+
+- Keyboard-focusable industry toggles (`aria-pressed`)
+- Chip remove buttons with labeled names
+- `prefers-reduced-motion` skips stagger delays
+- Continue disabled state announced via native button disabled
 
 ## Future AI integration
 
-- Richer industry-specific acknowledgment templates
+- Richer multi-business acknowledgment templates from Knowledge
 - Shared motion timeline tokens across Meet Summer chapters
-- Optional user-initiated audio tied to the same beat sheet
-- Deeper playbook cues in Visible Intelligence without changing marketing ownership of engines

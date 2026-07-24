@@ -30,6 +30,7 @@ export { getConciergeProvider } from "@/lib/website-concierge/providers";
 export {
   applyMemoryPatch,
   createEmptySessionMemory,
+  inferBusinessTypeFromText,
   loadSessionMemory,
   recordPageVisit,
   saveSessionMemory,

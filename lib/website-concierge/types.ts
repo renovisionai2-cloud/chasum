@@ -53,6 +53,11 @@ export type BusinessType =
 
 export type SessionMemory = {
   businessType: BusinessType;
+  /**
+   * Marketing multi-select business labels (e.g. "Medical Clinic", "Ultrasound").
+   * Primary compatibility: first entry maps into businessType when inferred.
+   */
+  businessTypes: string[];
   visitorName: string | null;
   interests: string[];
   pagesVisited: MarketingPageId[];
@@ -129,6 +134,7 @@ export type ConciergeCompletionResult = {
     Pick<
       SessionMemory,
       | "businessType"
+      | "businessTypes"
       | "visitorName"
       | "interests"
       | "answeredArticleIds"

@@ -11,6 +11,7 @@ export const SESSION_STORAGE_KEY = "chasum.website-concierge.v2";
 export function createEmptySessionMemory(): SessionMemory {
   return {
     businessType: "unknown",
+    businessTypes: [],
     visitorName: null,
     interests: [],
     pagesVisited: [],
@@ -44,6 +45,11 @@ export function loadSessionMemory(): SessionMemory {
     return {
       ...createEmptySessionMemory(),
       ...parsed,
+      businessTypes: Array.isArray(parsed.businessTypes)
+        ? parsed.businessTypes.filter((v): v is string => typeof v === "string")
+        : parsed.businessType && parsed.businessType !== "unknown"
+          ? [String(parsed.businessType).replace(/_/g, " ")]
+          : [],
       interests: Array.isArray(parsed.interests) ? parsed.interests : [],
       pagesVisited: Array.isArray(parsed.pagesVisited)
         ? parsed.pagesVisited
@@ -116,6 +122,7 @@ type MemoryPatch = Partial<
   Pick<
     SessionMemory,
     | "businessType"
+    | "businessTypes"
     | "visitorName"
     | "interests"
     | "answeredArticleIds"
@@ -161,9 +168,15 @@ export function applyMemoryPatch(
       ])
     : memory.recommendationsMade;
 
+  const businessTypes =
+    patch.businessTypes !== undefined
+      ? uniquePreserve(patch.businessTypes)
+      : memory.businessTypes;
+
   return {
     ...memory,
     businessType: patch.businessType ?? memory.businessType,
+    businessTypes,
     visitorName:
       patch.visitorName !== undefined ? patch.visitorName : memory.visitorName,
     interests,
