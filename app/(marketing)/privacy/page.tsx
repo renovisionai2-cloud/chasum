@@ -1,5 +1,5 @@
 import { MarketingDocPage } from "@/components/landing/marketing-doc-page";
-import { CONTACT_HREF } from "@/lib/marketing/alpha";
+import { CONTACT_HREF, LEGAL_ALPHA_NOTICE } from "@/lib/marketing/alpha";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -15,6 +15,9 @@ export default function PrivacyPage() {
       title="Privacy Policy"
       description="Last updated July 18, 2026. This Private Alpha policy explains how Chasum handles information while we work with a limited number of design partners."
     >
+      <p className="rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        {LEGAL_ALPHA_NOTICE}
+      </p>
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Who we are</h2>
         <p className="text-muted-foreground">

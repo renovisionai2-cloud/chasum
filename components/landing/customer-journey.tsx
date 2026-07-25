@@ -2,12 +2,12 @@ import { Reveal } from "@/components/landing/reveal";
 import { CUSTOMER_JOURNEY } from "@/lib/marketing/homepage";
 
 /**
- * V3 Customer Journey — connected OS workflow, not stacked boxes.
+ * Customer journey — single ordered list that reflows (no duplicate AT content).
  */
 export function CustomerJourney() {
   return (
     <section
-      id="journey"
+      id="how-it-works"
       className="marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="journey-heading"
     >
@@ -16,63 +16,48 @@ export function CustomerJourney() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">How It Works</p>
             <h2 id="journey-heading" className="marketing-h2-xl">
-              One Complete Customer Journey
+              One customer journey. One connected record.
             </h2>
-            <p className="marketing-lede">
-              From first booking to reported revenue — every department stays
-              connected.
+            <p className="marketing-lede" id="journey">
+              From booking to payment and reporting, each step updates the same
+              business—not another disconnected tool.
             </p>
           </div>
         </Reveal>
 
         <Reveal delayMs={80}>
-          <div className="relative mt-16 hidden lg:block">
+          <div className="relative mt-12 lg:mt-16">
             <div
-              className="marketing-journey-line absolute left-[6%] right-[6%] top-[2.75rem] h-px"
+              className="marketing-journey-line absolute left-[6%] right-[6%] top-[2.75rem] hidden h-px lg:block"
               aria-hidden
             />
-            <ol className="grid grid-cols-7 gap-3">
+            <ol className="grid gap-3 lg:grid-cols-7">
               {CUSTOMER_JOURNEY.map((item, index) => (
-                <li key={item.step} className="flex flex-col items-center text-center">
-                  <div className="marketing-journey-node relative z-10 flex h-14 w-14 items-center justify-center rounded-full border border-border/70 bg-card text-sm font-semibold text-primary shadow-sm">
-                    {item.step}
+                <li
+                  key={item.step}
+                  className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 lg:items-center lg:border-0 lg:bg-transparent lg:p-0 lg:text-center"
+                >
+                  <div className="flex items-start gap-4 lg:flex-col lg:items-center">
+                    <div className="marketing-journey-node relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm lg:h-14 lg:w-14 lg:border lg:border-border/70 lg:bg-card lg:text-primary">
+                      {item.step}
+                    </div>
+                    <div className="min-w-0 lg:mt-5">
+                      <h3 className="text-base font-semibold tracking-tight text-foreground lg:text-sm">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground lg:mt-2 lg:text-xs">
+                        {item.detail}
+                      </p>
+                      {index < CUSTOMER_JOURNEY.length - 1 ? (
+                        <span className="sr-only">then</span>
+                      ) : null}
+                    </div>
                   </div>
-                  <h3 className="mt-5 text-sm font-semibold tracking-tight text-foreground">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                    {item.detail}
-                  </p>
-                  {index < CUSTOMER_JOURNEY.length - 1 ? (
-                    <span className="sr-only">then</span>
-                  ) : null}
                 </li>
               ))}
             </ol>
           </div>
         </Reveal>
-
-        <ol className="mt-12 space-y-3 lg:hidden">
-          {CUSTOMER_JOURNEY.map((item, index) => (
-            <Reveal key={item.step} delayMs={index * 40}>
-              <li className="marketing-journey-node rounded-2xl border border-border/60 bg-card p-5">
-                <div className="flex items-start gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                    {item.step}
-                  </span>
-                  <div>
-                    <h3 className="text-base font-semibold text-foreground">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                      {item.detail}
-                    </p>
-                  </div>
-                </div>
-              </li>
-            </Reveal>
-          ))}
-        </ol>
       </div>
     </section>
   );

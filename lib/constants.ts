@@ -17,26 +17,21 @@ export const DASHBOARD_NAV = [
 
 export const APP_NAME = "Chasum";
 
-/** Primary enterprise navigation anchors */
+/** Primary desktop navigation */
 export const NAV_LINKS = [
   { href: "/#platform", label: "Platform" },
-  { href: "/#showcase", label: "Product" },
   { href: "/#industries", label: "Solutions" },
+  { href: "/meet-summer", label: "Meet Summer" },
   { href: "/roadmap", label: "Roadmap" },
   { href: "/#pricing", label: "Pricing" },
 ] as const;
 
-/** Resources mega-menu — scales as Chasum grows */
+/** Resources dropdown */
 export const NAV_RESOURCES = [
   {
-    href: "/meet-summer",
-    label: "Meet Summer",
-    description: "Chasum’s AI Business Assistant",
-  },
-  {
-    href: "/#ai-workforce",
-    label: "AI Workforce",
-    description: "Summer & Chase in Early Access",
+    href: "/#how-it-works",
+    label: "How It Works",
+    description: "One connected customer journey",
   },
   {
     href: "/private-alpha",
@@ -44,14 +39,14 @@ export const NAV_RESOURCES = [
     description: "Design partner program",
   },
   {
-    href: "/#journey",
-    label: "How It Works",
-    description: "One connected customer journey",
+    href: "/security",
+    label: "Security",
+    description: "Safeguards implemented today",
   },
   {
-    href: "/#faq",
-    label: "FAQ",
-    description: "Straight answers about the product",
+    href: "/contact",
+    label: "Contact",
+    description: "Apply, walkthrough, or support",
   },
 ] as const;
 

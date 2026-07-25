@@ -3,13 +3,13 @@ import { BRAND_ASSETS, BRAND_NAME } from "@/lib/brand/assets";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Meet Summer — The Intelligence Behind Every Business Decision",
+  title: "Meet Summer | Chasum’s AI Business Assistant",
   description:
-    "Meet Summer, Chasum’s AI Business Assistant. A cinematic flagship experience — discovery, visible intelligence, recommendations, then Private Alpha.",
+    "Meet Summer, Chasum’s AI Business Assistant. Explore the product, discover workflows, and apply for Private Alpha.",
   openGraph: {
-    title: "Meet Summer — The Intelligence Behind Every Business Decision",
+    title: "Meet Summer | Chasum’s AI Business Assistant",
     description:
-      "Chasum’s flagship AI launch. Not a chatbot — the intelligence layer of an AI Business Operating System.",
+      "Chasum’s AI Business Assistant — website concierge, product guide, and Early Access reception assistance.",
     images: [
       {
         url: BRAND_ASSETS.ogImage,

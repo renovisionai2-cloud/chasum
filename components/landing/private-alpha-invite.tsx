@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
-  CTA_EARLY_ACCESS_LABEL,
   PRIVATE_ALPHA_HREF,
   ROADMAP_HREF,
 } from "@/lib/marketing/alpha";
@@ -48,9 +47,7 @@ export function PrivateAlphaInvite() {
             </Link>
             <Link href={ROADMAP_HREF}>
               <Button variant="ghost" size="lg" className="rounded-full px-6">
-                {CTA_EARLY_ACCESS_LABEL === "Request Early Access"
-                  ? "View roadmap"
-                  : "View roadmap"}
+                View roadmap
               </Button>
             </Link>
           </div>

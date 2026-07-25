@@ -115,12 +115,6 @@ export function DashboardPreview({
         >
           {marketingDemoPath(variant)}
         </span>
-        {isLive ? (
-          <span className="ml-auto hidden items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success sm:inline-flex">
-            <span className="marketing-live-dot h-1.5 w-1.5 rounded-full bg-success" />
-            Live
-          </span>
-        ) : null}
       </div>
 
       <div
@@ -360,7 +354,7 @@ function ReceptionPane({ live }: { live: boolean }) {
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold">Reception · Day view</p>
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-          Updating live
+          Preview
         </span>
       </div>
       <div className="grid gap-2">

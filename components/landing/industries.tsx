@@ -24,15 +24,15 @@ const INDUSTRY_ICONS: Record<string, LucideIcon> = {
   Spas: Sparkles,
   Gyms: Dumbbell,
   Automotive: Car,
-  Contractors: Hammer,
-  Photography: Camera,
+  "Home & Field Services": Hammer,
+  "Photography & Creative": Camera,
   "Pet Services": PawPrint,
   Cleaning: SprayCan,
   "Professional Services": BriefcaseBusiness,
 };
 
 /**
- * V3 Industries — premium showcase, not generic accordion cards.
+ * Industries — workflows shaped with real operators; notes when present.
  */
 export function Industries() {
   const [active, setActive] = useState<string>(INDUSTRIES[0]?.name ?? "");
@@ -55,11 +55,13 @@ export function Industries() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Solutions</p>
             <h2 id="industries-heading" className="marketing-h2-xl">
-              Built for Service Industries
+              Built around the way service businesses actually work.
             </h2>
             <p className="marketing-lede">
-              Every vertical deserves its own operating rhythm — explore
-              challenges, how Chasum helps, and the modules that matter.
+              Different industries share a need for scheduling, customer
+              relationships and reliable operations—but their workflows are not
+              identical. Chasum is being shaped with real operators so each
+              business can configure the platform around how it works.
             </p>
           </div>
         </Reveal>
@@ -68,7 +70,8 @@ export function Industries() {
           <Reveal>
             <ul className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {INDUSTRIES.map((industry) => {
-                const ItemIcon = INDUSTRY_ICONS[industry.name] ?? BriefcaseBusiness;
+                const ItemIcon =
+                  INDUSTRY_ICONS[industry.name] ?? BriefcaseBusiness;
                 const selected = industry.name === active;
                 return (
                   <li key={industry.name} className="shrink-0">
@@ -120,13 +123,18 @@ export function Industries() {
                   <h3 className="text-3xl font-semibold tracking-tight md:text-4xl">
                     {current.name}
                   </h3>
+                  {"status" in current && current.status ? (
+                    <p className="mt-2 text-xs font-medium text-muted-foreground">
+                      {current.status}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
               <div className="mt-10 grid gap-8 md:grid-cols-2">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Challenges
+                    What makes the workflow unique
                   </p>
                   <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
                     {current.problem}
@@ -134,7 +142,7 @@ export function Industries() {
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    How Chasum Helps
+                    How Chasum supports the operation
                   </p>
                   <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
                     {current.solution}
@@ -144,7 +152,7 @@ export function Industries() {
 
               <div className="mt-10 border-t border-border/60 pt-8">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Recommended Modules
+                  Recommended product foundations
                 </p>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {current.modules.map((mod) => (
@@ -157,6 +165,12 @@ export function Industries() {
                   ))}
                 </ul>
               </div>
+
+              {"note" in current && current.note ? (
+                <p className="mt-8 rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+                  {current.note}
+                </p>
+              ) : null}
             </article>
           </Reveal>
         </div>

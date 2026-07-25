@@ -5,7 +5,8 @@ export const COMPANY_KNOWLEDGE: KnowledgeEntry[] = [
     id: "company-mission",
     category: "company",
     title: "Chasum Mission",
-    summary: "Run the business. Let AI handle the rest.",
+    summary:
+      "Run your business. Understand it better. One intelligent platform for service businesses—with AI working alongside your team.",
     body:
       "Chasum’s mission is to give appointment-based service businesses one operating system for scheduling, clients, staff, money, and AI — so owners stop stitching together booking pages, spreadsheets, and chat tools.",
     tags: ["mission", "chasum", "purpose", "why"],

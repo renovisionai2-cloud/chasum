@@ -8,9 +8,10 @@ import {
   submitDesignPartnerApplication,
   type DesignPartnerState,
 } from "@/lib/actions/design-partner";
-import { PRIVATE_ALPHA_HREF } from "@/lib/marketing/alpha";
+import { PRIVATE_ALPHA_HREF, PRIVACY_HREF } from "@/lib/marketing/alpha";
+import { FS_BUSINESS_CATEGORIES } from "@/lib/marketing/flagship-summer";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useId } from "react";
 
 const initial: DesignPartnerState = {};
 
@@ -22,17 +23,24 @@ export function DesignPartnerForm() {
     submitDesignPartnerApplication,
     initial,
   );
+  const errorSummaryId = useId();
 
   if (state.ok) {
     return (
-      <div className="rounded-2xl border border-success/30 bg-success/10 px-6 py-8 text-center">
+      <div
+        className="rounded-2xl border border-success/30 bg-success/10 px-6 py-8 text-center"
+        role="status"
+      >
         <h2 className="text-xl font-semibold text-foreground">
           Application received
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Thank you. We review every application personally and typically reply
-          within two business days. Meanwhile, read{" "}
-          <Link href={PRIVATE_ALPHA_HREF} className="text-primary hover:underline">
+          Thank you. We review every Private Alpha application personally and
+          will contact you using the details provided. Meanwhile, read{" "}
+          <Link
+            href={PRIVATE_ALPHA_HREF}
+            className="text-primary hover:underline"
+          >
             why we run a Private Alpha
           </Link>
           .
@@ -42,11 +50,15 @@ export function DesignPartnerForm() {
   }
 
   return (
-    <form action={action} className="space-y-5">
+    <form action={action} className="space-y-5" noValidate={false}>
       {state.error ? (
-        <p className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div
+          id={errorSummaryId}
+          role="alert"
+          className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
           {state.error}
-        </p>
+        </div>
       ) : null}
 
       <div>
@@ -60,19 +72,33 @@ export function DesignPartnerForm() {
         />
       </div>
 
+      <div>
+        <Label htmlFor="industry">Business type</Label>
+        <select
+          id="industry"
+          name="industry"
+          required
+          className={fieldClass}
+          defaultValue=""
+        >
+          <option value="" disabled>
+            Select a business type
+          </option>
+          {FS_BUSINESS_CATEGORIES.map((category) => (
+            <optgroup key={category.id} label={category.label}>
+              {category.industries.map((industry) => (
+                <option key={industry.id} value={industry.label}>
+                  {industry.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <Label htmlFor="industry">Industry</Label>
-          <Input
-            id="industry"
-            name="industry"
-            required
-            placeholder="Clinic, salon, spa…"
-            className={fieldClass}
-          />
-        </div>
-        <div>
-          <Label htmlFor="employees">Employees</Label>
+          <Label htmlFor="employees">Team size</Label>
           <Input
             id="employees"
             name="employees"
@@ -81,11 +107,24 @@ export function DesignPartnerForm() {
             className={fieldClass}
           />
         </div>
+        <div>
+          <Label htmlFor="locations">Number of locations</Label>
+          <Input
+            id="locations"
+            name="locations"
+            required
+            placeholder="e.g. 1, 2–5"
+            className={fieldClass}
+            inputMode="numeric"
+          />
+        </div>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <Label htmlFor="current_software">Current software</Label>
+          <Label htmlFor="current_software">
+            Current scheduling or business software
+          </Label>
           <Input
             id="current_software"
             name="current_software"
@@ -95,7 +134,9 @@ export function DesignPartnerForm() {
           />
         </div>
         <div>
-          <Label htmlFor="monthly_appointments">Monthly appointments</Label>
+          <Label htmlFor="monthly_appointments">
+            Approximate monthly appointments
+          </Label>
           <Input
             id="monthly_appointments"
             name="monthly_appointments"
@@ -107,20 +148,22 @@ export function DesignPartnerForm() {
       </div>
 
       <div>
-        <Label htmlFor="pain_point">Biggest pain point</Label>
+        <Label htmlFor="pain_point">
+          What would you most like to improve?
+        </Label>
         <Textarea
           id="pain_point"
           name="pain_point"
           required
           rows={3}
           className={fieldClass}
-          placeholder="What breaks today in scheduling, CRM, or front desk?"
+          placeholder="Scheduling, CRM, front desk, payments, reporting…"
         />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Work email</Label>
           <Input
             id="email"
             name="email"
@@ -129,27 +172,47 @@ export function DesignPartnerForm() {
             className={fieldClass}
             autoComplete="email"
           />
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Used only to follow up on your application. See our{" "}
+            <Link href={PRIVACY_HREF} className="underline underline-offset-2">
+              Privacy Policy
+            </Link>
+            .
+          </p>
         </div>
         <div>
-          <Label htmlFor="phone">Phone</Label>
+          <Label htmlFor="phone">
+            Phone number{" "}
+            <span className="font-normal text-muted-foreground">
+              · optional
+            </span>
+          </Label>
           <Input
             id="phone"
             name="phone"
             type="tel"
-            required
             className={fieldClass}
             autoComplete="tel"
+            placeholder="Any format is fine"
           />
         </div>
       </div>
 
       <div>
-        <Label htmlFor="notes">Additional notes</Label>
+        <Label htmlFor="notes">
+          Anything else we should know?{" "}
+          <span className="font-normal text-muted-foreground">· optional</span>
+        </Label>
         <Textarea id="notes" name="notes" rows={3} className={fieldClass} />
       </div>
 
-      <Button type="submit" size="lg" className="w-full rounded-full" disabled={pending}>
-        {pending ? "Submitting…" : "Submit application"}
+      <Button
+        type="submit"
+        size="lg"
+        className="w-full rounded-full"
+        disabled={pending}
+      >
+        {pending ? "Submitting…" : "Submit my application"}
       </Button>
       <p className="text-center text-xs text-muted-foreground">
         By applying you agree to our{" "}

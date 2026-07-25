@@ -12,6 +12,10 @@ function required(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
 }
 
+function optional(formData: FormData, key: string): string {
+  return String(formData.get(key) ?? "").trim();
+}
+
 export async function submitDesignPartnerApplication(
   _prev: DesignPartnerState,
   formData: FormData,
@@ -19,22 +23,23 @@ export async function submitDesignPartnerApplication(
   const businessName = required(formData, "business_name");
   const industry = required(formData, "industry");
   const employees = required(formData, "employees");
+  const locations = required(formData, "locations");
   const currentSoftware = required(formData, "current_software");
   const painPoint = required(formData, "pain_point");
   const monthlyAppointments = required(formData, "monthly_appointments");
   const email = required(formData, "email");
-  const phone = required(formData, "phone");
-  const notes = required(formData, "notes");
+  const phone = optional(formData, "phone");
+  const notes = optional(formData, "notes");
 
   if (
     !businessName ||
     !industry ||
     !employees ||
+    !locations ||
     !currentSoftware ||
     !painPoint ||
     !monthlyAppointments ||
-    !email ||
-    !phone
+    !email
   ) {
     return { error: "Please complete all required fields." };
   }
@@ -47,11 +52,12 @@ export async function submitDesignPartnerApplication(
     businessName,
     industry,
     employees,
+    locations,
     currentSoftware,
     painPoint,
     monthlyAppointments,
     email,
-    phone,
+    phone: phone || "(not provided)",
     notes: notes || "(none)",
     submittedAt: new Date().toISOString(),
   };
@@ -76,13 +82,14 @@ export async function submitDesignPartnerApplication(
           "New Chasum Private Alpha / Design Partner application",
           "",
           `Business: ${businessName}`,
-          `Industry: ${industry}`,
-          `Employees: ${employees}`,
+          `Business type: ${industry}`,
+          `Team size: ${employees}`,
+          `Locations: ${locations}`,
           `Current software: ${currentSoftware}`,
           `Monthly appointments: ${monthlyAppointments}`,
-          `Biggest pain: ${painPoint}`,
+          `Improve: ${painPoint}`,
           `Email: ${email}`,
-          `Phone: ${phone}`,
+          `Phone: ${phone || "(not provided)"}`,
           `Notes: ${notes || "(none)"}`,
           `Submitted: ${payload.submittedAt}`,
         ].join("\n"),

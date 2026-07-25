@@ -2,7 +2,9 @@ import { Reveal } from "@/components/landing/reveal";
 import { PlanCards } from "@/components/marketing/plan-cards";
 import {
   MARKETING_PLANS,
+  PRICING_EYEBROW,
   PRICING_HEADLINE,
+  PRICING_NOTE,
   PRICING_SUBHEADING,
 } from "@/lib/marketing/pricing";
 import { Check, Minus } from "lucide-react";
@@ -24,28 +26,28 @@ const COMPARISON_FEATURES = [
     enterprise: true,
   },
   {
-    name: "Email reminders",
+    name: "Email reminders (when configured)",
     free: true,
     professional: true,
     business: true,
     enterprise: true,
   },
   {
-    name: "AI scheduling assistance",
+    name: "Summer & Chase (Early Access)",
     free: false,
     professional: true,
     business: true,
     enterprise: true,
   },
   {
-    name: "SMS reminders",
+    name: "SMS reminders (Early Access · when enabled)",
     free: false,
     professional: true,
     business: true,
     enterprise: true,
   },
   {
-    name: "Automation & waitlist",
+    name: "Waitlist",
     free: false,
     professional: true,
     business: true,
@@ -56,21 +58,28 @@ const COMPARISON_FEATURES = [
     free: "1",
     professional: "Up to 3",
     business: "Up to 10",
-    enterprise: "Unlimited",
+    enterprise: "Discuss",
   },
   {
-    name: "API & webhooks",
+    name: "API & webhooks (when enabled)",
     free: false,
     professional: false,
     business: true,
     enterprise: true,
   },
   {
+    name: "Team invitations / staff login",
+    free: "Coming Next",
+    professional: "Coming Next",
+    business: "Coming Next",
+    enterprise: "Coming Next",
+  },
+  {
     name: "Custom onboarding / SLA",
     free: false,
     professional: false,
     business: false,
-    enterprise: true,
+    enterprise: "Discuss",
   },
 ] as const;
 
@@ -95,11 +104,12 @@ export function Pricing() {
       <div className="mx-auto max-w-6xl">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">Pricing</p>
+            <p className="marketing-eyebrow">{PRICING_EYEBROW}</p>
             <h2 id="pricing-heading" className="marketing-h2-xl">
               {PRICING_HEADLINE}
             </h2>
             <p className="marketing-lede">{PRICING_SUBHEADING}</p>
+            <p className="mt-4 text-sm text-muted-foreground">{PRICING_NOTE}</p>
           </div>
         </Reveal>
 

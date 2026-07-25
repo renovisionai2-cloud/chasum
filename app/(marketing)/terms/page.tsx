@@ -1,5 +1,10 @@
 import { MarketingDocPage } from "@/components/landing/marketing-doc-page";
-import { APPLY_HREF, CONTACT_HREF, PRIVACY_HREF } from "@/lib/marketing/alpha";
+import {
+  APPLY_HREF,
+  CONTACT_HREF,
+  LEGAL_ALPHA_NOTICE,
+  PRIVACY_HREF,
+} from "@/lib/marketing/alpha";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -15,6 +20,9 @@ export default function TermsPage() {
       title="Terms of Service"
       description="Last updated July 18, 2026. These terms apply to Private Alpha access and design partner use of Chasum."
     >
+      <p className="rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        {LEGAL_ALPHA_NOTICE}
+      </p>
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Private Alpha</h2>
         <p className="text-muted-foreground">

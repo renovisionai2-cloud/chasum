@@ -7,7 +7,7 @@ import {
   MEET_SUMMER_HREF,
 } from "@/lib/marketing/alpha";
 import { PLATFORM_MODULES } from "@/lib/marketing/homepage";
-import { NAV_RESOURCES } from "@/lib/constants";
+import { NAV_LINKS } from "@/lib/constants";
 
 describe("Meet Summer routing", () => {
   it("exposes a dedicated /meet-summer destination distinct from /apply", () => {
@@ -30,8 +30,8 @@ describe("Meet Summer routing", () => {
     expect(summer?.ctaHref).toBe(MEET_SUMMER_HREF);
   });
 
-  it("includes Meet Summer in marketing resource nav", () => {
-    const link = NAV_RESOURCES.find((item) => item.label === "Meet Summer");
+  it("includes Meet Summer in primary marketing nav", () => {
+    const link = NAV_LINKS.find((item) => item.label === "Meet Summer");
     expect(link?.href).toBe(MEET_SUMMER_HREF);
   });
 });

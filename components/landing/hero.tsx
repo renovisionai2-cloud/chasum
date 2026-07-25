@@ -4,20 +4,15 @@ import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
   CTA_DEMO_LABEL,
+  CTA_MEET_SUMMER_LABEL,
   DEMO_HREF,
+  MEET_SUMMER_HREF,
 } from "@/lib/marketing/alpha";
-import { ArrowRight, Check, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-const TRUST_LINES = [
-  "Private Alpha — limited partners",
-  "Founder-backed support",
-  "Built for service businesses",
-] as const;
-
 /**
- * V3 Hero — the software is the experience.
- * Monumental product stage, minimal chrome, emotional confidence.
+ * Homepage hero — honest OS positioning, no autonomous over-promise.
  */
 export function Hero() {
   return (
@@ -37,7 +32,7 @@ export function Hero() {
           Run your business.
           <br />
           <span className="bg-gradient-to-br from-primary via-primary to-spark bg-clip-text text-transparent">
-            Let AI handle the rest.
+            Understand it better.
           </span>
         </h1>
 
@@ -60,9 +55,10 @@ export function Hero() {
         </div>
 
         <div className="marketing-hero-enter marketing-hero-enter-delay-2 mt-10 flex w-full max-w-3xl flex-col items-center md:mt-12">
-          <p className="max-w-md text-center text-base text-muted-foreground md:text-lg">
-            One operating system for scheduling, CRM, teams, and AI —
-            built for service businesses. Currently inviting design partners.
+          <p className="max-w-2xl text-center text-base text-muted-foreground md:text-lg">
+            Chasum brings scheduling, customers, teams, communication, payments
+            and reporting into one connected platform—with Summer helping your
+            team find answers and take the next step.
           </p>
 
           <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
@@ -72,36 +68,23 @@ export function Hero() {
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
               </span>
             </Link>
-            <a href={DEMO_HREF} className="group">
+            <Link href={MEET_SUMMER_HREF} className="group">
               <span className="marketing-hero-btn-secondary inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-foreground transition-[transform,background-color,border-color] duration-300 sm:w-auto sm:min-w-[10.5rem]">
-                {CTA_DEMO_LABEL}
+                {CTA_MEET_SUMMER_LABEL}
               </span>
-            </a>
+            </Link>
           </div>
 
           <Link
-            href="/#showcase"
-            className="marketing-focus-ring mt-6 inline-flex min-h-11 items-center gap-2 rounded-full px-2 text-[13px] font-medium tracking-wide text-muted-foreground transition-colors duration-200 hover:text-foreground"
+            href={DEMO_HREF}
+            className="marketing-focus-ring mt-6 inline-flex min-h-11 items-center rounded-full px-2 text-[13px] font-medium tracking-wide text-muted-foreground underline-offset-4 transition-colors duration-200 hover:text-foreground hover:underline"
           >
-            <Play className="h-3.5 w-3.5" />
-            Experience the product
+            {CTA_DEMO_LABEL}
           </Link>
 
           <p className="mt-8 max-w-lg text-center text-[13px] text-muted-foreground">
             {ALPHA_BANNER}
           </p>
-
-          <ul className="mt-6 flex flex-col items-center gap-2.5 sm:flex-row sm:gap-8">
-            {TRUST_LINES.map((line) => (
-              <li
-                key={line}
-                className="flex items-center gap-2 text-[13px] font-medium tracking-tight text-foreground/65"
-              >
-                <Check className="h-3.5 w-3.5 text-primary" strokeWidth={2.75} aria-hidden />
-                {line}
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>

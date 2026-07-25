@@ -2,9 +2,9 @@ import { Pricing } from "@/components/landing/pricing";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Pricing",
+  title: "Private Alpha Pricing",
   description:
-    "Founding pricing for Chasum design partners. Apply for Private Alpha — public self-serve checkout Coming Next.",
+    "Founding pricing with product status made clear. Apply to discuss the right setup for your service business—public self-serve checkout Coming Next.",
 };
 
 export default function PricingPage() {

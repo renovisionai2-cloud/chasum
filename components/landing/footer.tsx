@@ -2,8 +2,8 @@ import { Logo } from "@/components/brand/logo";
 import {
   APPLY_HREF,
   CONTACT_HREF,
-  CTA_APPLY_LABEL,
   CTA_MEET_SUMMER_LABEL,
+  HOW_IT_WORKS_HREF,
   MEET_SUMMER_HREF,
   PRIVACY_HREF,
   ROADMAP_HREF,
@@ -15,29 +15,30 @@ import {
 import Link from "next/link";
 
 const footerLinks = {
-  Platform: [
+  Explore: [
     { label: "Platform", href: "/#platform" },
-    { label: "Product Tour", href: "/#showcase" },
     { label: CTA_MEET_SUMMER_LABEL, href: MEET_SUMMER_HREF },
-    { label: "AI Workforce", href: "/#ai-workforce" },
-    { label: "How It Works", href: "/#journey" },
+    { label: "How It Works", href: HOW_IT_WORKS_HREF },
+    { label: "Solutions", href: "/#industries" },
   ],
   Company: [
-    { label: "Why Private Alpha?", href: PRIVATE_ALPHA_HREF },
+    { label: "Why Private Alpha", href: PRIVATE_ALPHA_HREF },
     { label: "Roadmap", href: ROADMAP_HREF },
     { label: "Pricing", href: "/pricing" },
-    { label: CTA_APPLY_LABEL, href: APPLY_HREF },
+    { label: "Apply", href: APPLY_HREF },
   ],
   Trust: [
-    { label: "Privacy Policy", href: PRIVACY_HREF },
-    { label: "Terms", href: TERMS_HREF },
     { label: "Security", href: SECURITY_HREF },
+    { label: "Privacy", href: PRIVACY_HREF },
+    { label: "Terms", href: TERMS_HREF },
     { label: "Status", href: STATUS_HREF },
     { label: "Contact", href: CONTACT_HREF },
   ],
 };
 
 export function Footer() {
+  const year = new Date().getFullYear();
+
   return (
     <footer className="border-t border-border px-6 py-14 md:py-16">
       <div className="mx-auto max-w-6xl">
@@ -45,8 +46,12 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              The AI Business Operating System for service businesses — currently
-              in Private Alpha with design partners.
+              Chasum is the AI Business Operating System for service
+              businesses—connecting the work your team does today with the
+              intelligence needed to improve tomorrow.
+            </p>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Private Alpha product status · Design partners only
             </p>
           </div>
 
@@ -71,28 +76,21 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} Chasum. All rights reserved.</p>
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-            <Link href={PRIVACY_HREF} className="hover:text-foreground">
-              Privacy Policy
-            </Link>
-            <Link href={TERMS_HREF} className="hover:text-foreground">
-              Terms
-            </Link>
-            <Link href={SECURITY_HREF} className="hover:text-foreground">
-              Security
-            </Link>
-            <Link href={ROADMAP_HREF} className="hover:text-foreground">
-              Roadmap
-            </Link>
-            <Link href={STATUS_HREF} className="hover:text-foreground">
-              Status
-            </Link>
+        <div className="mt-14 flex flex-col gap-3 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} Chasum. All rights reserved.</p>
+          <p className="text-xs">
+            Support:{" "}
             <Link href={CONTACT_HREF} className="hover:text-foreground">
               Contact
             </Link>
-          </div>
+            {" · "}
+            <a
+              href="mailto:sales@chasum.app"
+              className="hover:text-foreground"
+            >
+              sales@chasum.app
+            </a>
+          </p>
         </div>
       </div>
     </footer>

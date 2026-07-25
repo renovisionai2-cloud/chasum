@@ -5,36 +5,74 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Status",
-  description: "Chasum platform status for Private Alpha.",
+  description:
+    "Manually reviewed Private Alpha system status for Chasum core services. Automated incident history is Coming Next.",
 };
 
-export default function StatusPage() {
-  const updated = new Date().toISOString().slice(0, 10);
+const LAST_REVIEWED = "2026-07-24";
 
+const SERVICES = [
+  {
+    name: "Application and dashboard",
+    status: "Operational",
+  },
+  {
+    name: "Public booking",
+    status: "Operational",
+  },
+  {
+    name: "Database and authentication",
+    status: "Operational",
+  },
+  {
+    name: "Email delivery",
+    status: "Configuration dependent",
+  },
+  {
+    name: "SMS delivery",
+    status: "Configuration dependent",
+  },
+  {
+    name: "Payment integrations",
+    status: "Configuration dependent",
+  },
+] as const;
+
+export default function StatusPage() {
   return (
     <MarketingDocPage
       eyebrow="Operations"
-      title="Status"
-      description="Manual status board for Private Alpha. Automated status history ships later."
+      title="Private Alpha system status"
+      description="This page reports the latest manually reviewed status of Chasum’s core services. Automated incident history and monitoring are Coming Next."
     >
-      <div className="rounded-2xl border border-success/30 bg-success/10 px-5 py-6">
-        <p className="text-sm font-semibold text-success">All systems normal</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Core booking, dashboard, and public booking are operating for design
-          partners. Last reviewed: {updated}.
-        </p>
-      </div>
-      <ul className="space-y-2 text-sm text-muted-foreground">
-        <li>App & dashboard — Operational</li>
-        <li>Public booking — Operational</li>
-        <li>Email delivery — Depends on Resend configuration per environment</li>
-        <li>SMS — Optional (Twilio)</li>
-        <li>Subscription checkout — Not enabled (Private Alpha)</li>
+      <p className="rounded-xl border border-border/70 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+        Last reviewed: {LAST_REVIEWED}
+      </p>
+
+      <ul className="space-y-3">
+        {SERVICES.map((service) => (
+          <li
+            key={service.name}
+            className="flex flex-col gap-1 rounded-2xl border border-border/70 bg-card/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span className="font-medium text-foreground">{service.name}</span>
+            <span className="text-sm text-muted-foreground">
+              {service.status}
+            </span>
+          </li>
+        ))}
       </ul>
+
       <p className="text-sm text-muted-foreground">
-        Seeing an issue?{" "}
-        <Link href={CONTACT_HREF} className="text-primary hover:underline">
-          Contact us
+        Status values used here: Operational, Configuration dependent, Limited,
+        Unavailable, and Maintenance. Email, SMS, and payment integrations
+        depend on provider credentials for each environment.
+      </p>
+
+      <p className="text-sm text-muted-foreground">
+        For an issue affecting your business,{" "}
+        <Link href={`${CONTACT_HREF}#support`} className="text-primary hover:underline">
+          contact support
         </Link>{" "}
         or email sales@chasum.app.
       </p>

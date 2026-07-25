@@ -1,5 +1,4 @@
 import { AiWorkforceSection } from "@/components/landing/ai-workforce-section";
-import { Comparison } from "@/components/landing/comparison";
 import { CTA } from "@/components/landing/cta";
 import { CustomerJourney } from "@/components/landing/customer-journey";
 import { DashboardShowcase } from "@/components/landing/dashboard-showcase";
@@ -10,18 +9,22 @@ import { PageFade } from "@/components/landing/page-fade";
 import { PlatformOverview } from "@/components/landing/platform-overview";
 import { Pricing } from "@/components/landing/pricing";
 import { PrivateAlphaInvite } from "@/components/landing/private-alpha-invite";
+import { SummerIntro } from "@/components/landing/summer-intro";
+import { TrustSection } from "@/components/landing/trust-section";
 import { TrustedPlatform } from "@/components/landing/trusted-platform";
 import { BRAND_ASSETS, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand/assets";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Business Operating System for Service Businesses",
+  title: {
+    absolute: "Chasum | AI Business Operating System for Service Businesses",
+  },
   description:
-    "Chasum unifies scheduling, CRM, employees, communication, reports, and Early Access AI (Summer & Chase). Private Alpha for design partners.",
+    "Connect scheduling, customers, teams, communication, payments and reporting in one operating platform—with AI assistance designed for service businesses.",
   openGraph: {
-    title: "Chasum — Run your business. Let AI handle the rest.",
+    title: "Chasum | AI Business Operating System for Service Businesses",
     description:
-      "The AI Business Operating System built for service businesses. Apply for Private Alpha.",
+      "Connect scheduling, customers, teams, communication, payments and reporting in one operating platform—with AI assistance designed for service businesses.",
     images: [
       {
         url: BRAND_ASSETS.ogImage,
@@ -34,20 +37,21 @@ export const metadata: Metadata = {
 };
 
 /**
- * Private Alpha story flow — no fictional social proof.
+ * Private Alpha story flow — no fictional social proof; Comparison removed from homepage.
  */
 export default function HomePage() {
   return (
     <PageFade>
       <Hero />
       <TrustedPlatform />
+      <SummerIntro />
       <PlatformOverview />
       <DashboardShowcase />
       <CustomerJourney />
       <AiWorkforceSection />
       <Industries />
+      <TrustSection />
       <PrivateAlphaInvite />
-      <Comparison />
       <Pricing />
       <Faq />
       <CTA />

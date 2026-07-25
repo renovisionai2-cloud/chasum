@@ -4,7 +4,12 @@ import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
 import { PLATFORM_MODULES } from "@/lib/marketing/homepage";
-import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL, MEET_SUMMER_HREF } from "@/lib/marketing/alpha";
+import {
+  APPLY_HREF,
+  CTA_APPLY_LABEL,
+  CTA_MEET_SUMMER_LABEL,
+  MEET_SUMMER_HREF,
+} from "@/lib/marketing/alpha";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -31,8 +36,8 @@ const SHOWCASE_TABS = [
     benefit: "See what needs attention before the day gets busy.",
     explanation:
       "Appointments, revenue, customers, and operational signals come together in one calm command center.",
-    benefits: ["Live operating snapshot", "Today and weekly activity", "Fast access to every department"],
-    cta: "Explore Chasum",
+    benefits: ["Operating snapshot", "Today and weekly activity", "Fast access to every department"],
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
   },
   {
@@ -45,7 +50,7 @@ const SHOWCASE_TABS = [
     explanation:
       "Summer is Chasum's AI Business Assistant: website concierge, receptionist assist, and product guide for design partners in Early Access.",
     benefits: ["Grounded business answers", "Real availability only", "Human escalation"],
-    cta: "Meet Summer",
+    cta: CTA_MEET_SUMMER_LABEL,
     ctaHref: MEET_SUMMER_HREF,
   },
   {
@@ -151,7 +156,7 @@ export function DashboardShowcase() {
   const ctaLabel =
     "cta" in active && typeof active.cta === "string"
       ? active.cta
-      : (moduleCopy?.cta ?? CTA_EARLY_ACCESS_LABEL);
+      : (moduleCopy?.cta ?? CTA_APPLY_LABEL);
 
   return (
     <section
@@ -164,11 +169,11 @@ export function DashboardShowcase() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Product</p>
             <h2 id="showcase-heading" className="marketing-h2-xl">
-              Feel the Product Before You Sign Up
+              See how the operating system fits together
             </h2>
             <p className="marketing-lede">
-              Choose a department. Watch the live surface update. Less reading —
-              more operating.
+              Choose a department to preview how Chasum connects the day—illustrative
+              product surfaces, not a live tenant environment.
             </p>
           </div>
         </Reveal>
@@ -243,7 +248,7 @@ export function DashboardShowcase() {
                 <div className="marketing-product-frame">
                   <DashboardPreview
                     variant={active.preview}
-                    live
+                    live={false}
                     className="min-h-[400px] border-0 shadow-none md:min-h-[560px] xl:min-h-[620px]"
                   />
                 </div>

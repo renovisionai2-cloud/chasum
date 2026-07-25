@@ -4,13 +4,13 @@
  */
 
 export { DEMO_HREF } from "@/lib/marketing/alpha";
-import { APPLY_HREF, CTA_EARLY_ACCESS_LABEL, MEET_SUMMER_HREF } from "@/lib/marketing/alpha";
+import { APPLY_HREF, CTA_APPLY_LABEL, MEET_SUMMER_HREF } from "@/lib/marketing/alpha";
 
 export const TRUSTED_STATS = [
   { label: "Departments", value: 9, suffix: "+", hint: "Real product modules" },
   { label: "Industries Served", value: 10, suffix: "+", hint: "One configurable OS" },
   { label: "Plan Tiers", value: 4, suffix: "", hint: "Founding pricing via alpha" },
-  { label: "AI Employees Live", value: 2, suffix: "", hint: "Summer & Chase · Early Access" },
+  { label: "AI teammates", value: 2, suffix: "", hint: "Summer & Chase · Early Access" },
   { label: "Journey Steps", value: 7, suffix: "", hint: "Book → report connected" },
 ] as const;
 
@@ -143,6 +143,52 @@ export const TESTIMONIALS = [
   },
 ] as const;
 
+/** Homepage platform categories — honest scope from Product Truth Matrix. */
+export const PLATFORM_CATEGORIES = [
+  {
+    id: "scheduling",
+    name: "Scheduling & Reception",
+    description:
+      "Manage appointments, availability and the front-desk workflow.",
+  },
+  {
+    id: "crm",
+    name: "Customers & CRM",
+    description:
+      "Keep customer details, history, notes and activity together.",
+  },
+  {
+    id: "team",
+    name: "Team & Locations",
+    description:
+      "Configure employees, services, hours and locations.",
+  },
+  {
+    id: "communication",
+    name: "Communication",
+    description:
+      "Send the confirmations, reminders and follow-ups supported by the configured messaging providers.",
+  },
+  {
+    id: "commerce",
+    name: "Commerce",
+    description:
+      "Record deposits, payments, balances, gift certificates, invoices and receipts from one financial record.",
+  },
+  {
+    id: "reports",
+    name: "Reports",
+    description:
+      "See appointments, revenue, employee activity and customer balances from connected operational data.",
+  },
+  {
+    id: "ai",
+    name: "AI Assistance",
+    description:
+      "Use Summer and Chase in Early Access for grounded help—not a collection of chatbots.",
+  },
+] as const;
+
 export type PlatformModule = {
   id: string;
   name: string;
@@ -155,11 +201,12 @@ export type PlatformModule = {
   preview: "summer" | "crm" | "calendar" | "employees" | "business" | "reports" | "communication" | "billing" | "workforce";
 };
 
+/** Module copy for the product showcase — CTAs limited to Apply / Meet Summer. */
 export const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: "summer",
     name: "Summer — AI Business Assistant",
-    href: "/#platform-summer",
+    href: "/#platform-ai",
     benefit: "Answer common questions and start bookings without inventing availability.",
     explanation:
       "Summer — Chasum's AI Business Assistant (Early Access) — uses your real hours, services, staff, and locations, recommends slots from the scheduling engine, and escalates to humans when needed.",
@@ -174,40 +221,40 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     benefit: "Know every customer history, note, and conversation in one profile.",
     explanation:
       "Directory, profiles, timeline, documents, and payment events — connected to appointments and Communication Center.",
-    cta: "Explore CRM",
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     preview: "crm",
   },
   {
     id: "calendar",
     name: "Calendar & Booking",
-    href: "/#platform-calendar",
+    href: "/#platform-scheduling",
     benefit: "Fill the day with real openings — never invented times.",
     explanation:
       "Reception calendar, public booking pages, waitlist, buffers, rooms/resources, and a customer portal built on the same engine.",
-    cta: "See booking",
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     preview: "calendar",
   },
   {
     id: "employees",
     name: "Employee Management",
-    href: "/#platform-employees",
+    href: "/#platform-team",
     benefit: "Run the team with schedules, roles, and performance in one place.",
     explanation:
       "Directory, profiles, departments, location assignments, payroll fields, documents, and activity — staff login invites are Coming Next.",
-    cta: "Manage team",
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     preview: "employees",
   },
   {
     id: "business",
     name: "Business Management",
-    href: "/#platform-business",
+    href: "/#platform-team",
     benefit: "Configure how the company operates — for one site or many.",
     explanation:
       "Profile, locations, categories, rooms & resources, memberships, packages, gift cards, taxes, forms, and automation rules.",
-    cta: "Configure business",
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     preview: "business",
   },
@@ -218,7 +265,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     benefit: "Understand performance in minutes, not spreadsheets.",
     explanation:
       "Executive KPIs, revenue by employee/location/service, appointments, customers, financials, exports, and scheduled reports.",
-    cta: "View reports",
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     preview: "reports",
   },
@@ -228,20 +275,20 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     href: "/#platform-communication",
     benefit: "Call, text, email, and follow up without leaving the customer record.",
     explanation:
-      "Unified timeline, notes, reminders, and pluggable providers (Resend, Twilio) ready for production messaging.",
-    cta: "Open communications",
+      "Unified timeline, notes, reminders, and pluggable providers (Resend, Twilio) when messaging is configured.",
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     preview: "communication",
   },
   {
     id: "billing",
     name: "Billing",
-    href: "/#platform-billing",
+    href: "/#platform-commerce",
     benefit: "Manual commerce today; self-serve subscriptions Coming Next.",
     explanation:
       "Record payments and invoices for operators today. Public SaaS checkout is on the roadmap — apply for founding pricing in Private Alpha.",
-    cta: "See pricing",
-    ctaHref: "/pricing",
+    cta: CTA_APPLY_LABEL,
+    ctaHref: APPLY_HREF,
     preview: "billing",
   },
   {
@@ -251,7 +298,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     benefit: "Summer and Chase in Early Access — more roles on the roadmap.",
     explanation:
       "Summer handles reception assist; Chase surfaces grounded ops insights. Additional AI employees are Coming Next / Future Vision.",
-    cta: CTA_EARLY_ACCESS_LABEL,
+    cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     comingSoon: false,
     preview: "workforce",
@@ -261,84 +308,178 @@ export const PLATFORM_MODULES: PlatformModule[] = [
 export const INDUSTRIES = [
   {
     name: "Medical Clinics",
-    problem: "Intake, providers, rooms, and follow-ups scatter across tools.",
+    problem:
+      "Appointments, providers, locations and follow-ups often live in separate systems.",
     solution:
-      "Chasum unifies booking, CRM notes, forms readiness, and reception workflows with tenant-safe records.",
-    modules: ["Calendar & Booking", "CRM", "Business Management", "Communication"],
+      "Keep appointments, customer history, providers, locations, communication and payment records connected—without forcing staff to manage the day across several systems.",
+    modules: [
+      "Scheduling & Reception",
+      "CRM",
+      "Team & Locations",
+      "Communication",
+      "Commerce & Reporting",
+    ],
+    note: "Healthcare-specific regulatory and clinical-record requirements must be assessed separately. Chasum is business operations software and must not be presented as an electronic medical record unless that capability is intentionally built and legally reviewed.",
+    status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Salons",
-    problem: "Stylist schedules, rebooking, and no-shows drain the front desk.",
+    problem: "Stylist schedules, rebooking and no-shows drain the front desk.",
     solution:
-      "Staff-aware slots, CRM history, reminders, and reports show who drives revenue.",
-    modules: ["Employees", "Calendar & Booking", "CRM", "Reports"],
+      "Staff-aware scheduling, CRM history, reminders and reports keep the floor and the relationship connected.",
+    modules: [
+      "Scheduling & Reception",
+      "Team & Locations",
+      "CRM",
+      "Communication",
+      "Reports",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Spas",
-    problem: "Packages, memberships, and treatment rooms are hard to track.",
+    problem: "Packages, memberships and treatment rooms are hard to track together.",
     solution:
-      "Business Management supports packages, memberships, rooms/resources, and location hours.",
-    modules: ["Business Management", "Calendar & Booking", "Billing", "CRM"],
+      "Configure services, rooms/resources, packages and location hours beside CRM and commerce records.",
+    modules: [
+      "Team & Locations",
+      "Scheduling & Reception",
+      "Commerce",
+      "CRM",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Gyms",
-    problem: "Classes, trainers, and memberships need one operating layer.",
+    problem: "Classes, trainers and memberships need one operating layer.",
     solution:
-      "Employees, services, recurring patterns, and membership scaffolds sit beside CRM and billing.",
-    modules: ["Employees", "Business Management", "CRM", "Reports"],
+      "Employees, services and membership scaffolds sit beside CRM, scheduling and reporting.",
+    modules: [
+      "Team & Locations",
+      "Scheduling & Reception",
+      "CRM",
+      "Reports",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Automotive",
-    problem: "Bays, techs, and customer vehicles create scheduling chaos.",
+    problem: "Bays, technicians and customer vehicles create scheduling chaos.",
     solution:
-      "Resources/rooms, staff assignment, and CRM timelines keep jobs and clients connected.",
-    modules: ["Business Management", "Employees", "Calendar & Booking", "CRM"],
+      "Resources, staff assignment and CRM timelines keep jobs and clients connected.",
+    modules: [
+      "Team & Locations",
+      "Scheduling & Reception",
+      "CRM",
+      "Reports",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
-    name: "Contractors",
-    problem: "Field jobs, estimate follow-ups, and calendars rarely sync.",
+    name: "Home & Field Services",
+    problem: "Field jobs, follow-ups and calendars rarely stay in sync.",
     solution:
-      "Location-aware booking, CRM follow-ups, and Communication Center keep jobs moving.",
-    modules: ["Calendar & Booking", "CRM", "Communication", "Employees"],
+      "Location-aware booking, CRM follow-ups and configured messaging keep jobs moving.",
+    modules: [
+      "Scheduling & Reception",
+      "CRM",
+      "Communication",
+      "Team & Locations",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
-    name: "Photography",
-    problem: "Sessions, edits, and client communication live in inboxes.",
+    name: "Photography & Creative",
+    problem: "Sessions, deposits and client communication live in inboxes.",
     solution:
-      "Public booking, deposits/commercial appointment fields, and CRM keep shoots organized.",
-    modules: ["Calendar & Booking", "CRM", "Billing", "Reports"],
+      "Public booking, CRM and commerce records keep shoots organized without inventing availability.",
+    modules: [
+      "Scheduling & Reception",
+      "CRM",
+      "Commerce",
+      "Reports",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Pet Services",
     problem: "Recurring visits and pet notes get lost between bookings.",
     solution:
-      "CRM profiles, notes, reminders, and calendar protect the relationship and the schedule.",
-      modules: ["CRM", "Calendar & Booking", "Communication", "Summer"],
+      "CRM profiles, notes, reminders and calendar protect the relationship and the schedule.",
+    modules: [
+      "CRM",
+      "Scheduling & Reception",
+      "Communication",
+      "AI Assistance",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Cleaning",
     problem: "Recurring routes and last-minute changes overwhelm dispatch.",
     solution:
-      "Scheduling engine, waitlist, automation rules, and employee assignments reduce scramble.",
-    modules: ["Calendar & Booking", "Employees", "Business Management", "Reports"],
+      "Scheduling, waitlist, automation rules and employee assignments reduce scramble.",
+    modules: [
+      "Scheduling & Reception",
+      "Team & Locations",
+      "Reports",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Professional Services",
-    problem: "Consultants need polished booking without a full clinic stack.",
+    problem: "Consultants need polished booking without a clinic-sized stack.",
     solution:
-      "Branded booking pages, CRM, reports, and Free → Enterprise plans scale with the practice.",
-    modules: ["Calendar & Booking", "CRM", "Reports", "Billing"],
+      "Branded booking, CRM and reports scale with the practice under Private Alpha founding plans.",
+    modules: [
+      "Scheduling & Reception",
+      "CRM",
+      "Reports",
+      "Commerce",
+    ],
+    status: "Private Alpha · Available Today foundations",
   },
 ] as const;
 
 export const CUSTOMER_JOURNEY = [
-  { step: "1", title: "Customer Books", detail: "Public booking or reception creates the visit." },
-  { step: "2", title: "Summer Responds", detail: "AI Business Assistant (Early Access) answers from real business data." },
-  { step: "3", title: "CRM Updates", detail: "Profile and timeline capture the interaction." },
-  { step: "4", title: "Appointment Confirmed", detail: "Scheduling engine books a real open slot." },
-  { step: "5", title: "Reminder Sent", detail: "Communication Center delivers email or SMS." },
-  { step: "6", title: "Payment Recorded", detail: "Manual payments and ledger events stay linked (card checkout Coming Next)." },
-  { step: "7", title: "Reports Updated", detail: "Owner KPIs refresh across the business." },
+  {
+    step: "1",
+    title: "Appointment requested",
+    detail: "Online booking or reception begins the visit.",
+  },
+  {
+    step: "2",
+    title: "Availability confirmed",
+    detail: "Chasum checks the scheduling rules and real availability.",
+  },
+  {
+    step: "3",
+    title: "Customer record updated",
+    detail: "CRM history and context remain connected to the appointment.",
+  },
+  {
+    step: "4",
+    title: "Confirmation and reminder sent",
+    detail:
+      "Configured email or SMS channels keep the customer informed.",
+  },
+  {
+    step: "5",
+    title: "Service completed",
+    detail: "The appointment progresses through the business’s chosen workflow.",
+  },
+  {
+    step: "6",
+    title: "Payment recorded",
+    detail:
+      "Deposits, partial payments, gift certificates and final balances enter the commerce ledger where supported.",
+  },
+  {
+    step: "7",
+    title: "Reports updated",
+    detail:
+      "Operational and financial reporting reflects the recorded activity.",
+  },
 ] as const;
 
 export const HERO_STATS = [
@@ -351,52 +492,56 @@ export const AI_EMPLOYEES_PREVIEW = [
   {
     name: "Summer",
     role: "AI Business Assistant",
-    specialty: "Concierge, reception & product guide",
+    specialty: "Website concierge, product guide, reception assist",
     status: "Early Access",
     availability: "Early Access",
     summary:
-      "Chasum's official public AI identity — website concierge, receptionist assist, product guide, and future business/executive assistant. Answers from real business data, checks real slots, starts bookings, and escalates to staff.",
+      "Helps visitors explore Chasum and assists with grounded business questions and booking workflows where configured.",
   },
   {
     name: "Chase",
-    role: "AI Operations",
-    specialty: "Ops insights",
+    role: "AI Operations Insights",
+    specialty: "Read-only operational summaries",
     status: "Early Access",
     availability: "Early Access",
     summary:
-      "Surfaces grounded KPIs and alerts from your real bookings and CRM — read-only, never invents metrics.",
+      "Surfaces read-only operational observations and summaries from business activity where implemented.",
   },
   {
     name: "Alex",
-    role: "AI Scheduler",
+    role: "AI Scheduling",
     specialty: "Calendar optimization",
-    status: "Planned",
+    status: "Coming Next",
     availability: "Coming Next",
-    summary: "Protects the calendar and coordinates availability without inventing times.",
+    summary:
+      "Protects the calendar and coordinates availability without inventing times.",
   },
   {
     name: "Maya",
-    role: "AI Marketer",
+    role: "Marketing Intelligence",
     specialty: "Customer outreach",
-    status: "Planned",
+    status: "Future Vision",
     availability: "Future Vision",
-    summary: "Prepares owner-approved campaigns and thoughtful follow-up without spam.",
+    summary:
+      "Prepares owner-approved campaigns and thoughtful follow-up without spam.",
   },
   {
     name: "Leo",
-    role: "AI Business Advisor",
+    role: "Business Advisor",
     specialty: "Performance insights",
-    status: "Planned",
+    status: "Future Vision",
     availability: "Future Vision",
-    summary: "Turns operational signals into clear summaries and practical next steps.",
+    summary:
+      "Turns operational signals into clear summaries and practical next steps.",
   },
   {
     name: "Sophia",
-    role: "AI Customer Success",
+    role: "Customer Success",
     specialty: "Customer care",
-    status: "Planned",
+    status: "Future Vision",
     availability: "Future Vision",
-    summary: "Coordinates preparation, follow-up, and relationship care after booking.",
+    summary:
+      "Coordinates preparation, follow-up and relationship care after booking.",
   },
 ] as const;
 
@@ -490,35 +635,67 @@ export const COMPARISON_ROWS: {
 export const FAQ_ITEMS = [
   {
     q: "What Is Chasum?",
-    a: "Chasum is an AI Business Operating System for service businesses — scheduling, CRM, employees, communication, reports, billing, and AI employees in one multi-tenant platform.",
+    a: "Chasum is the AI Business Operating System for service businesses—one platform that connects scheduling, customers, teams, communication, payments and reporting, with AI assistance designed to work alongside your team.",
   },
   {
     q: "Is Chasum Just Another Booking Page?",
-    a: "No. Public booking is one surface. The product includes Reception calendar, CRM, Business Management, Reports, Communication Center, commerce tools, and Summer — Chasum's AI Business Assistant (Early Access).",
+    a: "No. Public booking is one surface. The product includes Reception, CRM, team and location configuration, reports, communication, commerce tools, and Summer — Chasum's AI Business Assistant (Early Access).",
   },
   {
     q: "Does AI Invent Appointment Times?",
-    a: "No. Availability recommendations come from Chasum’s scheduling engine (get_available_slots). If there are no openings, Chasum shows empty — it does not invent times.",
+    a: "No. Chasum’s scheduling engine checks the business’s configured hours, services, employees, locations and existing bookings. If there are no openings, Chasum shows empty — it does not invent times.",
+  },
+  {
+    q: "What is available during Private Alpha?",
+    a: "Design partners can use Available Today foundations such as calendar and booking, public booking, CRM, employees, multi-location configuration, reports, and configured messaging. Summer and Chase are Early Access. Public self-serve checkout is Coming Next.",
+  },
+  {
+    q: "What is Early Access?",
+    a: "Early Access means a capability is real and usable with design partners, but still evolving. It is labelled clearly so it is never presented as finished or enterprise-complete.",
+  },
+  {
+    q: "Does Chasum replace my existing software immediately?",
+    a: "Not necessarily. Many partners start with scheduling, CRM and reporting while keeping other tools during transition. We configure around the workflows currently supported—not a forced overnight cutover.",
+  },
+  {
+    q: "Can Chasum migrate my existing data?",
+    a: "Migration support is discussed during onboarding for design partners. Scope depends on your current systems and the data you need to bring across. We do not promise automated one-click migration for every tool.",
+  },
+  {
+    q: "What support do design partners receive?",
+    a: "Direct founder access, guided onboarding, and priority responses from the people building the product. Production-critical guarantees require a separate written agreement.",
+  },
+  {
+    q: "Is Chasum an electronic medical record?",
+    a: "No. Chasum is business operations software. Healthcare-specific regulatory and clinical-record requirements must be assessed separately and are not claimed as included features.",
+  },
+  {
+    q: "How is AI used today?",
+    a: "Summer helps visitors explore Chasum and assists with grounded business questions and booking workflows where configured. Chase surfaces read-only operational observations and summaries where implemented. Additional AI roles are Coming Next or Future Vision.",
+  },
+  {
+    q: "What happens when Summer does not know the answer?",
+    a: "She escalates to a human rather than inventing facts or availability. Grounded answers come from configured business information and real scheduling data.",
   },
   {
     q: "Can I Run Multiple Locations?",
-    a: "Yes. The platform is built for single-location through multi-location operations with location scope across calendar, services, staff, and reports.",
+    a: "Yes. The platform supports single-location through multi-location operations with location scope across calendar, services, staff, and reports, within plan limits.",
   },
   {
     q: "How Do I Get Access During Private Alpha?",
-    a: "Apply for Private Alpha or request early access. We onboard a limited number of design partners with founder support. Public self-serve checkout is Coming Next.",
+    a: "Apply for Private Alpha. We onboard a limited number of design partners with founder support. Public self-serve checkout is Coming Next.",
   },
   {
     q: "How Does Summer Work Today?",
-    a: "Summer — Chasum's AI Business Assistant (Early Access) — answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; escalates to staff; and can log into CRM / Communication Center. On the marketing site she also acts as website concierge and product guide.",
+    a: "Summer — Chasum's AI Business Assistant (Early Access) — answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; and escalates to staff when needed. On the marketing site she also acts as website concierge and product guide.",
   },
   {
     q: "Do You Support Google, Outlook, and Apple Calendars?",
-    a: "Yes. Calendar integrations are part of the platform so external busy times can inform conflict detection — without replacing Chasum as the system of record for bookings.",
+    a: "Google and Microsoft/Outlook can optionally inform busy-time conflict detection when configured. Apple Calendar support today is via ICS subscribe—not full two-way OAuth sync. Chasum remains the system of record for bookings.",
   },
   {
     q: "Is My Business Data Isolated from Other Customers?",
-    a: "Yes. Chasum is multi-tenant with business_id scoping and row-level security. Your data is not shared across tenants.",
+    a: "Yes. Each business operates in its own protected workspace, supported by tenant-level access controls in the database. Your data is not shared across tenants.",
   },
   {
     q: "When Is Voice Calling Available?",

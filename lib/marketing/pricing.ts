@@ -5,9 +5,12 @@
 
 import {
   APPLY_HREF,
+  CONTACT_HREF,
   CTA_APPLY_LABEL,
-  CTA_EARLY_ACCESS_LABEL,
+  CTA_DEMO_LABEL,
+  CTA_DISCUSS_SETUP_LABEL,
   DEMO_HREF,
+  FOUNDER_PRICING_NOTE,
 } from "@/lib/marketing/alpha";
 
 export type MarketingPlanId = "free" | "professional" | "business" | "enterprise";
@@ -28,10 +31,16 @@ export type MarketingPlan = {
   features: string[];
 };
 
-export const PRICING_HEADLINE = "Founding pricing for design partners.";
+export const PRICING_EYEBROW = "Private Alpha pricing";
+
+export const PRICING_HEADLINE =
+  "Founding pricing, with the product status made clear.";
 
 export const PRICING_SUBHEADING =
-  "Private Alpha is invite-based. Public self-serve checkout launches after we earn it — apply to lock founding customer pricing.";
+  "We are onboarding a limited number of design partners before public self-serve billing launches. Apply to discuss the right setup, current capabilities and founding pricing for your business.";
+
+/** Concise pricing note — same source as FOUNDER_PRICING_NOTE. */
+export const PRICING_NOTE = FOUNDER_PRICING_NOTE;
 
 /** Shown when a Free / starter plan limit is reached. */
 export const FREE_PLAN_LIMIT_MESSAGE =
@@ -46,15 +55,15 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     title: "Free",
     tagline: "Explore the core.",
     description: "Core scheduling for design partners evaluating Chasum.",
-    cta: CTA_EARLY_ACCESS_LABEL,
+    cta: CTA_APPLY_LABEL,
     href: APPLY_HREF,
     price: "$0",
     highlighted: false,
     features: [
-      "1 booking page",
-      "Core calendar & reception",
-      "Email reminders",
-      "Single location",
+      "1 booking page · Available Today",
+      "Core calendar & reception · Available Today",
+      "Email reminders · when messaging is configured",
+      "Single location · Available Today",
     ],
   },
   {
@@ -63,7 +72,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     title: "Professional",
     tagline: "Grow your business.",
     description:
-      "Powerful scheduling, Early Access AI assistance, and automation for professionals.",
+      "Scheduling, Early Access AI assistance, and operations tools for professionals.",
     cta: CTA_APPLY_LABEL,
     href: APPLY_HREF,
     price: "$79",
@@ -71,11 +80,11 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     badge: "Most Popular",
     highlighted: true,
     features: [
-      "Unlimited appointments",
-      "Summer & Chase (Early Access)",
-      "SMS reminders (when enabled)",
-      "Automation & waitlist",
-      "Up to 3 locations",
+      "Unlimited appointments · Available Today",
+      "Summer & Chase · Early Access",
+      "SMS reminders · Early Access · when enabled",
+      "Waitlist · Available Today",
+      "Up to 3 locations · Available Today",
       "Priority design-partner support",
     ],
   },
@@ -85,18 +94,18 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     title: "Business",
     tagline: "Scale with confidence.",
     description:
-      "Multi-location management and collaboration — staff invites coming next on the roadmap.",
-    cta: CTA_APPLY_LABEL,
-    href: APPLY_HREF,
+      "Multi-location management with roadmap items labelled honestly for Private Alpha.",
+    cta: CTA_DISCUSS_SETUP_LABEL,
+    href: CONTACT_HREF,
     price: "$149",
     priceSuffix: "/month",
     highlighted: false,
     features: [
       "Everything in Professional",
-      "Up to 10 locations",
-      "Team collaboration (roadmap)",
-      "API & webhooks",
-      "Advanced automation",
+      "Up to 10 locations · Available Today",
+      "Team invitations & staff login · Coming Next",
+      "API & webhooks · Available when enabled",
+      "Advanced automation · Coming Next",
       "Founder-backed support in alpha",
     ],
   },
@@ -107,17 +116,17 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     tagline: "Built for large organizations.",
     description:
       "Custom onboarding and security conversations for larger operators.",
-    cta: "Contact Sales",
+    cta: CTA_DEMO_LABEL,
     href: DEMO_HREF,
     price: "Custom",
     highlighted: false,
     features: [
-      "Unlimited locations",
+      "Location needs confirmed in writing",
       "Custom onboarding",
       "Security review",
       "Dedicated support options",
       "Tailored solutions",
-      "SLA options (post-alpha)",
+      "SLA options · Coming Next · written agreement",
     ],
   },
 ];

@@ -11,7 +11,6 @@ import {
 import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
-  CTA_EARLY_ACCESS_LABEL,
 } from "@/lib/marketing/alpha";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -215,7 +214,7 @@ export function LandingHeader() {
           </Link>
           <Link href={APPLY_HREF}>
             <Button size="sm" className="marketing-cta-button rounded-full px-5">
-              {CTA_EARLY_ACCESS_LABEL}
+              {CTA_APPLY_LABEL}
             </Button>
           </Link>
         </div>
