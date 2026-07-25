@@ -37,11 +37,9 @@ export function TrustSection() {
             Designed with operators, not assumptions.
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Chasum is being developed alongside service businesses that use
-            scheduling, customer management, payments and reporting every day.
-            Private Alpha gives design partners direct access to the people
-            building the product—and gives us the responsibility to earn every
-            public claim.
+            Chasum is built alongside operating service businesses. Private
+            Alpha gives design partners direct access—and holds us to earning
+            every public claim.
           </p>
         </Reveal>
 

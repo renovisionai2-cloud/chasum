@@ -6,6 +6,7 @@ import {
   CTA_DEMO_LABEL,
   CTA_LOGIN_LABEL,
   CTA_MEET_SUMMER_LABEL,
+  CTA_START_WITH_SUMMER_LABEL,
   DEMO_HREF,
   LOGIN_HREF,
   MEET_SUMMER_HREF,
@@ -17,9 +18,10 @@ import { NAV_LINKS, NAV_RESOURCES } from "@/lib/constants";
 import { MARKETING_PLANS } from "@/lib/marketing/pricing";
 
 describe("primary CTA destinations", () => {
-  it("uses the four canonical CTA purposes", () => {
+  it("uses the canonical CTA purposes", () => {
     expect(CTA_APPLY_LABEL).toBe("Apply for Private Alpha");
     expect(CTA_MEET_SUMMER_LABEL).toBe("Meet Summer");
+    expect(CTA_START_WITH_SUMMER_LABEL).toBe("Start with Summer");
     expect(CTA_DEMO_LABEL).toBe("Book a Walkthrough");
     expect(CTA_LOGIN_LABEL).toBe("Log in");
   });

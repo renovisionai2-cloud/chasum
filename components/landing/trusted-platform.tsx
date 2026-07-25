@@ -1,75 +1,42 @@
 "use client";
 
 import { Reveal } from "@/components/landing/reveal";
-import { HOW_IT_WORKS_HREF } from "@/lib/marketing/alpha";
-import Link from "next/link";
-
-const OUTCOMES = [
-  {
-    title: "Run the day",
-    body: "Scheduling, reception, customers, employees and communication stay connected.",
-  },
-  {
-    title: "Understand what changed",
-    body: "Payments, activity and reports reflect the same operational record.",
-  },
-  {
-    title: "Grow with intelligence",
-    body: "Summer helps people find answers, navigate workflows and make better-informed decisions.",
-  },
-] as const;
 
 /**
- * Why Chasum — replaces zero-counter / empty stats presentation.
+ * Why Chasum exists — problem story. Words only. One idea.
  */
 export function TrustedPlatform() {
   return (
     <section
       id="why-chasum"
-      className="scroll-mt-24 px-6 py-20 md:py-28"
+      className="scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="why-chasum-heading"
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-4xl">
         <Reveal>
-          <p className="marketing-eyebrow">Why Chasum</p>
-          <h2 id="why-chasum-heading" className="marketing-h2-xl max-w-3xl">
-            Your business does not need more disconnected software.
+          <h2
+            id="why-chasum-heading"
+            className="text-balance text-center text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl md:text-5xl md:leading-[1.15]"
+          >
+            Businesses don&apos;t need more software.
+            <br />
+            They need software that understands how the business works.
           </h2>
-          <div className="mt-6 max-w-2xl space-y-3 text-lg leading-relaxed text-muted-foreground">
-            <p>Calendars hold appointments.</p>
-            <p>CRMs hold customer records.</p>
-            <p>Payment tools hold transactions.</p>
-            <p>Reports hold numbers.</p>
-            <p className="font-medium text-foreground">
-              Chasum connects the work—so your team can run the day from one
-              place and understand what needs attention next.
-            </p>
-          </div>
         </Reveal>
 
-        <ul className="mt-14 grid gap-4 md:grid-cols-3">
-          {OUTCOMES.map((item, index) => (
-            <Reveal key={item.title} delayMs={index * 60}>
-              <li className="h-full rounded-2xl border border-border/70 bg-card/60 p-6 md:p-7">
-                <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {item.body}
-                </p>
-              </li>
-            </Reveal>
-          ))}
-        </ul>
-
-        <Reveal delayMs={180}>
-          <div className="mt-10">
-            <Link
-              href={HOW_IT_WORKS_HREF}
-              className="marketing-focus-ring text-sm font-semibold text-primary underline-offset-4 hover:underline"
-            >
-              See how Chasum works
-            </Link>
+        <Reveal delayMs={80}>
+          <div className="mx-auto mt-12 max-w-xl space-y-5 text-center text-lg leading-relaxed text-muted-foreground md:text-xl md:leading-relaxed">
+            <p>Appointments live in one system.</p>
+            <p>Customers live in another.</p>
+            <p>Payments somewhere else.</p>
+            <p>Reports somewhere else again.</p>
+            <p className="pt-2 text-foreground/80">
+              Every day your team spends time connecting information that should
+              already be connected.
+            </p>
+            <p className="pt-4 text-xl font-medium tracking-tight text-foreground md:text-2xl">
+              Chasum changes that.
+            </p>
           </div>
         </Reveal>
       </div>

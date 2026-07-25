@@ -1,12 +1,16 @@
 # Website Copy System
 
-## Positioning
+## Positioning pillars (permanent)
 
-**Chasum** is the AI Business Operating System for service businesses.
+1. **The AI Business Operating System** — Chasum’s category. Not scheduling software, CRM, booking software, or an AI receptionist alone.
+2. **Businesses don’t need more software. They need software that understands how the business works.** — Why Chasum exists. Features are evidence; understanding is the product.
+3. **Meet the intelligence behind Chasum.** — Homepage creates curiosity. Summer introduces herself on Meet Summer.
 
-Primary explanation: One intelligent platform that helps service businesses run today, understand what is happening, and grow—with AI working alongside their team.
+## Homepage emotional journey
 
-Primary transformation: Most software stores information. Chasum connects the business and helps people make better decisions.
+Hero → Problem → Meet the Intelligence → Platform → Outcomes → Industries → Trust → Pricing → Private Alpha
+
+Homepage Summer CTA: **Start with Summer** (journey). Nav may still say Meet Summer.
 
 ## Status labels (only)
 
@@ -17,14 +21,14 @@ Available Today · Early Access · Coming Next · Future Vision
 - **Summer — Chasum’s AI Business Assistant** (Early Access)
 - **Chase — AI Operations Insights** (Early Access, read-only)
 
-## CTA labels (only four purposes)
+## CTA labels
 
-See [`CTA_AND_ROUTE_MAP.md`](./CTA_AND_ROUTE_MAP.md).
+See [`CTA_AND_ROUTE_MAP.md`](./CTA_AND_ROUTE_MAP.md). Homepage secondary: Start with Summer → `/meet-summer`.
 
 ## Voice
 
 - Short, confident sentences
-- Benefits before architecture
-- No invented statistics
-- No autonomous over-promises (“Let AI handle the rest”)
+- One idea per section
+- More whitespace, less feature list
+- No autonomous over-promises
 - No EMR / compliance certifications without legal verification

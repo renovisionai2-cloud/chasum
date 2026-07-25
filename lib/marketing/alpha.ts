@@ -23,8 +23,11 @@ export const CTA_APPLY_LABEL = "Apply for Private Alpha";
  */
 export const CTA_EARLY_ACCESS_LABEL = CTA_APPLY_LABEL;
 
-/** Meet Summer — flagship AI introduction */
+/** Meet Summer — flagship AI introduction (nav / dedicated page) */
 export const CTA_MEET_SUMMER_LABEL = "Meet Summer";
+
+/** Homepage journey CTA — curiosity before explanation */
+export const CTA_START_WITH_SUMMER_LABEL = "Start with Summer";
 
 /** Sales conversation CTA */
 export const CTA_DEMO_LABEL = "Book a Walkthrough";

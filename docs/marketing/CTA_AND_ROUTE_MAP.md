@@ -7,6 +7,7 @@
 | --- | --- | --- |
 | Primary acquisition | Apply for Private Alpha | `/apply` |
 | Product experience | Meet Summer | `/meet-summer` |
+| Homepage journey | Start with Summer | `/meet-summer` |
 | Sales conversation | Book a Walkthrough | `/contact#walkthrough` |
 | Existing customer | Log in | `/login` |
 

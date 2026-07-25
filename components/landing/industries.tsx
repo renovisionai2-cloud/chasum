@@ -58,10 +58,9 @@ export function Industries() {
               Built around the way service businesses actually work.
             </h2>
             <p className="marketing-lede">
-              Different industries share a need for scheduling, customer
-              relationships and reliable operations—but their workflows are not
-              identical. Chasum is being shaped with real operators so each
-              business can configure the platform around how it works.
+              Service businesses share the need to understand their day—but
+              workflows are not identical. Chasum is shaped with real operators
+              so each business can configure around how it works.
             </p>
           </div>
         </Reveal>
