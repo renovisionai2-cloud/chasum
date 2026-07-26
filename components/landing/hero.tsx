@@ -1,3 +1,5 @@
+"use client";
+
 import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import {
   APPLY_HREF,
@@ -9,75 +11,78 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 /**
- * Homepage hero — Chasum Identity pillars.
+ * Front Door hero — split composition, ~800ms coordinated entrance.
  */
 export function Hero() {
   return (
     <section
-      className="marketing-hero marketing-v3-immersive relative isolate overflow-x-clip px-4 pb-20 pt-12 sm:px-6 md:pb-28 md:pt-16 lg:pt-20"
+      className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-10 sm:px-6 md:pb-24 md:pt-14 lg:px-8 lg:pt-16"
       aria-labelledby="hero-heading"
     >
-      <div className="mx-auto flex w-full max-w-[1480px] flex-col items-center">
-        <p className="marketing-hero-enter mb-6 text-center text-[11px] font-semibold uppercase tracking-[0.28em] text-primary md:mb-8">
-          AI Business Operating System
-        </p>
+      <div className="pointer-events-none absolute inset-0 -z-10 fd-hero-ambient" aria-hidden />
 
-        <h1
-          id="hero-heading"
-          className="marketing-hero-enter marketing-hero-headline text-center font-semibold tracking-[-0.055em] text-foreground"
-        >
-          Your business already works.
-          <br />
-          <span className="bg-gradient-to-br from-primary via-primary to-spark bg-clip-text text-transparent">
-            Now it can understand itself.
-          </span>
-        </h1>
+      <div className="mx-auto grid w-full max-w-[1400px] items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14 xl:gap-16">
+        <div className="fd-hero-copy max-w-xl lg:max-w-none">
+          <p className="fd-hero-enter text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
+            AI Business Operating System
+          </p>
 
-        <div className="marketing-hero-enter marketing-hero-enter-delay-1 relative mt-10 w-full sm:mt-12 md:mt-14 lg:mt-16">
-          <div className="marketing-hero-ambient pointer-events-none absolute left-1/2 top-[8%] h-[78%] w-[96%] -translate-x-1/2" />
-          <div className="marketing-hero-stage mx-auto w-full max-w-[1420px]">
-            <div className="marketing-hero-perspective">
-              <div className="marketing-hero-bezel">
-                <DashboardPreview
-                  variant="overview"
-                  animated
-                  live
-                  hero
-                  className="marketing-hero-surface"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="marketing-hero-floor pointer-events-none absolute inset-x-[8%] bottom-0 h-20 md:h-28" />
-        </div>
+          <h1
+            id="hero-heading"
+            className="fd-hero-enter fd-hero-enter-delay-1 mt-5 text-balance text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.045em] text-foreground sm:text-5xl md:text-[3.25rem] lg:text-[3.5rem]"
+          >
+            Your business already works.
+            <br />
+            <span className="bg-gradient-to-br from-primary via-primary to-spark bg-clip-text text-transparent">
+              Now it can understand itself.
+            </span>
+          </h1>
 
-        <div className="marketing-hero-enter marketing-hero-enter-delay-2 mt-10 flex w-full max-w-3xl flex-col items-center md:mt-12">
-          <div className="max-w-2xl space-y-4 text-center text-base text-muted-foreground md:text-lg">
+          <div className="fd-hero-enter fd-hero-enter-delay-2 mt-6 max-w-lg space-y-3 text-base leading-relaxed text-muted-foreground md:text-lg">
             <p className="font-medium text-foreground/85">
-              Businesses don&apos;t need more software.
-              <br />
-              They need software that understands how the business works.
+              Businesses don&apos;t need more software. They need software that
+              understands how the business works.
             </p>
             <p>
-              Chasum brings scheduling, customers, communication, payments,
-              reporting and AI together into one intelligent operating system
-              built for service businesses.
+              Chasum connects scheduling, customers, communication, payments,
+              reporting and AI in one intelligent operating system built for
+              service businesses.
             </p>
           </div>
 
-          <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-3.5">
-            <Link href={APPLY_HREF} className="group">
-              <span className="marketing-hero-btn-primary inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-primary-foreground transition-[transform,box-shadow] duration-300 sm:w-auto sm:min-w-[10.5rem]">
-                {CTA_APPLY_LABEL}
+          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <Link href={MEET_SUMMER_HREF} className="group">
+              <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 w-full items-center justify-center gap-2 rounded-full px-8 text-[15px] font-semibold text-primary-foreground transition-[transform,box-shadow] duration-300 sm:w-auto">
+                {CTA_START_WITH_SUMMER_LABEL}
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
               </span>
             </Link>
-            <Link href={MEET_SUMMER_HREF} className="group">
-              <span className="marketing-hero-btn-secondary inline-flex h-12 w-full items-center justify-center gap-2 rounded-full px-10 text-[15px] font-semibold text-foreground transition-[transform,background-color,border-color] duration-300 sm:w-auto sm:min-w-[10.5rem]">
-                {CTA_START_WITH_SUMMER_LABEL}
+            <Link
+              href={APPLY_HREF}
+              className="marketing-focus-ring inline-flex h-12 min-h-11 items-center justify-center gap-1 px-2 text-[15px] font-semibold text-foreground/80 transition-colors hover:text-foreground"
+            >
+              {CTA_APPLY_LABEL}
+              <span aria-hidden className="text-muted-foreground">
+                ›
               </span>
             </Link>
           </div>
+        </div>
+
+        <div className="fd-hero-enter fd-hero-enter-delay-2 fd-hero-visual relative min-w-0">
+          <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/15 via-transparent to-spark/10 blur-2xl" aria-hidden />
+          <div className="fd-product-frame overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-[0_24px_80px_-28px_rgba(15,23,42,0.35)] backdrop-blur-sm">
+            <DashboardPreview
+              variant="overview"
+              animated
+              live
+              hero
+              className="min-h-[280px] border-0 shadow-none sm:min-h-[340px] lg:min-h-[400px]"
+            />
+          </div>
+          <p className="mt-3 text-center text-[11px] text-muted-foreground">
+            Illustrative demo data · not a live tenant
+          </p>
         </div>
       </div>
     </section>

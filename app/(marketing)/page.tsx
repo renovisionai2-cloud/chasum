@@ -1,9 +1,8 @@
 import { BusinessOutcomes } from "@/components/landing/business-outcomes";
+import { ConnectedOperatingSystem } from "@/components/landing/connected-operating-system";
 import { Hero } from "@/components/landing/hero";
-import { Industries } from "@/components/landing/industries";
+import { HomepageIndustries } from "@/components/landing/homepage-industries";
 import { PageFade } from "@/components/landing/page-fade";
-import { PlatformOverview } from "@/components/landing/platform-overview";
-import { Pricing } from "@/components/landing/pricing";
 import { PrivateAlphaInvite } from "@/components/landing/private-alpha-invite";
 import { SummerIntro } from "@/components/landing/summer-intro";
 import { TrustSection } from "@/components/landing/trust-section";
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Chasum | AI Business Operating System for Service Businesses",
     description:
-      "Your business already works. Now it can understand itself—with scheduling, customers, communication, payments, reporting and AI in one operating system.",
+      "Your business already works. Now it can understand itself—scheduling, customers, communication, payments, reporting and AI in one operating system.",
     images: [
       {
         url: BRAND_ASSETS.ogImage,
@@ -33,8 +32,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * Homepage — Chasum Identity narrative (Sprint 2).
- * Curiosity → understanding → trust → action.
+ * Front Door homepage — premium AI company launch narrative.
+ * Platform experience lives at /platform.
  */
 export default function HomePage() {
   return (
@@ -42,11 +41,10 @@ export default function HomePage() {
       <Hero />
       <TrustedPlatform />
       <SummerIntro />
-      <PlatformOverview />
+      <ConnectedOperatingSystem />
       <BusinessOutcomes />
-      <Industries />
+      <HomepageIndustries />
       <TrustSection />
-      <Pricing />
       <PrivateAlphaInvite />
     </PageFade>
   );

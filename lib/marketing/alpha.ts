@@ -5,6 +5,10 @@
 
 export const APPLY_HREF = "/apply";
 export const MEET_SUMMER_HREF = "/meet-summer";
+export const PLATFORM_HREF = "/platform";
+export const PRODUCT_TOUR_HREF = "/product-tour";
+export const INDUSTRIES_HREF = "/industries";
+export const PRICING_HREF = "/pricing";
 export const PRIVATE_ALPHA_HREF = "/private-alpha";
 export const ROADMAP_HREF = "/roadmap";
 export const CONTACT_HREF = "/contact";
@@ -13,7 +17,8 @@ export const SECURITY_HREF = "/security";
 export const PRIVACY_HREF = "/privacy";
 export const TERMS_HREF = "/terms";
 export const LOGIN_HREF = "/login";
-export const HOW_IT_WORKS_HREF = "/#how-it-works";
+/** @deprecated Prefer PRODUCT_TOUR_HREF — kept for import compatibility. */
+export const HOW_IT_WORKS_HREF = PRODUCT_TOUR_HREF;
 
 /** Primary acquisition CTA */
 export const CTA_APPLY_LABEL = "Apply for Private Alpha";

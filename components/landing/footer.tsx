@@ -3,28 +3,31 @@ import {
   APPLY_HREF,
   CONTACT_HREF,
   CTA_MEET_SUMMER_LABEL,
-  HOW_IT_WORKS_HREF,
+  INDUSTRIES_HREF,
   MEET_SUMMER_HREF,
+  PLATFORM_HREF,
   PRIVACY_HREF,
+  PRIVATE_ALPHA_HREF,
+  PRODUCT_TOUR_HREF,
+  PRICING_HREF,
   ROADMAP_HREF,
   SECURITY_HREF,
   STATUS_HREF,
   TERMS_HREF,
-  PRIVATE_ALPHA_HREF,
 } from "@/lib/marketing/alpha";
 import Link from "next/link";
 
 const footerLinks = {
-  Explore: [
-    { label: "Platform", href: "/#platform" },
+  Platform: [
+    { label: "Platform", href: PLATFORM_HREF },
     { label: CTA_MEET_SUMMER_LABEL, href: MEET_SUMMER_HREF },
-    { label: "How It Works", href: HOW_IT_WORKS_HREF },
-    { label: "Solutions", href: "/#industries" },
+    { label: "Product Tour", href: PRODUCT_TOUR_HREF },
+    { label: "Industries", href: INDUSTRIES_HREF },
   ],
   Company: [
     { label: "Why Private Alpha", href: PRIVATE_ALPHA_HREF },
     { label: "Roadmap", href: ROADMAP_HREF },
-    { label: "Pricing", href: "/pricing" },
+    { label: "Pricing", href: PRICING_HREF },
     { label: "Apply", href: APPLY_HREF },
   ],
   Trust: [
@@ -44,10 +47,10 @@ export function Footer() {
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-10 md:grid-cols-4">
           <div>
-            <Logo />
+            <Logo href="/" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Chasum is the AI Business Operating System for service
-              businesses—connecting the work your team does today with the
+              businesses—connecting the work teams do today with the
               intelligence needed to improve tomorrow.
             </p>
             <p className="mt-3 text-xs text-muted-foreground">

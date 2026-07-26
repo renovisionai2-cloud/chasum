@@ -17,22 +17,18 @@ export const DASHBOARD_NAV = [
 
 export const APP_NAME = "Chasum";
 
-/** Primary desktop navigation */
+/** Primary desktop navigation — Front Door order */
 export const NAV_LINKS = [
-  { href: "/#platform", label: "Platform" },
-  { href: "/#industries", label: "Solutions" },
   { href: "/meet-summer", label: "Meet Summer" },
+  { href: "/platform", label: "Platform" },
+  { href: "/product-tour", label: "Product Tour" },
+  { href: "/industries", label: "Industries" },
   { href: "/roadmap", label: "Roadmap" },
-  { href: "/#pricing", label: "Pricing" },
+  { href: "/pricing", label: "Pricing" },
 ] as const;
 
 /** Resources dropdown */
 export const NAV_RESOURCES = [
-  {
-    href: "/#how-it-works",
-    label: "How It Works",
-    description: "One connected customer journey",
-  },
   {
     href: "/private-alpha",
     label: "Why Private Alpha?",
@@ -44,9 +40,9 @@ export const NAV_RESOURCES = [
     description: "Safeguards implemented today",
   },
   {
-    href: "/contact",
-    label: "Contact",
-    description: "Apply, walkthrough, or support",
+    href: "/status",
+    label: "Status",
+    description: "Service availability",
   },
 ] as const;
 

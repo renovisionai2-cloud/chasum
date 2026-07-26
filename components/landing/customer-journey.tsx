@@ -14,10 +14,10 @@ export function CustomerJourney() {
       <div className="mx-auto max-w-[1400px]">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">How It Works</p>
-            <h2 id="journey-heading" className="marketing-h2-xl">
+            <p className="marketing-eyebrow">Product Tour</p>
+            <h1 id="journey-heading" className="marketing-h2-xl">
               One customer journey. One connected record.
-            </h2>
+            </h1>
             <p className="marketing-lede" id="journey">
               From booking to payment and reporting, each step updates the same
               business—not another disconnected tool.

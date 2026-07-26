@@ -12,26 +12,31 @@ const LAYERS = [
 ] as const;
 
 /**
- * Platform — one idea. Everything works together.
+ * Platform page intro — one operating system framing.
  */
 export function PlatformOverview() {
   return (
     <section
       id="platform"
-      className="marketing-section-contain scroll-mt-24 overflow-hidden px-6 py-24 md:py-36"
+      className="marketing-section-contain scroll-mt-24 overflow-hidden px-6 py-20 md:py-28"
       aria-labelledby="platform-heading"
     >
       <div className="mx-auto max-w-3xl text-center">
         <Reveal>
-          <h2
+          <p className="marketing-eyebrow">Platform</p>
+          <h1
             id="platform-heading"
             className="text-balance text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl md:text-5xl"
           >
             Everything works together.
-          </h2>
+          </h1>
+          <p className="marketing-lede mx-auto mt-5">
+            Scheduling, customers, communication, payments, reporting and AI in
+            one operating system—explore each department below.
+          </p>
         </Reveal>
 
-        <ul className="mt-14 flex flex-col items-center gap-3 md:gap-4">
+        <ul className="mt-12 flex flex-col items-center gap-3 md:gap-4">
           {LAYERS.map((layer, index) => (
             <Reveal key={layer} delayMs={Math.min(index * 55, 280)}>
               <li className="text-2xl font-medium tracking-tight text-foreground/90 md:text-3xl">

@@ -3,18 +3,18 @@ import { Button } from "@/components/ui/button";
 import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
-  PRIVATE_ALPHA_HREF,
-  ROADMAP_HREF,
+  CTA_DEMO_LABEL,
+  DEMO_HREF,
 } from "@/lib/marketing/alpha";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-/** Replaces placeholder customer stories during Private Alpha. */
+/** Calm Private Alpha closing — Front Door. */
 export function PrivateAlphaInvite() {
   return (
     <section
-      id="stories"
-      className="marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
+      id="private-alpha"
+      className="scroll-mt-24 px-5 py-20 sm:px-6 md:py-28 lg:px-8"
       aria-labelledby="alpha-invite-heading"
     >
       <div className="mx-auto max-w-[1400px]">
@@ -22,12 +22,13 @@ export function PrivateAlphaInvite() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Private Alpha</p>
             <h2 id="alpha-invite-heading" className="marketing-h2-xl">
-              Building with a limited set of operators
+              Help shape the future of business intelligence.
             </h2>
             <p className="marketing-lede">
-              We are not publishing fictional logos or case studies. Design
-              partners get founder access, roadmap influence, and early access to
-              Summer and Chase — then we earn public proof together.
+              We&apos;re growing Chasum with a limited number of service
+              businesses before opening public access. Design partners receive
+              direct support, guided onboarding and a meaningful voice in what we
+              improve next.
             </p>
           </div>
         </Reveal>
@@ -35,19 +36,18 @@ export function PrivateAlphaInvite() {
         <Reveal delayMs={80}>
           <div className="mx-auto mt-12 flex max-w-xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link href={APPLY_HREF}>
-              <Button size="lg" className="rounded-full px-8">
+              <Button size="lg" className="h-12 min-h-11 rounded-full px-8">
                 {CTA_APPLY_LABEL}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Link href={PRIVATE_ALPHA_HREF}>
-              <Button variant="outline" size="lg" className="rounded-full px-8">
-                Why Private Alpha?
-              </Button>
-            </Link>
-            <Link href={ROADMAP_HREF}>
-              <Button variant="ghost" size="lg" className="rounded-full px-6">
-                View roadmap
+            <Link href={DEMO_HREF}>
+              <Button
+                variant="outline"
+                size="lg"
+                className="h-12 min-h-11 rounded-full px-8"
+              >
+                {CTA_DEMO_LABEL}
               </Button>
             </Link>
           </div>

@@ -53,10 +53,10 @@ export function Industries() {
       <div className="mx-auto max-w-[1400px]">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">Solutions</p>
-            <h2 id="industries-heading" className="marketing-h2-xl">
+            <p className="marketing-eyebrow">Industries</p>
+            <h1 id="industries-heading" className="marketing-h2-xl">
               Built around the way service businesses actually work.
-            </h2>
+            </h1>
             <p className="marketing-lede">
               Service businesses share the need to understand their day—but
               workflows are not identical. Chasum is shaped with real operators

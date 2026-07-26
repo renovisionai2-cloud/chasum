@@ -11,27 +11,24 @@ import {
 import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
+  CTA_LOGIN_LABEL,
+  LOGIN_HREF,
 } from "@/lib/marketing/alpha";
+import {
+  isPrimaryNavActive,
+  isResourcesNavActive,
+  isSupportNavActive,
+} from "@/lib/marketing/nav-active";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-
-const SECTION_IDS = [
-  ...NAV_LINKS.filter((link) => link.href.startsWith("/#")).map((link) =>
-    link.href.replace("/#", ""),
-  ),
-  ...NAV_RESOURCES.filter((link) => link.href.startsWith("/#")).map((link) =>
-    link.href.replace("/#", ""),
-  ),
-];
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export function LandingHeader() {
-  const router = useRouter();
+  const pathname = usePathname() ?? "/";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
-  const [activeId, setActiveId] = useState<string>("");
   const [scrolled, setScrolled] = useState(false);
   const resourcesRef = useRef<HTMLDivElement>(null);
 
@@ -40,30 +37,6 @@ export function LandingHeader() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const elements = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-      (el): el is HTMLElement => Boolean(el),
-    );
-    if (elements.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        const top = visible[0]?.target.id;
-        if (top) setActiveId(top);
-      },
-      {
-        rootMargin: "-20% 0px -55% 0px",
-        threshold: [0.08, 0.25, 0.5],
-      },
-    );
-
-    for (const el of elements) observer.observe(el);
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -84,33 +57,9 @@ export function LandingHeader() {
     };
   }, [resourcesOpen]);
 
-  const goTo = useCallback(
-    (href: string) => {
-      setMobileOpen(false);
-      setResourcesOpen(false);
-      if (href.startsWith("/#")) {
-        const id = href.replace("/#", "");
-        if (window.location.pathname !== "/") {
-          router.push(`/${href}`);
-          return;
-        }
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-        setActiveId(id);
-        return;
-      }
-      router.push(href);
-    },
-    [router],
-  );
-
-  const resourceActive = NAV_RESOURCES.some((item) => {
-    if (item.href.startsWith("/#")) {
-      return item.href.replace("/#", "") === activeId;
-    }
-    return false;
-  });
+  const resourceHrefs = NAV_RESOURCES.map((item) => item.href);
+  const resourcesActive = isResourcesNavActive(pathname, resourceHrefs);
+  const supportActive = isSupportNavActive(pathname, NAV_SUPPORT_HREF);
 
   return (
     <header
@@ -121,33 +70,30 @@ export function LandingHeader() {
           : "border-transparent bg-background/40 backdrop-blur-lg dark:bg-background/45",
       )}
     >
-      <div className="mx-auto flex h-[4.25rem] max-w-[1400px] items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
-        <Logo priority />
+      <div className="mx-auto flex h-[4.25rem] max-w-[1480px] items-center justify-between gap-3 px-5 sm:px-6 lg:px-8">
+        <Logo priority href="/" />
 
         <nav
-          className="hidden items-center gap-0.5 lg:flex"
+          className="hidden items-center gap-0.5 xl:flex"
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
-            const isHash = link.href.startsWith("/#");
-            const id = isHash ? link.href.replace("/#", "") : link.href;
-            const active = isHash && activeId === id;
+            const active = isPrimaryNavActive(pathname, link.href);
             return (
-              <button
+              <Link
                 key={link.href}
-                type="button"
-                onClick={() => goTo(link.href)}
+                href={link.href}
                 data-active={active}
                 className={cn(
-                  "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                  "marketing-nav-link marketing-focus-ring rounded-full px-3 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
                   active
                     ? "bg-foreground/[0.06] text-foreground"
                     : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
                 )}
-                aria-current={active ? "true" : undefined}
+                aria-current={active ? "page" : undefined}
               >
                 {link.label}
-              </button>
+              </Link>
             );
           })}
 
@@ -156,8 +102,8 @@ export function LandingHeader() {
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
-                resourcesOpen || resourceActive
+                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                resourcesOpen || resourcesActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
               )}
@@ -177,39 +123,39 @@ export function LandingHeader() {
                 role="menu"
                 className="marketing-nav-panel marketing-nav-dropdown absolute left-1/2 top-[calc(100%+0.75rem)] z-50 w-[22rem] -translate-x-1/2 rounded-2xl p-2"
               >
-                {NAV_RESOURCES.map((item) => (
-                  <button
-                    key={item.href}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => goTo(item.href)}
-                    className="marketing-focus-ring flex w-full flex-col rounded-xl px-3.5 py-3 text-left transition-colors hover:bg-muted/70"
-                  >
-                    <span className="text-sm font-semibold text-foreground">
-                      {item.label}
-                    </span>
-                    <span className="mt-0.5 text-xs text-muted-foreground">
-                      {item.description}
-                    </span>
-                  </button>
-                ))}
+                {NAV_RESOURCES.map((item) => {
+                  const active = isPrimaryNavActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      onClick={() => setResourcesOpen(false)}
+                      className={cn(
+                        "marketing-focus-ring flex w-full flex-col rounded-xl px-3.5 py-3 text-left transition-colors hover:bg-muted/70",
+                        active && "bg-muted/60",
+                      )}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <span className="text-sm font-semibold text-foreground">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 text-xs text-muted-foreground">
+                        {item.description}
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
             ) : null}
           </div>
-
-          <Link
-            href={NAV_SUPPORT_HREF}
-            className="marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight text-muted-foreground transition-colors duration-200 hover:bg-foreground/[0.04] hover:text-foreground"
-          >
-            Support
-          </Link>
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-2 xl:flex">
           <ThemeToggle />
-          <Link href="/login">
+          <Link href={LOGIN_HREF}>
             <Button variant="ghost" size="sm" className="text-[13px]">
-              Log in
+              {CTA_LOGIN_LABEL}
             </Button>
           </Link>
           <Link href={APPLY_HREF}>
@@ -219,12 +165,12 @@ export function LandingHeader() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 lg:hidden">
+        <div className="flex items-center gap-2 xl:hidden">
           <ThemeToggle />
           <Button
             variant="ghost"
             size="sm"
-            className="h-10 w-10 p-0"
+            className="h-11 w-11 p-0"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -236,58 +182,73 @@ export function LandingHeader() {
 
       <div
         className={cn(
-          "overflow-hidden border-t border-border/50 transition-[max-height] duration-300 lg:hidden",
-          mobileOpen ? "max-h-[40rem]" : "max-h-0",
+          "overflow-hidden border-t border-border/50 transition-[max-height] duration-300 xl:hidden",
+          mobileOpen ? "max-h-[42rem]" : "max-h-0",
         )}
       >
         <nav className="flex flex-col gap-1 px-5 py-4" aria-label="Marketing mobile">
           {NAV_LINKS.map((link) => {
-            const id = link.href.replace("/#", "");
-            const active = activeId === id;
+            const active = isPrimaryNavActive(pathname, link.href);
             return (
-              <button
+              <Link
                 key={link.href}
-                type="button"
-                onClick={() => goTo(link.href)}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors",
+                  "min-h-11 rounded-xl px-3 py-3 text-left text-sm font-medium transition-colors",
                   active
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
+                aria-current={active ? "page" : undefined}
               >
                 {link.label}
-              </button>
+              </Link>
             );
           })}
           <p className="mt-2 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Resources
           </p>
-          {NAV_RESOURCES.map((item) => (
-            <button
-              key={item.href}
-              type="button"
-              onClick={() => goTo(item.href)}
-              className="rounded-xl px-3 py-2.5 text-left text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              {item.label}
-            </button>
-          ))}
+          {NAV_RESOURCES.map((item) => {
+            const active = isPrimaryNavActive(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "min-h-11 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                  active
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+                aria-current={active ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
           <Link
             href={NAV_SUPPORT_HREF}
-            className="rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+            className={cn(
+              "min-h-11 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+              supportActive
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
             onClick={() => setMobileOpen(false)}
+            aria-current={supportActive ? "page" : undefined}
           >
             Support
           </Link>
           <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4">
-            <Link href="/login" onClick={() => setMobileOpen(false)}>
-              <Button variant="outline" className="w-full">
-                Log in
+            <Link href={LOGIN_HREF} onClick={() => setMobileOpen(false)}>
+              <Button variant="outline" className="h-11 w-full">
+                {CTA_LOGIN_LABEL}
               </Button>
             </Link>
             <Link href={APPLY_HREF} onClick={() => setMobileOpen(false)}>
-              <Button className="w-full">{CTA_APPLY_LABEL}</Button>
+              <Button className="h-11 w-full">{CTA_APPLY_LABEL}</Button>
             </Link>
           </div>
         </nav>
