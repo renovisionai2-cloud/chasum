@@ -19,8 +19,6 @@ export function Hero() {
       className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-10 sm:px-6 md:pb-24 md:pt-14 lg:px-8 lg:pt-16"
       aria-labelledby="hero-heading"
     >
-      <div className="pointer-events-none absolute inset-0 -z-10 fd-hero-ambient" aria-hidden />
-
       <div className="mx-auto grid w-full max-w-[1400px] items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14 xl:gap-16">
         <div className="fd-hero-copy max-w-xl lg:max-w-none">
           <p className="fd-hero-enter text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">

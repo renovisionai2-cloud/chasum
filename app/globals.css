@@ -280,6 +280,201 @@ body {
   animation-delay: 340ms;
 }
 
+/* —— Living Interface: Ambient Background —— */
+.ambient-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  contain: layout paint;
+}
+
+.ambient-bg__orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.ambient-bg__orb--a {
+  width: min(72vw, 42rem);
+  height: min(72vw, 42rem);
+  top: -18%;
+  left: -12%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--primary) 16%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 6%, transparent) 42%,
+    transparent 70%
+  );
+  animation: ambient-drift-a 48s ease-in-out infinite;
+}
+
+.ambient-bg__orb--b {
+  width: min(64vw, 36rem);
+  height: min(64vw, 36rem);
+  right: -14%;
+  bottom: -22%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--spark) 12%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 5%, transparent) 45%,
+    transparent 72%
+  );
+  animation: ambient-drift-b 56s ease-in-out infinite;
+}
+
+.ambient-bg__orb--c {
+  width: min(48vw, 28rem);
+  height: min(48vw, 28rem);
+  top: 38%;
+  left: 42%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--primary) 8%, transparent) 0%,
+    transparent 68%
+  );
+  opacity: 0.55;
+  animation: ambient-drift-c 40s ease-in-out infinite;
+}
+
+.ambient-bg--hero .ambient-bg__orb--a {
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--primary) 20%, transparent) 0%,
+    color-mix(in srgb, var(--primary) 7%, transparent) 40%,
+    transparent 70%
+  );
+  animation-duration: 42s;
+}
+
+.ambient-bg--hero .ambient-bg__orb--b {
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--spark) 14%, transparent) 0%,
+    transparent 72%
+  );
+  animation-duration: 52s;
+}
+
+.ambient-bg--dawn .ambient-bg__orb--a {
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--primary) 14%, transparent) 0%,
+    color-mix(in srgb, var(--spark) 8%, transparent) 48%,
+    transparent 72%
+  );
+  animation-duration: 45s;
+}
+
+.ambient-bg--dawn .ambient-bg__orb--b {
+  left: auto;
+  right: 8%;
+  top: 10%;
+  bottom: auto;
+  animation-duration: 58s;
+}
+
+.ambient-bg--cool .ambient-bg__orb--a {
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--primary) 12%, transparent) 0%,
+    transparent 70%
+  );
+  animation-duration: 50s;
+}
+
+.ambient-bg--soft .ambient-bg__orb--a {
+  animation-duration: 54s;
+  opacity: 0.85;
+}
+
+.ambient-bg--soft .ambient-bg__orb--b {
+  animation-duration: 60s;
+  opacity: 0.7;
+}
+
+.ambient-bg--warm .ambient-bg__orb--b {
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--spark) 10%, transparent) 0%,
+    transparent 70%
+  );
+  animation-duration: 46s;
+}
+
+.ambient-bg--calm .ambient-bg__orb--a {
+  opacity: 0.7;
+  animation-duration: 55s;
+}
+
+.ambient-bg--calm .ambient-bg__orb--b {
+  opacity: 0.55;
+  animation-duration: 60s;
+}
+
+.ambient-bg--calm .ambient-bg__orb--c {
+  opacity: 0.4;
+  animation-duration: 44s;
+}
+
+@keyframes ambient-drift-a {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  33% {
+    transform: translate3d(4%, 3%, 0) scale(1.06);
+    opacity: 0.72;
+  }
+  66% {
+    transform: translate3d(-3%, 5%, 0) scale(1.03);
+    opacity: 0.62;
+  }
+  100% {
+    transform: translate3d(2%, -2%, 0) scale(1.01);
+    opacity: 0.58;
+  }
+}
+
+@keyframes ambient-drift-b {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.02);
+    opacity: 0.45;
+  }
+  40% {
+    transform: translate3d(-5%, -3%, 0) scale(1.08);
+    opacity: 0.68;
+  }
+  70% {
+    transform: translate3d(3%, -5%, 0) scale(1.04);
+    opacity: 0.52;
+  }
+  100% {
+    transform: translate3d(-2%, 2%, 0) scale(1);
+    opacity: 0.48;
+  }
+}
+
+@keyframes ambient-drift-c {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(-4%, 4%, 0) scale(1.1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(3%, -3%, 0) scale(1);
+    opacity: 0.4;
+  }
+}
+
 /* —— Front Door homepage —— */
 .fd-hero-ambient {
   background:
@@ -1107,9 +1302,16 @@ body {
   .marketing-live-dot,
   .marketing-nav-dropdown,
   .marketing-typing-cursor,
-  .marketing-shimmer {
+  .marketing-shimmer,
+  .ambient-bg__orb {
     animation: none !important;
     filter: none !important;
+  }
+
+  .ambient-bg__orb {
+    transform: translate3d(0, 0, 0) !important;
+    opacity: 0.5 !important;
+    will-change: auto !important;
   }
 
   .fd-hero-enter,

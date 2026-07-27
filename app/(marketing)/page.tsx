@@ -1,3 +1,4 @@
+import { AmbientSection } from "@/components/landing/ambient-background";
 import { BusinessOutcomes } from "@/components/landing/business-outcomes";
 import { ConnectedOperatingSystem } from "@/components/landing/connected-operating-system";
 import { Hero } from "@/components/landing/hero";
@@ -32,21 +33,37 @@ export const metadata: Metadata = {
 };
 
 /**
- * Front Door homepage — premium AI company launch narrative.
+ * Front Door homepage — Living Interface Phase 1 (ambient motion).
  * Platform experience lives at /platform.
  */
 export default function HomePage() {
   return (
     <PageFade>
       <div className="fd-home">
-        <Hero />
-        <TrustedPlatform />
-        <SummerIntro />
-        <ConnectedOperatingSystem />
-        <BusinessOutcomes />
-        <HomepageIndustries />
-        <TrustSection />
-        <PrivateAlphaInvite />
+        <AmbientSection variant="hero">
+          <Hero />
+        </AmbientSection>
+        <AmbientSection variant="calm">
+          <TrustedPlatform />
+        </AmbientSection>
+        <AmbientSection variant="dawn">
+          <SummerIntro />
+        </AmbientSection>
+        <AmbientSection variant="cool">
+          <ConnectedOperatingSystem />
+        </AmbientSection>
+        <AmbientSection variant="soft">
+          <BusinessOutcomes />
+        </AmbientSection>
+        <AmbientSection variant="warm">
+          <HomepageIndustries />
+        </AmbientSection>
+        <AmbientSection variant="calm">
+          <TrustSection />
+        </AmbientSection>
+        <AmbientSection variant="soft">
+          <PrivateAlphaInvite />
+        </AmbientSection>
       </div>
     </PageFade>
   );
