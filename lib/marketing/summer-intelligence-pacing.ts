@@ -44,12 +44,10 @@ export function sleep(ms: number): Promise<void> {
 }
 
 export const FS_UNDERSTANDING_COMPLETE = {
-  kicker: "Understanding Complete",
+  kicker: "Business Profile Created",
   title: "I understand how your business operates.",
   message: [
-    "Thank you.",
     "I now have a good understanding of how your business operates.",
-    "I already see several opportunities where Chasum can reduce manual work and improve your daily operations.",
-    "Let me show you what I would recommend first.",
+    "I'm ready to begin configuring Chasum around your business and recommend where we can create the greatest impact.",
   ].join(" "),
 } as const;

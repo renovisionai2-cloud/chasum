@@ -4,10 +4,11 @@ import { buildUnderstandingFields } from "@/lib/marketing/meet-summer-intelligen
 import type { SessionMemory } from "@/lib/website-concierge/types";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Business Memory — Summer's working memory for the consultation.
- * Grows calmly as answers arrive. No celebratory motion.
+ * Learning → completed uses a calm glow, never celebration.
  */
 export function FlagshipUnderstanding({
   memory,
@@ -24,6 +25,35 @@ export function FlagshipUnderstanding({
   });
 
   const discovered = fields.filter((f) => f.discovered);
+  const knownIds = discovered.map((f) => f.id).join("|");
+  const prevKnownRef = useRef<Set<string>>(new Set());
+  const [justCompleted, setJustCompleted] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const prev = prevKnownRef.current;
+    const next = new Set(
+      knownIds ? knownIds.split("|").filter(Boolean) : [],
+    );
+    const gained: string[] = [];
+    for (const id of next) {
+      if (!prev.has(id)) gained.push(id);
+    }
+    prevKnownRef.current = next;
+    if (gained.length === 0) return;
+
+    const glow = window.setTimeout(() => {
+      setJustCompleted(new Set(gained));
+    }, 16);
+    const clear = window.setTimeout(() => {
+      setJustCompleted(new Set());
+    }, 1050);
+
+    return () => {
+      window.clearTimeout(glow);
+      window.clearTimeout(clear);
+    };
+  }, [knownIds]);
+
   if (!live && discovered.length === 0) return null;
 
   if (live) {
@@ -36,32 +66,43 @@ export function FlagshipUnderstanding({
           Business Memory
         </p>
         <ul className="fs-memory-list">
-          {fields.map((field) => (
-            <li
-              key={field.id}
-              className={cn(
-                "fs-memory-row",
-                field.discovered
-                  ? "fs-memory-row-known"
-                  : "fs-memory-row-learning",
-                field.discovered && "fs-memory-row-in",
-              )}
-            >
-              <span className="fs-memory-mark" aria-hidden>
-                {field.discovered ? (
-                  <Check className="size-3.5" strokeWidth={2.5} />
-                ) : (
-                  <span className="fs-memory-dot" />
+          {fields.map((field) => {
+            const isJust = justCompleted.has(field.id);
+            return (
+              <li
+                key={field.id}
+                className={cn(
+                  "fs-memory-row",
+                  field.discovered
+                    ? "fs-memory-row-known"
+                    : "fs-memory-row-learning",
+                  field.discovered && "fs-memory-row-in",
+                  isJust && "fs-memory-row-just",
                 )}
-              </span>
-              <span className="fs-memory-label">{field.label}</span>
-              <span className="fs-memory-value">
-                {field.discovered
-                  ? field.value
-                  : (field.pendingLabel ?? "Learning…")}
-              </span>
-            </li>
-          ))}
+              >
+                <span
+                  className={cn(
+                    "fs-memory-mark",
+                    field.discovered && "fs-memory-mark-check",
+                    isJust && "fs-memory-mark-just",
+                  )}
+                  aria-hidden
+                >
+                  {field.discovered ? (
+                    <Check className="size-3.5" strokeWidth={2.5} />
+                  ) : (
+                    <span className="fs-memory-dot" />
+                  )}
+                </span>
+                <span className="fs-memory-label">{field.label}</span>
+                <span className="fs-memory-value">
+                  {field.discovered
+                    ? field.value
+                    : (field.pendingLabel ?? "Learning…")}
+                </span>
+              </li>
+            );
+          })}
         </ul>
       </aside>
     );

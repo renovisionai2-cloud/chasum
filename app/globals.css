@@ -2793,11 +2793,17 @@ body {
 .fs-orb-cinematic .fs-orb-core { animation: fs-orb-pulse 3.2s ease-in-out infinite; }
 
 .fs-orb-thinking .fs-orb-halo {
-  animation: fs-think-halo 2.1s ease-in-out infinite;
+  animation: fs-think-halo 1.8s ease-in-out infinite;
   opacity: 1;
+}
+.fs-orb-thinking .fs-orb-haze {
+  animation: fs-orb-breathe-think 2.2s ease-in-out infinite;
 }
 .fs-orb-thinking .fs-orb-core {
   animation: fs-orb-pulse 2.4s ease-in-out infinite;
+}
+.fs-orb-thinking .fs-orb-eyes {
+  animation: fs-orb-gaze-think 3.6s ease-in-out infinite;
 }
 
 @keyframes fs-orb-breathe {
@@ -2826,8 +2832,17 @@ body {
   68% { transform: translate3d(0, 0, 0); }
 }
 @keyframes fs-think-halo {
-  0%, 100% { opacity: 0.55; filter: blur(0); }
-  50% { opacity: 1; filter: blur(0.4px); }
+  0%, 100% { opacity: 0.65; filter: blur(0); }
+  50% { opacity: 1; filter: blur(0.35px); }
+}
+@keyframes fs-orb-breathe-think {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes fs-orb-gaze-think {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  30% { transform: translate3d(1.2px, 0.3px, 0); }
+  60% { transform: translate3d(-1px, 0.2px, 0); }
 }
 
 .fs-journey-enter {
@@ -3017,17 +3032,19 @@ body {
   min-height: 1.55rem;
   font-size: 0.84rem;
   line-height: 1.25;
+  border-radius: 0.55rem;
+  padding: 0.15rem 0.3rem;
   transition:
-    opacity 0.45s var(--fs-ease),
-    background-color 0.45s var(--fs-ease),
-    box-shadow 0.45s var(--fs-ease);
+    opacity 0.5s var(--fs-ease),
+    background-color 0.5s var(--fs-ease),
+    box-shadow 0.5s var(--fs-ease),
+    color 0.45s var(--fs-ease);
 }
 .fs-memory-row-known {
   color: var(--fs-ink);
 }
 .fs-memory-row-known .fs-memory-mark {
   color: var(--fs-blue);
-  filter: drop-shadow(0 0 6px rgb(59 130 246 / 0.45));
 }
 .fs-memory-row-learning {
   color: var(--fs-ink-mute);
@@ -3035,11 +3052,22 @@ body {
 .fs-memory-row-in {
   animation: fs-memory-in 0.55s var(--fs-ease) both;
 }
+.fs-memory-row-just {
+  animation: fs-memory-glow 1s var(--fs-ease) both;
+}
 .fs-memory-mark {
   display: grid;
   place-items: center;
   width: 1.15rem;
   height: 1.15rem;
+  transition: opacity 0.45s var(--fs-ease), filter 0.45s var(--fs-ease);
+}
+.fs-memory-mark-check {
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgb(59 130 246 / 0.4));
+}
+.fs-memory-mark-just {
+  animation: fs-memory-check 0.7s var(--fs-ease) both;
 }
 .fs-memory-dot {
   width: 0.35rem;
@@ -3062,8 +3090,27 @@ body {
   white-space: nowrap;
 }
 @keyframes fs-memory-in {
-  from { opacity: 0.35; }
+  from { opacity: 0.4; }
   to { opacity: 1; }
+}
+@keyframes fs-memory-glow {
+  0% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+  25% {
+    background-color: rgb(239 246 255 / 0.95);
+    box-shadow: inset 0 0 0 1px rgb(147 197 253 / 0.55), 0 0 18px -6px rgb(59 130 246 / 0.45);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+}
+@keyframes fs-memory-check {
+  from { opacity: 0.2; filter: drop-shadow(0 0 0 transparent); }
+  40% { opacity: 1; filter: drop-shadow(0 0 8px rgb(59 130 246 / 0.55)); }
+  to { opacity: 1; filter: drop-shadow(0 0 5px rgb(59 130 246 / 0.35)); }
 }
 
 .fs-scene {
@@ -3754,18 +3801,74 @@ body {
   color: color-mix(in srgb, var(--fs-blue) 70%, var(--fs-ink));
 }
 .fs-chat-complete-kicker {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.7rem;
   font-size: 0.68rem;
   font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--fs-blue) 85%, #64748b);
 }
+.fs-profile-complete {
+  text-align: left;
+}
+.fs-profile-complete-list {
+  list-style: none;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.fs-profile-complete-row {
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 7.25rem) 1fr;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.86rem;
+  line-height: 1.3;
+}
+.fs-profile-complete-label {
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fs-ink-mute);
+}
+.fs-profile-complete-value {
+  font-weight: 520;
+  color: var(--fs-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fs-profile-complete-message {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--fs-ink);
+}
+.fs-chat-log {
+  transition: opacity 0.45s var(--fs-ease);
+}
+.fs-chat-log-dim {
+  /* Keep height stable — only soften outgoing content via child classes */
+}
+.fs-chat-soft-out {
+  opacity: 0.42;
+  transition: opacity 0.4s var(--fs-ease);
+}
 .fs-chat-fade {
   animation: fs-chat-fade 0.55s var(--fs-ease) both;
 }
+.fs-chat-fade-up {
+  animation: fs-chat-fade-up 0.6s var(--fs-ease) both;
+}
 @keyframes fs-chat-fade {
   from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes fs-chat-fade-up {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 .fs-chat-error {
@@ -3833,6 +3936,8 @@ body {
   .fs-orb-living .fs-orb-eyes,
   .fs-orb-thinking .fs-orb-halo,
   .fs-orb-thinking .fs-orb-core,
+  .fs-orb-thinking .fs-orb-haze,
+  .fs-orb-thinking .fs-orb-eyes,
   .fs-orb-ripple,
   .fs-orb-halo,
   .fs-profile-card-live,
@@ -3840,7 +3945,10 @@ body {
   .fs-scene-rise,
   .fs-learned-chip-in,
   .fs-memory-row-in,
+  .fs-memory-row-just,
+  .fs-memory-mark-just,
   .fs-chat-fade,
+  .fs-chat-fade-up,
   .fs-chat-typing span,
   .fs-chat-cursor,
   .fs-guided-line,

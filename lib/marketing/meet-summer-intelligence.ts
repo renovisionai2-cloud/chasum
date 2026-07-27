@@ -59,7 +59,7 @@ export function buildUnderstandingFields(
     },
     {
       id: "employees",
-      label: "Employees",
+      label: "Team Size",
       value: memory.employeeCount,
       discovered: !!memory.employeeCount,
       pendingLabel: "Learning…",
@@ -99,6 +99,25 @@ export function buildUnderstandingFields(
   }
 
   return fields;
+}
+
+/**
+ * Completed Business Memory rows for the Understanding Complete / Profile summary.
+ * Goals included only when discovered. Recommendations excluded.
+ */
+export function buildBusinessProfileSummary(
+  memory: SessionMemory,
+  options?: { businessOverride?: string | null },
+): UnderstandingField[] {
+  return buildUnderstandingFields(memory, {
+    businessOverride: options?.businessOverride ?? null,
+    showPending: false,
+  }).filter(
+    (field) =>
+      field.discovered &&
+      field.id !== "recommendations" &&
+      (field.id !== "goals" || !!field.value),
+  );
 }
 
 /**

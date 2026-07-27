@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildBusinessProfileSummary,
   buildThinkingCues,
   buildUnderstandingFields,
 } from "@/lib/marketing/meet-summer-intelligence";
@@ -32,8 +33,27 @@ describe("Meet Summer intelligence presentation", () => {
     expect(byId.challenge?.label).toMatch(/Primary Challenge/i);
     expect(byId.challenge?.value).toBe("reporting");
     expect(byId.employees?.discovered).toBe(true);
+    expect(byId.employees?.label).toBe("Team Size");
     expect(byId.goals?.discovered).toBe(false);
     expect(byId.recommendations?.discovered).toBe(true);
+  });
+
+  it("builds a Business Profile summary of discovered facts only", () => {
+    const summary = buildBusinessProfileSummary({
+      ...createEmptySessionMemory(),
+      businessType: "salon" as const,
+      businessTypes: ["Hair Salon"],
+      employeeCount: "2–5",
+      challenges: ["no-shows"],
+      goals: [],
+      recommendationsMade: ["ai-reception"],
+    });
+    const ids = summary.map((f) => f.id);
+    expect(ids).toContain("industry");
+    expect(ids).toContain("employees");
+    expect(ids).toContain("challenge");
+    expect(ids).not.toContain("goals");
+    expect(ids).not.toContain("recommendations");
   });
 
   it("seeds live Business Memory scaffold with Learning… rows", () => {

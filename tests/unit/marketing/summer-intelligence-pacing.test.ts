@@ -25,9 +25,9 @@ describe("Summer intelligence pacing", () => {
     }
   });
 
-  it("ships Understanding Complete copy", () => {
-    expect(FS_UNDERSTANDING_COMPLETE.kicker).toBe("Understanding Complete");
+  it("ships Business Profile Created copy", () => {
+    expect(FS_UNDERSTANDING_COMPLETE.kicker).toBe("Business Profile Created");
     expect(FS_UNDERSTANDING_COMPLETE.message).toMatch(/good understanding/i);
-    expect(FS_UNDERSTANDING_COMPLETE.message).toMatch(/recommend first/i);
+    expect(FS_UNDERSTANDING_COMPLETE.message).toMatch(/greatest impact/i);
   });
 });

@@ -2,13 +2,14 @@
 
 import { useConciergeConversation } from "@/components/website-concierge/use-concierge-conversation";
 import { presentConsultationReply } from "@/lib/marketing/flagship-consultation-voice";
+import { buildBusinessProfileSummary } from "@/lib/marketing/meet-summer-intelligence";
 import {
   consultationPauseMs,
   FS_UNDERSTANDING_COMPLETE,
   nextAcknowledgement,
 } from "@/lib/marketing/summer-intelligence-pacing";
 import { cn } from "@/lib/utils";
-import { Send } from "lucide-react";
+import { Check, Send } from "lucide-react";
 import {
   useEffect,
   useMemo,
@@ -18,7 +19,7 @@ import {
 } from "react";
 
 /**
- * Evolving consultation — natural pacing, brief acknowledgements, calm reveals.
+ * Evolving consultation — continuous fades, brief acknowledgements, calm reveals.
  */
 export function FlagshipConversation({
   className,
@@ -63,12 +64,26 @@ export function FlagshipConversation({
     return null;
   }, [messages]);
 
+  const industryLabel =
+    memory.businessTypes.length > 0
+      ? memory.businessTypes.join(" · ")
+      : null;
+
+  const profileSummary = useMemo(
+    () =>
+      buildBusinessProfileSummary(memory, {
+        businessOverride: industryLabel,
+      }),
+    [memory, industryLabel],
+  );
+
   const presented = useMemo(() => {
     if (!understanding) return null;
+    if (isComplete) return FS_UNDERSTANDING_COMPLETE.message;
     return presentConsultationReply(understanding.content, {
       stripLeadingUnderstand: Boolean(lastUser),
     });
-  }, [understanding, lastUser]);
+  }, [understanding, lastUser, isComplete]);
 
   const assistantId = understanding?.id ?? null;
   const instantReveal = reducedMotion || !lastUser;
@@ -131,15 +146,23 @@ export function FlagshipConversation({
 
   return (
     <section
-      className={cn("fs-chat", className)}
+      className={cn(
+        "fs-chat",
+        pending && "fs-chat-processing",
+        className,
+      )}
       aria-label="Continue with Summer"
     >
-      <div ref={listRef} className="fs-chat-log">
+      <div
+        ref={listRef}
+        className={cn("fs-chat-log", pending && "fs-chat-log-dim")}
+      >
         {lastUser ? (
           <div
             className={cn(
               "fs-chat-bubble fs-chat-user",
-              !reducedMotion && "fs-scene-rise",
+              !reducedMotion && !pending && "fs-chat-fade-up",
+              pending && "fs-chat-soft-out",
             )}
           >
             {lastUser.content}
@@ -160,15 +183,38 @@ export function FlagshipConversation({
             key={assistantId ?? "understanding"}
             className={cn(
               "fs-chat-bubble fs-chat-assistant fs-chat-understanding",
-              !reducedMotion && "fs-chat-fade",
+              !reducedMotion && "fs-chat-fade-up",
             )}
           >
             {isComplete ? (
-              <p className="fs-chat-complete-kicker">
-                {FS_UNDERSTANDING_COMPLETE.kicker}
-              </p>
-            ) : null}
-            {presented}
+              <div className="fs-profile-complete">
+                <p className="fs-chat-complete-kicker">
+                  {FS_UNDERSTANDING_COMPLETE.kicker}
+                </p>
+                {profileSummary.length > 0 ? (
+                  <ul className="fs-profile-complete-list">
+                    {profileSummary.map((field) => (
+                      <li key={field.id} className="fs-profile-complete-row">
+                        <Check
+                          className="size-3.5 shrink-0 text-[color:var(--fs-blue)]"
+                          strokeWidth={2.5}
+                          aria-hidden
+                        />
+                        <span className="fs-profile-complete-label">
+                          {field.label}
+                        </span>
+                        <span className="fs-profile-complete-value">
+                          {field.value}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                <p className="fs-profile-complete-message">{presented}</p>
+              </div>
+            ) : (
+              presented
+            )}
           </div>
         ) : null}
 
@@ -190,7 +236,12 @@ export function FlagshipConversation({
       </div>
 
       {!pending && showReply && suggestions.length > 0 && !isComplete ? (
-        <div className="fs-chat-chips">
+        <div
+          className={cn(
+            "fs-chat-chips",
+            !reducedMotion && "fs-chat-fade-up",
+          )}
+        >
           {suggestions.slice(0, 4).map((s) => (
             <button
               key={s}
@@ -212,7 +263,11 @@ export function FlagshipConversation({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           disabled={pending}
-          placeholder="Share anything that helps me understand…"
+          placeholder={
+            isComplete
+              ? "Ask Summer anything about configuring Chasum…"
+              : "Share anything that helps me understand…"
+          }
           autoComplete="off"
         />
         <button

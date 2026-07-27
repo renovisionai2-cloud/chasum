@@ -354,9 +354,9 @@ export const FS_ALPHA = {
 } as const;
 
 export const FS_RECS_INTRO = {
-  kicker: "Understanding Complete",
-  title: "What I would recommend first",
-  lede: "I already see several opportunities where Chasum can reduce manual work and improve your daily operations.",
+  kicker: "Where to begin",
+  title: "Where we can create the greatest impact",
+  lede: "Based on your Business Profile, here is where I would start.",
 } as const;
 
 export const FS_RECOMMENDATION_COPY: Record<
