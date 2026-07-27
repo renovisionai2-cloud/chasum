@@ -280,16 +280,19 @@ export function formatRecommendationsMessage(
   const name = profile.visitorName ? `${profile.visitorName}, ` : "";
   const biz =
     profile.businessType !== "unknown"
-      ? `for a ${profile.businessType}`
-      : "for your business";
+      ? ` as a ${profile.businessType.replace(/_/g, " ")}`
+      : "";
 
   const lines = recs.map((r, i) => `${i + 1}. **${r.title}** — ${r.why}`);
 
   return [
-    `${name}based on what you've shared ${biz}, here's where Chasum tends to help most:`,
+    `${name}Thank you. I now have a good understanding of how your business operates${biz}.`,
+    "I already see several opportunities where Chasum can reduce manual work and improve your daily operations.",
+    "",
+    "Here's where I'd start:",
     "",
     ...lines,
     "",
-    "I'd like to show you the parts of Chasum that will help your business most — want a short personalized tour?",
+    "Let me show you what I would recommend first — want a short personalized tour?",
   ].join("\n");
 }

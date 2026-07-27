@@ -44,14 +44,14 @@ export const FS_GUIDED = {
   chooseAnotherCategory: "Choose from another category",
   selectedSummary: "Your businesses",
   industryPrompt: "Select every business that applies — you can change this anytime.",
-  /** Intro block fade delay */
-  introFadeMs: 120,
-  /** Question + cards usable after click */
-  readyMs: 280,
-  /** Stagger between category cards (full set ~500–700ms) */
-  categoryStaggerMs: 55,
+  /** Pause after Summer appears, before greeting fades in (400–700ms) */
+  introFadeMs: 520,
+  /** Pause after greeting, before categories appear */
+  readyMs: 1100,
+  /** Soft stagger between category cards */
+  categoryStaggerMs: 70,
   /** Industry panel reveal */
-  industryRevealMs: 160,
+  industryRevealMs: 220,
   intelligenceSteps: [
     "Understanding your business…",
     "Loading industry knowledge…",
@@ -354,9 +354,9 @@ export const FS_ALPHA = {
 } as const;
 
 export const FS_RECS_INTRO = {
-  kicker: "Personalized recommendations",
-  title: "Based on what I've learned…",
-  lede: "I believe Chasum could help your business in four important areas.",
+  kicker: "Understanding Complete",
+  title: "What I would recommend first",
+  lede: "I already see several opportunities where Chasum can reduce manual work and improve your daily operations.",
 } as const;
 
 export const FS_RECOMMENDATION_COPY: Record<

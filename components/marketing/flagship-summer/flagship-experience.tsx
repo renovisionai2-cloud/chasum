@@ -223,7 +223,13 @@ export function FlagshipExperience() {
                 </button>
 
                 <div className="fs-consult-presence">
-                  <SummerOrb size="lg" active={pending} cinematic />
+                  <SummerOrb
+                    size="lg"
+                    active={pending}
+                    thinking={pending}
+                    living
+                    cinematic
+                  />
                   <div className="fs-consult-copy">
                     <p className="fs-scene-kicker">Consultation</p>
                     <h2 id="fs-consult-title" className="fs-consult-heading">

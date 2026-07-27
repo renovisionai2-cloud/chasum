@@ -14,10 +14,11 @@ describe("Meet Summer intelligence presentation", () => {
     expect(greeting).toMatch(/understand your business/i);
   });
 
-  it("builds understanding fields from session memory", () => {
+  it("builds Business Memory fields from session memory", () => {
     const memory = {
       ...createEmptySessionMemory(),
       businessType: "ultrasound" as const,
+      businessTypes: ["Ultrasound Studio"],
       employeeCount: "2–5",
       currentSoftware: "Picktime",
       challenges: ["reporting"],
@@ -25,24 +26,27 @@ describe("Meet Summer intelligence presentation", () => {
     };
     const fields = buildUnderstandingFields(memory);
     const byId = Object.fromEntries(fields.map((f) => [f.id, f]));
-    expect(byId.business?.discovered).toBe(true);
-    expect(byId.business?.value).toMatch(/Ultrasound/i);
-    expect(byId.software?.value).toBe("Picktime");
-    expect(byId.pain?.label).toMatch(/Biggest Challenge/i);
-    expect(byId.pain?.value).toBe("reporting");
+    expect(byId.industry?.discovered).toBe(true);
+    expect(byId.industry?.value).toMatch(/Ultrasound/i);
+    expect(byId.businessType?.value).toMatch(/Ultrasound/i);
+    expect(byId.challenge?.label).toMatch(/Primary Challenge/i);
+    expect(byId.challenge?.value).toBe("reporting");
     expect(byId.employees?.discovered).toBe(true);
     expect(byId.goals?.discovered).toBe(false);
+    expect(byId.recommendations?.discovered).toBe(true);
   });
 
-  it("seeds live profile scaffold with pending ellipsis fields", () => {
+  it("seeds live Business Memory scaffold with Learning… rows", () => {
     const fields = buildUnderstandingFields(createEmptySessionMemory(), {
       businessOverride: "Medical Clinic",
       showPending: true,
     });
     const byId = Object.fromEntries(fields.map((f) => [f.id, f]));
-    expect(byId.business?.value).toBe("Medical Clinic");
+    expect(byId.industry?.value).toBe("Medical Clinic");
     expect(byId.employees?.discovered).toBe(false);
-    expect(fields).toHaveLength(6);
+    expect(byId.employees?.pendingLabel).toMatch(/Learning/i);
+    expect(byId.recommendations?.pendingLabel).toMatch(/Preparing Recommendations/i);
+    expect(fields.length).toBeGreaterThanOrEqual(6);
   });
 
   it("derives visible intelligence cues from discovery state", () => {

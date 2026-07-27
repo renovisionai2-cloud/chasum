@@ -87,6 +87,7 @@ export function FlagshipDiscovery({
     resumeAtChoices ? "ready" : "intro",
   );
   const [introVisible, setIntroVisible] = useState(resumeAtChoices);
+  const [questionVisible, setQuestionVisible] = useState(resumeAtChoices);
   const [visibleCategories, setVisibleCategories] = useState(
     resumeAtChoices ? FS_BUSINESS_CATEGORIES.length : 0,
   );
@@ -102,6 +103,7 @@ export function FlagshipDiscovery({
       timers.push(
         window.setTimeout(() => {
           setIntroVisible(true);
+          setQuestionVisible(true);
           setVisibleCategories(FS_BUSINESS_CATEGORIES.length);
           setPhase("ready");
         }, 0),
@@ -115,7 +117,10 @@ export function FlagshipDiscovery({
       window.setTimeout(() => setIntroVisible(true), FS_GUIDED.introFadeMs),
     );
     timers.push(
-      window.setTimeout(() => setPhase("ready"), FS_GUIDED.readyMs),
+      window.setTimeout(() => {
+        setQuestionVisible(true);
+        setPhase("ready");
+      }, FS_GUIDED.readyMs),
     );
 
     FS_BUSINESS_CATEGORIES.forEach((_, i) => {
@@ -164,7 +169,7 @@ export function FlagshipDiscovery({
           introVisible && "fs-guided-intro-visible",
         )}
       >
-        <SummerOrb size="xl" active cinematic className="fs-guided-orb" />
+        <SummerOrb size="xl" active cinematic living className="fs-guided-orb" />
         <div className="fs-guided-speech">
           <p className="fs-scene-kicker">Summer</p>
           <h2 id="fs-guided-title" className="sr-only">
@@ -184,7 +189,7 @@ export function FlagshipDiscovery({
       <div
         className={cn(
           "fs-guided-question",
-          introVisible && "fs-guided-question-visible",
+          questionVisible && "fs-guided-question-visible",
         )}
       >
         <p className="fs-guided-question-text">{FS_GUIDED.question}</p>
