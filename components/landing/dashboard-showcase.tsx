@@ -10,6 +10,10 @@ import {
   CTA_MEET_SUMMER_LABEL,
   MEET_SUMMER_HREF,
 } from "@/lib/marketing/alpha";
+import {
+  PLATFORM_DEPARTMENT_SIGNALS,
+  PLATFORM_SHOWCASE,
+} from "@/lib/marketing/platform-page";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -36,7 +40,11 @@ const SHOWCASE_TABS = [
     benefit: "See what needs attention before the day gets busy.",
     explanation:
       "Appointments, revenue, customers, and operational signals come together in one calm command center.",
-    benefits: ["Operating snapshot", "Today and weekly activity", "Fast access to every department"],
+    benefits: [
+      "Operating snapshot",
+      "Today and weekly activity",
+      "Fast access to every department",
+    ],
     cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
   },
@@ -46,10 +54,15 @@ const SHOWCASE_TABS = [
     name: "Summer — AI Business Assistant",
     preview: "summer" as const,
     icon: Sparkles,
-    benefit: "Grounded answers from real business data — never invented availability.",
+    benefit:
+      "Grounded answers from real business data — never invented availability.",
     explanation:
       "Summer is Chasum's AI Business Assistant: website concierge, receptionist assist, and product guide for design partners in Early Access.",
-    benefits: ["Grounded business answers", "Real availability only", "Human escalation"],
+    benefits: [
+      "Grounded business answers",
+      "Real availability only",
+      "Human escalation",
+    ],
     cta: CTA_MEET_SUMMER_LABEL,
     ctaHref: MEET_SUMMER_HREF,
   },
@@ -58,28 +71,44 @@ const SHOWCASE_TABS = [
     label: "CRM",
     preview: "crm" as const,
     icon: Users,
-    benefits: ["Complete customer timeline", "Notes and documents", "Booking and payment context"],
+    benefits: [
+      "Complete customer timeline",
+      "Notes and documents",
+      "Booking and payment context",
+    ],
   },
   {
     id: "calendar",
     label: "Calendar",
     preview: "reception" as const,
     icon: CalendarDays,
-    benefits: ["Staff-aware availability", "Day, week, and resource views", "Waitlist and booking controls"],
+    benefits: [
+      "Staff-aware availability",
+      "Day, week, and resource views",
+      "Waitlist and booking controls",
+    ],
   },
   {
     id: "employees",
     label: "Employees",
     preview: "employees" as const,
     icon: BriefcaseBusiness,
-    benefits: ["Roles and departments", "Location assignments", "Performance context"],
+    benefits: [
+      "Roles and departments",
+      "Location assignments",
+      "Performance context",
+    ],
   },
   {
     id: "business",
     label: "Business",
     preview: "business" as const,
     icon: Building2,
-    benefits: ["Locations and resources", "Services and commerce", "Rules and forms"],
+    benefits: [
+      "Locations and resources",
+      "Services and commerce",
+      "Rules and forms",
+    ],
   },
   {
     id: "reports",
@@ -93,14 +122,22 @@ const SHOWCASE_TABS = [
     label: "Communication",
     preview: "communication" as const,
     icon: MessageSquareText,
-    benefits: ["Unified conversation view", "Email and SMS actions", "Follow-up reminders"],
+    benefits: [
+      "Unified conversation view",
+      "Email and SMS actions",
+      "Follow-up reminders",
+    ],
   },
   {
     id: "billing",
     label: "Billing",
     preview: "billing" as const,
     icon: CreditCard,
-    benefits: ["Plan and trial visibility", "Invoice history", "Payment-ready architecture"],
+    benefits: [
+      "Plan and trial visibility",
+      "Invoice history",
+      "Payment-ready architecture",
+    ],
   },
 ] as const;
 
@@ -132,10 +169,14 @@ function selectTourTab(tab: TabId) {
 }
 
 /**
- * V3 Product Tour — visitors should feel like they are already using Chasum.
- * Product dominates; copy is secondary.
+ * Product surfaces showcase — shared by Platform and Product Tour.
+ * Platform mode strengthens the one-operating-system story without layout changes.
  */
-export function DashboardShowcase() {
+export function DashboardShowcase({
+  mode = "tour",
+}: {
+  mode?: "platform" | "tour";
+}) {
   const selectedTab = useSyncExternalStore(
     subscribeToTour,
     getTourSnapshot,
@@ -148,7 +189,6 @@ export function DashboardShowcase() {
       ? active
       : PLATFORM_MODULES.find((module) => module.id === active.id);
   const Icon = active.icon;
-  // Prefer tab-level CTA when present so Summer never silently falls back to /apply.
   const ctaHref =
     "ctaHref" in active && typeof active.ctaHref === "string"
       ? active.ctaHref
@@ -157,6 +197,8 @@ export function DashboardShowcase() {
     "cta" in active && typeof active.cta === "string"
       ? active.cta
       : (moduleCopy?.cta ?? CTA_APPLY_LABEL);
+  const signal = PLATFORM_DEPARTMENT_SIGNALS[active.id];
+  const isPlatform = mode === "platform";
 
   return (
     <section
@@ -167,13 +209,18 @@ export function DashboardShowcase() {
       <div className="mx-auto max-w-[1480px]">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">Product</p>
+            <p className="marketing-eyebrow">
+              {isPlatform ? PLATFORM_SHOWCASE.eyebrow : "Product"}
+            </p>
             <h2 id="showcase-heading" className="marketing-h2-xl">
-              See how the operating system fits together
+              {isPlatform
+                ? PLATFORM_SHOWCASE.headline
+                : "See how the operating system fits together"}
             </h2>
             <p className="marketing-lede">
-              Choose a department to preview how Chasum connects the day—illustrative
-              product surfaces, not a live tenant environment.
+              {isPlatform
+                ? PLATFORM_SHOWCASE.lede
+                : "Choose a department to preview how Chasum connects the day—illustrative product surfaces, not a live tenant environment."}
             </p>
           </div>
         </Reveal>
@@ -204,7 +251,9 @@ export function DashboardShowcase() {
                   <item.icon
                     className={cn(
                       "h-4 w-4 shrink-0 transition-colors",
-                      selectedTab === item.id ? "text-primary" : "text-muted-foreground",
+                      selectedTab === item.id
+                        ? "text-primary"
+                        : "text-muted-foreground",
                     )}
                     strokeWidth={1.75}
                   />
@@ -231,6 +280,11 @@ export function DashboardShowcase() {
                     <p className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
                       {moduleCopy?.benefit}
                     </p>
+                    {isPlatform && signal ? (
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {signal}
+                      </p>
+                    ) : null}
                   </div>
                   <ul className="flex flex-wrap gap-2">
                     {active.benefits.map((benefit) => (
@@ -267,6 +321,14 @@ export function DashboardShowcase() {
             </div>
           </div>
         </Reveal>
+
+        {isPlatform ? (
+          <Reveal delayMs={120}>
+            <p className="mx-auto mt-16 max-w-2xl text-center text-base leading-relaxed text-muted-foreground md:text-lg">
+              {PLATFORM_SHOWCASE.bridgeToConclusion}
+            </p>
+          </Reveal>
+        ) : null}
       </div>
     </section>
   );

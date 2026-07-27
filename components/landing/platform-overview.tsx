@@ -1,15 +1,7 @@
 "use client";
 
 import { Reveal } from "@/components/landing/reveal";
-
-const LAYERS = [
-  "Scheduling.",
-  "Customers.",
-  "Communication.",
-  "Payments.",
-  "Reporting.",
-  "AI.",
-] as const;
+import { PLATFORM_STORY } from "@/lib/marketing/platform-page";
 
 /**
  * Platform page intro — one operating system framing.
@@ -23,21 +15,18 @@ export function PlatformOverview() {
     >
       <div className="mx-auto max-w-3xl text-center">
         <Reveal>
-          <p className="marketing-eyebrow">Platform</p>
+          <p className="marketing-eyebrow">{PLATFORM_STORY.eyebrow}</p>
           <h1
             id="platform-heading"
             className="text-balance text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl md:text-5xl"
           >
-            Everything works together.
+            {PLATFORM_STORY.headline}
           </h1>
-          <p className="marketing-lede mx-auto mt-5">
-            Scheduling, customers, communication, payments, reporting and AI in
-            one operating system—explore each department below.
-          </p>
+          <p className="marketing-lede mx-auto mt-5">{PLATFORM_STORY.lede}</p>
         </Reveal>
 
         <ul className="mt-12 flex flex-col items-center gap-3 md:gap-4">
-          {LAYERS.map((layer, index) => (
+          {PLATFORM_STORY.layers.map((layer, index) => (
             <Reveal key={layer} delayMs={Math.min(index * 55, 280)}>
               <li className="text-2xl font-medium tracking-tight text-foreground/90 md:text-3xl">
                 {layer}
@@ -48,7 +37,10 @@ export function PlatformOverview() {
 
         <Reveal delayMs={360}>
           <p className="mt-12 text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-            One operating system.
+            {PLATFORM_STORY.close}
+          </p>
+          <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground md:text-lg">
+            {PLATFORM_STORY.bridgeToShowcase}
           </p>
         </Reveal>
       </div>
