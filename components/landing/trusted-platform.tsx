@@ -148,12 +148,12 @@ export function TrustedPlatform() {
               );
             })}
 
-            <div className="fd-connect-core absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/25 bg-card shadow-[0_0_40px_-8px_hsl(var(--primary)/0.55)] sm:h-24 sm:w-24">
-              <LogoIcon size={40} className="sm:h-11 sm:w-11" />
+            <div className="fd-connect-core absolute left-1/2 top-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/30 bg-card shadow-[0_0_48px_-6px_hsl(var(--primary)/0.65)] sm:h-28 sm:w-28">
+              <LogoIcon size={48} className="sm:h-14 sm:w-14" />
             </div>
           </div>
 
-          <p className="mt-8 text-center text-base font-medium tracking-tight text-foreground md:text-lg">
+          <p className="mt-10 text-center text-lg font-semibold tracking-tight text-foreground md:mt-12 md:text-xl lg:text-2xl">
             Understanding begins when everything works together.
           </p>
         </div>

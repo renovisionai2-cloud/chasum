@@ -16,7 +16,7 @@ export function SummerIntro() {
   return (
     <section
       id="meet-the-intelligence"
-      className="scroll-mt-24 px-5 py-20 sm:px-6 md:py-28 lg:px-8"
+      className="scroll-mt-24 px-5 py-20 pb-28 sm:px-6 md:py-28 md:pb-40 lg:px-8"
       aria-labelledby="summer-intro-heading"
     >
       <div className="mx-auto grid max-w-[1400px] items-center gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">

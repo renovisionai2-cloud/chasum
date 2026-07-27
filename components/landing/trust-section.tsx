@@ -2,14 +2,24 @@
 
 import { Reveal } from "@/components/landing/reveal";
 import { APPLY_HREF, PRIVATE_ALPHA_HREF } from "@/lib/marketing/alpha";
+import {
+  BadgeCheck,
+  MessageSquareHeart,
+  UsersRound,
+  Workflow,
+} from "lucide-react";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 
-const STATEMENTS = [
-  "Built with real operators",
-  "Tested through real workflows",
-  "Improved through direct feedback",
-  "Product status labelled honestly",
-] as const;
+const STATEMENTS: ReadonlyArray<{
+  label: string;
+  icon: LucideIcon;
+}> = [
+  { label: "Built with real operators", icon: UsersRound },
+  { label: "Tested through real workflows", icon: Workflow },
+  { label: "Improved through direct feedback", icon: MessageSquareHeart },
+  { label: "Product status labelled honestly", icon: BadgeCheck },
+];
 
 const STATUSES = [
   "Available Today",
@@ -46,13 +56,23 @@ export function TrustSection() {
         </Reveal>
 
         <ul className="mx-auto mt-12 grid max-w-4xl gap-3 sm:grid-cols-2">
-          {STATEMENTS.map((statement, index) => (
-            <Reveal key={statement} delayMs={index * 40}>
-              <li className="rounded-2xl border border-border/60 bg-card/50 px-5 py-4 text-sm font-medium text-foreground">
-                {statement}
-              </li>
-            </Reveal>
-          ))}
+          {STATEMENTS.map((statement, index) => {
+            const Icon = statement.icon;
+            return (
+              <Reveal key={statement.label} delayMs={index * 40}>
+                <li className="flex items-start gap-3.5 rounded-2xl border border-border/60 bg-card/50 px-5 py-4">
+                  <Icon
+                    className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                    strokeWidth={1.5}
+                    aria-hidden
+                  />
+                  <span className="text-sm font-medium text-foreground">
+                    {statement.label}
+                  </span>
+                </li>
+              </Reveal>
+            );
+          })}
         </ul>
 
         <Reveal delayMs={120}>

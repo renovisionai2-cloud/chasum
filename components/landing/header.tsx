@@ -75,12 +75,16 @@ export function LandingHeader() {
         <Logo
           priority
           href="/"
-          className={cn(homeActive && "marketing-logo-home-active")}
+          size="md"
+          className={cn(
+            "origin-left scale-[1.18]",
+            homeActive && "marketing-logo-home-active",
+          )}
           aria-current={homeActive ? "page" : undefined}
         />
 
         <nav
-          className="hidden items-center gap-1.5 xl:flex"
+          className="hidden items-center gap-2 xl:flex"
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
@@ -91,7 +95,7 @@ export function LandingHeader() {
                 href={link.href}
                 data-active={active}
                 className={cn(
-                  "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                  "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-[color,background-color] duration-250",
                   active
                     ? "bg-foreground/[0.06] text-foreground"
                     : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -108,7 +112,7 @@ export function LandingHeader() {
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-[color,background-color] duration-250",
                 resourcesOpen || resourcesActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -164,7 +168,7 @@ export function LandingHeader() {
               {CTA_LOGIN_LABEL}
             </Button>
           </Link>
-          <Link href={APPLY_HREF}>
+          <Link href={APPLY_HREF} className="ml-2">
             <Button size="sm" className="marketing-cta-button rounded-full px-5">
               {CTA_APPLY_LABEL}
             </Button>

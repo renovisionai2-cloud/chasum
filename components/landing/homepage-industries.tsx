@@ -19,17 +19,56 @@ import type { LucideIcon } from "lucide-react";
 /** Homepage industry tiles — category presentation, not compliance claims. */
 export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   name: string;
+  blurb: string;
   icon: LucideIcon;
 }> = [
-  { name: "Healthcare", icon: HeartPulse },
-  { name: "Beauty & Personal Care", icon: Sparkles },
-  { name: "Fitness & Wellness", icon: Dumbbell },
-  { name: "Home & Construction Services", icon: Hammer },
-  { name: "Automotive", icon: Car },
-  { name: "Professional Services", icon: BriefcaseBusiness },
-  { name: "Photography & Creative", icon: Camera },
-  { name: "Pet Services", icon: PawPrint },
-  { name: "Education", icon: GraduationCap },
+  {
+    name: "Healthcare",
+    blurb:
+      "Designed for clinics where every appointment and follow-up matters.",
+    icon: HeartPulse,
+  },
+  {
+    name: "Beauty & Personal Care",
+    blurb: "Built around busy schedules and repeat clients.",
+    icon: Sparkles,
+  },
+  {
+    name: "Fitness & Wellness",
+    blurb: "Coordinate memberships, bookings and staff.",
+    icon: Dumbbell,
+  },
+  {
+    name: "Home & Construction Services",
+    blurb:
+      "Coordinate customers, crews and projects from one connected operating system.",
+    icon: Hammer,
+  },
+  {
+    name: "Automotive",
+    blurb: "Keep repairs, customers and communication connected.",
+    icon: Car,
+  },
+  {
+    name: "Professional Services",
+    blurb: "Organize clients, appointments and relationships.",
+    icon: BriefcaseBusiness,
+  },
+  {
+    name: "Photography & Creative",
+    blurb: "Manage sessions, communication and follow-up.",
+    icon: Camera,
+  },
+  {
+    name: "Pet Services",
+    blurb: "Run appointments, reminders and customer care.",
+    icon: PawPrint,
+  },
+  {
+    name: "Education",
+    blurb: "Support instructors, scheduling and communication.",
+    icon: GraduationCap,
+  },
 ];
 
 /**
@@ -59,7 +98,7 @@ export function HomepageIndustries() {
           </div>
         </Reveal>
 
-        <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-3 xl:grid-cols-3">
+        <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-3">
           {HOMEPAGE_INDUSTRY_TILES.map((tile, index) => {
             const Icon = tile.icon;
             return (
@@ -67,7 +106,7 @@ export function HomepageIndustries() {
                 <li>
                   <Link
                     href={INDUSTRIES_HREF}
-                    className="marketing-focus-ring flex min-h-[5.5rem] flex-col items-start justify-between rounded-2xl border border-border/60 bg-card/70 p-4 transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md sm:min-h-[6.25rem] sm:p-5"
+                    className="fd-industry-tile marketing-focus-ring flex min-h-[7.5rem] flex-col items-start rounded-2xl border border-border/60 bg-card/70 p-4 sm:min-h-[8.25rem] sm:p-5"
                   >
                     <Icon
                       className="h-5 w-5 text-primary"
@@ -76,6 +115,9 @@ export function HomepageIndustries() {
                     />
                     <span className="mt-3 text-sm font-semibold tracking-tight text-foreground sm:text-[15px]">
                       {tile.name}
+                    </span>
+                    <span className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
+                      {tile.blurb}
                     </span>
                   </Link>
                 </li>

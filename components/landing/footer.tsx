@@ -43,17 +43,19 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border px-6 py-14 md:py-16">
+    <footer className="fd-footer-divider border-t border-border/80 px-6 py-16 md:py-20">
       <div className="mx-auto max-w-6xl">
-        <div className="grid gap-10 md:grid-cols-4">
+        <div className="grid gap-12 md:grid-cols-4 md:gap-10">
           <div>
-            <Logo href="/" />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Chasum is the AI Business Operating System for service
-              businesses—connecting the work teams do today with the
-              intelligence needed to improve tomorrow.
+            <Logo href="/" className="origin-left scale-[1.12]" />
+            <p className="mt-5 max-w-xs text-sm font-medium leading-relaxed text-foreground">
+              The AI Business Operating System for service businesses.
             </p>
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
+              Helping businesses understand how they work today, so they can
+              build something better tomorrow.
+            </p>
+            <p className="mt-4 text-xs text-muted-foreground">
               Private Alpha product status · Design partners only
             </p>
           </div>
@@ -63,12 +65,12 @@ export function Footer() {
               <h4 className="text-sm font-semibold text-foreground">
                 {category}
               </h4>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-5 space-y-3">
                 {links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      className="text-sm text-muted-foreground transition-colors duration-250 hover:text-foreground"
                     >
                       {link.label}
                     </Link>
@@ -79,7 +81,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col gap-3 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-16 flex flex-col gap-3 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} Chasum. All rights reserved.</p>
           <p className="text-xs">
             Support:{" "}

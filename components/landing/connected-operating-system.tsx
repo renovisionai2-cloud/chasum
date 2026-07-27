@@ -80,7 +80,7 @@ export function ConnectedOperatingSystem() {
           </div>
         </Reveal>
 
-        <div className="mt-14 grid items-center gap-6 lg:grid-cols-[220px_minmax(0,1fr)_220px] lg:gap-8 xl:grid-cols-[240px_minmax(0,1fr)_240px]">
+        <div className="mt-14 grid items-center gap-5 lg:grid-cols-[200px_minmax(0,1.15fr)_200px] lg:gap-7 xl:grid-cols-[220px_minmax(0,1.2fr)_220px] xl:gap-8">
           <ul className="flex flex-row gap-3 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
             {LEFT.map((item, index) => (
               <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0">
@@ -90,11 +90,17 @@ export function ConnectedOperatingSystem() {
           </ul>
 
           <Reveal delayMs={80}>
-            <div className="fd-product-frame overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.3)]">
-              <DashboardPreview
-                variant="overview"
-                className="min-h-[260px] border-0 shadow-none md:min-h-[360px]"
+            <div className="relative">
+              <div
+                className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/18 via-transparent to-spark/12 blur-2xl"
+                aria-hidden
               />
+              <div className="fd-product-frame overflow-hidden rounded-2xl border border-border/55 bg-card/90">
+                <DashboardPreview
+                  variant="overview"
+                  className="min-h-[280px] border-0 shadow-none md:min-h-[400px] lg:min-h-[440px]"
+                />
+              </div>
             </div>
           </Reveal>
 

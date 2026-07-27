@@ -38,14 +38,16 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <PageFade>
-      <Hero />
-      <TrustedPlatform />
-      <SummerIntro />
-      <ConnectedOperatingSystem />
-      <BusinessOutcomes />
-      <HomepageIndustries />
-      <TrustSection />
-      <PrivateAlphaInvite />
+      <div className="fd-home">
+        <Hero />
+        <TrustedPlatform />
+        <SummerIntro />
+        <ConnectedOperatingSystem />
+        <BusinessOutcomes />
+        <HomepageIndustries />
+        <TrustSection />
+        <PrivateAlphaInvite />
+      </div>
     </PageFade>
   );
 }
