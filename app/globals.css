@@ -641,6 +641,47 @@ body {
   }
 }
 
+/* Signature Connected Operating System — calm data pulses */
+.cos-pulse-dot {
+  opacity: 0.92;
+  filter: drop-shadow(
+    0 0 1.6px color-mix(in srgb, var(--primary) 75%, transparent)
+  );
+}
+
+.cos-signature-node {
+  transition:
+    opacity 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 450ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 55ms), calc(var(--i, 0) * 55ms), 0ms, 0ms,
+    0ms;
+}
+
+.cos-signature-node--lit {
+  border-color: color-mix(in srgb, var(--primary) 42%, var(--border));
+  background-color: color-mix(in srgb, var(--card) 88%, var(--primary));
+  box-shadow: 0 0 22px -10px color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+.cos-signature-core {
+  transition:
+    opacity 500ms cubic-bezier(0.16, 1, 0.3, 1) 180ms,
+    transform 500ms cubic-bezier(0.16, 1, 0.3, 1) 180ms,
+    box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cos-signature-core--receiving {
+  animation: none !important;
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+  box-shadow:
+    0 0 28px -6px color-mix(in srgb, var(--primary) 70%, transparent),
+    0 0 64px -8px color-mix(in srgb, var(--primary) 45%, transparent) !important;
+}
+
 .marketing-hero-ambient {
   background: radial-gradient(
     ellipse at 50% 35%,
@@ -1312,6 +1353,17 @@ body {
     transform: translate3d(0, 0, 0) !important;
     opacity: 0.5 !important;
     will-change: auto !important;
+  }
+
+  .cos-pulse-dot {
+    display: none !important;
+  }
+
+  .cos-signature-node--lit,
+  .cos-signature-core--receiving {
+    animation: none !important;
+    filter: none !important;
+    box-shadow: inherit !important;
   }
 
   .fd-hero-enter,
