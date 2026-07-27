@@ -15,12 +15,21 @@ describe("normalizePathname", () => {
 });
 
 describe("isPrimaryNavActive", () => {
+  it("activates Home only on the root path", () => {
+    expect(isPrimaryNavActive("/", "/")).toBe(true);
+    expect(isPrimaryNavActive("/platform", "/")).toBe(false);
+    expect(isPrimaryNavActive("/pricing", "/")).toBe(false);
+    expect(isPrimaryNavActive("/contact", "/")).toBe(false);
+  });
+
   it("activates only the matching route", () => {
     expect(isPrimaryNavActive("/pricing", "/pricing")).toBe(true);
     expect(isPrimaryNavActive("/contact", "/pricing")).toBe(false);
     expect(isPrimaryNavActive("/meet-summer", "/meet-summer")).toBe(true);
     expect(isPrimaryNavActive("/platform", "/platform")).toBe(true);
     expect(isPrimaryNavActive("/product-tour", "/platform")).toBe(false);
+    expect(isPrimaryNavActive("/industries", "/industries")).toBe(true);
+    expect(isPrimaryNavActive("/roadmap", "/roadmap")).toBe(true);
   });
 
   it("never activates hash-only homepage anchors by pathname", () => {

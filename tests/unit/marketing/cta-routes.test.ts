@@ -50,6 +50,7 @@ describe("primary CTA destinations", () => {
   it("keeps primary nav destinations as real routes", () => {
     const hrefs = NAV_LINKS.map((l) => l.href);
     expect(hrefs).toEqual([
+      "/",
       "/meet-summer",
       "/platform",
       "/product-tour",
@@ -57,6 +58,7 @@ describe("primary CTA destinations", () => {
       "/roadmap",
       "/pricing",
     ]);
+    expect(NAV_LINKS[0]?.label).toBe("Home");
     for (const href of hrefs) {
       expect(href.startsWith("/#")).toBe(false);
     }

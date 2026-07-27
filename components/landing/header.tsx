@@ -60,6 +60,7 @@ export function LandingHeader() {
   const resourceHrefs = NAV_RESOURCES.map((item) => item.href);
   const resourcesActive = isResourcesNavActive(pathname, resourceHrefs);
   const supportActive = isSupportNavActive(pathname, NAV_SUPPORT_HREF);
+  const homeActive = isPrimaryNavActive(pathname, "/");
 
   return (
     <header
@@ -71,10 +72,15 @@ export function LandingHeader() {
       )}
     >
       <div className="mx-auto flex h-[4.25rem] max-w-[1480px] items-center justify-between gap-3 px-5 sm:px-6 lg:px-8">
-        <Logo priority href="/" />
+        <Logo
+          priority
+          href="/"
+          className={cn(homeActive && "marketing-logo-home-active")}
+          aria-current={homeActive ? "page" : undefined}
+        />
 
         <nav
-          className="hidden items-center gap-0.5 xl:flex"
+          className="hidden items-center gap-1.5 xl:flex"
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
@@ -85,7 +91,7 @@ export function LandingHeader() {
                 href={link.href}
                 data-active={active}
                 className={cn(
-                  "marketing-nav-link marketing-focus-ring rounded-full px-3 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                  "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
                   active
                     ? "bg-foreground/[0.06] text-foreground"
                     : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -102,7 +108,7 @@ export function LandingHeader() {
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
+                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-colors duration-200",
                 resourcesOpen || resourcesActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",

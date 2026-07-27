@@ -19,6 +19,7 @@ export const APP_NAME = "Chasum";
 
 /** Primary desktop navigation — Front Door order */
 export const NAV_LINKS = [
+  { href: "/", label: "Home" },
   { href: "/meet-summer", label: "Meet Summer" },
   { href: "/platform", label: "Platform" },
   { href: "/product-tour", label: "Product Tour" },

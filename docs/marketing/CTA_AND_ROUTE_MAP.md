@@ -19,6 +19,7 @@ Primary navigation (`lib/constants.ts` `NAV_LINKS`):
 
 | Label | Destination |
 | --- | --- |
+| Home | `/` |
 | Meet Summer | `/meet-summer` |
 | Platform | `/platform` |
 | Product Tour | `/product-tour` |

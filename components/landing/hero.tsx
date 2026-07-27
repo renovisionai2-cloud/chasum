@@ -12,6 +12,7 @@ import Link from "next/link";
 
 /**
  * Front Door hero — split composition, ~800ms coordinated entrance.
+ * Polish 1: stronger headline rhythm, product depth, CTA spacing.
  */
 export function Hero() {
   return (
@@ -29,12 +30,15 @@ export function Hero() {
 
           <h1
             id="hero-heading"
-            className="fd-hero-enter fd-hero-enter-delay-1 mt-5 text-balance text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.045em] text-foreground sm:text-5xl md:text-[3.25rem] lg:text-[3.5rem]"
+            className="fd-hero-enter fd-hero-enter-delay-1 mt-5 text-[2.35rem] font-semibold leading-[1.1] tracking-[-0.045em] text-foreground sm:text-5xl sm:leading-[1.08] md:text-[3.25rem] lg:text-[3.5rem]"
           >
             Your business already works.
             <br />
             <span className="bg-gradient-to-br from-primary via-primary to-spark bg-clip-text text-transparent">
-              Now it can understand itself.
+              Now it can
+              <br className="hidden sm:block" />
+              {" "}
+              understand itself.
             </span>
           </h1>
 
@@ -50,7 +54,7 @@ export function Hero() {
             </p>
           </div>
 
-          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-8 flex flex-col items-stretch gap-5 sm:flex-row sm:items-center sm:gap-7">
             <Link href={MEET_SUMMER_HREF} className="group">
               <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 w-full items-center justify-center gap-2 rounded-full px-8 text-[15px] font-semibold text-primary-foreground transition-[transform,box-shadow] duration-300 sm:w-auto">
                 {CTA_START_WITH_SUMMER_LABEL}
@@ -70,8 +74,11 @@ export function Hero() {
         </div>
 
         <div className="fd-hero-enter fd-hero-enter-delay-2 fd-hero-visual relative min-w-0">
-          <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/15 via-transparent to-spark/10 blur-2xl" aria-hidden />
-          <div className="fd-product-frame overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-[0_24px_80px_-28px_rgba(15,23,42,0.35)] backdrop-blur-sm">
+          <div
+            className="pointer-events-none absolute -inset-8 -z-10 rounded-[2.25rem] bg-gradient-to-br from-primary/22 via-primary/8 to-spark/14 blur-3xl"
+            aria-hidden
+          />
+          <div className="fd-product-frame overflow-hidden rounded-2xl border border-border/55 bg-card/85 backdrop-blur-sm">
             <DashboardPreview
               variant="overview"
               animated

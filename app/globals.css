@@ -338,7 +338,24 @@ body {
 }
 
 .fd-product-frame {
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 18px 40px -20px rgba(15, 23, 42, 0.28),
+    0 40px 90px -36px rgba(37, 99, 235, 0.28);
+  transform: translateY(0);
   transition: box-shadow 400ms ease, transform 400ms ease;
+}
+
+.fd-product-frame:hover {
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 22px 48px -18px rgba(15, 23, 42, 0.3),
+    0 48px 100px -34px rgba(37, 99, 235, 0.32);
+  transform: translateY(-2px);
+}
+
+.marketing-logo-home-active {
+  opacity: 1;
 }
 
 .fd-connect-node {
@@ -1074,6 +1091,11 @@ body {
 
   .fd-connect-core {
     transform: translate(-50%, -50%) !important;
+  }
+
+  .fd-product-frame,
+  .fd-product-frame:hover {
+    transform: none !important;
   }
 
   .marketing-card-lift,

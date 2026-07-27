@@ -65,16 +65,23 @@ export function Logo({
   /** Prefer full lockup with tagline (marketing). */
   withTagline = false,
   priority = false,
+  "aria-current": ariaCurrent,
 }: CommonProps & {
   href?: string | null;
   size?: LogoSize;
   tone?: LogoTone;
   showText?: boolean;
   withTagline?: boolean;
+  "aria-current"?: "page" | "step" | "location" | "date" | "time" | "true" | "false" | boolean;
 }) {
   if (!showText) {
     return (
-      <LogoLink href={href} className={className} ariaLabel={BRAND_NAME}>
+      <LogoLink
+        href={href}
+        className={className}
+        ariaLabel={BRAND_NAME}
+        ariaCurrent={ariaCurrent}
+      >
         <LogoIcon size={size} className="shrink-0" priority={priority} />
       </LogoLink>
     );
@@ -108,7 +115,12 @@ export function Logo({
   );
 
   return (
-    <LogoLink href={href} className={className} ariaLabel={BRAND_NAME}>
+    <LogoLink
+      href={href}
+      className={className}
+      ariaLabel={BRAND_NAME}
+      ariaCurrent={ariaCurrent}
+    >
       {img}
     </LogoLink>
   );
@@ -204,11 +216,13 @@ function LogoLink({
   href,
   className,
   ariaLabel,
+  ariaCurrent,
   children,
 }: {
   href?: string | null;
   className?: string;
   ariaLabel: string;
+  ariaCurrent?: "page" | "step" | "location" | "date" | "time" | "true" | "false" | boolean;
   children: ReactNode;
 }) {
   if (href == null) {
@@ -231,6 +245,7 @@ function LogoLink({
         className,
       )}
       aria-label={ariaLabel}
+      aria-current={ariaCurrent}
     >
       <span className="transition-transform duration-200 group-hover:scale-[1.02]">
         {children}
