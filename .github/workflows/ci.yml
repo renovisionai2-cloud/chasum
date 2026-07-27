@@ -1,7 +1,5 @@
-# GitHub Actions CI reference (Milestone 6.1+)
-#
-# Live workflow: `.github/workflows/ci.yml`
-# Keep this file in sync when changing CI steps.
+# GitHub Actions CI — quality gates on push/PR
+# Source of truth for local reference: docs/ci/github-actions-ci.yml
 
 name: CI
 

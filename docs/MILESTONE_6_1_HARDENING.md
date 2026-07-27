@@ -14,7 +14,7 @@
 | No production monitoring | **Mostly resolved** — Sentry optional + structured logs + richer `/api/health` |
 | Zod unused / weak validation | **Resolved** for public API write paths |
 | Webhook verification | **Resolved** — Stripe / Resend / Twilio ingress + signature helpers |
-| CI quality gates | **Resolved** — scripts + `docs/ci/github-actions-ci.yml` template (copy to `.github/workflows/` with `workflow`-scoped token) |
+| CI quality gates | **Resolved** — scripts + live `.github/workflows/ci.yml` (reference copy in `docs/ci/github-actions-ci.yml`) |
 
 ## Remaining (keeps score under 9.0)
 
