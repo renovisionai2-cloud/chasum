@@ -2,6 +2,8 @@
 
 Visual source of truth for industry order and shared photography.
 
+**Copy / positioning standard:** [INDUSTRIES_WRITING_STANDARD.md](./INDUSTRIES_WRITING_STANDARD.md) (Final Lock — wording locked unless a genuine bug is found).
+
 ## Approved industry order (full `/industries` page)
 
 1. Medical Clinics  

@@ -315,38 +315,53 @@ export const INDUSTRIES = [
   {
     name: "Medical Clinics",
     intro:
-      "Designed for clinics that need scheduling, patient communication, intake, staff coordination and everyday business operations.",
+      "Designed for healthcare and wellness practices, including family medicine, imaging, physiotherapy, dental and related care businesses.",
     problem:
       "Appointments, providers, reminders and follow-ups often live in separate systems.",
     solution:
-      "Helps clinics manage scheduling, patient communication, intake, staff coordination, reminders, CRM and connected business operations—with Summer available for AI reception support in Early Access. Built to support the front of the practice alongside specialized clinical systems.",
+      "Today, Chasum helps manage appointment scheduling, CRM, reminders, communication, staff coordination, payments, reporting and business operations—with Summer available for AI reception support in Early Access. Industry-specific clinical workflows continue to evolve; Chasum supports the front of the practice alongside specialized clinical systems.",
+    types: [
+      "Family Medical Clinics",
+      "Walk-in Clinics",
+      "Private Ultrasound Clinics",
+      "3D/4D/5D Baby Ultrasound Studios",
+      "Diagnostic Imaging Clinics",
+      "Physiotherapy Clinics",
+      "Chiropractic Clinics",
+      "Massage Therapy Clinics",
+      "Mental Health & Psychology Practices",
+      "Dental Clinics",
+      "Optometry Clinics",
+      "Veterinary Clinics",
+    ],
     modules: [
       "Scheduling & Reception",
       "CRM",
       "Team & Locations",
       "Communication",
+      "Payments",
       "Commerce & Reporting",
     ],
-    note: "Healthcare-specific regulatory and clinical-record requirements must be assessed separately. Chasum is business operations software and must not be presented as an electronic medical record, diagnostic system or clinical charting product unless that capability is intentionally built and legally reviewed.",
+    note: "Healthcare-specific regulatory and clinical-record requirements must be assessed separately. Chasum is business operations software and must not be presented as an electronic medical record (EMR/EHR), PACS, diagnostic reporting system or clinical charting product unless that capability is intentionally built and legally reviewed.",
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Legal Services",
     intro:
-      "Designed for modern law firms that need consultations, client communication, scheduling, billing and day-to-day business operations.",
+      "Designed for legal practices that need consultations, appointments, client communication, billing and day-to-day business operations.",
     problem:
-      "Consultations, client intake, follow-ups, billing and staff coordination are hard to keep organized across disconnected tools.",
+      "Consultations, client intake, follow-ups, billing and team coordination are hard to keep organized across disconnected tools.",
     solution:
-      "Helps firms manage consultations, client relationships, appointment scheduling, staff coordination, billing, CRM and everyday business operations—alongside specialized legal practice tools, not as a replacement for them.",
+      "Today, Chasum helps manage consultations, appointments, client communication, CRM, billing, team coordination and business operations—alongside specialized legal practice tools, not as a replacement for them. Industry-specific legal workflows continue to evolve.",
     types: [
       "Family Law",
-      "Personal Injury",
       "Criminal Defence",
+      "Personal Injury",
       "Immigration Law",
       "Real Estate Law",
-      "Corporate Law",
       "Estate Planning",
       "Employment Law",
+      "Corporate Law",
       "Civil Litigation",
       "General Practice",
     ],
@@ -358,14 +373,18 @@ export const INDUSTRIES = [
       "Payments",
       "Commerce & Reporting",
     ],
-    note: "Data privacy, confidentiality and applicable legal requirements must be assessed separately. Chasum is business operations software and must not be presented as a substitute for legal advice, professional judgment, case management systems or specialized legal-practice software unless those capabilities are intentionally built and verified.",
+    note: "Data privacy, confidentiality and applicable legal requirements must be assessed separately. Chasum is business operations software and must not be presented as a substitute for legal advice, professional judgment, case management systems, legal document automation or court integrations unless those capabilities are intentionally built and verified.",
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Salons",
-    problem: "Stylist schedules, rebooking and no-shows drain the front desk.",
+    intro:
+      "Designed for hair salons, barbers and beauty studios that run on busy schedules and repeat clients.",
+    problem:
+      "Stylist schedules, rebooking and no-shows drain the front desk.",
     solution:
-      "Helps salons manage staff-aware scheduling, CRM history, reminders and reporting so the floor and the client relationship stay connected.",
+      "Today, Chasum helps manage appointment scheduling, staff coordination, CRM, reminders, communication and reporting so the floor and the client relationship stay connected. Industry-specific salon workflows continue to evolve.",
+    types: ["Hair Salons", "Barbers", "Beauty Studios"],
     modules: [
       "Scheduling & Reception",
       "Team & Locations",
@@ -377,9 +396,18 @@ export const INDUSTRIES = [
   },
   {
     name: "Spas",
-    problem: "Packages, room availability and repeat visits are hard to keep aligned.",
+    intro:
+      "Designed for medical spas, day spas, wellness centres and massage studios.",
+    problem:
+      "Packages, room availability and repeat visits are hard to keep aligned.",
     solution:
-      "Helps spas coordinate services, rooms and resources beside scheduling, CRM and commerce records.",
+      "Today, Chasum helps coordinate services, rooms and resources beside appointment scheduling, CRM, communication and commerce records. Industry-specific spa workflows continue to evolve.",
+    types: [
+      "Medical Spas",
+      "Day Spas",
+      "Wellness Centres",
+      "Massage Studios",
+    ],
     modules: [
       "Team & Locations",
       "Scheduling & Reception",
@@ -390,9 +418,19 @@ export const INDUSTRIES = [
   },
   {
     name: "Gyms",
-    problem: "Classes, trainers and memberships are hard to keep connected day to day.",
+    intro:
+      "Designed for gyms, personal trainers, yoga studios, pilates studios and martial arts schools.",
+    problem:
+      "Classes, trainers and memberships are hard to keep connected day to day.",
     solution:
-      "Helps gyms coordinate employees, services, scheduling, CRM and reporting—with membership configuration as part of the operating foundation.",
+      "Today, Chasum helps coordinate appointments, staff, CRM, membership configuration and reporting so training businesses stay organized. Industry-specific fitness workflows continue to evolve.",
+    types: [
+      "Gyms",
+      "Personal Trainers",
+      "Yoga Studios",
+      "Pilates Studios",
+      "Martial Arts Schools",
+    ],
     modules: [
       "Team & Locations",
       "Scheduling & Reception",
@@ -403,9 +441,23 @@ export const INDUSTRIES = [
   },
   {
     name: "Home & Field Services",
-    problem: "Field schedules, follow-ups and customer updates rarely stay in sync.",
+    intro:
+      "Designed for contractors and field service teams that need scheduling, dispatch, customer communication and crew coordination.",
+    problem:
+      "Field schedules, follow-ups and customer updates rarely stay in sync.",
     solution:
-      "Helps home and field businesses manage scheduling, customer communication, CRM and team coordination across locations.",
+      "Today, Chasum helps manage appointments, dispatch-oriented scheduling, customer communication, CRM and staff coordination across locations. Industry-specific field workflows continue to evolve; specialized estimating and construction-project tools remain separate unless intentionally built into Chasum.",
+    types: [
+      "General Contractors",
+      "Renovation Companies",
+      "Electricians",
+      "Plumbers",
+      "HVAC",
+      "Landscapers",
+      "Painters",
+      "Roofing",
+      "Flooring",
+    ],
     modules: [
       "Scheduling & Reception",
       "CRM",
@@ -417,11 +469,11 @@ export const INDUSTRIES = [
   {
     name: "Automotive Services",
     intro:
-      "Built for automotive service businesses that need appointments, customer communication, scheduling, CRM, staff coordination, payments, reporting and AI reception support.",
+      "Designed for modern automotive service businesses, including collision, dealership service, mechanical repair, detailing and specialty shops.",
     problem:
       "Service appointments, customer updates, staff schedules and follow-ups often live across disconnected tools.",
     solution:
-      "Helps collision centres, dealership service departments and independent shops manage appointments, customer communication, scheduling, CRM, staff, payments, reporting and business insights—with Summer available for AI reception support in Early Access.",
+      "Today, Chasum helps manage appointment scheduling, customer communication, CRM, staff management, payments, reporting, business insights and day-to-day business operations—with Summer available for AI reception support in Early Access. Industry-specific automotive workflows continue to evolve.",
     types: [
       "Collision Repair Centres",
       "Auto Body Shops",
@@ -444,14 +496,25 @@ export const INDUSTRIES = [
       "Payments",
       "Commerce & Reporting",
     ],
-    note: "Chasum is business operations software for automotive service teams. Specialized capabilities such as collision estimating, OEM integrations, warranty systems, parts inventory, VIN decoding and repair-order management must be assessed separately unless those capabilities are intentionally built and verified.",
+    note: "Chasum is business operations software for automotive service teams. Specialized capabilities such as estimating, repair management, inventory, OEM integrations, VIN decoding, warranty processing and parts management must be assessed separately unless those capabilities are intentionally built and verified.",
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Professional Services",
-    problem: "Consultants need polished booking and client follow-up without a clinic-sized stack.",
+    intro:
+      "Designed for professional practices that need polished appointments, client relationships and everyday business operations.",
+    problem:
+      "Consultants and advisors need clear booking and follow-up without a clinic-sized stack.",
     solution:
-      "Helps professional practices manage appointments, client relationships, communication, reporting and everyday business operations under Private Alpha founding plans.",
+      "Today, Chasum helps manage appointments, CRM, communication, reporting and business operations under Private Alpha founding plans. Industry-specific professional workflows continue to evolve.",
+    types: [
+      "Accountants",
+      "Financial Advisors",
+      "Consultants",
+      "Architects",
+      "Engineers",
+      "Business Advisors",
+    ],
     modules: [
       "Scheduling & Reception",
       "CRM",
@@ -462,9 +525,18 @@ export const INDUSTRIES = [
   },
   {
     name: "Photography & Creative",
-    problem: "Sessions, deposits and client communication live in inboxes.",
+    intro:
+      "Designed for photography studios, videographers, creative agencies and content creators.",
+    problem:
+      "Sessions, deposits and client communication live in inboxes.",
     solution:
-      "Helps creative studios manage session booking, CRM, deposits and client communication without inventing availability.",
+      "Today, Chasum helps manage session appointments, CRM, deposits, communication and reporting without inventing availability. Industry-specific creative workflows continue to evolve.",
+    types: [
+      "Photography Studios",
+      "Videographers",
+      "Creative Agencies",
+      "Content Creators",
+    ],
     modules: [
       "Scheduling & Reception",
       "CRM",
@@ -475,9 +547,19 @@ export const INDUSTRIES = [
   },
   {
     name: "Pet Services",
-    problem: "Recurring visits and customer notes get lost between bookings.",
+    intro:
+      "Designed for veterinary clinics, grooming, daycare, boarding and training businesses.",
+    problem:
+      "Recurring visits and customer notes get lost between bookings.",
     solution:
-      "Helps pet businesses manage appointments, CRM profiles, reminders and customer care—with Summer available for AI reception support in Early Access.",
+      "Today, Chasum helps manage appointments, CRM, reminders, communication and customer care—with Summer available for AI reception support in Early Access. Industry-specific pet-care workflows continue to evolve.",
+    types: [
+      "Veterinary Clinics",
+      "Pet Grooming",
+      "Pet Daycare",
+      "Pet Boarding",
+      "Dog Training",
+    ],
     modules: [
       "CRM",
       "Scheduling & Reception",
@@ -488,9 +570,18 @@ export const INDUSTRIES = [
   },
   {
     name: "Cleaning",
-    problem: "Recurring routes and last-minute changes overwhelm the schedule.",
+    intro:
+      "Designed for commercial, office, residential and janitorial cleaning teams.",
+    problem:
+      "Recurring routes and last-minute changes overwhelm the schedule.",
     solution:
-      "Helps cleaning teams manage scheduling, waitlists, employee assignments and reporting so day-of changes are easier to handle.",
+      "Today, Chasum helps manage appointments, scheduling, waitlists, staff coordination and reporting so day-of changes are easier to handle. Industry-specific cleaning workflows continue to evolve.",
+    types: [
+      "Commercial Cleaning",
+      "Office Cleaning",
+      "Residential Cleaning",
+      "Janitorial Services",
+    ],
     modules: [
       "Scheduling & Reception",
       "Team & Locations",

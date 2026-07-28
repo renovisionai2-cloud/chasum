@@ -190,7 +190,7 @@ export function Industries() {
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    How Chasum supports the operation
+                    How Chasum helps today
                   </p>
                   <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
                     {current.solution}

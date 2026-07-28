@@ -10,8 +10,8 @@ import {
 const OVERCLAIM_PATTERN =
   /\b(complete industry solution|manages every aspect|replaces existing software|end-to-end platform|full industry management|electronic medical record|EMR|EHR|clinical charting|diagnostic software|legal case management|court integrations|collision estimating|OEM integrations|VIN decoding|parts ordering|inventory management|project management|takeoff software)\b/i;
 
-describe("Industries editorial photography system", () => {
-  it("keeps Legal Services second in the approved Industries order", () => {
+describe("Industries final lock — structure and truth-first copy", () => {
+  it("keeps the approved Industries order", () => {
     expect(INDUSTRIES.map((industry) => industry.name)).toEqual([
       ...INDUSTRIES_PAGE_ORDER,
     ]);
@@ -19,28 +19,135 @@ describe("Industries editorial photography system", () => {
     expect(INDUSTRIES[1]?.name).toBe("Legal Services");
   });
 
-  it("keeps Legal Services copy required for the category", () => {
+  it("requires Designed-for intro, types, and evolving-future solution on every industry", () => {
+    for (const industry of INDUSTRIES) {
+      expect(
+        "intro" in industry && industry.intro,
+        `${industry.name} missing intro`,
+      ).toBeTruthy();
+      expect(industry.intro).toMatch(/^Designed for/i);
+      expect(
+        "types" in industry && industry.types?.length,
+        `${industry.name} missing types`,
+      ).toBeGreaterThan(0);
+      expect(industry.solution).toMatch(/Today,? Chasum helps/i);
+      expect(industry.solution).toMatch(/continue to evolve/i);
+    }
+  });
+
+  it("keeps Medical Clinics representative businesses and operations-only claims", () => {
+    const medical = INDUSTRIES.find(
+      (industry) => industry.name === "Medical Clinics",
+    );
+    expect(medical && "intro" in medical && medical.intro).toMatch(
+      /healthcare and wellness/i,
+    );
+    expect(medical?.solution).toMatch(
+      /appointment scheduling|CRM|reminders|communication|staff|payments|reporting/i,
+    );
+    expect(medical?.solution).not.toMatch(/\b(EMR|EHR|PACS|charting)\b/i);
+    expect(medical && "note" in medical && medical.note).toMatch(
+      /EMR|EHR|PACS|clinical/i,
+    );
+    if (medical && "types" in medical) {
+      expect(medical.types).toEqual(
+        expect.arrayContaining([
+          "Family Medical Clinics",
+          "Private Ultrasound Clinics",
+          "3D/4D/5D Baby Ultrasound Studios",
+          "Diagnostic Imaging Clinics",
+          "Dental Clinics",
+          "Veterinary Clinics",
+        ]),
+      );
+      expect(medical.types).toHaveLength(12);
+    }
+  });
+
+  it("keeps Legal Services practice areas without case-management claims", () => {
     const legal = INDUSTRIES.find((industry) => industry.name === "Legal Services");
-    expect(legal && "intro" in legal && legal.intro).toMatch(/law firms/i);
-    expect(legal?.problem).toMatch(/consultations|intake|billing|staff/i);
-    expect(legal?.solution).toMatch(/consultations|client|scheduling|billing|CRM/i);
-    expect(legal?.solution).not.toMatch(/case management|case updates|documents/i);
+    expect(legal && "intro" in legal && legal.intro).toMatch(/legal practices/i);
+    expect(legal?.problem).toMatch(/consultations|intake|billing|team/i);
+    expect(legal?.solution).toMatch(/consultations|appointments|CRM|billing/i);
+    expect(legal?.solution).not.toMatch(
+      /case management|document automation|court integrations/i,
+    );
     expect(legal && "note" in legal && legal.note).toMatch(
-      /legal advice|confidentiality|privacy|case management/i,
+      /legal advice|case management|court integrations/i,
     );
     if (legal && "types" in legal) {
-      expect(legal.types).toHaveLength(10);
+      expect(legal.types).toEqual([
+        "Family Law",
+        "Criminal Defence",
+        "Personal Injury",
+        "Immigration Law",
+        "Real Estate Law",
+        "Estate Planning",
+        "Employment Law",
+        "Corporate Law",
+        "Civil Litigation",
+        "General Practice",
+      ]);
     }
-    expect(legal?.modules).toEqual(
-      expect.arrayContaining([
-        "Scheduling & Reception",
-        "CRM",
-        "Team & Locations",
-        "Communication",
-        "Payments",
-        "Commerce & Reporting",
-      ]),
+  });
+
+  it("keeps Automotive Services types without estimating/repair-system claims", () => {
+    const auto = INDUSTRIES.find(
+      (industry) => industry.name === "Automotive Services",
     );
+    expect(auto && "intro" in auto && auto.intro).toMatch(
+      /automotive service businesses/i,
+    );
+    expect(auto?.solution).toMatch(
+      /appointment scheduling|communication|CRM|staff|payments|reporting/i,
+    );
+    expect(auto?.solution).not.toMatch(
+      /estimat|repair management|inventory|OEM|VIN|warranty|parts/i,
+    );
+    expect(auto && "note" in auto && auto.note).toMatch(
+      /estimating|inventory|OEM|VIN|warranty|parts/i,
+    );
+    if (auto && "types" in auto) {
+      expect(auto.types).toHaveLength(12);
+      expect(auto.types).toEqual(
+        expect.arrayContaining([
+          "Collision Repair Centres",
+          "Dealership Service Departments",
+          "EV Service Centres",
+          "Fleet Maintenance",
+        ]),
+      );
+    }
+  });
+
+  it("keeps Home & Field and Professional representative businesses", () => {
+    const home = INDUSTRIES.find(
+      (industry) => industry.name === "Home & Field Services",
+    );
+    const pro = INDUSTRIES.find(
+      (industry) => industry.name === "Professional Services",
+    );
+    if (home && "types" in home) {
+      expect(home.types).toEqual(
+        expect.arrayContaining([
+          "General Contractors",
+          "Electricians",
+          "Plumbers",
+          "HVAC",
+        ]),
+      );
+    }
+    expect(home?.solution).not.toMatch(/\b(takeoff|project management)\b/i);
+    if (pro && "types" in pro) {
+      expect(pro.types).toEqual(
+        expect.arrayContaining([
+          "Accountants",
+          "Financial Advisors",
+          "Consultants",
+          "Architects",
+        ]),
+      );
+    }
   });
 
   it("maps every industry through the shared industryImages registry", () => {
@@ -57,9 +164,9 @@ describe("Industries editorial photography system", () => {
     for (const tile of HOMEPAGE_INDUSTRY_TILES) {
       const image = getIndustryImage(tile.name);
       expect(image, `missing homepage image for ${tile.name}`).toBeDefined();
+      expect(tile.blurb).toMatch(/^Designed for/i);
     }
 
-    // Homepage categories share the same asset paths as Industries detail.
     expect(getIndustryImage("Healthcare")?.hero).toBe(
       getIndustryImage("Medical Clinics")?.hero,
     );
@@ -71,57 +178,7 @@ describe("Industries editorial photography system", () => {
     );
   });
 
-  it("includes Automotive Services with representative business types", () => {
-    const auto = INDUSTRIES.find(
-      (industry) => industry.name === "Automotive Services",
-    );
-    expect(auto).toBeDefined();
-    expect(auto && "intro" in auto && auto.intro).toMatch(
-      /automotive service businesses/i,
-    );
-    expect(auto && "intro" in auto && auto.intro).toMatch(
-      /appointments|communication|scheduling|CRM|payments|reporting/i,
-    );
-    expect(auto?.problem).toMatch(/appointments|customer|staff|follow-ups/i);
-    expect(auto?.solution).toMatch(/collision|dealership|shops/i);
-    expect(auto?.solution).not.toMatch(
-      /estimates|repairs|inspections|vehicle history|parts/i,
-    );
-    expect(auto && "note" in auto && auto.note).toMatch(
-      /estimating|OEM|VIN|parts|repair-order/i,
-    );
-    if (auto && "types" in auto) {
-      expect(auto.types).toEqual(
-        expect.arrayContaining([
-          "Collision Repair Centres",
-          "Auto Body Shops",
-          "Dealership Service Departments",
-          "EV Service Centres",
-          "Fleet Maintenance",
-        ]),
-      );
-      expect(auto.types).toHaveLength(12);
-    }
-    expect(getIndustryImage("Automotive Services")?.hero).toMatch(
-      /automotive\.webp$/,
-    );
-  });
-
-  it("keeps Medical Clinics truth-first (operations, not EMR)", () => {
-    const medical = INDUSTRIES.find(
-      (industry) => industry.name === "Medical Clinics",
-    );
-    expect(medical && "intro" in medical && medical.intro).toMatch(
-      /scheduling|communication|intake|staff/i,
-    );
-    expect(medical?.solution).toMatch(/scheduling|communication|intake|reminders/i);
-    expect(medical?.solution).not.toMatch(/\b(EMR|EHR|charting|diagnostic)\b/i);
-    expect(medical && "note" in medical && medical.note).toMatch(
-      /electronic medical record|clinical/i,
-    );
-  });
-
-  it("avoids specialized-software replacement claims across industries", () => {
+  it("avoids specialized-software replacement claims across public industry fields", () => {
     for (const industry of INDUSTRIES) {
       const fields = [
         industry.name,

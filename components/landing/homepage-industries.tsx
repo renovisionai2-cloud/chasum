@@ -32,55 +32,55 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   {
     name: "Healthcare",
     blurb:
-      "Designed for clinics where every appointment and follow-up matters.",
+      "Designed for healthcare and wellness practices that need scheduling and follow-up.",
     icon: HeartPulse,
   },
   {
     name: "Legal Services",
     blurb:
-      "Designed for consultations, client communication and scheduling.",
+      "Designed for legal practices managing consultations, clients and scheduling.",
     icon: Scale,
   },
   {
     name: "Beauty & Personal Care",
-    blurb: "Built around busy schedules and repeat clients.",
+    blurb: "Designed for salons, barbers and beauty studios.",
     icon: Sparkles,
   },
   {
     name: "Fitness & Wellness",
-    blurb: "Helps coordinate bookings, staff and memberships.",
+    blurb: "Designed for gyms, trainers and studio-based fitness businesses.",
     icon: Dumbbell,
   },
   {
     name: "Home & Construction Services",
     blurb:
-      "Helps coordinate scheduling, crews and customer communication.",
+      "Designed for contractors coordinating schedules, crews and customers.",
     icon: Hammer,
   },
   {
     name: "Automotive Services",
     blurb:
-      "Built for appointments, customer communication, scheduling and service-team coordination.",
+      "Designed for modern automotive service businesses and service departments.",
     icon: Car,
   },
   {
     name: "Professional Services",
-    blurb: "Helps organize clients, appointments and relationships.",
+    blurb: "Designed for advisors and consultants who live by appointments.",
     icon: BriefcaseBusiness,
   },
   {
     name: "Photography & Creative",
-    blurb: "Helps manage sessions, communication and follow-up.",
+    blurb: "Designed for studios and creators managing sessions and clients.",
     icon: Camera,
   },
   {
     name: "Pet Services",
-    blurb: "Helps run appointments, reminders and customer care.",
+    blurb: "Designed for grooming, daycare, boarding and veterinary teams.",
     icon: PawPrint,
   },
   {
     name: "Education",
-    blurb: "Helps support instructors, scheduling and communication.",
+    blurb: "Designed for instructors who need scheduling and communication.",
     icon: GraduationCap,
   },
 ];
