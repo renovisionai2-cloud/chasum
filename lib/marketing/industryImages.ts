@@ -86,7 +86,7 @@ export const INDUSTRY_IMAGE_ASSETS = {
   ),
   "pet-services": image(
     "pet-services",
-    "Veterinary professional with a pet owner in an upscale clinic",
+    "Veterinarian gently examining a dog in a bright modern veterinary clinic",
     "center 40%",
   ),
   cleaning: image(

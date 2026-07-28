@@ -61,10 +61,10 @@
     },
     {
       "id": "pet-services",
-      "photoId": "1558618666-fcd25c85cd64",
-      "credit": "Tran Mau Tri Tam / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Final Pet Services replacement — veterinarian examining dog in modern clinic"
     },
     {
       "id": "cleaning",
