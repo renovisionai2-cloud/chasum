@@ -1,8 +1,12 @@
 import { Reveal } from "@/components/landing/reveal";
-import { CUSTOMER_JOURNEY } from "@/lib/marketing/homepage";
+import {
+  PRODUCT_TOUR_INTRO,
+  PRODUCT_TOUR_JOURNEY,
+} from "@/lib/marketing/product-tour-page";
 
 /**
  * Customer journey — single ordered list that reflows (no duplicate AT content).
+ * Each stop leads with why it matters, then how it works.
  */
 export function CustomerJourney() {
   return (
@@ -14,13 +18,12 @@ export function CustomerJourney() {
       <div className="mx-auto max-w-[1400px]">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">Product Tour</p>
+            <p className="marketing-eyebrow">{PRODUCT_TOUR_INTRO.eyebrow}</p>
             <h1 id="journey-heading" className="marketing-h2-xl">
-              One customer journey. One connected record.
+              {PRODUCT_TOUR_INTRO.headline}
             </h1>
             <p className="marketing-lede" id="journey">
-              From booking to payment and reporting, each step updates the same
-              business—not another disconnected tool.
+              {PRODUCT_TOUR_INTRO.lede}
             </p>
           </div>
         </Reveal>
@@ -32,7 +35,7 @@ export function CustomerJourney() {
               aria-hidden
             />
             <ol className="grid gap-3 lg:grid-cols-7">
-              {CUSTOMER_JOURNEY.map((item, index) => (
+              {PRODUCT_TOUR_JOURNEY.map((item, index) => (
                 <li
                   key={item.step}
                   className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 lg:items-center lg:border-0 lg:bg-transparent lg:p-0 lg:text-center"
@@ -45,10 +48,19 @@ export function CustomerJourney() {
                       <h3 className="text-base font-semibold tracking-tight text-foreground lg:text-sm">
                         {item.title}
                       </h3>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground lg:mt-2 lg:text-xs">
+                      <p className="mt-1 text-sm font-medium leading-relaxed text-foreground/90 lg:mt-2 lg:text-xs">
+                        {item.why}
+                      </p>
+                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground lg:text-xs">
                         {item.detail}
                       </p>
-                      {index < CUSTOMER_JOURNEY.length - 1 ? (
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground/90 lg:mt-2.5">
+                        <span className="font-medium text-primary/90">
+                          {item.moment.kind}.
+                        </span>{" "}
+                        {item.moment.text}
+                      </p>
+                      {index < PRODUCT_TOUR_JOURNEY.length - 1 ? (
                         <span className="sr-only">then</span>
                       ) : null}
                     </div>
@@ -57,6 +69,12 @@ export function CustomerJourney() {
               ))}
             </ol>
           </div>
+        </Reveal>
+
+        <Reveal delayMs={140}>
+          <p className="mx-auto mt-12 max-w-2xl text-center text-base text-muted-foreground md:mt-14 md:text-lg">
+            {PRODUCT_TOUR_INTRO.bridgeToShowcase}
+          </p>
         </Reveal>
       </div>
     </section>

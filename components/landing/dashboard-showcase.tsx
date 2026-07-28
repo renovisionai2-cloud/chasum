@@ -14,6 +14,10 @@ import {
   PLATFORM_DEPARTMENT_SIGNALS,
   PLATFORM_SHOWCASE,
 } from "@/lib/marketing/platform-page";
+import {
+  PRODUCT_TOUR_SHOWCASE,
+  PRODUCT_TOUR_STOPS,
+} from "@/lib/marketing/product-tour-page";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -198,7 +202,9 @@ export function DashboardShowcase({
       ? active.cta
       : (moduleCopy?.cta ?? CTA_APPLY_LABEL);
   const signal = PLATFORM_DEPARTMENT_SIGNALS[active.id];
+  const tourStop = PRODUCT_TOUR_STOPS[active.id];
   const isPlatform = mode === "platform";
+  const isTour = mode === "tour";
 
   return (
     <section
@@ -210,17 +216,19 @@ export function DashboardShowcase({
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">
-              {isPlatform ? PLATFORM_SHOWCASE.eyebrow : "Product"}
+              {isPlatform
+                ? PLATFORM_SHOWCASE.eyebrow
+                : PRODUCT_TOUR_SHOWCASE.eyebrow}
             </p>
             <h2 id="showcase-heading" className="marketing-h2-xl">
               {isPlatform
                 ? PLATFORM_SHOWCASE.headline
-                : "See how the operating system fits together"}
+                : PRODUCT_TOUR_SHOWCASE.headline}
             </h2>
             <p className="marketing-lede">
               {isPlatform
                 ? PLATFORM_SHOWCASE.lede
-                : "Choose a department to preview how Chasum connects the day—illustrative product surfaces, not a live tenant environment."}
+                : PRODUCT_TOUR_SHOWCASE.lede}
             </p>
           </div>
         </Reveal>
@@ -277,9 +285,28 @@ export function DashboardShowcase({
                         {moduleCopy?.name ?? active.label}
                       </p>
                     </div>
-                    <p className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                      {moduleCopy?.benefit}
-                    </p>
+                    {isTour && tourStop ? (
+                      <p className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                        {tourStop.why}
+                      </p>
+                    ) : (
+                      <p className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                        {moduleCopy?.benefit}
+                      </p>
+                    )}
+                    {isTour && moduleCopy?.benefit ? (
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {moduleCopy.benefit}
+                      </p>
+                    ) : null}
+                    {isTour && tourStop ? (
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                        <span className="font-medium text-primary/90">
+                          {tourStop.moment.kind}.
+                        </span>{" "}
+                        {tourStop.moment.text}
+                      </p>
+                    ) : null}
                     {isPlatform && signal ? (
                       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                         {signal}

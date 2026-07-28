@@ -56,6 +56,6 @@ describe("Platform page Final Polish", () => {
     );
     expect(tour).toContain("DashboardShowcase");
     expect(tour).not.toContain('mode="platform"');
-    expect(tour).toContain("PrivateAlphaInvite");
+    expect(tour).toContain("ProductTourConclusion");
   });
 });
