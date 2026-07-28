@@ -316,26 +316,26 @@ export const PLATFORM_MODULES: PlatformModule[] = [
 export const CORE_CHASUM_CAPABILITIES = [
   "AI Receptionist",
   "Appointment Scheduling",
-  "Customer Communication",
   "CRM",
+  "Customer Communication",
   "Team Coordination",
   "Payments",
-  "Business Reporting",
+  "Reporting",
   "Business Memory",
-  "Multi-location Support",
+  "Multi-location",
 ] as const;
 
 /** Shared closing — continuous improvement, not a roadmap. */
 export const INDUSTRY_GROWING_STATEMENT =
-  "Chasum continues to expand industry-specific intelligence while keeping every business connected through one AI Business Operating System.";
+  "Chasum continuously evolves with new platform improvements and industry intelligence, helping your business grow while staying connected through one AI Business Operating System.";
 
 export const INDUSTRIES = [
   {
     name: "Medical Clinics",
     intro:
-      "Designed for healthcare and wellness practices, including family medicine, imaging, physiotherapy, dental and related care businesses.",
+      "Designed for healthcare and wellness practices that run on appointments and follow-up.",
     solution:
-      "Chasum helps clinics manage appointment scheduling, AI reception support, CRM, reminders, customer communication, team coordination, payments and reporting for everyday practice operations.",
+      "Keep appointments, patient communication and automated reminders connected—with staff coordination, CRM and everyday business operations in one place.",
     types: [
       "Family Medical Clinics",
       "Walk-in Clinics",
@@ -356,9 +356,9 @@ export const INDUSTRIES = [
   {
     name: "Legal Services",
     intro:
-      "Designed for legal practices that need consultations, appointments, client communication, billing and day-to-day business operations.",
+      "Designed for legal practices that need clear consultations, client follow-up and day-to-day operations.",
     solution:
-      "Chasum helps firms manage consultations, appointment scheduling, client communication, CRM, billing, team coordination, payments and reporting for everyday practice operations.",
+      "Schedule consultations, manage appointments and keep client communication, CRM, billing and team coordination connected.",
     types: [
       "Family Law",
       "Criminal Defence",
@@ -377,9 +377,9 @@ export const INDUSTRIES = [
   {
     name: "Salons",
     intro:
-      "Designed for hair salons, barbers and beauty studios that run on busy schedules and repeat clients.",
+      "Designed for hair salons, barbers and beauty studios built around busy chairs and repeat clients.",
     solution:
-      "Chasum helps salons manage appointment scheduling, AI reception support, CRM, reminders, customer communication, team coordination, payments and reporting so the floor and the relationship stay connected.",
+      "Keep the appointment book and the relationship connected—with staff scheduling, client communication, payments and daily operations in one place.",
     types: ["Hair Salons", "Barbers", "Beauty Studios"],
     modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
@@ -389,7 +389,7 @@ export const INDUSTRIES = [
     intro:
       "Designed for medical spas, day spas, wellness centres and massage studios.",
     solution:
-      "Chasum helps spas manage appointment scheduling, CRM, customer communication, team coordination, payments and reporting so visits, rooms and relationships stay organized.",
+      "Coordinate treatment appointments, client communication and staff across rooms—with payments and daily operations staying connected.",
     types: [
       "Medical Spas",
       "Day Spas",
@@ -402,9 +402,9 @@ export const INDUSTRIES = [
   {
     name: "Gyms",
     intro:
-      "Designed for gyms, personal trainers, yoga studios, pilates studios and martial arts schools.",
+      "Designed for gyms, personal trainers and studio-based fitness businesses.",
     solution:
-      "Chasum helps fitness businesses manage appointment scheduling, CRM, customer communication, team coordination, payments and reporting so memberships, sessions and staff stay connected.",
+      "Connect sessions, memberships and staff schedules with client communication, payments and reporting.",
     types: [
       "Gyms",
       "Personal Trainers",
@@ -418,9 +418,9 @@ export const INDUSTRIES = [
   {
     name: "Home & Field Services",
     intro:
-      "Designed for contractors and field service teams that need scheduling, dispatch, customer communication and crew coordination.",
+      "Designed for contractors and field teams coordinating clients, crews and the day's work.",
     solution:
-      "Chasum helps field teams manage appointment scheduling, customer communication, CRM, team coordination, payments and reporting across jobs and locations.",
+      "Turn client inquiries into scheduled estimate visits and jobs—with crew coordination, customer communication and business operations in one place.",
     types: [
       "General Contractors",
       "Renovation Companies",
@@ -438,9 +438,9 @@ export const INDUSTRIES = [
   {
     name: "Automotive Services",
     intro:
-      "Designed for modern automotive service businesses, including collision, dealership service, mechanical repair, detailing and specialty shops.",
+      "Designed for modern automotive service businesses—from collision centres to dealership service departments.",
     solution:
-      "Chasum helps automotive service businesses manage appointment scheduling, AI reception support, customer communication, CRM, team coordination, payments and reporting for everyday shop operations.",
+      "Coordinate customer bookings, service appointments and team schedules while keeping communication, payments and reporting connected across the shop.",
     types: [
       "Collision Repair Centres",
       "Auto Body Shops",
@@ -461,9 +461,9 @@ export const INDUSTRIES = [
   {
     name: "Professional Services",
     intro:
-      "Designed for professional practices that need polished appointments, client relationships and everyday business operations.",
+      "Designed for advisors and consultants who live by appointments and relationships.",
     solution:
-      "Chasum helps professional practices manage appointment scheduling, CRM, customer communication, team coordination, payments and reporting for everyday client work.",
+      "Present a polished booking experience while keeping CRM, client communication, payments and reporting connected.",
     types: [
       "Accountants",
       "Financial Advisors",
@@ -478,9 +478,9 @@ export const INDUSTRIES = [
   {
     name: "Photography & Creative",
     intro:
-      "Designed for photography studios, videographers, creative agencies and content creators.",
+      "Designed for photography studios, videographers and creative teams.",
     solution:
-      "Chasum helps creative businesses manage session scheduling, CRM, customer communication, deposits, payments and reporting without inventing availability.",
+      "Book sessions from real availability, keep client communication and deposits connected, and see the work reflected in reporting.",
     types: [
       "Photography Studios",
       "Videographers",
@@ -495,7 +495,7 @@ export const INDUSTRIES = [
     intro:
       "Designed for veterinary clinics, grooming, daycare, boarding and training businesses.",
     solution:
-      "Chasum helps pet businesses manage appointment scheduling, AI reception support, CRM, reminders, customer communication, team coordination, payments and reporting for everyday care operations.",
+      "Keep recurring visits, reminders and customer care connected—with scheduling, CRM, team coordination and payments for the day-to-day.",
     types: [
       "Veterinary Clinics",
       "Pet Grooming",
@@ -511,7 +511,7 @@ export const INDUSTRIES = [
     intro:
       "Designed for commercial, office, residential and janitorial cleaning teams.",
     solution:
-      "Chasum helps cleaning teams manage appointment scheduling, customer communication, CRM, team coordination, payments and reporting so recurring routes and day-of changes stay organized.",
+      "Organize recurring routes and last-minute changes with scheduling, crew coordination, customer communication and reporting.",
     types: [
       "Commercial Cleaning",
       "Office Cleaning",

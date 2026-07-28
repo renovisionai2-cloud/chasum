@@ -38,15 +38,19 @@ describe("Industries final content framework", () => {
         "types" in industry && industry.types?.length,
         `${industry.name} missing types`,
       ).toBeGreaterThan(0);
-      expect(industry.solution).toMatch(/Chasum helps/i);
-      expect(industry.solution).not.toMatch(/continue to evolve/i);
+      expect(industry.solution.length).toBeGreaterThan(40);
+      expect(industry.solution.length).toBeLessThan(280);
+      expect(industry.solution).not.toMatch(/continue to evolve|roadmap|coming next/i);
       expect("problem" in industry, industry.name).toBe(false);
     }
+
+    const solutions = INDUSTRIES.map((industry) => industry.solution);
+    expect(new Set(solutions).size).toBe(solutions.length);
   });
 
   it("uses one shared Growing with Your Business statement", () => {
     expect(INDUSTRY_GROWING_STATEMENT).toMatch(
-      /expand industry-specific intelligence/i,
+      /continuously evolves with new platform improvements/i,
     );
     expect(INDUSTRY_GROWING_STATEMENT).toMatch(
       /AI Business Operating System/i,
@@ -60,13 +64,13 @@ describe("Industries final content framework", () => {
     expect([...CORE_CHASUM_CAPABILITIES]).toEqual([
       "AI Receptionist",
       "Appointment Scheduling",
-      "Customer Communication",
       "CRM",
+      "Customer Communication",
       "Team Coordination",
       "Payments",
-      "Business Reporting",
+      "Reporting",
       "Business Memory",
-      "Multi-location Support",
+      "Multi-location",
     ]);
 
     for (const industry of INDUSTRIES) {
@@ -84,7 +88,7 @@ describe("Industries final content framework", () => {
       /healthcare and wellness/i,
     );
     expect(medical?.solution).toMatch(
-      /appointment scheduling|CRM|reminders|communication|team|payments|reporting/i,
+      /appointments|reminders|communication|CRM|staff|operations/i,
     );
     expect(medical?.solution).not.toMatch(/\b(EMR|EHR|PACS|charting)\b/i);
     if (medical && "types" in medical) {
@@ -95,7 +99,7 @@ describe("Industries final content framework", () => {
   it("keeps Legal Services practice areas without case-management claims", () => {
     const legal = INDUSTRIES.find((industry) => industry.name === "Legal Services");
     expect(legal && "intro" in legal && legal.intro).toMatch(/legal practices/i);
-    expect(legal?.solution).toMatch(/consultations|appointments|CRM|billing/i);
+    expect(legal?.solution).toMatch(/consultations|appointments|CRM|billing|communication/i);
     expect(legal?.solution).not.toMatch(
       /case management|document automation|court integrations/i,
     );
@@ -112,7 +116,7 @@ describe("Industries final content framework", () => {
       /automotive service businesses/i,
     );
     expect(auto?.solution).toMatch(
-      /appointment scheduling|communication|CRM|team|payments|reporting/i,
+      /bookings|appointments|schedules|communication|payments|reporting/i,
     );
     expect(auto?.solution).not.toMatch(
       /estimat|repair management|inventory|OEM|VIN|warranty|parts/i,

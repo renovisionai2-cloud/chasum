@@ -1,6 +1,6 @@
 # Industries Writing Standard
 
-**Status:** Permanent writing standard — Final Content Framework  
+**Status:** Permanent writing standard — Final Wording Pass  
 **Canonical content:** `lib/marketing/homepage.ts` → `INDUSTRIES`  
 **Shared capability chips:** `CORE_CHASUM_CAPABILITIES`  
 **Shared growing statement:** `INDUSTRY_GROWING_STATEMENT`  
@@ -48,13 +48,13 @@ Do **not** turn Growing into a roadmap or future feature list.
 
 - AI Receptionist
 - Appointment Scheduling
-- Customer Communication
 - CRM
+- Customer Communication
 - Team Coordination
 - Payments
-- Business Reporting
+- Reporting
 - Business Memory
-- Multi-location Support
+- Multi-location
 
 ---
 
