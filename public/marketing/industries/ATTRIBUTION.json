@@ -1,6 +1,6 @@
 {
   "style": "final-editorial-warm-architecture",
-  "collection": "Operation Chasum — Industries Final Editorial Photography Sprint",
+  "collection": "Operation Chasum — Industries Editorial QA Sprint",
   "license": "https://unsplash.com/license",
   "assets": [
     {
@@ -64,21 +64,21 @@
       "source": "approved-generated",
       "credit": "Chasum-approved generated editorial imagery",
       "license": "Chasum-owned generated asset",
-      "note": "Final Pet Services replacement — veterinarian examining dog in modern clinic"
+      "note": "Editorial QA — luxury grooming salon with professional and pet"
     },
     {
       "id": "cleaning",
-      "photoId": "1527515637462-cff94eecc1ac",
-      "credit": "CDC / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Editorial QA — premium commercial cleaning in modern office"
     },
     {
       "id": "professional-services",
-      "photoId": "1560250097-0b93528c311a",
-      "credit": "LinkedIn Sales Solutions / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Editorial QA — executive consulting meeting / boardroom"
     },
     {
       "id": "education",
