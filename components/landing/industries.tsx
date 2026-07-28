@@ -37,7 +37,7 @@ const INDUSTRY_ICONS: Record<string, LucideIcon> = {
 };
 
 /**
- * Industries — workflows shaped with real operators; notes when present.
+ * Industries — workflows shaped with real operators.
  */
 export function Industries() {
   const [active, setActive] = useState<string>(INDUSTRIES[0]?.name ?? "");
@@ -226,7 +226,7 @@ export function Industries() {
                 className="industry-detail-fade mt-10 border-t border-border/60 pt-8"
               >
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Recommended product foundations
+                  Core Chasum Capabilities
                 </p>
                 <ul className="mt-4 flex flex-wrap gap-2">
                   {current.modules.map((mod) => (
@@ -239,15 +239,6 @@ export function Industries() {
                   ))}
                 </ul>
               </div>
-
-              {"note" in current && current.note ? (
-                <p
-                  key={`note-${current.name}`}
-                  className="industry-detail-fade mt-8 rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm leading-relaxed text-muted-foreground"
-                >
-                  {current.note}
-                </p>
-              ) : null}
             </article>
           </Reveal>
         </div>

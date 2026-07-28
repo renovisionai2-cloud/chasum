@@ -1,12 +1,11 @@
 # Industries Writing Standard
 
-**Status:** Permanent lock standard — Operation Chasum Final Lock Sprint  
+**Status:** Permanent writing standard — Core Capabilities Refinement  
 **Canonical content:** `lib/marketing/homepage.ts` → `INDUSTRIES`  
+**Shared capability chips:** `CORE_CHASUM_CAPABILITIES`  
 **Homepage tiles:** `components/landing/homepage-industries.tsx` → `HOMEPAGE_INDUSTRY_TILES`  
 **Visual system:** [INDUSTRIES_VISUAL_SYSTEM.md](./INDUSTRIES_VISUAL_SYSTEM.md)  
 **Capability truth:** [PRODUCT_TRUTH_MATRIX.md](./PRODUCT_TRUTH_MATRIX.md)
-
-After the Final Lock Sprint, Industries requires no further design or content work unless a genuine bug is discovered.
 
 ---
 
@@ -14,36 +13,45 @@ After the Final Lock Sprint, Industries requires no further design or content wo
 
 > Promise only what exists.  
 > Inspire with what is coming.  
-> Never imply functionality that has not yet been built.  
-> Never imply Chasum replaces specialized industry software unless that capability actually exists.
+> Never imply functionality that has not yet been built.
 
 Visitors should leave thinking:
 
-**“Chasum understands businesses like mine.”**
+**“Chasum already solves important parts of my business.”**
 
 Not:
 
-**“Chasum replaces every piece of software I already use.”**
+**“Here’s everything Chasum doesn’t do.”**
 
 ---
 
 ## Required structure (every industry)
 
-Every industry entry must communicate, in this order of meaning:
+1. **Designed for…** — `intro`
+2. **Representative business types** — `types`
+3. **How Chasum helps today** — `solution` (positive, Available Today / Early Access only)
+4. **Core Chasum Capabilities** — `modules` from `CORE_CHASUM_CAPABILITIES`
+5. **Future evolves without overclaim** — close solutions with “Industry-specific … workflows continue to evolve.”
 
-1. **Designed for…** — `intro` opens with “Designed for…” and names the industry audience.
-2. **Representative business types** — `types` lists concrete businesses or practice areas operators recognize.
-3. **How Chasum helps today** — `solution` describes Available Today / Early Access foundations only (scheduling, CRM, communication, staff, payments, reporting, AI reception where true).
-4. **Future evolves without overclaim** — close with language such as “Industry-specific … workflows continue to evolve.” Do not promise unavailable features.
+Do **not** put lists of missing features on the Industries page (OEM, VIN, estimating, inventory, repair management, warranty, parts, EMR catalogs, case-management catalogs, etc.). Keep those constraints in this doc and the Product Truth Matrix for writers—not in visitor-facing copy.
 
-Supporting fields:
+---
 
-| Field | Role |
-| --- | --- |
-| `problem` | Workflow pressure operators feel (not a feature list) |
-| `modules` | Recommended product foundations already in the product |
-| `note` | Required when non-claims must be explicit (Medical, Legal, Automotive) |
-| `status` | Private Alpha framing |
+## Core Chasum Capabilities (public chips)
+
+Use this shared set consistently across industries:
+
+- AI Receptionist
+- Appointment Scheduling
+- Customer Communication
+- CRM
+- Team Scheduling
+- Payments
+- Business Reporting
+- Business Memory
+- Multi-location Support
+
+UI label: **Core Chasum Capabilities** (not “Recommended product foundations”).
 
 ---
 
@@ -52,25 +60,21 @@ Supporting fields:
 Prefer:
 
 - Designed for…
-- Helps manage…
+- Today, Chasum helps manage…
 - Helps coordinate…
-- Supports daily / business operations…
-- Today, Chasum helps…
 - Industry-specific workflows continue to evolve
 
-Avoid unless factually true today:
+Avoid on the Industries page:
 
-- Complete industry solution
-- Manages every aspect
-- Replaces existing software
-- End-to-end platform
-- Full industry management
+- Catalogs of unimplemented features
+- “Not a replacement for…” lists that spotlight gaps
+- Complete industry solution / end-to-end / replaces existing software (unless factually true)
 
 ---
 
-## Explicit non-claims by industry
+## Internal non-claims (writers only — not page copy)
 
-| Industry | Do not imply (unless built) |
+| Industry | Do not imply on marketing surfaces (unless built) |
 | --- | --- |
 | Medical Clinics | EMR/EHR, PACS, diagnostic reporting, clinical documentation, medical charting |
 | Legal Services | Legal advice, case management, legal document automation, court integrations |
@@ -80,15 +84,9 @@ Avoid unless factually true today:
 
 ---
 
-## Homepage tiles
-
-Homepage tiles are category summaries, not full industry pages. Each blurb should open with **Designed for…** (or equivalent) and stay truth-first. Do not invent capabilities absent from `PRODUCT_TRUTH_MATRIX.md`.
-
----
-
 ## Adding a future industry
 
-1. Add an `INDUSTRIES` entry with `intro`, `problem`, `solution`, `types`, `modules`, and `status`.
-2. Add photography via `lib/marketing/industryImages.ts` (see visual system).
-3. Update order docs and unit tests in `tests/unit/marketing/industries-legal.test.ts`.
+1. Add an `INDUSTRIES` entry with `intro`, `problem`, `solution`, `types`, `modules: [...CORE_CHASUM_CAPABILITIES]`, and `status`.
+2. Add photography via `lib/marketing/industryImages.ts`.
+3. Update unit tests in `tests/unit/marketing/industries-legal.test.ts`.
 4. Verify against this standard and the Product Truth Matrix before merge.

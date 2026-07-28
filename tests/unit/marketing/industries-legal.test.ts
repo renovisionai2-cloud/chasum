@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { HOMEPAGE_INDUSTRY_TILES } from "@/components/landing/homepage-industries";
-import { INDUSTRIES } from "@/lib/marketing/homepage";
+import {
+  CORE_CHASUM_CAPABILITIES,
+  INDUSTRIES,
+} from "@/lib/marketing/homepage";
 import {
   getIndustryImage,
   INDUSTRIES_PAGE_ORDER,
@@ -10,7 +13,11 @@ import {
 const OVERCLAIM_PATTERN =
   /\b(complete industry solution|manages every aspect|replaces existing software|end-to-end platform|full industry management|electronic medical record|EMR|EHR|clinical charting|diagnostic software|legal case management|court integrations|collision estimating|OEM integrations|VIN decoding|parts ordering|inventory management|project management|takeoff software)\b/i;
 
-describe("Industries final lock — structure and truth-first copy", () => {
+/** Gap catalogs must not appear in visitor-facing industry fields. */
+const MISSING_FEATURE_CATALOG =
+  /\b(OEM integrations|VIN decoding|estimating|inventory|repair management|warranty processing|parts management|case management systems|legal document automation|court integrations|PACS|clinical charting)\b/i;
+
+describe("Industries core capabilities refinement", () => {
   it("keeps the approved Industries order", () => {
     expect(INDUSTRIES.map((industry) => industry.name)).toEqual([
       ...INDUSTRIES_PAGE_ORDER,
@@ -35,6 +42,27 @@ describe("Industries final lock — structure and truth-first copy", () => {
     }
   });
 
+  it("uses shared Core Chasum Capabilities across every industry", () => {
+    expect([...CORE_CHASUM_CAPABILITIES]).toEqual([
+      "AI Receptionist",
+      "Appointment Scheduling",
+      "Customer Communication",
+      "CRM",
+      "Team Scheduling",
+      "Payments",
+      "Business Reporting",
+      "Business Memory",
+      "Multi-location Support",
+    ]);
+
+    for (const industry of INDUSTRIES) {
+      expect(industry.modules, industry.name).toEqual([
+        ...CORE_CHASUM_CAPABILITIES,
+      ]);
+      expect("note" in industry && industry.note, industry.name).toBeFalsy();
+    }
+  });
+
   it("keeps Medical Clinics representative businesses and operations-only claims", () => {
     const medical = INDUSTRIES.find(
       (industry) => industry.name === "Medical Clinics",
@@ -46,9 +74,6 @@ describe("Industries final lock — structure and truth-first copy", () => {
       /appointment scheduling|CRM|reminders|communication|staff|payments|reporting/i,
     );
     expect(medical?.solution).not.toMatch(/\b(EMR|EHR|PACS|charting)\b/i);
-    expect(medical && "note" in medical && medical.note).toMatch(
-      /EMR|EHR|PACS|clinical/i,
-    );
     if (medical && "types" in medical) {
       expect(medical.types).toEqual(
         expect.arrayContaining([
@@ -71,9 +96,6 @@ describe("Industries final lock — structure and truth-first copy", () => {
     expect(legal?.solution).toMatch(/consultations|appointments|CRM|billing/i);
     expect(legal?.solution).not.toMatch(
       /case management|document automation|court integrations/i,
-    );
-    expect(legal && "note" in legal && legal.note).toMatch(
-      /legal advice|case management|court integrations/i,
     );
     if (legal && "types" in legal) {
       expect(legal.types).toEqual([
@@ -99,13 +121,10 @@ describe("Industries final lock — structure and truth-first copy", () => {
       /automotive service businesses/i,
     );
     expect(auto?.solution).toMatch(
-      /appointment scheduling|communication|CRM|staff|payments|reporting/i,
+      /appointment scheduling|communication|CRM|team|payments|reporting/i,
     );
     expect(auto?.solution).not.toMatch(
       /estimat|repair management|inventory|OEM|VIN|warranty|parts/i,
-    );
-    expect(auto && "note" in auto && auto.note).toMatch(
-      /estimating|inventory|OEM|VIN|warranty|parts/i,
     );
     if (auto && "types" in auto) {
       expect(auto.types).toHaveLength(12);
@@ -178,15 +197,17 @@ describe("Industries final lock — structure and truth-first copy", () => {
     );
   });
 
-  it("avoids specialized-software replacement claims across public industry fields", () => {
+  it("avoids specialized-software replacement claims and missing-feature catalogs", () => {
     for (const industry of INDUSTRIES) {
       const fields = [
         industry.name,
         "intro" in industry ? industry.intro : "",
         industry.problem,
         industry.solution,
+        ...industry.modules,
       ].join(" ");
       expect(fields, industry.name).not.toMatch(OVERCLAIM_PATTERN);
+      expect(fields, industry.name).not.toMatch(MISSING_FEATURE_CATALOG);
     }
 
     for (const tile of HOMEPAGE_INDUSTRY_TILES) {
