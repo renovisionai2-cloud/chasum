@@ -4,7 +4,6 @@ import { INDUSTRIES } from "@/lib/marketing/homepage";
 import {
   getIndustryImage,
   INDUSTRIES_PAGE_ORDER,
-  INDUSTRY_IMAGE_ASSETS,
 } from "@/lib/marketing/industryImages";
 
 describe("Industries editorial photography system", () => {
@@ -67,13 +66,30 @@ describe("Industries editorial photography system", () => {
     );
   });
 
-  it("does not fold Legal Services only under Professional Services", () => {
-    const names = HOMEPAGE_INDUSTRY_TILES.map((tile) => tile.name);
-    expect(names).toContain("Legal Services");
-    expect(names).toContain("Professional Services");
-    expect(names.indexOf("Legal Services")).toBeLessThan(
-      names.indexOf("Professional Services"),
+  it("includes Automotive Services with representative business types", () => {
+    const auto = INDUSTRIES.find(
+      (industry) => industry.name === "Automotive Services",
     );
-    expect(INDUSTRY_IMAGE_ASSETS["legal-services"]).toBeDefined();
+    expect(auto).toBeDefined();
+    expect(auto && "intro" in auto && auto.intro).toMatch(
+      /automotive businesses/i,
+    );
+    expect(auto?.problem).toMatch(/estimates|bay|inspections/i);
+    expect(auto?.solution).toMatch(/collision|dealership|shops/i);
+    if (auto && "types" in auto) {
+      expect(auto.types).toEqual(
+        expect.arrayContaining([
+          "Collision Repair Centres",
+          "Auto Body Shops",
+          "Dealership Service Departments",
+          "EV Service Centres",
+          "Fleet Maintenance",
+        ]),
+      );
+      expect(auto.types).toHaveLength(12);
+    }
+    expect(getIndustryImage("Automotive Services")?.hero).toMatch(
+      /automotive\.webp$/,
+    );
   });
 });

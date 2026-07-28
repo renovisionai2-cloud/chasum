@@ -10,7 +10,7 @@ Visual source of truth for industry order and shared photography.
 4. Spas  
 5. Gyms  
 6. Home & Field Services  
-7. Automotive  
+7. Automotive Services  
 8. Professional Services  
 9. Photography & Creative  
 10. Pet Services  

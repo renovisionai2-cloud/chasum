@@ -58,8 +58,9 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
     icon: Hammer,
   },
   {
-    name: "Automotive",
-    blurb: "Keep repairs, customers and communication connected.",
+    name: "Automotive Services",
+    blurb:
+      "Purpose-built for appointments, repairs, inspections and vehicle delivery workflows.",
     icon: Car,
   },
   {

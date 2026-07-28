@@ -28,6 +28,7 @@ const INDUSTRY_ICONS: Record<string, LucideIcon> = {
   Spas: Sparkles,
   Gyms: Dumbbell,
   Automotive: Car,
+  "Automotive Services": Car,
   "Home & Field Services": Hammer,
   "Photography & Creative": Camera,
   "Pet Services": PawPrint,
@@ -203,7 +204,9 @@ export function Industries() {
                   className="industry-detail-fade mt-10 border-t border-border/60 pt-8"
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Representative practice areas
+                    {current.name === "Legal Services"
+                      ? "Representative practice areas"
+                      : "Representative business types"}
                   </p>
                   <ul className="mt-4 flex flex-wrap gap-2">
                     {current.types.map((type) => (

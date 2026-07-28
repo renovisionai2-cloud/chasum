@@ -60,7 +60,7 @@ for (const name of [
   "Salons",
   "Spas",
   "Gyms",
-  "Automotive",
+  "Automotive Services",
   "Home & Field Services",
   "Photography & Creative",
   "Pet Services",

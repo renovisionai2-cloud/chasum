@@ -107,7 +107,7 @@ export const TESTIMONIALS = [
     name: "Priya Nair",
     role: "Service Manager",
     company: "Ridge Auto",
-    industry: "Automotive",
+    industry: "Automotive Services",
     result: "Faster bay turnaround",
     initials: "PN",
   },
@@ -308,7 +308,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
 /**
  * Full Industries page order (source of truth).
  * 1 Medical Clinics · 2 Legal Services · 3 Salons · 4 Spas · 5 Gyms ·
- * 6 Home & Field Services · 7 Automotive · 8 Professional Services ·
+ * 6 Home & Field Services · 7 Automotive Services · 8 Professional Services ·
  * 9 Photography & Creative · 10 Pet Services · 11 Cleaning
  */
 export const INDUSTRIES = [
@@ -413,15 +413,33 @@ export const INDUSTRIES = [
     status: "Private Alpha · Available Today foundations",
   },
   {
-    name: "Automotive",
-    problem: "Bays, technicians and customer vehicles create scheduling chaos.",
+    name: "Automotive Services",
+    intro:
+      "Purpose-built for automotive businesses managing appointments, customer communication, estimates, repairs, inspections, detailing, service workflows and vehicle delivery.",
+    problem:
+      "Service appointments, estimates, bay schedules, technician assignments, inspections, parts follow-ups and customer updates often live across disconnected tools.",
     solution:
-      "Resources, staff assignment and CRM timelines keep jobs and clients connected.",
+      "Keep appointments, vehicle history, estimates, repairs, inspections, communication and payment activity connected—so collision centres, dealerships and independent shops run one organized operation.",
+    types: [
+      "Collision Repair Centres",
+      "Auto Body Shops",
+      "Mechanical Repair Shops",
+      "Dealership Service Departments",
+      "Tire & Wheel Centres",
+      "Oil Change & Maintenance",
+      "Vehicle Detailing",
+      "Glass Repair",
+      "EV Service Centres",
+      "Fleet Maintenance",
+      "Performance Shops",
+      "Inspection & Safety Centres",
+    ],
     modules: [
-      "Team & Locations",
       "Scheduling & Reception",
       "CRM",
-      "Reports",
+      "Team & Locations",
+      "Communication",
+      "Commerce & Reporting",
     ],
     status: "Private Alpha · Available Today foundations",
   },
