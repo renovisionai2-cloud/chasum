@@ -125,7 +125,7 @@ export function Industries() {
               className="marketing-elevate-lg rounded-[1.75rem] border border-border/60 bg-card p-8 md:p-10 lg:p-12"
               aria-live="polite"
             >
-              <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(200px,40%)] md:items-start">
+              <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(220px,44%)] md:items-start">
                 <div className="min-w-0">
                   <span className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                     <Icon className="h-6 w-6" aria-hidden />

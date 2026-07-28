@@ -30,19 +30,29 @@ Education remains a homepage category tile (maps to the shared Education asset).
 
 ## Editorial photography standards
 
-Images should feel like Apple editorial photography:
+Final curated collection (locked with the Industries page). Images should feel
+like Apple editorial photography:
 
-- Natural lighting, modern workplaces, shallow depth of field
-- Real people working; warm neutral colour grade
+- Natural lighting, premium architecture, shallow depth of field
+- Authentic professionals working; warm-neutral colour grade
+- Consistent tone across every industry hero + homepage tile
 - No cartoons, illustrations, exaggerated AI look, or handshake clichés
 - No readable patient / client records or third-party logos
+
+Shared map: `lib/marketing/industryImages.ts` (hero + thumbnail + alt).
+Attribution: `public/marketing/industries/ATTRIBUTION.json`.
 
 ### Surfaces
 
 | Surface | Treatment |
 | --- | --- |
-| Industries detail | One hero in upper-right (`md+`); full-width below title/intro on mobile; rounded corners; subtle shadow; `object-cover`; fixed aspect (no CLS) |
-| Homepage tiles | Full-bleed editorial photo; dark gradient overlay; white title + blurb; same card min-height; hover scale unchanged |
+| Industries detail | Upper-right hero (`md+`); full-width below title/intro on mobile; rounded corners; subtle shadow; ~10% larger presence; `object-cover`; fixed aspect (no CLS) |
+| Homepage tiles | Full-bleed editorial photo; dark gradient overlay; white type; shared assets |
+
+### Interaction
+
+- Crossfade ≈ 280ms (`.industry-detail-fade`)
+- Respect `prefers-reduced-motion`
 
 ## Shared image system
 

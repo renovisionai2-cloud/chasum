@@ -46,62 +46,62 @@ function image(
 export const INDUSTRY_IMAGE_ASSETS = {
   "medical-clinics": image(
     "medical-clinics",
-    "Clinician speaking with a patient in a modern clinic reception",
-    "center 30%",
+    "Physician consulting a patient in a modern private clinic with natural light",
+    "center 28%",
   ),
   "legal-services": image(
     "legal-services",
-    "Attorney consulting a client across a table in a modern law office",
+    "Attorney consulting a client in an elegant executive law office",
     "center 40%",
   ),
   salons: image(
     "salons",
-    "Stylist working with a client in a contemporary salon",
+    "Professional stylist with a client in a luxury salon with natural light",
     "center",
   ),
   spas: image(
     "spas",
-    "Calm spa therapy room prepared for a treatment session",
+    "Therapist preparing a calm luxury spa treatment room for a client",
     "center 35%",
   ),
   gyms: image(
     "gyms",
-    "Trainer coaching a member on the fitness floor",
+    "Trainer working with a member in a boutique fitness studio",
     "center",
   ),
   automotive: image(
     "automotive",
-    "Technician servicing a vehicle in a clean automotive bay",
+    "Technician using diagnostics in a bright modern luxury service centre",
     "center 45%",
   ),
   "home-field-services": image(
     "home-field-services",
-    "Field technician reviewing today’s jobs on a tablet",
+    "Professional contractor reviewing a renovation project on a tablet",
     "center",
   ),
   "photography-creative": image(
     "photography-creative",
-    "Photographer directing a client during a studio session",
+    "Photographer directing a client in a modern creative studio",
     "center",
   ),
   "pet-services": image(
     "pet-services",
-    "Veterinary or grooming professional with a pet owner",
+    "Veterinary professional with a pet owner in an upscale clinic",
     "center 40%",
   ),
   cleaning: image(
     "cleaning",
-    "Professional cleaner working in a commercial office",
+    "Professional cleaning team maintaining a modern commercial office",
     "center",
   ),
   "professional-services": image(
     "professional-services",
-    "Consultant meeting a client in a modern office",
+    "Advisor meeting a client in a premium executive workspace",
     "center",
   ),
   education: image(
     "education",
-    "Instructor teaching students in a bright classroom",
+    "Instructor with students in a bright modern learning environment",
     "center",
   ),
 } as const satisfies Record<string, IndustryImageSet>;

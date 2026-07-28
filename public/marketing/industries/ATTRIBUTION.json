@@ -1,46 +1,47 @@
 {
-  "style": "editorial-warm-neutral",
+  "style": "final-editorial-warm-architecture",
+  "collection": "Operation Chasum — Industries Final Editorial Photography Sprint",
   "license": "https://unsplash.com/license",
   "assets": [
     {
       "id": "medical-clinics",
-      "photoId": "1612349317150-e413f6a5b16d",
-      "credit": "Bruno Nascimento / Unsplash",
+      "photoId": "1629909613654-28e377c37b09",
+      "credit": "National Cancer Institute / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
     {
       "id": "legal-services",
-      "photoId": "1454165804606-c3d57bc86b40",
-      "credit": "Scott Graham / Unsplash",
+      "photoId": "1600880292203-757bb62b4baf",
+      "credit": "Amy Hirschi / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
     {
       "id": "salons",
-      "photoId": "1562322140-8baeececf3df",
+      "photoId": "1560066984-138dadb4c035",
       "credit": "Adam Winger / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
     {
       "id": "spas",
-      "photoId": "1516975080664-ed2fc6a32937",
+      "photoId": "1600334129128-685c5582fd35",
       "credit": "Toa Heftiba / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
     {
       "id": "gyms",
-      "photoId": "1571019614242-c5c5dee9f50b",
-      "credit": "John Arano / Unsplash",
+      "photoId": "1518611012118-696072aa579a",
+      "credit": "Bruce Mars / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
     {
       "id": "automotive",
-      "photoId": "1486262715619-67b85e0b08d3",
-      "credit": "Ambitious Studio / Unsplash",
+      "photoId": "1549317661-bd32c8ce0db2",
+      "credit": "Campbell / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
@@ -60,8 +61,8 @@
     },
     {
       "id": "pet-services",
-      "photoId": "1601758228041-f3b2795255f1",
-      "credit": "Jamie Street / Unsplash",
+      "photoId": "1558618666-fcd25c85cd64",
+      "credit": "Tran Mau Tri Tam / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"
     },
@@ -74,7 +75,7 @@
     },
     {
       "id": "professional-services",
-      "photoId": "1542744173-8e7e53415bb0",
+      "photoId": "1560250097-0b93528c311a",
       "credit": "LinkedIn Sales Solutions / Unsplash",
       "license": "Unsplash License",
       "licenseUrl": "https://unsplash.com/license"

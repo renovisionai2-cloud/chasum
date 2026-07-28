@@ -120,7 +120,7 @@ export function HomepageIndustries() {
                 <li>
                   <Link
                     href={INDUSTRIES_HREF}
-                    className="fd-industry-tile marketing-focus-ring relative flex min-h-[10.5rem] flex-col justify-end overflow-hidden rounded-2xl border border-border/60 sm:min-h-[11.5rem]"
+                    className="fd-industry-tile marketing-focus-ring relative flex min-h-[11.5rem] flex-col justify-end overflow-hidden rounded-2xl border border-border/60 sm:min-h-[12.75rem]"
                   >
                     {visual ? (
                       <Image
