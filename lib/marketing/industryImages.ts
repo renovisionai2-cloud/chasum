@@ -61,12 +61,12 @@ export const INDUSTRY_IMAGE_ASSETS = {
   ),
   spas: image(
     "spas",
-    "Therapist preparing a calm luxury spa treatment room for a client",
+    "Therapist performing a luxury spa treatment in a calm wellness room",
     "center 35%",
   ),
   gyms: image(
     "gyms",
-    "Trainer working with a member in a boutique fitness studio",
+    "Personal trainer coaching a member with premium equipment in a boutique studio",
     "center",
   ),
   automotive: image(
@@ -76,12 +76,12 @@ export const INDUSTRY_IMAGE_ASSETS = {
   ),
   "home-field-services": image(
     "home-field-services",
-    "Professional contractor reviewing a renovation project on a tablet",
+    "Contractor reviewing a premium home renovation with a homeowner on a tablet",
     "center",
   ),
   "photography-creative": image(
     "photography-creative",
-    "Photographer directing a client in a modern creative studio",
+    "Photographer directing a client during a session in a modern studio",
     "center",
   ),
   "pet-services": image(

@@ -1,28 +1,28 @@
 {
-  "style": "final-editorial-warm-architecture",
-  "collection": "Operation Chasum — Industries Editorial QA Sprint",
+  "style": "master-final-editorial-warm-architecture",
+  "collection": "Operation Chasum — Industries Master Final Editorial Photography & QA Sprint",
   "license": "https://unsplash.com/license",
   "assets": [
     {
       "id": "medical-clinics",
-      "photoId": "1629909613654-28e377c37b09",
-      "credit": "National Cancer Institute / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — physician consulting patient in modern clinic"
     },
     {
       "id": "legal-services",
-      "photoId": "1600880292203-757bb62b4baf",
-      "credit": "Amy Hirschi / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — attorney consulting client in executive law office"
     },
     {
       "id": "salons",
-      "photoId": "1560066984-138dadb4c035",
-      "credit": "Adam Winger / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — stylist with client in luxury salon"
     },
     {
       "id": "spas",
@@ -33,10 +33,10 @@
     },
     {
       "id": "gyms",
-      "photoId": "1518611012118-696072aa579a",
-      "credit": "Bruce Mars / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — trainer coaching member in boutique fitness studio"
     },
     {
       "id": "automotive",
@@ -47,17 +47,17 @@
     },
     {
       "id": "home-field-services",
-      "photoId": "1581094794329-c8112a89af12",
-      "credit": "ThisisEngineering / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — contractor + homeowner on premium renovation"
     },
     {
       "id": "photography-creative",
-      "photoId": "1493863641943-9b68992a8d07",
-      "credit": "Jonathan Velasquez / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — photographer directing client in modern studio"
     },
     {
       "id": "pet-services",

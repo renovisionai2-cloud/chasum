@@ -30,17 +30,14 @@ Education remains a homepage category tile (maps to the shared Education asset).
 
 ## Editorial photography standards
 
-Final curated collection (locked with the Industries page). Images should feel
-like Apple editorial photography:
+Master final curated collection (Industries page lock candidate). Every image
+must pass the **2-second recognition test** with the industry title hidden.
 
-- Natural lighting, premium architecture, shallow depth of field
-- Authentic professionals working; warm-neutral colour grade
-- Consistent tone across every industry hero + homepage tile
-- No cartoons, illustrations, exaggerated AI look, or handshake clichés
-- No readable patient / client records or third-party logos
+Shared map: `lib/marketing/industryImages.ts`  
+Attribution: `public/marketing/industries/ATTRIBUTION.json`
 
-Shared map: `lib/marketing/industryImages.ts` (hero + thumbnail + alt).
-Attribution: `public/marketing/industries/ATTRIBUTION.json`.
+Style: warm-neutral colour grade, authentic professionals, premium architecture,
+shallow depth of field — one art-directed editorial set.
 
 ### Surfaces
 
