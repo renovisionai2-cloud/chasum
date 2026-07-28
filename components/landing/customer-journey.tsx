@@ -5,57 +5,49 @@ import {
 } from "@/lib/marketing/product-tour-page";
 
 /**
- * Customer journey — single ordered list that reflows (no duplicate AT content).
- * Each stop leads with why it matters, then how it works.
+ * Customer journey — visual refinement only.
+ * Copy and story order are unchanged.
  */
 export function CustomerJourney() {
   return (
     <section
       id="how-it-works"
-      className="marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
+      className="pt-journey marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
       aria-labelledby="journey-heading"
     >
       <div className="mx-auto max-w-[1400px]">
         <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="pt-journey-intro mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">{PRODUCT_TOUR_INTRO.eyebrow}</p>
             <h1 id="journey-heading" className="marketing-h2-xl">
               {PRODUCT_TOUR_INTRO.headline}
             </h1>
-            <p className="marketing-lede" id="journey">
+            <p className="pt-journey-lede marketing-lede" id="journey">
               {PRODUCT_TOUR_INTRO.lede}
             </p>
           </div>
         </Reveal>
 
         <Reveal delayMs={80}>
-          <div className="relative mt-12 lg:mt-16">
-            <div
-              className="marketing-journey-line absolute left-[6%] right-[6%] top-[2.75rem] hidden h-px lg:block"
-              aria-hidden
-            />
-            <ol className="grid gap-3 lg:grid-cols-7">
+          <div className="pt-journey-stage relative">
+            <div className="pt-journey-rail-wrap" aria-hidden>
+              <div className="marketing-journey-line pt-journey-rail" />
+              <span className="pt-journey-pulse" />
+            </div>
+
+            <ol className="pt-journey-grid grid gap-4 lg:grid-cols-7 lg:gap-3">
               {PRODUCT_TOUR_JOURNEY.map((item, index) => (
-                <li
-                  key={item.step}
-                  className="flex flex-col rounded-2xl border border-border/60 bg-card p-5 lg:items-center lg:border-0 lg:bg-transparent lg:p-0 lg:text-center"
-                >
-                  <div className="flex items-start gap-4 lg:flex-col lg:items-center">
-                    <div className="marketing-journey-node relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm lg:h-14 lg:w-14 lg:border lg:border-border/70 lg:bg-card lg:text-primary">
-                      {item.step}
+                <li key={item.step} className="pt-journey-card">
+                  <div className="pt-journey-card-inner">
+                    <div className="marketing-journey-node pt-journey-node">
+                      <span className="pt-journey-node-label">{item.step}</span>
                     </div>
-                    <div className="min-w-0 lg:mt-5">
-                      <h3 className="text-base font-semibold tracking-tight text-foreground lg:text-sm">
-                        {item.title}
-                      </h3>
-                      <p className="mt-1 text-sm font-medium leading-relaxed text-foreground/90 lg:mt-2 lg:text-xs">
-                        {item.why}
-                      </p>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground lg:text-xs">
-                        {item.detail}
-                      </p>
-                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground/90 lg:mt-2.5">
-                        <span className="font-medium text-primary/90">
+                    <div className="pt-journey-copy">
+                      <h3 className="pt-journey-title">{item.title}</h3>
+                      <p className="pt-journey-why">{item.why}</p>
+                      <p className="pt-journey-detail">{item.detail}</p>
+                      <p className="pt-journey-moment">
+                        <span className="pt-journey-moment-kind">
                           {item.moment.kind}.
                         </span>{" "}
                         {item.moment.text}
@@ -72,7 +64,7 @@ export function CustomerJourney() {
         </Reveal>
 
         <Reveal delayMs={140}>
-          <p className="mx-auto mt-12 max-w-2xl text-center text-base text-muted-foreground md:mt-14 md:text-lg">
+          <p className="pt-journey-bridge mx-auto max-w-2xl text-center text-muted-foreground">
             {PRODUCT_TOUR_INTRO.bridgeToShowcase}
           </p>
         </Reveal>

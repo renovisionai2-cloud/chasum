@@ -51,4 +51,19 @@ describe("Product Tour Final Polish", () => {
       ),
     ).toBe(true);
   });
+
+  it("ships a calm living journey pulse with reduced-motion safety", () => {
+    const journey = readFileSync(
+      path.join(process.cwd(), "components/landing/customer-journey.tsx"),
+      "utf8",
+    );
+    expect(journey).toContain("pt-journey-pulse");
+    expect(journey).toContain("PRODUCT_TOUR_INTRO.headline");
+
+    const css = readFileSync(path.join(process.cwd(), "app/globals.css"), "utf8");
+    expect(css).toContain("@keyframes pt-journey-flow");
+    expect(css).toMatch(
+      /prefers-reduced-motion:\s*reduce[\s\S]*\.pt-journey-pulse/,
+    );
+  });
 });
