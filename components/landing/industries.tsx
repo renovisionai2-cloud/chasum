@@ -2,7 +2,7 @@
 
 import { Reveal } from "@/components/landing/reveal";
 import { INDUSTRIES } from "@/lib/marketing/homepage";
-import { getIndustryDetailVisual } from "@/lib/marketing/industry-visuals";
+import { getIndustryImage } from "@/lib/marketing/industryImages";
 import { cn } from "@/lib/utils";
 import {
   BriefcaseBusiness,
@@ -45,7 +45,7 @@ export function Industries() {
   const Icon = current
     ? (INDUSTRY_ICONS[current.name] ?? BriefcaseBusiness)
     : BriefcaseBusiness;
-  const visual = current ? getIndustryDetailVisual(current.name) : undefined;
+  const visual = current ? getIndustryImage(current.name) : undefined;
 
   if (!current) return null;
 
@@ -155,13 +155,13 @@ export function Industries() {
                 </div>
 
                 {visual ? (
-                  <div className="industry-detail-hero relative overflow-hidden rounded-2xl bg-muted/40">
+                  <div className="industry-detail-hero relative overflow-hidden rounded-2xl bg-muted/40 shadow-[0_14px_32px_-18px_rgba(15,23,42,0.38)]">
                     <Image
                       key={visual.id}
-                      src={visual.src}
+                      src={visual.hero}
                       alt={visual.alt}
-                      width={visual.width}
-                      height={visual.height}
+                      width={visual.heroWidth}
+                      height={visual.heroHeight}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 45vw, 420px"
                       className="industry-detail-fade h-full w-full object-cover"
                       style={

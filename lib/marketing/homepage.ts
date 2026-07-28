@@ -308,8 +308,8 @@ export const PLATFORM_MODULES: PlatformModule[] = [
 /**
  * Full Industries page order (source of truth).
  * 1 Medical Clinics · 2 Legal Services · 3 Salons · 4 Spas · 5 Gyms ·
- * 6 Automotive · 7 Home & Field Services · 8 Photography & Creative ·
- * 9 Pet Services · 10 Cleaning · 11 Professional Services
+ * 6 Home & Field Services · 7 Automotive · 8 Professional Services ·
+ * 9 Photography & Creative · 10 Pet Services · 11 Cleaning
  */
 export const INDUSTRIES = [
   {
@@ -400,6 +400,19 @@ export const INDUSTRIES = [
     status: "Private Alpha · Available Today foundations",
   },
   {
+    name: "Home & Field Services",
+    problem: "Field jobs, follow-ups and calendars rarely stay in sync.",
+    solution:
+      "Location-aware booking, CRM follow-ups and configured messaging keep jobs moving.",
+    modules: [
+      "Scheduling & Reception",
+      "CRM",
+      "Communication",
+      "Team & Locations",
+    ],
+    status: "Private Alpha · Available Today foundations",
+  },
+  {
     name: "Automotive",
     problem: "Bays, technicians and customer vehicles create scheduling chaos.",
     solution:
@@ -413,15 +426,15 @@ export const INDUSTRIES = [
     status: "Private Alpha · Available Today foundations",
   },
   {
-    name: "Home & Field Services",
-    problem: "Field jobs, follow-ups and calendars rarely stay in sync.",
+    name: "Professional Services",
+    problem: "Consultants need polished booking without a clinic-sized stack.",
     solution:
-      "Location-aware booking, CRM follow-ups and configured messaging keep jobs moving.",
+      "Branded booking, CRM and reports scale with the practice under Private Alpha founding plans.",
     modules: [
       "Scheduling & Reception",
       "CRM",
-      "Communication",
-      "Team & Locations",
+      "Reports",
+      "Commerce",
     ],
     status: "Private Alpha · Available Today foundations",
   },
@@ -460,19 +473,6 @@ export const INDUSTRIES = [
       "Scheduling & Reception",
       "Team & Locations",
       "Reports",
-    ],
-    status: "Private Alpha · Available Today foundations",
-  },
-  {
-    name: "Professional Services",
-    problem: "Consultants need polished booking without a clinic-sized stack.",
-    solution:
-      "Branded booking, CRM and reports scale with the practice under Private Alpha founding plans.",
-    modules: [
-      "Scheduling & Reception",
-      "CRM",
-      "Reports",
-      "Commerce",
     ],
     status: "Private Alpha · Available Today foundations",
   },

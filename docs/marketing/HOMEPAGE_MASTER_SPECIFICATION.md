@@ -118,11 +118,11 @@ Never use “Request Early Access.”
 
 ## Industries section (homepage)
 
-- Category tiles with restrained 16:10 photography bands (not a gallery)
+- Full-bleed editorial photography tiles with dark gradient + white type
 - Dedicated **Legal Services** tile (not folded into Professional Services)
-- Healthcare → Medical Clinics and related care businesses
-- Image map: `lib/marketing/industry-visuals.ts`
-- Full Industries page order + Legal content: see
+- Healthcare → Medical Clinics asset (shared path)
+- Image map: `lib/marketing/industryImages.ts`
+- Full Industries page order + standards:
   `docs/marketing/INDUSTRIES_VISUAL_SYSTEM.md`
 
 ## Deferred enhancements

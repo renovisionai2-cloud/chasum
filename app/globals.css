@@ -573,21 +573,16 @@ body {
 
 .fd-industry-tile:hover {
   border-color: color-mix(in srgb, var(--border) 55%, var(--primary));
-  background-color: color-mix(in srgb, var(--card) 92%, var(--background));
   box-shadow: 0 8px 24px -16px rgba(15, 23, 42, 0.22);
 }
 
-/* Homepage industry tiles — restrained photography band */
-.fd-industry-tile-media {
-  aspect-ratio: 16 / 10;
-  background: color-mix(in srgb, var(--muted) 70%, transparent);
-}
-
+/* Homepage industry tiles — full-bleed editorial photo + readable type */
 .fd-industry-tile-overlay {
   background: linear-gradient(
     to top,
-    color-mix(in srgb, var(--card) 28%, transparent) 0%,
-    transparent 55%
+    rgba(15, 23, 42, 0.78) 0%,
+    rgba(15, 23, 42, 0.42) 42%,
+    rgba(15, 23, 42, 0.12) 100%
   );
 }
 

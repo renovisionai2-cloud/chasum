@@ -2,7 +2,7 @@
 
 import { Reveal } from "@/components/landing/reveal";
 import { INDUSTRIES_HREF } from "@/lib/marketing/alpha";
-import { getHomepageIndustryTileVisual } from "@/lib/marketing/industry-visuals";
+import { getIndustryImage } from "@/lib/marketing/industryImages";
 import {
   BriefcaseBusiness,
   Camera,
@@ -114,46 +114,48 @@ export function HomepageIndustries() {
         <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-3">
           {HOMEPAGE_INDUSTRY_TILES.map((tile, index) => {
             const Icon = tile.icon;
-            const visual = getHomepageIndustryTileVisual(tile.name);
+            const visual = getIndustryImage(tile.name);
             return (
               <Reveal key={tile.name} delayMs={Math.min(index * 40, 200)}>
                 <li>
                   <Link
                     href={INDUSTRIES_HREF}
-                    className="fd-industry-tile marketing-focus-ring flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/70"
+                    className="fd-industry-tile marketing-focus-ring relative flex min-h-[10.5rem] flex-col justify-end overflow-hidden rounded-2xl border border-border/60 sm:min-h-[11.5rem]"
                   >
                     {visual ? (
-                      <span className="fd-industry-tile-media relative block overflow-hidden">
-                        <Image
-                          src={visual.tileSrc}
-                          alt=""
-                          width={visual.tileWidth}
-                          height={visual.tileHeight}
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px"
-                          className="fd-industry-tile-img h-full w-full object-cover"
-                          style={
-                            visual.objectPosition
-                              ? { objectPosition: visual.objectPosition }
-                              : undefined
-                          }
-                          loading="lazy"
-                        />
-                        <span
-                          className="fd-industry-tile-overlay pointer-events-none absolute inset-0"
-                          aria-hidden
-                        />
-                      </span>
-                    ) : null}
-                    <span className="flex flex-1 flex-col items-start p-4 sm:p-5">
+                      <Image
+                        src={visual.thumbnail}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px"
+                        className="fd-industry-tile-img object-cover"
+                        style={
+                          visual.objectPosition
+                            ? { objectPosition: visual.objectPosition }
+                            : undefined
+                        }
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span
+                        className="absolute inset-0 bg-muted"
+                        aria-hidden
+                      />
+                    )}
+                    <span
+                      className="fd-industry-tile-overlay pointer-events-none absolute inset-0"
+                      aria-hidden
+                    />
+                    <span className="relative z-[1] flex flex-col items-start p-4 sm:p-5">
                       <Icon
-                        className="h-5 w-5 text-primary"
+                        className="h-5 w-5 text-white/90"
                         strokeWidth={1.75}
                         aria-hidden
                       />
-                      <span className="mt-3 text-sm font-semibold tracking-tight text-foreground sm:text-[15px]">
+                      <span className="mt-3 text-sm font-semibold tracking-tight text-white sm:text-[15px]">
                         {tile.name}
                       </span>
-                      <span className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
+                      <span className="mt-1.5 text-xs leading-relaxed text-white/80 sm:text-[13px]">
                         {tile.blurb}
                       </span>
                     </span>
