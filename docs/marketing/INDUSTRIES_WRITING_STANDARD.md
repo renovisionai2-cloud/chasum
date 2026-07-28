@@ -1,8 +1,9 @@
 # Industries Writing Standard
 
-**Status:** Permanent writing standard — Core Capabilities Refinement  
+**Status:** Permanent writing standard — Final Content Framework  
 **Canonical content:** `lib/marketing/homepage.ts` → `INDUSTRIES`  
 **Shared capability chips:** `CORE_CHASUM_CAPABILITIES`  
+**Shared growing statement:** `INDUSTRY_GROWING_STATEMENT`  
 **Homepage tiles:** `components/landing/homepage-industries.tsx` → `HOMEPAGE_INDUSTRY_TILES`  
 **Visual system:** [INDUSTRIES_VISUAL_SYSTEM.md](./INDUSTRIES_VISUAL_SYSTEM.md)  
 **Capability truth:** [PRODUCT_TRUTH_MATRIX.md](./PRODUCT_TRUTH_MATRIX.md)
@@ -17,7 +18,9 @@
 
 Visitors should leave thinking:
 
-**“Chasum already solves important parts of my business.”**
+1. **Chasum was designed for businesses like mine.**
+2. **I understand what it does today.**
+3. **I know the platform will continue to evolve.**
 
 Not:
 
@@ -27,31 +30,37 @@ Not:
 
 ## Required structure (every industry)
 
-1. **Designed for…** — `intro`
-2. **Representative business types** — `types`
-3. **How Chasum helps today** — `solution` (positive, Available Today / Early Access only)
-4. **Core Chasum Capabilities** — `modules` from `CORE_CHASUM_CAPABILITIES`
-5. **Future evolves without overclaim** — close solutions with “Industry-specific … workflows continue to evolve.”
+Within the first few seconds, every industry answers:
 
-Do **not** put lists of missing features on the Industries page (OEM, VIN, estimating, inventory, repair management, warranty, parts, EMR catalogs, case-management catalogs, etc.). Keep those constraints in this doc and the Product Truth Matrix for writers—not in visitor-facing copy.
+| Question | Field / UI |
+| --- | --- |
+| Is my business one of these? | `intro` (**Designed for**) + `types` |
+| What can Chasum help me with today? | `solution` (**How Chasum helps today**) + `modules` (**Core Chasum Capabilities**) |
+| How does Chasum continue to grow with my business? | Shared `INDUSTRY_GROWING_STATEMENT` (**Growing with your business**) |
+
+Do **not** put lists of missing features on the Industries page. Keep those constraints in this doc and the Product Truth Matrix for writers—not in visitor-facing copy.
+
+Do **not** turn Growing into a roadmap or future feature list.
 
 ---
 
 ## Core Chasum Capabilities (public chips)
 
-Use this shared set consistently across industries:
-
 - AI Receptionist
 - Appointment Scheduling
 - Customer Communication
 - CRM
-- Team Scheduling
+- Team Coordination
 - Payments
 - Business Reporting
 - Business Memory
 - Multi-location Support
 
-UI label: **Core Chasum Capabilities** (not “Recommended product foundations”).
+---
+
+## Growing with your business (shared)
+
+Use `INDUSTRY_GROWING_STATEMENT` exactly—one concise continuous-improvement line for every industry.
 
 ---
 
@@ -60,14 +69,13 @@ UI label: **Core Chasum Capabilities** (not “Recommended product foundations�
 Prefer:
 
 - Designed for…
-- Today, Chasum helps manage…
-- Helps coordinate…
-- Industry-specific workflows continue to evolve
+- Chasum helps… manage…
+- Growing with your business (shared statement)
 
 Avoid on the Industries page:
 
 - Catalogs of unimplemented features
-- “Not a replacement for…” lists that spotlight gaps
+- Roadmaps or “coming next” feature lists in industry detail
 - Complete industry solution / end-to-end / replaces existing software (unless factually true)
 
 ---
@@ -86,7 +94,8 @@ Avoid on the Industries page:
 
 ## Adding a future industry
 
-1. Add an `INDUSTRIES` entry with `intro`, `problem`, `solution`, `types`, `modules: [...CORE_CHASUM_CAPABILITIES]`, and `status`.
-2. Add photography via `lib/marketing/industryImages.ts`.
-3. Update unit tests in `tests/unit/marketing/industries-legal.test.ts`.
-4. Verify against this standard and the Product Truth Matrix before merge.
+1. Add an `INDUSTRIES` entry with `intro`, `solution`, `types`, `modules: [...CORE_CHASUM_CAPABILITIES]`, and `status`.
+2. Do not add a custom growing statement — the shared constant is required.
+3. Add photography via `lib/marketing/industryImages.ts`.
+4. Update unit tests in `tests/unit/marketing/industries-legal.test.ts`.
+5. Verify against this standard and the Product Truth Matrix before merge.

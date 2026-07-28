@@ -1,7 +1,10 @@
 "use client";
 
 import { Reveal } from "@/components/landing/reveal";
-import { INDUSTRIES } from "@/lib/marketing/homepage";
+import {
+  INDUSTRIES,
+  INDUSTRY_GROWING_STATEMENT,
+} from "@/lib/marketing/homepage";
 import { getIndustryImage } from "@/lib/marketing/industryImages";
 import { cn } from "@/lib/utils";
 import {
@@ -146,12 +149,17 @@ export function Industries() {
                     </p>
                   ) : null}
                   {"intro" in current && current.intro ? (
-                    <p
-                      key={`intro-${current.name}`}
-                      className="industry-detail-fade mt-5 max-w-xl text-base leading-relaxed text-foreground/85 md:text-lg"
-                    >
-                      {current.intro}
-                    </p>
+                    <>
+                      <p className="industry-detail-fade mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        Designed for
+                      </p>
+                      <p
+                        key={`intro-${current.name}`}
+                        className="industry-detail-fade mt-3 max-w-xl text-base leading-relaxed text-foreground/85 md:text-lg"
+                      >
+                        {current.intro}
+                      </p>
+                    </>
                   ) : null}
                 </div>
 
@@ -182,18 +190,18 @@ export function Industries() {
               >
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    What makes the workflow unique
-                  </p>
-                  <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
-                    {current.problem}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     How Chasum helps today
                   </p>
                   <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
                     {current.solution}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Growing with your business
+                  </p>
+                  <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
+                    {INDUSTRY_GROWING_STATEMENT}
                   </p>
                 </div>
               </div>

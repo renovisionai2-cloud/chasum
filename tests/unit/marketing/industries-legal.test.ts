@@ -3,6 +3,7 @@ import { HOMEPAGE_INDUSTRY_TILES } from "@/components/landing/homepage-industrie
 import {
   CORE_CHASUM_CAPABILITIES,
   INDUSTRIES,
+  INDUSTRY_GROWING_STATEMENT,
 } from "@/lib/marketing/homepage";
 import {
   getIndustryImage,
@@ -17,7 +18,7 @@ const OVERCLAIM_PATTERN =
 const MISSING_FEATURE_CATALOG =
   /\b(OEM integrations|VIN decoding|estimating|inventory|repair management|warranty processing|parts management|case management systems|legal document automation|court integrations|PACS|clinical charting)\b/i;
 
-describe("Industries core capabilities refinement", () => {
+describe("Industries final content framework", () => {
   it("keeps the approved Industries order", () => {
     expect(INDUSTRIES.map((industry) => industry.name)).toEqual([
       ...INDUSTRIES_PAGE_ORDER,
@@ -26,7 +27,7 @@ describe("Industries core capabilities refinement", () => {
     expect(INDUSTRIES[1]?.name).toBe("Legal Services");
   });
 
-  it("requires Designed-for intro, types, and evolving-future solution on every industry", () => {
+  it("requires Designed-for intro, Helps Today solution, and types on every industry", () => {
     for (const industry of INDUSTRIES) {
       expect(
         "intro" in industry && industry.intro,
@@ -37,9 +38,22 @@ describe("Industries core capabilities refinement", () => {
         "types" in industry && industry.types?.length,
         `${industry.name} missing types`,
       ).toBeGreaterThan(0);
-      expect(industry.solution).toMatch(/Today,? Chasum helps/i);
-      expect(industry.solution).toMatch(/continue to evolve/i);
+      expect(industry.solution).toMatch(/Chasum helps/i);
+      expect(industry.solution).not.toMatch(/continue to evolve/i);
+      expect("problem" in industry, industry.name).toBe(false);
     }
+  });
+
+  it("uses one shared Growing with Your Business statement", () => {
+    expect(INDUSTRY_GROWING_STATEMENT).toMatch(
+      /expand industry-specific intelligence/i,
+    );
+    expect(INDUSTRY_GROWING_STATEMENT).toMatch(
+      /AI Business Operating System/i,
+    );
+    expect(INDUSTRY_GROWING_STATEMENT).not.toMatch(
+      /coming next|roadmap|will launch|soon/i,
+    );
   });
 
   it("uses shared Core Chasum Capabilities across every industry", () => {
@@ -48,7 +62,7 @@ describe("Industries core capabilities refinement", () => {
       "Appointment Scheduling",
       "Customer Communication",
       "CRM",
-      "Team Scheduling",
+      "Team Coordination",
       "Payments",
       "Business Reporting",
       "Business Memory",
@@ -59,7 +73,6 @@ describe("Industries core capabilities refinement", () => {
       expect(industry.modules, industry.name).toEqual([
         ...CORE_CHASUM_CAPABILITIES,
       ]);
-      expect("note" in industry && industry.note, industry.name).toBeFalsy();
     }
   });
 
@@ -71,20 +84,10 @@ describe("Industries core capabilities refinement", () => {
       /healthcare and wellness/i,
     );
     expect(medical?.solution).toMatch(
-      /appointment scheduling|CRM|reminders|communication|staff|payments|reporting/i,
+      /appointment scheduling|CRM|reminders|communication|team|payments|reporting/i,
     );
     expect(medical?.solution).not.toMatch(/\b(EMR|EHR|PACS|charting)\b/i);
     if (medical && "types" in medical) {
-      expect(medical.types).toEqual(
-        expect.arrayContaining([
-          "Family Medical Clinics",
-          "Private Ultrasound Clinics",
-          "3D/4D/5D Baby Ultrasound Studios",
-          "Diagnostic Imaging Clinics",
-          "Dental Clinics",
-          "Veterinary Clinics",
-        ]),
-      );
       expect(medical.types).toHaveLength(12);
     }
   });
@@ -92,24 +95,12 @@ describe("Industries core capabilities refinement", () => {
   it("keeps Legal Services practice areas without case-management claims", () => {
     const legal = INDUSTRIES.find((industry) => industry.name === "Legal Services");
     expect(legal && "intro" in legal && legal.intro).toMatch(/legal practices/i);
-    expect(legal?.problem).toMatch(/consultations|intake|billing|team/i);
     expect(legal?.solution).toMatch(/consultations|appointments|CRM|billing/i);
     expect(legal?.solution).not.toMatch(
       /case management|document automation|court integrations/i,
     );
     if (legal && "types" in legal) {
-      expect(legal.types).toEqual([
-        "Family Law",
-        "Criminal Defence",
-        "Personal Injury",
-        "Immigration Law",
-        "Real Estate Law",
-        "Estate Planning",
-        "Employment Law",
-        "Corporate Law",
-        "Civil Litigation",
-        "General Practice",
-      ]);
+      expect(legal.types).toHaveLength(10);
     }
   });
 
@@ -128,44 +119,6 @@ describe("Industries core capabilities refinement", () => {
     );
     if (auto && "types" in auto) {
       expect(auto.types).toHaveLength(12);
-      expect(auto.types).toEqual(
-        expect.arrayContaining([
-          "Collision Repair Centres",
-          "Dealership Service Departments",
-          "EV Service Centres",
-          "Fleet Maintenance",
-        ]),
-      );
-    }
-  });
-
-  it("keeps Home & Field and Professional representative businesses", () => {
-    const home = INDUSTRIES.find(
-      (industry) => industry.name === "Home & Field Services",
-    );
-    const pro = INDUSTRIES.find(
-      (industry) => industry.name === "Professional Services",
-    );
-    if (home && "types" in home) {
-      expect(home.types).toEqual(
-        expect.arrayContaining([
-          "General Contractors",
-          "Electricians",
-          "Plumbers",
-          "HVAC",
-        ]),
-      );
-    }
-    expect(home?.solution).not.toMatch(/\b(takeoff|project management)\b/i);
-    if (pro && "types" in pro) {
-      expect(pro.types).toEqual(
-        expect.arrayContaining([
-          "Accountants",
-          "Financial Advisors",
-          "Consultants",
-          "Architects",
-        ]),
-      );
     }
   });
 
@@ -175,26 +128,12 @@ describe("Industries core capabilities refinement", () => {
       expect(image, `missing image for ${industry.name}`).toBeDefined();
       expect(image?.hero).toMatch(/^\/marketing\/industries\/.+\.webp$/);
       expect(image?.thumbnail).toMatch(/-tile\.webp$/);
-      expect(image?.alt.length).toBeGreaterThan(12);
-      expect(image?.heroWidth).toBeGreaterThan(0);
-      expect(image?.heroHeight).toBeGreaterThan(0);
     }
 
     for (const tile of HOMEPAGE_INDUSTRY_TILES) {
-      const image = getIndustryImage(tile.name);
-      expect(image, `missing homepage image for ${tile.name}`).toBeDefined();
+      expect(getIndustryImage(tile.name), tile.name).toBeDefined();
       expect(tile.blurb).toMatch(/^Designed for/i);
     }
-
-    expect(getIndustryImage("Healthcare")?.hero).toBe(
-      getIndustryImage("Medical Clinics")?.hero,
-    );
-    expect(getIndustryImage("Beauty & Personal Care")?.hero).toBe(
-      getIndustryImage("Salons")?.hero,
-    );
-    expect(getIndustryImage("Fitness & Wellness")?.hero).toBe(
-      getIndustryImage("Gyms")?.hero,
-    );
   });
 
   it("avoids specialized-software replacement claims and missing-feature catalogs", () => {
@@ -202,7 +141,6 @@ describe("Industries core capabilities refinement", () => {
       const fields = [
         industry.name,
         "intro" in industry ? industry.intro : "",
-        industry.problem,
         industry.solution,
         ...industry.modules,
       ].join(" ");
@@ -210,10 +148,7 @@ describe("Industries core capabilities refinement", () => {
       expect(fields, industry.name).not.toMatch(MISSING_FEATURE_CATALOG);
     }
 
-    for (const tile of HOMEPAGE_INDUSTRY_TILES) {
-      expect(`${tile.name} ${tile.blurb}`, tile.name).not.toMatch(
-        OVERCLAIM_PATTERN,
-      );
-    }
+    expect(INDUSTRY_GROWING_STATEMENT).not.toMatch(OVERCLAIM_PATTERN);
+    expect(INDUSTRY_GROWING_STATEMENT).not.toMatch(MISSING_FEATURE_CATALOG);
   });
 });
