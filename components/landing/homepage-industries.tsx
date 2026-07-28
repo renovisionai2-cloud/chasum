@@ -2,6 +2,7 @@
 
 import { Reveal } from "@/components/landing/reveal";
 import { INDUSTRIES_HREF } from "@/lib/marketing/alpha";
+import { getHomepageIndustryTileVisual } from "@/lib/marketing/industry-visuals";
 import {
   BriefcaseBusiness,
   Camera,
@@ -11,12 +12,18 @@ import {
   Hammer,
   HeartPulse,
   PawPrint,
+  Scale,
   Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
-/** Homepage industry tiles — category presentation, not compliance claims. */
+/**
+ * Homepage industry tiles — category presentation, not compliance claims.
+ * Legal Services is a dedicated tile (not folded into Professional Services).
+ * Healthcare maps to Medical Clinics and related care businesses.
+ */
 export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   name: string;
   blurb: string;
@@ -27,6 +34,12 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
     blurb:
       "Designed for clinics where every appointment and follow-up matters.",
     icon: HeartPulse,
+  },
+  {
+    name: "Legal Services",
+    blurb:
+      "Purpose-built for consultations, client communication and case workflows.",
+    icon: Scale,
   },
   {
     name: "Beauty & Personal Care",
@@ -101,23 +114,48 @@ export function HomepageIndustries() {
         <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-3">
           {HOMEPAGE_INDUSTRY_TILES.map((tile, index) => {
             const Icon = tile.icon;
+            const visual = getHomepageIndustryTileVisual(tile.name);
             return (
               <Reveal key={tile.name} delayMs={Math.min(index * 40, 200)}>
                 <li>
                   <Link
                     href={INDUSTRIES_HREF}
-                    className="fd-industry-tile marketing-focus-ring flex min-h-[7.5rem] flex-col items-start rounded-2xl border border-border/60 bg-card/70 p-4 sm:min-h-[8.25rem] sm:p-5"
+                    className="fd-industry-tile marketing-focus-ring flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/70"
                   >
-                    <Icon
-                      className="h-5 w-5 text-primary"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    />
-                    <span className="mt-3 text-sm font-semibold tracking-tight text-foreground sm:text-[15px]">
-                      {tile.name}
-                    </span>
-                    <span className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
-                      {tile.blurb}
+                    {visual ? (
+                      <span className="fd-industry-tile-media relative block overflow-hidden">
+                        <Image
+                          src={visual.tileSrc}
+                          alt=""
+                          width={visual.tileWidth}
+                          height={visual.tileHeight}
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px"
+                          className="fd-industry-tile-img h-full w-full object-cover"
+                          style={
+                            visual.objectPosition
+                              ? { objectPosition: visual.objectPosition }
+                              : undefined
+                          }
+                          loading="lazy"
+                        />
+                        <span
+                          className="fd-industry-tile-overlay pointer-events-none absolute inset-0"
+                          aria-hidden
+                        />
+                      </span>
+                    ) : null}
+                    <span className="flex flex-1 flex-col items-start p-4 sm:p-5">
+                      <Icon
+                        className="h-5 w-5 text-primary"
+                        strokeWidth={1.75}
+                        aria-hidden
+                      />
+                      <span className="mt-3 text-sm font-semibold tracking-tight text-foreground sm:text-[15px]">
+                        {tile.name}
+                      </span>
+                      <span className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
+                        {tile.blurb}
+                      </span>
                     </span>
                   </Link>
                 </li>

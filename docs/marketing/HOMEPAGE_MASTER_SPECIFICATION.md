@@ -116,6 +116,15 @@ Never use “Request Early Access.”
 
 ---
 
+## Industries section (homepage)
+
+- Category tiles with restrained 16:10 photography bands (not a gallery)
+- Dedicated **Legal Services** tile (not folded into Professional Services)
+- Healthcare → Medical Clinics and related care businesses
+- Image map: `lib/marketing/industry-visuals.ts`
+- Full Industries page order + Legal content: see
+  `docs/marketing/INDUSTRIES_VISUAL_SYSTEM.md`
+
 ## Deferred enhancements
 
 - Licensed authentic photography for trust strip  
@@ -123,6 +132,7 @@ Never use “Request Early Access.”
 - Deeper product-tour narrative scenes  
 - Animated connection lines as SVG path morph  
 - Homepage A/B of primary CTA order  
+- Industry hash deep-links on `/industries` (V2)  
 
 ---
 

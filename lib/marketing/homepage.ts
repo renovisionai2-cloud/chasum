@@ -305,6 +305,12 @@ export const PLATFORM_MODULES: PlatformModule[] = [
   },
 ];
 
+/**
+ * Full Industries page order (source of truth).
+ * 1 Medical Clinics · 2 Legal Services · 3 Salons · 4 Spas · 5 Gyms ·
+ * 6 Automotive · 7 Home & Field Services · 8 Photography & Creative ·
+ * 9 Pet Services · 10 Cleaning · 11 Professional Services
+ */
 export const INDUSTRIES = [
   {
     name: "Medical Clinics",
@@ -320,6 +326,37 @@ export const INDUSTRIES = [
       "Commerce & Reporting",
     ],
     note: "Healthcare-specific regulatory and clinical-record requirements must be assessed separately. Chasum is business operations software and must not be presented as an electronic medical record unless that capability is intentionally built and legally reviewed.",
+    status: "Private Alpha · Available Today foundations",
+  },
+  {
+    name: "Legal Services",
+    intro:
+      "Purpose-built for modern law firms managing consultations, client communication, scheduling, billing and case workflows.",
+    problem:
+      "Client intake, consultations, case management, document requests, deadlines and follow-ups all require organization and precision.",
+    solution:
+      "Keep consultations, client history, case updates, documents, communication and payment activity connected—without switching between disconnected tools or losing important details.",
+    types: [
+      "Family Law",
+      "Personal Injury",
+      "Criminal Defence",
+      "Immigration Law",
+      "Real Estate Law",
+      "Corporate Law",
+      "Estate Planning",
+      "Employment Law",
+      "Civil Litigation",
+      "General Practice",
+    ],
+    modules: [
+      "Scheduling & Reception",
+      "CRM",
+      "Team & Locations",
+      "Communication",
+      "Payments",
+      "Commerce & Reporting",
+    ],
+    note: "Data privacy, confidentiality and applicable legal requirements must be assessed separately. Chasum is business operations software and must not be presented as a substitute for legal advice, professional judgment or specialized legal-practice software unless those capabilities are intentionally built and verified.",
     status: "Private Alpha · Available Today foundations",
   },
   {
@@ -436,33 +473,6 @@ export const INDUSTRIES = [
       "CRM",
       "Reports",
       "Commerce",
-    ],
-    status: "Private Alpha · Available Today foundations",
-  },
-  {
-    name: "Legal Services",
-    problem:
-      "Consultations, client intake, matter follow-ups and billing often live across calendars, inboxes and separate practice tools.",
-    solution:
-      "Purpose-built for modern law firms managing consultations, client communication, scheduling, billing, and case workflows—so every matter stays connected to the same operating memory.",
-    types: [
-      "Family Law",
-      "Personal Injury",
-      "Criminal Defence",
-      "Immigration Law",
-      "Real Estate Law",
-      "Corporate Law",
-      "Estate Planning",
-      "Employment Law",
-      "Civil Litigation",
-      "General Practice",
-    ],
-    modules: [
-      "Scheduling & Reception",
-      "CRM",
-      "Communication",
-      "Commerce",
-      "Reports",
     ],
     status: "Private Alpha · Available Today foundations",
   },
