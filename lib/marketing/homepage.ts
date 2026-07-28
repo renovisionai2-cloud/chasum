@@ -314,10 +314,12 @@ export const PLATFORM_MODULES: PlatformModule[] = [
 export const INDUSTRIES = [
   {
     name: "Medical Clinics",
+    intro:
+      "Designed for clinics that need scheduling, patient communication, intake, staff coordination and everyday business operations.",
     problem:
-      "Appointments, providers, locations and follow-ups often live in separate systems.",
+      "Appointments, providers, reminders and follow-ups often live in separate systems.",
     solution:
-      "Keep appointments, customer history, providers, locations, communication and payment records connected—without forcing staff to manage the day across several systems.",
+      "Helps clinics manage scheduling, patient communication, intake, staff coordination, reminders, CRM and connected business operations—with Summer available for AI reception support in Early Access. Built to support the front of the practice alongside specialized clinical systems.",
     modules: [
       "Scheduling & Reception",
       "CRM",
@@ -325,17 +327,17 @@ export const INDUSTRIES = [
       "Communication",
       "Commerce & Reporting",
     ],
-    note: "Healthcare-specific regulatory and clinical-record requirements must be assessed separately. Chasum is business operations software and must not be presented as an electronic medical record unless that capability is intentionally built and legally reviewed.",
+    note: "Healthcare-specific regulatory and clinical-record requirements must be assessed separately. Chasum is business operations software and must not be presented as an electronic medical record, diagnostic system or clinical charting product unless that capability is intentionally built and legally reviewed.",
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Legal Services",
     intro:
-      "Purpose-built for modern law firms managing consultations, client communication, scheduling, billing and case workflows.",
+      "Designed for modern law firms that need consultations, client communication, scheduling, billing and day-to-day business operations.",
     problem:
-      "Client intake, consultations, case management, document requests, deadlines and follow-ups all require organization and precision.",
+      "Consultations, client intake, follow-ups, billing and staff coordination are hard to keep organized across disconnected tools.",
     solution:
-      "Keep consultations, client history, case updates, documents, communication and payment activity connected—without switching between disconnected tools or losing important details.",
+      "Helps firms manage consultations, client relationships, appointment scheduling, staff coordination, billing, CRM and everyday business operations—alongside specialized legal practice tools, not as a replacement for them.",
     types: [
       "Family Law",
       "Personal Injury",
@@ -356,14 +358,14 @@ export const INDUSTRIES = [
       "Payments",
       "Commerce & Reporting",
     ],
-    note: "Data privacy, confidentiality and applicable legal requirements must be assessed separately. Chasum is business operations software and must not be presented as a substitute for legal advice, professional judgment or specialized legal-practice software unless those capabilities are intentionally built and verified.",
+    note: "Data privacy, confidentiality and applicable legal requirements must be assessed separately. Chasum is business operations software and must not be presented as a substitute for legal advice, professional judgment, case management systems or specialized legal-practice software unless those capabilities are intentionally built and verified.",
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Salons",
     problem: "Stylist schedules, rebooking and no-shows drain the front desk.",
     solution:
-      "Staff-aware scheduling, CRM history, reminders and reports keep the floor and the relationship connected.",
+      "Helps salons manage staff-aware scheduling, CRM history, reminders and reporting so the floor and the client relationship stay connected.",
     modules: [
       "Scheduling & Reception",
       "Team & Locations",
@@ -375,9 +377,9 @@ export const INDUSTRIES = [
   },
   {
     name: "Spas",
-    problem: "Packages, memberships and treatment rooms are hard to track together.",
+    problem: "Packages, room availability and repeat visits are hard to keep aligned.",
     solution:
-      "Configure services, rooms/resources, packages and location hours beside CRM and commerce records.",
+      "Helps spas coordinate services, rooms and resources beside scheduling, CRM and commerce records.",
     modules: [
       "Team & Locations",
       "Scheduling & Reception",
@@ -388,9 +390,9 @@ export const INDUSTRIES = [
   },
   {
     name: "Gyms",
-    problem: "Classes, trainers and memberships need one operating layer.",
+    problem: "Classes, trainers and memberships are hard to keep connected day to day.",
     solution:
-      "Employees, services and membership scaffolds sit beside CRM, scheduling and reporting.",
+      "Helps gyms coordinate employees, services, scheduling, CRM and reporting—with membership configuration as part of the operating foundation.",
     modules: [
       "Team & Locations",
       "Scheduling & Reception",
@@ -401,9 +403,9 @@ export const INDUSTRIES = [
   },
   {
     name: "Home & Field Services",
-    problem: "Field jobs, follow-ups and calendars rarely stay in sync.",
+    problem: "Field schedules, follow-ups and customer updates rarely stay in sync.",
     solution:
-      "Location-aware booking, CRM follow-ups and configured messaging keep jobs moving.",
+      "Helps home and field businesses manage scheduling, customer communication, CRM and team coordination across locations.",
     modules: [
       "Scheduling & Reception",
       "CRM",
@@ -415,11 +417,11 @@ export const INDUSTRIES = [
   {
     name: "Automotive Services",
     intro:
-      "Purpose-built for automotive businesses managing appointments, customer communication, estimates, repairs, inspections, detailing, service workflows and vehicle delivery.",
+      "Built for automotive service businesses that need appointments, customer communication, scheduling, CRM, staff coordination, payments, reporting and AI reception support.",
     problem:
-      "Service appointments, estimates, bay schedules, technician assignments, inspections, parts follow-ups and customer updates often live across disconnected tools.",
+      "Service appointments, customer updates, staff schedules and follow-ups often live across disconnected tools.",
     solution:
-      "Keep appointments, vehicle history, estimates, repairs, inspections, communication and payment activity connected—so collision centres, dealerships and independent shops run one organized operation.",
+      "Helps collision centres, dealership service departments and independent shops manage appointments, customer communication, scheduling, CRM, staff, payments, reporting and business insights—with Summer available for AI reception support in Early Access.",
     types: [
       "Collision Repair Centres",
       "Auto Body Shops",
@@ -439,15 +441,17 @@ export const INDUSTRIES = [
       "CRM",
       "Team & Locations",
       "Communication",
+      "Payments",
       "Commerce & Reporting",
     ],
+    note: "Chasum is business operations software for automotive service teams. Specialized capabilities such as collision estimating, OEM integrations, warranty systems, parts inventory, VIN decoding and repair-order management must be assessed separately unless those capabilities are intentionally built and verified.",
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Professional Services",
-    problem: "Consultants need polished booking without a clinic-sized stack.",
+    problem: "Consultants need polished booking and client follow-up without a clinic-sized stack.",
     solution:
-      "Branded booking, CRM and reports scale with the practice under Private Alpha founding plans.",
+      "Helps professional practices manage appointments, client relationships, communication, reporting and everyday business operations under Private Alpha founding plans.",
     modules: [
       "Scheduling & Reception",
       "CRM",
@@ -460,7 +464,7 @@ export const INDUSTRIES = [
     name: "Photography & Creative",
     problem: "Sessions, deposits and client communication live in inboxes.",
     solution:
-      "Public booking, CRM and commerce records keep shoots organized without inventing availability.",
+      "Helps creative studios manage session booking, CRM, deposits and client communication without inventing availability.",
     modules: [
       "Scheduling & Reception",
       "CRM",
@@ -471,9 +475,9 @@ export const INDUSTRIES = [
   },
   {
     name: "Pet Services",
-    problem: "Recurring visits and pet notes get lost between bookings.",
+    problem: "Recurring visits and customer notes get lost between bookings.",
     solution:
-      "CRM profiles, notes, reminders and calendar protect the relationship and the schedule.",
+      "Helps pet businesses manage appointments, CRM profiles, reminders and customer care—with Summer available for AI reception support in Early Access.",
     modules: [
       "CRM",
       "Scheduling & Reception",
@@ -484,9 +488,9 @@ export const INDUSTRIES = [
   },
   {
     name: "Cleaning",
-    problem: "Recurring routes and last-minute changes overwhelm dispatch.",
+    problem: "Recurring routes and last-minute changes overwhelm the schedule.",
     solution:
-      "Scheduling, waitlist, automation rules and employee assignments reduce scramble.",
+      "Helps cleaning teams manage scheduling, waitlists, employee assignments and reporting so day-of changes are easier to handle.",
     modules: [
       "Scheduling & Reception",
       "Team & Locations",

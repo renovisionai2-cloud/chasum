@@ -38,7 +38,7 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   {
     name: "Legal Services",
     blurb:
-      "Purpose-built for consultations, client communication and case workflows.",
+      "Designed for consultations, client communication and scheduling.",
     icon: Scale,
   },
   {
@@ -48,39 +48,39 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   },
   {
     name: "Fitness & Wellness",
-    blurb: "Coordinate memberships, bookings and staff.",
+    blurb: "Helps coordinate bookings, staff and memberships.",
     icon: Dumbbell,
   },
   {
     name: "Home & Construction Services",
     blurb:
-      "Coordinate customers, crews and projects from one connected operating system.",
+      "Helps coordinate scheduling, crews and customer communication.",
     icon: Hammer,
   },
   {
     name: "Automotive Services",
     blurb:
-      "Purpose-built for appointments, repairs, inspections and vehicle delivery workflows.",
+      "Built for appointments, customer communication, scheduling and service-team coordination.",
     icon: Car,
   },
   {
     name: "Professional Services",
-    blurb: "Organize clients, appointments and relationships.",
+    blurb: "Helps organize clients, appointments and relationships.",
     icon: BriefcaseBusiness,
   },
   {
     name: "Photography & Creative",
-    blurb: "Manage sessions, communication and follow-up.",
+    blurb: "Helps manage sessions, communication and follow-up.",
     icon: Camera,
   },
   {
     name: "Pet Services",
-    blurb: "Run appointments, reminders and customer care.",
+    blurb: "Helps run appointments, reminders and customer care.",
     icon: PawPrint,
   },
   {
     name: "Education",
-    blurb: "Support instructors, scheduling and communication.",
+    blurb: "Helps support instructors, scheduling and communication.",
     icon: GraduationCap,
   },
 ];
