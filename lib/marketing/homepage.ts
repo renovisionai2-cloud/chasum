@@ -439,6 +439,33 @@ export const INDUSTRIES = [
     ],
     status: "Private Alpha · Available Today foundations",
   },
+  {
+    name: "Legal Services",
+    problem:
+      "Consultations, client intake, matter follow-ups and billing often live across calendars, inboxes and separate practice tools.",
+    solution:
+      "Purpose-built for modern law firms managing consultations, client communication, scheduling, billing, and case workflows—so every matter stays connected to the same operating memory.",
+    types: [
+      "Family Law",
+      "Personal Injury",
+      "Criminal Defence",
+      "Immigration Law",
+      "Real Estate Law",
+      "Corporate Law",
+      "Estate Planning",
+      "Employment Law",
+      "Civil Litigation",
+      "General Practice",
+    ],
+    modules: [
+      "Scheduling & Reception",
+      "CRM",
+      "Communication",
+      "Commerce",
+      "Reports",
+    ],
+    status: "Private Alpha · Available Today foundations",
+  },
 ] as const;
 
 export const CUSTOMER_JOURNEY = [

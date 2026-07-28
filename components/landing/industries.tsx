@@ -10,6 +10,7 @@ import {
   Dumbbell,
   Hammer,
   PawPrint,
+  Scale,
   Scissors,
   Sparkles,
   SprayCan,
@@ -29,6 +30,7 @@ const INDUSTRY_ICONS: Record<string, LucideIcon> = {
   "Pet Services": PawPrint,
   Cleaning: SprayCan,
   "Professional Services": BriefcaseBusiness,
+  "Legal Services": Scale,
 };
 
 /**
@@ -148,6 +150,24 @@ export function Industries() {
                   </p>
                 </div>
               </div>
+
+              {"types" in current && current.types?.length ? (
+                <div className="mt-10 border-t border-border/60 pt-8">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Representative business types
+                  </p>
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {current.types.map((type) => (
+                      <li
+                        key={type}
+                        className="rounded-full border border-border/60 bg-card px-3.5 py-1.5 text-sm font-medium text-foreground/90"
+                      >
+                        {type}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
 
               <div className="mt-10 border-t border-border/60 pt-8">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
