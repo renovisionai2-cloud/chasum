@@ -40,10 +40,10 @@
     },
     {
       "id": "automotive",
-      "photoId": "1549317661-bd32c8ce0db2",
-      "credit": "Campbell / Unsplash",
-      "license": "Unsplash License",
-      "licenseUrl": "https://unsplash.com/license"
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Automotive upgrade — luxury service centre with tablet diagnostics"
     },
     {
       "id": "home-field-services",

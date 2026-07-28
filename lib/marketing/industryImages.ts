@@ -71,7 +71,7 @@ export const INDUSTRY_IMAGE_ASSETS = {
   ),
   automotive: image(
     "automotive",
-    "Technician using diagnostics in a bright modern luxury service centre",
+    "Technician using a diagnostic tablet in a bright modern luxury automotive service centre",
     "center 45%",
   ),
   "home-field-services": image(
