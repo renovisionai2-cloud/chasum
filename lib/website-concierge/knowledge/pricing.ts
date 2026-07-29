@@ -40,9 +40,9 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Future Upgrades",
     summary: "Grow from Free → Professional → Business as needs expand.",
     body:
-      "Typical upgrade path: start Free or Professional while validating fit; move to Professional when you want Early Access AI and automation; choose Business when locations, API, or team scale demand it; talk Enterprise for custom needs. Upgrades should follow real operational pressure — not feature FOMO.",
+      "Typical upgrade path: start Free or Professional while validating fit; move to Professional when you want SMS Reminders, Waitlist, and Summer & Chase; choose Business when locations or API scale demand it; talk Enterprise for custom needs. Upgrades should follow real operational pressure — not feature FOMO.",
     tags: ["upgrade", "future", "grow", "scale"],
-    followUps: ["Which plan for a salon?", "Book a walkthrough"],
+    followUps: ["Which plan for a salon?", "Schedule a Demo"],
     relatedIds: ["pricing-plans", "industry-salon"],
   },
   {

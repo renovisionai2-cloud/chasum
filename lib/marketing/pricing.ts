@@ -78,8 +78,8 @@ export const FREE_PLAN_UPGRADE_CTA = "Upgrade to Professional";
 
 /**
  * Launch-ready plan inclusions only (Product Truth Matrix).
- * Removed from Pricing (Roadmap / Coming Next): team invitations & staff login,
- * advanced automation, SLA options.
+ * Removed from Pricing (see Roadmap): team invitations & staff login,
+ * advanced automation, SLA options — not launch-ready for plan inclusion.
  */
 export const MARKETING_PLANS: MarketingPlan[] = [
   {
@@ -151,7 +151,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       "For established businesses managing multiple staff and locations.",
     tagline: "Operate at scale.",
     description:
-      "Multi-location operations with developer access when your team is ready to connect systems.",
+      "Multi-location operations with API & Webhooks to connect the systems you already use.",
     cta: CTA_DEMO_LABEL,
     href: DEMO_HREF,
     price: "$149",
