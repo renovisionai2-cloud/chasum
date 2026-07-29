@@ -5,9 +5,9 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     id: "pricing-plans",
     category: "pricing",
     title: "Plans",
-    summary: "Free, Professional, Business, and Enterprise founding posture.",
+    summary: "Clear plans for small and growing service businesses.",
     body:
-      "Every plan includes the Chasum AI Business Operating System. Founding tiers: Free ($0) for core scheduling exploration; Professional ($79/mo) for growing businesses with SMS Reminders, Waitlist, Summer & Chase, and up to 3 locations; Business ($149/mo) for up to 10 locations and API & Webhooks; Enterprise for custom onboarding and dedicated support. During Private Alpha, paid CTAs route to design-partner application — public self-serve checkout is not yet available.",
+      "Chasum pricing is built for small and growing service businesses. Free ($0) covers online booking, calendar, and email reminders for one location. Professional ($79/mo) adds unlimited appointments, waitlist, email & text reminders, Summer & Chase, and up to 3 locations. Business ($149/mo) adds up to 10 locations and connecting other tools. Enterprise is custom for larger operators who need hands-on onboarding and dedicated support. During Private Alpha, paid plans go through application—online self-serve billing isn’t open yet.",
     tags: ["pricing", "plans", "cost", "subscription", "professional", "business", "enterprise", "free"],
     followUps: ["Which plan fits me?", "What is included in Professional?"],
     relatedIds: ["pricing-compare", "pricing-alpha"],
@@ -18,7 +18,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Feature Comparison",
     summary: "How tiers differ at a glance.",
     body:
-      "All tiers include a Booking Page and Core Calendar & Reception. Professional adds SMS Reminders, Waitlist, and Summer & Chase. Business adds higher location limits and API & Webhooks. Enterprise adds custom onboarding and dedicated support. Exact cells live on the /pricing page comparison table.",
+      "All tiers include an online booking page and calendar. Professional adds text reminders, waitlist, and Summer & Chase. Business adds higher location limits and connecting other tools. Enterprise adds hands-on onboarding and dedicated support. Exact cells live on the /pricing page comparison table.",
     tags: ["comparison", "features by plan", "tier", "what’s included"],
     followUps: ["Multi-location limits?", "Tell me about Private Alpha pricing"],
     relatedIds: ["feature-multi-location", "pricing-plans"],
@@ -29,7 +29,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Free Trial & Exploration",
     summary: "Free tier to explore; alpha partners get founding pricing.",
     body:
-      "The Free tier lets design partners explore core scheduling without a paid commitment. Broader “free trial” marketing will firm up with public self-serve billing. Today the honest path is Free exploration or Private Alpha partnership with founding customer pricing.",
+      "The Free tier lets you try core booking without a paid commitment. Broader free-trial marketing will firm up with public self-serve billing. Today the honest path is Free exploration or Private Alpha partnership with founding customer pricing.",
     tags: ["trial", "free trial", "explore", "starter"],
     followUps: ["How do I apply?", "What’s on the roadmap after alpha?"],
     relatedIds: ["pricing-alpha", "pricing-upgrades"],
@@ -40,7 +40,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Future Upgrades",
     summary: "Grow from Free → Professional → Business as needs expand.",
     body:
-      "Typical upgrade path: start Free or Professional while validating fit; move to Professional when you want SMS Reminders, Waitlist, and Summer & Chase; choose Business when locations or API scale demand it; talk Enterprise for custom needs. Upgrades should follow real operational pressure — not feature FOMO.",
+      "Typical path: start Free while you try the workflow; move to Professional when you want text reminders, waitlist, and AI help; choose Business when you need more locations or to connect other tools; talk Enterprise for a custom setup. Upgrade when your day-to-day needs it—not for feature FOMO.",
     tags: ["upgrade", "future", "grow", "scale"],
     followUps: ["Which plan for a salon?", "Schedule a Demo"],
     relatedIds: ["pricing-plans", "industry-salon"],
@@ -51,7 +51,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Private Alpha Pricing",
     summary: "Invite-based founding pricing, not mass checkout yet.",
     body:
-      "Private Alpha is invite-based. Design partners receive founding customer pricing and founder support. Apply at /apply. Public self-serve billing launches after we earn it — we won’t pretend checkout is live before it is.",
+      "Private Alpha is invite-based. Partners receive founding pricing and guided setup. Apply at /apply. Online self-serve billing isn’t open yet—we won’t pretend checkout is live before it is.",
     tags: ["alpha", "founding", "apply", "invite"],
     followUps: ["Who is a good fit?", "Would you like a product tour first?"],
     relatedIds: ["company-story", "tour-intro"],
