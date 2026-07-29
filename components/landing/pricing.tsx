@@ -10,6 +10,8 @@ import {
 import {
   MARKETING_PLANS,
   PRICING_COMPARISON_SECTIONS,
+  PRICING_COMPARE_HEADLINE,
+  PRICING_COMPARE_LEDE,
   PRICING_CTA_BODY,
   PRICING_CTA_EYEBROW,
   PRICING_CTA_HEADLINE,
@@ -41,7 +43,7 @@ function Cell({ value }: { value: boolean | string }) {
 }
 
 /**
- * Pricing — growth-stage experience with truth-first capability labels.
+ * Pricing — clear plans, included capabilities, and next-step CTAs.
  */
 export function Pricing() {
   return (
@@ -74,12 +76,10 @@ export function Pricing() {
               <div className="mx-auto max-w-2xl text-center">
                 <p className="marketing-eyebrow">Compare plans</p>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-                  Transparent capabilities. Honest status.
+                  {PRICING_COMPARE_HEADLINE}
                 </h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Available Today, Early Access, Coming Next and Discuss During
-                  Onboarding labels stay visible—so growth never depends on
-                  guesswork.
+                  {PRICING_COMPARE_LEDE}
                 </p>
               </div>
 

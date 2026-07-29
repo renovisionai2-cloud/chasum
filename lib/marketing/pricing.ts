@@ -1,14 +1,15 @@
 /**
  * Shared marketing pricing copy for landing, /pricing, signup, and upgrade prompts.
  * During Private Alpha, paid CTAs route to the design partner application — not mock checkout.
+ *
+ * Pricing lists only capabilities customers receive in-plan.
+ * Roadmap owns upcoming / future capabilities — keep those off this page.
  */
 
 import {
   APPLY_HREF,
-  CONTACT_HREF,
   CTA_APPLY_LABEL,
   CTA_DEMO_LABEL,
-  CTA_DISCUSS_SETUP_LABEL,
   DEMO_HREF,
   FOUNDER_PRICING_NOTE,
 } from "@/lib/marketing/alpha";
@@ -47,7 +48,7 @@ export const PRICING_HEADLINE =
 export const PRICING_SUBHEADING =
   "Every Chasum plan includes the AI Business Operating System. As your business grows, your plan unlocks more scale, collaboration, automation and intelligence—without changing platforms.";
 
-/** Concise pricing note — same source as FOUNDER_PRICING_NOTE. */
+/** Concise Private Alpha context — hero only. */
 export const PRICING_NOTE = FOUNDER_PRICING_NOTE;
 
 export const PRICING_FOUNDER_EYEBROW = "Founder's promise";
@@ -64,12 +65,22 @@ export const PRICING_CTA_HEADLINE = "Ready when you are.";
 export const PRICING_CTA_BODY =
   "Apply for Private Alpha to discuss the right plan for your business, or schedule a demo to see how Chasum fits your day.";
 
+export const PRICING_COMPARE_HEADLINE = "Compare plans at a glance.";
+
+export const PRICING_COMPARE_LEDE =
+  "See what each plan includes—so choosing the right stage of growth stays simple.";
+
 /** Shown when a Free / starter plan limit is reached. */
 export const FREE_PLAN_LIMIT_MESSAGE =
   "Your current plan has reached its location limit. Upgrade to Professional to add more sites.";
 
 export const FREE_PLAN_UPGRADE_CTA = "Upgrade to Professional";
 
+/**
+ * Launch-ready plan inclusions only (Product Truth Matrix).
+ * Removed from Pricing (Roadmap / Coming Next): team invitations & staff login,
+ * advanced automation, SLA options.
+ */
 export const MARKETING_PLANS: MarketingPlan[] = [
   {
     id: "free",
@@ -78,7 +89,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     audience: "For businesses exploring Chasum.",
     tagline: "Start with the core.",
     description:
-      "The AI Business Operating System foundations—scheduling and reception—so you can evaluate Chasum with a real workflow.",
+      "Core scheduling and reception so you can evaluate Chasum with a real workflow.",
     cta: CTA_APPLY_LABEL,
     href: APPLY_HREF,
     price: "$0",
@@ -86,18 +97,15 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     groups: [
       {
         label: "Scheduling",
-        items: [
-          "Booking Page · Available Today",
-          "Core Calendar & Reception · Available Today",
-        ],
+        items: ["Booking Page", "Core Calendar & Reception"],
       },
       {
         label: "Communication",
-        items: ["Email Reminders · Available Today"],
+        items: ["Email Reminders"],
       },
       {
         label: "Growth",
-        items: ["Single location · Available Today"],
+        items: ["1 location"],
       },
     ],
   },
@@ -109,7 +117,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       "For growing businesses ready to save time and improve customer communication.",
     tagline: "Grow with confidence.",
     description:
-      "More scale, Early Access AI assistance and stronger communication—still on one connected operating system.",
+      "More capacity, stronger communication and AI assistance—on one connected operating system.",
     cta: CTA_APPLY_LABEL,
     href: APPLY_HREF,
     price: "$79",
@@ -119,28 +127,19 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     groups: [
       {
         label: "Scheduling",
-        items: [
-          "Unlimited appointments · Available Today",
-          "Waitlist · Available Today",
-        ],
+        items: ["Unlimited appointments", "Waitlist"],
       },
       {
         label: "Communication",
-        items: [
-          "Email Reminders · Available Today",
-          "SMS Reminders · Early Access",
-        ],
+        items: ["Email Reminders", "SMS Reminders"],
       },
       {
         label: "AI",
-        items: ["Summer & Chase · Early Access"],
+        items: ["Summer & Chase"],
       },
       {
         label: "Growth",
-        items: [
-          "Up to 3 locations · Available Today",
-          "Priority design-partner support · Discuss During Onboarding",
-        ],
+        items: ["Up to 3 locations", "Priority Support"],
       },
     ],
   },
@@ -152,9 +151,9 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       "For established businesses managing multiple staff and locations.",
     tagline: "Operate at scale.",
     description:
-      "Multi-location operations with room to grow—collaboration and automation expand as Chasum does.",
-    cta: CTA_DISCUSS_SETUP_LABEL,
-    href: CONTACT_HREF,
+      "Multi-location operations with developer access when your team is ready to connect systems.",
+    cta: CTA_DEMO_LABEL,
+    href: DEMO_HREF,
     price: "$149",
     priceSuffix: "/month",
     highlighted: false,
@@ -165,21 +164,11 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       },
       {
         label: "Growth",
-        items: [
-          "Up to 10 locations · Available Today",
-          "API & Webhooks · Available Today",
-        ],
-      },
-      {
-        label: "Operations",
-        items: [
-          "Team invitations & staff login · Coming Next",
-          "Advanced automation · Coming Next",
-        ],
+        items: ["Up to 10 locations", "API & Webhooks"],
       },
       {
         label: "Support",
-        items: ["Founder-backed support · Discuss During Onboarding"],
+        items: ["Priority Support"],
       },
     ],
   },
@@ -188,30 +177,33 @@ export const MARKETING_PLANS: MarketingPlan[] = [
     planKey: "enterprise",
     title: "Enterprise",
     audience:
-      "For organizations requiring advanced AI, custom workflows and enterprise support.",
+      "For organizations requiring custom onboarding, advanced support and tailored operational requirements.",
     tagline: "Partner with us.",
     description:
-      "Custom onboarding, security conversations and dedicated support for larger operators.",
+      "Guided partnership for larger operators—with onboarding and support shaped around how you work.",
     cta: CTA_DEMO_LABEL,
     href: DEMO_HREF,
     price: "Custom",
     highlighted: false,
     groups: [
       {
+        label: "Includes",
+        items: ["Everything in Business"],
+      },
+      {
         label: "Enterprise",
         items: [
-          "Location needs · Discuss During Onboarding",
-          "Custom onboarding · Discuss During Onboarding",
-          "Security review · Discuss During Onboarding",
-          "Dedicated support options · Discuss During Onboarding",
-          "SLA options · Coming Next",
+          "Custom locations",
+          "Custom onboarding",
+          "Security review",
+          "Dedicated support",
         ],
       },
     ],
   },
 ];
 
-/** Comparison table sections — improve hierarchy without removing honesty labels. */
+/** Comparison table — included vs not included; no status labels in cells. */
 export const PRICING_COMPARISON_SECTIONS = [
   {
     title: "Scheduling",
@@ -226,6 +218,13 @@ export const PRICING_COMPARISON_SECTIONS = [
       {
         name: "Core Calendar & Reception",
         free: true,
+        professional: true,
+        business: true,
+        enterprise: true,
+      },
+      {
+        name: "Unlimited appointments",
+        free: false,
         professional: true,
         business: true,
         enterprise: true,
@@ -250,7 +249,7 @@ export const PRICING_COMPARISON_SECTIONS = [
         enterprise: true,
       },
       {
-        name: "SMS Reminders · Early Access",
+        name: "SMS Reminders",
         free: false,
         professional: true,
         business: true,
@@ -262,7 +261,7 @@ export const PRICING_COMPARISON_SECTIONS = [
     title: "AI",
     rows: [
       {
-        name: "Summer & Chase · Early Access",
+        name: "Summer & Chase",
         free: false,
         professional: true,
         business: true,
@@ -278,7 +277,7 @@ export const PRICING_COMPARISON_SECTIONS = [
         free: "1",
         professional: "Up to 3",
         business: "Up to 10",
-        enterprise: "Discuss",
+        enterprise: "Custom",
       },
       {
         name: "API & Webhooks",
@@ -290,26 +289,21 @@ export const PRICING_COMPARISON_SECTIONS = [
     ],
   },
   {
-    title: "Operations",
-    rows: [
-      {
-        name: "Team invitations / staff login",
-        free: "Coming Next",
-        professional: "Coming Next",
-        business: "Coming Next",
-        enterprise: "Coming Next",
-      },
-    ],
-  },
-  {
     title: "Enterprise",
     rows: [
       {
-        name: "Custom onboarding / SLA",
+        name: "Custom onboarding",
         free: false,
         professional: false,
         business: false,
-        enterprise: "Discuss",
+        enterprise: true,
+      },
+      {
+        name: "Dedicated support",
+        free: false,
+        professional: false,
+        business: false,
+        enterprise: true,
       },
     ],
   },
