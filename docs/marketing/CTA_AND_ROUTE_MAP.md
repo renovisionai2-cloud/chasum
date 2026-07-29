@@ -12,7 +12,7 @@
 | Product tour | Product Tour | `/product-tour` |
 | Industries | Explore all industries | `/industries` |
 | Pricing | Pricing | `/pricing` |
-| Sales conversation | Book a Walkthrough | `/contact#walkthrough` |
+| Sales conversation | Schedule a Demo | `/contact#walkthrough` |
 | Existing customer | Log in | `/login` |
 
 Primary navigation (`lib/constants.ts` `NAV_LINKS`):
@@ -32,7 +32,7 @@ Deprecated / do not use as primary CTAs:
 - Request Early Access → use Apply for Private Alpha
 - Explore Chasum → use Meet Summer or Platform
 - Experience the Product → use Product Tour or Meet Summer
-- Contact Sales → Book a Walkthrough / Discuss your setup
+- Contact Sales → Schedule a Demo / Discuss your setup
 - Homepage hash destinations `/#platform`, `/#pricing`, `/#how-it-works` as primary nav
 
 Secondary allowed labels with distinct destinations:

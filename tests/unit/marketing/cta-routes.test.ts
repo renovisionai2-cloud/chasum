@@ -28,7 +28,7 @@ describe("primary CTA destinations", () => {
     expect(CTA_APPLY_LABEL).toBe("Apply for Private Alpha");
     expect(CTA_MEET_SUMMER_LABEL).toBe("Meet Summer");
     expect(CTA_START_WITH_SUMMER_LABEL).toBe("Start with Summer");
-    expect(CTA_DEMO_LABEL).toBe("Book a Walkthrough");
+    expect(CTA_DEMO_LABEL).toBe("Schedule a Demo");
     expect(CTA_LOGIN_LABEL).toBe("Log in");
   });
 

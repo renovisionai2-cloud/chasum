@@ -7,7 +7,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Plans",
     summary: "Free, Professional, Business, and Enterprise founding posture.",
     body:
-      "Every plan includes the Chasum AI Business Operating System. Founding tiers: Free ($0) to explore core scheduling; Professional ($79/mo) for growing businesses with Early Access AI (Summer & Chase), SMS when enabled, waitlist, and up to 3 locations; Business ($149/mo) for multi-location scale, API/webhooks when enabled, and Coming Next collaboration/automation; Enterprise for custom onboarding and support. During Private Alpha, paid CTAs route to design-partner application — public self-serve checkout launches after alpha. Capability status uses Available Today, Early Access, Coming Next, and Discuss During Onboarding.",
+      "Every plan includes the Chasum AI Business Operating System. Founding tiers: Free ($0) to explore core scheduling; Professional ($79/mo) for growing businesses with Early Access AI (Summer & Chase), SMS Reminders (Early Access), waitlist, and up to 3 locations; Business ($149/mo) for multi-location scale, API & Webhooks, and Coming Next collaboration/automation; Enterprise for custom onboarding and support. During Private Alpha, paid CTAs route to design-partner application — public self-serve checkout launches after alpha. Capability status uses Available Today, Early Access, Coming Next, and Discuss During Onboarding.",
     tags: ["pricing", "plans", "cost", "subscription", "professional", "business", "enterprise", "free"],
     followUps: ["Which plan fits me?", "What is included in Professional?"],
     relatedIds: ["pricing-compare", "pricing-alpha"],
@@ -18,7 +18,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Feature Comparison",
     summary: "How tiers differ at a glance.",
     body:
-      "All tiers include a booking page and core calendar/reception. Professional adds Early Access AI, SMS when enabled, automation & waitlist. Business adds higher location limits, API & webhooks, and advanced automation. Enterprise adds custom onboarding/SLA. Exact cells live on the /pricing page comparison table.",
+      "All tiers include a Booking Page and Core Calendar & Reception. Professional adds Early Access AI, SMS Reminders (Early Access), and Waitlist. Business adds higher location limits and API & Webhooks. Enterprise adds custom onboarding and SLA discussions. Exact cells live on the /pricing page comparison table.",
     tags: ["comparison", "features by plan", "tier", "what’s included"],
     followUps: ["Multi-location limits?", "Tell me about Private Alpha pricing"],
     relatedIds: ["feature-multi-location", "pricing-plans"],

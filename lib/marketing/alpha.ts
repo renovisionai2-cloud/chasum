@@ -35,7 +35,7 @@ export const CTA_MEET_SUMMER_LABEL = "Meet Summer";
 export const CTA_START_WITH_SUMMER_LABEL = "Start with Summer";
 
 /** Sales conversation CTA */
-export const CTA_DEMO_LABEL = "Book a Walkthrough";
+export const CTA_DEMO_LABEL = "Schedule a Demo";
 
 /** Prefer contact walkthrough path; mailto remains fallback only */
 export const DEMO_HREF = `${CONTACT_HREF}#walkthrough`;

@@ -62,7 +62,7 @@ export const PRICING_CTA_EYEBROW = "Next step";
 export const PRICING_CTA_HEADLINE = "Ready when you are.";
 
 export const PRICING_CTA_BODY =
-  "Apply for Private Alpha to discuss the right plan for your business, or schedule a walkthrough to see how Chasum fits your day.";
+  "Apply for Private Alpha to discuss the right plan for your business, or schedule a demo to see how Chasum fits your day.";
 
 /** Shown when a Free / starter plan limit is reached. */
 export const FREE_PLAN_LIMIT_MESSAGE =
@@ -87,13 +87,13 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       {
         label: "Scheduling",
         items: [
-          "Booking page · Available Today",
-          "Core calendar & reception · Available Today",
+          "Booking Page · Available Today",
+          "Core Calendar & Reception · Available Today",
         ],
       },
       {
         label: "Communication",
-        items: ["Email reminders · when messaging is configured"],
+        items: ["Email Reminders · Available Today"],
       },
       {
         label: "Growth",
@@ -127,8 +127,8 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       {
         label: "Communication",
         items: [
-          "Email reminders · when messaging is configured",
-          "SMS reminders · Early Access · when enabled",
+          "Email Reminders · Available Today",
+          "SMS Reminders · Early Access",
         ],
       },
       {
@@ -152,7 +152,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       "For established businesses managing multiple staff and locations.",
     tagline: "Operate at scale.",
     description:
-      "Multi-location operations with collaboration and automation labelled honestly for Private Alpha.",
+      "Multi-location operations with room to grow—collaboration and automation expand as Chasum does.",
     cta: CTA_DISCUSS_SETUP_LABEL,
     href: CONTACT_HREF,
     price: "$149",
@@ -167,7 +167,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
         label: "Growth",
         items: [
           "Up to 10 locations · Available Today",
-          "API & webhooks · Available Today · when enabled",
+          "API & Webhooks · Available Today",
         ],
       },
       {
@@ -191,7 +191,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
       "For organizations requiring advanced AI, custom workflows and enterprise support.",
     tagline: "Partner with us.",
     description:
-      "Custom onboarding, security conversations and written agreements for larger operators.",
+      "Custom onboarding, security conversations and dedicated support for larger operators.",
     cta: CTA_DEMO_LABEL,
     href: DEMO_HREF,
     price: "Custom",
@@ -204,7 +204,7 @@ export const MARKETING_PLANS: MarketingPlan[] = [
           "Custom onboarding · Discuss During Onboarding",
           "Security review · Discuss During Onboarding",
           "Dedicated support options · Discuss During Onboarding",
-          "SLA options · Coming Next · written agreement",
+          "SLA options · Coming Next",
         ],
       },
     ],
@@ -217,14 +217,14 @@ export const PRICING_COMPARISON_SECTIONS = [
     title: "Scheduling",
     rows: [
       {
-        name: "Booking page",
+        name: "Booking Page",
         free: true,
         professional: true,
         business: true,
         enterprise: true,
       },
       {
-        name: "Core calendar & reception",
+        name: "Core Calendar & Reception",
         free: true,
         professional: true,
         business: true,
@@ -243,14 +243,14 @@ export const PRICING_COMPARISON_SECTIONS = [
     title: "Communication",
     rows: [
       {
-        name: "Email reminders (when configured)",
+        name: "Email Reminders",
         free: true,
         professional: true,
         business: true,
         enterprise: true,
       },
       {
-        name: "SMS reminders (Early Access · when enabled)",
+        name: "SMS Reminders · Early Access",
         free: false,
         professional: true,
         business: true,
@@ -262,7 +262,7 @@ export const PRICING_COMPARISON_SECTIONS = [
     title: "AI",
     rows: [
       {
-        name: "Summer & Chase (Early Access)",
+        name: "Summer & Chase · Early Access",
         free: false,
         professional: true,
         business: true,
@@ -281,7 +281,7 @@ export const PRICING_COMPARISON_SECTIONS = [
         enterprise: "Discuss",
       },
       {
-        name: "API & webhooks (when enabled)",
+        name: "API & Webhooks",
         free: false,
         professional: false,
         business: true,
