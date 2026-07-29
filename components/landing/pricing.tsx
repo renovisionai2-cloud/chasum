@@ -1,87 +1,30 @@
 import { Reveal } from "@/components/landing/reveal";
 import { PlanCards } from "@/components/marketing/plan-cards";
+import { Button } from "@/components/ui/button";
+import {
+  APPLY_HREF,
+  CTA_APPLY_LABEL,
+  CTA_DEMO_LABEL,
+  DEMO_HREF,
+} from "@/lib/marketing/alpha";
 import {
   MARKETING_PLANS,
+  PRICING_COMPARISON_SECTIONS,
+  PRICING_CTA_BODY,
+  PRICING_CTA_EYEBROW,
+  PRICING_CTA_HEADLINE,
   PRICING_EYEBROW,
+  PRICING_FOUNDER_BODY,
+  PRICING_FOUNDER_EYEBROW,
+  PRICING_FOUNDER_HEADLINE,
   PRICING_HEADLINE,
   PRICING_NOTE,
   PRICING_SUBHEADING,
 } from "@/lib/marketing/pricing";
-import { Check, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const COMPARISON_FEATURES = [
-  {
-    name: "Booking page",
-    free: true,
-    professional: true,
-    business: true,
-    enterprise: true,
-  },
-  {
-    name: "Core calendar & reception",
-    free: true,
-    professional: true,
-    business: true,
-    enterprise: true,
-  },
-  {
-    name: "Email reminders (when configured)",
-    free: true,
-    professional: true,
-    business: true,
-    enterprise: true,
-  },
-  {
-    name: "Summer & Chase (Early Access)",
-    free: false,
-    professional: true,
-    business: true,
-    enterprise: true,
-  },
-  {
-    name: "SMS reminders (Early Access · when enabled)",
-    free: false,
-    professional: true,
-    business: true,
-    enterprise: true,
-  },
-  {
-    name: "Waitlist",
-    free: false,
-    professional: true,
-    business: true,
-    enterprise: true,
-  },
-  {
-    name: "Locations",
-    free: "1",
-    professional: "Up to 3",
-    business: "Up to 10",
-    enterprise: "Discuss",
-  },
-  {
-    name: "API & webhooks (when enabled)",
-    free: false,
-    professional: false,
-    business: true,
-    enterprise: true,
-  },
-  {
-    name: "Team invitations / staff login",
-    free: "Coming Next",
-    professional: "Coming Next",
-    business: "Coming Next",
-    enterprise: "Coming Next",
-  },
-  {
-    name: "Custom onboarding / SLA",
-    free: false,
-    professional: false,
-    business: false,
-    enterprise: "Discuss",
-  },
-] as const;
+import { ArrowRight, Check, Minus } from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
 
 function Cell({ value }: { value: boolean | string }) {
   if (typeof value === "string") {
@@ -90,79 +33,187 @@ function Cell({ value }: { value: boolean | string }) {
   return value ? (
     <Check className="mx-auto h-4 w-4 text-primary" aria-label="Included" />
   ) : (
-    <Minus className="mx-auto h-4 w-4 text-muted-foreground/50" aria-label="Not included" />
+    <Minus
+      className="mx-auto h-4 w-4 text-muted-foreground/50"
+      aria-label="Not included"
+    />
   );
 }
 
+/**
+ * Pricing — growth-stage experience with truth-first capability labels.
+ */
 export function Pricing() {
   return (
-    <section
-      id="pricing"
-      className="marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
-      aria-labelledby="pricing-heading"
-    >
-      <div className="mx-auto max-w-6xl">
-        <Reveal>
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">{PRICING_EYEBROW}</p>
-            <h2 id="pricing-heading" className="marketing-h2-xl">
-              {PRICING_HEADLINE}
+    <>
+      <section
+        id="pricing"
+        className="marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
+        aria-labelledby="pricing-heading"
+      >
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <div className="mx-auto max-w-2xl text-center">
+              <p className="marketing-eyebrow">{PRICING_EYEBROW}</p>
+              <h1 id="pricing-heading" className="marketing-h2-xl">
+                {PRICING_HEADLINE}
+              </h1>
+              <p className="marketing-lede">{PRICING_SUBHEADING}</p>
+              <p className="mt-4 text-sm text-muted-foreground">{PRICING_NOTE}</p>
+            </div>
+          </Reveal>
+
+          <Reveal delayMs={80}>
+            <div className="mt-16 md:mt-20">
+              <PlanCards />
+            </div>
+          </Reveal>
+
+          <Reveal delayMs={120}>
+            <div className="mt-20 md:mt-24">
+              <div className="mx-auto max-w-2xl text-center">
+                <p className="marketing-eyebrow">Compare plans</p>
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                  Transparent capabilities. Honest status.
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
+                  Available Today, Early Access, Coming Next and Discuss During
+                  Onboarding labels stay visible—so growth never depends on
+                  guesswork.
+                </p>
+              </div>
+
+              <div className="marketing-elevate mt-10 overflow-x-auto rounded-[1.35rem] border border-border/70 bg-card md:mt-12">
+                <table className="w-full min-w-[640px] text-left text-sm">
+                  <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
+                    <tr>
+                      <th className="px-4 py-4 font-medium">Capability</th>
+                      {MARKETING_PLANS.map((plan) => (
+                        <th
+                          key={plan.id}
+                          className={cn(
+                            "px-4 py-4 text-center font-medium",
+                            plan.highlighted && "bg-primary/10 text-primary",
+                          )}
+                        >
+                          {plan.title}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {PRICING_COMPARISON_SECTIONS.map((section) => (
+                      <FragmentSection key={section.title} title={section.title}>
+                        {section.rows.map((row) => (
+                          <tr
+                            key={row.name}
+                            className="border-b border-border/70 last:border-b-0"
+                          >
+                            <th className="px-4 py-3.5 text-left font-medium text-foreground">
+                              {row.name}
+                            </th>
+                            <td className="px-4 py-3.5 text-center">
+                              <Cell value={row.free} />
+                            </td>
+                            <td className="bg-primary/[0.04] px-4 py-3.5 text-center">
+                              <Cell value={row.professional} />
+                            </td>
+                            <td className="px-4 py-3.5 text-center">
+                              <Cell value={row.business} />
+                            </td>
+                            <td className="px-4 py-3.5 text-center">
+                              <Cell value={row.enterprise} />
+                            </td>
+                          </tr>
+                        ))}
+                      </FragmentSection>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section
+        id="founders-promise"
+        className="marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-20 md:py-28"
+        aria-labelledby="founders-promise-heading"
+      >
+        <div className="mx-auto max-w-3xl">
+          <Reveal>
+            <div className="text-center">
+              <p className="marketing-eyebrow">{PRICING_FOUNDER_EYEBROW}</p>
+              <h2
+                id="founders-promise-heading"
+                className="marketing-h2-xl"
+              >
+                {PRICING_FOUNDER_HEADLINE}
+              </h2>
+              <p className="marketing-lede mx-auto">{PRICING_FOUNDER_BODY}</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section
+        id="pricing-cta"
+        className="scroll-mt-24 px-6 py-20 md:py-28"
+        aria-labelledby="pricing-cta-heading"
+      >
+        <div className="mx-auto max-w-2xl text-center">
+          <Reveal>
+            <p className="marketing-eyebrow">{PRICING_CTA_EYEBROW}</p>
+            <h2 id="pricing-cta-heading" className="marketing-h2-xl">
+              {PRICING_CTA_HEADLINE}
             </h2>
-            <p className="marketing-lede">{PRICING_SUBHEADING}</p>
-            <p className="mt-4 text-sm text-muted-foreground">{PRICING_NOTE}</p>
-          </div>
-        </Reveal>
+            <p className="marketing-lede">{PRICING_CTA_BODY}</p>
+          </Reveal>
 
-        <Reveal delayMs={80}>
-          <div className="mt-16">
-            <PlanCards />
-          </div>
-        </Reveal>
+          <Reveal delayMs={80}>
+            <div className="mt-12 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <Link href={APPLY_HREF}>
+                <Button size="lg" className="h-12 min-h-11 rounded-full px-8">
+                  {CTA_APPLY_LABEL}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href={DEMO_HREF}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="h-12 min-h-11 rounded-full px-8"
+                >
+                  {CTA_DEMO_LABEL}
+                </Button>
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </>
+  );
+}
 
-        <Reveal delayMs={120}>
-          <div className="marketing-elevate mt-16 overflow-x-auto rounded-[1.35rem] border border-border/70 bg-card">
-            <table className="w-full min-w-[640px] text-left text-sm">
-              <thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-4 font-medium">Compare Plans</th>
-                  {MARKETING_PLANS.map((plan) => (
-                    <th
-                      key={plan.id}
-                      className={cn(
-                        "px-4 py-4 text-center font-medium",
-                        plan.highlighted && "bg-primary/10 text-primary",
-                      )}
-                    >
-                      {plan.title}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/80">
-                {COMPARISON_FEATURES.map((row) => (
-                  <tr key={row.name}>
-                    <th className="px-4 py-3.5 font-medium text-foreground">
-                      {row.name}
-                    </th>
-                    <td className="px-4 py-3.5 text-center">
-                      <Cell value={row.free} />
-                    </td>
-                    <td className="bg-primary/[0.04] px-4 py-3.5 text-center">
-                      <Cell value={row.professional} />
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <Cell value={row.business} />
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <Cell value={row.enterprise} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Reveal>
-      </div>
-    </section>
+function FragmentSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      <tr className="border-b border-border/80 bg-muted/30">
+        <th
+          colSpan={5}
+          className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+        >
+          {title}
+        </th>
+      </tr>
+      {children}
+    </>
   );
 }

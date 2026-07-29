@@ -29,10 +29,10 @@ function PlanCard({ plan }: { plan: MarketingPlan }) {
         <h3 className="text-xl font-semibold tracking-tight text-foreground">
           {plan.title}
         </h3>
-        <p className="mt-1.5 text-sm font-medium text-foreground">
-          {plan.tagline}
+        <p className="mt-2 text-sm font-medium leading-snug text-foreground">
+          {plan.audience}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           {plan.description}
         </p>
         <div className="mt-6">
@@ -45,17 +45,29 @@ function PlanCard({ plan }: { plan: MarketingPlan }) {
         </div>
       </div>
 
-      <ul className="mt-8 flex-1 space-y-3.5">
-        {plan.features.map((feature) => (
-          <li
-            key={feature}
-            className="flex items-start gap-2.5 text-sm text-muted-foreground"
-          >
-            <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            {feature}
-          </li>
+      <div className="mt-8 flex-1 space-y-5">
+        {plan.groups.map((group) => (
+          <div key={group.label}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              {group.label}
+            </p>
+            <ul className="mt-2.5 space-y-2.5">
+              {group.items.map((item) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-sm text-muted-foreground"
+                >
+                  <Check
+                    className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                    aria-hidden
+                  />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
 
       {isExternal ? (
         <a href={plan.href} className="mt-8 block">

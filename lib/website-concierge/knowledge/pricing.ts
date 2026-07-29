@@ -7,7 +7,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Plans",
     summary: "Free, Professional, Business, and Enterprise founding posture.",
     body:
-      "Published founding tiers: Free ($0) for core scheduling exploration; Professional ($79/mo) with Early Access AI (Summer & Chase), automation, and up to 3 locations; Business ($149/mo) for more locations and API/webhooks; Enterprise for custom onboarding and SLA. During Private Alpha, paid CTAs route to design-partner application — public self-serve checkout launches after alpha.",
+      "Every plan includes the Chasum AI Business Operating System. Founding tiers: Free ($0) to explore core scheduling; Professional ($79/mo) for growing businesses with Early Access AI (Summer & Chase), SMS when enabled, waitlist, and up to 3 locations; Business ($149/mo) for multi-location scale, API/webhooks when enabled, and Coming Next collaboration/automation; Enterprise for custom onboarding and support. During Private Alpha, paid CTAs route to design-partner application — public self-serve checkout launches after alpha. Capability status uses Available Today, Early Access, Coming Next, and Discuss During Onboarding.",
     tags: ["pricing", "plans", "cost", "subscription", "professional", "business", "enterprise", "free"],
     followUps: ["Which plan fits me?", "What is included in Professional?"],
     relatedIds: ["pricing-compare", "pricing-alpha"],

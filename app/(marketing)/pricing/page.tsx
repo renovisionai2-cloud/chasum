@@ -1,12 +1,17 @@
 import { Pricing } from "@/components/landing/pricing";
+import { PageFade } from "@/components/landing/page-fade";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Private Alpha Pricing",
+  title: "Pricing",
   description:
-    "Founding pricing with product status made clear. Apply to discuss the right setup for your service business—public self-serve checkout Coming Next.",
+    "Choose the right stage of growth for your business. Every Chasum plan includes the AI Business Operating System—with transparent capability status during Private Alpha.",
 };
 
 export default function PricingPage() {
-  return <Pricing />;
+  return (
+    <PageFade>
+      <Pricing />
+    </PageFade>
+  );
 }
