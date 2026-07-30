@@ -32,17 +32,17 @@ export function SummerIntro() {
 
         <Reveal delayMs={80}>
           <div className="max-w-xl">
-            <p className="marketing-eyebrow">Meet the intelligence</p>
+            <p className="marketing-eyebrow">Your AI Business Manager</p>
             <h2
               id="summer-intro-heading"
               className="mt-4 text-balance text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl md:text-5xl"
             >
-              Meet the intelligence behind Chasum.
+              Meet Summer, the AI Business Manager behind Chasum.
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
-              Summer is the intelligence customers meet first. She helps people
-              explore Chasum, understand relevant workflows and begin
-              discovering how the platform can support their business.
+              She helps businesses discover Chasum, get set up, answer customer
+              questions, manage appointments, support staff, automate repetitive
+              work, and grow every day.
             </p>
             <p className="mt-4 text-sm text-muted-foreground">
               Early Access · grounded in verified product information

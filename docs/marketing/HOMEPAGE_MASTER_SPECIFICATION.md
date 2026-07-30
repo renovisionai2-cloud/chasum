@@ -48,7 +48,7 @@ Emotional sequence: curiosity → understanding → trust → excitement → act
 | Core belief | Businesses don’t need more software. They need software that understands how the business works. |
 | Disconnected H2 | Every business is already full of software. |
 | Closing of disconnect | Understanding begins when everything works together. |
-| Summer H2 | Meet the intelligence behind Chasum. |
+| Summer H2 | Meet Summer, the AI Business Manager behind Chasum. |
 | Platform H2 | Everything works together. |
 | Outcomes eyebrow | What changes when your business understands itself? |
 | Industries H2 | Every service business works differently. |

@@ -46,12 +46,14 @@ export function AiWorkforceSection() {
               </span>
             </div>
             <h2 id="ai-workforce-heading" className="marketing-h2-xl">
-              AI assistance with clear roles—not a collection of chatbots.
+              Summer is your AI Business Manager—with clear roles, not a
+              collection of chatbots.
             </h2>
             <p className="marketing-lede">
               Summer and Chase are in Early Access for design partners.
-              Additional roles are Coming Next or Future Vision — labelled
-              honestly, never presented as shipping today.
+              Summer leads as AI Business Manager; Chase surfaces grounded
+              operations insights. Additional roles are Coming Next or Future
+              Vision — labelled honestly, never presented as shipping today.
             </p>
           </div>
         </Reveal>

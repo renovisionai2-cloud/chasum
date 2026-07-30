@@ -120,10 +120,10 @@ export const PRODUCT_TOUR_STOPS: Record<
     },
   },
   summer: {
-    why: "Customers and staff need intelligent help without invented availability.",
+    why: "Businesses need an AI Business Manager—not only an AI receptionist—without invented availability.",
     moment: {
       kind: "Recommendation",
-      text: "Summer answers from real hours, services and openings—then escalates to humans when needed.",
+      text: "Summer, your AI Business Manager, answers from real hours, services and openings—then escalates to humans when needed.",
     },
   },
   crm: {

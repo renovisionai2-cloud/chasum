@@ -57,7 +57,7 @@ const PAGE_META: Record<
   "meet-summer": {
     title: "Meet Summer",
     goals: [
-      "Introduce Summer as AI Business Consultant / Assistant",
+      "Introduce Summer as Chasum's AI Business Manager",
       "Run Business Discovery conversationally",
       "Personalize recommendations via Knowledge Engine",
       "Explain today vs inside-Chasum vision",
@@ -108,21 +108,21 @@ export function detectMarketingPage(pathname: string): PageContext {
 export function getPageGreeting(pageId: MarketingPageId): string {
   switch (pageId) {
     case "home":
-      return "Welcome — I'm Summer, Chasum's AI Business Assistant. I'd like to understand your business so I can help thoughtfully. What kind of appointment-based business do you run?";
+      return "Welcome — I'm Summer, Chasum's AI Business Manager. I'd like to understand your business so I can help thoughtfully. What kind of appointment-based business do you run?";
     case "features":
       return "You're looking at how Chasum works. Tell me a bit about your business and I'll point you to what matters most — or ask about a specific capability.";
     case "pricing":
-      return "Happy to walk through founding pricing. First — are you a solo operator, multi-location, or evaluating for a team?";
+      return "Happy to walk through plans. I'm Summer — Chasum's AI Business Manager — and I can help you see where I fit. Are you a solo operator, multi-location, or evaluating for a team?";
     case "about":
-      return "Curious about the vision? I can explain Chasum as an AI Business Operating System — or keep it practical for your business.";
+      return "Curious about the vision? I can explain Chasum as an AI Business Operating System — and how I help as your AI Business Manager — or keep it practical for your business.";
     case "contact":
       return "Before you reach out — I can learn about your business and answer product questions, or help you book a walkthrough. What would help most?";
     case "apply":
       return "Private Alpha is invite-based design partnership. I can clarify fit, expectations, and next steps — what's your business type?";
     case "meet-summer":
-      return "Welcome.\n\nI'm Summer.\n\nBefore I recommend software, I'd like to understand your business.\n\nWhat kind of business do you own?";
+      return "Welcome.\n\nI'm Summer, your AI Business Manager.\n\nBefore I recommend software, I'd like to understand your business.\n\nWhat kind of business do you own?";
     default:
-      return "Hi — I'm Summer, Chasum's AI Business Assistant. Tell me about your business and I'll help you see if Chasum is a fit.";
+      return "Hi — I'm Summer, Chasum's AI Business Manager. Tell me about your business and I'll help you see if Chasum is a fit.";
   }
 }
 

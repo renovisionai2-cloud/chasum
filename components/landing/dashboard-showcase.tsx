@@ -55,13 +55,13 @@ const SHOWCASE_TABS = [
   {
     id: "summer",
     label: "Summer",
-    name: "Summer — AI Business Assistant",
+    name: "Summer — AI Business Manager",
     preview: "summer" as const,
     icon: Sparkles,
     benefit:
       "Grounded answers from real business data — never invented availability.",
     explanation:
-      "Summer is Chasum's AI Business Assistant: website concierge, receptionist assist, and product guide for design partners in Early Access.",
+      "Summer is Chasum's AI Business Manager: discovery, onboarding, daily operations, staff guidance, and growth. AI Receptionist work—calls, booking, and inquiries—is one capability within that role.",
     benefits: [
       "Grounded business answers",
       "Real availability only",

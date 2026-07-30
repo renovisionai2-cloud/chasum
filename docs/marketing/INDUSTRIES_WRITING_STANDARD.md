@@ -46,7 +46,7 @@ Do **not** turn Growing into a roadmap or future feature list.
 
 ## Core Chasum Capabilities (public chips)
 
-- AI Receptionist
+- AI Business Manager
 - Appointment Scheduling
 - CRM
 - Customer Communication

@@ -14,16 +14,17 @@ export const FS_HERO = {
     "She remembers.",
   ],
   cta: "Begin the Experience",
-  ctaHint: "A two-minute introduction to the future of business management.",
+  ctaHint:
+    "A two-minute introduction to Summer — Chasum's AI Business Manager.",
 } as const;
 
 export const FS_AWAKENING = {
-  greeting: "Welcome. I'm Summer.",
-  body: "Before I recommend anything, I'd like to understand your business so I can personalize my guidance.",
+  greeting: "Welcome. I'm Summer, your AI Business Manager.",
+  body: "Before I recommend anything, I'd like to understand your business so I can personalize my guidance across discovery, setup, daily operations, and growth.",
   /** @deprecated Prefer greeting + body; kept for any legacy readers */
   lines: [
-    "Welcome. I'm Summer.",
-    "Before I recommend anything, I'd like to understand your business so I can personalize my guidance.",
+    "Welcome. I'm Summer, your AI Business Manager.",
+    "Before I recommend anything, I'd like to understand your business so I can personalize my guidance across discovery, setup, daily operations, and growth.",
   ],
 } as const;
 

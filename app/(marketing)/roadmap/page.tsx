@@ -30,7 +30,7 @@ const AVAILABLE_TODAY = [
 ] as const;
 
 const EARLY_ACCESS = [
-  "Summer — AI Business Assistant (website concierge, product guide, reception and booking assistance where configured)",
+  "Summer — AI Business Manager (discovery, onboarding guidance, operations, product guide; AI Receptionist capability where configured)",
   "Chase — AI Operations Insights (read-only operational observations and summaries)",
   "SMS delivery when Twilio and plan settings are enabled",
   "Operator invoices and receipts from recorded transactions",

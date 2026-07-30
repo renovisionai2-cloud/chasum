@@ -62,7 +62,7 @@ describe("Industries final content framework", () => {
 
   it("uses shared Core Chasum Capabilities across every industry", () => {
     expect([...CORE_CHASUM_CAPABILITIES]).toEqual([
-      "AI Receptionist",
+      "AI Business Manager",
       "Appointment Scheduling",
       "CRM",
       "Customer Communication",

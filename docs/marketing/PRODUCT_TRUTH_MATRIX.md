@@ -43,8 +43,8 @@ Status vocabulary (only):
 | API & webhooks | Available Today* | `/api/v1/*`, outbound webhooks | API keys; Business plan marketed | Developer API and outbound webhooks when enabled |
 | Waitlist | Available Today | Waitlist tables + Reception UI | Messaging for notify | Waitlist when enabled on the business |
 | Team invitations / RBAC login | Coming Next | Roles catalog exists; invites not enforced | — | Multi-staff login Coming Next |
-| Summer (website) | Early Access | Website Concierge / Meet Summer | No OpenAI required for grounded path | Summer — Chasum’s AI Business Assistant (website concierge & product guide) |
-| Summer (in-app) | Early Access | `/dashboard/ai-workforce/summer`, `lib/summer` | Optional OpenAI | Reception/booking assistance grounded in configured business data |
+| Summer (website) | Early Access | Website Concierge / Meet Summer | No OpenAI required for grounded path | Summer — Chasum’s AI Business Manager (website concierge & product guide; AI Receptionist is one capability) |
+| Summer (in-app) | Early Access | `/dashboard/ai-workforce/summer`, `lib/summer` | Optional OpenAI | AI Business Manager — reception/booking assistance grounded in configured business data |
 | Chase | Early Access | `/dashboard/workforce/chase`, `lib/chase` | Supabase data | Read-only operational insights and summaries |
 | AI scheduling (Alex) | Coming Next | Roster placeholder | — | AI Scheduling — Coming Next |
 | AI marketing (Maya) | Future Vision | Roster / marketing only | — | Marketing Intelligence — Future Vision |
@@ -62,7 +62,7 @@ Status vocabulary (only):
 
 - Chasum is **not** an electronic medical record (EMR).
 - Chasum does **not** autonomously run the business.
-- Summer is **not** only an “AI receptionist.”
+- Summer is **not** only an “AI receptionist.” She is Chasum’s **AI Business Manager**; AI Receptionist is one capability within that role.
 - Chase does **not** invent KPIs or write back operational changes.
 - Apple Calendar is **not** claimed as full OAuth parity with Google/Outlook.
 - Do not publish invented testimonials, logos, or customer counts.

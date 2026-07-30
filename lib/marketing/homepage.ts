@@ -205,11 +205,12 @@ export type PlatformModule = {
 export const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: "summer",
-    name: "Summer — AI Business Assistant",
+    name: "Summer — AI Business Manager",
     href: "/#platform-ai",
-    benefit: "Answer common questions and start bookings without inventing availability.",
+    benefit:
+      "Discover, launch, operate, and grow with one AI Business Manager—not only an AI receptionist.",
     explanation:
-      "Summer — Chasum's AI Business Assistant (Early Access) — uses your real hours, services, staff, and locations, recommends slots from the scheduling engine, and escalates to humans when needed.",
+      "Summer — Chasum's AI Business Manager (Early Access) — helps with discovery, setup guidance, customer questions, scheduling workflows, staff support, and growth. She uses your real hours, services, staff, and locations; recommends slots from the scheduling engine; and escalates to humans when needed. AI Receptionist work is one capability within that role.",
     cta: "Meet Summer",
     ctaHref: MEET_SUMMER_HREF,
     preview: "summer",
@@ -297,7 +298,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     href: "/#ai-workforce",
     benefit: "Summer and Chase in Early Access — more roles on the roadmap.",
     explanation:
-      "Summer handles reception assist; Chase surfaces grounded ops insights. Additional AI employees are Coming Next / Future Vision.",
+      "Summer is your AI Business Manager; Chase surfaces grounded ops insights. Additional AI employees are Coming Next / Future Vision.",
     cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     comingSoon: false,
@@ -314,7 +315,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
 
 /** Shared public capability chips — Available Today / Early Access only. */
 export const CORE_CHASUM_CAPABILITIES = [
-  "AI Receptionist",
+  "AI Business Manager",
   "Appointment Scheduling",
   "CRM",
   "Customer Communication",
@@ -573,12 +574,13 @@ export const HERO_STATS = [
 export const AI_EMPLOYEES_PREVIEW = [
   {
     name: "Summer",
-    role: "AI Business Assistant",
-    specialty: "Website concierge, product guide, reception assist",
+    role: "AI Business Manager",
+    specialty:
+      "Discovery, onboarding, operations, reception, staff guidance, growth",
     status: "Early Access",
     availability: "Early Access",
     summary:
-      "Helps visitors explore Chasum and assists with grounded business questions and booking workflows where configured.",
+      "Chasum's AI Business Manager — helps businesses discover Chasum, get set up, answer customers, manage appointments, support staff, automate work, and grow. AI Receptionist capabilities are included within that role.",
   },
   {
     name: "Chase",
@@ -679,7 +681,7 @@ export const COMPARISON_ROWS: {
     },
   },
   {
-    feature: "Summer — Grounded AI Business Assistant",
+    feature: "Summer — AI Business Manager",
     values: {
       Chasum: "yes",
       Picktime: "roadmap",
@@ -721,7 +723,23 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Is Chasum Just Another Booking Page?",
-    a: "No. Public booking is one surface. The product includes Reception, CRM, team and location configuration, reports, communication, commerce tools, and Summer — Chasum's AI Business Assistant (Early Access).",
+    a: "No. Public booking is one surface. The product includes Reception, CRM, team and location configuration, reports, communication, commerce tools, and Summer — Chasum's AI Business Manager (Early Access).",
+  },
+  {
+    q: "Who is Summer?",
+    a: "Summer is Chasum's AI Business Manager. She helps you discover Chasum, get your business running, answer customer questions, automate everyday work, support your team, and help your business grow.",
+  },
+  {
+    q: "Does Summer only answer phone calls?",
+    a: "No. Handling customer questions and appointment requests is only one of Summer's AI Receptionist capabilities (grounded chat and messaging where configured; voice calling is not available yet). She also assists with onboarding, scheduling, customer communication, product guidance, automation, staff training, reporting, and business growth.",
+  },
+  {
+    q: "Can Summer teach me how to use Chasum?",
+    a: "Yes. Summer guides new users through setup, explains features, answers “How do I…” questions, and helps teams learn the platform.",
+  },
+  {
+    q: "Is Summer included in every plan?",
+    a: "Summer — Chasum's AI Business Manager — starts with Professional and is included in Business and Enterprise. Free focuses on core scheduling and email communication.",
   },
   {
     q: "Does AI Invent Appointment Times?",
@@ -753,7 +771,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "How is AI used today?",
-    a: "Summer helps visitors explore Chasum and assists with grounded business questions and booking workflows where configured. Chase surfaces read-only operational observations and summaries where implemented. Additional AI roles are Coming Next or Future Vision.",
+    a: "Summer helps visitors discover and evaluate Chasum, guides setup conversations, answers grounded business questions, and assists with booking workflows where configured. Chase surfaces read-only operational observations and summaries where implemented. Additional AI roles are Coming Next or Future Vision.",
   },
   {
     q: "What happens when Summer does not know the answer?",
@@ -769,7 +787,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "How Does Summer Work Today?",
-    a: "Summer — Chasum's AI Business Assistant (Early Access) — answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; and escalates to staff when needed. On the marketing site she also acts as website concierge and product guide.",
+    a: "Summer — Chasum's AI Business Manager (Early Access) — helps across discovery, onboarding guidance, customer questions, scheduling workflows, staff support, and growth. She answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; and escalates to staff when needed. On the marketing site she is also your product guide and website concierge.",
   },
   {
     q: "Do You Support Google, Outlook, and Apple Calendars?",
@@ -781,7 +799,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "When Is Voice Calling Available?",
-    a: "Voice is Future Vision (channel reserved) but not implemented yet. Summer’s Early Access focus is grounded chat, website concierge, and booking assist.",
+    a: "Voice is Future Vision (channel reserved) but not implemented yet. Summer’s Early Access focus includes grounded chat, website concierge, product guidance, and booking assist—AI Receptionist calling is not available yet.",
   },
   {
     q: "How Do I Get Started?",

@@ -93,7 +93,7 @@ export const PRICING_FEATURE_CATALOG: PricingFeatureDef[] = [
   },
   {
     id: "summer",
-    name: "AI Receptionist — Summer",
+    name: "Summer — AI Business Manager",
     category: "Communication",
   },
   { id: "payments", name: "Online Payments", category: "Payments" },
@@ -621,7 +621,19 @@ export const PRICING_FAQ_ITEMS: PricingFaqItem[] = [
   },
   {
     q: "Is Summer included in every plan?",
-    a: "Summer — Chasum’s AI Receptionist — starts with Professional and is included in Business and Enterprise. Free focuses on core scheduling and email communication.",
+    a: "Summer — Chasum's AI Business Manager — starts with Professional and is included in Business and Enterprise. Free focuses on core scheduling and email communication. Answering calls and appointment requests is one of her capabilities—not her only role.",
+  },
+  {
+    q: "Who is Summer?",
+    a: "Summer is Chasum's AI Business Manager. She helps you discover Chasum, get your business running, answer customer questions, automate everyday work, support your team, and help your business grow.",
+  },
+  {
+    q: "Does Summer only answer phone calls?",
+    a: "No. Handling customer questions and appointment requests is only one of Summer's AI Receptionist capabilities (grounded chat and messaging where configured; voice calling is not available yet). She also assists with onboarding, scheduling, customer communication, product guidance, automation, staff training, and business growth.",
+  },
+  {
+    q: "Can Summer teach me how to use Chasum?",
+    a: "Yes. Summer guides new users through setup, explains features, answers “How do I…” questions, and helps teams learn the platform.",
   },
   {
     q: "What happens when I reach my staff or location limit?",
@@ -644,7 +656,7 @@ export const PRICING_WORKFLOW_STEPS = [
   },
   {
     title: "Summer Answers",
-    detail: "Handles questions and appointment requests.",
+    detail: "Your AI Business Manager handles questions and appointment requests.",
   },
   {
     title: "Calendar Updates",

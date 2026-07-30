@@ -35,7 +35,7 @@ const BENEFITS = [
   },
   {
     title: "Early access to Summer and Chase",
-    body: "Use the verified Early Access capabilities documented in the Product Truth Matrix—Summer as AI Business Assistant and Chase for read-only operations insights.",
+    body: "Use the verified Early Access capabilities documented in the Product Truth Matrix—Summer as AI Business Manager and Chase for read-only operations insights.",
   },
 ] as const;
 
