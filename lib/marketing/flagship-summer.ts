@@ -44,7 +44,7 @@ export const FS_GUIDED = {
   addAnotherBusiness: "Add another business",
   chooseAnotherCategory: "Choose from another category",
   selectedSummary: "Your businesses",
-  industryPrompt: "Choose one or more categories. You can update this later anytime.",
+  industryPrompt: "Choose one or more categories. You can always update them later.",
   /**
    * TODO(summer-onboarding): Respond dynamically as the user selects categories.
    * Examples (do not implement yet):

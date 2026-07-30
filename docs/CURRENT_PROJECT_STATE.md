@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-07-30  
-**Updated by:** Official Chasum Pricing Page v1 lock (product-owner approval)
+**Updated by:** Summer Onboarding v1 lock + Roadmap page next
 
 ---
 
@@ -26,6 +26,7 @@
 | [`docs/company/MASTER_TASKS.md`](./company/MASTER_TASKS.md) | Active engineering backlog |
 | [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md) | What may be claimed publicly |
 | [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md) | **Pricing page lock** — Official v1 approved baseline |
+| [`docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md) | **Summer Onboarding lock** — Meet Summer guided discovery v1 |
 | [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md) | Home page (`/`) canonical front-door spec |
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
@@ -117,8 +118,13 @@ Shared money recognition, commerce + platform events, business operating context
 | Page | Version | Status | State | Visual source of truth |
 |------|---------|--------|-------|------------------------|
 | **Pricing** (`/pricing`) | Official Chasum Pricing Page **v1** | ✅ **APPROVED** | **Locked** | https://chasum-aw2cx9wbn-renovisionappcom.vercel.app/pricing |
+| **Summer Onboarding** (`/meet-summer` guided) | Summer Onboarding **v1** | ✅ **APPROVED** | **Locked** | Preview after lock deploy · see [`SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md) |
 
-**Pricing is complete.** Design at the Preview URL above is the approved baseline (implementation commit `83fbaed`). Do **not** revisit Pricing for redesign or visual polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md).
+**Pricing is complete.** Design at the Pricing Preview URL is the approved baseline (implementation commit `83fbaed`). Do **not** revisit Pricing for redesign or visual polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md).
+
+**Summer Onboarding is complete and locked.** Do **not** redesign or polish the Meet Summer category-selection onboarding screen unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md).
+
+**Next marketing surface in review sequence:** **Roadmap** (`/roadmap`).
 
 ---
 
@@ -195,8 +201,9 @@ As of last update:
 **Priority order (do not skip #1 for novelty):**
 
 1. **Operation GVM (Priority #1)** — Close remaining go-live blockers from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0: first real appointment, Resend SMTP in Supabase, production email path.
-2. **Home page (`/`)** — Begin next marketing chapter against [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md). **Pricing is locked — do not reopen.**
-3. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
+2. **Roadmap (`/roadmap`)** — Next page in the marketing review sequence after Summer Onboarding lock. Keep claims aligned with [`PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md). **Pricing and Summer Onboarding are locked — do not reopen.**
+3. **Home page (`/`)** — Later marketing chapter against [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md) when directed.
+4. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
 
 Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.  
 Do **not** redesign or polish `/pricing` unless the product owner explicitly requests it.

@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Summer Onboarding v1)
+
+- Product owner approved Summer Onboarding **v1** on `/meet-summer` guided discovery
+- Final helper copy: “Choose one or more categories. You can always update them later.”
+- Docs: `docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`; agent rule `.cursor/rules/summer-onboarding-lock.mdc`
+- Next marketing surface in sequence: Roadmap (`/roadmap`)
+
 ### Locked (Marketing — Official Pricing Page v1)
 
 - Product owner approved Official Chasum Pricing Page **v1** (Preview: https://chasum-aw2cx9wbn-renovisionappcom.vercel.app/pricing)

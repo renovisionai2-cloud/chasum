@@ -1,0 +1,27 @@
+---
+description: Summer onboarding screen is product-owner locked — no redesign or polish
+globs:
+  - lib/marketing/flagship-summer.ts
+  - components/marketing/flagship-summer/flagship-discovery.tsx
+  - components/marketing/flagship-summer/flagship-awakening.tsx
+  - components/marketing/flagship-summer/flagship-experience.tsx
+alwaysApply: false
+---
+
+# Summer Onboarding Lock — v1
+
+**STATUS:** ✅ APPROVED  
+**VERSION:** Summer Onboarding v1  
+**STATE:** Locked  
+**Route:** `/meet-summer` (guided category selection)  
+**Canonical doc:** `docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`
+
+## Do not change without explicit product-owner request
+
+Layout, spacing, typography, icons, category cards, colors, animations, responsive behavior, or approved onboarding copy in `FS_AWAKENING` / `FS_GUIDED`.
+
+## Allowed only
+
+Bug fixes · broken responsive layouts · accessibility fixes · product-owner-requested updates · deferred dynamic category acknowledgments only when explicitly requested.
+
+Do **not** redesign or polish this screen.
