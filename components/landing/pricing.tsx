@@ -72,15 +72,13 @@ export function Pricing() {
             </div>
           </Reveal>
 
-          <Reveal delayMs={100}>
-            <div
-              id="one-platform"
-              className="mt-24 md:mt-28"
-              aria-labelledby="pricing-platform-heading"
-            >
-              <PricingPlatformStory />
-            </div>
-          </Reveal>
+          <div
+            id="one-platform"
+            className="mt-24 overflow-visible md:mt-28"
+            aria-labelledby="pricing-platform-heading"
+          >
+            <PricingPlatformStory />
+          </div>
 
           <Reveal delayMs={120}>
             <div className="mt-24 md:mt-28">
