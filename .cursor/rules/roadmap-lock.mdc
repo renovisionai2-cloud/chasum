@@ -13,6 +13,7 @@ alwaysApply: false
 **VERSION:** Roadmap v1  
 **STATE:** Locked  
 **Route:** `/roadmap`  
+**Source of truth (visual):** https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap  
 **Canonical doc:** `docs/marketing/ROADMAP_V1_LOCK.md`
 
 ## Do not change without explicit product-owner request

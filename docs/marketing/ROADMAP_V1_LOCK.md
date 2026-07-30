@@ -13,7 +13,13 @@
 
 ## Visual source of truth
 
-Treat the latest approved Preview for `/roadmap` as the visual reference once recorded after the Roadmap v1 polish deploy. Implementation sources:
+Treat this Preview URL as the permanent visual reference for Roadmap v1:
+
+**https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap**
+
+Implementation baseline commit for that Preview: **`a372028`** (*Polish and lock Roadmap v1 for Pricing consistency*).
+
+Implementation sources:
 
 - `lib/marketing/roadmap.ts`
 - `components/landing/roadmap-experience.tsx`
