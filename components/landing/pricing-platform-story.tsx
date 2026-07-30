@@ -38,11 +38,12 @@ const OUTER_NODES: ReadonlyArray<{
   { label: "AI", icon: Bot, angle: -135 },
 ];
 
-const VIEW_W = 640;
-const VIEW_H = 420;
+/** ~50% larger than the first Premium Experience constellation. */
+const VIEW_W = 960;
+const VIEW_H = 640;
 const CX = VIEW_W / 2;
 const CY = VIEW_H / 2;
-const RADIUS = 148;
+const RADIUS = 232;
 
 function polar(angleDeg: number, radius: number) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -55,33 +56,36 @@ function polar(angleDeg: number, radius: number) {
 /**
  * Minimal connected-platform constellation for Pricing.
  * Hairline links + line icons — Apple / Stripe / Linear calm, not a dashboard.
+ * "Your Business" is the focal point; capabilities orbit around it.
  */
 export function PricingPlatformConstellation() {
   return (
     <div
-      className="mx-auto w-full max-w-3xl"
+      className="mx-auto w-full max-w-5xl"
       role="img"
-      aria-label="Bookings, customers, communication, staff, locations, reports, AI, and Summer connected around your business"
+      aria-label="Your business at the center, connected to bookings, customers, communication, staff, locations, reports, AI, and Summer"
     >
       {/* Mobile: calm wrap around the business core */}
       <div className="sm:hidden">
-        <ul className="grid grid-cols-3 gap-x-3 gap-y-5">
+        <ul className="grid grid-cols-3 gap-x-4 gap-y-7">
           {OUTER_NODES.slice(0, 3).map((node) => (
             <MobileNode key={node.label} label={node.label} icon={node.icon} />
           ))}
         </ul>
-        <div className="flex justify-center py-5">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card px-4 py-2.5 text-sm font-semibold tracking-tight text-foreground shadow-sm">
-            <Building2 className="h-4 w-4 text-primary" strokeWidth={1.5} />
-            Business
+        <div className="flex justify-center py-8">
+          <span className="inline-flex flex-col items-center gap-2 rounded-full border border-border/80 bg-card px-7 py-5 text-center shadow-sm">
+            <Building2 className="h-6 w-6 text-primary" strokeWidth={1.5} />
+            <span className="text-sm font-semibold tracking-tight text-foreground">
+              Your Business
+            </span>
           </span>
         </div>
-        <ul className="grid grid-cols-3 gap-x-3 gap-y-5">
+        <ul className="grid grid-cols-3 gap-x-4 gap-y-7">
           {OUTER_NODES.slice(3, 6).map((node) => (
             <MobileNode key={node.label} label={node.label} icon={node.icon} />
           ))}
         </ul>
-        <ul className="mt-5 grid grid-cols-2 justify-items-center gap-x-8">
+        <ul className="mt-7 grid grid-cols-2 justify-items-center gap-x-10">
           {OUTER_NODES.slice(6).map((node) => (
             <MobileNode key={node.label} label={node.label} icon={node.icon} />
           ))}
@@ -90,7 +94,7 @@ export function PricingPlatformConstellation() {
 
       {/* sm+: constellation */}
       <div
-        className="relative mx-auto hidden aspect-[640/420] w-full sm:block"
+        className="relative mx-auto hidden aspect-[960/640] w-full sm:block"
         style={{ maxWidth: VIEW_W }}
       >
         <svg
@@ -106,8 +110,8 @@ export function PricingPlatformConstellation() {
             r={RADIUS}
             className="stroke-border"
             strokeWidth={1}
-            strokeOpacity={0.4}
-            strokeDasharray="2 10"
+            strokeOpacity={0.35}
+            strokeDasharray="3 12"
           />
           {OUTER_NODES.map((node) => {
             const p = polar(node.angle, RADIUS);
@@ -119,18 +123,16 @@ export function PricingPlatformConstellation() {
                 x2={p.x}
                 y2={p.y}
                 className="stroke-border"
-                strokeWidth={1}
+                strokeWidth={1.25}
               />
             );
           })}
         </svg>
 
-        <div
-          className="absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5 rounded-full border border-border/80 bg-card px-5 py-4 shadow-sm"
-        >
-          <Building2 className="h-4 w-4 text-primary" strokeWidth={1.5} />
-          <span className="text-xs font-semibold tracking-tight text-foreground">
-            Business
+        <div className="absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 rounded-full border border-border bg-card px-8 py-6 shadow-sm ring-1 ring-border/40">
+          <Building2 className="h-6 w-6 text-primary" strokeWidth={1.5} />
+          <span className="whitespace-nowrap text-sm font-semibold tracking-tight text-foreground md:text-base">
+            Your Business
           </span>
         </div>
 
@@ -139,19 +141,36 @@ export function PricingPlatformConstellation() {
           const Icon = node.icon;
           const left = `${(p.x / VIEW_W) * 100}%`;
           const top = `${(p.y / VIEW_H) * 100}%`;
+          const isSummer = node.label === "Summer";
           return (
             <div
               key={node.label}
-              className="absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1"
+              className="absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5"
               style={{ left, top }}
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-border/80 bg-card shadow-sm">
+              <span
+                className={
+                  isSummer
+                    ? "flex h-16 w-16 items-center justify-center rounded-full border border-border/80 bg-card shadow-sm"
+                    : "flex h-14 w-14 items-center justify-center rounded-full border border-border/70 bg-card shadow-sm"
+                }
+              >
                 <Icon
-                  className="h-3.5 w-3.5 text-muted-foreground"
+                  className={
+                    isSummer
+                      ? "h-5 w-5 text-primary"
+                      : "h-5 w-5 text-muted-foreground"
+                  }
                   strokeWidth={1.5}
                 />
               </span>
-              <span className="whitespace-nowrap text-[11px] font-medium tracking-tight text-muted-foreground">
+              <span
+                className={
+                  isSummer
+                    ? "whitespace-nowrap text-xs font-semibold tracking-tight text-foreground"
+                    : "whitespace-nowrap text-xs font-medium tracking-tight text-muted-foreground"
+                }
+              >
                 {node.label}
               </span>
             </div>
@@ -169,12 +188,32 @@ function MobileNode({
   label: string;
   icon: LucideIcon;
 }) {
+  const isSummer = label === "Summer";
   return (
-    <li className="flex flex-col items-center gap-2 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border/70 bg-card">
-        <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+    <li className="flex flex-col items-center gap-2.5 text-center">
+      <span
+        className={
+          isSummer
+            ? "flex h-14 w-14 items-center justify-center rounded-full border border-border/80 bg-card"
+            : "flex h-14 w-14 items-center justify-center rounded-full border border-border/70 bg-card"
+        }
+      >
+        <Icon
+          className={
+            isSummer
+              ? "h-5 w-5 text-primary"
+              : "h-5 w-5 text-muted-foreground"
+          }
+          strokeWidth={1.5}
+        />
       </span>
-      <span className="text-[11px] font-medium tracking-tight text-muted-foreground">
+      <span
+        className={
+          isSummer
+            ? "text-xs font-semibold tracking-tight text-foreground"
+            : "text-xs font-medium tracking-tight text-muted-foreground"
+        }
+      >
         {label}
       </span>
     </li>
@@ -187,24 +226,26 @@ function MobileNode({
  */
 export function PricingPlatformStory() {
   return (
-    <div className="mx-auto max-w-3xl text-center">
-      <p className="marketing-eyebrow">{PRICING_PLATFORM_EYEBROW}</p>
-      <h2
-        id="pricing-platform-heading"
-        className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
-      >
-        <span className="block">{PRICING_PLATFORM_HEADLINE_LINE_1}</span>
-        <span className="block">{PRICING_PLATFORM_HEADLINE_LINE_2}</span>
-      </h2>
-      <p className="marketing-lede mx-auto mt-5 max-w-xl">
-        {PRICING_PLATFORM_BODY}
-      </p>
+    <div className="mx-auto max-w-5xl text-center">
+      <div className="mx-auto max-w-2xl">
+        <p className="marketing-eyebrow">{PRICING_PLATFORM_EYEBROW}</p>
+        <h2
+          id="pricing-platform-heading"
+          className="mt-3 text-3xl font-semibold tracking-tight text-foreground md:text-4xl"
+        >
+          <span className="block">{PRICING_PLATFORM_HEADLINE_LINE_1}</span>
+          <span className="block">{PRICING_PLATFORM_HEADLINE_LINE_2}</span>
+        </h2>
+        <p className="marketing-lede mx-auto mt-5 max-w-xl">
+          {PRICING_PLATFORM_BODY}
+        </p>
+      </div>
 
-      <div className="mt-14 md:mt-16">
+      <div className="mt-16 px-2 md:mt-24 md:px-6 lg:mt-28">
         <PricingPlatformConstellation />
       </div>
 
-      <p className="mx-auto mt-12 max-w-md text-sm leading-relaxed text-muted-foreground md:mt-14 md:text-base">
+      <p className="mx-auto mt-16 max-w-lg text-sm leading-relaxed text-muted-foreground md:mt-20 md:text-base">
         {PRICING_PLATFORM_FOOTNOTE}
       </p>
     </div>

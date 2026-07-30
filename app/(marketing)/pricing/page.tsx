@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Simple plans for growing service businesses. Every Chasum plan runs on one connected platform—start where you are and grow without switching tools.",
+    "Built for growing service businesses that want fewer missed appointments, clearer customer communication, and one place to run the day.",
 };
 
 export default function PricingPage() {
