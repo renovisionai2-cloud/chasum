@@ -171,8 +171,8 @@ cursor/phase-3-integrations
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `c5b4cb53bc9ed0258cd66100c8ad3079b1fe9672` |
-| **Short** | `c5b4cb5` |
+| **SHA** | `805f3671405b29cece10d0a9481996c5ad774081` |
+| **Short** | `805f367` |
 | **Subject** | Lock Official Chasum Pricing Page v1 + restore approved baseline |
 | **Date** | 2026-07-30 |
 
