@@ -1,4 +1,5 @@
 import { Reveal } from "@/components/landing/reveal";
+import { PricingPlatformStory } from "@/components/landing/pricing-platform-story";
 import { PlanCards } from "@/components/marketing/plan-cards";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,8 +72,18 @@ export function Pricing() {
             </div>
           </Reveal>
 
+          <Reveal delayMs={100}>
+            <div
+              id="one-platform"
+              className="mt-24 md:mt-28"
+              aria-labelledby="pricing-platform-heading"
+            >
+              <PricingPlatformStory />
+            </div>
+          </Reveal>
+
           <Reveal delayMs={120}>
-            <div className="mt-20 md:mt-24">
+            <div className="mt-24 md:mt-28">
               <div className="mx-auto max-w-2xl text-center">
                 <p className="marketing-eyebrow">Compare plans</p>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">

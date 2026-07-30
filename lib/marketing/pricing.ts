@@ -47,10 +47,23 @@ export const PRICING_HEADLINE =
   "Plans that fit where you are—and grow when you do.";
 
 export const PRICING_SUBHEADING =
-  "Clear pricing for small and growing service businesses. Start simple, then add locations, reminders, and AI help as you need them.";
+  "Simple plans for growing service businesses. Start with what you need today—then grow into more capacity without switching platforms.";
 
 /** Concise Private Alpha context — hero only. */
 export const PRICING_NOTE = FOUNDER_PRICING_NOTE;
+
+/** Premium OS storytelling — between plan cards and comparison table. */
+export const PRICING_PLATFORM_EYEBROW = "One connected platform";
+
+export const PRICING_PLATFORM_HEADLINE_LINE_1 = "One platform.";
+
+export const PRICING_PLATFORM_HEADLINE_LINE_2 = "Every part of your business.";
+
+export const PRICING_PLATFORM_BODY =
+  "Every Chasum plan runs on the same connected platform. Start with the tools your business needs today, then unlock more capacity, communication, and AI help as you grow.";
+
+export const PRICING_PLATFORM_FOOTNOTE =
+  "Everything works together—so your business doesn’t have to live across disconnected software.";
 
 export const PRICING_FOUNDER_EYEBROW = "Founder's promise";
 
