@@ -1,177 +1,178 @@
 /**
- * Public Roadmap — Product Truth aligned, benefit-first for business owners.
- * Status vocabulary stays on this page (not inside Pricing plan inclusions).
+ * Public Roadmap — business-owner narrative (not developer release notes).
+ * Inspired by Product Truth; written for clarity and confidence.
  */
 
 export const ROADMAP_LAST_REVIEWED = "2026-07-30";
 
-export const ROADMAP_EYEBROW = "Public roadmap";
-export const ROADMAP_HEADLINE = "Built in the open. Evolving with design partners.";
-export const ROADMAP_LEDE =
-  "See what Chasum can do today, what we're refining with Private Alpha partners, and where the AI Business Operating System is headed next.";
+export const ROADMAP_HERO = {
+  eyebrow: "Roadmap",
+  headline: "Building the Future of Business Management",
+  lede: "We're building Chasum alongside real businesses. Every feature on our roadmap is inspired by customer feedback and designed to solve real business challenges—not simply add more features.",
+} as const;
 
-export type RoadmapPhaseId =
-  | "completed"
-  | "in_progress"
-  | "upcoming"
-  | "future";
-
-export type RoadmapPhase = {
-  id: RoadmapPhaseId;
+export type RoadmapCard = {
   title: string;
-  badge: string;
-  summary: string;
-  /** Product Truth status label shown quietly */
-  truthLabel: string;
-  items: readonly { title: string; detail: string }[];
+  detail: string;
+  icon:
+    | "booking"
+    | "calendar"
+    | "customers"
+    | "summer"
+    | "payments"
+    | "gift"
+    | "email"
+    | "phone"
+    | "sms"
+    | "inventory"
+    | "payroll"
+    | "campaigns"
+    | "memberships"
+    | "mobile"
+    | "insights"
+    | "locations"
+    | "franchise"
+    | "automation"
+    | "loyalty"
+    | "marketplace";
 };
 
-/**
- * Phases map to Product Truth:
- * Completed → Available Today
- * In Progress → Early Access
- * Upcoming → Coming Next
- * Future Vision → Future Vision
- */
-export const ROADMAP_PHASES: readonly RoadmapPhase[] = [
-  {
-    id: "completed",
-    title: "Completed",
-    badge: "Available now",
-    truthLabel: "Available Today",
-    summary:
-      "Foundations design partners use every day to run appointments, customers, and the front desk.",
-    items: [
-      {
-        title: "One calendar for the whole day",
-        detail:
-          "Day View and Booking Sheet keep your front desk organized without juggling spreadsheets.",
-      },
-      {
-        title: "Online booking with real openings",
-        detail:
-          "Customers book times that actually exist — Chasum never invents availability.",
-      },
-      {
-        title: "Customer history in one place",
-        detail:
-          "Profiles, timelines, and notes stay connected to every visit.",
-      },
-      {
-        title: "Team, services, and locations",
-        detail:
-          "Configure how your business actually works — staff, offerings, and places you serve.",
-      },
-      {
-        title: "Confirmations and reminders",
-        detail:
-          "Email follow-through when messaging is configured for your business.",
-      },
-      {
-        title: "Payments you can record today",
-        detail:
-          "Manual payment recording, gift certificates, and reports from real activity.",
-      },
-      {
-        title: "Calendar assist when you connect it",
-        detail:
-          "Optional Google and Microsoft busy-time help; Apple via ICS subscribe.",
-      },
-    ],
-  },
-  {
-    id: "in_progress",
-    title: "In Progress",
-    badge: "Evolving",
-    truthLabel: "Early Access",
-    summary:
-      "Live with design partners and improving quickly — labelled honestly so nothing feels oversold.",
-    items: [
-      {
-        title: "Summer — AI Business Manager",
-        detail:
-          "Helps you discover Chasum, get set up, answer customers, and guide daily work. AI Receptionist capabilities are part of that role.",
-      },
-      {
-        title: "Chase — operations clarity",
-        detail:
-          "Read-only insights that surface what deserves attention — without inventing numbers.",
-      },
-      {
-        title: "SMS when you're ready",
-        detail:
-          "Text delivery when Twilio and your plan settings are enabled.",
-      },
-      {
-        title: "Invoices and commerce ledger",
-        detail:
-          "Operator invoices, receipts, and a ledger for supported payment types.",
-      },
-    ],
-  },
-  {
-    id: "upcoming",
-    title: "Upcoming",
-    badge: "Next up",
-    truthLabel: "Coming Next",
-    summary:
-      "Actively planned work that expands how you run and grow the business.",
-    items: [
-      {
-        title: "Self-serve billing",
-        detail:
-          "Stripe subscription checkout when Private Alpha is ready for public plans.",
-      },
-      {
-        title: "Card deposits at booking",
-        detail:
-          "Collect deposits in the Booking Sheet without leaving Chasum.",
-      },
-      {
-        title: "Staff invites and shared login",
-        detail:
-          "Bring your team in with roles that match how you already operate.",
-      },
-      {
-        title: "Alex — AI Scheduling",
-        detail:
-          "Smarter calendar protection and coordination as the next AI teammate.",
-      },
-      {
-        title: "Deeper Summer and Chase channels",
-        detail:
-          "More grounded ways Summer helps and Chase forecasts — without theater.",
-      },
-    ],
-  },
-  {
-    id: "future",
-    title: "Future Vision",
-    badge: "Long-term",
-    truthLabel: "Future Vision",
-    summary:
-      "Direction we're building toward — not promised dates, and not available today.",
-    items: [
-      {
-        title: "A fuller AI workforce",
-        detail:
-          "Maya for marketing intelligence, Leo for business advising, Sophia for customer success.",
-      },
-      {
-        title: "Voice with Summer",
-        detail:
-          "A voice channel for Summer's AI Receptionist capability — reserved, not live yet.",
-      },
-      {
-        title: "Native mobile",
-        detail:
-          "Reception-critical mobile experiences after the web product is hardened.",
-      },
-      {
-        title: "Marketplace and franchise tooling",
-        detail:
-          "Advanced multi-business and marketplace capabilities for larger networks.",
-      },
-    ],
-  },
-] as const;
+export const ROADMAP_AVAILABLE_TODAY = {
+  title: "Available Today",
+  subtitle:
+    "Everything below is already available or actively shipping inside Chasum.",
+  cards: [
+    {
+      title: "Online Booking",
+      detail: "Customers can book appointments anytime.",
+      icon: "booking",
+    },
+    {
+      title: "Calendar & Scheduling",
+      detail: "Manage staff schedules from one place.",
+      icon: "calendar",
+    },
+    {
+      title: "Customer Management",
+      detail: "Build stronger relationships with every customer.",
+      icon: "customers",
+    },
+    {
+      title: "Summer AI Business Manager",
+      detail:
+        "Your intelligent assistant for onboarding, customer communication, and daily operations.",
+      icon: "summer",
+    },
+    {
+      title: "Payments",
+      detail: "Accept payments and deposits securely.",
+      icon: "payments",
+    },
+    {
+      title: "Gift Cards",
+      detail: "Sell and manage gift cards effortlessly.",
+      icon: "gift",
+    },
+    {
+      title: "Email Notifications",
+      detail: "Keep customers informed automatically.",
+      icon: "email",
+    },
+  ] as const satisfies readonly RoadmapCard[],
+} as const;
+
+export const ROADMAP_COMING_SOON = {
+  title: "Coming Soon",
+  subtitle:
+    "These are the next major capabilities we're actively building.",
+  cards: [
+    {
+      title: "AI Phone Calls",
+      detail:
+        "Let Summer answer calls, book appointments, answer questions, and assist customers even when your business is closed.",
+      icon: "phone",
+    },
+    {
+      title: "Business Text Messaging",
+      detail:
+        "Send and receive business texts directly inside Chasum.",
+      icon: "sms",
+    },
+    {
+      title: "Inventory Management",
+      detail:
+        "Track products, stock levels, and suppliers without additional software.",
+      icon: "inventory",
+    },
+    {
+      title: "Payroll",
+      detail: "Simplify employee payroll and compensation.",
+      icon: "payroll",
+    },
+    {
+      title: "Marketing Campaigns",
+      detail:
+        "Email and SMS campaigns that help grow your business.",
+      icon: "campaigns",
+    },
+    {
+      title: "Memberships & Packages",
+      detail: "Offer recurring memberships and prepaid packages.",
+      icon: "memberships",
+    },
+    {
+      title: "Native Mobile Apps",
+      detail: "Manage your business from anywhere.",
+      icon: "mobile",
+    },
+  ] as const satisfies readonly RoadmapCard[],
+} as const;
+
+export const ROADMAP_FUTURE_VISION = {
+  title: "Future Vision",
+  subtitle:
+    "This is where we're taking Chasum over the next several years.",
+  cards: [
+    {
+      title: "AI Business Insights",
+      detail:
+        "Summer analyzes trends and recommends ways to improve your business.",
+      icon: "insights",
+    },
+    {
+      title: "Multi-location Management",
+      detail: "Operate multiple locations from one platform.",
+      icon: "locations",
+    },
+    {
+      title: "Franchise Management",
+      detail: "Support growing franchise businesses.",
+      icon: "franchise",
+    },
+    {
+      title: "Workflow Automation",
+      detail: "Automate repetitive daily tasks.",
+      icon: "automation",
+    },
+    {
+      title: "Customer Loyalty",
+      detail: "Reward returning customers automatically.",
+      icon: "loyalty",
+    },
+    {
+      title: "Marketplace",
+      detail:
+        "Connect businesses with trusted integrations and services.",
+      icon: "marketplace",
+    },
+  ] as const satisfies readonly RoadmapCard[],
+} as const;
+
+export const ROADMAP_CLOSING = {
+  title: "Built With Our Customers",
+  paragraphs: [
+    "Every major improvement in Chasum begins with feedback from real business owners.",
+    "We don't build features because they're trendy. We build features that save time, reduce repetitive work, improve customer experiences, and help businesses grow.",
+    "This roadmap evolves alongside our customers, and we're just getting started.",
+  ],
+} as const;

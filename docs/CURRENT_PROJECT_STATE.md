@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-07-30  
-**Updated by:** Summer Onboarding v1 finalized + Roadmap premium rebuild
+**Updated by:** Roadmap ground-up redesign (business-owner narrative)
 
 ---
 
@@ -124,7 +124,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 **Summer Onboarding is complete and locked** as the approved baseline for `/meet-summer` (category selection + consultation copy). Do **not** redesign or polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md).
 
-**Next marketing surface:** continue refining **Roadmap** (`/roadmap`) until product-owner approval.
+**Next marketing surface:** seek product-owner approval on the redesigned **Roadmap** (`/roadmap`).
 
 ---
 
@@ -132,11 +132,18 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-07-30)
 
-**Summer Onboarding v1 — finalized & locked; Roadmap premium rebuild started**
+**Roadmap — ground-up redesign (business owners)**
+
+- Replaced timeline / phase language with Available Today → Coming Soon → Future Vision + Built With Our Customers
+- Apple-inspired feature cards; no Now/Next/Later, no developer release notes
+- Copy and structure driven by product-owner brief
+
+### Immediately prior (same day)
+
+**Summer Onboarding v1 — finalized & locked**
 
 - Final consultation subheading: “I'd like to understand your business so I can personalize Chasum for you.”
 - Lock docs refreshed for full Meet Summer onboarding experience
-- Public Roadmap rebuilt as a benefit-first vertical timeline (Completed → In Progress → Upcoming → Future Vision), Product Truth aligned
 
 ### Immediately prior (same chapter)
 
@@ -208,7 +215,7 @@ As of last update:
 **Priority order (do not skip #1 for novelty):**
 
 1. **Operation GVM (Priority #1)** — Close remaining go-live blockers from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0: first real appointment, Resend SMTP in Supabase, production email path.
-2. **Roadmap (`/roadmap`)** — Premium timeline in progress; seek product-owner approval. Keep claims aligned with [`PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md). **Pricing and Summer Onboarding are locked — do not reopen.**
+2. **Roadmap (`/roadmap`)** — Ground-up redesign shipped; seek product-owner approval / lock. **Pricing and Summer Onboarding are locked — do not reopen.**
 3. **Home page (`/`)** — Later marketing chapter when directed.
 4. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
 
