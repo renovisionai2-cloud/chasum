@@ -77,12 +77,13 @@ describe("primary CTA destinations", () => {
       expect(plan.href === APPLY_HREF || plan.href.startsWith("/contact")).toBe(
         true,
       );
-      expect(plan.cta.toLowerCase()).not.toContain("contact sales");
       expect(plan.cta.toLowerCase()).not.toContain("request early access");
+      if (plan.id === "enterprise") {
+        expect(plan.cta.toLowerCase()).toMatch(/contact sales|schedule a demo/);
+      }
     }
   });
 });
-
 describe("front door marketing pages", () => {
   it("ships homepage, platform, product tour and industries pages", () => {
     const pages = [

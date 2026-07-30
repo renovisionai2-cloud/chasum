@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "One connected platform for growing service businesses. Start with what you need today—then grow into more capacity without changing systems.",
+    "Simple pricing for every stage of growth. Start free, upgrade when you need more, and run bookings, communication, payments, and operations on one connected platform. Private Alpha.",
 };
 
 export default function PricingPage() {
