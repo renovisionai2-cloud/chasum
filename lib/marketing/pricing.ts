@@ -61,8 +61,8 @@ export type PricingFeatureDef = {
     | "Customers"
     | "Payments"
     | "Team & Locations"
-    | "Operations"
-    | "Support";
+    | "Reporting & Operations"
+    | "Support & Enterprise";
   /** Optional clarification shown in comparison / cards */
   note?: string;
 };
@@ -122,58 +122,58 @@ export const PRICING_FEATURE_CATALOG: PricingFeatureDef[] = [
   {
     id: "basic_reporting",
     name: "Basic Reporting",
-    category: "Operations",
+    category: "Reporting & Operations",
   },
   {
     id: "advanced_analytics",
     name: "Advanced Analytics",
-    category: "Operations",
+    category: "Reporting & Operations",
   },
   {
     id: "inventory",
     name: "Inventory Management",
-    category: "Operations",
+    category: "Reporting & Operations",
     note: "Available where applicable.",
   },
   {
     id: "api_integrations",
     name: "API & Integrations",
-    category: "Operations",
+    category: "Reporting & Operations",
   },
   {
     id: "priority_support",
     name: "Priority Support",
-    category: "Support",
+    category: "Support & Enterprise",
   },
   {
     id: "white_glove",
     name: "White-Glove Onboarding",
-    category: "Support",
+    category: "Support & Enterprise",
   },
   {
     id: "success_manager",
     name: "Dedicated Success Manager",
-    category: "Support",
+    category: "Support & Enterprise",
   },
   {
     id: "custom_integrations",
     name: "Custom Integrations",
-    category: "Support",
+    category: "Support & Enterprise",
   },
   {
     id: "enterprise_security",
     name: "Enterprise Security",
-    category: "Support",
+    category: "Support & Enterprise",
   },
   {
     id: "custom_permissions",
     name: "Custom Permissions",
-    category: "Support",
+    category: "Support & Enterprise",
   },
   {
     id: "volume_pricing",
     name: "Volume Pricing",
-    category: "Support",
+    category: "Support & Enterprise",
   },
 ];
 
@@ -515,8 +515,8 @@ export function buildPricingComparisonSections(): ComparisonSection[] {
     "Customers",
     "Payments",
     "Team & Locations",
-    "Operations",
-    "Support",
+    "Reporting & Operations",
+    "Support & Enterprise",
   ] as const;
 
   const byId = Object.fromEntries(

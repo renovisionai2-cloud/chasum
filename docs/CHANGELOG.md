@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Official Pricing Page v1)
+
+- Product owner approved Official Chasum Pricing Page **v1** (Preview: https://chasum-aw2cx9wbn-renovisionappcom.vercel.app/pricing)
+- Implementation restored to approved baseline (`83fbaed`); page is **locked** — bug/a11y/product-owner updates only
+- Docs: `docs/marketing/PRICING_PAGE_V1_LOCK.md`; agent rule `.cursor/rules/pricing-page-lock.mdc`
+
 ### Fixed (Operation GVM — Commerce Engine Finalization)
 
 - Root cause: `commerce_transactions` missing from Postgres / PostgREST schema cache — applied commerce platform + grants + `NOTIFY pgrst`

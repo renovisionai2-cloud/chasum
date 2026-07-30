@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-07-29  
-**Updated by:** Pricing small-business-first copy sprint (`c4d1d5e`)
+**Last updated:** 2026-07-30  
+**Updated by:** Official Chasum Pricing Page v1 lock (product-owner approval)
 
 ---
 
@@ -25,6 +25,8 @@
 | [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md) | Completed vs future strategic milestones |
 | [`docs/company/MASTER_TASKS.md`](./company/MASTER_TASKS.md) | Active engineering backlog |
 | [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md) | What may be claimed publicly |
+| [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md) | **Pricing page lock** — Official v1 approved baseline |
+| [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md) | Home page (`/`) canonical front-door spec |
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
@@ -110,26 +112,38 @@ Shared money recognition, commerce + platform events, business operating context
 
 ---
 
+## Approved marketing pages (locks)
+
+| Page | Version | Status | State | Visual source of truth |
+|------|---------|--------|-------|------------------------|
+| **Pricing** (`/pricing`) | Official Chasum Pricing Page **v1** | ✅ **APPROVED** | **Locked** | https://chasum-aw2cx9wbn-renovisionappcom.vercel.app/pricing |
+
+**Pricing is complete.** Design at the Preview URL above is the approved baseline (implementation commit `83fbaed`). Do **not** revisit Pricing for redesign or visual polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md).
+
+---
+
 ## Last completed work
 
-### Most recent (2026-07-29)
+### Most recent (2026-07-30)
 
-**Operation Chasum — Pricing small-business-first copy** (`c4d1d5e`)
+**Official Chasum Pricing Page v1 — product-owner lock**
 
-- Pricing page reframed for small and growing service businesses: approachable, transparent, plain language.
-- Simplified plan blurbs and feature labels (e.g. “Connect other tools” instead of “API & Webhooks”).
-- Softened Private Alpha hero note; comparison table uses “Included” + everyday feature names.
-- Files: `lib/marketing/pricing.ts`, `lib/marketing/alpha.ts`, `components/landing/pricing.tsx`, `lib/website-concierge/knowledge/pricing.ts`.
+- Product owner approved Preview: https://chasum-aw2cx9wbn-renovisionappcom.vercel.app/pricing
+- Repository Pricing implementation restored to baseline `83fbaed` so code matches the approved Preview
+- Lock documentation: `docs/marketing/PRICING_PAGE_V1_LOCK.md` + `.cursor/rules/pricing-page-lock.mdc`
+- **Next marketing surface:** Home page (`/`) — begin only after this lock (now in force)
 
 ### Immediately prior (same chapter)
 
 | Commit | Work |
 |--------|------|
-| `c637984` / `cc40e78` | Pricing Final Customer Clarity Cleanup — removed status labels from plans; only launch-ready inclusions |
+| `83fbaed` | Finalized Pricing page with shared plan data (approved Official v1 baseline) |
+| `7df9749` | Post-baseline polish — **superseded / rolled back** to match approved Preview |
+| `c4d1d5e` | Pricing small-business-first copy |
+| `c637984` / `cc40e78` | Pricing Final Customer Clarity Cleanup |
 | `97c2904` | Pricing Customer-Facing Accuracy Cleanup |
 | `c983ead` | World-Class Pricing Experience |
-| `ca2404d` … `6d43e36` | Industries final wording / capabilities / visual & legal sprints |
-| Earlier on branch | Signature Experience, Platform / Product Tour / Meet Summer polish, homepage living interface |
+| Earlier on branch | Industries, Signature Experience, Platform / Product Tour / Meet Summer, homepage living interface |
 
 ### Product chapter (documented in CHANGELOG, not always tip-of-branch)
 
@@ -157,10 +171,10 @@ cursor/phase-3-integrations
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `c4d1d5efdac465e20ae789357e1d031f8710b38d` |
-| **Short** | `c4d1d5e` |
-| **Subject** | Operation Chasum / Pricing small-business-first copy |
-| **Date** | 2026-07-29 |
+| **SHA** | `c5b4cb53bc9ed0258cd66100c8ad3079b1fe9672` |
+| **Short** | `c5b4cb5` |
+| **Subject** | Lock Official Chasum Pricing Page v1 + restore approved baseline |
+| **Date** | 2026-07-30 |
 
 ---
 
@@ -171,11 +185,8 @@ As of last update:
 | Path | Notes |
 |------|--------|
 | `docs/brand/CHASUM.pdf` | Untracked — leave out of product commits unless intentionally shipping brand assets |
-| `scripts/rebuild-brand-from-board.mjs` | Untracked brand tooling |
-| `scripts/rebuild-brand-v2-clean.mjs` | Untracked brand tooling |
-| `scripts/refine-brand-six.mjs` | Untracked brand tooling |
-
-No staged/unstaged product source changes at last update. Working tree otherwise clean relative to `HEAD`.
+| `scripts/rebuild-brand-*.mjs` / `refine-brand-six.mjs` | Untracked brand tooling |
+| `tmp/` | Local screenshots / scratch — do not commit |
 
 ---
 
@@ -184,11 +195,11 @@ No staged/unstaged product source changes at last update. Working tree otherwise
 **Priority order (do not skip #1 for novelty):**
 
 1. **Operation GVM (Priority #1)** — Close remaining go-live blockers from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0: first real appointment, Resend SMTP in Supabase, production email path.
-2. **Preview deploy** for Pricing small-business-first (`c4d1d5e`) if visual QA on Vercel Preview is still needed (Preview only).
-3. **Marketing consistency pass (optional, scoped)** — Ensure non-Pricing pages don’t contradict small-business-first Pricing language; keep status vocabulary on `/roadmap`, not inside plan inclusions.
-4. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
+2. **Home page (`/`)** — Begin next marketing chapter against [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md). **Pricing is locked — do not reopen.**
+3. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
 
-Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.
+Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.  
+Do **not** redesign or polish `/pricing` unless the product owner explicitly requests it.
 
 ---
 
