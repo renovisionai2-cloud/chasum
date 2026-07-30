@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Business Memory — Summer's working memory for the consultation.
+ * What I've Learned — Summer's working memory for the consultation.
  * Learning → completed uses a calm glow, never celebration.
  */
 export function FlagshipUnderstanding({
@@ -63,7 +63,7 @@ export function FlagshipUnderstanding({
         aria-labelledby="fs-understand-title"
       >
         <p className="fs-memory-kicker" id="fs-understand-title">
-          Business Memory
+          What I've Learned
         </p>
         <ul className="fs-memory-list">
           {fields.map((field) => {
@@ -113,7 +113,7 @@ export function FlagshipUnderstanding({
       className="fs-profile"
       aria-labelledby="fs-understand-title"
     >
-      <p className="fs-scene-kicker">Business Memory</p>
+      <p className="fs-scene-kicker">What I've Learned</p>
       <h2 id="fs-understand-title" className="fs-profile-title">
         What Summer has learned
       </h2>

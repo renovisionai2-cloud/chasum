@@ -213,7 +213,9 @@ export function FlagshipConversation({
                 <p className="fs-profile-complete-message">{presented}</p>
               </div>
             ) : (
-              presented
+              <div className="fs-chat-understanding-body whitespace-pre-line">
+                {presented}
+              </div>
             )}
           </div>
         ) : null}
@@ -266,7 +268,7 @@ export function FlagshipConversation({
           placeholder={
             isComplete
               ? "Ask Summer anything about configuring Chasum…"
-              : "Share anything that helps me understand…"
+              : "Tell me about your biggest challenge…"
           }
           autoComplete="off"
         />

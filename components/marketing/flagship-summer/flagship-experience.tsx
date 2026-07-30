@@ -14,6 +14,7 @@ import { useConciergeConversation } from "@/components/website-concierge/use-con
 import {
   FS_GUIDED,
   fsBuildMultiPrompt,
+  fsConsultationHeading,
   type FsBusinessIndustry,
   type FsSelectedBusiness,
 } from "@/lib/marketing/flagship-summer";
@@ -233,9 +234,13 @@ export function FlagshipExperience() {
                   <div className="fs-consult-copy">
                     <p className="fs-scene-kicker">Consultation</p>
                     <h2 id="fs-consult-title" className="fs-consult-heading">
-                      {industryLabel
-                        ? `Understanding your ${industryLabel}`
-                        : "Understanding your business"}
+                      {fsConsultationHeading(
+                        selections.length > 0
+                          ? selections.map((s) => s.label)
+                          : memory.businessTypes.length > 0
+                            ? memory.businessTypes
+                            : null,
+                      )}
                     </h2>
                     <p className="fs-consult-bridge">{FS_GUIDED.continuePrompt}</p>
                   </div>

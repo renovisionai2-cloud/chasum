@@ -26,10 +26,13 @@ export function formatDiscoveryAsk(
   field: Pick<DiscoveryField, "why" | "helps" | "willDo" | "question">,
   options?: { understand?: string | null },
 ): string {
-  return [options?.understand, field.why, field.helps, field.willDo, field.question]
+  const lead = [options?.understand, field.why, field.helps, field.willDo]
     .map((part) => part?.trim())
     .filter(Boolean)
     .join(" ");
+  const question = field.question?.trim();
+  if (lead && question) return `${lead}\n\n${question}`;
+  return [lead, question].filter(Boolean).join("");
 }
 
 /** Prompt Builder / LLM system rules — keep in sync with docs/ai/SUMMER_PRINCIPLE.md */
