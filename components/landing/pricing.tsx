@@ -37,7 +37,11 @@ import { useId, useState, type ReactNode } from "react";
 
 function Cell({ value }: { value: FeatureValue }) {
   if (typeof value === "string") {
-    return <span className="text-sm font-medium text-foreground">{value}</span>;
+    return (
+      <span className="text-sm font-medium tabular-nums text-foreground">
+        {value}
+      </span>
+    );
   }
   return value ? (
     <Check className="mx-auto h-4 w-4 text-primary" aria-label="Included" />
@@ -58,10 +62,11 @@ function FragmentSection({
 }) {
   return (
     <>
-      <tr className="border-b border-border/80 bg-muted/30">
+      <tr className="border-y border-border/70 bg-muted/35">
         <th
           colSpan={5}
-          className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
+          scope="colgroup"
+          className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground"
         >
           {title}
         </th>
@@ -100,8 +105,10 @@ function PricingFaq() {
               <Reveal key={item.q} delayMs={Math.min(index * 30, 150)}>
                 <div
                   className={cn(
-                    "rounded-[1.15rem] border bg-card px-5 py-1.5 md:px-6",
-                    open ? "border-primary/25" : "border-border/60",
+                    "marketing-faq-item rounded-[1.15rem] border bg-card px-5 py-1.5 md:px-6",
+                    open
+                      ? "border-primary/25 shadow-md shadow-foreground/[0.04]"
+                      : "border-border/60",
                   )}
                 >
                   <h3>
@@ -115,10 +122,11 @@ function PricingFaq() {
                     >
                       {item.q}
                       <span
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-lg leading-none text-muted-foreground"
+                        className="marketing-faq-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-lg leading-none text-muted-foreground"
+                        data-open={open}
                         aria-hidden
                       >
-                        {open ? "−" : "+"}
+                        +
                       </span>
                     </button>
                   </h3>
@@ -126,11 +134,16 @@ function PricingFaq() {
                     id={panelId}
                     role="region"
                     aria-labelledby={buttonId}
-                    hidden={!open}
+                    className="marketing-faq-panel"
+                    data-open={open}
+                    aria-hidden={!open}
+                    inert={!open ? true : undefined}
                   >
-                    <p className="max-w-2xl pb-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-                      {item.a}
-                    </p>
+                    <div className="marketing-faq-panel-inner">
+                      <p className="max-w-2xl pb-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+                        {item.a}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Reveal>
@@ -152,7 +165,7 @@ export function Pricing() {
     <>
       <section
         id="pricing"
-        className="scroll-mt-24 px-6 pb-16 pt-24 md:pb-20 md:pt-32"
+        className="scroll-mt-24 px-6 pb-20 pt-24 md:pb-24 md:pt-32"
         aria-labelledby="pricing-heading"
       >
         <div className="mx-auto max-w-6xl">
@@ -163,7 +176,9 @@ export function Pricing() {
                 {PRICING_HEADLINE}
               </h1>
               <p className="marketing-lede">{PRICING_SUBHEADING}</p>
-              <p className="mt-4 text-sm text-muted-foreground">{PRICING_NOTE}</p>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                {PRICING_NOTE}
+              </p>
             </div>
           </Reveal>
 
@@ -200,11 +215,18 @@ export function Pricing() {
           </Reveal>
 
           <Reveal delayMs={80}>
-            <div className="marketing-elevate mt-12 overflow-x-auto rounded-[1.35rem] border border-border/70 bg-card md:mt-14">
-              <table className="w-full min-w-[720px] text-left text-sm">
-                <thead className="sticky top-0 z-[1] border-b border-border bg-muted/50 text-xs text-muted-foreground backdrop-blur">
+            <div className="marketing-elevate mt-12 overflow-x-auto rounded-[1.35rem] border border-border/70 bg-card [-webkit-overflow-scrolling:touch] md:mt-14">
+              <table className="w-full min-w-[40rem] border-collapse text-left text-sm sm:min-w-[44rem] md:min-w-[48rem]">
+                <caption className="sr-only">
+                  Feature comparison across Free, Professional, Business, and
+                  Enterprise plans
+                </caption>
+                <thead className="sticky top-0 z-[1] border-b border-border bg-muted/55 text-xs text-muted-foreground backdrop-blur-sm">
                   <tr>
-                    <th scope="col" className="px-4 py-4 font-medium">
+                    <th
+                      scope="col"
+                      className="sticky left-0 z-[2] bg-muted/55 px-3 py-4 font-medium sm:px-4"
+                    >
                       Feature
                     </th>
                     {PRICING_PLANS.map((plan) => (
@@ -212,8 +234,8 @@ export function Pricing() {
                         key={plan.id}
                         scope="col"
                         className={cn(
-                          "px-4 py-4 text-center font-medium",
-                          plan.highlighted && "bg-primary/10 text-primary",
+                          "min-w-[5.5rem] px-3 py-4 text-center font-medium sm:px-4",
+                          plan.highlighted && "bg-primary/[0.08] text-primary",
                         )}
                       >
                         {plan.name}
@@ -224,34 +246,37 @@ export function Pricing() {
                 <tbody>
                   {PRICING_COMPARISON_SECTIONS.map((section) => (
                     <FragmentSection key={section.title} title={section.title}>
-                      {section.rows.map((row) => (
+                      {section.rows.map((row, rowIndex) => (
                         <tr
                           key={row.id}
-                          className="border-b border-border/70 last:border-b-0"
+                          className={cn(
+                            "border-b border-border/55 last:border-b-0",
+                            rowIndex % 2 === 1 && "bg-muted/[0.18]",
+                          )}
                         >
                           <th
                             scope="row"
-                            className="px-4 py-3.5 text-left font-medium text-foreground"
+                            className="sticky left-0 z-[1] bg-card px-3 py-3.5 text-left font-medium text-foreground shadow-[1px_0_0_0_color-mix(in_srgb,var(--border)_70%,transparent)] sm:px-4 sm:py-4"
                           >
-                            <span>{row.name}</span>
+                            <span className="block leading-snug">{row.name}</span>
                             {row.note ? (
-                              <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                              <span className="mt-1 block text-xs font-normal leading-snug text-muted-foreground">
                                 {row.note.includes("Voice AI")
                                   ? "Available where configured on paid plans."
                                   : row.note}
                               </span>
                             ) : null}
                           </th>
-                          <td className="px-4 py-3.5 text-center">
+                          <td className="px-3 py-3.5 text-center sm:px-4 sm:py-4">
                             <Cell value={row.free} />
                           </td>
-                          <td className="bg-primary/[0.03] px-4 py-3.5 text-center">
+                          <td className="bg-primary/[0.04] px-3 py-3.5 text-center sm:px-4 sm:py-4">
                             <Cell value={row.professional} />
                           </td>
-                          <td className="px-4 py-3.5 text-center">
+                          <td className="px-3 py-3.5 text-center sm:px-4 sm:py-4">
                             <Cell value={row.business} />
                           </td>
-                          <td className="px-4 py-3.5 text-center">
+                          <td className="px-3 py-3.5 text-center sm:px-4 sm:py-4">
                             <Cell value={row.enterprise} />
                           </td>
                         </tr>
@@ -267,7 +292,7 @@ export function Pricing() {
 
       <section
         id="private-alpha"
-        className="scroll-mt-24 bg-primary/[0.04] px-6 py-20 md:py-28"
+        className="scroll-mt-24 bg-primary/[0.04] px-6 py-24 md:py-32"
         aria-labelledby="private-alpha-heading"
       >
         <div className="mx-auto max-w-3xl text-center">
@@ -279,7 +304,10 @@ export function Pricing() {
             <p className="marketing-lede mx-auto">{PRICING_ALPHA_BODY}</p>
             <div className="mt-10">
               <Link href={PRICING_ALPHA_HREF}>
-                <Button size="lg" className="h-12 rounded-full px-8">
+                <Button
+                  size="lg"
+                  className="marketing-cta-button h-12 rounded-full px-8"
+                >
                   {PRICING_ALPHA_CTA}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -293,7 +321,7 @@ export function Pricing() {
 
       <section
         id="pricing-cta"
-        className="scroll-mt-24 px-6 py-20 md:py-28"
+        className="scroll-mt-24 px-6 py-24 md:py-32"
         aria-labelledby="pricing-cta-heading"
       >
         <div className="mx-auto max-w-2xl text-center">
@@ -308,7 +336,7 @@ export function Pricing() {
               <Link href={APPLY_HREF} className="sm:w-auto">
                 <Button
                   size="lg"
-                  className="h-12 w-full rounded-full px-8 sm:w-auto"
+                  className="marketing-cta-button h-12 w-full rounded-full px-8 sm:w-auto"
                 >
                   {PRICING_FINAL_PRIMARY_CTA}
                   <ArrowRight className="h-4 w-4" />
@@ -318,7 +346,7 @@ export function Pricing() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="h-12 w-full rounded-full px-8 sm:w-auto"
+                  className="marketing-cta-button h-12 w-full rounded-full px-8 sm:w-auto"
                 >
                   {CTA_APPLY_LABEL}
                 </Button>

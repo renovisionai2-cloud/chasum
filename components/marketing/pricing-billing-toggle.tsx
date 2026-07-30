@@ -12,7 +12,7 @@ export function PricingBillingToggle({
 }) {
   return (
     <div
-      className="mx-auto flex flex-wrap items-center justify-center gap-3"
+      className="mx-auto inline-flex items-center rounded-full border border-border/70 bg-muted/40 p-1"
       role="group"
       aria-label="Billing period"
     >
@@ -21,10 +21,10 @@ export function PricingBillingToggle({
         aria-pressed={value === "monthly"}
         onClick={() => onChange("monthly")}
         className={cn(
-          "marketing-focus-ring rounded-full px-5 py-2.5 text-sm font-semibold transition-colors",
+          "marketing-focus-ring rounded-full px-5 py-2 text-sm font-semibold transition-[color,background-color,box-shadow] duration-200",
           value === "monthly"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted/60 text-muted-foreground hover:text-foreground",
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         Monthly
@@ -34,16 +34,16 @@ export function PricingBillingToggle({
         aria-pressed={value === "yearly"}
         onClick={() => onChange("yearly")}
         className={cn(
-          "marketing-focus-ring inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors",
+          "marketing-focus-ring inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-[color,background-color,box-shadow] duration-200",
           value === "yearly"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted/60 text-muted-foreground hover:text-foreground",
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground",
         )}
       >
         Yearly
         <span
           className={cn(
-            "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+            "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide transition-colors duration-200",
             value === "yearly"
               ? "bg-primary-foreground/15 text-primary-foreground"
               : "bg-primary/10 text-primary",
