@@ -38,7 +38,7 @@ export const FS_GUIDED = {
   questionWillDo:
     "I'll use it to load relevant patterns, then ask only what still matters — one question at a time.",
   continuePrompt:
-    "A few more details will help me personalize Chasum for your business.",
+    "I'd like to understand your business so I can personalize Chasum for you.",
   backToCategories: "← Back to Categories",
   continueWithSelections: "Continue with my selections",
   addAnotherBusiness: "Add another business",

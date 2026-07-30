@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Marketing — Roadmap + Summer Onboarding)
+
+- Summer consultation subheading finalized; Summer Onboarding **v1** lock docs refreshed as baseline
+- Public `/roadmap` rebuilt as a premium vertical timeline (Completed / In Progress / Upcoming / Future Vision) with benefit-first copy
+
 ### Locked (Marketing — Summer Onboarding v1)
 
 - Product owner approved Summer Onboarding **v1** on `/meet-summer` guided discovery

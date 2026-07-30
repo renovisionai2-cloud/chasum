@@ -63,7 +63,7 @@ export function FlagshipUnderstanding({
         aria-labelledby="fs-understand-title"
       >
         <p className="fs-memory-kicker" id="fs-understand-title">
-          What I've Learned
+          What I&apos;ve Learned
         </p>
         <ul className="fs-memory-list">
           {fields.map((field) => {
@@ -113,7 +113,7 @@ export function FlagshipUnderstanding({
       className="fs-profile"
       aria-labelledby="fs-understand-title"
     >
-      <p className="fs-scene-kicker">What I've Learned</p>
+      <p className="fs-scene-kicker">What I&apos;ve Learned</p>
       <h2 id="fs-understand-title" className="fs-profile-title">
         What Summer has learned
       </h2>
