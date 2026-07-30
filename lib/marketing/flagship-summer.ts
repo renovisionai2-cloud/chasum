@@ -20,17 +20,17 @@ export const FS_HERO = {
 
 export const FS_AWAKENING = {
   greeting: "Welcome. I'm Summer, your AI Business Manager.",
-  body: "Before I recommend anything, I'd like to understand your business so I can personalize my guidance across discovery, setup, daily operations, and growth.",
+  body: "I'll help you set up Chasum, recommend the right tools, and guide you as your business grows. Let's start by learning a little about your business.",
   /** @deprecated Prefer greeting + body; kept for any legacy readers */
   lines: [
     "Welcome. I'm Summer, your AI Business Manager.",
-    "Before I recommend anything, I'd like to understand your business so I can personalize my guidance across discovery, setup, daily operations, and growth.",
+    "I'll help you set up Chasum, recommend the right tools, and guide you as your business grows. Let's start by learning a little about your business.",
   ],
 } as const;
 
 /** Guided discovery copy & fast pacing */
 export const FS_GUIDED = {
-  question: "What type of business do you own?",
+  question: "What type of business are you setting up?",
   questionWhy:
     "Every business runs differently — the right recommendation starts with knowing yours.",
   questionHelps:
@@ -44,8 +44,16 @@ export const FS_GUIDED = {
   addAnotherBusiness: "Add another business",
   chooseAnotherCategory: "Choose from another category",
   selectedSummary: "Your businesses",
-  industryPrompt: "Select every business that applies — you can change this anytime.",
-  /** Pause after Summer appears, before greeting fades in (400–700ms) */
+  industryPrompt: "Choose one or more categories. You can update this later anytime.",
+  /**
+   * TODO(summer-onboarding): Respond dynamically as the user selects categories.
+   * Examples (do not implement yet):
+   * - Healthcare: "Great! I'll tailor Chasum for your healthcare practice."
+   * - Home Services: "Perfect! I'll recommend tools for scheduling technicians, estimates, invoicing, and customer communication."
+   * - Beauty: "Excellent! I'll help you manage appointments, staff schedules, payments, memberships, and client communication."
+   * - Automotive: "Great! I'll configure Chasum for repair orders, estimates, inspections, invoicing, and customer updates."
+   * Conversational onboarding acknowledgment will be implemented later.
+   */
   introFadeMs: 520,
   /** Pause after greeting, before categories appear */
   readyMs: 1100,
