@@ -8,7 +8,7 @@
 | **VERSION** | Summer Onboarding **v1** |
 | **STATE** | **Locked** |
 | **Approved** | 2026-07-30 |
-| **Approved by** | Product Owner |
+| **Visual source of truth** | https://chasum-7o8esta4x-renovisionappcom.vercel.app/meet-summer |
 
 ---
 
