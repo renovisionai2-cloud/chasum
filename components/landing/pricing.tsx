@@ -71,17 +71,19 @@ export function Pricing() {
               <PlanCards />
             </div>
           </Reveal>
+        </div>
 
-          <div
-            id="one-platform"
-            className="mt-28 overflow-visible md:mt-32"
-            aria-labelledby="pricing-platform-heading"
-          >
-            <PricingPlatformStory />
-          </div>
+        <div
+          id="one-platform"
+          className="mt-32 overflow-visible md:mt-36"
+          aria-labelledby="pricing-platform-heading"
+        >
+          <PricingPlatformStory />
+        </div>
 
+        <div className="mx-auto max-w-6xl">
           <Reveal delayMs={120}>
-            <div className="mt-24 md:mt-28">
+            <div className="mt-28 md:mt-32">
               <div className="mx-auto max-w-2xl text-center">
                 <p className="marketing-eyebrow">Compare plans</p>
                 <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
