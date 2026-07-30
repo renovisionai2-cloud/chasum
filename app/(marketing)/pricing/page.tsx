@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Built for growing service businesses that want fewer missed appointments, clearer customer communication, and one place to run the day.",
+    "One connected platform for growing service businesses. Start with what you need today—then grow into more capacity without changing systems.",
 };
 
 export default function PricingPage() {

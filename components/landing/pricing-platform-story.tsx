@@ -47,23 +47,26 @@ const OUTER_NODES: ReadonlyArray<{
   { label: "AI", icon: Bot, angle: -135 },
 ];
 
-/** ~50% larger than the first Premium Experience constellation. */
-const VIEW_W = 960;
-const VIEW_H = 640;
+/**
+ * Final Visual Fix centrepiece — ~50% larger on-screen than the prior 960×640 diagram.
+ * CSS max-width drives perceived size; viewBox keeps proportions and node spacing.
+ */
+const VIEW_W = 1200;
+const VIEW_H = 820;
 const CX = VIEW_W / 2;
 const CY = VIEW_H / 2;
-const RADIUS = 232;
+const RADIUS = 300;
 const LINE_LENGTH = RADIUS;
 
 /** One-shot sequence (~1.8–2.0s). */
-const HEADLINE_MS = 450;
-const CENTER_DELAY_MS = 380;
-const CENTER_MS = 450;
-const LINES_DELAY_MS = 700;
-const LINES_MS = 800;
-const NODES_DELAY_MS = 900;
-const NODE_STAGGER_MS = 80;
-const FOOTNOTE_DELAY_MS = 1550;
+const HEADLINE_MS = 480;
+const CENTER_DELAY_MS = 400;
+const CENTER_MS = 480;
+const LINES_DELAY_MS = 720;
+const LINES_MS = 820;
+const NODES_DELAY_MS = 920;
+const NODE_STAGGER_MS = 75;
+const FOOTNOTE_DELAY_MS = 1580;
 const FOOTNOTE_MS = 450;
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
@@ -88,7 +91,6 @@ function getReducedMotion() {
 
 /**
  * Minimal connected-platform constellation for Pricing.
- * Hairline links + line icons — Apple / Stripe / Linear calm, not a dashboard.
  * "Your Business" is the focal point; capabilities orbit around it.
  */
 function PricingPlatformConstellation({
@@ -102,13 +104,13 @@ function PricingPlatformConstellation({
 
   return (
     <div
-      className="mx-auto w-full max-w-5xl"
+      className="mx-auto w-full max-w-6xl"
       role="img"
       aria-label="Your business at the center, connected to bookings, customers, communication, staff, locations, reports, AI, and Summer"
     >
       {/* Mobile: calm wrap around the business core */}
       <div className="sm:hidden">
-        <ul className="grid grid-cols-3 gap-x-4 gap-y-7">
+        <ul className="grid grid-cols-3 gap-x-5 gap-y-8">
           {OUTER_NODES.slice(0, 3).map((node, index) => (
             <MobileNode
               key={node.label}
@@ -120,14 +122,14 @@ function PricingPlatformConstellation({
             />
           ))}
         </ul>
-        <div className="flex justify-center py-8">
+        <div className="flex justify-center py-10">
           <span
             className={cn(
-              "inline-flex flex-col items-center gap-2 rounded-full border border-border/80 bg-card px-7 py-5 text-center shadow-sm will-change-[opacity,transform]",
+              "inline-flex flex-col items-center gap-2.5 rounded-full border border-border/80 bg-card px-8 py-6 text-center shadow-sm will-change-[opacity,transform]",
               !reducedMotion && "transition-[opacity,transform]",
               show
                 ? "translate-y-0 scale-100 opacity-100"
-                : "translate-y-3 scale-90 opacity-0",
+                : "translate-y-4 scale-[0.86] opacity-0",
             )}
             style={
               reducedMotion
@@ -139,13 +141,13 @@ function PricingPlatformConstellation({
                   }
             }
           >
-            <Building2 className="h-6 w-6 text-primary" strokeWidth={1.5} />
-            <span className="text-sm font-semibold tracking-tight text-foreground">
+            <Building2 className="h-7 w-7 text-primary" strokeWidth={1.5} />
+            <span className="text-base font-semibold tracking-tight text-foreground">
               Your Business
             </span>
           </span>
         </div>
-        <ul className="grid grid-cols-3 gap-x-4 gap-y-7">
+        <ul className="grid grid-cols-3 gap-x-5 gap-y-8">
           {OUTER_NODES.slice(3, 6).map((node, index) => (
             <MobileNode
               key={node.label}
@@ -157,7 +159,7 @@ function PricingPlatformConstellation({
             />
           ))}
         </ul>
-        <ul className="mt-7 grid grid-cols-2 justify-items-center gap-x-10">
+        <ul className="mt-8 grid grid-cols-2 justify-items-center gap-x-12">
           {OUTER_NODES.slice(6).map((node, index) => (
             <MobileNode
               key={node.label}
@@ -171,10 +173,13 @@ function PricingPlatformConstellation({
         </ul>
       </div>
 
-      {/* sm+: constellation */}
+      {/* sm+: constellation — full-bleed within section */}
       <div
-        className="relative mx-auto hidden aspect-[960/640] w-full overflow-visible sm:block"
-        style={{ maxWidth: VIEW_W }}
+        className="relative mx-auto hidden w-full overflow-visible sm:block"
+        style={{
+          maxWidth: VIEW_W,
+          aspectRatio: `${VIEW_W} / ${VIEW_H}`,
+        }}
       >
         <svg
           className="absolute inset-0 h-full w-full overflow-visible text-foreground"
@@ -188,8 +193,8 @@ function PricingPlatformConstellation({
             cy={CY}
             r={RADIUS}
             className="stroke-border"
-            strokeWidth={1}
-            strokeDasharray="3 12"
+            strokeWidth={1.25}
+            strokeDasharray="4 14"
             style={
               reducedMotion
                 ? { opacity: 0.35 }
@@ -210,7 +215,7 @@ function PricingPlatformConstellation({
                 x2={p.x}
                 y2={p.y}
                 className="stroke-border"
-                strokeWidth={1.25}
+                strokeWidth={1.5}
                 strokeLinecap="round"
                 pathLength={LINE_LENGTH}
                 style={
@@ -233,11 +238,9 @@ function PricingPlatformConstellation({
 
         <div
           className={cn(
-            "absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 rounded-full border border-border bg-card px-8 py-6 shadow-sm ring-1 ring-border/40 will-change-[opacity,transform]",
+            "absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2.5 rounded-full border border-border bg-card px-10 py-7 shadow-sm ring-1 ring-border/40 will-change-[opacity,transform]",
             !reducedMotion && "transition-[opacity,transform]",
-            show
-              ? "scale-100 opacity-100"
-              : "scale-[0.88] opacity-0",
+            show ? "scale-100 opacity-100" : "scale-[0.84] opacity-0",
           )}
           style={
             reducedMotion
@@ -249,8 +252,8 @@ function PricingPlatformConstellation({
                 }
           }
         >
-          <Building2 className="h-6 w-6 text-primary" strokeWidth={1.5} />
-          <span className="whitespace-nowrap text-sm font-semibold tracking-tight text-foreground md:text-base">
+          <Building2 className="h-7 w-7 text-primary" strokeWidth={1.5} />
+          <span className="whitespace-nowrap text-base font-semibold tracking-tight text-foreground md:text-lg">
             Your Business
           </span>
         </div>
@@ -265,11 +268,11 @@ function PricingPlatformConstellation({
             <div
               key={node.label}
               className={cn(
-                "absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1.5 will-change-[opacity,transform]",
+                "absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 will-change-[opacity,transform]",
                 !reducedMotion && "transition-[opacity,transform]",
                 show
                   ? "translate-y-0 scale-100 opacity-100"
-                  : "translate-y-3 scale-90 opacity-0",
+                  : "translate-y-4 scale-[0.88] opacity-0",
               )}
               style={{
                 left,
@@ -277,7 +280,7 @@ function PricingPlatformConstellation({
                 ...(reducedMotion
                   ? {}
                   : {
-                      transitionDuration: "420ms",
+                      transitionDuration: "440ms",
                       transitionTimingFunction: EASE,
                       transitionDelay: show
                         ? `${NODES_DELAY_MS + index * NODE_STAGGER_MS}ms`
@@ -288,15 +291,15 @@ function PricingPlatformConstellation({
               <span
                 className={
                   isSummer
-                    ? "flex h-16 w-16 items-center justify-center rounded-full border border-border/80 bg-card shadow-sm"
-                    : "flex h-14 w-14 items-center justify-center rounded-full border border-border/70 bg-card shadow-sm"
+                    ? "flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border border-border/80 bg-card shadow-sm"
+                    : "flex h-16 w-16 items-center justify-center rounded-full border border-border/70 bg-card shadow-sm"
                 }
               >
                 <Icon
                   className={
                     isSummer
-                      ? "h-5 w-5 text-primary"
-                      : "h-5 w-5 text-muted-foreground"
+                      ? "h-6 w-6 text-primary"
+                      : "h-6 w-6 text-muted-foreground"
                   }
                   strokeWidth={1.5}
                 />
@@ -304,8 +307,8 @@ function PricingPlatformConstellation({
               <span
                 className={
                   isSummer
-                    ? "whitespace-nowrap text-xs font-semibold tracking-tight text-foreground"
-                    : "whitespace-nowrap text-xs font-medium tracking-tight text-muted-foreground"
+                    ? "whitespace-nowrap text-sm font-semibold tracking-tight text-foreground"
+                    : "whitespace-nowrap text-sm font-medium tracking-tight text-muted-foreground"
                 }
               >
                 {node.label}
@@ -339,13 +342,13 @@ function MobileNode({
         !reducedMotion && "transition-[opacity,transform]",
         show
           ? "translate-y-0 scale-100 opacity-100"
-          : "translate-y-3 scale-90 opacity-0",
+          : "translate-y-4 scale-[0.88] opacity-0",
       )}
       style={
         reducedMotion
           ? undefined
           : {
-              transitionDuration: "420ms",
+              transitionDuration: "440ms",
               transitionTimingFunction: EASE,
               transitionDelay: show ? `${delayMs}ms` : "0ms",
             }
@@ -354,15 +357,15 @@ function MobileNode({
       <span
         className={
           isSummer
-            ? "flex h-14 w-14 items-center justify-center rounded-full border border-border/80 bg-card"
-            : "flex h-14 w-14 items-center justify-center rounded-full border border-border/70 bg-card"
+            ? "flex h-16 w-16 items-center justify-center rounded-full border border-border/80 bg-card"
+            : "flex h-16 w-16 items-center justify-center rounded-full border border-border/70 bg-card"
         }
       >
         <Icon
           className={
             isSummer
-              ? "h-5 w-5 text-primary"
-              : "h-5 w-5 text-muted-foreground"
+              ? "h-6 w-6 text-primary"
+              : "h-6 w-6 text-muted-foreground"
           }
           strokeWidth={1.5}
         />
@@ -382,7 +385,6 @@ function MobileNode({
 
 /**
  * Emotional bridge between plan cards and the comparison table.
- * Storytelling only — not another feature or pricing list.
  * One-shot viewport sequence: headline → centre → lines → nodes → footnote.
  */
 export function PricingPlatformStory() {
@@ -407,9 +409,8 @@ export function PricingPlatformStory() {
         }
       },
       {
-        // Fire when the section is meaningfully on screen so the sequence is visible.
-        threshold: 0.28,
-        rootMargin: "0px 0px -12% 0px",
+        threshold: 0.22,
+        rootMargin: "0px 0px -10% 0px",
       },
     );
     observer.observe(el);
@@ -419,14 +420,15 @@ export function PricingPlatformStory() {
   const show = active || reducedMotion;
 
   return (
-    <div ref={sectionRef} className="mx-auto max-w-5xl overflow-visible text-center">
+    <div
+      ref={sectionRef}
+      className="mx-auto max-w-6xl overflow-visible text-center"
+    >
       <div
         className={cn(
           "mx-auto max-w-2xl will-change-[opacity,transform]",
           !reducedMotion && "transition-[opacity,transform]",
-          show
-            ? "translate-y-0 opacity-100"
-            : "translate-y-5 opacity-0",
+          show ? "translate-y-0 opacity-100" : "translate-y-7 opacity-0",
         )}
         style={
           reducedMotion
@@ -434,7 +436,6 @@ export function PricingPlatformStory() {
             : {
                 transitionDuration: `${HEADLINE_MS}ms`,
                 transitionTimingFunction: EASE,
-                transitionDelay: show ? "0ms" : "0ms",
               }
         }
       >
@@ -451,7 +452,7 @@ export function PricingPlatformStory() {
         </p>
       </div>
 
-      <div className="mt-16 px-2 md:mt-24 md:px-6 lg:mt-28">
+      <div className="mt-20 px-1 md:mt-28 md:px-4 lg:mt-32">
         <PricingPlatformConstellation
           active={active}
           reducedMotion={reducedMotion}
@@ -460,11 +461,9 @@ export function PricingPlatformStory() {
 
       <p
         className={cn(
-          "mx-auto mt-16 max-w-lg text-sm leading-relaxed text-muted-foreground will-change-[opacity,transform] md:mt-20 md:text-base",
+          "mx-auto mt-20 max-w-lg text-sm leading-relaxed text-muted-foreground will-change-[opacity,transform] md:mt-24 md:text-base",
           !reducedMotion && "transition-[opacity,transform]",
-          show
-            ? "translate-y-0 opacity-100"
-            : "translate-y-4 opacity-0",
+          show ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0",
         )}
         style={
           reducedMotion

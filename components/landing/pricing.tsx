@@ -74,7 +74,7 @@ export function Pricing() {
 
           <div
             id="one-platform"
-            className="mt-24 overflow-visible md:mt-28"
+            className="mt-28 overflow-visible md:mt-32"
             aria-labelledby="pricing-platform-heading"
           >
             <PricingPlatformStory />
