@@ -44,38 +44,44 @@ export const ROADMAP_AVAILABLE_TODAY = {
   cards: [
     {
       title: "Online Booking",
-      detail: "Customers can book appointments anytime.",
+      detail:
+        "Fill your calendar around the clock—customers book when it suits them, without phone tag or missed inquiries.",
       icon: "booking",
     },
     {
       title: "Calendar & Scheduling",
-      detail: "Manage staff schedules from one place.",
+      detail:
+        "See every appointment and staff schedule in one place so you spend less time coordinating and more time serving customers.",
       icon: "calendar",
     },
     {
       title: "Customer Management",
-      detail: "Build stronger relationships with every customer.",
+      detail:
+        "Keep every customer's history, preferences, and notes together so your team delivers a more personal experience.",
       icon: "customers",
     },
     {
       title: "Summer AI Business Manager",
       detail:
-        "Your intelligent assistant for onboarding, customer communication, and daily operations.",
+        "Get help with onboarding, customer communication, and daily operations—so routine work takes less of your time.",
       icon: "summer",
     },
     {
       title: "Payments",
-      detail: "Accept payments and deposits securely.",
+      detail:
+        "Collect payments and deposits with less follow-up, fewer no-shows, and clearer cash flow for your business.",
       icon: "payments",
     },
     {
       title: "Gift Cards",
-      detail: "Sell and manage gift cards effortlessly.",
+      detail:
+        "Turn gift cards into new visits and extra revenue—easy for customers to buy, simple for your team to redeem.",
       icon: "gift",
     },
     {
       title: "Email Notifications",
-      detail: "Keep customers informed automatically.",
+      detail:
+        "Confirmations and reminders go out automatically, reducing no-shows and cutting down on manual follow-up.",
       icon: "email",
     },
   ] as const satisfies readonly RoadmapCard[],
@@ -89,40 +95,43 @@ export const ROADMAP_COMING_SOON = {
     {
       title: "AI Phone Calls",
       detail:
-        "Let Summer answer calls, book appointments, answer questions, and assist customers even when your business is closed.",
+        "Never miss a booking opportunity—Summer can answer calls, take appointments, and help customers even after hours.",
       icon: "phone",
     },
     {
       title: "Business Text Messaging",
       detail:
-        "Send and receive business texts directly inside Chasum.",
+        "Reach customers where they already respond, so confirmations, reminders, and quick questions take minutes—not phone calls.",
       icon: "sms",
     },
     {
       title: "Inventory Management",
       detail:
-        "Track products, stock levels, and suppliers without additional software.",
+        "Know what's in stock before you run out—fewer surprises, less waste, and no need for a separate inventory tool.",
       icon: "inventory",
     },
     {
       title: "Payroll",
-      detail: "Simplify employee payroll and compensation.",
+      detail:
+        "Pay your team accurately with less spreadsheet work and fewer end-of-pay-period headaches.",
       icon: "payroll",
     },
     {
       title: "Marketing Campaigns",
       detail:
-        "Email and SMS campaigns that help grow your business.",
+        "Bring customers back and fill slow days with email and text campaigns that grow revenue—not just send messages.",
       icon: "campaigns",
     },
     {
-      title: "Memberships & Packages",
-      detail: "Offer recurring memberships and prepaid packages.",
+      title: "Memberships & Service Packages",
+      detail:
+        "Sell recurring memberships and prepaid service packages to increase customer loyalty and create predictable recurring revenue.",
       icon: "memberships",
     },
     {
       title: "Native Mobile Apps",
-      detail: "Manage your business from anywhere.",
+      detail:
+        "Stay on top of bookings, staff, and customers from your phone—so your business keeps running when you're away from the desk.",
       icon: "mobile",
     },
   ] as const satisfies readonly RoadmapCard[],
@@ -136,33 +145,37 @@ export const ROADMAP_FUTURE_VISION = {
     {
       title: "AI Business Insights",
       detail:
-        "Summer analyzes trends and recommends ways to improve your business.",
+        "See what's working and what to improve next—clear recommendations that help you grow revenue and run smarter.",
       icon: "insights",
     },
     {
       title: "Multi-location Management",
-      detail: "Operate multiple locations from one platform.",
+      detail:
+        "Run every location from one place with consistent operations, visibility, and less jumping between tools.",
       icon: "locations",
     },
     {
       title: "Franchise Management",
-      detail: "Support growing franchise businesses.",
+      detail:
+        "Scale your brand with shared standards and oversight—so growth doesn't mean losing control of the customer experience.",
       icon: "franchise",
     },
     {
       title: "Workflow Automation",
-      detail: "Automate repetitive daily tasks.",
+      detail:
+        "Hand off repetitive daily tasks so your team focuses on customers—and you reclaim hours every week.",
       icon: "automation",
     },
     {
       title: "Customer Loyalty",
-      detail: "Reward returning customers automatically.",
+      detail:
+        "Reward return visits automatically and turn one-time customers into regulars who spend more over time.",
       icon: "loyalty",
     },
     {
       title: "Marketplace",
       detail:
-        "Connect businesses with trusted integrations and services.",
+        "Add trusted tools and services when you need them—without stitching together a messy stack of separate software.",
       icon: "marketplace",
     },
   ] as const satisfies readonly RoadmapCard[],
