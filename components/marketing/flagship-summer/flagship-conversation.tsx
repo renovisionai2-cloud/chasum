@@ -186,6 +186,12 @@ export function FlagshipConversation({
               !reducedMotion && "fs-chat-fade-up",
             )}
           >
+            {/*
+              TODO(summer-consultation): Present Summer's reply as a short
+              conversational sequence with typing animation (beat-by-beat)
+              instead of revealing the entire message instantly. Do not
+              implement until product owner requests it.
+            */}
             {isComplete ? (
               <div className="fs-profile-complete">
                 <p className="fs-chat-complete-kicker">

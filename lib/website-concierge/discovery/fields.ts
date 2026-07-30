@@ -68,14 +68,14 @@ export const DISCOVERY_FIELDS: DiscoveryField[] = [
   {
     id: "challenges",
     priority: 90,
-    why: "Let's make sure we focus on what matters most. Tell me the biggest challenge your business is facing today, and I'll recommend the tools, automations, and workflows that will have the greatest impact first.",
+    why: "Every business has different goals and different challenges. Before I recommend anything, I'd like to understand what's having the biggest impact on your business today. Once I know that, I'll tailor Chasum to help you solve it first.",
     /** Explained in `why` as one consultative paragraph — question follows separately. */
     helps: "",
     willDo: "",
     question: "What's your biggest challenge right now?",
     suggestions: [
       "No-shows",
-      "Front Desk Overload",
+      "Front desk overload",
       "Rebooking",
       "Reporting",
       "Staff scheduling",
