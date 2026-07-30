@@ -1,6 +1,9 @@
 /**
  * Public Roadmap — business-owner narrative (not developer release notes).
- * Inspired by Product Truth; written for clarity and confidence.
+ * Must stay consistent with approved Pricing inclusions.
+ *
+ * STATUS: APPROVED · VERSION: Roadmap v1 · STATE: Locked
+ * See docs/marketing/ROADMAP_V1_LOCK.md
  */
 
 export const ROADMAP_LAST_REVIEWED = "2026-07-30";
@@ -22,8 +25,10 @@ export type RoadmapCard = {
     | "payments"
     | "gift"
     | "email"
-    | "phone"
+    | "calls"
     | "sms"
+    | "phone"
+    | "automation"
     | "inventory"
     | "payroll"
     | "campaigns"
@@ -32,15 +37,14 @@ export type RoadmapCard = {
     | "insights"
     | "locations"
     | "franchise"
-    | "automation"
     | "loyalty"
     | "marketplace";
 };
 
 export const ROADMAP_AVAILABLE_TODAY = {
-  title: "Available Today",
+  title: "Available in Chasum Today",
   subtitle:
-    "Everything below is already available or actively shipping inside Chasum.",
+    "Everything below is available in Chasum today and designed to help you save time, improve customer experiences, and grow your business.",
   cards: [
     {
       title: "Online Booking",
@@ -84,6 +88,18 @@ export const ROADMAP_AVAILABLE_TODAY = {
         "Confirmations and reminders go out automatically, reducing no-shows and cutting down on manual follow-up.",
       icon: "email",
     },
+    {
+      title: "Business Calls & Texting",
+      detail:
+        "Handle customer calls and texts from one place—so conversations stay organized and nothing slips through the cracks.",
+      icon: "calls",
+    },
+    {
+      title: "SMS Reminders",
+      detail:
+        "Send appointment reminders by text automatically—fewer no-shows, less phone chasing, and a smoother day for your team.",
+      icon: "sms",
+    },
   ] as const satisfies readonly RoadmapCard[],
 } as const;
 
@@ -99,10 +115,10 @@ export const ROADMAP_COMING_SOON = {
       icon: "phone",
     },
     {
-      title: "Business Text Messaging",
+      title: "AI Workflow Automation",
       detail:
-        "Reach customers where they already respond, so confirmations, reminders, and quick questions take minutes—not phone calls.",
-      icon: "sms",
+        "Let Summer automate repetitive business tasks, follow-ups, reminders, and everyday workflows—saving time so your team can focus on customers.",
+      icon: "automation",
     },
     {
       title: "Inventory Management",
@@ -163,7 +179,7 @@ export const ROADMAP_FUTURE_VISION = {
     {
       title: "Workflow Automation",
       detail:
-        "Hand off repetitive daily tasks so your team focuses on customers—and you reclaim hours every week.",
+        "Connect the steps of your day-to-day operations so work moves forward without constant manual handoffs.",
       icon: "automation",
     },
     {
