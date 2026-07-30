@@ -28,13 +28,12 @@ import {
 } from "react";
 
 /**
- * Nodes reflect Available Today / Early Access foundations only
- * (Product Truth Matrix). No Coming Next / Future Vision roles.
+ * Visual positions around the hub (Product Truth foundations only).
+ * Story order is separate — connections play one-by-one in STORY_ORDER.
  */
-const OUTER_NODES: ReadonlyArray<{
+const NODES: ReadonlyArray<{
   label: string;
   icon: LucideIcon;
-  /** Degrees from center; 0 = right, -90 = top */
   angle: number;
 }> = [
   { label: "Bookings", icon: CalendarDays, angle: -90 },
@@ -47,10 +46,18 @@ const OUTER_NODES: ReadonlyArray<{
   { label: "AI", icon: Bot, angle: -135 },
 ];
 
-/**
- * Lock-candidate centrepiece — ~12% larger than Final Visual Fix (1200×820).
- * Wider section max-width + larger viewBox / radius for breathing room.
- */
+/** Centre → node storytelling order (not simultaneous). */
+const STORY_ORDER = [
+  "Bookings",
+  "Customers",
+  "Staff",
+  "Communication",
+  "Locations",
+  "Summer",
+  "Reports",
+  "AI",
+] as const;
+
 const VIEW_W = 1344;
 const VIEW_H = 920;
 const CX = VIEW_W / 2;
@@ -59,20 +66,48 @@ const RADIUS = 340;
 const LINE_LENGTH = RADIUS;
 
 /**
- * Story timing (~1.9s):
- * headline → Your Business alone → lines draw → nodes complete → footnote.
+ * Cinematic timeline (~3.2s):
+ * headline → pause → Your Business → each line travels then its node activates → settle → footnote.
  */
-const HEADLINE_MS = 450;
-const CENTER_DELAY_MS = 380;
-const CENTER_MS = 480;
-const LINES_DELAY_MS = 820;
-const LINES_MS = 850;
-const NODES_DELAY_MS = 1080;
-const NODE_STAGGER_MS = 70;
-const FOOTNOTE_DELAY_MS = 1650;
-const FOOTNOTE_MS = 450;
+const HEADLINE_MS = 420;
+const PAUSE_AFTER_HEADLINE_MS = 180;
+const CENTER_MS = 420;
+const HOLD_CENTER_MS = 220;
+const LINE_DRAW_MS = 200;
+const NODE_AFTER_LINE_MS = 40;
+const NODE_APPEAR_MS = 280;
+const BETWEEN_CONNECTIONS_MS = 30;
+const SETTLE_MS = 220;
+const FOOTNOTE_MS = 400;
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+type StoryPhase =
+  | "idle"
+  | "headline"
+  | "center"
+  | "connecting"
+  | "settled"
+  | "done";
+
+type StoryState = {
+  phase: StoryPhase;
+  /** Lines that have finished drawing */
+  linesDone: number;
+  /** Index currently drawing (-1 = none) */
+  drawingIndex: number;
+  /** Nodes that have activated */
+  nodesDone: number;
+  footnote: boolean;
+};
+
+const INITIAL_STORY: StoryState = {
+  phase: "idle",
+  linesDone: 0,
+  drawingIndex: -1,
+  nodesDone: 0,
+  footnote: false,
+};
 
 function polar(angleDeg: number, radius: number) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -80,6 +115,10 @@ function polar(angleDeg: number, radius: number) {
     x: CX + Math.cos(rad) * radius,
     y: CY + Math.sin(rad) * radius,
   };
+}
+
+function nodeByLabel(label: string) {
+  return NODES.find((n) => n.label === label)!;
 }
 
 function subscribeReducedMotion(onChange: () => void) {
@@ -92,307 +131,22 @@ function getReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-/**
- * Signature connected-platform constellation for Pricing.
- * "Your Business" is the focal point; capabilities connect outward.
- */
-function PricingPlatformConstellation({
-  active,
-  reducedMotion,
-}: {
-  active: boolean;
-  reducedMotion: boolean;
-}) {
-  const show = active || reducedMotion;
-
-  return (
-    <div
-      className="mx-auto w-full max-w-7xl"
-      role="img"
-      aria-label="Your business at the center, connected to bookings, customers, communication, staff, locations, reports, AI, and Summer"
-    >
-      {/* Mobile: calm wrap around the business core */}
-      <div className="sm:hidden">
-        <ul className="grid grid-cols-3 gap-x-5 gap-y-8">
-          {OUTER_NODES.slice(0, 3).map((node, index) => (
-            <MobileNode
-              key={node.label}
-              label={node.label}
-              icon={node.icon}
-              show={show}
-              reducedMotion={reducedMotion}
-              delayMs={NODES_DELAY_MS + index * NODE_STAGGER_MS}
-            />
-          ))}
-        </ul>
-        <div className="flex justify-center py-11">
-          <span
-            className={cn(
-              "inline-flex flex-col items-center gap-2.5 rounded-full border-2 border-border bg-card px-9 py-7 text-center shadow-sm will-change-[opacity,transform]",
-              !reducedMotion && "transition-[opacity,transform]",
-              show
-                ? "translate-y-0 scale-100 opacity-100"
-                : "translate-y-5 scale-[0.82] opacity-0",
-            )}
-            style={
-              reducedMotion
-                ? undefined
-                : {
-                    transitionDuration: `${CENTER_MS}ms`,
-                    transitionTimingFunction: EASE,
-                    transitionDelay: show ? `${CENTER_DELAY_MS}ms` : "0ms",
-                  }
-            }
-          >
-            <Building2 className="h-8 w-8 text-primary" strokeWidth={1.5} />
-            <span className="text-base font-semibold tracking-tight text-foreground">
-              Your Business
-            </span>
-          </span>
-        </div>
-        <ul className="grid grid-cols-3 gap-x-5 gap-y-8">
-          {OUTER_NODES.slice(3, 6).map((node, index) => (
-            <MobileNode
-              key={node.label}
-              label={node.label}
-              icon={node.icon}
-              show={show}
-              reducedMotion={reducedMotion}
-              delayMs={NODES_DELAY_MS + (index + 3) * NODE_STAGGER_MS}
-            />
-          ))}
-        </ul>
-        <ul className="mt-8 grid grid-cols-2 justify-items-center gap-x-12">
-          {OUTER_NODES.slice(6).map((node, index) => (
-            <MobileNode
-              key={node.label}
-              label={node.label}
-              icon={node.icon}
-              show={show}
-              reducedMotion={reducedMotion}
-              delayMs={NODES_DELAY_MS + (index + 6) * NODE_STAGGER_MS}
-            />
-          ))}
-        </ul>
-      </div>
-
-      {/* sm+: constellation */}
-      <div
-        className="relative mx-auto hidden w-full overflow-visible sm:block"
-        style={{
-          maxWidth: VIEW_W,
-          aspectRatio: `${VIEW_W} / ${VIEW_H}`,
-        }}
-      >
-        <svg
-          className="absolute inset-0 h-full w-full overflow-visible text-foreground"
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden
-        >
-          <circle
-            cx={CX}
-            cy={CY}
-            r={RADIUS}
-            className="stroke-foreground/20"
-            strokeWidth={1.25}
-            strokeDasharray="4 14"
-            style={
-              reducedMotion
-                ? { opacity: 1 }
-                : {
-                    opacity: show ? 1 : 0,
-                    transition: `opacity ${LINES_MS}ms ${EASE}`,
-                    transitionDelay: show ? `${LINES_DELAY_MS}ms` : "0ms",
-                  }
-            }
-          />
-          {OUTER_NODES.map((node) => {
-            const p = polar(node.angle, RADIUS);
-            return (
-              <line
-                key={`line-${node.label}`}
-                x1={CX}
-                y1={CY}
-                x2={p.x}
-                y2={p.y}
-                className="stroke-foreground/45"
-                strokeWidth={2}
-                strokeLinecap="round"
-                pathLength={LINE_LENGTH}
-                style={
-                  reducedMotion
-                    ? {
-                        strokeDasharray: LINE_LENGTH,
-                        strokeDashoffset: 0,
-                      }
-                    : {
-                        strokeDasharray: LINE_LENGTH,
-                        strokeDashoffset: show ? 0 : LINE_LENGTH,
-                        transition: `stroke-dashoffset ${LINES_MS}ms ${EASE}`,
-                        transitionDelay: show ? `${LINES_DELAY_MS}ms` : "0ms",
-                      }
-                }
-              />
-            );
-          })}
-        </svg>
-
-        <div
-          className={cn(
-            "absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 rounded-full border-2 border-border bg-card px-12 py-8 shadow-sm will-change-[opacity,transform]",
-            !reducedMotion && "transition-[opacity,transform]",
-            show ? "scale-100 opacity-100" : "scale-[0.8] opacity-0",
-          )}
-          style={
-            reducedMotion
-              ? undefined
-              : {
-                  transitionDuration: `${CENTER_MS}ms`,
-                  transitionTimingFunction: EASE,
-                  transitionDelay: show ? `${CENTER_DELAY_MS}ms` : "0ms",
-                }
-          }
-        >
-          <Building2 className="h-8 w-8 text-primary" strokeWidth={1.5} />
-          <span className="whitespace-nowrap text-lg font-semibold tracking-tight text-foreground md:text-xl">
-            Your Business
-          </span>
-        </div>
-
-        {OUTER_NODES.map((node, index) => {
-          const p = polar(node.angle, RADIUS);
-          const Icon = node.icon;
-          const left = `${(p.x / VIEW_W) * 100}%`;
-          const top = `${(p.y / VIEW_H) * 100}%`;
-          const isSummer = node.label === "Summer";
-          return (
-            <div
-              key={node.label}
-              className={cn(
-                "absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 will-change-[opacity,transform]",
-                !reducedMotion && "transition-[opacity,transform]",
-                show
-                  ? "translate-y-0 scale-100 opacity-100"
-                  : "translate-y-5 scale-[0.86] opacity-0",
-              )}
-              style={{
-                left,
-                top,
-                ...(reducedMotion
-                  ? {}
-                  : {
-                      transitionDuration: "450ms",
-                      transitionTimingFunction: EASE,
-                      transitionDelay: show
-                        ? `${NODES_DELAY_MS + index * NODE_STAGGER_MS}ms`
-                        : "0ms",
-                    }),
-              }}
-            >
-              <span
-                className={
-                  isSummer
-                    ? "flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full border border-border/80 bg-card shadow-sm"
-                    : "flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full border border-border/70 bg-card shadow-sm"
-                }
-              >
-                <Icon
-                  className={
-                    isSummer
-                      ? "h-6 w-6 text-primary"
-                      : "h-6 w-6 text-muted-foreground"
-                  }
-                  strokeWidth={1.5}
-                />
-              </span>
-              <span
-                className={
-                  isSummer
-                    ? "whitespace-nowrap text-sm font-semibold tracking-tight text-foreground"
-                    : "whitespace-nowrap text-sm font-medium tracking-tight text-muted-foreground"
-                }
-              >
-                {node.label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function MobileNode({
-  label,
-  icon: Icon,
-  show,
-  reducedMotion,
-  delayMs,
-}: {
-  label: string;
-  icon: LucideIcon;
-  show: boolean;
-  reducedMotion: boolean;
-  delayMs: number;
-}) {
-  const isSummer = label === "Summer";
-  return (
-    <li
-      className={cn(
-        "flex flex-col items-center gap-2.5 text-center will-change-[opacity,transform]",
-        !reducedMotion && "transition-[opacity,transform]",
-        show
-          ? "translate-y-0 scale-100 opacity-100"
-          : "translate-y-5 scale-[0.86] opacity-0",
-      )}
-      style={
-        reducedMotion
-          ? undefined
-          : {
-              transitionDuration: "450ms",
-              transitionTimingFunction: EASE,
-              transitionDelay: show ? `${delayMs}ms` : "0ms",
-            }
-      }
-    >
-      <span
-        className={
-          isSummer
-            ? "flex h-16 w-16 items-center justify-center rounded-full border border-border/80 bg-card"
-            : "flex h-16 w-16 items-center justify-center rounded-full border border-border/70 bg-card"
-        }
-      >
-        <Icon
-          className={
-            isSummer
-              ? "h-6 w-6 text-primary"
-              : "h-6 w-6 text-muted-foreground"
-          }
-          strokeWidth={1.5}
-        />
-      </span>
-      <span
-        className={
-          isSummer
-            ? "text-xs font-semibold tracking-tight text-foreground"
-            : "text-xs font-medium tracking-tight text-muted-foreground"
-        }
-      >
-        {label}
-      </span>
-    </li>
-  );
+function wait(ms: number, signal: { cancelled: boolean }) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(() => {
+      if (!signal.cancelled) resolve();
+    }, ms);
+  });
 }
 
 /**
- * Signature Pricing moment — one-shot viewport story:
- * headline → Your Business → connections draw → nodes → closing line.
+ * Rebuild: sequential centre→capability connections.
+ * One controlled timeline — not unrelated fades.
  */
 export function PricingPlatformStory() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [story, setStory] = useState<StoryState>(INITIAL_STORY);
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotion,
@@ -407,31 +161,107 @@ export function PricingPlatformStory() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setActive(true);
+          setStarted(true);
           observer.disconnect();
         }
       },
-      {
-        threshold: 0.2,
-        rootMargin: "0px 0px -8% 0px",
-      },
+      { threshold: 0.22, rootMargin: "0px 0px -8% 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [reducedMotion]);
 
-  const show = active || reducedMotion;
+  useEffect(() => {
+    if (reducedMotion || !started) return;
+    const signal = { cancelled: false };
+
+    async function run() {
+      setStory({
+        phase: "headline",
+        linesDone: 0,
+        drawingIndex: -1,
+        nodesDone: 0,
+        footnote: false,
+      });
+      await wait(HEADLINE_MS + PAUSE_AFTER_HEADLINE_MS, signal);
+      if (signal.cancelled) return;
+
+      setStory((s) => ({ ...s, phase: "center" }));
+      await wait(CENTER_MS + HOLD_CENTER_MS, signal);
+      if (signal.cancelled) return;
+
+      setStory((s) => ({ ...s, phase: "connecting" }));
+
+      for (let i = 0; i < STORY_ORDER.length; i++) {
+        if (signal.cancelled) return;
+        setStory((s) => ({ ...s, drawingIndex: i }));
+        await wait(LINE_DRAW_MS, signal);
+        if (signal.cancelled) return;
+
+        setStory((s) => ({
+          ...s,
+          linesDone: i + 1,
+          drawingIndex: -1,
+        }));
+        await wait(NODE_AFTER_LINE_MS, signal);
+        if (signal.cancelled) return;
+
+        setStory((s) => ({ ...s, nodesDone: i + 1 }));
+        await wait(NODE_APPEAR_MS + BETWEEN_CONNECTIONS_MS, signal);
+      }
+
+      if (signal.cancelled) return;
+      setStory((s) => ({ ...s, phase: "settled", drawingIndex: -1 }));
+      await wait(SETTLE_MS, signal);
+      if (signal.cancelled) return;
+
+      setStory((s) => ({ ...s, phase: "done", footnote: true }));
+    }
+
+    void run();
+    return () => {
+      signal.cancelled = true;
+    };
+  }, [started, reducedMotion]);
+
+  const complete = reducedMotion;
+  const showHeadline = complete || story.phase !== "idle";
+  const showCenter =
+    complete ||
+    story.phase === "center" ||
+    story.phase === "connecting" ||
+    story.phase === "settled" ||
+    story.phase === "done";
+  const showFootnote = complete || story.footnote;
+  const showOrbit =
+    complete ||
+    story.phase === "connecting" ||
+    story.phase === "settled" ||
+    story.phase === "done";
 
   return (
     <div
       ref={sectionRef}
       className="mx-auto max-w-7xl overflow-visible text-center"
     >
+      <style>{`
+        @keyframes chasum-draw-line {
+          from { stroke-dashoffset: ${LINE_LENGTH}; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes chasum-node-in {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.84); }
+          to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+      `}</style>
+
       <div
         className={cn(
           "mx-auto max-w-2xl will-change-[opacity,transform]",
           !reducedMotion && "transition-[opacity,transform]",
-          show ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0",
+          showHeadline
+            ? "translate-y-0 opacity-100"
+            : "translate-y-8 opacity-0",
         )}
         style={
           reducedMotion
@@ -456,17 +286,167 @@ export function PricingPlatformStory() {
       </div>
 
       <div className="mt-24 px-1 md:mt-32 md:px-2 lg:mt-36">
-        <PricingPlatformConstellation
-          active={active}
-          reducedMotion={reducedMotion}
-        />
+        <div
+          className="relative mx-auto w-full max-w-7xl overflow-visible"
+          style={{
+            maxWidth: VIEW_W,
+            aspectRatio: `${VIEW_W} / ${VIEW_H}`,
+          }}
+          role="img"
+          aria-label="Your business at the center, connected to bookings, customers, staff, communication, locations, Summer, reports, and AI"
+        >
+          <svg
+            className="absolute inset-0 h-full w-full overflow-visible text-foreground"
+            viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden
+          >
+            <circle
+              cx={CX}
+              cy={CY}
+              r={RADIUS}
+              className="stroke-foreground/20"
+              strokeWidth={1.25}
+              strokeDasharray="4 14"
+              style={{
+                opacity: showOrbit ? 1 : 0,
+                transition: reducedMotion
+                  ? undefined
+                  : `opacity ${SETTLE_MS}ms ${EASE}`,
+              }}
+            />
+
+            {STORY_ORDER.map((label, storyIndex) => {
+              const node = nodeByLabel(label);
+              const p = polar(node.angle, RADIUS);
+              const isDone = complete || story.linesDone > storyIndex;
+              const isDrawing =
+                !complete && story.drawingIndex === storyIndex;
+
+              return (
+                <line
+                  key={`line-${label}`}
+                  x1={CX}
+                  y1={CY}
+                  x2={p.x}
+                  y2={p.y}
+                  className="stroke-foreground/55"
+                  strokeWidth={2.25}
+                  strokeLinecap="round"
+                  pathLength={LINE_LENGTH}
+                  style={
+                    complete || isDone
+                      ? {
+                          strokeDasharray: LINE_LENGTH,
+                          strokeDashoffset: 0,
+                        }
+                      : isDrawing
+                        ? {
+                            strokeDasharray: LINE_LENGTH,
+                            strokeDashoffset: LINE_LENGTH,
+                            animation: `chasum-draw-line ${LINE_DRAW_MS}ms ${EASE} forwards`,
+                          }
+                        : {
+                            strokeDasharray: LINE_LENGTH,
+                            strokeDashoffset: LINE_LENGTH,
+                          }
+                  }
+                />
+              );
+            })}
+          </svg>
+
+          <div
+            className={cn(
+              "absolute left-1/2 top-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-3 rounded-full border-2 border-border bg-card px-12 py-8 shadow-sm will-change-[opacity,transform]",
+              !reducedMotion && "transition-[opacity,transform]",
+              showCenter
+                ? "scale-100 opacity-100"
+                : "scale-[0.8] opacity-0",
+            )}
+            style={
+              reducedMotion
+                ? undefined
+                : {
+                    transitionDuration: `${CENTER_MS}ms`,
+                    transitionTimingFunction: EASE,
+                  }
+            }
+          >
+            <Building2 className="h-8 w-8 text-primary" strokeWidth={1.5} />
+            <span className="whitespace-nowrap text-lg font-semibold tracking-tight text-foreground md:text-xl">
+              Your Business
+            </span>
+          </div>
+
+          {STORY_ORDER.map((label, storyIndex) => {
+            const node = nodeByLabel(label);
+            const Icon = node.icon;
+            const p = polar(node.angle, RADIUS);
+            const left = `${(p.x / VIEW_W) * 100}%`;
+            const top = `${(p.y / VIEW_H) * 100}%`;
+            const isSummer = label === "Summer";
+            const visible = complete || story.nodesDone > storyIndex;
+
+            return (
+              <div
+                key={label}
+                className="absolute z-10 flex flex-col items-center gap-2"
+                style={{
+                  left,
+                  top,
+                  transform: "translate(-50%, -50%)",
+                  opacity: visible ? 1 : 0,
+                  ...(complete || reducedMotion
+                    ? {}
+                    : visible
+                      ? {
+                          animation: `chasum-node-in ${NODE_APPEAR_MS}ms ${EASE} both`,
+                        }
+                      : {
+                          transform: "translate(-50%, -50%) scale(0.84)",
+                        }),
+                }}
+              >
+                <span
+                  className={
+                    isSummer
+                      ? "flex h-[4.75rem] w-[4.75rem] items-center justify-center rounded-full border border-border/80 bg-card shadow-sm"
+                      : "flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full border border-border/70 bg-card shadow-sm"
+                  }
+                >
+                  <Icon
+                    className={
+                      isSummer
+                        ? "h-6 w-6 text-primary"
+                        : "h-6 w-6 text-muted-foreground"
+                    }
+                    strokeWidth={1.5}
+                  />
+                </span>
+                <span
+                  className={
+                    isSummer
+                      ? "whitespace-nowrap text-sm font-semibold tracking-tight text-foreground"
+                      : "whitespace-nowrap text-sm font-medium tracking-tight text-muted-foreground"
+                  }
+                >
+                  {label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <p
         className={cn(
           "mx-auto mt-24 max-w-lg text-sm leading-relaxed text-muted-foreground will-change-[opacity,transform] md:mt-28 md:text-base",
           !reducedMotion && "transition-[opacity,transform]",
-          show ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0",
+          showFootnote
+            ? "translate-y-0 opacity-100"
+            : "translate-y-6 opacity-0",
         )}
         style={
           reducedMotion
@@ -474,7 +454,6 @@ export function PricingPlatformStory() {
             : {
                 transitionDuration: `${FOOTNOTE_MS}ms`,
                 transitionTimingFunction: EASE,
-                transitionDelay: show ? `${FOOTNOTE_DELAY_MS}ms` : "0ms",
               }
         }
       >
