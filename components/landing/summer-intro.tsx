@@ -49,9 +49,12 @@ export function SummerIntro() {
             </p>
             <div className="mt-8 flex justify-center lg:justify-start">
               <Link href={MEET_SUMMER_HREF} className="group inline-flex">
-                <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 items-center gap-2.5 rounded-full px-8 text-[15px] font-semibold text-primary-foreground">
+                <span className="marketing-hero-btn-primary inline-flex h-12 min-h-12 items-center gap-2 rounded-full px-8 text-[15px] font-semibold leading-none text-primary-foreground">
                   {CTA_START_WITH_SUMMER_LABEL}
-                  <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5" />
+                  <ArrowRight
+                    className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
                 </span>
               </Link>
             </div>

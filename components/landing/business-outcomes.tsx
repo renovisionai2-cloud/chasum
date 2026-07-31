@@ -50,7 +50,7 @@ export function BusinessOutcomes() {
           </p>
         </Reveal>
 
-        <ul className="mt-12 grid gap-5 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
+        <ul className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
           {OUTCOMES.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -65,7 +65,7 @@ export function BusinessOutcomes() {
                     strokeWidth={1.5}
                     aria-hidden
                   />
-                  <h3 className="relative mt-5 text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                  <h3 className="relative mt-5 text-xl font-semibold leading-snug tracking-tight text-foreground md:text-2xl">
                     {item.title}
                   </h3>
                   <p className="relative mt-3 flex-1 text-base leading-relaxed text-muted-foreground">

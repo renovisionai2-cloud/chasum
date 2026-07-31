@@ -16,7 +16,7 @@ import Link from "next/link";
 export function Hero() {
   return (
     <section
-      className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-12 sm:px-6 md:pb-20 md:pt-14 lg:px-8 lg:pb-24 lg:pt-16"
+      className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-14 sm:px-6 md:pb-20 md:pt-16 lg:px-8 lg:pb-24 lg:pt-[4.5rem]"
       aria-labelledby="hero-heading"
     >
       <div className="mx-auto grid w-full max-w-[1400px] items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14 xl:gap-16">
@@ -27,7 +27,7 @@ export function Hero() {
 
           <h1
             id="hero-heading"
-            className="fd-hero-enter fd-hero-enter-delay-1 mt-5 text-[2.35rem] font-semibold leading-[1.1] tracking-[-0.045em] text-foreground sm:mt-6 sm:text-5xl sm:leading-[1.08] md:text-[3.25rem] lg:text-[3.5rem]"
+            className="fd-hero-enter fd-hero-enter-delay-1 mt-6 text-[2.35rem] font-semibold leading-[1.1] tracking-[-0.045em] text-foreground sm:mt-7 sm:text-5xl sm:leading-[1.08] md:text-[3.25rem] lg:text-[3.5rem]"
           >
             Your business already works.
             <br />
@@ -51,19 +51,22 @@ export function Hero() {
             </p>
           </div>
 
-          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-9 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-6">
+          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-9 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-5">
             <Link href={MEET_SUMMER_HREF} className="group inline-flex justify-center sm:justify-start">
-              <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 w-full items-center justify-center gap-2.5 rounded-full px-8 text-[15px] font-semibold text-primary-foreground sm:w-auto">
+              <span className="marketing-hero-btn-primary inline-flex h-12 min-h-12 w-full items-center justify-center gap-2 rounded-full px-8 text-[15px] font-semibold leading-none text-primary-foreground sm:w-auto">
                 {CTA_START_WITH_SUMMER_LABEL}
-                <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5" />
+                <ArrowRight
+                  className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5"
+                  aria-hidden
+                />
               </span>
             </Link>
             <Link
               href={APPLY_HREF}
-              className="marketing-focus-ring inline-flex h-12 min-h-11 items-center justify-center gap-1.5 px-1 text-[15px] font-semibold leading-none text-foreground/80 transition-colors duration-250 hover:text-foreground"
+              className="marketing-focus-ring inline-flex h-12 min-h-12 items-center justify-center gap-1.5 px-1 text-[15px] font-semibold leading-none text-foreground/80 transition-colors duration-250 hover:text-foreground"
             >
               {CTA_APPLY_LABEL}
-              <span aria-hidden className="translate-y-px text-muted-foreground">
+              <span aria-hidden className="text-muted-foreground">
                 ›
               </span>
             </Link>

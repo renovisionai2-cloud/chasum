@@ -68,7 +68,7 @@ export function TrustedPlatform() {
             >
               Every business is already full of software.
             </h2>
-            <ul className="mt-8 space-y-2 text-lg text-muted-foreground md:text-xl">
+            <ul className="mt-8 space-y-2.5 text-lg leading-snug text-muted-foreground md:text-xl">
               {LIST.map((item) => (
                 <li key={item}>{item}</li>
               ))}

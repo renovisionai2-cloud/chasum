@@ -38,17 +38,17 @@ export function PrivateAlphaInvite() {
             <Link href={APPLY_HREF} className="inline-flex justify-center">
               <Button
                 size="lg"
-                className="marketing-cta-button h-12 min-h-11 w-full rounded-full px-8 sm:w-auto"
+                className="marketing-cta-button h-12 min-h-12 w-full rounded-full px-8 text-[15px] leading-none sm:w-auto"
               >
                 {CTA_APPLY_LABEL}
-                <ArrowRight className="h-4 w-4 shrink-0" />
+                <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
               </Button>
             </Link>
             <Link href={DEMO_HREF} className="inline-flex justify-center">
               <Button
                 variant="outline"
                 size="lg"
-                className="marketing-cta-button h-12 min-h-11 w-full rounded-full px-8 sm:w-auto"
+                className="marketing-cta-button h-12 min-h-12 w-full rounded-full px-8 text-[15px] leading-none sm:w-auto"
               >
                 {CTA_DEMO_LABEL}
               </Button>

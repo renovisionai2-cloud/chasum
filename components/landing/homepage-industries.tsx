@@ -147,7 +147,7 @@ export function HomepageIndustries() {
                       className="fd-industry-tile-overlay pointer-events-none absolute inset-0"
                       aria-hidden
                     />
-                    <span className="relative z-[1] flex flex-col items-start p-4 sm:p-5">
+                    <span className="relative z-[1] flex flex-col items-start gap-0 p-4 sm:p-5">
                       <Icon
                         className="h-5 w-5 shrink-0 text-white/90"
                         strokeWidth={1.75}

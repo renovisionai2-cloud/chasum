@@ -85,21 +85,21 @@ export function ConnectedOperatingSystem() {
         </Reveal>
 
         <div className="mt-12 grid items-stretch gap-4 lg:mt-14 lg:grid-cols-[minmax(11.5rem,1fr)_minmax(0,1.35fr)_minmax(11.5rem,1fr)] lg:gap-6 xl:grid-cols-[minmax(12.5rem,1fr)_minmax(0,1.4fr)_minmax(12.5rem,1fr)] xl:gap-8">
-          <ul className="flex flex-row gap-3 overflow-x-auto pb-1 lg:flex-col lg:gap-3 lg:overflow-visible lg:pb-0">
+          <ul className="flex h-auto flex-row gap-3 overflow-x-auto pb-1 lg:h-full lg:flex-col lg:justify-between lg:gap-3 lg:overflow-visible lg:pb-0">
             {LEFT.map((item, index) => (
-              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0">
+              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0 lg:flex-none">
                 <ModuleCard {...item} delayMs={index * 50} />
               </li>
             ))}
           </ul>
 
-          <Reveal delayMs={80}>
+          <Reveal delayMs={80} className="h-full min-h-0">
             <div className="relative h-full">
               <div
                 className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/18 via-transparent to-spark/12 blur-2xl"
                 aria-hidden
               />
-              <div className="fd-product-frame overflow-hidden rounded-2xl border border-border/55 bg-card/90">
+              <div className="fd-product-frame h-full overflow-hidden rounded-2xl border border-border/55 bg-card/90">
                 <DashboardPreview
                   variant="overview"
                   className="min-h-[280px] border-0 shadow-none md:min-h-[400px] lg:min-h-[440px]"
@@ -108,9 +108,9 @@ export function ConnectedOperatingSystem() {
             </div>
           </Reveal>
 
-          <ul className="flex flex-row gap-3 overflow-x-auto pb-1 lg:flex-col lg:gap-3 lg:overflow-visible lg:pb-0">
+          <ul className="flex h-auto flex-row gap-3 overflow-x-auto pb-1 lg:h-full lg:flex-col lg:justify-between lg:gap-3 lg:overflow-visible lg:pb-0">
             {RIGHT.map((item, index) => (
-              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0">
+              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0 lg:flex-none">
                 <ModuleCard {...item} delayMs={index * 50 + 60} />
               </li>
             ))}
