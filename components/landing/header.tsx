@@ -77,14 +77,14 @@ export function LandingHeader() {
           href="/"
           size="md"
           className={cn(
-            "origin-left scale-[1.18]",
+            "origin-left shrink-0 scale-[1.12] self-center",
             homeActive && "marketing-logo-home-active",
           )}
           aria-current={homeActive ? "page" : undefined}
         />
 
         <nav
-          className="hidden items-center gap-2 xl:flex"
+          className="hidden items-center gap-1.5 xl:flex 2xl:gap-2"
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
@@ -107,12 +107,12 @@ export function LandingHeader() {
             );
           })}
 
-          <div className="relative" ref={resourcesRef}>
+          <div className="relative flex items-center" ref={resourcesRef}>
             <button
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-[color,background-color] duration-250",
+                "marketing-focus-ring inline-flex h-[2.125rem] items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
                 resourcesOpen || resourcesActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -123,9 +123,10 @@ export function LandingHeader() {
               Resources
               <ChevronDown
                 className={cn(
-                  "h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  "h-3.5 w-3.5 shrink-0 opacity-80 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                   resourcesOpen && "rotate-180",
                 )}
+                aria-hidden
               />
             </button>
             {resourcesOpen ? (
@@ -163,13 +164,13 @@ export function LandingHeader() {
 
         <div className="hidden items-center gap-2 xl:flex">
           <ThemeToggle />
-          <Link href={LOGIN_HREF}>
-            <Button variant="ghost" size="sm" className="text-[13px]">
+          <Link href={LOGIN_HREF} className="inline-flex items-center">
+            <Button variant="ghost" size="sm" className="h-9 text-[13px]">
               {CTA_LOGIN_LABEL}
             </Button>
           </Link>
-          <Link href={APPLY_HREF} className="ml-2">
-            <Button size="sm" className="marketing-cta-button rounded-full px-5">
+          <Link href={APPLY_HREF} className="ml-1 inline-flex items-center">
+            <Button size="sm" className="marketing-cta-button h-9 rounded-full px-5">
               {CTA_APPLY_LABEL}
             </Button>
           </Link>

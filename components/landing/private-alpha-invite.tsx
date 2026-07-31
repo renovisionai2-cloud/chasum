@@ -34,18 +34,21 @@ export function PrivateAlphaInvite() {
         </Reveal>
 
         <Reveal delayMs={80}>
-          <div className="mx-auto mt-12 flex max-w-xl flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href={APPLY_HREF}>
-              <Button size="lg" className="h-12 min-h-11 rounded-full px-8">
+          <div className="mx-auto mt-10 flex max-w-xl flex-col items-stretch gap-3 sm:mt-12 sm:flex-row sm:items-center sm:justify-center">
+            <Link href={APPLY_HREF} className="inline-flex justify-center">
+              <Button
+                size="lg"
+                className="marketing-cta-button h-12 min-h-11 w-full rounded-full px-8 sm:w-auto"
+              >
                 {CTA_APPLY_LABEL}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 shrink-0" />
               </Button>
             </Link>
-            <Link href={DEMO_HREF}>
+            <Link href={DEMO_HREF} className="inline-flex justify-center">
               <Button
                 variant="outline"
                 size="lg"
-                className="h-12 min-h-11 rounded-full px-8"
+                className="marketing-cta-button h-12 min-h-11 w-full rounded-full px-8 sm:w-auto"
               >
                 {CTA_DEMO_LABEL}
               </Button>

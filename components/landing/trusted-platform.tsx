@@ -59,9 +59,9 @@ export function TrustedPlatform() {
       className="scroll-mt-24 px-5 py-20 sm:px-6 md:py-28 lg:px-8"
       aria-labelledby="disconnected-heading"
     >
-      <div className="mx-auto grid max-w-[1400px] items-center gap-14 lg:grid-cols-2 lg:gap-16">
+      <div className="mx-auto grid max-w-[1400px] items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <Reveal>
-          <div className="max-w-xl">
+          <div className="mx-auto max-w-xl lg:mx-0">
             <h2
               id="disconnected-heading"
               className="text-balance text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl md:text-[2.75rem] md:leading-[1.12]"

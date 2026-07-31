@@ -50,25 +50,25 @@ export function BusinessOutcomes() {
           </p>
         </Reveal>
 
-        <ul className="mt-12 grid gap-5 md:grid-cols-3 md:gap-6">
+        <ul className="mt-12 grid gap-5 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
           {OUTCOMES.map((item, index) => {
             const Icon = item.icon;
             return (
               <Reveal key={item.title} delayMs={index * 70}>
-                <li className="fd-outcome-card relative h-full overflow-hidden rounded-3xl border border-border/60 bg-card/60 p-7 shadow-sm md:p-8">
+                <li className="fd-outcome-card relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card/60 p-7 shadow-sm transition-[border-color,box-shadow] duration-250 md:p-8">
                   <div
                     className={`pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${item.accent}`}
                     aria-hidden
                   />
                   <Icon
-                    className="relative h-6 w-6 text-primary"
+                    className="relative h-6 w-6 shrink-0 text-primary"
                     strokeWidth={1.5}
                     aria-hidden
                   />
                   <h3 className="relative mt-4 text-xl font-semibold tracking-tight text-foreground md:text-2xl">
                     {item.title}
                   </h3>
-                  <p className="relative mt-4 text-base leading-relaxed text-muted-foreground">
+                  <p className="relative mt-4 flex-1 text-base leading-relaxed text-muted-foreground">
                     {item.body}
                   </p>
                 </li>

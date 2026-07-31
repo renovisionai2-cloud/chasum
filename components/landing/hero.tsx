@@ -16,11 +16,11 @@ import Link from "next/link";
 export function Hero() {
   return (
     <section
-      className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-10 sm:px-6 md:pb-24 md:pt-14 lg:px-8 lg:pt-16"
+      className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-12 sm:px-6 md:pb-20 md:pt-14 lg:px-8 lg:pb-24 lg:pt-16"
       aria-labelledby="hero-heading"
     >
-      <div className="mx-auto grid w-full max-w-[1400px] items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14 xl:gap-16">
-        <div className="fd-hero-copy max-w-xl lg:max-w-none">
+      <div className="mx-auto grid w-full max-w-[1400px] items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14 xl:gap-16">
+        <div className="fd-hero-copy mx-auto w-full max-w-xl lg:mx-0 lg:max-w-none">
           <p className="fd-hero-enter text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
             AI Business Operating System
           </p>
@@ -51,11 +51,11 @@ export function Hero() {
             </p>
           </div>
 
-          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-10 flex flex-col items-stretch gap-5 sm:mt-11 sm:flex-row sm:items-center sm:gap-8">
-            <Link href={MEET_SUMMER_HREF} className="group">
+          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-10 flex flex-col items-stretch gap-4 sm:mt-11 sm:flex-row sm:items-center sm:gap-7">
+            <Link href={MEET_SUMMER_HREF} className="group inline-flex justify-center sm:justify-start">
               <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 w-full items-center justify-center gap-2 rounded-full px-8 text-[15px] font-semibold text-primary-foreground sm:w-auto">
                 {CTA_START_WITH_SUMMER_LABEL}
-                <ArrowRight className="h-4 w-4 transition-transform duration-250 group-hover:translate-x-0.5" />
+                <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5" />
               </span>
             </Link>
             <Link

@@ -1572,22 +1572,29 @@ body {
 
 .marketing-nav-link {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.25;
 }
 
 .marketing-nav-link::after {
   content: "";
   position: absolute;
-  inset-inline: 0.85rem;
-  bottom: 0.35rem;
+  left: 50%;
+  bottom: 0.3rem;
+  width: calc(100% - 1.5rem);
+  max-width: 2.75rem;
   height: 1.5px;
   border-radius: 9999px;
   background: var(--primary);
-  transform: scaleX(0);
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .marketing-nav-link[data-active="true"]::after {
-  transform: scaleX(1);
+  transform: translateX(-50%) scaleX(1);
 }
 
 @keyframes marketing-cursor-blink {
@@ -1767,11 +1774,18 @@ body {
   .marketing-product-frame,
   .marketing-product-frame:hover,
   .marketing-faq-panel,
-  .marketing-faq-icon,
-  .marketing-nav-link::after {
+  .marketing-faq-icon {
     transition: none !important;
     transform: none !important;
     box-shadow: none !important;
+  }
+
+  .marketing-nav-link::after {
+    transition: none !important;
+  }
+
+  .marketing-nav-link[data-active="true"]::after {
+    transform: translateX(-50%) scaleX(1) !important;
   }
 }
 

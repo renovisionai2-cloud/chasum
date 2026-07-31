@@ -112,23 +112,23 @@ export function HomepageIndustries() {
           </div>
         </Reveal>
 
-        <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-3">
+        <ul className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5 lg:gap-4">
           {HOMEPAGE_INDUSTRY_TILES.map((tile, index) => {
             const Icon = tile.icon;
             const visual = getIndustryImage(tile.name);
             return (
               <Reveal key={tile.name} delayMs={Math.min(index * 40, 200)}>
-                <li>
+                <li className="h-full">
                   <Link
                     href={INDUSTRIES_HREF}
-                    className="fd-industry-tile marketing-focus-ring relative flex min-h-[11.5rem] flex-col justify-end overflow-hidden rounded-2xl border border-border/60 sm:min-h-[12.75rem]"
+                    className="fd-industry-tile marketing-focus-ring relative flex h-full min-h-[11.5rem] flex-col justify-end overflow-hidden rounded-2xl border border-border/60 sm:min-h-[12.5rem]"
                   >
                     {visual ? (
                       <Image
                         src={visual.thumbnail}
                         alt=""
                         fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 420px"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 20vw, 280px"
                         className="fd-industry-tile-img object-cover"
                         style={
                           visual.objectPosition
@@ -149,14 +149,14 @@ export function HomepageIndustries() {
                     />
                     <span className="relative z-[1] flex flex-col items-start p-4 sm:p-5">
                       <Icon
-                        className="h-5 w-5 text-white/90"
+                        className="h-5 w-5 shrink-0 text-white/90"
                         strokeWidth={1.75}
                         aria-hidden
                       />
-                      <span className="mt-3 text-sm font-semibold tracking-tight text-white sm:text-[15px]">
+                      <span className="mt-3 text-sm font-semibold leading-snug tracking-tight text-white sm:text-[15px]">
                         {tile.name}
                       </span>
-                      <span className="mt-1.5 text-xs leading-relaxed text-white/80 sm:text-[13px]">
+                      <span className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-white/80 sm:text-[13px]">
                         {tile.blurb}
                       </span>
                     </span>
@@ -168,7 +168,7 @@ export function HomepageIndustries() {
         </ul>
 
         <Reveal delayMs={160}>
-          <div className="mt-10 text-center">
+          <div className="mt-10 flex justify-center">
             <Link
               href={INDUSTRIES_HREF}
               className="marketing-focus-ring inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-4 hover:underline"
