@@ -215,7 +215,8 @@ export async function queueReceiptEmail(
         amountCents: receipt.amount_cents,
         receiptNumber: receipt.receipt_number,
       },
-      skipPreferenceCheck: false,
+      // Payment receipts are transactional confirmations.
+      skipPreferenceCheck: true,
     },
   });
 

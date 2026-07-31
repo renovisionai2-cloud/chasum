@@ -86,10 +86,10 @@ export function buildDashboardInsights(input: InsightInput): DashboardInsight[] 
   if (input.customerCount > 0 && input.upcomingCount === 0) {
     insights.push({
       id: "no-upcoming",
-      employeeId: "emma",
-      employeeName: "Emma",
-      role: "AI Receptionist",
-      message: `Emma sees ${input.customerCount} clients on file but no upcoming appointments — consider reaching out or opening the booking link.`,
+      employeeId: "summer",
+      employeeName: "Summer",
+      role: "AI Business Manager",
+      message: `Summer sees ${input.customerCount} clients on file but no upcoming appointments — consider reaching out or opening the booking link.`,
       href: "/dashboard/clients",
     });
   }
@@ -138,9 +138,14 @@ export function buildAiSummary(input: {
   return parts.join(" ");
 }
 
+/**
+ * Greeting windows in business-local clock time:
+ * 05:00–11:59 → morning · 12:00–16:59 → afternoon · 17:00–04:59 → evening
+ */
 export function greetingForHour(hour: number): string {
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
+  const h = ((Math.trunc(hour) % 24) + 24) % 24;
+  if (h >= 5 && h < 12) return "Good morning";
+  if (h >= 12 && h < 17) return "Good afternoon";
   return "Good evening";
 }
 

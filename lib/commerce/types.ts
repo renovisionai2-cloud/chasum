@@ -173,6 +173,7 @@ export type CustomerCommerceAccount = {
 export type CommerceDashboardSnapshot = {
   businessId: string;
   businessName: string;
+  currency: string;
   generatedAt: string;
   schemaReady: boolean;
   schemaMessage: string | null;

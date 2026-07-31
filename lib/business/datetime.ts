@@ -64,6 +64,15 @@ export function resolveBusinessTimezone(
   return getBusinessTimezone(input);
 }
 
+/** Local hour (0–23) in the business/location timezone. */
+export function hourInBusinessTimezone(
+  date: Date,
+  input: BusinessLocaleInput & { locationTimezone?: string | null },
+): number {
+  const timeZone = resolveBusinessTimezone(input);
+  return partsInZone(date, timeZone).hour;
+}
+
 export function startOfBusinessDay(
   date: Date,
   input: BusinessLocaleInput & { locationTimezone?: string | null },

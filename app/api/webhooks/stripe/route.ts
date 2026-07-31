@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { finalizeStripePaymentIntent } from "@/lib/commerce/payments";
 import { getStripeWebhookSecret } from "@/lib/env";
 import { logger, capturePaymentFailure } from "@/lib/observability/logger";
 import {
@@ -10,8 +11,8 @@ import {
 import { verifyStripeWebhookSignature } from "@/lib/security/webhooks";
 
 /**
- * Stripe webhook ingress — verifies signature before acknowledging events.
- * Full PaymentIntent reconciliation lands with Elements checkout; this hardens the endpoint now.
+ * Stripe webhook ingress — verifies signature, then reconciles PaymentIntents
+ * into the commerce ledger (appointment / invoice / receipt sync).
  */
 export async function POST(request: Request) {
   const ip = clientIpFromHeaders(request.headers);
@@ -45,9 +46,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  let event: { id?: string; type?: string };
+  let event: {
+    id?: string;
+    type?: string;
+    data?: { object?: { id?: string; object?: string; status?: string } };
+  };
   try {
-    event = JSON.parse(body) as { id?: string; type?: string };
+    event = JSON.parse(body) as typeof event;
   } catch (error) {
     await capturePaymentFailure(error, { provider: "stripe" });
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
@@ -58,7 +63,39 @@ export async function POST(request: Request) {
     type: event.type,
   });
 
-  // Acknowledge; domain handlers expand with Commerce Milestone follow-ups.
+  if (
+    event.type === "payment_intent.succeeded" &&
+    event.data?.object?.object === "payment_intent" &&
+    event.data.object.id
+  ) {
+    try {
+      const result = await finalizeStripePaymentIntent({
+        providerPaymentIntentId: event.data.object.id,
+      });
+      if (!result.ok) {
+        logger.warn("stripe-webhook", "finalize skipped or failed", {
+          eventId: event.id,
+          paymentIntentId: event.data.object.id,
+          error: result.error,
+        });
+      } else {
+        logger.info("stripe-webhook", "payment finalized", {
+          eventId: event.id,
+          paymentIntentId: event.data.object.id,
+        });
+      }
+    } catch (error) {
+      await capturePaymentFailure(error, {
+        provider: "stripe",
+        eventId: event.id,
+      });
+      logger.error("stripe-webhook", "finalize threw", {
+        eventId: event.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   return NextResponse.json(
     { received: true },
     { headers: rateLimitHeaders(limit) },

@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function EmployeeProfilePage({ params }: PageProps) {
   const { id } = await params;
-  await getOrCreateBusiness();
+  const business = await getOrCreateBusiness();
   const [employee, services, locations, departments] = await Promise.all([
     loadEmployeeProfile(id),
     getServices(),
@@ -57,6 +57,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
         services={services}
         locations={locations}
         departments={departments}
+        currency={business.currency}
       />
     </div>
   );

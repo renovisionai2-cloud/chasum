@@ -69,9 +69,16 @@ export function formatBusinessDate(
   options?: Intl.DateTimeFormatOptions,
 ): string {
   const date = typeof iso === "string" ? new Date(iso) : iso;
+  const hasParts = Boolean(
+    options?.weekday ||
+      options?.year ||
+      options?.month ||
+      options?.day ||
+      options?.era,
+  );
   return new Intl.DateTimeFormat(getBusinessLocale(input), {
     timeZone: getBusinessTimezone(input),
-    dateStyle: "medium",
+    ...(hasParts ? {} : { dateStyle: "medium" as const }),
     ...options,
   }).format(date);
 }

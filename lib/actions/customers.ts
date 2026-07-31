@@ -148,6 +148,7 @@ export async function updateCustomer(
 
   revalidatePath("/dashboard/clients");
   revalidatePath(`/dashboard/clients/${id}`);
+  revalidatePath("/dashboard/calendar");
   return { success: "Customer updated." };
 }
 

@@ -4,20 +4,21 @@ import {
   listTransactions,
 } from "@/lib/commerce/payments";
 import { listRefunds } from "@/lib/commerce/refunds";
+import { normalizeCurrency } from "@/lib/commerce/money";
 import type {
   ChaseCommerceMetrics,
   CommerceDashboardSnapshot,
+  CommerceInvoice,
 } from "@/lib/commerce/types";
+import {
+  endOfBusinessDay,
+  startOfBusinessDay,
+  startOfBusinessMonth,
+  startOfBusinessWeek,
+} from "@/lib/business/datetime";
 import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
-import {
-  endOfMonth,
-  endOfWeek,
-  startOfMonth,
-  startOfWeek,
-  startOfDay,
-  endOfDay,
-} from "date-fns";
+import { addDays } from "date-fns";
 
 function sumSucceededPayments(
   txs: Awaited<ReturnType<typeof listTransactions>>,
@@ -34,13 +35,51 @@ function sumSucceededPayments(
     .reduce((s, t) => s + t.amountCents, 0);
 }
 
+function isOutstandingInvoice(invoice: CommerceInvoice): boolean {
+  if (invoice.balanceCents <= 0) return false;
+  if (["paid", "void", "refunded"].includes(invoice.status)) return false;
+  return true;
+}
+
 export async function getCommerceDashboardSnapshot(
   businessId: string,
   businessName: string,
+  options?: { currency?: string | null; timezone?: string | null },
 ): Promise<CommerceDashboardSnapshot> {
   const supabase = await createClient();
   const now = new Date();
   const provider = getActiveProviderSummary();
+  const currency = normalizeCurrency(options?.currency);
+  const localeInput = {
+    timezone: options?.timezone ?? "America/Toronto",
+    currency,
+  };
+
+  const empty = (
+    schemaReady: boolean,
+    schemaMessage: string | null,
+  ): CommerceDashboardSnapshot => ({
+    businessId,
+    businessName,
+    currency,
+    generatedAt: now.toISOString(),
+    schemaReady,
+    schemaMessage,
+    revenueTodayCents: 0,
+    revenueWeekCents: 0,
+    revenueMonthCents: 0,
+    outstandingInvoicesCents: 0,
+    outstandingInvoicesCount: 0,
+    outstandingDepositsCents: 0,
+    outstandingDepositsCount: 0,
+    refundsMonthCents: 0,
+    averageTransactionCents: null,
+    averageCustomerValueCents: null,
+    recentTransactions: [],
+    openInvoices: [],
+    recentRefunds: [],
+    provider,
+  });
 
   const probe = await supabase
     .from("commerce_transactions")
@@ -49,28 +88,10 @@ export async function getCommerceDashboardSnapshot(
     .limit(1);
 
   if (probe.error && isSoftSchemaFallbackAllowed(probe.error.message)) {
-    return {
-      businessId,
-      businessName,
-      generatedAt: now.toISOString(),
-      schemaReady: false,
-      schemaMessage:
-        "Payments aren't fully set up yet. Contact support or your admin to finish commerce setup.",
-      revenueTodayCents: 0,
-      revenueWeekCents: 0,
-      revenueMonthCents: 0,
-      outstandingInvoicesCents: 0,
-      outstandingInvoicesCount: 0,
-      outstandingDepositsCents: 0,
-      outstandingDepositsCount: 0,
-      refundsMonthCents: 0,
-      averageTransactionCents: null,
-      averageCustomerValueCents: null,
-      recentTransactions: [],
-      openInvoices: [],
-      recentRefunds: [],
-      provider,
-    };
+    return empty(
+      false,
+      "Payments aren't fully set up yet. Contact support or your admin to finish commerce setup.",
+    );
   }
 
   const [transactions, invoices, refunds, depositAppts] = await Promise.all([
@@ -79,7 +100,9 @@ export async function getCommerceDashboardSnapshot(
     listRefunds({ businessId, limit: 100 }),
     supabase
       .from("appointments")
-      .select("id, price_cents, amount_paid_cents, deposit_cents, payment_status, status")
+      .select(
+        "id, customer_id, price_cents, amount_paid_cents, amount_refunded_cents, deposit_cents, payment_status, status, invoice_number, customer:customers(name)",
+      )
       .eq("business_id", businessId)
       .in("payment_status", [
         "unpaid",
@@ -91,30 +114,87 @@ export async function getCommerceDashboardSnapshot(
       .limit(200),
   ]);
 
-  const dayStart = startOfDay(now);
-  const dayEnd = endOfDay(now);
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
-  const monthStart = startOfMonth(now);
-  const monthEnd = endOfMonth(now);
+  const dayStart = startOfBusinessDay(now, localeInput);
+  const dayEnd = endOfBusinessDay(now, localeInput);
+  const weekStart = startOfBusinessWeek(now, localeInput);
+  const weekEndBiz = endOfBusinessDay(addDays(weekStart, 6), localeInput);
+  const monthStart = startOfBusinessMonth(now, localeInput);
+  const nextMonthStart = startOfBusinessMonth(
+    addDays(monthStart, 35),
+    localeInput,
+  );
+  const monthEndBiz = new Date(nextMonthStart.getTime() - 1);
 
   const revenueTodayCents = sumSucceededPayments(transactions, dayStart, dayEnd);
-  const revenueWeekCents = sumSucceededPayments(transactions, weekStart, weekEnd);
+  const revenueWeekCents = sumSucceededPayments(
+    transactions,
+    weekStart,
+    weekEndBiz,
+  );
   const revenueMonthCents = sumSucceededPayments(
     transactions,
     monthStart,
-    monthEnd,
+    monthEndBiz,
   );
 
-  const openInvoices = invoices.filter((i) =>
-    ["open", "partial", "overdue"].includes(i.status),
+  let openInvoices = invoices.filter(isOutstandingInvoice);
+
+  // Surface unpaid appointment balances that have no matching open commerce invoice.
+  const openInvoiceApptIds = new Set(
+    openInvoices
+      .map((i) => i.appointmentId)
+      .filter((id): id is string => Boolean(id)),
   );
+  const depositRows = depositAppts.data ?? [];
+  const syntheticFromAppts: CommerceInvoice[] = [];
+  for (const a of depositRows) {
+    if (openInvoiceApptIds.has(String(a.id))) continue;
+    const price = Number(a.price_cents ?? 0);
+    const paid = Number(a.amount_paid_cents ?? 0);
+    const refunded = Number(a.amount_refunded_cents ?? 0);
+    const balance = Math.max(0, price - Math.max(0, paid - refunded));
+    if (balance <= 0) continue;
+    const cust = a.customer as
+      | { name?: string | null }
+      | { name?: string | null }[]
+      | null;
+    const custName = Array.isArray(cust)
+      ? cust[0]?.name
+      : cust?.name;
+    syntheticFromAppts.push({
+      id: `appt:${a.id}`,
+      businessId,
+      customerId: String(a.customer_id ?? ""),
+      appointmentId: String(a.id),
+      invoiceNumber:
+        (a.invoice_number as string | null) ||
+        `Booking ${String(a.id).slice(0, 8)}`,
+      status:
+        paid > 0 ? "partial" : ("open" as const),
+      issueDate: now.toISOString().slice(0, 10),
+      dueDate: null,
+      currency,
+      subtotalCents: price,
+      taxCents: 0,
+      discountCents: 0,
+      totalCents: price,
+      amountPaidCents: Math.max(0, paid - refunded),
+      amountRefundedCents: refunded,
+      balanceCents: balance,
+      notes: null,
+      businessSnapshot: {},
+      customerSnapshot: { name: custName ?? null },
+      lines: [],
+      createdAt: now.toISOString(),
+    });
+  }
+  openInvoices = [...openInvoices, ...syntheticFromAppts];
+
   const outstandingInvoicesCents = openInvoices.reduce(
     (s, i) => s + i.balanceCents,
     0,
   );
 
-  const depositRows = depositAppts.data ?? [];
   let outstandingDepositsCents = 0;
   let outstandingDepositsCount = 0;
   for (const a of depositRows) {
@@ -132,7 +212,7 @@ export async function getCommerceDashboardSnapshot(
     return (
       r.status === "succeeded" &&
       at >= monthStart.getTime() &&
-      at <= monthEnd.getTime()
+      at <= monthEndBiz.getTime()
     );
   });
   const refundsMonthCents = monthRefunds.reduce((s, r) => s + r.amountCents, 0);
@@ -165,6 +245,7 @@ export async function getCommerceDashboardSnapshot(
   return {
     businessId,
     businessName,
+    currency,
     generatedAt: now.toISOString(),
     schemaReady: true,
     schemaMessage: null,

@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
+import { useFormAction } from "@/hooks/use-form-action";
 
 const initial: CommerceActionState = {};
 
@@ -89,6 +90,7 @@ export function PaymentsDashboard({
   initialCustomerId?: string;
   initialAppointmentId?: string;
 }) {
+  const money = (cents: number) => centsToDollars(cents, snapshot.currency);
   const [payState, payAction, payPending] = useActionState(
     recordPaymentAction,
     initial,
@@ -97,6 +99,8 @@ export function PaymentsDashboard({
     refundPaymentAction,
     initial,
   );
+  useFormAction(payState as { error?: string; success?: string });
+  useFormAction(refundState as { error?: string; success?: string });
   const [viewer, setViewer] = useState<{
     title: string;
     body: string;
@@ -163,43 +167,43 @@ export function PaymentsDashboard({
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
             label="Revenue today"
-            value={centsToDollars(snapshot.revenueTodayCents)}
+            value={money(snapshot.revenueTodayCents)}
           />
           <Metric
             label="Revenue this week"
-            value={centsToDollars(snapshot.revenueWeekCents)}
+            value={money(snapshot.revenueWeekCents)}
           />
           <Metric
             label="Revenue this month"
-            value={centsToDollars(snapshot.revenueMonthCents)}
+            value={money(snapshot.revenueMonthCents)}
           />
           <Metric
             label="Avg transaction"
             value={
               snapshot.averageTransactionCents != null
-                ? centsToDollars(snapshot.averageTransactionCents)
+                ? money(snapshot.averageTransactionCents)
                 : "—"
             }
           />
           <Metric
             label="Outstanding invoices"
-            value={centsToDollars(snapshot.outstandingInvoicesCents)}
+            value={money(snapshot.outstandingInvoicesCents)}
             hint={`${snapshot.outstandingInvoicesCount} open`}
           />
           <Metric
             label="Outstanding deposits"
-            value={centsToDollars(snapshot.outstandingDepositsCents)}
+            value={money(snapshot.outstandingDepositsCents)}
             hint={`${snapshot.outstandingDepositsCount} bookings`}
           />
           <Metric
             label="Refunds (month)"
-            value={centsToDollars(snapshot.refundsMonthCents)}
+            value={money(snapshot.refundsMonthCents)}
           />
           <Metric
             label="Avg customer value"
             value={
               snapshot.averageCustomerValueCents != null
-                ? centsToDollars(snapshot.averageCustomerValueCents)
+                ? money(snapshot.averageCustomerValueCents)
                 : "—"
             }
           />
@@ -304,7 +308,12 @@ export function PaymentsDashboard({
                 />
               </div>
               <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <input type="checkbox" name="force_manual" value="1" />
+                <input
+                  type="checkbox"
+                  name="force_manual"
+                  value="1"
+                  defaultChecked
+                />
                 Record card as manual POS (skip Stripe intent)
               </label>
               <AlertMessage error={payState.error} success={payState.success} />
@@ -432,7 +441,7 @@ export function PaymentsDashboard({
                   >
                     <div className="min-w-0">
                       <p className="font-medium tabular-nums">
-                        {centsToDollars(tx.amountCents)} ·{" "}
+                        {money(tx.amountCents)} ·{" "}
                         {PAYMENT_METHOD_LABELS[tx.method]}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
@@ -463,7 +472,12 @@ export function PaymentsDashboard({
               </p>
             ) : (
               <ul className="divide-y divide-border" role="list">
-                {snapshot.openInvoices.map((inv) => (
+                {snapshot.openInvoices.map((inv) => {
+                  const isBookingBalance = inv.id.startsWith("appt:");
+                  const custName =
+                    (inv.customerSnapshot?.name as string | null | undefined) ??
+                    null;
+                  return (
                   <li
                     key={inv.id}
                     className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
@@ -471,10 +485,22 @@ export function PaymentsDashboard({
                     <div>
                       <p className="font-medium">{inv.invoiceNumber}</p>
                       <p className="text-xs text-muted-foreground">
+                        {custName ? `${custName} · ` : ""}
                         {statusLabel(inv.status)} · balance{" "}
-                        {centsToDollars(inv.balanceCents)}
+                        {money(inv.balanceCents)}
+                        {isBookingBalance ? " · booking balance" : ""}
                       </p>
                     </div>
+                    {isBookingBalance ? (
+                      inv.appointmentId ? (
+                        <Link
+                          href={`/dashboard/payments?appointment=${inv.appointmentId}${inv.customerId ? `&customer=${inv.customerId}` : ""}`}
+                          className="inline-flex h-8 items-center rounded-[var(--radius-sm)] border border-border px-3 text-xs font-medium hover:bg-muted"
+                        >
+                          Collect
+                        </Link>
+                      ) : null
+                    ) : (
                     <Button
                       type="button"
                       size="sm"
@@ -491,8 +517,10 @@ export function PaymentsDashboard({
                     >
                       View
                     </Button>
+                    )}
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             )}
           </CardContent>
@@ -514,7 +542,7 @@ export function PaymentsDashboard({
               {snapshot.recentRefunds.map((r) => (
                 <li key={r.id} className="py-2.5 text-sm">
                   <p className="font-medium tabular-nums">
-                    {centsToDollars(r.amountCents)} · {r.refundType} ·{" "}
+                    {money(r.amountCents)} · {r.refundType} ·{" "}
                     {r.approvalStatus}
                   </p>
                   <p className="text-xs text-muted-foreground">{r.reason}</p>

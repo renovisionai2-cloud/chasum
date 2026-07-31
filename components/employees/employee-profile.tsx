@@ -28,6 +28,7 @@ import {
   type PermissionKey,
 } from "@/lib/employees/roles";
 import type { Department, EmployeeProfile } from "@/lib/employees/types";
+import { currencyCode } from "@/lib/commerce/money";
 import type { ActionState, Location, Service } from "@/lib/types/booking";
 import { DAY_NAMES, STAFF_COLORS } from "@/lib/types/booking";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
@@ -96,12 +97,15 @@ export function EmployeeProfileView({
   services,
   locations,
   departments,
+  currency = "usd",
 }: {
   employee: EmployeeProfile;
   services: Service[];
   locations: Location[];
   departments: Department[];
+  currency?: string | null;
 }) {
+  const payCurrency = currencyCode(currency);
   const [tab, setTab] = useState<TabKey>("overview");
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [roleKey, setRoleKey] = useState<EmployeeRoleKey>(employee.role_key);
@@ -944,7 +948,9 @@ export function EmployeeProfileView({
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="hourly_rate">Hourly rate (USD)</Label>
+                      <Label htmlFor="hourly_rate">
+                        Hourly rate ({payCurrency})
+                      </Label>
                       <Input
                         id="hourly_rate"
                         name="hourly_rate"
@@ -954,7 +960,9 @@ export function EmployeeProfileView({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="salary">Annual salary (USD)</Label>
+                      <Label htmlFor="salary">
+                        Annual salary ({payCurrency})
+                      </Label>
                       <Input
                         id="salary"
                         name="salary"

@@ -25,7 +25,7 @@ export function AiSettingsPanel({ business }: { business: Business }) {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Summer — AI Receptionist</CardTitle>
+          <CardTitle>Summer — AI Business Manager</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={action} className="space-y-4">

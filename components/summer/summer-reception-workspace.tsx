@@ -313,7 +313,7 @@ export function SummerReceptionWorkspace({
             <div className="min-w-0 flex-1">
               <CardTitle className="text-lg">Summer</CardTitle>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                AI Receptionist · Booking Engine · Availability Engine · CRM
+                AI Business Manager · Booking Engine · Availability Engine · CRM
               </p>
               {recognizedName ? (
                 <p className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2 py-1 text-xs">
