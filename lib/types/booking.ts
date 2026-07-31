@@ -86,6 +86,8 @@ export type Business = {
   cancellation_policy: string | null;
   max_daily_bookings: number | null;
   subscription_plan_key?: string;
+  /** Design-partner override: unlock Private Alpha features while keeping Free plan billing. */
+  private_alpha_enabled?: boolean;
   subscription_status?:
     | "trialing"
     | "active"

@@ -49,7 +49,7 @@ export async function queueNotification(
     const supabase = createServiceClient();
     const { data: biz } = await supabase
       .from("businesses")
-      .select("subscription_plan_key")
+      .select("subscription_plan_key, private_alpha_enabled")
       .eq("id", input.businessId)
       .maybeSingle();
     const {
@@ -57,7 +57,15 @@ export async function queueNotification(
       SMS_PLAN_UPGRADE_MESSAGE,
       SMS_PROVIDER_MISSING_MESSAGE,
     } = await import("@/lib/billing/plan-features");
-    if (!planIncludesSms(biz?.subscription_plan_key as string | null)) {
+    if (
+      !planIncludesSms({
+        subscription_plan_key: biz?.subscription_plan_key as string | null,
+        private_alpha_enabled: Boolean(
+          (biz as { private_alpha_enabled?: boolean } | null)
+            ?.private_alpha_enabled,
+        ),
+      })
+    ) {
       return { ok: false, error: SMS_PLAN_UPGRADE_MESSAGE };
     }
     const { isSmsDeliverable } = await import(
