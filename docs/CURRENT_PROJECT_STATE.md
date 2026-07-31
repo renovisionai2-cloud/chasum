@@ -148,6 +148,16 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-07-30)
 
+**Production deploy — approved marketing site → https://chasum.vercel.app**
+
+- Branch `cursor/phase-3-integrations` @ `1d368a8` → deployment `dpl_H6JLmkWoKqbRuKu58baBEYXKzyeo`
+- No Supabase migrations in deploy delta; GVM DB not reset
+- Marketing HTTP smoke: all approved public pages 200
+- Authenticated GVM portal smoke: pending operator login (auth gate verified)
+- Audit: [`docs/MARKETING_PRODUCT_FEATURE_AUDIT.md`](./MARKETING_PRODUCT_FEATURE_AUDIT.md)
+
+### Immediately prior (same day)
+
 **✅ Security v1 — COMPLETE and locked**
 
 - Final hero headline: “Security Designed Around Your Business” (supporting copy unchanged)
