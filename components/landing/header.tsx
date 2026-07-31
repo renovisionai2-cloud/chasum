@@ -71,20 +71,20 @@ export function LandingHeader() {
           : "border-transparent bg-background/40 backdrop-blur-lg dark:bg-background/45",
       )}
     >
-      <div className="mx-auto flex h-[4.25rem] max-w-[1480px] items-center justify-between gap-3 px-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[4.25rem] max-w-[1400px] items-center justify-between gap-3 px-5 sm:px-6 lg:px-8">
         <Logo
           priority
           href="/"
           size="md"
           className={cn(
-            "origin-left shrink-0 scale-[1.12] self-center",
+            "shrink-0 self-center",
             homeActive && "marketing-logo-home-active",
           )}
           aria-current={homeActive ? "page" : undefined}
         />
 
         <nav
-          className="hidden items-center gap-1.5 xl:flex 2xl:gap-2"
+          className="hidden items-center gap-1 xl:flex 2xl:gap-1.5"
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
@@ -95,7 +95,7 @@ export function LandingHeader() {
                 href={link.href}
                 data-active={active}
                 className={cn(
-                  "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-[color,background-color] duration-250",
+                  "marketing-nav-link marketing-focus-ring inline-flex h-8 items-center rounded-full px-3.5 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
                   active
                     ? "bg-foreground/[0.06] text-foreground"
                     : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -112,7 +112,7 @@ export function LandingHeader() {
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "marketing-focus-ring inline-flex h-[2.125rem] items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
+                "marketing-focus-ring inline-flex h-8 items-center gap-1 rounded-full px-3.5 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
                 resourcesOpen || resourcesActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -165,12 +165,12 @@ export function LandingHeader() {
         <div className="hidden items-center gap-2 xl:flex">
           <ThemeToggle />
           <Link href={LOGIN_HREF} className="inline-flex items-center">
-            <Button variant="ghost" size="sm" className="h-9 text-[13px]">
+            <Button variant="ghost" size="sm" className="h-8 px-3 text-[13px]">
               {CTA_LOGIN_LABEL}
             </Button>
           </Link>
-          <Link href={APPLY_HREF} className="ml-1 inline-flex items-center">
-            <Button size="sm" className="marketing-cta-button h-9 rounded-full px-5">
+          <Link href={APPLY_HREF} className="ml-0.5 inline-flex items-center">
+            <Button size="sm" className="marketing-cta-button h-8 rounded-full px-5 text-[13px]">
               {CTA_APPLY_LABEL}
             </Button>
           </Link>

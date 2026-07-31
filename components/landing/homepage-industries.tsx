@@ -117,7 +117,7 @@ export function HomepageIndustries() {
             const Icon = tile.icon;
             const visual = getIndustryImage(tile.name);
             return (
-              <Reveal key={tile.name} delayMs={Math.min(index * 40, 200)}>
+              <Reveal key={tile.name} delayMs={Math.min(index * 40, 200)} className="h-full">
                 <li className="h-full">
                   <Link
                     href={INDUSTRIES_HREF}

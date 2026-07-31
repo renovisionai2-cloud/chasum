@@ -35,23 +35,23 @@ export function SummerIntro() {
             <p className="marketing-eyebrow">Your AI Business Manager</p>
             <h2
               id="summer-intro-heading"
-              className="mt-4 text-balance text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl md:text-5xl"
+              className="text-balance text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl md:text-5xl"
             >
               Meet Summer, the AI Business Manager behind Chasum.
             </h2>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
+            <p className="mt-5 text-lg leading-relaxed text-muted-foreground md:text-xl">
               She helps businesses discover Chasum, get set up, answer customer
               questions, manage appointments, support staff, automate repetitive
               work, and grow every day.
             </p>
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-3 text-sm text-muted-foreground">
               Early Access · grounded in verified product information
             </p>
             <div className="mt-8 flex justify-center lg:justify-start">
               <Link href={MEET_SUMMER_HREF} className="group inline-flex">
-                <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 items-center gap-2 rounded-full px-8 text-[15px] font-semibold text-primary-foreground">
+                <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 items-center gap-2.5 rounded-full px-8 text-[15px] font-semibold text-primary-foreground">
                   {CTA_START_WITH_SUMMER_LABEL}
-                  <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5" />
                 </span>
               </Link>
             </div>

@@ -54,7 +54,7 @@ export function BusinessOutcomes() {
           {OUTCOMES.map((item, index) => {
             const Icon = item.icon;
             return (
-              <Reveal key={item.title} delayMs={index * 70}>
+              <Reveal key={item.title} delayMs={index * 70} className="h-full">
                 <li className="fd-outcome-card relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/60 bg-card/60 p-7 shadow-sm transition-[border-color,box-shadow] duration-250 md:p-8">
                   <div
                     className={`pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b ${item.accent}`}
@@ -65,10 +65,10 @@ export function BusinessOutcomes() {
                     strokeWidth={1.5}
                     aria-hidden
                   />
-                  <h3 className="relative mt-4 text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                  <h3 className="relative mt-5 text-xl font-semibold tracking-tight text-foreground md:text-2xl">
                     {item.title}
                   </h3>
-                  <p className="relative mt-4 flex-1 text-base leading-relaxed text-muted-foreground">
+                  <p className="relative mt-3 flex-1 text-base leading-relaxed text-muted-foreground">
                     {item.body}
                   </p>
                 </li>

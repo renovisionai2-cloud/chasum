@@ -34,7 +34,7 @@ export function PrivateAlphaInvite() {
         </Reveal>
 
         <Reveal delayMs={80}>
-          <div className="mx-auto mt-10 flex max-w-xl flex-col items-stretch gap-3 sm:mt-12 sm:flex-row sm:items-center sm:justify-center">
+          <div className="mx-auto mt-10 flex max-w-xl flex-col items-stretch gap-3 sm:mt-12 sm:flex-row sm:items-center sm:justify-center sm:gap-3">
             <Link href={APPLY_HREF} className="inline-flex justify-center">
               <Button
                 size="lg"

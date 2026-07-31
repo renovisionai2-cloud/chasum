@@ -27,7 +27,7 @@ export function Hero() {
 
           <h1
             id="hero-heading"
-            className="fd-hero-enter fd-hero-enter-delay-1 mt-7 text-[2.35rem] font-semibold leading-[1.1] tracking-[-0.045em] text-foreground sm:mt-8 sm:text-5xl sm:leading-[1.08] md:text-[3.25rem] lg:text-[3.5rem]"
+            className="fd-hero-enter fd-hero-enter-delay-1 mt-5 text-[2.35rem] font-semibold leading-[1.1] tracking-[-0.045em] text-foreground sm:mt-6 sm:text-5xl sm:leading-[1.08] md:text-[3.25rem] lg:text-[3.5rem]"
           >
             Your business already works.
             <br />
@@ -39,7 +39,7 @@ export function Hero() {
             </span>
           </h1>
 
-          <div className="fd-hero-enter fd-hero-enter-delay-2 mt-8 max-w-lg space-y-4 text-base leading-relaxed text-muted-foreground sm:mt-9 md:text-lg">
+          <div className="fd-hero-enter fd-hero-enter-delay-2 mt-7 max-w-lg space-y-4 text-base leading-relaxed text-muted-foreground sm:mt-8 md:text-lg">
             <p className="font-medium text-foreground/85">
               Businesses don&apos;t need more software. They need software that
               understands how the business works.
@@ -51,19 +51,19 @@ export function Hero() {
             </p>
           </div>
 
-          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-10 flex flex-col items-stretch gap-4 sm:mt-11 sm:flex-row sm:items-center sm:gap-7">
+          <div className="fd-hero-enter fd-hero-enter-delay-3 mt-9 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-6">
             <Link href={MEET_SUMMER_HREF} className="group inline-flex justify-center sm:justify-start">
-              <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 w-full items-center justify-center gap-2 rounded-full px-8 text-[15px] font-semibold text-primary-foreground sm:w-auto">
+              <span className="marketing-hero-btn-primary inline-flex h-12 min-h-11 w-full items-center justify-center gap-2.5 rounded-full px-8 text-[15px] font-semibold text-primary-foreground sm:w-auto">
                 {CTA_START_WITH_SUMMER_LABEL}
                 <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5" />
               </span>
             </Link>
             <Link
               href={APPLY_HREF}
-              className="marketing-focus-ring inline-flex h-12 min-h-11 items-center justify-center gap-1 px-2 text-[15px] font-semibold text-foreground/80 transition-colors duration-250 hover:text-foreground"
+              className="marketing-focus-ring inline-flex h-12 min-h-11 items-center justify-center gap-1.5 px-1 text-[15px] font-semibold leading-none text-foreground/80 transition-colors duration-250 hover:text-foreground"
             >
               {CTA_APPLY_LABEL}
-              <span aria-hidden className="text-muted-foreground">
+              <span aria-hidden className="translate-y-px text-muted-foreground">
                 ›
               </span>
             </Link>
@@ -84,7 +84,7 @@ export function Hero() {
               className="min-h-[280px] border-0 shadow-none sm:min-h-[340px] lg:min-h-[400px]"
             />
           </div>
-          <p className="mt-3 text-center text-[11px] text-muted-foreground">
+          <p className="mt-3 text-center text-[11px] leading-relaxed text-muted-foreground">
             Illustrative demo data · not a live tenant
           </p>
         </div>

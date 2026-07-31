@@ -59,10 +59,10 @@ export function TrustSection() {
           {STATEMENTS.map((statement, index) => {
             const Icon = statement.icon;
             return (
-              <Reveal key={statement.label} delayMs={index * 40}>
-                <li className="flex h-full items-start gap-3.5 rounded-2xl border border-border/60 bg-card/50 px-5 py-4">
+              <Reveal key={statement.label} delayMs={index * 40} className="h-full">
+                <li className="flex h-full items-center gap-3.5 rounded-2xl border border-border/60 bg-card/50 px-5 py-4">
                   <Icon
-                    className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                    className="h-5 w-5 shrink-0 text-primary"
                     strokeWidth={1.5}
                     aria-hidden
                   />

@@ -37,8 +37,8 @@ function ModuleCard({
   delayMs: number;
 }) {
   return (
-    <Reveal delayMs={delayMs}>
-      <div className="flex h-full rounded-2xl border border-border/60 bg-card/70 px-4 py-4 shadow-sm backdrop-blur-sm transition-colors duration-250 hover:border-border hover:bg-card/90">
+    <Reveal delayMs={delayMs} className="h-full">
+      <div className="flex h-full items-center rounded-2xl border border-border/60 bg-card/70 px-4 py-4 shadow-sm backdrop-blur-sm transition-colors duration-250 hover:border-border hover:bg-card/90">
         <div className="flex min-w-0 items-center gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Icon className="h-4 w-4" strokeWidth={1.75} />
@@ -122,7 +122,7 @@ export function ConnectedOperatingSystem() {
         </p>
 
         <Reveal delayMs={120}>
-          <div className="mt-8 flex justify-center md:mt-10">
+          <div className="mt-8 flex justify-center">
             <Link
               href={PLATFORM_HREF}
               className="marketing-focus-ring inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-4 hover:underline"

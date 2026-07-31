@@ -1575,27 +1575,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  line-height: 1.25;
+  line-height: 1;
 }
 
-.marketing-nav-link::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0.3rem;
-  width: calc(100% - 1.5rem);
-  max-width: 2.75rem;
-  height: 1.5px;
-  border-radius: 9999px;
-  background: var(--primary);
-  transform: translateX(-50%) scaleX(0);
-  transform-origin: center;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.marketing-nav-link[data-active="true"]::after {
-  transform: translateX(-50%) scaleX(1);
-}
+/* Active state uses the pill background only — no secondary underline. */
 
 @keyframes marketing-cursor-blink {
   0%,
@@ -1780,13 +1763,6 @@ body {
     box-shadow: none !important;
   }
 
-  .marketing-nav-link::after {
-    transition: none !important;
-  }
-
-  .marketing-nav-link[data-active="true"]::after {
-    transform: translateX(-50%) scaleX(1) !important;
-  }
 }
 
 .animation-delay-100 {
