@@ -126,7 +126,7 @@ Shared money recognition, commerce + platform events, business operating context
 | **Roadmap** (`/roadmap`) | Roadmap **v1** | ✅ **APPROVED** | **Locked** | https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap |
 | **Resources** (`/status`) | Resources **v1** | ✅ **APPROVED** | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status |
 | **Why Private Alpha** (`/private-alpha`) | Why Private Alpha **v1** | ✅ **APPROVED · COMPLETE** | **Locked** | https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha |
-| **Security** (`/security`) | Security **v1** | ✅ **APPROVED · COMPLETE** | **Locked** | *(set after Security headline Preview)* |
+| **Security** (`/security`) | Security **v1** | ✅ **APPROVED · COMPLETE** | **Locked** | https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security |
 
 **Pricing is complete.** Design at the Pricing Preview URL is the approved baseline (implementation commit `83fbaed`). Do **not** revisit Pricing for redesign or visual polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md).
 
@@ -138,7 +138,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 **✅ Why Private Alpha — COMPLETE** · Status: **Locked** · Visual SoT: https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha
 
-**✅ Security — COMPLETE** · Status: **Locked** · Headline: “Security Designed Around Your Business”
+**✅ Security — COMPLETE** · Status: **Locked** · Visual SoT: https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security
 
 **Next marketing surface:** Home page (`/`) when directed — Pricing, Summer Onboarding, Roadmap, and Resources are locked.
 

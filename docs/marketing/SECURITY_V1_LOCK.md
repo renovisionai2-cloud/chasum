@@ -13,15 +13,19 @@
 
 ## Visual source of truth
 
-Approved headline (final polish before lock):
+Treat this Preview URL as the permanent visual reference for Security v1:
+
+**https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security**
+
+Implementation baseline commit: **`4013db0`** (*Lock Security v1 with the final hero headline*).
+
+Approved headline:
 
 > Security Designed Around Your Business
 
 Supporting copy (unchanged):
 
 > Your business data matters. Chasum is designed with careful safeguards from the start—so you can focus on customers with confidence.
-
-Record the Preview that includes this headline as the visual reference after the lock deploy. Layout/cards baseline previously: https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/security
 
 Implementation sources:
 
