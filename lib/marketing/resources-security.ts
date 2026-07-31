@@ -1,12 +1,12 @@
 /**
  * Security — trust page for business owners (not engineering docs).
- * STATUS: APPROVED · VERSION: Resources v1 · STATE: Locked
- * See docs/marketing/RESOURCES_V1_LOCK.md
+ * STATUS: APPROVED · COMPLETE · VERSION: Security v1 · STATE: Locked
+ * See docs/marketing/SECURITY_V1_LOCK.md
  */
 
 export const SECURITY_PAGE = {
   eyebrow: "Security",
-  headline: "Security Built Into Chasum",
+  headline: "Security Designed Around Your Business",
   lede: "Your business data matters. Chasum is designed with careful safeguards from the start—so you can focus on customers with confidence.",
 } as const;
 

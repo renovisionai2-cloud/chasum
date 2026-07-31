@@ -16,10 +16,11 @@
 | Route | Status | State | Visual source of truth |
 |-------|--------|-------|------------------------|
 | `/private-alpha` | ✅ APPROVED · COMPLETE | **Locked** | https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha |
-| `/security` | ✅ APPROVED | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/security |
+| `/security` | ✅ APPROVED · COMPLETE | **Locked** | See [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md) |
 | `/status` | ✅ APPROVED | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status |
 
-Why Private Alpha detail lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)
+Why Private Alpha detail lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)  
+Security detail lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)
 
 ---
 
