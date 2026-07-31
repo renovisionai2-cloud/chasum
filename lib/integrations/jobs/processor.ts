@@ -14,6 +14,32 @@ import { generateRecurringOccurrences } from "@/lib/integrations/automation/recu
 import { notifyWaitlistForSlot } from "@/lib/integrations/automation/waitlist";
 import type { BackgroundJob } from "@/lib/types/integrations";
 
+/** Keep commerce receipt email_status in sync with delivery outcome. */
+async function syncCommerceReceiptEmailStatus(
+  payload: Record<string, unknown>,
+  status: "sent" | "failed",
+): Promise<void> {
+  if (payload.templateKey !== "commerce.receipt") return;
+  const receiptId =
+    (payload.receiptId as string | undefined) ||
+    ((payload.directContext as { receiptId?: string } | undefined)?.receiptId ??
+      null);
+  const businessId =
+    (payload.directContext as { businessId?: string } | undefined)?.businessId ??
+    null;
+  if (!receiptId || !businessId) return;
+
+  const supabase = createServiceClient();
+  await supabase
+    .from("commerce_receipts")
+    .update({
+      email_status: status,
+      emailed_at: status === "sent" ? new Date().toISOString() : null,
+    })
+    .eq("id", receiptId)
+    .eq("business_id", businessId);
+}
+
 async function getAppointmentContext(
   appointmentId: string,
 ): Promise<(AppointmentTemplateContext & { customerId: string | null }) | null> {
@@ -84,13 +110,16 @@ async function processEmailJob(payload: Record<string, unknown>) {
       skipPreferenceCheck: Boolean(payload.skipPreferenceCheck),
     });
     if (!result.ok && !result.skipped) {
+      await syncCommerceReceiptEmailStatus(payload, "failed");
       throw new Error(result.error ?? "Email send failed");
     }
     if (result.skipped) {
+      await syncCommerceReceiptEmailStatus(payload, "failed");
       throw new PermanentDeliverySkip(
         result.error ?? "Email skipped — not delivered.",
       );
     }
+    await syncCommerceReceiptEmailStatus(payload, "sent");
     return;
   }
 

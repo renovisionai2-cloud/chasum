@@ -203,6 +203,7 @@ export async function queueReceiptEmail(
     recipient: customer.email,
     customerId: customer.id,
     payload: {
+      receiptId: receiptId,
       directContext: {
         businessId,
         businessName: business?.name ?? "Business",
@@ -214,6 +215,7 @@ export async function queueReceiptEmail(
         startTime: new Date().toISOString(),
         amountCents: receipt.amount_cents,
         receiptNumber: receipt.receipt_number,
+        receiptId,
       },
       // Payment receipts are transactional confirmations.
       skipPreferenceCheck: true,
