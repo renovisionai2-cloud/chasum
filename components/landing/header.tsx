@@ -71,7 +71,7 @@ export function LandingHeader() {
           : "border-transparent bg-background/40 backdrop-blur-lg dark:bg-background/45",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[4.5rem] max-w-[1400px] items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
         <Logo
           priority
           href="/"
@@ -84,18 +84,20 @@ export function LandingHeader() {
         />
 
         <nav
-          className="hidden items-center gap-0.5 xl:flex 2xl:gap-1"
+          className="hidden items-center gap-0 xl:flex"
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
             const active = isPrimaryNavActive(pathname, link.href);
+            const longLabel = link.label.length > 10;
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 data-active={active}
                 className={cn(
-                  "marketing-nav-link marketing-focus-ring inline-flex h-9 items-center justify-center rounded-full px-3.5 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
+                  "marketing-nav-link marketing-focus-ring inline-flex h-9 items-center justify-center rounded-full text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
+                  longLabel ? "px-3" : "px-3.5",
                   active
                     ? "bg-foreground/[0.06] text-foreground"
                     : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -112,7 +114,7 @@ export function LandingHeader() {
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "marketing-focus-ring inline-flex h-9 items-center justify-center gap-1 rounded-full px-3.5 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
+                "marketing-focus-ring inline-flex h-9 items-center justify-center gap-1 rounded-full px-3 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
                 resourcesOpen || resourcesActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -123,7 +125,7 @@ export function LandingHeader() {
               Resources
               <ChevronDown
                 className={cn(
-                  "h-3.5 w-3.5 shrink-0 translate-y-px opacity-80 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  "h-3.5 w-3.5 shrink-0 opacity-80 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                   resourcesOpen && "rotate-180",
                 )}
                 aria-hidden

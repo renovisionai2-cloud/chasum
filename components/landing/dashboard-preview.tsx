@@ -141,7 +141,7 @@ export function DashboardPreview({
           >
             Chasum
           </p>
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             {NAV.map((item) => {
               const Icon = item.icon;
               const active =

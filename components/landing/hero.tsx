@@ -16,18 +16,18 @@ import Link from "next/link";
 export function Hero() {
   return (
     <section
-      className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-14 sm:px-6 md:pb-20 md:pt-16 lg:px-8 lg:pb-24 lg:pt-[4.5rem]"
+      className="fd-hero relative isolate overflow-x-clip px-5 pb-16 pt-12 sm:px-6 md:pb-20 md:pt-14 lg:px-8 lg:pb-24 lg:pt-16"
       aria-labelledby="hero-heading"
     >
-      <div className="mx-auto grid w-full max-w-[1400px] items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14 xl:gap-16">
+      <div className="mx-auto grid w-full max-w-[1400px] items-start gap-10 lg:grid-cols-[minmax(0,0.98fr)_minmax(0,1.02fr)] lg:items-center lg:gap-12 xl:gap-14">
         <div className="fd-hero-copy mx-auto w-full max-w-xl lg:mx-0 lg:max-w-none">
-          <p className="fd-hero-enter text-[11px] font-semibold uppercase tracking-[0.28em] text-primary">
+          <p className="fd-hero-enter fd-hero-eyebrow text-[11px] font-semibold uppercase text-primary">
             AI Business Operating System
           </p>
 
           <h1
             id="hero-heading"
-            className="fd-hero-enter fd-hero-enter-delay-1 mt-6 text-[2.35rem] font-semibold leading-[1.1] tracking-[-0.045em] text-foreground sm:mt-7 sm:text-5xl sm:leading-[1.08] md:text-[3.25rem] lg:text-[3.5rem]"
+            className="fd-hero-enter fd-hero-enter-delay-1 mt-5 text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.045em] text-foreground sm:mt-6 sm:text-5xl sm:leading-[1.06] md:text-[3.25rem] lg:text-[3.5rem]"
           >
             Your business already works.
             <br />
@@ -39,7 +39,7 @@ export function Hero() {
             </span>
           </h1>
 
-          <div className="fd-hero-enter fd-hero-enter-delay-2 mt-7 max-w-lg space-y-4 text-base leading-relaxed text-muted-foreground sm:mt-8 md:text-lg">
+          <div className="fd-hero-enter fd-hero-enter-delay-2 mt-6 max-w-lg space-y-5 text-base leading-relaxed text-muted-foreground sm:mt-7 md:text-lg md:leading-[1.65]">
             <p className="font-medium text-foreground/85">
               Businesses don&apos;t need more software. They need software that
               understands how the business works.
@@ -52,8 +52,11 @@ export function Hero() {
           </div>
 
           <div className="fd-hero-enter fd-hero-enter-delay-3 mt-9 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-5">
-            <Link href={MEET_SUMMER_HREF} className="group inline-flex justify-center sm:justify-start">
-              <span className="marketing-hero-btn-primary inline-flex h-12 min-h-12 w-full items-center justify-center gap-2 rounded-full px-8 text-[15px] font-semibold leading-none text-primary-foreground sm:w-auto">
+            <Link
+              href={MEET_SUMMER_HREF}
+              className="group inline-flex justify-center sm:justify-start"
+            >
+              <span className="fd-hero-cta-primary marketing-hero-btn-primary inline-flex h-12 min-h-12 w-full items-center justify-center gap-2 rounded-full px-8 text-[15px] font-semibold leading-none text-primary-foreground sm:w-auto">
                 {CTA_START_WITH_SUMMER_LABEL}
                 <ArrowRight
                   className="h-4 w-4 shrink-0 transition-transform duration-250 group-hover:translate-x-0.5"
@@ -63,7 +66,7 @@ export function Hero() {
             </Link>
             <Link
               href={APPLY_HREF}
-              className="marketing-focus-ring inline-flex h-12 min-h-12 items-center justify-center gap-1.5 px-1 text-[15px] font-semibold leading-none text-foreground/80 transition-colors duration-250 hover:text-foreground"
+              className="fd-hero-cta-secondary marketing-focus-ring inline-flex h-12 min-h-12 items-center justify-center gap-1.5 px-1 text-[15px] font-semibold leading-none text-foreground/80 transition-colors duration-250 hover:text-foreground"
             >
               {CTA_APPLY_LABEL}
               <span aria-hidden className="text-muted-foreground">
@@ -87,7 +90,7 @@ export function Hero() {
               className="min-h-[280px] border-0 shadow-none sm:min-h-[340px] lg:min-h-[400px]"
             />
           </div>
-          <p className="mt-3 text-center text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mt-3.5 text-center text-[11px] leading-relaxed tracking-wide text-muted-foreground">
             Illustrative demo data · not a live tenant
           </p>
         </div>

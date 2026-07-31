@@ -19,7 +19,7 @@ export function SummerIntro() {
       className="scroll-mt-24 px-5 py-20 sm:px-6 md:py-28 lg:px-8"
       aria-labelledby="summer-intro-heading"
     >
-      <div className="mx-auto grid max-w-[1400px] items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-14 xl:gap-16">
+      <div className="mx-auto grid max-w-[1400px] items-center gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-12 xl:gap-14">
         <Reveal>
           <div className="relative flex min-h-[200px] items-center justify-center lg:min-h-[300px]">
             <div

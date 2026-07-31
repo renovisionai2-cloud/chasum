@@ -632,6 +632,59 @@ body {
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Optical alignment — rem/em units so 100–150% zoom stays balanced */
+.fd-home header > div > a[href="/"] {
+  /* Lockup optical mass sits slightly high vs sans caps — settle downward */
+  translate: 0 0.02em;
+}
+
+.fd-home .marketing-nav-link,
+.fd-home header [aria-label="Marketing"] > div > button {
+  /* Nav caps read high against the wordmark — settle to match logo text */
+  translate: 0 0.05em;
+}
+
+.fd-home header [aria-label="Marketing"] > div > button svg {
+  /* Independent of rotate transform on open */
+  translate: 0 0.04em;
+}
+
+.fd-home .fd-hero-eyebrow {
+  /* Balance wide tracking + optically settle against display “Y” */
+  padding-inline-start: 0.16em;
+  letter-spacing: 0.26em;
+}
+
+.fd-home .fd-hero-cta-primary {
+  /* Rounded pill optically reads inset from type edge */
+  margin-inline-start: -0.125rem;
+}
+
+.fd-home .fd-hero-cta-primary svg {
+  translate: 0 0.05em;
+}
+
+.fd-home .fd-hero-cta-secondary {
+  /* Text links read heavier/lower than filled pills — lift slightly */
+  translate: 0 -0.05em;
+}
+
+.fd-home .fd-hero-visual {
+  /* Product chrome + caption make the block feel top-heavy when grid-centered */
+  translate: 0 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .fd-home .fd-hero-visual {
+    translate: 0 0.75rem;
+  }
+}
+
+.fd-home .marketing-eyebrow {
+  /* Centered tracked labels: pad both sides so tracking doesn’t bias left */
+  padding-inline: 0.22em;
+}
+
 .marketing-logo-home-active {
   opacity: 1;
 }
@@ -1700,6 +1753,16 @@ body {
     opacity: 1 !important;
     transform: none !important;
     stroke-dashoffset: 0 !important;
+  }
+
+  .fd-home header > div > a[href="/"],
+  .fd-home .marketing-nav-link,
+  .fd-home header [aria-label="Marketing"] > div > button,
+  .fd-home header [aria-label="Marketing"] > div > button svg,
+  .fd-home .fd-hero-cta-primary svg,
+  .fd-home .fd-hero-cta-secondary,
+  .fd-home .fd-hero-visual {
+    translate: none !important;
   }
 
   .fd-connect-node {
