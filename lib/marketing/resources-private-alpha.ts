@@ -72,32 +72,36 @@ export const PRIVATE_ALPHA_STEPS = {
     {
       step: 1,
       title: "Apply",
-      detail: "Tell us about your business and why you'd like to partner with us.",
+      detail:
+        "Submit a short application and tell us about your business.",
     },
     {
       step: 2,
       title: "Meet Our Team",
-      detail: "We'll walk through Chasum together and make sure it's the right fit.",
+      detail:
+        "We'll learn about your goals, workflows, and challenges.",
     },
     {
       step: 3,
       title: "Personal Setup",
-      detail: "We configure Chasum around how your business actually works.",
+      detail: "We'll help configure Chasum around your business.",
     },
     {
       step: 4,
       title: "Use Chasum",
-      detail: "Run your day-to-day operations with a platform built for service businesses.",
+      detail: "Begin using Chasum in your real daily operations.",
     },
     {
       step: 5,
       title: "Share Feedback",
-      detail: "Tell us what's working and what would make your work easier.",
+      detail:
+        "Tell us what works, what needs improvement, and what would help most.",
     },
     {
       step: 6,
       title: "Watch Chasum Improve",
-      detail: "See your ideas turn into meaningful improvements over time.",
+      detail:
+        "See your feedback influence the product as it develops.",
     },
   ],
 } as const;
