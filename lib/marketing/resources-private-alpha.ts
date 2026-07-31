@@ -1,6 +1,7 @@
 /**
  * Why Private Alpha — partnership story page.
- * Pending product-owner review — do not lock until approved.
+ * STATUS: APPROVED · COMPLETE · VERSION: Why Private Alpha v1 · STATE: Locked
+ * See docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md
  */
 
 export const PRIVATE_ALPHA_PAGE = {

@@ -1,30 +1,34 @@
 ---
-description: Resources Security & Status locked; Why Private Alpha pending review
+description: Resources v1 locked — Why Private Alpha, Security, Status
 globs:
-  - lib/marketing/resources-security.ts
-  - lib/marketing/resources-status.ts
+  - lib/marketing/resources-*.ts
+  - components/landing/private-alpha-experience.tsx
   - components/landing/security-experience.tsx
   - components/landing/status-experience.tsx
+  - app/(marketing)/private-alpha/**
   - app/(marketing)/security/**
   - app/(marketing)/status/**
 alwaysApply: false
 ---
 
-# Resources Lock — Security & Status (Resources v1)
+# Resources Lock — Resources v1
 
-**STATUS:** ✅ APPROVED (Security + Status)  
-**Why Private Alpha (`/private-alpha`):** Pending product-owner review — **not locked**  
-**VERSION:** Resources v1 (partial)  
-**Canonical doc:** `docs/marketing/RESOURCES_V1_LOCK.md`
+**STATUS:** ✅ APPROVED  
+**VERSION:** Resources v1  
+**STATE:** Locked  
+**Routes:** `/private-alpha`, `/security`, `/status`  
 
-## Locked routes
+**Why Private Alpha visual SoT:** https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha  
+**Security / Status visual SoT:** https://chasum-2qwiq9hxp-renovisionappcom.vercel.app  
 
-`/security`, `/status` — do not redesign or polish without an explicit product-owner request.
+**Canonical docs:** `docs/marketing/RESOURCES_V1_LOCK.md`, `docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`
 
-## Not locked
+## Do not change without explicit product-owner request
 
-`/private-alpha` — messaging redesign in progress; do **not** mark approved until the product owner reviews.
+Hero, messaging, Design Partner benefits, How Private Alpha Works, Who We're Looking For, Our Commitment, Final CTA, Security cards, Status badges/layout, typography, colors, spacing, animations, or responsive design language.
 
-## Allowed only (locked routes)
+## Allowed only
 
-Bug fixes · broken responsive layouts · accessibility fixes · manual status updates in `resources-status.ts` · product-owner-requested updates.
+Bug fixes · accessibility improvements · responsive/mobile improvements · performance improvements · minor wording corrections · manual status updates in `resources-status.ts`.
+
+Do **not** redesign or restructure Resources pages.

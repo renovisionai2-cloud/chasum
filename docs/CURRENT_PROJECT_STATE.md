@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-07-30  
-**Updated by:** Why Private Alpha final messaging redesign (pending review)
+**Updated by:** Why Private Alpha v1 approved and locked
 
 ---
 
@@ -28,7 +28,8 @@
 | [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md) | **Pricing page lock** — Official v1 approved baseline |
 | [`docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md) | **Summer Onboarding lock** — Meet Summer guided discovery v1 |
 | [`docs/marketing/ROADMAP_V1_LOCK.md`](./marketing/ROADMAP_V1_LOCK.md) | **Roadmap lock** — Roadmap v1 approved baseline |
-| [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md) | **Resources lock** — Security & Status locked; Why Private Alpha pending review |
+| [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md) | **Resources lock** — Why Private Alpha, Security, Status v1 |
+| [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md) | **Why Private Alpha lock** — v1 approved baseline |
 | [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md) | Home page (`/`) canonical front-door spec |
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
@@ -123,7 +124,7 @@ Shared money recognition, commerce + platform events, business operating context
 | **Summer Onboarding** (`/meet-summer` guided) | Summer Onboarding **v1** | ✅ **APPROVED** | **Locked** | https://chasum-7o8esta4x-renovisionappcom.vercel.app/meet-summer |
 | **Roadmap** (`/roadmap`) | Roadmap **v1** | ✅ **APPROVED** | **Locked** | https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap |
 | **Resources** (`/security`, `/status`) | Resources **v1** | ✅ **APPROVED** | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app |
-| **Why Private Alpha** (`/private-alpha`) | — | ⏳ **Pending review** | **Not locked** | *(next Preview after messaging redesign)* |
+| **Why Private Alpha** (`/private-alpha`) | Why Private Alpha **v1** | ✅ **APPROVED · COMPLETE** | **Locked** | https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha |
 
 **Pricing is complete.** Design at the Pricing Preview URL is the approved baseline (implementation commit `83fbaed`). Do **not** revisit Pricing for redesign or visual polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md).
 
@@ -131,9 +132,11 @@ Shared money recognition, commerce + platform events, business operating context
 
 **Roadmap is complete and locked** as Roadmap v1 — Available in Chasum Today / Coming Soon / Future Vision, Pricing-aligned. Do **not** redesign unless product changes require it. Full lock rules: [`docs/marketing/ROADMAP_V1_LOCK.md`](./marketing/ROADMAP_V1_LOCK.md).
 
-**Resources Security & Status are locked.** Why Private Alpha (`/private-alpha`) is **pending product-owner review** after a final messaging redesign — do **not** lock until approved. Full lock rules: [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md).
+**Resources is complete and locked** — Why Private Alpha, Security, and System Status. Full lock rules: [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md), [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md).
 
-**Next marketing surface:** seek approval on Why Private Alpha, then Home page (`/`) when directed.
+**✅ Why Private Alpha — COMPLETE** · Status: **Locked** · Visual SoT: https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha
+
+**Next marketing surface:** Home page (`/`) when directed — Pricing, Summer Onboarding, Roadmap, and Resources are locked.
 
 ---
 
@@ -141,18 +144,26 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-07-30)
 
-**Why Private Alpha — final messaging redesign (pending review)**
+**✅ Why Private Alpha v1 — COMPLETE and locked**
 
-- Hero and partnership storytelling rewritten for “why join now”
-- Added Starting Small, Who We're Looking For, Our Commitment; benefit cards + timeline refreshed
-- Visual language unchanged; page **not locked** until product-owner approval
+- Product-owner approved; production-ready
+- Visual SoT: https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha (commit `10a9e53`)
+- Lock docs: `WHY_PRIVATE_ALPHA_V1_LOCK.md` + Resources lock updated
+- Allowed only: bugs, a11y, responsive, performance, minor wording
+
+### Immediately prior (same day)
+
+**Why Private Alpha — final messaging + visual polish (pre-lock)**
+
+- Partnership storytelling, premium journey, tightened spacing, CTA frame
+- Left unlocked until product-owner approval
 
 ### Immediately prior (same day)
 
 **Resources v1 — Security & Status locked; Private Alpha initially shipped**
 
 - Why Private Alpha / Security / Status premium experiences
-- Security + Status remain locked; Private Alpha reopened for final copy pass
+- Security + Status locked earlier; Private Alpha finalized later
 
 ### Immediately prior (same day)
 
@@ -246,12 +257,11 @@ As of last update:
 **Priority order (do not skip #1 for novelty):**
 
 1. **Operation GVM (Priority #1)** — Close remaining go-live blockers from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0: first real appointment, Resend SMTP in Supabase, production email path.
-2. **Why Private Alpha (`/private-alpha`)** — Final messaging redesign shipped; seek product-owner approval before locking. **Pricing, Summer, Roadmap, Security, and Status remain locked.**
-3. **Home page (`/`)** — Next marketing chapter when directed.
-4. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
+2. **Home page (`/`)** — Next marketing chapter when directed. **Pricing, Summer Onboarding, Roadmap, and Resources (including Why Private Alpha) are locked — do not reopen** unless the product owner explicitly requests it.
+3. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
 
 Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.  
-Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/security`, or `/status` unless the product owner explicitly requests it.
+Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/private-alpha`, `/security`, or `/status` unless the product owner explicitly requests it.
 
 ---
 
