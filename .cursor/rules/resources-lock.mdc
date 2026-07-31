@@ -1,0 +1,30 @@
+---
+description: Resources v1 is product-owner locked — no redesign or polish
+globs:
+  - lib/marketing/resources-*.ts
+  - components/landing/private-alpha-experience.tsx
+  - components/landing/security-experience.tsx
+  - components/landing/status-experience.tsx
+  - app/(marketing)/private-alpha/**
+  - app/(marketing)/security/**
+  - app/(marketing)/status/**
+alwaysApply: false
+---
+
+# Resources Lock — Resources v1
+
+**STATUS:** ✅ APPROVED  
+**VERSION:** Resources v1  
+**STATE:** Locked  
+**Routes:** `/private-alpha`, `/security`, `/status`  
+**Canonical doc:** `docs/marketing/RESOURCES_V1_LOCK.md`
+
+## Do not change without explicit product-owner request
+
+Why Private Alpha, Security, and System Status — hero, sections, cards, badges, copy, layout, spacing, typography, icons, colors, animations, or responsive behavior.
+
+## Allowed only
+
+Bug fixes · broken responsive layouts · accessibility fixes · manual status updates in `resources-status.ts` · product-owner-requested updates.
+
+Do **not** redesign or polish Resources pages.

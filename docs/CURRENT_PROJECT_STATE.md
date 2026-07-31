@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-07-30  
-**Updated by:** Roadmap v1 finalized, approved, and locked
+**Updated by:** Resources v1 redesigned, approved, and locked
 
 ---
 
@@ -27,6 +27,8 @@
 | [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md) | What may be claimed publicly |
 | [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md) | **Pricing page lock** — Official v1 approved baseline |
 | [`docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md) | **Summer Onboarding lock** — Meet Summer guided discovery v1 |
+| [`docs/marketing/ROADMAP_V1_LOCK.md`](./marketing/ROADMAP_V1_LOCK.md) | **Roadmap lock** — Roadmap v1 approved baseline |
+| [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md) | **Resources lock** — Why Private Alpha, Security, Status v1 |
 | [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md) | Home page (`/`) canonical front-door spec |
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
@@ -120,6 +122,7 @@ Shared money recognition, commerce + platform events, business operating context
 | **Pricing** (`/pricing`) | Official Chasum Pricing Page **v1** | ✅ **APPROVED** | **Locked** | https://chasum-aw2cx9wbn-renovisionappcom.vercel.app/pricing |
 | **Summer Onboarding** (`/meet-summer` guided) | Summer Onboarding **v1** | ✅ **APPROVED** | **Locked** | https://chasum-7o8esta4x-renovisionappcom.vercel.app/meet-summer |
 | **Roadmap** (`/roadmap`) | Roadmap **v1** | ✅ **APPROVED** | **Locked** | https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap |
+| **Resources** (`/private-alpha`, `/security`, `/status`) | Resources **v1** | ✅ **APPROVED** | **Locked** | *(set after Resources v1 Preview deploy)* |
 
 **Pricing is complete.** Design at the Pricing Preview URL is the approved baseline (implementation commit `83fbaed`). Do **not** revisit Pricing for redesign or visual polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md).
 
@@ -127,13 +130,24 @@ Shared money recognition, commerce + platform events, business operating context
 
 **Roadmap is complete and locked** as Roadmap v1 — Available in Chasum Today / Coming Soon / Future Vision, Pricing-aligned. Do **not** redesign unless product changes require it. Full lock rules: [`docs/marketing/ROADMAP_V1_LOCK.md`](./marketing/ROADMAP_V1_LOCK.md).
 
-**Next marketing surface:** Home page (`/`) when directed — Pricing, Summer Onboarding, and Roadmap are locked.
+**Resources is complete and locked** as Resources v1 — Why Private Alpha, Security, and System Status. Trust- and customer-focused; not technical docs. Full lock rules: [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md).
+
+**Next marketing surface:** Home page (`/`) when directed — Pricing, Summer Onboarding, Roadmap, and Resources are locked.
 
 ---
 
 ## Last completed work
 
 ### Most recent (2026-07-30)
+
+**Resources v1 — redesigned, approved, and locked**
+
+- Why Private Alpha: story-driven “why join now” with benefits, how it works, Apply CTA
+- Security: trust cards + Private Alpha transparency (no overclaimed certifications)
+- Status: premium layout, consistent badges, legend, maintenance, known issues, support
+- Lock docs + agent rule; Pricing / Summer / Roadmap untouched
+
+### Immediately prior (same day)
 
 **Roadmap v1 — finalized, approved, and locked**
 
@@ -225,11 +239,11 @@ As of last update:
 **Priority order (do not skip #1 for novelty):**
 
 1. **Operation GVM (Priority #1)** — Close remaining go-live blockers from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0: first real appointment, Resend SMTP in Supabase, production email path.
-2. **Home page (`/`)** — Next marketing chapter when directed. **Pricing, Summer Onboarding, and Roadmap are locked — do not reopen** unless the product owner explicitly requests it.
+2. **Home page (`/`)** — Next marketing chapter when directed. **Pricing, Summer Onboarding, Roadmap, and Resources are locked — do not reopen** unless the product owner explicitly requests it.
 3. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
 
 Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.  
-Do **not** redesign or polish `/pricing`, `/meet-summer`, or `/roadmap` unless the product owner explicitly requests it.
+Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/private-alpha`, `/security`, or `/status` unless the product owner explicitly requests it.
 
 ---
 
