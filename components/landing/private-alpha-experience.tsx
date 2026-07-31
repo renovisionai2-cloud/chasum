@@ -9,18 +9,22 @@ import {
   DEMO_HREF,
 } from "@/lib/marketing/alpha";
 import {
+  PRIVATE_ALPHA_AUDIENCE,
   PRIVATE_ALPHA_BENEFITS,
   PRIVATE_ALPHA_CLOSING,
+  PRIVATE_ALPHA_COMMITMENT,
   PRIVATE_ALPHA_PAGE,
+  PRIVATE_ALPHA_STARTING_SMALL,
   PRIVATE_ALPHA_STEPS,
-  PRIVATE_ALPHA_STORY,
 } from "@/lib/marketing/resources-private-alpha";
 import { cn } from "@/lib/utils";
 import {
   ArrowRight,
+  Clock3,
   HandHelping,
   MessageCircle,
   Sparkles,
+  Target,
   UserRound,
   Users,
   Zap,
@@ -37,12 +41,25 @@ const BENEFIT_ICONS: Record<
   support: HandHelping,
   onboarding: UserRound,
   summer: Sparkles,
-  terms: Users,
+  founder: Users,
+};
+
+const AUDIENCE_ICONS: Record<
+  (typeof PRIVATE_ALPHA_AUDIENCE.cards)[number]["icon"],
+  LucideIcon
+> = {
+  simplify: Target,
+  feedback: MessageCircle,
+  time: Clock3,
+  future: Sparkles,
 };
 
 export function PrivateAlphaExperience() {
+  const closingLines = PRIVATE_ALPHA_CLOSING.title.split("\n");
+
   return (
     <div className="relative overflow-hidden bg-background">
+      {/* Hero */}
       <section
         className="relative scroll-mt-24 px-6 pb-16 pt-28 md:pb-24 md:pt-36"
         aria-labelledby="private-alpha-heading"
@@ -60,13 +77,10 @@ export function PrivateAlphaExperience() {
             >
               {PRIVATE_ALPHA_PAGE.headline}
             </h1>
-            <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-              {PRIVATE_ALPHA_PAGE.lede}
-            </p>
           </Reveal>
           <Reveal delayMs={60}>
-            <div className="mx-auto mt-8 max-w-2xl space-y-4 text-base leading-relaxed text-muted-foreground md:text-lg">
-              {PRIVATE_ALPHA_STORY.map((paragraph) => (
+            <div className="mx-auto mt-8 max-w-2xl space-y-5 text-lg leading-relaxed text-muted-foreground md:text-xl">
+              {PRIVATE_ALPHA_PAGE.paragraphs.map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
             </div>
@@ -74,6 +88,29 @@ export function PrivateAlphaExperience() {
         </div>
       </section>
 
+      {/* Why we're starting small */}
+      <section
+        className="scroll-mt-24 px-6 py-20 md:py-28"
+        aria-labelledby="alpha-starting-small-heading"
+      >
+        <div className="mx-auto max-w-2xl text-center">
+          <Reveal>
+            <h2
+              id="alpha-starting-small-heading"
+              className="text-balance text-3xl font-semibold tracking-[-0.035em] text-foreground md:text-4xl"
+            >
+              {PRIVATE_ALPHA_STARTING_SMALL.title}
+            </h2>
+            <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground md:text-lg">
+              {PRIVATE_ALPHA_STARTING_SMALL.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* What Design Partners receive */}
       <section
         className="scroll-mt-24 bg-muted/25 px-6 py-20 md:py-28"
         aria-labelledby="alpha-benefits-heading"
@@ -123,6 +160,7 @@ export function PrivateAlphaExperience() {
         </div>
       </section>
 
+      {/* How it works */}
       <section
         className="scroll-mt-24 px-6 py-20 md:py-28"
         aria-labelledby="alpha-steps-heading"
@@ -152,7 +190,7 @@ export function PrivateAlphaExperience() {
                   className={cn(
                     "relative flex gap-5 pb-10 last:pb-0 md:gap-7",
                     index < PRIVATE_ALPHA_STEPS.steps.length - 1 &&
-                      "before:absolute before:bottom-0 before:left-[1.15rem] before:top-12 before:w-px before:bg-border/80",
+                      "before:absolute before:bottom-0 before:left-[1.15rem] before:top-12 before:w-px before:bg-border/80 md:before:left-[1.2rem]",
                   )}
                 >
                   <span className="relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background text-sm font-semibold text-foreground md:h-10 md:w-10">
@@ -173,6 +211,79 @@ export function PrivateAlphaExperience() {
         </div>
       </section>
 
+      {/* Who we're looking for */}
+      <section
+        className="scroll-mt-24 bg-muted/25 px-6 py-20 md:py-28"
+        aria-labelledby="alpha-audience-heading"
+      >
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2
+                id="alpha-audience-heading"
+                className="text-balance text-3xl font-semibold tracking-[-0.035em] text-foreground md:text-4xl"
+              >
+                {PRIVATE_ALPHA_AUDIENCE.title}
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+                {PRIVATE_ALPHA_AUDIENCE.subtitle}
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:gap-6 md:mt-16">
+            {PRIVATE_ALPHA_AUDIENCE.cards.map((card, index) => {
+              const Icon = AUDIENCE_ICONS[card.icon];
+              return (
+                <Reveal
+                  key={card.title}
+                  delayMs={Math.min(index * 40, 160)}
+                >
+                  <article className="marketing-card-lift group flex h-full flex-col rounded-[1.35rem] border border-border/60 bg-card/80 p-6 md:p-7">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/[0.08] text-primary transition-colors duration-300 group-hover:bg-primary/[0.12]">
+                      <Icon
+                        className="h-5 w-5"
+                        strokeWidth={1.6}
+                        aria-hidden
+                      />
+                    </span>
+                    <h3 className="mt-5 text-lg font-semibold tracking-tight text-foreground">
+                      {card.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+                      {card.detail}
+                    </p>
+                  </article>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Our commitment */}
+      <section
+        className="scroll-mt-24 px-6 py-20 md:py-28"
+        aria-labelledby="alpha-commitment-heading"
+      >
+        <div className="mx-auto max-w-2xl text-center">
+          <Reveal>
+            <h2
+              id="alpha-commitment-heading"
+              className="text-balance text-3xl font-semibold tracking-[-0.035em] text-foreground md:text-4xl"
+            >
+              {PRIVATE_ALPHA_COMMITMENT.title}
+            </h2>
+            <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground md:text-lg">
+              {PRIVATE_ALPHA_COMMITMENT.paragraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Final CTA */}
       <section
         className="scroll-mt-24 px-6 pb-24 pt-8 md:pb-32"
         aria-labelledby="alpha-closing-heading"
@@ -183,9 +294,13 @@ export function PrivateAlphaExperience() {
               id="alpha-closing-heading"
               className="text-balance text-3xl font-semibold tracking-[-0.035em] text-foreground md:text-4xl"
             >
-              {PRIVATE_ALPHA_CLOSING.title}
+              {closingLines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-muted-foreground md:text-lg">
+            <p className="mt-6 text-base leading-relaxed text-muted-foreground md:text-lg">
               {PRIVATE_ALPHA_CLOSING.lede}
             </p>
           </Reveal>

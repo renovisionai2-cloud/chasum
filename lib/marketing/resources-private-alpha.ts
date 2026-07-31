@@ -1,102 +1,145 @@
 /**
- * Why Private Alpha — story-driven design partner page.
- * STATUS: APPROVED · VERSION: Resources v1 · STATE: Locked
- * See docs/marketing/RESOURCES_V1_LOCK.md
+ * Why Private Alpha — partnership story page.
+ * Pending product-owner review — do not lock until approved.
  */
 
 export const PRIVATE_ALPHA_PAGE = {
-  eyebrow: "Why Private Alpha",
-  headline: "Help Build the Future of Business Management",
-  lede: "Chasum is being built alongside real businesses. Every feature begins with real customer feedback. Instead of releasing hundreds of features at once, we're focused on solving real business problems one step at a time.",
+  eyebrow: "Private Alpha",
+  headline: "Build the Future of Business Management With Us",
+  paragraphs: [
+    "Every great platform starts with a small group of businesses that believe there's a better way.",
+    "Our Design Partners don't just use Chasum—they help shape it through real feedback, real businesses, and real experiences.",
+    "Together, we're building software that solves real business problems instead of adding unnecessary complexity.",
+  ],
 } as const;
 
-export const PRIVATE_ALPHA_STORY = [
-  "Joining now means you help shape the product while it grows—and you get a partner who listens.",
-  "We work with a limited number of design partners so every conversation matters. Your day-to-day reality guides what we build next.",
-] as const;
+export const PRIVATE_ALPHA_STARTING_SMALL = {
+  title: "Why We're Starting Small",
+  paragraphs: [
+    "We're intentionally welcoming a limited number of businesses into Chasum.",
+    "This allows us to work closely with every Design Partner, understand real workflows, and build features that make a meaningful difference.",
+    "Instead of rushing to launch hundreds of features, we're focused on building the right features—one improvement at a time.",
+  ],
+} as const;
 
 export const PRIVATE_ALPHA_BENEFITS = {
-  title: "Design Partners Receive",
+  title: "What Design Partners Receive",
   subtitle:
-    "Private Alpha is an invitation to build with us—not a finished, self-serve product launch.",
+    "Partnership built for businesses that want to grow with Chasum—not just try another tool.",
   cards: [
     {
-      title: "Early access",
+      title: "Early Access",
       detail:
-        "Use Chasum in your business before public launch and grow with the platform.",
+        "Be among the first businesses using Chasum before public launch.",
       icon: "early" as const,
     },
     {
-      title: "Direct influence",
-      detail:
-        "Your feedback shapes product decisions—so what we ship solves problems you actually have.",
+      title: "Direct Product Influence",
+      detail: "Your feedback helps decide what we build next.",
       icon: "influence" as const,
     },
     {
-      title: "Priority support",
+      title: "Priority Support",
       detail:
-        "Talk with the people building Chasum when something matters for your day-to-day work.",
+        "Work directly with our team during onboarding and beyond.",
       icon: "support" as const,
     },
     {
-      title: "Personal onboarding",
+      title: "Personal Onboarding",
       detail:
-        "We help set up your business the right way, so you start with confidence—not a blank setup screen.",
+        "We'll help configure Chasum around your business—not the other way around.",
       icon: "onboarding" as const,
     },
     {
-      title: "Shape Summer",
+      title: "Help Shape Summer",
       detail:
-        "Help guide how Summer—our AI Business Manager—supports real customer conversations and operations.",
+        "Your real-world experience helps make Summer a smarter AI Business Manager.",
       icon: "summer" as const,
     },
     {
-      title: "Founding partner terms",
+      title: "Founder Access",
       detail:
-        "Access, pricing, and included capabilities are confirmed clearly during onboarding—including founding terms for design partners.",
-      icon: "terms" as const,
+        "Share ideas directly with the people building Chasum.",
+      icon: "founder" as const,
     },
   ],
 } as const;
 
 export const PRIVATE_ALPHA_STEPS = {
   title: "How Private Alpha Works",
-  subtitle: "A clear path from application to partnership.",
+  subtitle: "A clear path from conversation to partnership.",
   steps: [
     {
       step: 1,
       title: "Apply",
-      detail: "Tell us about your business and how you work today.",
+      detail: "Tell us about your business and why you'd like to partner with us.",
     },
     {
       step: 2,
-      title: "Meet our team",
-      detail: "Walk through Chasum together and confirm it’s a good fit.",
+      title: "Meet Our Team",
+      detail: "We'll walk through Chasum together and make sure it's the right fit.",
     },
     {
       step: 3,
-      title: "Set up your business",
-      detail: "We help configure scheduling, customers, and your workflows.",
+      title: "Personal Setup",
+      detail: "We configure Chasum around how your business actually works.",
     },
     {
       step: 4,
       title: "Use Chasum",
-      detail: "Run real appointments and day-to-day work in the product.",
+      detail: "Run your day-to-day operations with a platform built for service businesses.",
     },
     {
       step: 5,
-      title: "Share feedback",
-      detail: "Tell us what’s working and what still gets in your way.",
+      title: "Share Feedback",
+      detail: "Tell us what's working and what would make your work easier.",
     },
     {
       step: 6,
-      title: "Watch Chasum improve",
-      detail: "See your input turn into clearer, stronger capabilities over time.",
+      title: "Watch Chasum Improve",
+      detail: "See your ideas turn into meaningful improvements over time.",
     },
   ],
 } as const;
 
+export const PRIVATE_ALPHA_AUDIENCE = {
+  title: "Who We're Looking For",
+  subtitle:
+    "Industry experience and a desire to improve matter more than company size.",
+  cards: [
+    {
+      title: "Simplify operations",
+      detail: "Businesses that want clearer workflows and less daily friction.",
+      icon: "simplify" as const,
+    },
+    {
+      title: "Thoughtful feedback",
+      detail: "Owners who enjoy sharing what works—and what still gets in the way.",
+      icon: "feedback" as const,
+    },
+    {
+      title: "Technology that saves time",
+      detail: "Teams that believe software should create hours back, not more busywork.",
+      icon: "time" as const,
+    },
+    {
+      title: "Shape the future",
+      detail: "Partners who want to help build the next chapter of Chasum.",
+      icon: "future" as const,
+    },
+  ],
+} as const;
+
+export const PRIVATE_ALPHA_COMMITMENT = {
+  title: "Our Commitment",
+  paragraphs: [
+    "We know you're trusting us with your business.",
+    "In return, we're committed to listening, improving quickly, communicating openly, and building software that genuinely makes your work easier.",
+    "We believe great software is built alongside customers—not behind closed doors.",
+  ],
+} as const;
+
 export const PRIVATE_ALPHA_CLOSING = {
-  title: "Ready to build with us?",
-  lede: "Private Alpha is for business owners who want a partner—not just another piece of software.",
+  title: "We're Not Looking for Thousands of Businesses.\nWe're Looking for the Right Businesses.",
+  lede: "If you're excited about helping shape the future of business management, we'd love to hear from you.",
 } as const;
