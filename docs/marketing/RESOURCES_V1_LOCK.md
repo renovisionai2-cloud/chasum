@@ -13,11 +13,15 @@
 
 ## Visual source of truth
 
-Record the Preview URL after the Resources v1 polish deploy:
+Treat this Preview as the permanent visual reference for Resources v1:
 
-- Why Private Alpha: `{PREVIEW}/private-alpha`
-- Security: `{PREVIEW}/security`
-- Status: `{PREVIEW}/status`
+**https://chasum-2qwiq9hxp-renovisionappcom.vercel.app**
+
+- Why Private Alpha: https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/private-alpha
+- Security: https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/security
+- Status: https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status
+
+Implementation baseline commit: **`94d784b`** (*Redesign and lock Resources v1 for business owners*).
 
 Implementation sources:
 

@@ -17,6 +17,7 @@ alwaysApply: false
 **VERSION:** Resources v1  
 **STATE:** Locked  
 **Routes:** `/private-alpha`, `/security`, `/status`  
+**Source of truth (visual):** https://chasum-2qwiq9hxp-renovisionappcom.vercel.app  
 **Canonical doc:** `docs/marketing/RESOURCES_V1_LOCK.md`
 
 ## Do not change without explicit product-owner request
