@@ -77,6 +77,10 @@ export async function createBooking(
       ? intent.depositCents
       : Number(serviceRow?.deposit_cents ?? 0) ||
         (serviceRow?.deposit_required ? Math.round(priceCents * 0.2) : 0);
+  const taxCents =
+    intent.taxCents != null && Number.isFinite(intent.taxCents)
+      ? Math.max(0, Math.round(intent.taxCents))
+      : 0;
 
   const notes =
     intent.packageId && intent.packageName
@@ -92,7 +96,7 @@ export async function createBooking(
     business_id: intent.businessId,
     location_id: intent.locationId,
     service_id: intent.serviceId,
-    staff_id: intent.staffId,
+    staff_id: intent.staffId || null,
     customer_id: intent.customerId!,
     start_time: intent.requestedStart,
     end_time: validation.endTime,
@@ -106,6 +110,7 @@ export async function createBooking(
     .insert({
       ...insertBase,
       price_cents: priceCents || null,
+      tax_cents: taxCents,
       deposit_cents: depositCents || 0,
       amount_paid_cents: 0,
       payment_status: priceCents > 0 ? "unpaid" : "unpaid",
@@ -118,15 +123,35 @@ export async function createBooking(
     (error.message.includes("price_cents") ||
       error.message.includes("payment_status") ||
       error.message.includes("amount_paid") ||
-      error.message.includes("deposit_cents"))
+      error.message.includes("deposit_cents") ||
+      error.message.includes("tax_cents"))
   ) {
     const fallback = await supabase
       .from("appointments")
-      .insert(insertBase)
+      .insert({
+        ...insertBase,
+        ...(error.message.includes("tax_cents")
+          ? {}
+          : { tax_cents: taxCents }),
+      })
       .select("id")
       .single();
     data = fallback.data;
     error = fallback.error;
+  }
+
+  // Nullable staff_id may not be migrated yet — surface a clear error.
+  if (
+    error &&
+    !intent.staffId &&
+    (error.message.includes("staff_id") ||
+      error.message.toLowerCase().includes("null value"))
+  ) {
+    return {
+      phase: "rollback",
+      error:
+        "Unassigned bookings require the optional-employee schema update. Assign an employee for now, or apply migration 034.",
+    };
   }
 
   if (error || !data?.id) {

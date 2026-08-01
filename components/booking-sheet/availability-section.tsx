@@ -6,25 +6,39 @@ import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, Clock, Loader2, UserRound, CalendarDays } from "lucide-react";
 
+function slotKey(iso: string | null | undefined): string {
+  if (!iso) return "";
+  return iso.slice(0, 16);
+}
+
 type AvailabilitySectionProps = {
   loading: boolean;
   availability: BookingSheetAvailability | null;
   selectedSlot: string | null;
+  selectedSlotValid: boolean;
   onSelectSlot: (iso: string) => void;
   onPickStaff: (staffId: string) => void;
   onPickDay: (date: string) => void;
+  unassigned?: boolean;
 };
 
 export function AvailabilitySection({
   loading,
   availability,
   selectedSlot,
+  selectedSlotValid,
   onSelectSlot,
   onPickStaff,
   onPickDay,
+  unassigned = false,
 }: AvailabilitySectionProps) {
   const slots = availability?.slots ?? [];
   const suggested = [...slots].sort((a, b) => b.score - a.score).slice(0, 8);
+  const suggestedKeys = new Set(suggested.map((s) => slotKey(s.start)));
+  const selectedInDay = Boolean(
+    selectedSlot &&
+      slots.some((s) => slotKey(s.start) === slotKey(selectedSlot)),
+  );
 
   return (
     <section className="space-y-4" aria-labelledby="bs-avail-heading">
@@ -36,7 +50,9 @@ export function AvailabilitySection({
           Availability
         </h3>
         <p className="text-xs text-muted-foreground">
-          Suggested times from the Availability Engine — never invented locally
+          {unassigned
+            ? "Openings across eligible employees — assign staff later if needed."
+            : "Suggested times from the Availability Engine — never invented locally."}
         </p>
       </div>
 
@@ -45,6 +61,22 @@ export function AvailabilitySection({
           <Loader2 className="size-4 animate-spin" aria-hidden />
           Checking real openings…
         </p>
+      ) : null}
+
+      {!loading && selectedSlot && !selectedSlotValid ? (
+        <div
+          role="status"
+          className="flex gap-2 rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-950 dark:text-amber-100"
+        >
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <div>
+            <p className="font-medium">Selected calendar slot needs a new time</p>
+            <p className="mt-0.5 text-xs opacity-90">
+              {formatTime(parseISO(selectedSlot))} is kept as your selection but
+              is not currently bookable. Pick another opening below.
+            </p>
+          </div>
+        </div>
       ) : null}
 
       {!loading && availability?.emptyReason ? (
@@ -67,7 +99,7 @@ export function AvailabilitySection({
           </p>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
             {suggested.map((slot) => {
-              const active = selectedSlot === slot.start;
+              const active = slotKey(selectedSlot) === slotKey(slot.start);
               return (
                 <button
                   key={slot.start}
@@ -95,6 +127,51 @@ export function AvailabilitySection({
             })}
           </div>
         </div>
+      ) : null}
+
+      {!loading && slots.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            All available times ({slots.length})
+          </p>
+          <div className="grid max-h-48 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
+            {slots.map((slot) => {
+              const active = slotKey(selectedSlot) === slotKey(slot.start);
+              const isSuggested = suggestedKeys.has(slotKey(slot.start));
+              return (
+                <button
+                  key={`all-${slot.start}`}
+                  type="button"
+                  onClick={() => onSelectSlot(slot.start)}
+                  className={cn(
+                    "rounded-[var(--radius-md)] border px-2 py-1.5 text-xs font-medium transition-colors",
+                    "hover:border-primary hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    active
+                      ? "border-primary bg-accent"
+                      : isSuggested
+                        ? "border-border/80 bg-muted/30"
+                        : "border-border bg-card",
+                  )}
+                >
+                  {formatTime(parseISO(slot.start))}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {!loading && selectedSlot && !selectedInDay && selectedSlotValid === false
+        ? null
+        : null}
+
+      {!loading &&
+      selectedSlot &&
+      !slots.some((s) => slotKey(s.start) === slotKey(selectedSlot)) ? (
+        <p className="text-xs text-muted-foreground">
+          Selected {formatTime(parseISO(selectedSlot))} is not in today’s open
+          list — keep it only if you resolve the conflict, or pick another time.
+        </p>
       ) : null}
 
       {!loading && (availability?.alternativeStaff.length ?? 0) > 0 ? (
@@ -151,11 +228,12 @@ export function AvailabilitySection({
 
       {!loading &&
       !availability?.emptyReason &&
-      suggested.length === 0 &&
+      slots.length === 0 &&
       !(availability?.alternativeStaff.length ||
         availability?.alternativeDays.length) ? (
         <p className="text-sm text-muted-foreground">
-          Choose service, employee, and date to load openings.
+          Choose service and date to load openings
+          {unassigned ? "" : " (employee optional)"}.
         </p>
       ) : null}
     </section>

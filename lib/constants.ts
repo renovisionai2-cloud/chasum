@@ -49,14 +49,10 @@ export const NAV_RESOURCES = [
 
 export const NAV_SUPPORT_HREF = "/contact";
 
-export const TIMEZONES = [
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "America/Phoenix",
-  "Europe/London",
-  "Europe/Paris",
-  "Asia/Tokyo",
-  "Australia/Sydney",
-] as const;
+export {
+  TIMEZONES,
+  TIMEZONE_OPTIONS,
+  timezoneLabel,
+  filterTimezoneOptions,
+  withSavedTimezone,
+} from "@/lib/constants/timezones";

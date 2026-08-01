@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { ServicePackage } from "@/lib/business/types";
+import type { ServicePackage, TaxRate } from "@/lib/business/types";
+import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import type {
   AppointmentStatus,
   Location,
@@ -34,6 +36,8 @@ type AppointmentSectionProps = {
   status: AppointmentStatus;
   notes: string;
   bookingSource: string;
+  currency?: string | null;
+  taxRates?: TaxRate[];
   onOfferTypeChange: (type: BookingOfferType) => void;
   onPackageChange: (id: string) => void;
   onServiceChange: (id: string) => void;
@@ -63,6 +67,8 @@ export function AppointmentSection({
   status,
   notes,
   bookingSource,
+  currency,
+  taxRates = [],
   onOfferTypeChange,
   onPackageChange,
   onServiceChange,
@@ -103,19 +109,29 @@ export function AppointmentSection({
     ),
   );
 
-  const packagePriceDollars =
-    selectedPackage != null ? selectedPackage.price_cents / 100 : null;
-  const servicePrice =
+  const packagePriceCents = selectedPackage?.price_cents ?? null;
+  const servicePriceCents =
     selectedService != null
-      ? Number(
-          eligibleStaff
-            .find((m) => m.id === staffId)
-            ?.staff_services.find((ss) => ss.service_id === serviceId)
-            ?.price_override ?? selectedService.price,
+      ? Math.round(
+          Number(
+            eligibleStaff
+              .find((m) => m.id === staffId)
+              ?.staff_services.find((ss) => ss.service_id === serviceId)
+              ?.price_override ?? selectedService.price,
+          ) * 100,
         )
       : null;
-  const price =
-    offerType === "package" ? packagePriceDollars : servicePrice;
+  const subtotalCents =
+    offerType === "package"
+      ? (packagePriceCents ?? 0)
+      : (servicePriceCents ?? 0);
+
+  const pricing = computeBookingPricing({
+    subtotalCents,
+    serviceTaxRateBps: selectedService?.tax_rate_bps ?? 0,
+    taxRates,
+    currency,
+  });
 
   const includedNames =
     selectedPackage?.service_ids
@@ -127,7 +143,6 @@ export function AppointmentSection({
   const cleanup = selectedService?.cleanup_minutes ?? 0;
   const depositRequired = Boolean(selectedService?.deposit_required);
   const depositCents = selectedService?.deposit_cents ?? 0;
-  const taxRate = selectedService?.tax_rate_bps ?? 0;
 
   return (
     <section className="space-y-4" aria-labelledby="bs-appt-heading">
@@ -189,7 +204,7 @@ export function AppointmentSection({
               ) : (
                 activePackages.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} · ${(p.price_cents / 100).toFixed(2)} ·{" "}
+                    {p.name} · {formatMoneyCents(p.price_cents, currency)} ·{" "}
                     {p.total_visits} visits
                   </option>
                 ))
@@ -241,23 +256,20 @@ export function AppointmentSection({
           <Label htmlFor="bs-staff">Employee</Label>
           <Select
             id="bs-staff"
-            value={
-              eligibleStaff.some((m) => m.id === staffId)
-                ? staffId
-                : (eligibleStaff[0]?.id ?? "")
-            }
+            value={staffId}
             onChange={(e) => onStaffChange(e.target.value)}
           >
-            {eligibleStaff.length === 0 ? (
-              <option value="">No eligible employees</option>
-            ) : (
-              eligibleStaff.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))
-            )}
+            <option value="">Unassigned — assign later</option>
+            {eligibleStaff.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
           </Select>
+          <p className="text-[11px] text-muted-foreground">
+            Optional. Unassigned bookings use location / business hours and stay
+            visible on the calendar.
+          </p>
         </div>
 
         <div className="space-y-1.5">
@@ -316,22 +328,56 @@ export function AppointmentSection({
           </p>
         </div>
         <div>
-          <p className="text-muted-foreground">
-            {offerType === "package" ? "Package price" : "Price"}
-          </p>
+          <p className="text-muted-foreground">Deposit</p>
           <p className="font-medium tabular-nums">
-            {price != null ? `$${price.toFixed(2)}` : "—"}
+            {depositRequired
+              ? formatMoneyCents(depositCents, currency)
+              : "None"}
           </p>
         </div>
         <div>
-          <p className="text-muted-foreground">Deposit / tax</p>
+          <p className="text-muted-foreground">Tax rate</p>
           <p className="font-medium tabular-nums">
-            {depositRequired
-              ? `$${(depositCents / 100).toFixed(2)}`
+            {pricing.taxRateBps > 0
+              ? `${(pricing.taxRateBps / 100).toFixed(2)}%${
+                  pricing.taxInclusive ? " incl." : ""
+                }`
               : "None"}
-            {taxRate > 0 ? ` · ${(taxRate / 100).toFixed(1)}%` : ""}
           </p>
         </div>
+      </div>
+
+      <div className="rounded-[var(--radius-md)] border border-border bg-card p-3 shadow-xs">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Pricing summary
+        </p>
+        <dl className="mt-2 space-y-1.5 text-sm">
+          <div className="flex items-center justify-between gap-3">
+            <dt className="text-muted-foreground">Subtotal</dt>
+            <dd className="font-medium tabular-nums">
+              {subtotalCents > 0 || selectedService || selectedPackage
+                ? pricing.formatted.subtotal
+                : "—"}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <dt className="text-muted-foreground">
+              Taxes
+              {pricing.taxLabel ? ` (${pricing.taxLabel})` : ""}
+            </dt>
+            <dd className="font-medium tabular-nums">
+              {pricing.formatted.taxes}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-3 border-t border-border/70 pt-1.5">
+            <dt className="font-semibold">Total Amount</dt>
+            <dd className="font-semibold tabular-nums">
+              {subtotalCents > 0 || selectedService || selectedPackage
+                ? pricing.formatted.total
+                : "—"}
+            </dd>
+          </div>
+        </dl>
       </div>
 
       <div className="space-y-1.5">

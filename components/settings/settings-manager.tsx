@@ -27,7 +27,7 @@ import {
   LocationWithSettings,
   Staff,
 } from "@/lib/types/booking";
-import { TIMEZONES } from "@/lib/constants";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { getAppUrl } from "@/lib/env";
 import { createHoliday, deleteHoliday } from "@/lib/actions/holidays";
 import { updateBusinessProfile } from "@/lib/actions/business-hours";
@@ -101,20 +101,13 @@ function ProfileForm({ business }: { business: Business }) {
                   <Label htmlFor="name">Business name</Label>
                   <Input id="name" name="name" defaultValue={business.name} required />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timezone">Timezone</Label>
-                  <Select
-                    id="timezone"
-                    name="timezone"
-                    defaultValue={business.timezone}
-                  >
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz} value={tz}>
-                        {tz}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+                <TimezoneSelect
+                  id="timezone"
+                  name="timezone"
+                  label="Timezone"
+                  defaultValue={business.timezone}
+                  required
+                />
               </div>
             </div>
           </div>

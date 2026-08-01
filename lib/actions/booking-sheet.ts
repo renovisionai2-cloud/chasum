@@ -24,9 +24,24 @@ export type BookingSheetAvailability = {
   alternativeDays: Array<{ date: string; label: string; slotCount: number }>;
 };
 
+function mergeSlots(rows: BookingSheetSlot[]): BookingSheetSlot[] {
+  const byStart = new Map<string, BookingSheetSlot>();
+  for (const slot of rows) {
+    const key = slot.start.slice(0, 16);
+    const prev = byStart.get(key);
+    if (!prev || slot.score > prev.score) {
+      byStart.set(key, slot);
+    }
+  }
+  return [...byStart.values()].sort(
+    (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+  );
+}
+
 /** Rich availability for Booking Sheet — Booking Engine only. */
 export async function previewBookingSheetAvailability(input: {
   serviceId: string;
+  /** Empty string = unassigned — union openings across staffOptions. */
   staffId: string;
   locationId: string;
   date: string;
@@ -36,43 +51,36 @@ export async function previewBookingSheetAvailability(input: {
   const business = await getOrCreateBusiness();
   const locationId = input.locationId || (await getActiveLocationId());
 
-  if (!input.serviceId || !input.staffId || !locationId) {
+  if (!input.serviceId || !locationId) {
     return {
       slots: [],
-      emptyReason: "Choose a service and employee to see open times.",
+      emptyReason: "Choose a service to see open times.",
       alternativeStaff: [],
       alternativeDays: [],
     };
   }
 
-  const primary = await previewAvailableSlots({
-    channel: "staff",
-    businessId: business.id,
-    locationId,
-    serviceId: input.serviceId,
-    staffId: input.staffId,
-    date: input.date,
-    excludeAppointmentId: input.excludeAppointmentId,
-  });
+  const staffPool =
+    input.staffId.trim().length > 0
+      ? [{ id: input.staffId, name: "Selected" }]
+      : (input.staffOptions ?? []).slice(0, 12);
 
-  const slots: BookingSheetSlot[] = primary.slots.map((s) => ({
-    start: s.start,
-    end: s.end,
-    score: s.score,
-    warnings: s.warnings.map((w) => w.message ?? w.code),
-  }));
+  if (staffPool.length === 0) {
+    return {
+      slots: [],
+      emptyReason: input.staffId
+        ? "Choose a service and employee to see open times."
+        : "No eligible employees for this service — add staff or pick another service. Location hours still apply once someone is assignable.",
+      alternativeStaff: [],
+      alternativeDays: [],
+    };
+  }
 
-  const emptyReason =
-    slots.length === 0
-      ? (primary.emptyReason?.message ??
-        primary.conflicts?.[0]?.message ??
-        "No open times for this employee on this day.")
-      : null;
+  const collected: BookingSheetSlot[] = [];
+  let primaryEmpty: string | null = null;
 
-  const alternativeStaff: BookingSheetAvailability["alternativeStaff"] = [];
-  for (const member of (input.staffOptions ?? []).slice(0, 6)) {
-    if (member.id === input.staffId) continue;
-    const alt = await previewAvailableSlots({
+  for (const member of staffPool) {
+    const result = await previewAvailableSlots({
       channel: "staff",
       businessId: business.id,
       locationId,
@@ -81,36 +89,82 @@ export async function previewBookingSheetAvailability(input: {
       date: input.date,
       excludeAppointmentId: input.excludeAppointmentId,
     });
-    if (alt.slots.length > 0) {
-      alternativeStaff.push({
-        staffId: member.id,
-        name: member.name,
-        slotCount: alt.slots.length,
+    for (const s of result.slots) {
+      collected.push({
+        start: s.start,
+        end: s.end,
+        score: s.score,
+        warnings: s.warnings.map((w) => w.message ?? w.code),
       });
     }
+    if (
+      input.staffId &&
+      member.id === input.staffId &&
+      result.slots.length === 0
+    ) {
+      primaryEmpty =
+        result.emptyReason?.message ??
+        result.conflicts?.[0]?.message ??
+        "No open times for this employee on this day.";
+    }
   }
-  alternativeStaff.sort((a, b) => b.slotCount - a.slotCount);
 
-  const alternativeDays: BookingSheetAvailability["alternativeDays"] = [];
-  const base = new Date(`${input.date}T12:00:00`);
-  for (let i = 1; i <= 3; i++) {
-    const day = addDays(base, i);
-    const dateStr = format(day, "yyyy-MM-dd");
-    const alt = await previewAvailableSlots({
-      channel: "staff",
-      businessId: business.id,
-      locationId,
-      serviceId: input.serviceId,
-      staffId: input.staffId,
-      date: dateStr,
-      excludeAppointmentId: input.excludeAppointmentId,
-    });
-    if (alt.slots.length > 0) {
-      alternativeDays.push({
-        date: dateStr,
-        label: format(day, "EEE, MMM d"),
-        slotCount: alt.slots.length,
+  const slots = mergeSlots(collected);
+  const emptyReason =
+    slots.length === 0
+      ? (primaryEmpty ??
+        (input.staffId
+          ? "No open times for this employee on this day."
+          : "No open times for any eligible employee on this day."))
+      : null;
+
+  const alternativeStaff: BookingSheetAvailability["alternativeStaff"] = [];
+  if (input.staffId) {
+    for (const member of (input.staffOptions ?? []).slice(0, 6)) {
+      if (member.id === input.staffId) continue;
+      const alt = await previewAvailableSlots({
+        channel: "staff",
+        businessId: business.id,
+        locationId,
+        serviceId: input.serviceId,
+        staffId: member.id,
+        date: input.date,
+        excludeAppointmentId: input.excludeAppointmentId,
       });
+      if (alt.slots.length > 0) {
+        alternativeStaff.push({
+          staffId: member.id,
+          name: member.name,
+          slotCount: alt.slots.length,
+        });
+      }
+    }
+    alternativeStaff.sort((a, b) => b.slotCount - a.slotCount);
+  }
+
+  const dayStaffId = input.staffId || staffPool[0]?.id;
+  const alternativeDays: BookingSheetAvailability["alternativeDays"] = [];
+  if (dayStaffId) {
+    const base = new Date(`${input.date}T12:00:00`);
+    for (let i = 1; i <= 3; i++) {
+      const day = addDays(base, i);
+      const dateStr = format(day, "yyyy-MM-dd");
+      const alt = await previewAvailableSlots({
+        channel: "staff",
+        businessId: business.id,
+        locationId,
+        serviceId: input.serviceId,
+        staffId: dayStaffId,
+        date: dateStr,
+        excludeAppointmentId: input.excludeAppointmentId,
+      });
+      if (alt.slots.length > 0) {
+        alternativeDays.push({
+          date: dateStr,
+          label: format(day, "EEE, MMM d"),
+          slotCount: alt.slots.length,
+        });
+      }
     }
   }
 

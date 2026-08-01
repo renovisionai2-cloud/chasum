@@ -465,7 +465,8 @@ export type Appointment = {
   business_id: string;
   location_id: string;
   service_id: string;
-  staff_id: string;
+  /** Null when unassigned / assign later. */
+  staff_id: string | null;
   customer_id: string;
   start_time: string;
   end_time: string;
@@ -493,7 +494,7 @@ export type Appointment = {
 
 export type AppointmentWithRelations = Appointment & {
   service: Pick<Service, "id" | "name" | "color" | "duration_minutes" | "buffer_before_minutes" | "buffer_after_minutes">;
-  staff: Pick<Staff, "id" | "name" | "color" | "photo_url">;
+  staff: Pick<Staff, "id" | "name" | "color" | "photo_url"> | null;
   customer: Pick<Customer, "id" | "name" | "email" | "phone">;
   location?: Pick<Location, "id" | "name">;
 };

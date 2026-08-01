@@ -64,7 +64,8 @@ import type {
   LocationHours,
   Service,
 } from "@/lib/types/booking";
-import { TIMEZONES } from "@/lib/constants";
+import { AddLocationDialog } from "@/components/dashboard/add-location-dialog";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
@@ -243,6 +244,7 @@ export function BusinessHub({
 }) {
   const [tab, setTab] = useState<TabKey>("profile");
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [addLocationOpen, setAddLocationOpen] = useState(false);
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const refresh = useRefresh();
   const { toast } = useToast();
@@ -499,20 +501,13 @@ export function BusinessHub({
                     taxes, and dashboards inherit this currency.
                   </p>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timezone">Time zone</Label>
-                  <Select
-                    id="timezone"
-                    name="timezone"
-                    defaultValue={business.timezone}
-                  >
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz} value={tz}>
-                        {tz}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+                <TimezoneSelect
+                  id="timezone"
+                  name="timezone"
+                  label="Time zone"
+                  defaultValue={business.timezone}
+                  required
+                />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
@@ -574,8 +569,15 @@ export function BusinessHub({
 
       {tab === "locations" ? (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
             <CardTitle>Locations</CardTitle>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setAddLocationOpen(true)}
+            >
+              Add Location
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -585,10 +587,30 @@ export function BusinessHub({
                     locationQuota.plan.max_locations === 1 ? "" : "s"
                   } (${locationQuota.currentCount} in use). ${
                     locationQuota.canAdd
-                      ? "Add another from the location switcher when ready."
+                      ? "You can add another location."
                       : "Upgrade to add more sites."
                   }`}
             </p>
+            {!locationQuota?.canAdd &&
+            locationQuota?.plan?.max_locations != null ? (
+              <div className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm">
+                <p className="font-medium text-amber-950 dark:text-amber-100">
+                  Location limit reached
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {locationQuota.currentCount} active location
+                  {locationQuota.currentCount === 1 ? "" : "s"} on{" "}
+                  {locationQuota.plan.name ?? "your plan"} (max{" "}
+                  {locationQuota.plan.max_locations}). Upgrade to create another
+                  site.
+                </p>
+                <Link href="/pricing" className="mt-2 inline-block">
+                  <Button type="button" size="sm" variant="outline">
+                    View plans & upgrade
+                  </Button>
+                </Link>
+              </div>
+            ) : null}
             <ul className="divide-y divide-border/80 rounded-[var(--radius-md)] border border-border">
               {locations.map((location) => (
                 <li
@@ -603,6 +625,7 @@ export function BusinessHub({
                         .join(", ") || "No address yet"}
                       {location.phone ? ` · ${location.phone}` : ""}
                       {location.is_default ? " · Default" : ""}
+                      {location.timezone ? ` · ${location.timezone}` : ""}
                     </p>
                   </div>
                   <Button
@@ -617,6 +640,13 @@ export function BusinessHub({
               ))}
             </ul>
             <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setAddLocationOpen(true)}
+              >
+                Add Location
+              </Button>
               <Link href="/dashboard/settings">
                 <Button size="sm" variant="outline">
                   Location hours & scheduling
@@ -632,6 +662,11 @@ export function BusinessHub({
               location={editingLocation}
               open={Boolean(editingLocation)}
               onClose={() => setEditingLocation(null)}
+            />
+            <AddLocationDialog
+              open={addLocationOpen}
+              onOpenChange={setAddLocationOpen}
+              defaultTimezone={business.timezone}
             />
           </CardContent>
         </Card>

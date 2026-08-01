@@ -2,6 +2,7 @@ import { ReceptionWorkspace } from "@/components/reception/reception-workspace";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getAppointments, getDashboardStats } from "@/lib/actions/appointments";
+import { listTaxRates } from "@/lib/actions/business-management";
 import { getCustomers } from "@/lib/actions/customers";
 import { getStaffDayOverlays } from "@/lib/actions/day-overlays";
 import { getLocations } from "@/lib/actions/location";
@@ -61,7 +62,7 @@ function getRange(view: CalendarView, date: Date) {
 }
 
 export default async function CalendarPage({ searchParams }: PageProps) {
-  await getOrCreateBusiness();
+  const business = await getOrCreateBusiness();
   const params = await searchParams;
   const view = (params.view as CalendarView) ?? "day";
   const date = params.date ? new Date(params.date) : new Date();
@@ -77,6 +78,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     stats,
     waitlist,
     dayOverlays,
+    taxRates,
   ] = await Promise.all([
     getAppointments(range.start.toISOString(), range.end.toISOString()),
     getServices(),
@@ -87,6 +89,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     getDashboardStats(),
     getWaitlistEntries(),
     getStaffDayOverlays(range.start.toISOString()),
+    listTaxRates(),
   ]);
 
   const insights = buildDashboardInsights({
@@ -118,9 +121,12 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         waitlist={waitlist}
         initialDate={range.start.toISOString()}
         initialView={view}
-        focusAppointmentId={params.appointment ?? null}
         dayOverlays={dayOverlays}
         openBookOnLoad={params.book === "1"}
+        focusAppointmentId={params.appointment ?? null}
+        currency={business.currency ?? "usd"}
+        taxRates={taxRates.filter((t) => t.is_active)}
+        timezone={business.timezone}
       />
     </div>
   );

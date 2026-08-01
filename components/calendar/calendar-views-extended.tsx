@@ -114,7 +114,8 @@ export function TimelineView({
                   {formatTime(parseISO(appt.end_time))}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {appt.customer.name} · {appt.service.name} · {appt.staff.name}
+                  {appt.customer.name} · {appt.service.name} ·{" "}
+                  {appt.staff?.name ?? "Unassigned"}
                 </p>
               </button>
             </li>

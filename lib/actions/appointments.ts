@@ -360,9 +360,14 @@ export async function createAppointment(
   const priceCentsRaw = Number(formData.get("price_cents"));
   const priceCents =
     Number.isFinite(priceCentsRaw) && priceCentsRaw > 0 ? priceCentsRaw : undefined;
+  const taxCentsRaw = Number(formData.get("tax_cents"));
+  const taxCents =
+    Number.isFinite(taxCentsRaw) && taxCentsRaw >= 0
+      ? Math.round(taxCentsRaw)
+      : undefined;
 
-  if (!serviceId || !staffId || !customerId) {
-    return { error: "All required fields must be filled." };
+  if (!serviceId || !customerId) {
+    return { error: "Customer and service are required." };
   }
 
   const startTime = parseAppointmentStart(formData);
@@ -375,7 +380,7 @@ export async function createAppointment(
     businessId: business.id,
     locationId,
     serviceId,
-    staffId,
+    staffId: staffId?.trim() ? staffId : null,
     customerId,
     requestedStart: startTime.toISOString(),
     notes,
@@ -385,6 +390,7 @@ export async function createAppointment(
         ? durationOverride
         : undefined,
     priceCents,
+    taxCents,
     packageId: packageId ?? undefined,
     packageName: packageName ?? undefined,
   });
@@ -412,6 +418,10 @@ export async function updateAppointment(
   const locationFromForm = (formData.get("location_id") as string) || null;
   const durationOverride = Number(formData.get("duration_minutes"));
 
+  if (!serviceId || !customerId) {
+    return { error: "Customer and service are required." };
+  }
+
   const startTime = parseAppointmentStart(formData);
   if (!startTime) {
     return { error: "Select an available time slot." };
@@ -434,7 +444,7 @@ export async function updateAppointment(
     businessId: business.id,
     locationId,
     serviceId,
-    staffId,
+    staffId: staffId?.trim() ? staffId : null,
     customerId,
     requestedStart: startTime.toISOString(),
     notes,

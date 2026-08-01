@@ -43,6 +43,8 @@ type CustomerSectionProps = {
   onCustomersChange: (customers: Customer[]) => void;
   snapshot: Snapshot | null;
   snapshotLoading: boolean;
+  /** Open straight into the quick-add form (e.g. Summer / Reception flows). */
+  initialShowQuickAdd?: boolean;
 };
 
 function initials(name: string) {
@@ -177,9 +179,10 @@ export function CustomerSection({
   onCustomersChange,
   snapshot,
   snapshotLoading,
+  initialShowQuickAdd = false,
 }: CustomerSectionProps) {
   const { toast } = useToast();
-  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(initialShowQuickAdd);
   const [editOpen, setEditOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [draft, setDraft] = useState({ name: "", email: "", phone: "" });
@@ -197,6 +200,38 @@ export function CustomerSection({
     }
     startTransition(async () => {
       const result = await quickCreateCustomer(draft);
+      if (result.duplicates && result.duplicates.length > 0) {
+        toast(
+          result.error ??
+            "A matching customer may already exist — select them instead.",
+          "error",
+        );
+        const first = result.duplicates[0];
+        const existing = customers.find((c) => c.id === first.id);
+        if (existing) {
+          handleSelect(existing);
+          return;
+        }
+        const asCustomer: Customer = {
+          id: first.id,
+          business_id: "",
+          name: first.name,
+          email: first.email,
+          phone: first.phone,
+          notes: null,
+          tags: [],
+          referral_source: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        onCustomersChange(
+          [...customers, asCustomer].sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        );
+        handleSelect(asCustomer);
+        return;
+      }
       if (result.error || !result.customerId) {
         toast(result.error ?? "Could not add customer.", "error");
         return;

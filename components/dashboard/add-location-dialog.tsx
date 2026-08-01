@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-import { TIMEZONES } from "@/lib/constants";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import {
   FREE_PLAN_LIMIT_MESSAGE,
   FREE_PLAN_UPGRADE_CTA,
@@ -73,20 +72,13 @@ export function AddLocationDialog({
             <Label htmlFor="location_slug">URL slug (optional)</Label>
             <Input id="location_slug" name="slug" placeholder="downtown" />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="location_timezone">Timezone</Label>
-            <Select
-              id="location_timezone"
-              name="timezone"
-              defaultValue={defaultTimezone ?? "America/New_York"}
-            >
-              {TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
-              ))}
-            </Select>
-          </div>
+          <TimezoneSelect
+            id="location_timezone"
+            name="timezone"
+            label="Timezone"
+            defaultValue={defaultTimezone ?? "America/Toronto"}
+            required
+          />
           <div className="space-y-2">
             <Label htmlFor="address_line1">Address</Label>
             <Input

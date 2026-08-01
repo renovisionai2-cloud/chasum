@@ -4,6 +4,7 @@ import { CalendarClient } from "@/components/calendar/calendar-client";
 import { MorningBrief } from "@/components/day-view/morning-brief";
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
 import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
+import type { TaxRate } from "@/lib/business/types";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
   AppointmentWithRelations,
@@ -37,6 +38,9 @@ type ReceptionWorkspaceProps = {
   focusAppointmentId?: string | null;
   dayOverlays?: StaffDayOverlay[];
   openBookOnLoad?: boolean;
+  currency?: string | null;
+  taxRates?: TaxRate[];
+  timezone?: string | null;
 };
 
 export function ReceptionWorkspace({
@@ -53,6 +57,9 @@ export function ReceptionWorkspace({
   focusAppointmentId = null,
   dayOverlays = [],
   openBookOnLoad = false,
+  currency = null,
+  taxRates = [],
+  timezone = null,
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
@@ -71,6 +78,9 @@ export function ReceptionWorkspace({
         focusAppointmentId={focusAppointmentId}
         dayOverlays={dayOverlays}
         openBookOnLoad={openBookOnLoad}
+        currency={currency}
+        taxRates={taxRates}
+        timezone={timezone}
       />
     </div>
   );

@@ -102,7 +102,9 @@ function StaffColumn({
 }) {
   const dayAppts = appointments.filter(
     (a) =>
-      a.staff_id === member.id &&
+      (member.id === "__unassigned__"
+        ? !a.staff_id
+        : a.staff_id === member.id) &&
       isSameDay(parseISO(a.start_time), date) &&
       a.status !== "cancelled",
   );
@@ -307,6 +309,29 @@ export function DayControlCenter({
         </div>
 
         <div className="flex min-w-0 flex-1 overflow-x-auto">
+          <StaffColumn
+            key="__unassigned__"
+            member={
+              {
+                id: "__unassigned__",
+                name: "Unassigned",
+                color: "#94a3b8",
+                is_active: true,
+                location_id: null,
+                photo_url: null,
+                staff_services: [],
+              } as unknown as StaffWithServices
+            }
+            date={date}
+            appointments={appointments}
+            hours={hours}
+            showNow={showNow}
+            onSelectAppointment={onSelectAppointment}
+            onSelectSlot={(slot) => onSelectSlot(slot, "")}
+            onReschedule={onReschedule}
+            onResize={onResize}
+            colorMode={colorMode}
+          />
           {activeStaff.map((member) => (
             <StaffColumn
               key={member.id}

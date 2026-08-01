@@ -75,7 +75,7 @@ export function DayAppointmentCard({
   function handleDragStart(e: React.DragEvent) {
     setDragging(true);
     e.dataTransfer.setData("appointmentId", appointment.id);
-    e.dataTransfer.setData("staffId", appointment.staff_id);
+    e.dataTransfer.setData("staffId", appointment.staff_id ?? "");
     e.dataTransfer.setData(
       "duration",
       String(

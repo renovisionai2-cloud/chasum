@@ -81,7 +81,14 @@ export async function quickCreateCustomer(input: {
   email: string;
   phone?: string;
   notes?: string;
-}): Promise<ActionState & { customerId?: string }> {
+  /** When true, return matches instead of inserting on email/phone collision. */
+  checkDuplicatesOnly?: boolean;
+}): Promise<
+  ActionState & {
+    customerId?: string;
+    duplicates?: Array<{ id: string; name: string; email: string; phone: string | null }>;
+  }
+> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
@@ -90,13 +97,68 @@ export async function quickCreateCustomer(input: {
   if (!name) return { error: "Customer name is required." };
   if (!email) return { error: "Email is required." };
 
+  const phone = input.phone?.trim() || null;
+  const duplicates: Array<{
+    id: string;
+    name: string;
+    email: string;
+    phone: string | null;
+  }> = [];
+
+  const { data: emailHits } = await supabase
+    .from("customers")
+    .select("id, name, email, phone")
+    .eq("business_id", business.id)
+    .ilike("email", email)
+    .limit(5);
+  for (const row of emailHits ?? []) {
+    duplicates.push(row);
+  }
+
+  if (phone) {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length >= 7) {
+      const { data: phoneHits } = await supabase
+        .from("customers")
+        .select("id, name, email, phone")
+        .eq("business_id", business.id)
+        .not("phone", "is", null)
+        .limit(50);
+      for (const row of phoneHits ?? []) {
+        const rowDigits = String(row.phone ?? "").replace(/\D/g, "");
+        if (
+          rowDigits &&
+          (rowDigits === digits ||
+            rowDigits.endsWith(digits) ||
+            digits.endsWith(rowDigits))
+        ) {
+          if (!duplicates.some((d) => d.id === row.id)) {
+            duplicates.push(row);
+          }
+        }
+      }
+    }
+  }
+
+  if (duplicates.length > 0) {
+    return {
+      error:
+        "A matching customer may already exist. Select an existing record to avoid duplicates.",
+      duplicates,
+    };
+  }
+
+  if (input.checkDuplicatesOnly) {
+    return { success: "No duplicates found." };
+  }
+
   const { data, error } = await supabase
     .from("customers")
     .insert({
       business_id: business.id,
       name,
       email,
-      phone: input.phone?.trim() || null,
+      phone,
       notes: input.notes?.trim() || null,
       tags: [],
     })

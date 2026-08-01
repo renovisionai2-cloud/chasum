@@ -78,7 +78,7 @@ export async function updateBooking(
       .from("appointments")
       .update({
         service_id: intent.serviceId,
-        staff_id: intent.staffId,
+        staff_id: intent.staffId || null,
         customer_id: intent.customerId ?? existing.customer_id,
         location_id: intent.locationId,
         start_time: intent.requestedStart,

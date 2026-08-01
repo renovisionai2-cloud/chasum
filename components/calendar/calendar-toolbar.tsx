@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs } from "@/components/ui/tabs";
 import {
   formatDayHeader,
@@ -9,8 +10,8 @@ import {
 } from "@/lib/calendar/utils";
 import type { CalendarView } from "@/lib/types/booking";
 import type { CalendarColorMode } from "@/components/calendar/appointment-block";
-import { ChevronLeft, ChevronRight, Plus, Undo2 } from "lucide-react";
-import { addDays, addMonths, addWeeks, format } from "date-fns";
+import { ChevronLeft, ChevronRight, Plus, Undo2, UserPlus } from "lucide-react";
+import { addDays, addMonths, addWeeks, format, parse } from "date-fns";
 
 type CalendarToolbarProps = {
   view: CalendarView;
@@ -20,6 +21,7 @@ type CalendarToolbarProps = {
   onDateChange: (date: Date) => void;
   onColorModeChange: (mode: CalendarColorMode) => void;
   onNewAppointment: () => void;
+  onNewCustomer?: () => void;
   onUndo?: () => void;
   onDuplicate?: () => void;
   canDuplicate?: boolean;
@@ -69,13 +71,14 @@ export function CalendarToolbar({
   onDateChange,
   onColorModeChange,
   onNewAppointment,
+  onNewCustomer,
   onUndo,
   onDuplicate,
   canDuplicate,
 }: CalendarToolbarProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="outline"
           size="sm"
@@ -99,7 +102,23 @@ export function CalendarToolbar({
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
-        <h2 className="ml-2 text-base font-semibold text-foreground sm:text-lg">
+        <label className="sr-only" htmlFor="calendar-jump-date">
+          Jump to date
+        </label>
+        <Input
+          id="calendar-jump-date"
+          type="date"
+          className="h-9 w-[9.5rem] px-2 text-xs"
+          value={format(date, "yyyy-MM-dd")}
+          onChange={(e) => {
+            const raw = e.target.value;
+            if (!raw) return;
+            const next = parse(raw, "yyyy-MM-dd", new Date());
+            if (!Number.isNaN(next.getTime())) onDateChange(next);
+          }}
+          aria-label="Jump to date"
+        />
+        <h2 className="ml-1 text-base font-semibold text-foreground sm:text-lg">
           {getTitle(view, date)}
         </h2>
       </div>
@@ -149,6 +168,13 @@ export function CalendarToolbar({
             onClick={onDuplicate}
           >
             Duplicate
+          </Button>
+        ) : null}
+        {onNewCustomer ? (
+          <Button type="button" size="sm" variant="outline" onClick={onNewCustomer}>
+            <UserPlus className="h-4 w-4" />
+            <span className="hidden sm:inline">New Customer</span>
+            <span className="sm:hidden">Customer</span>
           </Button>
         ) : null}
         <Button size="sm" onClick={onNewAppointment}>

@@ -89,6 +89,11 @@ export async function previewAvailableSlots(
 export async function validateBooking(
   intent: BookingIntent,
 ): Promise<ValidateBookingResult> {
+  // Unassigned: validate service + times without employee-specific RPC.
+  if (!intent.staffId) {
+    return validateUnassignedBooking(intent);
+  }
+
   const composed = await composeAvailabilityContext({
     businessId: intent.businessId,
     locationId: intent.locationId,
@@ -146,6 +151,139 @@ export async function validateBooking(
     context: { ...composed.context, durationMinutes: duration },
     endTime: end.toISOString(),
   };
+}
+
+async function validateUnassignedBooking(
+  intent: BookingIntent,
+): Promise<ValidateBookingResult> {
+  const supabase = await createClient();
+  const { data: service } = await supabase
+    .from("services")
+    .select(
+      "id, duration_minutes, cleanup_minutes, buffer_before_minutes, buffer_after_minutes, is_active, confirmation_mode, min_notice_minutes, max_booking_days_ahead, max_appointments_per_day",
+    )
+    .eq("id", intent.serviceId)
+    .eq("business_id", intent.businessId)
+    .maybeSingle();
+
+  if (!service || service.is_active === false) {
+    return {
+      ok: false,
+      conflicts: [
+        conflictFromCode("SERVICE_INACTIVE", "Service is not available."),
+      ],
+    };
+  }
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("timezone, allow_double_booking")
+    .eq("id", intent.businessId)
+    .maybeSingle();
+
+  const { data: location } = await supabase
+    .from("locations")
+    .select("timezone")
+    .eq("id", intent.locationId)
+    .maybeSingle();
+
+  const duration =
+    intent.durationMinutes && intent.durationMinutes > 0
+      ? intent.durationMinutes
+      : Number(service.duration_minutes ?? 30);
+  const start = parseISO(intent.requestedStart);
+  const end = intent.requestedEnd
+    ? parseISO(intent.requestedEnd)
+    : addMinutes(start, duration);
+
+  if (!(end.getTime() > start.getTime())) {
+    return {
+      ok: false,
+      conflicts: [
+        conflictFromCode(
+          "INVALID_RANGE",
+          "End time must be after start time.",
+        ),
+      ],
+    };
+  }
+
+  // Soft location capacity: block exact overlaps on unassigned + same location
+  // unless the business allows double booking.
+  if (!business?.allow_double_booking) {
+    let overlapQuery = supabase
+      .from("appointments")
+      .select("id")
+      .eq("business_id", intent.businessId)
+      .eq("location_id", intent.locationId)
+      .is("staff_id", null)
+      .neq("status", "cancelled")
+      .lt("start_time", end.toISOString())
+      .gt("end_time", start.toISOString())
+      .limit(1);
+    if (intent.excludeAppointmentId) {
+      overlapQuery = overlapQuery.neq("id", intent.excludeAppointmentId);
+    }
+    const { data: overlaps } = await overlapQuery;
+    if (overlaps && overlaps.length > 0) {
+      return {
+        ok: false,
+        conflicts: [
+          conflictFromCode(
+            "STAFF_BUSY",
+            "Another unassigned appointment already covers this time at this location.",
+            { recoverable: true },
+          ),
+        ],
+      };
+    }
+  }
+
+  const context: AvailabilityContext = {
+    businessId: intent.businessId,
+    locationId: intent.locationId,
+    serviceId: intent.serviceId,
+    staffId: null,
+    channel: intent.channel,
+    timezone:
+      (location?.timezone as string | null | undefined) ??
+      (business?.timezone as string | null | undefined) ??
+      null,
+    intervalMinutes: 30,
+    durationMinutes: duration,
+    cleanupMinutes: Number(service.cleanup_minutes ?? 0),
+    bufferBeforeMinutes: Number(service.buffer_before_minutes ?? 0),
+    bufferAfterMinutes: Number(service.buffer_after_minutes ?? 0),
+    minNoticeMinutes:
+      service.min_notice_minutes != null
+        ? Number(service.min_notice_minutes)
+        : null,
+    maxBookingDaysAhead:
+      service.max_booking_days_ahead != null
+        ? Number(service.max_booking_days_ahead)
+        : null,
+    maxAppointmentsPerDay:
+      service.max_appointments_per_day != null
+        ? Number(service.max_appointments_per_day)
+        : null,
+    allowDoubleBooking: Boolean(business?.allow_double_booking),
+    acceptOnlineBookings: true,
+    bookingVisibility: null,
+    confirmationMode:
+      (service.confirmation_mode as AvailabilityContext["confirmationMode"]) ??
+      null,
+    priorityScheduling: 0,
+    serviceActive: true,
+    staffActive: true,
+    composedAt: new Date().toISOString(),
+  };
+
+  const policyConflicts = applyPolicyChecks(context, start.toISOString());
+  if (policyConflicts.length > 0) {
+    return { ok: false, conflicts: policyConflicts, context };
+  }
+
+  return { ok: true, context, endTime: end.toISOString() };
 }
 
 export { resolveRequestedStatus };

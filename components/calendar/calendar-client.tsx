@@ -40,6 +40,7 @@ import {
   undoLastAppointmentChange,
 } from "@/lib/actions/booking-engine";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
+import type { TaxRate } from "@/lib/business/types";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import {
   RECEPTION_ACTION_EVENT,
@@ -99,6 +100,9 @@ type CalendarClientProps = {
   focusAppointmentId?: string | null;
   dayOverlays?: StaffDayOverlay[];
   openBookOnLoad?: boolean;
+  currency?: string | null;
+  taxRates?: TaxRate[];
+  timezone?: string | null;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -137,6 +141,9 @@ export function CalendarClient({
   focusAppointmentId = null,
   dayOverlays = [],
   openBookOnLoad = false,
+  currency = null,
+  taxRates = [],
+  timezone = null,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -156,6 +163,7 @@ export function CalendarClient({
     useState<AppointmentWithRelations | null>(urlAppointment);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
   const [defaultStaffId, setDefaultStaffId] = useState<string | undefined>();
+  const [forceQuickAddCustomer, setForceQuickAddCustomer] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [isNarrow, setIsNarrow] = useState(false);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
@@ -185,7 +193,12 @@ export function CalendarClient({
       if (!detail?.action) return;
       switch (detail.action) {
         case "new-customer":
-          setPanelOpen(true);
+          setSelectedAppointment(null);
+          setDefaultSlot(date);
+          setDefaultStaffId(undefined);
+          setForceQuickAddCustomer(true);
+          setDrawerOpen(false);
+          setDialogOpen(true);
           setCreateCustomerSignal((n) => n + 1);
           break;
         case "book-appointment":
@@ -226,7 +239,19 @@ export function CalendarClient({
   function openNew(slot?: Date, staffId?: string) {
     setSelectedAppointment(null);
     setDefaultSlot(slot);
-    setDefaultStaffId(staffId);
+    setDefaultStaffId(
+      staffId === "__unassigned__" ? "" : staffId,
+    );
+    setForceQuickAddCustomer(false);
+    setDrawerOpen(false);
+    setDialogOpen(true);
+  }
+
+  function openNewCustomer() {
+    setSelectedAppointment(null);
+    setDefaultSlot(date);
+    setDefaultStaffId(undefined);
+    setForceQuickAddCustomer(true);
     setDrawerOpen(false);
     setDialogOpen(true);
   }
@@ -255,7 +280,9 @@ export function CalendarClient({
     const optimisticEnd = new Date(newStart.getTime() + duration);
     const nextStaffId = targetStaffId ?? appointment.staff_id;
     const nextStaff =
-      staff.find((s) => s.id === nextStaffId) ?? appointment.staff;
+      (nextStaffId
+        ? staff.find((s) => s.id === nextStaffId)
+        : null) ?? appointment.staff ?? null;
 
     startTransition(() => {
       setOptimisticAppointments(
@@ -265,13 +292,20 @@ export function CalendarClient({
                 ...a,
                 start_time: newStart.toISOString(),
                 end_time: optimisticEnd.toISOString(),
-                staff_id: nextStaffId,
-                staff: {
-                  id: nextStaff.id,
-                  name: nextStaff.name,
-                  color: nextStaff.color,
-                  photo_url: nextStaff.photo_url ?? null,
-                },
+                staff_id: nextStaffId ?? null,
+                staff: nextStaff
+                  ? {
+                      id: nextStaff.id,
+                      name: nextStaff.name,
+                      color: nextStaff.color,
+                      photo_url: nextStaff.photo_url ?? null,
+                    }
+                  : {
+                      id: "",
+                      name: "Unassigned",
+                      color: "#94a3b8",
+                      photo_url: null,
+                    },
               }
             : a,
         ),
@@ -279,6 +313,24 @@ export function CalendarClient({
     });
 
     const dateStr = format(newStart, "yyyy-MM-dd");
+    if (!nextStaffId) {
+      const result = await rescheduleAppointment(
+        appointment.id,
+        newStart.toISOString(),
+      );
+      if (result.error) {
+        toast(result.error, "error");
+        refresh();
+        return;
+      }
+      toast(
+        `Rescheduled · ${appointment.customer.name} · ${format(newStart, "MMM d · h:mm a")}`,
+        "success",
+      );
+      refresh();
+      return;
+    }
+
     const slots = await getDashboardAvailableSlots(
       appointment.service_id,
       nextStaffId,
@@ -304,7 +356,8 @@ export function CalendarClient({
     }
 
     const result = await rescheduleAppointment(appointment.id, match, {
-      staffId: nextStaffId !== appointment.staff_id ? nextStaffId : undefined,
+      staffId:
+        nextStaffId !== appointment.staff_id ? nextStaffId : undefined,
     });
     if (result.error) {
       toast(result.error, "error");
@@ -414,6 +467,7 @@ export function CalendarClient({
         onDateChange={handleDateChange}
         onColorModeChange={setColorMode}
         onNewAppointment={() => openNew()}
+        onNewCustomer={openNewCustomer}
         onUndo={() => {
           startTransition(async () => {
             const result = await undoLastAppointmentChange();
@@ -607,10 +661,13 @@ export function CalendarClient({
       <BookingSheet
         key={
           selectedAppointment?.id ??
-          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}`
+          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${forceQuickAddCustomer ? "qc" : ""}`
         }
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setDialogOpen(false);
+          setForceQuickAddCustomer(false);
+        }}
         appointment={selectedAppointment}
         services={services}
         staff={staff}
@@ -619,6 +676,15 @@ export function CalendarClient({
         defaultDate={defaultSlot}
         defaultStaffId={defaultStaffId}
         channel={showReceptionPanel ? "reception" : "staff"}
+        currency={currency}
+        taxRates={taxRates}
+        timezone={
+          timezone ??
+          locations.find((l) => l.is_default)?.timezone ??
+          locations[0]?.timezone ??
+          null
+        }
+        forceQuickAddCustomer={forceQuickAddCustomer}
         onSuccess={refresh}
       />
     </div>
