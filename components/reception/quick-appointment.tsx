@@ -8,8 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { SlotPicker } from "@/components/scheduling/slot-picker";
 import { createAppointment } from "@/lib/actions/appointments";
+import { previewBookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { quickCreateCustomer } from "@/lib/actions/customers";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
+import { getEligibleStaffForBooking } from "@/lib/actions/staff";
+import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import { formatPhoneInput } from "@/lib/reception/phone-format";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import {
@@ -169,13 +172,98 @@ export function QuickAppointmentForm({
   const selectedCustomer = customers.find((c) => c.id === resolvedCustomerId);
   const selectedService = activeServices.find((s) => s.id === serviceId);
 
-  const eligibleStaff = !serviceId
-    ? staff.filter((m) => m.is_active)
-    : staff.filter(
-        (m) =>
-          m.is_active &&
-          m.staff_services.some((ss) => ss.service_id === serviceId),
-      );
+  const [eligibleOverride, setEligibleOverride] = useState<
+    StaffWithServices[] | null
+  >(null);
+  const [staffEligibilityNote, setStaffEligibilityNote] = useState<string | null>(
+    null,
+  );
+
+  const staffPool = eligibleOverride ?? staff;
+
+  const eligibleStaff = useMemo(
+    () =>
+      filterEligibleBookingStaff(staffPool, {
+        serviceId,
+        locationId,
+      }),
+    [staffPool, serviceId, locationId],
+  );
+
+  // Refresh complete eligible list from the server whenever service/location changes.
+  useEffect(() => {
+    if (!serviceId) {
+      setEligibleOverride(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const rows = await getEligibleStaffForBooking({
+          serviceId,
+          locationId,
+        });
+        if (cancelled) return;
+        const asStaff: StaffWithServices[] = rows.map((row) => {
+          const existing = staff.find((s) => s.id === row.id);
+          return {
+            ...(existing ?? {
+              business_id: "",
+              email: null,
+              title: null,
+              biography: null,
+              qualifications: null,
+              color: "#94a3b8",
+              photo_url: null,
+              phone: null,
+              role: "staff",
+              created_at: "",
+              updated_at: "",
+            }),
+            id: row.id,
+            name: row.name,
+            is_active: row.is_active,
+            location_id: row.location_id ?? existing?.location_id ?? "",
+            staff_services: row.staff_services.map((ss) => ({
+              service_id: ss.service_id,
+            })),
+          } as unknown as StaffWithServices;
+        });
+        // Attach multi-location rows for eligibility checks without widening the shared type.
+        for (const row of rows) {
+          const hit = asStaff.find((s) => s.id === row.id) as StaffWithServices & {
+            staff_locations?: Array<{ location_id: string }>;
+          };
+          if (hit) hit.staff_locations = row.staff_locations;
+        }
+        setEligibleOverride(asStaff);
+      } catch {
+        if (!cancelled) setEligibleOverride(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [serviceId, locationId, staff]);
+
+  // Clear named employee when they are no longer eligible (after refresh).
+  useEffect(() => {
+    if (!staffId) {
+      setStaffEligibilityNote(null);
+      return;
+    }
+    // Avoid clearing while the server eligible list is still loading.
+    if (serviceId && eligibleOverride === null) return;
+    if (eligibleStaff.some((m) => m.id === staffId)) {
+      setStaffEligibilityNote(null);
+      return;
+    }
+    setStaffOverride("");
+    setSlot(null);
+    setStaffEligibilityNote(
+      "The previously selected employee is not available for this service or location. Selection reset to Unassigned — assign later.",
+    );
+  }, [eligibleStaff, staffId, serviceId, eligibleOverride]);
 
   const activeStaffId = staffId;
   const selectedStaff = eligibleStaff.find((m) => m.id === activeStaffId);
@@ -235,15 +323,27 @@ export function QuickAppointmentForm({
   }, [showCreate, createSuccess]);
 
   const loadSlots = useCallback(
-    (svcId: string, stfId: string, day: string) =>
-      getDashboardAvailableSlots(
-        svcId,
-        stfId,
-        day,
-        undefined,
-        locationId || undefined,
-      ),
-    [locationId],
+    async (svcId: string, stfId: string, day: string) => {
+      if (stfId) {
+        return getDashboardAvailableSlots(
+          svcId,
+          stfId,
+          day,
+          undefined,
+          locationId || undefined,
+        );
+      }
+      // Unassigned — union of eligible employees (deduped by start).
+      const result = await previewBookingSheetAvailability({
+        serviceId: svcId,
+        staffId: "",
+        locationId: locationId || "",
+        date: day,
+        staffOptions: eligibleStaff.map((m) => ({ id: m.id, name: m.name })),
+      });
+      return result.slots.map((s) => s.start);
+    },
+    [locationId, eligibleStaff],
   );
 
   const emailError =
@@ -641,6 +741,7 @@ export function QuickAppointmentForm({
               onChange={(e) => {
                 setStaffOverride(e.target.value);
                 setSlot(null);
+                setStaffEligibilityNote(null);
                 writeBookingPreferences({ staffId: e.target.value || undefined });
               }}
             >
@@ -651,13 +752,24 @@ export function QuickAppointmentForm({
                 </option>
               ))}
             </Select>
+            {staffEligibilityNote ? (
+              <p className="text-[11px] text-amber-800 dark:text-amber-200">
+                {staffEligibilityNote}
+              </p>
+            ) : (
+              <p className="text-[11px] text-muted-foreground">
+                {eligibleStaff.length === 0
+                  ? "No employees are assigned to this service yet."
+                  : `${eligibleStaff.length} eligible employee${eligibleStaff.length === 1 ? "" : "s"} — availability loads after you pick a time source.`}
+              </p>
+            )}
           </div>
         </div>
 
-        {serviceId && activeStaffId ? (
+        {serviceId ? (
           <SlotPicker
             serviceId={serviceId}
-            staffId={activeStaffId}
+            staffId={activeStaffId || "unassigned"}
             date={date}
             selectedSlot={slot}
             onDateChange={(d) => {
@@ -665,13 +777,10 @@ export function QuickAppointmentForm({
               setSlot(null);
             }}
             onSelectSlot={setSlot}
-            loadSlots={loadSlots}
+            loadSlots={(svcId, _stfId, day) =>
+              loadSlots(svcId, activeStaffId, day)
+            }
           />
-        ) : serviceId && !activeStaffId ? (
-          <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-            Unassigned booking — pick a time in the full calendar booking sheet,
-            or choose an employee to load openings here.
-          </p>
         ) : (
           <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
             Choose a service to continue. Employee is optional.

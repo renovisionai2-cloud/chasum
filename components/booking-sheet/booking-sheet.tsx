@@ -25,6 +25,7 @@ import {
 } from "@/lib/actions/booking-sheet";
 import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
+import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import { parseISO } from "@/lib/calendar/utils";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
 import {
@@ -162,12 +163,10 @@ export function BookingSheet({
       service?.id ??
       "";
 
-    const eligible = staff.filter(
-      (m) =>
-        m.is_active &&
-        (!locationId || m.location_id === locationId) &&
-        m.staff_services.some((ss) => ss.service_id === serviceId),
-    );
+    const eligible = filterEligibleBookingStaff(staff, {
+      serviceId,
+      locationId,
+    });
     // Editing: respect exact assignment (including Unassigned).
     // New booking: honor calendar column / explicit Unassigned, then prefs —
     // never force the first eligible employee.
@@ -277,14 +276,33 @@ export function BookingSheet({
 
   const eligibleStaff = useMemo(
     () =>
-      staff.filter(
-        (m) =>
-          m.is_active &&
-          (!locationId || m.location_id === locationId) &&
-          m.staff_services.some((ss) => ss.service_id === serviceId),
-      ),
+      filterEligibleBookingStaff(staff, {
+        serviceId,
+        locationId,
+      }),
     [staff, locationId, serviceId],
   );
+
+  // If a named employee is no longer eligible after service/location change,
+  // reset to Unassigned — never keep a stale forced selection.
+  const [staffEligibilityNote, setStaffEligibilityNote] = useState<string | null>(
+    null,
+  );
+  useEffect(() => {
+    if (!open) return;
+    if (!staffId) {
+      setStaffEligibilityNote(null);
+      return;
+    }
+    if (eligibleStaff.some((m) => m.id === staffId)) {
+      setStaffEligibilityNote(null);
+      return;
+    }
+    setStaffId("");
+    setStaffEligibilityNote(
+      "The previously selected employee is not available for this service or location. Selection reset to Unassigned — assign later.",
+    );
+  }, [open, eligibleStaff, staffId]);
 
   // The user is the authority on staff assignment. Unassigned ("") is a
   // deliberate, valid choice and must never be silently overridden by
@@ -486,8 +504,9 @@ export function BookingSheet({
     }
   }
 
-  function handleStaffChange(id: string) {
+function handleStaffChange(id: string) {
     setStaffId(id);
+    setStaffEligibilityNote(null);
   }
 
   function handleLocationChange(id: string) {
@@ -722,6 +741,15 @@ export function BookingSheet({
           snapshotLoading={snapshotLoading}
           initialShowQuickAdd={forceQuickAddCustomer}
         />
+
+        {staffEligibilityNote ? (
+          <p
+            role="status"
+            className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-950 dark:text-amber-100"
+          >
+            {staffEligibilityNote}
+          </p>
+        ) : null}
 
         <AppointmentSection
           services={services}

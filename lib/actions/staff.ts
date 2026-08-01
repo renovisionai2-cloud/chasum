@@ -5,6 +5,7 @@ import {
   getActiveLocationId,
   getLocationScope,
 } from "@/lib/actions/location";
+import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   composeDisplayName,
   permissionsForRole,
@@ -19,32 +20,136 @@ export async function getStaff() {
   const scope = await getLocationScope();
   const supabase = await createClient();
 
+  // Load business-wide, then filter by primary location OR staff_locations.
+  // Strict .eq(location_id) hid multi-location employees from booking dropdowns.
   let query = supabase
     .from("staff")
     .select(
-      "*, staff_services(service_id), location:locations!staff_location_id_fkey(id, name)",
+      "*, staff_services(service_id), staff_locations(location_id), location:locations!staff_location_id_fkey(id, name)",
     )
     .eq("business_id", business.id)
     .order("name");
 
-  query = withLocationFilter(query, scope);
-
   const { data, error } = await query;
 
   if (error) {
-    // PostgREST can fail when multiple FKs exist between staff and locations.
     let fallback = supabase
       .from("staff")
-      .select("*, staff_services(service_id)")
+      .select("*, staff_services(service_id), staff_locations(location_id)")
       .eq("business_id", business.id)
       .order("name");
-    fallback = withLocationFilter(fallback, scope);
     const retry = await fallback;
-    if (retry.error) throw new Error(retry.error.message);
-    return retry.data;
+    if (retry.error) {
+      // staff_locations may be missing on older DBs — fall back further.
+      let legacy = supabase
+        .from("staff")
+        .select("*, staff_services(service_id)")
+        .eq("business_id", business.id)
+        .order("name");
+      legacy = withLocationFilter(legacy, scope);
+      const legacyRetry = await legacy;
+      if (legacyRetry.error) throw new Error(legacyRetry.error.message);
+      return legacyRetry.data;
+    }
+    return filterStaffByLocationScope(retry.data ?? [], scope);
   }
 
-  return data;
+  return filterStaffByLocationScope(data ?? [], scope);
+}
+
+function filterStaffByLocationScope<
+  T extends {
+    location_id?: string | null;
+    staff_locations?: Array<{ location_id: string }> | null;
+  },
+>(rows: T[], scope: Awaited<ReturnType<typeof getLocationScope>>): T[] {
+  if (scope.mode === "all") return rows;
+  const locationId = scope.locationId;
+  return rows.filter((member) => {
+    if (member.location_id === locationId) return true;
+    if (member.location_id == null || member.location_id === "") return true;
+    return (member.staff_locations ?? []).some(
+      (row) => row.location_id === locationId,
+    );
+  });
+}
+
+/**
+ * Booking dropdown source of truth — every active employee assigned to the
+ * service and eligible for the location. Does not filter by availability.
+ */
+export async function getEligibleStaffForBooking(input: {
+  serviceId: string;
+  locationId?: string | null;
+}): Promise<
+  Array<{
+    id: string;
+    name: string;
+    is_active: boolean;
+    location_id: string | null;
+    staff_services: Array<{ service_id: string }>;
+    staff_locations: Array<{ location_id: string }>;
+  }>
+> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const serviceId = input.serviceId?.trim();
+  if (!serviceId) return [];
+
+  const { data, error } = await supabase
+    .from("staff")
+    .select(
+      "id, name, is_active, location_id, staff_services!inner(service_id), staff_locations(location_id)",
+    )
+    .eq("business_id", business.id)
+    .eq("is_active", true)
+    .eq("staff_services.service_id", serviceId)
+    .order("name");
+
+  if (error) {
+    // Fallback without staff_locations / inner join
+    const { data: links } = await supabase
+      .from("staff_services")
+      .select("staff_id")
+      .eq("service_id", serviceId);
+    const ids = [...new Set((links ?? []).map((r) => r.staff_id as string))];
+    if (ids.length === 0) return [];
+    const { data: members, error: staffErr } = await supabase
+      .from("staff")
+      .select("id, name, is_active, location_id, staff_services(service_id)")
+      .eq("business_id", business.id)
+      .eq("is_active", true)
+      .in("id", ids)
+      .order("name");
+    if (staffErr) throw new Error(staffErr.message);
+    const mapped = (members ?? []).map((m) => ({
+      id: m.id as string,
+      name: m.name as string,
+      is_active: Boolean(m.is_active),
+      location_id: (m.location_id as string | null) ?? null,
+      staff_services: (m.staff_services as Array<{ service_id: string }>) ?? [],
+      staff_locations: [] as Array<{ location_id: string }>,
+    }));
+    return filterEligibleBookingStaff(mapped, {
+      serviceId,
+      locationId: input.locationId,
+    });
+  }
+
+  const mapped = (data ?? []).map((m) => ({
+    id: m.id as string,
+    name: m.name as string,
+    is_active: Boolean(m.is_active),
+    location_id: (m.location_id as string | null) ?? null,
+    staff_services: (m.staff_services as Array<{ service_id: string }>) ?? [],
+    staff_locations:
+      (m.staff_locations as Array<{ location_id: string }> | null) ?? [],
+  }));
+
+  return filterEligibleBookingStaff(mapped, {
+    serviceId,
+    locationId: input.locationId,
+  });
 }
 
 /** Lightweight staff list for service assignment (no location embed). */

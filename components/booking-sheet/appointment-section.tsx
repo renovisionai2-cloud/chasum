@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
+import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import type {
@@ -87,12 +88,10 @@ export function AppointmentSection({
   const activePackages = packages.filter((p) => p.is_active);
   const selectedPackage = activePackages.find((p) => p.id === packageId);
   const selectedService = services.find((s) => s.id === serviceId);
-  const eligibleStaff = staff.filter(
-    (m) =>
-      m.is_active &&
-      (!locationId || m.location_id === locationId) &&
-      m.staff_services.some((ss) => ss.service_id === serviceId),
-  );
+  const eligibleStaff = filterEligibleBookingStaff(staff, {
+    serviceId,
+    locationId,
+  });
 
   const workflow = resolveAppointmentStatusWorkflow(
     statusWorkflow ?? DEFAULT_APPOINTMENT_STATUS_WORKFLOW,
