@@ -517,6 +517,8 @@ export type ActionState = {
 export type PublicBookingSummary = {
   serviceName: string;
   staffName: string;
+  /** True when the guest chose Any available staff (no named employee yet). */
+  staffUnassigned?: boolean;
   locationName: string | null;
   startTime: string;
   endTime: string;

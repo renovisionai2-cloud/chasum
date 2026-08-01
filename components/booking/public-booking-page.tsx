@@ -218,11 +218,9 @@ export function PublicBookingPage({
     };
   });
 
-  const resolvedStaffName = selectedSlot
-    ? selectedSlot.staffName
-    : anyStaff
-      ? "First available"
-      : selectedStaff?.name ?? "—";
+  const resolvedStaffName = anyStaff
+    ? "Any available staff"
+    : (selectedStaff?.name ?? selectedSlot?.staffName ?? "—");
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -371,9 +369,10 @@ export function PublicBookingPage({
         {step === "staff" && selectedService && (
           <section className="space-y-4">
             <BackButton onClick={() => setStep("service")} />
-            <h2 className="text-lg font-semibold">Choose a provider</h2>
+            <h2 className="text-lg font-semibold">Choose staff</h2>
             <p className="text-sm text-muted-foreground">
-              Optional — pick someone or take the first available opening.
+              Pick a specific team member, or choose Any available staff — we will
+              assign someone later.
             </p>
             {selectedService.preparation_instructions && (
               <p className="rounded-[var(--radius-md)] border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
@@ -395,9 +394,10 @@ export function PublicBookingPage({
                 <Users className="h-5 w-5" aria-hidden="true" />
               </span>
               <span>
-                <span className="block font-medium">Any available</span>
+                <span className="block font-medium">Any available staff</span>
                 <span className="mt-0.5 block text-sm text-muted-foreground">
-                  Show all real openings from the scheduling engine
+                  Show openings from every eligible team member — staff assigned
+                  later
                 </span>
               </span>
             </button>
@@ -526,12 +526,10 @@ export function PublicBookingPage({
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {slotOptions.map((option) => {
-                  const selected =
-                    selectedSlot?.start === option.start &&
-                    selectedSlot?.staffId === option.staffId;
+                  const selected = selectedSlot?.start === option.start;
                   return (
                     <button
-                      key={`${option.staffId}-${option.start}`}
+                      key={option.start}
                       type="button"
                       onClick={() => setSelectedSlot(option)}
                       className={cn(
@@ -542,11 +540,6 @@ export function PublicBookingPage({
                       <span className="block text-sm font-medium">
                         {formatTime(parseISO(option.start))}
                       </span>
-                      {anyStaff && (
-                        <span className="mt-0.5 block text-xs text-muted-foreground">
-                          {option.staffName}
-                        </span>
-                      )}
                     </button>
                   );
                 })}
@@ -635,9 +628,20 @@ export function PublicBookingPage({
             <Card>
               <CardContent className="space-y-2 p-4 text-sm">
                 <p>
-                  <strong>{selectedService.name}</strong> with{" "}
-                  {selectedSlot.staffName}
+                  <strong>{selectedService.name}</strong>
                 </p>
+                <p className="text-muted-foreground">
+                  Staff:{" "}
+                  {anyStaff
+                    ? "Any available staff"
+                    : (selectedSlot.staffName ?? selectedStaff?.name ?? "—")}
+                </p>
+                {anyStaff ? (
+                  <p className="text-xs text-muted-foreground">
+                    A team member will be assigned later — this does not confirm a
+                    specific employee.
+                  </p>
+                ) : null}
                 <p className="text-muted-foreground">
                   {format(parseISO(selectedSlot.start), "EEEE, MMM d")} at{" "}
                   {formatTime(parseISO(selectedSlot.start))}
@@ -681,7 +685,16 @@ export function PublicBookingPage({
                 value={selectedLocation?.id ?? ""}
               />
               <input type="hidden" name="service_id" value={selectedService.id} />
-              <input type="hidden" name="staff_id" value={selectedSlot.staffId} />
+              <input
+                type="hidden"
+                name="staff_id"
+                value={anyStaff ? "" : (selectedSlot.staffId ?? "")}
+              />
+              <input
+                type="hidden"
+                name="any_staff"
+                value={anyStaff ? "1" : "0"}
+              />
               <input type="hidden" name="start_time" value={selectedSlot.start} />
               <input type="hidden" name="customer_name" value={customerName} />
               <input type="hidden" name="customer_email" value={customerEmail} />

@@ -168,10 +168,9 @@ export function BookingSheet({
         (!locationId || m.location_id === locationId) &&
         m.staff_services.some((ss) => ss.service_id === serviceId),
     );
-    // Editing an appointment: respect its exact assignment, including
-    // Unassigned (null staff_id) — never silently reassign staff.
-    // New booking: honor an explicit `defaultStaffId=""` (Unassigned) before
-    // falling back to prefs / the first eligible employee.
+    // Editing: respect exact assignment (including Unassigned).
+    // New booking: honor calendar column / explicit Unassigned, then prefs —
+    // never force the first eligible employee.
     const staffId = appointment
       ? (appointment.staff_id ?? "")
       : defaultStaffId === ""
@@ -182,7 +181,6 @@ export function BookingSheet({
           (prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
             ? prefs.staffId
             : null) ??
-          eligible[0]?.id ??
           "");
 
     return {

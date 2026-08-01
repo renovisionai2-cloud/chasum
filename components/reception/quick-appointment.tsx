@@ -177,9 +177,7 @@ export function QuickAppointmentForm({
           m.staff_services.some((ss) => ss.service_id === serviceId),
       );
 
-  const activeStaffId = eligibleStaff.some((m) => m.id === staffId)
-    ? staffId
-    : (eligibleStaff[0]?.id ?? "");
+  const activeStaffId = staffId;
   const selectedStaff = eligibleStaff.find((m) => m.id === activeStaffId);
 
   useEffect(() => {
@@ -187,7 +185,7 @@ export function QuickAppointmentForm({
     if (state.success) {
       writeBookingPreferences({
         serviceId,
-        staffId: activeStaffId,
+        staffId: activeStaffId || undefined,
         locationId,
       });
       const when = slot
@@ -197,7 +195,7 @@ export function QuickAppointmentForm({
       const staffLabel = selectedStaff?.name;
       toast(
         selectedCustomer
-          ? `Confirmed · ${selectedCustomer.name} · ${serviceLabel}${staffLabel ? ` with ${staffLabel}` : ""} · ${when}`
+          ? `Confirmed · ${selectedCustomer.name} · ${serviceLabel}${staffLabel ? ` with ${staffLabel}` : " · Unassigned"} · ${when}`
           : `Confirmed · ${serviceLabel} · ${when}`,
         "success",
       );
@@ -256,12 +254,11 @@ export function QuickAppointmentForm({
   const missingHints = [
     !resolvedCustomerId ? "customer" : null,
     !serviceId ? "service" : null,
-    !activeStaffId ? "staff" : null,
     !slot ? "time slot" : null,
   ].filter(Boolean) as string[];
 
   const canBook =
-    !!resolvedCustomerId && !!serviceId && !!activeStaffId && !!slot && !pending;
+    !!resolvedCustomerId && !!serviceId && !!slot && !pending;
 
   function resetCreateFields() {
     setFirstName("");
@@ -637,17 +634,17 @@ export function QuickAppointmentForm({
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="qa_staff">Staff</Label>
+            <Label htmlFor="qa_staff">Employee</Label>
             <Select
               id="qa_staff"
               value={activeStaffId}
               onChange={(e) => {
                 setStaffOverride(e.target.value);
                 setSlot(null);
-                writeBookingPreferences({ staffId: e.target.value });
+                writeBookingPreferences({ staffId: e.target.value || undefined });
               }}
             >
-              <option value="">Select staff…</option>
+              <option value="">Unassigned — assign later</option>
               {eligibleStaff.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
@@ -670,9 +667,14 @@ export function QuickAppointmentForm({
             onSelectSlot={setSlot}
             loadSlots={loadSlots}
           />
+        ) : serviceId && !activeStaffId ? (
+          <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+            Unassigned booking — pick a time in the full calendar booking sheet,
+            or choose an employee to load openings here.
+          </p>
         ) : (
           <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-            Choose service and staff to load open times.
+            Choose a service to continue. Employee is optional.
           </p>
         )}
 
