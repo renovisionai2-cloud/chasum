@@ -5,7 +5,7 @@ import { getAppointments, getDashboardStats } from "@/lib/actions/appointments";
 import { listTaxRates } from "@/lib/actions/business-management";
 import { getCustomers } from "@/lib/actions/customers";
 import { getStaffDayOverlays } from "@/lib/actions/day-overlays";
-import { getLocations } from "@/lib/actions/location";
+import { getLocations, getBookingIntervalMinutes } from "@/lib/actions/location";
 import { getMorningBrief } from "@/lib/actions/morning-brief";
 import { getWaitlistEntries } from "@/lib/actions/notifications";
 import { getServices } from "@/lib/actions/services";
@@ -79,6 +79,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     waitlist,
     dayOverlays,
     taxRates,
+    appointmentIntervalMinutes,
   ] = await Promise.all([
     getAppointments(range.start.toISOString(), range.end.toISOString()),
     getServices(),
@@ -90,6 +91,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     getWaitlistEntries(),
     getStaffDayOverlays(range.start.toISOString()),
     listTaxRates(),
+    getBookingIntervalMinutes(),
   ]);
 
   const insights = buildDashboardInsights({
@@ -127,6 +129,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         currency={business.currency ?? "usd"}
         taxRates={taxRates.filter((t) => t.is_active)}
         timezone={business.timezone}
+        appointmentIntervalMinutes={appointmentIntervalMinutes}
       />
     </div>
   );

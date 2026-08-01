@@ -103,6 +103,8 @@ type CalendarClientProps = {
   currency?: string | null;
   taxRates?: TaxRate[];
   timezone?: string | null;
+  /** Booking start-time interval (minutes) from location/business settings. */
+  appointmentIntervalMinutes?: number;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -144,6 +146,7 @@ export function CalendarClient({
   currency = null,
   taxRates = [],
   timezone = null,
+  appointmentIntervalMinutes = 30,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -515,6 +518,7 @@ export function CalendarClient({
             onReschedule={handleReschedule}
             onResize={handleResize}
             colorMode={colorMode}
+            intervalMinutes={appointmentIntervalMinutes}
           />
         )
       )}
@@ -527,6 +531,7 @@ export function CalendarClient({
           onReschedule={handleReschedule}
           onResize={handleResize}
           colorMode={colorMode}
+          intervalMinutes={appointmentIntervalMinutes}
         />
       )}
       {effectiveView === "month" && (

@@ -7,6 +7,11 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateBusinessBookingSettings } from "@/lib/actions/business-management";
+import {
+  BOOKING_INTERVAL_OPTIONS,
+  bookingIntervalLabel,
+  normalizeBookingIntervalMinutes,
+} from "@/lib/booking/interval";
 import type { ActionState, Business } from "@/lib/types/booking";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useActionState } from "react";
@@ -18,6 +23,9 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
   );
   const refresh = useRefresh();
   useFormAction(state, undefined, () => refresh());
+  const intervalDefault = normalizeBookingIntervalMinutes(
+    business.appointment_interval_minutes,
+  );
 
   return (
     <Card>
@@ -28,16 +36,25 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
         <form action={action} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="appointment_interval_minutes">Slot interval (minutes)</Label>
-              <Input
+              <Label htmlFor="appointment_interval_minutes">
+                Booking time interval
+              </Label>
+              <Select
                 id="appointment_interval_minutes"
                 name="appointment_interval_minutes"
-                type="number"
-                min={5}
-                step={5}
-                defaultValue={business.appointment_interval_minutes ?? 30}
+                defaultValue={String(intervalDefault)}
                 required
-              />
+              >
+                {BOOKING_INTERVAL_OPTIONS.map((minutes) => (
+                  <option key={minutes} value={minutes}>
+                    {bookingIntervalLabel(minutes)}
+                  </option>
+                ))}
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Controls how frequently appointment start times are offered
+                across your calendar and online booking.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="booking_limit_days">Maximum future booking (days)</Label>
@@ -140,8 +157,9 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Per-service appointment buffers are configured on each service. Slot
-            interval syncs to the active location for the availability engine.
+            Per-service appointment buffers are configured on each service.
+            Booking time interval syncs to every location for the availability
+            engine.
           </p>
 
           <AlertMessage error={state.error} success={state.success} />

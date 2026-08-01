@@ -40,6 +40,8 @@ type DayControlCenterProps = {
   ) => void;
   onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
   colorMode?: CalendarColorMode;
+  /** Booking start-time interval from business/location settings. */
+  intervalMinutes?: number;
 };
 
 function minutesToPct(minutes: number | null | undefined): number | null {
@@ -87,6 +89,7 @@ function StaffColumn({
   onReschedule,
   onResize,
   colorMode,
+  intervalMinutes = 30,
 }: {
   member: StaffWithServices;
   overlay?: StaffDayOverlay;
@@ -99,6 +102,7 @@ function StaffColumn({
   onReschedule?: DayControlCenterProps["onReschedule"];
   onResize?: DayControlCenterProps["onResize"];
   colorMode: CalendarColorMode;
+  intervalMinutes?: number;
 }) {
   const dayAppts = appointments.filter(
     (a) =>
@@ -183,6 +187,7 @@ function StaffColumn({
             key={`${member.id}-${hour}`}
             date={date}
             hour={hour}
+            intervalMinutes={intervalMinutes}
             className="relative min-h-[64px] w-full border-b border-border/60 last:border-b-0 sm:min-h-[68px]"
             onClick={(slot) => onSelectSlot(slot, member.id)}
             onDrop={(slot, appointmentId) => {
@@ -231,6 +236,7 @@ export function DayControlCenter({
   onReschedule,
   onResize,
   colorMode = "service",
+  intervalMinutes = 30,
 }: DayControlCenterProps) {
   const hours = useMemo(() => getHourSlots(), []);
   const activeStaff = useMemo(
@@ -331,6 +337,7 @@ export function DayControlCenter({
             onReschedule={onReschedule}
             onResize={onResize}
             colorMode={colorMode}
+            intervalMinutes={intervalMinutes}
           />
           {activeStaff.map((member) => (
             <StaffColumn
@@ -346,6 +353,7 @@ export function DayControlCenter({
               onReschedule={onReschedule}
               onResize={onResize}
               colorMode={colorMode}
+              intervalMinutes={intervalMinutes}
             />
           ))}
         </div>

@@ -27,6 +27,8 @@ type ViewProps = {
   onReschedule?: (appointment: AppointmentWithRelations, newStart: Date) => void;
   onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
   colorMode?: CalendarColorMode;
+  /** Booking start-time interval from business/location settings. */
+  intervalMinutes?: number;
 };
 
 const TIME_COL = "w-16 shrink-0 sm:w-[4.25rem]";
@@ -39,6 +41,7 @@ export function DayView({
   onReschedule,
   onResize,
   colorMode = "service",
+  intervalMinutes = 30,
 }: ViewProps) {
   const hours = getHourSlots();
   const dayAppointments = appointments.filter((appt) =>
@@ -94,6 +97,7 @@ export function DayView({
             <TimeSlotDropZone
               date={date}
               hour={hour}
+              intervalMinutes={intervalMinutes}
               className="relative min-h-[68px] w-full border-l border-transparent"
               onClick={onSelectSlot}
               onDrop={(slot, appointmentId) => {
@@ -141,6 +145,7 @@ export function WeekView({
   onReschedule,
   onResize,
   colorMode = "service",
+  intervalMinutes = 30,
 }: ViewProps) {
   const hours = getHourSlots();
   const weekStart = new Date(date);
@@ -205,6 +210,7 @@ export function WeekView({
                   key={`${day.toISOString()}-${hour}`}
                   date={day}
                   hour={hour}
+                  intervalMinutes={intervalMinutes}
                   className={cn(
                     "min-h-[56px] flex-1 border-l border-border/60",
                     isSameDay(day, new Date()) && "bg-accent/10",

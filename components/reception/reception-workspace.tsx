@@ -41,6 +41,7 @@ type ReceptionWorkspaceProps = {
   currency?: string | null;
   taxRates?: TaxRate[];
   timezone?: string | null;
+  appointmentIntervalMinutes?: number;
 };
 
 export function ReceptionWorkspace({
@@ -60,6 +61,7 @@ export function ReceptionWorkspace({
   currency = null,
   taxRates = [],
   timezone = null,
+  appointmentIntervalMinutes = 30,
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
@@ -81,6 +83,7 @@ export function ReceptionWorkspace({
         currency={currency}
         taxRates={taxRates}
         timezone={timezone}
+        appointmentIntervalMinutes={appointmentIntervalMinutes}
       />
     </div>
   );

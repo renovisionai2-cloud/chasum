@@ -7,6 +7,10 @@ import { enrichSlotCandidates } from "@/lib/booking-engine/availability/enrich";
 import { applyPolicyChecks } from "@/lib/booking-engine/availability/query-policy";
 import { conflictFromCode } from "@/lib/booking-engine/conflicts/codes";
 import { mapRpcErrorToConflict } from "@/lib/booking-engine/conflicts/codes";
+import {
+  DEFAULT_BOOKING_INTERVAL_MINUTES,
+  resolveBookingIntervalMinutes,
+} from "@/lib/booking/interval";
 import type {
   AvailabilityContext,
   BookingIntent,
@@ -290,7 +294,7 @@ async function validateUnassignedBooking(
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("timezone, allow_double_booking, min_notice_minutes")
+    .select("timezone, allow_double_booking, min_notice_minutes, appointment_interval_minutes")
     .eq("id", intent.businessId)
     .maybeSingle();
 
@@ -299,6 +303,17 @@ async function validateUnassignedBooking(
     .select("timezone")
     .eq("id", intent.locationId)
     .maybeSingle();
+
+  const { data: locationSettings } = await supabase
+    .from("location_settings")
+    .select("appointment_interval_minutes")
+    .eq("location_id", intent.locationId)
+    .maybeSingle();
+
+  const intervalMinutes = resolveBookingIntervalMinutes({
+    locationInterval: locationSettings?.appointment_interval_minutes,
+    businessInterval: business?.appointment_interval_minutes,
+  });
 
   const duration =
     intent.durationMinutes && intent.durationMinutes > 0
@@ -376,7 +391,7 @@ async function validateUnassignedBooking(
       (location?.timezone as string | null | undefined) ??
       (business?.timezone as string | null | undefined) ??
       null,
-    intervalMinutes: 30,
+    intervalMinutes,
     durationMinutes: duration,
     cleanupMinutes: Number(service.cleanup_minutes ?? 0),
     bufferBeforeMinutes: Number(service.buffer_before_minutes ?? 0),
@@ -421,7 +436,7 @@ function emptyContext(input: PreviewSlotsInput): AvailabilityContext {
     staffId: input.staffId,
     channel: input.channel,
     timezone: null,
-    intervalMinutes: 30,
+    intervalMinutes: DEFAULT_BOOKING_INTERVAL_MINUTES,
     durationMinutes: 0,
     cleanupMinutes: 0,
     bufferBeforeMinutes: 0,

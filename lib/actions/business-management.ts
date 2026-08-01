@@ -957,10 +957,15 @@ export async function updateBusinessBookingSettings(
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
-  const appointmentInterval =
-    Number(formData.get("appointment_interval_minutes")) ||
-    business.appointment_interval_minutes ||
-    30;
+  const { normalizeBookingIntervalMinutes } = await import(
+    "@/lib/booking/interval"
+  );
+  const rawInterval = Number(formData.get("appointment_interval_minutes"));
+  const appointmentInterval = normalizeBookingIntervalMinutes(
+    Number.isFinite(rawInterval) && rawInterval > 0
+      ? rawInterval
+      : business.appointment_interval_minutes,
+  );
   const bookingLimitDays =
     Number(formData.get("booking_limit_days")) ||
     business.booking_limit_days ||
@@ -1008,17 +1013,22 @@ export async function updateBusinessBookingSettings(
     };
   }
 
-  // Keep active location settings in sync for the engine
-  const { getActiveLocationId } = await import("@/lib/actions/location");
-  const locationId = await getActiveLocationId();
-  await supabase
-    .from("location_settings")
-    .update({
-      appointment_interval_minutes: appointmentInterval,
-      booking_limit_days: bookingLimitDays,
-      cancellation_policy: payload.cancellation_policy,
-    })
-    .eq("location_id", locationId);
+  // Sync every location for this business so public + multi-site calendars match.
+  const { data: businessLocations } = await supabase
+    .from("locations")
+    .select("id")
+    .eq("business_id", business.id);
+  const locationIds = (businessLocations ?? []).map((row) => row.id);
+  if (locationIds.length > 0) {
+    await supabase
+      .from("location_settings")
+      .update({
+        appointment_interval_minutes: appointmentInterval,
+        booking_limit_days: bookingLimitDays,
+        cancellation_policy: payload.cancellation_policy,
+      })
+      .in("location_id", locationIds);
+  }
 
   revalidateBusiness();
   return { success: "Booking settings saved." };

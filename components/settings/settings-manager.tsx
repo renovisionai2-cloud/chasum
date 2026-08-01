@@ -394,16 +394,31 @@ function BookingSettingsForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="appointment_interval_minutes">
-                Appointment interval (min)
+                Booking time interval
               </Label>
-              <Input
+              <Select
                 id="appointment_interval_minutes"
                 name="appointment_interval_minutes"
-                type="number"
-                min={5}
-                step={5}
-                defaultValue={settings.appointment_interval_minutes ?? 30}
-              />
+                defaultValue={String(
+                  settings.appointment_interval_minutes &&
+                    [5, 10, 15, 20, 30, 45, 60].includes(
+                      settings.appointment_interval_minutes,
+                    )
+                    ? settings.appointment_interval_minutes
+                    : 30,
+                )}
+              >
+                <option value="5">Every 5 minutes</option>
+                <option value="10">Every 10 minutes</option>
+                <option value="15">Every 15 minutes</option>
+                <option value="20">Every 20 minutes</option>
+                <option value="30">Every 30 minutes</option>
+                <option value="45">Every 45 minutes</option>
+                <option value="60">Every 60 minutes</option>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                How often start times are offered at this location.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="booking_limit_days">Booking limit (days ahead)</Label>

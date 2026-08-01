@@ -68,7 +68,7 @@ export function QuickActionsFab() {
   return (
     <div
       ref={rootRef}
-      className="pointer-events-none fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2 sm:bottom-6 sm:right-6"
+      className="pointer-events-none fixed bottom-5 left-5 z-40 flex flex-col items-start gap-2 sm:bottom-6 sm:left-6 lg:items-start"
     >
       {open && (
         <div

@@ -4,6 +4,7 @@ import {
   cacheSet,
 } from "@/lib/booking-engine/availability/cache";
 import { conflictFromCode } from "@/lib/booking-engine/conflicts/codes";
+import { resolveBookingIntervalMinutes } from "@/lib/booking/interval";
 import type {
   AvailabilityContext,
   BookingChannel,
@@ -63,7 +64,7 @@ async function composeAvailabilityContextUncached(
     supabase
       .from("businesses")
       .select(
-        "id, timezone, min_notice_minutes, allow_double_booking, booking_limit_days, booking_confirmation_mode",
+        "id, timezone, min_notice_minutes, allow_double_booking, booking_limit_days, booking_confirmation_mode, appointment_interval_minutes",
       )
       .eq("id", input.businessId)
       .maybeSingle(),
@@ -263,6 +264,17 @@ async function composeAvailabilityContextUncached(
     (business.timezone as string | null | undefined) ??
     null;
 
+  const intervalMinutes = resolveBookingIntervalMinutes({
+    locationInterval:
+      locationSettings?.appointment_interval_minutes != null
+        ? Number(locationSettings.appointment_interval_minutes)
+        : null,
+    businessInterval:
+      business.appointment_interval_minutes != null
+        ? Number(business.appointment_interval_minutes)
+        : null,
+  });
+
   const context: AvailabilityContext = {
     businessId: input.businessId,
     locationId: input.locationId,
@@ -270,9 +282,7 @@ async function composeAvailabilityContextUncached(
     staffId: input.staffId,
     channel: input.channel,
     timezone,
-    intervalMinutes: Number(
-      locationSettings?.appointment_interval_minutes ?? 30,
-    ),
+    intervalMinutes,
     durationMinutes,
     cleanupMinutes: Number(service.cleanup_minutes ?? 0),
     bufferBeforeMinutes: Math.max(serviceBufferBefore, staffBufferBefore),

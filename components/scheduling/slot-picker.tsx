@@ -22,6 +22,8 @@ type SlotPickerProps = {
   ) => Promise<string[]>;
   excludeAppointmentId?: string;
   minDate?: string;
+  /** Optional note when a previously selected time is no longer in the list. */
+  selectedInvalidHint?: string | null;
 };
 
 export function SlotPicker({
@@ -34,6 +36,7 @@ export function SlotPicker({
   loadSlots,
   excludeAppointmentId,
   minDate = format(new Date(), "yyyy-MM-dd"),
+  selectedInvalidHint = null,
 }: SlotPickerProps) {
   const [loadingSlots, startTransition] = useTransition();
   const [slots, setSlots] = useState<string[]>([]);
@@ -69,6 +72,8 @@ export function SlotPicker({
   }, [serviceId, staffId, date, excludeAppointmentId, loadSlots]);
 
   const showEmpty = !loadingSlots && slots.length === 0;
+  const selectedStillValid =
+    !selectedSlot || slots.some((s) => s === selectedSlot);
 
   return (
     <div className="space-y-3">
@@ -85,29 +90,50 @@ export function SlotPicker({
       </div>
 
       {loadingSlots ? (
-        <p className="text-sm text-muted-foreground">Loading available times...</p>
+        <p className="text-sm text-muted-foreground" aria-live="polite">
+          Loading available times...
+        </p>
       ) : showEmpty ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground" role="status">
           No available times for this date.
         </p>
       ) : (
         <div className="space-y-2">
-          <Label>Available times</Label>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {slots.map((slot) => (
-              <button
-                key={slot}
-                type="button"
-                onClick={() => onSelectSlot(slot)}
-                className={cn(
-                  "rounded-lg border border-border px-2 py-2 text-sm font-medium transition-colors hover:border-primary hover:bg-accent/30",
-                  selectedSlot === slot && "border-primary bg-accent",
-                )}
-              >
-                {formatTime(parseISO(slot))}
-              </button>
-            ))}
+          <Label id="available-times-label">Available times</Label>
+          <div
+            role="listbox"
+            aria-labelledby="available-times-label"
+            className="grid grid-cols-2 gap-2 min-[420px]:grid-cols-3 min-[520px]:grid-cols-4"
+          >
+            {slots.map((slot) => {
+              const selected = selectedSlot === slot;
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => onSelectSlot(slot)}
+                  className={cn(
+                    "rounded-lg border border-border px-2 py-2.5 text-sm font-medium tabular-nums transition-colors hover:border-primary hover:bg-accent/30",
+                    selected &&
+                      "border-primary bg-accent ring-1 ring-primary/40",
+                  )}
+                >
+                  {formatTime(parseISO(slot))}
+                  {selected ? (
+                    <span className="sr-only"> (selected)</span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
+          {!selectedStillValid && selectedSlot ? (
+            <p className="text-[11px] text-amber-800 dark:text-amber-200" role="status">
+              {selectedInvalidHint ??
+                "The previously selected time is no longer available for this service, employee, or date. Choose another time."}
+            </p>
+          ) : null}
         </div>
       )}
     </div>

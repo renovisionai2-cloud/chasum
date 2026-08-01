@@ -246,6 +246,8 @@ export function CurrentTimeIndicator({
 type DropZoneProps = {
   date: Date;
   hour: number;
+  /** Business/location booking start-time interval (minutes). */
+  intervalMinutes?: number;
   onDrop: (date: Date, appointmentId?: string) => void;
   onClick: (date: Date) => void;
   className?: string;
@@ -254,32 +256,33 @@ type DropZoneProps = {
 export function TimeSlotDropZone({
   date,
   hour,
+  intervalMinutes = 30,
   onDrop,
   onClick,
   className,
 }: DropZoneProps) {
-  const [overHalf, setOverHalf] = useState<0 | 30 | null>(null);
+  const [hoverMinutes, setHoverMinutes] = useState<number | null>(null);
 
-  function minutesFromEvent(e: React.DragEvent | React.MouseEvent): 0 | 30 {
+  function minutesFromEvent(e: React.DragEvent | React.MouseEvent): number {
     const rect = e.currentTarget.getBoundingClientRect();
     const offsetY = e.clientY - rect.top;
-    return snapMinutesInHour(offsetY, rect.height) as 0 | 30;
+    return snapMinutesInHour(offsetY, rect.height, intervalMinutes);
   }
 
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    setOverHalf(minutesFromEvent(e));
+    setHoverMinutes(minutesFromEvent(e));
   }
 
   function handleDragLeave() {
-    setOverHalf(null);
+    setHoverMinutes(null);
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     const minutes = minutesFromEvent(e);
-    setOverHalf(null);
+    setHoverMinutes(null);
     const appointmentId = e.dataTransfer.getData("appointmentId");
     if (!appointmentId) return;
 
@@ -288,12 +291,18 @@ export function TimeSlotDropZone({
     onDrop(slot, appointmentId);
   }
 
+  const ghostTop =
+    hoverMinutes == null
+      ? null
+      : Math.min(92, Math.max(2, (hoverMinutes / 60) * 100));
+  const ghostHeight = Math.max(6, (intervalMinutes / 60) * 100);
+
   return (
     <button
       type="button"
       className={cn(
         "relative transition-colors hover:bg-muted/35",
-        overHalf !== null && "bg-primary/12 ring-1 ring-inset ring-primary/35",
+        hoverMinutes !== null && "bg-primary/12 ring-1 ring-inset ring-primary/35",
         className,
       )}
       onDragOver={handleDragOver}
@@ -306,20 +315,24 @@ export function TimeSlotDropZone({
         onClick(slot);
       }}
     >
-      {overHalf !== null && (
+      {ghostTop != null && (
         <span
           className="pointer-events-none absolute inset-x-1 rounded-sm border border-dashed border-primary/50 bg-primary/10"
           style={{
-            top: overHalf === 0 ? "4%" : "52%",
-            height: "44%",
+            top: `${ghostTop}%`,
+            height: `${ghostHeight}%`,
           }}
           aria-hidden
         />
       )}
-      <span
-        className="pointer-events-none absolute inset-x-0 top-1/2 border-t border-dashed border-border/50"
-        aria-hidden
-      />
+      {/* Subtle mid-hour mark only when interval divides the hour evenly into halves */}
+      {60 % intervalMinutes === 0 && intervalMinutes < 60 ? (
+        <span
+          className="pointer-events-none absolute inset-x-0 border-t border-dashed border-border/40"
+          style={{ top: "50%" }}
+          aria-hidden
+        />
+      ) : null}
     </button>
   );
 }

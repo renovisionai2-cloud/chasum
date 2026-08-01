@@ -14,11 +14,16 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
+import {
+  DEFAULT_BOOKING_INTERVAL_MINUTES,
+  snapOffsetToIntervalMinutes,
+} from "@/lib/booking/interval";
 import type { BusinessHours } from "@/lib/types/booking";
 
 export const CALENDAR_START_HOUR = 7;
 export const CALENDAR_END_HOUR = 21;
-export const SLOT_INTERVAL_MINUTES = 30;
+/** @deprecated Prefer business/location appointment_interval_minutes. */
+export const SLOT_INTERVAL_MINUTES = DEFAULT_BOOKING_INTERVAL_MINUTES;
 
 export function formatTime(date: Date): string {
   return format(date, "h:mm a");
@@ -143,10 +148,12 @@ export function assignOverlapLayout(
   return layout;
 }
 
-export function snapMinutesInHour(offsetY: number, height: number): number {
-  if (height <= 0) return 0;
-  const ratio = offsetY / height;
-  return ratio < 0.5 ? 0 : 30;
+export function snapMinutesInHour(
+  offsetY: number,
+  height: number,
+  intervalMinutes: number = SLOT_INTERVAL_MINUTES,
+): number {
+  return snapOffsetToIntervalMinutes(offsetY, height, intervalMinutes);
 }
 
 export function isWithinBusinessHours(
@@ -167,6 +174,7 @@ export function generateTimeSlots(
   durationMinutes: number,
   existingAppointments: { start_time: string; end_time: string; staff_id: string }[],
   staffId: string,
+  intervalMinutes: number = SLOT_INTERVAL_MINUTES,
 ): Date[] {
   const dayHours = hours.find((h) => h.day_of_week === date.getDay());
   if (!dayHours?.is_open) return [];
@@ -175,6 +183,7 @@ export function generateTimeSlots(
   const close = parseTimeOnDate(date, dayHours.close_time);
   const slots: Date[] = [];
   let cursor = open;
+  const step = intervalMinutes > 0 ? intervalMinutes : SLOT_INTERVAL_MINUTES;
 
   while (addMinutes(cursor, durationMinutes) <= close) {
     const slotEnd = addMinutes(cursor, durationMinutes);
@@ -189,7 +198,7 @@ export function generateTimeSlots(
       slots.push(new Date(cursor));
     }
 
-    cursor = addMinutes(cursor, SLOT_INTERVAL_MINUTES);
+    cursor = addMinutes(cursor, step);
   }
 
   return slots;
