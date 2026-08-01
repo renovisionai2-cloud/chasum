@@ -19,6 +19,13 @@ import { createClient } from "@/lib/supabase/server";
 export { applyPolicyChecks } from "@/lib/booking-engine/availability/query-policy";
 
 /**
+ * Service columns for unassigned validateBooking.
+ * Must use services.min_booking_notice_minutes — never businesses.min_notice_minutes.
+ */
+export const UNASSIGNED_SERVICE_SELECT =
+  "id, duration_minutes, cleanup_minutes, buffer_before_minutes, buffer_after_minutes, is_active, confirmation_mode, min_booking_notice_minutes, max_booking_days_ahead, max_appointments_per_day, location_id";
+
+/**
  * Availability Engine entry — single source of truth for slot previews.
  * SQL RPC generates starts; TypeScript composes policy, scores, and warnings.
  */
@@ -153,20 +160,40 @@ export async function validateBooking(
   };
 }
 
+/**
+ * Validate an unassigned (staff_id null) booking without employee-specific RPC.
+ * Service eligibility is separate from named-employee assignment — never treat
+ * a missing staff_id as an inactive / unavailable service.
+ *
+ * IMPORTANT: services use `min_booking_notice_minutes` (not businesses'
+ * `min_notice_minutes`). Selecting the wrong column makes PostgREST fail and
+ * previously surfaced a false "Service is not available." conflict.
+ */
 async function validateUnassignedBooking(
   intent: BookingIntent,
 ): Promise<ValidateBookingResult> {
   const supabase = await createClient();
-  const { data: service } = await supabase
+  const { data: service, error: serviceError } = await supabase
     .from("services")
-    .select(
-      "id, duration_minutes, cleanup_minutes, buffer_before_minutes, buffer_after_minutes, is_active, confirmation_mode, min_notice_minutes, max_booking_days_ahead, max_appointments_per_day",
-    )
+    .select(UNASSIGNED_SERVICE_SELECT)
     .eq("id", intent.serviceId)
     .eq("business_id", intent.businessId)
     .maybeSingle();
 
-  if (!service || service.is_active === false) {
+  if (serviceError) {
+    return {
+      ok: false,
+      conflicts: [
+        conflictFromCode(
+          "UNKNOWN",
+          "Could not verify this service. Please try again.",
+          { recoverable: true },
+        ),
+      ],
+    };
+  }
+
+  if (!service) {
     return {
       ok: false,
       conflicts: [
@@ -175,9 +202,95 @@ async function validateUnassignedBooking(
     };
   }
 
+  if (service.is_active === false) {
+    return {
+      ok: false,
+      conflicts: [
+        conflictFromCode("SERVICE_INACTIVE", "Service is inactive."),
+      ],
+    };
+  }
+
+  // Location eligibility: prefer service_locations; fall back to primary location_id.
+  if (intent.locationId) {
+    const { data: serviceLocations, error: locLinkError } = await supabase
+      .from("service_locations")
+      .select("location_id")
+      .eq("service_id", intent.serviceId);
+
+    if (!locLinkError && serviceLocations && serviceLocations.length > 0) {
+      const offered = serviceLocations.some(
+        (row) => row.location_id === intent.locationId,
+      );
+      if (!offered) {
+        return {
+          ok: false,
+          conflicts: [
+            conflictFromCode(
+              "NOT_AUTHORIZED",
+              "This service is not offered at the selected location.",
+              { recoverable: true },
+            ),
+          ],
+        };
+      }
+    } else if (
+      service.location_id &&
+      service.location_id !== intent.locationId
+    ) {
+      return {
+        ok: false,
+        conflicts: [
+          conflictFromCode(
+            "NOT_AUTHORIZED",
+            "This service is not offered at the selected location.",
+            { recoverable: true },
+          ),
+        ],
+      };
+    }
+  }
+
+  // At least one active employee must be assigned to the service.
+  const { data: linkedStaff, error: linkError } = await supabase
+    .from("staff_services")
+    .select("staff_id, staff!inner(id, is_active)")
+    .eq("service_id", intent.serviceId);
+
+  if (linkError) {
+    return {
+      ok: false,
+      conflicts: [
+        conflictFromCode(
+          "UNKNOWN",
+          "Could not verify eligible employees for this service.",
+          { recoverable: true },
+        ),
+      ],
+    };
+  }
+
+  const hasActiveAssignee = (linkedStaff ?? []).some((row) => {
+    const st = row.staff as unknown as { id: string; is_active: boolean } | null;
+    return Boolean(st?.is_active);
+  });
+
+  if (!hasActiveAssignee) {
+    return {
+      ok: false,
+      conflicts: [
+        conflictFromCode(
+          "NOT_AUTHORIZED",
+          "Assign at least one active employee to this service before booking unassigned.",
+          { recoverable: true },
+        ),
+      ],
+    };
+  }
+
   const { data: business } = await supabase
     .from("businesses")
-    .select("timezone, allow_double_booking")
+    .select("timezone, allow_double_booking, min_notice_minutes")
     .eq("id", intent.businessId)
     .maybeSingle();
 
@@ -210,6 +323,8 @@ async function validateUnassignedBooking(
 
   // Soft location capacity: block exact overlaps on unassigned + same location
   // unless the business allows double booking.
+  // Note: with migration 034 unapplied there are no null staff rows yet — this
+  // is forward-compatible once nullable staff_id is enabled.
   if (!business?.allow_double_booking) {
     let overlapQuery = supabase
       .from("appointments")
@@ -239,6 +354,18 @@ async function validateUnassignedBooking(
     }
   }
 
+  const serviceMinNotice =
+    service.min_booking_notice_minutes != null
+      ? Number(service.min_booking_notice_minutes)
+      : null;
+  const businessMinNotice =
+    business?.min_notice_minutes != null
+      ? Number(business.min_notice_minutes)
+      : null;
+  const minNoticeCandidates = [serviceMinNotice, businessMinNotice].filter(
+    (n): n is number => n != null && Number.isFinite(n),
+  );
+
   const context: AvailabilityContext = {
     businessId: intent.businessId,
     locationId: intent.locationId,
@@ -255,9 +382,7 @@ async function validateUnassignedBooking(
     bufferBeforeMinutes: Number(service.buffer_before_minutes ?? 0),
     bufferAfterMinutes: Number(service.buffer_after_minutes ?? 0),
     minNoticeMinutes:
-      service.min_notice_minutes != null
-        ? Number(service.min_notice_minutes)
-        : null,
+      minNoticeCandidates.length > 0 ? Math.max(...minNoticeCandidates) : null,
     maxBookingDaysAhead:
       service.max_booking_days_ahead != null
         ? Number(service.max_booking_days_ahead)
