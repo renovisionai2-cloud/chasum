@@ -2,6 +2,7 @@
 
 import { BookingConfirmation } from "@/components/booking/booking-confirmation";
 import { BusinessContact } from "@/components/booking/business-contact";
+import { AvailableTimeSelector } from "@/components/scheduling/available-time-selector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,10 @@ import {
   lookupPublicCustomer,
   type PublicSlotOption,
 } from "@/lib/actions/public-booking";
+import {
+  OPTIONAL_STAFF_PERSISTENCE_ENABLED,
+  PUBLIC_ANY_STAFF_UNAVAILABLE_MESSAGE,
+} from "@/lib/booking/optional-staff";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type {
   Business,
@@ -514,41 +519,31 @@ export function PublicBookingPage({
               {format(parseISO(`${selectedDate}T12:00:00`), "EEEE, MMMM d")} ·{" "}
               {resolvedStaffName}
             </p>
-            {loadingSlots ? (
-              <p className="text-sm text-muted-foreground">
-                Loading real available times…
+            {anyStaff && !OPTIONAL_STAFF_PERSISTENCE_ENABLED ? (
+              <p
+                className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-950 dark:text-amber-100"
+                role="status"
+              >
+                {PUBLIC_ANY_STAFF_UNAVAILABLE_MESSAGE}
               </p>
-            ) : slotOptions.length === 0 ? (
-              <p className="rounded-[var(--radius-md)] border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-                No open times for this date. Try another day — we only show slots
-                from the scheduling engine.
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {slotOptions.map((option) => {
-                  const selected = selectedSlot?.start === option.start;
-                  return (
-                    <button
-                      key={option.start}
-                      type="button"
-                      onClick={() => setSelectedSlot(option)}
-                      className={cn(
-                        "rounded-xl border border-border px-3 py-3 text-left transition-colors hover:border-primary hover:bg-accent/30",
-                        selected && "border-primary bg-accent",
-                      )}
-                    >
-                      <span className="block text-sm font-medium">
-                        {formatTime(parseISO(option.start))}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            ) : null}
+            <AvailableTimeSelector
+              slots={slotOptions.map((option) => ({ start: option.start }))}
+              selectedStart={selectedSlot?.start ?? null}
+              onSelect={(start) => {
+                const match = slotOptions.find((o) => o.start === start) ?? null;
+                setSelectedSlot(match);
+              }}
+              loading={loadingSlots}
+              emptyMessage="No open times for this date. Try another day — we only show slots from the scheduling engine."
+            />
             <Button
               type="button"
               className="w-full"
-              disabled={!selectedSlot}
+              disabled={
+                !selectedSlot ||
+                (anyStaff && !OPTIONAL_STAFF_PERSISTENCE_ENABLED)
+              }
               onClick={() => setStep("details")}
             >
               Continue

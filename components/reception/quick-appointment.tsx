@@ -13,6 +13,11 @@ import { quickCreateCustomer } from "@/lib/actions/customers";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { getEligibleStaffForBooking } from "@/lib/actions/staff";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
+import {
+  OPTIONAL_STAFF_PERSISTENCE_ENABLED,
+  RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
+  isUnassignedStaffSelection,
+} from "@/lib/booking/optional-staff";
 import { formatPhoneInput } from "@/lib/reception/phone-format";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import {
@@ -351,14 +356,23 @@ export function QuickAppointmentForm({
       ? "Enter a valid email."
       : fieldErrors.email ?? null;
 
+  const needsNamedEmployee =
+    !OPTIONAL_STAFF_PERSISTENCE_ENABLED &&
+    isUnassignedStaffSelection(activeStaffId);
+
   const missingHints = [
     !resolvedCustomerId ? "customer" : null,
     !serviceId ? "service" : null,
     !slot ? "time slot" : null,
+    needsNamedEmployee ? "employee" : null,
   ].filter(Boolean) as string[];
 
   const canBook =
-    !!resolvedCustomerId && !!serviceId && !!slot && !pending;
+    !!resolvedCustomerId &&
+    !!serviceId &&
+    !!slot &&
+    !needsNamedEmployee &&
+    !pending;
 
   function resetCreateFields() {
     setFirstName("");
@@ -783,9 +797,42 @@ export function QuickAppointmentForm({
           />
         ) : (
           <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-            Choose a service to continue. Employee is optional.
+            Choose a service to continue.
+            {OPTIONAL_STAFF_PERSISTENCE_ENABLED
+              ? " Employee is optional."
+              : ""}
           </p>
         )}
+
+        {slot ? (
+          <div
+            className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-3 py-2.5"
+            aria-live="polite"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Selected appointment
+            </p>
+            <p className="mt-1 text-sm font-medium">
+              {format(parseISO(slot), "EEEE, MMMM d, yyyy")}
+            </p>
+            <p className="text-sm tabular-nums">
+              {format(parseISO(slot), "h:mm a")}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Employee:{" "}
+              {selectedStaff?.name ?? "Unassigned — assign later"}
+            </p>
+          </div>
+        ) : null}
+
+        {needsNamedEmployee && slot && resolvedCustomerId && serviceId ? (
+          <p
+            className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-950 dark:text-amber-100"
+            role="status"
+          >
+            {RECEPTION_EMPLOYEE_REQUIRED_MESSAGE}
+          </p>
+        ) : null}
 
         <AlertMessage error={state.error} />
 

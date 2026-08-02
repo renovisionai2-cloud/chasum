@@ -1,10 +1,10 @@
 "use client";
 
+import { AvailableTimeSelector } from "@/components/scheduling/available-time-selector";
 import { Button } from "@/components/ui/button";
 import type { BookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
-import { cn } from "@/lib/utils";
-import { AlertTriangle, Clock, Loader2, UserRound, CalendarDays } from "lucide-react";
+import { AlertTriangle, CalendarDays, Loader2, UserRound } from "lucide-react";
 
 function slotKey(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -33,8 +33,6 @@ export function AvailabilitySection({
   unassigned = false,
 }: AvailabilitySectionProps) {
   const slots = availability?.slots ?? [];
-  const suggested = [...slots].sort((a, b) => b.score - a.score).slice(0, 8);
-  const suggestedKeys = new Set(suggested.map((s) => slotKey(s.start)));
   const selectedInDay = Boolean(
     selectedSlot &&
       slots.some((s) => slotKey(s.start) === slotKey(selectedSlot)),
@@ -92,86 +90,20 @@ export function AvailabilitySection({
         </div>
       ) : null}
 
-      {!loading && suggested.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Suggested times
-          </p>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {suggested.map((slot) => {
-              const active = slotKey(selectedSlot) === slotKey(slot.start);
-              return (
-                <button
-                  key={slot.start}
-                  type="button"
-                  onClick={() => onSelectSlot(slot.start)}
-                  className={cn(
-                    "rounded-[var(--radius-md)] border px-2 py-2 text-sm font-medium transition-colors",
-                    "hover:border-primary hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    active
-                      ? "border-primary bg-accent"
-                      : "border-border bg-card",
-                  )}
-                  title={
-                    slot.warnings.length
-                      ? slot.warnings.join(" · ")
-                      : undefined
-                  }
-                >
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="size-3 opacity-70" aria-hidden />
-                    {formatTime(parseISO(slot.start))}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-
       {!loading && slots.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            All available times ({slots.length})
-          </p>
-          <div className="grid max-h-48 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
-            {slots.map((slot) => {
-              const active = slotKey(selectedSlot) === slotKey(slot.start);
-              const isSuggested = suggestedKeys.has(slotKey(slot.start));
-              return (
-                <button
-                  key={`all-${slot.start}`}
-                  type="button"
-                  onClick={() => onSelectSlot(slot.start)}
-                  className={cn(
-                    "rounded-[var(--radius-md)] border px-2 py-1.5 text-xs font-medium transition-colors",
-                    "hover:border-primary hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    active
-                      ? "border-primary bg-accent"
-                      : isSuggested
-                        ? "border-border/80 bg-muted/30"
-                        : "border-border bg-card",
-                  )}
-                >
-                  {formatTime(parseISO(slot.start))}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-
-      {!loading && selectedSlot && !selectedInDay && selectedSlotValid === false
-        ? null
-        : null}
-
-      {!loading &&
-      selectedSlot &&
-      !slots.some((s) => slotKey(s.start) === slotKey(selectedSlot)) ? (
-        <p className="text-xs text-muted-foreground">
-          Selected {formatTime(parseISO(selectedSlot))} is not in today’s open
-          list — keep it only if you resolve the conflict, or pick another time.
-        </p>
+        <AvailableTimeSelector
+          slots={slots.map((s) => ({ start: s.start }))}
+          selectedStart={selectedSlot}
+          onSelect={onSelectSlot}
+          loading={loading}
+          selectedInvalid={Boolean(selectedSlot && !selectedSlotValid)}
+          forceExpanded={Boolean(selectedSlot && !selectedSlotValid)}
+          selectedInvalidHint={
+            selectedSlot && !selectedInDay
+              ? `${formatTime(parseISO(selectedSlot))} is not in today’s open list. Choose another time.`
+              : null
+          }
+        />
       ) : null}
 
       {!loading && (availability?.alternativeStaff.length ?? 0) > 0 ? (

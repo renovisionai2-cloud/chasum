@@ -26,6 +26,11 @@ import {
 import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
+import {
+  OPTIONAL_STAFF_PERSISTENCE_ENABLED,
+  RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
+  isUnassignedStaffSelection,
+} from "@/lib/booking/optional-staff";
 import { parseISO } from "@/lib/calendar/utils";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
 import {
@@ -425,15 +430,23 @@ export function BookingSheet({
       ? "This time conflicts with employee hours, duration, or an existing booking."
       : null;
 
+  const needsNamedEmployee =
+    !OPTIONAL_STAFF_PERSISTENCE_ENABLED &&
+    isUnassignedStaffSelection(activeStaffId);
+
   const canSubmit =
     !!selectedCustomer?.id &&
     !!serviceId &&
     !!locationId &&
     !!slot &&
     durationMinutes > 0 &&
-    selectedSlotValid;
+    selectedSlotValid &&
+    !needsNamedEmployee;
 
   const validationMessage = useMemo(() => {
+    if (needsNamedEmployee && slot && selectedCustomer?.id && serviceId) {
+      return RECEPTION_EMPLOYEE_REQUIRED_MESSAGE;
+    }
     if (canSubmit) {
       return isEditing
         ? "Ready to save your changes."
@@ -444,6 +457,7 @@ export function BookingSheet({
     if (!serviceId) missing.push("a service");
     if (!locationId) missing.push("a location");
     if (!slot) missing.push("a time");
+    if (needsNamedEmployee) missing.push("an employee");
     if (durationMinutes <= 0) missing.push("a valid duration");
     if (slot && !selectedSlotValid && durationMinutes > 0) {
       return "Selected time is no longer valid — pick another opening below.";
@@ -459,6 +473,7 @@ export function BookingSheet({
     slot,
     durationMinutes,
     selectedSlotValid,
+    needsNamedEmployee,
   ]);
 
   const bookingSourceLabel =

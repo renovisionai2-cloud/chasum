@@ -140,17 +140,21 @@ export async function createBooking(
     error = fallback.error;
   }
 
-  // Nullable staff_id may not be migrated yet — surface a clear error.
+  // Nullable staff_id may not be available yet — never expose schema/migration wording.
   if (
     error &&
     !intent.staffId &&
     (error.message.includes("staff_id") ||
       error.message.toLowerCase().includes("null value"))
   ) {
+    const { unassignedStaffBlockedMessage } = await import(
+      "@/lib/booking/optional-staff"
+    );
     return {
       phase: "rollback",
       error:
-        "Unassigned bookings require the optional-employee schema update. Assign an employee for now, or apply migration 034.",
+        unassignedStaffBlockedMessage(intent.channel) ??
+        "Please select an employee to complete this booking.",
     };
   }
 

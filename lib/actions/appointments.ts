@@ -375,12 +375,21 @@ export async function createAppointment(
     return { error: "Select an available time slot." };
   }
 
+  const resolvedStaffId = staffId?.trim() ? staffId : null;
+  const { assertNamedStaffRequired } = await import(
+    "@/lib/booking/optional-staff"
+  );
+  const staffGate = assertNamedStaffRequired(resolvedStaffId, "reception");
+  if (staffGate) {
+    return { error: staffGate };
+  }
+
   const result = await createBooking({
     channel: "staff",
     businessId: business.id,
     locationId,
     serviceId,
-    staffId: staffId?.trim() ? staffId : null,
+    staffId: resolvedStaffId,
     customerId,
     requestedStart: startTime.toISOString(),
     notes,

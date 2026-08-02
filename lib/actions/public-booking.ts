@@ -318,7 +318,14 @@ export async function bookAppointment(
   let appointmentId: string | null = null;
 
   if (anyStaff) {
-    // Unassigned public booking — requires nullable staff_id (migration 034).
+    const { assertNamedStaffRequired } = await import(
+      "@/lib/booking/optional-staff"
+    );
+    const blocked = assertNamedStaffRequired(null, "public");
+    if (blocked) {
+      return { error: blocked };
+    }
+
     const { createBooking } = await import("@/lib/booking-engine");
     const result = await createBooking({
       channel: "public",
@@ -338,16 +345,6 @@ export async function bookAppointment(
         { slug, channel: "public" },
       );
       const msg = result.error ?? "";
-      if (
-        msg.includes("optional-employee") ||
-        msg.toLowerCase().includes("null value") ||
-        msg.includes("staff_id")
-      ) {
-        return {
-          error:
-            "Any available staff booking is not enabled on this workspace yet. Please choose a specific team member, or ask the studio to complete the optional-employee update.",
-        };
-      }
       return {
         error: msg.includes("Time slot")
           ? "This time slot is no longer available."
