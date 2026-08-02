@@ -9,6 +9,7 @@ import { TodayNotes } from "@/components/reception/today-notes";
 import { ReceptionWaitlistPanel } from "@/components/reception/reception-waitlist-panel";
 import { Button } from "@/components/ui/button";
 import type { NextAvailableSlot } from "@/lib/actions/reception";
+import type { BookingDraft } from "@/lib/booking/booking-draft";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
@@ -53,7 +54,7 @@ type ReceptionPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBooked: () => void;
-  onOpenFullDialog: () => void;
+  onOpenFullDialog: (draft?: BookingDraft | null) => void;
   searchFocusSignal?: number;
   bookFocusSignal?: number;
   walkInSignal?: number;
@@ -92,6 +93,7 @@ export function ReceptionPanel({
     staffId?: string;
   }>({});
   const formAnchorRef = useRef<HTMLDivElement>(null);
+  const draftRef = useRef<BookingDraft | null>(null);
   const [widthPx, setWidthPx] = useState(PANEL_DEFAULT_PX);
   const [isDesktop, setIsDesktop] = useState(false);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
@@ -336,6 +338,9 @@ export function ReceptionPanel({
               });
             }, 80);
           }}
+          onDraftChange={(draft) => {
+            draftRef.current = draft;
+          }}
         />
       </div>
 
@@ -344,7 +349,7 @@ export function ReceptionPanel({
         variant="ghost"
         size="sm"
         className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
-        onClick={onOpenFullDialog}
+        onClick={() => onOpenFullDialog(draftRef.current)}
       >
         Open Booking Sheet
       </Button>

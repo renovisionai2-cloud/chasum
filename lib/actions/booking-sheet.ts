@@ -47,6 +47,8 @@ export async function previewBookingSheetAvailability(input: {
   date: string;
   excludeAppointmentId?: string;
   staffOptions?: Array<{ id: string; name: string }>;
+  /** When set (e.g. duration override), availability uses this length. */
+  durationMinutes?: number;
 }): Promise<BookingSheetAvailability> {
   const business = await getOrCreateBusiness();
   const locationId = input.locationId || (await getActiveLocationId());
@@ -88,6 +90,7 @@ export async function previewBookingSheetAvailability(input: {
       staffId: member.id,
       date: input.date,
       excludeAppointmentId: input.excludeAppointmentId,
+      durationMinutes: input.durationMinutes,
     });
     for (const s of result.slots) {
       collected.push({
@@ -130,6 +133,7 @@ export async function previewBookingSheetAvailability(input: {
         staffId: member.id,
         date: input.date,
         excludeAppointmentId: input.excludeAppointmentId,
+        durationMinutes: input.durationMinutes,
       });
       if (alt.slots.length > 0) {
         alternativeStaff.push({
@@ -157,6 +161,7 @@ export async function previewBookingSheetAvailability(input: {
         staffId: dayStaffId,
         date: dateStr,
         excludeAppointmentId: input.excludeAppointmentId,
+        durationMinutes: input.durationMinutes,
       });
       if (alt.slots.length > 0) {
         alternativeDays.push({

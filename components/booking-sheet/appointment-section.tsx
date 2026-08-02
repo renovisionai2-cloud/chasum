@@ -2,12 +2,14 @@
 
 import { BookingPriceSummary } from "@/components/booking/booking-price-summary";
 import { BookingSection } from "@/components/booking/booking-section";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
+import { MIN_BOOKING_DURATION_MINUTES } from "@/lib/booking/resolved-duration";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import type {
@@ -21,6 +23,7 @@ import {
   DEFAULT_APPOINTMENT_STATUS_WORKFLOW,
   resolveAppointmentStatusWorkflow,
 } from "@/lib/types/booking";
+import { useState } from "react";
 
 export type BookingOfferType = "service" | "package";
 
@@ -36,6 +39,9 @@ type AppointmentSectionProps = {
   locationId: string;
   date: string;
   durationMinutes: number;
+  serviceDefaultMinutes?: number | null;
+  durationIsOverride?: boolean;
+  durationUnresolved?: boolean;
   status: AppointmentStatus;
   notes: string;
   bookingSource: string;
@@ -47,12 +53,14 @@ type AppointmentSectionProps = {
   onStaffChange: (id: string) => void;
   onLocationChange: (id: string) => void;
   onDateChange: (date: string) => void;
-  onDurationChange: (minutes: number) => void;
+  /** Pass null to clear override and return to service default. */
+  onDurationChange: (minutes: number | null) => void;
   onStatusChange: (status: AppointmentStatus) => void;
   onNotesChange: (notes: string) => void;
   minDate?: string;
-  /** Optional business-configured arrival workflow */
   statusWorkflow?: AppointmentStatus[] | null;
+  /** When false, duration stays read-only (no Adjust control). */
+  allowDurationOverride?: boolean;
 };
 
 export function AppointmentSection({
@@ -67,6 +75,9 @@ export function AppointmentSection({
   locationId,
   date,
   durationMinutes,
+  serviceDefaultMinutes = null,
+  durationIsOverride = false,
+  durationUnresolved = false,
   status,
   notes,
   bookingSource,
@@ -83,7 +94,13 @@ export function AppointmentSection({
   onNotesChange,
   minDate,
   statusWorkflow,
+  allowDurationOverride = true,
 }: AppointmentSectionProps) {
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [draftOverride, setDraftOverride] = useState(
+    String(durationMinutes || ""),
+  );
+
   const locationServices = services.filter(
     (s) => s.is_active && (!locationId || s.location_id === locationId),
   );
@@ -100,14 +117,6 @@ export function AppointmentSection({
   );
   const statusOptions = Array.from(
     new Set<AppointmentStatus>(["pending", ...workflow, status]),
-  );
-
-  const categories = Array.from(
-    new Set(
-      locationServices
-        .map((s) => s.category?.trim())
-        .filter((c): c is string => Boolean(c)),
-    ),
   );
 
   const packagePriceCents = selectedPackage?.price_cents ?? null;
@@ -144,6 +153,8 @@ export function AppointmentSection({
   const cleanup = selectedService?.cleanup_minutes ?? 0;
   const depositRequired = Boolean(selectedService?.deposit_required);
   const depositCents = selectedService?.deposit_cents ?? 0;
+  const catalogDuration =
+    serviceDefaultMinutes ?? selectedService?.duration_minutes ?? null;
 
   return (
     <section className="space-y-4" aria-labelledby="bs-appt-heading">
@@ -151,46 +162,43 @@ export function AppointmentSection({
         <h3 id="bs-appt-heading" className="text-sm font-semibold tracking-tight">
           Appointment
         </h3>
-        <p className="text-xs text-muted-foreground">
-          Book a single service or a package. Packages use the package price and
-          include one or more services.
-        </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor="bs-location">Location</Label>
-          <Select
-            id="bs-location"
-            value={locationId}
-            onChange={(e) => onLocationChange(e.target.value)}
-          >
-            {locations.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.name}
-              </option>
-            ))}
-          </Select>
-        </div>
+        {locations.length > 1 ? (
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="bs-location">Location</Label>
+            <Select
+              id="bs-location"
+              value={locationId}
+              onChange={(e) => onLocationChange(e.target.value)}
+            >
+              {locations.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        ) : (
+          <input type="hidden" value={locationId} readOnly aria-hidden />
+        )}
 
-        <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor="bs-offer-type">Book</Label>
-          <Select
-            id="bs-offer-type"
-            value={offerType}
-            onChange={(e) =>
-              onOfferTypeChange(e.target.value as BookingOfferType)
-            }
-          >
-            <option value="service">Service — individual appointment</option>
-            <option value="package">Package — bundled visits / services</option>
-          </Select>
-          <p className="text-[11px] text-muted-foreground">
-            {offerType === "service"
-              ? "Example: Haircut, Facial, Consultation — one visit, one price."
-              : "Example: Bridal package or 5-visit massage series — package price applies; first included service is scheduled."}
-          </p>
-        </div>
+        {activePackages.length > 0 ? (
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="bs-offer-type">Book</Label>
+            <Select
+              id="bs-offer-type"
+              value={offerType}
+              onChange={(e) =>
+                onOfferTypeChange(e.target.value as BookingOfferType)
+              }
+            >
+              <option value="service">Service</option>
+              <option value="package">Package</option>
+            </Select>
+          </div>
+        ) : null}
 
         {offerType === "package" ? (
           <div className="space-y-1.5 sm:col-span-2">
@@ -237,19 +245,31 @@ export function AppointmentSection({
                     selectedPackage.service_ids.includes(s.id),
                   )
                 : locationServices
-              ).map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.category ? `${s.category} · ` : ""}
-                  {s.name} ({s.duration_minutes}m)
-                </option>
-              ))
+              ).map((s) => {
+                const cents = Math.round(Number(s.price) * 100);
+                return (
+                  <option key={s.id} value={s.id}>
+                    {s.name} — {s.duration_minutes} min ·{" "}
+                    {formatMoneyCents(cents, currency)}
+                  </option>
+                );
+              })
             )}
           </Select>
-          {offerType === "service" && categories.length > 0 ? (
-            <p className="text-[11px] text-muted-foreground">
-              Categories: {categories.slice(0, 4).join(", ")}
-              {categories.length > 4 ? "…" : ""}
-            </p>
+          {selectedService ? (
+            <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
+              <p className="text-sm font-medium">{selectedService.name}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {selectedService.duration_minutes} minutes
+                {servicePriceCents != null
+                  ? ` · ${formatMoneyCents(servicePriceCents, currency)}`
+                  : ""}
+                {(selectedService.tax_rate_bps ?? 0) > 0 ? " · Taxable" : ""}
+                {selectedService.category
+                  ? ` · ${selectedService.category}`
+                  : ""}
+              </p>
+            </div>
           ) : null}
         </div>
 
@@ -267,9 +287,6 @@ export function AppointmentSection({
               </option>
             ))}
           </Select>
-          <p className="text-[11px] text-muted-foreground">
-            Choose an employee, or leave unassigned to assign later.
-          </p>
         </div>
 
         <div className="space-y-1.5">
@@ -284,45 +301,141 @@ export function AppointmentSection({
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="bs-duration">Duration (min)</Label>
-          <Input
-            id="bs-duration"
-            type="number"
-            min={5}
-            step={5}
-            value={durationMinutes}
-            onChange={(e) => onDurationChange(Number(e.target.value) || 30)}
-          />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="bs-status">Status</Label>
-          <Select
-            id="bs-status"
-            value={status}
-            onChange={(e) => onStatusChange(e.target.value as AppointmentStatus)}
+          <Label id="bs-duration-label">Duration</Label>
+          <div
+            className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-3 py-2"
+            aria-labelledby="bs-duration-label"
           >
-            {statusOptions.map((value) => (
-              <option key={value} value={value}>
-                {APPOINTMENT_STATUS_LABELS[value]}
-              </option>
-            ))}
-          </Select>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label>Booking source</Label>
-          <Input value={bookingSource} readOnly aria-readonly />
+            {durationUnresolved ? (
+              <p className="text-sm text-muted-foreground">
+                Waiting for service duration…
+              </p>
+            ) : (
+              <>
+                <p className="text-sm font-medium tabular-nums">
+                  {durationMinutes} minutes
+                </p>
+                {durationIsOverride && catalogDuration != null ? (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    Custom for this appointment · Service default:{" "}
+                    {catalogDuration} minutes
+                  </p>
+                ) : (
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    From selected service
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+          {allowDurationOverride && !durationUnresolved ? (
+            adjustOpen ? (
+              <div className="mt-2 space-y-2 rounded-[var(--radius-md)] border border-border/80 bg-card px-3 py-2.5">
+                <p className="text-[11px] text-muted-foreground">
+                  Changes this appointment only. Availability will be checked
+                  again for the new length.
+                </p>
+                {catalogDuration != null ? (
+                  <p className="text-[11px] text-muted-foreground">
+                    Service duration: {catalogDuration} minutes
+                  </p>
+                ) : null}
+                <div className="flex flex-wrap items-end gap-2">
+                  <div className="min-w-[7rem] flex-1 space-y-1">
+                    <Label htmlFor="bs-duration-override" className="text-xs">
+                      Appointment override
+                    </Label>
+                    <Input
+                      id="bs-duration-override"
+                      type="number"
+                      min={MIN_BOOKING_DURATION_MINUTES}
+                      step={5}
+                      value={draftOverride}
+                      onChange={(e) => setDraftOverride(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      const n = Number(draftOverride);
+                      if (
+                        !Number.isFinite(n) ||
+                        n < MIN_BOOKING_DURATION_MINUTES
+                      ) {
+                        return;
+                      }
+                      onDurationChange(Math.round(n));
+                      setAdjustOpen(false);
+                    }}
+                  >
+                    Apply
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      onDurationChange(null);
+                      setDraftOverride(
+                        String(catalogDuration ?? durationMinutes),
+                      );
+                      setAdjustOpen(false);
+                    }}
+                  >
+                    Use service default
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="mt-1 h-8 px-2 text-xs text-muted-foreground"
+                onClick={() => {
+                  setDraftOverride(String(durationMinutes));
+                  setAdjustOpen(true);
+                }}
+              >
+                Adjust duration
+              </Button>
+            )
+          ) : null}
         </div>
       </div>
 
       <BookingSection
-        title="Service details"
-        description="Buffers, deposit, and tax for this booking."
+        title="Advanced"
+        description="Status, source, buffers, and service rules."
         collapsible
         defaultOpen={false}
       >
-        <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="bs-status">Status</Label>
+            <Select
+              id="bs-status"
+              value={status}
+              onChange={(e) =>
+                onStatusChange(e.target.value as AppointmentStatus)
+              }
+            >
+              {statusOptions.map((value) => (
+                <option key={value} value={value}>
+                  {APPOINTMENT_STATUS_LABELS[value]}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Booking source</Label>
+            <p className="rounded-[var(--radius-md)] border border-border/60 bg-muted/15 px-3 py-2 text-sm text-muted-foreground">
+              {bookingSource}
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
           <div>
             <p className="text-muted-foreground">Cleanup</p>
             <p className="font-medium tabular-nums">{cleanup}m</p>

@@ -216,7 +216,18 @@ async function composeAvailabilityContextUncached(
   const durationMinutes =
     durationOverride && durationOverride > 0
       ? durationOverride
-      : Number(service.duration_minutes ?? 30);
+      : Number(service.duration_minutes);
+
+  if (!Number.isFinite(durationMinutes) || durationMinutes < 5) {
+    conflicts.push(
+      conflictFromCode(
+        "SERVICE_INACTIVE",
+        "This service does not have a valid duration configured.",
+        { recoverable: true },
+      ),
+    );
+    return { ok: false, conflicts };
+  }
 
   const staffBufferBefore = Number(staff.buffer_before_minutes ?? 0);
   const staffBufferAfter = Number(staff.buffer_after_minutes ?? 0);

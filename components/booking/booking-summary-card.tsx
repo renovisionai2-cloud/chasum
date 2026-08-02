@@ -22,7 +22,7 @@ export type BookingSummaryCardProps = {
 
 export function BookingSummaryCard({
   startIso,
-  durationMinutes = 30,
+  durationMinutes = null,
   serviceName = null,
   locationName = null,
   employeeName = null,
@@ -49,8 +49,12 @@ export function BookingSummaryCard({
   }
 
   const start = parseISO(startIso);
-  const mins = Math.max(5, durationMinutes ?? 30);
-  const end = new Date(start.getTime() + mins * 60_000);
+  const mins =
+    durationMinutes != null && durationMinutes >= 5
+      ? Math.round(durationMinutes)
+      : null;
+  const end =
+    mins != null ? new Date(start.getTime() + mins * 60_000) : null;
   const employeeLabel =
     employeeName?.trim() || "To be assigned";
 
@@ -78,8 +82,9 @@ export function BookingSummaryCard({
             {format(start, "EEEE, MMMM d, yyyy")}
           </p>
           <p className="text-sm tabular-nums text-foreground">
-            {formatTime(start)}–{formatTime(end)}
-            {!compact ? (
+            {formatTime(start)}
+            {end ? `–${formatTime(end)}` : null}
+            {mins != null && !compact ? (
               <span className="ml-2 text-xs font-normal text-muted-foreground">
                 {mins} min
               </span>

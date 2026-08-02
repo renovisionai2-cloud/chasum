@@ -13,12 +13,14 @@ import { previewBookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { quickCreateCustomer } from "@/lib/actions/customers";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { getEligibleStaffForBooking } from "@/lib/actions/staff";
+import type { BookingDraft } from "@/lib/booking/booking-draft";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
   RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
   isUnassignedStaffSelection,
 } from "@/lib/booking/optional-staff";
+import { resolveBookingDuration } from "@/lib/booking/resolved-duration";
 import { formatPhoneInput } from "@/lib/reception/phone-format";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import {
@@ -59,6 +61,8 @@ type QuickAppointmentProps = {
   onSuccess: () => void;
   onCustomerCreated?: (customer: Customer) => void;
   onClearCustomer?: () => void;
+  /** Emits structured draft whenever booking fields change (for Booking Sheet transfer). */
+  onDraftChange?: (draft: BookingDraft) => void;
 };
 
 function isValidEmail(value: string) {
@@ -94,6 +98,7 @@ export function QuickAppointmentForm({
   onSuccess,
   onCustomerCreated,
   onClearCustomer,
+  onDraftChange,
 }: QuickAppointmentProps) {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -273,6 +278,36 @@ export function QuickAppointmentForm({
 
   const activeStaffId = staffId;
   const selectedStaff = eligibleStaff.find((m) => m.id === activeStaffId);
+
+  const resolvedQaDuration = resolveBookingDuration({
+    serviceDurationMinutes: selectedService?.duration_minutes ?? null,
+  });
+
+  useEffect(() => {
+    if (!onDraftChange) return;
+    onDraftChange({
+      customerId: resolvedCustomerId || null,
+      serviceId: serviceId || null,
+      locationId: locationId || null,
+      staffId: activeStaffId,
+      date,
+      startIso: slot,
+      durationMinutes: resolvedQaDuration.minutes,
+      durationSource: resolvedQaDuration.source,
+      durationIsOverride: false,
+      bookingSource: "reception",
+    });
+  }, [
+    onDraftChange,
+    resolvedCustomerId,
+    serviceId,
+    locationId,
+    activeStaffId,
+    date,
+    slot,
+    resolvedQaDuration.minutes,
+    resolvedQaDuration.source,
+  ]);
 
   useEffect(() => {
     if (state.error) toast(state.error, "error");
@@ -807,7 +842,7 @@ export function QuickAppointmentForm({
 
         <BookingSummaryCard
           startIso={slot}
-          durationMinutes={selectedService?.duration_minutes ?? 30}
+          durationMinutes={resolvedQaDuration.minutes}
           serviceName={selectedService?.name ?? null}
           locationName={
             locations.find((l) => l.id === locationId)?.name ?? null

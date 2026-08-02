@@ -57,6 +57,7 @@ import type {
   StaffWithServices,
 } from "@/lib/types/booking";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
+import type { BookingDraft } from "@/lib/booking/booking-draft";
 import { parseISO } from "@/lib/calendar/utils";
 import {
   endOfDay,
@@ -167,6 +168,7 @@ export function CalendarClient({
     useState<AppointmentWithRelations | null>(urlAppointment);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
   const [defaultStaffId, setDefaultStaffId] = useState<string | undefined>();
+  const [bookingDraft, setBookingDraft] = useState<BookingDraft | null>(null);
   const [forceQuickAddCustomer, setForceQuickAddCustomer] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [isNarrow, setIsNarrow] = useState(false);
@@ -240,11 +242,20 @@ export function CalendarClient({
   const hasSetup = services.length > 0 && staff.length > 0;
   const effectiveView = view;
 
-  function openNew(slot?: Date, staffId?: string) {
+  function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null) {
     setSelectedAppointment(null);
-    setDefaultSlot(slot);
+    setBookingDraft(draft ?? null);
+    setDefaultSlot(
+      draft?.startIso
+        ? parseISO(draft.startIso)
+        : slot,
+    );
     setDefaultStaffId(
-      staffId === "__unassigned__" ? "" : staffId,
+      draft?.staffId !== undefined && draft?.staffId !== null
+        ? draft.staffId
+        : staffId === "__unassigned__"
+          ? ""
+          : staffId,
     );
     setForceQuickAddCustomer(false);
     setDrawerOpen(false);
@@ -253,6 +264,7 @@ export function CalendarClient({
 
   function openNewCustomer() {
     setSelectedAppointment(null);
+    setBookingDraft(null);
     setDefaultSlot(date);
     setDefaultStaffId(undefined);
     setForceQuickAddCustomer(true);
@@ -268,6 +280,7 @@ export function CalendarClient({
 
   function openEdit(appointment: AppointmentWithRelations) {
     setSelectedAppointment(appointment);
+    setBookingDraft(null);
     setDefaultSlot(undefined);
     setDrawerOpen(false);
     setDialogOpen(true);
@@ -612,7 +625,7 @@ export function CalendarClient({
             open={panelOpen}
             onOpenChange={setPanelOpen}
             onBooked={refresh}
-            onOpenFullDialog={() => openNew()}
+            onOpenFullDialog={(draft) => openNew(undefined, undefined, draft)}
             searchFocusSignal={searchFocusSignal}
             bookFocusSignal={bookFocusSignal}
             walkInSignal={walkInSignal}
@@ -667,12 +680,13 @@ export function CalendarClient({
       <BookingSheet
         key={
           selectedAppointment?.id ??
-          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${forceQuickAddCustomer ? "qc" : ""}`
+          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${forceQuickAddCustomer ? "qc" : ""}`
         }
         open={dialogOpen}
         onClose={() => {
           setDialogOpen(false);
           setForceQuickAddCustomer(false);
+          setBookingDraft(null);
         }}
         appointment={selectedAppointment}
         services={services}
@@ -681,6 +695,9 @@ export function CalendarClient({
         locations={locations}
         defaultDate={defaultSlot}
         defaultStaffId={defaultStaffId}
+        defaultCustomerId={bookingDraft?.customerId ?? undefined}
+        defaultServiceId={bookingDraft?.serviceId ?? undefined}
+        draft={bookingDraft}
         channel={showReceptionPanel ? "reception" : "staff"}
         currency={currency}
         taxRates={taxRates}

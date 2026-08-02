@@ -25,6 +25,7 @@ import {
   type BookingSheetAvailability,
 } from "@/lib/actions/booking-sheet";
 import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
+import type { BookingDraft } from "@/lib/booking/booking-draft";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
@@ -32,6 +33,10 @@ import {
   RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
   isUnassignedStaffSelection,
 } from "@/lib/booking/optional-staff";
+import {
+  durationFromAppointmentTimes,
+  resolveBookingDuration,
+} from "@/lib/booking/resolved-duration";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
 import {
@@ -71,6 +76,10 @@ export type BookingSheetProps = {
   defaultStaffId?: string;
   /** Prefill customer when opening from CRM / Reception without an appointment. */
   defaultCustomerId?: string;
+  /** Prefill service from Reception / calendar draft. */
+  defaultServiceId?: string;
+  /** Structured draft from Quick Appointment — IDs win over prefs. */
+  draft?: BookingDraft | null;
   channel?: BookingSheetChannel;
   onSuccess: () => void;
   /** Business currency for money formatting. */
@@ -115,6 +124,8 @@ export function BookingSheet({
   defaultDate,
   defaultStaffId,
   defaultCustomerId,
+  defaultServiceId,
+  draft = null,
   channel = "staff",
   onSuccess,
   currency,
@@ -130,25 +141,14 @@ export function BookingSheet({
   const [busy, startBusy] = useTransition();
 
   const preferred = useMemo(() => {
+    const draftStart = draft?.startIso?.trim() || null;
     const initialStart = appointment
       ? appointment.start_time
-      : (defaultDate?.toISOString() ?? null);
-    const service =
-      services.find((s) => s.id === appointment?.service_id) ??
-      services.find((s) => s.is_active);
-    const duration = appointment
-      ? Math.max(
-          5,
-          Math.round(
-            (parseISO(appointment.end_time).getTime() -
-              parseISO(appointment.start_time).getTime()) /
-              60_000,
-          ),
-        )
-      : (service?.duration_minutes ?? 30);
+      : (draftStart ?? defaultDate?.toISOString() ?? null);
 
     const locationId =
       appointment?.location_id ??
+      draft?.locationId ??
       (prefs.locationId && locations.some((l) => l.id === prefs.locationId)
         ? prefs.locationId
         : null) ??
@@ -159,47 +159,93 @@ export function BookingSheet({
     const locationServices = services.filter(
       (s) => s.is_active && (!locationId || s.location_id === locationId),
     );
+
+    // Resolve serviceId FIRST — duration must follow this service, never the
+    // first catalog row or a silent 30-minute fallback.
     const serviceId =
       appointment?.service_id ??
+      (draft?.serviceId &&
+      services.some((s) => s.id === draft.serviceId)
+        ? draft.serviceId
+        : null) ??
+      (defaultServiceId &&
+      locationServices.some((s) => s.id === defaultServiceId)
+        ? defaultServiceId
+        : null) ??
       (prefs.serviceId &&
       locationServices.some((s) => s.id === prefs.serviceId)
         ? prefs.serviceId
         : null) ??
       locationServices[0]?.id ??
-      service?.id ??
       "";
+
+    const selectedSvc = services.find((s) => s.id === serviceId);
+    const appointmentDuration = appointment
+      ? durationFromAppointmentTimes(
+          appointment.start_time,
+          appointment.end_time,
+        )
+      : null;
+
+    const resolved = resolveBookingDuration({
+      appointmentDurationMinutes: appointmentDuration,
+      overrideMinutes:
+        !appointment && draft?.durationIsOverride
+          ? draft.durationMinutes
+          : null,
+      serviceDurationMinutes: selectedSvc?.duration_minutes ?? null,
+    });
 
     const eligible = filterEligibleBookingStaff(staff, {
       serviceId,
       locationId,
     });
-    // Editing: respect exact assignment (including Unassigned).
-    // New booking: honor calendar column / explicit Unassigned, then prefs —
-    // never force the first eligible employee.
+
+    const draftStaff =
+      draft?.staffId === "" || draft?.staffId
+        ? draft.staffId
+        : undefined;
+
     const staffId = appointment
       ? (appointment.staff_id ?? "")
       : defaultStaffId === ""
         ? ""
-        : ((defaultStaffId && eligible.some((m) => m.id === defaultStaffId)
-            ? defaultStaffId
-            : null) ??
-          (prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
-            ? prefs.staffId
-            : null) ??
-          "");
+        : draftStaff !== undefined
+          ? draftStaff === "" ||
+            eligible.some((m) => m.id === draftStaff)
+            ? (draftStaff ?? "")
+            : ""
+          : ((defaultStaffId && eligible.some((m) => m.id === defaultStaffId)
+              ? defaultStaffId
+              : null) ??
+            (prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
+              ? prefs.staffId
+              : null) ??
+            "");
 
     return {
       serviceId,
       staffId,
-      customerId: appointment?.customer_id ?? defaultCustomerId ?? "",
+      customerId:
+        appointment?.customer_id ??
+        draft?.customerId ??
+        defaultCustomerId ??
+        "",
       locationId,
-      date: initialStart
-        ? slotDateInLocalTimezone(initialStart)
-        : format(new Date(), "yyyy-MM-dd"),
+      date: draft?.date
+        ? draft.date
+        : initialStart
+          ? slotDateInLocalTimezone(initialStart)
+          : format(new Date(), "yyyy-MM-dd"),
       slot: initialStart,
-      duration,
+      duration: resolved.minutes,
+      durationIsOverride: Boolean(
+        !appointment && draft?.durationIsOverride && resolved.minutes != null,
+      ),
+      serviceDefaultMinutes: resolved.serviceDefaultMinutes,
       status: (appointment?.status ?? "confirmed") as AppointmentStatus,
-      notes: appointment?.notes ?? "",
+      notes: appointment?.notes ?? draft?.notes ?? "",
+      packageId: draft?.packageId ?? "",
     };
   }, [
     appointment,
@@ -209,6 +255,8 @@ export function BookingSheet({
     defaultDate,
     defaultStaffId,
     defaultCustomerId,
+    defaultServiceId,
+    draft,
     prefs.locationId,
     prefs.serviceId,
     prefs.staffId,
@@ -217,8 +265,10 @@ export function BookingSheet({
   const [customers, setCustomers] = useState(initialCustomers);
   const [loadedPackages, setLoadedPackages] = useState<ServicePackage[]>([]);
   const packages = packagesProp ?? loadedPackages;
-  const [offerType, setOfferType] = useState<BookingOfferType>("service");
-  const [packageId, setPackageId] = useState("");
+  const [offerType, setOfferType] = useState<BookingOfferType>(
+    preferred.packageId ? "package" : "service",
+  );
+  const [packageId, setPackageId] = useState(preferred.packageId);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     () =>
       initialCustomers.find((c) => c.id === preferred.customerId) ?? null,
@@ -228,7 +278,10 @@ export function BookingSheet({
   const [locationId, setLocationId] = useState(preferred.locationId);
   const [date, setDate] = useState(preferred.date);
   const [slot, setSlot] = useState<string | null>(preferred.slot);
-  const [durationMinutes, setDurationMinutes] = useState(preferred.duration);
+  /** Explicit override only — null means use the selected service duration. */
+  const [durationOverride, setDurationOverride] = useState<number | null>(
+    preferred.durationIsOverride ? preferred.duration : null,
+  );
   const [status, setStatus] = useState(preferred.status);
   const [notes, setNotes] = useState(preferred.notes);
 
@@ -256,6 +309,13 @@ export function BookingSheet({
         defaultDate?.toISOString() ?? "",
         defaultStaffId ?? "",
         defaultCustomerId ?? "",
+        defaultServiceId ?? "",
+        draft?.serviceId ?? "",
+        draft?.startIso ?? "",
+        draft?.durationMinutes ?? "",
+        draft?.customerId ?? "",
+        draft?.staffId ?? "",
+        draft?.locationId ?? "",
       ].join("|")
     : null;
   const [appliedResetKey, setAppliedResetKey] = useState<string | null>(null);
@@ -265,14 +325,16 @@ export function BookingSheet({
     setSelectedCustomer(
       initialCustomers.find((c) => c.id === preferred.customerId) ?? null,
     );
-    setOfferType("service");
-    setPackageId("");
+    setOfferType(preferred.packageId ? "package" : "service");
+    setPackageId(preferred.packageId);
     setServiceId(preferred.serviceId);
     setStaffId(preferred.staffId);
     setLocationId(preferred.locationId);
     setDate(preferred.date);
     setSlot(preferred.slot);
-    setDurationMinutes(preferred.duration);
+    setDurationOverride(
+      preferred.durationIsOverride ? preferred.duration : null,
+    );
     setStatus(preferred.status);
     setNotes(preferred.notes);
     setAvailability(null);
@@ -318,6 +380,27 @@ export function BookingSheet({
   const selectedService = services.find((s) => s.id === serviceId);
   const selectedPackage = packages.find((p) => p.id === packageId);
   const selectedLocation = locations.find((l) => l.id === locationId);
+
+  const appointmentDuration = appointment
+    ? durationFromAppointmentTimes(
+        appointment.start_time,
+        appointment.end_time,
+      )
+    : null;
+
+  const resolvedDuration = resolveBookingDuration({
+    appointmentDurationMinutes:
+      isEditing &&
+      durationOverride == null &&
+      serviceId === appointment?.service_id
+        ? appointmentDuration
+        : null,
+    overrideMinutes: durationOverride,
+    serviceDurationMinutes: selectedService?.duration_minutes ?? null,
+  });
+
+  /** Authoritative duration for this booking — never a silent 30. */
+  const durationMinutes = resolvedDuration.minutes;
   const excludeId = appointment?.id;
   const staffOptionKey = eligibleStaff.map((m) => m.id).join(",");
 
@@ -358,6 +441,7 @@ export function BookingSheet({
               id: m.id,
               name: m.name,
             })),
+            durationMinutes: durationMinutes ?? undefined,
           });
           // Availability is display-only. Never auto-select a slot here —
           // the user (or Summer, explicitly) chooses the time.
@@ -389,6 +473,7 @@ export function BookingSheet({
     excludeId,
     staffOptionKey,
     eligibleStaff,
+    durationMinutes,
   ]);
 
   useEffect(() => {
@@ -440,6 +525,7 @@ export function BookingSheet({
     !!serviceId &&
     !!locationId &&
     !!slot &&
+    durationMinutes != null &&
     durationMinutes > 0 &&
     selectedSlotValid &&
     !needsNamedEmployee;
@@ -459,8 +545,10 @@ export function BookingSheet({
     if (!locationId) missing.push("a location");
     if (!slot) missing.push("a time");
     if (needsNamedEmployee) missing.push("an employee");
-    if (durationMinutes <= 0) missing.push("a valid duration");
-    if (slot && !selectedSlotValid && durationMinutes > 0) {
+    if (durationMinutes == null || durationMinutes <= 0) {
+      missing.push("a valid duration");
+    }
+    if (slot && !selectedSlotValid && durationMinutes != null && durationMinutes > 0) {
       return "Selected time is no longer valid — pick another opening below.";
     }
     if (missing.length === 0) return "Check the highlighted fields above.";
@@ -488,8 +576,8 @@ export function BookingSheet({
 
   function handleServiceChange(id: string) {
     setServiceId(id);
-    const svc = services.find((s) => s.id === id);
-    if (svc) setDurationMinutes(svc.duration_minutes);
+    setDurationOverride(null);
+    // Changing service length can invalidate the selected time range.
   }
 
   function handleOfferTypeChange(type: BookingOfferType) {
@@ -515,9 +603,12 @@ export function BookingSheet({
       ) ?? "";
     if (firstServiceId) {
       setServiceId(firstServiceId);
-      const svc = services.find((s) => s.id === firstServiceId);
-      if (svc) setDurationMinutes(svc.duration_minutes);
+      setDurationOverride(null);
     }
+  }
+
+  function handleDurationOverride(minutes: number | null) {
+    setDurationOverride(minutes);
   }
 
 function handleStaffChange(id: string) {
@@ -606,7 +697,7 @@ function handleStaffChange(id: string) {
       description={
         isEditing
           ? `${bookingSourceLabel} · update details and save`
-          : `${bookingSourceLabel} · customer, appointment, time, confirm`
+          : "Customer · Appointment · Time · Review"
       }
       headerActions={
         <QuickActionsMenu
@@ -687,7 +778,7 @@ function handleStaffChange(id: string) {
           <input
             type="hidden"
             name="duration_minutes"
-            value={String(durationMinutes)}
+            value={durationMinutes != null ? String(durationMinutes) : ""}
           />
           <input type="hidden" name="status" value={status} />
           <input type="hidden" name="notes" value={notes} />
@@ -771,7 +862,12 @@ function handleStaffChange(id: string) {
           staffId={activeStaffId}
           locationId={locationId}
           date={date}
-          durationMinutes={durationMinutes}
+          durationMinutes={durationMinutes ?? 0}
+          serviceDefaultMinutes={
+            resolvedDuration.serviceDefaultMinutes ?? null
+          }
+          durationIsOverride={resolvedDuration.source === "override"}
+          durationUnresolved={durationMinutes == null}
           status={status}
           notes={notes}
           bookingSource={bookingSourceLabel}
@@ -783,7 +879,7 @@ function handleStaffChange(id: string) {
           onStaffChange={handleStaffChange}
           onLocationChange={handleLocationChange}
           onDateChange={handleDateChange}
-          onDurationChange={setDurationMinutes}
+          onDurationChange={handleDurationOverride}
           onStatusChange={setStatus}
           onNotesChange={setNotes}
           minDate={format(new Date(), "yyyy-MM-dd")}
@@ -802,7 +898,7 @@ function handleStaffChange(id: string) {
 
         <SelectedAppointmentBanner
           startIso={slot}
-          durationMinutes={durationMinutes}
+          durationMinutes={durationMinutes ?? 0}
           locationName={selectedLocation?.name ?? null}
           employeeName={
             activeStaffId
@@ -812,7 +908,12 @@ function handleStaffChange(id: string) {
               : null
           }
           timezone={timezone ?? selectedLocation?.timezone ?? null}
-          slotConflict={slotConflict}
+          slotConflict={
+            slotConflict ??
+            (durationMinutes == null
+              ? "Duration is still loading for this service."
+              : null)
+          }
           serviceName={
             offerType === "package" && selectedPackage
               ? selectedPackage.name
@@ -828,7 +929,7 @@ function handleStaffChange(id: string) {
           onMoveTomorrowMorning={summerTomorrowMorning}
         />
 
-        {canSubmit && slot && selectedCustomer ? (
+        {canSubmit && slot && selectedCustomer && durationMinutes != null ? (
           <BookingReviewCard
             customerName={selectedCustomer.name}
             serviceName={
@@ -839,8 +940,7 @@ function handleStaffChange(id: string) {
             dateLabel={format(parseISO(slot), "EEEE, MMMM d, yyyy")}
             timeLabel={`${formatTime(parseISO(slot))}–${formatTime(
               new Date(
-                parseISO(slot).getTime() +
-                  Math.max(5, durationMinutes) * 60_000,
+                parseISO(slot).getTime() + durationMinutes * 60_000,
               ),
             )}`}
             locationName={selectedLocation?.name ?? null}

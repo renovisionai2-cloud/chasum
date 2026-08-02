@@ -80,6 +80,8 @@ export type PreviewSlotsInput = {
   /** YYYY-MM-DD */
   date: string;
   excludeAppointmentId?: string;
+  /** When set, slot end / scoring use this length instead of service default. */
+  durationMinutes?: number;
 };
 
 // —— Availability context (composed from Business / Services / Employees) ——

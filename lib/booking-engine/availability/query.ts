@@ -46,6 +46,15 @@ export async function previewAvailableSlots(
     };
   }
 
+  const durationOverride =
+    input.durationMinutes && input.durationMinutes > 0
+      ? input.durationMinutes
+      : null;
+  const context =
+    durationOverride != null
+      ? { ...composed.context, durationMinutes: durationOverride }
+      : composed.context;
+
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_available_slots", {
     p_business_id: input.businessId,
@@ -60,7 +69,7 @@ export async function previewAvailableSlots(
     const conflict = mapRpcErrorToConflict(error.message);
     return {
       slots: [],
-      context: composed.context,
+      context,
       conflicts: [conflict],
       emptyReason: conflict,
     };
@@ -70,7 +79,7 @@ export async function previewAvailableSlots(
   const slots = await enrichSlotCandidates({
     starts,
     preview: input,
-    context: composed.context,
+    context,
   });
 
   let emptyReason = undefined;
@@ -92,7 +101,7 @@ export async function previewAvailableSlots(
 
   return {
     slots,
-    context: composed.context,
+    context,
     emptyReason,
   };
 }
@@ -318,7 +327,19 @@ async function validateUnassignedBooking(
   const duration =
     intent.durationMinutes && intent.durationMinutes > 0
       ? intent.durationMinutes
-      : Number(service.duration_minutes ?? 30);
+      : Number(service.duration_minutes);
+  if (!Number.isFinite(duration) || duration < 5) {
+    return {
+      ok: false,
+      conflicts: [
+        conflictFromCode(
+          "SERVICE_INACTIVE",
+          "This service does not have a valid duration configured.",
+          { recoverable: true },
+        ),
+      ],
+    };
+  }
   const start = parseISO(intent.requestedStart);
   const end = intent.requestedEnd
     ? parseISO(intent.requestedEnd)
