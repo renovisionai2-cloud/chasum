@@ -18,6 +18,7 @@ import {
   isSameDay,
   parseISO,
 } from "@/lib/calendar/utils";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type {
   AppointmentWithRelations,
   StaffWithServices,
@@ -89,7 +90,7 @@ function StaffColumn({
   onReschedule,
   onResize,
   colorMode,
-  intervalMinutes = 30,
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: {
   member: StaffWithServices;
   overlay?: StaffDayOverlay;
@@ -236,7 +237,7 @@ export function DayControlCenter({
   onReschedule,
   onResize,
   colorMode = "service",
-  intervalMinutes = 30,
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: DayControlCenterProps) {
   const hours = useMemo(() => getHourSlots(), []);
   const activeStaff = useMemo(

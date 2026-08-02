@@ -56,6 +56,7 @@ import type {
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import { parseISO } from "@/lib/calendar/utils";
 import {
   endOfDay,
@@ -146,7 +147,7 @@ export function CalendarClient({
   currency = null,
   taxRates = [],
   timezone = null,
-  appointmentIntervalMinutes = 30,
+  appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();

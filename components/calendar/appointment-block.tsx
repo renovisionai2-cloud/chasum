@@ -10,6 +10,7 @@ import {
   snapMinutesInHour,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle, getCurrentTimePosition } from "@/lib/calendar/status-colors";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { addMinutes } from "date-fns";
@@ -256,7 +257,7 @@ type DropZoneProps = {
 export function TimeSlotDropZone({
   date,
   hour,
-  intervalMinutes = 30,
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
   onDrop,
   onClick,
   className,

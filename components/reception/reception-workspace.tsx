@@ -4,6 +4,7 @@ import { CalendarClient } from "@/components/calendar/calendar-client";
 import { MorningBrief } from "@/components/day-view/morning-brief";
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
 import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { TaxRate } from "@/lib/business/types";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
@@ -61,7 +62,7 @@ export function ReceptionWorkspace({
   currency = null,
   taxRates = [],
   timezone = null,
-  appointmentIntervalMinutes = 30,
+  appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">

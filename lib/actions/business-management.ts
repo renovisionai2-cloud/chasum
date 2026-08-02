@@ -960,6 +960,9 @@ export async function updateBusinessBookingSettings(
   const { normalizeBookingIntervalMinutes } = await import(
     "@/lib/booking/interval"
   );
+  const previousInterval = normalizeBookingIntervalMinutes(
+    business.appointment_interval_minutes,
+  );
   const rawInterval = Number(formData.get("appointment_interval_minutes"));
   const appointmentInterval = normalizeBookingIntervalMinutes(
     Number.isFinite(rawInterval) && rawInterval > 0
@@ -1013,7 +1016,9 @@ export async function updateBusinessBookingSettings(
     };
   }
 
-  // Sync every location for this business so public + multi-site calendars match.
+  // Push booking-window policies to all locations. Interval only updates
+  // locations that still match the previous business default so intentional
+  // location overrides remain intact.
   const { data: businessLocations } = await supabase
     .from("locations")
     .select("id")
@@ -1023,11 +1028,18 @@ export async function updateBusinessBookingSettings(
     await supabase
       .from("location_settings")
       .update({
-        appointment_interval_minutes: appointmentInterval,
         booking_limit_days: bookingLimitDays,
         cancellation_policy: payload.cancellation_policy,
       })
       .in("location_id", locationIds);
+
+    if (appointmentInterval !== previousInterval) {
+      await supabase
+        .from("location_settings")
+        .update({ appointment_interval_minutes: appointmentInterval })
+        .in("location_id", locationIds)
+        .eq("appointment_interval_minutes", previousInterval);
+    }
   }
 
   revalidateBusiness();

@@ -16,6 +16,7 @@ import {
   parseISO,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 
@@ -41,7 +42,7 @@ export function DayView({
   onReschedule,
   onResize,
   colorMode = "service",
-  intervalMinutes = 30,
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: ViewProps) {
   const hours = getHourSlots();
   const dayAppointments = appointments.filter((appt) =>
@@ -145,7 +146,7 @@ export function WeekView({
   onReschedule,
   onResize,
   colorMode = "service",
-  intervalMinutes = 30,
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: ViewProps) {
   const hours = getHourSlots();
   const weekStart = new Date(date);

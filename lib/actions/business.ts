@@ -1,5 +1,7 @@
+import { RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import { createClient } from "@/lib/supabase/server";
 import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
+import { isPlaceholderBusiness } from "@/lib/onboarding/setup-progress";
 import type { Business } from "@/lib/types/booking";
 import { redirect } from "next/navigation";
 import { cache } from "react";
@@ -104,7 +106,38 @@ export const getOrCreateBusiness = cache(async (): Promise<Business> => {
     throw new Error(error.message);
   }
 
-  const business = data as Business;
+  let business = data as Business;
+
+  // Recommend 15 only for brand-new placeholder tenants. Never rewrite a named
+  // existing business (including live GVM) if this path is hit unexpectedly.
+  if (isPlaceholderBusiness(business)) {
+    const { data: seeded, error: intervalError } = await supabase
+      .from("businesses")
+      .update({
+        appointment_interval_minutes: RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
+      })
+      .eq("id", business.id)
+      .select("*")
+      .single();
+    if (!intervalError && seeded) {
+      business = seeded as Business;
+      const { data: locs } = await supabase
+        .from("locations")
+        .select("id")
+        .eq("business_id", business.id);
+      const locationIds = (locs ?? []).map((row) => row.id);
+      if (locationIds.length > 0) {
+        await supabase
+          .from("location_settings")
+          .update({
+            appointment_interval_minutes:
+              RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
+          })
+          .in("location_id", locationIds);
+      }
+    }
+  }
+
   const preferred = user.user_metadata?.preferred_plan as string | undefined;
   if (preferred) {
     const planKey = marketingPlanIdToDbKey(preferred);

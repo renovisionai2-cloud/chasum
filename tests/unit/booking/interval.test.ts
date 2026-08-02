@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_BOOKING_INTERVAL_MINUTES,
+  RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
   isOnBookingInterval,
   normalizeBookingIntervalMinutes,
   resolveBookingIntervalMinutes,
@@ -12,6 +13,13 @@ describe("booking interval", () => {
     expect(DEFAULT_BOOKING_INTERVAL_MINUTES).toBe(30);
     expect(normalizeBookingIntervalMinutes(undefined)).toBe(30);
     expect(resolveBookingIntervalMinutes({})).toBe(30);
+  });
+
+  it("recommends 15 minutes for new businesses without changing the safe fallback", () => {
+    expect(RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES).toBe(15);
+    expect(DEFAULT_BOOKING_INTERVAL_MINUTES).not.toBe(
+      RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
+    );
   });
 
   it("accepts platform-supported intervals including 5 minutes", () => {

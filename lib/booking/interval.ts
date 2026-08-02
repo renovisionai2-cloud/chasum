@@ -13,8 +13,32 @@ export const BOOKING_INTERVAL_OPTIONS = [5, 10, 15, 20, 30, 45, 60] as const;
 
 export type BookingIntervalMinutes = (typeof BOOKING_INTERVAL_OPTIONS)[number];
 
-/** Preserve existing DB/schema default; changing this would shift current tenants. */
+/**
+ * Safe fallback when neither location nor business has a usable value.
+ * Preserves historical Chasum behaviour for existing tenants.
+ */
 export const DEFAULT_BOOKING_INTERVAL_MINUTES: BookingIntervalMinutes = 30;
+
+/**
+ * Recommended starting point for brand-new businesses during onboarding.
+ * Does not change existing saved values.
+ */
+export const RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES: BookingIntervalMinutes = 15;
+
+export const BOOKING_INTERVAL_SETTING_LABEL = "Booking time interval";
+
+export const BOOKING_INTERVAL_SETTING_DESCRIPTION =
+  "Controls how frequently appointments can begin across your calendar and online booking.";
+
+export const BOOKING_INTERVAL_ONBOARDING_HELP =
+  "Choose how frequently customers and staff can start appointments.";
+
+/** Short plain-language examples for settings and onboarding. */
+export const BOOKING_INTERVAL_EXAMPLES = [
+  "Every 5 minutes allows times such as 9:05, 9:10, and 9:15.",
+  "Every 15 minutes allows times such as 9:00, 9:15, 9:30, and 9:45.",
+  "Every 30 minutes allows times such as 9:00 and 9:30.",
+] as const;
 
 export function isBookingIntervalMinutes(
   value: unknown,
