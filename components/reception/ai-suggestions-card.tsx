@@ -16,7 +16,7 @@ export function AiSuggestionsCard({
         <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-spark-muted text-spark animate-spark-pulse">
           <SparkMark className="h-3.5 w-3.5" />
         </span>
-        <h3 className="ds-section-title text-sm">AI Suggestions</h3>
+        <h3 className="ds-section-title text-sm">Suggestions</h3>
       </div>
       {insights.length === 0 ? (
         <EmptyState

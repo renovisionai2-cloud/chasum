@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingSummaryCard } from "@/components/booking/booking-summary-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -774,7 +775,7 @@ export function QuickAppointmentForm({
               <p className="text-[11px] text-muted-foreground">
                 {eligibleStaff.length === 0
                   ? "No employees are assigned to this service yet."
-                  : `${eligibleStaff.length} eligible employee${eligibleStaff.length === 1 ? "" : "s"} — availability loads after you pick a time source.`}
+                  : "Choose an employee, or leave unassigned."}
               </p>
             )}
           </div>
@@ -804,26 +805,17 @@ export function QuickAppointmentForm({
           </p>
         )}
 
-        {slot ? (
-          <div
-            className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-3 py-2.5"
-            aria-live="polite"
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Selected appointment
-            </p>
-            <p className="mt-1 text-sm font-medium">
-              {format(parseISO(slot), "EEEE, MMMM d, yyyy")}
-            </p>
-            <p className="text-sm tabular-nums">
-              {format(parseISO(slot), "h:mm a")}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Employee:{" "}
-              {selectedStaff?.name ?? "Unassigned — assign later"}
-            </p>
-          </div>
-        ) : null}
+        <BookingSummaryCard
+          startIso={slot}
+          durationMinutes={selectedService?.duration_minutes ?? 30}
+          serviceName={selectedService?.name ?? null}
+          locationName={
+            locations.find((l) => l.id === locationId)?.name ?? null
+          }
+          employeeName={selectedStaff?.name ?? null}
+          customerName={selectedCustomer?.name ?? null}
+          emptyHint="Choose a time above to continue."
+        />
 
         {needsNamedEmployee && slot && resolvedCustomerId && serviceId ? (
           <p
@@ -838,11 +830,11 @@ export function QuickAppointmentForm({
 
         {missingHints.length > 0 && !pending ? (
           <p className="text-[11px] text-muted-foreground" role="status">
-            Still need: {missingHints.join(", ")}.
+            Still need {missingHints.join(", ")}.
           </p>
         ) : canBook ? (
           <p className="text-[11px] text-muted-foreground" role="status">
-            Ready — one click to confirm
+            Ready to confirm
             {selectedCustomer ? ` for ${selectedCustomer.name}` : ""}.
           </p>
         ) : null}
@@ -853,10 +845,12 @@ export function QuickAppointmentForm({
           disabled={!canBook}
         >
           {pending
-            ? "Booking…"
+            ? "Confirming…"
             : walkInMode
-              ? "Book walk-in"
-              : "Book appointment"}
+              ? "Confirm walk-in"
+              : canBook
+                ? "Confirm appointment"
+                : "Continue"}
         </Button>
       </form>
     </section>

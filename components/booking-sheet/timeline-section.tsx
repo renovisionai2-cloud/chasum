@@ -36,7 +36,7 @@ export function TimelineSection({
             Timeline
           </h3>
           <p className="text-xs text-muted-foreground">
-            History, communications, forms — loaded on demand
+            Visit history and notes — load when you need them
           </p>
         </div>
         <Button

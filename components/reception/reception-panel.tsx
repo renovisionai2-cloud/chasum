@@ -349,7 +349,7 @@ export function ReceptionPanel({
         Open Booking Sheet
       </Button>
 
-      <div className="space-y-5 border-t border-border/80 pt-5">
+      <div className="space-y-4 border-t border-border/60 pt-4">
         <NextSlotCard
           onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
             setSlotDefaults({

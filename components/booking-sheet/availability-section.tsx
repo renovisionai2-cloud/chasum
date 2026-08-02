@@ -45,19 +45,19 @@ export function AvailabilitySection({
           id="bs-avail-heading"
           className="text-sm font-semibold tracking-tight"
         >
-          Availability
+          Date and time
         </h3>
         <p className="text-xs text-muted-foreground">
           {unassigned
-            ? "Openings across eligible employees — assign staff later if needed."
-            : "Suggested times from the Availability Engine — never invented locally."}
+            ? "Showing openings across your team. You can assign an employee later."
+            : "Choose an open time for this appointment."}
         </p>
       </div>
 
       {loading ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" aria-hidden />
-          Checking real openings…
+          Checking availability…
         </p>
       ) : null}
 
@@ -68,10 +68,10 @@ export function AvailabilitySection({
         >
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
           <div>
-            <p className="font-medium">Selected calendar slot needs a new time</p>
+            <p className="font-medium">Selected time needs an update</p>
             <p className="mt-0.5 text-xs opacity-90">
-              {formatTime(parseISO(selectedSlot))} is kept as your selection but
-              is not currently bookable. Pick another opening below.
+              {formatTime(parseISO(selectedSlot))} is still selected but is not
+              currently available. Choose another time below.
             </p>
           </div>
         </div>
@@ -84,7 +84,7 @@ export function AvailabilitySection({
         >
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
           <div>
-            <p className="font-medium">Why this time is blocked</p>
+            <p className="font-medium">No openings right now</p>
             <p className="mt-0.5 text-xs opacity-90">{availability.emptyReason}</p>
           </div>
         </div>

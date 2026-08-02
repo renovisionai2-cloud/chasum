@@ -1,7 +1,7 @@
 "use client";
 
+import { BookingSection } from "@/components/booking/booking-section";
 import { Button } from "@/components/ui/button";
-import { Sparkles } from "lucide-react";
 
 type SummerAssistantProps = {
   disabled?: boolean;
@@ -11,8 +11,8 @@ type SummerAssistantProps = {
 };
 
 /**
- * Summer appears as an assistant. Suggestions only nudge the sheet —
- * availability still comes from the Booking Engine.
+ * Summer booking assistance — secondary to the main booking journey.
+ * Suggestions only nudge the sheet; times still come from real availability.
  */
 export function SummerAssistant({
   disabled,
@@ -21,54 +21,44 @@ export function SummerAssistant({
   onMoveTomorrowMorning,
 }: SummerAssistantProps) {
   return (
-    <section
-      className="rounded-[var(--radius-md)] border border-spark/25 bg-spark/5 px-3 py-3"
-      aria-label="Summer assistant"
+    <BookingSection
+      title="Summer suggestions"
+      description="Helpful shortcuts when you need another option."
+      collapsible
+      defaultOpen={false}
     >
-      <div className="flex items-start gap-2">
-        <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-spark/15 text-spark">
-          <Sparkles className="size-3.5" aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-semibold">Summer</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">
-            Suggestions only — Summer never invents slots or bypasses the Booking
-            Engine.
-          </p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="h-8 text-xs"
-              disabled={disabled}
-              onClick={onSuggestAfternoon}
-            >
-              Find another this afternoon
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="h-8 text-xs"
-              disabled={disabled}
-              onClick={onSuggestOtherEmployee}
-            >
-              Suggest another employee
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="h-8 text-xs"
-              disabled={disabled}
-              onClick={onMoveTomorrowMorning}
-            >
-              Move to tomorrow morning
-            </Button>
-          </div>
-        </div>
+      <div className="flex flex-wrap gap-1.5">
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="h-8 text-xs"
+          disabled={disabled}
+          onClick={onSuggestAfternoon}
+        >
+          Find another this afternoon
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="h-8 text-xs"
+          disabled={disabled}
+          onClick={onSuggestOtherEmployee}
+        >
+          Suggest another employee
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="h-8 text-xs"
+          disabled={disabled}
+          onClick={onMoveTomorrowMorning}
+        >
+          Move to tomorrow morning
+        </Button>
       </div>
-    </section>
+    </BookingSection>
   );
 }

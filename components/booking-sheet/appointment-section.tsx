@@ -1,5 +1,7 @@
 "use client";
 
+import { BookingPriceSummary } from "@/components/booking/booking-price-summary";
+import { BookingSection } from "@/components/booking/booking-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -266,8 +268,7 @@ export function AppointmentSection({
             ))}
           </Select>
           <p className="text-[11px] text-muted-foreground">
-            Optional. Unassigned bookings use location / business hours and stay
-            visible on the calendar.
+            Choose an employee, or leave unassigned to assign later.
           </p>
         </div>
 
@@ -315,69 +316,49 @@ export function AppointmentSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 rounded-[var(--radius-md)] border border-border/80 bg-muted/20 p-3 text-xs sm:grid-cols-4">
-        <div>
-          <p className="text-muted-foreground">Cleanup</p>
-          <p className="font-medium tabular-nums">{cleanup}m</p>
+      <BookingSection
+        title="Service details"
+        description="Buffers, deposit, and tax for this booking."
+        collapsible
+        defaultOpen={false}
+      >
+        <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+          <div>
+            <p className="text-muted-foreground">Cleanup</p>
+            <p className="font-medium tabular-nums">{cleanup}m</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Buffers</p>
+            <p className="font-medium tabular-nums">
+              {bufferBefore}/{bufferAfter}m
+            </p>
+          </div>
+          {depositRequired ? (
+            <div>
+              <p className="text-muted-foreground">Deposit</p>
+              <p className="font-medium tabular-nums">
+                {formatMoneyCents(depositCents, currency)}
+              </p>
+            </div>
+          ) : null}
+          {pricing.taxRateBps > 0 ? (
+            <div>
+              <p className="text-muted-foreground">Tax rate</p>
+              <p className="font-medium tabular-nums">
+                {(pricing.taxRateBps / 100).toFixed(2)}%
+                {pricing.taxInclusive ? " incl." : ""}
+              </p>
+            </div>
+          ) : null}
         </div>
-        <div>
-          <p className="text-muted-foreground">Buffers</p>
-          <p className="font-medium tabular-nums">
-            {bufferBefore}/{bufferAfter}m
-          </p>
-        </div>
-        <div>
-          <p className="text-muted-foreground">Deposit</p>
-          <p className="font-medium tabular-nums">
-            {depositRequired
-              ? formatMoneyCents(depositCents, currency)
-              : "None"}
-          </p>
-        </div>
-        <div>
-          <p className="text-muted-foreground">Tax rate</p>
-          <p className="font-medium tabular-nums">
-            {pricing.taxRateBps > 0
-              ? `${(pricing.taxRateBps / 100).toFixed(2)}%${
-                  pricing.taxInclusive ? " incl." : ""
-                }`
-              : "None"}
-          </p>
-        </div>
-      </div>
+      </BookingSection>
 
-      <div className="rounded-[var(--radius-md)] border border-border bg-card p-3 shadow-xs">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Pricing summary
-        </p>
-        <dl className="mt-2 space-y-1.5 text-sm">
-          <div className="flex items-center justify-between gap-3">
-            <dt className="text-muted-foreground">Subtotal</dt>
-            <dd className="font-medium tabular-nums">
-              {subtotalCents > 0 || selectedService || selectedPackage
-                ? pricing.formatted.subtotal
-                : "—"}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <dt className="text-muted-foreground">
-              Taxes
-              {pricing.taxLabel ? ` (${pricing.taxLabel})` : ""}
-            </dt>
-            <dd className="font-medium tabular-nums">
-              {pricing.formatted.taxes}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-3 border-t border-border/70 pt-1.5">
-            <dt className="font-semibold">Total Amount</dt>
-            <dd className="font-semibold tabular-nums">
-              {subtotalCents > 0 || selectedService || selectedPackage
-                ? pricing.formatted.total
-                : "—"}
-            </dd>
-          </div>
-        </dl>
-      </div>
+      <BookingPriceSummary
+        subtotalCents={subtotalCents}
+        taxCents={pricing.taxCents}
+        depositCents={depositRequired ? depositCents : null}
+        currency={currency}
+      />
 
       <div className="space-y-1.5">
         <Label htmlFor="bs-notes">Notes</Label>

@@ -81,7 +81,7 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
           </h2>
         </div>
         <p className="text-xs text-muted-foreground">
-          Dense snapshot for today&apos;s floor
+          Today at a glance
         </p>
       </div>
 

@@ -26,7 +26,6 @@ import {
   Pencil,
   Phone,
   Plus,
-  Sparkles,
   UserRound,
   Wallet,
 } from "lucide-react";
@@ -268,7 +267,7 @@ export function CustomerSection({
             Customer
           </h3>
           <p className="text-xs text-muted-foreground">
-            Search, select, or quick-add — keyboard first
+            Find a customer or add someone new
           </p>
         </div>
         <Button
@@ -493,10 +492,6 @@ export function CustomerSection({
           <UserRound className="mt-0.5 size-4 shrink-0" aria-hidden />
           <p>
             Select a customer to see membership, last visit, and upcoming visits.
-            <span className="mt-1 block text-xs">
-              <Sparkles className="mr-1 inline size-3 text-spark" aria-hidden />
-              Summer can suggest regulars once activity exists.
-            </span>
           </p>
         </div>
       )}

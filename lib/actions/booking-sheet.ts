@@ -70,7 +70,7 @@ export async function previewBookingSheetAvailability(input: {
       slots: [],
       emptyReason: input.staffId
         ? "Choose a service and employee to see open times."
-        : "No eligible employees for this service — add staff or pick another service. Location hours still apply once someone is assignable.",
+        : "No employees are assigned to this service yet. Add staff or choose another service.",
       alternativeStaff: [],
       alternativeDays: [],
     };
@@ -105,7 +105,7 @@ export async function previewBookingSheetAvailability(input: {
       primaryEmpty =
         result.emptyReason?.message ??
         result.conflicts?.[0]?.message ??
-        "No open times for this employee on this day.";
+        "No available times for this employee on the selected date.";
     }
   }
 
@@ -114,8 +114,8 @@ export async function previewBookingSheetAvailability(input: {
     slots.length === 0
       ? (primaryEmpty ??
         (input.staffId
-          ? "No open times for this employee on this day."
-          : "No open times for any eligible employee on this day."))
+          ? "No available times for this employee on the selected date."
+          : "No times are available on this date. Try another day or employee."))
       : null;
 
   const alternativeStaff: BookingSheetAvailability["alternativeStaff"] = [];

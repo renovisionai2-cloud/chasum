@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingSection } from "@/components/booking/booking-section";
 import { Button } from "@/components/ui/button";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type { NextAvailableSlot } from "@/lib/actions/reception";
@@ -16,12 +17,14 @@ export function NextSlotCard({
   const [slot, setSlot] = useState<NextAvailableSlot>(null);
   const [pending, startTransition] = useTransition();
   const [loaded, setLoaded] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   function load() {
     startTransition(async () => {
       const next = await getNextAvailableSlot({ daysAhead: 7 });
       setSlot(next);
       setLoaded(true);
+      setConfirming(false);
     });
   }
 
@@ -40,9 +43,13 @@ export function NextSlotCard({
   }, []);
 
   return (
-    <section className="space-y-2">
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="ds-section-title text-sm">Next available slot</h3>
+    <BookingSection
+      title="Need another time?"
+      description="Next available opening across your schedule."
+      collapsible
+      defaultOpen={false}
+    >
+      <div className="flex items-center justify-end">
         <Button
           type="button"
           variant="ghost"
@@ -50,37 +57,79 @@ export function NextSlotCard({
           className="h-8 w-8 p-0"
           onClick={load}
           disabled={pending}
-          aria-label="Refresh next available slot"
+          aria-label="Refresh next available time"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${pending ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-3.5 w-3.5 ${pending ? "animate-spin" : ""}`}
+          />
         </Button>
       </div>
       {pending && !loaded ? (
-        <p className="text-xs text-muted-foreground">Checking real availability…</p>
+        <p className="text-xs text-muted-foreground">Checking availability…</p>
       ) : !slot ? (
-        <p className="rounded-[var(--radius-md)] border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-          No open slots found in the next week from the scheduling engine.
+        <p className="rounded-[var(--radius-md)] border border-border/70 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+          No open times found in the next week. Try another service or employee.
         </p>
       ) : (
-        <div className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-2.5">
-          <p className="flex items-center gap-1.5 text-sm font-medium">
+        <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Next available
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-sm font-medium">
             <Clock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-            {format(parseISO(slot.start), "EEE, MMM d")} at{" "}
+            {format(parseISO(slot.start), "EEEE, MMM d")} at{" "}
             {formatTime(parseISO(slot.start))}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             {slot.serviceName} · {slot.staffName}
           </p>
-          <Button
-            type="button"
-            size="sm"
-            className="mt-2 w-full"
-            onClick={() => onBookSlot(slot)}
-          >
-            Book this slot
-          </Button>
+          {confirming ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  onBookSlot(slot);
+                  setConfirming(false);
+                }}
+              >
+                Use this time
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => setConfirming(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setConfirming(true)}
+              >
+                Use this time
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={load}
+                disabled={pending}
+              >
+                View more options
+              </Button>
+            </div>
+          )}
         </div>
       )}
-    </section>
+    </BookingSection>
   );
 }

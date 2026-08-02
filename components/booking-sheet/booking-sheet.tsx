@@ -8,6 +8,7 @@ import { QuickActionsMenu } from "@/components/booking-sheet/quick-actions-menu"
 import { SelectedAppointmentBanner } from "@/components/booking-sheet/selected-appointment-banner";
 import { SummerAssistant } from "@/components/booking-sheet/summer-assistant";
 import { TimelineSection } from "@/components/booking-sheet/timeline-section";
+import { BookingReviewCard } from "@/components/booking/booking-review-card";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import {
@@ -31,7 +32,7 @@ import {
   RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
   isUnassignedStaffSelection,
 } from "@/lib/booking/optional-staff";
-import { parseISO } from "@/lib/calendar/utils";
+import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
 import {
   useBookingPreferences,
@@ -450,7 +451,7 @@ export function BookingSheet({
     if (canSubmit) {
       return isEditing
         ? "Ready to save your changes."
-        : "Ready to book — saves as confirmed unless you change status.";
+        : "Ready to confirm this appointment.";
     }
     const missing: string[] = [];
     if (!selectedCustomer?.id) missing.push("a client");
@@ -602,7 +603,11 @@ function handleStaffChange(id: string) {
       open={open}
       onClose={onClose}
       title={isEditing ? "Edit booking" : "New booking"}
-      description={`${bookingSourceLabel} · calm workspace, not a form pile`}
+      description={
+        isEditing
+          ? `${bookingSourceLabel} · update details and save`
+          : `${bookingSourceLabel} · customer, appointment, time, confirm`
+      }
       headerActions={
         <QuickActionsMenu
           isEditing={isEditing}
@@ -725,28 +730,17 @@ function handleStaffChange(id: string) {
               Close
             </Button>
             <Button type="submit" size="sm" disabled={!canSubmit || pending}>
-              {pending ? "Saving…" : isEditing ? "Save changes" : "Book"}
+              {pending
+                ? "Confirming…"
+                : isEditing
+                  ? "Save changes"
+                  : "Confirm appointment"}
             </Button>
           </div>
         </form>
       }
     >
       <div className="space-y-8">
-        <SelectedAppointmentBanner
-          startIso={slot}
-          durationMinutes={durationMinutes}
-          locationName={selectedLocation?.name ?? null}
-          employeeName={
-            activeStaffId
-              ? (eligibleStaff.find((m) => m.id === activeStaffId)?.name ??
-                staff.find((m) => m.id === activeStaffId)?.name ??
-                null)
-              : null
-          }
-          timezone={timezone ?? selectedLocation?.timezone ?? null}
-          slotConflict={slotConflict}
-        />
-
         <CustomerSection
           customers={customers}
           selected={selectedCustomer}
@@ -806,12 +800,62 @@ function handleStaffChange(id: string) {
           onPickDay={(next) => setDate(next)}
         />
 
+        <SelectedAppointmentBanner
+          startIso={slot}
+          durationMinutes={durationMinutes}
+          locationName={selectedLocation?.name ?? null}
+          employeeName={
+            activeStaffId
+              ? (eligibleStaff.find((m) => m.id === activeStaffId)?.name ??
+                staff.find((m) => m.id === activeStaffId)?.name ??
+                null)
+              : null
+          }
+          timezone={timezone ?? selectedLocation?.timezone ?? null}
+          slotConflict={slotConflict}
+          serviceName={
+            offerType === "package" && selectedPackage
+              ? selectedPackage.name
+              : (selectedService?.name ?? null)
+          }
+          customerName={selectedCustomer?.name ?? null}
+        />
+
         <SummerAssistant
           disabled={availLoading || pending}
           onSuggestAfternoon={summerAfternoon}
           onSuggestOtherEmployee={summerOtherEmployee}
           onMoveTomorrowMorning={summerTomorrowMorning}
         />
+
+        {canSubmit && slot && selectedCustomer ? (
+          <BookingReviewCard
+            customerName={selectedCustomer.name}
+            serviceName={
+              offerType === "package" && selectedPackage
+                ? selectedPackage.name
+                : (selectedService?.name ?? "Appointment")
+            }
+            dateLabel={format(parseISO(slot), "EEEE, MMMM d, yyyy")}
+            timeLabel={`${formatTime(parseISO(slot))}–${formatTime(
+              new Date(
+                parseISO(slot).getTime() +
+                  Math.max(5, durationMinutes) * 60_000,
+              ),
+            )}`}
+            locationName={selectedLocation?.name ?? null}
+            employeeName={
+              activeStaffId
+                ? (eligibleStaff.find((m) => m.id === activeStaffId)?.name ??
+                  null)
+                : null
+            }
+            subtotalCents={pricingForSubmit.subtotalCents}
+            taxCents={pricingForSubmit.taxCents}
+            totalCents={pricingForSubmit.totalCents}
+            currency={currency}
+          />
+        ) : null}
 
         <PaymentsSection service={selectedService} appointment={appointment} />
 

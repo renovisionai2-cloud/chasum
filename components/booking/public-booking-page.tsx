@@ -401,8 +401,7 @@ export function PublicBookingPage({
               <span>
                 <span className="block font-medium">Any available staff</span>
                 <span className="mt-0.5 block text-sm text-muted-foreground">
-                  Show openings from every eligible team member — staff assigned
-                  later
+                  Show openings from every team member who offers this service
                 </span>
               </span>
             </button>
@@ -535,7 +534,7 @@ export function PublicBookingPage({
                 setSelectedSlot(match);
               }}
               loading={loadingSlots}
-              emptyMessage="No open times for this date. Try another day — we only show slots from the scheduling engine."
+              emptyMessage="No times are available on this date. Try another day or employee."
             />
             <Button
               type="button"
