@@ -186,7 +186,7 @@ export function AppointmentDrawer({
                 </span>
               </li>
               <li className="text-muted-foreground">
-                History &amp; forms expand in a later release
+                No additional history for this appointment yet.
               </li>
             </ol>
           </Section>
@@ -199,9 +199,9 @@ export function AppointmentDrawer({
 
           <Section title="Payments">
             <p className="text-sm">
-              {priceCents != null
+              {priceCents != null && priceCents > 0
                 ? `$${(priceCents / 100).toFixed(2)}`
-                : "Price from service"}
+                : "No payment due."}
               {deposit > 0 ? (
                 <span className="ml-2 text-xs text-muted-foreground">
                   Deposit ${(deposit / 100).toFixed(2)}
@@ -212,8 +212,7 @@ export function AppointmentDrawer({
 
           <Section title="Communication">
             <p className="text-xs text-muted-foreground">
-              Message tools stay on the customer record. AI recommendations will
-              appear here.
+              No messages have been sent for this appointment.
             </p>
           </Section>
         </div>

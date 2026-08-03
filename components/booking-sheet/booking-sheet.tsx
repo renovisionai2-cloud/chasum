@@ -37,6 +37,7 @@ import {
   durationFromAppointmentTimes,
   resolveBookingDuration,
 } from "@/lib/booking/resolved-duration";
+import { calendarDateInTimezone } from "@/lib/business/datetime";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
 import {
@@ -92,7 +93,13 @@ export type BookingSheetProps = {
   forceQuickAddCustomer?: boolean;
 };
 
-function slotDateInLocalTimezone(iso: string): string {
+function slotDateInBusinessTimezone(
+  iso: string,
+  timeZone: string | null | undefined,
+): string {
+  const zoned = calendarDateInTimezone(iso, timeZone);
+  if (zoned) return zoned;
+  // Last resort: noon-anchor local format (avoid UTC date-only parse).
   return format(parseISO(iso), "yyyy-MM-dd");
 }
 
@@ -142,13 +149,23 @@ export function BookingSheet({
 
   const preferred = useMemo(() => {
     const draftStart = draft?.startIso?.trim() || null;
+    // Edit mode: appointment start is authoritative. Never let a leftover
+    // draft or calendar focus date replace the saved appointment.
     const initialStart = appointment
       ? appointment.start_time
       : (draftStart ?? defaultDate?.toISOString() ?? null);
 
+    const zone =
+      timezone ??
+      locations.find((l) => l.id === (appointment?.location_id ?? ""))
+        ?.timezone ??
+      locations.find((l) => l.is_default)?.timezone ??
+      locations[0]?.timezone ??
+      null;
+
     const locationId =
       appointment?.location_id ??
-      draft?.locationId ??
+      (!appointment ? draft?.locationId : null) ??
       (prefs.locationId && locations.some((l) => l.id === prefs.locationId)
         ? prefs.locationId
         : null) ??
@@ -164,15 +181,18 @@ export function BookingSheet({
     // first catalog row or a silent 30-minute fallback.
     const serviceId =
       appointment?.service_id ??
-      (draft?.serviceId &&
+      (!appointment &&
+      draft?.serviceId &&
       services.some((s) => s.id === draft.serviceId)
         ? draft.serviceId
         : null) ??
-      (defaultServiceId &&
+      (!appointment &&
+      defaultServiceId &&
       locationServices.some((s) => s.id === defaultServiceId)
         ? defaultServiceId
         : null) ??
-      (prefs.serviceId &&
+      (!appointment &&
+      prefs.serviceId &&
       locationServices.some((s) => s.id === prefs.serviceId)
         ? prefs.serviceId
         : null) ??
@@ -202,7 +222,7 @@ export function BookingSheet({
     });
 
     const draftStaff =
-      draft?.staffId === "" || draft?.staffId
+      !appointment && (draft?.staffId === "" || draft?.staffId)
         ? draft.staffId
         : undefined;
 
@@ -223,20 +243,24 @@ export function BookingSheet({
               : null) ??
             "");
 
+    const date = appointment
+      ? slotDateInBusinessTimezone(appointment.start_time, zone)
+      : draft?.date
+        ? draft.date
+        : initialStart
+          ? slotDateInBusinessTimezone(initialStart, zone)
+          : format(new Date(), "yyyy-MM-dd");
+
     return {
       serviceId,
       staffId,
       customerId:
         appointment?.customer_id ??
-        draft?.customerId ??
+        (!appointment ? draft?.customerId : null) ??
         defaultCustomerId ??
         "",
       locationId,
-      date: draft?.date
-        ? draft.date
-        : initialStart
-          ? slotDateInLocalTimezone(initialStart)
-          : format(new Date(), "yyyy-MM-dd"),
+      date,
       slot: initialStart,
       duration: resolved.minutes,
       durationIsOverride: Boolean(
@@ -244,8 +268,8 @@ export function BookingSheet({
       ),
       serviceDefaultMinutes: resolved.serviceDefaultMinutes,
       status: (appointment?.status ?? "confirmed") as AppointmentStatus,
-      notes: appointment?.notes ?? draft?.notes ?? "",
-      packageId: draft?.packageId ?? "",
+      notes: appointment?.notes ?? (!appointment ? draft?.notes : null) ?? "",
+      packageId: !appointment ? (draft?.packageId ?? "") : "",
     };
   }, [
     appointment,
@@ -257,6 +281,7 @@ export function BookingSheet({
     defaultCustomerId,
     defaultServiceId,
     draft,
+    timezone,
     prefs.locationId,
     prefs.serviceId,
     prefs.staffId,
@@ -549,7 +574,7 @@ export function BookingSheet({
       missing.push("a valid duration");
     }
     if (slot && !selectedSlotValid && durationMinutes != null && durationMinutes > 0) {
-      return "Selected time is no longer valid — pick another opening below.";
+      return "Choose another time to continue.";
     }
     if (missing.length === 0) return "Check the highlighted fields above.";
     return `Still need ${missing.join(", ")}.`;
@@ -699,6 +724,8 @@ function handleStaffChange(id: string) {
           ? `${bookingSourceLabel} · update details and save`
           : "Customer · Appointment · Time · Review"
       }
+      resizable
+      widthStorageKey="chasum.bookingSheetWidthPx"
       headerActions={
         <QuickActionsMenu
           isEditing={isEditing}
@@ -896,6 +923,65 @@ function handleStaffChange(id: string) {
           onPickDay={(next) => setDate(next)}
         />
 
+        {isEditing &&
+        appointment &&
+        slot &&
+        slotKey(slot) !== slotKey(appointment.start_time) ? (
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Current appointment
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {format(parseISO(appointment.start_time), "EEEE, MMMM d, yyyy")}
+              </p>
+              <p className="text-sm tabular-nums text-muted-foreground">
+                {formatTime(parseISO(appointment.start_time))}–
+                {formatTime(parseISO(appointment.end_time))}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="mt-2 h-8 px-2 text-xs"
+                onClick={() => {
+                  setSlot(appointment.start_time);
+                  setDate(
+                    slotDateInBusinessTimezone(
+                      appointment.start_time,
+                      timezone ?? selectedLocation?.timezone ?? null,
+                    ),
+                  );
+                  setDurationOverride(null);
+                }}
+              >
+                Keep original time
+              </Button>
+            </div>
+            <div className="rounded-[var(--radius-md)] border border-primary/25 bg-primary/[0.04] px-3 py-2.5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Proposed change
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {format(parseISO(slot), "EEEE, MMMM d, yyyy")}
+              </p>
+              <p className="text-sm tabular-nums">
+                {formatTime(parseISO(slot))}
+                {durationMinutes != null
+                  ? `–${formatTime(
+                      new Date(
+                        parseISO(slot).getTime() + durationMinutes * 60_000,
+                      ),
+                    )}`
+                  : null}
+              </p>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Save changes to apply this time.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
         <SelectedAppointmentBanner
           startIso={slot}
           durationMinutes={durationMinutes ?? 0}
@@ -909,10 +995,11 @@ function handleStaffChange(id: string) {
           }
           timezone={timezone ?? selectedLocation?.timezone ?? null}
           slotConflict={
-            slotConflict ??
-            (durationMinutes == null
+            durationMinutes == null
               ? "Duration is still loading for this service."
-              : null)
+              : slotConflict
+                ? "Needs update"
+                : null
           }
           serviceName={
             offerType === "package" && selectedPackage

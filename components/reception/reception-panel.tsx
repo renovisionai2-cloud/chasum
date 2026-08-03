@@ -54,7 +54,10 @@ type ReceptionPanelProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBooked: () => void;
-  onOpenFullDialog: (draft?: BookingDraft | null) => void;
+  onOpenFullDialog: (
+    draft?: BookingDraft | null,
+    appointmentId?: string | null,
+  ) => void;
   searchFocusSignal?: number;
   bookFocusSignal?: number;
   walkInSignal?: number;
@@ -94,6 +97,10 @@ export function ReceptionPanel({
   }>({});
   const formAnchorRef = useRef<HTMLDivElement>(null);
   const draftRef = useRef<BookingDraft | null>(null);
+  const [confirmedAppointmentId, setConfirmedAppointmentId] = useState<
+    string | null
+  >(null);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const [widthPx, setWidthPx] = useState(PANEL_DEFAULT_PX);
   const [isDesktop, setIsDesktop] = useState(false);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
@@ -341,36 +348,71 @@ export function ReceptionPanel({
           onDraftChange={(draft) => {
             draftRef.current = draft;
           }}
+          onAppointmentConfirmed={(id) => {
+            setConfirmedAppointmentId(id);
+            draftRef.current = null;
+          }}
+          onViewAppointment={(id) => {
+            onOpenFullDialog(null, id);
+          }}
+          onStartNewDraft={() => {
+            setConfirmedAppointmentId(null);
+          }}
         />
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
-        onClick={() => onOpenFullDialog(draftRef.current)}
-      >
-        Open Booking Sheet
-      </Button>
+      {confirmedAppointmentId ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-full text-xs"
+          onClick={() => onOpenFullDialog(null, confirmedAppointmentId)}
+        >
+          View appointment
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
+          onClick={() => onOpenFullDialog(draftRef.current)}
+        >
+          Open Booking Sheet
+        </Button>
+      )}
 
-      <div className="space-y-4 border-t border-border/60 pt-4">
-        <NextSlotCard
-          onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
-            setSlotDefaults({
-              start: slot.start,
-              serviceId: slot.serviceId,
-              staffId: slot.staffId,
-            });
-            formAnchorRef.current?.scrollIntoView({
-              behavior: "smooth",
-              block: "nearest",
-            });
-          }}
-        />
-        <TodayNotes />
-        <AiSuggestionsCard insights={insights} />
-        <ReceptionWaitlistPanel entries={waitlist} />
+      <div className="border-t border-border/60 pt-3">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between rounded-[var(--radius-md)] px-1 py-1.5 text-left text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-expanded={toolsOpen}
+          onClick={() => setToolsOpen((v) => !v)}
+        >
+          More tools
+          <span className="tabular-nums">{toolsOpen ? "Hide" : "Show"}</span>
+        </button>
+        {toolsOpen ? (
+          <div className="mt-3 space-y-4">
+            <NextSlotCard
+              onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
+                setSlotDefaults({
+                  start: slot.start,
+                  serviceId: slot.serviceId,
+                  staffId: slot.staffId,
+                });
+                formAnchorRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest",
+                });
+              }}
+            />
+            <TodayNotes />
+            <AiSuggestionsCard insights={insights} />
+            <ReceptionWaitlistPanel entries={waitlist} />
+          </div>
+        ) : null}
       </div>
     </aside>
   );

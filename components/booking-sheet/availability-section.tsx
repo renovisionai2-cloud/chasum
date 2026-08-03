@@ -100,7 +100,7 @@ export function AvailabilitySection({
           forceExpanded={Boolean(selectedSlot && !selectedSlotValid)}
           selectedInvalidHint={
             selectedSlot && !selectedInDay
-              ? `${formatTime(parseISO(selectedSlot))} is not in today’s open list. Choose another time.`
+              ? `${formatTime(parseISO(selectedSlot))} is already booked or unavailable. Choose another time.`
               : null
           }
         />
@@ -125,7 +125,9 @@ export function AvailabilitySection({
                   <span className="flex-1 text-left">
                     {alt.name}
                     <span className="ml-2 text-xs text-muted-foreground">
-                      {alt.slotCount} openings
+                      {alt.slotCount <= 5
+                        ? `${alt.slotCount} times available`
+                        : "Available today"}
                     </span>
                   </span>
                 </Button>
@@ -151,7 +153,11 @@ export function AvailabilitySection({
               >
                 <CalendarDays className="size-3.5" aria-hidden />
                 {day.label}
-                <span className="text-muted-foreground">({day.slotCount})</span>
+                <span className="text-muted-foreground">
+                  {day.slotCount <= 5
+                    ? ` · ${day.slotCount} times`
+                    : " · Times available"}
+                </span>
               </Button>
             ))}
           </div>

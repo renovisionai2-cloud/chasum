@@ -3,7 +3,7 @@
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { timezoneLabel } from "@/lib/constants/timezones";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, CalendarClock } from "lucide-react";
+import { CalendarClock } from "lucide-react";
 import { format } from "date-fns";
 
 export type BookingSummaryCardProps = {
@@ -101,20 +101,9 @@ export function BookingSummaryCard({
         </div>
       </div>
       {conflictMessage ? (
-        <div
-          role="alert"
-          className="mt-2.5 flex gap-2 rounded-[var(--radius-sm)] border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-xs text-amber-950 dark:text-amber-100"
-        >
-          <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          <div>
-            <p className="font-medium">Selected time needs an update</p>
-            <p className="mt-0.5 opacity-90">{conflictMessage}</p>
-            <p className="mt-1 opacity-90">
-              Choose another time below. Your previous selection stays visible
-              until you replace it.
-            </p>
-          </div>
-        </div>
+        <p className="mt-2 text-[11px] font-medium text-amber-800 dark:text-amber-200">
+          Needs update
+        </p>
       ) : null}
     </section>
   );

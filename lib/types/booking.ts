@@ -512,6 +512,8 @@ export type CalendarView =
 export type ActionState = {
   error?: string;
   success?: string;
+  /** Created or updated appointment id when the mutation succeeds. */
+  appointmentId?: string;
 };
 
 export type PublicBookingSummary = {

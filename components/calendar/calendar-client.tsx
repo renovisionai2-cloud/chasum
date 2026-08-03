@@ -625,7 +625,16 @@ export function CalendarClient({
             open={panelOpen}
             onOpenChange={setPanelOpen}
             onBooked={refresh}
-            onOpenFullDialog={(draft) => openNew(undefined, undefined, draft)}
+            onOpenFullDialog={(draft, appointmentId) => {
+              if (appointmentId) {
+                const appt = appointments.find((a) => a.id === appointmentId);
+                if (appt) {
+                  openEdit(appt);
+                  return;
+                }
+              }
+              openNew(undefined, undefined, draft);
+            }}
             searchFocusSignal={searchFocusSignal}
             bookFocusSignal={bookFocusSignal}
             walkInSignal={walkInSignal}

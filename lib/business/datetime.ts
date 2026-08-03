@@ -64,6 +64,28 @@ export function resolveBusinessTimezone(
   return getBusinessTimezone(input);
 }
 
+/**
+ * Calendar date (YYYY-MM-DD) for an instant in a given IANA timezone.
+ * Never use browser-local format() for booking dates — that drifts across zones.
+ */
+export function calendarDateInTimezone(
+  isoOrDate: string | Date,
+  timeZone: string | null | undefined,
+): string {
+  const date =
+    typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate;
+  if (!Number.isFinite(date.getTime())) {
+    return "";
+  }
+  const zone =
+    timeZone && timeZone.trim().length > 0 ? timeZone.trim() : "UTC";
+  const p = partsInZone(date, zone);
+  const y = String(p.year).padStart(4, "0");
+  const m = String(p.month).padStart(2, "0");
+  const d = String(p.day).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 /** Local hour (0–23) in the business/location timezone. */
 export function hourInBusinessTimezone(
   date: Date,

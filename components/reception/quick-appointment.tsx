@@ -59,6 +59,12 @@ type QuickAppointmentProps = {
   focusSignal?: number;
   openCreateSignal?: number;
   onSuccess: () => void;
+  /** Fired after a booking is created with the new appointment id. */
+  onAppointmentConfirmed?: (appointmentId: string) => void;
+  /** Open the created appointment in view/edit mode. */
+  onViewAppointment?: (appointmentId: string) => void;
+  /** Fired when the user starts a fresh draft after confirmation. */
+  onStartNewDraft?: () => void;
   onCustomerCreated?: (customer: Customer) => void;
   onClearCustomer?: () => void;
   /** Emits structured draft whenever booking fields change (for Booking Sheet transfer). */
@@ -96,6 +102,9 @@ export function QuickAppointmentForm({
   focusSignal = 0,
   openCreateSignal = 0,
   onSuccess,
+  onAppointmentConfirmed,
+  onViewAppointment,
+  onStartNewDraft,
   onCustomerCreated,
   onClearCustomer,
   onDraftChange,
@@ -173,6 +182,21 @@ export function QuickAppointmentForm({
     email?: string;
   }>({});
   const [creating, setCreating] = useState(false);
+  const [bookingPhase, setBookingPhase] = useState<
+    "draft" | "confirming" | "confirmed"
+  >("draft");
+  const [confirmedAppointmentId, setConfirmedAppointmentId] = useState<
+    string | null
+  >(null);
+  const [confirmedSummary, setConfirmedSummary] = useState<{
+    customerName: string;
+    serviceName: string;
+    when: string;
+    employeeName: string | null;
+    durationMinutes: number | null;
+    locationName: string | null;
+  } | null>(null);
+  const submitGuardRef = useRef(false);
 
   const [state, formAction, pending] = useActionState(
     createAppointment,
@@ -285,6 +309,7 @@ export function QuickAppointmentForm({
 
   useEffect(() => {
     if (!onDraftChange) return;
+    if (bookingPhase === "confirmed") return;
     onDraftChange({
       customerId: resolvedCustomerId || null,
       serviceId: serviceId || null,
@@ -299,6 +324,7 @@ export function QuickAppointmentForm({
     });
   }, [
     onDraftChange,
+    bookingPhase,
     resolvedCustomerId,
     serviceId,
     locationId,
@@ -310,28 +336,82 @@ export function QuickAppointmentForm({
   ]);
 
   useEffect(() => {
-    if (state.error) toast(state.error, "error");
+    if (state.error) {
+      submitGuardRef.current = false;
+      setBookingPhase("draft");
+      toast(state.error, "error");
+    }
     if (state.success) {
+      const when = slot
+        ? format(parseISO(slot), "EEE, MMM d · h:mm a")
+        : "appointment";
+      const serviceLabel = selectedService?.name ?? "Service";
+      const staffLabel = selectedStaff?.name ?? null;
+      const duration = resolvedQaDuration.minutes;
+      const locationName =
+        locations.find((l) => l.id === locationId)?.name ?? null;
+      const apptId = state.appointmentId ?? null;
+
+      setConfirmedAppointmentId(apptId);
+      setConfirmedSummary({
+        customerName: selectedCustomer?.name ?? "Customer",
+        serviceName: serviceLabel,
+        when,
+        employeeName: staffLabel,
+        durationMinutes: duration,
+        locationName,
+      });
+      setBookingPhase("confirmed");
+      submitGuardRef.current = true;
+      draftRefCleared();
+
       writeBookingPreferences({
         serviceId,
         staffId: activeStaffId || undefined,
         locationId,
       });
-      const when = slot
-        ? format(parseISO(slot), "EEE, MMM d · h:mm a")
-        : "appointment";
-      const serviceLabel = selectedService?.name ?? "Service";
-      const staffLabel = selectedStaff?.name;
       toast(
         selectedCustomer
           ? `Confirmed · ${selectedCustomer.name} · ${serviceLabel}${staffLabel ? ` with ${staffLabel}` : " · Unassigned"} · ${when}`
           : `Confirmed · ${serviceLabel} · ${when}`,
         "success",
       );
+      if (apptId) onAppointmentConfirmed?.(apptId);
       onSuccess();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- toast on action result only
-  }, [state.error, state.success]);
+  }, [state.error, state.success, state.appointmentId]);
+
+  function draftRefCleared() {
+    onDraftChange?.({
+      customerId: null,
+      serviceId: null,
+      locationId: null,
+      staffId: null,
+      date: null,
+      startIso: null,
+      durationMinutes: null,
+      durationSource: null,
+      durationIsOverride: false,
+      bookingSource: "reception",
+    });
+  }
+
+  function startBookAnother(retainCustomer: boolean) {
+    submitGuardRef.current = false;
+    setBookingPhase("draft");
+    setConfirmedAppointmentId(null);
+    setConfirmedSummary(null);
+    setSlot(null);
+    setServiceOverride(null);
+    setStaffOverride(null);
+    setLocationOverride(null);
+    if (!retainCustomer) {
+      setCustomerId("");
+      onClearCustomer?.();
+    }
+    onStartNewDraft?.();
+  }
 
   useEffect(() => {
     if (openCreateSignal <= 0) return;
@@ -404,11 +484,13 @@ export function QuickAppointmentForm({
   ].filter(Boolean) as string[];
 
   const canBook =
+    bookingPhase === "draft" &&
     !!resolvedCustomerId &&
     !!serviceId &&
     !!slot &&
     !needsNamedEmployee &&
-    !pending;
+    !pending &&
+    !submitGuardRef.current;
 
   function resetCreateFields() {
     setFirstName("");
@@ -501,7 +583,85 @@ export function QuickAppointmentForm({
         ) : null}
       </div>
 
-      {createSuccess ? (
+      {bookingPhase === "confirmed" && confirmedSummary ? (
+        <div
+          className="space-y-3 rounded-[var(--radius-md)] border border-success/30 bg-success/5 px-3 py-4 animate-success-pop"
+          role="status"
+        >
+          <div className="flex items-start gap-2">
+            <CheckCircle2
+              className="mt-0.5 size-5 shrink-0 text-success"
+              aria-hidden
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">Appointment confirmed</p>
+              <p className="mt-1 text-sm font-medium">
+                {confirmedSummary.serviceName}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {confirmedSummary.when}
+                {confirmedSummary.durationMinutes != null
+                  ? ` · ${confirmedSummary.durationMinutes} min`
+                  : ""}
+              </p>
+              <dl className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <div>
+                  Customer ·{" "}
+                  <span className="text-foreground">
+                    {confirmedSummary.customerName}
+                  </span>
+                </div>
+                <div>
+                  Employee ·{" "}
+                  <span className="text-foreground">
+                    {confirmedSummary.employeeName ?? "To be assigned"}
+                  </span>
+                </div>
+                {confirmedSummary.locationName ? (
+                  <div>
+                    Location ·{" "}
+                    <span className="text-foreground">
+                      {confirmedSummary.locationName}
+                    </span>
+                  </div>
+                ) : null}
+              </dl>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            {confirmedAppointmentId ? (
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() =>
+                  onViewAppointment?.(confirmedAppointmentId)
+                }
+              >
+                View appointment
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => startBookAnother(false)}
+            >
+              Book another
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => startBookAnother(true)}
+            >
+              Book another for {confirmedSummary.customerName}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {bookingPhase === "confirmed" ? null : createSuccess ? (
         <div
           className="flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/30 px-3 py-5 animate-success-pop"
           role="status"
@@ -528,18 +688,32 @@ export function QuickAppointmentForm({
                   {selectedCustomer.email}
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 shrink-0 px-2 text-xs"
-                onClick={() => {
-                  setCustomerId("");
-                  onClearCustomer?.();
-                }}
-              >
-                Change
-              </Button>
+              <div className="flex shrink-0 flex-col items-end gap-0.5">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => {
+                    setCustomerId("");
+                    onClearCustomer?.();
+                  }}
+                >
+                  Change
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs text-muted-foreground"
+                  onClick={() => {
+                    setShowCreate(true);
+                    setCreateSuccess(false);
+                  }}
+                >
+                  Add new
+                </Button>
+              </div>
             </div>
           ) : (
             <>
@@ -557,21 +731,21 @@ export function QuickAppointmentForm({
                   </option>
                 ))}
               </Select>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-xs text-muted-foreground"
+                onClick={() => {
+                  setShowCreate(true);
+                  setCreateSuccess(false);
+                }}
+              >
+                <UserRound className="h-3.5 w-3.5" />
+                Add new customer
+              </Button>
             </>
           )}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full transition-colors"
-            onClick={() => {
-              setShowCreate(true);
-              setCreateSuccess(false);
-            }}
-          >
-            <UserRound className="h-3.5 w-3.5" />
-            New customer
-          </Button>
         </div>
       ) : (
         <div className="space-y-2.5 rounded-[var(--radius-md)] border border-dashed border-primary/30 bg-accent/20 p-3 animate-fade-in-up"
@@ -732,7 +906,17 @@ export function QuickAppointmentForm({
         </div>
       )}
 
-      <form ref={formRef} action={formAction} className="space-y-3">
+      {bookingPhase !== "confirmed" ? (
+      <form
+        ref={formRef}
+        action={(fd) => {
+          if (submitGuardRef.current || bookingPhase !== "draft") return;
+          submitGuardRef.current = true;
+          setBookingPhase("confirming");
+          formAction(fd);
+        }}
+        className="space-y-3"
+      >
         <input type="hidden" name="customer_id" value={resolvedCustomerId} />
         <input type="hidden" name="service_id" value={serviceId} />
         <input type="hidden" name="staff_id" value={activeStaffId} />
@@ -877,10 +1061,10 @@ export function QuickAppointmentForm({
         <Button
           type="submit"
           className="w-full transition-transform active:scale-[0.99]"
-          disabled={!canBook}
+          disabled={!canBook || pending}
         >
           {pending
-            ? "Confirming…"
+            ? "Confirming appointment…"
             : walkInMode
               ? "Confirm walk-in"
               : canBook
@@ -888,6 +1072,7 @@ export function QuickAppointmentForm({
                 : "Continue"}
         </Button>
       </form>
+      ) : null}
     </section>
   );
 }

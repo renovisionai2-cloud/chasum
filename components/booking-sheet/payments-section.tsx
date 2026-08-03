@@ -19,7 +19,10 @@ function deriveStatus(input: {
   amountRefundedCents: number;
   paymentStatus?: string | null;
   depositRequired: boolean;
-}): AppointmentPaymentStatus {
+}): AppointmentPaymentStatus | "no_payment_due" {
+  if (input.priceCents <= 0) {
+    return "no_payment_due";
+  }
   if (
     input.paymentStatus &&
     input.paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
@@ -30,7 +33,11 @@ function deriveStatus(input: {
   if (input.amountRefundedCents > 0 && net <= 0) return "refunded";
   if (net >= input.priceCents && input.priceCents > 0) return "fully_paid";
   if (input.depositRequired && net <= 0) return "deposit_required";
-  if (input.depositRequired && net >= input.depositCents && net < input.priceCents) {
+  if (
+    input.depositRequired &&
+    net >= input.depositCents &&
+    net < input.priceCents
+  ) {
     return "deposit_paid";
   }
   if (net > 0 && net < input.priceCents) return "partially_paid";
@@ -63,15 +70,23 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
     depositRequired,
   });
 
+  if (status === "no_payment_due") {
+    return (
+      <section className="space-y-1" aria-labelledby="bs-pay-heading">
+        <h3 id="bs-pay-heading" className="text-sm font-semibold tracking-tight">
+          Balance
+        </h3>
+        <p className="text-sm text-muted-foreground">No payment due.</p>
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-3" aria-labelledby="bs-pay-heading">
       <div>
         <h3 id="bs-pay-heading" className="text-sm font-semibold tracking-tight">
           Balance
         </h3>
-        <p className="text-xs text-muted-foreground">
-          Collect payment without leaving this booking.
-        </p>
       </div>
 
       <div className="rounded-[var(--radius-md)] border border-border/80 bg-muted/15 px-3 py-2.5">
@@ -126,7 +141,7 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
         </Link>
         {appointment?.invoice_number
           ? ` · Invoice #${appointment.invoice_number}`
-          : " · Invoice creates when you collect payment"}
+          : null}
       </p>
     </section>
   );

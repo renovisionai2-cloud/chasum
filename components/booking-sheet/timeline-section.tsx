@@ -5,7 +5,7 @@ import type { getBookingSheetCustomerSnapshot } from "@/lib/actions/booking-shee
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { format } from "date-fns";
-import { Loader2, MessageSquare, Sparkles } from "lucide-react";
+import { Loader2, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 type Snapshot = NonNullable<
@@ -91,23 +91,19 @@ export function TimelineSection({
         ) : null}
 
         <li className="text-muted-foreground">
-          Forms, documents, reschedule/cancellation audit — expand in CRM
           {appointment?.customer_id ? (
             <>
-              {" · "}
+              Full customer history in{" "}
               <Link
                 href={`/dashboard/clients/${appointment.customer_id}`}
                 className="text-primary underline-offset-2 hover:underline"
               >
-                Open CRM
+                CRM
               </Link>
             </>
-          ) : null}
-        </li>
-
-        <li className="flex items-start gap-1.5 text-muted-foreground">
-          <Sparkles className="mt-0.5 size-3.5 shrink-0 text-spark" aria-hidden />
-          Future AI recommendations appear here after real visit history.
+          ) : (
+            "No previous activity for this appointment."
+          )}
         </li>
       </ol>
     </section>

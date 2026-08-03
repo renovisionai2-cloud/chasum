@@ -36,7 +36,10 @@ function mutationToAction(
   successMessage: string,
 ): ActionState {
   if (result.phase === "success") {
-    return { success: successMessage };
+    return {
+      success: successMessage,
+      appointmentId: result.data?.appointmentId,
+    };
   }
   return {
     error:

@@ -65,7 +65,10 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const business = await getOrCreateBusiness();
   const params = await searchParams;
   const view = (params.view as CalendarView) ?? "day";
-  const date = params.date ? new Date(params.date) : new Date();
+  // Parse date-only as local noon — never `new Date("YYYY-MM-DD")` (UTC midnight drift).
+  const date = params.date
+    ? new Date(`${params.date}T12:00:00`)
+    : new Date();
   const range = getRange(view, date);
 
   const [

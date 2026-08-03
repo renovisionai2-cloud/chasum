@@ -299,6 +299,11 @@ export const TIMEZONES = TIMEZONE_OPTIONS.map((o) => o.value);
 
 export function timezoneLabel(iana: string | null | undefined): string {
   if (!iana) return "Timezone";
+  // Canadian Eastern and US Eastern are the same civil time; prefer a
+  // region-neutral label so Toronto businesses never show “New York”.
+  if (iana === "America/Toronto" || iana === "America/New_York") {
+    return "Eastern Time";
+  }
   const hit = TIMEZONE_OPTIONS.find((o) => o.value === iana);
   return hit?.label ?? iana;
 }
