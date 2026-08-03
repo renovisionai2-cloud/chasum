@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import type { NextAvailableSlot } from "@/lib/actions/reception";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
+import type { TaxRate } from "@/lib/business/types";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
   Customer,
@@ -49,6 +50,8 @@ type ReceptionPanelProps = {
   services: Service[];
   staff: StaffWithServices[];
   locations: Location[];
+  taxRates?: TaxRate[];
+  currency?: string | null;
   insights: DashboardInsight[];
   waitlist?: WaitlistEntry[];
   open: boolean;
@@ -77,6 +80,8 @@ export function ReceptionPanel({
   services,
   staff,
   locations,
+  taxRates = [],
+  currency = "usd",
   insights,
   waitlist = [],
   open,
@@ -326,6 +331,8 @@ export function ReceptionPanel({
           services={services}
           staff={staff}
           locations={locations}
+          taxRates={taxRates}
+          currency={currency}
           preselectedCustomerId={selected?.id}
           defaultSlotIso={slotDefaults.start}
           defaultServiceId={slotDefaults.serviceId}

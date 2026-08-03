@@ -533,6 +533,14 @@ export type ActionState = {
   appointmentId?: string;
   /** Delivery outcomes — independent of booking success. */
   notifications?: BookingNotificationStatusItem[];
+  /** Payment recorded (or failed) during booking — independent of appointment success. */
+  payment?: {
+    status: "recorded" | "failed" | "skipped";
+    amountCents?: number;
+    detail?: string | null;
+    transactionId?: string | null;
+    canRetry?: boolean;
+  };
 };
 
 export type PublicBookingSummary = {

@@ -625,6 +625,8 @@ export function CalendarClient({
             services={services}
             staff={staff}
             locations={locations}
+            taxRates={taxRates}
+            currency={currency}
             insights={insights}
             waitlist={waitlist}
             open={panelOpen}

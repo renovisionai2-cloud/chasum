@@ -6,6 +6,10 @@ import {
   cancelAppointment,
 } from "@/lib/actions/appointments";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
+import {
+  APPOINTMENT_PAYMENT_STATUS_LABELS,
+} from "@/lib/commerce/types";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import type {
   AppointmentStatus,
   AppointmentWithRelations,
@@ -98,7 +102,20 @@ export function AppointmentDrawer({
   const start = parseISO(appointment.start_time);
   const end = parseISO(appointment.end_time);
   const deposit = Number(appointment.deposit_cents ?? 0);
-  const priceCents = appointment.price_cents;
+  const priceCents = Number(appointment.price_cents ?? 0);
+  const taxCents = Number(appointment.tax_cents ?? 0);
+  const appointmentTotal = priceCents + taxCents;
+  const amountPaid = Number(appointment.amount_paid_cents ?? 0);
+  const amountRefunded = Number(appointment.amount_refunded_cents ?? 0);
+  const netPaid = Math.max(0, amountPaid - amountRefunded);
+  const remaining = Math.max(0, appointmentTotal - netPaid);
+  const paymentStatus = String(appointment.payment_status ?? "unpaid");
+  const paymentStatusLabel =
+    paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
+      ? APPOINTMENT_PAYMENT_STATUS_LABELS[
+          paymentStatus as keyof typeof APPOINTMENT_PAYMENT_STATUS_LABELS
+        ]
+      : paymentStatus;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="presentation">
@@ -198,16 +215,40 @@ export function AppointmentDrawer({
           </Section>
 
           <Section title="Payments">
-            <p className="text-sm">
-              {priceCents != null && priceCents > 0
-                ? `$${(priceCents / 100).toFixed(2)}`
-                : "No payment due."}
-              {deposit > 0 ? (
-                <span className="ml-2 text-xs text-muted-foreground">
-                  Deposit ${(deposit / 100).toFixed(2)}
-                </span>
-              ) : null}
-            </p>
+            {appointmentTotal > 0 ? (
+              <dl className="space-y-1.5 text-sm">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Status</dt>
+                  <dd className="font-medium">{paymentStatusLabel}</dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Appointment total</dt>
+                  <dd className="tabular-nums">
+                    {formatMoneyCents(appointmentTotal)}
+                  </dd>
+                </div>
+                {deposit > 0 ? (
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-muted-foreground">Deposit required</dt>
+                    <dd className="tabular-nums">
+                      {formatMoneyCents(deposit)}
+                    </dd>
+                  </div>
+                ) : null}
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Paid</dt>
+                  <dd className="tabular-nums">{formatMoneyCents(netPaid)}</dd>
+                </div>
+                <div className="flex justify-between gap-3 font-medium">
+                  <dt>Balance remaining</dt>
+                  <dd className="tabular-nums">
+                    {formatMoneyCents(remaining)}
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <p className="text-sm text-muted-foreground">No payment due.</p>
+            )}
           </Section>
 
           <Section title="Communication">

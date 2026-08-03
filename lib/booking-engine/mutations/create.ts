@@ -63,7 +63,7 @@ export async function createBooking(
   // Stamp commercial fields so deposits / balances / invoices stay in sync.
   const { data: serviceRow } = await supabase
     .from("services")
-    .select("price, deposit_cents, deposit_required")
+    .select("price, deposit_cents, deposit_required, tax_rate_bps")
     .eq("id", intent.serviceId)
     .eq("business_id", intent.businessId)
     .maybeSingle();
@@ -77,10 +77,35 @@ export async function createBooking(
       ? intent.depositCents
       : Number(serviceRow?.deposit_cents ?? 0) ||
         (serviceRow?.deposit_required ? Math.round(priceCents * 0.2) : 0);
-  const taxCents =
+
+  let taxCents =
     intent.taxCents != null && Number.isFinite(intent.taxCents)
       ? Math.max(0, Math.round(intent.taxCents))
-      : 0;
+      : null;
+
+  if (taxCents == null) {
+    const { data: taxRows } = await supabase
+      .from("tax_rates")
+      .select("id, name, rate_bps, inclusive, is_default, is_active")
+      .eq("business_id", intent.businessId)
+      .eq("is_active", true);
+    const { resolveBookingFinancials } = await import(
+      "@/lib/commerce/booking-financials"
+    );
+    const financials = resolveBookingFinancials({
+      subtotalCents: priceCents,
+      serviceTaxRateBps: serviceRow?.tax_rate_bps ?? null,
+      taxRates: (taxRows ?? []) as Parameters<
+        typeof resolveBookingFinancials
+      >[0]["taxRates"],
+      depositRequiredCents: depositCents,
+      depositRequired: serviceRow?.deposit_required,
+    });
+    taxCents = financials.taxCents;
+  }
+
+  const paymentStatus =
+    depositCents > 0 ? "deposit_required" : "unpaid";
 
   const notes =
     intent.packageId && intent.packageName
@@ -113,7 +138,7 @@ export async function createBooking(
       tax_cents: taxCents,
       deposit_cents: depositCents || 0,
       amount_paid_cents: 0,
-      payment_status: priceCents > 0 ? "unpaid" : "unpaid",
+      payment_status: paymentStatus,
     })
     .select("id")
     .single();

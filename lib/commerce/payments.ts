@@ -61,7 +61,7 @@ async function syncAppointmentPayment(
   const { data: appt, error: apptErr } = await supabase
     .from("appointments")
     .select(
-      "id, price_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(price, deposit_cents, deposit_required)",
+      "id, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(price, deposit_cents, deposit_required)",
     )
     .eq("id", appointmentId)
     .eq("business_id", businessId)
@@ -104,6 +104,8 @@ async function syncAppointmentPayment(
   const priceCents =
     Number(appt.price_cents ?? 0) ||
     Math.round(Number(serviceRow?.price ?? 0) * 100);
+  const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
+  const appointmentTotalCents = priceCents + taxCents;
   const depositRequiredCents = Math.max(
     Number(appt.deposit_cents ?? 0),
     Number(serviceRow?.deposit_cents ?? 0),
@@ -113,7 +115,7 @@ async function syncAppointmentPayment(
     Number(appt.amount_paid_cents ?? 0) + Math.max(0, paidDeltaCents);
   const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
   const paymentStatus = deriveAppointmentPaymentStatus({
-    priceCents,
+    priceCents: appointmentTotalCents,
     depositRequiredCents,
     amountPaidCents: amountPaid,
     amountRefundedCents: amountRefunded,
@@ -123,11 +125,12 @@ async function syncAppointmentPayment(
     .from("appointments")
     .update({
       price_cents: priceCents || null,
+      tax_cents: taxCents,
       amount_paid_cents: amountPaid,
       payment_status: paymentStatus,
       deposit_cents: Math.max(
         Number(appt.deposit_cents ?? 0),
-        Math.min(amountPaid, depositRequiredCents || amountPaid),
+        depositRequiredCents,
       ),
     })
     .eq("id", appointmentId);
@@ -698,7 +701,7 @@ export async function getBookingPaymentSummary(
   const { data: appt, error } = await supabase
     .from("appointments")
     .select(
-      "id, price_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, invoice_number, services(price, deposit_cents, deposit_required)",
+      "id, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, invoice_number, services(price, deposit_cents, deposit_required)",
     )
     .eq("id", appointmentId)
     .eq("business_id", businessId)
@@ -724,16 +727,18 @@ export async function getBookingPaymentSummary(
   const priceCents =
     Number(appt.price_cents ?? 0) ||
     Math.round(Number(serviceRow?.price ?? 0) * 100);
+  const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
+  const appointmentTotalCents = priceCents + taxCents;
   const depositRequiredCents = Math.max(
     Number(appt.deposit_cents ?? 0),
     Number(serviceRow?.deposit_cents ?? 0),
   );
-  const amountPaid = Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0);
+  const amountPaid = Number(appt.amount_paid_cents ?? 0);
   const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
   const paymentStatus =
     (appt.payment_status as ReturnType<typeof deriveAppointmentPaymentStatus>) ||
     deriveAppointmentPaymentStatus({
-      priceCents,
+      priceCents: appointmentTotalCents,
       depositRequiredCents,
       amountPaidCents: amountPaid,
       amountRefundedCents: amountRefunded,
@@ -748,11 +753,16 @@ export async function getBookingPaymentSummary(
   return {
     appointmentId,
     paymentStatus,
-    priceCents,
+    priceCents: appointmentTotalCents,
+    subtotalCents: priceCents,
+    taxCents,
     depositRequiredCents,
     amountPaidCents: amountPaid,
     amountRefundedCents: amountRefunded,
-    outstandingBalanceCents: Math.max(0, priceCents - (amountPaid - amountRefunded)),
+    outstandingBalanceCents: Math.max(
+      0,
+      appointmentTotalCents - (amountPaid - amountRefunded),
+    ),
     invoiceNumber: (appt.invoice_number as string) ?? null,
     history,
   };

@@ -52,28 +52,116 @@ function headerIdentity(branding: BrandingContext, color: string): string {
 }
 
 function contactBlock(branding: BrandingContext): string {
+  const businessName = escapeHtml(branding.businessName);
   const lines: string[] = [];
-  if (branding.supportPhone?.trim()) {
+  const email = branding.supportEmail?.trim();
+  const phone = branding.supportPhone?.trim();
+  const website = branding.websiteUrl?.trim();
+
+  if (email) {
     lines.push(
-      `<tr><td style="padding:4px 0;color:#64748b;width:72px;">Phone</td><td style="padding:4px 0;color:#0f172a;">${escapeHtml(branding.supportPhone.trim())}</td></tr>`,
+      `<p style="margin:0 0 10px;"><a href="mailto:${escapeHtml(email)}" style="display:inline-block;background:#0b1324;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-size:14px;font-weight:600;min-height:44px;line-height:20px;">Email ${businessName}</a></p>`,
     );
   }
-  if (branding.supportEmail?.trim()) {
+  if (phone) {
+    const tel = phone.replace(/[^\d+]/g, "");
     lines.push(
-      `<tr><td style="padding:4px 0;color:#64748b;">Email</td><td style="padding:4px 0;color:#0f172a;"><a href="mailto:${escapeHtml(branding.supportEmail.trim())}" style="color:#0f172a;text-decoration:underline;">${escapeHtml(branding.supportEmail.trim())}</a></td></tr>`,
+      `<p style="margin:0 0 8px;font-size:14px;"><a href="tel:${escapeHtml(tel)}" style="color:#0f172a;text-decoration:underline;">Call ${businessName}</a> · ${escapeHtml(phone)}</p>`,
     );
   }
-  if (branding.websiteUrl?.trim()) {
-    const url = branding.websiteUrl.trim();
-    const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  if (website) {
+    const href = /^https?:\/\//i.test(website) ? website : `https://${website}`;
     lines.push(
-      `<tr><td style="padding:4px 0;color:#64748b;">Website</td><td style="padding:4px 0;color:#0f172a;"><a href="${escapeHtml(href)}" style="color:#0f172a;text-decoration:underline;">${escapeHtml(url)}</a></td></tr>`,
+      `<p style="margin:0 0 8px;font-size:14px;"><a href="${escapeHtml(href)}" style="color:#0f172a;text-decoration:underline;">Visit website</a></p>`,
     );
   }
-  if (!lines.length) return "";
+  if (!lines.length && !email) return "";
   return `
-    <p style="margin:28px 0 8px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Contact</p>
-    <table style="width:100%;border-collapse:collapse;font-size:14px;">${lines.join("")}</table>`;
+    <div style="margin:28px 0 0;padding:18px 0 0;border-top:1px solid #e2e8f0;">
+      <p style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Need help with your appointment?</p>
+      <p style="margin:0 0 14px;font-size:15px;color:#0f172a;font-weight:500;">Contact ${businessName}</p>
+      ${lines.join("")}
+    </div>`;
+}
+
+function financialBlock(
+  ctx: AppointmentTemplateContext,
+  audience: "customer" | "business",
+): string {
+  const total =
+    ctx.appointmentTotalCents ??
+    ctx.amountCents ??
+    (ctx.subtotalCents != null
+      ? Number(ctx.subtotalCents) + Number(ctx.taxCents ?? 0)
+      : null);
+  if (total == null) return "";
+
+  const subtotal = ctx.subtotalCents;
+  const tax = ctx.taxCents;
+  const depositRequired = Math.max(0, Number(ctx.depositRequiredCents ?? 0));
+  const depositPaid = Math.max(0, Number(ctx.depositPaidCents ?? 0));
+  const remaining =
+    ctx.remainingBalanceCents != null
+      ? Math.max(0, Number(ctx.remainingBalanceCents))
+      : Math.max(0, total - depositPaid);
+
+  const rows: string[] = [];
+  if (audience === "business" && subtotal != null) {
+    rows.push(detailRow("Subtotal", money(subtotal)));
+    if (tax != null && tax > 0) rows.push(detailRow("Tax", money(tax)));
+  }
+  rows.push(detailRow("Appointment total", `<strong>${money(total)}</strong>`));
+  if (depositRequired > 0) {
+    rows.push(
+      detailRow(
+        audience === "business" ? "Deposit required" : "Deposit required",
+        money(depositRequired),
+      ),
+    );
+  }
+  if (depositPaid > 0) {
+    rows.push(
+      detailRow(
+        audience === "business" ? "Deposit received" : "Deposit paid",
+        money(depositPaid),
+      ),
+    );
+    if (ctx.paymentMethodLabel) {
+      rows.push(detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)));
+    }
+  } else if (depositRequired > 0) {
+    rows.push(
+      detailRow(
+        audience === "business" ? "Deposit status" : "Deposit paid",
+        audience === "business" ? "Not paid" : money(0),
+      ),
+    );
+  }
+  rows.push(
+    detailRow(
+      audience === "business" ? "Balance remaining" : "Balance remaining",
+      `<strong>${money(remaining)}</strong>`,
+    ),
+  );
+  if (audience === "business" && ctx.paymentStatusLabel) {
+    rows.push(detailRow("Payment status", escapeHtml(ctx.paymentStatusLabel)));
+  }
+
+  let message = "";
+  if (audience === "customer") {
+    if (depositPaid <= 0) {
+      message =
+        '<p style="margin:0 0 12px;color:#475569;font-size:14px;">Your appointment is confirmed. No payment was recorded at the time of booking.</p>';
+    } else if (remaining <= 0) {
+      message = `<p style="margin:0 0 12px;color:#475569;font-size:14px;">Your appointment is confirmed and paid in full.</p>`;
+    } else {
+      message = `<p style="margin:0 0 12px;color:#475569;font-size:14px;">Your appointment is confirmed and your ${money(depositPaid)} deposit was received.</p>`;
+    }
+  }
+
+  return `
+    ${message}
+    <table role="presentation" style="width:100%;border-collapse:collapse;margin:8px 0 0;">${rows.join("")}</table>`;
 }
 
 function footerHtml(branding: BrandingContext): string {
@@ -205,16 +293,14 @@ export function renderEmailTemplate(
 
   switch (key) {
     case "appointment.confirmation": {
-      const total =
-        ctx.amountCents != null
-          ? `<p style="margin:20px 0 0;font-size:15px;color:#0f172a;">Appointment total<br/><strong style="font-size:18px;">${money(ctx.amountCents)}</strong></p>`
-          : "";
       const content = `
         <p style="margin:0 0 4px;color:#475569;font-size:14px;">Your appointment is confirmed.</p>
         ${appointmentDetails(ctx)}
-        ${total}
-        <p style="margin:20px 0 0;color:#64748b;font-size:13px;line-height:1.5;">Need to change or cancel? Contact ${escapeHtml(ctx.businessName)} and we’ll help.</p>
+        ${financialBlock(ctx, "customer")}
+        <p style="margin:20px 0 0;color:#64748b;font-size:13px;line-height:1.5;">Need to change or cancel? Contact ${escapeHtml(ctx.businessName)} and we’ll help — or reply to this email.</p>
         ${contactBlock(b)}`;
+      const total =
+        ctx.appointmentTotalCents ?? ctx.amountCents ?? null;
       return {
         key,
         subject: `You're booked — ${ctx.serviceName} on ${monthDay}`,
@@ -230,8 +316,14 @@ export function renderEmailTemplate(
           `Service: ${ctx.serviceName}`,
           `Provider: ${ctx.staffName}`,
           `When: ${whenLabel(ctx.startTime)}`,
-          ctx.amountCents != null
-            ? `Appointment total: ${money(ctx.amountCents)}`
+          total != null ? `Appointment total: ${money(total)}` : "",
+          ctx.depositPaidCents
+            ? `Deposit paid: ${money(ctx.depositPaidCents)}`
+            : ctx.depositRequiredCents
+              ? `Deposit required: ${money(ctx.depositRequiredCents)} (not paid)`
+              : "",
+          ctx.remainingBalanceCents != null
+            ? `Balance remaining: ${money(ctx.remainingBalanceCents)}`
             : "",
           ``,
           b.supportEmail ? `Email: ${b.supportEmail}` : "",
@@ -416,16 +508,9 @@ export function renderEmailTemplate(
     }
     case "appointment.business": {
       const openUrl = `${getAppUrl()}/dashboard/calendar`;
-      const total =
-        ctx.amountCents != null
-          ? detailRow(
-              "Appointment total",
-              `<strong>${money(ctx.amountCents)}</strong>`,
-            )
-          : "";
       const content = `
         ${appointmentDetailsBusiness(ctx)}
-        <table role="presentation" style="width:100%;border-collapse:collapse;">${total}</table>
+        ${financialBlock(ctx, "business")}
         <p style="margin:24px 0 0;">
           <a href="${escapeHtml(openUrl)}"
             style="display:inline-block;background:#0b1324;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;line-height:20px;">
@@ -436,7 +521,7 @@ export function renderEmailTemplate(
         key,
         subject: `New appointment booked — ${ctx.serviceName} on ${monthDay}`,
         html: layout(content, b, { headline: "New appointment booked" }),
-        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}. Open ${openUrl}`,
+        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}. Total ${money(ctx.appointmentTotalCents ?? ctx.amountCents)}. Open ${openUrl}`,
       };
     }
     default: {

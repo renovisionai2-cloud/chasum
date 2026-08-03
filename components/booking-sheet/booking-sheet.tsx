@@ -12,6 +12,12 @@ import { SelectedAppointmentBanner } from "@/components/booking-sheet/selected-a
 import { SummerAssistant } from "@/components/booking-sheet/summer-assistant";
 import { TimelineSection } from "@/components/booking-sheet/timeline-section";
 import { BookingReviewCard } from "@/components/booking/booking-review-card";
+import {
+  BookingPaymentSection,
+  confirmButtonLabel,
+  defaultBookingPaymentDraft,
+  type BookingPaymentDraft,
+} from "@/components/booking/booking-payment-section";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import {
@@ -43,6 +49,7 @@ import {
 import { calendarDateInTimezone } from "@/lib/business/datetime";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
+import { resolveDepositRequiredCents } from "@/lib/commerce/booking-financials";
 import {
   useBookingPreferences,
   writeBookingPreferences,
@@ -313,6 +320,12 @@ export function BookingSheet({
   );
   const [status, setStatus] = useState(preferred.status);
   const [notes, setNotes] = useState(preferred.notes);
+  const [paymentDraft, setPaymentDraft] = useState<BookingPaymentDraft>(
+    defaultBookingPaymentDraft(),
+  );
+  const paymentIdempotencyKey = useRef(
+    `bs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  );
 
   const [availability, setAvailability] =
     useState<BookingSheetAvailability | null>(null);
@@ -673,6 +686,16 @@ function handleStaffChange(id: string) {
     taxRates,
     currency,
   });
+  const depositCentsForSubmit = resolveDepositRequiredCents({
+    depositCents: selectedService?.deposit_cents,
+    depositRequired: selectedService?.deposit_required,
+    subtotalCents: pricingForSubmit.subtotalCents,
+  });
+
+  useEffect(() => {
+    if (isEditing) return;
+    setPaymentDraft(defaultBookingPaymentDraft(depositCentsForSubmit));
+  }, [serviceId, packageId, depositCentsForSubmit, isEditing]);
 
   function scrollToAvailability() {
     document
@@ -843,6 +866,13 @@ function handleStaffChange(id: string) {
             name="tax_cents"
             value={String(pricingForSubmit.taxCents || "")}
           />
+          {!isEditing ? (
+            <input
+              type="hidden"
+              name="payment_idempotency_key"
+              value={paymentIdempotencyKey.current}
+            />
+          ) : null}
 
           <p className="flex-1 text-xs text-muted-foreground">
             {validationMessage}
@@ -862,7 +892,13 @@ function handleStaffChange(id: string) {
                 ? "Confirming…"
                 : isEditing
                   ? "Save changes"
-                  : "Confirm appointment"}
+                  : confirmButtonLabel(
+                      paymentDraft.mode,
+                      paymentDraft.mode === "none"
+                        ? 0
+                        : paymentDraft.amountCents,
+                      currency,
+                    )}
             </Button>
           </div>
         </form>
@@ -1056,7 +1092,26 @@ function handleStaffChange(id: string) {
             subtotalCents={pricingForSubmit.subtotalCents}
             taxCents={pricingForSubmit.taxCents}
             totalCents={pricingForSubmit.totalCents}
+            depositRequiredCents={depositCentsForSubmit}
+            paymentTodayCents={
+              paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents
+            }
             currency={currency}
+          />
+        ) : null}
+
+        {!isEditing && pricingForSubmit.totalCents > 0 ? (
+          <BookingPaymentSection
+            subtotalCents={pricingForSubmit.subtotalCents}
+            taxCents={pricingForSubmit.taxCents}
+            depositCents={selectedService?.deposit_cents}
+            depositRequired={selectedService?.deposit_required}
+            taxRates={taxRates}
+            currency={currency}
+            value={paymentDraft}
+            onChange={setPaymentDraft}
+            defaultExpanded={depositCentsForSubmit > 0}
+            includePricingFields={false}
           />
         ) : null}
 

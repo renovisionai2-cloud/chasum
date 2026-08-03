@@ -78,7 +78,16 @@ export type AppointmentTemplateContext = {
   /** Location display name when available — omit empty section when null. */
   locationName?: string | null;
   notes?: string | null;
+  /** @deprecated Prefer appointmentTotalCents — kept for older callers. */
   amountCents?: number | null;
+  subtotalCents?: number | null;
+  taxCents?: number | null;
+  appointmentTotalCents?: number | null;
+  depositRequiredCents?: number | null;
+  depositPaidCents?: number | null;
+  remainingBalanceCents?: number | null;
+  paymentMethodLabel?: string | null;
+  paymentStatusLabel?: string | null;
   invoiceNumber?: string | null;
   receiptNumber?: string | null;
   previousStartTime?: string | null;

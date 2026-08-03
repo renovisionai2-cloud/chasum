@@ -91,7 +91,8 @@ async function loadAppointmentNotifyContext(
     .select(
       `
       id, business_id, customer_id, start_time, end_time, status, notes,
-      price_cents, tax_cents, deposit_cents,
+      price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents,
+      payment_status,
       business:businesses(
         name, email, notification_email,
         email_notifications_enabled, sms_notifications_enabled,
@@ -144,10 +145,54 @@ async function loadAppointmentNotifyContext(
   if (!business || !customer) return null;
 
   const serviceName = service?.name || "Appointment";
-  const totalCents =
-    data.price_cents != null
-      ? Number(data.price_cents) + Number(data.tax_cents ?? 0)
+  const subtotalCents =
+    data.price_cents != null ? Number(data.price_cents) : null;
+  const taxCents = Math.max(0, Number(data.tax_cents ?? 0));
+  const appointmentTotalCents =
+    subtotalCents != null ? subtotalCents + taxCents : null;
+  const depositRequiredCents = Math.max(0, Number(data.deposit_cents ?? 0));
+  const amountPaidCents = Math.max(0, Number(data.amount_paid_cents ?? 0));
+  const amountRefundedCents = Math.max(
+    0,
+    Number(data.amount_refunded_cents ?? 0),
+  );
+  const netPaid = Math.max(0, amountPaidCents - amountRefundedCents);
+  const remainingBalanceCents =
+    appointmentTotalCents != null
+      ? Math.max(0, appointmentTotalCents - netPaid)
       : null;
+
+  const { PAYMENT_METHOD_LABELS, APPOINTMENT_PAYMENT_STATUS_LABELS } =
+    await import("@/lib/commerce/types");
+  let paymentMethodLabel: string | null = null;
+  try {
+    const { data: txRows } = await supabase
+      .from("commerce_transactions")
+      .select("method, status, amount_cents, created_at")
+      .eq("business_id", data.business_id)
+      .eq("appointment_id", data.id)
+      .eq("status", "succeeded")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    const latest = txRows?.[0];
+    if (latest?.method) {
+      const method = String(latest.method);
+      paymentMethodLabel =
+        method in PAYMENT_METHOD_LABELS
+          ? PAYMENT_METHOD_LABELS[method as keyof typeof PAYMENT_METHOD_LABELS]
+          : method;
+    }
+  } catch {
+    /* optional enrichment */
+  }
+
+  const paymentStatus = String(data.payment_status ?? "unpaid");
+  const paymentStatusLabel =
+    paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
+      ? APPOINTMENT_PAYMENT_STATUS_LABELS[
+          paymentStatus as keyof typeof APPOINTMENT_PAYMENT_STATUS_LABELS
+        ]
+      : paymentStatus;
 
   return {
     appointmentId: data.id,
@@ -164,7 +209,15 @@ async function loadAppointmentNotifyContext(
     endTime: data.end_time,
     locationName: location?.name?.trim() || null,
     notes: data.notes,
-    amountCents: totalCents,
+    amountCents: appointmentTotalCents,
+    subtotalCents,
+    taxCents: subtotalCents != null ? taxCents : null,
+    appointmentTotalCents,
+    depositRequiredCents,
+    depositPaidCents: netPaid,
+    remainingBalanceCents,
+    paymentMethodLabel,
+    paymentStatusLabel,
     businessEmail: business.email?.trim() || null,
     notificationEmail: business.notification_email?.trim() || null,
     emailEnabled: business.email_notifications_enabled !== false,

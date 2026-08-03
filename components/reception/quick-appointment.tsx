@@ -1,6 +1,12 @@
 "use client";
 
 import { BookingNotificationStatus } from "@/components/booking/booking-notification-status";
+import {
+  BookingPaymentSection,
+  confirmButtonLabel,
+  defaultBookingPaymentDraft,
+  type BookingPaymentDraft,
+} from "@/components/booking/booking-payment-section";
 import { BookingSummaryCard } from "@/components/booking/booking-summary-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +20,9 @@ import { previewBookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { quickCreateCustomer } from "@/lib/actions/customers";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { getEligibleStaffForBooking } from "@/lib/actions/staff";
+import type { TaxRate } from "@/lib/business/types";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
+import { resolveDepositRequiredCents } from "@/lib/commerce/booking-financials";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
@@ -53,6 +61,8 @@ type QuickAppointmentProps = {
   services: Service[];
   staff: StaffWithServices[];
   locations: Location[];
+  taxRates?: TaxRate[];
+  currency?: string | null;
   preselectedCustomerId?: string | null;
   defaultSlotIso?: string | null;
   defaultServiceId?: string | null;
@@ -96,6 +106,8 @@ export function QuickAppointmentForm({
   services,
   staff,
   locations,
+  taxRates = [],
+  currency = "usd",
   preselectedCustomerId,
   defaultSlotIso,
   defaultServiceId,
@@ -190,6 +202,12 @@ export function QuickAppointmentForm({
   const [confirmedAppointmentId, setConfirmedAppointmentId] = useState<
     string | null
   >(null);
+  const [paymentDraft, setPaymentDraft] = useState<BookingPaymentDraft>(
+    defaultBookingPaymentDraft(),
+  );
+  const paymentIdempotencyKey = useRef(
+    `qb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  );
   const [confirmedSummary, setConfirmedSummary] = useState<{
     customerName: string;
     serviceName: string;
@@ -211,6 +229,18 @@ export function QuickAppointmentForm({
   const resolvedCustomerId = preselectedCustomerId || customerId;
   const selectedCustomer = customers.find((c) => c.id === resolvedCustomerId);
   const selectedService = activeServices.find((s) => s.id === serviceId);
+  const qaSubtotalCents = selectedService
+    ? Math.round(Number(selectedService.price) * 100)
+    : 0;
+  const qaDepositCents = resolveDepositRequiredCents({
+    depositCents: selectedService?.deposit_cents,
+    depositRequired: selectedService?.deposit_required,
+    subtotalCents: qaSubtotalCents,
+  });
+
+  useEffect(() => {
+    setPaymentDraft(defaultBookingPaymentDraft(qaDepositCents));
+  }, [serviceId, qaDepositCents]);
 
   const [eligibleOverride, setEligibleOverride] = useState<
     StaffWithServices[] | null
@@ -1049,6 +1079,28 @@ export function QuickAppointmentForm({
           emptyHint="Choose a time above to continue."
         />
 
+        {selectedService && qaSubtotalCents > 0 ? (
+          <>
+            <input
+              type="hidden"
+              name="payment_idempotency_key"
+              value={paymentIdempotencyKey.current}
+            />
+            <BookingPaymentSection
+              subtotalCents={qaSubtotalCents}
+              serviceTaxRateBps={selectedService.tax_rate_bps}
+              taxRates={taxRates}
+              depositCents={selectedService.deposit_cents}
+              depositRequired={selectedService.deposit_required}
+              currency={currency}
+              value={paymentDraft}
+              onChange={setPaymentDraft}
+              defaultExpanded={qaDepositCents > 0}
+              compact
+            />
+          </>
+        ) : null}
+
         {needsNamedEmployee && slot && resolvedCustomerId && serviceId ? (
           <p
             className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[12px] text-amber-950 dark:text-amber-100"
@@ -1079,9 +1131,17 @@ export function QuickAppointmentForm({
           {pending
             ? "Confirming appointment…"
             : walkInMode
-              ? "Confirm walk-in"
+              ? confirmButtonLabel(
+                  paymentDraft.mode,
+                  paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+                  currency,
+                ).replace("Confirm appointment", "Confirm walk-in")
               : canBook
-                ? "Confirm appointment"
+                ? confirmButtonLabel(
+                    paymentDraft.mode,
+                    paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+                    currency,
+                  )
                 : "Continue"}
         </Button>
       </form>

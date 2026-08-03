@@ -13,6 +13,8 @@ export type BookingReviewCardProps = {
   subtotalCents: number;
   taxCents?: number | null;
   totalCents: number;
+  depositRequiredCents?: number | null;
+  paymentTodayCents?: number | null;
   currency?: string | null;
   confirmationHint?: string | null;
   className?: string;
@@ -31,11 +33,16 @@ export function BookingReviewCard({
   subtotalCents,
   taxCents = 0,
   totalCents,
+  depositRequiredCents = 0,
+  paymentTodayCents = 0,
   currency = "usd",
   confirmationHint = "Email and SMS when enabled for this business",
   className,
 }: BookingReviewCardProps) {
   const tax = Math.max(0, Math.round(taxCents ?? 0));
+  const deposit = Math.max(0, Math.round(depositRequiredCents ?? 0));
+  const paidToday = Math.max(0, Math.round(paymentTodayCents ?? 0));
+  const remaining = Math.max(0, totalCents - paidToday);
 
   return (
     <section
@@ -88,9 +95,29 @@ export function BookingReviewCard({
             </div>
           ) : null}
           <div className="flex justify-between gap-3 font-semibold">
-            <span>Total</span>
+            <span>Appointment total</span>
             <span className="tabular-nums">
               {formatMoneyCents(totalCents, currency)}
+            </span>
+          </div>
+          {deposit > 0 ? (
+            <div className="flex justify-between gap-3">
+              <span className="text-muted-foreground">Deposit required</span>
+              <span className="tabular-nums">
+                {formatMoneyCents(deposit, currency)}
+              </span>
+            </div>
+          ) : null}
+          <div className="flex justify-between gap-3">
+            <span className="text-muted-foreground">Payment today</span>
+            <span className="tabular-nums">
+              {formatMoneyCents(paidToday, currency)}
+            </span>
+          </div>
+          <div className="flex justify-between gap-3 font-medium">
+            <span>Balance remaining</span>
+            <span className="tabular-nums">
+              {formatMoneyCents(remaining, currency)}
             </span>
           </div>
         </div>

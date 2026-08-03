@@ -368,6 +368,24 @@ export async function createAppointment(
     Number.isFinite(taxCentsRaw) && taxCentsRaw >= 0
       ? Math.round(taxCentsRaw)
       : undefined;
+  const depositCentsRaw = Number(formData.get("deposit_cents"));
+  const depositCents =
+    Number.isFinite(depositCentsRaw) && depositCentsRaw >= 0
+      ? Math.round(depositCentsRaw)
+      : undefined;
+
+  const paymentMode = String(formData.get("payment_mode") ?? "none").trim();
+  const paymentAmountRaw = Number(formData.get("payment_amount_cents"));
+  const paymentAmountCents =
+    Number.isFinite(paymentAmountRaw) && paymentAmountRaw > 0
+      ? Math.round(paymentAmountRaw)
+      : 0;
+  const paymentMethodRaw = String(formData.get("payment_method") ?? "cash");
+  const paymentNote = String(formData.get("payment_note") ?? "").trim() || null;
+  const paymentSendReceipt =
+    String(formData.get("payment_send_receipt") ?? "") === "1";
+  const paymentIdempotencyKey =
+    String(formData.get("payment_idempotency_key") ?? "").trim() || null;
 
   if (!serviceId || !customerId) {
     return { error: "Customer and service are required." };
@@ -403,19 +421,126 @@ export async function createAppointment(
         : undefined,
     priceCents,
     taxCents,
+    depositCents,
     packageId: packageId ?? undefined,
     packageName: packageName ?? undefined,
   });
 
   const action = mutationToAction(result, "Booked — you're all set.");
   if (result.phase === "success" && result.data?.appointmentId) {
+    const appointmentId = result.data.appointmentId;
+    action.appointmentId = appointmentId;
+
+    // Record optional payment after appointment succeeds (never duplicate appointment).
+    if (paymentMode !== "none" && paymentAmountCents > 0) {
+      try {
+        const { recordCommercePayment, listTransactions, parsePaymentMethod } =
+          await import("@/lib/commerce");
+        const { paymentKindForAmount } = await import(
+          "@/lib/commerce/booking-financials"
+        );
+        const existing = await listTransactions({
+          businessId: business.id,
+          appointmentId,
+          limit: 20,
+        });
+        const alreadyRecorded = existing.some(
+          (tx) =>
+            tx.status === "succeeded" &&
+            tx.amountCents === paymentAmountCents &&
+            (paymentIdempotencyKey
+              ? tx.description?.includes(paymentIdempotencyKey)
+              : true),
+        );
+        if (alreadyRecorded) {
+          action.payment = {
+            status: "recorded",
+            amountCents: paymentAmountCents,
+            detail: "Payment already recorded.",
+            transactionId: existing[0]?.id ?? null,
+          };
+        } else {
+          const kind = paymentKindForAmount(
+            paymentAmountCents,
+            depositCents ?? 0,
+            (priceCents ?? 0) + (taxCents ?? 0),
+          );
+          const method = parsePaymentMethod(paymentMethodRaw);
+          const payResult = await recordCommercePayment({
+            businessId: business.id,
+            customerId,
+            appointmentId,
+            amountCents: paymentAmountCents,
+            method,
+            kind,
+            description: [
+              paymentNote,
+              paymentIdempotencyKey
+                ? `booking:${paymentIdempotencyKey}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || null,
+            ensureInvoice: true,
+            forceManual: true,
+          });
+          if (payResult.ok) {
+            action.payment = {
+              status: "recorded",
+              amountCents: paymentAmountCents,
+              transactionId: payResult.transaction?.id ?? null,
+              detail: `Recorded ${kind === "deposit" ? "deposit" : "payment"}.`,
+            };
+            if (paymentSendReceipt && payResult.transaction?.id) {
+              try {
+                const { createReceiptForTransaction, queueReceiptEmail } =
+                  await import("@/lib/commerce");
+                const receipt = await createReceiptForTransaction({
+                  businessId: business.id,
+                  transactionId: payResult.transaction.id,
+                  actorId: null,
+                });
+                if (receipt?.id) {
+                  await queueReceiptEmail(business.id, receipt.id);
+                }
+              } catch (receiptErr) {
+                console.error("[booking] receipt after payment failed", receiptErr);
+              }
+            }
+          } else {
+            action.payment = {
+              status: "failed",
+              amountCents: paymentAmountCents,
+              detail: payResult.error ?? "Payment was not recorded.",
+              canRetry: true,
+            };
+            action.success =
+              "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
+          }
+        }
+      } catch (payErr) {
+        console.error("[booking] payment after create failed", payErr);
+        action.payment = {
+          status: "failed",
+          amountCents: paymentAmountCents,
+          detail:
+            payErr instanceof Error
+              ? payErr.message
+              : "Payment was not recorded.",
+          canRetry: true,
+        };
+        action.success =
+          "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
+      }
+    } else {
+      action.payment = { status: "skipped" };
+    }
+
     try {
       const { deliverBookingNotifications } = await import(
         "@/lib/notifications/booking-delivery"
       );
-      const report = await deliverBookingNotifications(
-        result.data.appointmentId,
-      );
+      const report = await deliverBookingNotifications(appointmentId);
       action.notifications = report.items;
     } catch (err) {
       // Booking stays confirmed — notification failure is partial success.

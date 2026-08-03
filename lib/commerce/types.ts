@@ -142,7 +142,10 @@ export type CommerceRefund = {
 export type BookingPaymentSummary = {
   appointmentId: string;
   paymentStatus: AppointmentPaymentStatus;
+  /** Tax-inclusive appointment total (for balance / status). */
   priceCents: number;
+  subtotalCents?: number;
+  taxCents?: number;
   depositRequiredCents: number;
   amountPaidCents: number;
   amountRefundedCents: number;
