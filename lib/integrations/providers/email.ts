@@ -1,8 +1,11 @@
 import {
-  getEmailFromAddress,
   getResendApiKey,
   isProductionRuntime,
 } from "@/lib/env";
+import {
+  resolveEmailFromAddress,
+  validateEmailFromAddress,
+} from "@/lib/communications/email-from";
 import type { EmailProvider, EmailPayload, EmailResult } from "./types";
 
 class ResendEmailProvider implements EmailProvider {
@@ -18,6 +21,12 @@ class ResendEmailProvider implements EmailProvider {
       };
     }
 
+    const resolved = resolveEmailFromAddress();
+    const configError = validateEmailFromAddress(resolved.from);
+    if (configError) {
+      return { success: false, error: configError };
+    }
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -25,7 +34,7 @@ class ResendEmailProvider implements EmailProvider {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: getEmailFromAddress(),
+        from: resolved.from,
         to: [payload.to],
         subject: payload.subject,
         html: payload.html,
@@ -48,12 +57,11 @@ class ResendEmailProvider implements EmailProvider {
       name?: string;
     };
     if (!res.ok) {
-      const from = getEmailFromAddress();
       let detail = data.message ?? data.name ?? "Failed to send email.";
-      if (/smtp|icloud|550|553|554|blocked|not verified|domain|rejected/i.test(detail)) {
-        detail = `${detail} Chasum attempted delivery via Resend; the mail provider rejected it. Verify the From address (${from}) domain in Resend and that the recipient inbox can accept mail.`;
+      if (/smtp|icloud|550|553|554|blocked|not verified|domain|rejected|not authorized/i.test(detail)) {
+        detail = `${detail} Chasum attempted delivery via Resend; the mail provider rejected it. Verify the From address (${resolved.from}) domain in Resend and that the recipient inbox can accept mail.`;
       } else {
-        detail = `${detail} (from ${from}). Confirm the sender domain is verified for email delivery.`;
+        detail = `${detail} (from ${resolved.from}). Confirm the sender domain is verified for email delivery.`;
       }
       return {
         success: false,
@@ -68,8 +76,10 @@ class ConsoleEmailProvider implements EmailProvider {
   readonly name = "console";
 
   async send(payload: EmailPayload): Promise<EmailResult> {
+    const resolved = resolveEmailFromAddress();
     console.info(
       "[email]",
+      `from=${resolved.from}`,
       payload.to,
       payload.subject,
       payload.attachments?.length

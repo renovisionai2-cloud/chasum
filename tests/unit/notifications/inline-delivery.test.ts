@@ -11,7 +11,7 @@ vi.mock("@/lib/supabase/service", () => ({
 
 vi.mock("@/lib/env", () => ({
   getResendApiKey: vi.fn(() => "re_test"),
-  getEmailFromAddress: vi.fn(() => "Chasum <notifications@chasum.app>"),
+  getEmailFromAddress: vi.fn(() => "Chasum <notifications@chasumai.com>"),
   getTwilioConfig: vi.fn(() => null),
 }));
 

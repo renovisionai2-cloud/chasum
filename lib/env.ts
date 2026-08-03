@@ -3,6 +3,9 @@
  * Prefers NEXT_PUBLIC_APP_URL, then Vercel host, then localhost.
  * Always absolute (with protocol) and without a trailing slash.
  */
+
+import { resolveEmailFromAddress } from "@/lib/communications/email-from";
+
 export function getAppUrl(): string {
   const raw =
     firstNonEmpty(
@@ -191,8 +194,12 @@ export function getResendApiKey(): string | null {
   return process.env.RESEND_API_KEY ?? null;
 }
 
+/**
+ * Outbound From address for Resend.
+ * Always resolves to a verified chasumai.com sender — never chasum.app.
+ */
 export function getEmailFromAddress(): string {
-  return process.env.EMAIL_FROM ?? "Chasum <notifications@chasum.app>";
+  return resolveEmailFromAddress(process.env).from;
 }
 
 export function getTwilioConfig() {
