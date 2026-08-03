@@ -44,6 +44,23 @@ export function planIncludesSms(
   return normalized !== "starter" && normalized !== "free";
 }
 
+/**
+ * Professional+ (and Private Alpha via effectivePlanKey) may remove
+ * “Powered by Chasum” from customer-facing emails.
+ * Alpha status alone does not force Chasum branding — it elevates to Professional.
+ */
+export function planAllowsRemoveBranding(
+  business: PlanGateBusiness | null | undefined,
+): boolean {
+  const key = effectivePlanKeyForFeatures(business);
+  return (
+    key === "professional" ||
+    key === "business" ||
+    key === "enterprise" ||
+    key === "pro"
+  );
+}
+
 export const SMS_PLAN_UPGRADE_MESSAGE =
   "SMS is not included on the Free plan. Upgrade to Professional to text customers from Chasum — your plan includes email only.";
 

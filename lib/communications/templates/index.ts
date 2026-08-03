@@ -1,5 +1,5 @@
 import { getAppUrl } from "@/lib/env";
-import { BRAND_ASSETS, BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand/assets";
+import { BRAND_NAME } from "@/lib/brand/assets";
 import type {
   AppointmentTemplateContext,
   BrandingContext,
@@ -12,44 +12,121 @@ function money(cents: number | null | undefined): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function brand(ctx: AppointmentTemplateContext): BrandingContext {
   return (
     ctx.branding ?? {
       businessName: ctx.businessName,
-      logoUrl: `${getAppUrl()}${BRAND_ASSETS.logoHorizontal}`,
+      logoUrl: null,
       optOutFooter: null,
+      showChasumBranding: true,
+      chasumBrandingStyle: "powered_by",
     }
   );
+}
+
+function safeColor(raw: string | null | undefined, fallback: string): string {
+  const value = (raw ?? "").trim();
+  if (/^#[0-9A-Fa-f]{3,8}$/.test(value)) return value;
+  if (/^[a-zA-Z]+$/.test(value)) return value;
+  return fallback;
+}
+
+function headerIdentity(branding: BrandingContext, color: string): string {
+  const name = escapeHtml(branding.businessName);
+  const logo = branding.logoUrl?.trim();
+  if (logo) {
+    return `
+      <img src="${escapeHtml(logo)}" alt="${name}" width="200"
+        style="display:block;border:0;outline:none;text-decoration:none;max-width:200px;width:auto;height:auto;max-height:72px;" />
+      <p style="margin:14px 0 0;font-size:18px;font-weight:600;color:${color};font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;">${name}</p>`;
+  }
+  return `<p style="margin:0;font-size:24px;font-weight:700;letter-spacing:-0.02em;color:${color};font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;">${name}</p>`;
+}
+
+function contactBlock(branding: BrandingContext): string {
+  const lines: string[] = [];
+  if (branding.supportPhone?.trim()) {
+    lines.push(
+      `<tr><td style="padding:4px 0;color:#64748b;width:72px;">Phone</td><td style="padding:4px 0;color:#0f172a;">${escapeHtml(branding.supportPhone.trim())}</td></tr>`,
+    );
+  }
+  if (branding.supportEmail?.trim()) {
+    lines.push(
+      `<tr><td style="padding:4px 0;color:#64748b;">Email</td><td style="padding:4px 0;color:#0f172a;"><a href="mailto:${escapeHtml(branding.supportEmail.trim())}" style="color:#0f172a;text-decoration:underline;">${escapeHtml(branding.supportEmail.trim())}</a></td></tr>`,
+    );
+  }
+  if (branding.websiteUrl?.trim()) {
+    const url = branding.websiteUrl.trim();
+    const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+    lines.push(
+      `<tr><td style="padding:4px 0;color:#64748b;">Website</td><td style="padding:4px 0;color:#0f172a;"><a href="${escapeHtml(href)}" style="color:#0f172a;text-decoration:underline;">${escapeHtml(url)}</a></td></tr>`,
+    );
+  }
+  if (!lines.length) return "";
+  return `
+    <p style="margin:28px 0 8px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Contact</p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">${lines.join("")}</table>`;
+}
+
+function footerHtml(branding: BrandingContext): string {
+  const custom = branding.optOutFooter?.trim();
+  if (branding.showChasumBranding === false) {
+    return custom
+      ? escapeHtml(custom)
+      : escapeHtml(branding.businessName);
+  }
+  if (branding.chasumBrandingStyle === "product_context") {
+    return escapeHtml(custom || `Sent via ${BRAND_NAME}`);
+  }
+  // Free plan / default: secondary Powered by — never the old platform tagline.
+  if (custom && !/sent by chasum/i.test(custom)) {
+    return `${escapeHtml(custom)}<br/><span style="color:#94a3b8;">Powered by ${escapeHtml(BRAND_NAME)}</span>`;
+  }
+  return `Powered by ${escapeHtml(BRAND_NAME)}`;
 }
 
 function layout(
   content: string,
   branding: BrandingContext,
-  accent?: string | null,
+  options?: { headline?: string; accent?: string | null },
 ): string {
-  const logo =
-    branding.logoUrl || `${getAppUrl()}${BRAND_ASSETS.logoHorizontal}`;
-  const color = accent || branding.primaryColor || "#0b1324";
-  const footer =
-    branding.optOutFooter?.trim() ||
-    `Sent by ${BRAND_NAME} · ${BRAND_TAGLINE}`;
+  const color = safeColor(
+    options?.accent || branding.primaryColor,
+    "#0b1324",
+  );
+  const headline = options?.headline
+    ? `<h1 style="margin:20px 0 0;font-size:22px;font-weight:600;color:#0f172a;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;">${escapeHtml(options.headline)}</h1>`
+    : "";
 
   return `<!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:Georgia,'Times New Roman',serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 16px;">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>${escapeHtml(branding.businessName)}</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:32px 12px;">
     <tr><td align="center">
-      <table width="100%" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
-        <tr><td style="padding:28px 32px 12px;border-top:4px solid ${color};">
-          <img src="${logo}" width="168" height="36" alt="${branding.businessName}" style="display:block;border:0;height:36px;width:auto;max-width:168px;" />
-          <h1 style="margin:18px 0 0;font-size:22px;font-weight:600;color:${color};font-family:system-ui,-apple-system,sans-serif;">${branding.businessName}</h1>
+      <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
+        <tr><td style="padding:28px 28px 12px;border-top:4px solid ${color};">
+          ${headerIdentity(branding, color)}
+          ${headline}
         </td></tr>
-        <tr><td style="padding:8px 32px 32px;color:#334155;font-size:15px;line-height:1.6;font-family:system-ui,-apple-system,sans-serif;">
+        <tr><td style="padding:8px 28px 28px;color:#334155;font-size:15px;line-height:1.55;">
           ${content}
         </td></tr>
-        <tr><td style="padding:16px 32px;background:#fafafa;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;font-family:system-ui,-apple-system,sans-serif;">
-          ${footer}
+        <tr><td style="padding:14px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;line-height:1.5;color:#64748b;">
+          ${footerHtml(branding)}
         </td></tr>
       </table>
     </td></tr>
@@ -62,14 +139,61 @@ function whenLabel(iso: string): string {
   return format(parseISO(iso), "EEEE, MMMM d 'at' h:mm a");
 }
 
+function dateTimeBlock(ctx: AppointmentTemplateContext): string {
+  const start = parseISO(ctx.startTime);
+  const dateLine = format(start, "EEEE, MMMM d, yyyy");
+  let timeLine = format(start, "h:mm a");
+  if (ctx.endTime) {
+    try {
+      timeLine = `${format(start, "h:mm a")}–${format(parseISO(ctx.endTime), "h:mm a")}`;
+    } catch {
+      /* keep start-only */
+    }
+  }
+  return `${escapeHtml(dateLine)}<br/>${escapeHtml(timeLine)}`;
+}
+
+function detailRow(label: string, valueHtml: string): string {
+  if (!valueHtml?.trim()) return "";
+  return `<tr>
+    <td style="padding:10px 0;color:#64748b;width:120px;vertical-align:top;font-size:14px;">${escapeHtml(label)}</td>
+    <td style="padding:10px 0;font-weight:500;color:#0f172a;font-size:15px;">${valueHtml}</td>
+  </tr>`;
+}
+
 function appointmentDetails(ctx: AppointmentTemplateContext): string {
+  const location =
+    (ctx as AppointmentTemplateContext & { locationName?: string | null })
+      .locationName?.trim() || null;
+  const rows = [
+    detailRow("Service", escapeHtml(ctx.serviceName)),
+    detailRow("Provider", escapeHtml(ctx.staffName)),
+    detailRow("Date and time", dateTimeBlock(ctx)),
+    location ? detailRow("Location", escapeHtml(location)) : "",
+  ]
+    .filter(Boolean)
+    .join("");
+
   return `
-    <p style="margin:0 0 16px;">Hi ${ctx.customerName},</p>
-    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-      <tr><td style="padding:8px 0;color:#64748b;width:110px;">Service</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.serviceName}</td></tr>
-      <tr><td style="padding:8px 0;color:#64748b;">Provider</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.staffName}</td></tr>
-      <tr><td style="padding:8px 0;color:#64748b;">When</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${whenLabel(ctx.startTime)}</td></tr>
-    </table>`;
+    <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
+    <table role="presentation" style="width:100%;border-collapse:collapse;margin:8px 0;">${rows}</table>`;
+}
+
+function appointmentDetailsBusiness(ctx: AppointmentTemplateContext): string {
+  const location =
+    (ctx as AppointmentTemplateContext & { locationName?: string | null })
+      .locationName?.trim() || null;
+  const rows = [
+    detailRow("Customer", escapeHtml(ctx.customerName)),
+    detailRow("Service", escapeHtml(ctx.serviceName)),
+    detailRow("Employee", escapeHtml(ctx.staffName)),
+    detailRow("Date and time", dateTimeBlock(ctx)),
+    location ? detailRow("Location", escapeHtml(location)) : "",
+    detailRow("Booking source", "Reception"),
+  ]
+    .filter(Boolean)
+    .join("");
+  return `<table role="presentation" style="width:100%;border-collapse:collapse;margin:8px 0;">${rows}</table>`;
 }
 
 export function renderEmailTemplate(
@@ -77,63 +201,90 @@ export function renderEmailTemplate(
   ctx: AppointmentTemplateContext,
 ): RenderedTemplate {
   const b = brand(ctx);
+  const monthDay = format(parseISO(ctx.startTime), "MMM d");
 
   switch (key) {
     case "appointment.confirmation": {
-      const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">You're all set — we look forward to seeing you.</p>
-        ${
-          ctx.amountCents != null
-            ? `<p style="margin:16px 0 0;color:#475569;font-size:14px;">Appointment total: <strong>${money(ctx.amountCents)}</strong></p>`
-            : ""
-        }
-        <p style="margin:20px 0 0;color:#64748b;font-size:13px;">Need to change or cancel? Contact ${ctx.businessName} and we'll help.</p>`;
+      const total =
+        ctx.amountCents != null
+          ? `<p style="margin:20px 0 0;font-size:15px;color:#0f172a;">Appointment total<br/><strong style="font-size:18px;">${money(ctx.amountCents)}</strong></p>`
+          : "";
+      const content = `
+        <p style="margin:0 0 4px;color:#475569;font-size:14px;">Your appointment is confirmed.</p>
+        ${appointmentDetails(ctx)}
+        ${total}
+        <p style="margin:20px 0 0;color:#64748b;font-size:13px;line-height:1.5;">Need to change or cancel? Contact ${escapeHtml(ctx.businessName)} and we’ll help.</p>
+        ${contactBlock(b)}`;
       return {
         key,
-        subject: `You're booked — ${ctx.serviceName} on ${format(parseISO(ctx.startTime), "MMM d")}`,
-        html: layout(content, b),
-        text: `You're booked for ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}.`,
+        subject: `You're booked — ${ctx.serviceName} on ${monthDay}`,
+        html: layout(content, b, { headline: "Appointment confirmed" }),
+        text: [
+          `${ctx.businessName}`,
+          ``,
+          `Appointment confirmed`,
+          ``,
+          `Hi ${ctx.customerName},`,
+          `Your appointment is confirmed.`,
+          ``,
+          `Service: ${ctx.serviceName}`,
+          `Provider: ${ctx.staffName}`,
+          `When: ${whenLabel(ctx.startTime)}`,
+          ctx.amountCents != null
+            ? `Appointment total: ${money(ctx.amountCents)}`
+            : "",
+          ``,
+          b.supportEmail ? `Email: ${b.supportEmail}` : "",
+          b.supportPhone ? `Phone: ${b.supportPhone}` : "",
+          b.showChasumBranding !== false ? `Powered by ${BRAND_NAME}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
       };
     }
     case "appointment.reminder": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">Just a friendly reminder — we can't wait to see you.</p>`;
+        <p style="margin:16px 0 0;">Just a friendly reminder — we can’t wait to see you.</p>
+        ${contactBlock(b)}`;
       return {
         key,
-        subject: `Reminder: ${ctx.serviceName} coming up`,
-        html: layout(content, b),
+        subject: `Reminder: ${ctx.serviceName} with ${ctx.businessName}`,
+        html: layout(content, b, { headline: "Appointment reminder" }),
         text: `Reminder: ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}.`,
       };
     }
     case "appointment.reschedule": {
       const prev = ctx.previousStartTime
-        ? `<p style="margin:8px 0 0;color:#64748b;font-size:14px;">Previously: ${whenLabel(ctx.previousStartTime)}</p>`
+        ? `<p style="margin:8px 0 0;color:#64748b;font-size:14px;">Previously: ${escapeHtml(whenLabel(ctx.previousStartTime))}</p>`
         : "";
       const content = `${appointmentDetails(ctx)}${prev}
-        <p style="margin:16px 0 0;">Your appointment has a new time. See you then.</p>`;
+        <p style="margin:16px 0 0;">Your appointment has a new time. See you then.</p>
+        ${contactBlock(b)}`;
       return {
         key,
-        subject: `Updated time — ${ctx.serviceName}`,
-        html: layout(content, b),
+        subject: `Updated time — ${ctx.serviceName} · ${ctx.businessName}`,
+        html: layout(content, b, { headline: "Appointment updated" }),
         text: `Your ${ctx.serviceName} appointment is now ${whenLabel(ctx.startTime)}.`,
       };
     }
     case "appointment.cancellation": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">This appointment has been cancelled. Reply anytime if you'd like to rebook — we'd love to have you back.</p>`;
+        <p style="margin:16px 0 0;">This appointment has been cancelled. Reply anytime if you’d like to rebook — we’d love to have you back.</p>
+        ${contactBlock(b)}`;
       return {
         key,
-        subject: `Cancelled — ${ctx.serviceName} on ${format(parseISO(ctx.startTime), "MMM d")}`,
-        html: layout(content, b),
+        subject: `Cancelled — ${ctx.serviceName} on ${monthDay}`,
+        html: layout(content, b, { headline: "Appointment cancelled" }),
         text: `Your ${ctx.serviceName} on ${whenLabel(ctx.startTime)} has been cancelled.`,
       };
     }
     case "commerce.invoice": {
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.customerName},</p>
-        <p>Your invoice ${ctx.invoiceNumber ?? ""} from <strong>${ctx.businessName}</strong> is ready.</p>
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
+        <p>Your invoice ${escapeHtml(ctx.invoiceNumber ?? "")} from <strong>${escapeHtml(ctx.businessName)}</strong> is ready.</p>
         <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>
-        <p style="margin:0;color:#475569;font-size:14px;">Questions? Reply to this email or contact the studio directly.</p>`;
+        <p style="margin:0;color:#475569;font-size:14px;">Questions? Reply to this email or contact the studio directly.</p>
+        ${contactBlock(b)}`;
       return {
         key,
         subject: `Invoice ${ctx.invoiceNumber ?? ""} from ${ctx.businessName}`,
@@ -143,10 +294,11 @@ export function renderEmailTemplate(
     }
     case "commerce.receipt": {
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.customerName},</p>
-        <p>Thank you — payment received. Here's your receipt ${ctx.receiptNumber ?? ""}.</p>
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
+        <p>Thank you — payment received. Here’s your receipt ${escapeHtml(ctx.receiptNumber ?? "")}.</p>
         <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>
-        <p style="margin:0;color:#475569;font-size:14px;">We appreciate your business.</p>`;
+        <p style="margin:0;color:#475569;font-size:14px;">We appreciate your business.</p>
+        ${contactBlock(b)}`;
       return {
         key,
         subject: `Your receipt from ${ctx.businessName}`,
@@ -157,16 +309,17 @@ export function renderEmailTemplate(
     case "commerce.gift_certificate": {
       const code = ctx.invoiceNumber ?? "GIFT";
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.customerName || "there"},</p>
-        <p style="margin:0 0 12px;">${ctx.staffName && ctx.staffName !== "Team" ? `<strong>${ctx.staffName}</strong> sent you` : "You've received"} a gift certificate from <strong>${ctx.businessName}</strong>.</p>
-        <p style="font-size:28px;font-weight:700;letter-spacing:0.08em;margin:24px 0 8px;font-family:ui-monospace,monospace;color:#0f172a;">${code}</p>
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName || "there")},</p>
+        <p style="margin:0 0 12px;">${ctx.staffName && ctx.staffName !== "Team" ? `<strong>${escapeHtml(ctx.staffName)}</strong> sent you` : "You’ve received"} a gift certificate from <strong>${escapeHtml(ctx.businessName)}</strong>.</p>
+        <p style="font-size:28px;font-weight:700;letter-spacing:0.08em;margin:24px 0 8px;font-family:ui-monospace,monospace;color:#0f172a;">${escapeHtml(code)}</p>
         <p style="font-size:18px;font-weight:600;margin:0 0 16px;">Value ${money(ctx.amountCents)}</p>
         <p style="margin:0 0 8px;color:#475569;font-size:14px;">Save this email — present the code when you redeem in-store or online.</p>
         ${
           ctx.customMessage
-            ? `<div style="white-space:pre-wrap;font-size:14px;line-height:1.5;background:#f8fafc;padding:16px;border-radius:10px;border:1px solid #e2e8f0;margin:16px 0 0;color:#334155;">${ctx.customMessage}</div>`
+            ? `<div style="white-space:pre-wrap;font-size:14px;line-height:1.5;background:#f8fafc;padding:16px;border-radius:10px;border:1px solid #e2e8f0;margin:16px 0 0;color:#334155;">${escapeHtml(ctx.customMessage)}</div>`
             : ""
-        }`;
+        }
+        ${contactBlock(b)}`;
       return {
         key,
         subject: `A gift for you from ${ctx.businessName}`,
@@ -178,18 +331,20 @@ export function renderEmailTemplate(
     }
     case "commerce.deposit_request": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">A deposit of <strong>${money(ctx.amountCents)}</strong> holds your appointment. Pay at your convenience — we'll confirm once it's received.</p>`;
+        <p style="margin:16px 0 0;">A deposit of <strong>${money(ctx.amountCents)}</strong> holds your appointment. Pay at your convenience — we’ll confirm once it’s received.</p>
+        ${contactBlock(b)}`;
       return {
         key,
         subject: `Deposit to hold your ${ctx.serviceName}`,
-        html: layout(content, b),
+        html: layout(content, b, { headline: "Deposit requested" }),
         text: `Deposit of ${money(ctx.amountCents)} requested for ${ctx.serviceName} on ${whenLabel(ctx.startTime)}.`,
       };
     }
     case "auth.welcome": {
       const content = `
-        <p style="margin:0 0 16px;">Welcome to ${ctx.businessName}!</p>
-        <p>Your account is ready. Book online anytime and manage your visits from one place.</p>`;
+        <p style="margin:0 0 16px;">Welcome to ${escapeHtml(ctx.businessName)}!</p>
+        <p>Your account is ready. Book online anytime and manage your visits from one place.</p>
+        ${contactBlock(b)}`;
       return {
         key,
         subject: `Welcome to ${ctx.businessName}`,
@@ -199,8 +354,8 @@ export function renderEmailTemplate(
     }
     case "auth.password_reset": {
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.customerName || "there"},</p>
-        <p>A password reset was requested for your ${ctx.businessName} account. Use your secure reset link from the app to continue.</p>
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName || "there")},</p>
+        <p>A password reset was requested for your ${escapeHtml(ctx.businessName)} account. Use your secure reset link from the app to continue.</p>
         <p style="color:#64748b;font-size:13px;">If you did not request this, you can ignore this email.</p>`;
       return {
         key,
@@ -211,33 +366,34 @@ export function renderEmailTemplate(
     }
     case "staff.invitation": {
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.customerName || "there"},</p>
-        <p>You've been invited to join ${ctx.businessName} as a team member on ${BRAND_NAME}.</p>
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName || "there")},</p>
+        <p>You’ve been invited to join ${escapeHtml(ctx.businessName)} as a team member on ${escapeHtml(BRAND_NAME)}.</p>
         <p>Open your invitation from the dashboard to accept.</p>`;
       return {
         key,
-        subject: `You're invited to ${ctx.businessName}`,
+        subject: `You’re invited to ${ctx.businessName}`,
         html: layout(content, b),
-        text: `You've been invited to join ${ctx.businessName} on ${BRAND_NAME}.`,
+        text: `You’ve been invited to join ${ctx.businessName} on ${BRAND_NAME}.`,
       };
     }
     case "business.invitation": {
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.customerName || "there"},</p>
-        <p>You've been invited to manage ${ctx.businessName} on ${BRAND_NAME}.</p>`;
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName || "there")},</p>
+        <p>You’ve been invited to manage ${escapeHtml(ctx.businessName)} on ${escapeHtml(BRAND_NAME)}.</p>`;
       return {
         key,
         subject: `Business invitation — ${ctx.businessName}`,
         html: layout(content, b),
-        text: `You've been invited to manage ${ctx.businessName} on ${BRAND_NAME}.`,
+        text: `You’ve been invited to manage ${ctx.businessName} on ${BRAND_NAME}.`,
       };
     }
     case "marketing.campaign": {
       const body = ctx.customMessage || "We have something special for you.";
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.customerName},</p>
-        <p>${body}</p>
-        <p style="margin-top:24px;font-size:12px;color:#64748b;">You received this because you opted in to marketing from ${ctx.businessName}.</p>`;
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
+        <p>${escapeHtml(body)}</p>
+        <p style="margin-top:24px;font-size:12px;color:#64748b;">You received this because you opted in to marketing from ${escapeHtml(ctx.businessName)}.</p>
+        ${contactBlock(b)}`;
       return {
         key,
         subject: ctx.notes || `News from ${ctx.businessName}`,
@@ -248,8 +404,8 @@ export function renderEmailTemplate(
     case "appointment.staff": {
       const action = ctx.customMessage || "updated";
       const content = `
-        <p style="margin:0 0 16px;">Hi ${ctx.staffName},</p>
-        <p>Appointment ${action}:</p>
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.staffName)},</p>
+        <p>Appointment ${escapeHtml(action)}:</p>
         ${appointmentDetails(ctx)}`;
       return {
         key,
@@ -259,20 +415,28 @@ export function renderEmailTemplate(
       };
     }
     case "appointment.business": {
+      const openUrl = `${getAppUrl()}/dashboard/calendar`;
+      const total =
+        ctx.amountCents != null
+          ? detailRow(
+              "Appointment total",
+              `<strong>${money(ctx.amountCents)}</strong>`,
+            )
+          : "";
       const content = `
-        <p style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">New appointment booked</p>
-        <table style="width:100%;border-collapse:collapse;margin:8px 0 16px;">
-          <tr><td style="padding:8px 0;color:#64748b;width:110px;">Customer</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.customerName}</td></tr>
-          <tr><td style="padding:8px 0;color:#64748b;">Service</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.serviceName}</td></tr>
-          <tr><td style="padding:8px 0;color:#64748b;">When</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${whenLabel(ctx.startTime)}</td></tr>
-          <tr><td style="padding:8px 0;color:#64748b;">Employee</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.staffName}</td></tr>
-        </table>
-        <p style="margin:0;color:#475569;font-size:14px;">Open Reception in Chasum to view or manage this appointment.</p>`;
+        ${appointmentDetailsBusiness(ctx)}
+        <table role="presentation" style="width:100%;border-collapse:collapse;">${total}</table>
+        <p style="margin:24px 0 0;">
+          <a href="${escapeHtml(openUrl)}"
+            style="display:inline-block;background:#0b1324;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;line-height:20px;">
+            Open appointment in ${escapeHtml(BRAND_NAME)}
+          </a>
+        </p>`;
       return {
         key,
-        subject: `New appointment — ${ctx.customerName} · ${ctx.serviceName}`,
-        html: layout(content, b),
-        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}.`,
+        subject: `New appointment booked — ${ctx.serviceName} on ${monthDay}`,
+        html: layout(content, b, { headline: "New appointment booked" }),
+        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}. Open ${openUrl}`,
       };
     }
     default: {
@@ -280,7 +444,7 @@ export function renderEmailTemplate(
       return {
         key: "custom",
         subject: ctx.notes || ctx.businessName,
-        html: layout(`<p>${body}</p>`, b),
+        html: layout(`<p>${escapeHtml(body)}</p>${contactBlock(b)}`, b),
         text: body,
       };
     }

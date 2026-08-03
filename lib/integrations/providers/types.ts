@@ -9,6 +9,9 @@ export type EmailPayload = {
   subject: string;
   html: string;
   text?: string;
+  /** Full From header including display name, or omit for platform default. */
+  from?: string;
+  replyTo?: string;
   attachments?: EmailAttachment[];
 };
 

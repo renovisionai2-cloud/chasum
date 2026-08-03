@@ -100,7 +100,8 @@ async function loadAppointmentNotifyContext(
       ),
       service:services(name),
       staff:staff(name, email),
-      customer:customers(id, name, email, phone)
+      customer:customers(id, name, email, phone),
+      location:locations(name)
     `,
     )
     .eq("id", appointmentId)
@@ -136,6 +137,9 @@ async function loadAppointmentNotifyContext(
     email: string | null;
     phone: string | null;
   } | null;
+  const location = unwrapRelation(
+    (data as { location?: unknown }).location,
+  ) as { name: string } | null;
 
   if (!business || !customer) return null;
 
@@ -158,6 +162,7 @@ async function loadAppointmentNotifyContext(
     serviceName,
     startTime: data.start_time,
     endTime: data.end_time,
+    locationName: location?.name?.trim() || null,
     notes: data.notes,
     amountCents: totalCents,
     businessEmail: business.email?.trim() || null,

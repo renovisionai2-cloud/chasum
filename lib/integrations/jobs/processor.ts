@@ -53,7 +53,8 @@ async function getAppointmentContext(
       business:businesses(name, notification_email, email_notifications_enabled, sms_notifications_enabled),
       service:services(name),
       staff:staff(name, email),
-      customer:customers(id, name, email, phone)
+      customer:customers(id, name, email, phone),
+      location:locations(name)
     `,
     )
     .eq("id", appointmentId)
@@ -73,6 +74,9 @@ async function getAppointmentContext(
     email: string;
     phone: string | null;
   } | null;
+  const location = unwrapRelation(
+    (data as { location?: unknown }).location,
+  ) as { name: string } | null;
 
   // Staff may be unassigned — still deliver customer/business mail.
   if (!business || !service || !customer) return null;
@@ -89,6 +93,7 @@ async function getAppointmentContext(
     serviceName: service.name,
     startTime: data.start_time,
     endTime: data.end_time,
+    locationName: location?.name?.trim() || null,
     notes: data.notes,
   };
 }

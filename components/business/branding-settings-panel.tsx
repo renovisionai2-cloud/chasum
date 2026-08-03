@@ -121,9 +121,31 @@ export function BrandingSettingsPanel({ business }: { business: Business }) {
             </label>
           </div>
 
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-4 space-y-2">
+            <p className="text-sm font-medium text-foreground">
+              Customer email identity
+            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Customer emails use your business name as the visible sender, your
+              logo (when set), and brand colour. Mail is delivered from
+              notifications@chasumai.com. Replies go to your notification email
+              (or account email) from Notifications settings.
+            </p>
+            <ul className="text-xs text-muted-foreground list-disc pl-4 space-y-1">
+              <li>
+                Free plan: business stays primary; footer may show “Powered by
+                Chasum”.
+              </li>
+              <li>
+                Professional and above (including Private Alpha feature access):
+                Chasum branding is removed from customer emails automatically.
+              </li>
+            </ul>
+          </div>
+
           <p className="text-xs text-muted-foreground">
-            These settings override defaults on the public booking page. The
-            Chasum app shell keeps platform branding.
+            These settings also apply to the public booking page. The Chasum app
+            shell keeps platform branding.
           </p>
 
           <AlertMessage error={state.error} success={state.success} />

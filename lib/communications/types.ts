@@ -56,7 +56,11 @@ export type BrandingContext = {
   primaryColor?: string | null;
   logoUrl?: string | null;
   supportEmail?: string | null;
+  supportPhone?: string | null;
+  websiteUrl?: string | null;
   optOutFooter?: string | null;
+  showChasumBranding?: boolean;
+  chasumBrandingStyle?: "powered_by" | "product_context" | "none";
 };
 
 export type AppointmentTemplateContext = {
@@ -71,6 +75,8 @@ export type AppointmentTemplateContext = {
   startTime: string;
   endTime?: string | null;
   appointmentId?: string;
+  /** Location display name when available — omit empty section when null. */
+  locationName?: string | null;
   notes?: string | null;
   amountCents?: number | null;
   invoiceNumber?: string | null;

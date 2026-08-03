@@ -84,7 +84,7 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notification_email">Notification email override</Label>
+              <Label htmlFor="notification_email">Notification / Reply-To email</Label>
               <Input
                 id="notification_email"
                 name="notification_email"
@@ -92,6 +92,10 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 defaultValue={business.notification_email ?? ""}
                 placeholder={business.email ?? "owner@business.com"}
               />
+              <p className="text-xs text-muted-foreground">
+                Used for business booking alerts and as Reply-To on customer
+                emails. Falls back to the business account email when blank.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="quiet_hours_start">Quiet hours start</Label>
