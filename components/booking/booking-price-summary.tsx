@@ -81,7 +81,11 @@ export function BookingPriceSummary({
         ) : null}
         {tax > 0 ? (
           <div className="flex items-center justify-between gap-3">
-            <dt className="text-muted-foreground">Tax</dt>
+            <dt className="text-muted-foreground">
+              {financials?.taxRateBps
+                ? `${financials.taxLabel ?? "Tax"} (${(financials.taxRateBps / 100).toFixed(financials.taxRateBps % 100 === 0 ? 0 : 2)}%)`
+                : "Tax"}
+            </dt>
             <dd className="tabular-nums">{formatMoneyCents(tax, cur)}</dd>
           </div>
         ) : null}

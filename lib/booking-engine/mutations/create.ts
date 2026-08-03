@@ -83,31 +83,30 @@ export async function createBooking(
     "@/lib/commerce/booking-financials"
   );
 
-  // When the form already stamped exclusive price + tax, reconstruct with those.
-  // Otherwise treat priceCents as the catalog list price.
+  // When the form already stamped exclusive price + tax, keep that exclusive
+  // convention. Never reinterpret (price + tax) as a tax-inclusive catalog.
   const formProvidedTax =
     intent.taxCents != null && Number.isFinite(intent.taxCents);
   const financials = formProvidedTax
     ? resolveBookingFinancials({
-        catalogPriceCents: priceCents + Math.max(0, Math.round(intent.taxCents!)),
-        taxInclusive: true,
+        catalogPriceCents: priceCents,
+        taxInclusive: false,
         taxCents: Math.max(0, Math.round(intent.taxCents!)),
-        depositRequiredCents: intent.depositCents,
+        depositRequiredCents:
+          intent.depositCents ?? serviceRow?.deposit_cents ?? null,
         depositRequired: serviceRow?.deposit_required,
       })
     : resolveBookingFinancials({
         catalogPriceCents:
           intent.priceCents != null && intent.priceCents > 0
-            ? // Form sent exclusive subtotal without tax → treat as exclusive catalog
-              // by forcing taxInclusive false via rates; if rates are inclusive and
-              // no tax was sent, catalog is the list price on the service.
-              Math.round(Number(serviceRow?.price ?? 0) * 100) || priceCents
+            ? Math.round(Number(serviceRow?.price ?? 0) * 100) || priceCents
             : Math.round(Number(serviceRow?.price ?? 0) * 100),
         serviceTaxRateBps: serviceRow?.tax_rate_bps ?? null,
         taxRates: (taxRows ?? []) as Parameters<
           typeof resolveBookingFinancials
         >[0]["taxRates"],
-        depositRequiredCents: intent.depositCents,
+        depositRequiredCents:
+          intent.depositCents ?? serviceRow?.deposit_cents ?? null,
         depositRequired: serviceRow?.deposit_required,
       });
 
@@ -119,7 +118,7 @@ export async function createBooking(
     ? Math.max(0, Math.round(intent.taxCents!))
     : financials.taxCents;
   const depositCents =
-    intent.depositCents != null
+    intent.depositCents != null && intent.depositCents > 0
       ? intent.depositCents
       : financials.depositRequiredCents;
 

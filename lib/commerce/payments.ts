@@ -4,6 +4,7 @@
  */
 
 import { writeCommerceAudit } from "@/lib/commerce/audit";
+import { resolveConfiguredDepositCents } from "@/lib/commerce/booking-financials";
 import { createInvoiceForAppointment } from "@/lib/commerce/invoices";
 import {
   deriveAppointmentPaymentStatus,
@@ -108,11 +109,12 @@ async function syncAppointmentPayment(
     Math.round(Number(serviceRow?.price ?? 0) * 100);
   const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
   const appointmentTotalCents = priceCents + taxCents;
-  const depositRequiredCents = Math.max(
-    Number(appt.deposit_cents ?? 0),
-    Number(serviceRow?.deposit_cents ?? 0),
-    serviceRow?.deposit_required ? Math.round(priceCents * 0.2) : 0,
-  );
+  const depositRequiredCents = resolveConfiguredDepositCents({
+    appointmentDepositCents: appt.deposit_cents,
+    serviceDepositCents: serviceRow?.deposit_cents,
+    serviceDepositRequired: serviceRow?.deposit_required,
+    appointmentTotalCents,
+  });
   const amountPaid =
     Number(appt.amount_paid_cents ?? 0) + Math.max(0, paidDeltaCents);
   const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
@@ -130,10 +132,11 @@ async function syncAppointmentPayment(
       tax_cents: taxCents,
       amount_paid_cents: amountPaid,
       payment_status: paymentStatus,
-      deposit_cents: Math.max(
-        Number(appt.deposit_cents ?? 0),
-        depositRequiredCents,
-      ),
+      // Preserve an existing explicit deposit; never inflate with a % of subtotal.
+      deposit_cents:
+        Number(appt.deposit_cents ?? 0) > 0
+          ? Number(appt.deposit_cents)
+          : depositRequiredCents,
     })
     .eq("id", appointmentId);
 
@@ -731,10 +734,12 @@ export async function getBookingPaymentSummary(
     Math.round(Number(serviceRow?.price ?? 0) * 100);
   const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
   const appointmentTotalCents = priceCents + taxCents;
-  const depositRequiredCents = Math.max(
-    Number(appt.deposit_cents ?? 0),
-    Number(serviceRow?.deposit_cents ?? 0),
-  );
+  const depositRequiredCents = resolveConfiguredDepositCents({
+    appointmentDepositCents: appt.deposit_cents,
+    serviceDepositCents: serviceRow?.deposit_cents,
+    serviceDepositRequired: serviceRow?.deposit_required,
+    appointmentTotalCents,
+  });
   const amountPaid = Number(appt.amount_paid_cents ?? 0);
   const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
   const paymentStatus =

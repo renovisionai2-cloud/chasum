@@ -82,6 +82,10 @@ export type AppointmentTemplateContext = {
   amountCents?: number | null;
   subtotalCents?: number | null;
   taxCents?: number | null;
+  /** Basis points for display (e.g. 1300 → 13%). */
+  taxRateBps?: number | null;
+  /** Tax rate name when known (e.g. HST). */
+  taxLabel?: string | null;
   appointmentTotalCents?: number | null;
   depositRequiredCents?: number | null;
   depositPaidCents?: number | null;

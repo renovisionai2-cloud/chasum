@@ -4,7 +4,10 @@ import { AppointmentFinancialActivityList } from "@/components/booking/appointme
 import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-activity";
 import type { TaxRate } from "@/lib/business/types";
 import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
-import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
+import {
+  resolveBookingFinancials,
+  resolveFinancialsFromAppointment,
+} from "@/lib/commerce/booking-financials";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
 import {
@@ -87,26 +90,18 @@ export function PaymentsSection({
     };
   }, [appointment?.id]);
 
-  const catalogCents =
-    appointment?.price_cents != null && appointment?.tax_cents != null
-      ? Number(appointment.price_cents) + Number(appointment.tax_cents)
-      : appointment?.price_cents != null
-        ? Number(appointment.price_cents)
-        : service
-          ? Math.round(Number(service.price) * 100)
-          : 0;
+  const catalogCents = service
+    ? Math.round(Number(service.price) * 100)
+    : 0;
 
   const financials =
-    appointment?.price_cents != null && appointment?.tax_cents != null
-      ? resolveBookingFinancials({
-          catalogPriceCents:
-            Number(appointment.price_cents) + Number(appointment.tax_cents),
-          taxInclusive: true,
-          taxCents: Number(appointment.tax_cents),
-          depositRequiredCents:
-            appointment.deposit_cents ?? service?.deposit_cents,
-          depositRequired: service?.deposit_required,
-          paidToDateCents: appointment.amount_paid_cents,
+    appointment?.price_cents != null
+      ? resolveFinancialsFromAppointment({
+          priceCents: Number(appointment.price_cents),
+          taxCents: Number(appointment.tax_cents ?? 0),
+          depositCents:
+            appointment.deposit_cents ?? service?.deposit_cents ?? null,
+          amountPaidCents: appointment.amount_paid_cents,
           amountRefundedCents: appointment.amount_refunded_cents,
           currency,
         })

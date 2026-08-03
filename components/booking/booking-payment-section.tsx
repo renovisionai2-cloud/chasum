@@ -73,8 +73,8 @@ export function BookingPaymentSection({
     currency,
   });
   const withToday = resolveBookingFinancials({
-    catalogPriceCents: base.appointmentTotalCents,
-    taxInclusive: true,
+    catalogPriceCents: base.subtotalCents,
+    taxInclusive: false,
     taxCents: base.taxCents,
     depositRequiredCents: base.depositRequiredCents,
     paymentTodayCents: value.mode === "none" ? 0 : value.amountCents,

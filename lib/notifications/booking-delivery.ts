@@ -162,6 +162,33 @@ async function loadAppointmentNotifyContext(
       ? Math.max(0, appointmentTotalCents - netPaid)
       : null;
 
+  let taxRateBps: number | null = null;
+  let taxLabel: string | null = null;
+  try {
+    const { data: taxRows } = await supabase
+      .from("tax_rates")
+      .select("name, rate_bps, inclusive, is_default, is_active")
+      .eq("business_id", data.business_id)
+      .eq("is_active", true);
+    const rates = taxRows ?? [];
+    const preferred =
+      rates.find((r) => r.is_default) ?? rates[0] ?? null;
+    if (preferred) {
+      taxRateBps = Math.max(0, Number(preferred.rate_bps ?? 0));
+      taxLabel = String(preferred.name ?? "Tax");
+    }
+  } catch {
+    /* optional enrichment */
+  }
+  if (
+    taxRateBps == null &&
+    subtotalCents != null &&
+    subtotalCents > 0 &&
+    taxCents > 0
+  ) {
+    taxRateBps = Math.round((taxCents * 10_000) / subtotalCents);
+  }
+
   const { PAYMENT_METHOD_LABELS, APPOINTMENT_PAYMENT_STATUS_LABELS } =
     await import("@/lib/commerce/types");
   let paymentMethodLabel: string | null = null;
@@ -212,6 +239,8 @@ async function loadAppointmentNotifyContext(
     amountCents: appointmentTotalCents,
     subtotalCents,
     taxCents: subtotalCents != null ? taxCents : null,
+    taxRateBps,
+    taxLabel,
     appointmentTotalCents,
     depositRequiredCents,
     depositPaidCents: netPaid,

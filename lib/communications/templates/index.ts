@@ -107,10 +107,21 @@ function financialBlock(
 
   const rows: string[] = [];
   if (subtotal != null) {
-    rows.push(detailRow("Subtotal", money(subtotal)));
+    rows.push(
+      detailRow(
+        audience === "business" ? "Catalog subtotal" : "Subtotal",
+        money(subtotal),
+      ),
+    );
   }
   if (tax != null && tax > 0) {
-    rows.push(detailRow("Tax", money(tax)));
+    const rateBps = Math.max(0, Number(ctx.taxRateBps ?? 0));
+    const label = (ctx.taxLabel ?? "Tax").trim() || "Tax";
+    const taxHeading =
+      rateBps > 0
+        ? `${label} (${(rateBps / 100).toFixed(rateBps % 100 === 0 ? 0 : 2)}%)`
+        : label;
+    rows.push(detailRow(taxHeading, money(tax)));
   }
   rows.push(detailRow("Appointment total", `<strong>${money(total)}</strong>`));
   if (depositRequired > 0) {
