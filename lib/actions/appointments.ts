@@ -507,11 +507,15 @@ export async function createAppointment(
                 : "not_requested",
             };
 
+            // Use allowed change-log action `update` (CHECK constraint has no
+            // payment.recorded). Marker `type` keeps financial events queryable
+            // without a schema migration.
             await logAppointmentChange({
               businessId: business.id,
               appointmentId,
-              action: "payment.recorded",
+              action: "update",
               afterState: {
+                type: "payment.recorded",
                 amountCents: paymentAmountCents,
                 method,
                 methodLabel,

@@ -1,11 +1,14 @@
 "use client";
 
+import { AppointmentFinancialActivityList } from "@/components/booking/appointment-financial-activity";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-activity";
 import {
   cancelAppointment,
 } from "@/lib/actions/appointments";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
+import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
 import {
   APPOINTMENT_PAYMENT_STATUS_LABELS,
 } from "@/lib/commerce/types";
@@ -28,7 +31,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useId, useRef, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 
 type AppointmentDrawerProps = {
   open: boolean;
@@ -75,6 +78,9 @@ export function AppointmentDrawer({
   const panelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
+  const [financialActivity, setFinancialActivity] =
+    useState<AppointmentFinancialActivity | null>(null);
+  const [financialLoading, setFinancialLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -92,6 +98,28 @@ export function AppointmentDrawer({
       window.clearTimeout(t);
     };
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open || !appointment?.id) {
+      setFinancialActivity(null);
+      return;
+    }
+    let cancelled = false;
+    setFinancialLoading(true);
+    loadAppointmentFinancialActivity(appointment.id)
+      .then((data) => {
+        if (!cancelled) setFinancialActivity(data);
+      })
+      .catch(() => {
+        if (!cancelled) setFinancialActivity(null);
+      })
+      .finally(() => {
+        if (!cancelled) setFinancialLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, appointment?.id]);
 
   if (!open || !appointment) return null;
 
@@ -188,7 +216,7 @@ export function AppointmentDrawer({
             </dl>
           </Section>
 
-          <Section title="Timeline">
+          <Section title="Appointment activity">
             <ol className="space-y-2 border-l border-border pl-3 text-xs">
               <li>
                 <span className="font-medium">Scheduled</span>
@@ -202,10 +230,15 @@ export function AppointmentDrawer({
                   {appointment.status.replace("_", " ")}
                 </span>
               </li>
-              <li className="text-muted-foreground">
-                No additional history for this appointment yet.
-              </li>
             </ol>
+          </Section>
+
+          <Section title="Financial activity">
+            <AppointmentFinancialActivityList
+              activity={financialActivity}
+              loading={financialLoading}
+              variant="drawer"
+            />
           </Section>
 
           <Section title="Notes">
@@ -214,13 +247,29 @@ export function AppointmentDrawer({
             </p>
           </Section>
 
-          <Section title="Payments">
+          <Section title="Payment summary">
             {appointmentTotal > 0 ? (
               <dl className="space-y-1.5 text-sm">
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Status</dt>
                   <dd className="font-medium">{paymentStatusLabel}</dd>
                 </div>
+                {taxCents > 0 ? (
+                  <>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Subtotal before tax</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(priceCents)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Tax</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(taxCents)}
+                      </dd>
+                    </div>
+                  </>
+                ) : null}
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Appointment total</dt>
                   <dd className="tabular-nums">

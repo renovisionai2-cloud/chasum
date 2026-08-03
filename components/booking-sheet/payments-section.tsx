@@ -1,6 +1,9 @@
 "use client";
 
+import { AppointmentFinancialActivityList } from "@/components/booking/appointment-financial-activity";
+import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-activity";
 import type { TaxRate } from "@/lib/business/types";
+import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
 import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
@@ -9,6 +12,7 @@ import {
   type AppointmentPaymentStatus,
 } from "@/lib/commerce/types";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type PaymentsSectionProps = {
   service: Service | undefined;
@@ -55,6 +59,34 @@ export function PaymentsSection({
   currency = "usd",
   taxRates = [],
 }: PaymentsSectionProps) {
+  const [activity, setActivity] = useState<AppointmentFinancialActivity | null>(
+    null,
+  );
+  const [activityLoading, setActivityLoading] = useState(false);
+
+  useEffect(() => {
+    const id = appointment?.id;
+    if (!id) {
+      setActivity(null);
+      return;
+    }
+    let cancelled = false;
+    setActivityLoading(true);
+    loadAppointmentFinancialActivity(id)
+      .then((data) => {
+        if (!cancelled) setActivity(data);
+      })
+      .catch(() => {
+        if (!cancelled) setActivity(null);
+      })
+      .finally(() => {
+        if (!cancelled) setActivityLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [appointment?.id]);
+
   const catalogCents =
     appointment?.price_cents != null && appointment?.tax_cents != null
       ? Number(appointment.price_cents) + Number(appointment.tax_cents)
@@ -184,6 +216,19 @@ export function PaymentsSection({
           </div>
         </dl>
       </div>
+
+      {appointment?.id ? (
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Financial activity
+          </p>
+          <AppointmentFinancialActivityList
+            activity={activity}
+            loading={activityLoading}
+            variant="panel"
+          />
+        </div>
+      ) : null}
 
       <p className="text-xs text-muted-foreground">
         <Link

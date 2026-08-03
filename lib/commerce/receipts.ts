@@ -238,6 +238,9 @@ export async function queueReceiptEmail(
 /**
  * Send a payment receipt immediately (Preview-safe — do not leave Pending).
  * Idempotent on receiptId: already-sent receipts are not resent.
+ *
+ * Concurrent double-clicks: claims email_status → queued before send; if another
+ * worker already marked sent, returns skipped.
  */
 export async function sendPaymentReceiptNow(input: {
   businessId: string;
@@ -265,6 +268,29 @@ export async function sendPaymentReceiptNow(input: {
 
   if (String(receipt.email_status) === "sent") {
     return { ok: true, skipped: true, messageId: undefined };
+  }
+
+  // Claim send attempt so parallel retries cannot double-send.
+  // Only transition from terminal not-sent states — not from an in-flight "queued".
+  const { data: claimed } = await supabase
+    .from("commerce_receipts")
+    .update({ email_status: "queued" })
+    .eq("id", input.receiptId)
+    .eq("business_id", input.businessId)
+    .in("email_status", ["failed", "not_sent"])
+    .select("*")
+    .maybeSingle();
+
+  if (!claimed) {
+    const { data: again } = await supabase
+      .from("commerce_receipts")
+      .select("email_status")
+      .eq("id", input.receiptId)
+      .maybeSingle();
+    if (String(again?.email_status) === "sent") {
+      return { ok: true, skipped: true };
+    }
+    return { ok: false, error: "Receipt send is already in progress." };
   }
 
   const { data: customer } = await supabase
@@ -296,7 +322,6 @@ export async function sendPaymentReceiptNow(input: {
       : method;
   const amount = Number(receipt.amount_cents ?? 0);
   const serviceName = input.serviceName?.trim() || "Appointment";
-  const subject = `Payment receipt — $${(amount / 100).toFixed(2)} deposit for ${serviceName}`;
 
   const result = await sendEmail({
     businessId: input.businessId,
@@ -339,4 +364,153 @@ export async function sendPaymentReceiptNow(input: {
     return { ok: false, error: result.error ?? "Receipt email failed." };
   }
   return { ok: true, messageId: result.messageId };
+}
+
+export type PaymentReceiptRetryResult = {
+  status: "sent" | "failed" | "not_applicable" | "no_recipient";
+  detail: string | null;
+  receiptId?: string | null;
+  transactionId?: string | null;
+  /** True when a prior successful send was short-circuited (no second email). */
+  skippedDuplicate?: boolean;
+};
+
+/**
+ * Retry payment receipt for an appointment.
+ * Never creates appointments or commerce payments — only rebuilds/sends receipt email.
+ */
+export async function retryPaymentReceiptForAppointment(input: {
+  businessId: string;
+  appointmentId: string;
+}): Promise<PaymentReceiptRetryResult> {
+  const supabase = await createClient();
+  const appointmentId = input.appointmentId.trim();
+  if (!appointmentId) {
+    return { status: "not_applicable", detail: "Appointment is required." };
+  }
+
+  const { data: appt, error: apptErr } = await supabase
+    .from("appointments")
+    .select(
+      "id, customer_id, start_time, price_cents, tax_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(name), customers(id, email, name)",
+    )
+    .eq("id", appointmentId)
+    .eq("business_id", input.businessId)
+    .maybeSingle();
+
+  if (apptErr || !appt) {
+    return {
+      status: "not_applicable",
+      detail: "Appointment not found.",
+    };
+  }
+
+  const { listTransactions } = await import("@/lib/commerce/payments");
+  const history = await listTransactions({
+    businessId: input.businessId,
+    appointmentId,
+    limit: 40,
+  });
+
+  const tx = history.find(
+    (t) =>
+      t.status === "succeeded" &&
+      (t.kind === "deposit" || t.kind === "payment"),
+  );
+
+  if (!tx) {
+    return {
+      status: "not_applicable",
+      detail: "No successful payment transaction to receipt.",
+    };
+  }
+
+  const customerRel = appt.customers as
+    | { id?: string; email?: string | null; name?: string | null }
+    | { id?: string; email?: string | null; name?: string | null }[]
+    | null;
+  const customer = Array.isArray(customerRel) ? customerRel[0] : customerRel;
+  if (!customer?.email?.trim()) {
+    return {
+      status: "no_recipient",
+      detail: "Customer has no email on file.",
+      transactionId: tx.id,
+    };
+  }
+
+  const receipt = await createReceiptForTransaction({
+    businessId: input.businessId,
+    transactionId: tx.id,
+  });
+  if (!receipt?.id) {
+    return {
+      status: "failed",
+      detail: "Receipt could not be created.",
+      transactionId: tx.id,
+    };
+  }
+
+  // Explicit retry may clear a stuck "queued" claim from a prior crashed attempt.
+  if (String(receipt.emailStatus) === "queued") {
+    await supabase
+      .from("commerce_receipts")
+      .update({ email_status: "failed" })
+      .eq("id", receipt.id)
+      .eq("business_id", input.businessId)
+      .eq("email_status", "queued");
+  }
+
+  const serviceRel = appt.services as
+    | { name?: string }
+    | { name?: string }[]
+    | null;
+  const service = Array.isArray(serviceRel) ? serviceRel[0] : serviceRel;
+  const appointmentTotal =
+    Math.max(0, Number(appt.price_cents ?? 0)) +
+    Math.max(0, Number(appt.tax_cents ?? 0));
+  const paid = Math.max(0, Number(appt.amount_paid_cents ?? 0));
+  const refunded = Math.max(0, Number(appt.amount_refunded_cents ?? 0));
+  const netPaid = Math.max(0, paid - refunded);
+
+  const result = await sendPaymentReceiptNow({
+    businessId: input.businessId,
+    receiptId: receipt.id,
+    appointmentId,
+    serviceName: service?.name ?? "Appointment",
+    startTime: String(appt.start_time ?? ""),
+    appointmentTotalCents: appointmentTotal,
+    paidToDateCents: netPaid || tx.amountCents,
+    remainingBalanceCents: Math.max(0, appointmentTotal - netPaid),
+    paymentStatusLabel:
+      tx.kind === "deposit" ? "Deposit paid" : "Paid",
+    idempotencyKey: `retry:${appointmentId}:${tx.id}`,
+  });
+
+  if (result.ok) {
+    return {
+      status: "sent",
+      detail: result.skipped
+        ? "Receipt already sent."
+        : "Payment receipt sent.",
+      receiptId: receipt.id,
+      transactionId: tx.id,
+      skippedDuplicate: Boolean(result.skipped),
+    };
+  }
+
+  const err = (result.error ?? "Receipt email failed.").slice(0, 200);
+  if (/no email/i.test(err)) {
+    return {
+      status: "no_recipient",
+      detail: err,
+      receiptId: receipt.id,
+      transactionId: tx.id,
+    };
+  }
+  return {
+    status: "failed",
+    detail: err,
+    receiptId: receipt.id,
+    transactionId: tx.id,
+  };
 }

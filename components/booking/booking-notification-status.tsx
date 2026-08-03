@@ -36,7 +36,31 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
 
   useEffect(() => {
     if (state.notifications) {
-      setItems(state.notifications);
+      setItems((prev) => {
+        const map = new Map(prev.map((item) => [item.channel, item]));
+        for (const item of state.notifications ?? []) {
+          map.set(item.channel, item);
+        }
+        // Preserve a stable channel order when possible.
+        const order = [
+          "customer_email",
+          "business_email",
+          "payment_receipt",
+          "customer_sms",
+          "staff_email",
+        ] as const;
+        const merged = [...map.values()];
+        merged.sort((a, b) => {
+          const ai = order.indexOf(
+            a.channel as (typeof order)[number],
+          );
+          const bi = order.indexOf(
+            b.channel as (typeof order)[number],
+          );
+          return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+        });
+        return merged;
+      });
     }
   }, [state.notifications]);
 
