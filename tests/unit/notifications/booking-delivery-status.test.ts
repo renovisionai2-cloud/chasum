@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatNotificationStatus } from "@/lib/notifications/booking-delivery";
+import { formatNotificationStatus } from "@/lib/notifications/status-labels";
 import { getNotificationProviderConfigStatus } from "@/lib/notifications/booking-delivery";
 
 describe("booking notification status labels", () => {

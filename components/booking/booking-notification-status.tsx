@@ -2,10 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { retryAppointmentNotification } from "@/lib/actions/notification-retry";
-import {
-  formatNotificationStatus,
-  type BookingNotificationItem,
-} from "@/lib/notifications/booking-delivery";
+import { formatNotificationStatus } from "@/lib/notifications/status-labels";
 import type {
   ActionState,
   BookingNotificationStatusItem,
@@ -59,9 +56,7 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
             <div className="min-w-0">
               <p className="font-medium text-foreground">{item.label}</p>
               <p className={tone(item.status)}>
-                {formatNotificationStatus(
-                  item.status as BookingNotificationItem["status"],
-                )}
+                {formatNotificationStatus(item.status)}
                 {item.detail ? (
                   <span className="block text-muted-foreground">{item.detail}</span>
                 ) : null}

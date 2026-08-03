@@ -1,8 +1,3 @@
-/**
- * Booking notification delivery — status summary, immediate flush (Preview-safe),
- * and retry without re-creating appointments.
- */
-
 import {
   getEmailFromAddress,
   getResendApiKey,
@@ -11,23 +6,21 @@ import {
 import { planIncludesSms } from "@/lib/billing/plan-features";
 import { processJob } from "@/lib/integrations/jobs/processor";
 import { enqueueEmailJob, enqueueSmsJob } from "@/lib/integrations/jobs/queue";
+import {
+  formatNotificationStatus,
+  type BookingNotificationChannel,
+  type NotificationChannelStatus,
+} from "@/lib/notifications/status-labels";
 import { createServiceClient } from "@/lib/supabase/service";
 import { unwrapRelation } from "@/lib/supabase/relations";
 import type { BackgroundJob } from "@/lib/types/integrations";
 import { logger } from "@/lib/observability/logger";
 
-export type NotificationChannelStatus =
-  | "sent"
-  | "pending"
-  | "failed"
-  | "not_enabled"
-  | "not_configured"
-  | "not_included"
-  | "no_recipient"
-  | "skipped";
+export type { NotificationChannelStatus, BookingNotificationChannel };
+export { formatNotificationStatus };
 
 export type BookingNotificationItem = {
-  channel: "customer_email" | "customer_sms" | "business_email" | "staff_email";
+  channel: BookingNotificationChannel;
   status: NotificationChannelStatus;
   label: string;
   detail?: string | null;
@@ -42,33 +35,6 @@ export type BookingNotificationReport = {
   smsConfigured: boolean;
   smsPlanIncluded: boolean;
 };
-
-function statusLabel(status: NotificationChannelStatus): string {
-  switch (status) {
-    case "sent":
-      return "Sent";
-    case "pending":
-      return "Pending";
-    case "failed":
-      return "Failed";
-    case "not_enabled":
-      return "Not enabled";
-    case "not_configured":
-      return "Not configured";
-    case "not_included":
-      return "Not included in plan";
-    case "no_recipient":
-      return "No recipient";
-    case "skipped":
-      return "Skipped";
-  }
-}
-
-export function formatNotificationStatus(
-  status: NotificationChannelStatus,
-): string {
-  return statusLabel(status);
-}
 
 /** Provider presence only — never returns secret values. */
 export function getNotificationProviderConfigStatus() {
