@@ -409,7 +409,6 @@ export async function createAppointment(
 
   const action = mutationToAction(result, "Booked — you're all set.");
   if (result.phase === "success" && result.data?.appointmentId) {
-    revalidateCalendar();
     try {
       const { deliverBookingNotifications } = await import(
         "@/lib/notifications/booking-delivery"
@@ -424,13 +423,24 @@ export async function createAppointment(
       action.notifications = [
         {
           channel: "customer_email",
-          status: "pending",
+          status: "failed",
           label: "Customer email",
-          detail: "Queued — delivery status will update shortly.",
+          detail:
+            err instanceof Error
+              ? err.message
+              : "Email could not be sent.",
+          canRetry: true,
+        },
+        {
+          channel: "business_email",
+          status: "failed",
+          label: "Business email",
+          detail: "Email could not be sent.",
           canRetry: true,
         },
       ];
     }
+    revalidateCalendar();
   }
   return action;
 }

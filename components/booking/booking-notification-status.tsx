@@ -62,7 +62,8 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
                 ) : null}
               </p>
             </div>
-            {item.canRetry && item.status === "failed" ? (
+            {item.canRetry &&
+            (item.status === "failed" || item.status === "skipped") ? (
               <form action={action}>
                 <input type="hidden" name="appointment_id" value={appointmentId} />
                 <input type="hidden" name="channel" value={item.channel} />

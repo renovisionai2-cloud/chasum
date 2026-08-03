@@ -1,20 +1,28 @@
+/**
+ * Booking notification delivery — Preview-safe synchronous confirmation send.
+ *
+ * Do not leave channels in Pending after this request ends. Enqueued jobs are
+ * best-effort audit records; confirmation email/SMS results come from an
+ * awaited provider call in the same Server Action.
+ */
+
+import { planIncludesSms } from "@/lib/billing/plan-features";
+import { sendEmail, sendSMS } from "@/lib/communications/delivery";
+import type { AppointmentTemplateContext } from "@/lib/communications/types";
 import {
   getEmailFromAddress,
   getResendApiKey,
   getTwilioConfig,
 } from "@/lib/env";
-import { planIncludesSms } from "@/lib/billing/plan-features";
-import { processJob } from "@/lib/integrations/jobs/processor";
 import { enqueueEmailJob, enqueueSmsJob } from "@/lib/integrations/jobs/queue";
 import {
   formatNotificationStatus,
   type BookingNotificationChannel,
   type NotificationChannelStatus,
 } from "@/lib/notifications/status-labels";
-import { createServiceClient } from "@/lib/supabase/service";
-import { unwrapRelation } from "@/lib/supabase/relations";
-import type { BackgroundJob } from "@/lib/types/integrations";
 import { logger } from "@/lib/observability/logger";
+import { unwrapRelation } from "@/lib/supabase/relations";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export type { NotificationChannelStatus, BookingNotificationChannel };
 export { formatNotificationStatus };
@@ -26,6 +34,7 @@ export type BookingNotificationItem = {
   detail?: string | null;
   providerMessageId?: string | null;
   canRetry?: boolean;
+  jobId?: string | null;
 };
 
 export type BookingNotificationReport = {
@@ -36,259 +45,77 @@ export type BookingNotificationReport = {
   smsPlanIncluded: boolean;
 };
 
+const STALE_PENDING_MS = 60_000;
+
 /** Provider presence only — never returns secret values. */
 export function getNotificationProviderConfigStatus() {
-  const emailKey = Boolean(getResendApiKey());
-  const sms = Boolean(getTwilioConfig());
   return {
-    emailProvider: emailKey ? ("resend" as const) : ("disabled" as const),
+    emailProvider: getResendApiKey() ? ("resend" as const) : ("disabled" as const),
     emailFromConfigured: Boolean(getEmailFromAddress()),
-    smsProvider: sms ? ("twilio" as const) : ("disabled" as const),
+    emailFromHost: (() => {
+      const from = getEmailFromAddress();
+      const match = from.match(/@([^>\s]+)/);
+      return match?.[1] ?? null;
+    })(),
+    smsProvider: getTwilioConfig() ? ("twilio" as const) : ("disabled" as const),
     vercelEnv: process.env.VERCEL_ENV ?? null,
   };
 }
 
-async function loadJobsForAppointment(appointmentId: string) {
+function maskEmail(email: string | null | undefined): string | null {
+  if (!email) return null;
+  const [user, domain] = email.split("@");
+  if (!user || !domain) return "***";
+  return `${user.slice(0, 1)}***@${domain}`;
+}
+
+type AppointmentNotifyContext = AppointmentTemplateContext & {
+  customerId: string | null;
+  businessEmail: string | null;
+  notificationEmail: string | null;
+  emailEnabled: boolean;
+  smsEnabled: boolean;
+  ownerEnabled: boolean;
+  staffEnabled: boolean;
+  staffEmail: string | null;
+  subscriptionPlanKey: string | null;
+  privateAlphaEnabled: boolean | null;
+};
+
+async function loadAppointmentNotifyContext(
+  appointmentId: string,
+): Promise<AppointmentNotifyContext | null> {
   const supabase = createServiceClient();
   const { data, error } = await supabase
-    .from("background_jobs")
-    .select("*")
-    .in("job_type", ["email", "sms"])
-    .filter("payload->>appointmentId", "eq", appointmentId)
-    .order("created_at", { ascending: false })
-    .limit(40);
-  if (error) {
-    // Fallback: recent jobs filtered in memory
-    const { data: recent } = await supabase
-      .from("background_jobs")
-      .select("*")
-      .in("job_type", ["email", "sms"])
-      .order("created_at", { ascending: false })
-      .limit(80);
-    return ((recent ?? []) as BackgroundJob[]).filter(
-      (j) => (j.payload as { appointmentId?: string }).appointmentId === appointmentId,
-    );
-  }
-  return (data ?? []) as BackgroundJob[];
-}
-
-/**
- * Process pending email/SMS jobs for one appointment immediately.
- * Critical on Preview where Vercel Cron does not run.
- */
-export async function flushAppointmentNotificationJobs(
-  appointmentId: string,
-): Promise<number> {
-  const supabase = createServiceClient();
-  const nowIso = new Date().toISOString();
-  const jobs = await loadJobsForAppointment(appointmentId);
-  const pending = jobs.filter(
-    (j) =>
-      j.status === "pending" &&
-      (!j.scheduled_at || j.scheduled_at <= nowIso) &&
-      (j.job_type === "email" || j.job_type === "sms"),
-  );
-
-  let processed = 0;
-  for (const job of pending) {
-    await supabase
-      .from("background_jobs")
-      .update({
-        status: "processing",
-        started_at: nowIso,
-        attempts: (job.attempts ?? 0) + 1,
-      })
-      .eq("id", job.id);
-
-    try {
-      await processJob(job);
-      await supabase
-        .from("background_jobs")
-        .update({
-          status: "completed",
-          completed_at: new Date().toISOString(),
-          error_message: null,
-          next_retry_at: null,
-        })
-        .eq("id", job.id);
-      processed += 1;
-      logger.info("notifications", "flushed_job", {
-        appointmentId,
-        jobId: job.id,
-        jobType: job.job_type,
-        templateKey: (job.payload as { templateKey?: string })?.templateKey,
-      });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Job failed";
-      await supabase
-        .from("background_jobs")
-        .update({
-          status: "failed",
-          error_message: message,
-          completed_at: new Date().toISOString(),
-          next_retry_at: null,
-        })
-        .eq("id", job.id);
-      logger.warn("notifications", "flush_job_failed", {
-        appointmentId,
-        jobId: job.id,
-        jobType: job.job_type,
-        error: message,
-      });
-    }
-  }
-  return processed;
-}
-
-function classifyEmailJob(
-  job: BackgroundJob | undefined,
-  opts: {
-    enabled: boolean;
-    configured: boolean;
-    hasRecipient: boolean;
-    channel: BookingNotificationItem["channel"];
-  },
-): BookingNotificationItem {
-  const label =
-    opts.channel === "customer_email"
-      ? "Customer email"
-      : opts.channel === "business_email"
-        ? "Business email"
-        : "Staff notification";
-
-  if (!opts.enabled) {
-    return { channel: opts.channel, status: "not_enabled", label };
-  }
-  if (!opts.hasRecipient) {
-    return {
-      channel: opts.channel,
-      status: "no_recipient",
-      label,
-      detail:
-        opts.channel === "customer_email"
-          ? "Customer has no email address."
-          : "No notification email configured.",
-    };
-  }
-  if (!opts.configured) {
-    return {
-      channel: opts.channel,
-      status: "not_configured",
-      label,
-      detail: "Email delivery is not configured for this environment.",
-      canRetry: false,
-    };
-  }
-  if (!job) {
-    return {
-      channel: opts.channel,
-      status: "pending",
-      label,
-      detail: "Queued for delivery.",
-      canRetry: true,
-    };
-  }
-  if (job.status === "completed") {
-    return { channel: opts.channel, status: "sent", label, canRetry: false };
-  }
-  if (job.status === "failed") {
-    return {
-      channel: opts.channel,
-      status: "failed",
-      label,
-      detail: job.error_message,
-      canRetry: true,
-    };
-  }
-  if (job.status === "pending" || job.status === "processing") {
-    return { channel: opts.channel, status: "pending", label, canRetry: true };
-  }
-  return {
-    channel: opts.channel,
-    status: "skipped",
-    label,
-    detail: job.error_message,
-  };
-}
-
-function classifySmsJob(
-  job: BackgroundJob | undefined,
-  opts: {
-    enabled: boolean;
-    configured: boolean;
-    planIncluded: boolean;
-    hasRecipient: boolean;
-  },
-): BookingNotificationItem {
-  const label = "Customer SMS";
-  if (!opts.planIncluded) {
-    return {
-      channel: "customer_sms",
-      status: "not_included",
-      label,
-      detail: "SMS notifications are not included in the current plan.",
-    };
-  }
-  if (!opts.enabled) {
-    return { channel: "customer_sms", status: "not_enabled", label };
-  }
-  if (!opts.hasRecipient) {
-    return {
-      channel: "customer_sms",
-      status: "no_recipient",
-      label,
-      detail: "Customer has no mobile number.",
-    };
-  }
-  if (!opts.configured) {
-    return {
-      channel: "customer_sms",
-      status: "not_configured",
-      label,
-      detail: "SMS notifications are not configured for this business.",
-    };
-  }
-  if (!job) {
-    return { channel: "customer_sms", status: "pending", label, canRetry: true };
-  }
-  if (job.status === "completed") {
-    return { channel: "customer_sms", status: "sent", label };
-  }
-  if (job.status === "failed") {
-    return {
-      channel: "customer_sms",
-      status: "failed",
-      label,
-      detail: job.error_message,
-      canRetry: true,
-    };
-  }
-  return { channel: "customer_sms", status: "pending", label, canRetry: true };
-}
-
-export async function buildBookingNotificationReport(
-  appointmentId: string,
-): Promise<BookingNotificationReport> {
-  const supabase = createServiceClient();
-  const { data: appointment } = await supabase
     .from("appointments")
     .select(
       `
-      id, business_id,
+      id, business_id, customer_id, start_time, end_time, status, notes,
+      price_cents, tax_cents, deposit_cents,
       business:businesses(
-        email, notification_email,
+        name, email, notification_email,
         email_notifications_enabled, sms_notifications_enabled,
         owner_notifications_enabled, staff_notifications_enabled,
         subscription_plan_key, private_alpha_enabled
       ),
-      staff:staff(email),
-      customer:customers(email, phone)
+      service:services(name),
+      staff:staff(name, email),
+      customer:customers(id, name, email, phone)
     `,
     )
     .eq("id", appointmentId)
     .single();
 
-  const business = unwrapRelation(appointment?.business) as {
+  if (error || !data) {
+    logger.warn("notifications", "appointment_context_missing", {
+      appointmentId,
+      error: error?.message,
+    });
+    return null;
+  }
+
+  const business = unwrapRelation(data.business) as {
+    name: string;
     email: string | null;
     notification_email: string | null;
     email_notifications_enabled: boolean | null;
@@ -298,77 +125,498 @@ export async function buildBookingNotificationReport(
     subscription_plan_key: string | null;
     private_alpha_enabled: boolean | null;
   } | null;
-  const customer = unwrapRelation(appointment?.customer) as {
+  const service = unwrapRelation(data.service) as { name: string } | null;
+  const staff = unwrapRelation(data.staff) as {
+    name: string;
+    email: string | null;
+  } | null;
+  const customer = unwrapRelation(data.customer) as {
+    id: string;
+    name: string;
     email: string | null;
     phone: string | null;
   } | null;
-  const staff = unwrapRelation(appointment?.staff) as {
-    email: string | null;
-  } | null;
 
-  const emailEnabled = business?.email_notifications_enabled !== false;
-  const smsEnabled = business?.sms_notifications_enabled === true;
-  const ownerEnabled = business?.owner_notifications_enabled !== false;
-  const staffEnabled = business?.staff_notifications_enabled !== false;
+  if (!business || !customer) return null;
+
+  const serviceName = service?.name || "Appointment";
+  const totalCents =
+    data.price_cents != null
+      ? Number(data.price_cents) + Number(data.tax_cents ?? 0)
+      : null;
+
+  return {
+    appointmentId: data.id,
+    businessId: data.business_id,
+    businessName: business.name,
+    customerId: customer.id ?? data.customer_id,
+    customerName: customer.name,
+    customerEmail: customer.email?.trim() || "",
+    customerPhone: customer.phone,
+    staffName: staff?.name ?? "To be assigned",
+    staffEmail: staff?.email?.trim() || null,
+    serviceName,
+    startTime: data.start_time,
+    endTime: data.end_time,
+    notes: data.notes,
+    amountCents: totalCents,
+    businessEmail: business.email?.trim() || null,
+    notificationEmail: business.notification_email?.trim() || null,
+    emailEnabled: business.email_notifications_enabled !== false,
+    smsEnabled: business.sms_notifications_enabled === true,
+    ownerEnabled: business.owner_notifications_enabled !== false,
+    staffEnabled: business.staff_notifications_enabled !== false,
+    subscriptionPlanKey: business.subscription_plan_key,
+    privateAlphaEnabled: business.private_alpha_enabled,
+  };
+}
+
+function resolveBusinessRecipient(ctx: AppointmentNotifyContext): string | null {
+  return ctx.notificationEmail || ctx.businessEmail || null;
+}
+
+async function alreadySent(
+  appointmentId: string,
+  templateKey: string,
+  recipient: string,
+): Promise<{ messageId: string | null } | null> {
+  const supabase = createServiceClient();
+  const { data } = await supabase
+    .from("notification_logs")
+    .select("provider_message_id, status")
+    .eq("appointment_id", appointmentId)
+    .eq("template_key", templateKey)
+    .eq("recipient", recipient)
+    .eq("status", "sent")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return { messageId: (data.provider_message_id as string | null) ?? null };
+}
+
+async function markRelatedJobs(
+  appointmentId: string,
+  templateKey: string,
+  outcome: "completed" | "failed",
+  errorMessage?: string | null,
+) {
+  const supabase = createServiceClient();
+  const { data: jobs } = await supabase
+    .from("background_jobs")
+    .select("id, payload, status")
+    .in("job_type", ["email", "sms"])
+    .in("status", ["pending", "processing"])
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  const matches = (jobs ?? []).filter((job) => {
+    const payload = job.payload as {
+      appointmentId?: string;
+      templateKey?: string;
+    };
+    return (
+      payload.appointmentId === appointmentId &&
+      payload.templateKey === templateKey
+    );
+  });
+
+  for (const job of matches) {
+    await supabase
+      .from("background_jobs")
+      .update({
+        status: outcome,
+        completed_at: new Date().toISOString(),
+        error_message: errorMessage ?? null,
+        next_retry_at: null,
+      })
+      .eq("id", job.id);
+  }
+}
+
+async function sendChannelEmail(input: {
+  channel: BookingNotificationChannel;
+  label: string;
+  ctx: AppointmentNotifyContext;
+  to: string;
+  templateKey: string;
+  skipPreferenceCheck?: boolean;
+  action?: string;
+}): Promise<BookingNotificationItem> {
+  const appointmentId = input.ctx.appointmentId as string;
+  const prior = await alreadySent(
+    appointmentId,
+    input.templateKey,
+    input.to,
+  );
+  if (prior) {
+    return {
+      channel: input.channel,
+      status: "sent",
+      label: input.label,
+      providerMessageId: prior.messageId,
+      canRetry: false,
+      detail: "Already accepted by email provider.",
+    };
+  }
+
+  logger.info("notifications", "provider_send_start", {
+    appointmentId,
+    channel: input.channel,
+    templateKey: input.templateKey,
+    recipient: maskEmail(input.to),
+    provider: "resend",
+    fromHost: getNotificationProviderConfigStatus().emailFromHost,
+  });
+
+  try {
+    const result = await sendEmail({
+      businessId: input.ctx.businessId,
+      to: input.to,
+      templateKey: input.templateKey,
+      context: {
+        ...input.ctx,
+        customMessage: input.action,
+      },
+      customerId: input.ctx.customerId,
+      appointmentId,
+      skipPreferenceCheck: input.skipPreferenceCheck,
+    });
+
+    if (result.skipped) {
+      await markRelatedJobs(
+        appointmentId,
+        input.templateKey,
+        "failed",
+        result.error ?? "Skipped by preferences.",
+      );
+      return {
+        channel: input.channel,
+        status: "skipped",
+        label: input.label,
+        detail: result.error ?? "Skipped by notification preferences.",
+        canRetry: true,
+      };
+    }
+
+    if (!result.ok) {
+      await markRelatedJobs(
+        appointmentId,
+        input.templateKey,
+        "failed",
+        result.error ?? "Email send failed.",
+      );
+      logger.warn("notifications", "provider_send_failed", {
+        appointmentId,
+        channel: input.channel,
+        error: result.error,
+        recipient: maskEmail(input.to),
+      });
+      return {
+        channel: input.channel,
+        status: "failed",
+        label: input.label,
+        detail: result.error ?? "Email could not be sent.",
+        canRetry: true,
+      };
+    }
+
+    await markRelatedJobs(
+      appointmentId,
+      input.templateKey,
+      "completed",
+    );
+    logger.info("notifications", "provider_send_accepted", {
+      appointmentId,
+      channel: input.channel,
+      providerMessageId: result.messageId,
+      recipient: maskEmail(input.to),
+    });
+    return {
+      channel: input.channel,
+      status: "sent",
+      label: input.label,
+      providerMessageId: result.messageId ?? null,
+      canRetry: false,
+      detail: result.messageId
+        ? "Accepted by email provider."
+        : "Accepted by email provider (no message id).",
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Email send failed.";
+    await markRelatedJobs(
+      appointmentId,
+      input.templateKey,
+      "failed",
+      message,
+    );
+    logger.error("notifications", "provider_send_exception", {
+      appointmentId,
+      channel: input.channel,
+      error: message,
+    });
+    return {
+      channel: input.channel,
+      status: "failed",
+      label: input.label,
+      detail: message,
+      canRetry: true,
+    };
+  }
+}
+
+/**
+ * Awaited inline delivery for booking confirmation. Never returns Pending.
+ */
+export async function deliverBookingNotifications(
+  appointmentId: string,
+): Promise<BookingNotificationReport> {
   const emailConfigured = Boolean(getResendApiKey());
   const smsConfigured = Boolean(getTwilioConfig());
-  const smsPlanIncluded = planIncludesSms(business);
+  const ctx = await loadAppointmentNotifyContext(appointmentId);
 
-  const jobs = await loadJobsForAppointment(appointmentId);
-  const customerEmailJob = jobs.find(
-    (j) =>
-      j.job_type === "email" &&
-      (j.payload as { templateKey?: string }).templateKey ===
-        "appointment.confirmation",
-  );
-  const businessEmailJob = jobs.find(
-    (j) =>
-      j.job_type === "email" &&
-      (j.payload as { templateKey?: string }).templateKey ===
-        "appointment.business",
-  );
-  const staffEmailJob = jobs.find(
-    (j) =>
-      j.job_type === "email" &&
-      (j.payload as { templateKey?: string }).templateKey ===
-        "appointment.staff",
-  );
-  const customerSmsJob = jobs.find(
-    (j) =>
-      j.job_type === "sms" &&
-      (j.payload as { templateKey?: string }).templateKey ===
-        "appointment.confirmation",
-  );
+  if (!ctx) {
+    return {
+      appointmentId,
+      emailConfigured,
+      smsConfigured,
+      smsPlanIncluded: false,
+      items: [
+        {
+          channel: "customer_email",
+          status: "failed",
+          label: "Customer email",
+          detail: "Could not load appointment for notification delivery.",
+          canRetry: true,
+        },
+        {
+          channel: "customer_sms",
+          status: "failed",
+          label: "Customer SMS",
+          detail: "Could not load appointment for notification delivery.",
+          canRetry: false,
+        },
+        {
+          channel: "business_email",
+          status: "failed",
+          label: "Business email",
+          detail: "Could not load appointment for notification delivery.",
+          canRetry: true,
+        },
+        {
+          channel: "staff_email",
+          status: "failed",
+          label: "Staff notification",
+          detail: "Could not load appointment for notification delivery.",
+          canRetry: false,
+        },
+      ],
+    };
+  }
 
-  const businessRecipient =
-    business?.notification_email?.trim() || business?.email?.trim() || null;
+  const smsPlanIncluded = planIncludesSms({
+    subscription_plan_key: ctx.subscriptionPlanKey,
+    private_alpha_enabled: ctx.privateAlphaEnabled,
+  });
+  const businessTo = resolveBusinessRecipient(ctx);
+  const items: BookingNotificationItem[] = [];
 
-  const items: BookingNotificationItem[] = [
-    classifyEmailJob(customerEmailJob, {
+  // Customer email
+  if (!ctx.emailEnabled) {
+    items.push({
       channel: "customer_email",
-      enabled: emailEnabled,
-      configured: emailConfigured,
-      hasRecipient: Boolean(customer?.email?.trim()),
-    }),
-    classifySmsJob(customerSmsJob, {
-      enabled: smsEnabled,
-      configured: smsConfigured,
-      planIncluded: smsPlanIncluded,
-      hasRecipient: Boolean(customer?.phone?.trim()),
-    }),
-    classifyEmailJob(businessEmailJob, {
+      status: "not_enabled",
+      label: "Customer email",
+    });
+  } else if (!ctx.customerEmail) {
+    items.push({
+      channel: "customer_email",
+      status: "no_recipient",
+      label: "Customer email",
+      detail: "Customer has no email address.",
+    });
+  } else if (!emailConfigured) {
+    items.push({
+      channel: "customer_email",
+      status: "not_configured",
+      label: "Customer email",
+      detail: "Email delivery is not configured for this environment.",
+    });
+  } else {
+    items.push(
+      await sendChannelEmail({
+        channel: "customer_email",
+        label: "Customer email",
+        ctx,
+        to: ctx.customerEmail,
+        templateKey: "appointment.confirmation",
+      }),
+    );
+  }
+
+  // Customer SMS
+  if (!smsPlanIncluded) {
+    items.push({
+      channel: "customer_sms",
+      status: "not_included",
+      label: "Customer SMS",
+      detail: "SMS notifications are not included in the current plan.",
+    });
+  } else if (!ctx.smsEnabled) {
+    items.push({
+      channel: "customer_sms",
+      status: "not_enabled",
+      label: "Customer SMS",
+    });
+  } else if (!ctx.customerPhone?.trim()) {
+    items.push({
+      channel: "customer_sms",
+      status: "no_recipient",
+      label: "Customer SMS",
+      detail: "Customer has no mobile number.",
+    });
+  } else if (!smsConfigured) {
+    items.push({
+      channel: "customer_sms",
+      status: "not_configured",
+      label: "Customer SMS",
+      detail: "SMS notifications are not configured for this business.",
+    });
+  } else {
+    try {
+      const result = await sendSMS({
+        businessId: ctx.businessId,
+        to: ctx.customerPhone,
+        templateKey: "appointment.confirmation",
+        context: ctx,
+        customerId: ctx.customerId,
+        appointmentId,
+      });
+      if (result.ok) {
+        await markRelatedJobs(appointmentId, "appointment.confirmation", "completed");
+        items.push({
+          channel: "customer_sms",
+          status: "sent",
+          label: "Customer SMS",
+          providerMessageId: result.messageId ?? null,
+        });
+      } else if (result.skipped) {
+        items.push({
+          channel: "customer_sms",
+          status: "skipped",
+          label: "Customer SMS",
+          detail: result.error,
+          canRetry: true,
+        });
+      } else {
+        items.push({
+          channel: "customer_sms",
+          status: "failed",
+          label: "Customer SMS",
+          detail: result.error ?? "SMS could not be sent.",
+          canRetry: true,
+        });
+      }
+    } catch (err) {
+      items.push({
+        channel: "customer_sms",
+        status: "failed",
+        label: "Customer SMS",
+        detail: err instanceof Error ? err.message : "SMS could not be sent.",
+        canRetry: true,
+      });
+    }
+  }
+
+  // Business email
+  if (!ctx.emailEnabled || !ctx.ownerEnabled) {
+    items.push({
       channel: "business_email",
-      enabled: emailEnabled && ownerEnabled,
-      configured: emailConfigured,
-      hasRecipient: Boolean(businessRecipient),
-    }),
-    classifyEmailJob(staffEmailJob, {
+      status: "not_enabled",
+      label: "Business email",
+    });
+  } else if (!businessTo) {
+    items.push({
+      channel: "business_email",
+      status: "no_recipient",
+      label: "Business email",
+      detail: "No business notification email configured.",
+    });
+  } else if (!emailConfigured) {
+    items.push({
+      channel: "business_email",
+      status: "not_configured",
+      label: "Business email",
+      detail: "Email delivery is not configured for this environment.",
+    });
+  } else {
+    items.push(
+      await sendChannelEmail({
+        channel: "business_email",
+        label: "Business email",
+        ctx,
+        to: businessTo,
+        templateKey: "appointment.business",
+        skipPreferenceCheck: true,
+        action: "New appointment booked",
+      }),
+    );
+  }
+
+  // Staff email
+  if (!ctx.emailEnabled || !ctx.staffEnabled) {
+    items.push({
       channel: "staff_email",
-      enabled: emailEnabled && staffEnabled,
-      configured: emailConfigured,
-      hasRecipient: Boolean(staff?.email?.trim()),
-    }),
-  ];
+      status: "not_enabled",
+      label: "Staff notification",
+    });
+  } else if (!ctx.staffEmail) {
+    items.push({
+      channel: "staff_email",
+      status: "no_recipient",
+      label: "Staff notification",
+      detail: "Assigned employee has no email address.",
+    });
+  } else if (!emailConfigured) {
+    items.push({
+      channel: "staff_email",
+      status: "not_configured",
+      label: "Staff notification",
+      detail: "Email delivery is not configured for this environment.",
+    });
+  } else {
+    items.push(
+      await sendChannelEmail({
+        channel: "staff_email",
+        label: "Staff notification",
+        ctx,
+        to: ctx.staffEmail,
+        templateKey: "appointment.staff",
+        skipPreferenceCheck: true,
+        action: "new appointment",
+      }),
+    );
+  }
+
+  // Never leave Pending after inline delivery.
+  for (const item of items) {
+    if (item.status === "pending") {
+      item.status = "failed";
+      item.detail =
+        item.detail ??
+        "Email could not be sent before the request completed.";
+      item.canRetry = true;
+    }
+  }
+
+  logger.info("notifications", "inline_delivery_complete", {
+    appointmentId,
+    results: items.map((i) => ({
+      channel: i.channel,
+      status: i.status,
+      providerMessageId: i.providerMessageId ?? null,
+    })),
+  });
 
   return {
     appointmentId,
@@ -379,60 +627,40 @@ export async function buildBookingNotificationReport(
   };
 }
 
-export async function deliverBookingNotifications(
+/** @deprecated Prefer deliverBookingNotifications — kept for retry helpers. */
+export async function flushAppointmentNotificationJobs(
+  appointmentId: string,
+): Promise<number> {
+  const report = await deliverBookingNotifications(appointmentId);
+  return report.items.filter((i) => i.status === "sent").length;
+}
+
+export async function buildBookingNotificationReport(
   appointmentId: string,
 ): Promise<BookingNotificationReport> {
-  await flushAppointmentNotificationJobs(appointmentId);
-  return buildBookingNotificationReport(appointmentId);
+  // Re-run definitive delivery path (idempotent via notification_logs).
+  return deliverBookingNotifications(appointmentId);
 }
 
 export async function retryBookingNotification(input: {
   appointmentId: string;
   channel: BookingNotificationItem["channel"];
 }): Promise<BookingNotificationReport> {
-  const supabase = createServiceClient();
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select(
-      `
-      id, business_id,
-      business:businesses(email, notification_email),
-      staff:staff(email),
-      customer:customers(email, phone)
-    `,
-    )
-    .eq("id", input.appointmentId)
-    .single();
+  const ctx = await loadAppointmentNotifyContext(input.appointmentId);
+  if (!ctx) throw new Error("Appointment not found.");
 
-  if (!appointment) {
-    throw new Error("Appointment not found.");
-  }
-
-  const businessId = appointment.business_id as string;
-  const business = unwrapRelation(appointment.business) as {
-    email: string | null;
-    notification_email: string | null;
-  } | null;
-  const customer = unwrapRelation(appointment.customer) as {
-    email: string | null;
-    phone: string | null;
-  } | null;
-  const staff = unwrapRelation(appointment.staff) as {
-    email: string | null;
-  } | null;
-
+  const businessId = ctx.businessId;
   const idempotencyKey = `${input.appointmentId}:${input.channel}:retry:${Date.now()}`;
 
   if (input.channel === "customer_email") {
-    if (!customer?.email) throw new Error("Customer has no email address.");
+    if (!ctx.customerEmail) throw new Error("Customer has no email address.");
     await enqueueEmailJob(businessId, {
       appointmentId: input.appointmentId,
       templateKey: "appointment.confirmation",
       idempotencyKey,
     });
   } else if (input.channel === "business_email") {
-    const to =
-      business?.notification_email?.trim() || business?.email?.trim() || null;
+    const to = resolveBusinessRecipient(ctx);
     if (!to) throw new Error("No business notification email configured.");
     await enqueueEmailJob(businessId, {
       appointmentId: input.appointmentId,
@@ -442,16 +670,16 @@ export async function retryBookingNotification(input: {
       idempotencyKey,
     });
   } else if (input.channel === "staff_email") {
-    if (!staff?.email) throw new Error("Assigned employee has no email.");
+    if (!ctx.staffEmail) throw new Error("Assigned employee has no email.");
     await enqueueEmailJob(businessId, {
       appointmentId: input.appointmentId,
       templateKey: "appointment.staff",
-      recipient: staff.email,
+      recipient: ctx.staffEmail,
       action: "new appointment",
       idempotencyKey,
     });
   } else if (input.channel === "customer_sms") {
-    if (!customer?.phone) throw new Error("Customer has no mobile number.");
+    if (!ctx.customerPhone) throw new Error("Customer has no mobile number.");
     await enqueueSmsJob(businessId, {
       appointmentId: input.appointmentId,
       templateKey: "appointment.confirmation",
@@ -459,6 +687,37 @@ export async function retryBookingNotification(input: {
     });
   }
 
-  await flushAppointmentNotificationJobs(input.appointmentId);
-  return buildBookingNotificationReport(input.appointmentId);
+  // Force a fresh provider attempt by not short-circuiting only when prior
+  // success exists — alreadySent still protects true duplicates.
+  return deliverBookingNotifications(input.appointmentId);
+}
+
+/** Mark jobs stuck in pending/processing past the threshold as failed. */
+export async function failStaleNotificationJobs(
+  olderThanMs = STALE_PENDING_MS,
+): Promise<number> {
+  const supabase = createServiceClient();
+  const cutoff = new Date(Date.now() - olderThanMs).toISOString();
+  const { data: jobs } = await supabase
+    .from("background_jobs")
+    .select("id, created_at, status")
+    .in("job_type", ["email", "sms"])
+    .in("status", ["pending", "processing"])
+    .lte("created_at", cutoff)
+    .limit(50);
+
+  let updated = 0;
+  for (const job of jobs ?? []) {
+    await supabase
+      .from("background_jobs")
+      .update({
+        status: "failed",
+        error_message: "Stalled — delivery did not complete in time.",
+        completed_at: new Date().toISOString(),
+        next_retry_at: null,
+      })
+      .eq("id", job.id);
+    updated += 1;
+  }
+  return updated;
 }
