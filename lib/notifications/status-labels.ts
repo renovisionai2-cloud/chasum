@@ -2,6 +2,13 @@
  * Client-safe notification status labels (no server imports).
  */
 
+export type BookingNotificationChannel =
+  | "customer_email"
+  | "customer_sms"
+  | "business_email"
+  | "staff_email"
+  | "payment_receipt";
+
 export type NotificationChannelStatus =
   | "sent"
   | "pending"
@@ -10,13 +17,9 @@ export type NotificationChannelStatus =
   | "not_configured"
   | "not_included"
   | "no_recipient"
-  | "skipped";
-
-export type BookingNotificationChannel =
-  | "customer_email"
-  | "customer_sms"
-  | "business_email"
-  | "staff_email";
+  | "skipped"
+  | "not_requested"
+  | "not_applicable";
 
 export function formatNotificationStatus(
   status: NotificationChannelStatus,
@@ -38,5 +41,9 @@ export function formatNotificationStatus(
       return "No recipient";
     case "skipped":
       return "Skipped";
+    case "not_requested":
+      return "Not requested";
+    case "not_applicable":
+      return "Not applicable";
   }
 }

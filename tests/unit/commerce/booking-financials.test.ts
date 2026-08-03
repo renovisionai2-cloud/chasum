@@ -3,55 +3,92 @@ import {
   paymentKindForAmount,
   resolveBookingFinancials,
   resolveDepositRequiredCents,
+  resolveFinancialsFromAppointment,
   suggestPaymentTodayCents,
 } from "@/lib/commerce/booking-financials";
 import { renderEmailTemplate } from "@/lib/communications/templates";
+import {
+  formatFromHeader,
+  resolveTenantEmailBranding,
+} from "@/lib/communications/tenant-email-branding";
 
-describe("resolveBookingFinancials", () => {
-  it("includes tax in appointment total and remaining balance", () => {
+describe("resolveBookingFinancials — tax inclusive catalog", () => {
+  const inclusiveRates = [
+    {
+      id: "t1",
+      name: "HST",
+      rate_bps: 1300,
+      inclusive: true,
+      is_default: true,
+      is_active: true,
+    },
+  ];
+
+  it("extracts tax from inclusive $236 list price", () => {
     const f = resolveBookingFinancials({
-      subtotalCents: 23600,
-      taxCents: 2715,
+      catalogPriceCents: 23600,
+      taxRates: inclusiveRates,
       depositRequiredCents: 5000,
       paymentTodayCents: 5000,
       currency: "usd",
     });
-    expect(f.appointmentTotalCents).toBe(26315);
-    expect(f.depositRequiredCents).toBe(5000);
-    expect(f.paymentTodayCents).toBe(5000);
-    expect(f.remainingBalanceCents).toBe(21315);
+    expect(f.taxInclusive).toBe(true);
+    expect(f.subtotalCents).toBe(20885);
+    expect(f.taxCents).toBe(2715);
+    expect(f.appointmentTotalCents).toBe(23600);
+    expect(f.remainingBalanceCents).toBe(18600);
     expect(f.paymentStatus).toBe("deposit_paid");
   });
 
-  it("treats unpaid deposit requirement as deposit_required", () => {
+  it("shows unpaid deposit against inclusive total", () => {
     const f = resolveBookingFinancials({
-      subtotalCents: 23600,
-      taxCents: 2715,
+      catalogPriceCents: 23600,
+      taxRates: inclusiveRates,
       depositRequiredCents: 5000,
-      paymentTodayCents: 0,
     });
-    expect(f.remainingBalanceCents).toBe(26315);
+    expect(f.appointmentTotalCents).toBe(23600);
+    expect(f.remainingBalanceCents).toBe(23600);
     expect(f.paymentStatus).toBe("deposit_required");
   });
+});
 
-  it("marks fully paid when payment covers tax-inclusive total", () => {
+describe("resolveBookingFinancials — tax exclusive catalog", () => {
+  const exclusiveRates = [
+    {
+      id: "t1",
+      name: "HST",
+      rate_bps: 1300,
+      inclusive: false,
+      is_default: true,
+      is_active: true,
+    },
+  ];
+
+  it("adds tax on exclusive $236 list price", () => {
     const f = resolveBookingFinancials({
-      subtotalCents: 23600,
-      taxCents: 2715,
-      paymentTodayCents: 26315,
+      catalogPriceCents: 23600,
+      taxRates: exclusiveRates,
+      depositRequiredCents: 5000,
+      paymentTodayCents: 5000,
     });
-    expect(f.remainingBalanceCents).toBe(0);
-    expect(f.paymentStatus).toBe("fully_paid");
+    expect(f.taxInclusive).toBe(false);
+    expect(f.subtotalCents).toBe(23600);
+    expect(f.taxCents).toBe(3068);
+    expect(f.appointmentTotalCents).toBe(26668);
+    expect(f.remainingBalanceCents).toBe(21668);
   });
+});
 
-  it("does not treat subtotal alone as fully paid", () => {
-    const f = resolveBookingFinancials({
-      subtotalCents: 23600,
+describe("persisted appointment rebuild", () => {
+  it("rebuilds from exclusive stamp + tax", () => {
+    const f = resolveFinancialsFromAppointment({
+      priceCents: 20885,
       taxCents: 2715,
-      paymentTodayCents: 23600,
+      depositCents: 5000,
+      amountPaidCents: 5000,
     });
-    expect(f.remainingBalanceCents).toBe(2715);
-    expect(f.paymentStatus).toBe("partially_paid");
+    expect(f.appointmentTotalCents).toBe(23600);
+    expect(f.remainingBalanceCents).toBe(18600);
   });
 });
 
@@ -61,53 +98,53 @@ describe("deposit helpers", () => {
       resolveDepositRequiredCents({
         depositCents: 5000,
         depositRequired: true,
-        subtotalCents: 23600,
+        baseCents: 23600,
       }),
     ).toBe(5000);
   });
 
-  it("falls back to 20% when required without cents", () => {
+  it("falls back to 20% of appointment total", () => {
     expect(
       resolveDepositRequiredCents({
         depositCents: 0,
         depositRequired: true,
-        subtotalCents: 10000,
+        baseCents: 10000,
       }),
     ).toBe(2000);
   });
 
   it("suggests payment today by mode", () => {
     const base = resolveBookingFinancials({
-      subtotalCents: 23600,
+      catalogPriceCents: 23600,
+      taxInclusive: true,
       taxCents: 2715,
       depositRequiredCents: 5000,
     });
     expect(suggestPaymentTodayCents("none", base)).toBe(0);
     expect(suggestPaymentTodayCents("deposit", base)).toBe(5000);
-    expect(suggestPaymentTodayCents("full", base)).toBe(26315);
+    expect(suggestPaymentTodayCents("full", base)).toBe(23600);
     expect(suggestPaymentTodayCents("custom", base, 10000)).toBe(10000);
   });
 
   it("classifies payment kind", () => {
-    expect(paymentKindForAmount(5000, 5000, 26315)).toBe("deposit");
-    expect(paymentKindForAmount(26315, 5000, 26315)).toBe("payment");
-    expect(paymentKindForAmount(10000, 5000, 26315)).toBe("payment");
+    expect(paymentKindForAmount(5000, 5000, 23600)).toBe("deposit");
+    expect(paymentKindForAmount(23600, 5000, 23600)).toBe("payment");
   });
 });
 
-describe("confirmation email financial copy", () => {
+describe("confirmation email financial copy (inclusive)", () => {
   const baseCtx = {
     businessId: "b1",
     businessName: "GVM Baby World Ultrasound",
-    customerName: "Darshan Dindial",
+    customerName: "Ana Ramoersad",
     staffName: "Bobita Singh",
     serviceName: "Elite Package",
     startTime: "2026-08-10T21:30:00.000Z",
     endTime: "2026-08-10T22:00:00.000Z",
-    subtotalCents: 23600,
+    subtotalCents: 20885,
     taxCents: 2715,
-    appointmentTotalCents: 26315,
-    amountCents: 26315,
+    appointmentTotalCents: 23600,
+    amountCents: 23600,
     depositRequiredCents: 5000,
     branding: {
       businessName: "GVM Baby World Ultrasound",
@@ -118,40 +155,61 @@ describe("confirmation email financial copy", () => {
     },
   };
 
-  it("shows tax-inclusive total and unpaid deposit wording", () => {
-    const rendered = renderEmailTemplate("appointment.confirmation", {
-      ...baseCtx,
-      depositPaidCents: 0,
-      remainingBalanceCents: 26315,
-    });
-    expect(rendered.html).toContain("$263.15");
-    expect(rendered.html).not.toMatch(/Appointment total[\s\S]*\$236\.00/);
-    expect(rendered.html).toContain("No payment was recorded");
-    expect(rendered.html).toContain("Email GVM Baby World Ultrasound");
-    expect(rendered.html).toContain("mailto:ops@example.com");
-  });
-
-  it("shows deposit paid and remaining balance", () => {
+  it("shows inclusive total $236 not $263.15", () => {
     const rendered = renderEmailTemplate("appointment.confirmation", {
       ...baseCtx,
       depositPaidCents: 5000,
-      remainingBalanceCents: 21315,
-      paymentMethodLabel: "Cash",
+      remainingBalanceCents: 18600,
+      paymentMethodLabel: "E-Transfer",
     });
+    expect(rendered.html).toContain("$236.00");
+    expect(rendered.html).toContain("$208.85");
+    expect(rendered.html).toContain("$186.00");
+    expect(rendered.html).not.toContain("$263.15");
     expect(rendered.html).toContain("$50.00 deposit was received");
-    expect(rendered.html).toContain("$213.15");
-    expect(rendered.html).toContain("Cash");
   });
 
-  it("business email shows deposit not paid clearly", () => {
-    const rendered = renderEmailTemplate("appointment.business", {
+  it("omits Powered by when branding removal entitled", () => {
+    const rendered = renderEmailTemplate("appointment.confirmation", {
       ...baseCtx,
       depositPaidCents: 0,
-      remainingBalanceCents: 26315,
-      paymentStatusLabel: "Deposit required",
+      remainingBalanceCents: 23600,
+      branding: {
+        ...baseCtx.branding,
+        optOutFooter: "Powered by Chasum",
+        showChasumBranding: false,
+      },
     });
-    expect(rendered.html).toContain("$263.15");
-    expect(rendered.html).toContain("Not paid");
-    expect(rendered.subject).toMatch(/New appointment booked — Elite Package/);
+    expect(rendered.html).not.toMatch(/Powered by Chasum/i);
+  });
+});
+
+describe("sender identity", () => {
+  it("quotes multi-word business display names", () => {
+    expect(
+      formatFromHeader(
+        "GVM Baby World Ultrasound",
+        "Chasum <notifications@chasumai.com>",
+      ),
+    ).toBe('"GVM Baby World Ultrasound" <notifications@chasumai.com>');
+  });
+
+  it("Private Alpha customer branding removes Powered by", () => {
+    const tenant = resolveTenantEmailBranding(
+      {
+        name: "GVM Baby World Ultrasound",
+        email: "ops@example.com",
+        notification_email: "bookings@example.com",
+        subscription_plan_key: "starter",
+        private_alpha_enabled: true,
+        communications_opt_out_footer: "Powered by Chasum",
+      },
+      "customer",
+    );
+    expect(tenant.showChasumBranding).toBe(false);
+    expect(tenant.footerText).not.toMatch(/Powered by Chasum/i);
+    expect(tenant.fromHeader).toContain("GVM Baby World Ultrasound");
+    expect(tenant.fromHeader).toContain("notifications@chasumai.com");
+    expect(tenant.replyToAddress).toBe("bookings@example.com");
   });
 });

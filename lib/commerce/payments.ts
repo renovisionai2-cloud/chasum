@@ -41,6 +41,8 @@ export type RecordPaymentInput = {
   giftCardCode?: string | null;
   /** Gift certificate id when method is gift_card */
   giftCardId?: string | null;
+  /** When true, queue/send receipt email after recording. Default false. */
+  sendReceiptEmail?: boolean;
 };
 
 export type RecordPaymentResult = {
@@ -481,7 +483,7 @@ export async function recordCommercePayment(
     actorId: input.actorId,
   });
 
-  if (receipt) {
+  if (receipt && input.sendReceiptEmail) {
     try {
       const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
       const emailed = await queueReceiptEmail(input.businessId, receipt.id);

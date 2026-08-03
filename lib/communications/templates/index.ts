@@ -106,9 +106,11 @@ function financialBlock(
       : Math.max(0, total - depositPaid);
 
   const rows: string[] = [];
-  if (audience === "business" && subtotal != null) {
+  if (subtotal != null) {
     rows.push(detailRow("Subtotal", money(subtotal)));
-    if (tax != null && tax > 0) rows.push(detailRow("Tax", money(tax)));
+  }
+  if (tax != null && tax > 0) {
+    rows.push(detailRow("Tax", money(tax)));
   }
   rows.push(detailRow("Appointment total", `<strong>${money(total)}</strong>`));
   if (depositRequired > 0) {
@@ -167,15 +169,16 @@ function financialBlock(
 function footerHtml(branding: BrandingContext): string {
   const custom = branding.optOutFooter?.trim();
   if (branding.showChasumBranding === false) {
-    return custom
-      ? escapeHtml(custom)
-      : escapeHtml(branding.businessName);
+    if (custom && !/powered by chasum|sent by chasum|chasum ·/i.test(custom)) {
+      return escapeHtml(custom);
+    }
+    return escapeHtml(branding.businessName);
   }
   if (branding.chasumBrandingStyle === "product_context") {
     return escapeHtml(custom || `Sent via ${BRAND_NAME}`);
   }
   // Free plan / default: secondary Powered by — never the old platform tagline.
-  if (custom && !/sent by chasum/i.test(custom)) {
+  if (custom && !/sent by chasum|powered by chasum/i.test(custom)) {
     return `${escapeHtml(custom)}<br/><span style="color:#94a3b8;">Powered by ${escapeHtml(BRAND_NAME)}</span>`;
   }
   return `Powered by ${escapeHtml(BRAND_NAME)}`;
@@ -385,17 +388,32 @@ export function renderEmailTemplate(
       };
     }
     case "commerce.receipt": {
+      const total =
+        ctx.appointmentTotalCents ?? ctx.amountCents ?? null;
+      const paid = ctx.depositPaidCents ?? ctx.amountCents ?? null;
+      const remaining = ctx.remainingBalanceCents;
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
         <p>Thank you — payment received. Here’s your receipt ${escapeHtml(ctx.receiptNumber ?? "")}.</p>
-        <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>
-        <p style="margin:0;color:#475569;font-size:14px;">We appreciate your business.</p>
+        <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
+          ${detailRow("Service", escapeHtml(ctx.serviceName))}
+          ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx.startTime))) : ""}
+          ${detailRow("Amount received", `<strong>${money(ctx.amountCents)}</strong>`)}
+          ${ctx.paymentMethodLabel ? detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)) : ""}
+          ${total != null ? detailRow("Appointment total", money(total)) : ""}
+          ${paid != null ? detailRow("Total paid", money(paid)) : ""}
+          ${remaining != null ? detailRow("Balance remaining", money(remaining)) : ""}
+          ${ctx.paymentStatusLabel ? detailRow("Payment status", escapeHtml(ctx.paymentStatusLabel)) : ""}
+          ${ctx.receiptNumber ? detailRow("Receipt", escapeHtml(ctx.receiptNumber)) : ""}
+        </table>
+        <p style="margin:16px 0 0;color:#475569;font-size:14px;">We appreciate your business.</p>
         ${contactBlock(b)}`;
+      const amountLabel = money(ctx.amountCents);
       return {
         key,
-        subject: `Your receipt from ${ctx.businessName}`,
-        html: layout(content, b),
-        text: `Receipt ${ctx.receiptNumber ?? ""} for ${money(ctx.amountCents)} from ${ctx.businessName}. Thank you!`,
+        subject: `Payment receipt — ${amountLabel} for ${ctx.serviceName}`,
+        html: layout(content, b, { headline: "Payment receipt" }),
+        text: `Receipt ${ctx.receiptNumber ?? ""} for ${amountLabel} from ${ctx.businessName}. Thank you!`,
       };
     }
     case "commerce.gift_certificate": {

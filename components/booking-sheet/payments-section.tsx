@@ -1,7 +1,7 @@
 "use client";
 
 import type { TaxRate } from "@/lib/business/types";
-import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
+import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
 import {
@@ -55,45 +55,46 @@ export function PaymentsSection({
   currency = "usd",
   taxRates = [],
 }: PaymentsSectionProps) {
-  const subtotalCents =
-    appointment?.price_cents != null
-      ? Number(appointment.price_cents)
-      : service
-        ? Math.round(Number(service.price) * 100)
-        : 0;
-  const taxFromAppointment =
-    appointment?.tax_cents != null ? Number(appointment.tax_cents) : null;
-  const pricing =
-    taxFromAppointment != null
-      ? {
-          subtotalCents,
-          taxCents: taxFromAppointment,
-          totalCents: subtotalCents + taxFromAppointment,
-        }
-      : computeBookingPricing({
-          subtotalCents,
+  const catalogCents =
+    appointment?.price_cents != null && appointment?.tax_cents != null
+      ? Number(appointment.price_cents) + Number(appointment.tax_cents)
+      : appointment?.price_cents != null
+        ? Number(appointment.price_cents)
+        : service
+          ? Math.round(Number(service.price) * 100)
+          : 0;
+
+  const financials =
+    appointment?.price_cents != null && appointment?.tax_cents != null
+      ? resolveBookingFinancials({
+          catalogPriceCents:
+            Number(appointment.price_cents) + Number(appointment.tax_cents),
+          taxInclusive: true,
+          taxCents: Number(appointment.tax_cents),
+          depositRequiredCents:
+            appointment.deposit_cents ?? service?.deposit_cents,
+          depositRequired: service?.deposit_required,
+          paidToDateCents: appointment.amount_paid_cents,
+          amountRefundedCents: appointment.amount_refunded_cents,
+          currency,
+        })
+      : resolveBookingFinancials({
+          catalogPriceCents: catalogCents,
           serviceTaxRateBps: service?.tax_rate_bps ?? 0,
           taxRates,
+          depositRequiredCents: service?.deposit_cents,
+          depositRequired: service?.deposit_required,
           currency,
         });
 
-  const depositCents = Number(
-    appointment?.deposit_cents ?? service?.deposit_cents ?? 0,
-  );
-  const amountPaid = Number(
-    appointment?.amount_paid_cents ?? 0,
-  );
-  const amountRefunded = Number(appointment?.amount_refunded_cents ?? 0);
-  const depositRequired =
-    Boolean(service?.deposit_required) || depositCents > 0;
+  const depositCents = financials.depositRequiredCents;
+  const amountPaid = financials.paidToDateCents;
+  const amountRefunded = financials.amountRefundedCents;
+  const depositRequired = depositCents > 0;
   const netPaid = Math.max(0, amountPaid - amountRefunded);
-  const outstandingTotal = Math.max(0, pricing.totalCents - netPaid);
-  const remainingAfterDeposit = Math.max(
-    0,
-    pricing.totalCents - Math.max(depositCents, netPaid),
-  );
+  const outstandingTotal = financials.remainingBalanceCents;
   const status = deriveStatus({
-    totalCents: pricing.totalCents,
+    totalCents: financials.appointmentTotalCents,
     depositCents,
     amountPaidCents: amountPaid,
     amountRefundedCents: amountRefunded,
@@ -143,16 +144,16 @@ export function PaymentsSection({
           <div className="flex justify-between gap-3">
             <dt className="text-muted-foreground">Appointment total</dt>
             <dd className="font-medium tabular-nums">
-              {formatMoneyCents(pricing.totalCents, currency)}
+              {formatMoneyCents(financials.appointmentTotalCents, currency)}
             </dd>
           </div>
-          {pricing.taxCents > 0 ? (
+          {financials.taxCents > 0 ? (
             <div className="flex justify-between gap-3">
               <dt className="text-muted-foreground">
-                Includes tax ({formatMoneyCents(pricing.taxCents, currency)})
+                Includes tax ({formatMoneyCents(financials.taxCents, currency)})
               </dt>
               <dd className="tabular-nums text-muted-foreground">
-                Subtotal {formatMoneyCents(pricing.subtotalCents, currency)}
+                Subtotal {formatMoneyCents(financials.subtotalCents, currency)}
               </dd>
             </div>
           ) : null}
@@ -167,7 +168,10 @@ export function PaymentsSection({
               <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">Remaining after deposit</dt>
                 <dd className="tabular-nums">
-                  {formatMoneyCents(remainingAfterDeposit, currency)}
+                  {formatMoneyCents(
+                    Math.max(0, financials.appointmentTotalCents - depositCents),
+                    currency,
+                  )}
                 </dd>
               </div>
             </>

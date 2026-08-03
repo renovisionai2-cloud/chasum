@@ -70,8 +70,11 @@ export function formatFromHeader(
   const name = sanitizeEmailDisplayName(displayName);
   const address =
     extractEmailAddress(technicalAddress) ?? "notifications@chasumai.com";
-  const needsQuotes = /[,;:@()]/.test(name);
-  const encoded = needsQuotes ? `"${name.replace(/"/g, "")}"` : name;
+  // RFC 5322: display names with spaces or specials must be quoted.
+  const needsQuotes = /[\s,;:@()[\]\\]/.test(name) || name.length === 0;
+  const encoded = needsQuotes
+    ? `"${name.replace(/\\/g, "\\\\").replace(/"/g, "")}"`
+    : name;
   return `${encoded} <${address}>`;
 }
 
@@ -122,12 +125,19 @@ export function resolveTenantEmailBranding(
     if (canRemove) {
       showChasumBranding = false;
       chasumBrandingStyle = "none";
-      footerText =
+      const custom =
         business.communications_opt_out_footer?.trim() ||
         business.email_signature?.trim() ||
-        [businessName, supportEmail, business.phone?.trim()]
-          .filter(Boolean)
-          .join(" · ");
+        "";
+      // Never keep platform footer copy when branding removal is entitled.
+      footerText = /powered by chasum|sent by chasum|chasum ·/i.test(custom)
+        ? [businessName, supportEmail, business.phone?.trim()]
+            .filter(Boolean)
+            .join(" · ")
+        : custom ||
+          [businessName, supportEmail, business.phone?.trim()]
+            .filter(Boolean)
+            .join(" · ");
     } else {
       footerText = `Powered by ${BRAND_NAME}`;
     }

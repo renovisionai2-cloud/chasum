@@ -72,37 +72,56 @@ export async function createBooking(
     intent.priceCents != null && intent.priceCents > 0
       ? intent.priceCents
       : Math.round(Number(serviceRow?.price ?? 0) * 100);
+
+  // Authoritative tax + exclusive subtotal from catalog + tax rates.
+  const { data: taxRows } = await supabase
+    .from("tax_rates")
+    .select("id, name, rate_bps, inclusive, is_default, is_active")
+    .eq("business_id", intent.businessId)
+    .eq("is_active", true);
+  const { resolveBookingFinancials } = await import(
+    "@/lib/commerce/booking-financials"
+  );
+
+  // When the form already stamped exclusive price + tax, reconstruct with those.
+  // Otherwise treat priceCents as the catalog list price.
+  const formProvidedTax =
+    intent.taxCents != null && Number.isFinite(intent.taxCents);
+  const financials = formProvidedTax
+    ? resolveBookingFinancials({
+        catalogPriceCents: priceCents + Math.max(0, Math.round(intent.taxCents!)),
+        taxInclusive: true,
+        taxCents: Math.max(0, Math.round(intent.taxCents!)),
+        depositRequiredCents: intent.depositCents,
+        depositRequired: serviceRow?.deposit_required,
+      })
+    : resolveBookingFinancials({
+        catalogPriceCents:
+          intent.priceCents != null && intent.priceCents > 0
+            ? // Form sent exclusive subtotal without tax → treat as exclusive catalog
+              // by forcing taxInclusive false via rates; if rates are inclusive and
+              // no tax was sent, catalog is the list price on the service.
+              Math.round(Number(serviceRow?.price ?? 0) * 100) || priceCents
+            : Math.round(Number(serviceRow?.price ?? 0) * 100),
+        serviceTaxRateBps: serviceRow?.tax_rate_bps ?? null,
+        taxRates: (taxRows ?? []) as Parameters<
+          typeof resolveBookingFinancials
+        >[0]["taxRates"],
+        depositRequiredCents: intent.depositCents,
+        depositRequired: serviceRow?.deposit_required,
+      });
+
+  // Prefer form exclusive stamp when both price and tax were provided.
+  const stampedPriceCents = formProvidedTax
+    ? priceCents
+    : financials.subtotalCents;
+  const taxCents = formProvidedTax
+    ? Math.max(0, Math.round(intent.taxCents!))
+    : financials.taxCents;
   const depositCents =
     intent.depositCents != null
       ? intent.depositCents
-      : Number(serviceRow?.deposit_cents ?? 0) ||
-        (serviceRow?.deposit_required ? Math.round(priceCents * 0.2) : 0);
-
-  let taxCents =
-    intent.taxCents != null && Number.isFinite(intent.taxCents)
-      ? Math.max(0, Math.round(intent.taxCents))
-      : null;
-
-  if (taxCents == null) {
-    const { data: taxRows } = await supabase
-      .from("tax_rates")
-      .select("id, name, rate_bps, inclusive, is_default, is_active")
-      .eq("business_id", intent.businessId)
-      .eq("is_active", true);
-    const { resolveBookingFinancials } = await import(
-      "@/lib/commerce/booking-financials"
-    );
-    const financials = resolveBookingFinancials({
-      subtotalCents: priceCents,
-      serviceTaxRateBps: serviceRow?.tax_rate_bps ?? null,
-      taxRates: (taxRows ?? []) as Parameters<
-        typeof resolveBookingFinancials
-      >[0]["taxRates"],
-      depositRequiredCents: depositCents,
-      depositRequired: serviceRow?.deposit_required,
-    });
-    taxCents = financials.taxCents;
-  }
+      : financials.depositRequiredCents;
 
   const paymentStatus =
     depositCents > 0 ? "deposit_required" : "unpaid";
@@ -134,7 +153,7 @@ export async function createBooking(
     .from("appointments")
     .insert({
       ...insertBase,
-      price_cents: priceCents || null,
+      price_cents: stampedPriceCents || null,
       tax_cents: taxCents,
       deposit_cents: depositCents || 0,
       amount_paid_cents: 0,

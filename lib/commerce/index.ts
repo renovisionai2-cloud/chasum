@@ -39,6 +39,7 @@ export {
   getReceiptById,
   listReceipts,
   queueReceiptEmail,
+  sendPaymentReceiptNow,
 } from "@/lib/commerce/receipts";
 
 export {

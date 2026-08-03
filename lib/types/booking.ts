@@ -511,7 +511,12 @@ export type CalendarView =
 
 /** Per-channel notification outcome after booking (serializable for ActionState). */
 export type BookingNotificationStatusItem = {
-  channel: "customer_email" | "customer_sms" | "business_email" | "staff_email";
+  channel:
+    | "customer_email"
+    | "customer_sms"
+    | "business_email"
+    | "staff_email"
+    | "payment_receipt";
   status:
     | "sent"
     | "pending"
@@ -520,7 +525,9 @@ export type BookingNotificationStatusItem = {
     | "not_configured"
     | "not_included"
     | "no_recipient"
-    | "skipped";
+    | "skipped"
+    | "not_requested"
+    | "not_applicable";
   label: string;
   detail?: string | null;
   canRetry?: boolean;
@@ -540,6 +547,13 @@ export type ActionState = {
     detail?: string | null;
     transactionId?: string | null;
     canRetry?: boolean;
+    receiptStatus?:
+      | "sent"
+      | "failed"
+      | "not_requested"
+      | "not_applicable"
+      | "skipped";
+    receiptDetail?: string | null;
   };
 };
 

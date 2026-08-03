@@ -439,6 +439,10 @@ export async function createAppointment(
         const { paymentKindForAmount } = await import(
           "@/lib/commerce/booking-financials"
         );
+        const { PAYMENT_METHOD_LABELS } = await import("@/lib/commerce/types");
+        const { logAppointmentChange } = await import(
+          "@/lib/booking-engine/conflicts"
+        );
         const existing = await listTransactions({
           businessId: business.id,
           appointmentId,
@@ -452,20 +456,27 @@ export async function createAppointment(
               ? tx.description?.includes(paymentIdempotencyKey)
               : true),
         );
+        const appointmentTotalForKind =
+          (priceCents ?? 0) + (taxCents ?? 0) || paymentAmountCents;
+        const method = parsePaymentMethod(paymentMethodRaw);
+        const methodLabel = PAYMENT_METHOD_LABELS[method] ?? method;
+
         if (alreadyRecorded) {
           action.payment = {
             status: "recorded",
             amountCents: paymentAmountCents,
             detail: "Payment already recorded.",
             transactionId: existing[0]?.id ?? null,
+            receiptStatus: paymentSendReceipt
+              ? "skipped"
+              : "not_requested",
           };
         } else {
           const kind = paymentKindForAmount(
             paymentAmountCents,
             depositCents ?? 0,
-            (priceCents ?? 0) + (taxCents ?? 0),
+            appointmentTotalForKind,
           );
-          const method = parsePaymentMethod(paymentMethodRaw);
           const payResult = await recordCommercePayment({
             businessId: business.id,
             customerId,
@@ -483,6 +494,7 @@ export async function createAppointment(
               .join(" · ") || null,
             ensureInvoice: true,
             forceManual: true,
+            sendReceiptEmail: false,
           });
           if (payResult.ok) {
             action.payment = {
@@ -490,21 +502,77 @@ export async function createAppointment(
               amountCents: paymentAmountCents,
               transactionId: payResult.transaction?.id ?? null,
               detail: `Recorded ${kind === "deposit" ? "deposit" : "payment"}.`,
+              receiptStatus: paymentSendReceipt
+                ? "not_applicable"
+                : "not_requested",
             };
+
+            await logAppointmentChange({
+              businessId: business.id,
+              appointmentId,
+              action: "payment.recorded",
+              afterState: {
+                amountCents: paymentAmountCents,
+                method,
+                methodLabel,
+                kind,
+                transactionId: payResult.transaction?.id ?? null,
+                source: "booking_confirm",
+                summary: `Deposit recorded — $${(paymentAmountCents / 100).toFixed(2)} by ${methodLabel}`,
+              },
+            });
+
             if (paymentSendReceipt && payResult.transaction?.id) {
               try {
-                const { createReceiptForTransaction, queueReceiptEmail } =
-                  await import("@/lib/commerce");
+                const {
+                  createReceiptForTransaction,
+                  sendPaymentReceiptNow,
+                } = await import("@/lib/commerce/receipts");
                 const receipt = await createReceiptForTransaction({
                   businessId: business.id,
                   transactionId: payResult.transaction.id,
                   actorId: null,
                 });
                 if (receipt?.id) {
-                  await queueReceiptEmail(business.id, receipt.id);
+                  const receiptResult = await sendPaymentReceiptNow({
+                    businessId: business.id,
+                    receiptId: receipt.id,
+                    appointmentId,
+                    serviceName: undefined,
+                    startTime: startTime.toISOString(),
+                    appointmentTotalCents: appointmentTotalForKind,
+                    paidToDateCents: paymentAmountCents,
+                    remainingBalanceCents: Math.max(
+                      0,
+                      appointmentTotalForKind - paymentAmountCents,
+                    ),
+                    paymentStatusLabel:
+                      kind === "deposit" ? "Deposit paid" : "Paid",
+                    idempotencyKey: paymentIdempotencyKey,
+                  });
+                  action.payment.receiptStatus = receiptResult.ok
+                    ? "sent"
+                    : "failed";
+                  action.payment.receiptDetail = receiptResult.ok
+                    ? receiptResult.skipped
+                      ? "Receipt already sent."
+                      : "Receipt email sent."
+                    : receiptResult.error ?? "Receipt email failed.";
+                } else {
+                  action.payment.receiptStatus = "failed";
+                  action.payment.receiptDetail =
+                    "Receipt record could not be created.";
                 }
               } catch (receiptErr) {
-                console.error("[booking] receipt after payment failed", receiptErr);
+                console.error(
+                  "[booking] receipt after payment failed",
+                  receiptErr,
+                );
+                action.payment.receiptStatus = "failed";
+                action.payment.receiptDetail =
+                  receiptErr instanceof Error
+                    ? receiptErr.message
+                    : "Receipt email failed.";
               }
             }
           } else {
@@ -513,6 +581,7 @@ export async function createAppointment(
               amountCents: paymentAmountCents,
               detail: payResult.error ?? "Payment was not recorded.",
               canRetry: true,
+              receiptStatus: "not_applicable",
             };
             action.success =
               "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
@@ -528,12 +597,16 @@ export async function createAppointment(
               ? payErr.message
               : "Payment was not recorded.",
           canRetry: true,
+          receiptStatus: "not_applicable",
         };
         action.success =
           "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
       }
     } else {
-      action.payment = { status: "skipped" };
+      action.payment = {
+        status: "skipped",
+        receiptStatus: "not_applicable",
+      };
     }
 
     try {
@@ -565,6 +638,27 @@ export async function createAppointment(
         },
       ];
     }
+
+    // Surface payment receipt as its own success-panel channel.
+    const receiptStatus = action.payment?.receiptStatus ?? "not_applicable";
+    action.notifications = [
+      ...(action.notifications ?? []),
+      {
+        channel: "payment_receipt",
+        status:
+          receiptStatus === "sent"
+            ? "sent"
+            : receiptStatus === "failed"
+              ? "failed"
+              : receiptStatus === "not_requested"
+                ? "not_requested"
+                : "not_applicable",
+        label: "Payment receipt",
+        detail: action.payment?.receiptDetail ?? null,
+        canRetry: receiptStatus === "failed",
+      },
+    ];
+
     revalidateCalendar();
   }
   return action;

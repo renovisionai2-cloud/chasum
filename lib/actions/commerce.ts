@@ -95,6 +95,7 @@ export async function recordPaymentAction(
     forceManual,
     giftCardCode,
     giftCardId,
+    sendReceiptEmail: true,
   });
 
   if (!result.ok) {

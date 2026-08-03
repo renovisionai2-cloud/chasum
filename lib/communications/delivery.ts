@@ -102,7 +102,11 @@ export async function sendEmail(input: {
   const {
     loadTenantEmailBranding,
     toBrandingContext,
+    formatFromHeader,
   } = await import("@/lib/communications/tenant-email-branding");
+  const { resolveEmailFromAddress } = await import(
+    "@/lib/communications/email-from"
+  );
   const tenant = await loadTenantEmailBranding(input.businessId, audience);
 
   if (!input.skipPreferenceCheck) {
@@ -171,12 +175,18 @@ export async function sendEmail(input: {
   };
 
   const template = renderEmailTemplate(input.templateKey, input.context);
+  const fromHeader =
+    tenant?.fromHeader ||
+    formatFromHeader(
+      tenant?.businessName || input.context.businessName || "Chasum",
+      resolveEmailFromAddress().from,
+    );
   const result = await providerSendEmail({
     to: input.to,
     subject: template.subject ?? input.context.businessName,
     html: template.html ?? `<p>${template.text}</p>`,
     text: template.text,
-    from: tenant?.fromHeader,
+    from: fromHeader,
     replyTo: tenant?.replyToAddress ?? undefined,
     attachments: input.attachments,
   });

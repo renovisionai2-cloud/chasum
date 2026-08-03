@@ -79,7 +79,6 @@ export async function createReceiptForTransaction(input: {
       : null,
     "",
     `Thank you for visiting ${biz?.name ?? "us"}.`,
-    "Powered by Chasum",
   ]
     .filter(Boolean)
     .join("\n");
@@ -234,4 +233,110 @@ export async function queueReceiptEmail(
     return { ok: false, error: queued.error };
   }
   return { ok: true };
+}
+
+/**
+ * Send a payment receipt immediately (Preview-safe — do not leave Pending).
+ * Idempotent on receiptId: already-sent receipts are not resent.
+ */
+export async function sendPaymentReceiptNow(input: {
+  businessId: string;
+  receiptId: string;
+  appointmentId?: string | null;
+  serviceName?: string | null;
+  startTime?: string | null;
+  appointmentTotalCents?: number | null;
+  paidToDateCents?: number | null;
+  remainingBalanceCents?: number | null;
+  paymentStatusLabel?: string | null;
+  idempotencyKey?: string | null;
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string; messageId?: string }> {
+  const supabase = await createClient();
+  const { data: receipt, error } = await supabase
+    .from("commerce_receipts")
+    .select("*")
+    .eq("id", input.receiptId)
+    .eq("business_id", input.businessId)
+    .maybeSingle();
+
+  if (error || !receipt) {
+    return { ok: false, error: error?.message ?? "Receipt not found." };
+  }
+
+  if (String(receipt.email_status) === "sent") {
+    return { ok: true, skipped: true, messageId: undefined };
+  }
+
+  const { data: customer } = await supabase
+    .from("customers")
+    .select("id, name, email")
+    .eq("id", receipt.customer_id)
+    .maybeSingle();
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name")
+    .eq("id", input.businessId)
+    .maybeSingle();
+
+  if (!customer?.email) {
+    await supabase
+      .from("commerce_receipts")
+      .update({ email_status: "failed" })
+      .eq("id", input.receiptId);
+    return { ok: false, error: "Customer has no email on file." };
+  }
+
+  const { sendEmail } = await import("@/lib/communications/delivery");
+  const { PAYMENT_METHOD_LABELS } = await import("@/lib/commerce/types");
+  const method = String(receipt.method);
+  const methodLabel =
+    method in PAYMENT_METHOD_LABELS
+      ? PAYMENT_METHOD_LABELS[method as keyof typeof PAYMENT_METHOD_LABELS]
+      : method;
+  const amount = Number(receipt.amount_cents ?? 0);
+  const serviceName = input.serviceName?.trim() || "Appointment";
+  const subject = `Payment receipt — $${(amount / 100).toFixed(2)} deposit for ${serviceName}`;
+
+  const result = await sendEmail({
+    businessId: input.businessId,
+    to: customer.email,
+    templateKey: "commerce.receipt",
+    customerId: customer.id,
+    appointmentId: input.appointmentId,
+    skipPreferenceCheck: true,
+    context: {
+      businessId: input.businessId,
+      businessName: business?.name ?? "Business",
+      customerName: customer.name ?? "Customer",
+      customerEmail: customer.email,
+      customerId: customer.id,
+      staffName: "Team",
+      serviceName,
+      startTime: input.startTime || new Date().toISOString(),
+      amountCents: amount,
+      appointmentTotalCents: input.appointmentTotalCents ?? null,
+      depositPaidCents: input.paidToDateCents ?? amount,
+      remainingBalanceCents: input.remainingBalanceCents ?? null,
+      paymentMethodLabel: methodLabel,
+      paymentStatusLabel: input.paymentStatusLabel ?? null,
+      receiptNumber: String(receipt.receipt_number ?? ""),
+      notes: input.idempotencyKey
+        ? `receipt:${input.idempotencyKey}`
+        : null,
+    },
+  });
+
+  await supabase
+    .from("commerce_receipts")
+    .update({
+      email_status: result.ok ? "sent" : "failed",
+    })
+    .eq("id", input.receiptId)
+    .eq("business_id", input.businessId);
+
+  if (!result.ok) {
+    return { ok: false, error: result.error ?? "Receipt email failed." };
+  }
+  return { ok: true, messageId: result.messageId };
 }

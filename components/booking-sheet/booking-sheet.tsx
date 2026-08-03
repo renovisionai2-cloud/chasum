@@ -48,8 +48,7 @@ import {
 } from "@/lib/booking/resolved-duration";
 import { calendarDateInTimezone } from "@/lib/business/datetime";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
-import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
-import { resolveDepositRequiredCents } from "@/lib/commerce/booking-financials";
+import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import {
   useBookingPreferences,
   writeBookingPreferences,
@@ -680,17 +679,15 @@ function handleStaffChange(id: string) {
         ? Math.round(Number(selectedService.price) * 100)
         : 0;
 
-  const pricingForSubmit = computeBookingPricing({
-    subtotalCents: subtotalCentsForSubmit,
+  const financialsForSubmit = resolveBookingFinancials({
+    catalogPriceCents: subtotalCentsForSubmit,
     serviceTaxRateBps: selectedService?.tax_rate_bps ?? 0,
     taxRates,
+    depositRequiredCents: selectedService?.deposit_cents,
+    depositRequired: selectedService?.deposit_required,
     currency,
   });
-  const depositCentsForSubmit = resolveDepositRequiredCents({
-    depositCents: selectedService?.deposit_cents,
-    depositRequired: selectedService?.deposit_required,
-    subtotalCents: pricingForSubmit.subtotalCents,
-  });
+  const depositCentsForSubmit = financialsForSubmit.depositRequiredCents;
 
   useEffect(() => {
     if (isEditing) return;
@@ -859,12 +856,17 @@ function handleStaffChange(id: string) {
           <input
             type="hidden"
             name="price_cents"
-            value={String(pricingForSubmit.subtotalCents || "")}
+            value={String(financialsForSubmit.subtotalCents || "")}
           />
           <input
             type="hidden"
             name="tax_cents"
-            value={String(pricingForSubmit.taxCents || "")}
+            value={String(financialsForSubmit.taxCents || "")}
+          />
+          <input
+            type="hidden"
+            name="deposit_cents"
+            value={String(financialsForSubmit.depositRequiredCents || "")}
           />
           {!isEditing ? (
             <input
@@ -1089,9 +1091,9 @@ function handleStaffChange(id: string) {
                   null)
                 : null
             }
-            subtotalCents={pricingForSubmit.subtotalCents}
-            taxCents={pricingForSubmit.taxCents}
-            totalCents={pricingForSubmit.totalCents}
+            subtotalCents={financialsForSubmit.subtotalCents}
+            taxCents={financialsForSubmit.taxCents}
+            totalCents={financialsForSubmit.appointmentTotalCents}
             depositRequiredCents={depositCentsForSubmit}
             paymentTodayCents={
               paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents
@@ -1100,10 +1102,10 @@ function handleStaffChange(id: string) {
           />
         ) : null}
 
-        {!isEditing && pricingForSubmit.totalCents > 0 ? (
+        {!isEditing && financialsForSubmit.appointmentTotalCents > 0 ? (
           <BookingPaymentSection
-            subtotalCents={pricingForSubmit.subtotalCents}
-            taxCents={pricingForSubmit.taxCents}
+            catalogPriceCents={subtotalCentsForSubmit}
+            serviceTaxRateBps={selectedService?.tax_rate_bps}
             depositCents={selectedService?.deposit_cents}
             depositRequired={selectedService?.deposit_required}
             taxRates={taxRates}

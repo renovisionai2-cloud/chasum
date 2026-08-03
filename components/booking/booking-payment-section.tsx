@@ -33,10 +33,10 @@ export type BookingPaymentDraft = {
 };
 
 export type BookingPaymentSectionProps = {
-  subtotalCents: number;
+  /** Catalog list price (service/package) — may be tax-inclusive. */
+  catalogPriceCents: number;
   serviceTaxRateBps?: number | null;
   taxRates?: TaxRate[] | null;
-  taxCents?: number | null;
   depositCents?: number | null;
   depositRequired?: boolean | null;
   currency?: string | null;
@@ -51,10 +51,9 @@ export type BookingPaymentSectionProps = {
 };
 
 export function BookingPaymentSection({
-  subtotalCents,
+  catalogPriceCents,
   serviceTaxRateBps,
   taxRates,
-  taxCents,
   depositCents,
   depositRequired,
   currency = "usd",
@@ -66,8 +65,7 @@ export function BookingPaymentSection({
   includePricingFields = true,
 }: BookingPaymentSectionProps) {
   const base = resolveBookingFinancials({
-    subtotalCents,
-    taxCents,
+    catalogPriceCents,
     serviceTaxRateBps,
     taxRates,
     depositRequiredCents: depositCents,
@@ -75,7 +73,8 @@ export function BookingPaymentSection({
     currency,
   });
   const withToday = resolveBookingFinancials({
-    subtotalCents: base.subtotalCents,
+    catalogPriceCents: base.appointmentTotalCents,
+    taxInclusive: true,
     taxCents: base.taxCents,
     depositRequiredCents: base.depositRequiredCents,
     paymentTodayCents: value.mode === "none" ? 0 : value.amountCents,

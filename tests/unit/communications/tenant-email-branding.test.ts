@@ -27,7 +27,7 @@ describe("formatFromHeader", () => {
         "GVM Baby World Ultrasound",
         "Chasum <notifications@chasumai.com>",
       ),
-    ).toBe("GVM Baby World Ultrasound <notifications@chasumai.com>");
+    ).toBe('"GVM Baby World Ultrasound" <notifications@chasumai.com>');
   });
 
   it("quotes names with commas", () => {

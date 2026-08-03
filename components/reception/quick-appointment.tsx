@@ -22,7 +22,7 @@ import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { getEligibleStaffForBooking } from "@/lib/actions/staff";
 import type { TaxRate } from "@/lib/business/types";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
-import { resolveDepositRequiredCents } from "@/lib/commerce/booking-financials";
+import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
@@ -229,14 +229,18 @@ export function QuickAppointmentForm({
   const resolvedCustomerId = preselectedCustomerId || customerId;
   const selectedCustomer = customers.find((c) => c.id === resolvedCustomerId);
   const selectedService = activeServices.find((s) => s.id === serviceId);
-  const qaSubtotalCents = selectedService
+  const qaCatalogPriceCents = selectedService
     ? Math.round(Number(selectedService.price) * 100)
     : 0;
-  const qaDepositCents = resolveDepositRequiredCents({
-    depositCents: selectedService?.deposit_cents,
+  const qaFinancials = resolveBookingFinancials({
+    catalogPriceCents: qaCatalogPriceCents,
+    serviceTaxRateBps: selectedService?.tax_rate_bps,
+    taxRates,
+    depositRequiredCents: selectedService?.deposit_cents,
     depositRequired: selectedService?.deposit_required,
-    subtotalCents: qaSubtotalCents,
+    currency,
   });
+  const qaDepositCents = qaFinancials.depositRequiredCents;
 
   useEffect(() => {
     setPaymentDraft(defaultBookingPaymentDraft(qaDepositCents));
@@ -1079,7 +1083,7 @@ export function QuickAppointmentForm({
           emptyHint="Choose a time above to continue."
         />
 
-        {selectedService && qaSubtotalCents > 0 ? (
+        {selectedService && qaCatalogPriceCents > 0 ? (
           <>
             <input
               type="hidden"
@@ -1087,7 +1091,7 @@ export function QuickAppointmentForm({
               value={paymentIdempotencyKey.current}
             />
             <BookingPaymentSection
-              subtotalCents={qaSubtotalCents}
+              catalogPriceCents={qaCatalogPriceCents}
               serviceTaxRateBps={selectedService.tax_rate_bps}
               taxRates={taxRates}
               depositCents={selectedService.deposit_cents}

@@ -1,6 +1,13 @@
 /**
- * Authoritative booking financials — one model for UI, emails, and ledger sync.
- * Appointment total always includes tax. Remaining balance uses tax-inclusive total.
+ * Authoritative booking financials — single source for UI, stamps, emails, ledger.
+ *
+ * Storage convention (appointments):
+ * - price_cents = exclusive subtotal (before tax)
+ * - tax_cents = tax amount
+ * - appointment total = price_cents + tax_cents
+ *
+ * Catalog list price may be tax-inclusive or tax-exclusive (from TaxRate.inclusive
+ * or an explicit override). Never add tax on top of an inclusive list price.
  */
 
 import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
@@ -9,10 +16,18 @@ import { formatMoneyCents } from "@/lib/commerce/money";
 import type { AppointmentPaymentStatus } from "@/lib/commerce/types";
 
 export type BookingFinancialsInput = {
-  /** Service/package price before tax (exclusive) or inclusive base when taxInclusive. */
-  subtotalCents: number;
+  /**
+   * Catalog / list price in cents as stored on the service or package.
+   * May be tax-inclusive or tax-exclusive depending on taxInclusive.
+   */
+  catalogPriceCents: number;
+  /**
+   * When known, whether catalogPriceCents already includes tax.
+   * When omitted, derived from the active tax rate’s `inclusive` flag.
+   */
+  taxInclusive?: boolean | null;
+  /** Precomputed tax override (rare). Prefer letting the resolver compute. */
   taxCents?: number | null;
-  /** When taxCents omitted, compute from rates. */
   serviceTaxRateBps?: number | null;
   taxRates?: Array<{
     id?: string;
@@ -24,27 +39,30 @@ export type BookingFinancialsInput = {
   }> | null;
   depositRequiredCents?: number | null;
   depositRequired?: boolean | null;
-  /** Payments already on the appointment (net of refunds applied separately). */
   paidToDateCents?: number | null;
   amountRefundedCents?: number | null;
-  /** Amount being collected in the current booking flow (not yet persisted). */
   paymentTodayCents?: number | null;
   currency?: string | null;
 };
 
 export type BookingFinancials = {
+  /** Original catalog list price (as configured on the service/package). */
+  catalogPriceCents: number;
+  taxInclusive: boolean;
+  /** Exclusive amount before tax (stamp as appointments.price_cents). */
   subtotalCents: number;
   taxCents: number;
+  /** Customer-facing appointment total (subtotal + tax). */
   appointmentTotalCents: number;
   depositRequiredCents: number;
   paymentTodayCents: number;
   paidToDateCents: number;
   amountRefundedCents: number;
-  /** After applying paymentToday (preview) or paidToDate only when paymentToday is 0. */
   remainingBalanceCents: number;
   paymentStatus: AppointmentPaymentStatus;
   currency: string | null;
   formatted: {
+    catalogPrice: string;
     subtotal: string;
     tax: string;
     appointmentTotal: string;
@@ -57,72 +75,100 @@ export type BookingFinancials = {
 
 /**
  * Resolve deposit required from service/package stamps.
- * Falls back to 20% of subtotal when deposit is required but cents are unset.
+ * Uses appointment total (tax-aware) when falling back to 20%.
  */
 export function resolveDepositRequiredCents(input: {
   depositCents?: number | null;
   depositRequired?: boolean | null;
-  subtotalCents: number;
+  /** Prefer appointment total; falls back to catalog/subtotal. */
+  baseCents: number;
 }): number {
   const explicit = Math.max(0, Math.round(Number(input.depositCents ?? 0)));
   if (explicit > 0) return explicit;
   if (input.depositRequired) {
-    return Math.round(Math.max(0, input.subtotalCents) * 0.2);
+    return Math.round(Math.max(0, input.baseCents) * 0.2);
   }
   return 0;
 }
 
-export function resolveBookingFinancials(
-  input: BookingFinancialsInput,
-): BookingFinancials {
-  const subtotalCents = Math.max(0, Math.round(input.subtotalCents || 0));
-  let taxCents =
-    input.taxCents != null && Number.isFinite(input.taxCents)
-      ? Math.max(0, Math.round(Number(input.taxCents)))
-      : null;
-
-  if (taxCents == null) {
+function resolveTaxMeta(input: BookingFinancialsInput): {
+  rateBps: number;
+  inclusive: boolean;
+} {
+  if (input.taxInclusive != null) {
     const pricing = computeBookingPricing({
-      subtotalCents,
+      subtotalCents: Math.max(0, Math.round(input.catalogPriceCents || 0)),
       serviceTaxRateBps: input.serviceTaxRateBps,
       taxRates: input.taxRates as Parameters<
         typeof computeBookingPricing
       >[0]["taxRates"],
       currency: input.currency,
     });
-    taxCents = pricing.taxCents;
-    // Inclusive tax: appointment total stays at subtotal; exclusive: subtotal + tax.
-    const appointmentTotalCents = pricing.totalCents;
-    return finalizeFinancials({
-      ...input,
-      subtotalCents: pricing.taxInclusive
-        ? appointmentTotalCents - taxCents
-        : subtotalCents,
-      taxCents,
-      appointmentTotalCents,
-    });
+    return { rateBps: pricing.taxRateBps, inclusive: Boolean(input.taxInclusive) };
   }
-
-  const appointmentTotalCents = subtotalCents + taxCents;
-  return finalizeFinancials({
-    ...input,
-    subtotalCents,
-    taxCents,
-    appointmentTotalCents,
+  const pricing = computeBookingPricing({
+    subtotalCents: Math.max(0, Math.round(input.catalogPriceCents || 0)),
+    serviceTaxRateBps: input.serviceTaxRateBps,
+    taxRates: input.taxRates as Parameters<
+      typeof computeBookingPricing
+    >[0]["taxRates"],
+    currency: input.currency,
   });
+  return { rateBps: pricing.taxRateBps, inclusive: pricing.taxInclusive };
 }
 
-function finalizeFinancials(
-  input: BookingFinancialsInput & {
-    subtotalCents: number;
-    taxCents: number;
-    appointmentTotalCents: number;
-  },
+/**
+ * Resolve financials from a catalog list price + tax configuration.
+ * This is the only function UI and stamps should use for booking money.
+ */
+export function resolveBookingFinancials(
+  input: BookingFinancialsInput,
 ): BookingFinancials {
+  const catalogPriceCents = Math.max(
+    0,
+    Math.round(input.catalogPriceCents || 0),
+  );
+  const { rateBps, inclusive } = resolveTaxMeta(input);
+
+  let taxCents: number;
+  let subtotalCents: number;
+  let appointmentTotalCents: number;
+
+  if (input.taxCents != null && Number.isFinite(input.taxCents) && input.taxInclusive != null) {
+    // Explicit stamp path — trust caller’s inclusive flag.
+    taxCents = Math.max(0, Math.round(Number(input.taxCents)));
+    if (input.taxInclusive) {
+      appointmentTotalCents = catalogPriceCents;
+      subtotalCents = Math.max(0, appointmentTotalCents - taxCents);
+    } else {
+      subtotalCents = catalogPriceCents;
+      appointmentTotalCents = subtotalCents + taxCents;
+    }
+  } else {
+    // Canonical path: compute from catalog + rate.
+    if (rateBps > 0) {
+      if (inclusive) {
+        appointmentTotalCents = catalogPriceCents;
+        taxCents = Math.round(
+          (catalogPriceCents * rateBps) / (10_000 + rateBps),
+        );
+        subtotalCents = Math.max(0, appointmentTotalCents - taxCents);
+      } else {
+        subtotalCents = catalogPriceCents;
+        taxCents = Math.round((catalogPriceCents * rateBps) / 10_000);
+        appointmentTotalCents = subtotalCents + taxCents;
+      }
+    } else {
+      subtotalCents = catalogPriceCents;
+      taxCents = 0;
+      appointmentTotalCents = catalogPriceCents;
+    }
+  }
+
   const depositRequiredCents = resolveDepositRequiredCents({
     depositCents: input.depositRequiredCents,
     depositRequired: input.depositRequired,
-    subtotalCents: input.subtotalCents,
+    baseCents: appointmentTotalCents,
   });
   const paidToDateCents = Math.max(0, Math.round(input.paidToDateCents ?? 0));
   const amountRefundedCents = Math.max(
@@ -137,12 +183,9 @@ function finalizeFinancials(
     0,
     paidToDateCents + paymentTodayCents - amountRefundedCents,
   );
-  const remainingBalanceCents = Math.max(
-    0,
-    input.appointmentTotalCents - netPaid,
-  );
+  const remainingBalanceCents = Math.max(0, appointmentTotalCents - netPaid);
   const paymentStatus = deriveAppointmentPaymentStatus({
-    priceCents: input.appointmentTotalCents,
+    priceCents: appointmentTotalCents,
     depositRequiredCents,
     amountPaidCents: paidToDateCents + paymentTodayCents,
     amountRefundedCents,
@@ -150,9 +193,11 @@ function finalizeFinancials(
   const currency = input.currency ?? null;
 
   return {
-    subtotalCents: input.subtotalCents,
-    taxCents: input.taxCents,
-    appointmentTotalCents: input.appointmentTotalCents,
+    catalogPriceCents,
+    taxInclusive: inclusive,
+    subtotalCents,
+    taxCents,
+    appointmentTotalCents,
     depositRequiredCents,
     paymentTodayCents,
     paidToDateCents,
@@ -161,12 +206,10 @@ function finalizeFinancials(
     paymentStatus,
     currency,
     formatted: {
-      subtotal: formatMoneyCents(input.subtotalCents, currency),
-      tax: formatMoneyCents(input.taxCents, currency),
-      appointmentTotal: formatMoneyCents(
-        input.appointmentTotalCents,
-        currency,
-      ),
+      catalogPrice: formatMoneyCents(catalogPriceCents, currency),
+      subtotal: formatMoneyCents(subtotalCents, currency),
+      tax: formatMoneyCents(taxCents, currency),
+      appointmentTotal: formatMoneyCents(appointmentTotalCents, currency),
       depositRequired: formatMoneyCents(depositRequiredCents, currency),
       paymentToday: formatMoneyCents(paymentTodayCents, currency),
       paidToDate: formatMoneyCents(paidToDateCents, currency),
@@ -175,7 +218,32 @@ function finalizeFinancials(
   };
 }
 
-/** Label helpers for booking payment mode. */
+/**
+ * Rebuild financials from persisted appointment columns
+ * (price_cents = exclusive subtotal, tax_cents = tax).
+ */
+export function resolveFinancialsFromAppointment(input: {
+  priceCents: number | null | undefined;
+  taxCents?: number | null;
+  depositCents?: number | null;
+  amountPaidCents?: number | null;
+  amountRefundedCents?: number | null;
+  currency?: string | null;
+}): BookingFinancials {
+  const subtotalCents = Math.max(0, Math.round(Number(input.priceCents ?? 0)));
+  const taxCents = Math.max(0, Math.round(Number(input.taxCents ?? 0)));
+  const appointmentTotalCents = subtotalCents + taxCents;
+  return resolveBookingFinancials({
+    catalogPriceCents: appointmentTotalCents,
+    taxInclusive: taxCents > 0,
+    taxCents,
+    depositRequiredCents: input.depositCents,
+    paidToDateCents: input.amountPaidCents,
+    amountRefundedCents: input.amountRefundedCents,
+    currency: input.currency,
+  });
+}
+
 export type BookingPaymentMode = "none" | "deposit" | "full" | "custom";
 
 export function suggestPaymentTodayCents(

@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import { MIN_BOOKING_DURATION_MINUTES } from "@/lib/booking/resolved-duration";
-import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
+import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import type {
   AppointmentStatus,
@@ -135,15 +135,17 @@ export function AppointmentSection({
           ) * 100,
         )
       : null;
-  const subtotalCents =
+  const catalogPriceCents =
     offerType === "package"
       ? (packagePriceCents ?? 0)
       : (servicePriceCents ?? 0);
 
-  const pricing = computeBookingPricing({
-    subtotalCents,
+  const financials = resolveBookingFinancials({
+    catalogPriceCents,
     serviceTaxRateBps: selectedService?.tax_rate_bps ?? 0,
     taxRates,
+    depositRequiredCents: selectedService?.deposit_cents,
+    depositRequired: selectedService?.deposit_required,
     currency,
   });
 
@@ -155,8 +157,8 @@ export function AppointmentSection({
   const bufferBefore = selectedService?.buffer_before_minutes ?? 0;
   const bufferAfter = selectedService?.buffer_after_minutes ?? 0;
   const cleanup = selectedService?.cleanup_minutes ?? 0;
-  const depositRequired = Boolean(selectedService?.deposit_required);
-  const depositCents = selectedService?.deposit_cents ?? 0;
+  const depositRequired = financials.depositRequiredCents > 0;
+  const depositCents = financials.depositRequiredCents;
   const catalogDuration =
     serviceDefaultMinutes ?? selectedService?.duration_minutes ?? null;
 
@@ -457,12 +459,12 @@ export function AppointmentSection({
               </p>
             </div>
           ) : null}
-          {pricing.taxRateBps > 0 ? (
+          {financials.taxCents > 0 ? (
             <div>
-              <p className="text-muted-foreground">Tax rate</p>
+              <p className="text-muted-foreground">Tax</p>
               <p className="font-medium tabular-nums">
-                {(pricing.taxRateBps / 100).toFixed(2)}%
-                {pricing.taxInclusive ? " incl." : ""}
+                {financials.formatted.tax}
+                {financials.taxInclusive ? " incl." : ""}
               </p>
             </div>
           ) : null}
@@ -470,9 +472,7 @@ export function AppointmentSection({
       </BookingSection>
 
       <BookingPriceSummary
-        subtotalCents={subtotalCents}
-        taxCents={pricing.taxCents}
-        depositCents={depositRequired ? depositCents : null}
+        financials={financials}
         currency={currency}
       />
 
