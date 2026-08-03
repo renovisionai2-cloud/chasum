@@ -62,19 +62,20 @@ async function getAppointmentContext(
   if (!data) return null;
 
   const business = unwrapRelation(data.business) as { name: string } | null;
-  const service = unwrapRelation(data.service) as { name: string };
+  const service = unwrapRelation(data.service) as { name: string } | null;
   const staff = unwrapRelation(data.staff) as {
     name: string;
     email: string | null;
-  };
+  } | null;
   const customer = unwrapRelation(data.customer) as {
     id: string;
     name: string;
     email: string;
     phone: string | null;
-  };
+  } | null;
 
-  if (!business || !service || !staff || !customer) return null;
+  // Staff may be unassigned — still deliver customer/business mail.
+  if (!business || !service || !customer) return null;
 
   return {
     appointmentId: data.id,
@@ -84,7 +85,7 @@ async function getAppointmentContext(
     customerName: customer.name,
     customerEmail: customer.email,
     customerPhone: customer.phone,
-    staffName: staff.name,
+    staffName: staff?.name ?? "To be assigned",
     serviceName: service.name,
     startTime: data.start_time,
     endTime: data.end_time,

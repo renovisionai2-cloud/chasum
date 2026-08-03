@@ -81,7 +81,13 @@ export function renderEmailTemplate(
   switch (key) {
     case "appointment.confirmation": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">You're all set — we look forward to seeing you.</p>`;
+        <p style="margin:16px 0 0;">You're all set — we look forward to seeing you.</p>
+        ${
+          ctx.amountCents != null
+            ? `<p style="margin:16px 0 0;color:#475569;font-size:14px;">Appointment total: <strong>${money(ctx.amountCents)}</strong></p>`
+            : ""
+        }
+        <p style="margin:20px 0 0;color:#64748b;font-size:13px;">Need to change or cancel? Contact ${ctx.businessName} and we'll help.</p>`;
       return {
         key,
         subject: `You're booked — ${ctx.serviceName} on ${format(parseISO(ctx.startTime), "MMM d")}`,
@@ -253,15 +259,20 @@ export function renderEmailTemplate(
       };
     }
     case "appointment.business": {
-      const action = ctx.customMessage || "Updated";
       const content = `
-        <p style="margin:0 0 16px;">${action}</p>
-        ${appointmentDetails(ctx)}`;
+        <p style="margin:0 0 8px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">New appointment booked</p>
+        <table style="width:100%;border-collapse:collapse;margin:8px 0 16px;">
+          <tr><td style="padding:8px 0;color:#64748b;width:110px;">Customer</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.customerName}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Service</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.serviceName}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">When</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${whenLabel(ctx.startTime)}</td></tr>
+          <tr><td style="padding:8px 0;color:#64748b;">Employee</td><td style="padding:8px 0;font-weight:500;color:#0f172a;">${ctx.staffName}</td></tr>
+        </table>
+        <p style="margin:0;color:#475569;font-size:14px;">Open Reception in Chasum to view or manage this appointment.</p>`;
       return {
         key,
-        subject: `${action}: ${ctx.serviceName}`,
+        subject: `New appointment — ${ctx.customerName} · ${ctx.serviceName}`,
         html: layout(content, b),
-        text: `${action}: ${ctx.serviceName} — ${ctx.customerName} on ${whenLabel(ctx.startTime)}.`,
+        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}.`,
       };
     }
     default: {
@@ -285,7 +296,7 @@ export function renderSmsTemplate(
     case "appointment.confirmation":
       return {
         key,
-        text: `${ctx.businessName}: Confirmed ${ctx.serviceName} with ${ctx.staffName} on ${when}.`,
+        text: `${ctx.businessName}: Your ${ctx.serviceName} appointment is confirmed for ${format(parseISO(ctx.startTime), "EEE, MMM d 'at' h:mm a")} with ${ctx.staffName}. Reply or contact us if you need help.`,
       };
     case "appointment.reminder":
       return {

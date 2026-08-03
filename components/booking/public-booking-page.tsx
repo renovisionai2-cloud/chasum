@@ -5,6 +5,7 @@ import { BusinessContact } from "@/components/booking/business-contact";
 import { AvailableTimeSelector } from "@/components/scheduling/available-time-selector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/brand/logo";
@@ -487,16 +488,16 @@ export function PublicBookingPage({
               ))}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="booking_date">Or pick another date</Label>
-              <Input
+              <DateField
                 id="booking_date"
-                type="date"
+                label="Or pick another date"
                 value={selectedDate}
                 min={format(new Date(), "yyyy-MM-dd")}
-                onChange={(e) => {
-                  setSelectedDate(e.target.value);
+                onChange={(next) => {
+                  setSelectedDate(next);
                   setSelectedSlot(null);
                 }}
+                onAfterSelect={() => setStep("time")}
               />
             </div>
             <Button

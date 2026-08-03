@@ -1,7 +1,10 @@
 "use client";
 
 import { AppointmentSection, type BookingOfferType } from "@/components/booking-sheet/appointment-section";
-import { AvailabilitySection } from "@/components/booking-sheet/availability-section";
+import {
+  AvailabilitySection,
+  type AvailabilitySectionHandle,
+} from "@/components/booking-sheet/availability-section";
 import { CustomerSection } from "@/components/booking-sheet/customer-section";
 import { PaymentsSection } from "@/components/booking-sheet/payments-section";
 import { QuickActionsMenu } from "@/components/booking-sheet/quick-actions-menu";
@@ -60,6 +63,7 @@ import {
   useActionState,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -650,6 +654,12 @@ function handleStaffChange(id: string) {
     setSlot(null);
   }
 
+  const availabilityRef = useRef<AvailabilitySectionHandle>(null);
+
+  function handleDateSelected(_next: string) {
+    window.setTimeout(() => availabilityRef.current?.focusTimes(), 50);
+  }
+
   const subtotalCentsForSubmit =
     offerType === "package" && selectedPackage
       ? selectedPackage.price_cents
@@ -906,6 +916,7 @@ function handleStaffChange(id: string) {
           onStaffChange={handleStaffChange}
           onLocationChange={handleLocationChange}
           onDateChange={handleDateChange}
+          onDateSelected={handleDateSelected}
           onDurationChange={handleDurationOverride}
           onStatusChange={setStatus}
           onNotesChange={setNotes}
@@ -913,6 +924,7 @@ function handleStaffChange(id: string) {
         />
 
         <AvailabilitySection
+          ref={availabilityRef}
           loading={availLoading}
           availability={availability}
           selectedSlot={slot}
@@ -920,7 +932,11 @@ function handleStaffChange(id: string) {
           unassigned={!activeStaffId}
           onSelectSlot={setSlot}
           onPickStaff={(id) => handleStaffChange(id)}
-          onPickDay={(next) => setDate(next)}
+          onPickDay={(next) => {
+            setDate(next);
+            setSlot(null);
+            window.setTimeout(() => availabilityRef.current?.focusTimes(), 50);
+          }}
         />
 
         {isEditing &&

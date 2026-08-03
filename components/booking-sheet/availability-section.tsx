@@ -1,10 +1,14 @@
 "use client";
 
-import { AvailableTimeSelector } from "@/components/scheduling/available-time-selector";
+import {
+  AvailableTimeSelector,
+  type AvailableTimeSelectorHandle,
+} from "@/components/scheduling/available-time-selector";
 import { Button } from "@/components/ui/button";
 import type { BookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { AlertTriangle, CalendarDays, Loader2, UserRound } from "lucide-react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 
 function slotKey(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -22,16 +26,31 @@ type AvailabilitySectionProps = {
   unassigned?: boolean;
 };
 
-export function AvailabilitySection({
-  loading,
-  availability,
-  selectedSlot,
-  selectedSlotValid,
-  onSelectSlot,
-  onPickStaff,
-  onPickDay,
-  unassigned = false,
-}: AvailabilitySectionProps) {
+export type AvailabilitySectionHandle = {
+  focusTimes: () => void;
+};
+
+export const AvailabilitySection = forwardRef<
+  AvailabilitySectionHandle,
+  AvailabilitySectionProps
+>(function AvailabilitySection(
+  {
+    loading,
+    availability,
+    selectedSlot,
+    selectedSlotValid,
+    onSelectSlot,
+    onPickStaff,
+    onPickDay,
+    unassigned = false,
+  },
+  ref,
+) {
+  const timeRef = useRef<AvailableTimeSelectorHandle>(null);
+  useImperativeHandle(ref, () => ({
+    focusTimes: () => timeRef.current?.focus(),
+  }));
+
   const slots = availability?.slots ?? [];
   const selectedInDay = Boolean(
     selectedSlot &&
@@ -92,6 +111,7 @@ export function AvailabilitySection({
 
       {!loading && slots.length > 0 ? (
         <AvailableTimeSelector
+          ref={timeRef}
           slots={slots.map((s) => ({ start: s.start }))}
           selectedStart={selectedSlot}
           onSelect={onSelectSlot}
@@ -176,4 +196,4 @@ export function AvailabilitySection({
       ) : null}
     </section>
   );
-}
+});

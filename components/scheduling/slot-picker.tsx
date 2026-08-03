@@ -1,8 +1,10 @@
 "use client";
 
-import { AvailableTimeSelector } from "@/components/scheduling/available-time-selector";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  AvailableTimeSelector,
+  type AvailableTimeSelectorHandle,
+} from "@/components/scheduling/available-time-selector";
+import { DateField } from "@/components/ui/date-field";
 import { format } from "date-fns";
 import { useEffect, useRef, useState, useTransition } from "react";
 
@@ -49,6 +51,7 @@ export function SlotPicker({
   const [slots, setSlots] = useState<string[]>([]);
   const cacheRef = useRef<Map<string, string[]>>(new Map());
   const requestId = useRef(0);
+  const timeRef = useRef<AvailableTimeSelectorHandle>(null);
 
   useEffect(() => {
     if (!serviceId || !staffId || !date) {
@@ -86,19 +89,19 @@ export function SlotPicker({
 
   return (
     <div className="space-y-3">
-      <div className="space-y-2">
-        <Label htmlFor="appointment_date">Date</Label>
-        <Input
-          id="appointment_date"
-          type="date"
-          value={date}
-          min={minDate}
-          onChange={(e) => onDateChange(e.target.value)}
-          required
-        />
-      </div>
+      <DateField
+        id="appointment_date"
+        name="date"
+        label="Date"
+        value={date}
+        min={minDate}
+        required
+        onChange={onDateChange}
+        onAfterSelect={() => timeRef.current?.focus()}
+      />
 
       <AvailableTimeSelector
+        ref={timeRef}
         slots={slots.map((start) => ({ start }))}
         selectedStart={selectedSlot}
         onSelect={onSelectSlot}

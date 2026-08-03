@@ -410,6 +410,27 @@ export async function createAppointment(
   const action = mutationToAction(result, "Booked — you're all set.");
   if (result.phase === "success" && result.data?.appointmentId) {
     revalidateCalendar();
+    try {
+      const { deliverBookingNotifications } = await import(
+        "@/lib/notifications/booking-delivery"
+      );
+      const report = await deliverBookingNotifications(
+        result.data.appointmentId,
+      );
+      action.notifications = report.items;
+    } catch (err) {
+      // Booking stays confirmed — notification failure is partial success.
+      console.error("[notifications] flush after create failed", err);
+      action.notifications = [
+        {
+          channel: "customer_email",
+          status: "pending",
+          label: "Customer email",
+          detail: "Queued — delivery status will update shortly.",
+          canRetry: true,
+        },
+      ];
+    }
   }
   return action;
 }

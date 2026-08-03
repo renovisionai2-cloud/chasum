@@ -11,6 +11,9 @@ import {
   pushAppointmentToCalendars,
   deleteAppointmentFromCalendars,
 } from "@/lib/integrations/calendar/sync";
+import { planIncludesSms } from "@/lib/billing/plan-features";
+import { getResendApiKey, getTwilioConfig } from "@/lib/env";
+import { logger } from "@/lib/observability/logger";
 import type { NotificationType } from "@/lib/types/integrations";
 
 type AppointmentEvent =
@@ -43,13 +46,30 @@ async function getBusinessNotificationSettings(businessId: string) {
   const { data } = await supabase
     .from("businesses")
     .select(
-      "name, notification_email, email_notifications_enabled, sms_notifications_enabled, reminder_hours_before",
+      `name, email, notification_email,
+       email_notifications_enabled, sms_notifications_enabled,
+       owner_notifications_enabled, staff_notifications_enabled,
+       reminder_hours_before, subscription_plan_key, private_alpha_enabled`,
     )
     .eq("id", businessId)
     .single();
   return data;
 }
 
+function resolveBusinessNotifyEmail(settings: {
+  notification_email?: string | null;
+  email?: string | null;
+} | null): string | null {
+  const override = settings?.notification_email?.trim();
+  if (override) return override;
+  const fallback = settings?.email?.trim();
+  return fallback || null;
+}
+
+/**
+ * Queue in-app + email/SMS jobs for an appointment lifecycle event.
+ * Delivery is async (cron) unless the caller flushes jobs immediately.
+ */
 export async function handleAppointmentEvent(
   appointmentId: string,
   event: AppointmentEvent,
@@ -64,7 +84,7 @@ export async function handleAppointmentEvent(
       id, business_id, staff_id, start_time, end_time, status,
       service:services(name),
       staff:staff(name, email),
-      customer:customers(name, email)
+      customer:customers(name, email, phone)
     `,
     )
     .eq("id", appointmentId)
@@ -74,9 +94,20 @@ export async function handleAppointmentEvent(
 
   const businessId = appointment.business_id;
   const settings = await getBusinessNotificationSettings(businessId);
-  const service = unwrapRelation(appointment.service) as { name: string };
-  const customer = unwrapRelation(appointment.customer) as { name: string; email: string };
-  const staff = unwrapRelation(appointment.staff) as { name: string; email: string | null };
+  const service = unwrapRelation(appointment.service) as { name: string } | null;
+  const customer = unwrapRelation(appointment.customer) as {
+    name: string;
+    email: string | null;
+    phone: string | null;
+  } | null;
+  const staff = unwrapRelation(appointment.staff) as {
+    name: string;
+    email: string | null;
+  } | null;
+
+  const customerName = customer?.name ?? "Customer";
+  const serviceName = service?.name ?? "Appointment";
+  const staffName = staff?.name ?? "To be assigned";
 
   const titleMap: Record<AppointmentEvent, string> = {
     created: "New appointment",
@@ -94,11 +125,19 @@ export async function handleAppointmentEvent(
         ? "reschedule"
         : "confirmation",
     titleMap[event],
-    `${customer.name} — ${service.name} with ${staff.name}`,
+    `${customerName} — ${serviceName} with ${staffName}`,
     { appointmentId, event },
   );
 
-  if (settings?.email_notifications_enabled) {
+  const emailEnabled = settings?.email_notifications_enabled !== false;
+  const smsEnabled = settings?.sms_notifications_enabled === true;
+  const ownerEnabled = settings?.owner_notifications_enabled !== false;
+  const staffEnabled = settings?.staff_notifications_enabled !== false;
+  const emailConfigured = Boolean(getResendApiKey());
+  const smsConfigured = Boolean(getTwilioConfig());
+  const smsOnPlan = planIncludesSms(settings);
+
+  if (emailEnabled) {
     const templateMap: Record<AppointmentEvent, string | null> = {
       created: "appointment.confirmation",
       confirmed: "appointment.confirmation",
@@ -108,34 +147,50 @@ export async function handleAppointmentEvent(
     };
 
     const templateKey = templateMap[event];
-    if (templateKey) {
+    if (templateKey && customer?.email) {
       await enqueueEmailJob(businessId, {
         appointmentId,
         templateKey,
         previousStartTime: options?.previousStartTime,
+        idempotencyKey: `${appointmentId}:${templateKey}:customer:${event}`,
+      });
+    } else if (templateKey && !customer?.email) {
+      logger.info("notifications", "skip_customer_email_no_recipient", {
+        appointmentId,
+        event,
       });
     }
 
-    if (staff.email && event !== "updated") {
+    if (staffEnabled && staff?.email && event !== "updated") {
       await enqueueEmailJob(businessId, {
         appointmentId,
         templateKey: "appointment.staff",
         recipient: staff.email,
         action: titleMap[event].toLowerCase(),
+        idempotencyKey: `${appointmentId}:appointment.staff:${staff.email}:${event}`,
       });
     }
 
-    if (settings.notification_email) {
+    const businessTo = resolveBusinessNotifyEmail(settings);
+    if (ownerEnabled && businessTo && event !== "updated") {
       await enqueueEmailJob(businessId, {
         appointmentId,
         templateKey: "appointment.business",
-        recipient: settings.notification_email,
+        recipient: businessTo,
         action: titleMap[event],
+        bookingSource: "reception",
+        idempotencyKey: `${appointmentId}:appointment.business:${businessTo}:${event}`,
+      });
+    } else if (ownerEnabled && !businessTo && event !== "updated") {
+      logger.info("notifications", "skip_business_email_no_recipient", {
+        appointmentId,
+        event,
+        emailConfigured,
       });
     }
   }
 
-  if (settings?.sms_notifications_enabled) {
+  if (smsEnabled && smsOnPlan && smsConfigured) {
     const smsMap: Record<AppointmentEvent, string | null> = {
       created: "appointment.confirmation",
       confirmed: "appointment.confirmation",
@@ -144,9 +199,20 @@ export async function handleAppointmentEvent(
       updated: null,
     };
     const smsKey = smsMap[event];
-    if (smsKey) {
-      await enqueueSmsJob(businessId, { appointmentId, templateKey: smsKey });
+    if (smsKey && customer?.phone) {
+      await enqueueSmsJob(businessId, {
+        appointmentId,
+        templateKey: smsKey,
+        idempotencyKey: `${appointmentId}:${smsKey}:sms:${event}`,
+      });
     }
+  } else if (smsEnabled && !smsOnPlan) {
+    logger.info("notifications", "skip_sms_plan", { appointmentId, event });
+  } else if (smsEnabled && !smsConfigured) {
+    logger.info("notifications", "skip_sms_not_configured", {
+      appointmentId,
+      event,
+    });
   }
 
   if (event === "created" || event === "confirmed") {

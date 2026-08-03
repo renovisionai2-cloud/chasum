@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingNotificationStatus } from "@/components/booking/booking-notification-status";
 import { BookingSummaryCard } from "@/components/booking/booking-summary-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ import {
 } from "@/lib/reception/use-booking-preferences";
 import type {
   ActionState,
+  BookingNotificationStatusItem,
   Customer,
   Location,
   Service,
@@ -196,6 +198,9 @@ export function QuickAppointmentForm({
     durationMinutes: number | null;
     locationName: string | null;
   } | null>(null);
+  const [confirmedNotifications, setConfirmedNotifications] = useState<
+    BookingNotificationStatusItem[]
+  >([]);
   const submitGuardRef = useRef(false);
 
   const [state, formAction, pending] = useActionState(
@@ -361,6 +366,7 @@ export function QuickAppointmentForm({
         durationMinutes: duration,
         locationName,
       });
+      setConfirmedNotifications(state.notifications ?? []);
       setBookingPhase("confirmed");
       submitGuardRef.current = true;
       draftRefCleared();
@@ -402,6 +408,7 @@ export function QuickAppointmentForm({
     setBookingPhase("draft");
     setConfirmedAppointmentId(null);
     setConfirmedSummary(null);
+    setConfirmedNotifications([]);
     setSlot(null);
     setServiceOverride(null);
     setStaffOverride(null);
@@ -628,6 +635,12 @@ export function QuickAppointmentForm({
               </dl>
             </div>
           </div>
+          {confirmedAppointmentId && confirmedNotifications.length > 0 ? (
+            <BookingNotificationStatus
+              appointmentId={confirmedAppointmentId}
+              initial={confirmedNotifications}
+            />
+          ) : null}
           <div className="flex flex-col gap-2">
             {confirmedAppointmentId ? (
               <Button

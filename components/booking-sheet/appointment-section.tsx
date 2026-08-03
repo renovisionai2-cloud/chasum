@@ -3,6 +3,7 @@
 import { BookingPriceSummary } from "@/components/booking/booking-price-summary";
 import { BookingSection } from "@/components/booking/booking-section";
 import { Button } from "@/components/ui/button";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
@@ -57,6 +58,8 @@ type AppointmentSectionProps = {
   onDurationChange: (minutes: number | null) => void;
   onStatusChange: (status: AppointmentStatus) => void;
   onNotesChange: (notes: string) => void;
+  /** Focus Available time after picking a date (Booking Sheet). */
+  onDateSelected?: (date: string) => void;
   minDate?: string;
   statusWorkflow?: AppointmentStatus[] | null;
   /** When false, duration stays read-only (no Adjust control). */
@@ -89,6 +92,7 @@ export function AppointmentSection({
   onStaffChange,
   onLocationChange,
   onDateChange,
+  onDateSelected,
   onDurationChange,
   onStatusChange,
   onNotesChange,
@@ -289,16 +293,15 @@ export function AppointmentSection({
           </Select>
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="bs-date">Date</Label>
-          <Input
-            id="bs-date"
-            type="date"
-            value={date}
-            min={minDate}
-            onChange={(e) => onDateChange(e.target.value)}
-          />
-        </div>
+        <DateField
+          id="bs-date"
+          name="date"
+          label="Date"
+          value={date}
+          min={minDate}
+          onChange={onDateChange}
+          onAfterSelect={onDateSelected}
+        />
 
         <div className="space-y-1.5">
           <Label id="bs-duration-label">Duration</Label>

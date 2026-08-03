@@ -509,11 +509,30 @@ export type CalendarView =
   | "locations"
   | "employees";
 
+/** Per-channel notification outcome after booking (serializable for ActionState). */
+export type BookingNotificationStatusItem = {
+  channel: "customer_email" | "customer_sms" | "business_email" | "staff_email";
+  status:
+    | "sent"
+    | "pending"
+    | "failed"
+    | "not_enabled"
+    | "not_configured"
+    | "not_included"
+    | "no_recipient"
+    | "skipped";
+  label: string;
+  detail?: string | null;
+  canRetry?: boolean;
+};
+
 export type ActionState = {
   error?: string;
   success?: string;
   /** Created or updated appointment id when the mutation succeeds. */
   appointmentId?: string;
+  /** Delivery outcomes — independent of booking success. */
+  notifications?: BookingNotificationStatusItem[];
 };
 
 export type PublicBookingSummary = {

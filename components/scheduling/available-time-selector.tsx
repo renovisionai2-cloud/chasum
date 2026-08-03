@@ -5,12 +5,25 @@ import { groupSlotsByTimeOfDay } from "@/lib/booking/time-groups";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 export type AvailableTimeOption = {
   start: string;
   label?: string;
   disabled?: boolean;
+};
+
+export type AvailableTimeSelectorHandle = {
+  focus: () => void;
+  expand: () => void;
 };
 
 type AvailableTimeSelectorProps = {
@@ -32,18 +45,24 @@ function slotKey(iso: string | null | undefined): string {
   return iso.slice(0, 16);
 }
 
-export function AvailableTimeSelector({
-  slots,
-  selectedStart,
-  onSelect,
-  loading = false,
-  emptyMessage = "No available times for this date.",
-  selectedInvalid = false,
-  selectedInvalidHint = null,
-  forceExpanded = false,
-  className,
-  id,
-}: AvailableTimeSelectorProps) {
+export const AvailableTimeSelector = forwardRef<
+  AvailableTimeSelectorHandle,
+  AvailableTimeSelectorProps
+>(function AvailableTimeSelector(
+  {
+    slots,
+    selectedStart,
+    onSelect,
+    loading = false,
+    emptyMessage = "No available times for this date.",
+    selectedInvalid = false,
+    selectedInvalidHint = null,
+    forceExpanded = false,
+    className,
+    id,
+  },
+  ref,
+) {
   const reactId = useId();
   const panelId = id ?? `available-times-${reactId}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -51,6 +70,14 @@ export function AvailableTimeSelector({
   const [jumpTo, setJumpTo] = useState<"morning" | "afternoon" | "evening" | null>(
     null,
   );
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      setExpanded(true);
+      window.setTimeout(() => triggerRef.current?.focus(), 0);
+    },
+    expand: () => setExpanded(true),
+  }));
 
   useEffect(() => {
     if (forceExpanded || selectedInvalid) {
@@ -253,7 +280,7 @@ export function AvailableTimeSelector({
       ) : null}
     </div>
   );
-}
+});
 
 function timeOfDayFromIso(iso: string): "morning" | "afternoon" | "evening" {
   try {

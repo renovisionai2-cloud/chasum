@@ -382,6 +382,7 @@ export async function bookAppointment(
   }
 
   let emailQueued = false;
+  let notifications: PublicBookingState["notifications"];
   if (appointmentId) {
     const { handleAppointmentEvent } = await import(
       "@/lib/integrations/notifications/orchestrator"
@@ -390,7 +391,18 @@ export async function bookAppointment(
       appointmentId,
       appointmentStatus === "pending" ? "created" : "confirmed",
     );
-    emailQueued = appointmentStatus === "confirmed";
+    try {
+      const { deliverBookingNotifications } = await import(
+        "@/lib/notifications/booking-delivery"
+      );
+      const report = await deliverBookingNotifications(appointmentId);
+      notifications = report.items;
+      emailQueued = report.items.some(
+        (i) => i.channel === "customer_email" && i.status === "sent",
+      );
+    } catch {
+      emailQueued = appointmentStatus === "confirmed";
+    }
   }
 
   revalidatePath("/dashboard");
@@ -413,6 +425,7 @@ export async function bookAppointment(
     appointmentId: id,
     reference,
     emailQueued,
+    notifications,
     summary: {
       serviceName: service.name,
       staffName: staffDisplayName,
