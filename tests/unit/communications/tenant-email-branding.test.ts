@@ -177,6 +177,8 @@ describe("customer confirmation template branding", () => {
     expect(rendered.html).not.toContain("AI Business Operating System");
     expect(rendered.html).not.toMatch(/Powered by Chasum/i);
     expect(rendered.html).toContain("GVM Baby World Ultrasound");
+    expect(rendered.html).toContain("mailto:bookings@example.com?subject=");
+    expect(rendered.html).toContain("Email GVM Baby World Ultrasound");
   });
 
   it("Free plan shows Powered by without platform tagline", () => {

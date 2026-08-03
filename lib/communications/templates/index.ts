@@ -51,16 +51,83 @@ function headerIdentity(branding: BrandingContext, color: string): string {
   return `<p style="margin:0;font-size:24px;font-weight:700;letter-spacing:-0.02em;color:${color};font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;">${name}</p>`;
 }
 
-function contactBlock(branding: BrandingContext): string {
+function isPlatformNotifyAddress(email: string): boolean {
+  return /notifications@chasumai\.com/i.test(email.trim());
+}
+
+/** Customer-facing contact email — never the platform technical sender. */
+function resolveCustomerContactEmail(
+  branding: BrandingContext,
+): string | null {
+  const email = branding.supportEmail?.trim();
+  if (!email) return null;
+  if (isPlatformNotifyAddress(email)) return null;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+  return email;
+}
+
+function appointmentMailtoHref(
+  email: string,
+  ctx: AppointmentTemplateContext,
+): string {
+  const dateLabel = format(parseISO(ctx.startTime), "MMMM d, yyyy");
+  const subject = `Appointment question — ${ctx.serviceName} — ${dateLabel}`;
+  return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
+}
+
+/**
+ * Primary customer contact CTA with appointment-specific mailto subject.
+ */
+function appointmentContactCta(
+  branding: BrandingContext,
+  ctx: AppointmentTemplateContext,
+): string {
+  const businessName = escapeHtml(branding.businessName);
+  const email = resolveCustomerContactEmail(branding);
+  const accent = safeColor(branding.primaryColor, "#0b1324");
+
+  if (!email) {
+    return `
+      <div style="margin:24px 0 0;padding:16px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;">
+        <p style="margin:0;font-size:14px;line-height:1.5;color:#334155;">
+          Need to change or cancel? Contact <strong>${businessName}</strong> and we’ll help.
+        </p>
+      </div>`;
+  }
+
+  const href = appointmentMailtoHref(email, ctx);
+  return `
+    <div style="margin:24px 0 0;padding:18px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;">
+      <p style="margin:0 0 12px;font-size:14px;line-height:1.5;color:#334155;">
+        Need to change or cancel? Email <strong>${businessName}</strong> — or use Reply in your mail app.
+      </p>
+      <a href="${escapeHtml(href)}"
+         style="display:inline-block;background:${accent};color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:600;min-height:44px;line-height:20px;text-align:center;">
+        Email ${businessName}
+      </a>
+      <p style="margin:12px 0 0;font-size:12px;color:#64748b;word-break:break-all;">
+        ${escapeHtml(email)}
+      </p>
+    </div>`;
+}
+
+function contactBlock(
+  branding: BrandingContext,
+  ctx?: AppointmentTemplateContext,
+): string {
   const businessName = escapeHtml(branding.businessName);
   const lines: string[] = [];
-  const email = branding.supportEmail?.trim();
+  const email = resolveCustomerContactEmail(branding);
   const phone = branding.supportPhone?.trim();
   const website = branding.websiteUrl?.trim();
+  const accent = safeColor(branding.primaryColor, "#0b1324");
 
   if (email) {
+    const href = ctx
+      ? appointmentMailtoHref(email, ctx)
+      : `mailto:${email}`;
     lines.push(
-      `<p style="margin:0 0 10px;"><a href="mailto:${escapeHtml(email)}" style="display:inline-block;background:#0b1324;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-size:14px;font-weight:600;min-height:44px;line-height:20px;">Email ${businessName}</a></p>`,
+      `<p style="margin:0 0 10px;"><a href="${escapeHtml(href)}" style="display:inline-block;background:${accent};color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-size:14px;font-weight:600;min-height:44px;line-height:20px;">Email ${businessName}</a></p>`,
     );
   }
   if (phone) {
@@ -75,7 +142,7 @@ function contactBlock(branding: BrandingContext): string {
       `<p style="margin:0 0 8px;font-size:14px;"><a href="${escapeHtml(href)}" style="color:#0f172a;text-decoration:underline;">Visit website</a></p>`,
     );
   }
-  if (!lines.length && !email) return "";
+  if (!lines.length) return "";
   return `
     <div style="margin:28px 0 0;padding:18px 0 0;border-top:1px solid #e2e8f0;">
       <p style="margin:0 0 6px;font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#64748b;">Need help with your appointment?</p>
@@ -180,16 +247,24 @@ function financialBlock(
 function footerHtml(branding: BrandingContext): string {
   const custom = branding.optOutFooter?.trim();
   if (branding.showChasumBranding === false) {
-    if (custom && !/powered by chasum|sent by chasum|chasum ·/i.test(custom)) {
+    // Entitled customer emails never show platform Powered-by copy.
+    if (
+      custom &&
+      !/powered by chasum|sent by chasum|sent via chasum|chasum ·/i.test(custom)
+    ) {
       return escapeHtml(custom);
     }
     return escapeHtml(branding.businessName);
   }
   if (branding.chasumBrandingStyle === "product_context") {
-    return escapeHtml(custom || `Sent via ${BRAND_NAME}`);
+    const product = custom || `Sent via ${BRAND_NAME}`;
+    if (/powered by chasum/i.test(product)) {
+      return escapeHtml(`Sent via ${BRAND_NAME}`);
+    }
+    return escapeHtml(product);
   }
   // Free plan / default: secondary Powered by — never the old platform tagline.
-  if (custom && !/sent by chasum|powered by chasum/i.test(custom)) {
+  if (custom && !/sent by chasum|powered by chasum|sent via chasum/i.test(custom)) {
     return `${escapeHtml(custom)}<br/><span style="color:#94a3b8;">Powered by ${escapeHtml(BRAND_NAME)}</span>`;
   }
   return `Powered by ${escapeHtml(BRAND_NAME)}`;
@@ -311,8 +386,7 @@ export function renderEmailTemplate(
         <p style="margin:0 0 4px;color:#475569;font-size:14px;">Your appointment is confirmed.</p>
         ${appointmentDetails(ctx)}
         ${financialBlock(ctx, "customer")}
-        <p style="margin:20px 0 0;color:#64748b;font-size:13px;line-height:1.5;">Need to change or cancel? Contact ${escapeHtml(ctx.businessName)} and we’ll help — or reply to this email.</p>
-        ${contactBlock(b)}`;
+        ${appointmentContactCta(b, ctx)}`;
       const total =
         ctx.appointmentTotalCents ?? ctx.amountCents ?? null;
       return {
@@ -340,9 +414,13 @@ export function renderEmailTemplate(
             ? `Balance remaining: ${money(ctx.remainingBalanceCents)}`
             : "",
           ``,
-          b.supportEmail ? `Email: ${b.supportEmail}` : "",
-          b.supportPhone ? `Phone: ${b.supportPhone}` : "",
-          b.showChasumBranding !== false ? `Powered by ${BRAND_NAME}` : "",
+          b.supportEmail && !isPlatformNotifyAddress(b.supportEmail)
+            ? `Email ${ctx.businessName}: ${b.supportEmail}`
+            : `Contact ${ctx.businessName} to change or cancel.`,
+          b.showChasumBranding === true &&
+          b.chasumBrandingStyle !== "none"
+            ? `Powered by ${BRAND_NAME}`
+            : "",
         ]
           .filter(Boolean)
           .join("\n"),
@@ -351,7 +429,7 @@ export function renderEmailTemplate(
     case "appointment.reminder": {
       const content = `${appointmentDetails(ctx)}
         <p style="margin:16px 0 0;">Just a friendly reminder — we can’t wait to see you.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Reminder: ${ctx.serviceName} with ${ctx.businessName}`,
@@ -365,7 +443,7 @@ export function renderEmailTemplate(
         : "";
       const content = `${appointmentDetails(ctx)}${prev}
         <p style="margin:16px 0 0;">Your appointment has a new time. See you then.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Updated time — ${ctx.serviceName} · ${ctx.businessName}`,
@@ -376,7 +454,7 @@ export function renderEmailTemplate(
     case "appointment.cancellation": {
       const content = `${appointmentDetails(ctx)}
         <p style="margin:16px 0 0;">This appointment has been cancelled. Reply anytime if you’d like to rebook — we’d love to have you back.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Cancelled — ${ctx.serviceName} on ${monthDay}`,
@@ -390,7 +468,7 @@ export function renderEmailTemplate(
         <p>Your invoice ${escapeHtml(ctx.invoiceNumber ?? "")} from <strong>${escapeHtml(ctx.businessName)}</strong> is ready.</p>
         <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>
         <p style="margin:0;color:#475569;font-size:14px;">Questions? Reply to this email or contact the studio directly.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Invoice ${ctx.invoiceNumber ?? ""} from ${ctx.businessName}`,
@@ -418,7 +496,7 @@ export function renderEmailTemplate(
           ${ctx.receiptNumber ? detailRow("Receipt", escapeHtml(ctx.receiptNumber)) : ""}
         </table>
         <p style="margin:16px 0 0;color:#475569;font-size:14px;">We appreciate your business.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       const amountLabel = money(ctx.amountCents);
       return {
         key,
@@ -440,7 +518,7 @@ export function renderEmailTemplate(
             ? `<div style="white-space:pre-wrap;font-size:14px;line-height:1.5;background:#f8fafc;padding:16px;border-radius:10px;border:1px solid #e2e8f0;margin:16px 0 0;color:#334155;">${escapeHtml(ctx.customMessage)}</div>`
             : ""
         }
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `A gift for you from ${ctx.businessName}`,
@@ -453,7 +531,7 @@ export function renderEmailTemplate(
     case "commerce.deposit_request": {
       const content = `${appointmentDetails(ctx)}
         <p style="margin:16px 0 0;">A deposit of <strong>${money(ctx.amountCents)}</strong> holds your appointment. Pay at your convenience — we’ll confirm once it’s received.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Deposit to hold your ${ctx.serviceName}`,
@@ -465,7 +543,7 @@ export function renderEmailTemplate(
       const content = `
         <p style="margin:0 0 16px;">Welcome to ${escapeHtml(ctx.businessName)}!</p>
         <p>Your account is ready. Book online anytime and manage your visits from one place.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Welcome to ${ctx.businessName}`,
@@ -514,7 +592,7 @@ export function renderEmailTemplate(
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
         <p>${escapeHtml(body)}</p>
         <p style="margin-top:24px;font-size:12px;color:#64748b;">You received this because you opted in to marketing from ${escapeHtml(ctx.businessName)}.</p>
-        ${contactBlock(b)}`;
+        ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: ctx.notes || `News from ${ctx.businessName}`,
@@ -558,7 +636,7 @@ export function renderEmailTemplate(
       return {
         key: "custom",
         subject: ctx.notes || ctx.businessName,
-        html: layout(`<p>${escapeHtml(body)}</p>${contactBlock(b)}`, b),
+        html: layout(`<p>${escapeHtml(body)}</p>${contactBlock(b, ctx)}`, b),
         text: body,
       };
     }

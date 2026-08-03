@@ -277,6 +277,7 @@ describe("email financial copy — exclusive $700", () => {
       businessName: branding.businessName,
       logoUrl: branding.logoUrl,
       primaryColor: branding.primaryColor,
+      supportEmail: branding.supportEmail,
       showChasumBranding: branding.showChasumBranding,
       chasumBrandingStyle: branding.chasumBrandingStyle,
       optOutFooter: branding.footerText,
@@ -293,6 +294,33 @@ describe("email financial copy — exclusive $700", () => {
     expect(rendered.html).toContain("HST (13%)");
     expect(rendered.html).not.toContain("$123.89");
     expect(rendered.html).not.toContain("$619.47");
+    expect(rendered.html).not.toMatch(/Powered by Chasum/i);
+  });
+
+  it("customer email has clickable mailto to tenant Reply-To with appointment subject", () => {
+    const rendered = renderEmailTemplate("appointment.confirmation", ctx);
+    expect(rendered.html).toContain("mailto:office@example.com?subject=");
+    expect(rendered.html).toMatch(
+      /mailto:office@example\.com\?subject=Appointment%20question/,
+    );
+    expect(rendered.html).toContain("Email GVM Baby World Ultrasound");
+    expect(rendered.html).toContain("Elite%20Package");
+    expect(rendered.html).not.toContain("mailto:notifications@chasumai.com");
+    expect(rendered.html).not.toMatch(
+      /Need to change or cancel\? Contact .* and we’ll help — or reply to this email/,
+    );
+  });
+
+  it("never uses platform notify address as customer contact", () => {
+    const rendered = renderEmailTemplate("appointment.confirmation", {
+      ...ctx,
+      branding: {
+        ...ctx.branding,
+        supportEmail: "notifications@chasumai.com",
+      },
+    });
+    expect(rendered.html).not.toContain("mailto:notifications@chasumai.com");
+    expect(rendered.html).toContain("Contact");
   });
 
   it("business email shows catalog subtotal and deposit required $50", () => {

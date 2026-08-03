@@ -113,7 +113,11 @@ export function resolveTenantEmailBranding(
     extractEmailAddress(platform.from) ?? "notifications@chasumai.com";
   const fromHeader = formatFromHeader(displaySenderName, technicalAddress);
   const replyToAddress = resolveReplyTo(business);
-  const supportEmail = replyToAddress || business.email?.trim() || null;
+  const rawSupport = replyToAddress || business.email?.trim() || null;
+  const supportEmail =
+    rawSupport && !/notifications@chasumai\.com/i.test(rawSupport)
+      ? rawSupport
+      : null;
   const canRemove = planAllowsRemoveBranding(business);
 
   let showChasumBranding = true;

@@ -146,9 +146,20 @@ export async function sendEmail(input: {
         businessName: input.context.businessName,
         supportEmail: null,
         optOutFooter: null,
-        showChasumBranding: true,
-        chasumBrandingStyle: "powered_by" as const,
+        // Prefer context branding when tenant row failed to load.
+        showChasumBranding:
+          input.context.branding?.showChasumBranding ?? true,
+        chasumBrandingStyle:
+          input.context.branding?.chasumBrandingStyle ??
+          ("powered_by" as const),
       };
+
+  if (!tenant) {
+    console.warn(
+      "[email] tenant branding unresolved; using context fallback",
+      { businessId: input.businessId, templateKey: input.templateKey },
+    );
+  }
 
   input.context = {
     ...input.context,
@@ -169,8 +180,14 @@ export async function sendEmail(input: {
       websiteUrl:
         tenant?.websiteUrl ?? input.context.branding?.websiteUrl ?? null,
       optOutFooter: tenant?.footerText ?? branding.optOutFooter,
-      showChasumBranding: tenant?.showChasumBranding ?? true,
-      chasumBrandingStyle: tenant?.chasumBrandingStyle ?? "powered_by",
+      showChasumBranding:
+        tenant?.showChasumBranding ??
+        input.context.branding?.showChasumBranding ??
+        true,
+      chasumBrandingStyle:
+        tenant?.chasumBrandingStyle ??
+        input.context.branding?.chasumBrandingStyle ??
+        "powered_by",
     },
   };
 

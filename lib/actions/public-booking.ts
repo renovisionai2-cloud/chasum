@@ -202,10 +202,12 @@ export async function bookAppointment(
   const appointmentStatus =
     business.public_booking_mode === "request_approval" ? "pending" : "confirmed";
 
-  const [{ data: service }, locationResult] = await Promise.all([
+  const [{ data: service }, locationResult, taxRatesResult] = await Promise.all([
     supabase
       .from("services")
-      .select("duration_minutes, name, price, online_booking")
+      .select(
+        "duration_minutes, name, price, online_booking, deposit_cents, deposit_required, tax_rate_bps",
+      )
       .eq("id", serviceId)
       .eq("business_id", business.id)
       .eq("is_active", true)
@@ -218,12 +220,30 @@ export async function bookAppointment(
           .eq("business_id", business.id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
+    supabase
+      .from("tax_rates")
+      .select("id, name, rate_bps, inclusive, is_default, is_active")
+      .eq("business_id", business.id)
+      .eq("is_active", true),
   ]);
 
   if (!service) return { error: "Service not available." };
   if (service.online_booking === false) {
     return { error: "This service is not available for online booking." };
   }
+
+  const { resolveBookingFinancials } = await import(
+    "@/lib/commerce/booking-financials"
+  );
+  const publicFinancials = resolveBookingFinancials({
+    catalogPriceCents: Math.round(Number(service.price) * 100),
+    serviceTaxRateBps: service.tax_rate_bps ?? null,
+    taxRates: (taxRatesResult.data ?? []) as Parameters<
+      typeof resolveBookingFinancials
+    >[0]["taxRates"],
+    depositRequiredCents: service.deposit_cents,
+    depositRequired: service.deposit_required,
+  });
 
   let staffMember: { id: string; name: string } | null = null;
   if (!anyStaff) {
@@ -337,7 +357,9 @@ export async function bookAppointment(
       requestedStart: start.toISOString(),
       notes,
       requestedStatus: appointmentStatus,
-      priceCents: Math.round(Number(service.price) * 100),
+      priceCents: publicFinancials.subtotalCents,
+      taxCents: publicFinancials.taxCents,
+      depositCents: publicFinancials.depositRequiredCents,
     });
     if (result.phase !== "success" || !result.data?.appointmentId) {
       await captureBookingFailure(
