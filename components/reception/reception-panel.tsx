@@ -361,17 +361,7 @@ export function ReceptionPanel({
         />
       </div>
 
-      {confirmedAppointmentId ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="w-full text-xs"
-          onClick={() => onOpenFullDialog(null, confirmedAppointmentId)}
-        >
-          View appointment
-        </Button>
-      ) : (
+      {confirmedAppointmentId ? null : (
         <Button
           type="button"
           variant="ghost"

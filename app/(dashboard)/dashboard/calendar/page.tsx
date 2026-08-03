@@ -10,6 +10,7 @@ import { getMorningBrief } from "@/lib/actions/morning-brief";
 import { getWaitlistEntries } from "@/lib/actions/notifications";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
+import { parseCalendarDateParam } from "@/lib/calendar/date-param";
 import { buildDashboardInsights } from "@/lib/dashboard/insights";
 import type { CalendarView } from "@/lib/types/booking";
 import type { Metadata } from "next";
@@ -65,10 +66,9 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const business = await getOrCreateBusiness();
   const params = await searchParams;
   const view = (params.view as CalendarView) ?? "day";
-  // Parse date-only as local noon — never `new Date("YYYY-MM-DD")` (UTC midnight drift).
-  const date = params.date
-    ? new Date(`${params.date}T12:00:00`)
-    : new Date();
+  // Accept YYYY-MM-DD or full ISO from client navigation — never concat T12
+  // onto an ISO string (Invalid Date → toISOString crash).
+  const date = parseCalendarDateParam(params.date);
   const range = getRange(view, date);
 
   const [

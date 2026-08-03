@@ -1044,7 +1044,12 @@ function handleStaffChange(id: string) {
           />
         ) : null}
 
-        <PaymentsSection service={selectedService} appointment={appointment} />
+        <PaymentsSection
+          service={selectedService}
+          appointment={appointment}
+          currency={currency}
+          taxRates={taxRates}
+        />
 
         <TimelineSection
           appointment={appointment}

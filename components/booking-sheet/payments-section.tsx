@@ -1,5 +1,8 @@
 "use client";
 
+import type { TaxRate } from "@/lib/business/types";
+import { computeBookingPricing } from "@/lib/commerce/booking-pricing";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
 import {
   APPOINTMENT_PAYMENT_STATUS_LABELS,
@@ -10,17 +13,19 @@ import Link from "next/link";
 type PaymentsSectionProps = {
   service: Service | undefined;
   appointment: AppointmentWithRelations | null | undefined;
+  currency?: string | null;
+  taxRates?: TaxRate[];
 };
 
 function deriveStatus(input: {
-  priceCents: number;
+  totalCents: number;
   depositCents: number;
   amountPaidCents: number;
   amountRefundedCents: number;
   paymentStatus?: string | null;
   depositRequired: boolean;
 }): AppointmentPaymentStatus | "no_payment_due" {
-  if (input.priceCents <= 0) {
+  if (input.totalCents <= 0) {
     return "no_payment_due";
   }
   if (
@@ -31,38 +36,64 @@ function deriveStatus(input: {
   }
   const net = Math.max(0, input.amountPaidCents - input.amountRefundedCents);
   if (input.amountRefundedCents > 0 && net <= 0) return "refunded";
-  if (net >= input.priceCents && input.priceCents > 0) return "fully_paid";
+  if (net >= input.totalCents && input.totalCents > 0) return "fully_paid";
   if (input.depositRequired && net <= 0) return "deposit_required";
   if (
     input.depositRequired &&
     net >= input.depositCents &&
-    net < input.priceCents
+    net < input.totalCents
   ) {
     return "deposit_paid";
   }
-  if (net > 0 && net < input.priceCents) return "partially_paid";
+  if (net > 0 && net < input.totalCents) return "partially_paid";
   return "unpaid";
 }
 
-export function PaymentsSection({ service, appointment }: PaymentsSectionProps) {
-  const priceCents =
+export function PaymentsSection({
+  service,
+  appointment,
+  currency = "usd",
+  taxRates = [],
+}: PaymentsSectionProps) {
+  const subtotalCents =
     appointment?.price_cents != null
       ? Number(appointment.price_cents)
       : service
         ? Math.round(Number(service.price) * 100)
         : 0;
+  const taxFromAppointment =
+    appointment?.tax_cents != null ? Number(appointment.tax_cents) : null;
+  const pricing =
+    taxFromAppointment != null
+      ? {
+          subtotalCents,
+          taxCents: taxFromAppointment,
+          totalCents: subtotalCents + taxFromAppointment,
+        }
+      : computeBookingPricing({
+          subtotalCents,
+          serviceTaxRateBps: service?.tax_rate_bps ?? 0,
+          taxRates,
+          currency,
+        });
+
   const depositCents = Number(
     appointment?.deposit_cents ?? service?.deposit_cents ?? 0,
   );
   const amountPaid = Number(
-    appointment?.amount_paid_cents ?? appointment?.deposit_cents ?? 0,
+    appointment?.amount_paid_cents ?? 0,
   );
   const amountRefunded = Number(appointment?.amount_refunded_cents ?? 0);
   const depositRequired =
     Boolean(service?.deposit_required) || depositCents > 0;
-  const outstanding = Math.max(0, priceCents - (amountPaid - amountRefunded));
+  const netPaid = Math.max(0, amountPaid - amountRefunded);
+  const outstandingTotal = Math.max(0, pricing.totalCents - netPaid);
+  const remainingAfterDeposit = Math.max(
+    0,
+    pricing.totalCents - Math.max(depositCents, netPaid),
+  );
   const status = deriveStatus({
-    priceCents,
+    totalCents: pricing.totalCents,
     depositCents,
     amountPaidCents: amountPaid,
     amountRefundedCents: amountRefunded,
@@ -104,29 +135,47 @@ export function PaymentsSection({ service, appointment }: PaymentsSectionProps) 
               Outstanding
             </p>
             <p className="text-sm font-semibold tabular-nums">
-              ${(outstanding / 100).toFixed(2)}
+              {formatMoneyCents(outstandingTotal, currency)}
             </p>
           </div>
         </div>
-        <dl className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
-          <div>
-            <dt className="text-muted-foreground">Price</dt>
+        <dl className="mt-3 space-y-1.5 text-xs">
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">Appointment total</dt>
             <dd className="font-medium tabular-nums">
-              ${(priceCents / 100).toFixed(2)}
+              {formatMoneyCents(pricing.totalCents, currency)}
             </dd>
           </div>
-          {depositRequired ? (
-            <div>
-              <dt className="text-muted-foreground">Deposit</dt>
-              <dd className="font-medium tabular-nums">
-                ${(depositCents / 100).toFixed(2)}
+          {pricing.taxCents > 0 ? (
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">
+                Includes tax ({formatMoneyCents(pricing.taxCents, currency)})
+              </dt>
+              <dd className="tabular-nums text-muted-foreground">
+                Subtotal {formatMoneyCents(pricing.subtotalCents, currency)}
               </dd>
             </div>
           ) : null}
-          <div>
+          {depositRequired ? (
+            <>
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Deposit due now</dt>
+                <dd className="font-medium tabular-nums">
+                  {formatMoneyCents(depositCents, currency)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Remaining after deposit</dt>
+                <dd className="tabular-nums">
+                  {formatMoneyCents(remainingAfterDeposit, currency)}
+                </dd>
+              </div>
+            </>
+          ) : null}
+          <div className="flex justify-between gap-3">
             <dt className="text-muted-foreground">Paid</dt>
             <dd className="font-medium tabular-nums">
-              ${(amountPaid / 100).toFixed(2)}
+              {formatMoneyCents(amountPaid, currency)}
             </dd>
           </div>
         </dl>

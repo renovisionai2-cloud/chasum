@@ -58,6 +58,9 @@ import type {
 } from "@/lib/types/booking";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
+import {
+  formatCalendarDateParam,
+} from "@/lib/calendar/date-param";
 import { parseISO } from "@/lib/calendar/utils";
 import {
   endOfDay,
@@ -128,6 +131,8 @@ function getRange(view: CalendarView, date: Date) {
         start: startOfMonth(date),
         end: endOfMonth(date),
       };
+    default:
+      return { start: startOfDay(date), end: endOfDay(date) };
   }
 }
 
@@ -440,7 +445,7 @@ export function CalendarClient({
     setView(newView);
     const range = getRange(newView, date);
     router.replace(
-      `/dashboard/calendar?view=${newView}&date=${range.start.toISOString()}`,
+      `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(range.start)}`,
       { scroll: false },
     );
   }
@@ -449,7 +454,7 @@ export function CalendarClient({
     setDate(newDate);
     const range = getRange(view, newDate);
     router.replace(
-      `/dashboard/calendar?view=${view}&date=${range.start.toISOString()}`,
+      `/dashboard/calendar?view=${view}&date=${formatCalendarDateParam(range.start)}`,
       { scroll: false },
     );
   }
@@ -580,7 +585,7 @@ export function CalendarClient({
           appointments={appointments}
           staff={staff}
           locations={locations}
-          mode="employees"
+          mode={effectiveView === "resource" ? "resource" : "employees"}
           onSelectAppointment={openEdit}
         />
       )}

@@ -119,7 +119,9 @@ export function AvailableTimeSelector({
               : selectedLabel
                 ? selectedLabel
                 : slots.length > 0
-                  ? `${slots.length} openings — tap to choose`
+                  ? slots.length <= 8
+                    ? `${slots.length} times available — choose a time`
+                    : "Many times available — choose a time"
                   : "No times yet"}
           </span>
         </span>
