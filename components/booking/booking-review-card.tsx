@@ -14,7 +14,11 @@ export type BookingReviewCardProps = {
   taxCents?: number | null;
   totalCents: number;
   depositRequiredCents?: number | null;
+  /** Succeeded payments already on the appointment (edit / reopen). */
+  alreadyPaidCents?: number | null;
+  /** New payment being collected in this booking session. */
   paymentTodayCents?: number | null;
+  depositStatusLabel?: string | null;
   currency?: string | null;
   confirmationHint?: string | null;
   className?: string;
@@ -34,15 +38,18 @@ export function BookingReviewCard({
   taxCents = 0,
   totalCents,
   depositRequiredCents = 0,
+  alreadyPaidCents = 0,
   paymentTodayCents = 0,
+  depositStatusLabel = null,
   currency = "usd",
   confirmationHint = "Email and SMS when enabled for this business",
   className,
 }: BookingReviewCardProps) {
   const tax = Math.max(0, Math.round(taxCents ?? 0));
   const deposit = Math.max(0, Math.round(depositRequiredCents ?? 0));
+  const alreadyPaid = Math.max(0, Math.round(alreadyPaidCents ?? 0));
   const paidToday = Math.max(0, Math.round(paymentTodayCents ?? 0));
-  const remaining = Math.max(0, totalCents - paidToday);
+  const remaining = Math.max(0, totalCents - alreadyPaid - paidToday);
 
   return (
     <section
@@ -108,8 +115,24 @@ export function BookingReviewCard({
               </span>
             </div>
           ) : null}
+          {depositStatusLabel ? (
+            <div className="flex justify-between gap-3">
+              <span className="text-muted-foreground">Deposit status</span>
+              <span className="font-medium">{depositStatusLabel}</span>
+            </div>
+          ) : null}
+          {alreadyPaid > 0 ? (
+            <div className="flex justify-between gap-3">
+              <span className="text-muted-foreground">Already paid</span>
+              <span className="tabular-nums">
+                {formatMoneyCents(alreadyPaid, currency)}
+              </span>
+            </div>
+          ) : null}
           <div className="flex justify-between gap-3">
-            <span className="text-muted-foreground">Payment today</span>
+            <span className="text-muted-foreground">
+              {alreadyPaid > 0 ? "New payment today" : "Payment today"}
+            </span>
             <span className="tabular-nums">
               {formatMoneyCents(paidToday, currency)}
             </span>

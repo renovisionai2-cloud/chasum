@@ -75,6 +75,13 @@ export type AppointmentTemplateContext = {
   startTime: string;
   endTime?: string | null;
   appointmentId?: string;
+  /**
+   * IANA timezone for formatting start/end in emails.
+   * Prefer locationTimezone → businessTimezone → America/Toronto.
+   */
+  timezone?: string | null;
+  locationTimezone?: string | null;
+  businessTimezone?: string | null;
   /** Location display name when available — omit empty section when null. */
   locationName?: string | null;
   notes?: string | null;

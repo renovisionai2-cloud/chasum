@@ -79,7 +79,7 @@ export async function buildReceiptEmailContext(input: {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("name")
+    .select("name, timezone")
     .eq("id", input.businessId)
     .maybeSingle();
 
@@ -96,6 +96,7 @@ export async function buildReceiptEmailContext(input: {
 
   let serviceName = "Appointment";
   let startTime = new Date().toISOString();
+  let endTime: string | null = null;
   let subtotalCents: number | null = null;
   let taxCents: number | null = null;
   let taxRateBps: number | null = null;
@@ -107,12 +108,15 @@ export async function buildReceiptEmailContext(input: {
   let paymentStatusLabel: string | null =
     tx.kind === "deposit" ? "Deposit paid" : "Paid";
   let appointmentId = tx.appointmentId;
+  let locationTimezone: string | null = null;
+  let businessTimezone: string | null = null;
+  let timezone: string | null = null;
 
   if (tx.appointmentId) {
     const { data: appt, error: apptErr } = await supabase
       .from("appointments")
       .select(
-        "id, start_time, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(name)",
+        "id, start_time, end_time, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(name), location:locations(timezone)",
       )
       .eq("id", tx.appointmentId)
       .eq("business_id", input.businessId)
@@ -132,6 +136,7 @@ export async function buildReceiptEmailContext(input: {
     const service = Array.isArray(serviceRel) ? serviceRel[0] : serviceRel;
     serviceName = service?.name?.trim() || "Appointment";
     startTime = String(appt.start_time ?? startTime);
+    endTime = appt.end_time ? String(appt.end_time) : null;
     subtotalCents =
       appt.price_cents != null ? Math.max(0, Number(appt.price_cents)) : null;
     taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
@@ -151,6 +156,13 @@ export async function buildReceiptEmailContext(input: {
     } else if (tx.kind === "deposit" || depositPaidCents < (appointmentTotalCents ?? Infinity)) {
       paymentStatusLabel = "Deposit paid";
     }
+
+    const locRel = (appt as { location?: unknown }).location as
+      | { timezone?: string | null }
+      | { timezone?: string | null }[]
+      | null;
+    const loc = Array.isArray(locRel) ? locRel[0] : locRel;
+    locationTimezone = loc?.timezone?.trim() || null;
 
     const { data: taxRows } = await supabase
       .from("tax_rates")
@@ -173,6 +185,15 @@ export async function buildReceiptEmailContext(input: {
     appointmentId = String(appt.id);
   }
 
+  businessTimezone = business?.timezone?.trim() || null;
+  const { resolveAppointmentEmailTimezone } = await import(
+    "@/lib/communications/appointment-datetime"
+  );
+  timezone = resolveAppointmentEmailTimezone({
+    locationTimezone,
+    businessTimezone,
+  });
+
   return {
     ok: true,
     transactionId,
@@ -186,6 +207,10 @@ export async function buildReceiptEmailContext(input: {
       staffName: "Team",
       serviceName,
       startTime,
+      endTime,
+      timezone,
+      locationTimezone,
+      businessTimezone,
       amountCents: amountReceived,
       subtotalCents,
       taxCents,

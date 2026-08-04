@@ -1,11 +1,17 @@
 import { getAppUrl } from "@/lib/env";
 import { BRAND_NAME } from "@/lib/brand/assets";
+import {
+  formatAppointmentEmailDate,
+  formatAppointmentEmailMonthDay,
+  formatAppointmentEmailTimeRange,
+  formatAppointmentEmailWhen,
+  resolveAppointmentEmailTimezone,
+} from "@/lib/communications/appointment-datetime";
 import type {
   AppointmentTemplateContext,
   BrandingContext,
   RenderedTemplate,
 } from "@/lib/communications/types";
-import { format, parseISO } from "date-fns";
 
 function money(cents: number | null | undefined): string {
   if (cents == null) return "";
@@ -30,6 +36,14 @@ function brand(ctx: AppointmentTemplateContext): BrandingContext {
       chasumBrandingStyle: "powered_by",
     }
   );
+}
+
+function ctxTimezone(ctx: AppointmentTemplateContext): string {
+  return resolveAppointmentEmailTimezone({
+    locationTimezone: ctx.locationTimezone,
+    businessTimezone: ctx.businessTimezone,
+    timezone: ctx.timezone,
+  });
 }
 
 function safeColor(raw: string | null | undefined, fallback: string): string {
@@ -70,7 +84,7 @@ function appointmentMailtoHref(
   email: string,
   ctx: AppointmentTemplateContext,
 ): string {
-  const dateLabel = format(parseISO(ctx.startTime), "MMMM d, yyyy");
+  const dateLabel = formatAppointmentEmailDate(ctx.startTime, ctxTimezone(ctx));
   const subject = `Appointment question — ${ctx.serviceName} — ${dateLabel}`;
   return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
 }
@@ -312,21 +326,22 @@ function layout(
 </html>`;
 }
 
-function whenLabel(iso: string): string {
-  return format(parseISO(iso), "EEEE, MMMM d 'at' h:mm a");
+function whenLabel(ctx: AppointmentTemplateContext): string {
+  return formatAppointmentEmailWhen(
+    ctx.startTime,
+    ctxTimezone(ctx),
+    ctx.endTime,
+  );
 }
 
 function dateTimeBlock(ctx: AppointmentTemplateContext): string {
-  const start = parseISO(ctx.startTime);
-  const dateLine = format(start, "EEEE, MMMM d, yyyy");
-  let timeLine = format(start, "h:mm a");
-  if (ctx.endTime) {
-    try {
-      timeLine = `${format(start, "h:mm a")}–${format(parseISO(ctx.endTime), "h:mm a")}`;
-    } catch {
-      /* keep start-only */
-    }
-  }
+  const zone = ctxTimezone(ctx);
+  const dateLine = formatAppointmentEmailDate(ctx.startTime, zone);
+  const timeLine = formatAppointmentEmailTimeRange(
+    ctx.startTime,
+    ctx.endTime,
+    zone,
+  );
   return `${escapeHtml(dateLine)}<br/>${escapeHtml(timeLine)}`;
 }
 
@@ -378,7 +393,7 @@ export function renderEmailTemplate(
   ctx: AppointmentTemplateContext,
 ): RenderedTemplate {
   const b = brand(ctx);
-  const monthDay = format(parseISO(ctx.startTime), "MMM d");
+  const monthDay = formatAppointmentEmailMonthDay(ctx.startTime, ctxTimezone(ctx));
 
   switch (key) {
     case "appointment.confirmation": {
@@ -403,7 +418,7 @@ export function renderEmailTemplate(
           ``,
           `Service: ${ctx.serviceName}`,
           `Provider: ${ctx.staffName}`,
-          `When: ${whenLabel(ctx.startTime)}`,
+          `When: ${whenLabel(ctx)}`,
           total != null ? `Appointment total: ${money(total)}` : "",
           ctx.depositPaidCents
             ? `Deposit paid: ${money(ctx.depositPaidCents)}`
@@ -434,12 +449,12 @@ export function renderEmailTemplate(
         key,
         subject: `Reminder: ${ctx.serviceName} with ${ctx.businessName}`,
         html: layout(content, b, { headline: "Appointment reminder" }),
-        text: `Reminder: ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}.`,
+        text: `Reminder: ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}.`,
       };
     }
     case "appointment.reschedule": {
       const prev = ctx.previousStartTime
-        ? `<p style="margin:8px 0 0;color:#64748b;font-size:14px;">Previously: ${escapeHtml(whenLabel(ctx.previousStartTime))}</p>`
+        ? `<p style="margin:8px 0 0;color:#64748b;font-size:14px;">Previously: ${escapeHtml(formatAppointmentEmailWhen(ctx.previousStartTime, ctxTimezone(ctx)))}</p>`
         : "";
       const content = `${appointmentDetails(ctx)}${prev}
         <p style="margin:16px 0 0;">Your appointment has a new time. See you then.</p>
@@ -448,7 +463,7 @@ export function renderEmailTemplate(
         key,
         subject: `Updated time — ${ctx.serviceName} · ${ctx.businessName}`,
         html: layout(content, b, { headline: "Appointment updated" }),
-        text: `Your ${ctx.serviceName} appointment is now ${whenLabel(ctx.startTime)}.`,
+        text: `Your ${ctx.serviceName} appointment is now ${whenLabel(ctx)}.`,
       };
     }
     case "appointment.cancellation": {
@@ -459,7 +474,7 @@ export function renderEmailTemplate(
         key,
         subject: `Cancelled — ${ctx.serviceName} on ${monthDay}`,
         html: layout(content, b, { headline: "Appointment cancelled" }),
-        text: `Your ${ctx.serviceName} on ${whenLabel(ctx.startTime)} has been cancelled.`,
+        text: `Your ${ctx.serviceName} on ${whenLabel(ctx)} has been cancelled.`,
       };
     }
     case "commerce.invoice": {
@@ -499,7 +514,7 @@ export function renderEmailTemplate(
         <p>Thank you — payment received. Here’s your receipt ${escapeHtml(ctx.receiptNumber ?? "")}.</p>
         <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
           ${detailRow("Service", escapeHtml(ctx.serviceName))}
-          ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx.startTime))) : ""}
+          ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx))) : ""}
           ${subtotal != null ? detailRow("Subtotal", money(subtotal)) : ""}
           ${taxHeading && tax != null && tax > 0 ? detailRow(taxHeading, money(tax)) : ""}
           ${total != null ? detailRow("Appointment total", `<strong>${money(total)}</strong>`) : ""}
@@ -563,7 +578,7 @@ export function renderEmailTemplate(
         key,
         subject: `Deposit to hold your ${ctx.serviceName}`,
         html: layout(content, b, { headline: "Deposit requested" }),
-        text: `Deposit of ${money(ctx.amountCents)} requested for ${ctx.serviceName} on ${whenLabel(ctx.startTime)}.`,
+        text: `Deposit of ${money(ctx.amountCents)} requested for ${ctx.serviceName} on ${whenLabel(ctx)}.`,
       };
     }
     case "auth.welcome": {
@@ -637,7 +652,7 @@ export function renderEmailTemplate(
         key,
         subject: `Staff: appointment ${action}`,
         html: layout(content, b),
-        text: `Appointment ${action}: ${ctx.serviceName} with ${ctx.customerName} on ${whenLabel(ctx.startTime)}.`,
+        text: `Appointment ${action}: ${ctx.serviceName} with ${ctx.customerName} on ${whenLabel(ctx)}.`,
       };
     }
     case "appointment.business": {
@@ -655,7 +670,7 @@ export function renderEmailTemplate(
         key,
         subject: `New appointment booked — ${ctx.serviceName} on ${monthDay}`,
         html: layout(content, b, { headline: "New appointment booked" }),
-        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx.startTime)}. Total ${money(ctx.appointmentTotalCents ?? ctx.amountCents)}. Open ${openUrl}`,
+        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}. Total ${money(ctx.appointmentTotalCents ?? ctx.amountCents)}. Open ${openUrl}`,
       };
     }
     default: {
@@ -674,12 +689,12 @@ export function renderSmsTemplate(
   key: string,
   ctx: AppointmentTemplateContext,
 ): RenderedTemplate {
-  const when = whenLabel(ctx.startTime);
+  const when = whenLabel(ctx);
   switch (key) {
     case "appointment.confirmation":
       return {
         key,
-        text: `${ctx.businessName}: Your ${ctx.serviceName} appointment is confirmed for ${format(parseISO(ctx.startTime), "EEE, MMM d 'at' h:mm a")} with ${ctx.staffName}. Reply or contact us if you need help.`,
+        text: `${ctx.businessName}: Your ${ctx.serviceName} appointment is confirmed for ${whenLabel(ctx)} with ${ctx.staffName}. Reply or contact us if you need help.`,
       };
     case "appointment.reminder":
       return {

@@ -50,11 +50,11 @@ async function getAppointmentContext(
     .select(
       `
       id, business_id, customer_id, start_time, end_time, status, notes,
-      business:businesses(name, notification_email, email_notifications_enabled, sms_notifications_enabled),
+      business:businesses(name, timezone, notification_email, email_notifications_enabled, sms_notifications_enabled),
       service:services(name),
       staff:staff(name, email),
       customer:customers(id, name, email, phone),
-      location:locations(name)
+      location:locations(name, timezone)
     `,
     )
     .eq("id", appointmentId)
@@ -62,7 +62,10 @@ async function getAppointmentContext(
 
   if (!data) return null;
 
-  const business = unwrapRelation(data.business) as { name: string } | null;
+  const business = unwrapRelation(data.business) as {
+    name: string;
+    timezone?: string | null;
+  } | null;
   const service = unwrapRelation(data.service) as { name: string } | null;
   const staff = unwrapRelation(data.staff) as {
     name: string;
@@ -76,10 +79,20 @@ async function getAppointmentContext(
   } | null;
   const location = unwrapRelation(
     (data as { location?: unknown }).location,
-  ) as { name: string } | null;
+  ) as { name: string; timezone?: string | null } | null;
 
   // Staff may be unassigned — still deliver customer/business mail.
   if (!business || !service || !customer) return null;
+
+  const { resolveAppointmentEmailTimezone } = await import(
+    "@/lib/communications/appointment-datetime"
+  );
+  const locationTimezone = location?.timezone?.trim() || null;
+  const businessTimezone = business.timezone?.trim() || null;
+  const timezone = resolveAppointmentEmailTimezone({
+    locationTimezone,
+    businessTimezone,
+  });
 
   return {
     appointmentId: data.id,
@@ -93,6 +106,9 @@ async function getAppointmentContext(
     serviceName: service.name,
     startTime: data.start_time,
     endTime: data.end_time,
+    timezone,
+    locationTimezone,
+    businessTimezone,
     locationName: location?.name?.trim() || null,
     notes: data.notes,
   };

@@ -49,6 +49,7 @@ import {
 import { calendarDateInTimezone } from "@/lib/business/datetime";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
+import { resolveEditBookingPaymentSummary } from "@/lib/commerce/edit-booking-payment-summary";
 import {
   useBookingPreferences,
   writeBookingPreferences,
@@ -689,6 +690,31 @@ function handleStaffChange(id: string) {
   });
   const depositCentsForSubmit = financialsForSubmit.depositRequiredCents;
 
+  const alreadyPaidCents = isEditing
+    ? Math.max(
+        0,
+        Number(appointment?.amount_paid_cents ?? 0) -
+          Number(appointment?.amount_refunded_cents ?? 0),
+      )
+    : 0;
+
+  const appointmentTotalForReview =
+    isEditing && appointment?.price_cents != null
+      ? Math.max(0, Number(appointment.price_cents)) +
+        Math.max(0, Number(appointment.tax_cents ?? 0))
+      : financialsForSubmit.appointmentTotalCents;
+
+  const reviewPayment = resolveEditBookingPaymentSummary({
+    appointmentTotalCents: appointmentTotalForReview,
+    alreadyPaidCents,
+    paymentTodayCents:
+      paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+    depositRequiredCents: isEditing
+      ? Number(appointment?.deposit_cents ?? depositCentsForSubmit)
+      : depositCentsForSubmit,
+    paymentStatus: appointment?.payment_status ?? null,
+  });
+
   useEffect(() => {
     if (isEditing) return;
     setPaymentDraft(defaultBookingPaymentDraft(depositCentsForSubmit));
@@ -1091,13 +1117,21 @@ function handleStaffChange(id: string) {
                   null)
                 : null
             }
-            subtotalCents={financialsForSubmit.subtotalCents}
-            taxCents={financialsForSubmit.taxCents}
-            totalCents={financialsForSubmit.appointmentTotalCents}
-            depositRequiredCents={depositCentsForSubmit}
-            paymentTodayCents={
-              paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents
+            subtotalCents={
+              isEditing && appointment?.price_cents != null
+                ? Math.max(0, Number(appointment.price_cents))
+                : financialsForSubmit.subtotalCents
             }
+            taxCents={
+              isEditing && appointment?.price_cents != null
+                ? Math.max(0, Number(appointment.tax_cents ?? 0))
+                : financialsForSubmit.taxCents
+            }
+            totalCents={reviewPayment.appointmentTotalCents}
+            depositRequiredCents={reviewPayment.depositRequiredCents}
+            alreadyPaidCents={reviewPayment.alreadyPaidCents}
+            paymentTodayCents={reviewPayment.paymentTodayCents}
+            depositStatusLabel={reviewPayment.depositStatusLabel}
             currency={currency}
           />
         ) : null}

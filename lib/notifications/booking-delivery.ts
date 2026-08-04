@@ -94,7 +94,7 @@ async function loadAppointmentNotifyContext(
       price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents,
       payment_status,
       business:businesses(
-        name, email, notification_email,
+        name, email, notification_email, timezone,
         email_notifications_enabled, sms_notifications_enabled,
         owner_notifications_enabled, staff_notifications_enabled,
         subscription_plan_key, private_alpha_enabled
@@ -102,7 +102,7 @@ async function loadAppointmentNotifyContext(
       service:services(name),
       staff:staff(name, email),
       customer:customers(id, name, email, phone),
-      location:locations(name)
+      location:locations(name, timezone)
     `,
     )
     .eq("id", appointmentId)
@@ -120,6 +120,7 @@ async function loadAppointmentNotifyContext(
     name: string;
     email: string | null;
     notification_email: string | null;
+    timezone?: string | null;
     email_notifications_enabled: boolean | null;
     sms_notifications_enabled: boolean | null;
     owner_notifications_enabled: boolean | null;
@@ -140,7 +141,7 @@ async function loadAppointmentNotifyContext(
   } | null;
   const location = unwrapRelation(
     (data as { location?: unknown }).location,
-  ) as { name: string } | null;
+  ) as { name: string; timezone?: string | null } | null;
 
   if (!business || !customer) return null;
 
@@ -223,6 +224,16 @@ async function loadAppointmentNotifyContext(
         ]
       : paymentStatus;
 
+  const { resolveAppointmentEmailTimezone } = await import(
+    "@/lib/communications/appointment-datetime"
+  );
+  const locationTimezone = location?.timezone?.trim() || null;
+  const businessTimezone = business.timezone?.trim() || null;
+  const timezone = resolveAppointmentEmailTimezone({
+    locationTimezone,
+    businessTimezone,
+  });
+
   return {
     appointmentId: data.id,
     businessId: data.business_id,
@@ -236,6 +247,9 @@ async function loadAppointmentNotifyContext(
     serviceName,
     startTime: data.start_time,
     endTime: data.end_time,
+    timezone,
+    locationTimezone,
+    businessTimezone,
     locationName: location?.name?.trim() || null,
     notes: data.notes,
     amountCents: appointmentTotalCents,
