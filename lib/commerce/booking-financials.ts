@@ -67,6 +67,14 @@ export type BookingFinancials = {
   remainingBalanceCents: number;
   paymentStatus: AppointmentPaymentStatus;
   currency: string | null;
+  /** How tax inclusive/exclusive was resolved — for Preview diagnostics. */
+  debug: {
+    storedInclusive: boolean;
+    effectiveInclusive: boolean;
+    source: string;
+    taxRateId: string | null;
+    taxable: boolean;
+  };
   formatted: {
     catalogPrice: string;
     subtotal: string;
@@ -104,7 +112,13 @@ function resolveTaxMeta(input: BookingFinancialsInput): {
   rateBps: number;
   inclusive: boolean;
   label: string | null;
+  source: string;
+  taxRateId: string | null;
+  storedInclusive: boolean;
 } {
+  const catalog = (input.taxRates ?? []).filter((r) => r.is_active !== false);
+  const defaultRate =
+    catalog.find((r) => r.is_default) ?? catalog[0] ?? null;
   const pricing = computeBookingPricing({
     subtotalCents: Math.max(0, Math.round(input.catalogPriceCents || 0)),
     serviceTaxRateBps: input.serviceTaxRateBps,
@@ -113,13 +127,27 @@ function resolveTaxMeta(input: BookingFinancialsInput): {
     >[0]["taxRates"],
     currency: input.currency,
   });
+
+  if (input.taxInclusive != null) {
+    return {
+      rateBps: pricing.taxRateBps,
+      inclusive: Boolean(input.taxInclusive),
+      label: pricing.taxLabel,
+      source: "explicit override (caller taxInclusive)",
+      taxRateId: defaultRate?.id ?? null,
+      storedInclusive: Boolean(defaultRate?.inclusive),
+    };
+  }
+
   return {
     rateBps: pricing.taxRateBps,
-    inclusive:
-      input.taxInclusive != null
-        ? Boolean(input.taxInclusive)
-        : pricing.taxInclusive,
+    inclusive: pricing.taxInclusive,
     label: pricing.taxLabel,
+    source: defaultRate
+      ? `tax_rates.inclusive on "${defaultRate.name}" (${defaultRate.id ?? "no-id"})`
+      : "no active tax rate (default exclusive)",
+    taxRateId: defaultRate?.id ?? null,
+    storedInclusive: Boolean(defaultRate?.inclusive),
   };
 }
 
@@ -134,7 +162,8 @@ export function resolveBookingFinancials(
     0,
     Math.round(input.catalogPriceCents || 0),
   );
-  const { rateBps, inclusive, label } = resolveTaxMeta(input);
+  const { rateBps, inclusive, label, source, taxRateId, storedInclusive } =
+    resolveTaxMeta(input);
 
   let taxCents: number;
   let subtotalCents: number;
@@ -217,6 +246,13 @@ export function resolveBookingFinancials(
     remainingBalanceCents,
     paymentStatus,
     currency,
+    debug: {
+      storedInclusive,
+      effectiveInclusive: inclusive,
+      source,
+      taxRateId,
+      taxable: rateBps > 0,
+    },
     formatted: {
       catalogPrice: formatMoneyCents(catalogPriceCents, currency),
       subtotal: formatMoneyCents(subtotalCents, currency),

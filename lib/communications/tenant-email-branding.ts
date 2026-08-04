@@ -192,15 +192,49 @@ export async function loadTenantEmailBranding(
 ): Promise<TenantEmailBranding | null> {
   const { createServiceClient } = await import("@/lib/supabase/service");
   const supabase = createServiceClient();
-  const { data } = await supabase
-    .from("businesses")
-    .select(
-      `name, email, notification_email, phone, website, logo_url,
+
+  // Prefer full select; fall back if optional branding columns are missing
+  // (Preview/Production schema may lag migrations). Never fail open to
+  // platform "Powered by Chasum" solely because of a missing column.
+  const fullSelect = `name, email, notification_email, phone, website, logo_url,
        brand_color, accent_color, email_signature,
-       communications_opt_out_footer, subscription_plan_key, private_alpha_enabled`,
-    )
+       communications_opt_out_footer, subscription_plan_key, private_alpha_enabled`;
+  const safeSelect = `name, email, notification_email, phone, website, logo_url,
+       brand_color, accent_color, email_signature,
+       subscription_plan_key, private_alpha_enabled`;
+
+  let data: Record<string, unknown> | null = null;
+  let error: { message: string } | null = null;
+
+  const full = await supabase
+    .from("businesses")
+    .select(fullSelect)
     .eq("id", businessId)
     .single();
-  if (!data) return null;
+  data = (full.data as Record<string, unknown> | null) ?? null;
+  error = full.error;
+
+  if (
+    error &&
+    /communications_opt_out_footer|email_signature|does not exist/i.test(
+      error.message,
+    )
+  ) {
+    const retry = await supabase
+      .from("businesses")
+      .select(safeSelect)
+      .eq("id", businessId)
+      .single();
+    data = (retry.data as Record<string, unknown> | null) ?? null;
+    error = retry.error;
+  }
+
+  if (error || !data) {
+    console.warn("[email] tenant branding load failed", {
+      businessId,
+      error: error?.message,
+    });
+    return null;
+  }
   return resolveTenantEmailBranding(data as TenantEmailBusinessInput, audience);
 }
