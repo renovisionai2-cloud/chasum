@@ -1,7 +1,6 @@
 "use client";
 
 import { BookingNotificationStatus } from "@/components/booking/booking-notification-status";
-import { BookingFinancialDebugPanel } from "@/components/booking/booking-financial-debug-panel";
 import {
   BookingPaymentSection,
   confirmButtonLabel,
@@ -1103,7 +1102,6 @@ export function QuickAppointmentForm({
               defaultExpanded={qaDepositCents > 0}
               compact
             />
-            <BookingFinancialDebugPanel financials={qaFinancials} />
           </>
         ) : null}
 

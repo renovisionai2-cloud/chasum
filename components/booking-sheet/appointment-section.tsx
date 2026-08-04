@@ -1,7 +1,6 @@
 "use client";
 
 import { BookingPriceSummary } from "@/components/booking/booking-price-summary";
-import { BookingFinancialDebugPanel } from "@/components/booking/booking-financial-debug-panel";
 import { BookingSection } from "@/components/booking/booking-section";
 import { Button } from "@/components/ui/button";
 import { DateField } from "@/components/ui/date-field";
@@ -476,7 +475,6 @@ export function AppointmentSection({
         financials={financials}
         currency={currency}
       />
-      <BookingFinancialDebugPanel financials={financials} />
 
       <div className="space-y-1.5">
         <Label htmlFor="bs-notes">Notes</Label>
