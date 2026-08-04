@@ -37,14 +37,18 @@ function resolveTaxRate(input: BookingPricingInput): {
   inclusive: boolean;
   label: string | null;
 } {
-  const catalog = (input.taxRates ?? []).filter((r) => r.is_active);
+  const catalog = (input.taxRates ?? []).filter((r) => r.is_active !== false);
   const byId = input.taxRateId
     ? catalog.find((r) => r.id === input.taxRateId)
     : undefined;
+  // Deterministic: explicit id → default flag → first active by name.
+  const sorted = [...catalog].sort((a, b) =>
+    String(a.name ?? "").localeCompare(String(b.name ?? "")),
+  );
   const defaultRate =
     byId ??
-    catalog.find((r) => r.is_default) ??
-    catalog[0] ??
+    sorted.find((r) => r.is_default) ??
+    sorted[0] ??
     null;
 
   const serviceBps =

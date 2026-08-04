@@ -36,8 +36,10 @@ function cents(raw: FormDataEntryValue | null): number {
 }
 
 function bpsFromPercent(raw: FormDataEntryValue | null): number {
+  // Used for discounts — keep permissive; tax rates use parseTaxPercentInput.
   if (raw == null || String(raw).trim() === "") return 0;
-  const n = Number(String(raw));
+  const text = String(raw).trim().replace(/%/g, "");
+  const n = Number(text);
   if (Number.isNaN(n)) return 0;
   return Math.round(n * 100);
 }
@@ -712,19 +714,41 @@ export async function upsertTaxRate(
   const name = (formData.get("name") as string)?.trim();
   if (!name) return { error: "Tax name is required." };
 
+  const { parseTaxPercentInput } = await import(
+    "@/lib/commerce/tax-rate-percent"
+  );
+  const parsedRate = parseTaxPercentInput(formData.get("rate"));
+  if (!parsedRate.ok) {
+    return { error: parsedRate.error };
+  }
+
+  const makeDefault = formData.get("is_default") === "on";
   const payload = {
     business_id: business.id,
     name,
-    rate_bps: bpsFromPercent(formData.get("rate")),
+    rate_bps: parsedRate.rateBps,
     country: emptyToNull(formData.get("country")),
     region: emptyToNull(formData.get("region")),
     inclusive: formData.get("inclusive") === "on",
-    is_default: formData.get("is_default") === "on",
+    is_default: makeDefault,
     is_active: formData.get("is_active") !== "false",
   };
 
+  if (makeDefault) {
+    // Deterministic single default: clear other defaults first.
+    await supabase
+      .from("tax_rates")
+      .update({ is_default: false })
+      .eq("business_id", business.id)
+      .neq("id", id ?? "00000000-0000-0000-0000-000000000000");
+  }
+
   const { error } = id
-    ? await supabase.from("tax_rates").update(payload).eq("id", id).eq("business_id", business.id)
+    ? await supabase
+        .from("tax_rates")
+        .update(payload)
+        .eq("id", id)
+        .eq("business_id", business.id)
     : await supabase.from("tax_rates").insert(payload);
 
   if (error) {
@@ -735,7 +759,11 @@ export async function upsertTaxRate(
     };
   }
   revalidateBusiness();
-  return { success: id ? "Tax rate updated." : "Tax rate created." };
+  return {
+    success: id
+      ? `Tax rate updated (${parsedRate.percent}% → ${parsedRate.rateBps} bps).`
+      : `Tax rate created (${parsedRate.percent}% → ${parsedRate.rateBps} bps).`,
+  };
 }
 
 export async function deleteTaxRate(id: string): Promise<ActionState> {

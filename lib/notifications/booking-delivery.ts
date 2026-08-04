@@ -170,7 +170,9 @@ async function loadAppointmentNotifyContext(
       .select("name, rate_bps, inclusive, is_default, is_active")
       .eq("business_id", data.business_id)
       .eq("is_active", true);
-    const rates = taxRows ?? [];
+    const rates = [...(taxRows ?? [])].sort((a, b) =>
+      String(a.name ?? "").localeCompare(String(b.name ?? "")),
+    );
     const preferred =
       rates.find((r) => r.is_default) ?? rates[0] ?? null;
     if (preferred) {

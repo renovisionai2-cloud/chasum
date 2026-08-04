@@ -117,8 +117,12 @@ function resolveTaxMeta(input: BookingFinancialsInput): {
   storedInclusive: boolean;
 } {
   const catalog = (input.taxRates ?? []).filter((r) => r.is_active !== false);
+  // Deterministic: default flag → first active by name (matches booking-pricing).
+  const sorted = [...catalog].sort((a, b) =>
+    String(a.name ?? "").localeCompare(String(b.name ?? "")),
+  );
   const defaultRate =
-    catalog.find((r) => r.is_default) ?? catalog[0] ?? null;
+    sorted.find((r) => r.is_default) ?? sorted[0] ?? null;
   const pricing = computeBookingPricing({
     subtotalCents: Math.max(0, Math.round(input.catalogPriceCents || 0)),
     serviceTaxRateBps: input.serviceTaxRateBps,

@@ -45,6 +45,7 @@ import {
   type BusinessClosure,
   type BusinessDocument,
 } from "@/lib/business/settings";
+import { formatTaxRatePercent } from "@/lib/commerce/tax-rate-percent";
 import type {
   BusinessAutomationRule,
   CustomFormTemplate,
@@ -970,9 +971,11 @@ export function BusinessHub({
                 items={taxRates.map((t) => ({
                   id: t.id,
                   title: t.name,
-                  subtitle: `${(t.rate_bps / 100).toFixed(2)}% · ${
+                  subtitle: `${formatTaxRatePercent(t.rate_bps)} · ${
                     t.inclusive ? "Inclusive" : "Exclusive"
-                  }${t.region ? ` · ${t.region}` : ""}`,
+                  }${t.is_default ? " · Default" : ""}${
+                    t.region ? ` · ${t.region}` : ""
+                  }`,
                 }))}
                 onDelete={(id) => remove("tax rate", deleteTaxRate, id)}
               />
@@ -984,8 +987,20 @@ export function BusinessHub({
             </CardHeader>
             <CardContent>
               <form action={taxAction} className="space-y-3">
-                <Input name="name" placeholder="Name" required />
-                <Input name="rate" placeholder="Rate %" required />
+                <Input name="name" placeholder="Name (e.g. HST)" required />
+                <div className="space-y-1">
+                  <Input
+                    name="rate"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="Rate % (enter 13 for 13%)"
+                    required
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Enter 13 or 13% — saved as 1,300 basis points and shown as
+                    13.00%.
+                  </p>
+                </div>
                 <Input name="country" placeholder="Country" />
                 <Input name="region" placeholder="Province / state" />
                 <label className="flex items-center gap-2 text-sm">
