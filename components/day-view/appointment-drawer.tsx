@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/appointments";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
+import { resolveDepositDueNowCents } from "@/lib/commerce/booking-financials";
 import {
   APPOINTMENT_PAYMENT_STATUS_LABELS,
 } from "@/lib/commerce/types";
@@ -137,6 +138,11 @@ export function AppointmentDrawer({
   const amountRefunded = Number(appointment.amount_refunded_cents ?? 0);
   const netPaid = Math.max(0, amountPaid - amountRefunded);
   const remaining = Math.max(0, appointmentTotal - netPaid);
+  const { amountPaidTowardDepositCents, depositDueNowCents } =
+    resolveDepositDueNowCents({
+      depositRequiredCents: deposit,
+      netPaidCents: netPaid,
+    });
   const paymentStatus = String(appointment.payment_status ?? "unpaid");
   const paymentStatusLabel =
     paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
@@ -285,11 +291,15 @@ export function AppointmentDrawer({
                       </dd>
                     </div>
                     <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Deposit received</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(amountPaidTowardDepositCents)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
                       <dt className="text-muted-foreground">Deposit due now</dt>
                       <dd className="tabular-nums">
-                        {formatMoneyCents(
-                          Math.max(0, deposit - Math.min(deposit, netPaid)),
-                        )}
+                        {formatMoneyCents(depositDueNowCents)}
                       </dd>
                     </div>
                   </>

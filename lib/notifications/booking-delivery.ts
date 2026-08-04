@@ -82,7 +82,8 @@ type AppointmentNotifyContext = AppointmentTemplateContext & {
   privateAlphaEnabled: boolean | null;
 };
 
-async function loadAppointmentNotifyContext(
+/** Shared appointment email context (financials + branding inputs). */
+export async function loadAppointmentNotifyContext(
   appointmentId: string,
 ): Promise<AppointmentNotifyContext | null> {
   const supabase = createServiceClient();
@@ -162,6 +163,13 @@ async function loadAppointmentNotifyContext(
     appointmentTotalCents != null
       ? Math.max(0, appointmentTotalCents - netPaid)
       : null;
+  const { resolveDepositDueNowCents } = await import(
+    "@/lib/commerce/booking-financials"
+  );
+  const { depositDueNowCents } = resolveDepositDueNowCents({
+    depositRequiredCents,
+    netPaidCents: netPaid,
+  });
 
   let taxRateBps: number | null = null;
   let taxLabel: string | null = null;
@@ -260,6 +268,7 @@ async function loadAppointmentNotifyContext(
     appointmentTotalCents,
     depositRequiredCents,
     depositPaidCents: netPaid,
+    depositDueNowCents,
     remainingBalanceCents,
     paymentMethodLabel,
     paymentStatusLabel,

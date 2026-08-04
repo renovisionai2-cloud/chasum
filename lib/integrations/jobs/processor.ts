@@ -43,6 +43,18 @@ async function syncCommerceReceiptEmailStatus(
 async function getAppointmentContext(
   appointmentId: string,
 ): Promise<(AppointmentTemplateContext & { customerId: string | null }) | null> {
+  // Prefer shared notify context so business/staff emails include current deposit state.
+  const { loadAppointmentNotifyContext } = await import(
+    "@/lib/notifications/booking-delivery"
+  );
+  const rich = await loadAppointmentNotifyContext(appointmentId);
+  if (rich) {
+    return {
+      ...rich,
+      customerId: rich.customerId ?? null,
+    };
+  }
+
   const supabase = createServiceClient();
 
   const { data } = await supabase

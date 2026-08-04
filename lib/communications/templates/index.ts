@@ -181,6 +181,11 @@ function financialBlock(
   const tax = ctx.taxCents;
   const depositRequired = Math.max(0, Number(ctx.depositRequiredCents ?? 0));
   const depositPaid = Math.max(0, Number(ctx.depositPaidCents ?? 0));
+  // Prefer shared resolver value; fall back only when older callers omit it.
+  const depositDueNow =
+    ctx.depositDueNowCents != null
+      ? Math.max(0, Math.round(Number(ctx.depositDueNowCents)))
+      : Math.max(0, depositRequired - Math.min(depositRequired, depositPaid));
   const remaining =
     ctx.remainingBalanceCents != null
       ? Math.max(0, Number(ctx.remainingBalanceCents))
@@ -205,41 +210,37 @@ function financialBlock(
     rows.push(detailRow(taxHeading, money(tax)));
   }
   rows.push(detailRow("Appointment total", `<strong>${money(total)}</strong>`));
-  if (depositRequired > 0) {
-    rows.push(
-      detailRow(
-        audience === "business" ? "Deposit required" : "Deposit required",
-        money(depositRequired),
-      ),
-    );
-  }
-  if (depositPaid > 0) {
-    rows.push(
-      detailRow(
-        audience === "business" ? "Deposit received" : "Deposit paid",
-        money(depositPaid),
-      ),
-    );
-    if (ctx.paymentMethodLabel) {
+
+  if (audience === "business" && depositRequired > 0) {
+    // Always pair configured requirement with current payment state.
+    rows.push(detailRow("Deposit required", money(depositRequired)));
+    rows.push(detailRow("Deposit received", money(depositPaid)));
+    rows.push(detailRow("Deposit due now", money(depositDueNow)));
+    if (ctx.paymentStatusLabel) {
+      rows.push(detailRow("Payment status", escapeHtml(ctx.paymentStatusLabel)));
+    }
+    if (depositPaid > 0 && ctx.paymentMethodLabel) {
       rows.push(detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)));
     }
-  } else if (depositRequired > 0) {
-    rows.push(
-      detailRow(
-        audience === "business" ? "Deposit status" : "Deposit paid",
-        audience === "business" ? "Not paid" : money(0),
-      ),
-    );
+  } else {
+    if (depositRequired > 0) {
+      rows.push(detailRow("Deposit required", money(depositRequired)));
+    }
+    if (depositPaid > 0) {
+      rows.push(detailRow("Deposit paid", money(depositPaid)));
+      if (ctx.paymentMethodLabel) {
+        rows.push(
+          detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)),
+        );
+      }
+    } else if (depositRequired > 0) {
+      rows.push(detailRow("Deposit paid", money(0)));
+    }
   }
+
   rows.push(
-    detailRow(
-      audience === "business" ? "Balance remaining" : "Balance remaining",
-      `<strong>${money(remaining)}</strong>`,
-    ),
+    detailRow("Balance remaining", `<strong>${money(remaining)}</strong>`),
   );
-  if (audience === "business" && ctx.paymentStatusLabel) {
-    rows.push(detailRow("Payment status", escapeHtml(ctx.paymentStatusLabel)));
-  }
 
   let message = "";
   if (audience === "customer") {
@@ -647,7 +648,8 @@ export function renderEmailTemplate(
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.staffName)},</p>
         <p>Appointment ${escapeHtml(action)}:</p>
-        ${appointmentDetails(ctx)}`;
+        ${appointmentDetails(ctx)}
+        ${financialBlock(ctx, "business")}`;
       return {
         key,
         subject: `Staff: appointment ${action}`,
@@ -666,11 +668,38 @@ export function renderEmailTemplate(
             Open appointment in ${escapeHtml(BRAND_NAME)}
           </a>
         </p>`;
+      const depositRequired = Math.max(0, Number(ctx.depositRequiredCents ?? 0));
+      const depositPaid = Math.max(0, Number(ctx.depositPaidCents ?? 0));
+      const depositDueNow =
+        ctx.depositDueNowCents != null
+          ? Math.max(0, Math.round(Number(ctx.depositDueNowCents)))
+          : Math.max(0, depositRequired - Math.min(depositRequired, depositPaid));
       return {
         key,
         subject: `New appointment booked — ${ctx.serviceName} on ${monthDay}`,
         html: layout(content, b, { headline: "New appointment booked" }),
-        text: `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}. Total ${money(ctx.appointmentTotalCents ?? ctx.amountCents)}. Open ${openUrl}`,
+        text: [
+          `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}.`,
+          `Total ${money(ctx.appointmentTotalCents ?? ctx.amountCents)}.`,
+          depositRequired > 0
+            ? `Deposit required: ${money(depositRequired)}`
+            : null,
+          depositRequired > 0
+            ? `Deposit received: ${money(depositPaid)}`
+            : null,
+          depositRequired > 0
+            ? `Deposit due now: ${money(depositDueNow)}`
+            : null,
+          ctx.paymentStatusLabel
+            ? `Payment status: ${ctx.paymentStatusLabel}`
+            : null,
+          ctx.remainingBalanceCents != null
+            ? `Balance remaining: ${money(ctx.remainingBalanceCents)}`
+            : null,
+          `Open ${openUrl}`,
+        ]
+          .filter(Boolean)
+          .join(" "),
       };
     }
     default: {

@@ -96,6 +96,11 @@ export type AppointmentTemplateContext = {
   appointmentTotalCents?: number | null;
   depositRequiredCents?: number | null;
   depositPaidCents?: number | null;
+  /**
+   * Unpaid deposit remaining (from shared resolver).
+   * depositDueNowCents = max(0, depositRequired − amount paid toward deposit).
+   */
+  depositDueNowCents?: number | null;
   remainingBalanceCents?: number | null;
   paymentMethodLabel?: string | null;
   paymentStatusLabel?: string | null;
