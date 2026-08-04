@@ -87,7 +87,10 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
               </p>
             </div>
             {item.canRetry &&
-            (item.status === "failed" || item.status === "skipped") ? (
+            (item.status === "failed" ||
+              item.status === "skipped" ||
+              item.status === "sent" ||
+              item.status === "not_requested") ? (
               <form action={action}>
                 <input type="hidden" name="appointment_id" value={appointmentId} />
                 <input type="hidden" name="channel" value={item.channel} />
@@ -98,7 +101,7 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
                   disabled={pending}
                   className="h-8 shrink-0 text-[11px]"
                 >
-                  Retry
+                  {item.status === "sent" ? "Resend" : "Retry"}
                 </Button>
               </form>
             ) : null}

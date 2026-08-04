@@ -14,6 +14,8 @@ export type BookingReviewCardProps = {
   taxCents?: number | null;
   totalCents: number;
   depositRequiredCents?: number | null;
+  /** Unpaid deposit amount due now (after payments toward deposit). */
+  depositDueNowCents?: number | null;
   /** Succeeded payments already on the appointment (edit / reopen). */
   alreadyPaidCents?: number | null;
   /** New payment being collected in this booking session. */
@@ -38,6 +40,7 @@ export function BookingReviewCard({
   taxCents = 0,
   totalCents,
   depositRequiredCents = 0,
+  depositDueNowCents = 0,
   alreadyPaidCents = 0,
   paymentTodayCents = 0,
   depositStatusLabel = null,
@@ -119,6 +122,14 @@ export function BookingReviewCard({
             <div className="flex justify-between gap-3">
               <span className="text-muted-foreground">Deposit status</span>
               <span className="font-medium">{depositStatusLabel}</span>
+            </div>
+          ) : null}
+          {deposit > 0 ? (
+            <div className="flex justify-between gap-3">
+              <span className="text-muted-foreground">Deposit due now</span>
+              <span className="tabular-nums">
+                {formatMoneyCents(depositDueNowCents ?? 0, currency)}
+              </span>
             </div>
           ) : null}
           {alreadyPaid > 0 ? (

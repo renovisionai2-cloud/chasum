@@ -7,6 +7,7 @@ import {
 } from "@/components/booking-sheet/availability-section";
 import { CustomerSection } from "@/components/booking-sheet/customer-section";
 import { PaymentsSection } from "@/components/booking-sheet/payments-section";
+import { BookingCommunicationsSection } from "@/components/booking-sheet/booking-communications-section";
 import { QuickActionsMenu } from "@/components/booking-sheet/quick-actions-menu";
 import { SelectedAppointmentBanner } from "@/components/booking-sheet/selected-appointment-banner";
 import { SummerAssistant } from "@/components/booking-sheet/summer-assistant";
@@ -335,6 +336,8 @@ export function BookingSheet({
   > | null>(null);
   const [snapshotForId, setSnapshotForId] = useState<string | null>(null);
   const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [communicationsFocusSignal, setCommunicationsFocusSignal] =
+    useState(0);
 
   useFormAction(state, onSuccess, onClose);
 
@@ -830,6 +833,9 @@ function handleStaffChange(id: string) {
           onMessage={() =>
             toast("Compose from the customer profile in CRM.", "info")
           }
+          onCommunications={() =>
+            setCommunicationsFocusSignal((n) => n + 1)
+          }
         />
       }
       footer={
@@ -1129,6 +1135,7 @@ function handleStaffChange(id: string) {
             }
             totalCents={reviewPayment.appointmentTotalCents}
             depositRequiredCents={reviewPayment.depositRequiredCents}
+            depositDueNowCents={reviewPayment.depositDueNowCents}
             alreadyPaidCents={reviewPayment.alreadyPaidCents}
             paymentTodayCents={reviewPayment.paymentTodayCents}
             depositStatusLabel={reviewPayment.depositStatusLabel}
@@ -1157,6 +1164,13 @@ function handleStaffChange(id: string) {
           currency={currency}
           taxRates={taxRates}
         />
+
+        {isEditing && appointment?.id ? (
+          <BookingCommunicationsSection
+            appointmentId={appointment.id}
+            focusSignal={communicationsFocusSignal}
+          />
+        ) : null}
 
         <TimelineSection
           appointment={appointment}

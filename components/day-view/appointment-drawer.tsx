@@ -277,12 +277,22 @@ export function AppointmentDrawer({
                   </dd>
                 </div>
                 {deposit > 0 ? (
-                  <div className="flex justify-between gap-3">
-                    <dt className="text-muted-foreground">Deposit required</dt>
-                    <dd className="tabular-nums">
-                      {formatMoneyCents(deposit)}
-                    </dd>
-                  </div>
+                  <>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Deposit required</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(deposit)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Deposit due now</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(
+                          Math.max(0, deposit - Math.min(deposit, netPaid)),
+                        )}
+                      </dd>
+                    </div>
+                  </>
                 ) : null}
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Paid</dt>

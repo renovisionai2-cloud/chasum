@@ -3,6 +3,8 @@
  * must appear as already paid, separate from any new payment today.
  */
 
+import { resolveDepositDueNowCents } from "@/lib/commerce/booking-financials";
+
 export type EditBookingPaymentSummaryInput = {
   appointmentTotalCents: number;
   /** Net succeeded payments already on the appointment (amount_paid − refunds). */
@@ -19,6 +21,8 @@ export type EditBookingPaymentSummary = {
   paymentTodayCents: number;
   remainingBalanceCents: number;
   depositRequiredCents: number;
+  depositDueNowCents: number;
+  amountPaidTowardDepositCents: number;
   depositStatusLabel: string | null;
 };
 
@@ -41,10 +45,13 @@ export function resolveEditBookingPaymentSummary(
     0,
     Math.round(Number(input.depositRequiredCents ?? 0)),
   );
-  const remainingBalanceCents = Math.max(
-    0,
-    appointmentTotalCents - alreadyPaidCents - paymentTodayCents,
-  );
+  const netPaid = alreadyPaidCents + paymentTodayCents;
+  const remainingBalanceCents = Math.max(0, appointmentTotalCents - netPaid);
+  const { amountPaidTowardDepositCents, depositDueNowCents } =
+    resolveDepositDueNowCents({
+      depositRequiredCents,
+      netPaidCents: netPaid,
+    });
 
   const status = String(input.paymentStatus ?? "").trim();
   let depositStatusLabel: string | null = null;
@@ -52,7 +59,7 @@ export function resolveEditBookingPaymentSummary(
     depositStatusLabel = "Paid in full";
   } else if (
     status === "deposit_paid" ||
-    (depositRequiredCents > 0 && alreadyPaidCents >= depositRequiredCents)
+    (depositRequiredCents > 0 && depositDueNowCents <= 0 && alreadyPaidCents > 0)
   ) {
     depositStatusLabel = "Deposit paid";
   } else if (alreadyPaidCents > 0) {
@@ -67,6 +74,8 @@ export function resolveEditBookingPaymentSummary(
     paymentTodayCents,
     remainingBalanceCents,
     depositRequiredCents,
+    depositDueNowCents,
+    amountPaidTowardDepositCents,
     depositStatusLabel,
   };
 }

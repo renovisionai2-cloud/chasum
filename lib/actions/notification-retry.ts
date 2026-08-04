@@ -4,6 +4,7 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { retryPaymentReceiptForAppointment } from "@/lib/commerce/receipts";
 import {
   retryBookingNotification,
+  loadAppointmentCommunicationStatus,
   type BookingNotificationItem,
 } from "@/lib/notifications/booking-delivery";
 import type { ActionState } from "@/lib/types/booking";
@@ -34,7 +35,9 @@ export async function retryAppointmentNotification(
       return {
         success:
           result.status === "sent"
-            ? "Payment receipt sent."
+            ? result.skippedDuplicate
+              ? "Payment receipt already sent."
+              : "Payment receipt sent."
             : result.status === "failed"
               ? undefined
               : "Payment receipt retry finished.",
@@ -46,10 +49,14 @@ export async function retryAppointmentNotification(
         notifications: [
           {
             channel: "payment_receipt",
-            status: result.status,
+            status: result.status === "not_applicable" || result.status === "no_recipient"
+              ? result.status === "no_recipient"
+                ? "no_recipient"
+                : "not_applicable"
+              : result.status,
             label: "Payment receipt",
             detail: result.detail,
-            canRetry: result.status === "failed",
+            canRetry: result.status === "failed" || result.status === "sent",
           },
         ],
       };
@@ -85,7 +92,7 @@ export async function retryAppointmentNotification(
   try {
     const report = await retryBookingNotification({ appointmentId, channel });
     return {
-      success: "Notification retry finished.",
+      success: "Notification resent.",
       appointmentId,
       notifications: report.items,
     };
@@ -93,6 +100,28 @@ export async function retryAppointmentNotification(
     return {
       error: err instanceof Error ? err.message : "Retry failed.",
       appointmentId,
+    };
+  }
+}
+
+/** Load communication channel status for Edit Booking (read-only). */
+export async function loadAppointmentCommunicationsAction(
+  appointmentId: string,
+): Promise<{
+  items: BookingNotificationItem[];
+  error?: string;
+}> {
+  const id = appointmentId.trim();
+  if (!id) return { items: [], error: "Appointment is required." };
+  try {
+    const business = await getOrCreateBusiness();
+    void business;
+    const report = await loadAppointmentCommunicationStatus(id);
+    return { items: report.items };
+  } catch (err) {
+    return {
+      items: [],
+      error: err instanceof Error ? err.message : "Could not load communications.",
     };
   }
 }

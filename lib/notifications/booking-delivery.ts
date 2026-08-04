@@ -345,22 +345,26 @@ async function sendChannelEmail(input: {
   templateKey: string;
   skipPreferenceCheck?: boolean;
   action?: string;
+  /** When true, send even if a prior successful log exists (human resend). */
+  forceResend?: boolean;
 }): Promise<BookingNotificationItem> {
   const appointmentId = input.ctx.appointmentId as string;
-  const prior = await alreadySent(
-    appointmentId,
-    input.templateKey,
-    input.to,
-  );
-  if (prior) {
-    return {
-      channel: input.channel,
-      status: "sent",
-      label: input.label,
-      providerMessageId: prior.messageId,
-      canRetry: false,
-      detail: "Already accepted by email provider.",
-    };
+  if (!input.forceResend) {
+    const prior = await alreadySent(
+      appointmentId,
+      input.templateKey,
+      input.to,
+    );
+    if (prior) {
+      return {
+        channel: input.channel,
+        status: "sent",
+        label: input.label,
+        providerMessageId: prior.messageId,
+        canRetry: true,
+        detail: "Already accepted by email provider.",
+      };
+    }
   }
 
   logger.info("notifications", "provider_send_start", {
@@ -440,7 +444,7 @@ async function sendChannelEmail(input: {
       status: "sent",
       label: input.label,
       providerMessageId: result.messageId ?? null,
-      canRetry: false,
+      canRetry: true,
       detail: result.messageId
         ? "Accepted by email provider."
         : "Accepted by email provider (no message id).",
@@ -749,50 +753,332 @@ export async function retryBookingNotification(input: {
   appointmentId: string;
   channel: BookingNotificationItem["channel"];
 }): Promise<BookingNotificationReport> {
+  const emailConfigured = Boolean(getResendApiKey());
+  const smsConfigured = Boolean(getTwilioConfig());
   const ctx = await loadAppointmentNotifyContext(input.appointmentId);
   if (!ctx) throw new Error("Appointment not found.");
 
-  const businessId = ctx.businessId;
-  const idempotencyKey = `${input.appointmentId}:${input.channel}:retry:${Date.now()}`;
+  const smsPlanIncluded = planIncludesSms({
+    subscription_plan_key: ctx.subscriptionPlanKey,
+    private_alpha_enabled: ctx.privateAlphaEnabled,
+  });
+  const businessTo = resolveBusinessRecipient(ctx);
+  const items: BookingNotificationItem[] = [];
 
   if (input.channel === "customer_email") {
     if (!ctx.customerEmail) throw new Error("Customer has no email address.");
-    await enqueueEmailJob(businessId, {
-      appointmentId: input.appointmentId,
-      templateKey: "appointment.confirmation",
-      idempotencyKey,
-    });
+    if (!emailConfigured) throw new Error("Email delivery is not configured.");
+    items.push(
+      await sendChannelEmail({
+        channel: "customer_email",
+        label: "Customer confirmation email",
+        ctx,
+        to: ctx.customerEmail,
+        templateKey: "appointment.confirmation",
+        forceResend: true,
+      }),
+    );
   } else if (input.channel === "business_email") {
-    const to = resolveBusinessRecipient(ctx);
-    if (!to) throw new Error("No business notification email configured.");
-    await enqueueEmailJob(businessId, {
-      appointmentId: input.appointmentId,
-      templateKey: "appointment.business",
-      recipient: to,
-      action: "New appointment booked",
-      idempotencyKey,
-    });
+    if (!businessTo) throw new Error("No business notification email configured.");
+    if (!emailConfigured) throw new Error("Email delivery is not configured.");
+    items.push(
+      await sendChannelEmail({
+        channel: "business_email",
+        label: "Business confirmation email",
+        ctx,
+        to: businessTo,
+        templateKey: "appointment.business",
+        skipPreferenceCheck: true,
+        action: "New appointment booked",
+        forceResend: true,
+      }),
+    );
   } else if (input.channel === "staff_email") {
-    if (!ctx.staffEmail) throw new Error("Assigned employee has no email.");
-    await enqueueEmailJob(businessId, {
-      appointmentId: input.appointmentId,
-      templateKey: "appointment.staff",
-      recipient: ctx.staffEmail,
-      action: "new appointment",
-      idempotencyKey,
-    });
+    if (!ctx.staffEmail) {
+      throw new Error("No recipient — assigned employee has no email address.");
+    }
+    if (!emailConfigured) throw new Error("Email delivery is not configured.");
+    items.push(
+      await sendChannelEmail({
+        channel: "staff_email",
+        label: "Staff notification",
+        ctx,
+        to: ctx.staffEmail,
+        templateKey: "appointment.staff",
+        skipPreferenceCheck: true,
+        action: "new appointment",
+        forceResend: true,
+      }),
+    );
   } else if (input.channel === "customer_sms") {
-    if (!ctx.customerPhone) throw new Error("Customer has no mobile number.");
-    await enqueueSmsJob(businessId, {
-      appointmentId: input.appointmentId,
-      templateKey: "appointment.confirmation",
-      idempotencyKey,
+    if (!smsPlanIncluded || !smsConfigured) {
+      throw new Error("Not configured");
+    }
+    if (!ctx.customerPhone?.trim()) {
+      throw new Error("Customer has no mobile number.");
+    }
+    // Fall back to full delivery path for SMS channel.
+    return deliverBookingNotifications(input.appointmentId);
+  } else {
+    throw new Error("Unknown notification channel.");
+  }
+
+  return {
+    appointmentId: input.appointmentId,
+    items,
+    emailConfigured,
+    smsConfigured,
+    smsPlanIncluded,
+  };
+}
+
+/**
+ * Read-only communication status for Edit Booking — does not send mail.
+ */
+export async function loadAppointmentCommunicationStatus(
+  appointmentId: string,
+): Promise<BookingNotificationReport> {
+  const emailConfigured = Boolean(getResendApiKey());
+  const smsConfigured = Boolean(getTwilioConfig());
+  const ctx = await loadAppointmentNotifyContext(appointmentId);
+  const supabase = createServiceClient();
+
+  if (!ctx) {
+    return {
+      appointmentId,
+      emailConfigured,
+      smsConfigured,
+      smsPlanIncluded: false,
+      items: [],
+    };
+  }
+
+  const smsPlanIncluded = planIncludesSms({
+    subscription_plan_key: ctx.subscriptionPlanKey,
+    private_alpha_enabled: ctx.privateAlphaEnabled,
+  });
+  const businessTo = resolveBusinessRecipient(ctx);
+
+  const { data: logs } = await supabase
+    .from("notification_logs")
+    .select(
+      "template_key, recipient, status, error_message, provider_message_id, sent_at, created_at",
+    )
+    .eq("appointment_id", appointmentId)
+    .order("created_at", { ascending: false })
+    .limit(40);
+
+  function latestFor(
+    templateKey: string,
+    recipient?: string | null,
+  ): {
+    status: string;
+    detail: string | null;
+    sentAt: string | null;
+    recipient: string | null;
+  } | null {
+    const row = (logs ?? []).find((l) => {
+      if (String(l.template_key) !== templateKey) return false;
+      if (recipient && String(l.recipient) !== recipient) return false;
+      return true;
+    });
+    if (!row) return null;
+    return {
+      status: String(row.status ?? "failed"),
+      detail: (row.error_message as string | null) ?? null,
+      sentAt: (row.sent_at as string | null) ?? (row.created_at as string | null),
+      recipient: (row.recipient as string | null) ?? null,
+    };
+  }
+
+  function mapLogStatus(
+    raw: string,
+  ): BookingNotificationItem["status"] {
+    if (raw === "sent" || raw === "delivered") return "sent";
+    if (raw === "skipped") return "skipped";
+    if (raw === "pending" || raw === "queued" || raw === "sending") return "pending";
+    return "failed";
+  }
+
+  const items: BookingNotificationItem[] = [];
+
+  // Customer confirmation
+  if (!ctx.customerEmail) {
+    items.push({
+      channel: "customer_email",
+      status: "no_recipient",
+      label: "Customer confirmation email",
+      detail: "Customer has no email address.",
+      canRetry: false,
+    });
+  } else {
+    const log = latestFor("appointment.confirmation", ctx.customerEmail);
+    items.push({
+      channel: "customer_email",
+      status: log ? mapLogStatus(log.status) : "not_applicable",
+      label: "Customer confirmation email",
+      detail: log
+        ? [log.recipient, log.sentAt ? `Last attempt ${log.sentAt}` : null, log.detail]
+            .filter(Boolean)
+            .join(" · ")
+        : `Recipient ${ctx.customerEmail}`,
+      canRetry: Boolean(ctx.customerEmail) && emailConfigured,
     });
   }
 
-  // Force a fresh provider attempt by not short-circuiting only when prior
-  // success exists — alreadySent still protects true duplicates.
-  return deliverBookingNotifications(input.appointmentId);
+  // Business confirmation
+  if (!businessTo) {
+    items.push({
+      channel: "business_email",
+      status: "no_recipient",
+      label: "Business confirmation email",
+      detail: "No business notification email configured.",
+      canRetry: false,
+    });
+  } else {
+    const log = latestFor("appointment.business", businessTo);
+    items.push({
+      channel: "business_email",
+      status: log ? mapLogStatus(log.status) : "not_applicable",
+      label: "Business confirmation email",
+      detail: log
+        ? [log.recipient, log.sentAt ? `Last attempt ${log.sentAt}` : null, log.detail]
+            .filter(Boolean)
+            .join(" · ")
+        : `Recipient ${businessTo}`,
+      canRetry: emailConfigured,
+    });
+  }
+
+  // Payment receipt
+  const { data: receipt } = await supabase
+    .from("commerce_receipts")
+    .select("id, receipt_number, email_status, issued_at, amount_cents")
+    .eq("business_id", ctx.businessId)
+    .eq("customer_id", ctx.customerId)
+    .order("issued_at", { ascending: false })
+    .limit(20);
+
+  // Prefer receipt linked via appointment transactions
+  const { data: txs } = await supabase
+    .from("commerce_transactions")
+    .select("id")
+    .eq("appointment_id", appointmentId)
+    .eq("business_id", ctx.businessId)
+    .eq("status", "succeeded")
+    .limit(20);
+  const txIds = new Set((txs ?? []).map((t) => String(t.id)));
+  let receiptRow: {
+    id: string;
+    receipt_number?: string;
+    email_status?: string;
+    issued_at?: string;
+  } | null = null;
+  if (txIds.size > 0) {
+    const { data: linked } = await supabase
+      .from("commerce_receipts")
+      .select("id, receipt_number, email_status, issued_at, transaction_id")
+      .eq("business_id", ctx.businessId)
+      .in("transaction_id", [...txIds])
+      .order("issued_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    receiptRow = linked;
+  }
+  if (!receiptRow && receipt?.[0]) {
+    receiptRow = receipt[0];
+  }
+
+  if (!receiptRow) {
+    items.push({
+      channel: "payment_receipt",
+      status: "not_applicable",
+      label: "Payment receipt",
+      detail: "No successful payment receipt for this appointment.",
+      canRetry: false,
+    });
+  } else {
+    const st = String(receiptRow.email_status ?? "not_sent");
+    items.push({
+      channel: "payment_receipt",
+      status:
+        st === "sent"
+          ? "sent"
+          : st === "queued"
+            ? "pending"
+            : st === "failed"
+              ? "failed"
+              : "not_requested",
+      label: "Payment receipt",
+      detail: [
+        receiptRow.receipt_number ? `Receipt ${receiptRow.receipt_number}` : null,
+        ctx.customerEmail ? `To ${ctx.customerEmail}` : null,
+        receiptRow.issued_at ? `Issued ${receiptRow.issued_at}` : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+      canRetry: Boolean(ctx.customerEmail),
+    });
+  }
+
+  // Staff
+  if (!ctx.staffEmail) {
+    items.push({
+      channel: "staff_email",
+      status: "no_recipient",
+      label: "Staff notification",
+      detail: "No recipient — assigned employee has no email address.",
+      canRetry: false,
+    });
+  } else {
+    const log = latestFor("appointment.staff", ctx.staffEmail);
+    items.push({
+      channel: "staff_email",
+      status: log ? mapLogStatus(log.status) : "not_applicable",
+      label: "Staff notification",
+      detail: log
+        ? [log.recipient, log.sentAt ? `Last attempt ${log.sentAt}` : null, log.detail]
+            .filter(Boolean)
+            .join(" · ")
+        : `Recipient ${ctx.staffEmail}`,
+      canRetry: emailConfigured,
+    });
+  }
+
+  // SMS
+  if (!smsPlanIncluded || !smsConfigured) {
+    items.push({
+      channel: "customer_sms",
+      status: "not_configured",
+      label: "Customer SMS",
+      detail: "Not configured",
+      canRetry: false,
+    });
+  } else if (!ctx.customerPhone?.trim()) {
+    items.push({
+      channel: "customer_sms",
+      status: "no_recipient",
+      label: "Customer SMS",
+      detail: "Customer has no mobile number.",
+      canRetry: false,
+    });
+  } else {
+    items.push({
+      channel: "customer_sms",
+      status: "not_applicable",
+      label: "Customer SMS",
+      detail: `Recipient ${ctx.customerPhone}`,
+      canRetry: true,
+    });
+  }
+
+  return {
+    appointmentId,
+    items,
+    emailConfigured,
+    smsConfigured,
+    smsPlanIncluded,
+  };
 }
 
 /** Mark jobs stuck in pending/processing past the threshold as failed. */

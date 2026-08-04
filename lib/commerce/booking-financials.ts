@@ -60,7 +60,15 @@ export type BookingFinancials = {
   taxCents: number;
   /** Customer-facing appointment total (subtotal + tax). */
   appointmentTotalCents: number;
+  /** Configured deposit requirement (historical / policy amount). */
   depositRequiredCents: number;
+  /**
+   * Unpaid deposit amount due right now.
+   * max(0, depositRequiredCents − amountPaidTowardDepositCents).
+   */
+  depositDueNowCents: number;
+  /** Portion of net paid that counts toward the deposit requirement. */
+  amountPaidTowardDepositCents: number;
   paymentTodayCents: number;
   paidToDateCents: number;
   amountRefundedCents: number;
@@ -81,11 +89,41 @@ export type BookingFinancials = {
     tax: string;
     appointmentTotal: string;
     depositRequired: string;
+    depositDueNow: string;
     paymentToday: string;
     paidToDate: string;
     remainingBalance: string;
   };
 };
+
+/**
+ * Unpaid deposit remaining after successful payments toward the requirement.
+ * Historical depositRequiredCents stays unchanged; this is what is due now.
+ */
+export function resolveDepositDueNowCents(input: {
+  depositRequiredCents: number;
+  netPaidCents: number;
+}): {
+  amountPaidTowardDepositCents: number;
+  depositDueNowCents: number;
+} {
+  const depositRequiredCents = Math.max(
+    0,
+    Math.round(Number(input.depositRequiredCents ?? 0)),
+  );
+  const netPaidCents = Math.max(0, Math.round(Number(input.netPaidCents ?? 0)));
+  const amountPaidTowardDepositCents = Math.min(
+    depositRequiredCents,
+    netPaidCents,
+  );
+  return {
+    amountPaidTowardDepositCents,
+    depositDueNowCents: Math.max(
+      0,
+      depositRequiredCents - amountPaidTowardDepositCents,
+    ),
+  };
+}
 
 /**
  * Resolve deposit required from service/package stamps.
@@ -227,6 +265,11 @@ export function resolveBookingFinancials(
     paidToDateCents + paymentTodayCents - amountRefundedCents,
   );
   const remainingBalanceCents = Math.max(0, appointmentTotalCents - netPaid);
+  const { amountPaidTowardDepositCents, depositDueNowCents } =
+    resolveDepositDueNowCents({
+      depositRequiredCents,
+      netPaidCents: netPaid,
+    });
   const paymentStatus = deriveAppointmentPaymentStatus({
     priceCents: appointmentTotalCents,
     depositRequiredCents,
@@ -244,6 +287,8 @@ export function resolveBookingFinancials(
     taxCents,
     appointmentTotalCents,
     depositRequiredCents,
+    depositDueNowCents,
+    amountPaidTowardDepositCents,
     paymentTodayCents,
     paidToDateCents,
     amountRefundedCents,
@@ -263,6 +308,7 @@ export function resolveBookingFinancials(
       tax: formatMoneyCents(taxCents, currency),
       appointmentTotal: formatMoneyCents(appointmentTotalCents, currency),
       depositRequired: formatMoneyCents(depositRequiredCents, currency),
+      depositDueNow: formatMoneyCents(depositDueNowCents, currency),
       paymentToday: formatMoneyCents(paymentTodayCents, currency),
       paidToDate: formatMoneyCents(paidToDateCents, currency),
       remainingBalance: formatMoneyCents(remainingBalanceCents, currency),

@@ -187,16 +187,29 @@ export function PaymentsSection({
           {depositRequired ? (
             <>
               <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Deposit required</dt>
+                <dd className="tabular-nums">
+                  {formatMoneyCents(depositCents, currency)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">Deposit due now</dt>
                 <dd className="font-medium tabular-nums">
-                  {formatMoneyCents(depositCents, currency)}
+                  {formatMoneyCents(financials.depositDueNowCents, currency)}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">Remaining after deposit</dt>
                 <dd className="tabular-nums">
                   {formatMoneyCents(
-                    Math.max(0, financials.appointmentTotalCents - depositCents),
+                    Math.max(
+                      0,
+                      financials.appointmentTotalCents -
+                        Math.max(
+                          depositCents,
+                          financials.amountPaidTowardDepositCents,
+                        ),
+                    ),
                     currency,
                   )}
                 </dd>
