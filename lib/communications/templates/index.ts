@@ -478,31 +478,58 @@ export function renderEmailTemplate(
     }
     case "commerce.receipt": {
       const total =
-        ctx.appointmentTotalCents ?? ctx.amountCents ?? null;
+        ctx.appointmentTotalCents ??
+        (ctx.subtotalCents != null
+          ? Number(ctx.subtotalCents) + Number(ctx.taxCents ?? 0)
+          : ctx.amountCents ?? null);
       const paid = ctx.depositPaidCents ?? ctx.amountCents ?? null;
       const remaining = ctx.remainingBalanceCents;
+      const subtotal = ctx.subtotalCents;
+      const tax = ctx.taxCents;
+      const rateBps = Math.max(0, Number(ctx.taxRateBps ?? 0));
+      const taxHeading =
+        tax != null && tax > 0
+          ? rateBps > 0
+            ? `${(ctx.taxLabel ?? "Tax").trim() || "Tax"} (${(rateBps / 100).toFixed(rateBps % 100 === 0 ? 0 : 2)}%)`
+            : (ctx.taxLabel ?? "Tax").trim() || "Tax"
+          : null;
+      const supportEmail = resolveCustomerContactEmail(b);
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
         <p>Thank you — payment received. Here’s your receipt ${escapeHtml(ctx.receiptNumber ?? "")}.</p>
         <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
           ${detailRow("Service", escapeHtml(ctx.serviceName))}
           ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx.startTime))) : ""}
+          ${subtotal != null ? detailRow("Subtotal", money(subtotal)) : ""}
+          ${taxHeading && tax != null && tax > 0 ? detailRow(taxHeading, money(tax)) : ""}
+          ${total != null ? detailRow("Appointment total", `<strong>${money(total)}</strong>`) : ""}
           ${detailRow("Amount received", `<strong>${money(ctx.amountCents)}</strong>`)}
           ${ctx.paymentMethodLabel ? detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)) : ""}
-          ${total != null ? detailRow("Appointment total", money(total)) : ""}
           ${paid != null ? detailRow("Total paid", money(paid)) : ""}
           ${remaining != null ? detailRow("Balance remaining", money(remaining)) : ""}
           ${ctx.paymentStatusLabel ? detailRow("Payment status", escapeHtml(ctx.paymentStatusLabel)) : ""}
           ${ctx.receiptNumber ? detailRow("Receipt", escapeHtml(ctx.receiptNumber)) : ""}
         </table>
         <p style="margin:16px 0 0;color:#475569;font-size:14px;">We appreciate your business.</p>
-        ${contactBlock(b, ctx)}`;
+        ${appointmentContactCta(b, ctx)}`;
       const amountLabel = money(ctx.amountCents);
+      const textLines = [
+        `Receipt ${ctx.receiptNumber ?? ""} for ${amountLabel} from ${ctx.businessName}.`,
+        `Service: ${ctx.serviceName}`,
+        subtotal != null ? `Subtotal: ${money(subtotal)}` : null,
+        tax != null && tax > 0 ? `${taxHeading}: ${money(tax)}` : null,
+        total != null ? `Appointment total: ${money(total)}` : null,
+        `Amount received: ${amountLabel}`,
+        paid != null ? `Total paid: ${money(paid)}` : null,
+        remaining != null ? `Balance remaining: ${money(remaining)}` : null,
+        supportEmail ? `Contact: ${supportEmail}` : null,
+        "Thank you!",
+      ].filter(Boolean);
       return {
         key,
         subject: `Payment receipt — ${amountLabel} for ${ctx.serviceName}`,
         html: layout(content, b, { headline: "Payment receipt" }),
-        text: `Receipt ${ctx.receiptNumber ?? ""} for ${amountLabel} from ${ctx.businessName}. Thank you!`,
+        text: textLines.join("\n"),
       };
     }
     case "commerce.gift_certificate": {

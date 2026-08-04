@@ -2,9 +2,206 @@ import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import type { CommerceReceipt } from "@/lib/commerce/types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
+import type { AppointmentTemplateContext } from "@/lib/communications/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
+
+type ReceiptEmailContextResult =
+  | {
+      ok: true;
+      transactionId: string;
+      appointmentId: string | null;
+      context: AppointmentTemplateContext;
+    }
+  | { ok: false; error: string };
+
+/**
+ * Build receipt email context from the exact commerce transaction linked to
+ * the receipt. Never uses "latest customer payment" or caller-supplied totals
+ * when an appointment_id is present on the transaction.
+ */
+export async function buildReceiptEmailContext(input: {
+  businessId: string;
+  receiptId: string;
+  /** When set, must match commerce_transactions.appointment_id. */
+  expectedAppointmentId?: string | null;
+}): Promise<ReceiptEmailContextResult> {
+  const supabase = await createClient();
+  const { data: receipt, error } = await supabase
+    .from("commerce_receipts")
+    .select("*")
+    .eq("id", input.receiptId)
+    .eq("business_id", input.businessId)
+    .maybeSingle();
+
+  if (error || !receipt) {
+    return { ok: false, error: error?.message ?? "Receipt not found." };
+  }
+
+  const transactionId = String(receipt.transaction_id ?? "");
+  if (!transactionId) {
+    return { ok: false, error: "Receipt has no linked transaction." };
+  }
+
+  const { data: txRow, error: txErr } = await supabase
+    .from("commerce_transactions")
+    .select("*")
+    .eq("id", transactionId)
+    .eq("business_id", input.businessId)
+    .maybeSingle();
+
+  if (txErr || !txRow) {
+    return { ok: false, error: txErr?.message ?? "Transaction not found." };
+  }
+
+  const tx = mapTransaction(txRow as Record<string, unknown>);
+  const expected = input.expectedAppointmentId?.trim() || null;
+  if (expected && tx.appointmentId && expected !== tx.appointmentId) {
+    return {
+      ok: false,
+      error:
+        "Receipt transaction belongs to a different appointment — refusing mismatched financials.",
+    };
+  }
+  if (expected && !tx.appointmentId) {
+    return {
+      ok: false,
+      error: "Transaction is not linked to the expected appointment.",
+    };
+  }
+
+  const { data: customer } = await supabase
+    .from("customers")
+    .select("id, name, email")
+    .eq("id", receipt.customer_id)
+    .maybeSingle();
+
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name")
+    .eq("id", input.businessId)
+    .maybeSingle();
+
+  if (!customer?.email) {
+    return { ok: false, error: "Customer has no email on file." };
+  }
+
+  const method = String(receipt.method);
+  const methodLabel =
+    method in PAYMENT_METHOD_LABELS
+      ? PAYMENT_METHOD_LABELS[method as keyof typeof PAYMENT_METHOD_LABELS]
+      : method;
+  const amountReceived = Number(receipt.amount_cents ?? tx.amountCents ?? 0);
+
+  let serviceName = "Appointment";
+  let startTime = new Date().toISOString();
+  let subtotalCents: number | null = null;
+  let taxCents: number | null = null;
+  let taxRateBps: number | null = null;
+  let taxLabel: string | null = null;
+  let appointmentTotalCents: number | null = null;
+  let depositRequiredCents: number | null = null;
+  let depositPaidCents: number | null = amountReceived;
+  let remainingBalanceCents: number | null = null;
+  let paymentStatusLabel: string | null =
+    tx.kind === "deposit" ? "Deposit paid" : "Paid";
+  let appointmentId = tx.appointmentId;
+
+  if (tx.appointmentId) {
+    const { data: appt, error: apptErr } = await supabase
+      .from("appointments")
+      .select(
+        "id, start_time, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(name)",
+      )
+      .eq("id", tx.appointmentId)
+      .eq("business_id", input.businessId)
+      .maybeSingle();
+
+    if (apptErr || !appt) {
+      return {
+        ok: false,
+        error: apptErr?.message ?? "Linked appointment not found.",
+      };
+    }
+
+    const serviceRel = appt.services as
+      | { name?: string }
+      | { name?: string }[]
+      | null;
+    const service = Array.isArray(serviceRel) ? serviceRel[0] : serviceRel;
+    serviceName = service?.name?.trim() || "Appointment";
+    startTime = String(appt.start_time ?? startTime);
+    subtotalCents =
+      appt.price_cents != null ? Math.max(0, Number(appt.price_cents)) : null;
+    taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
+    appointmentTotalCents =
+      subtotalCents != null ? subtotalCents + taxCents : null;
+    depositRequiredCents = Math.max(0, Number(appt.deposit_cents ?? 0));
+    const paid = Math.max(0, Number(appt.amount_paid_cents ?? 0));
+    const refunded = Math.max(0, Number(appt.amount_refunded_cents ?? 0));
+    const netPaid = Math.max(0, paid - refunded);
+    depositPaidCents = netPaid > 0 ? netPaid : amountReceived;
+    remainingBalanceCents =
+      appointmentTotalCents != null
+        ? Math.max(0, appointmentTotalCents - depositPaidCents)
+        : null;
+    if (String(appt.payment_status ?? "") === "fully_paid") {
+      paymentStatusLabel = "Paid in full";
+    } else if (tx.kind === "deposit" || depositPaidCents < (appointmentTotalCents ?? Infinity)) {
+      paymentStatusLabel = "Deposit paid";
+    }
+
+    const { data: taxRows } = await supabase
+      .from("tax_rates")
+      .select("name, rate_bps, is_default, is_active")
+      .eq("business_id", input.businessId)
+      .eq("is_active", true);
+    const rates = [...(taxRows ?? [])].sort((a, b) =>
+      String(a.name ?? "").localeCompare(String(b.name ?? "")),
+    );
+    const preferred =
+      rates.find((r) => r.is_default) ?? rates[0] ?? null;
+    if (preferred) {
+      taxRateBps = Math.max(0, Number(preferred.rate_bps ?? 0));
+      taxLabel = String(preferred.name ?? "Tax");
+    } else if (subtotalCents != null && subtotalCents > 0 && taxCents > 0) {
+      taxRateBps = Math.round((taxCents * 10_000) / subtotalCents);
+      taxLabel = "Tax";
+    }
+
+    appointmentId = String(appt.id);
+  }
+
+  return {
+    ok: true,
+    transactionId,
+    appointmentId,
+    context: {
+      businessId: input.businessId,
+      businessName: business?.name ?? "Business",
+      customerName: customer.name ?? "Customer",
+      customerEmail: customer.email,
+      customerId: customer.id,
+      staffName: "Team",
+      serviceName,
+      startTime,
+      amountCents: amountReceived,
+      subtotalCents,
+      taxCents,
+      taxRateBps,
+      taxLabel,
+      appointmentTotalCents,
+      depositRequiredCents,
+      depositPaidCents,
+      remainingBalanceCents,
+      paymentMethodLabel: methodLabel,
+      paymentStatusLabel,
+      receiptNumber: String(receipt.receipt_number ?? ""),
+      appointmentId: appointmentId ?? undefined,
+    },
+  };
+}
 
 async function nextReceiptNumber(businessId: string): Promise<string> {
   const supabase = await createClient();
@@ -162,36 +359,17 @@ export async function queueReceiptEmail(
   businessId: string,
   receiptId: string,
 ): Promise<{ ok: boolean; error?: string }> {
-  const supabase = await createClient();
-  const { data: receipt, error } = await supabase
-    .from("commerce_receipts")
-    .select("*")
-    .eq("id", receiptId)
-    .eq("business_id", businessId)
-    .maybeSingle();
-
-  if (error || !receipt) {
-    return { ok: false, error: error?.message ?? "Receipt not found." };
-  }
-
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("id, name, email")
-    .eq("id", receipt.customer_id)
-    .maybeSingle();
-
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("name")
-    .eq("id", businessId)
-    .maybeSingle();
-
-  if (!customer?.email) {
-    await supabase
-      .from("commerce_receipts")
-      .update({ email_status: "failed" })
-      .eq("id", receiptId);
-    return { ok: false, error: "Customer has no email on file." };
+  const built = await buildReceiptEmailContext({ businessId, receiptId });
+  if (!built.ok) {
+    const supabase = await createClient();
+    if (/no email/i.test(built.error)) {
+      await supabase
+        .from("commerce_receipts")
+        .update({ email_status: "failed" })
+        .eq("id", receiptId)
+        .eq("business_id", businessId);
+    }
+    return { ok: false, error: built.error };
   }
 
   const { queueNotification } = await import("@/lib/communications");
@@ -199,28 +377,22 @@ export async function queueReceiptEmail(
     businessId,
     channel: "email",
     templateKey: "commerce.receipt",
-    recipient: customer.email,
-    customerId: customer.id,
+    recipient: built.context.customerEmail!,
+    customerId: built.context.customerId,
+    // Intentionally omit appointmentId so the job uses this receipt-bound
+    // directContext (never a stale appointment-only context).
     payload: {
-      receiptId: receiptId,
+      receiptId,
+      businessId,
       directContext: {
-        businessId,
-        businessName: business?.name ?? "Business",
-        customerName: customer.name ?? "Customer",
-        customerEmail: customer.email,
-        customerId: customer.id,
-        staffName: "",
-        serviceName: "Payment",
-        startTime: new Date().toISOString(),
-        amountCents: receipt.amount_cents,
-        receiptNumber: receipt.receipt_number,
+        ...built.context,
         receiptId,
       },
-      // Payment receipts are transactional confirmations.
       skipPreferenceCheck: true,
     },
   });
 
+  const supabase = await createClient();
   await supabase
     .from("commerce_receipts")
     .update({
@@ -238,19 +410,24 @@ export async function queueReceiptEmail(
 /**
  * Send a payment receipt immediately (Preview-safe — do not leave Pending).
  * Idempotent on receiptId: already-sent receipts are not resent.
- *
- * Concurrent double-clicks: claims email_status → queued before send; if another
- * worker already marked sent, returns skipped.
+ * Financials always come from receipt → transaction → appointment.
  */
 export async function sendPaymentReceiptNow(input: {
   businessId: string;
   receiptId: string;
+  /** When set, must match the transaction's appointment_id. */
   appointmentId?: string | null;
+  /** @deprecated Ignored — context is loaded from the linked transaction. */
   serviceName?: string | null;
+  /** @deprecated Ignored — context is loaded from the linked transaction. */
   startTime?: string | null;
+  /** @deprecated Ignored — context is loaded from the linked transaction. */
   appointmentTotalCents?: number | null;
+  /** @deprecated Ignored — context is loaded from the linked transaction. */
   paidToDateCents?: number | null;
+  /** @deprecated Ignored — context is loaded from the linked transaction. */
   remainingBalanceCents?: number | null;
+  /** @deprecated Ignored — context is loaded from the linked transaction. */
   paymentStatusLabel?: string | null;
   idempotencyKey?: string | null;
 }): Promise<{ ok: boolean; skipped?: boolean; error?: string; messageId?: string }> {
@@ -270,8 +447,22 @@ export async function sendPaymentReceiptNow(input: {
     return { ok: true, skipped: true, messageId: undefined };
   }
 
+  const built = await buildReceiptEmailContext({
+    businessId: input.businessId,
+    receiptId: input.receiptId,
+    expectedAppointmentId: input.appointmentId,
+  });
+  if (!built.ok) {
+    if (/no email/i.test(built.error)) {
+      await supabase
+        .from("commerce_receipts")
+        .update({ email_status: "failed" })
+        .eq("id", input.receiptId);
+    }
+    return { ok: false, error: built.error };
+  }
+
   // Claim send attempt so parallel retries cannot double-send.
-  // Only transition from terminal not-sent states — not from an in-flight "queued".
   const { data: claimed } = await supabase
     .from("commerce_receipts")
     .update({ email_status: "queued" })
@@ -293,59 +484,16 @@ export async function sendPaymentReceiptNow(input: {
     return { ok: false, error: "Receipt send is already in progress." };
   }
 
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("id, name, email")
-    .eq("id", receipt.customer_id)
-    .maybeSingle();
-
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("name")
-    .eq("id", input.businessId)
-    .maybeSingle();
-
-  if (!customer?.email) {
-    await supabase
-      .from("commerce_receipts")
-      .update({ email_status: "failed" })
-      .eq("id", input.receiptId);
-    return { ok: false, error: "Customer has no email on file." };
-  }
-
   const { sendEmail } = await import("@/lib/communications/delivery");
-  const { PAYMENT_METHOD_LABELS } = await import("@/lib/commerce/types");
-  const method = String(receipt.method);
-  const methodLabel =
-    method in PAYMENT_METHOD_LABELS
-      ? PAYMENT_METHOD_LABELS[method as keyof typeof PAYMENT_METHOD_LABELS]
-      : method;
-  const amount = Number(receipt.amount_cents ?? 0);
-  const serviceName = input.serviceName?.trim() || "Appointment";
-
   const result = await sendEmail({
     businessId: input.businessId,
-    to: customer.email,
+    to: built.context.customerEmail!,
     templateKey: "commerce.receipt",
-    customerId: customer.id,
-    appointmentId: input.appointmentId,
+    customerId: built.context.customerId,
+    appointmentId: built.appointmentId,
     skipPreferenceCheck: true,
     context: {
-      businessId: input.businessId,
-      businessName: business?.name ?? "Business",
-      customerName: customer.name ?? "Customer",
-      customerEmail: customer.email,
-      customerId: customer.id,
-      staffName: "Team",
-      serviceName,
-      startTime: input.startTime || new Date().toISOString(),
-      amountCents: amount,
-      appointmentTotalCents: input.appointmentTotalCents ?? null,
-      depositPaidCents: input.paidToDateCents ?? amount,
-      remainingBalanceCents: input.remainingBalanceCents ?? null,
-      paymentMethodLabel: methodLabel,
-      paymentStatusLabel: input.paymentStatusLabel ?? null,
-      receiptNumber: String(receipt.receipt_number ?? ""),
+      ...built.context,
       notes: input.idempotencyKey
         ? `receipt:${input.idempotencyKey}`
         : null,
@@ -378,10 +526,13 @@ export type PaymentReceiptRetryResult = {
 /**
  * Retry payment receipt for an appointment.
  * Never creates appointments or commerce payments — only rebuilds/sends receipt email.
+ * Selects the latest succeeded deposit/payment for THIS appointment only.
  */
 export async function retryPaymentReceiptForAppointment(input: {
   businessId: string;
   appointmentId: string;
+  /** Optional: force a specific transaction (must belong to the appointment). */
+  transactionId?: string | null;
 }): Promise<PaymentReceiptRetryResult> {
   const supabase = await createClient();
   const appointmentId = input.appointmentId.trim();
@@ -391,9 +542,7 @@ export async function retryPaymentReceiptForAppointment(input: {
 
   const { data: appt, error: apptErr } = await supabase
     .from("appointments")
-    .select(
-      "id, customer_id, start_time, price_cents, tax_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(name), customers(id, email, name)",
-    )
+    .select("id, customers(id, email, name)")
     .eq("id", appointmentId)
     .eq("business_id", input.businessId)
     .maybeSingle();
@@ -412,13 +561,18 @@ export async function retryPaymentReceiptForAppointment(input: {
     limit: 40,
   });
 
-  const tx = history.find(
-    (t) =>
-      t.status === "succeeded" &&
-      (t.kind === "deposit" || t.kind === "payment"),
-  );
+  const tx =
+    (input.transactionId
+      ? history.find((t) => t.id === input.transactionId)
+      : null) ??
+    history.find(
+      (t) =>
+        t.status === "succeeded" &&
+        (t.kind === "deposit" || t.kind === "payment") &&
+        t.appointmentId === appointmentId,
+    );
 
-  if (!tx) {
+  if (!tx || tx.appointmentId !== appointmentId) {
     return {
       status: "not_applicable",
       detail: "No successful payment transaction to receipt.",
@@ -450,39 +604,25 @@ export async function retryPaymentReceiptForAppointment(input: {
     };
   }
 
-  // Explicit retry may clear a stuck "queued" claim from a prior crashed attempt.
-  if (String(receipt.emailStatus) === "queued") {
+  // Explicit human retry may resend corrected content for the same receipt/
+  // transaction (e.g. after a stale financial snapshot). Never creates a new
+  // receipt row when one already exists for this transaction_id.
+  if (
+    String(receipt.emailStatus) === "sent" ||
+    String(receipt.emailStatus) === "queued"
+  ) {
     await supabase
       .from("commerce_receipts")
       .update({ email_status: "failed" })
       .eq("id", receipt.id)
       .eq("business_id", input.businessId)
-      .eq("email_status", "queued");
+      .in("email_status", ["sent", "queued"]);
   }
-
-  const serviceRel = appt.services as
-    | { name?: string }
-    | { name?: string }[]
-    | null;
-  const service = Array.isArray(serviceRel) ? serviceRel[0] : serviceRel;
-  const appointmentTotal =
-    Math.max(0, Number(appt.price_cents ?? 0)) +
-    Math.max(0, Number(appt.tax_cents ?? 0));
-  const paid = Math.max(0, Number(appt.amount_paid_cents ?? 0));
-  const refunded = Math.max(0, Number(appt.amount_refunded_cents ?? 0));
-  const netPaid = Math.max(0, paid - refunded);
 
   const result = await sendPaymentReceiptNow({
     businessId: input.businessId,
     receiptId: receipt.id,
     appointmentId,
-    serviceName: service?.name ?? "Appointment",
-    startTime: String(appt.start_time ?? ""),
-    appointmentTotalCents: appointmentTotal,
-    paidToDateCents: netPaid || tx.amountCents,
-    remainingBalanceCents: Math.max(0, appointmentTotal - netPaid),
-    paymentStatusLabel:
-      tx.kind === "deposit" ? "Deposit paid" : "Paid",
     idempotencyKey: `retry:${appointmentId}:${tx.id}`,
   });
 

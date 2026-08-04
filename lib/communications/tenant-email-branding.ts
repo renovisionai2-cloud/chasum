@@ -134,7 +134,7 @@ export function resolveTenantEmailBranding(
         business.email_signature?.trim() ||
         "";
       // Never keep platform footer copy when branding removal is entitled.
-      footerText = /powered by chasum|sent by chasum|chasum ·/i.test(custom)
+      footerText = /powered by chasum|sent by chasum|sent via chasum|chasum ·/i.test(custom)
         ? [businessName, supportEmail, business.phone?.trim()]
             .filter(Boolean)
             .join(" · ")

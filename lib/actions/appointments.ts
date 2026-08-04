@@ -538,20 +538,12 @@ export async function createAppointment(
                   actorId: null,
                 });
                 if (receipt?.id) {
+                  // Financials/service name come from receipt → transaction →
+                  // appointment — never from stale form/catalog state.
                   const receiptResult = await sendPaymentReceiptNow({
                     businessId: business.id,
                     receiptId: receipt.id,
                     appointmentId,
-                    serviceName: undefined,
-                    startTime: startTime.toISOString(),
-                    appointmentTotalCents: appointmentTotalForKind,
-                    paidToDateCents: paymentAmountCents,
-                    remainingBalanceCents: Math.max(
-                      0,
-                      appointmentTotalForKind - paymentAmountCents,
-                    ),
-                    paymentStatusLabel:
-                      kind === "deposit" ? "Deposit paid" : "Paid",
                     idempotencyKey: paymentIdempotencyKey,
                   });
                   action.payment.receiptStatus = receiptResult.ok

@@ -210,7 +210,9 @@ export function ReceptionPanel({
     <aside
       className={cn(
         "relative flex w-full shrink-0 flex-col gap-5 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm sm:p-5",
-        "lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto",
+        confirmedAppointmentId
+          ? "lg:sticky lg:top-4 lg:h-fit lg:max-h-none"
+          : "lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto",
         !isDesktop && "lg:w-[22rem] xl:w-[24rem]",
       )}
       style={isDesktop ? { width: widthPx, maxWidth: `${PANEL_MAX_VIEWPORT_RATIO * 100}vw` } : undefined}
@@ -322,7 +324,9 @@ export function ReceptionPanel({
         }}
       />
 
-      <CustomerPreview customer={selected} />
+      {confirmedAppointmentId ? null : (
+        <CustomerPreview customer={selected} />
+      )}
 
       <div ref={formAnchorRef} className="scroll-mt-4">
         <QuickAppointmentForm
@@ -380,6 +384,7 @@ export function ReceptionPanel({
         </Button>
       )}
 
+      {confirmedAppointmentId ? null : (
       <div className="border-t border-border/60 pt-3">
         <button
           type="button"
@@ -411,6 +416,7 @@ export function ReceptionPanel({
           </div>
         ) : null}
       </div>
+      )}
     </aside>
   );
 }
