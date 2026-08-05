@@ -132,3 +132,13 @@ Do **not** create appointments or payments for review.
 - No shared DB writes  
 - No GVM data/tax/catalog/appointment/payment changes  
 - Financial resolver, email templates, receipt generation untouched  
+
+## Preview deployment
+
+| Item | Value |
+|------|--------|
+| Preview URL | https://chasum-f2djbjdae-renovisionappcom.vercel.app |
+| Inspect | https://vercel.com/renovisionappcom/chasum/GZopk9KpKX15BiKGWpPkhCeAD5Rh |
+| Commit | `d86e3989942f3ee680b34dded23e45d2b0f8b408` |
+| `/api/build-info` | `{"commit":"d86e3989942f3ee680b34dded23e45d2b0f8b408","commitShort":"d86e398","env":"preview","ref":"cursor/world-class-portal-foundation","production":false}` |
+| Production remains | `4eecbec` / `phase-0-gvm-production-2026-08-04` |
