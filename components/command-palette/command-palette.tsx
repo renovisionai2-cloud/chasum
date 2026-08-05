@@ -29,7 +29,7 @@ const CATEGORY_LABEL: Record<CommandSearchCategory, string> = {
   pages: "Pages",
   actions: "Actions",
   customers: "Customers",
-  staff: "Staff",
+  staff: "Employees",
   services: "Services",
   appointments: "Appointments",
 };
@@ -118,7 +118,10 @@ function CommandPalettePanel({ onClose }: { onClose: () => void }) {
       className="relative z-10 w-full max-w-lg overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-xl"
     >
       <div className="relative border-b border-border">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
         <Input
           ref={inputRef}
           value={query}
@@ -127,7 +130,7 @@ function CommandPalettePanel({ onClose }: { onClose: () => void }) {
             setActiveIndex(0);
           }}
           onKeyDown={onInputKeyDown}
-          placeholder="Search customers, staff, services, appointments, pages…"
+          placeholder="Search customers, employees, services, appointments…"
           className="h-12 border-0 pl-10 shadow-none focus-visible:ring-0"
           aria-controls={listId}
           aria-autocomplete="list"
