@@ -23,7 +23,7 @@
 | 2026-08-05 | **Chapter 2 — Command Centre** | `20e0c89` | https://chasum-q4yk6yain-renovisionappcom.vercel.app (SSO-protected Preview; Ready; dpl_D8FTLscJpa1LoXh2NJaaitCbrw2b) | Action-first CC; payments collected SoT; data dictionary; no fake metrics |
 | 2026-08-06 | **Chapter 2 correction pass** | `0880683` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (SSO; tracks tip). Unique deployment URL pending Vercel CLI auth refresh. | Appointments/payments reconciliation; Gross payments; Summer title; AI Workforce preview; Reports Inventory/Memberships; Developer gate |
 | 2026-08-06 | **Chapter 2 blocker — outstanding invoices** | `0e5378b` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Reports outstanding invoices now use commerce SoT (same as Payments / CC) |
-| 2026-08-06 | **Chapter 3 — Reception and Calendar** | _(stamp)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Shared appointment-ops; Reception brief; calendar filters; payment readiness; no fake slots |
+| 2026-08-06 | **Chapter 3 — Reception and Calendar** | `4b4a29e` | https://chasum-76u5xrh9c-renovisionappcom.vercel.app (Ready Preview; SSO). Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Shared appointment-ops; Reception brief; calendar filters; payment readiness; no fake slots |
 
 ---
 

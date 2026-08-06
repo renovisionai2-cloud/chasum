@@ -3,7 +3,7 @@
 **Program:** Chasum World Class Execution Program  
 **Chapter:** 3 — Reception and Calendar (**complete — awaiting PO review**)  
 **Branch:** `cursor/world-class-portal-foundation`  
-**Chapter 3 docs:** [`WORLD_CLASS_RECEPTION_CALENDAR_BLUEPRINT.md`](./WORLD_CLASS_RECEPTION_CALENDAR_BLUEPRINT.md) · [`WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`](./WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md)  
+**Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
 **Chapter 2 feature commit:** `20e0c89` · Preview https://chasum-q4yk6yain-renovisionappcom.vercel.app  
 **Chapter 1 tip (approved):** `3682717` · Preview https://chasum-9j1con47j-renovisionappcom.vercel.app  

@@ -2,8 +2,8 @@
 
 **Chapter:** 3 — Reception and Calendar  
 **Branch:** `cursor/world-class-portal-foundation`  
+**Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Baseline tip (Ch2 approved):** `0f1f423`  
-**Chapter 3 commit:** _(stamp after push)_  
 **Production:** `4eecbec` (unchanged)  
 **Golden rule:** Protect the core engine; improve the experience.
 
