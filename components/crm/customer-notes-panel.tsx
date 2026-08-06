@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AlertMessage } from "@/components/ui/form-feedback";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,8 +20,8 @@ import type { ActionState } from "@/lib/types/booking";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
-import { AlertTriangle, NotebookPen, Pin, Trash2 } from "lucide-react";
-import { useActionState, useTransition } from "react";
+import { AlertTriangle, NotebookPen, Pin, Search, Trash2 } from "lucide-react";
+import { useActionState, useMemo, useState, useTransition } from "react";
 
 export function CustomerNotesPanel({
   customerId,
@@ -35,10 +36,31 @@ export function CustomerNotesPanel({
     addCrmNoteAction,
     {} as ActionState,
   );
+  const [search, setSearch] = useState("");
   const refresh = useRefresh();
   const { toast } = useToast();
   const [deleting, startDelete] = useTransition();
   useFormAction(state, undefined, () => refresh());
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const sorted = [...notes].sort((a, b) => {
+      if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+    if (!q) return sorted;
+    return sorted.filter((note) => {
+      const hay = [
+        note.body,
+        note.noteType,
+        note.createdBy ?? "",
+        CRM_NOTE_TYPE_LABELS[note.noteType as CrmNoteType] ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [notes, search]);
 
   function remove(noteId: string) {
     startDelete(async () => {
@@ -63,6 +85,22 @@ export function CustomerNotesPanel({
         </div>
       ) : null}
 
+      {notes.length > 0 ? (
+        <div className="relative">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden
+          />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search notes"
+            className="pl-9"
+            aria-label="Search notes"
+          />
+        </div>
+      ) : null}
+
       {notes.length === 0 ? (
         <EmptyState
           variant="panel"
@@ -70,9 +108,13 @@ export function CustomerNotesPanel({
           title="No CRM notes yet"
           description="Add pinned, private, warning, or medical notes for your team."
         />
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground" role="status">
+          No notes match “{search.trim()}”.
+        </p>
       ) : (
         <ul className="divide-y divide-border/80">
-          {notes.map((note) => (
+          {filtered.map((note) => (
             <li key={note.id} className="flex items-start justify-between gap-3 py-3">
               <div className="min-w-0">
                 <div className="mb-1 flex flex-wrap gap-2">
@@ -100,6 +142,7 @@ export function CustomerNotesPanel({
                 <p className="whitespace-pre-wrap text-sm">{note.body}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {format(new Date(note.createdAt), "MMM d, yyyy · h:mm a")}
+                  {note.createdBy ? ` · ${note.createdBy}` : ""}
                 </p>
               </div>
               <Button

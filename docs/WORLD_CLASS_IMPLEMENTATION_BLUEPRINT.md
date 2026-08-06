@@ -155,7 +155,11 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 3 status
 
-**Correction pass complete — awaiting PO review.** Business-TZ ranges for day/week/month; unassigned create shows coming-soon (disabled); employee filter order fixed; Chase capacity/revenue Unavailable; Resources empty state truthful; architecture doc for Chapter 9. Data dictionary: [`WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`](./WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md). Locations/Resources: [`WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md`](./WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md).
+**Correction pass complete.** Business-TZ ranges for day/week/month; unassigned create shows coming-soon (disabled); employee filter order fixed; Chase capacity/revenue Unavailable; Resources empty state truthful; architecture doc for Chapter 9. Data dictionary: [`WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`](./WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md). Locations/Resources: [`WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md`](./WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md).
+
+## Chapter 4 status
+
+**Delivered on Preview branch — awaiting PO review.** Customer Workspace at `/dashboard/clients`: modern directory (search, filters, tags, VIP/new/recent/balance, last/next/outstanding), profile with payment summary (collected ≠ revenue), appointment cards, notes search, documents empty state, honest packages empty, Summer Observed Facts / Recommendations. Blueprint: [`WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md).
 
 ## Chapter 9 — Business Structure Engine (planning)
 
@@ -179,4 +183,4 @@ This is **planning-locked now**; implementation is **not** started by this docum
 
 ## Next step after PO approval
 
-Begin **Execution Chapter 4 — Customers** only after PO approves Chapter 3 (including the correction pass). Do not start Chapter 4 until then. Apply progressive polish backlog items during Ch 4+; do not wait for chat memory.
+Begin **Execution Chapter 5** only after PO reviews Chapter 4 Customer Workspace. Continue progressive polish backlog items; do not wait for chat memory.

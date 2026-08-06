@@ -112,10 +112,12 @@ export function CrmManager({
   customers,
   staff,
   locations,
+  currency = "cad",
 }: {
   customers: CrmDirectoryCustomer[];
   staff: Staff[];
   locations: Location[];
+  currency?: string | null;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -126,6 +128,7 @@ export function CrmManager({
         staff={staff}
         locations={locations}
         onAdd={() => setOpen(true)}
+        currency={currency}
       />
       <Dialog
         open={open}

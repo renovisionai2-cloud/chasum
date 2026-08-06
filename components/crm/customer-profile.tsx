@@ -3,6 +3,7 @@
 import { BookingSheet } from "@/components/booking-sheet";
 import { CustomerCommercePanel } from "@/components/commerce/customer-commerce-panel";
 import { CommunicationCenter } from "@/components/communication/communication-center";
+import { CustomerPaymentSummary } from "@/components/crm/customer-payment-summary";
 import { CustomerInsightsPanel } from "@/components/crm/customer-insights";
 import { CustomerNotesPanel } from "@/components/crm/customer-notes-panel";
 import { CustomerQuickActions } from "@/components/crm/customer-quick-actions";
@@ -72,17 +73,34 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "notes", label: "Notes" },
   { key: "insights", label: "Insights" },
   { key: "marketing", label: "Marketing" },
-  { key: "spark", label: "Summer / Chase" },
+  { key: "spark", label: "Summer" },
 ];
+
+function appointmentDisplayPrice(appt: CrmProfile["appointments"]["upcoming"][number]): string | null {
+  if (typeof appt.price_cents === "number" && appt.price_cents > 0) {
+    return `$${(appt.price_cents / 100).toFixed(0)}`;
+  }
+  if (typeof appt.service?.price === "number") {
+    return `$${Number(appt.service.price).toFixed(0)}`;
+  }
+  return null;
+}
+
+function paymentStatusLabel(status: string | null | undefined): string | null {
+  if (!status) return null;
+  return status.replace(/_/g, " ");
+}
 
 function AppointmentList({
   items,
   emptyTitle,
   emptyDescription,
+  onOpenBilling,
 }: {
   items: CrmProfile["appointments"]["upcoming"];
   emptyTitle: string;
   emptyDescription: string;
+  onOpenBilling?: () => void;
 }) {
   if (items.length === 0) {
     return (
@@ -96,27 +114,61 @@ function AppointmentList({
   }
 
   return (
-    <ul className="divide-y divide-border/80">
-      {items.map((appt) => (
-        <li
-          key={appt.id}
-          className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-        >
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">
-              {appt.service?.name ?? "Service"}
-              {appt.recurring_rule_id ? " · Recurring" : ""}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {format(parseISO(appt.start_time), "MMM d, yyyy")} at{" "}
-              {formatTime(parseISO(appt.start_time))}
-              {appt.staff?.name ? ` · ${appt.staff.name}` : ""}
-              {appt.location?.name ? ` · ${appt.location.name}` : ""}
-            </p>
-          </div>
-          <StatusBadge status={appt.status} />
-        </li>
-      ))}
+    <ul className="space-y-2">
+      {items.map((appt) => {
+        const price = appointmentDisplayPrice(appt);
+        const payLabel = paymentStatusLabel(appt.payment_status);
+        return (
+          <li
+            key={appt.id}
+            className="rounded-[var(--radius-md)] border border-border/80 bg-background/60 px-3 py-3"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold tracking-tight">
+                  {appt.service?.name ?? "Service"}
+                  {appt.recurring_rule_id ? " · Recurring" : ""}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {format(parseISO(appt.start_time), "MMM d, yyyy")} ·{" "}
+                  {formatTime(parseISO(appt.start_time))}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {[
+                    appt.staff?.name ? `Employee: ${appt.staff.name}` : null,
+                    appt.location?.name
+                      ? `Location: ${appt.location.name}`
+                      : null,
+                    price ? `Price: ${price}` : null,
+                    payLabel ? `Payment: ${payLabel}` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+                {appt.internal_notes ? (
+                  <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground">
+                    Notes: {appt.internal_notes}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <StatusBadge status={appt.status} />
+                {onOpenBilling ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-xs"
+                    onClick={onOpenBilling}
+                  >
+                    Billing
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -130,6 +182,7 @@ export function CustomerProfileView({
   memberships,
   mapsAddress,
   commerceAccount,
+  currency = "cad",
   smsAllowed = true,
   smsBlockedReason = null,
 }: {
@@ -141,6 +194,7 @@ export function CustomerProfileView({
   memberships: Membership[];
   mapsAddress?: string | null;
   commerceAccount: CustomerCommerceAccount;
+  currency?: string | null;
   smsAllowed?: boolean;
   smsBlockedReason?: string | null;
 }) {
@@ -279,10 +333,74 @@ export function CustomerProfileView({
         </CardContent>
       </Card>
 
+      <CustomerPaymentSummary account={commerceAccount} currency={currency} />
+
+      {tab === "overview" ? (
+        <div className="grid gap-3 md:grid-cols-3">
+          <section className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Next appointment
+            </h3>
+            {nextUpcoming ? (
+              <p className="mt-2 text-sm">
+                <span className="font-medium">
+                  {nextUpcoming.service?.name ?? "Service"}
+                </span>
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  {format(parseISO(nextUpcoming.start_time), "EEE, MMM d")} ·{" "}
+                  {formatTime(parseISO(nextUpcoming.start_time))}
+                  {nextUpcoming.staff?.name
+                    ? ` · ${nextUpcoming.staff.name}`
+                    : ""}
+                  {nextUpcoming.location?.name
+                    ? ` · ${nextUpcoming.location.name}`
+                    : ""}
+                </span>
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">
+                No upcoming appointment.
+              </p>
+            )}
+          </section>
+          <section className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Packages
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Customer package ownership is not linked on this profile yet.
+              Manage package catalog under Business.
+            </p>
+          </section>
+          <section className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Gift cards & membership
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {commerceAccount.giftCards.length > 0
+                ? `${commerceAccount.giftCards.length} active gift card${commerceAccount.giftCards.length === 1 ? "" : "s"} on file.`
+                : "No active gift cards on file."}
+              {profile.membership?.name
+                ? ` Membership: ${profile.membership.name}.`
+                : " No membership assigned."}
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Preferred location:{" "}
+              {profile.preferredLocation?.name ??
+                profile.insights.preferredLocationName ??
+                "Not set"}
+              {" · "}
+              Assigned employee:{" "}
+              {profile.assignedStaff?.name ?? "Unassigned"}
+            </p>
+          </section>
+        </div>
+      ) : null}
+
       {chaseHints.length > 0 ? (
         <div className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-4 py-3 print:hidden">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Chase
+            Recommendations (from observed visits)
           </p>
           <ul className="space-y-1 text-sm text-muted-foreground">
             {chaseHints.map((hint) => (
@@ -334,6 +452,7 @@ export function CustomerProfileView({
                 items={profile.appointments.upcoming}
                 emptyTitle="No upcoming appointments"
                 emptyDescription="Book the next visit with Quick Actions."
+                onOpenBilling={() => setTab("billing")}
               />
             </CardContent>
           </Card>
@@ -346,6 +465,7 @@ export function CustomerProfileView({
                 items={profile.appointments.completed}
                 emptyTitle="No completed visits"
                 emptyDescription="Completed appointments appear here."
+                onOpenBilling={() => setTab("billing")}
               />
             </CardContent>
           </Card>
@@ -358,6 +478,7 @@ export function CustomerProfileView({
                 items={profile.appointments.cancelled}
                 emptyTitle="No cancellations"
                 emptyDescription="Cancelled appointments appear here."
+                onOpenBilling={() => setTab("billing")}
               />
             </CardContent>
           </Card>
@@ -370,6 +491,7 @@ export function CustomerProfileView({
                 items={profile.appointments.noShows}
                 emptyTitle="No no-shows"
                 emptyDescription="No-show appointments appear here."
+                onOpenBilling={() => setTab("billing")}
               />
             </CardContent>
           </Card>
@@ -433,7 +555,7 @@ export function CustomerProfileView({
       {tab === "billing" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Billing & payments</CardTitle>
+            <CardTitle>Invoices, payments & ledger</CardTitle>
           </CardHeader>
           <CardContent>
             <CustomerCommercePanel
@@ -452,8 +574,8 @@ export function CustomerProfileView({
           <CardContent className="space-y-6">
             <CustomerInsightsPanel insights={profile.insights} />
             <p className="text-sm text-muted-foreground">
-              Collect payments from the Billing tab — Commerce Platform records
-              invoices, receipts, and the ledger.
+              Observed from appointment history only. Collected money is on the
+              Payment summary and Billing tab — not relabeled as revenue here.
             </p>
           </CardContent>
         </Card>
@@ -463,15 +585,30 @@ export function CustomerProfileView({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" /> Summer & Chase
+              <Sparkles className="h-4 w-4" /> Summer
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Summer reads CRM history and preferences (never writes). Chase
-              surfaces retention and follow-up signals. Booking changes still go
-              through the Booking Engine.
+              Summer is the AI Business Manager (Early Access). Answers must stay
+              grounded in this customer’s CRM history. Chase signals stay
+              Preview until capabilities are verified. Summer never writes
+              bookings or payments.
             </p>
+            <div className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">Observed Facts</p>
+              <p>
+                Visits, cancellations, no-shows, and preferences from recorded
+                appointments.
+              </p>
+              <p className="mt-2 font-medium text-foreground">
+                Recommendations
+              </p>
+              <p>
+                Suggested follow-ups only — require your approval before any
+                consequential action.
+              </p>
+            </div>
             <div className="flex flex-wrap gap-2">
               {(
                 [

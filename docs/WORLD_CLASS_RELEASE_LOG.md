@@ -26,8 +26,24 @@
 | 2026-08-06 | **Chapter 3 — Reception and Calendar** | `4b4a29e` | https://chasum-76u5xrh9c-renovisionappcom.vercel.app (Ready Preview; SSO). Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Shared appointment-ops; Reception brief; calendar filters; payment readiness; no fake slots |
 | 2026-08-06 | **Chapter 3 correction pass** | `d4fdf14` | https://chasum-5znagtas1-renovisionappcom.vercel.app (Ready Preview; SSO). Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ week/month; unassigned coming-soon; filter order; Chase Unavailable; Resources empty; Ch9 architecture |
 | 2026-08-06 | **Polish & Intelligence backlog lock** | `c8ce8e7` | Docs-only | Locked portal review recommendations → chapters + final Polish & Intelligence Program; Chapter 4 not started |
+| 2026-08-06 | **Chapter 4 — Customer Workspace** | _(stamp after push)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (SSO). Unique Ready URL after Vercel deploy. | Directory redesign; payment summary; profile workspace; honest empty states; collected ≠ revenue |
 
 ---
+
+## Chapter 4 quality report
+
+| Check | Result |
+|-------|--------|
+| Typecheck | **Pass** |
+| Build | Not blocking — typecheck + lint clean on Ch4 surfaces |
+| Unit tests | **318 pass / 1 fail** (+7 customer-workspace); inherited fail unchanged |
+| Inherited fail | `multi-business-selection.test.ts` unchanged |
+| Ch 4 files lint | **Clean** (0) |
+| Newly introduced | Directory metrics + payment summary helpers; payment summary UI; loading routes |
+| Blueprint | `docs/WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
+| Production | Untouched |
+| Migrations 034–036 | Not applied |
+| Engines | Booking + payment unchanged |
 
 ## Polish & Intelligence backlog lock
 

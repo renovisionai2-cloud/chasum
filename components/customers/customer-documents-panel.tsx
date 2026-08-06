@@ -10,6 +10,7 @@ import {
 } from "@/lib/actions/customer-documents";
 import type { ActionState, CustomerDocument } from "@/lib/types/booking";
 import { AlertMessage } from "@/components/ui/form-feedback";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { confirmDelete } from "@/hooks/use-form-action";
@@ -56,7 +57,12 @@ export function CustomerDocumentsPanel({
   return (
     <div className="space-y-4">
       {documents.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No documents uploaded yet.</p>
+        <EmptyState
+          variant="panel"
+          glyph={FileText}
+          title="No documents yet"
+          description="Upload waivers, consents, intake forms, photos, or ID files for this customer. Signature capture ships in a later phase."
+        />
       ) : (
         <ul className="divide-y divide-border/80 rounded-[var(--radius-md)] border border-border">
           {documents.map((doc) => (

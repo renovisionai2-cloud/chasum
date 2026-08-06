@@ -105,6 +105,11 @@ export type CrmDirectoryCustomer = Customer & {
   anniversary_date?: string | null;
   assigned_staff?: Pick<Staff, "id" | "name"> | null;
   preferred_location?: Pick<Location, "id" | "name"> | null;
+  /** Derived from appointments — not a DB column */
+  last_visit_at?: string | null;
+  next_appointment_at?: string | null;
+  outstanding_balance_cents?: number;
+  visit_count_completed?: number;
 };
 
 export async function getCrmDirectory(): Promise<CrmDirectoryCustomer[]> {
@@ -119,6 +124,7 @@ export async function getCrmDirectory(): Promise<CrmDirectoryCustomer[]> {
     .eq("business_id", business.id)
     .order("last_activity_at", { ascending: false, nullsFirst: false });
 
+  let customers: CrmDirectoryCustomer[];
   if (error) {
     const fallback = await supabase
       .from("customers")
@@ -126,10 +132,45 @@ export async function getCrmDirectory(): Promise<CrmDirectoryCustomer[]> {
       .eq("business_id", business.id)
       .order("name");
     if (fallback.error) throw new Error(fallback.error.message);
-    return (fallback.data ?? []) as CrmDirectoryCustomer[];
+    customers = (fallback.data ?? []) as CrmDirectoryCustomer[];
+  } else {
+    customers = (data ?? []) as CrmDirectoryCustomer[];
   }
 
-  return (data ?? []) as CrmDirectoryCustomer[];
+  const { data: apptRows, error: apptError } = await supabase
+    .from("appointments")
+    .select(
+      "customer_id, start_time, status, price_cents, amount_paid_cents, amount_refunded_cents, deposit_cents, service:services(price)",
+    )
+    .eq("business_id", business.id);
+
+  if (apptError || !apptRows) {
+    return customers.map((c) => ({
+      ...c,
+      last_visit_at: null,
+      next_appointment_at: null,
+      outstanding_balance_cents: 0,
+      visit_count_completed: 0,
+    }));
+  }
+
+  const { buildDirectoryMetricsByCustomer } = await import(
+    "@/lib/crm/directory-metrics"
+  );
+  const metrics = buildDirectoryMetricsByCustomer(
+    apptRows as import("@/lib/crm/directory-metrics").DirectoryAppointmentRow[],
+  );
+
+  return customers.map((c) => {
+    const m = metrics.get(c.id);
+    return {
+      ...c,
+      last_visit_at: m?.lastVisitAt ?? null,
+      next_appointment_at: m?.nextAppointmentAt ?? null,
+      outstanding_balance_cents: m?.outstandingBalanceCents ?? 0,
+      visit_count_completed: m?.visitCountCompleted ?? 0,
+    };
+  });
 }
 
 export async function loadCrmCustomerProfile(

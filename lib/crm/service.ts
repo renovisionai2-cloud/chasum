@@ -251,6 +251,7 @@ export async function loadCrmProfile(
     .from("appointments")
     .select(
       `id, start_time, end_time, status, staff_id, location_id, service_id, recurring_rule_id,
+       price_cents, amount_paid_cents, payment_status, internal_notes,
        service:services(name, price), staff:staff(name), location:locations(name, address_line1, address_line2, city, state, postal_code)`,
     )
     .eq("customer_id", customerId)

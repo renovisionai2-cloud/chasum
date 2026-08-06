@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-06  
-**Updated by:** World Class Execution Program — Polish & Intelligence backlog lock (docs only; Production unchanged; Chapter 4 not started)  
+**Updated by:** World Class Execution Program — Chapter 4 Customer Workspace (Preview branch; Production unchanged)  
 
 ---
 
@@ -43,6 +43,7 @@
 | [`docs/WORLD_CLASS_PLAN_ENTITLEMENT_MATRIX.md`](./WORLD_CLASS_PLAN_ENTITLEMENT_MATRIX.md) | Pricing entitlement gaps |
 | [`docs/WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md`](./WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md) | Industry readiness |
 | [`docs/WORLD_CLASS_RELEASE_LOG.md`](./WORLD_CLASS_RELEASE_LOG.md) | World Class Preview release log |
+| [`docs/WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md) | Chapter 4 Customer Workspace blueprint |
 
 ---
 
@@ -118,7 +119,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 Reception & Calendar delivered and awaiting PO before Chapter 4.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Customer Workspace delivered — awaiting PO before Chapter 5.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -157,12 +158,22 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-06)
 
+**World Class Execution — Chapter 4 Customer Workspace**
+
+- Redesigned Customers directory: search, quick filters (Active/Inactive/VIP/New/Recent/Balance due), tags, last visit, next appointment, outstanding, assigned employee, preferred location
+- Profile workspace: payment summary (collected ≠ revenue), appointment cards with payment status, notes search/pin, documents empty state, honest packages empty, Summer Observed Facts / Recommendations
+- Helpers: `lib/crm/directory-metrics.ts`, `lib/crm/payment-summary.ts`; loading skeletons on list + profile
+- Docs: Customer Workspace blueprint; release log / testing matrix / implementation blueprint updated
+- **Production untouched · no migrations 034–036 · booking/payment engines unchanged**
+
+### Immediately prior (2026-08-06)
+
 **World Class — lock portal review recommendations (docs only)**
 
 - Created `docs/WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md` — permanent chapter-assigned backlog
 - Created `docs/WORLD_CLASS_MARKETING_PARITY.md` pointer + marketing implications
 - Formal **Polish & Intelligence Program** recorded as required pre-launch gate
-- **No UI / engine / Production / Chapter 4 work**
+- **No UI / engine / Production work in that docs commit**
 
 ### Immediately prior (2026-08-06)
 
@@ -173,7 +184,6 @@ Shared money recognition, commerce + platform events, business operating context
 - Employee filter: All → named A–Z → Unassigned
 - Chase: capacity/revenue Unavailable (no fake zeros)
 - Resources empty state + Locations/Resources architecture (Ch9)
-- **Chapter 4 not started**
 
 ### Immediately prior (2026-08-06)
 
@@ -365,11 +375,10 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 3** — Reception / Calendar Preview + blueprints before Chapter 4.
-2. **Do not start Chapter 4** until PO approves Chapter 3.
-3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables assigned to chapters — do not leave them in chat-only history.
-4. **Operation GVM Production** — remain protected.
-5. Marketing claim fixes only with **explicit PO** (locked pages).
+1. **PO review of Chapter 4** — Customer Workspace Preview (`/dashboard/clients`) before Chapter 5.
+2. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — apply progressive items during later chapters.
+3. **Operation GVM Production** — remain protected.
+4. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.

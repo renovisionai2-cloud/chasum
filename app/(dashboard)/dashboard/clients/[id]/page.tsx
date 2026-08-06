@@ -45,8 +45,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const profile = await loadCrmCustomerProfile(id);
   return {
     title: profile
-      ? `${displayCustomerName(profile.customer)} · CRM`
-      : "Customer · CRM",
+      ? `${displayCustomerName(profile.customer)} · Customers`
+      : "Customer · Customers",
   };
 }
 
@@ -96,14 +96,14 @@ export default async function CustomerProfilePage({ params }: PageProps) {
             variant="ghost"
             size="sm"
             className="h-9 w-9 p-0"
-            aria-label="Back to CRM"
+            aria-label="Back to Customers"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <PageHeader
-          title="Customer profile"
-          description="Source of truth — timeline, bookings, notes, documents, and Chase signals."
+          title="Customer workspace"
+          description="Contact, visits, payments collected, notes, documents, and grounded Summer recommendations — without hunting."
         />
       </div>
       <CustomerProfileView
@@ -115,6 +115,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
         memberships={memberships}
         mapsAddress={mapsAddress}
         commerceAccount={commerceAccount}
+        currency={business.currency}
         smsAllowed={smsAllowed}
         smsBlockedReason={smsBlockedReason}
       />

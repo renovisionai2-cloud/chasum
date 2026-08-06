@@ -102,6 +102,10 @@ export type CrmAppointmentBucket = {
   location_id?: string;
   service_id?: string;
   recurring_rule_id?: string | null;
+  price_cents?: number | null;
+  amount_paid_cents?: number | null;
+  payment_status?: string | null;
+  internal_notes?: string | null;
   service?: { name?: string; price?: number } | null;
   staff?: { name?: string } | null;
   location?: { name?: string } | null;

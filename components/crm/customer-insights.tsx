@@ -13,18 +13,22 @@ import {
 export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
   return (
     <div className="space-y-4">
+      <p className="text-xs text-muted-foreground">
+        Observed facts from appointment history. Booking values below use
+        service list prices — not commerce “payments collected.”
+      </p>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Lifetime visits"
+          title="Completed visits"
           value={String(insights.completedAppointments)}
-          description={`Avg booking $${insights.averageSpend.toFixed(0)}`}
+          description={`${insights.upcomingCount} upcoming`}
           icon={CalendarCheck2}
           accent="primary"
         />
         <StatCard
-          title="Lifetime revenue"
+          title="Completed booking value"
           value={`$${insights.lifetimeRevenue.toFixed(0)}`}
-          description={`${insights.upcomingCount} upcoming`}
+          description={`Avg $${insights.averageSpend.toFixed(0)} per completed visit`}
           icon={CircleDollarSign}
           accent="success"
         />
@@ -45,22 +49,22 @@ export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
       </div>
       <div className="grid gap-3 text-sm sm:grid-cols-2">
         <p className="flex items-center gap-2 text-muted-foreground">
-          <User className="h-4 w-4" />
+          <User className="h-4 w-4" aria-hidden />
           Preferred employee: {insights.preferredEmployeeName ?? "—"}
         </p>
         <p className="flex items-center gap-2 text-muted-foreground">
-          <Briefcase className="h-4 w-4" />
+          <Briefcase className="h-4 w-4" aria-hidden />
           Preferred service: {insights.preferredServiceName ?? "—"}
         </p>
         <p className="flex items-center gap-2 text-muted-foreground">
-          <Calendar className="h-4 w-4" />
+          <Calendar className="h-4 w-4" aria-hidden />
           Last visit:{" "}
           {insights.lastVisit
             ? format(new Date(insights.lastVisit), "MMM d, yyyy")
             : "—"}
         </p>
         <p className="flex items-center gap-2 text-muted-foreground">
-          <Calendar className="h-4 w-4" />
+          <Calendar className="h-4 w-4" aria-hidden />
           Next visit:{" "}
           {insights.nextAppointment
             ? format(new Date(insights.nextAppointment), "MMM d, yyyy")

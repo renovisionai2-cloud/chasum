@@ -180,6 +180,26 @@
 | Automated tests | `view-range.test.ts` + expanded `reception-calendar-ops.test.ts` |
 | Approval | Awaiting PO |
 
+## Chapter 4 — Customer Workspace
+
+| Field | Value |
+|-------|--------|
+| Routes | `/dashboard/clients`, `/dashboard/clients/[id]` (nav: Customers) |
+| Purpose | Customer Workspace — who / booked / owed / purchased / conversations / next action |
+| Roles | Auth business membership (fine-grained roles deferred Ch8) |
+| Data deps | customers, appointments (visits + outstanding), commerce account, notes, documents, communications |
+| Desktop | Directory list + full profile tabs (overview → Summer) |
+| Mobile 375 / 430 | Stacked directory rows; profile hero + payment metrics wrap; tab scroll |
+| Keyboard | Search, filter selects, directory links, profile tabs, notes/docs forms |
+| A11y | Directory `aria-label` includes balance due; payment summary `aria-label`; notes search labeled |
+| Loading / Empty / Error | `clients/loading.tsx`, `clients/[id]/loading.tsx`; EmptyState for appointments/notes/docs/timeline |
+| Money truth | Payment summary = collected/outstanding (commerce); Insights = booking value (not revenue) |
+| Packages | Honest empty — ownership not linked on profile |
+| Regression risk | Booking engine / payment engine / Production / migrations unchanged |
+| Automated tests | `tests/unit/crm/customer-workspace.test.ts` |
+| Blueprint | `WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
+| Approval | Awaiting PO |
+
 ### Polish & Intelligence backlog (locked)
 
 | Field | Value |

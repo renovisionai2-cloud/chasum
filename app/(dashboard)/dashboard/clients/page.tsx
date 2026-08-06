@@ -22,13 +22,18 @@ export default async function ClientsPage() {
   ]);
 
   return (
-    <div className="ds-page">
+    <div className="ds-page space-y-4">
       <PageHeader
         title="Customers"
-        description="Customer source of truth — search, profiles, timeline, and retention insights from Chase."
+        description="Customer workspace — who they are, what they booked, what they owe, and what to do next. Search, filter, and open a full profile."
       />
       <ChaseCrmPanel analytics={chase} />
-      <CrmManager customers={customers} staff={staff} locations={locations} />
+      <CrmManager
+        customers={customers}
+        staff={staff}
+        locations={locations}
+        currency={business.currency}
+      />
     </div>
   );
 }
