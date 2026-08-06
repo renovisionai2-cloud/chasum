@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-07-30  
-**Updated by:** Production deploy of approved marketing site to chasum.vercel.app + feature audit
+**Last updated:** 2026-08-05  
+**Updated by:** World Class Execution Program — Chapter 0 repository and product audit (docs only; Production unchanged)  
 
 ---
 
@@ -36,6 +36,11 @@
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
+| [`docs/WORLD_CLASS_IMPLEMENTATION_BLUEPRINT.md`](./WORLD_CLASS_IMPLEMENTATION_BLUEPRINT.md) | World Class execution blueprint |
+| [`docs/WORLD_CLASS_MARKETING_PRODUCT_PARITY.md`](./WORLD_CLASS_MARKETING_PRODUCT_PARITY.md) | Marketing ↔ product parity matrix |
+| [`docs/WORLD_CLASS_PLAN_ENTITLEMENT_MATRIX.md`](./WORLD_CLASS_PLAN_ENTITLEMENT_MATRIX.md) | Pricing entitlement gaps |
+| [`docs/WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md`](./WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md) | Industry readiness |
+| [`docs/WORLD_CLASS_RELEASE_LOG.md`](./WORLD_CLASS_RELEASE_LOG.md) | World Class Preview release log |
 
 ---
 
@@ -106,15 +111,16 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** Private Alpha — World-class marketing site + Operation GVM hardening  
+**Working name:** World Class Execution Program + protected Phase 0 GVM Production  
 
 **Intent:**
 
-1. Keep **Operation GVM** as the product truth source (reliability, commerce, reception craft).
-2. Present an honest, premium public site that converts small service businesses into Private Alpha applicants — without mixing Roadmap status language into Pricing inclusions.
-3. Stay on branch `cursor/phase-3-integrations` until a coherent release slice is ready to merge to `main`.
+1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — shell foundation already at `d86e398`; Chapter 0 audit matrices complete.
+3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
+4. Marketing locks remain locked — claim fixes require PO (see parity matrix).
 
-**Release name (company backlog):** Company OS + AI Receptionist foundation — see [`docs/company/MASTER_TASKS.md`](./company/MASTER_TASKS.md).
+**Summer title (locked):** AI Business Manager — not Receptionist / chatbot / Emma in customer-facing copy.
 
 ---
 
@@ -147,7 +153,23 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-07-30)
+### Most recent (2026-08-05)
+
+**World Class Execution — Chapter 0 audit (docs only)**
+
+- Branch `cursor/world-class-portal-foundation`
+- Produced blueprint, design-system formalization, route map, marketing parity, plan entitlements, industry readiness, testing matrix, release log
+- No Production deploy; no migrations; no live data changes
+- Prior shell Preview remains: https://chasum-f2djbjdae-renovisionappcom.vercel.app (`d86e398`)
+
+### Immediately prior (2026-08-04)
+
+**Phase 0 GVM Production + World Class portal shell Preview**
+
+- Production: `4eecbec` · `phase-0-gvm-production-2026-08-04`
+- Portal foundation shell: `d86e398` on World Class branch (Preview only)
+
+### Immediately prior (2026-07-30)
 
 **Production deploy — approved marketing site → https://chasum.vercel.app**
 
@@ -241,14 +263,15 @@ Shared money recognition, commerce + platform events, business operating context
 ## Active branch
 
 ```
-cursor/phase-3-integrations
+cursor/world-class-portal-foundation
 ```
 
-- Tracks `origin/cursor/phase-3-integrations` (in sync as of last push).
-- Base branch for merges: **`main`**.
-- Tip of `main` (for orientation): `37778de` — *Operation Summer – Fast Pacing & Multi-Business Selection* (this feature branch is many commits ahead with marketing + product work).
+- Base: Production-approved `4eecbec` (+ World Class commits).
+- Tracks `origin/cursor/world-class-portal-foundation`.
+- **`main` / Production** remain on Phase 0 tag unless PO promotes a chapter.
+- Legacy product branch `cursor/phase-3-integrations` preceded the Production FF to `4eecbec`.
 
-**Deploy policy (recent marketing work):** Preview deploys only unless Production is explicitly requested.
+**Deploy policy:** World Class → **Preview only**. Never Production without explicit PO approval.
 
 ---
 
@@ -256,10 +279,10 @@ cursor/phase-3-integrations
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `805f3671405b29cece10d0a9481996c5ad774081` |
-| **Short** | `805f367` |
-| **Subject** | Lock Official Chasum Pricing Page v1 + restore approved baseline |
-| **Date** | 2026-07-30 |
+| **SHA** | *(updated after Chapter 0 commit)* |
+| **Branch tip before Chapter 0 commit** | `0496196879ae216c9be48c65226ac1bf81756a56` |
+| **Subject (prior)** | Record Phase 1 Preview deployment details in the implementation report |
+| **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
 ---
 
@@ -277,14 +300,15 @@ As of last update:
 
 ## Next recommended task
 
-**Priority order (do not skip #1 for novelty):**
+**Priority order:**
 
-1. **Operation GVM (Priority #1)** — Close remaining go-live blockers from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0: first real appointment, Resend SMTP in Supabase, production email path.
-2. **Home page (`/`)** — Next marketing chapter when directed. **Pricing, Summer Onboarding, Roadmap, and Resources (including Why Private Alpha) are locked — do not reopen** unless the product owner explicitly requests it.
-3. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
+1. **PO review of World Class Chapter 0** — approve matrices before Execution Chapter 1 continuation.
+2. **Execution Chapter 1 (remaining)** — formalize DS adoption gaps; do not start Command Centre (Ch 2) until approved.
+3. **Operation GVM Production** — remain protected; hotfixes only via controlled Production process if required.
+4. Marketing claim fixes (parity Critical rows) only with **explicit PO** (locked pages).
 
-Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.  
-Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/private-alpha`, `/security`, or `/status` unless the product owner explicitly requests it.
+Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
+Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 
 ---
 
