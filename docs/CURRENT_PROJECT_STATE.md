@@ -304,11 +304,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `b09bd2c4738dd1134349c3e03146c9016ff1a2cf` |
-| **Short** | `b09bd2c` |
-| **Subject** | feat: complete World Class Chapter 1 design system and portal foundation |
-| **Prior tip** | `0e22e30` |
-| **Shell commit** | `d86e398` |
+| **SHA** | `20e0c8943d6cad7eb883474f41c6e24248a4e8b6` |
+| **Short** | `20e0c89` |
+| **Subject** | feat: redesign Command Centre as truthful daily operating view |
+| **Prior tip** | `3682717` (Chapter 1 approved) |
+| **Chapter 2 Preview** | https://chasum-q4yk6yain-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
 ---

@@ -3,6 +3,7 @@
 **Program:** Chasum World Class Execution Program  
 **Chapter:** 2 — Command Centre (**complete — awaiting PO review**)  
 **Branch:** `cursor/world-class-portal-foundation`  
+**Chapter 2 commit:** `20e0c89` · Preview https://chasum-q4yk6yain-renovisionappcom.vercel.app  
 **Chapter 1 tip (approved):** `3682717` · Preview https://chasum-9j1con47j-renovisionappcom.vercel.app  
 **Production baseline:** `4eecbec0f0f04532ae0294132d07183b6e64f23f` · tag `phase-0-gvm-production-2026-08-04` · https://chasum.vercel.app  
 **Mode:** Preview-only product work on World Class branch — no Production deploy, no migrations **034–036**, no live destructive data, no marketing content edits, **do not start Chapter 3 until PO approves Chapter 2**  

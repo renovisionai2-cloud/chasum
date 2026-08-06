@@ -20,7 +20,7 @@
 | 2026-08-05 | Chapter 0 Audit Completion Addendum | `fecbce4` / `0e22e30` | Docs-only | Full parity / entitlements / industries |
 | 2026-08-05 | **Chapter 1 — DS + portal foundation** | `b09bd2c` (tip `afbc19c`) | https://chasum-9j1con47j-renovisionappcom.vercel.app (latest Ready Preview ~5m after push; SSO-protected). Prior shell: https://chasum-f2djbjdae-renovisionappcom.vercel.app | Tokens, skip-nav, Command Centre label, command/quick-create, Summer EA chrome, lint fixes in shell |
 | 2026-08-05 | Chapter 1 Preview URL stamp | `3682717` | https://chasum-9j1con47j-renovisionappcom.vercel.app | Approved Ch1 tip for Chapter 2 baseline |
-| 2026-08-05 | **Chapter 2 — Command Centre** | _(stamp after push)_ | _(Preview after deploy)_ | Action-first CC; payments collected SoT; data dictionary; no fake metrics |
+| 2026-08-05 | **Chapter 2 — Command Centre** | `20e0c89` | https://chasum-q4yk6yain-renovisionappcom.vercel.app (SSO-protected Preview; Ready; dpl_D8FTLscJpa1LoXh2NJaaitCbrw2b) | Action-first CC; payments collected SoT; data dictionary; no fake metrics |
 
 ---
 

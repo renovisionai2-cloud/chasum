@@ -13,7 +13,7 @@
 | Item | Value |
 |------|--------|
 | Production | https://chasum.vercel.app @ `4eecbec` |
-| World Class Preview | https://chasum-f2djbjdae-renovisionappcom.vercel.app @ `d86e398` |
+| World Class Preview | https://chasum-q4yk6yain-renovisionappcom.vercel.app @ `20e0c89` (Chapter 2) |
 | Branch | `cursor/world-class-portal-foundation` |
 | Shared DB | Yes — **read-only preferred** on Preview for audits; no test appointments in Chapter 0 |
 | Migrations 034–036 | Do not apply |
