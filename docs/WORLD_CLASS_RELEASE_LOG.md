@@ -18,7 +18,7 @@
 | 2026-08-05 | Execution Chapter 0 — Audit | `27cd0b3` | Docs-only | Initial matrices |
 | 2026-08-05 | Chapter 0 SHA stamp | `f8e1c33` | Docs-only | Handoff hash stamp |
 | 2026-08-05 | Chapter 0 Audit Completion Addendum | `fecbce4` / `0e22e30` | Docs-only | Full parity / entitlements / industries |
-| 2026-08-05 | **Chapter 1 — DS + portal foundation** | *(this commit)* | *(Preview after push)* | Tokens, skip-nav, Command Centre label, command/quick-create, Summer EA chrome, lint fixes in shell |
+| 2026-08-05 | **Chapter 1 — DS + portal foundation** | `b09bd2c` | *(Preview URL below once Vercel finishes)* | Tokens, skip-nav, Command Centre label, command/quick-create, Summer EA chrome, lint fixes in shell |
 
 ---
 

@@ -295,10 +295,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `fecbce4e9f778755cd2c395fde81bee8963a799b` |
-| **Short** | `fecbce4` |
-| **Subject** | docs: complete world class chapter 0 audit coverage |
-| **Prior tip** | `f8e1c33` |
+| **SHA** | `b09bd2c4738dd1134349c3e03146c9016ff1a2cf` |
+| **Short** | `b09bd2c` |
+| **Subject** | feat: complete World Class Chapter 1 design system and portal foundation |
+| **Prior tip** | `0e22e30` |
 | **Shell commit** | `d86e398` |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
