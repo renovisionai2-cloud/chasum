@@ -2,8 +2,8 @@
 
 **Chapter:** 3 — Reception and Calendar  
 **Branch:** `cursor/world-class-portal-foundation`  
+**Correction tip:** `d4fdf14` · Preview https://chasum-5znagtas1-renovisionappcom.vercel.app  
 **Chapter 3 feature:** `4b4a29e`  
-**Correction tip:** _(stamp after push)_  
 **Baseline tip (Ch2 approved):** `0f1f423`  
 **Production:** `4eecbec` (unchanged)  
 **Golden rule:** Protect the core engine; improve the experience.

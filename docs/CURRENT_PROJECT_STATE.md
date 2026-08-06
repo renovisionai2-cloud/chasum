@@ -328,11 +328,12 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `4b4a29e25267524432881307ea1c586a2291d174` |
-| **Short** | `4b4a29e` |
-| **Subject** | feat: Chapter 3 Reception and Calendar operating system |
-| **Prior tip** | `0f1f423` |
-| **Chapter 3 Preview** | https://chasum-76u5xrh9c-renovisionappcom.vercel.app |
+| **SHA** | `d4fdf141767e1bbe7d6688f9f5746f0aa59a40a6` |
+| **Short** | `d4fdf14` |
+| **Subject** | fix: Chapter 3 Reception and Calendar correction pass |
+| **Prior tip** | `a9ae37b` |
+| **Chapter 3 feature** | `4b4a29e` |
+| **Chapter 3 correction Preview** | https://chasum-5znagtas1-renovisionappcom.vercel.app |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
