@@ -3,7 +3,7 @@
 **Program:** Chasum World Class Execution Program  
 **Chapter:** 0 — Repository and Product Audit (**Addendum complete — awaiting PO approval**)  
 **Branch:** `cursor/world-class-portal-foundation`  
-**Tip at addendum:** *(see release log after commit)* · prior tip `f8e1c33`  
+**Tip at addendum:** `fecbce4` · prior tip `f8e1c33`  
 **Shell (Execution Ch 1 partial):** `d86e398`  
 **Docs report:** `0496196`  
 **Production baseline:** `4eecbec0f0f04532ae0294132d07183b6e64f23f` · tag `phase-0-gvm-production-2026-08-04` · https://chasum.vercel.app  

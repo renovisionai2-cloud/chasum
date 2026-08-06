@@ -286,8 +286,9 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | *(updated after Addendum commit)* |
-| **Subject** | Complete World Class Chapter 0 audit coverage |
+| **SHA** | `fecbce4e9f778755cd2c395fde81bee8963a799b` |
+| **Short** | `fecbce4` |
+| **Subject** | docs: complete world class chapter 0 audit coverage |
 | **Prior tip** | `f8e1c33` |
 | **Shell commit** | `d86e398` |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |

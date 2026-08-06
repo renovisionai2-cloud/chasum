@@ -17,7 +17,7 @@
 | 2026-08-04 | Shell Preview report | `0496196` | same | Implementation report URLs |
 | 2026-08-05 | Execution Chapter 0 — Audit | `27cd0b3` | Docs-only | Initial matrices |
 | 2026-08-05 | Chapter 0 SHA stamp | `f8e1c33` | Docs-only | Handoff hash stamp |
-| 2026-08-05 | **Chapter 0 Audit Completion Addendum** | *(this commit)* | Docs-only; shell Preview unchanged | Full parity / entitlements / industries / quality debt; **Ch 1 not started** |
+| 2026-08-05 | **Chapter 0 Audit Completion Addendum** | `fecbce4` | Docs-only; shell Preview unchanged at https://chasum-f2djbjdae-renovisionappcom.vercel.app | Full parity / entitlements / industries / quality debt; **Ch 1 not started** |
 
 ---
 
