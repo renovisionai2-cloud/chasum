@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-05  
-**Updated by:** World Class Execution Program — Chapter 1 design system and portal foundation (Preview only; Production unchanged)  
+**Updated by:** World Class Execution Program — Chapter 2 Command Centre (Preview only; Production unchanged)  
 
 ---
 
@@ -116,7 +116,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — shell foundation already at `d86e398`; Chapter 0 audit + **Audit Completion Addendum** comprehensive matrices await PO approval before Chapter 1.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–1 approved; Chapter 2 Command Centre delivered and awaiting PO before Chapter 3.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -155,12 +155,22 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-05)
 
+**World Class Execution — Chapter 2 Command Centre**
+
+- Redesigned `/dashboard` as action-first Command Centre (header, priority, glance KPIs, attention, schedule, quick actions, Summer facts, week bars, recent activity)
+- Money labeled **payments collected** via `getCommerceDashboardSnapshot`; business-TZ day bounds; location-scoped appointments
+- Data dictionary: `docs/WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md`
+- Removed decorative sparklines / fake prior-period comparisons from the old overview
+- **Chapter 3 not started**
+
+### Immediately prior (2026-08-05)
+
 **World Class Execution — Chapter 1 design system + portal foundation**
 
 - Tokens (z-index, touch, motion, typography utilities), skip-nav, Command Centre label, command/quick-create polish, Summer Early Access chrome
 - Lint: resolved 2 shell errors; Ch 1 files clean; full lint 32/20 (was 34/20)
 - Tests: +4 foundation; 270 pass / 1 inherited fail
-- **Chapter 2 not started**
+- Preview: https://chasum-9j1con47j-renovisionappcom.vercel.app @ tip through `3682717`
 
 ### Immediately prior (2026-08-05)
 
@@ -168,8 +178,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 - Branch `cursor/world-class-portal-foundation`
 - Expanded marketing-product parity (14 routes, critical dossiers A–H), plan entitlement evidence, industry source inventory (11 + Education tile), quality-debt baseline, cross-doc consistency
-- **Chapter 1 not started**; no product/marketing code; no Production; no migrations; no live data
-- Shell Preview unchanged: https://chasum-f2djbjdae-renovisionappcom.vercel.app (`d86e398`)
+- Shell Preview: https://chasum-f2djbjdae-renovisionappcom.vercel.app (`d86e398`)
 - Untracked excluded: brand PDF, brand scripts, `tmp/`
 
 ### Immediately prior (2026-08-05)
@@ -320,8 +329,8 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 1** — shell / DS / Preview before Chapter 2 Command Centre depth.
-2. **Do not start Chapter 2** until PO approves Chapter 1.
+1. **PO review of Chapter 2** — Command Centre Preview / data dictionary before Chapter 3.
+2. **Do not start Chapter 3** until PO approves Chapter 2.
 3. **Operation GVM Production** — remain protected.
 4. Marketing claim fixes only with **explicit PO** (locked pages).
 

@@ -1,10 +1,10 @@
 # World Class Testing Matrix
 
-**Chapter:** 0 — Scaffold + Addendum baseline  
+**Chapter:** 0–2 (scaffold through Command Centre)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
 **Rule:** Do not mark complete on appearance alone; verify data and workflow.  
-**Chapter 1:** Not started — await PO approval of Chapter 0.
+**Chapter 2:** Command Centre page depth — see route block below.
 
 ---
 
@@ -110,6 +110,36 @@
 | Lint (full) | **52 problems (32 errors, 20 warnings)** — resolved 2 shell setState-in-effect errors; no new issues |
 | Unit tests | **270 passed, 1 failed** (+4 foundation tests); inherited fail unchanged |
 | Build | **Pass** |
+
+## Chapter 2 — Command Centre
+
+| Field | Value |
+|-------|--------|
+| Route | `/dashboard` |
+| Purpose | Owner daily operating view: today / attention / next action |
+| Roles | Owner (dashboard auth) |
+| Data deps | appointments, customers, notification_logs, commerce snapshot, setup progress |
+| Desktop / laptop | Hierarchy: header → priority → KPIs → attention + quick actions → schedule → Summer + week bars → activity |
+| Mobile 375 / 430 | Same stack; touch-min CTAs; no decorative sparklines |
+| Keyboard | Links/buttons focusable; section headings |
+| A11y | Semantic sections; metric Unavailable on load fail; no color-only status |
+| Loading / Empty / Error | Suspense skeleton; empty schedule/activity/attention; Unavailable vs verified zero |
+| Timezone | Business TZ for greeting, date label, day bounds, schedule clocks |
+| Multi-location | Scope label; appointments filtered; payments labeled business-wide |
+| Regression risk | Shell nav / Reception / Payments routes unchanged |
+| Result | Automated tests added; Preview pending stamp |
+| Notes | Money labeled “Payments collected”; no fabricated % comparisons |
+| Approval | Awaiting PO |
+
+### Chapter 2 automated results
+
+| Check | Result |
+|-------|--------|
+| Typecheck | See release log after Ch2 commit |
+| Lint (Ch 2 files) | Must be clean |
+| Unit tests | `tests/unit/dashboard/command-centre.test.ts` |
+| Inherited fail | `multi-business-selection` unchanged |
+| Build | See release log |
 
 ### Permanent quality rule
 

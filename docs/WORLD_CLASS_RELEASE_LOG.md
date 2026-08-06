@@ -19,6 +19,8 @@
 | 2026-08-05 | Chapter 0 SHA stamp | `f8e1c33` | Docs-only | Handoff hash stamp |
 | 2026-08-05 | Chapter 0 Audit Completion Addendum | `fecbce4` / `0e22e30` | Docs-only | Full parity / entitlements / industries |
 | 2026-08-05 | **Chapter 1 — DS + portal foundation** | `b09bd2c` (tip `afbc19c`) | https://chasum-9j1con47j-renovisionappcom.vercel.app (latest Ready Preview ~5m after push; SSO-protected). Prior shell: https://chasum-f2djbjdae-renovisionappcom.vercel.app | Tokens, skip-nav, Command Centre label, command/quick-create, Summer EA chrome, lint fixes in shell |
+| 2026-08-05 | Chapter 1 Preview URL stamp | `3682717` | https://chasum-9j1con47j-renovisionappcom.vercel.app | Approved Ch1 tip for Chapter 2 baseline |
+| 2026-08-05 | **Chapter 2 — Command Centre** | _(stamp after push)_ | _(Preview after deploy)_ | Action-first CC; payments collected SoT; data dictionary; no fake metrics |
 
 ---
 
@@ -34,6 +36,19 @@
 | Ch 1 files lint | **Clean** (0) |
 | Resolved inherited | 2× `react-hooks/set-state-in-effect` in `command-trigger.tsx`, `sidebar.tsx` |
 | Newly introduced | **None** |
+
+## Chapter 2 quality report
+
+| Check | Result |
+|-------|--------|
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Unit tests | **284 pass / 1 fail** (+14 command-centre tests); inherited fail unchanged |
+| Inherited fail | `multi-business-selection.test.ts` › `shows all businessTypes…` |
+| Lint full | **52 problems (32 errors, 20 warnings)** — unchanged vs Ch1 baseline |
+| Ch 2 files lint | **Clean** (0) |
+| Newly introduced | **None** |
+| Data dictionary | `docs/WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md` |
 
 ### Permanent quality rule
 
@@ -54,4 +69,4 @@ No chapter may add lint errors/warnings, failing tests, typecheck failures, or b
 
 ## Next
 
-Await PO review of Chapter 1 → then Chapter 2 Command Centre (page depth). **Do not start Chapter 2 until approved.**
+Await PO review of Chapter 2 → then Chapter 3 Reception and Calendar. **Do not start Chapter 3 until approved.**

@@ -310,6 +310,18 @@ Column key: Route · Source · Section · Claim · Category · Plan · Industry 
 
 ---
 
+## Chapter 2 note — Command Centre (product, not marketing)
+
+In-app `/dashboard` Command Centre now:
+
+- Labels money as **payments collected** (commerce succeeded deposits/payments), not generic “revenue”
+- Summer block = **AI Business Manager · Early Access** with deterministic facts only (no fabricated BI)
+- Does not remount IMPACT_STATS / testimonials
+
+Marketing locks unchanged. Remaining Online Payments / Inventory / Summer Available Today conflicts stay open for Chapters 6/12/13.
+
+---
+
 ## Resolution rules (Chapter 13 — after PO)
 
 1. Do **not** silently delete marketing claims without PO (locks).  

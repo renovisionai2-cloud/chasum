@@ -1,14 +1,11 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 1 — Design system and portal foundation (**in progress / completing**)  
+**Chapter:** 2 — Command Centre (**complete — awaiting PO review**)  
 **Branch:** `cursor/world-class-portal-foundation`  
-**Tip at addendum:** `fecbce4` · prior tip `f8e1c33`  
-**Shell (Execution Ch 1 partial):** `d86e398`  
-**Docs report:** `0496196`  
+**Chapter 1 tip (approved):** `3682717` · Preview https://chasum-9j1con47j-renovisionappcom.vercel.app  
 **Production baseline:** `4eecbec0f0f04532ae0294132d07183b6e64f23f` · tag `phase-0-gvm-production-2026-08-04` · https://chasum.vercel.app  
-**World Class shell Preview:** https://chasum-f2djbjdae-renovisionappcom.vercel.app (`d86e398`)  
-**Mode:** Audit docs only — no Production deploy, no migrations **034–036**, no live data changes, no product/marketing code, **Chapter 1 not started**  
+**Mode:** Preview-only product work on World Class branch — no Production deploy, no migrations **034–036**, no live destructive data, no marketing content edits, **do not start Chapter 3 until PO approves Chapter 2**  
 
 ---
 
@@ -24,9 +21,9 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 
 | Ch | Name | Status |
 |----|------|--------|
-| 0 | Repository and product audit | **Addendum — comprehensive matrices** (awaiting PO) |
-| 1 | Design system and portal foundation | Shell largely done (`d86e398`); **do not start remaining DS work until PO approves Ch 0** |
-| 2 | Command Centre | Not started |
+| 0 | Repository and product audit | Complete (approved foundation for program) |
+| 1 | Design system and portal foundation | **Approved** (`3682717`) |
+| 2 | Command Centre | **Complete — awaiting PO review** |
 | 3 | Reception and calendar | Not started |
 | 4 | Customers | Not started |
 | 5 | Appointment workspace | Not started |
@@ -138,13 +135,18 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 - [`WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md`](./WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md)  
 - [`WORLD_CLASS_TESTING_MATRIX.md`](./WORLD_CLASS_TESTING_MATRIX.md)  
 - [`WORLD_CLASS_RELEASE_LOG.md`](./WORLD_CLASS_RELEASE_LOG.md)  
+- [`WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md`](./WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md)  
 
 ---
 
 ## Chapter 1 status
 
-Chapter 0 approved. Chapter 1 implements DS tokens, shell a11y, Command Centre **label**, command/quick-create polish, Summer Early Access chrome. **Command Centre page depth deferred to Chapter 2.** No Production / migrations / marketing edits.
+**Approved** at `3682717`. DS tokens, shell a11y, Command Centre label, command/quick-create, Summer Early Access chrome.
+
+## Chapter 2 status
+
+**Complete — awaiting PO review.** Command Centre redesigned as action-first daily operating view with truthful metrics (payments collected via commerce snapshot; business-TZ day bounds; location-scoped appointments). Data dictionary: [`WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md`](./WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md). No Production / migrations / marketing edits.
 
 ## Next step after PO approval
 
-Begin **Execution Chapter 1** only after PO approves these matrices: formalize DS against `23_DESIGN_SYSTEM_V1`, close remaining shell gaps, **do not** redesign Command Centre (Chapter 2) yet.
+Begin **Execution Chapter 3 — Reception and Calendar** only after PO approves Chapter 2. Do not start Chapter 3 until then.
