@@ -304,11 +304,12 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `20e0c8943d6cad7eb883474f41c6e24248a4e8b6` |
-| **Short** | `20e0c89` |
-| **Subject** | feat: redesign Command Centre as truthful daily operating view |
-| **Prior tip** | `3682717` (Chapter 1 approved) |
-| **Chapter 2 Preview** | https://chasum-q4yk6yain-renovisionappcom.vercel.app |
+| **SHA** | `0880683066b40641119b3d2b403dd9715879d41a` |
+| **Short** | `0880683` |
+| **Subject** | fix: reconcile Command Centre truth and portal status labels |
+| **Prior tip** | `3dce14d` (Chapter 2 stamp) · feature `20e0c89` |
+| **Chapter 2 Preview (feature)** | https://chasum-q4yk6yain-renovisionappcom.vercel.app |
+| **Chapter 2 correction Preview** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (branch alias → tip `0880683`) |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
 ---
