@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-05  
-**Updated by:** World Class Execution Program — Chapter 2 Command Centre (Preview only; Production unchanged)  
+**Last updated:** 2026-08-06  
+**Updated by:** World Class Execution Program — Chapter 2 correction pass (Preview only; Production unchanged)  
 
 ---
 
@@ -153,24 +153,24 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-05)
+### Most recent (2026-08-06)
 
-**World Class Execution — Chapter 2 Command Centre**
+**World Class Execution — Chapter 2 correction pass**
 
-- Redesigned `/dashboard` as action-first Command Centre (header, priority, glance KPIs, attention, schedule, quick actions, Summer facts, week bars, recent activity)
-- Money labeled **payments collected** via `getCommerceDashboardSnapshot`; business-TZ day bounds; location-scoped appointments
-- Data dictionary: `docs/WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md`
-- Removed decorative sparklines / fake prior-period comparisons from the old overview
+- Reconciled appointments today (exclude no_show + business TZ) across CC / Reception / Reports
+- Standardized **Gross payments collected** (commerce SoT; refunds not subtracted); Reports executive aligned
+- Attention areas label; softer cancellation attention copy
+- Summer portal identity → AI Business Manager; AI Workforce Future Vision / Preview
+- Reports: hide Inventory tab; hide Membership revenue; Automations/Customers titles; Developer nav+page gate
 - **Chapter 3 not started**
 
 ### Immediately prior (2026-08-05)
 
-**World Class Execution — Chapter 1 design system + portal foundation**
+**World Class Execution — Chapter 2 Command Centre**
 
-- Tokens (z-index, touch, motion, typography utilities), skip-nav, Command Centre label, command/quick-create polish, Summer Early Access chrome
-- Lint: resolved 2 shell errors; Ch 1 files clean; full lint 32/20 (was 34/20)
-- Tests: +4 foundation; 270 pass / 1 inherited fail
-- Preview: https://chasum-9j1con47j-renovisionappcom.vercel.app @ tip through `3682717`
+- Redesigned `/dashboard` as action-first Command Centre
+- Data dictionary: `docs/WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md`
+- Preview: https://chasum-q4yk6yain-renovisionappcom.vercel.app @ `20e0c89`
 
 ### Immediately prior (2026-08-05)
 
@@ -329,8 +329,8 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 2** — Command Centre Preview / data dictionary before Chapter 3.
-2. **Do not start Chapter 3** until PO approves Chapter 2.
+1. **PO review of Chapter 2 correction** — Preview / data dictionary before Chapter 3.
+2. **Do not start Chapter 3** until PO approves Chapter 2 (including this correction pass).
 3. **Operation GVM Production** — remain protected.
 4. Marketing claim fixes only with **explicit PO** (locked pages).
 

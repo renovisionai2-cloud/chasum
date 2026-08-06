@@ -139,7 +139,7 @@ export async function CommandCentre() {
             accent="primary"
           />
           <StatCard
-            title="Payments collected today"
+            title="Gross payments collected"
             value={
               snapshot.paymentsCollectedTodayAvailable
                 ? (snapshot.paymentsCollectedTodayLabel ?? "—")
@@ -147,15 +147,15 @@ export async function CommandCentre() {
                   ? "Unavailable"
                   : "No data yet"
             }
-            description="Succeeded deposits and payments by transaction time"
+            description="Succeeded deposits and payments today · refunds shown separately on Payments"
             icon={DollarSign}
             href="/dashboard/payments"
             accent="success"
           />
           <StatCard
-            title="Outstanding actions"
+            title="Attention areas"
             value={snapshot.outstandingActionsCount.toString()}
-            description="Items in Attention required"
+            description="Priority groups in Attention required (not individual item count)"
             icon={AlertTriangle}
             href="/dashboard#cc-attention"
             accent="warning"

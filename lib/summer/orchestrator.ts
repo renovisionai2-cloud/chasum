@@ -135,7 +135,7 @@ export async function handleSummerTurn(
 
   const toneLead =
     summerCfg.greeting?.trim() ||
-    `Hi — I'm Summer, the AI receptionist for ${knowledge.businessName}.`;
+    `Hi — I'm Summer, your AI Business Manager for ${knowledge.businessName}.`;
 
   if (intent === "escalate") {
     escalationReason = message.slice(0, 400);

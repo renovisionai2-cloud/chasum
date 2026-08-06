@@ -2,6 +2,7 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getLocationScope } from "@/lib/actions/location";
+import { getCommerceDashboardSnapshot } from "@/lib/commerce/dashboard";
 import { normalizeCurrency } from "@/lib/commerce/money";
 import { withLocationFilter } from "@/lib/location/constants";
 import {
@@ -223,6 +224,32 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
 
   const activeEmployees = staff.filter((s) => s.is_active !== false).length;
 
+  const locale = {
+    timezone: business.timezone,
+    currency: business.currency,
+  };
+
+  let paymentsTodayDollars: number | null = null;
+  let paymentsWeekDollars: number | null = null;
+  let paymentsMonthDollars: number | null = null;
+  try {
+    const commerce = await getCommerceDashboardSnapshot(
+      business.id,
+      business.name,
+      locale,
+    );
+    if (commerce.schemaReady) {
+      paymentsTodayDollars = commerce.revenueTodayCents / 100;
+      paymentsWeekDollars = commerce.revenueWeekCents / 100;
+      paymentsMonthDollars = commerce.revenueMonthCents / 100;
+    }
+  } catch (err) {
+    logQueryError(
+      "reports-commerce-payments",
+      err instanceof Error ? err.message : "commerce snapshot failed",
+    );
+  }
+
   const executive = buildExecutive({
     now,
     appointments,
@@ -231,6 +258,12 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     outstandingInvoicesCents,
     membershipRevenueCents,
     giftCardRevenueCents,
+    locale,
+    paymentsCollectedTodayDollars: paymentsTodayDollars,
+    paymentsCollectedWeekDollars: paymentsWeekDollars,
+    paymentsCollectedMonthDollars: paymentsMonthDollars,
+    // Memberships are Beta/Incomplete — do not present catalog list price as revenue.
+    showMembershipMetric: false,
   });
 
   const revenue = buildRevenueBreakdown(appointments, now);

@@ -110,7 +110,7 @@ export function AiEmployeeDetail({
                   <CardTitle>Today</CardTitle>
                   <CardDescription>
                     {liveReceptionist
-                      ? "Phase 1 receptionist console below"
+                      ? "Early Access Summer workspace below"
                       : liveAvailability
                         ? "Live availability above · other metrics stay assistive"
                         : "Placeholder until live automation"}

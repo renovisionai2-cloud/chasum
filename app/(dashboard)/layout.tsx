@@ -2,12 +2,14 @@ export const dynamic = "force-dynamic";
 
 import { DashboardShell } from "@/components/dashboard/shell";
 import { PreviewBuildBadge } from "@/components/system/preview-build-badge";
+import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getSupabaseEnv } from "@/lib/env";
 import {
   getLocationQuota,
   getLocationScope,
   getLocations,
 } from "@/lib/actions/location";
+import { planAllowsApiIntegrations } from "@/lib/billing/plan-features";
 import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -30,12 +32,17 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const [locations, locationScope, locationQuota, showHq] = await Promise.all([
-    getLocations(),
-    getLocationScope(),
-    getLocationQuota(),
-    isPlatformOwner(user),
-  ]);
+  const [locations, locationScope, locationQuota, showHq, business] =
+    await Promise.all([
+      getLocations(),
+      getLocationScope(),
+      getLocationQuota(),
+      isPlatformOwner(user),
+      getOrCreateBusiness(),
+    ]);
+
+  const showDeveloper =
+    showHq || planAllowsApiIntegrations(business);
 
   return (
     <DashboardShell
@@ -44,6 +51,7 @@ export default async function DashboardLayout({
       locationScope={locationScope}
       locationQuota={locationQuota}
       showHq={showHq}
+      showDeveloper={showDeveloper}
     >
       {children}
       <PreviewBuildBadge />

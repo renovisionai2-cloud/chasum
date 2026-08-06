@@ -257,7 +257,7 @@ export function AiCommandCenter() {
               <div>
                 <CardTitle className="text-base">Conversation</CardTitle>
                 <CardDescription>
-                  Summer · receptionist · Alex · live slots
+                  Summer · AI Business Manager · Alex · live slots
                 </CardDescription>
               </div>
             </div>

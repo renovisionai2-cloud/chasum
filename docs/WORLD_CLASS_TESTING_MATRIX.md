@@ -131,15 +131,19 @@
 | Notes | Money labeled “Payments collected”; no fabricated % comparisons |
 | Approval | Awaiting PO |
 
-### Chapter 2 automated results
+### Chapter 2 correction pass
 
 | Check | Result |
 |-------|--------|
-| Typecheck | See release log after Ch2 commit |
-| Lint (Ch 2 files) | Must be clean |
-| Unit tests | `tests/unit/dashboard/command-centre.test.ts` |
-| Inherited fail | `multi-business-selection` unchanged |
-| Build | See release log |
+| Appointments today SoT | `lib/dashboard/appointments-today.ts` — exclude cancelled/no_show; business TZ |
+| Gross payments SoT | Commerce ledger; refunds not subtracted; CC / Payments / Reports executive aligned |
+| Summer identity | Portal greeting AI Business Manager; no AI receptionist in Summer workspace/orchestrator |
+| AI Workforce | Future Vision banner; fake online/tasks/activity removed |
+| Reports Inventory | Tab hidden |
+| Membership revenue | Hidden (Beta incomplete) |
+| Developer | Nav + page gated (`planAllowsApiIntegrations` + platform owner) |
+| Automated tests | `chapter2-correction*.test.ts` |
+| Approval | Awaiting PO |
 
 ### Permanent quality rule
 

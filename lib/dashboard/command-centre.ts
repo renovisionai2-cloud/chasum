@@ -244,7 +244,7 @@ export function buildAttentionItems(input: {
         input.cancelledTodayCount === 1
           ? "1 cancellation today"
           : `${input.cancelledTodayCount} cancellations today`,
-      why: "Open slots may be rebookable; customers may need a follow-up.",
+      why: "These cancelled times may now be available — review openings for possible rebooking.",
       status: "Cancelled",
       href: "/dashboard/calendar?view=day",
     });

@@ -92,8 +92,8 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 | Unlimited staff | staff_limit | Unlimited | Open | Employees | — | N/A | Present directory; login Coming Next | Staff login | High | 8 |
 | Locations ≤ 6 | location_limit | Up to 6 | Business | Hub | Add | Uses **DB 10** | **Conflicting** | 6 vs 10 | High | 9,13 |
 | Advanced Analytics | `advanced_analytics` | Biz+ | Reports | Same UI | — | **None** | Marketing-only vs “basic” | Definition | Med | 10,13 |
-| API & Integrations | `api_integrations` | Biz+ | Developer Advanced | `/dashboard/developer` | Keys | **None** plan | Not enforced | Gate | Med | 9,13 |
-| Inventory | `inventory` | Biz+ | Reports placeholder | Placeholder | Placeholder | **None** | **Marketing-only / Not implemented** | Product or delist | Crit | 10,13 |
+| API & Integrations | `api_integrations` | Biz+ / Private Alpha | Developer Advanced (hidden when gated) | `/dashboard/developer` redirects if unauthorized | Keys | **Partial** — nav + page gate via `planAllowsApiIntegrations`; key-create server enforcement remaining | Partial | Server key ACL | Med | 9,13 |
+| Inventory | `inventory` | Biz+ | Reports tab **hidden** (Coming Soon) | Placeholder code remains | Placeholder | **None** | **Hidden from UI** (Ch2 correction) | Product or delist | Crit | 10,13 |
 | Priority Support | `priority_support` | Biz+ | — | — | — | Process | Marketing-only | Ops | Med | 13 |
 
 ### Enterprise partnership features

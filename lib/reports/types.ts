@@ -25,10 +25,16 @@ export type ChartPoint = {
 };
 
 export type ExecutiveDashboard = {
+  /**
+   * Gross payments collected (dollars) when paymentsCollectedAvailable.
+   * Legacy field name kept for bundle compatibility — UI must say payments collected.
+   */
   revenueToday: number;
   revenueWeek: number;
   revenueMonth: number;
+  /** Deferred — Chapter 10; do not mix recognition formulas. Always 0 in Ch2 correction. */
   revenueYear: number;
+  paymentsCollectedAvailable: boolean;
   appointmentsToday: number;
   upcomingAppointments: number;
   newCustomers: number;
@@ -36,6 +42,7 @@ export type ExecutiveDashboard = {
   activeEmployees: number;
   outstandingInvoicesCents: number;
   membershipRevenueCents: number;
+  showMembershipMetric: boolean;
   giftCardRevenueCents: number;
 };
 

@@ -166,15 +166,15 @@ export function PaymentsDashboard({
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
-            label="Revenue today"
+            label="Gross payments collected today"
             value={money(snapshot.revenueTodayCents)}
           />
           <Metric
-            label="Revenue this week"
+            label="Gross payments collected this week"
             value={money(snapshot.revenueWeekCents)}
           />
           <Metric
-            label="Revenue this month"
+            label="Gross payments collected this month"
             value={money(snapshot.revenueMonthCents)}
           />
           <Metric

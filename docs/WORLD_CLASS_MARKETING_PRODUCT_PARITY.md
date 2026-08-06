@@ -312,10 +312,13 @@ Column key: Route · Source · Section · Claim · Category · Plan · Industry 
 
 ## Chapter 2 note — Command Centre (product, not marketing)
 
-In-app `/dashboard` Command Centre now:
+In-app `/dashboard` Command Centre (plus correction pass):
 
-- Labels money as **payments collected** (commerce succeeded deposits/payments), not generic “revenue”
-- Summer block = **AI Business Manager · Early Access** with deterministic facts only (no fabricated BI)
+- Labels money as **Gross payments collected** (commerce succeeded deposits/payments; refunds not subtracted)
+- Appointments today shared definition excludes cancelled / no-show (business TZ)
+- Summer block / workspace = **AI Business Manager · Early Access** (no “AI receptionist” in portal Summer surfaces)
+- AI Workforce page = Future Vision / Preview — Summer Early Access only; no fake online/task/activity KPIs
+- Reports: Inventory tab hidden; Membership revenue hidden; executive payments align with commerce
 - Does not remount IMPACT_STATS / testimonials
 
 Marketing locks unchanged. Remaining Online Payments / Inventory / Summer Available Today conflicts stay open for Chapters 6/12/13.

@@ -24,6 +24,7 @@ type DashboardShellProps = {
     canAdd: boolean;
   };
   showHq?: boolean;
+  showDeveloper?: boolean;
   children: React.ReactNode;
 };
 
@@ -33,6 +34,7 @@ function ShellInner({
   locationScope,
   locationQuota,
   showHq = false,
+  showDeveloper = false,
   children,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -52,6 +54,7 @@ function ShellInner({
         <DashboardSidebar
           userEmail={userEmail}
           showHq={showHq}
+          showDeveloper={showDeveloper}
           className="fixed inset-y-0"
         />
       </div>
@@ -80,6 +83,7 @@ function ShellInner({
         open={mobileOpen}
         userEmail={userEmail}
         showHq={showHq}
+        showDeveloper={showDeveloper}
         onClose={() => setMobileOpen(false)}
       />
 

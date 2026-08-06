@@ -1,6 +1,6 @@
 "use server";
 
-import { parseISO } from "date-fns";
+import { addDays, parseISO } from "date-fns";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
   getActiveLocationId,
@@ -15,6 +15,12 @@ import {
   updateBooking,
   type MutationResult,
 } from "@/lib/booking-engine";
+import {
+  endOfBusinessDay,
+  startOfBusinessMonth,
+  startOfBusinessWeek,
+} from "@/lib/business/datetime";
+import { businessDayBounds } from "@/lib/dashboard/appointments-today";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -72,20 +78,21 @@ export async function getDashboardStats() {
   const supabase = await createClient();
 
   const now = new Date();
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date(now);
-  todayEnd.setHours(23, 59, 59, 999);
+  const locale = {
+    timezone: business.timezone,
+    currency: business.currency,
+  };
+  const { dayStart: todayStart, dayEnd: todayEnd } = businessDayBounds(
+    now,
+    locale,
+  );
 
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() - now.getDay());
-  weekStart.setHours(0, 0, 0, 0);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6);
-  weekEnd.setHours(23, 59, 59, 999);
+  const weekStart = startOfBusinessWeek(now, locale);
+  const weekEnd = endOfBusinessDay(addDays(weekStart, 6), locale);
 
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  const monthStart = startOfBusinessMonth(now, locale);
+  const nextMonthStart = startOfBusinessMonth(addDays(monthStart, 35), locale);
+  const monthEnd = new Date(nextMonthStart.getTime() - 1);
 
   function appointmentFilter() {
     return scope.mode === "single"
@@ -148,6 +155,7 @@ export async function getDashboardStats() {
       .select("id", { count: "exact", head: true })
       .match(apptFilter)
       .neq("status", "cancelled")
+      .neq("status", "no_show")
       .gte("start_time", todayStart.toISOString())
       .lte("start_time", todayEnd.toISOString()),
     supabase
@@ -155,6 +163,7 @@ export async function getDashboardStats() {
       .select("id", { count: "exact", head: true })
       .match(apptFilter)
       .neq("status", "cancelled")
+      .neq("status", "no_show")
       .gte("start_time", weekStart.toISOString())
       .lte("start_time", weekEnd.toISOString()),
     supabase

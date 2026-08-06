@@ -61,6 +61,19 @@ export function planAllowsRemoveBranding(
   );
 }
 
+/**
+ * API / Developer tools — Business+ and Private Alpha design partners.
+ * Free / Professional without Private Alpha do not get Developer nav.
+ * Remaining: server-side key-creation enforcement in Chapter later.
+ */
+export function planAllowsApiIntegrations(
+  business: PlanGateBusiness | null | undefined,
+): boolean {
+  if (businessHasPrivateAlpha(business)) return true;
+  const key = (business?.subscription_plan_key ?? "starter").toLowerCase();
+  return key === "business" || key === "enterprise";
+}
+
 export const SMS_PLAN_UPGRADE_MESSAGE =
   "SMS is not included on the Free plan. Upgrade to Professional to text customers from Chasum — your plan includes email only.";
 

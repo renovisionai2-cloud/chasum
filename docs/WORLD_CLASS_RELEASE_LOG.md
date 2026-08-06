@@ -21,21 +21,9 @@
 | 2026-08-05 | **Chapter 1 — DS + portal foundation** | `b09bd2c` (tip `afbc19c`) | https://chasum-9j1con47j-renovisionappcom.vercel.app (latest Ready Preview ~5m after push; SSO-protected). Prior shell: https://chasum-f2djbjdae-renovisionappcom.vercel.app | Tokens, skip-nav, Command Centre label, command/quick-create, Summer EA chrome, lint fixes in shell |
 | 2026-08-05 | Chapter 1 Preview URL stamp | `3682717` | https://chasum-9j1con47j-renovisionappcom.vercel.app | Approved Ch1 tip for Chapter 2 baseline |
 | 2026-08-05 | **Chapter 2 — Command Centre** | `20e0c89` | https://chasum-q4yk6yain-renovisionappcom.vercel.app (SSO-protected Preview; Ready; dpl_D8FTLscJpa1LoXh2NJaaitCbrw2b) | Action-first CC; payments collected SoT; data dictionary; no fake metrics |
+| 2026-08-06 | **Chapter 2 correction pass** | _(stamp after push)_ | _(Preview after deploy)_ | Appointments/payments reconciliation; Gross payments; Summer title; AI Workforce preview; Reports Inventory/Memberships; Developer gate |
 
 ---
-
-## Chapter 1 quality report
-
-| Check | Result |
-|-------|--------|
-| Typecheck | Pass |
-| Build | Pass |
-| Unit tests | **270 pass / 1 fail** (was 266/1) — +4 foundation tests |
-| Inherited fail | `multi-business-selection.test.ts` › `shows all businessTypes…` |
-| Lint full | **52 problems (32 errors, 20 warnings)** — was 54/34/20 |
-| Ch 1 files lint | **Clean** (0) |
-| Resolved inherited | 2× `react-hooks/set-state-in-effect` in `command-trigger.tsx`, `sidebar.tsx` |
-| Newly introduced | **None** |
 
 ## Chapter 2 quality report
 
@@ -49,6 +37,16 @@
 | Ch 2 files lint | **Clean** (0) |
 | Newly introduced | **None** |
 | Data dictionary | `docs/WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md` |
+
+## Chapter 2 correction pass quality report
+
+| Check | Result |
+|-------|--------|
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Unit tests | **296 pass / 1 fail** (+12 correction tests); inherited fail unchanged |
+| Ch 2 correction files lint | **Clean** |
+| Newly introduced | **None** |
 
 ### Permanent quality rule
 

@@ -35,7 +35,7 @@ export class GroundedReceptionistProvider implements ReceptionistAiProvider {
         provider: this.name,
         escalate: false,
         citations: [],
-        reply: `Hi — I'm Summer, the AI receptionist for ${knowledge.businessName}. I can help with hours, services, team members, locations, availability, and booking through the Booking Engine. What do you need?`,
+        reply: `Hi — I'm Summer, your AI Business Manager for ${knowledge.businessName}. I can help with hours, services, team members, locations, availability, and booking through the Booking Engine. What do you need?`,
       };
     }
 

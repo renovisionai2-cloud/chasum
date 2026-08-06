@@ -64,7 +64,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "services", label: "Services" },
   { key: "locations", label: "Locations" },
   { key: "financial", label: "Financial" },
-  { key: "inventory", label: "Inventory" },
+  // Inventory is Roadmap/Coming Soon — not shown as a live tab.
   { key: "export", label: "Export" },
   { key: "scheduled", label: "Scheduled" },
 ];
@@ -210,41 +210,56 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
-              title="Revenue today"
-              value={$(e.revenueToday)}
+              title="Gross payments collected today"
+              value={
+                e.paymentsCollectedAvailable
+                  ? $(e.revenueToday)
+                  : "Unavailable"
+              }
               icon={Wallet}
               accent="success"
-              href="/dashboard/calendar"
+              href="/dashboard/payments"
+              description="Commerce ledger · same as Payments"
             />
             <StatCard
-              title="Revenue this week"
-              value={$(e.revenueWeek)}
+              title="Gross payments collected this week"
+              value={
+                e.paymentsCollectedAvailable ? $(e.revenueWeek) : "Unavailable"
+              }
               icon={BarChart3}
               accent="primary"
+              href="/dashboard/payments"
             />
             <StatCard
-              title="Revenue this month"
-              value={$(e.revenueMonth)}
+              title="Gross payments collected this month"
+              value={
+                e.paymentsCollectedAvailable
+                  ? $(e.revenueMonth)
+                  : "Unavailable"
+              }
               icon={BarChart3}
               accent="spark"
+              href="/dashboard/payments"
             />
             <StatCard
-              title="Revenue this year"
-              value={$(e.revenueYear)}
+              title="Payments collected this year"
+              value="Unavailable"
               icon={Wallet}
               accent="primary"
+              description="Full-year reporting deferred to Chapter 10"
             />
             <StatCard
               title="Appointments today"
               value={String(e.appointmentsToday)}
               icon={CalendarDays}
               href="/dashboard/calendar"
+              description="Active bookings · business timezone"
             />
             <StatCard
               title="Upcoming"
               value={String(e.upcomingAppointments)}
               icon={CalendarDays}
-              description="Not cancelled"
+              description="Not cancelled or no-show"
             />
             <StatCard
               title="New customers"
@@ -272,12 +287,14 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               icon={FileSpreadsheet}
               accent="warning"
             />
-            <StatCard
-              title="Membership revenue"
-              value={$c(e.membershipRevenueCents)}
-              icon={Package}
-              description="Active plans"
-            />
+            {e.showMembershipMetric ? (
+              <StatCard
+                title="Membership plan catalog (Beta)"
+                value={$c(e.membershipRevenueCents)}
+                icon={Package}
+                description="List price of active plans — not collected revenue"
+              />
+            ) : null}
             <StatCard
               title="Gift card revenue"
               value={$c(e.giftCardRevenueCents)}
@@ -286,8 +303,11 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Metrics respect your location scope and multi-tenant business
-            boundary. Snapshot ready for Owner Platform and AI Workforce.
+            Gross payments collected match Command Centre and Payments (commerce
+            ledger). Appointment counts use business timezone and exclude
+            cancelled / no-show. Inventory reporting is Coming Soon. Membership
+            collected revenue is Beta and hidden until billing lifecycle is
+            complete. Deeper BI redesign is Chapter 10.
           </p>
         </div>
       ) : null}

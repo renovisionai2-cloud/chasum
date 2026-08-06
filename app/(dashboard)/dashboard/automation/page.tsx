@@ -10,7 +10,7 @@ import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Automation" };
+export const metadata: Metadata = { title: "Automations" };
 
 export default async function AutomationPage() {
   await getOrCreateBusiness();
@@ -25,7 +25,7 @@ export default async function AutomationPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Automation"
+        title="Automations"
         description="Recurring appointments, waitlists, and automated notifications."
       />
       <AutomationManager

@@ -20,6 +20,19 @@ import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { addDays } from "date-fns";
 
+/**
+ * Gross payments collected (cash-in) for a period.
+ * Succeeded deposit + payment ledger rows by occurredAt.
+ * Refunds are NOT subtracted — display refunds separately.
+ */
+export function sumGrossPaymentsCollectedCents(
+  txs: Awaited<ReturnType<typeof listTransactions>>,
+  from: Date,
+  to: Date,
+): number {
+  return sumSucceededPayments(txs, from, to);
+}
+
 function sumSucceededPayments(
   txs: Awaited<ReturnType<typeof listTransactions>>,
   from: Date,

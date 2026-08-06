@@ -1,12 +1,63 @@
 # World Class Command Centre — Data Dictionary
 
-**Chapter:** 2 — Command Centre  
+**Chapter:** 2 — Command Centre (+ correction pass)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Authoritative snapshot:** `getCommandCentreSnapshot()` in `lib/actions/command-centre.ts`  
 **Pure helpers:** `lib/dashboard/command-centre.ts`  
-**Commerce SoT:** `getCommerceDashboardSnapshot()` in `lib/commerce/dashboard.ts`  
+**Appointments today SoT:** `lib/dashboard/appointments-today.ts` (`countAppointmentsToday` / `isActiveBooking`)  
+**Commerce SoT:** `getCommerceDashboardSnapshot()` → `sumGrossPaymentsCollectedCents` in `lib/commerce/dashboard.ts`  
 **Production baseline:** `4eecbec` (unchanged)  
 **Rule:** Zero means verified zero. Load failures show Unavailable / Couldn’t load / No data yet — never invent numbers.
+
+---
+
+## Correction pass — source-of-truth decisions
+
+### Appointments today (cross-page)
+
+**Root cause of CC=4 vs Reception/Reports=5:** Command Centre excluded `no_show`; Reception Morning Brief and Reports executive included `no_show`. Secondary risk: Reception/Reports previously used server-local midnight instead of business timezone.
+
+**Authoritative definition — APPOINTMENTS TODAY:**
+- Business timezone day: `[startOfBusinessDay, endOfBusinessDay]`
+- Field: `appointments.start_time` (visits starting today that end later **are** included)
+- Status: `isActiveBooking` — excludes `cancelled` and `no_show`
+- Includes: pending, confirmed, arrived, waiting, in_progress, completed, **unassigned**
+- Location: `getLocationScope` (Command Centre / Reports); Reception Morning Brief remains single active location
+- Shared helper: `lib/dashboard/appointments-today.ts`
+- Wired into: Command Centre, Reports executive, Morning Brief (Reception), `getDashboardStats` today/week counts
+
+### Gross payments collected (cross-page)
+
+**Root cause of CC/Payments $50 vs Reports CA$150:** Reports used appointment-start **recognized revenue**; CC/Payments used commerce **cash** by `occurredAt`. Different ledgers, not a shared sum bug.
+
+**Authoritative definition — GROSS PAYMENTS COLLECTED:**
+- Option **A** chosen: refunds are **not** subtracted
+- Formula: Σ succeeded `payment` + `deposit` amounts where `occurredAt` ∈ period (business TZ)
+- Refunds displayed separately (Payments “Refunds (month)”)
+- UI label: **Gross payments collected** (today / week / month) on Command Centre, Payments, and Reports executive
+- Reports year KPI: **Unavailable** until Chapter 10 (do not mix recognition formulas)
+
+### Attention areas
+
+KPI **Attention areas** = count of priority **categories** in Attention required (not individual deposit/invoice row counts).
+
+### Cancellation attention
+
+Wording states cancellations may free openings for rebooking — does **not** claim customers need follow-up unless a real follow-up workflow exists.
+
+---
+
+## Deferred organization issues (not fixed in this pass)
+
+| Issue | Chapter |
+|-------|---------|
+| Packages sidebar route vs Business settings tab | Catalog / Business (Ch 9 or catalog chapter) |
+| Business profile vs Account & Billing overlapping fields (logo, cover, name, timezone, address, website, phone, email, booking profile) | Chapter 9 |
+| Communications delivery log raw/internal event names | Chapter 7 |
+| Full Reports BI redesign (charts still appointment-price based) | Chapter 10 |
+| Customers detail “Back to CRM” residual copy | Chapter 4 |
+| Automations waitlist/recurring deep verification | Later automation chapter |
+| Developer API key create/server enforcement beyond nav+page gate | Entitlement hardening |
 
 ---
 
@@ -30,53 +81,35 @@ Currency: **business.currency** via `formatMoneyCents` (GVM → CAD when configu
 | Field | Value |
 |-------|--------|
 | **Name** | Appointments today |
-| **Business meaning** | Count of visits expected to start on the current business-local day |
-| **Data source** | `appointments` count, head query |
+| **Business meaning** | Count of active visits whose start falls on the current business-local day |
+| **Data source** | Shared `countAppointmentsToday` / matching Supabase filters |
 | **Date range** | `start_time` ∈ [startOfBusinessDay, endOfBusinessDay] |
 | **Timezone** | Business timezone |
-| **Location** | Respects location scope |
-| **Status exclusions** | Excludes `cancelled`, `no_show` |
+| **Location** | Respects location scope (Reception Morning Brief: active location) |
+| **Status exclusions** | Excludes `cancelled`, `no_show` (`isActiveBooking`) |
 | **Payment-status treatment** | Not applied |
 | **Refund treatment** | N/A |
 | **Currency** | N/A |
 | **Empty-state** | `0` when query succeeds with no rows |
 | **Permission** | Authenticated dashboard user with business access |
-| **Known limitations** | Does not exclude completed vs confirmed; all non-cancelled / non-no-show |
-| **Related Reports** | Reports appointment volume uses its own period aggregation — do not assume identical filters without checking Reports |
+| **Known limitations** | Includes completed visits that started today |
+| **Related Reports** | Reports executive `appointmentsToday` uses the same definition |
 
-### Appointments this week
-
-| Field | Value |
-|-------|--------|
-| **Name** | Appointments this week (week bars) |
-| **Business meaning** | Active appointments starting in the current business week, bucketed by business-local day |
-| **Data source** | `appointments.start_time` list for week window |
-| **Date range** | Week start (business) through end of 7th business day |
-| **Timezone** | Business timezone for bucketing |
-| **Location** | Respects location scope |
-| **Status exclusions** | Excludes `cancelled`, `no_show` |
-| **Empty-state** | Quiet week empty panel when all bars are 0 |
-| **Known limitations** | Not a prior-period comparison; no % change |
-| **Related Reports** | Prefer Reports for formal weekly volume |
-
-### Payments collected today
+### Gross payments collected today
 
 | Field | Value |
 |-------|--------|
-| **Name** | Payments collected today (UI label — not “Revenue”) |
-| **Business meaning** | Sum of **succeeded** deposit + payment transactions whose `occurredAt` falls on the business-local day |
-| **Data source** | `getCommerceDashboardSnapshot` → `revenueTodayCents` via `sumSucceededPayments` |
-| **Date range** | Business day |
+| **Name** | Gross payments collected today |
+| **Business meaning** | Cash-in from succeeded deposits and payments; **not** net of refunds; **not** visit-recognized revenue |
+| **Data source** | `getCommerceDashboardSnapshot` → `revenueTodayCents` via `sumGrossPaymentsCollectedCents` |
+| **Date range** | Business day on `occurredAt` |
 | **Timezone** | Business timezone |
-| **Location** | **Business-wide** (not location-filtered) |
-| **Status exclusions** | Only `status === succeeded` and kind `payment` or `deposit` |
-| **Payment-status treatment** | Ledger transaction status, not appointment `payment_status` |
-| **Refund treatment** | Refunds are **not** subtracted here; month refunds tracked separately on Payments dashboard |
+| **Location** | **Business-wide** |
+| **Status exclusions** | Only `succeeded` + kind `payment` \| `deposit` |
+| **Refund treatment** | **Not subtracted** (Option A). Show refunds separately |
 | **Currency** | Business currency |
-| **Empty-state** | `$0.00` when schema ready and sum is 0; `No data yet` when schema not ready; `Unavailable` on load error |
-| **Permission** | Dashboard auth; commerce schema must be ready |
-| **Known limitations** | Named `revenueTodayCents` in commerce code historically — Command Centre UI must say **payments collected** |
-| **Related Reports / Payments** | Must match Payments Command / commerce dashboard “today” collected total |
+| **Empty-state** | `$0.00` when schema ready and sum is 0; `No data yet` / `Unavailable` on failure |
+| **Related** | Payments + Reports executive cards must match |
 
 ### Payments collected this week
 

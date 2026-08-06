@@ -71,7 +71,7 @@ export function SummerReceptionWorkspace({
     {
       id: "welcome",
       role: "assistant",
-      content: `Hi — I'm Summer, AI receptionist for ${businessName}. I book, reschedule, and cancel through the Booking Engine, answer from your real business data, and escalate when a human is needed. I never invent times or prices.`,
+      content: `Hi — I'm Summer, your AI Business Manager for ${businessName}. I can help with bookings, rescheduling, cancellations and questions using your real business data. I never invent times or prices.`,
     },
   ]);
   const [input, setInput] = useState("");

@@ -4,6 +4,8 @@ import {
   recognizesAppointmentRevenue,
   sumRecognizedRevenueDollars,
 } from "@/lib/commerce/recognize";
+import { countAppointmentsToday } from "@/lib/dashboard/appointments-today";
+import type { BusinessLocaleInput } from "@/lib/locale";
 import type {
   AppointmentReport,
   BusinessIntelligenceSnapshot,
@@ -83,12 +85,6 @@ function startOfDay(d: Date) {
   return x;
 }
 
-function endOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(23, 59, 59, 999);
-  return x;
-}
-
 function startOfWeek(d: Date) {
   const x = startOfDay(d);
   const day = x.getDay();
@@ -149,22 +145,27 @@ export function buildExecutive(input: {
   outstandingInvoicesCents: number;
   membershipRevenueCents: number;
   giftCardRevenueCents: number;
+  /** Business timezone for appointments-today (authoritative). */
+  locale?: BusinessLocaleInput;
+  /**
+   * Gross payments collected (dollars) from commerce ledger.
+   * When provided, replaces appointment-recognized "revenue" KPIs that
+   * conflicted with Payments / Command Centre.
+   */
+  paymentsCollectedTodayDollars?: number | null;
+  paymentsCollectedWeekDollars?: number | null;
+  paymentsCollectedMonthDollars?: number | null;
+  /** Hide membership catalog metric when not operational. */
+  showMembershipMetric?: boolean;
 }): ExecutiveDashboard {
   const { now, appointments, customers } = input;
-  const todayStart = startOfDay(now);
-  const todayEnd = endOfDay(now);
-  const weekStart = startOfWeek(now);
+  const locale = input.locale ?? { timezone: "UTC" };
   const monthStart = startOfMonth(now);
-  const yearStart = startOfYear(now);
 
-  const todayAppts = appointments.filter(
-    (a) =>
-      a.status !== "cancelled" &&
-      inRange(a.start_time, todayStart, todayEnd),
-  );
+  const appointmentsToday = countAppointmentsToday(appointments, now, locale);
   const upcoming = appointments.filter(
     (a) =>
-      a.status !== "cancelled" &&
+      isActiveBooking(a.status) &&
       new Date(a.start_time).getTime() >= now.getTime(),
   );
 
@@ -182,26 +183,38 @@ export function buildExecutive(input: {
       .map((a) => a.customer_id as string),
   );
 
+  const paymentsToday =
+    input.paymentsCollectedTodayDollars != null
+      ? input.paymentsCollectedTodayDollars
+      : null;
+  const paymentsWeek =
+    input.paymentsCollectedWeekDollars != null
+      ? input.paymentsCollectedWeekDollars
+      : null;
+  const paymentsMonth =
+    input.paymentsCollectedMonthDollars != null
+      ? input.paymentsCollectedMonthDollars
+      : null;
+
   return {
-    revenueToday: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, todayStart, todayEnd)),
-    ),
-    revenueWeek: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, weekStart, now)),
-    ),
-    revenueMonth: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, monthStart, now)),
-    ),
-    revenueYear: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, yearStart, now)),
-    ),
-    appointmentsToday: todayAppts.length,
+    // When commerce SoT is available these are gross payments collected ($).
+    // When unavailable, leave 0 and UI shows Unavailable via flag on bundle.
+    revenueToday: paymentsToday ?? 0,
+    revenueWeek: paymentsWeek ?? 0,
+    revenueMonth: paymentsMonth ?? 0,
+    // Year recognized-revenue deferred to Chapter 10 — do not mix formulas.
+    revenueYear: 0,
+    paymentsCollectedAvailable:
+      paymentsToday != null && paymentsWeek != null && paymentsMonth != null,
+    appointmentsToday,
     upcomingAppointments: upcoming.length,
     newCustomers: monthCustomerIds.size,
     returningCustomers: returning.size,
     activeEmployees: input.activeEmployees,
     outstandingInvoicesCents: input.outstandingInvoicesCents,
-    membershipRevenueCents: input.membershipRevenueCents,
+    membershipRevenueCents:
+      input.showMembershipMetric === false ? 0 : input.membershipRevenueCents,
+    showMembershipMetric: input.showMembershipMetric !== false,
     giftCardRevenueCents: input.giftCardRevenueCents,
   };
 }

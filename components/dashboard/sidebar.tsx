@@ -112,12 +112,14 @@ function NavLink({
 type SidebarProps = {
   userEmail?: string;
   showHq?: boolean;
+  showDeveloper?: boolean;
   className?: string;
   onNavigate?: () => void;
 };
 
 export function DashboardSidebar({
   showHq = false,
+  showDeveloper = false,
   className,
   onNavigate,
 }: SidebarProps) {
@@ -157,6 +159,14 @@ export function DashboardSidebar({
         ) : null}
 
         {DASHBOARD_NAV_GROUPS.map((group) => {
+          const items = group.items.filter((item) => {
+            if (item.href === "/dashboard/developer" && !showDeveloper) {
+              return false;
+            }
+            return true;
+          });
+          if (items.length === 0) return null;
+
           const collapsed = group.defaultCollapsed && !advancedExpanded;
           const isAdvanced = group.id === "advanced";
 
@@ -188,7 +198,7 @@ export function DashboardSidebar({
 
               {!collapsed ? (
                 <div className="space-y-0.5">
-                  {group.items.map((item) => (
+                  {items.map((item) => (
                     <NavLink
                       key={`${item.href}-${item.label}`}
                       item={item}
@@ -302,12 +312,14 @@ type MobileSidebarProps = {
   open: boolean;
   userEmail?: string;
   showHq?: boolean;
+  showDeveloper?: boolean;
   onClose: () => void;
 };
 
 export function MobileSidebar({
   open,
   showHq = false,
+  showDeveloper = false,
   onClose,
 }: MobileSidebarProps) {
   useEffect(() => {
@@ -351,7 +363,11 @@ export function MobileSidebar({
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <DashboardSidebar showHq={showHq} onNavigate={onClose} />
+        <DashboardSidebar
+          showHq={showHq}
+          showDeveloper={showDeveloper}
+          onNavigate={onClose}
+        />
       </div>
     </div>
   );

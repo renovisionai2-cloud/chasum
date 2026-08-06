@@ -24,7 +24,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 |----|------|--------|
 | 0 | Repository and product audit | Complete (approved foundation for program) |
 | 1 | Design system and portal foundation | **Approved** (`3682717`) |
-| 2 | Command Centre | **Complete — awaiting PO review** |
+| 2 | Command Centre | **Correction pass complete — awaiting PO review** |
 | 3 | Reception and calendar | Not started |
 | 4 | Customers | Not started |
 | 5 | Appointment workspace | Not started |

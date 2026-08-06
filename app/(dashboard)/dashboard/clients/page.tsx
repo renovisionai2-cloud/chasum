@@ -9,7 +9,7 @@ import { getChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CRM",
+  title: "Customers",
 };
 
 export default async function ClientsPage() {
@@ -24,8 +24,8 @@ export default async function ClientsPage() {
   return (
     <div className="ds-page">
       <PageHeader
-        title="CRM"
-        description="Customer source of truth — search, profiles, timeline, and Chase retention."
+        title="Customers"
+        description="Customer source of truth — search, profiles, timeline, and retention insights from Chase."
       />
       <ChaseCrmPanel analytics={chase} />
       <CrmManager customers={customers} staff={staff} locations={locations} />

@@ -4,6 +4,8 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { fetchAvailableSlots } from "@/lib/actions/scheduling";
 import { queryUtilizationProjection } from "@/lib/booking-engine";
+import { isActiveBooking } from "@/lib/commerce/recognize";
+import { businessDayBounds } from "@/lib/dashboard/appointments-today";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 
@@ -40,10 +42,14 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
   const supabase = await createClient();
 
   const now = new Date();
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date(now);
-  todayEnd.setHours(23, 59, 59, 999);
+  const locale = {
+    timezone: business.timezone,
+    currency: business.currency,
+  };
+  const { dayStart: todayStart, dayEnd: todayEnd } = businessDayBounds(
+    now,
+    locale,
+  );
   const dateStr = format(now, "yyyy-MM-dd");
   const dow = now.getDay();
 
@@ -124,7 +130,7 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
   ]);
 
   const rows = todayAppts ?? [];
-  const activeRows = rows.filter((a) => a.status !== "cancelled");
+  const activeRows = rows.filter((a) => isActiveBooking(a.status));
   const noShows = rows.filter((a) => a.status === "no_show").length;
   const customersToday = new Set(
     activeRows.map((a) => a.customer_id).filter(Boolean),
