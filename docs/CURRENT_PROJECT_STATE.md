@@ -155,6 +155,13 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-06)
 
+**Chapter 2 blocker — outstanding invoices SoT**
+
+- Reports executive “Outstanding invoices” now uses `getCommerceDashboardSnapshot().outstandingInvoicesCents` (same as Payments / Command Centre)
+- Removed legacy `customer_payment_events` pending sum that showed CA$0 while Payments showed real balances
+
+### Immediately prior (2026-08-06)
+
 **World Class Execution — Chapter 2 correction pass**
 
 - Reconciled appointments today (exclude no_show + business TZ) across CC / Reception / Reports

@@ -46,6 +46,29 @@ describe("Financial terminology surfaces", () => {
     expect(src).not.toMatch(/title="Membership revenue"/);
   });
 
+  it("Reports outstanding invoices use commerce SoT, not legacy pending payment events", () => {
+    const reportsAction = readFileSync(
+      join(process.cwd(), "lib/actions/reports.ts"),
+      "utf8",
+    );
+    expect(reportsAction).toMatch(
+      /outstandingInvoicesCents = commerce\.outstandingInvoicesCents/,
+    );
+    expect(reportsAction).not.toMatch(
+      /outstandingInvoicesCents = payments\s*\n\s*\.filter\(\(p\) => p\.status === "pending"\)/,
+    );
+    const paymentsUi = readFileSync(
+      join(process.cwd(), "components/commerce/payments-dashboard.tsx"),
+      "utf8",
+    );
+    expect(paymentsUi).toMatch(/outstandingInvoicesCents/);
+    const cc = readFileSync(
+      join(process.cwd(), "lib/actions/command-centre.ts"),
+      "utf8",
+    );
+    expect(cc).toMatch(/commerce\.outstandingInvoicesCount/);
+  });
+
   it("Command Centre attention areas are not labeled outstanding actions", () => {
     const src = readFileSync(
       join(process.cwd(), "components/dashboard/command-centre.tsx"),

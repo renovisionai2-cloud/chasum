@@ -148,13 +148,16 @@ Currency: **business.currency** via `formatMoneyCents` (GVM → CAD when configu
 
 | Field | Value |
 |-------|--------|
-| **Name** | Outstanding invoices (count) |
-| **Business meaning** | Open commerce invoices plus synthetic open balances from unpaid appointments without matching invoice |
-| **Data source** | Commerce snapshot `outstandingInvoicesCount` |
+| **Name** | Outstanding invoices (balance + count) |
+| **Business meaning** | Total remaining balance on open commerce invoices **plus** unpaid/partial booking balances without a matching open invoice |
+| **Data source** | **Authoritative:** `getCommerceDashboardSnapshot()` → `outstandingInvoicesCents` / `outstandingInvoicesCount` |
+| **Used by** | Payments dashboard · Command Centre attention · Reports executive |
+| **Date range** | Current open balances (not period-bound) |
 | **Location** | Business-wide |
-| **Status exclusions** | Cancelled appointments excluded from synthetic balances |
-| **UI** | Attention item when count > 0 and schema ready |
-| **Related** | Payments outstanding invoices |
+| **Included** | Commerce invoices with `balanceCents > 0` and status not paid/void/refunded; synthetic balances from appointments with payment_status unpaid/deposit_required/deposit_paid/partially_paid (non-cancelled) |
+| **Excluded** | Paid, void, refunded invoices; cancelled appointments; zero-balance rows |
+| **Do not use** | Legacy `customer_payment_events` with `status === "pending"` (caused Reports CA$0 while Payments showed real balances) |
+| **Related** | Outstanding deposits count may overlap conceptually with booking balances also surfaced as invoices |
 
 ### Outstanding deposits
 

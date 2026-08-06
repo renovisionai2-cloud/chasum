@@ -218,10 +218,6 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     .filter((m) => m.is_active)
     .reduce((s, m) => s + Number(m.price_cents ?? 0), 0);
 
-  const outstandingInvoicesCents = payments
-    .filter((p) => p.status === "pending")
-    .reduce((s, p) => s + p.amount_cents, 0);
-
   const activeEmployees = staff.filter((s) => s.is_active !== false).length;
 
   const locale = {
@@ -232,6 +228,10 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
   let paymentsTodayDollars: number | null = null;
   let paymentsWeekDollars: number | null = null;
   let paymentsMonthDollars: number | null = null;
+  /** Authoritative outstanding invoice balance — same as Payments / Command Centre. */
+  let outstandingInvoicesCents = 0;
+  let outstandingInvoicesCount = 0;
+  let outstandingInvoicesAvailable = false;
   try {
     const commerce = await getCommerceDashboardSnapshot(
       business.id,
@@ -242,6 +242,9 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
       paymentsTodayDollars = commerce.revenueTodayCents / 100;
       paymentsWeekDollars = commerce.revenueWeekCents / 100;
       paymentsMonthDollars = commerce.revenueMonthCents / 100;
+      outstandingInvoicesCents = commerce.outstandingInvoicesCents;
+      outstandingInvoicesCount = commerce.outstandingInvoicesCount;
+      outstandingInvoicesAvailable = true;
     }
   } catch (err) {
     logQueryError(
@@ -256,6 +259,8 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     customers,
     activeEmployees,
     outstandingInvoicesCents,
+    outstandingInvoicesCount,
+    outstandingInvoicesAvailable,
     membershipRevenueCents,
     giftCardRevenueCents,
     locale,

@@ -283,9 +283,19 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             />
             <StatCard
               title="Outstanding invoices"
-              value={$c(e.outstandingInvoicesCents)}
+              value={
+                e.outstandingInvoicesAvailable
+                  ? $c(e.outstandingInvoicesCents)
+                  : "Unavailable"
+              }
               icon={FileSpreadsheet}
               accent="warning"
+              href="/dashboard/payments"
+              description={
+                e.outstandingInvoicesAvailable
+                  ? `${e.outstandingInvoicesCount} open · same as Payments`
+                  : "Commerce ledger unavailable"
+              }
             />
             {e.showMembershipMetric ? (
               <StatCard
@@ -303,11 +313,12 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Gross payments collected match Command Centre and Payments (commerce
-            ledger). Appointment counts use business timezone and exclude
-            cancelled / no-show. Inventory reporting is Coming Soon. Membership
-            collected revenue is Beta and hidden until billing lifecycle is
-            complete. Deeper BI redesign is Chapter 10.
+            Gross payments collected and outstanding invoice balances match
+            Command Centre and Payments (commerce ledger — open invoices plus
+            unpaid booking balances). Appointment counts use business timezone
+            and exclude cancelled / no-show. Inventory reporting is Coming Soon.
+            Membership collected revenue is Beta and hidden until billing
+            lifecycle is complete. Deeper BI redesign is Chapter 10.
           </p>
         </div>
       ) : null}

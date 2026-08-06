@@ -143,6 +143,8 @@ export function buildExecutive(input: {
   customers: ReportCustomerRow[];
   activeEmployees: number;
   outstandingInvoicesCents: number;
+  outstandingInvoicesCount?: number;
+  outstandingInvoicesAvailable?: boolean;
   membershipRevenueCents: number;
   giftCardRevenueCents: number;
   /** Business timezone for appointments-today (authoritative). */
@@ -212,6 +214,8 @@ export function buildExecutive(input: {
     returningCustomers: returning.size,
     activeEmployees: input.activeEmployees,
     outstandingInvoicesCents: input.outstandingInvoicesCents,
+    outstandingInvoicesCount: input.outstandingInvoicesCount ?? 0,
+    outstandingInvoicesAvailable: input.outstandingInvoicesAvailable === true,
     membershipRevenueCents:
       input.showMembershipMetric === false ? 0 : input.membershipRevenueCents,
     showMembershipMetric: input.showMembershipMetric !== false,

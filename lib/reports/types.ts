@@ -40,7 +40,10 @@ export type ExecutiveDashboard = {
   newCustomers: number;
   returningCustomers: number;
   activeEmployees: number;
+  /** Commerce SoT — same as Payments / Command Centre (cents). */
   outstandingInvoicesCents: number;
+  outstandingInvoicesCount: number;
+  outstandingInvoicesAvailable: boolean;
   membershipRevenueCents: number;
   showMembershipMetric: boolean;
   giftCardRevenueCents: number;

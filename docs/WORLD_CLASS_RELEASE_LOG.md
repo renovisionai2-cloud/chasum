@@ -22,6 +22,7 @@
 | 2026-08-05 | Chapter 1 Preview URL stamp | `3682717` | https://chasum-9j1con47j-renovisionappcom.vercel.app | Approved Ch1 tip for Chapter 2 baseline |
 | 2026-08-05 | **Chapter 2 — Command Centre** | `20e0c89` | https://chasum-q4yk6yain-renovisionappcom.vercel.app (SSO-protected Preview; Ready; dpl_D8FTLscJpa1LoXh2NJaaitCbrw2b) | Action-first CC; payments collected SoT; data dictionary; no fake metrics |
 | 2026-08-06 | **Chapter 2 correction pass** | `0880683` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (SSO; tracks tip). Unique deployment URL pending Vercel CLI auth refresh. | Appointments/payments reconciliation; Gross payments; Summer title; AI Workforce preview; Reports Inventory/Memberships; Developer gate |
+| 2026-08-06 | **Chapter 2 blocker — outstanding invoices** | _(after push)_ | Branch Preview alias tracks tip | Reports outstanding invoices now use commerce SoT (same as Payments / CC) |
 
 ---
 
