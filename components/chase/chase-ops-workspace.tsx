@@ -117,11 +117,15 @@ export function ChaseOpsWorkspace({
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <Metric
             label="Today's revenue"
-            value={money(kpis.todayRevenue)}
+            value={
+              kpis.todayRevenue != null ? money(kpis.todayRevenue) : "Unavailable"
+            }
             hint={
-              kpis.revenueWeekDeltaPct != null
-                ? `Week ${kpis.revenueWeekDeltaPct >= 0 ? "+" : ""}${kpis.revenueWeekDeltaPct}% vs prior`
-                : undefined
+              kpis.todayRevenue == null
+                ? "Not computed on Reception — use Payments / Reports"
+                : kpis.revenueWeekDeltaPct != null
+                  ? `Week ${kpis.revenueWeekDeltaPct >= 0 ? "+" : ""}${kpis.revenueWeekDeltaPct}% vs prior`
+                  : undefined
             }
           />
           <Metric
@@ -142,8 +146,16 @@ export function ChaseOpsWorkspace({
           />
           <Metric
             label="Available capacity"
-            value={String(kpis.availableCapacitySlots)}
-            hint="Open slots (engine)"
+            value={
+              kpis.availableCapacitySlots != null
+                ? String(kpis.availableCapacitySlots)
+                : "Unavailable"
+            }
+            hint={
+              kpis.availableCapacitySlots == null
+                ? "Unique slot totals are not computed — open booking for Availability Engine openings"
+                : "Open slots (engine)"
+            }
           />
           <Metric label="No-shows" value={String(kpis.noShows)} />
           <Metric

@@ -144,7 +144,7 @@ export function buildChaseInsights(input: {
     const hasActivity =
       kpis.todayAppointments > 0 ||
       kpis.weekBookings > 0 ||
-      kpis.todayRevenue > 0;
+      (kpis.todayRevenue != null && kpis.todayRevenue > 0);
     if (!hasActivity) {
       list.push(
         insight(
@@ -176,7 +176,8 @@ export function buildChaseAlerts(input: {
   pendingConfirmations: number;
   outstandingDeposits: number;
   cancellationRatePct: number | null;
-  availableSlots: number;
+  /** Null = capacity not measured; do not invent open-slot alerts. */
+  availableSlots: number | null;
   todayAppointments: number;
   staffWorking: number;
   revenueWeekDeltaPct: number | null;
@@ -207,7 +208,11 @@ export function buildChaseAlerts(input: {
     });
   }
 
-  if (input.availableSlots >= 8 && input.todayAppointments < Math.max(2, input.staffWorking)) {
+  if (
+    input.availableSlots != null &&
+    input.availableSlots >= 8 &&
+    input.todayAppointments < Math.max(2, input.staffWorking)
+  ) {
     alerts.push({
       id: "low-friday-capacity",
       title: "Low utilization with open capacity",

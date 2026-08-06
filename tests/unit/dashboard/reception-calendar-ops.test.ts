@@ -6,12 +6,19 @@ import {
   paymentReadinessFromStatus,
   paymentReadinessLabel,
   sortAppointmentsChronologically,
+  sortStaffForBoardFilter,
 } from "@/lib/dashboard/appointment-ops";
+import {
+  ASSIGN_LATER_COMING_SOON_LABEL,
+  OPTIONAL_STAFF_PERSISTENCE_ENABLED,
+  UNASSIGNED_ASSIGN_LATER_LABEL,
+} from "@/lib/booking/optional-staff";
 import {
   businessDayBounds,
   countAppointmentsToday,
 } from "@/lib/dashboard/appointments-today";
-import { OPTIONAL_STAFF_PERSISTENCE_ENABLED } from "@/lib/booking/optional-staff";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const TORONTO = { timezone: "America/Toronto", currency: "CAD" };
 
@@ -109,5 +116,66 @@ describe("Reception appointment ops", () => {
 
   it("documents unassigned create as gated by default", () => {
     expect(OPTIONAL_STAFF_PERSISTENCE_ENABLED).toBe(false);
+    expect(ASSIGN_LATER_COMING_SOON_LABEL).toMatch(/coming soon/i);
+    expect(UNASSIGNED_ASSIGN_LATER_LABEL).toMatch(/assign later/i);
+  });
+
+  it("orders employee filter: named A–Z then Unassigned last in options contract", () => {
+    const ordered = sortStaffForBoardFilter([
+      { id: "2", name: "Zoe" },
+      { id: "1", name: "Alex" },
+    ]);
+    expect(ordered.map((s) => s.name)).toEqual(["Alex", "Zoe"]);
+    // Filter option contract: all → named alpha → unassigned (asserted in component order)
+    const rows = [
+      { id: "u", staff_id: null, status: "confirmed" },
+      { id: "a", staff_id: "1", status: "confirmed" },
+    ];
+    expect(
+      filterAppointmentsForBoard(rows, {
+        staffId: "unassigned",
+        status: "all",
+      }).map((r) => r.id),
+    ).toEqual(["u"]);
+  });
+
+  it("does not expose fake Reception slot or revenue metrics in morning brief UI", () => {
+    const briefUi = readFileSync(
+      join(process.cwd(), "components/day-view/morning-brief.tsx"),
+      "utf8",
+    );
+    expect(briefUi).not.toMatch(/availableSlots/);
+    expect(briefUi).not.toMatch(/todayRevenue/);
+    expect(briefUi).not.toMatch(/\bRevenue\b/);
+    expect(briefUi).toMatch(/Availability slot totals are not shown/);
+
+    const filtersUi = readFileSync(
+      join(process.cwd(), "components/calendar/calendar-filters.tsx"),
+      "utf8",
+    );
+    expect(filtersUi).toMatch(
+      /All employees[\s\S]*sortStaffForBoardFilter[\s\S]*value="unassigned"/,
+    );
+  });
+
+  it("resources empty-state and locations architecture docs exist", () => {
+    const arch = readFileSync(
+      join(process.cwd(), "docs/WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md"),
+      "utf8",
+    );
+    expect(arch).toMatch(/Business\s*\n\s*→ Location/i);
+    expect(arch).toMatch(/REQUIRED BEFORE PUBLIC LAUNCH/);
+    expect(arch).toMatch(/Chapter 9/);
+
+    const resourcesUi = readFileSync(
+      join(
+        process.cwd(),
+        "components/calendar/calendar-views-extended.tsx",
+      ),
+      "utf8",
+    );
+    expect(resourcesUi).toMatch(/Resources are not active yet/);
+    expect(resourcesUi).toMatch(/View business locations/);
+    expect(resourcesUi).not.toMatch(/Add Resource/);
   });
 });

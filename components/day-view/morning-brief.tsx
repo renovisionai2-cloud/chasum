@@ -73,7 +73,7 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
-          <p className="ds-label">Reception</p>
+          <p className="ds-label">Today’s operating centre</p>
           <h2 className="text-base font-semibold tracking-tight sm:text-lg">
             {brief.dateLabel}
           </h2>
@@ -123,6 +123,13 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
           tone="default"
         />
         <Metric
+          label="Payment due"
+          value={String(s.paymentAttention)}
+          hint="From payment status"
+          icon={Wallet}
+          tone={s.paymentAttention > 0 ? "warning" : "default"}
+        />
+        <Metric
           label="Checked in"
           value={String(s.checkedIn)}
           icon={CheckCircle2}
@@ -156,17 +163,17 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
           icon={Users}
           tone={s.unassigned > 0 ? "warning" : "default"}
         />
-        <Metric
-          label="Payment due"
-          value={String(s.paymentAttention)}
-          hint="From payment status"
-          icon={Wallet}
-          tone={s.paymentAttention > 0 ? "warning" : "default"}
-        />
       </div>
 
       <div className="grid gap-2 md:grid-cols-2">
-        <div className="rounded-[var(--radius-md)] border border-border bg-background/70 px-3 py-2.5">
+        <div
+          className={cn(
+            "rounded-[var(--radius-md)] border bg-background/70 px-3 py-2.5",
+            brief.attention.length > 0
+              ? "border-amber-500/40"
+              : "border-border",
+          )}
+        >
           <p className="text-xs font-semibold">Attention required</p>
           {brief.attention.length === 0 ? (
             <p className="mt-1 flex items-center gap-2 text-sm text-success">

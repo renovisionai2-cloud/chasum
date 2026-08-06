@@ -239,11 +239,12 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
   const revenueWeekDeltaPct = deltaPct(weekUtil.revenue, priorWeekUtil.revenue);
 
   const kpis: ChaseKpis = {
+    // Reception brief does not compute revenue or unique capacity — never show 0 as verified.
     todayRevenue: brief.todayRevenue,
     todayAppointments: brief.todayAppointments,
     weekBookings: weekUtil.appointmentCount,
     staffUtilizationPct,
-    availableCapacitySlots: brief.availableSlots ?? 0,
+    availableCapacitySlots: brief.availableSlots,
     noShows: appt.noShows,
     cancellationRatePct: cancelRate,
     repeatCustomerRatePct: crm.retention.repeatBookingRate,
@@ -355,7 +356,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     pendingConfirmations: brief.pendingConfirmations,
     outstandingDeposits: brief.outstandingPayments,
     cancellationRatePct: cancelRate,
-    availableSlots: brief.availableSlots ?? 0,
+    availableSlots: brief.availableSlots,
     todayAppointments: brief.todayAppointments,
     staffWorking: brief.staffWorking,
     revenueWeekDeltaPct,

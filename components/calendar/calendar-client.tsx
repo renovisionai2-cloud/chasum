@@ -67,16 +67,9 @@ import type { BookingDraft } from "@/lib/booking/booking-draft";
 import {
   formatCalendarDateParam,
 } from "@/lib/calendar/date-param";
+import { getCalendarViewRange } from "@/lib/calendar/view-range";
 import { parseISO } from "@/lib/calendar/utils";
-import {
-  endOfDay,
-  endOfMonth,
-  endOfWeek,
-  format,
-  startOfDay,
-  startOfMonth,
-  startOfWeek,
-} from "date-fns";
+import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -118,30 +111,6 @@ type CalendarClientProps = {
   appointmentIntervalMinutes?: number;
 };
 
-function getRange(view: CalendarView, date: Date) {
-  switch (view) {
-    case "day":
-    case "timeline":
-    case "employees":
-    case "locations":
-    case "resource":
-      return { start: startOfDay(date), end: endOfDay(date) };
-    case "week":
-    case "agenda":
-      return {
-        start: startOfWeek(date, { weekStartsOn: 0 }),
-        end: endOfWeek(date, { weekStartsOn: 0 }),
-      };
-    case "month":
-      return {
-        start: startOfMonth(date),
-        end: endOfMonth(date),
-      };
-    default:
-      return { start: startOfDay(date), end: endOfDay(date) };
-  }
-}
-
 export function CalendarClient({
   appointments: serverAppointments,
   services,
@@ -163,6 +132,10 @@ export function CalendarClient({
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const locale = useMemo(
+    () => ({ timezone: timezone ?? null, currency: currency ?? null }),
+    [timezone, currency],
+  );
   const [view, setView] = useState<CalendarView>(initialView);
   const [date, setDate] = useState(new Date(initialDate));
   const [colorMode, setColorMode] = useState<CalendarColorMode>("service");
@@ -457,7 +430,7 @@ export function CalendarClient({
 
   function handleViewChange(newView: CalendarView) {
     setView(newView);
-    const range = getRange(newView, date);
+    const range = getCalendarViewRange(newView, date, locale);
     router.replace(
       `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(range.start)}`,
       { scroll: false },
@@ -466,7 +439,7 @@ export function CalendarClient({
 
   function handleDateChange(newDate: Date) {
     setDate(newDate);
-    const range = getRange(view, newDate);
+    const range = getCalendarViewRange(view, newDate, locale);
     router.replace(
       `/dashboard/calendar?view=${view}&date=${formatCalendarDateParam(range.start)}`,
       { scroll: false },

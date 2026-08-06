@@ -67,7 +67,7 @@ AI Business Manager · Appointment Scheduling · CRM · Customer Communication �
 
 | Chip | Reusable capability today | Gap |
 |------|---------------------------|-----|
-| Appointment Scheduling | Fully supported (assigned employee); Reception/Calendar Ch3 ops UI | Unassigned create gated (034); travel-time automation absent |
+| Appointment Scheduling | Fully supported (assigned employee); Reception/Calendar Ch3 ops UI; business-TZ day/week/month ranges | Unassigned create gated (034); Resources empty until Ch9; travel-time automation absent |
 | CRM / Communication / Team | Fully / partial | Staff login Coming Next |
 | Payments | Manual AT; card Coming Next | “Online” overclaim |
 | Reporting | Foundations | Advanced undefined |

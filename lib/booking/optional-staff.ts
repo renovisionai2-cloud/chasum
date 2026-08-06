@@ -13,6 +13,12 @@ export const OPTIONAL_STAFF_PERSISTENCE_ENABLED =
 export const RECEPTION_EMPLOYEE_REQUIRED_MESSAGE =
   "Please select an employee to complete this booking. Assign-later booking will be available after the scheduling update is activated.";
 
+/** Select option label when create-without-employee is not production-ready. */
+export const ASSIGN_LATER_COMING_SOON_LABEL = "Assign later — coming soon";
+
+/** Select option when optional staff persistence is enabled. */
+export const UNASSIGNED_ASSIGN_LATER_LABEL = "Unassigned — assign later";
+
 /** Customer-facing public booking. */
 export const PUBLIC_ANY_STAFF_UNAVAILABLE_MESSAGE =
   "Please choose a team member to finish booking. Booking with any available staff will be available soon.";

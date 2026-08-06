@@ -27,13 +27,13 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 0 | Repository and product audit | Complete (approved foundation for program) |
 | 1 | Design system and portal foundation | **Approved** (`3682717`) |
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
-| 3 | Reception and calendar | **Complete — awaiting PO review** |
+| 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers | Not started |
 | 5 | Appointment workspace | Not started |
 | 6 | Sales, payments, invoices, receipts | Not started |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
-| 9 | Business setup and settings | Not started |
+| 9 | **Business Structure Engine** (locations, resources, service requirements) | Not started — architecture documented |
 | 10 | Business intelligence | Not started |
 | 11 | Growth and retention | Not started |
 | 12 | Summer AI Business Manager | Not started |
@@ -152,8 +152,20 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 3 status
 
-**Complete — awaiting PO review.** Reception + Calendar share LocationScope + appointment-ops SoT; Reception brief rebuilt; misleading slot/revenue KPIs removed; employee/status filters; payment readiness on day + mobile agenda; unassigned create remains gated. Data dictionary: [`WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`](./WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md).
+**Correction pass complete — awaiting PO review.** Business-TZ ranges for day/week/month; unassigned create shows coming-soon (disabled); employee filter order fixed; Chase capacity/revenue Unavailable; Resources empty state truthful; architecture doc for Chapter 9. Data dictionary: [`WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`](./WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md). Locations/Resources: [`WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md`](./WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md).
+
+## Chapter 9 — Business Structure Engine (planning)
+
+Expand beyond “basic setup” into:
+
+- Location CRUD, archive, hours, timezone, contacts, staff, services, taxes, notifications, plan limits  
+- Resource CRUD, types, location relationships, availability, blocking, maintenance  
+- Service booking requirements (person / place / equipment combinations)  
+- Capacity and multi-resource conflicts  
+- Permissions  
+
+**Do not implement in Chapters 3–8.** Architecture locked in [`WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md`](./WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md) as **REQUIRED BEFORE PUBLIC LAUNCH**.
 
 ## Next step after PO approval
 
-Begin **Execution Chapter 4 — Customers** only after PO approves Chapter 3. Do not start Chapter 4 until then.
+Begin **Execution Chapter 4 — Customers** only after PO approves Chapter 3 (including this correction pass). Do not start Chapter 4 until then.

@@ -35,7 +35,15 @@ Same definition as Command Centre / Reports:
 
 Helper: `countAppointmentsToday` / `countDailyStatuses`.
 
-Cancelled and no-show still appear in status breakdown and attention where applicable.
+### Calendar view ranges
+
+`getCalendarViewRange` (`lib/calendar/view-range.ts`):
+
+| View | Bounds |
+|------|--------|
+| Day / Timeline / Employees / Locations / Resources | `startOfBusinessDay` … `endOfBusinessDay` |
+| Week / Agenda | `startOfBusinessWeek` … `endOfBusinessWeek` (Sun–Sat business TZ) |
+| Month | `startOfBusinessMonth` … `endOfBusinessMonth` |
 
 ---
 
@@ -43,10 +51,10 @@ Cancelled and no-show still appear in status breakdown and attention where appli
 
 | Filter | Values | Notes |
 |--------|--------|-------|
-| Location | Header LocationSwitcher | Cookie `chasum_location_scope`; not duplicated in board bar |
-| Employee | All / Unassigned / named staff | Client filter over loaded range |
+| Location | Header LocationSwitcher | Cookie `chasum_location_scope` |
+| Employee | All → named A–Z → **Unassigned last** | Client filter; Unassigned is view-only for existing rows |
 | Status | All / Active only / each status | Active = `isActiveBooking` |
-| Date | Toolbar | Day uses business-TZ server range |
+| Date | Toolbar | Business-TZ server fetch window |
 
 Empty filter match shows reset CTA — never replaces failed queries with zero.
 
@@ -71,9 +79,9 @@ Do **not** invent revenue on Reception/Calendar.
 
 Reception does **not** display a unique “available slots” total.
 
-Openings are shown only via Availability Engine in the booking sheet (service + employee + date + location + timezone).
+Openings are shown only via Availability Engine in the booking sheet.
 
-`MorningBriefData.availableSlots` remains `null` for honesty; Chase consumers coalesce to `0` and must not treat that as verified capacity.
+`MorningBriefData.availableSlots` and `todayRevenue` remain **`null`**. Chase shows **Unavailable** — never coerce to verified zero.
 
 ---
 
@@ -82,9 +90,9 @@ Openings are shown only via Availability Engine in the booking sheet (service + 
 | Capability | Status |
 |------------|--------|
 | Display unassigned column / cards | Supported |
-| Filter board to Unassigned | Supported |
-| Reschedule onto Unassigned | Supported when engine allows |
+| Filter board to Unassigned | Supported (option last) |
 | Create booking without employee | **Blocked** unless `CHASUM_OPTIONAL_STAFF_ENABLED=true` |
+| Create UI when blocked | Disabled option: **Assign later — coming soon** |
 | Fake “Any employee” | Not offered |
 
 ---
@@ -93,24 +101,23 @@ Openings are shown only via Availability Engine in the booking sheet (service + 
 
 - Hard: `validate_appointment_slot` RPC for named staff  
 - Soft: room conflicts, external calendar busy where configured  
-- Outside hours / availability: compose + enrich layers  
-- Multi-location same employee: engine overlap rules; travel time **not** auto-blocked  
-
-Documented gaps: travel-time between locations not auto-blocked.
+- Travel-time between locations: **not** auto-blocked  
 
 ---
 
 ## Communication indicators
 
-Reception drawer does not claim message history.
-
-Failed sends today surface in Attention (business-wide `notification_logs` for the day).
-
-Authoritative delivery log: `/dashboard/notifications`  
-Full send/retry: BookingSheet communications section.
+Reception drawer does not claim message history. Failed sends surface in Attention. Authoritative log: `/dashboard/notifications`.
 
 ---
 
 ## Permissions (current)
 
-Floor actions require authenticated business membership. Fine-grained receptionist vs technician gates are **not** shipped (Chapter 8). Do not treat UI-only hiding as security.
+Auth + business membership only. Fine-grained roles: Chapter 8.
+
+---
+
+## Locations & Resources (future)
+
+See [`WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md`](./WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md).  
+Calendar Resources view: truthful empty state → `/dashboard/business?tab=locations`. Implementation: **Chapter 9**.

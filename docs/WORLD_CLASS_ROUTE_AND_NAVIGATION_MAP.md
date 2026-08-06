@@ -48,12 +48,12 @@
 | Concept | Current truthful route | Status |
 |---------|------------------------|--------|
 | Command Centre | `/dashboard` | Label live; depth Ch 2 |
-| Reception / Calendar | `/dashboard/calendar` | **Chapter 3** — shared SoT with CC; filters; honest brief |
+| Reception / Calendar | `/dashboard/calendar` | **Chapter 3** — Day = operating centre; Week/Month = planning; Resources empty → Business Locations |
 | Customers | `/dashboard/clients` | Strong |
 | Sales and Payments | `/dashboard/payments` | Strong (manual-first honesty) |
 | Communications | `/dashboard/notifications` | Partial |
 | Employees and Team | `/dashboard/employees` | Strong directory |
-| Business Operations | `/dashboard/business` | Mega-hub |
+| Business Operations | `/dashboard/business` | Mega-hub · Locations tab is current location management (Ch9 expands Resources) |
 | Business Intelligence | `/dashboard/reports` | Partial |
 | Growth | Automations / packages / gift cards in hubs | Partial — no fake Growth page |
 | Summer | `/dashboard/ai-workforce/summer` | Early Access |

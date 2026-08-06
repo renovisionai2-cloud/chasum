@@ -38,6 +38,25 @@ const viewTabs = [
   { id: "resource", label: "Resources" },
 ];
 
+function viewContextHint(view: CalendarView): string {
+  switch (view) {
+    case "day":
+    case "timeline":
+    case "employees":
+      return "Reception floor — today’s operating queue.";
+    case "week":
+    case "month":
+    case "agenda":
+      return "Calendar planning — schedule across dates.";
+    case "locations":
+      return "Appointments by location for the selected day.";
+    case "resource":
+      return "Resource scheduling is not active yet.";
+    default:
+      return "Same appointments as Reception — change view to plan or operate.";
+  }
+}
+
 function getTitle(view: CalendarView, date: Date): string {
   switch (view) {
     case "day":
@@ -77,7 +96,8 @@ export function CalendarToolbar({
   canDuplicate,
 }: CalendarToolbarProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap items-center gap-2">
         <Button
           variant="outline"
@@ -177,12 +197,18 @@ export function CalendarToolbar({
             <span className="sm:hidden">Customer</span>
           </Button>
         ) : null}
-        <Button size="sm" onClick={onNewAppointment}>
+        <Button
+          size="sm"
+          className="min-h-[var(--touch-min)] font-semibold shadow-sm"
+          onClick={onNewAppointment}
+        >
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">New appointment</span>
           <span className="sm:hidden">New</span>
         </Button>
       </div>
+      </div>
+      <p className="text-[11px] text-muted-foreground">{viewContextHint(view)}</p>
     </div>
   );
 }

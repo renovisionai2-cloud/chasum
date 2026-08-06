@@ -27,6 +27,8 @@ import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
   RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
+  ASSIGN_LATER_COMING_SOON_LABEL,
+  UNASSIGNED_ASSIGN_LATER_LABEL,
   isUnassignedStaffSelection,
 } from "@/lib/booking/optional-staff";
 import { resolveBookingDuration } from "@/lib/booking/resolved-duration";
@@ -1026,8 +1028,21 @@ export function QuickAppointmentForm({
                 writeBookingPreferences({ staffId: e.target.value || undefined });
               }}
             >
-              <option value="">Unassigned — assign later</option>
-              {eligibleStaff.map((m) => (
+              <option
+                value=""
+                disabled={!OPTIONAL_STAFF_PERSISTENCE_ENABLED}
+              >
+                {OPTIONAL_STAFF_PERSISTENCE_ENABLED
+                  ? UNASSIGNED_ASSIGN_LATER_LABEL
+                  : ASSIGN_LATER_COMING_SOON_LABEL}
+              </option>
+              {[...eligibleStaff]
+                .sort((a, b) =>
+                  a.name.localeCompare(b.name, undefined, {
+                    sensitivity: "base",
+                  }),
+                )
+                .map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
                 </option>
@@ -1041,7 +1056,9 @@ export function QuickAppointmentForm({
               <p className="text-[11px] text-muted-foreground">
                 {eligibleStaff.length === 0
                   ? "No employees are assigned to this service yet."
-                  : "Choose an employee, or leave unassigned."}
+                  : OPTIONAL_STAFF_PERSISTENCE_ENABLED
+                    ? "Choose an employee, or leave unassigned."
+                    : "Select an employee to complete the booking."}
               </p>
             )}
           </div>

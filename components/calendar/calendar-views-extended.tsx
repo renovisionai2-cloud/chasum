@@ -14,6 +14,7 @@ import type {
 } from "@/lib/types/booking";
 import { format, startOfWeek, addDays } from "date-fns";
 import { Calendar } from "lucide-react";
+import Link from "next/link";
 
 type BaseProps = {
   date: Date;
@@ -97,8 +98,14 @@ export function TimelineView({
       <p className="text-sm font-semibold">
         Timeline · {format(date, "EEEE, MMM d")}
       </p>
+      <p className="text-xs text-muted-foreground">
+        Chronological list for this day — same appointments as Day view.
+      </p>
       {dayItems.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No appointments today.</p>
+        <p className="text-sm text-muted-foreground">
+          No appointments on this day for the current filters and location
+          scope.
+        </p>
       ) : (
         <ol className="relative space-y-4 border-l border-border pl-4">
           {dayItems.map((appt) => (
@@ -145,9 +152,16 @@ export function ResourceView({
       <EmptyState
         variant="panel"
         glyph={Calendar}
-        title="Resource scheduling"
-        description="Resource scheduling is not enabled for this business."
-      />
+        title="Resources are not active yet"
+        description="Resources are bookable places, equipment, or capacity that belong to a Location — for example rooms, treatment chairs, ultrasound machines, service bays, desks, or vehicles. Resource scheduling is not enabled for this business yet. Manage Locations under Business until the Business Structure Engine ships."
+      >
+        <Link
+          href="/dashboard/business?tab=locations"
+          className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-background px-3 text-sm font-medium hover:bg-muted ds-focus-ring"
+        >
+          View business locations
+        </Link>
+      </EmptyState>
     );
   }
 

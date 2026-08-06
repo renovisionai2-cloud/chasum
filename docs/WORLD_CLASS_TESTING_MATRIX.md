@@ -167,6 +167,19 @@
 | Automated tests | `tests/unit/dashboard/reception-calendar-ops.test.ts` |
 | Approval | Awaiting PO |
 
+### Chapter 3 correction pass
+
+| Check | Result |
+|-------|--------|
+| Week/month TZ | `getCalendarViewRange` business-TZ bounds |
+| Unassigned create UI | Disabled “Assign later — coming soon” when flag off |
+| Employee filter order | All → A–Z → Unassigned |
+| Chase placeholders | Null / Unavailable — not verified zero |
+| Resources empty | Truthful + View business locations |
+| Architecture doc | `WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md` |
+| Automated tests | `view-range.test.ts` + expanded `reception-calendar-ops.test.ts` |
+| Approval | Awaiting PO |
+
 ### Permanent quality rule
 
 No chapter may introduce additional lint errors/warnings, failing tests, typecheck failures, or build failures. Report inherited / new / resolved each chapter.

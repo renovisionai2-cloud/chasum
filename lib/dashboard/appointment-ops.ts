@@ -174,6 +174,14 @@ export function sortAppointmentsChronologically<
   );
 }
 
+export function sortStaffForBoardFilter<T extends { name: string }>(
+  staff: T[],
+): T[] {
+  return [...staff].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+  );
+}
+
 /** Calendar board filters — employee + status (location via LocationScope cookie). */
 export type CalendarBoardStaffFilter = "all" | "unassigned" | (string & {});
 export type CalendarBoardStatusFilter = "all" | "active" | AppointmentStatus;

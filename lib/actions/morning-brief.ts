@@ -37,7 +37,8 @@ export type MorningBriefData = {
   attention: ReceptionAttentionItem[];
   /** @deprecated Misleading unique capacity — omit from UI; kept for type compat */
   availableSlots: number | null;
-  todayRevenue: number;
+  /** @deprecated Never display as verified revenue — always null from Reception brief */
+  todayRevenue: number | null;
   noShows: number;
   outstandingPayments: number;
   pendingConfirmations: number;
@@ -291,7 +292,7 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
     waitlistCount: waitlistCount ?? 0,
     attention,
     availableSlots: null,
-    todayRevenue: 0,
+    todayRevenue: null,
     noShows,
     outstandingPayments,
     pendingConfirmations: pendingCount ?? 0,

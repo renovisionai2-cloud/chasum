@@ -5,6 +5,7 @@ import { Sheet } from "@/components/ui/sheet";
 import {
   calendarBoardFiltersAreActive,
   DEFAULT_CALENDAR_BOARD_FILTERS,
+  sortStaffForBoardFilter,
   type CalendarBoardFilters,
   type CalendarBoardStaffFilter,
   type CalendarBoardStatusFilter,
@@ -70,12 +71,12 @@ function FilterFields({
           }
         >
           <option value="all">All employees</option>
-          <option value="unassigned">Unassigned</option>
-          {staff.map((member) => (
+          {sortStaffForBoardFilter(staff).map((member) => (
             <option key={member.id} value={member.id}>
               {member.name}
             </option>
           ))}
+          <option value="unassigned">Unassigned</option>
         </select>
       </div>
       <div className="min-w-[10rem] flex-1 space-y-1">

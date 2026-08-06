@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-06  
-**Updated by:** World Class Execution Program — Chapter 3 Reception & Calendar (Preview only; Production unchanged)  
+**Updated by:** World Class Execution Program — Chapter 3 correction pass (Preview only; Production unchanged)  
 
 ---
 
@@ -155,21 +155,28 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-06)
 
+**World Class Execution — Chapter 3 correction pass**
+
+- Business-TZ week/month/agenda ranges via `getCalendarViewRange`
+- Unassigned create: disabled “Assign later — coming soon” (flag off)
+- Employee filter: All → named A–Z → Unassigned
+- Chase: capacity/revenue Unavailable (no fake zeros)
+- Resources empty state + Locations/Resources architecture (Ch9)
+- **Chapter 4 not started**
+
+### Immediately prior (2026-08-06)
+
 **World Class Execution — Chapter 3 Reception and Calendar**
 
-- Shared `appointment-ops` SoT (status meanings, payment readiness, board filters)
-- Reception Morning Brief: status grid, attention, LocationScope-aligned counts; no fake slot/revenue KPIs
-- Calendar employee/status filters (desktop + mobile sheet); payment chips on day cards + mobile agenda
-- Docs: `WORLD_CLASS_RECEPTION_CALENDAR_BLUEPRINT.md`, `WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`
-- Unassigned create remains gated — not claimed complete
-- **Chapter 4 not started**
+- Shared `appointment-ops` SoT; Reception Morning Brief; calendar filters; payment readiness
+- Docs: Reception/Calendar blueprint + data dictionary
+- Feature commit `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app
 
 ### Immediately prior (2026-08-06)
 
 **Chapter 2 blocker — outstanding invoices SoT**
 
-- Reports executive “Outstanding invoices” now uses `getCommerceDashboardSnapshot().outstandingInvoicesCents` (same as Payments / Command Centre)
-- Removed legacy `customer_payment_events` pending sum that showed CA$0 while Payments showed real balances
+- Reports outstanding invoices use commerce SoT
 
 ### Immediately prior (2026-08-06)
 

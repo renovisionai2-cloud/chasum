@@ -23,11 +23,13 @@ export type ChaseAlert = {
 };
 
 export type ChaseKpis = {
-  todayRevenue: number;
+  /** Null when Reception does not compute a verified revenue figure. */
+  todayRevenue: number | null;
   todayAppointments: number;
   weekBookings: number;
   staffUtilizationPct: number | null;
-  availableCapacitySlots: number;
+  /** Null when unique capacity slots are not computed (never treat as verified 0). */
+  availableCapacitySlots: number | null;
   noShows: number;
   cancellationRatePct: number | null;
   repeatCustomerRatePct: number | null;

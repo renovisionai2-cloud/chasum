@@ -4,6 +4,7 @@
  */
 
 import { getBusinessTimezone, type BusinessLocaleInput } from "@/lib/locale";
+import { addDays } from "date-fns";
 
 function partsInZone(date: Date, timeZone: string) {
   const dtf = new Intl.DateTimeFormat("en-US", {
@@ -126,6 +127,15 @@ export function startOfBusinessWeek(
   return zonedTimeToUtc(p.year, p.month, startDay, 0, 0, 0, timeZone);
 }
 
+/** Inclusive end of the business-local week (Sunday 23:59:59). */
+export function endOfBusinessWeek(
+  date: Date,
+  input: BusinessLocaleInput & { locationTimezone?: string | null },
+): Date {
+  const weekStart = startOfBusinessWeek(date, input);
+  return endOfBusinessDay(addDays(weekStart, 6), input);
+}
+
 export function startOfBusinessMonth(
   date: Date,
   input: BusinessLocaleInput & { locationTimezone?: string | null },
@@ -133,6 +143,16 @@ export function startOfBusinessMonth(
   const timeZone = resolveBusinessTimezone(input);
   const p = partsInZone(date, timeZone);
   return zonedTimeToUtc(p.year, p.month, 1, 0, 0, 0, timeZone);
+}
+
+/** Inclusive end of the business-local month (last day 23:59:59). */
+export function endOfBusinessMonth(
+  date: Date,
+  input: BusinessLocaleInput & { locationTimezone?: string | null },
+): Date {
+  const monthStart = startOfBusinessMonth(date, input);
+  const nextMonthStart = startOfBusinessMonth(addDays(monthStart, 35), input);
+  return new Date(nextMonthStart.getTime() - 1);
 }
 
 export function startOfBusinessYear(
