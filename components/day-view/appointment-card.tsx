@@ -9,6 +9,10 @@ import {
   parseISO,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
+import {
+  paymentReadinessFromStatus,
+  paymentReadinessLabel,
+} from "@/lib/dashboard/appointment-ops";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { addMinutes } from "date-fns";
@@ -60,17 +64,11 @@ export function DayAppointmentCard({
   const startLabel = formatTime(parseISO(appointment.start_time));
   const endLabel = formatTime(parseISO(appointment.end_time));
   const hasNotes = Boolean(appointment.notes?.trim());
-  const deposit = Number(appointment.deposit_cents ?? 0);
-  const priceCents =
-    appointment.price_cents != null
-      ? Number(appointment.price_cents)
-      : null;
+  const readiness = paymentReadinessFromStatus(appointment.payment_status);
+  const paymentLabel = paymentReadinessLabel(readiness);
   const paymentDue =
     appointment.status !== "cancelled" &&
-    appointment.status !== "completed" &&
-    priceCents != null &&
-    priceCents > 0 &&
-    deposit < priceCents;
+    (readiness === "payment_due" || readiness === "balance_due");
 
   function handleDragStart(e: React.DragEvent) {
     setDragging(true);
@@ -180,10 +178,13 @@ export function DayAppointmentCard({
         <span className="rounded bg-black/20 px-1 py-px text-[9px] font-medium capitalize">
           {appointment.status.replace("_", " ")}
         </span>
-        {paymentDue ? (
+        {paymentLabel &&
+        (paymentDue ||
+          readiness === "paid" ||
+          readiness === "refunded") ? (
           <span className="inline-flex items-center gap-0.5 rounded bg-black/20 px-1 py-px text-[9px]">
             <Wallet className="size-2.5" aria-hidden />
-            Due
+            {paymentLabel}
           </span>
         ) : null}
         {hasNotes ? (

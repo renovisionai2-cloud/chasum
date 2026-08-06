@@ -4,7 +4,8 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
 **Rule:** Do not mark complete on appearance alone; verify data and workflow.  
-**Chapter 2:** Command Centre page depth — see route block below.
+**Chapter 2:** Command Centre page depth — approved tip `0f1f423`.  
+**Chapter 3:** Reception / Calendar — see route block below.
 
 ---
 
@@ -129,7 +130,7 @@
 | Regression risk | Shell nav / Reception / Payments routes unchanged |
 | Result | Automated tests added; Preview pending stamp |
 | Notes | Money labeled “Payments collected”; no fabricated % comparisons |
-| Approval | Awaiting PO |
+| Approval | Approved (`0f1f423`) |
 
 ### Chapter 2 correction pass
 
@@ -143,6 +144,27 @@
 | Membership revenue | Hidden (Beta incomplete) |
 | Developer | Nav + page gated (`planAllowsApiIntegrations` + platform owner) |
 | Automated tests | `chapter2-correction*.test.ts` |
+| Approval | Approved |
+
+## Chapter 3 — Reception and Calendar
+
+| Field | Value |
+|-------|--------|
+| Route | `/dashboard/calendar` (nav: Reception) |
+| Purpose | Daily operating queue + schedule board; same appointment SoT as Command Centre |
+| Roles | Auth business membership (fine-grained roles deferred Ch8) |
+| Data deps | appointments, staff, locations, notification_logs (failed), waitlists, payment_status |
+| Desktop | Morning brief + day control center + filters |
+| Mobile 375 / 430 | Day agenda list; filter sheet; touch CTAs |
+| Keyboard | Toolbar, filters, appointment cards, drawer Escape |
+| A11y | Status labels + payment text (not color-only); aria-labels on agenda rows |
+| Loading / Empty / Error | `loading.tsx`; filter empty + agenda empty; `error.tsx` |
+| Timezone | Business TZ day bounds for day views; clocks via business helpers |
+| Multi-location | LocationScope shared by brief + board |
+| Filters | Employee + status; location via header switcher |
+| Unassigned | Display + filter; create gated (`CHASUM_OPTIONAL_STAFF_ENABLED`) |
+| Regression risk | Booking engine / payments / notifications unchanged |
+| Automated tests | `tests/unit/dashboard/reception-calendar-ops.test.ts` |
 | Approval | Awaiting PO |
 
 ### Permanent quality rule

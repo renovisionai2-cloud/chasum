@@ -8,7 +8,12 @@ import {
   DayAppointmentCard,
   type CalendarColorMode,
 } from "@/components/day-view/appointment-card";
+import { StatusBadge } from "@/components/ui/badge";
 import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
+import {
+  paymentReadinessFromStatus,
+  paymentReadinessLabel,
+} from "@/lib/dashboard/appointment-ops";
 import {
   CALENDAR_END_HOUR,
   CALENDAR_START_HOUR,
@@ -393,30 +398,48 @@ export function DayAgendaList({
 
   return (
     <ul className="divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-      {items.map((appt) => (
-        <li key={appt.id}>
-          <button
-            type="button"
-            className="flex w-full items-start gap-3 px-3 py-3 text-left hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-            onClick={() => onSelectAppointment(appt)}
-          >
-            <span
-              className="mt-0.5 size-2.5 shrink-0 rounded-full"
-              style={{ backgroundColor: appt.service.color }}
-              aria-hidden
-            />
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-medium">
-                {formatTime(parseISO(appt.start_time))} · {appt.customer.name}
+      {items.map((appt) => {
+        const readiness = paymentReadinessFromStatus(appt.payment_status);
+        const paymentLabel = paymentReadinessLabel(readiness);
+        const staffLabel = appt.staff?.name?.trim()
+          ? appt.staff.name
+          : "Unassigned";
+        const locationLabel = appt.location?.name?.trim() || null;
+        return (
+          <li key={appt.id}>
+            <button
+              type="button"
+              className="flex w-full items-start gap-3 px-3 py-3 text-left hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+              onClick={() => onSelectAppointment(appt)}
+              aria-label={`${formatTime(parseISO(appt.start_time))}, ${appt.customer.name}, ${appt.service.name}, ${staffLabel}, ${appt.status}${paymentLabel ? `, ${paymentLabel}` : ""}`}
+            >
+              <span
+                className="mt-0.5 size-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: appt.service.color }}
+                aria-hidden
+              />
+              <span className="min-w-0 flex-1 space-y-1">
+                <span className="block text-sm font-medium">
+                  {formatTime(parseISO(appt.start_time))} · {appt.customer.name}
+                </span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {appt.service.name}
+                  {locationLabel ? ` · ${locationLabel}` : ""}
+                  {` · ${staffLabel}`}
+                </span>
+                <span className="flex flex-wrap gap-1.5">
+                  <StatusBadge status={appt.status} />
+                  {paymentLabel ? (
+                    <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      {paymentLabel}
+                    </span>
+                  ) : null}
+                </span>
               </span>
-              <span className="block truncate text-xs text-muted-foreground">
-                {appt.service.name}
-                {appt.staff?.name ? ` · ${appt.staff.name}` : ""}
-              </span>
-            </span>
-          </button>
-        </li>
-      ))}
+            </button>
+          </li>
+        );
+      })}
     </ul>
   );
 }

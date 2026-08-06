@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-06  
-**Updated by:** World Class Execution Program — Chapter 2 correction pass (Preview only; Production unchanged)  
+**Updated by:** World Class Execution Program — Chapter 3 Reception & Calendar (Preview only; Production unchanged)  
 
 ---
 
@@ -116,7 +116,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–1 approved; Chapter 2 Command Centre delivered and awaiting PO before Chapter 3.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 Reception & Calendar delivered and awaiting PO before Chapter 4.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -155,6 +155,17 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-06)
 
+**World Class Execution — Chapter 3 Reception and Calendar**
+
+- Shared `appointment-ops` SoT (status meanings, payment readiness, board filters)
+- Reception Morning Brief: status grid, attention, LocationScope-aligned counts; no fake slot/revenue KPIs
+- Calendar employee/status filters (desktop + mobile sheet); payment chips on day cards + mobile agenda
+- Docs: `WORLD_CLASS_RECEPTION_CALENDAR_BLUEPRINT.md`, `WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`
+- Unassigned create remains gated — not claimed complete
+- **Chapter 4 not started**
+
+### Immediately prior (2026-08-06)
+
 **Chapter 2 blocker — outstanding invoices SoT**
 
 - Reports executive “Outstanding invoices” now uses `getCommerceDashboardSnapshot().outstandingInvoicesCents` (same as Payments / Command Centre)
@@ -169,7 +180,6 @@ Shared money recognition, commerce + platform events, business operating context
 - Attention areas label; softer cancellation attention copy
 - Summer portal identity → AI Business Manager; AI Workforce Future Vision / Preview
 - Reports: hide Inventory tab; hide Membership revenue; Automations/Customers titles; Developer nav+page gate
-- **Chapter 3 not started**
 
 ### Immediately prior (2026-08-05)
 
@@ -311,12 +321,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `0e5378b8eade122481ebe44d7349aa79a5c1aaff` |
-| **Short** | `0e5378b` |
-| **Subject** | fix: align Reports outstanding invoices with commerce SoT |
-| **Prior tip** | `de193ed` |
-| **Chapter 2 Preview (feature)** | https://chasum-q4yk6yain-renovisionappcom.vercel.app |
-| **Chapter 2 correction Preview** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (branch alias → tip) |
+| **SHA** | _(Chapter 3 stamp after push)_ |
+| **Subject** | Chapter 3 — Reception and Calendar |
+| **Prior tip** | `0f1f423` |
+| **Chapter 3 Preview** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (branch alias → tip) |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
 ---
@@ -337,8 +345,8 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 2 correction** — Preview / data dictionary before Chapter 3.
-2. **Do not start Chapter 3** until PO approves Chapter 2 (including this correction pass).
+1. **PO review of Chapter 3** — Reception / Calendar Preview + blueprints before Chapter 4.
+2. **Do not start Chapter 4** until PO approves Chapter 3.
 3. **Operation GVM Production** — remain protected.
 4. Marketing claim fixes only with **explicit PO** (locked pages).
 

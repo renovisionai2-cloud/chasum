@@ -228,7 +228,7 @@ Column key: Route · Source · Section · Claim · Category · Plan · Industry 
 | Route | Source | Section | Claim | Class | Sev | Resolution | Ch | Verify |
 |-------|--------|---------|-------|-------|-----|------------|----|--------|
 | `/roadmap` | `roadmap.ts` | Available Today | Online Booking | AVAILABLE BUT UNVERIFIED | Low | Keep | — | Open |
-| `/roadmap` | same | Available Today | Calendar & Scheduling | AVAILABLE BUT UNVERIFIED | Low | Keep | 3 | Open |
+| `/roadmap` | same | Available Today | Calendar & Scheduling | AVAILABLE BUT UNVERIFIED → **Chapter 3 deepened** Reception/Calendar ops (Preview) | Low | Keep + portal note | 3 | Preview |
 | `/roadmap` | same | Available Today | Customer Management | AVAILABLE BUT UNVERIFIED | Low | Keep | 4 | Open |
 | `/roadmap` | same | Available Today | **Summer AI Business Manager** (no EA) | MARKETING-PRODUCT CONFLICT | Crit | Align EA | 12,13 | Open |
 | `/roadmap` | same | Available Today | **Payments** collect payments/deposits | MARKETING-PRODUCT CONFLICT | Crit | Narrow or complete card | 6,13 | Open |

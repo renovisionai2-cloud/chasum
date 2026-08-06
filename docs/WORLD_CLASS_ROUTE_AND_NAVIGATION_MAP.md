@@ -48,7 +48,7 @@
 | Concept | Current truthful route | Status |
 |---------|------------------------|--------|
 | Command Centre | `/dashboard` | Label live; depth Ch 2 |
-| Reception / Calendar | `/dashboard/calendar` | Strong |
+| Reception / Calendar | `/dashboard/calendar` | **Chapter 3** — shared SoT with CC; filters; honest brief |
 | Customers | `/dashboard/clients` | Strong |
 | Sales and Payments | `/dashboard/payments` | Strong (manual-first honesty) |
 | Communications | `/dashboard/notifications` | Partial |

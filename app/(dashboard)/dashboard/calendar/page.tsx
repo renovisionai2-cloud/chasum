@@ -10,23 +10,25 @@ import { getMorningBrief } from "@/lib/actions/morning-brief";
 import { getWaitlistEntries } from "@/lib/actions/notifications";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
+import {
+  endOfBusinessDay,
+  startOfBusinessDay,
+} from "@/lib/business/datetime";
 import { parseCalendarDateParam } from "@/lib/calendar/date-param";
 import { buildDashboardInsights } from "@/lib/dashboard/insights";
 import type { CalendarView } from "@/lib/types/booking";
 import type { Metadata } from "next";
 import {
   addDays,
-  endOfDay,
   endOfMonth,
   endOfWeek,
   format,
-  startOfDay,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
 
 export const metadata: Metadata = {
-  title: "Reception · Day View",
+  title: "Reception",
 };
 
 type PageProps = {
@@ -38,14 +40,22 @@ type PageProps = {
   }>;
 };
 
-function getRange(view: CalendarView, date: Date) {
+function getRange(
+  view: CalendarView,
+  date: Date,
+  locale: { timezone?: string | null; currency?: string | null },
+) {
   switch (view) {
     case "day":
     case "timeline":
     case "employees":
     case "locations":
     case "resource":
-      return { start: startOfDay(date), end: endOfDay(date) };
+      // Business-local day bounds — same SoT family as Command Centre.
+      return {
+        start: startOfBusinessDay(date, locale),
+        end: endOfBusinessDay(date, locale),
+      };
     case "week":
     case "agenda":
       return {
@@ -56,8 +66,8 @@ function getRange(view: CalendarView, date: Date) {
       return { start: startOfMonth(date), end: endOfMonth(date) };
     default:
       return {
-        start: startOfDay(date),
-        end: endOfDay(date),
+        start: startOfBusinessDay(date, locale),
+        end: endOfBusinessDay(date, locale),
       };
   }
 }
@@ -69,7 +79,11 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   // Accept YYYY-MM-DD or full ISO from client navigation — never concat T12
   // onto an ISO string (Invalid Date → toISOString crash).
   const date = parseCalendarDateParam(params.date);
-  const range = getRange(view, date);
+  const locale = {
+    timezone: business.timezone,
+    currency: business.currency,
+  };
+  const range = getRange(view, date, locale);
 
   const [
     appointments,
@@ -113,7 +127,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <PageHeader
         title="Reception"
-        description="Day View Control Center — multi-employee floor, Morning Brief, and quick actions."
+        description="Daily operating workspace — who is arriving, what needs attention, and what to do next. Calendar views share the same appointments."
       />
       <ReceptionWorkspace
         brief={brief}

@@ -79,9 +79,16 @@ export function AppointmentDrawer({
   const panelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
-  const [financialActivity, setFinancialActivity] =
-    useState<AppointmentFinancialActivity | null>(null);
-  const [financialLoading, setFinancialLoading] = useState(false);
+  const financialAppointmentId = open && appointment?.id ? appointment.id : null;
+  const [financialCache, setFinancialCache] = useState<{
+    id: string;
+    data: AppointmentFinancialActivity | null;
+  } | null>(null);
+  const financialActivity =
+    financialCache?.id === financialAppointmentId ? financialCache.data : null;
+  const financialLoading =
+    financialAppointmentId !== null &&
+    financialCache?.id !== financialAppointmentId;
 
   useEffect(() => {
     if (!open) return;
@@ -101,26 +108,23 @@ export function AppointmentDrawer({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (!open || !appointment?.id) {
-      setFinancialActivity(null);
-      return;
-    }
+    if (!financialAppointmentId) return;
     let cancelled = false;
-    setFinancialLoading(true);
-    loadAppointmentFinancialActivity(appointment.id)
+    loadAppointmentFinancialActivity(financialAppointmentId)
       .then((data) => {
-        if (!cancelled) setFinancialActivity(data);
+        if (!cancelled) {
+          setFinancialCache({ id: financialAppointmentId, data });
+        }
       })
       .catch(() => {
-        if (!cancelled) setFinancialActivity(null);
-      })
-      .finally(() => {
-        if (!cancelled) setFinancialLoading(false);
+        if (!cancelled) {
+          setFinancialCache({ id: financialAppointmentId, data: null });
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [open, appointment?.id]);
+  }, [financialAppointmentId]);
 
   if (!open || !appointment) return null;
 
@@ -322,7 +326,15 @@ export function AppointmentDrawer({
 
           <Section title="Communication">
             <p className="text-xs text-muted-foreground">
-              No messages have been sent for this appointment.
+              Delivery detail lives in Communications. Open the full booking
+              editor for send/retry status, or{" "}
+              <Link
+                href="/dashboard/notifications"
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
+                view the delivery log
+              </Link>
+              .
             </p>
           </Section>
         </div>

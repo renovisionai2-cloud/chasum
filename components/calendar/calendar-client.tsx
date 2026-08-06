@@ -4,11 +4,17 @@ import { BookingSheet } from "@/components/booking-sheet";
 import {
   type CalendarColorMode,
 } from "@/components/calendar/appointment-block";
+import { CalendarFilters } from "@/components/calendar/calendar-filters";
 import { CalendarToolbar } from "@/components/calendar/calendar-toolbar";
 import {
   MonthView,
   WeekView,
 } from "@/components/calendar/calendar-views";
+import {
+  DEFAULT_CALENDAR_BOARD_FILTERS,
+  filterAppointmentsForBoard,
+  type CalendarBoardFilters,
+} from "@/lib/dashboard/appointment-ops";
 import {
   AgendaView,
   ResourceView,
@@ -191,6 +197,14 @@ export function CalendarClient({
     ) => update,
   );
   const [isRefreshing, startTransition] = useTransition();
+  const [boardFilters, setBoardFilters] = useState<CalendarBoardFilters>(
+    DEFAULT_CALENDAR_BOARD_FILTERS,
+  );
+
+  const filteredAppointments = useMemo(
+    () => filterAppointmentsForBoard(appointments, boardFilters),
+    [appointments, boardFilters],
+  );
 
   const refresh = useCallback(() => {
     startTransition(() => {
@@ -234,7 +248,7 @@ export function CalendarClient({
     }
     window.addEventListener(RECEPTION_ACTION_EVENT, onAction);
     return () => window.removeEventListener(RECEPTION_ACTION_EVENT, onAction);
-  }, []);
+  }, [date]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -517,87 +531,115 @@ export function CalendarClient({
         canDuplicate={Boolean(selectedAppointment)}
       />
 
+      <CalendarFilters
+        staff={staff}
+        filters={boardFilters}
+        onChange={setBoardFilters}
+        matchedCount={filteredAppointments.length}
+        totalCount={appointments.length}
+      />
+
       <ColorLegend colorMode={colorMode} services={services} staff={staff} />
 
-      {effectiveView === "day" && (
-        isNarrow ? (
-          <DayAgendaList
-            date={date}
-            appointments={appointments}
-            onSelectAppointment={openDrawer}
-          />
-        ) : (
-          <DayControlCenter
-            date={date}
-            appointments={appointments}
-            staff={staff}
-            overlays={dayOverlays}
-            onSelectAppointment={openDrawer}
-            onSelectSlot={openNew}
-            onReschedule={handleReschedule}
-            onResize={handleResize}
-            colorMode={colorMode}
-            intervalMinutes={appointmentIntervalMinutes}
-          />
-        )
-      )}
-      {effectiveView === "week" && (
-        <WeekView
-          date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
-          onSelectSlot={openNew}
-          onReschedule={handleReschedule}
-          onResize={handleResize}
-          colorMode={colorMode}
-          intervalMinutes={appointmentIntervalMinutes}
-        />
-      )}
-      {effectiveView === "month" && (
-        <MonthView
-          date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
-          onSelectDay={(day) => {
-            setView("day");
-            setDate(day);
-          }}
-          colorMode={colorMode}
-        />
-      )}
-      {effectiveView === "agenda" && (
-        <AgendaView
-          date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
-        />
-      )}
-      {effectiveView === "timeline" && (
-        <TimelineView
-          date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
-        />
-      )}
-      {(effectiveView === "employees" || effectiveView === "resource") && (
-        <ResourceView
-          date={date}
-          appointments={appointments}
-          staff={staff}
-          locations={locations}
-          mode={effectiveView === "resource" ? "resource" : "employees"}
-          onSelectAppointment={openEdit}
-        />
-      )}
-      {effectiveView === "locations" && (
-        <ResourceView
-          date={date}
-          appointments={appointments}
-          staff={staff}
-          locations={locations}
-          mode="locations"
-          onSelectAppointment={openEdit}
-        />
+      {filteredAppointments.length === 0 && appointments.length > 0 ? (
+        <div
+          role="status"
+          className="rounded-[var(--radius-lg)] border border-dashed border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground"
+        >
+          No appointments match the current filters.
+          <div className="mt-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setBoardFilters(DEFAULT_CALENDAR_BOARD_FILTERS)}
+            >
+              Reset filters
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {effectiveView === "day" &&
+            (isNarrow ? (
+              <DayAgendaList
+                date={date}
+                appointments={filteredAppointments}
+                onSelectAppointment={openDrawer}
+              />
+            ) : (
+              <DayControlCenter
+                date={date}
+                appointments={filteredAppointments}
+                staff={staff}
+                overlays={dayOverlays}
+                onSelectAppointment={openDrawer}
+                onSelectSlot={openNew}
+                onReschedule={handleReschedule}
+                onResize={handleResize}
+                colorMode={colorMode}
+                intervalMinutes={appointmentIntervalMinutes}
+              />
+            ))}
+          {effectiveView === "week" && (
+            <WeekView
+              date={date}
+              appointments={filteredAppointments}
+              onSelectAppointment={openEdit}
+              onSelectSlot={openNew}
+              onReschedule={handleReschedule}
+              onResize={handleResize}
+              colorMode={colorMode}
+              intervalMinutes={appointmentIntervalMinutes}
+            />
+          )}
+          {effectiveView === "month" && (
+            <MonthView
+              date={date}
+              appointments={filteredAppointments}
+              onSelectAppointment={openEdit}
+              onSelectDay={(day) => {
+                setView("day");
+                setDate(day);
+              }}
+              colorMode={colorMode}
+            />
+          )}
+          {effectiveView === "agenda" && (
+            <AgendaView
+              date={date}
+              appointments={filteredAppointments}
+              onSelectAppointment={openEdit}
+            />
+          )}
+          {effectiveView === "timeline" && (
+            <TimelineView
+              date={date}
+              appointments={filteredAppointments}
+              onSelectAppointment={openEdit}
+            />
+          )}
+          {(effectiveView === "employees" || effectiveView === "resource") && (
+            <ResourceView
+              date={date}
+              appointments={filteredAppointments}
+              staff={staff}
+              locations={locations}
+              mode={effectiveView === "resource" ? "resource" : "employees"}
+              onSelectAppointment={openEdit}
+            />
+          )}
+          {effectiveView === "locations" && (
+            <ResourceView
+              date={date}
+              appointments={filteredAppointments}
+              staff={staff}
+              locations={locations}
+              mode="locations"
+              onSelectAppointment={openEdit}
+            />
+          )}
+        </>
       )}
     </div>
   );

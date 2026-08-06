@@ -1,16 +1,17 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   CalendarCheck,
+  CalendarPlus,
+  CheckCircle2,
   Clock,
-  DollarSign,
   ListOrdered,
-  Sparkles,
-  TrendingUp,
   UserMinus,
+  UserPlus,
   Users,
   Wallet,
 } from "lucide-react";
@@ -63,120 +64,157 @@ function Metric({
 }
 
 export function MorningBrief({ brief }: { brief: MorningBriefData }) {
-  const revenueDelta =
-    brief.chase.revenueDeltaPct == null
-      ? null
-      : `${brief.chase.revenueDeltaPct > 0 ? "+" : ""}${brief.chase.revenueDeltaPct}%`;
+  const s = brief.statusCounts;
 
   return (
     <section
-      aria-label="Morning brief"
+      aria-label="Reception daily status"
       className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-gradient-to-br from-card via-card to-muted/30 p-3 shadow-sm sm:p-4"
     >
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <p className="ds-label">Control Center</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <p className="ds-label">Reception</p>
           <h2 className="text-base font-semibold tracking-tight sm:text-lg">
-            Morning Brief
+            {brief.dateLabel}
           </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {brief.locationLabel}
+            <span className="text-muted-foreground/80">
+              {" "}
+              · {brief.locationScopeNote}
+            </span>
+          </p>
+          {brief.nextAppointmentClock ? (
+            <p className="mt-2 text-sm text-foreground">
+              <span className="font-medium">Next:</span>{" "}
+              {brief.nextAppointmentClock}
+              {brief.nextAppointmentCustomer
+                ? ` · ${brief.nextAppointmentCustomer}`
+                : ""}
+            </p>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">
+              No upcoming appointments remaining today for this location scope.
+            </p>
+          )}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Today at a glance
-        </p>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/dashboard/calendar?view=day&book=1">
+            <Button className="min-h-[var(--touch-min)]">
+              <CalendarPlus className="h-4 w-4" aria-hidden="true" />
+              New appointment
+            </Button>
+          </Link>
+          <Link href="/dashboard/clients">
+            <Button variant="outline" className="min-h-[var(--touch-min)]">
+              <UserPlus className="h-4 w-4" aria-hidden="true" />
+              New customer
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-7">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
         <Metric
-          label="Appointments"
+          label="Scheduled"
           value={String(brief.todayAppointments)}
+          hint="Active today"
           icon={CalendarCheck}
           tone="default"
         />
         <Metric
-          label="Revenue"
-          value={`$${brief.todayRevenue.toFixed(0)}`}
-          icon={DollarSign}
+          label="Checked in"
+          value={String(s.checkedIn)}
+          icon={CheckCircle2}
+          tone={s.checkedIn > 0 ? "success" : "default"}
+        />
+        <Metric
+          label="In progress"
+          value={String(s.inProgress)}
+          icon={Clock}
+        />
+        <Metric
+          label="Completed"
+          value={String(s.completed)}
+          icon={CheckCircle2}
           tone="success"
         />
         <Metric
-          label="Staff working"
-          value={String(brief.staffWorking)}
-          icon={Users}
-        />
-        <Metric
-          label="Available slots"
-          value={String(brief.availableSlots)}
-          icon={Clock}
-          tone="warning"
-        />
-        <Metric
-          label="Waitlist"
-          value={String(brief.waitlistCount)}
-          icon={ListOrdered}
-          tone="spark"
-        />
-        <Metric
-          label="No-shows"
-          value={String(brief.noShows)}
+          label="Cancelled"
+          value={String(s.cancelled)}
           icon={UserMinus}
-          tone={brief.noShows > 0 ? "danger" : "default"}
         />
         <Metric
-          label="Outstanding"
-          value={String(brief.outstandingPayments)}
-          hint="Payments due"
+          label="No-show"
+          value={String(s.noShow)}
+          icon={UserMinus}
+          tone={s.noShow > 0 ? "danger" : "default"}
+        />
+        <Metric
+          label="Unassigned"
+          value={String(s.unassigned)}
+          icon={Users}
+          tone={s.unassigned > 0 ? "warning" : "default"}
+        />
+        <Metric
+          label="Payment due"
+          value={String(s.paymentAttention)}
+          hint="From payment status"
           icon={Wallet}
-          tone={brief.outstandingPayments > 0 ? "warning" : "default"}
+          tone={s.paymentAttention > 0 ? "warning" : "default"}
         />
       </div>
 
       <div className="grid gap-2 md:grid-cols-2">
-        <Link
-          href="/dashboard/calendar?view=day"
-          className="group flex items-start gap-3 rounded-[var(--radius-md)] border border-border bg-background/70 px-3 py-2.5 transition-colors hover:border-primary/40 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-spark/10 text-spark">
-            <Sparkles className="size-4" aria-hidden />
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold">Summer activity</p>
-            <p className="mt-0.5 text-sm text-foreground">
-              {brief.summer.bookingsToday} bookings ·{" "}
-              {brief.summer.reschedulesToday} reschedules ·{" "}
-              {brief.summer.confirmationsToday} confirmations
+        <div className="rounded-[var(--radius-md)] border border-border bg-background/70 px-3 py-2.5">
+          <p className="text-xs font-semibold">Attention required</p>
+          {brief.attention.length === 0 ? (
+            <p className="mt-1 flex items-center gap-2 text-sm text-success">
+              <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+              No urgent Reception items right now.
             </p>
-            <p className="mt-1 text-[11px] text-muted-foreground group-hover:text-foreground">
-              Opens Reception — Summer never books locally
-            </p>
-          </div>
-        </Link>
+          ) : (
+            <ul className="mt-2 space-y-2">
+              {brief.attention.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={item.href}
+                    className="block rounded-[var(--radius-sm)] border border-border/80 bg-card px-2.5 py-2 text-sm transition-colors hover:border-primary/35 ds-focus-ring"
+                  >
+                    <span className="font-medium">{item.title}</span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {item.why}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-        <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-border bg-background/70 px-3 py-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <TrendingUp className="size-4" aria-hidden />
-          </span>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold">
-              Chase insights
-              {revenueDelta ? (
-                <span className="ml-2 font-medium text-success">
-                  Revenue {revenueDelta}
-                </span>
-              ) : null}
-            </p>
-            <p className="mt-0.5 text-sm text-foreground">
-              {brief.chase.recommendation}
-            </p>
-            <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
-              <span>{brief.chase.availableSlots} open slots</span>
-              {brief.chase.overdueCustomers > 0 ? (
-                <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
-                  <AlertTriangle className="size-3" aria-hidden />
-                  {brief.chase.overdueCustomers} overdue
-                </span>
-              ) : null}
-            </p>
-          </div>
+        <div className="flex flex-col gap-2 rounded-[var(--radius-md)] border border-border bg-background/70 px-3 py-2.5">
+          <p className="text-xs font-semibold">Floor context</p>
+          <p className="text-sm text-foreground">{brief.chase.recommendation}</p>
+          <p className="mt-auto flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <Users className="size-3" aria-hidden />
+              {brief.staffWorking} staff working
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <ListOrdered className="size-3" aria-hidden />
+              {brief.waitlistCount} on waitlist
+            </span>
+            {brief.pendingConfirmations > 0 ? (
+              <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
+                <AlertTriangle className="size-3" aria-hidden />
+                {brief.pendingConfirmations} pending
+              </span>
+            ) : null}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            Availability slot totals are not shown — open the booking sheet for
+            real Availability Engine openings by service and employee.
+          </p>
         </div>
       </div>
     </section>

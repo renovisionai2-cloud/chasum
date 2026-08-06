@@ -1,12 +1,14 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 2 — Command Centre (**complete — awaiting PO review**)  
+**Chapter:** 3 — Reception and Calendar (**complete — awaiting PO review**)  
 **Branch:** `cursor/world-class-portal-foundation`  
-**Chapter 2 commit:** `20e0c89` · Preview https://chasum-q4yk6yain-renovisionappcom.vercel.app  
+**Chapter 3 docs:** [`WORLD_CLASS_RECEPTION_CALENDAR_BLUEPRINT.md`](./WORLD_CLASS_RECEPTION_CALENDAR_BLUEPRINT.md) · [`WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`](./WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md)  
+**Chapter 2 tip (approved):** `0f1f423`  
+**Chapter 2 feature commit:** `20e0c89` · Preview https://chasum-q4yk6yain-renovisionappcom.vercel.app  
 **Chapter 1 tip (approved):** `3682717` · Preview https://chasum-9j1con47j-renovisionappcom.vercel.app  
 **Production baseline:** `4eecbec0f0f04532ae0294132d07183b6e64f23f` · tag `phase-0-gvm-production-2026-08-04` · https://chasum.vercel.app  
-**Mode:** Preview-only product work on World Class branch — no Production deploy, no migrations **034–036**, no live destructive data, no marketing content edits, **do not start Chapter 3 until PO approves Chapter 2**  
+**Mode:** Preview-only product work on World Class branch — no Production deploy, no migrations **034–036**, no live destructive data, no marketing content edits, **do not start Chapter 4 until PO approves Chapter 3**  
 
 ---
 
@@ -24,8 +26,8 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 |----|------|--------|
 | 0 | Repository and product audit | Complete (approved foundation for program) |
 | 1 | Design system and portal foundation | **Approved** (`3682717`) |
-| 2 | Command Centre | **Correction pass complete — awaiting PO review** |
-| 3 | Reception and calendar | Not started |
+| 2 | Command Centre | **Approved** (`0f1f423` tip) |
+| 3 | Reception and calendar | **Complete — awaiting PO review** |
 | 4 | Customers | Not started |
 | 5 | Appointment workspace | Not started |
 | 6 | Sales, payments, invoices, receipts | Not started |
@@ -146,8 +148,12 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 2 status
 
-**Complete — awaiting PO review.** Command Centre redesigned as action-first daily operating view with truthful metrics (payments collected via commerce snapshot; business-TZ day bounds; location-scoped appointments). Data dictionary: [`WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md`](./WORLD_CLASS_COMMAND_CENTRE_DATA_DICTIONARY.md). No Production / migrations / marketing edits.
+**Approved & locked** at tip `0f1f423`. Command Centre action-first daily operating view; commerce SoT for money; appointments-today shared helpers.
+
+## Chapter 3 status
+
+**Complete — awaiting PO review.** Reception + Calendar share LocationScope + appointment-ops SoT; Reception brief rebuilt; misleading slot/revenue KPIs removed; employee/status filters; payment readiness on day + mobile agenda; unassigned create remains gated. Data dictionary: [`WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md`](./WORLD_CLASS_RECEPTION_CALENDAR_DATA_DICTIONARY.md).
 
 ## Next step after PO approval
 
-Begin **Execution Chapter 3 — Reception and Calendar** only after PO approves Chapter 2. Do not start Chapter 3 until then.
+Begin **Execution Chapter 4 — Customers** only after PO approves Chapter 3. Do not start Chapter 4 until then.
