@@ -12,7 +12,7 @@
 | 2026-08-04 | Foundation audit docs (prior naming) | `6019630` | — | PORTAL_FOUNDATION_AUDIT + master plan docs |
 | 2026-08-04 | Portal shell IA (Execution Ch1 partial) | `d86e398` | https://chasum-f2djbjdae-renovisionappcom.vercel.app | Nav groups, command entry, mobile nav |
 | 2026-08-04 | Shell Preview report | `0496196` | same | Implementation report URLs |
-| 2026-08-05 | **Execution Chapter 0 — Audit** | *(filled after commit)* | Docs-only; prior shell Preview unchanged | Matrices + blueprint; no product code; no Production; no migrations |
+| 2026-08-05 | **Execution Chapter 0 — Audit** | `27cd0b3` | Docs-only; prior shell Preview unchanged at https://chasum-f2djbjdae-renovisionappcom.vercel.app | Matrices + blueprint; no product code; no Production; no migrations |
 
 ---
 

@@ -279,9 +279,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | *(updated after Chapter 0 commit)* |
-| **Branch tip before Chapter 0 commit** | `0496196879ae216c9be48c65226ac1bf81756a56` |
-| **Subject (prior)** | Record Phase 1 Preview deployment details in the implementation report |
+| **SHA** | `27cd0b31e78bc34418109f9243f32fcb2c7382f2` |
+| **Short** | `27cd0b3` |
+| **Subject** | Document World Class Chapter 0 repository and product audit |
+| **Prior tip** | `0496196` (Phase 1 Preview report) |
+| **Shell commit** | `d86e398` |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
 ---
