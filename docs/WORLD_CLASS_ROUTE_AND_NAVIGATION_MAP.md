@@ -1,10 +1,10 @@
 # World Class Route and Navigation Map
 
-**Chapter:** 0  
+**Chapter:** 1 — Design system and portal foundation  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
-**Nav source:** `lib/dashboard/nav.ts` (shipped in `d86e398`)  
-**Inventory companion:** [`PORTAL_ROUTE_INVENTORY.md`](./PORTAL_ROUTE_INVENTORY.md)  
+**Nav source:** `lib/dashboard/nav.ts`  
+**Shell:** `d86e398` + Chapter 1 polish  
 **Migrations 034–036:** Do not apply · Shared Supabase: no experimental schema  
 
 ---
@@ -14,10 +14,12 @@
 | Layer | Path |
 |-------|------|
 | Layout | `app/(dashboard)/layout.tsx` |
-| Shell | `components/dashboard/shell.tsx` |
+| Shell | `components/dashboard/shell.tsx` (skip link + `#portal-main`) |
 | Sidebar / top nav | `components/dashboard/sidebar.tsx` |
+| Mobile bottom nav | `components/dashboard/mobile-bottom-nav.tsx` |
 | Command palette | `components/command-palette/command-palette.tsx` |
 | Command registry | `lib/command/registry.ts` |
+| Quick create | `lib/dashboard/quick-create.ts` |
 
 ---
 
@@ -25,74 +27,53 @@
 
 | Group | Items | Routes |
 |-------|-------|--------|
-| Today | Overview, Reception | `/dashboard`, `/dashboard/calendar` |
+| Today | **Command Centre**, Reception | `/dashboard`, `/dashboard/calendar` |
 | People | Customers, Employees | `/dashboard/clients`, `/dashboard/employees` |
 | Catalog | Services, Packages | `/dashboard/services`, `/dashboard/business?tab=packages` |
 | Money | Payments | `/dashboard/payments` |
 | Insights | Reports, Automations | `/dashboard/reports`, `/dashboard/automation` |
-| Intelligence | Summer, AI Workforce | `/dashboard/ai-workforce/summer`, `/dashboard/ai-workforce` |
+| Intelligence | Summer (Early Access), AI Workforce | `/dashboard/ai-workforce/summer`, `/dashboard/ai-workforce` |
 | Settings | Business, Integrations, Account & billing, Communications | `/dashboard/business`, `/integrations`, `/settings`, `/notifications` |
 | Advanced | Developer (collapsed) | `/dashboard/developer` |
 | Owner | HQ | `/dashboard/hq` (owner only) |
 
-**Label choices:** Catalog (not Offer), Insights (not Grow), Customers (not CRM), Communications (not Notifications), Reception (calendar URL preserved).
+**Command Centre** is a **label** on `/dashboard` — page depth is **Chapter 2**. Do not invent empty fake destinations.
+
+**Mobile:** Command Centre uses `mobileLabel: "Centre"`; Summer stays out of bottom bar (header / More menu).
 
 ---
 
-## Full route map and maturity
+## Product concepts ↔ routes
 
-| Route | Purpose | Maturity | Future chapter |
-|-------|---------|----------|----------------|
-| `/dashboard` | Overview | Partial | Ch 2 Command Centre |
-| `/dashboard/calendar` | Reception | Strong (GVM path) | Ch 3 |
-| `/dashboard/appointments` | Redirect → calendar | — | — |
-| `/dashboard/clients` | Customer list | Strong | Ch 4 |
-| `/dashboard/clients/[id]` | Customer profile | Strong | Ch 4 |
-| `/dashboard/payments` | Payments hub | Strong | Ch 6 |
-| `/dashboard/services` | Services | Strong | Ch 9 |
-| `/dashboard/business` | Business mega-hub | Partial | Ch 9 |
-| `/dashboard/employees` | Team | Strong | Ch 8 |
-| `/dashboard/employees/[id]` | Profile (+ payroll placeholder) | Partial | Ch 8 |
-| `/dashboard/staff*` | Redirect → employees | Legacy | — |
-| `/dashboard/reports` | Reports | Partial | Ch 10 |
-| `/dashboard/ai-workforce*` | AI surfaces | Partial / Early Access | Ch 12 |
-| `/dashboard/workforce/chase` | Chase | Partial | Ch 12 |
-| `/dashboard/notifications` | Communications inbox | Partial | Ch 7 |
-| `/dashboard/integrations` | Calendar sync | Partial | Ch 9 |
-| `/dashboard/automation` | Automations | Partial | Ch 11 |
-| `/dashboard/developer` | API keys | Complete-ish | Demote / entitlement |
-| `/dashboard/settings*` | Account & billing | Partial | Ch 9 |
-| `/dashboard/hq*` | Founder HQ | Owner | Out of tenant IA |
-| `/portal/[token]` | Customer self-serve | Scaffold | Later |
-| `/book/[slug]` | Public booking | Strong | Protect |
-| `/owner/*` | Platform owner | Separate shell | Out of tenant IA |
-
-**No top-level routes yet:** dedicated invoices, receipts, refunds, payroll, locations, resources, help, onboarding — embedded in hubs.
+| Concept | Current truthful route | Status |
+|---------|------------------------|--------|
+| Command Centre | `/dashboard` | Label live; depth Ch 2 |
+| Reception / Calendar | `/dashboard/calendar` | Strong |
+| Customers | `/dashboard/clients` | Strong |
+| Sales and Payments | `/dashboard/payments` | Strong (manual-first honesty) |
+| Communications | `/dashboard/notifications` | Partial |
+| Employees and Team | `/dashboard/employees` | Strong directory |
+| Business Operations | `/dashboard/business` | Mega-hub |
+| Business Intelligence | `/dashboard/reports` | Partial |
+| Growth | Automations / packages / gift cards in hubs | Partial — no fake Growth page |
+| Summer | `/dashboard/ai-workforce/summer` | Early Access |
+| Setup and Settings | Business + Settings | Partial |
 
 ---
 
-## Operating journey (target mapping)
+## Command palette (real actions)
 
-```
-Customer → Booking → Appointment → Employee → Service → Payment → Invoice → Receipt → Communication → Follow-up → Reporting → Intelligence
-```
-
-| Journey step | Primary surface today |
-|--------------|----------------------|
-| Customer | `/dashboard/clients` |
-| Booking / Appointment | Reception + BookingSheet |
-| Employee | Employees + appointment assignment |
-| Payment / Invoice / Receipt | Payments + CRM commerce + BookingSheet |
-| Communication | Communications + booking retry |
-| Reporting | Reports |
-| Intelligence | Summer (Early Access) |
+- Navigate: Command Centre, Reception, Customers, Payments, Communications, Employees, Business, Reports, Services, Summer, Chase, AI Workforce  
+- Actions: Book appointment, Search Customer/Employee (directory)  
+- Owner-only filtered server-side: HQ, Private Alpha  
+- Live DB search: customers, staff, services, appointments (existing architecture)  
 
 ---
 
 ## Compatibility rules
 
 - Preserve routes; prefer label/IA changes.  
-- Do not delete functional routes in early chapters.  
 - Redirects (`appointments`, `staff`) stay.  
 - HQ never shown to ordinary tenants.  
 - Developer stays Advanced / collapsed.  
+- No competing navigation systems.  

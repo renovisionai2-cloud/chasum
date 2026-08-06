@@ -52,10 +52,29 @@
   --space-10: 2.5rem;
   --space-12: 3rem;
 
-  /* Motion */
+  /* Motion — World Class Chapter 1 */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 150ms;
-  --duration-normal: 200ms;
+  --duration-normal: 220ms;
+  --duration-complex: 320ms;
+
+  /* Semantic info (non-destructive attention) */
+  --info: #0284c8;
+
+  /* Z-index scale — shell overlays */
+  --z-shell: 40;
+  --z-overlay: 50;
+  --z-palette: 60;
+  --z-toast: 70;
+
+  /* Touch targets (WCAG-friendly minimum) */
+  --touch-min: 2.75rem;
+
+  /* Breakpoint reference (Tailwind defaults; documented for DS) */
+  --bp-sm: 40rem;
+  --bp-md: 48rem;
+  --bp-lg: 64rem;
+  --bp-xl: 80rem;
 }
 
 .dark {
@@ -82,6 +101,7 @@
   --destructive: #f87171;
   --success: #4ade80;
   --warning: #fbbf24;
+  --info: #38bdf8;
 
   --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
@@ -107,6 +127,7 @@
   --color-destructive: var(--destructive);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-info: var(--info);
   --color-spark: var(--spark);
   --color-spark-foreground: var(--spark-foreground);
   --color-spark-muted: var(--spark-muted);
@@ -1864,7 +1885,49 @@ body {
   @apply space-y-6 sm:space-y-8;
   max-width: 100%;
   overflow-x: clip;
-  animation: ds-page-in var(--duration-normal, 200ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+  animation: ds-page-in var(--duration-normal, 220ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.ds-display {
+  @apply text-3xl font-semibold tracking-tight text-foreground sm:text-4xl;
+  line-height: 1.15;
+}
+
+.ds-page-title {
+  @apply text-2xl font-semibold tracking-tight text-foreground md:text-[1.75rem];
+  line-height: 1.25;
+}
+
+.ds-card-title {
+  @apply text-base font-semibold tracking-tight text-foreground;
+}
+
+.ds-body {
+  @apply text-sm leading-relaxed text-foreground;
+}
+
+.ds-supporting {
+  @apply text-sm leading-relaxed text-muted-foreground;
+}
+
+.ds-caption {
+  @apply text-xs leading-snug text-muted-foreground;
+}
+
+.ds-numeric {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.ds-safe-pad {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+.ds-touch-target {
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
 }
 
 @keyframes ds-page-in {
@@ -1891,8 +1954,9 @@ body {
 }
 
 .ds-nav-item {
-  @apply flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium transition-all duration-200;
-  min-height: 2.75rem;
+  @apply flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2.5 text-sm font-medium transition-all;
+  transition-duration: var(--duration-normal);
+  min-height: var(--touch-min);
 }
 
 .ds-nav-item-active {

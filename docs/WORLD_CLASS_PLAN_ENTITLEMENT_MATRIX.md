@@ -32,7 +32,7 @@
 | Business | `business` | Unlimited | **Up to 6** | **10** ← conflict |
 | Enterprise | `enterprise` | Unlimited | Unlimited | null |
 
-**OWNER DECISION REQUIRED:** Business locations **6 (marketing)** vs **10 (catalog + migrations 008/015)**. Do not pick a number in Chapter 0.
+**OWNER DECISION (locked):** Marketing / plan promise = **six** Business locations. Catalog/DB still shows **10** — do **not** silently change DB in Chapter 1; propose alignment migration separately for PO.
 
 ---
 

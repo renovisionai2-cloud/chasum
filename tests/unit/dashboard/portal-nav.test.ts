@@ -129,13 +129,16 @@ describe("portal navigation IA", () => {
     const primary = getMobilePrimaryItems();
     expect(primary.map((i) => i.label)).toEqual(
       expect.arrayContaining([
-        "Overview",
+        "Command Centre",
         "Reception",
         "Customers",
         "Payments",
         "Summer",
       ]),
     );
+    expect(
+      primary.find((i) => i.href === "/dashboard")?.mobileLabel,
+    ).toBe("Centre");
   });
 
   it("marks operational paths as wide layout", () => {
@@ -145,6 +148,7 @@ describe("portal navigation IA", () => {
   });
 
   it("resolves page titles with terminology", () => {
+    expect(getPageTitle("/dashboard")).toBe("Command Centre");
     expect(getPageTitle("/dashboard/clients")).toBe("Customers");
     expect(getPageTitle("/dashboard/calendar")).toBe("Reception");
     expect(getPageTitle("/dashboard/notifications")).toBe("Communications");

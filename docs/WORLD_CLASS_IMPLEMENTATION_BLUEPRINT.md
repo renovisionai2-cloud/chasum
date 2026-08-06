@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 0 — Repository and Product Audit (**Addendum complete — awaiting PO approval**)  
+**Chapter:** 1 — Design system and portal foundation (**in progress / completing**)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Tip at addendum:** `fecbce4` · prior tip `f8e1c33`  
 **Shell (Execution Ch 1 partial):** `d86e398`  
@@ -140,6 +140,10 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 - [`WORLD_CLASS_RELEASE_LOG.md`](./WORLD_CLASS_RELEASE_LOG.md)  
 
 ---
+
+## Chapter 1 status
+
+Chapter 0 approved. Chapter 1 implements DS tokens, shell a11y, Command Centre **label**, command/quick-create polish, Summer Early Access chrome. **Command Centre page depth deferred to Chapter 2.** No Production / migrations / marketing edits.
 
 ## Next step after PO approval
 

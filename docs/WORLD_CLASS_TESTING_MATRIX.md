@@ -92,16 +92,24 @@
 
 ---
 
-## Chapter 0 baseline automated results
-
-Re-verified during Chapter 0 Audit Completion Addendum (docs-only; product tree unchanged from `f8e1c33`).
+## Chapter 0 baseline (inherited)
 
 | Check | Result |
 |-------|--------|
-| Typecheck (`npm run typecheck`) | **Pass** |
-| Lint (`npm run lint`) | **54 problems (34 errors, 20 warnings)** — inherited; categories in `WORLD_CLASS_IMPLEMENTATION_BLUEPRINT.md` / `WORLD_CLASS_RELEASE_LOG.md` |
-| Unit tests (`npm test`) | **266 passed, 1 failed** — exact fail: `tests/unit/marketing/multi-business-selection.test.ts` › `shows all businessTypes in the understanding profile` |
-| Build (`npm run build`) | **Pass** |
+| Typecheck | Pass |
+| Lint | 54 problems (34 errors, 20 warnings) |
+| Unit tests | 266 passed, 1 failed (`multi-business-selection`) |
+| Build | Pass |
+
+## Chapter 1 automated results
+
+| Check | Result |
+|-------|--------|
+| Typecheck | **Pass** |
+| Lint (Ch 1 files) | **Clean** |
+| Lint (full) | **52 problems (32 errors, 20 warnings)** — resolved 2 shell setState-in-effect errors; no new issues |
+| Unit tests | **270 passed, 1 failed** (+4 foundation tests); inherited fail unchanged |
+| Build | **Pass** |
 
 ### Permanent quality rule
 

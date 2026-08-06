@@ -46,6 +46,10 @@ import { useEffect, useState } from "react";
 
 export { getPageTitle };
 
+function initialAdvancedOpen(pathname: string): boolean {
+  return pathname.startsWith("/dashboard/developer");
+}
+
 const iconMap: Record<DashboardNavIcon, typeof LayoutDashboard> = {
   "layout-dashboard": LayoutDashboard,
   calendar: Calendar,
@@ -120,13 +124,11 @@ export function DashboardSidebar({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams?.toString() ?? "";
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-
-  useEffect(() => {
-    if (pathname.startsWith("/dashboard/developer")) {
-      setAdvancedOpen(true);
-    }
-  }, [pathname]);
+  const [advancedOpen, setAdvancedOpen] = useState(() =>
+    initialAdvancedOpen(pathname),
+  );
+  const developerActive = pathname.startsWith("/dashboard/developer");
+  const advancedExpanded = advancedOpen || developerActive;
 
   return (
     <aside
@@ -155,7 +157,7 @@ export function DashboardSidebar({
         ) : null}
 
         {DASHBOARD_NAV_GROUPS.map((group) => {
-          const collapsed = group.defaultCollapsed && !advancedOpen;
+          const collapsed = group.defaultCollapsed && !advancedExpanded;
           const isAdvanced = group.id === "advanced";
 
           return (
@@ -165,14 +167,14 @@ export function DashboardSidebar({
                   <button
                     type="button"
                     className="flex w-full items-center justify-between rounded-[var(--radius-sm)] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 transition-colors hover:text-slate-300 ds-focus-ring"
-                    aria-expanded={advancedOpen}
+                    aria-expanded={advancedExpanded}
                     onClick={() => setAdvancedOpen((v) => !v)}
                   >
                     {group.label}
                     <ChevronDown
                       className={cn(
-                        "h-3.5 w-3.5 transition-transform",
-                        advancedOpen && "rotate-180",
+                        "h-3.5 w-3.5 transition-transform duration-[var(--duration-fast)]",
+                        advancedExpanded && "rotate-180",
                       )}
                       aria-hidden="true"
                     />
@@ -206,10 +208,16 @@ export function DashboardSidebar({
         <Link
           href="/dashboard/ai-workforce/summer"
           onClick={onNavigate}
-          className="flex items-center gap-2 rounded-[var(--radius-md)] bg-white/5 px-3 py-2.5 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 hover:text-white ds-focus-ring"
+          className="flex min-h-[var(--touch-min)] flex-col gap-0.5 rounded-[var(--radius-md)] bg-white/5 px-3 py-2.5 text-slate-200 transition-colors hover:bg-white/10 hover:text-white ds-focus-ring"
+          aria-label="Ask Summer, AI Business Manager, Early Access"
         >
-          <Sun className="h-4 w-4 text-amber-200" aria-hidden="true" />
-          Ask Summer
+          <span className="flex items-center gap-2 text-sm font-medium">
+            <Sun className="h-4 w-4 text-amber-200" aria-hidden="true" />
+            Ask Summer
+          </span>
+          <span className="pl-6 text-[10px] font-medium text-slate-400">
+            AI Business Manager · Early Access
+          </span>
         </Link>
       </div>
     </aside>
@@ -236,7 +244,7 @@ export function DashboardTopNav({
   onMenuOpen,
 }: DashboardTopNavProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/85 px-4 backdrop-blur-xl md:px-6">
+    <header className="sticky top-0 z-[var(--z-shell)] flex h-16 items-center justify-between gap-3 border-b border-border bg-card/85 px-4 backdrop-blur-xl md:px-6">
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <Button
           variant="ghost"
@@ -266,7 +274,9 @@ export function DashboardTopNav({
         />
         <Link
           href="/dashboard/ai-workforce/summer"
-          className="hidden h-9 items-center gap-1.5 rounded-[var(--radius-md)] px-2 text-sm font-medium text-foreground transition-colors hover:bg-muted lg:inline-flex ds-focus-ring"
+          className="hidden h-10 min-h-[var(--touch-min)] items-center gap-1.5 rounded-[var(--radius-md)] px-2 text-sm font-medium text-foreground transition-colors hover:bg-muted lg:inline-flex ds-focus-ring"
+          aria-label="Summer, AI Business Manager, Early Access"
+          title="Summer — AI Business Manager (Early Access)"
         >
           <Sun className="h-4 w-4 text-primary" aria-hidden="true" />
           Summer
@@ -317,7 +327,7 @@ export function MobileSidebar({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden" id="portal-mobile-nav">
+    <div className="fixed inset-0 z-[var(--z-overlay)] lg:hidden" id="portal-mobile-nav">
       <button
         type="button"
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"

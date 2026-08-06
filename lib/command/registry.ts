@@ -19,6 +19,7 @@ export type CommandId =
   | "go-summer"
   | "go-chase"
   | "go-payments"
+  | "go-communications"
   | "go-hq"
   | "go-private-alpha";
 
@@ -29,6 +30,8 @@ export type CommandDefinition = {
   href: string;
   keywords: string[];
   group: "actions" | "navigate";
+  /** Platform owner only — filtered in searchCommandPalette. */
+  ownerOnly?: boolean;
 };
 
 export const COMMAND_REGISTRY: CommandDefinition[] = [
@@ -102,30 +105,31 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     id: "go-overview",
-    title: "Go to Overview",
+    title: "Go to Command Centre",
+    subtitle: "Today’s operating view",
     href: "/dashboard",
-    keywords: ["overview", "home", "dashboard"],
+    keywords: ["overview", "home", "dashboard", "command centre", "command center"],
     group: "navigate",
   },
   {
     id: "go-business",
     title: "Go to Business",
     href: "/dashboard/business",
-    keywords: ["business", "hours", "branding"],
+    keywords: ["business", "hours", "branding", "settings", "setup"],
     group: "navigate",
   },
   {
     id: "go-summer",
     title: "Open Summer",
-    subtitle: "AI Business Manager",
+    subtitle: "AI Business Manager · Early Access",
     href: "/dashboard/ai-workforce/summer",
-    keywords: ["ai", "summer", "receptionist", "business manager", "ask summer", "book"],
+    keywords: ["ai", "summer", "business manager", "ask summer", "book", "early access"],
     group: "navigate",
   },
   {
     id: "go-chase",
     title: "Open Chase",
-    subtitle: "AI Operations Manager",
+    subtitle: "AI Operations Manager · Early Access",
     href: "/dashboard/workforce/chase",
     keywords: ["ai", "chase", "operations", "analytics", "insights", "noah"],
     group: "navigate",
@@ -133,15 +137,23 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   {
     id: "go-payments",
     title: "Open Payments",
-    subtitle: "Commerce Platform",
+    subtitle: "Sales and payments",
     href: "/dashboard/payments",
-    keywords: ["payments", "billing", "invoice", "receipt", "refund", "deposit", "stripe"],
+    keywords: ["payments", "billing", "invoice", "receipt", "refund", "deposit", "sales"],
+    group: "navigate",
+  },
+  {
+    id: "go-communications",
+    title: "Open Communications",
+    subtitle: "Messages and notifications",
+    href: "/dashboard/notifications",
+    keywords: ["communications", "notifications", "messages", "inbox", "email", "sms"],
     group: "navigate",
   },
   {
     id: "go-ai",
     title: "Go to AI Workforce",
-    subtitle: "Team roster",
+    subtitle: "Team roster · Early Access",
     href: "/dashboard/ai-workforce",
     keywords: ["ai", "workforce", "alex"],
     group: "navigate",
@@ -153,6 +165,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
     href: "/dashboard/hq",
     keywords: ["hq", "founder", "ceo", "pipeline", "launch", "owner"],
     group: "navigate",
+    ownerOnly: true,
   },
   {
     id: "go-private-alpha",
@@ -169,6 +182,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
       "founder",
     ],
     group: "navigate",
+    ownerOnly: true,
   },
 ];
 

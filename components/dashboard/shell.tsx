@@ -41,6 +41,13 @@ function ShellInner({
 
   return (
     <div className="flex min-h-screen bg-background">
+      <a
+        href="#portal-main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[calc(var(--z-palette)+1)] focus:rounded-[var(--radius-md)] focus:bg-card focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-md ds-focus-ring"
+      >
+        Skip to main content
+      </a>
+
       <div className="hidden lg:block">
         <DashboardSidebar
           userEmail={userEmail}
@@ -58,6 +65,8 @@ function ShellInner({
           onMenuOpen={() => setMobileOpen(true)}
         />
         <main
+          id="portal-main"
+          tabIndex={-1}
           className={cn(
             "flex-1 px-4 py-5 pb-24 md:px-6 md:py-7 lg:px-8 lg:pb-7",
             wide ? "w-full max-w-none" : "mx-auto w-full max-w-6xl",

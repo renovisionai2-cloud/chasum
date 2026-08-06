@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-05  
-**Updated by:** World Class Execution Program — Chapter 0 Audit Completion Addendum (docs only; Production unchanged; Chapter 1 not started)  
+**Updated by:** World Class Execution Program — Chapter 1 design system and portal foundation (Preview only; Production unchanged)  
 
 ---
 
@@ -154,6 +154,15 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-05)
+
+**World Class Execution — Chapter 1 design system + portal foundation**
+
+- Tokens (z-index, touch, motion, typography utilities), skip-nav, Command Centre label, command/quick-create polish, Summer Early Access chrome
+- Lint: resolved 2 shell errors; Ch 1 files clean; full lint 32/20 (was 34/20)
+- Tests: +4 foundation; 270 pass / 1 inherited fail
+- **Chapter 2 not started**
+
+### Immediately prior (2026-08-05)
 
 **World Class Execution — Chapter 0 Audit Completion Addendum (docs only)**
 
@@ -311,9 +320,9 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 0 Audit Completion Addendum** — approve matrices + **OWNER DECISION REQUIRED** items before any Chapter 1 work.
-2. **Do not start Execution Chapter 1** until PO approves Chapter 0.
-3. **Operation GVM Production** — remain protected; hotfixes only via controlled Production process if required.
+1. **PO review of Chapter 1** — shell / DS / Preview before Chapter 2 Command Centre depth.
+2. **Do not start Chapter 2** until PO approves Chapter 1.
+3. **Operation GVM Production** — remain protected.
 4. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  

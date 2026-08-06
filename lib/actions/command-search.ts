@@ -4,6 +4,7 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getLocationScope } from "@/lib/actions/location";
 import { matchCommandRegistry } from "@/lib/command/registry";
 import { withLocationFilter } from "@/lib/location/constants";
+import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 
@@ -29,7 +30,14 @@ export async function searchCommandPalette(
   const query = rawQuery.trim();
   const results: CommandSearchResult[] = [];
 
+  const supabaseAuth = await createClient();
+  const {
+    data: { user },
+  } = await supabaseAuth.auth.getUser();
+  const showOwnerCommands = user ? await isPlatformOwner(user) : false;
+
   for (const cmd of matchCommandRegistry(query)) {
+    if (cmd.ownerOnly && !showOwnerCommands) continue;
     results.push({
       id: `cmd-${cmd.id}`,
       category: cmd.group === "actions" ? "actions" : "pages",
@@ -45,7 +53,7 @@ export async function searchCommandPalette(
 
   const business = await getOrCreateBusiness();
   const scope = await getLocationScope();
-  const supabase = await createClient();
+  const supabase = supabaseAuth;
   const q = query;
 
   const [customersRes, staffRes, servicesRes, appointmentsRes] =

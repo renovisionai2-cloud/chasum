@@ -10,6 +10,22 @@
 
 ---
 
+## Locked owner decisions (approved with Chapter 0)
+
+1. Online Payments — only genuinely connected/tested workflows.  
+2. Inventory — Roadmap/Coming Soon (not available Business capability).  
+3. Summer — Early Access / Private Alpha (not full vision as Available Today).  
+4. Memberships — Beta/Incomplete until verified.  
+5. Core multi-location available where proven; franchise-scale future.  
+6. Staff limits need UI + server enforcement; migration separate.  
+7. Business location marketing limit = **six** (do not silently change DB).  
+8. Never render unsupported IMPACT_STATS / TESTIMONIALS.  
+9. Start Free honesty → marketing-parity chapter.  
+10. Calls & Texting only with plan + providers.  
+11. Paid/API areas need full-stack enforcement over time.  
+12. Education not fully supported until workflows + tests complete.
+
+
 ## Classification vocabulary (this matrix)
 
 | Code | Meaning |

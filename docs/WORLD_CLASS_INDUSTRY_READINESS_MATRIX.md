@@ -5,6 +5,8 @@
 **Production baseline:** `4eecbec`  
 **Industry list authority:** Marketing website sources below — **not a guessed list**  
 **Mode:** Documentation only  
+**Owner decision:** Education is **not fully supported** until workflows and testing are complete.
+
 
 ---
 

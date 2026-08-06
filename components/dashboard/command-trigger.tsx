@@ -3,7 +3,7 @@
 import { dispatchOpenCommandPalette } from "@/lib/reception/workflow-events";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type CommandTriggerProps = {
   className?: string;
@@ -11,14 +11,13 @@ type CommandTriggerProps = {
   compact?: boolean;
 };
 
-export function CommandTrigger({ className, compact = false }: CommandTriggerProps) {
-  const [modHint, setModHint] = useState("Ctrl");
+function resolveModHint(): string {
+  if (typeof navigator === "undefined") return "Ctrl";
+  return /Mac|iPhone|iPad/i.test(navigator.platform) ? "⌘" : "Ctrl";
+}
 
-  useEffect(() => {
-    setModHint(
-      /Mac|iPhone|iPad/i.test(navigator.platform) ? "⌘" : "Ctrl",
-    );
-  }, []);
+export function CommandTrigger({ className, compact = false }: CommandTriggerProps) {
+  const [modHint] = useState(resolveModHint);
 
   if (compact) {
     return (
@@ -26,7 +25,7 @@ export function CommandTrigger({ className, compact = false }: CommandTriggerPro
         type="button"
         onClick={() => dispatchOpenCommandPalette()}
         className={cn(
-          "inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] border border-border bg-muted/40 text-muted-foreground transition-colors hover:border-primary/30 hover:bg-muted hover:text-foreground ds-focus-ring",
+          "inline-flex h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] items-center justify-center rounded-[var(--radius-md)] border border-border bg-muted/40 text-muted-foreground transition-colors hover:border-primary/30 hover:bg-muted hover:text-foreground ds-focus-ring",
           className,
         )}
         aria-label="Open search and commands"
@@ -41,7 +40,7 @@ export function CommandTrigger({ className, compact = false }: CommandTriggerPro
       type="button"
       onClick={() => dispatchOpenCommandPalette()}
       className={cn(
-        "flex min-w-0 max-w-md flex-1 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:bg-muted hover:text-foreground ds-focus-ring",
+        "flex min-h-[var(--touch-min)] min-w-0 max-w-md flex-1 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:bg-muted hover:text-foreground ds-focus-ring",
         className,
       )}
       aria-label="Open search and commands"

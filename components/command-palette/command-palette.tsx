@@ -201,15 +201,28 @@ function CommandPalettePanel({ onClose }: { onClose: () => void }) {
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen((v) => !v);
+        setOpen((v) => {
+          if (!v) {
+            restoreFocusRef.current =
+              document.activeElement instanceof HTMLElement
+                ? document.activeElement
+                : null;
+          }
+          return !v;
+        });
       }
     }
     function onOpenEvent() {
+      restoreFocusRef.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
       setOpen(true);
     }
     document.addEventListener("keydown", onKeyDown);
@@ -220,17 +233,26 @@ export function CommandPalette() {
     };
   }, []);
 
+  function close() {
+    setOpen(false);
+    const el = restoreFocusRef.current;
+    restoreFocusRef.current = null;
+    if (el && typeof el.focus === "function") {
+      window.setTimeout(() => el.focus(), 0);
+    }
+  }
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center px-4 pt-[12vh]">
+    <div className="fixed inset-0 z-[var(--z-palette)] flex items-start justify-center px-4 pt-[12vh]">
       <button
         type="button"
         className="absolute inset-0 bg-black/45 backdrop-blur-sm"
         aria-label="Close command palette"
-        onClick={() => setOpen(false)}
+        onClick={close}
       />
-      <CommandPalettePanel key="palette" onClose={() => setOpen(false)} />
+      <CommandPalettePanel key="palette" onClose={close} />
     </div>
   );
 }

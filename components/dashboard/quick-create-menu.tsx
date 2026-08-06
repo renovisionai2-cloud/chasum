@@ -1,33 +1,22 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { QUICK_CREATE_ACTIONS } from "@/lib/dashboard/quick-create";
 import { cn } from "@/lib/utils";
 import {
+  Banknote,
   CalendarPlus,
   Plus,
   UserPlus,
-  Banknote,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 
-const ACTIONS = [
-  {
-    href: "/dashboard/calendar?view=day&book=1",
-    label: "Book appointment",
-    icon: CalendarPlus,
-  },
-  {
-    href: "/dashboard/clients",
-    label: "Add customer",
-    icon: UserPlus,
-  },
-  {
-    href: "/dashboard/payments",
-    label: "Record payment",
-    icon: Banknote,
-  },
-] as const;
+const ICONS = {
+  "calendar-plus": CalendarPlus,
+  "user-plus": UserPlus,
+  banknote: Banknote,
+} as const;
 
 type QuickCreateMenuProps = {
   className?: string;
@@ -60,10 +49,11 @@ export function QuickCreateMenu({ className }: QuickCreateMenuProps) {
         type="button"
         variant="outline"
         size="sm"
-        className="h-9 gap-1.5 px-2.5"
+        className="h-10 min-h-[var(--touch-min)] gap-1.5 px-2.5"
         aria-expanded={open}
         aria-controls={menuId}
         aria-haspopup="menu"
+        aria-label="New — create booking, customer, or payment"
         onClick={() => setOpen((v) => !v)}
       >
         <Plus className="h-4 w-4" aria-hidden="true" />
@@ -74,16 +64,16 @@ export function QuickCreateMenu({ className }: QuickCreateMenuProps) {
           id={menuId}
           role="menu"
           aria-label="Quick create"
-          className="absolute right-0 top-full z-50 mt-1.5 min-w-[12.5rem] rounded-[var(--radius-md)] border border-border bg-card p-1 shadow-lg"
+          className="absolute right-0 top-full z-[var(--z-overlay)] mt-1.5 min-w-[12.5rem] rounded-[var(--radius-md)] border border-border bg-card p-1 shadow-lg"
         >
-          {ACTIONS.map((action) => {
-            const Icon = action.icon;
+          {QUICK_CREATE_ACTIONS.map((action) => {
+            const Icon = ICONS[action.icon];
             return (
               <Link
                 key={action.href}
                 href={action.href}
                 role="menuitem"
-                className="flex items-center gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted ds-focus-ring"
+                className="flex min-h-[var(--touch-min)] items-center gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-muted ds-focus-ring"
                 onClick={() => setOpen(false)}
               >
                 <Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />

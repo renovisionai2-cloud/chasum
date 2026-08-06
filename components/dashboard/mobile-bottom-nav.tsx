@@ -37,32 +37,34 @@ export function MobileBottomNav({ onMore }: MobileBottomNavProps) {
   const items = getMobilePrimaryItems().filter(
     (i) => i.href !== "/dashboard/ai-workforce/summer",
   );
-  // Keep five slots: Overview, Reception, Customers, Payments, More
+  // Keep five slots: Command Centre, Reception, Customers, Payments, More
   // Summer stays in header / full menu to avoid crowding.
 
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-[var(--z-shell)] border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden"
     >
       <ul className="grid grid-cols-5 gap-0 px-1 pt-1">
         {items.slice(0, 4).map((item) => {
           const Icon = iconMap[item.icon] ?? LayoutDashboard;
           const active = isNavItemActive(pathname, search, item);
+          const label = item.mobileLabel ?? item.label;
           return (
             <li key={item.href}>
               <Link
                 href={item.href}
                 className={cn(
-                  "flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-[var(--radius-md)] px-1 text-[10px] font-medium ds-focus-ring",
+                  "flex min-h-[var(--touch-min)] flex-col items-center justify-center gap-0.5 rounded-[var(--radius-md)] px-1 text-[10px] font-medium ds-focus-ring",
                   active
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground",
                 )}
                 aria-current={active ? "page" : undefined}
+                aria-label={item.label}
               >
                 <Icon className="h-5 w-5" aria-hidden="true" />
-                <span className="truncate">{item.label}</span>
+                <span className="truncate">{label}</span>
               </Link>
             </li>
           );
@@ -71,7 +73,7 @@ export function MobileBottomNav({ onMore }: MobileBottomNavProps) {
           <button
             type="button"
             onClick={onMore}
-            className="flex min-h-12 w-full flex-col items-center justify-center gap-0.5 rounded-[var(--radius-md)] px-1 text-[10px] font-medium text-muted-foreground hover:text-foreground ds-focus-ring"
+            className="flex min-h-[var(--touch-min)] w-full flex-col items-center justify-center gap-0.5 rounded-[var(--radius-md)] px-1 text-[10px] font-medium text-muted-foreground hover:text-foreground ds-focus-ring"
             aria-label="More navigation"
           >
             <Menu className="h-5 w-5" aria-hidden="true" />

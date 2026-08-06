@@ -1,5 +1,5 @@
 /**
- * Portal navigation IA — World Class Phase 1.
+ * Portal navigation IA — World Class Chapter 1 foundation.
  * Presentation labels only; routes stay compatible with existing pages.
  */
 
@@ -25,6 +25,8 @@ export type DashboardNavIcon =
 export type DashboardNavItem = {
   href: string;
   label: string;
+  /** Shorter label for mobile bottom nav when `label` is long. */
+  mobileLabel?: string;
   icon: DashboardNavIcon;
   /** Match against pathname (+ optional tab query). */
   match?: "exact" | "prefix";
@@ -50,6 +52,7 @@ export type DashboardNavGroup = {
 /**
  * Group labels chosen for small service-business owners:
  * Catalog (not “Offer”), Insights (not “Grow”), Settings (not “Configure”).
+ * Command Centre label maps to `/dashboard` — page depth is Chapter 2.
  */
 export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
   {
@@ -58,7 +61,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
     items: [
       {
         href: "/dashboard",
-        label: "Overview",
+        label: "Command Centre",
+        mobileLabel: "Centre",
         icon: "layout-dashboard",
         match: "exact",
         mobilePrimary: true,
