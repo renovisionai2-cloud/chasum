@@ -349,10 +349,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `c8ce8e7a231d045d6059df86707122f087334ba8` |
-| **Short** | `c8ce8e7` |
-| **Subject** | docs: lock World Class polish and intelligence backlog |
-| **Prior tip** | `1fb57b1` |
+| **SHA** | `3793ec6f56ba2eb51544b3295f4b8f943c8f3ebf` |
+| **Short** | `3793ec6` |
+| **Subject** | feat: Chapter 4 Customer Workspace for service CRM |
+| **Prior tip** | `f784433` |
 | **Chapter 3 correction** | `d4fdf14` · https://chasum-5znagtas1-renovisionappcom.vercel.app |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
