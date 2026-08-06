@@ -1,7 +1,10 @@
 # World Class Testing Matrix
 
-**Chapter:** 0 — Scaffold for continuous use  
+**Chapter:** 0 — Scaffold + Addendum baseline  
+**Branch:** `cursor/world-class-portal-foundation`  
+**Production baseline:** `4eecbec`  
 **Rule:** Do not mark complete on appearance alone; verify data and workflow.  
+**Chapter 1:** Not started — await PO approval of Chapter 0.
 
 ---
 
@@ -13,6 +16,7 @@
 | World Class Preview | https://chasum-f2djbjdae-renovisionappcom.vercel.app @ `d86e398` |
 | Branch | `cursor/world-class-portal-foundation` |
 | Shared DB | Yes — **read-only preferred** on Preview for audits; no test appointments in Chapter 0 |
+| Migrations 034–036 | Do not apply |
 
 ---
 
@@ -90,14 +94,18 @@
 
 ## Chapter 0 baseline automated results
 
-Recorded 2026-08-05 on branch tip before Chapter 0 commit (`0496196`); docs-only chapter does not change these baselines.
+Re-verified during Chapter 0 Audit Completion Addendum (docs-only; product tree unchanged from `f8e1c33`).
 
 | Check | Result |
 |-------|--------|
-| Typecheck (`npm run typecheck`) | **Pass** (exit 0) |
-| Lint (`npm run lint`) | **Pre-existing fail signal:** 54 problems (34 errors, 20 warnings). Includes prefer-const in app code, unused vars, and untracked brand scripts. **Not introduced by Chapter 0.** |
-| Unit tests (`npm test`) | **266 passed, 1 failed** (53 files). Failure: `tests/unit/marketing/multi-business-selection.test.ts` — `shows all businessTypes in the understanding profile` (`business?.discovered` undefined). **Pre-existing / unrelated to Chapter 0 docs.** |
-| Build (`npm run build`) | **Pass** (exit 0). Next.js 16.2.10 Turbopack; middleware→proxy deprecation warning only. |
+| Typecheck (`npm run typecheck`) | **Pass** |
+| Lint (`npm run lint`) | **54 problems (34 errors, 20 warnings)** — inherited; categories in `WORLD_CLASS_IMPLEMENTATION_BLUEPRINT.md` / `WORLD_CLASS_RELEASE_LOG.md` |
+| Unit tests (`npm test`) | **266 passed, 1 failed** — exact fail: `tests/unit/marketing/multi-business-selection.test.ts` › `shows all businessTypes in the understanding profile` |
+| Build (`npm run build`) | **Pass** |
+
+### Permanent quality rule
+
+No chapter may introduce additional lint errors/warnings, failing tests, typecheck failures, or build failures. Report inherited / new / resolved each chapter.
 
 ---
 

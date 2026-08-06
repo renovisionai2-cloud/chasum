@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-05  
-**Updated by:** World Class Execution Program — Chapter 0 repository and product audit (docs only; Production unchanged)  
+**Updated by:** World Class Execution Program — Chapter 0 Audit Completion Addendum (docs only; Production unchanged; Chapter 1 not started)  
 
 ---
 
@@ -116,9 +116,9 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — shell foundation already at `d86e398`; Chapter 0 audit matrices complete.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — shell foundation already at `d86e398`; Chapter 0 audit + **Audit Completion Addendum** comprehensive matrices await PO approval before Chapter 1.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
-4. Marketing locks remain locked — claim fixes require PO (see parity matrix).
+4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
 **Summer title (locked):** AI Business Manager — not Receptionist / chatbot / Emma in customer-facing copy.
 
@@ -155,12 +155,19 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-05)
 
-**World Class Execution — Chapter 0 audit (docs only)**
+**World Class Execution — Chapter 0 Audit Completion Addendum (docs only)**
 
 - Branch `cursor/world-class-portal-foundation`
-- Produced blueprint, design-system formalization, route map, marketing parity, plan entitlements, industry readiness, testing matrix, release log
-- No Production deploy; no migrations; no live data changes
-- Prior shell Preview remains: https://chasum-f2djbjdae-renovisionappcom.vercel.app (`d86e398`)
+- Expanded marketing-product parity (14 routes, critical dossiers A–H), plan entitlement evidence, industry source inventory (11 + Education tile), quality-debt baseline, cross-doc consistency
+- **Chapter 1 not started**; no product/marketing code; no Production; no migrations; no live data
+- Shell Preview unchanged: https://chasum-f2djbjdae-renovisionappcom.vercel.app (`d86e398`)
+- Untracked excluded: brand PDF, brand scripts, `tmp/`
+
+### Immediately prior (2026-08-05)
+
+**World Class Execution — Chapter 0 initial audit docs**
+
+- Commits `27cd0b3` / `f8e1c33` — initial matrices + SHA stamp
 
 ### Immediately prior (2026-08-04)
 
@@ -279,10 +286,9 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `27cd0b31e78bc34418109f9243f32fcb2c7382f2` |
-| **Short** | `27cd0b3` |
-| **Subject** | Document World Class Chapter 0 repository and product audit |
-| **Prior tip** | `0496196` (Phase 1 Preview report) |
+| **SHA** | *(updated after Addendum commit)* |
+| **Subject** | Complete World Class Chapter 0 audit coverage |
+| **Prior tip** | `f8e1c33` |
 | **Shell commit** | `d86e398` |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
@@ -304,10 +310,10 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of World Class Chapter 0** — approve matrices before Execution Chapter 1 continuation.
-2. **Execution Chapter 1 (remaining)** — formalize DS adoption gaps; do not start Command Centre (Ch 2) until approved.
+1. **PO review of Chapter 0 Audit Completion Addendum** — approve matrices + **OWNER DECISION REQUIRED** items before any Chapter 1 work.
+2. **Do not start Execution Chapter 1** until PO approves Chapter 0.
 3. **Operation GVM Production** — remain protected; hotfixes only via controlled Production process if required.
-4. Marketing claim fixes (parity Critical rows) only with **explicit PO** (locked pages).
+4. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.

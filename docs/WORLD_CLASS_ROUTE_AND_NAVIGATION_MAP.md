@@ -1,8 +1,11 @@
 # World Class Route and Navigation Map
 
 **Chapter:** 0  
+**Branch:** `cursor/world-class-portal-foundation`  
+**Production baseline:** `4eecbec`  
 **Nav source:** `lib/dashboard/nav.ts` (shipped in `d86e398`)  
 **Inventory companion:** [`PORTAL_ROUTE_INVENTORY.md`](./PORTAL_ROUTE_INVENTORY.md)  
+**Migrations 034–036:** Do not apply · Shared Supabase: no experimental schema  
 
 ---
 

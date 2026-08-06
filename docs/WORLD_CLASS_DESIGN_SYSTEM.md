@@ -1,6 +1,10 @@
 # World Class Design System
 
 **Status:** Chapter 0 formalization — extends Design System v1; does not fork a second system  
+**Branch:** `cursor/world-class-portal-foundation`  
+**Production baseline:** `4eecbec`  
+**Shell already shipped (Execution Ch 1 partial):** `d86e398`  
+**Chapter 1 remaining work:** Await PO approval of Chapter 0 — do not implement in Ch 0  
 **Canonical contract:** [`docs/product/23_DESIGN_SYSTEM_V1.md`](./product/23_DESIGN_SYSTEM_V1.md)  
 **Related:** [`WORLD_CLASS_DESIGN_PRINCIPLES.md`](./WORLD_CLASS_DESIGN_PRINCIPLES.md), Brand V2 (`BRAND_GUIDELINES.md`)  
 
