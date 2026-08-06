@@ -339,12 +339,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `d4fdf141767e1bbe7d6688f9f5746f0aa59a40a6` |
-| **Short** | `d4fdf14` |
-| **Subject** | fix: Chapter 3 Reception and Calendar correction pass |
-| **Prior tip** | `a9ae37b` |
-| **Chapter 3 feature** | `4b4a29e` |
-| **Chapter 3 correction Preview** | https://chasum-5znagtas1-renovisionappcom.vercel.app |
+| **SHA** | `c8ce8e7a231d045d6059df86707122f087334ba8` |
+| **Short** | `c8ce8e7` |
+| **Subject** | docs: lock World Class polish and intelligence backlog |
+| **Prior tip** | `1fb57b1` |
+| **Chapter 3 correction** | `d4fdf14` · https://chasum-5znagtas1-renovisionappcom.vercel.app |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 
