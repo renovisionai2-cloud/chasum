@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-06  
-**Updated by:** World Class Execution Program — Chapter 3 correction pass (Preview only; Production unchanged)  
+**Updated by:** World Class Execution Program — Polish & Intelligence backlog lock (docs only; Production unchanged; Chapter 4 not started)  
 
 ---
 
@@ -37,6 +37,8 @@
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
 | [`docs/WORLD_CLASS_IMPLEMENTATION_BLUEPRINT.md`](./WORLD_CLASS_IMPLEMENTATION_BLUEPRINT.md) | World Class execution blueprint |
+| [`docs/WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) | **Locked** portal polish & intelligence backlog (post-review) |
+| [`docs/WORLD_CLASS_MARKETING_PARITY.md`](./WORLD_CLASS_MARKETING_PARITY.md) | Marketing parity pointer + polish implications |
 | [`docs/WORLD_CLASS_MARKETING_PRODUCT_PARITY.md`](./WORLD_CLASS_MARKETING_PRODUCT_PARITY.md) | Marketing ↔ product parity matrix |
 | [`docs/WORLD_CLASS_PLAN_ENTITLEMENT_MATRIX.md`](./WORLD_CLASS_PLAN_ENTITLEMENT_MATRIX.md) | Pricing entitlement gaps |
 | [`docs/WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md`](./WORLD_CLASS_INDUSTRY_READINESS_MATRIX.md) | Industry readiness |
@@ -154,6 +156,15 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-06)
+
+**World Class — lock portal review recommendations (docs only)**
+
+- Created `docs/WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md` — permanent chapter-assigned backlog
+- Created `docs/WORLD_CLASS_MARKETING_PARITY.md` pointer + marketing implications
+- Formal **Polish & Intelligence Program** recorded as required pre-launch gate
+- **No UI / engine / Production / Chapter 4 work**
+
+### Immediately prior (2026-08-06)
 
 **World Class Execution — Chapter 3 correction pass**
 
@@ -357,8 +368,9 @@ As of last update:
 
 1. **PO review of Chapter 3** — Reception / Calendar Preview + blueprints before Chapter 4.
 2. **Do not start Chapter 4** until PO approves Chapter 3.
-3. **Operation GVM Production** — remain protected.
-4. Marketing claim fixes only with **explicit PO** (locked pages).
+3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables assigned to chapters — do not leave them in chat-only history.
+4. **Operation GVM Production** — remain protected.
+5. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.

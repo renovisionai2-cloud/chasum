@@ -25,8 +25,19 @@
 | 2026-08-06 | **Chapter 2 blocker — outstanding invoices** | `0e5378b` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Reports outstanding invoices now use commerce SoT (same as Payments / CC) |
 | 2026-08-06 | **Chapter 3 — Reception and Calendar** | `4b4a29e` | https://chasum-76u5xrh9c-renovisionappcom.vercel.app (Ready Preview; SSO). Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Shared appointment-ops; Reception brief; calendar filters; payment readiness; no fake slots |
 | 2026-08-06 | **Chapter 3 correction pass** | `d4fdf14` | https://chasum-5znagtas1-renovisionappcom.vercel.app (Ready Preview; SSO). Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ week/month; unassigned coming-soon; filter order; Chase Unavailable; Resources empty; Ch9 architecture |
+| 2026-08-06 | **Polish & Intelligence backlog lock** | _(stamp)_ | Docs-only | Locked portal review recommendations → chapters + final Polish & Intelligence Program; Chapter 4 not started |
 
 ---
+
+## Polish & Intelligence backlog lock
+
+| Check | Result |
+|-------|--------|
+| Artifact | `docs/WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md` |
+| Marketing pointer | `docs/WORLD_CLASS_MARKETING_PARITY.md` |
+| UI / engine changes | **None** |
+| Production | Untouched |
+| Chapter 4 | Not started |
 
 ## Chapter 3 correction pass quality report
 

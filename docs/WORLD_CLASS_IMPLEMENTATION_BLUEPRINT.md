@@ -40,6 +40,9 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 13 | Marketing parity completion | Matrix complete; fixes need PO (locks) |
 | 14 | Industry readiness | Matrix complete; product work later |
 | 15 | Full platform QA | Not started |
+| — | **World Class Polish & Intelligence Program** | Locked backlog — after functional chapters; required before public launch |
+
+**Polish & Intelligence backlog (locked):** [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) — visual hierarchy, spacing, icons, tables, Summer/Chase intelligence, appointment depth, business setup centre, payments intelligence, Command Centre evolution, reports, customer depth, mobile, motion, system states. Progressive by chapter; final gate before launch.
 
 **Prior naming:** Docs that say “Phase 1 portal foundation” = Execution **Chapter 1 (partial)**.
 
@@ -166,6 +169,14 @@ Expand beyond “basic setup” into:
 
 **Do not implement in Chapters 3–8.** Architecture locked in [`WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md`](./WORLD_CLASS_LOCATIONS_RESOURCES_ARCHITECTURE.md) as **REQUIRED BEFORE PUBLIC LAUNCH**.
 
+## World Class Polish & Intelligence Program (locked)
+
+After functional chapters, run the formal **Polish & Intelligence Program** documented in [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md).
+
+Includes cross-portal hierarchy, spacing, icons, tables, charts, Summer/Chase verification, system states, mobile, a11y, performance, truthfulness, industry readiness, and marketing parity.
+
+This is **planning-locked now**; implementation is **not** started by this documentation commit.
+
 ## Next step after PO approval
 
-Begin **Execution Chapter 4 — Customers** only after PO approves Chapter 3 (including this correction pass). Do not start Chapter 4 until then.
+Begin **Execution Chapter 4 — Customers** only after PO approves Chapter 3 (including the correction pass). Do not start Chapter 4 until then. Apply progressive polish backlog items during Ch 4+; do not wait for chat memory.

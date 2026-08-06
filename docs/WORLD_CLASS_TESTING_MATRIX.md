@@ -180,6 +180,17 @@
 | Automated tests | `view-range.test.ts` + expanded `reception-calendar-ops.test.ts` |
 | Approval | Awaiting PO |
 
+### Polish & Intelligence backlog (locked)
+
+| Field | Value |
+|-------|--------|
+| Doc | `docs/WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md` |
+| Scope | Visual hierarchy, spacing, icons, tables, Summer/Chase, appointment depth, business setup, payments intelligence, Command Centre evolution, reports, customer depth, mobile, motion, system states, final Polish Program |
+| Implementation now | **No** — documentation lock only |
+| Progressive | Each chapter acceptance criteria |
+| Final gate | World Class Polish & Intelligence Program before public launch |
+| Automated tests | `tests/unit/docs/world-class-polish-backlog.test.ts` |
+
 ### Permanent quality rule
 
 No chapter may introduce additional lint errors/warnings, failing tests, typecheck failures, or build failures. Report inherited / new / resolved each chapter.

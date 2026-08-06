@@ -5,6 +5,7 @@
 **Production baseline:** `4eecbec` · https://chasum.vercel.app · tag `phase-0-gvm-production-2026-08-04`  
 **Claim authority:** [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md)  
 **Locked marketing pages:** Pricing, Roadmap, Meet Summer, Resources (Private Alpha / Security / Status) — **do not change copy in this chapter**  
+**Polish backlog lock:** [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) · short pointer [`WORLD_CLASS_MARKETING_PARITY.md`](./WORLD_CLASS_MARKETING_PARITY.md)  
 **Method:** Inspected every `app/(marketing)/*` route, `lib/marketing/*`, landing components, nav/footer, FAQs, plan cards, workflows, dormant constants  
 **Mode:** Document conflicts only — no marketing or product code changes  
 
