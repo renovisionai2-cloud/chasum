@@ -392,10 +392,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `da50a2d1711319eefbcba8efe54b8ecb47bbda9c` |
-| **Short** | `da50a2d` |
-| **Subject** | fix: booking amount input UX and View Appointment navigation |
-| **Prior tip** | `fe9c4a4` |
+| **SHA** | `6066e4df303d80233494fb6f04c33a4cfdb330db` |
+| **Short** | `6066e4d` |
+| **Subject** | fix: present useful Date & Time start times |
+| **Prior tip** | `da6d67d` |
 | **Feature (expand management)** | `c2f8962` |
 | **Feature (adaptive booking)** | `32a9ce1` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
