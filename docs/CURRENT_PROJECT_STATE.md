@@ -373,8 +373,8 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | *(feature commit pending stamp)* |
-| **Short** | pending |
+| **SHA** | `c2f8962d994a0cb0994ad2feb1d5d7a931222635` |
+| **Short** | `c2f8962` |
 | **Subject** | feat: expandable existing appointment management workspace |
 | **Prior tip** | `b920e4a` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |

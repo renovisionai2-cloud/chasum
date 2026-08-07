@@ -31,7 +31,7 @@
 | 2026-08-07 | **Chapter 4 Final Correction — Booking Workspace** | `6661f0b` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Progressive booking IA; no width debug controls; Date→time; one Payment card; sticky footer |
 | 2026-08-07 | **Chapter 4 Final Acceptance — Progressive stages** | `c56aad2` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | True staged workflow; only active expanded; acceptance lock |
 | 2026-08-07 | **Chapter 4 Adaptive Booking Workspace** | `32a9ce1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Ask-only-missing; summary strip; date+time; success; benchmarks |
-| 2026-08-07 | **Existing Appointment expandable workspace** | *(pending push)* | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
+| 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
 
@@ -39,9 +39,9 @@
 
 | Check | Result |
 |-------|--------|
-| Typecheck | pending stamp |
-| Build | pending |
-| Unit tests | pending |
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Unit tests | **341 pass / 1 fail**; inherited multi-business-selection only |
 | Production | Untouched |
 | Migrations 034–036 | Not applied |
 | Engines | Unchanged |
