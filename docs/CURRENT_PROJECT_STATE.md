@@ -357,11 +357,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `3793ec6f56ba2eb51544b3295f4b8f943c8f3ebf` |
-| **Short** | `3793ec6` |
-| **Subject** | feat: Chapter 4 Customer Workspace for service CRM |
-| **Prior tip** | `f784433` |
-| **Chapter 3 correction** | `d4fdf14` · https://chasum-5znagtas1-renovisionappcom.vercel.app |
+| **SHA** | `0052bc330a7706441ddb0237f8712cadae9d04f1` |
+| **Short** | `0052bc3` |
+| **Subject** | fix: Chapter 4 Customer Workspace premium correction polish |
+| **Prior tip** | `6c5d939` |
+| **Chapter 4 feature** | `3793ec6` |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
 

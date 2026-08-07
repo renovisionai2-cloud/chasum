@@ -27,7 +27,7 @@
 | 2026-08-06 | **Chapter 3 correction pass** | `d4fdf14` | https://chasum-5znagtas1-renovisionappcom.vercel.app (Ready Preview; SSO). Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ week/month; unassigned coming-soon; filter order; Chase Unavailable; Resources empty; Ch9 architecture |
 | 2026-08-06 | **Polish & Intelligence backlog lock** | `c8ce8e7` | Docs-only | Locked portal review recommendations → chapters + final Polish & Intelligence Program; Chapter 4 not started |
 | 2026-08-06 | **Chapter 4 — Customer Workspace** | `3793ec6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (SSO). Unique Ready URL after Vercel deploy. | Directory redesign; payment summary; profile workspace; honest empty states; collected ≠ revenue |
-| 2026-08-06 | **Chapter 4 correction & premium polish** | _(stamp after push)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tight directory; health overview; read-first profile; avg spend Unavailable; billing sections; data dictionary |
+| 2026-08-06 | **Chapter 4 correction & premium polish** | `0052bc3` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tight directory; health overview; read-first profile; avg spend Unavailable; billing sections; data dictionary |
 
 ---
 
