@@ -382,10 +382,12 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `c2f8962d994a0cb0994ad2feb1d5d7a931222635` |
-| **Short** | `c2f8962` |
-| **Subject** | feat: expandable existing appointment management workspace |
-| **Prior tip** | `b920e4a` |
+| **SHA** | `da50a2d1711319eefbcba8efe54b8ecb47bbda9c` |
+| **Short** | `da50a2d` |
+| **Subject** | fix: booking amount input UX and View Appointment navigation |
+| **Prior tip** | `fe9c4a4` |
+| **Feature (expand management)** | `c2f8962` |
+| **Feature (adaptive booking)** | `32a9ce1` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
