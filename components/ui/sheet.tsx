@@ -16,8 +16,11 @@ export const BOOKING_SHEET_WIDTH_KEY = "chasum.bookingSheetWidthPx";
 export const BOOKING_SHEET_NARROW_PX = 440;
 export const BOOKING_SHEET_STANDARD_PX = 600;
 export const BOOKING_SHEET_WIDE_PX = 820;
+/** Existing-appointment management workspace (desktop expanded). */
+export const BOOKING_SHEET_MANAGEMENT_MAX_PX = 1180;
 const SHEET_MIN_PX = 400;
 const SHEET_MAX_VIEWPORT_RATIO = 0.78;
+const SHEET_MANAGEMENT_VIEWPORT_RATIO = 0.68;
 
 type SheetProps = {
   open: boolean;
@@ -37,13 +40,25 @@ type SheetProps = {
   defaultWidthPx?: number;
   /** localStorage key for remembered width (defaults to booking sheet key). */
   widthStorageKey?: string;
+  /**
+   * Desktop width mode. `management` expands the existing-appointment workspace
+   * (~60–70vw, capped) without Narrow/Standard/Wide controls.
+   */
+  widthMode?: "default" | "management";
 };
 
-function clampWidth(width: number): number {
+function clampWidth(
+  width: number,
+  maxRatio = SHEET_MAX_VIEWPORT_RATIO,
+  absoluteMax = BOOKING_SHEET_WIDE_PX,
+): number {
   if (typeof window === "undefined") {
-    return Math.max(SHEET_MIN_PX, Math.min(width, BOOKING_SHEET_WIDE_PX));
+    return Math.max(SHEET_MIN_PX, Math.min(width, absoluteMax));
   }
-  const max = Math.floor(window.innerWidth * SHEET_MAX_VIEWPORT_RATIO);
+  const max = Math.min(
+    absoluteMax,
+    Math.floor(window.innerWidth * maxRatio),
+  );
   return Math.max(SHEET_MIN_PX, Math.min(width, max));
 }
 
@@ -65,10 +80,12 @@ export function Sheet({
   showWidthControls = false,
   defaultWidthPx = BOOKING_SHEET_STANDARD_PX,
   widthStorageKey = BOOKING_SHEET_WIDTH_KEY,
+  widthMode = "default",
 }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
+  const managementMode = widthMode === "management";
   const [widthPx, setWidthPx] = useState(() => {
     if (typeof window === "undefined") return defaultWidthPx;
     try {
@@ -81,16 +98,34 @@ export function Sheet({
     return defaultWidthPx;
   });
   const [isDesktop, setIsDesktop] = useState(false);
+  const [managementWidthPx, setManagementWidthPx] = useState(
+    BOOKING_SHEET_MANAGEMENT_MAX_PX,
+  );
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   useEffect(() => {
-    if (!resizable) return;
+    if (!resizable && !managementMode) return;
     const mq = window.matchMedia("(min-width: 768px)");
-    const apply = () => setIsDesktop(mq.matches);
+    const apply = () => {
+      setIsDesktop(mq.matches);
+      if (managementMode) {
+        setManagementWidthPx(
+          clampWidth(
+            BOOKING_SHEET_MANAGEMENT_MAX_PX,
+            SHEET_MANAGEMENT_VIEWPORT_RATIO,
+            BOOKING_SHEET_MANAGEMENT_MAX_PX,
+          ),
+        );
+      }
+    };
     apply();
     mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, [resizable]);
+    window.addEventListener("resize", apply);
+    return () => {
+      mq.removeEventListener("change", apply);
+      window.removeEventListener("resize", apply);
+    };
+  }, [resizable, managementMode]);
 
   const persistWidth = useCallback(
     (next: number) => {
@@ -152,7 +187,7 @@ export function Sheet({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (!resizable || !isDesktop) return;
+    if (!resizable || !isDesktop || managementMode) return;
     function onMove(e: PointerEvent) {
       if (!dragRef.current) return;
       const delta =
@@ -172,14 +207,16 @@ export function Sheet({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
-  }, [resizable, isDesktop, persistWidth, side]);
+  }, [resizable, isDesktop, persistWidth, side, managementMode]);
 
   if (!open) return null;
 
   const desktopWidthStyle =
-    resizable && isDesktop
-      ? { width: `${widthPx}px`, maxWidth: "100%" }
-      : undefined;
+    isDesktop && managementMode
+      ? { width: `${managementWidthPx}px`, maxWidth: "100%" }
+      : resizable && isDesktop
+        ? { width: `${widthPx}px`, maxWidth: "100%" }
+        : undefined;
 
   return (
     <div
@@ -207,16 +244,18 @@ export function Sheet({
           "relative z-10 flex w-full flex-col border-border bg-card shadow-xl",
           "max-h-[92dvh] rounded-t-[var(--radius-lg)] border",
           "pb-[env(safe-area-inset-bottom)]",
-          resizable
+          resizable || managementMode
             ? "md:h-full md:max-h-none md:rounded-none md:pb-0"
             : "md:h-full md:max-h-none md:w-[min(44rem,100%)] md:rounded-none md:pb-0",
+          managementMode &&
+            "motion-safe:transition-[width] motion-safe:duration-200 motion-safe:ease-out",
           side === "right"
             ? "md:border-l md:border-y-0 md:border-r-0"
             : "md:border-r md:border-y-0 md:border-l-0",
           className,
         )}
       >
-        {resizable && isDesktop ? (
+        {resizable && isDesktop && !managementMode ? (
           <div
             role="separator"
             aria-orientation="vertical"

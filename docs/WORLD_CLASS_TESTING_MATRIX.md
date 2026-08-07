@@ -200,6 +200,17 @@
 | Blueprint | `WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
 | Approval | Awaiting PO |
 
+### Existing Appointment expandable management workspace
+
+| Field | Value |
+|-------|--------|
+| Trigger | PO Preview video — narrow appointment panel |
+| Expand | Desktop Expand/Collapse; ~60–70vw capped ~1180px |
+| Layout | Multi-column when expanded; quick-view when collapsed |
+| New Appointment | Protected / unchanged |
+| Tests | `appointment-management-expand.test.ts` |
+| Approval | Awaiting PO |
+
 ### Chapter 4 Adaptive Booking Workspace
 
 | Field | Value |

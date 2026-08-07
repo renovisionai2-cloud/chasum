@@ -7,11 +7,17 @@
 
 ---
 
-## Product rule (locked)
+## Product distinction (locked)
 
-**Chasum should never ask a user for information it already knows, never make them search for the next action, and never expose complexity until that complexity is needed.**
+| Mode | Experience |
+|------|------------|
+| **New Appointment** | Adaptive Booking Workspace — ask only what’s missing |
+| **Existing Appointment** | Expandable Appointment Management Workspace — clarity, context, control |
 
-**Acceptance:** Chapter 4 Booking Workspace passed only after true progressive / adaptive workflow acceptance — not labels over a long form.
+Creation optimizes for **speed**. Management optimizes for **clarity / context / control**.  
+Do not force these into the same layout.
+
+**Existing appointment expand** (PO Preview video correction): desktop Expand/Collapse widens the sheet (~60–70vw, capped ~1180px) and switches to a multi-column management layout over the calendar. UI-only state — no DB persistence. Narrow/Standard/Wide remain removed.
 
 ## Adaptive architecture
 

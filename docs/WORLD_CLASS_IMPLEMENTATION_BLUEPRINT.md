@@ -159,7 +159,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Adaptive Booking Workspace delivered on Preview — awaiting PO review.** Ask-only-what’s-missing decisions; summary strip; unified date/time; checkout payment; success state; benchmark principles locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md).
+**Adaptive New Appointment + Expandable Existing Appointment management on Preview — awaiting PO.** Product distinction locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md).
 
 ## Chapter 9 — Business Structure Engine (planning)
 

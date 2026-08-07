@@ -287,6 +287,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-07 | Existing Appointment expandable management (PO video) |
 | 2026-08-07 | Chapter 4 Adaptive Booking Workspace — ask-only-missing + benchmarks |
 | 2026-08-07 | Chapter 4 Booking Workspace final acceptance — true progressive stages required |
 | 2026-08-07 | Chapter 4 Booking Workspace UX contract locked (`WORLD_CLASS_BOOKING_WORKSPACE.md`) |

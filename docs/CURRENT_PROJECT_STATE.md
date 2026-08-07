@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-07  
-**Updated by:** World Class Execution Program — Chapter 4 Adaptive Booking Workspace (Preview; Production unchanged)  
+**Updated by:** World Class — Existing Appointment expandable management workspace (PO video correction; Preview; Production unchanged)  
 
 ---
 
@@ -159,19 +159,18 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-07)
 
-**World Class Execution — Chapter 4 Adaptive Booking Workspace**
+**World Class — Existing Appointment expandable management workspace**
 
-- Ask-only-what’s-missing decisions; summary strip; one decision area; success state
-- Unified date & time panel; payment checkout; More options; silent hints
-- Context prefill (CRM customer, calendar slot via `defaultDate`, drafts)
-- Benchmark principles documented; no fake any-pro / waitlist / slot hold
-- Contract: [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md)
+- Desktop Expand/Collapse for edit mode (~60–70vw management width)
+- Multi-column layout: appointment/customer/notes left; financials/actions right
+- Sticky management actions; operational header; Adaptive New Appointment unchanged
+- Triggered by PO Preview video review of narrow appointment panel
 
 ### Immediately prior (2026-08-07)
 
-**World Class Execution — Chapter 4 Booking Workspace final acceptance**
+**World Class Execution — Chapter 4 Adaptive Booking Workspace**
 
-- True progressive stages (predecessor to adaptive workspace)
+- Ask-only-what’s-missing decisions; summary strip; one decision area; success state
 
 ### Immediately prior (2026-08-06)
 
@@ -374,10 +373,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `32a9ce1396a7d88e2097b7ad0d2c70d99bf7a35d` |
-| **Short** | `32a9ce1` |
-| **Subject** | feat: Chapter 4 adaptive booking workspace |
-| **Prior tip** | `6ebcd13` |
+| **SHA** | *(feature commit pending stamp)* |
+| **Short** | pending |
+| **Subject** | feat: expandable existing appointment management workspace |
+| **Prior tip** | `b920e4a` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |

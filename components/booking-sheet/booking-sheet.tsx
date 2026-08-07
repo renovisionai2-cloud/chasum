@@ -1,6 +1,9 @@
 "use client";
 
 import { AppointmentSection, type BookingOfferType } from "@/components/booking-sheet/appointment-section";
+import { AppointmentCustomerContext } from "@/components/booking-sheet/appointment-customer-context";
+import { AppointmentExpandToggle } from "@/components/booking-sheet/appointment-expand-toggle";
+import { AppointmentManagementActions } from "@/components/booking-sheet/appointment-management-actions";
 import {
   AvailabilitySection,
   type AvailabilitySectionHandle,
@@ -40,7 +43,10 @@ import {
   type BookingPaymentDraft,
 } from "@/components/booking/booking-payment-section";
 import { Button } from "@/components/ui/button";
-import { Sheet, BOOKING_SHEET_WIDE_PX } from "@/components/ui/sheet";
+import {
+  Sheet,
+  BOOKING_SHEET_WIDE_PX,
+} from "@/components/ui/sheet";
 import {
   cancelAppointment,
   createAppointment,
@@ -84,6 +90,7 @@ import type {
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
+import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
 import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { addDays, format } from "date-fns";
@@ -352,6 +359,8 @@ export function BookingSheet({
   const [successInfo, setSuccessInfo] = useState<BookingSuccessInfo | null>(
     null,
   );
+  /** Existing appointment management workspace expand (UI-only, session). */
+  const [managementExpanded, setManagementExpanded] = useState(false);
   const paymentIdempotencyKey = useRef(
     `bs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   );
@@ -426,6 +435,7 @@ export function BookingSheet({
     setPaymentAcknowledged(false);
     setSuccessInfo(null);
     setFocusDecision(null);
+    setManagementExpanded(false);
   }
 
   const eligibleStaff = useMemo(
@@ -873,72 +883,105 @@ export function BookingSheet({
     });
   }
 
+  function collectPaymentNavigate() {
+    const params = new URLSearchParams();
+    if (selectedCustomer?.id) {
+      params.set("customer", selectedCustomer.id);
+    }
+    if (appointment?.id) {
+      params.set("appointment", appointment.id);
+    }
+    const qs = params.toString();
+    window.location.href = qs
+      ? `/dashboard/payments?${qs}`
+      : "/dashboard/payments";
+  }
+
   return (
     <Sheet
       open={open}
       onClose={onClose}
-      title={isEditing ? "Edit appointment" : "New appointment"}
+      title={
+        isEditing
+          ? (selectedCustomer?.name ?? "Appointment")
+          : "New appointment"
+      }
       description={
         isEditing
-          ? `${bookingSourceLabel} · update details and save`
+          ? [
+              offerType === "package" && selectedPackage
+                ? selectedPackage.name
+                : selectedService?.name,
+              slot
+                ? `${format(parseISO(slot), "MMM d")} · ${formatTime(parseISO(slot))}`
+                : null,
+              APPOINTMENT_STATUS_LABELS[status] ?? status,
+            ]
+              .filter(Boolean)
+              .join(" · ")
           : "Ask only what’s missing — then confirm"
       }
-      resizable
+      resizable={!isEditing || !managementExpanded}
       showWidthControls={false}
-      defaultWidthPx={Math.min(700, BOOKING_SHEET_WIDE_PX)}
-      widthStorageKey="chasum.bookingSheetWidthPx"
+      defaultWidthPx={
+        isEditing ? 640 : Math.min(700, BOOKING_SHEET_WIDE_PX)
+      }
+      widthStorageKey={
+        isEditing
+          ? "chasum.appointmentManagementWidthPx"
+          : "chasum.bookingSheetWidthPx"
+      }
+      widthMode={
+        isEditing && managementExpanded ? "management" : "default"
+      }
       headerActions={
-        <QuickActionsMenu
-          isEditing={isEditing}
-          customerId={selectedCustomer?.id}
-          disabled={pending || busy}
-          onCheckIn={() => void runStatus("arrived")}
-          onComplete={() => void runStatus("completed")}
-          onCancel={() => {
-            if (!appointment) return;
-            startBusy(async () => {
-              const result = await cancelAppointment(appointment.id);
-              if (result.error) toast(result.error, "error");
-              else {
-                toast(result.success ?? "Appointment cancelled.", "success");
-                onSuccess();
-                onClose();
-              }
-            });
-          }}
-          onReschedule={scrollToAvailability}
-          onDuplicate={() => {
-            if (!appointment) return;
-            startBusy(async () => {
-              const result = await duplicateAppointment(appointment.id);
-              if (result.error) toast(result.error, "error");
-              else {
-                toast(result.success ?? "Appointment duplicated.", "success");
-                onSuccess();
-              }
-            });
-          }}
-          onCollectPayment={() => {
-            const params = new URLSearchParams();
-            if (selectedCustomer?.id) {
-              params.set("customer", selectedCustomer.id);
+        <>
+          {isEditing ? (
+            <AppointmentExpandToggle
+              expanded={managementExpanded}
+              onToggle={() => setManagementExpanded((v) => !v)}
+            />
+          ) : null}
+          <QuickActionsMenu
+            isEditing={isEditing}
+            customerId={selectedCustomer?.id}
+            disabled={pending || busy}
+            onCheckIn={() => void runStatus("arrived")}
+            onComplete={() => void runStatus("completed")}
+            onCancel={() => {
+              if (!appointment) return;
+              startBusy(async () => {
+                const result = await cancelAppointment(appointment.id);
+                if (result.error) toast(result.error, "error");
+                else {
+                  toast(result.success ?? "Appointment cancelled.", "success");
+                  onSuccess();
+                  onClose();
+                }
+              });
+            }}
+            onReschedule={scrollToAvailability}
+            onDuplicate={() => {
+              if (!appointment) return;
+              startBusy(async () => {
+                const result = await duplicateAppointment(appointment.id);
+                if (result.error) toast(result.error, "error");
+                else {
+                  toast(result.success ?? "Appointment duplicated.", "success");
+                  onSuccess();
+                }
+              });
+            }}
+            onCollectPayment={collectPaymentNavigate}
+            onPrint={() => window.print()}
+            onMessage={() =>
+              toast("Compose from the customer profile in CRM.", "info")
             }
-            if (appointment?.id) {
-              params.set("appointment", appointment.id);
+            onCommunications={() =>
+              setCommunicationsFocusSignal((n) => n + 1)
             }
-            const qs = params.toString();
-            window.location.href = qs
-              ? `/dashboard/payments?${qs}`
-              : "/dashboard/payments";
-          }}
-          onPrint={() => window.print()}
-          onMessage={() =>
-            toast("Compose from the customer profile in CRM.", "info")
-          }
-          onCommunications={() =>
-            setCommunicationsFocusSignal((n) => n + 1)
-          }
-        />
+          />
+        </>
       }
       footer={
         <form
@@ -1429,213 +1472,300 @@ export function BookingSheet({
           )
         ) : (
           <>
-            <CustomerSection
-              customers={customers}
-              selected={selectedCustomer}
-              onSelect={setSelectedCustomer}
-              onCustomersChange={setCustomers}
-              snapshot={activeSnapshot}
-              snapshotLoading={snapshotLoading}
-              initialShowQuickAdd={forceQuickAddCustomer}
-            />
-
-            {staffEligibilityNote ? (
-              <p
-                role="status"
-                className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-950 dark:text-amber-100"
-              >
-                {staffEligibilityNote}
-              </p>
-            ) : null}
-
-            <AppointmentSection
-              services={services}
-              packages={packages}
-              staff={staff}
-              locations={locations}
-              offerType={offerType}
-              packageId={packageId}
-              serviceId={serviceId}
-              staffId={activeStaffId}
-              locationId={locationId}
-              date={date}
-              durationMinutes={durationMinutes ?? 0}
-              serviceDefaultMinutes={
-                resolvedDuration.serviceDefaultMinutes ?? null
+            <AppointmentManagementActions
+              className="sticky top-0 z-10 -mx-1 border-b border-border/60 bg-card/95 px-1 py-2 backdrop-blur-sm"
+              disabled={pending || busy}
+              onEditFocus={() => {
+                document
+                  .getElementById("bs-appt-heading")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              onReschedule={scrollToAvailability}
+              onCollectPayment={collectPaymentNavigate}
+              onMessage={() =>
+                toast("Compose from the customer profile in CRM.", "info")
               }
-              durationIsOverride={resolvedDuration.source === "override"}
-              durationUnresolved={durationMinutes == null}
-              status={status}
-              notes={notes}
-              bookingSource={bookingSourceLabel}
-              currency={currency}
-              taxRates={taxRates}
-              onOfferTypeChange={handleOfferTypeChange}
-              onPackageChange={handlePackageChange}
-              onServiceChange={handleServiceChange}
-              onStaffChange={handleStaffChange}
-              onLocationChange={handleLocationChange}
-              onDateChange={handleDateChange}
-              onDateSelected={() => {
-                window.setTimeout(
-                  () => availabilityRef.current?.focusTimes(),
-                  50,
-                );
-              }}
-              onDurationChange={handleDurationOverride}
-              onStatusChange={setStatus}
-              onNotesChange={setNotes}
-              minDate={format(new Date(), "yyyy-MM-dd")}
             />
 
-            <AvailabilitySection
-              ref={availabilityRef}
-              loading={availLoading}
-              availability={availability}
-              selectedSlot={slot}
-              selectedSlotValid={selectedSlotValid}
-              unassigned={!activeStaffId}
-              onSelectSlot={handleSlotSelect}
-              onPickStaff={(id) => handleStaffChange(id)}
-              onPickDay={(next) => {
-                setDate(next);
-                setSlot(null);
-                window.setTimeout(
-                  () => availabilityRef.current?.focusTimes(),
-                  50,
-                );
-              }}
-            />
+            <div
+              className={
+                managementExpanded
+                  ? "grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(17rem,0.9fr)] lg:items-start"
+                  : "space-y-4"
+              }
+            >
+              <div className="space-y-4 min-w-0">
+                {managementExpanded ? (
+                  <AppointmentCustomerContext
+                    customer={selectedCustomer}
+                    snapshot={activeSnapshot}
+                    loading={snapshotLoading}
+                  />
+                ) : (
+                  <CustomerSection
+                    customers={customers}
+                    selected={selectedCustomer}
+                    onSelect={setSelectedCustomer}
+                    onCustomersChange={setCustomers}
+                    snapshot={activeSnapshot}
+                    snapshotLoading={snapshotLoading}
+                    initialShowQuickAdd={forceQuickAddCustomer}
+                  />
+                )}
 
-            {appointment &&
-            slot &&
-            slotKey(slot) !== slotKey(appointment.start_time) ? (
-              <div className="grid gap-2 sm:grid-cols-2">
-                <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                    Current appointment
-                  </p>
-                  <p className="mt-1 text-sm font-medium">
-                    {format(
-                      parseISO(appointment.start_time),
-                      "EEEE, MMMM d, yyyy",
-                    )}
-                  </p>
-                  <p className="text-sm tabular-nums text-muted-foreground">
-                    {formatTime(parseISO(appointment.start_time))}–
-                    {formatTime(parseISO(appointment.end_time))}
-                  </p>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2 h-8 px-2 text-xs"
-                    onClick={() => {
-                      setSlot(appointment.start_time);
-                      setDate(
-                        slotDateInBusinessTimezone(
-                          appointment.start_time,
-                          timezone ?? selectedLocation?.timezone ?? null,
-                        ),
-                      );
-                      setDurationOverride(null);
-                    }}
+                {staffEligibilityNote ? (
+                  <p
+                    role="status"
+                    className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-950 dark:text-amber-100"
                   >
-                    Keep original time
-                  </Button>
-                </div>
-                <div className="rounded-[var(--radius-md)] border border-primary/25 bg-primary/[0.04] px-3 py-2.5">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                    Proposed change
+                    {staffEligibilityNote}
                   </p>
-                  <p className="mt-1 text-sm font-medium">
-                    {format(parseISO(slot), "EEEE, MMMM d, yyyy")}
-                  </p>
-                  <p className="text-sm tabular-nums">
-                    {formatTime(parseISO(slot))}
-                    {durationMinutes != null
-                      ? `–${formatTime(
-                          new Date(
-                            parseISO(slot).getTime() +
-                              durationMinutes * 60_000,
-                          ),
-                        )}`
-                      : null}
-                  </p>
-                  <p className="mt-2 text-[11px] text-muted-foreground">
-                    Save changes to apply this time.
-                  </p>
-                </div>
+                ) : null}
+
+                <AppointmentSection
+                  services={services}
+                  packages={packages}
+                  staff={staff}
+                  locations={locations}
+                  offerType={offerType}
+                  packageId={packageId}
+                  serviceId={serviceId}
+                  staffId={activeStaffId}
+                  locationId={locationId}
+                  date={date}
+                  durationMinutes={durationMinutes ?? 0}
+                  serviceDefaultMinutes={
+                    resolvedDuration.serviceDefaultMinutes ?? null
+                  }
+                  durationIsOverride={resolvedDuration.source === "override"}
+                  durationUnresolved={durationMinutes == null}
+                  status={status}
+                  notes={notes}
+                  bookingSource={bookingSourceLabel}
+                  currency={currency}
+                  taxRates={taxRates}
+                  onOfferTypeChange={handleOfferTypeChange}
+                  onPackageChange={handlePackageChange}
+                  onServiceChange={handleServiceChange}
+                  onStaffChange={handleStaffChange}
+                  onLocationChange={handleLocationChange}
+                  onDateChange={handleDateChange}
+                  onDateSelected={() => {
+                    window.setTimeout(
+                      () => availabilityRef.current?.focusTimes(),
+                      50,
+                    );
+                  }}
+                  onDurationChange={handleDurationOverride}
+                  onStatusChange={setStatus}
+                  onNotesChange={setNotes}
+                  minDate={format(new Date(), "yyyy-MM-dd")}
+                />
+
+                <AvailabilitySection
+                  ref={availabilityRef}
+                  loading={availLoading}
+                  availability={availability}
+                  selectedSlot={slot}
+                  selectedSlotValid={selectedSlotValid}
+                  unassigned={!activeStaffId}
+                  onSelectSlot={handleSlotSelect}
+                  onPickStaff={(id) => handleStaffChange(id)}
+                  onPickDay={(next) => {
+                    setDate(next);
+                    setSlot(null);
+                    window.setTimeout(
+                      () => availabilityRef.current?.focusTimes(),
+                      50,
+                    );
+                  }}
+                />
+
+                {appointment &&
+                slot &&
+                slotKey(slot) !== slotKey(appointment.start_time) ? (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                        Current appointment
+                      </p>
+                      <p className="mt-1 text-sm font-medium">
+                        {format(
+                          parseISO(appointment.start_time),
+                          "EEEE, MMMM d, yyyy",
+                        )}
+                      </p>
+                      <p className="text-sm tabular-nums text-muted-foreground">
+                        {formatTime(parseISO(appointment.start_time))}–
+                        {formatTime(parseISO(appointment.end_time))}
+                      </p>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="mt-2 h-8 px-2 text-xs"
+                        onClick={() => {
+                          setSlot(appointment.start_time);
+                          setDate(
+                            slotDateInBusinessTimezone(
+                              appointment.start_time,
+                              timezone ?? selectedLocation?.timezone ?? null,
+                            ),
+                          );
+                          setDurationOverride(null);
+                        }}
+                      >
+                        Keep original time
+                      </Button>
+                    </div>
+                    <div className="rounded-[var(--radius-md)] border border-primary/25 bg-primary/[0.04] px-3 py-2.5">
+                      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                        Proposed change
+                      </p>
+                      <p className="mt-1 text-sm font-medium">
+                        {format(parseISO(slot), "EEEE, MMMM d, yyyy")}
+                      </p>
+                      <p className="text-sm tabular-nums">
+                        {formatTime(parseISO(slot))}
+                        {durationMinutes != null
+                          ? `–${formatTime(
+                              new Date(
+                                parseISO(slot).getTime() +
+                                  durationMinutes * 60_000,
+                              ),
+                            )}`
+                          : null}
+                      </p>
+                      <p className="mt-2 text-[11px] text-muted-foreground">
+                        Save changes to apply this time.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+
+                {slot ? (
+                  <SelectedAppointmentBanner
+                    startIso={slot}
+                    durationMinutes={durationMinutes ?? 0}
+                    locationName={selectedLocation?.name ?? null}
+                    employeeName={
+                      activeStaffId
+                        ? (eligibleStaff.find((m) => m.id === activeStaffId)
+                            ?.name ??
+                          staff.find((m) => m.id === activeStaffId)?.name ??
+                          null)
+                        : null
+                    }
+                    timezone={timezone ?? selectedLocation?.timezone ?? null}
+                    slotConflict={
+                      durationMinutes == null
+                        ? "Duration is still loading for this service."
+                        : slotConflict
+                          ? "Needs update"
+                          : null
+                    }
+                    serviceName={
+                      offerType === "package" && selectedPackage
+                        ? selectedPackage.name
+                        : (selectedService?.name ?? null)
+                    }
+                    customerName={selectedCustomer?.name ?? null}
+                  />
+                ) : null}
+
+                {managementExpanded && appointment?.id ? (
+                  <BookingCommunicationsSection
+                    appointmentId={appointment.id}
+                    focusSignal={communicationsFocusSignal}
+                  />
+                ) : null}
+
+                {managementExpanded ? (
+                  <TimelineSection
+                    appointment={appointment}
+                    snapshot={activeSnapshot}
+                    loading={snapshotLoading}
+                    onLoadHistory={() => {
+                      if (!selectedCustomer?.id) return;
+                      const id = selectedCustomer.id;
+                      startBusy(async () => {
+                        setSnapshotLoading(true);
+                        const row = await getBookingSheetCustomerSnapshot(id);
+                        setSnapshot(row);
+                        setSnapshotForId(id);
+                        setSnapshotLoading(false);
+                      });
+                    }}
+                  />
+                ) : null}
               </div>
-            ) : null}
 
-            {slot ? (
-              <SelectedAppointmentBanner
-                startIso={slot}
-                durationMinutes={durationMinutes ?? 0}
-                locationName={selectedLocation?.name ?? null}
-                employeeName={
-                  activeStaffId
-                    ? (eligibleStaff.find((m) => m.id === activeStaffId)
-                        ?.name ??
-                      staff.find((m) => m.id === activeStaffId)?.name ??
-                      null)
-                    : null
+              <aside
+                className={
+                  managementExpanded
+                    ? "space-y-4 lg:sticky lg:top-14"
+                    : "space-y-4"
                 }
-                timezone={timezone ?? selectedLocation?.timezone ?? null}
-                slotConflict={
-                  durationMinutes == null
-                    ? "Duration is still loading for this service."
-                    : slotConflict
-                      ? "Needs update"
-                      : null
-                }
-                serviceName={
-                  offerType === "package" && selectedPackage
-                    ? selectedPackage.name
-                    : (selectedService?.name ?? null)
-                }
-                customerName={selectedCustomer?.name ?? null}
-              />
-            ) : null}
+              >
+                {!managementExpanded ? (
+                  <PaymentsSection
+                    service={selectedService}
+                    appointment={appointment}
+                    currency={currency}
+                    taxRates={taxRates}
+                  />
+                ) : (
+                  <>
+                    <PaymentsSection
+                      service={selectedService}
+                      appointment={appointment}
+                      currency={currency}
+                      taxRates={taxRates}
+                    />
+                    <SummerAssistant
+                      disabled={availLoading || pending}
+                      onSuggestAfternoon={summerAfternoon}
+                      onSuggestOtherEmployee={summerOtherEmployee}
+                      onMoveTomorrowMorning={summerTomorrowMorning}
+                    />
+                  </>
+                )}
 
-            <PaymentsSection
-              service={selectedService}
-              appointment={appointment}
-              currency={currency}
-              taxRates={taxRates}
-            />
+                {!managementExpanded && appointment?.id ? (
+                  <BookingCommunicationsSection
+                    appointmentId={appointment.id}
+                    focusSignal={communicationsFocusSignal}
+                  />
+                ) : null}
 
-            {appointment?.id ? (
-              <BookingCommunicationsSection
-                appointmentId={appointment.id}
-                focusSignal={communicationsFocusSignal}
-              />
-            ) : null}
-
-            <SummerAssistant
-              disabled={availLoading || pending}
-              onSuggestAfternoon={summerAfternoon}
-              onSuggestOtherEmployee={summerOtherEmployee}
-              onMoveTomorrowMorning={summerTomorrowMorning}
-            />
-
-            <TimelineSection
-              appointment={appointment}
-              snapshot={activeSnapshot}
-              loading={snapshotLoading}
-              onLoadHistory={() => {
-                if (!selectedCustomer?.id) return;
-                const id = selectedCustomer.id;
-                startBusy(async () => {
-                  setSnapshotLoading(true);
-                  const row = await getBookingSheetCustomerSnapshot(id);
-                  setSnapshot(row);
-                  setSnapshotForId(id);
-                  setSnapshotLoading(false);
-                });
-              }}
-            />
+                {!managementExpanded ? (
+                  <>
+                    <SummerAssistant
+                      disabled={availLoading || pending}
+                      onSuggestAfternoon={summerAfternoon}
+                      onSuggestOtherEmployee={summerOtherEmployee}
+                      onMoveTomorrowMorning={summerTomorrowMorning}
+                    />
+                    <TimelineSection
+                      appointment={appointment}
+                      snapshot={activeSnapshot}
+                      loading={snapshotLoading}
+                      onLoadHistory={() => {
+                        if (!selectedCustomer?.id) return;
+                        const id = selectedCustomer.id;
+                        startBusy(async () => {
+                          setSnapshotLoading(true);
+                          const row = await getBookingSheetCustomerSnapshot(id);
+                          setSnapshot(row);
+                          setSnapshotForId(id);
+                          setSnapshotLoading(false);
+                        });
+                      }}
+                    />
+                  </>
+                ) : null}
+              </aside>
+            </div>
           </>
         )}
       </div>
