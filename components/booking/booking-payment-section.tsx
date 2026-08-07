@@ -12,6 +12,7 @@ import {
 } from "@/lib/commerce/types";
 import type { TaxRate } from "@/lib/business/types";
 import { Input } from "@/components/ui/input";
+import { MoneyAmountInput } from "@/components/ui/money-amount-input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -202,24 +203,19 @@ export function BookingPaymentSection({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="booking_payment_amount">Amount</Label>
-              <Input
+              <MoneyAmountInput
                 id="booking_payment_amount"
-                type="number"
-                min={0.01}
-                step="0.01"
                 className="min-h-11"
-                value={(value.amountCents / 100).toFixed(2)}
-                onChange={(e) => {
-                  const dollars = Number(e.target.value);
+                amountCents={value.amountCents}
+                selectAllOnFirstFocus
+                onAmountCentsChange={(amountCents) => {
                   onChange({
                     ...value,
                     mode:
                       value.mode === "deposit" || value.mode === "full"
                         ? "custom"
                         : value.mode,
-                    amountCents: Number.isFinite(dollars)
-                      ? Math.max(0, Math.round(dollars * 100))
-                      : 0,
+                    amountCents,
                   });
                 }}
               />

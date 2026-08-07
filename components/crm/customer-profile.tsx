@@ -732,6 +732,15 @@ export function CustomerProfileView({
           setSheetAppointment(null);
           refresh();
         }}
+        onViewCreatedAppointment={async (id) => {
+          const appt = await getCrmAppointmentForBooking(id);
+          if (!appt) {
+            throw new Error("Appointment not found");
+          }
+          setSheetAppointment(appt);
+          setSheetOpen(true);
+          refresh();
+        }}
       />
     </div>
   );

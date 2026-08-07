@@ -122,6 +122,11 @@ export type BookingSheetProps = {
   draft?: BookingDraft | null;
   channel?: BookingSheetChannel;
   onSuccess: () => void;
+  /**
+   * After create success, open this exact appointment in the existing
+   * appointment-management workspace (same path as clicking it on the calendar).
+   */
+  onViewCreatedAppointment?: (appointmentId: string) => void | Promise<void>;
   /** Business currency for money formatting. */
   currency?: string | null;
   /** Active tax catalog for pricing. */
@@ -174,6 +179,7 @@ export function BookingSheet({
   draft = null,
   channel = "staff",
   onSuccess,
+  onViewCreatedAppointment,
   currency,
   taxRates = [],
   timezone,
@@ -359,6 +365,10 @@ export function BookingSheet({
   const [successInfo, setSuccessInfo] = useState<BookingSuccessInfo | null>(
     null,
   );
+  const [viewAppointmentPending, setViewAppointmentPending] = useState(false);
+  const [viewAppointmentError, setViewAppointmentError] = useState<
+    string | null
+  >(null);
   /** Existing appointment management workspace expand (UI-only, session). */
   const [managementExpanded, setManagementExpanded] = useState(false);
   const paymentIdempotencyKey = useRef(
@@ -1194,11 +1204,34 @@ export function BookingSheet({
           successInfo ? (
             <BookingSuccessState
               info={successInfo}
-              onViewAppointment={(id) => {
-                window.location.href = `/dashboard/calendar?appointment=${id}`;
+              viewPending={viewAppointmentPending}
+              viewError={viewAppointmentError}
+              onViewAppointment={async (id) => {
+                setViewAppointmentError(null);
+                setViewAppointmentPending(true);
+                try {
+                  if (onViewCreatedAppointment) {
+                    await onViewCreatedAppointment(id);
+                    return;
+                  }
+                  // Fallback: deep-link with date so calendar range can include it.
+                  const d = slot
+                    ? format(parseISO(slot), "yyyy-MM-dd")
+                    : format(new Date(), "yyyy-MM-dd");
+                  window.location.assign(
+                    `/dashboard/calendar?view=day&date=${encodeURIComponent(d)}&appointment=${encodeURIComponent(id)}`,
+                  );
+                } catch {
+                  setViewAppointmentError(
+                    "Could not open this appointment. Try again.",
+                  );
+                } finally {
+                  setViewAppointmentPending(false);
+                }
               }}
               onBookAnother={() => {
                 setSuccessInfo(null);
+                setViewAppointmentError(null);
                 setSelectedCustomer(null);
                 setServiceId("");
                 setPackageId("");

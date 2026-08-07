@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-07 | **Chapter 4 Booking micro-interaction correction** | _(pending)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Money amount draft input; View Appointment → exact created appointment |
 | 2026-08-04 | Foundation audit docs (prior naming) | `6019630` | — | PORTAL_FOUNDATION_AUDIT + master plan docs |
 | 2026-08-04 | Portal shell IA (Execution Ch1 partial) | `d86e398` | https://chasum-f2djbjdae-renovisionappcom.vercel.app | Nav groups, command entry, mobile nav |
 | 2026-08-04 | Shell Preview report | `0496196` | same | Implementation report URLs |
@@ -34,6 +35,21 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 4 Booking micro-interaction correction quality report
+
+| Check | Result |
+|-------|--------|
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Lint (touched) | **Pass** |
+| Unit tests | **355 pass / 1 fail**; inherited multi-business-selection only |
+| Production | Untouched |
+| Migrations 034–036 | Not applied |
+| Engines | Unchanged |
+| Chapter 5 | Not started |
+| Money input | Draft while focused; normalize on blur |
+| View Appointment | Exact created ID → management workspace |
 
 ## Existing Appointment expandable workspace quality report
 

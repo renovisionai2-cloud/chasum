@@ -37,11 +37,15 @@ export function BookingSuccessState({
   onViewAppointment,
   onBookAnother,
   onDone,
+  viewPending = false,
+  viewError = null,
 }: {
   info: BookingSuccessInfo;
-  onViewAppointment?: (id: string) => void;
+  onViewAppointment?: (id: string) => void | Promise<void>;
   onBookAnother: () => void;
   onDone: () => void;
+  viewPending?: boolean;
+  viewError?: string | null;
 }) {
   const end =
     info.durationMinutes != null
@@ -137,15 +141,17 @@ export function BookingSuccessState({
           <Button
             type="button"
             className="min-h-11 flex-1"
+            disabled={viewPending}
             onClick={() => onViewAppointment(info.appointmentId)}
           >
-            View appointment
+            {viewPending ? "Opening…" : "View appointment"}
           </Button>
         ) : null}
         <Button
           type="button"
           variant="outline"
           className="min-h-11 flex-1"
+          disabled={viewPending}
           onClick={onBookAnother}
         >
           Book another
@@ -154,11 +160,30 @@ export function BookingSuccessState({
           type="button"
           variant="ghost"
           className="min-h-11 flex-1"
+          disabled={viewPending}
           onClick={onDone}
         >
           Done
         </Button>
       </div>
+      {viewError ? (
+        <div className="space-y-2">
+          <p className="text-sm text-destructive" role="alert">
+            {viewError}
+          </p>
+          {onViewAppointment ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 w-full sm:w-auto"
+              disabled={viewPending}
+              onClick={() => onViewAppointment(info.appointmentId)}
+            >
+              Retry opening appointment
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

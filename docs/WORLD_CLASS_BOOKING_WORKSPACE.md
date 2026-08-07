@@ -46,6 +46,14 @@ One booking engine; only prefill differs.
 - **More options** collapsed (notes, duration, location, source)  
 - Silent grounded hints only — no Summer chat panel on create  
 - Success state with confirmed notification/payment outcomes only  
+- **View Appointment** opens the exact created appointment via the Existing Appointment Management Workspace (same `openEdit` path as calendar selection) — never dumps the user to hunt on the calendar  
+- **Monetary amount fields** use plain editable drafts while focused; normalize on blur — never fight the caret with per-keystroke currency reformatting  
+
+## Locked usability principles
+
+1. Monetary fields must behave like normal high-quality editable inputs and must not fight the user's cursor.
+2. View Appointment after booking must open the exact appointment that was just created.
+3. Chasum must never require the user to search for an entity that the current workflow already knows.
 
 ## Benchmark principles (inspiration only — do not copy)
 

@@ -46,6 +46,7 @@ import {
   undoLastAppointmentChange,
 } from "@/lib/actions/booking-engine";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
+import { getCrmAppointmentForBooking } from "@/lib/actions/crm";
 import type { TaxRate } from "@/lib/business/types";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import {
@@ -77,6 +78,7 @@ import {
   useEffect,
   useMemo,
   useOptimistic,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -146,10 +148,14 @@ export function CalendarClient({
         : null,
     [focusAppointmentId, serverAppointments],
   );
-  const [dialogOpen, setDialogOpen] = useState(openBookOnLoad);
-  const [drawerOpen, setDrawerOpen] = useState(!!urlAppointment);
+  const [dialogOpen, setDialogOpen] = useState(
+    openBookOnLoad || !!focusAppointmentId,
+  );
+  // Deep-link / post-booking focus opens management workspace (BookingSheet), not the quick drawer.
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentWithRelations | null>(urlAppointment);
+  const focusHandledRef = useRef<string | null>(null);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
   const [defaultStaffId, setDefaultStaffId] = useState<string | undefined>();
   const [bookingDraft, setBookingDraft] = useState<BookingDraft | null>(null);
@@ -277,6 +283,43 @@ export function CalendarClient({
     setDrawerOpen(false);
     setDialogOpen(true);
   }
+
+  async function resolveAppointmentById(
+    appointmentId: string,
+  ): Promise<AppointmentWithRelations | null> {
+    const local =
+      appointments.find((a) => a.id === appointmentId) ??
+      serverAppointments.find((a) => a.id === appointmentId) ??
+      null;
+    if (local) return local;
+    return getCrmAppointmentForBooking(appointmentId);
+  }
+
+  async function openCreatedAppointment(appointmentId: string) {
+    const appt = await resolveAppointmentById(appointmentId);
+    if (!appt) {
+      throw new Error("Appointment not found");
+    }
+    refresh();
+    openEdit(appt);
+  }
+
+  useEffect(() => {
+    if (!focusAppointmentId) return;
+    if (focusHandledRef.current === focusAppointmentId) return;
+    focusHandledRef.current = focusAppointmentId;
+    let cancelled = false;
+    void (async () => {
+      const appt = await resolveAppointmentById(focusAppointmentId);
+      if (cancelled || !appt) return;
+      openEdit(appt);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // Intentionally once per focusAppointmentId — openEdit/resolve use latest closures.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusAppointmentId, serverAppointments]);
 
   async function handleReschedule(
     appointment: AppointmentWithRelations,
@@ -649,11 +692,17 @@ export function CalendarClient({
             onBooked={refresh}
             onOpenFullDialog={(draft, appointmentId) => {
               if (appointmentId) {
-                const appt = appointments.find((a) => a.id === appointmentId);
-                if (appt) {
-                  openEdit(appt);
-                  return;
-                }
+                void (async () => {
+                  try {
+                    await openCreatedAppointment(appointmentId);
+                  } catch {
+                    toast(
+                      "Could not open that appointment. Try again from the calendar.",
+                      "error",
+                    );
+                  }
+                })();
+                return;
               }
               openNew(undefined, undefined, draft);
             }}
@@ -740,6 +789,7 @@ export function CalendarClient({
         }
         forceQuickAddCustomer={forceQuickAddCustomer}
         onSuccess={refresh}
+        onViewCreatedAppointment={openCreatedAppointment}
       />
     </div>
   );

@@ -211,6 +211,19 @@
 | Tests | `appointment-management-expand.test.ts` |
 | Approval | Awaiting PO |
 
+### Chapter 4 Booking micro-interaction correction
+
+| Field | Value |
+|-------|--------|
+| Trigger | PO Preview video — amount editing + View Appointment |
+| Money input | `MoneyAmountInput` — draft while focused; normalize on blur; temporary empty OK |
+| Projection | Existing `resolveBookingFinancials` only |
+| View Appointment | Opens created ID via `onViewCreatedAppointment` → `openEdit` / fetch |
+| Book Another / Done | Remain distinct |
+| Tests | `booking-money-and-view-appointment.test.ts`, `money-amount-input.test.tsx` |
+| Locked principles | Money fields must not fight cursor; View opens exact appointment; never search for a known entity |
+| Approval | Awaiting PO |
+
 ### Chapter 4 Adaptive Booking Workspace
 
 | Field | Value |
