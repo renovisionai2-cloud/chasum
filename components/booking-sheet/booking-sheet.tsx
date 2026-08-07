@@ -6,13 +6,25 @@ import {
   type AvailabilitySectionHandle,
 } from "@/components/booking-sheet/availability-section";
 import { BookingConfirmStep } from "@/components/booking-sheet/booking-confirm-step";
+import { BookingDatetimePanel } from "@/components/booking-sheet/booking-datetime-panel";
+import { BookingEmployeeDecision } from "@/components/booking-sheet/booking-employee-decision";
+import { BookingMoreOptions } from "@/components/booking-sheet/booking-more-options";
 import { BookingProgressIndicator } from "@/components/booking-sheet/booking-progress";
-import { BookingStage } from "@/components/booking-sheet/booking-stage";
+import { BookingServiceDecision } from "@/components/booking-sheet/booking-service-decision";
+import { BookingSilentHints } from "@/components/booking-sheet/booking-silent-hints";
 import {
-  bookingStageVisualState,
-  bookingWorkflowStatus,
-  isAppointmentStageReady,
-  type BookingWorkflowStep,
+  BookingDecisionFrame,
+  BookingSummaryStrip,
+} from "@/components/booking-sheet/booking-summary-strip";
+import {
+  BookingSuccessState,
+  type BookingSuccessInfo,
+} from "@/components/booking-sheet/booking-success-state";
+import {
+  bookingFooterStatus,
+  firstMissingDecision,
+  previousDecision,
+  type BookingDecision,
 } from "@/components/booking-sheet/booking-workflow";
 import { CustomerSection } from "@/components/booking-sheet/customer-section";
 import { PaymentsSection } from "@/components/booking-sheet/payments-section";
@@ -197,8 +209,8 @@ export function BookingSheet({
       (s) => s.is_active && (!locationId || s.location_id === locationId),
     );
 
-    // Resolve serviceId FIRST — duration must follow this service, never the
-    // first catalog row or a silent 30-minute fallback.
+    // Adaptive workspace: do not silently invent a service from the catalog.
+    // Prefill only from appointment, draft, explicit default, or saved prefs.
     const serviceId =
       appointment?.service_id ??
       (!appointment &&
@@ -216,7 +228,7 @@ export function BookingSheet({
       locationServices.some((s) => s.id === prefs.serviceId)
         ? prefs.serviceId
         : null) ??
-      locationServices[0]?.id ??
+      (appointment ? locationServices[0]?.id : null) ??
       "";
 
     const selectedSvc = services.find((s) => s.id === serviceId);
@@ -333,9 +345,13 @@ export function BookingSheet({
     defaultBookingPaymentDraft(),
   );
   const [paymentDraftSeed, setPaymentDraftSeed] = useState("");
-  const [workflowStep, setWorkflowStep] =
-    useState<BookingWorkflowStep>("customer");
-  const appointmentHoldRef = useRef(false);
+  const [focusDecision, setFocusDecision] = useState<BookingDecision | null>(
+    null,
+  );
+  const [paymentAcknowledged, setPaymentAcknowledged] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<BookingSuccessInfo | null>(
+    null,
+  );
   const paymentIdempotencyKey = useRef(
     `bs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   );
@@ -351,7 +367,15 @@ export function BookingSheet({
   const [communicationsFocusSignal, setCommunicationsFocusSignal] =
     useState(0);
 
-  useFormAction(state, onSuccess, onClose);
+  useFormAction(
+    state,
+    () => {
+      onSuccess();
+      if (isEditing) onClose();
+    },
+    isEditing ? onClose : undefined,
+  );
+
 
   // Reset every field from `preferred` whenever the sheet opens for a
   // (possibly) different appointment/default. The sheet can stay mounted
@@ -399,8 +423,9 @@ export function BookingSheet({
     setSnapshotForId(null);
     setPaymentDraft(defaultBookingPaymentDraft());
     setPaymentDraftSeed("");
-    appointmentHoldRef.current = false;
-    setWorkflowStep(preferred.customerId ? "appointment" : "customer");
+    setPaymentAcknowledged(false);
+    setSuccessInfo(null);
+    setFocusDecision(null);
   }
 
   const eligibleStaff = useMemo(
@@ -576,12 +601,34 @@ export function BookingSheet({
     !OPTIONAL_STAFF_PERSISTENCE_ENABLED &&
     isUnassignedStaffSelection(activeStaffId);
 
-  const appointmentReady = isAppointmentStageReady({
+  const bookingFacts = {
+    customerId: selectedCustomer?.id ?? null,
     serviceId,
-    locationId,
-    date,
     needsNamedEmployee,
-  });
+    date,
+    slot,
+    slotValid: Boolean(slot && selectedSlotValid),
+    paymentAcknowledged,
+    success: Boolean(successInfo),
+  };
+
+  const computedDecision = firstMissingDecision(bookingFacts);
+  const focusIsValid =
+    focusDecision != null &&
+    focusDecision !== "success" &&
+    (focusDecision === "customer" ||
+      (focusDecision === "service" && Boolean(selectedCustomer)) ||
+      (focusDecision === "employee" &&
+        Boolean(selectedCustomer && serviceId)) ||
+      (focusDecision === "datetime" &&
+        Boolean(selectedCustomer && serviceId && !needsNamedEmployee)) ||
+      (focusDecision === "payment" && Boolean(slot && selectedSlotValid)) ||
+      (focusDecision === "review" && paymentAcknowledged));
+  const activeDecision: BookingDecision = successInfo
+    ? "success"
+    : focusIsValid && focusDecision
+      ? focusDecision
+      : computedDecision;
 
   const canSubmit =
     !!selectedCustomer?.id &&
@@ -592,14 +639,6 @@ export function BookingSheet({
     durationMinutes > 0 &&
     selectedSlotValid &&
     !needsNamedEmployee;
-
-  const workflowCompleted: Partial<Record<BookingWorkflowStep, boolean>> = {
-    customer: Boolean(selectedCustomer),
-    appointment: appointmentReady,
-    time: Boolean(slot && selectedSlotValid),
-    payment: Boolean(slot),
-    confirm: canSubmit && workflowStep === "confirm",
-  };
 
   const validationMessage = useMemo(() => {
     if (needsNamedEmployee && slot && selectedCustomer?.id && serviceId) {
@@ -640,13 +679,7 @@ export function BookingSheet({
     ? canSubmit
       ? "Ready to save"
       : validationMessage || "Complete required fields"
-    : bookingWorkflowStatus({
-        step: workflowStep,
-        canSubmit,
-        hasCustomer: Boolean(selectedCustomer),
-        appointmentReady,
-        hasTime: Boolean(slot && selectedSlotValid),
-      });
+    : bookingFooterStatus(activeDecision);
 
   const bookingSourceLabel =
     channel === "reception"
@@ -661,15 +694,13 @@ export function BookingSheet({
     setServiceId(id);
     setDurationOverride(null);
     setSlot(null);
-    appointmentHoldRef.current = false;
-    if (!isEditing && workflowStep === "confirm") setWorkflowStep("appointment");
-    if (!isEditing && workflowStep === "payment") setWorkflowStep("appointment");
-    if (!isEditing && workflowStep === "time") setWorkflowStep("appointment");
+    setPaymentAcknowledged(false);
+    setFocusDecision(null);
   }
 
   function handleOfferTypeChange(type: BookingOfferType) {
     setOfferType(type);
-    appointmentHoldRef.current = false;
+    setPaymentAcknowledged(false);
     if (type === "service") {
       setPackageId("");
       return;
@@ -683,7 +714,7 @@ export function BookingSheet({
 
   function handlePackageChange(id: string) {
     setPackageId(id);
-    appointmentHoldRef.current = false;
+    setPaymentAcknowledged(false);
     const pkg = packages.find((p) => p.id === id);
     if (!pkg) return;
     const firstServiceId =
@@ -695,29 +726,33 @@ export function BookingSheet({
       setDurationOverride(null);
       setSlot(null);
     }
+    setFocusDecision(null);
   }
 
   function handleDurationOverride(minutes: number | null) {
     setDurationOverride(minutes);
+    setSlot(null);
+    setPaymentAcknowledged(false);
   }
 
   function handleStaffChange(id: string) {
     setStaffId(id);
     setStaffEligibilityNote(null);
     setSlot(null);
-    appointmentHoldRef.current = false;
+    setPaymentAcknowledged(false);
+    setFocusDecision(null);
   }
 
   function handleLocationChange(id: string) {
     setLocationId(id);
     setSlot(null);
-    appointmentHoldRef.current = false;
+    setPaymentAcknowledged(false);
   }
 
   function handleDateChange(next: string) {
     setDate(next);
     setSlot(null);
-    appointmentHoldRef.current = false;
+    setPaymentAcknowledged(false);
   }
 
   const availabilityRef = useRef<AvailabilitySectionHandle>(null);
@@ -761,20 +796,38 @@ export function BookingSheet({
 
   function handleSlotSelect(next: string) {
     setSlot(next);
+    setPaymentAcknowledged(false);
     if (!isEditing) {
-      setWorkflowStep("payment");
+      setFocusDecision(null);
       return;
     }
     scrollToPayment();
   }
 
-  useEffect(() => {
-    if (isEditing) return;
-    if (workflowStep !== "appointment") return;
-    if (!appointmentReady) return;
-    if (appointmentHoldRef.current) return;
-    setWorkflowStep("time");
-  }, [appointmentReady, workflowStep, isEditing]);
+  if (
+    !isEditing &&
+    state.success &&
+    state.appointmentId &&
+    !successInfo
+  ) {
+    setSuccessInfo({
+      appointmentId: state.appointmentId,
+      serviceName:
+        offerType === "package"
+          ? (packages.find((p) => p.id === packageId)?.name ?? null)
+          : (services.find((s) => s.id === serviceId)?.name ?? null),
+      customerName: selectedCustomer?.name ?? null,
+      startIso: slot ?? new Date().toISOString(),
+      durationMinutes,
+      paymentAmountCents:
+        paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+      paymentStatus: state.payment?.status,
+      receiptStatus: state.payment?.receiptStatus ?? null,
+      notifications: state.notifications,
+      currency,
+    });
+    setFocusDecision("success");
+  }
 
   function summerAfternoon() {
     const afternoon = (availability?.slots ?? []).find((s) => {
@@ -828,7 +881,7 @@ export function BookingSheet({
       description={
         isEditing
           ? `${bookingSourceLabel} · update details and save`
-          : "Customer → Appointment → Time → Payment → Confirm"
+          : "Ask only what’s missing — then confirm"
       }
       resizable
       showWidthControls={false}
@@ -1033,17 +1086,38 @@ export function BookingSheet({
               >
                 Cancel
               </Button>
-              {!isEditing && workflowStep === "payment" ? (
+              {!isEditing &&
+              activeDecision !== "success" &&
+              activeDecision !== "review" &&
+              previousDecision(activeDecision, bookingFacts) ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="min-h-11"
+                  disabled={pending}
+                  onClick={() => {
+                    const prev = previousDecision(activeDecision, bookingFacts);
+                    if (prev) setFocusDecision(prev);
+                  }}
+                >
+                  Back
+                </Button>
+              ) : null}
+              {!isEditing && activeDecision === "payment" ? (
                 <Button
                   type="button"
                   size="sm"
                   className="min-h-11"
                   disabled={!slot || pending}
-                  onClick={() => setWorkflowStep("confirm")}
+                  onClick={() => {
+                    setPaymentAcknowledged(true);
+                    setFocusDecision(null);
+                  }}
                 >
                   Continue
                 </Button>
-              ) : (
+              ) : !isEditing && activeDecision === "success" ? null : (
                 <Button
                   type="submit"
                   size="sm"
@@ -1051,7 +1125,7 @@ export function BookingSheet({
                   disabled={
                     !canSubmit ||
                     pending ||
-                    (!isEditing && workflowStep !== "confirm")
+                    (!isEditing && activeDecision !== "review")
                   }
                 >
                   {pending
@@ -1074,263 +1148,285 @@ export function BookingSheet({
     >
       <div className="space-y-3">
         {!isEditing ? (
-          <>
-            <BookingProgressIndicator
-              active={workflowStep}
-              completed={workflowCompleted}
-            />
-
-            <BookingStage
-              title="Customer"
-              state={bookingStageVisualState(
-                "customer",
-                workflowStep,
-                workflowCompleted,
-              )}
-              summary={
-                selectedCustomer ? (
-                  <div className="space-y-0.5">
-                    <p className="font-medium">{selectedCustomer.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {activeSnapshot
-                        ? `${activeSnapshot.upcomingCount} upcoming`
-                        : "Customer selected"}
-                      {(activeSnapshot?.outstandingBalanceCount ?? 0) > 0
-                        ? " · Balance due"
-                        : ""}
-                    </p>
-                  </div>
-                ) : null
-              }
-              onChange={() => setWorkflowStep("customer")}
-            >
-              <CustomerSection
-                customers={customers}
-                selected={selectedCustomer}
-                onSelect={(c) => {
-                  setSelectedCustomer(c);
-                  if (c) setWorkflowStep("appointment");
-                }}
-                onCustomersChange={setCustomers}
-                snapshot={activeSnapshot}
-                snapshotLoading={snapshotLoading}
-                initialShowQuickAdd={forceQuickAddCustomer}
-              />
-            </BookingStage>
-
-            {staffEligibilityNote ? (
-              <p
-                role="status"
-                className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-950 dark:text-amber-100"
-              >
-                {staffEligibilityNote}
-              </p>
-            ) : null}
-
-            <BookingStage
-              title="Appointment"
-              state={bookingStageVisualState(
-                "appointment",
-                workflowStep,
-                workflowCompleted,
-              )}
-              summary={
-                <div className="space-y-0.5">
-                  <p className="font-medium">
-                    {offerType === "package" && selectedPackage
-                      ? selectedPackage.name
-                      : (selectedService?.name ?? "Service")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {(activeStaffId
-                      ? eligibleStaff.find((m) => m.id === activeStaffId)
-                          ?.name ??
-                        staff.find((m) => m.id === activeStaffId)?.name
-                      : null) ?? "Employee"}
-                    {date
-                      ? ` · ${format(parseISO(`${date}T12:00:00`), "MMM d")}`
-                      : ""}
-                  </p>
-                </div>
-              }
-              onChange={() => {
-                appointmentHoldRef.current = true;
-                setWorkflowStep("appointment");
+          successInfo ? (
+            <BookingSuccessState
+              info={successInfo}
+              onViewAppointment={(id) => {
+                window.location.href = `/dashboard/calendar?appointment=${id}`;
               }}
-            >
-              <AppointmentSection
-                services={services}
-                packages={packages}
-                staff={staff}
-                locations={locations}
-                offerType={offerType}
-                packageId={packageId}
-                serviceId={serviceId}
-                staffId={activeStaffId}
-                locationId={locationId}
-                date={date}
-                durationMinutes={durationMinutes ?? 0}
-                serviceDefaultMinutes={
-                  resolvedDuration.serviceDefaultMinutes ?? null
-                }
-                durationIsOverride={resolvedDuration.source === "override"}
-                durationUnresolved={durationMinutes == null}
-                status={status}
-                notes={notes}
-                bookingSource={bookingSourceLabel}
-                currency={currency}
-                taxRates={taxRates}
-                onOfferTypeChange={handleOfferTypeChange}
-                onPackageChange={handlePackageChange}
-                onServiceChange={handleServiceChange}
-                onStaffChange={handleStaffChange}
-                onLocationChange={handleLocationChange}
-                onDateChange={handleDateChange}
-                onDateSelected={() => {
-                  appointmentHoldRef.current = false;
-                  window.setTimeout(
-                    () => availabilityRef.current?.focusTimes(),
-                    50,
-                  );
-                }}
-                onDurationChange={handleDurationOverride}
-                onStatusChange={setStatus}
-                onNotesChange={setNotes}
-                minDate={format(new Date(), "yyyy-MM-dd")}
-              />
-            </BookingStage>
-
-            <BookingStage
-              title="Time"
-              state={bookingStageVisualState(
-                "time",
-                workflowStep,
-                workflowCompleted,
-              )}
-              summary={
-                slot ? (
-                  <p className="font-medium tabular-nums">
-                    {formatTime(parseISO(slot))}
-                    {durationMinutes != null
-                      ? ` – ${formatTime(
-                          new Date(
-                            parseISO(slot).getTime() +
-                              durationMinutes * 60_000,
-                          ),
-                        )}`
-                      : ""}
-                  </p>
-                ) : null
-              }
-              onChange={() => {
+              onBookAnother={() => {
+                setSuccessInfo(null);
+                setSelectedCustomer(null);
+                setServiceId("");
+                setPackageId("");
+                setOfferType("service");
+                setStaffId("");
                 setSlot(null);
-                setWorkflowStep("time");
+                setPaymentAcknowledged(false);
+                setPaymentDraft(defaultBookingPaymentDraft());
+                setPaymentDraftSeed("");
+                setFocusDecision(null);
+                paymentIdempotencyKey.current = `bs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
               }}
-            >
-              <AvailabilitySection
-                ref={availabilityRef}
-                loading={availLoading}
-                availability={availability}
-                selectedSlot={slot}
-                selectedSlotValid={selectedSlotValid}
-                unassigned={!activeStaffId}
-                workspaceMode
-                onSelectSlot={handleSlotSelect}
-                onPickStaff={(id) => handleStaffChange(id)}
-                onPickDay={(next) => {
-                  setDate(next);
-                  setSlot(null);
-                  window.setTimeout(
-                    () => availabilityRef.current?.focusTimes(),
-                    50,
-                  );
+              onDone={onClose}
+            />
+          ) : (
+            <>
+              <BookingProgressIndicator
+                active={activeDecision}
+                known={{
+                  customer: Boolean(selectedCustomer),
+                  service: Boolean(serviceId),
+                  employee: Boolean(activeStaffId) || !needsNamedEmployee,
+                  datetime: Boolean(slot && selectedSlotValid),
+                  payment: paymentAcknowledged,
+                  review: paymentAcknowledged && canSubmit,
                 }}
               />
-            </BookingStage>
 
-            <BookingStage
-              title="Payment"
-              state={bookingStageVisualState(
-                "payment",
-                workflowStep,
-                workflowCompleted,
-              )}
-              summary={
-                <p className="text-xs text-muted-foreground">
-                  {paymentDraft.mode === "none"
-                    ? "No payment now"
-                    : `Record ${formatMoneyCents(paymentDraft.amountCents, currency)}`}
-                  {" · Total "}
-                  {financialsForSubmit.formatted.appointmentTotal}
-                </p>
-              }
-              onChange={() => setWorkflowStep("payment")}
-            >
-              {slot && financialsForSubmit.appointmentTotalCents > 0 ? (
-                <BookingPaymentSection
-                  catalogPriceCents={subtotalCentsForSubmit}
-                  serviceTaxRateBps={selectedService?.tax_rate_bps}
-                  depositCents={selectedService?.deposit_cents}
-                  depositRequired={selectedService?.deposit_required}
-                  taxRates={taxRates}
-                  currency={currency}
-                  value={paymentDraft}
-                  onChange={setPaymentDraft}
-                  variant="decision"
-                  includePricingFields={false}
-                  includeFormFields={false}
-                  className="border-0 p-0 shadow-none"
-                />
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Choose a time to set payment.
-                </p>
-              )}
-            </BookingStage>
-
-            <BookingStage
-              title="Confirm"
-              state={bookingStageVisualState(
-                "confirm",
-                workflowStep,
-                workflowCompleted,
-              )}
-            >
-              {slot && durationMinutes != null ? (
-                <BookingConfirmStep
-                  serviceName={
-                    offerType === "package" && selectedPackage
-                      ? selectedPackage.name
-                      : (selectedService?.name ?? null)
-                  }
-                  customerName={selectedCustomer?.name ?? null}
-                  employeeName={
-                    activeStaffId
-                      ? (eligibleStaff.find((m) => m.id === activeStaffId)
-                          ?.name ??
-                        staff.find((m) => m.id === activeStaffId)?.name ??
-                        null)
-                      : null
-                  }
-                  locationName={selectedLocation?.name ?? null}
-                  startIso={slot}
-                  durationMinutes={durationMinutes}
-                  financials={financialsForSubmit}
-                  payment={paymentDraft}
-                  currency={currency}
-                />
-              ) : null}
-            </BookingStage>
-
-            <div className="flex flex-wrap gap-2 pt-1">
-              <SummerAssistant
-                disabled={availLoading || pending}
-                onSuggestAfternoon={summerAfternoon}
-                onSuggestOtherEmployee={summerOtherEmployee}
-                onMoveTomorrowMorning={summerTomorrowMorning}
+              <BookingSummaryStrip
+                chips={[
+                  selectedCustomer
+                    ? {
+                        id: "customer",
+                        label: "Customer",
+                        value: selectedCustomer.name,
+                        onChange: () => setFocusDecision("customer"),
+                      }
+                    : null,
+                  serviceId
+                    ? {
+                        id: "service",
+                        label: "Service",
+                        value:
+                          offerType === "package" && selectedPackage
+                            ? selectedPackage.name
+                            : (selectedService?.name ?? "Service"),
+                        onChange: () => {
+                          setPaymentAcknowledged(false);
+                          setFocusDecision("service");
+                        },
+                      }
+                    : null,
+                  activeStaffId
+                    ? {
+                        id: "employee",
+                        label: "Employee",
+                        value:
+                          eligibleStaff.find((m) => m.id === activeStaffId)
+                            ?.name ??
+                          staff.find((m) => m.id === activeStaffId)?.name ??
+                          "Employee",
+                        onChange: () => {
+                          setSlot(null);
+                          setPaymentAcknowledged(false);
+                          setFocusDecision("employee");
+                        },
+                      }
+                    : null,
+                  slot
+                    ? {
+                        id: "when",
+                        label: "When",
+                        value: `${format(parseISO(slot), "MMM d")} · ${formatTime(parseISO(slot))}`,
+                        onChange: () => {
+                          setPaymentAcknowledged(false);
+                          setFocusDecision("datetime");
+                        },
+                      }
+                    : date && activeDecision !== "datetime"
+                      ? {
+                          id: "date",
+                          label: "Date",
+                          value: format(parseISO(`${date}T12:00:00`), "MMM d"),
+                          onChange: () => setFocusDecision("datetime"),
+                        }
+                      : null,
+                ].filter(Boolean) as {
+                  id: string;
+                  label: string;
+                  value: string;
+                  onChange?: () => void;
+                }[]}
               />
-            </div>
-          </>
+
+              <BookingSilentHints
+                upcomingCount={activeSnapshot?.upcomingCount}
+                outstandingBalanceCount={
+                  activeSnapshot?.outstandingBalanceCount
+                }
+                emptyReason={
+                  activeDecision === "datetime"
+                    ? availability?.emptyReason
+                    : null
+                }
+              />
+
+              {staffEligibilityNote ? (
+                <p
+                  role="status"
+                  className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-950 dark:text-amber-100"
+                >
+                  {staffEligibilityNote}
+                </p>
+              ) : null}
+
+              {activeDecision === "customer" ? (
+                <BookingDecisionFrame
+                  title="Who is this for?"
+                  hint="Search an existing customer or add a new one."
+                >
+                  <CustomerSection
+                    customers={customers}
+                    selected={selectedCustomer}
+                    onSelect={(c) => {
+                      setSelectedCustomer(c);
+                      setFocusDecision(null);
+                    }}
+                    onCustomersChange={setCustomers}
+                    snapshot={activeSnapshot}
+                    snapshotLoading={snapshotLoading}
+                    initialShowQuickAdd={forceQuickAddCustomer}
+                  />
+                </BookingDecisionFrame>
+              ) : null}
+
+              {activeDecision === "service" ? (
+                <BookingDecisionFrame
+                  title="What are you booking?"
+                  hint="Choose a service or package."
+                >
+                  <BookingServiceDecision
+                    services={services}
+                    packages={packages}
+                    locationId={locationId}
+                    serviceId={serviceId}
+                    packageId={packageId}
+                    offerType={offerType}
+                    currency={currency}
+                    onOfferTypeChange={handleOfferTypeChange}
+                    onPackageChange={(id) => {
+                      handlePackageChange(id);
+                      setFocusDecision(null);
+                    }}
+                    onServiceChange={(id) => {
+                      handleServiceChange(id);
+                      setFocusDecision(null);
+                    }}
+                  />
+                </BookingDecisionFrame>
+              ) : null}
+
+              {activeDecision === "employee" ? (
+                <BookingDecisionFrame
+                  title="Who will deliver this?"
+                  hint="Select an eligible employee."
+                >
+                  <BookingEmployeeDecision
+                    staff={eligibleStaff}
+                    staffId={activeStaffId}
+                    onStaffChange={handleStaffChange}
+                  />
+                </BookingDecisionFrame>
+              ) : null}
+
+              {activeDecision === "datetime" ? (
+                <BookingDecisionFrame
+                  title="When?"
+                  hint="Pick a date and an available time together."
+                >
+                  <BookingDatetimePanel
+                    ref={availabilityRef}
+                    date={date}
+                    minDate={format(new Date(), "yyyy-MM-dd")}
+                    onDateChange={handleDateChange}
+                    loading={availLoading}
+                    availability={availability}
+                    selectedSlot={slot}
+                    selectedSlotValid={selectedSlotValid}
+                    unassigned={!activeStaffId}
+                    onSelectSlot={handleSlotSelect}
+                    onPickStaff={(id) => handleStaffChange(id)}
+                    onPickDay={(next) => {
+                      setDate(next);
+                      setSlot(null);
+                      setPaymentAcknowledged(false);
+                    }}
+                  />
+                </BookingDecisionFrame>
+              ) : null}
+
+              {activeDecision === "payment" ? (
+                <BookingDecisionFrame
+                  title="Payment"
+                  hint="Checkout for this appointment — projected until you confirm."
+                >
+                  {slot && financialsForSubmit.appointmentTotalCents > 0 ? (
+                    <BookingPaymentSection
+                      catalogPriceCents={subtotalCentsForSubmit}
+                      serviceTaxRateBps={selectedService?.tax_rate_bps}
+                      depositCents={selectedService?.deposit_cents}
+                      depositRequired={selectedService?.deposit_required}
+                      taxRates={taxRates}
+                      currency={currency}
+                      value={paymentDraft}
+                      onChange={setPaymentDraft}
+                      variant="decision"
+                      includePricingFields={false}
+                      includeFormFields={false}
+                      className="border-0 p-0 shadow-none"
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Choose a time before payment.
+                    </p>
+                  )}
+                </BookingDecisionFrame>
+              ) : null}
+
+              {activeDecision === "review" &&
+              slot &&
+              durationMinutes != null ? (
+                <BookingDecisionFrame title="Review & confirm">
+                  <BookingConfirmStep
+                    serviceName={
+                      offerType === "package" && selectedPackage
+                        ? selectedPackage.name
+                        : (selectedService?.name ?? null)
+                    }
+                    customerName={selectedCustomer?.name ?? null}
+                    employeeName={
+                      activeStaffId
+                        ? (eligibleStaff.find((m) => m.id === activeStaffId)
+                            ?.name ??
+                          staff.find((m) => m.id === activeStaffId)?.name ??
+                          null)
+                        : null
+                    }
+                    locationName={selectedLocation?.name ?? null}
+                    startIso={slot}
+                    durationMinutes={durationMinutes}
+                    financials={financialsForSubmit}
+                    payment={paymentDraft}
+                    currency={currency}
+                  />
+                </BookingDecisionFrame>
+              ) : null}
+
+              <BookingMoreOptions
+                notes={notes}
+                onNotesChange={setNotes}
+                durationMinutes={durationMinutes ?? 0}
+                durationUnresolved={durationMinutes == null}
+                durationIsOverride={resolvedDuration.source === "override"}
+                onDurationChange={handleDurationOverride}
+                locations={locations}
+                locationId={locationId}
+                onLocationChange={handleLocationChange}
+                bookingSource={bookingSourceLabel}
+              />
+            </>
+          )
         ) : (
           <>
             <CustomerSection

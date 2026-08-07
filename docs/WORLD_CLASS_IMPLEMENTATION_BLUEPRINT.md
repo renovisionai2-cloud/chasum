@@ -159,7 +159,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Booking Workspace final acceptance delivered on Preview — awaiting PO review.** True progressive stages (Customer → Appointment → Time → Payment → Confirm); only active stage expanded. Acceptance lock: Chapter 4 Booking Workspace passed only after true progressive workflow acceptance. Docs: [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md), Customer Workspace blueprints.
+**Adaptive Booking Workspace delivered on Preview — awaiting PO review.** Ask-only-what’s-missing decisions; summary strip; unified date/time; checkout payment; success state; benchmark principles locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md).
 
 ## Chapter 9 — Business Structure Engine (planning)
 

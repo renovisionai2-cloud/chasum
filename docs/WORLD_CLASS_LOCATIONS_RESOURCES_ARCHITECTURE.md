@@ -116,6 +116,19 @@ Travel between locations (e.g. one sonographer across GVM Brampton and Burlingto
 
 ---
 
+## Adaptive Booking Workspace (Chapter 4)
+
+The Booking Workspace asks only for missing decisions and must remain compatible with future:
+
+- employee only  
+- resource only  
+- employee + resource  
+- multiple required resources  
+
+Do **not** hard-code “employee is always the only bookable capacity” into the adaptive decision model in a way that blocks Chapter 9. Current create flow still requires a named employee until optional-staff / routing ships.
+
+---
+
 ## Implementation ownership
 
 | Work | Chapter |

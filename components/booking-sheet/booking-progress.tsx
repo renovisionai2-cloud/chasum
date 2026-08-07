@@ -1,38 +1,41 @@
 "use client";
 
+import {
+  bookingDecisionLabel,
+  type BookingDecision,
+} from "@/components/booking-sheet/booking-workflow";
 import { cn } from "@/lib/utils";
-import type { BookingWorkflowStep } from "@/components/booking-sheet/booking-workflow";
-import { BOOKING_WORKFLOW_STEPS } from "@/components/booking-sheet/booking-workflow";
 
-const LABELS: Record<BookingWorkflowStep, string> = {
-  customer: "Customer",
-  appointment: "Appointment",
-  time: "Time",
-  payment: "Payment",
-  confirm: "Confirm",
-};
-
-export type BookingProgressStep = BookingWorkflowStep;
-
+/**
+ * Compact progress for the adaptive workspace — current decision only emphasized.
+ */
 export function BookingProgressIndicator({
   active,
-  completed,
+  known,
 }: {
-  active: BookingWorkflowStep;
-  completed: Partial<Record<BookingWorkflowStep, boolean>>;
+  active: BookingDecision;
+  /** Decisions already satisfied by context or user choice. */
+  known: Partial<Record<BookingDecision, boolean>>;
 }) {
-  const activeIndex = BOOKING_WORKFLOW_STEPS.indexOf(active);
+  const steps: BookingDecision[] = [
+    "customer",
+    "service",
+    "employee",
+    "datetime",
+    "payment",
+    "review",
+  ];
 
   return (
     <nav
       aria-label="Booking progress"
-      className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground"
+      className="flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground"
     >
-      {BOOKING_WORKFLOW_STEPS.map((step, index) => {
-        const done = Boolean(completed[step]);
+      {steps.map((step, index) => {
         const isActive = step === active;
+        const done = Boolean(known[step]) && !isActive;
         return (
-          <span key={step} className="inline-flex items-center gap-1.5">
+          <span key={step} className="inline-flex items-center gap-1">
             {index > 0 ? (
               <span className="text-border" aria-hidden>
                 →
@@ -42,12 +45,12 @@ export function BookingProgressIndicator({
               className={cn(
                 "rounded-md px-1.5 py-0.5 font-medium",
                 isActive && "bg-primary/10 text-primary",
-                done && !isActive && "text-foreground",
+                done && "text-foreground",
               )}
               aria-current={isActive ? "step" : undefined}
             >
-              {done && !isActive ? "✓ " : index < activeIndex ? "✓ " : ""}
-              {LABELS[step]}
+              {done ? "✓ " : ""}
+              {bookingDecisionLabel(step)}
             </span>
           </span>
         );

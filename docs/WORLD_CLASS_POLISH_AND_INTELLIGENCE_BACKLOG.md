@@ -279,7 +279,7 @@ Formal program after functional World Class chapters. See section above.
 - No Production deploy / alias / branch changes  
 - No migrations 034–036  
 - No shared database writes  
-- **Chapter 4 delivered** (Customer Workspace + Booking Workspace final acceptance — true progressive stages) on Preview — awaiting PO before Chapter 5
+- **Chapter 4 delivered** (Customer Workspace + Adaptive Booking Workspace) on Preview — awaiting PO before Chapter 5
 
 ---
 
@@ -287,6 +287,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-07 | Chapter 4 Adaptive Booking Workspace — ask-only-missing + benchmarks |
 | 2026-08-07 | Chapter 4 Booking Workspace final acceptance — true progressive stages required |
 | 2026-08-07 | Chapter 4 Booking Workspace UX contract locked (`WORLD_CLASS_BOOKING_WORKSPACE.md`) |
 | 2026-08-06 | Initial lock from full desktop portal review recommendations |

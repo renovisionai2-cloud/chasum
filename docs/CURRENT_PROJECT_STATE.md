@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-07  
-**Updated by:** World Class Execution Program — Chapter 4 Booking Workspace final acceptance (true progressive stages; Preview; Production unchanged)  
+**Updated by:** World Class Execution Program — Chapter 4 Adaptive Booking Workspace (Preview; Production unchanged)  
 
 ---
 
@@ -159,21 +159,19 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-07)
 
-**World Class Execution — Chapter 4 Booking Workspace final acceptance**
+**World Class Execution — Chapter 4 Adaptive Booking Workspace**
 
-- True progressive stages: only active stage expanded; completed → Change summaries
-- Auto-advance Customer → Appointment → Time → Payment → Confirm
-- Time grid always expanded in workspace mode; one Payment decision card; Confirm review
-- Payment_* fields in sticky footer form; engines unchanged
-- **Acceptance:** Chapter 4 Booking Workspace passed only after true progressive workflow acceptance
+- Ask-only-what’s-missing decisions; summary strip; one decision area; success state
+- Unified date & time panel; payment checkout; More options; silent hints
+- Context prefill (CRM customer, calendar slot via `defaultDate`, drafts)
+- Benchmark principles documented; no fake any-pro / waitlist / slot hold
 - Contract: [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md)
 
 ### Immediately prior (2026-08-07)
 
-**World Class Execution — Chapter 4 Final Correction: Booking Workspace**
+**World Class Execution — Chapter 4 Booking Workspace final acceptance**
 
-- New Appointment drawer: Customer → Appointment → Time → Payment → Confirm (labels + collapse pass)
-- Removed Narrow/Standard/Wide; sticky footer; projected balance language
+- True progressive stages (predecessor to adaptive workspace)
 
 ### Immediately prior (2026-08-06)
 
@@ -376,10 +374,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `c56aad23477459c49408e931d558dee0dd392f39` |
-| **Short** | `c56aad2` |
-| **Subject** | feat: Chapter 4 progressive booking workflow stages |
-| **Prior tip** | `8c700b0` |
+| **SHA** | *(feature commit pending stamp)* |
+| **Short** | pending |
+| **Subject** | feat: Chapter 4 adaptive booking workspace |
+| **Prior tip** | `6ebcd13` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |

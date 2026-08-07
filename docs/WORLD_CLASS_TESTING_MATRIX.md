@@ -200,6 +200,19 @@
 | Blueprint | `WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
 | Approval | Awaiting PO |
 
+### Chapter 4 Adaptive Booking Workspace
+
+| Field | Value |
+|-------|--------|
+| Architecture | Ask only what’s missing; one decision; summary strip |
+| Decisions | Customer → Service → Employee → Date&time → Payment → Review → Success |
+| Date/time | Unified panel (calendar + grid) |
+| Payment | Checkout card; footer `payment_*` fields |
+| Success | Confirmed outcomes only |
+| Contract | `WORLD_CLASS_BOOKING_WORKSPACE.md` (+ benchmarks) |
+| Automated tests | `booking-workspace-ux.test.ts` |
+| Approval | Awaiting PO |
+
 ### Chapter 4 Final Acceptance — Progressive Booking Workspace
 
 | Field | Value |

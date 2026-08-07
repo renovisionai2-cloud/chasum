@@ -6,131 +6,129 @@ import {
   defaultBookingPaymentDraft,
 } from "@/components/booking/booking-payment-section";
 import {
-  bookingStageVisualState,
-  bookingWorkflowStatus,
-  isAppointmentStageReady,
+  firstMissingDecision,
+  previousDecision,
+  bookingFooterStatus,
 } from "@/components/booking-sheet/booking-workflow";
 
-describe("Booking progressive workflow helpers", () => {
-  it("only marks the active stage as active", () => {
+describe("Adaptive booking decisions", () => {
+  it("skips known customer and asks for service next", () => {
     expect(
-      bookingStageVisualState("time", "time", {
-        customer: true,
-        appointment: true,
-      }),
-    ).toBe("active");
-    expect(
-      bookingStageVisualState("customer", "time", { customer: true }),
-    ).toBe("complete");
-    expect(
-      bookingStageVisualState("payment", "time", {
-        customer: true,
-        appointment: true,
-      }),
-    ).toBe("upcoming");
-    expect(
-      bookingStageVisualState("confirm", "time", {
-        customer: true,
-        appointment: true,
-      }),
-    ).toBe("locked");
-  });
-
-  it("advances appointment readiness only when service, location, date, and employee are valid", () => {
-    expect(
-      isAppointmentStageReady({
-        serviceId: "s1",
-        locationId: "l1",
-        date: "2026-08-08",
-        needsNamedEmployee: false,
-      }),
-    ).toBe(true);
-    expect(
-      isAppointmentStageReady({
-        serviceId: "s1",
-        locationId: "l1",
-        date: "2026-08-08",
+      firstMissingDecision({
+        customerId: "c1",
+        serviceId: "",
         needsNamedEmployee: true,
+        date: "2026-08-08",
+        slot: null,
+        slotValid: false,
+        paymentAcknowledged: false,
+        success: false,
       }),
-    ).toBe(false);
+    ).toBe("service");
   });
 
-  it("exposes footer status copy for each stage", () => {
+  it("skips datetime when slot already known from calendar context", () => {
     expect(
-      bookingWorkflowStatus({
-        step: "time",
-        canSubmit: false,
-        hasCustomer: true,
-        appointmentReady: true,
-        hasTime: false,
+      firstMissingDecision({
+        customerId: "c1",
+        serviceId: "s1",
+        needsNamedEmployee: false,
+        date: "2026-08-08",
+        slot: "2026-08-08T13:30:00.000Z",
+        slotValid: true,
+        paymentAcknowledged: false,
+        success: false,
       }),
-    ).toBe("Choose a time");
+    ).toBe("payment");
+  });
+
+  it("requires employee when named staff is mandatory", () => {
     expect(
-      bookingWorkflowStatus({
-        step: "payment",
-        canSubmit: false,
-        hasCustomer: true,
-        appointmentReady: true,
-        hasTime: true,
+      firstMissingDecision({
+        customerId: "c1",
+        serviceId: "s1",
+        needsNamedEmployee: true,
+        date: "2026-08-08",
+        slot: null,
+        slotValid: false,
+        paymentAcknowledged: false,
+        success: false,
       }),
-    ).toBe("Choose payment");
+    ).toBe("employee");
+  });
+
+  it("reaches review only after payment is acknowledged", () => {
     expect(
-      bookingWorkflowStatus({
-        step: "confirm",
-        canSubmit: true,
-        hasCustomer: true,
-        appointmentReady: true,
-        hasTime: true,
+      firstMissingDecision({
+        customerId: "c1",
+        serviceId: "s1",
+        needsNamedEmployee: false,
+        date: "2026-08-08",
+        slot: "2026-08-08T13:30:00.000Z",
+        slotValid: true,
+        paymentAcknowledged: true,
+        success: false,
       }),
-    ).toBe("Ready to book");
+    ).toBe("review");
+  });
+
+  it("supports Back to a prior decision", () => {
+    expect(
+      previousDecision("payment", {
+        customerId: "c1",
+        serviceId: "s1",
+        needsNamedEmployee: false,
+        date: "2026-08-08",
+        slot: "2026-08-08T13:30:00.000Z",
+        slotValid: true,
+        paymentAcknowledged: false,
+        success: false,
+      }),
+    ).toBe("datetime");
+  });
+
+  it("exposes footer status for the active decision", () => {
+    expect(bookingFooterStatus("datetime")).toBe("Choose a date and time");
+    expect(bookingFooterStatus("review")).toBe("Ready to book");
   });
 });
 
-describe("Booking workspace UX contract — progressive stages", () => {
+describe("Adaptive booking workspace contract", () => {
   const root = process.cwd();
 
-  it("does not expose Narrow/Standard/Wide to booking users", () => {
+  it("does not expose Narrow/Standard/Wide", () => {
     const booking = readFileSync(
       join(root, "components/booking-sheet/booking-sheet.tsx"),
       "utf8",
     );
     expect(booking).toContain("showWidthControls={false}");
-    expect(booking).not.toMatch(/showWidthControls=\{true\}/);
   });
 
-  it("uses true progressive stages instead of one vertical create form", () => {
+  it("uses one active decision and summary strip — not stage cards", () => {
     const booking = readFileSync(
       join(root, "components/booking-sheet/booking-sheet.tsx"),
       "utf8",
     );
-    expect(booking).toContain("workflowStep");
-    expect(booking).toContain("<BookingStage");
-    expect(booking).toContain('title="Customer"');
-    expect(booking).toContain('title="Appointment"');
-    expect(booking).toContain('title="Time"');
-    expect(booking).toContain('title="Payment"');
-    expect(booking).toContain('title="Confirm"');
-    expect(booking).toContain("BookingConfirmStep");
-    expect(booking).toContain('setWorkflowStep("appointment")');
-    expect(booking).toContain('setWorkflowStep("payment")');
-    expect(booking).toContain('setWorkflowStep("confirm")');
+    expect(booking).toContain("firstMissingDecision");
+    expect(booking).toContain("BookingSummaryStrip");
+    expect(booking).toContain("BookingDecisionFrame");
+    expect(booking).toContain("BookingDatetimePanel");
+    expect(booking).toContain("BookingSuccessState");
+    expect(booking).toContain("BookingMoreOptions");
+    expect(booking).not.toContain("<BookingStage");
   });
 
-  it("keeps time grid always expanded in workspace mode", () => {
-    const avail = readFileSync(
-      join(root, "components/booking-sheet/availability-section.tsx"),
+  it("unifies date and time and expands the time grid", () => {
+    const panel = readFileSync(
+      join(root, "components/booking-sheet/booking-datetime-panel.tsx"),
       "utf8",
     );
-    const selector = readFileSync(
-      join(root, "components/scheduling/available-time-selector.tsx"),
-      "utf8",
-    );
-    expect(avail).toContain("workspaceMode");
-    expect(avail).toContain("alwaysExpanded={workspaceMode}");
-    expect(selector).toContain("alwaysExpanded");
+    expect(panel).toContain("DateField");
+    expect(panel).toContain("workspaceMode");
+    expect(panel).toContain("md:grid-cols-");
   });
 
-  it("uses one payment decision card and no create-path Balance section", () => {
+  it("keeps payment as one checkout card with footer field wiring", () => {
     const payment = readFileSync(
       join(root, "components/booking/booking-payment-section.tsx"),
       "utf8",
@@ -139,50 +137,47 @@ describe("Booking workspace UX contract — progressive stages", () => {
       join(root, "components/booking-sheet/booking-sheet.tsx"),
       "utf8",
     );
-    expect(payment).toContain('variant = "decision"');
     expect(payment).toContain("Appointment total");
     expect(payment).toContain("Balance after confirmation");
-    expect(payment).toContain("Send payment receipt email");
-    expect(booking).toContain('variant="decision"');
-    expect(booking).toContain("includeFormFields={false}");
     expect(booking).toContain('name="payment_mode"');
     expect(booking).toContain('name="payment_amount_cents"');
-    // PaymentsSection / Balance only on edit path
-    const createBranch = booking.slice(
-      booking.indexOf("{!isEditing ? ("),
-      booking.indexOf(") : ("),
-    );
-    expect(createBranch).not.toContain("<PaymentsSection");
-    expect(createBranch).not.toContain("BookingReviewCard");
-  });
-
-  it("sticky footer persists with Continue then Confirm", () => {
-    const booking = readFileSync(
-      join(root, "components/booking-sheet/booking-sheet.tsx"),
-      "utf8",
-    );
-    expect(booking).toContain("footerStatus");
-    expect(booking).toContain("Continue");
-    expect(booking).toContain('workflowStep === "payment"');
-    expect(booking).toContain('workflowStep !== "confirm"');
-    expect(confirmButtonLabel("none", 0, "cad")).toBe("Confirm appointment");
+    expect(booking).toContain("includeFormFields={false}");
     expect(confirmButtonLabel("deposit", 5000, "cad")).toMatch(
       /Confirm & record/,
     );
     expect(defaultBookingPaymentDraft(5000).mode).toBe("none");
   });
 
-  it("keeps Summer secondary on create and timeline on edit", () => {
+  it("does not fake Any professional or waitlist in employee UI", () => {
+    const employee = readFileSync(
+      join(root, "components/booking-sheet/booking-employee-decision.tsx"),
+      "utf8",
+    );
+    expect(employee).toContain("ASSIGN_LATER_COMING_SOON_LABEL");
+    expect(employee).not.toContain("Add to waitlist");
+    expect(employee).toContain("any available professional");
+  });
+
+  it("keeps More options and silent hints secondary", () => {
+    const more = readFileSync(
+      join(root, "components/booking-sheet/booking-more-options.tsx"),
+      "utf8",
+    );
+    const hints = readFileSync(
+      join(root, "components/booking-sheet/booking-silent-hints.tsx"),
+      "utf8",
+    );
+    expect(more).toContain("More options");
+    expect(hints).toContain("Booking context");
+  });
+
+  it("does not invent a catalog service on blank create", () => {
     const booking = readFileSync(
       join(root, "components/booking-sheet/booking-sheet.tsx"),
       "utf8",
     );
-    expect(booking).toContain("SummerAssistant");
-    expect(booking).toContain("TimelineSection");
-    // Timeline only after the edit branch marker in create/edit split
-    const timelineAt = booking.lastIndexOf("<TimelineSection");
-    const editMarker = booking.lastIndexOf("<>\n            <CustomerSection");
-    expect(timelineAt).toBeGreaterThan(editMarker);
-    expect(booking).toContain('workspaceMode');
+    expect(booking).toContain(
+      "do not silently invent a service from the catalog",
+    );
   });
 });

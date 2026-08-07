@@ -7,40 +7,62 @@
 
 ---
 
-## Acceptance lock
+## Product rule (locked)
 
-**Chapter 4 Booking Workspace passed only after true progressive workflow acceptance.**
+**Chasum should never ask a user for information it already knows, never make them search for the next action, and never expose complexity until that complexity is needed.**
 
-Labels alone are not enough. Create booking must behave as real workflow stages — not one long vertical form.
+**Acceptance:** Chapter 4 Booking Workspace passed only after true progressive / adaptive workflow acceptance — not labels over a long form.
 
-## Locked flow
+## Adaptive architecture
 
 ```
-Customer → Appointment → Time → Payment → Confirm
+Ask only what’s missing:
+Customer → Service → Employee → Date & time → Payment → Review → Success
 ```
 
-**Contract:** A normal booking must not require repeated long-page scrolling.  
-**Contract:** Only the **active** stage is expanded. Completed stages collapse to compact summaries with **Change**. Upcoming stages stay locked.
+Entry context may skip known decisions:
 
-## Required IA
+| Entry | Typically known | Starts at |
+|-------|-----------------|-----------|
+| Global New Appointment | Business / location | Customer (or next missing) |
+| Customer profile → Book | Customer (+ assigned staff when present) | Service |
+| Calendar empty slot | Date, time (+ employee on day column) | Customer or Service |
+| Reception draft / Quick Appointment | Draft fields | First missing |
 
-1. No Narrow / Standard / Wide layout controls for business users.
-2. Progress: Customer → Appointment → Time → Payment → Confirm.
-3. Selecting a customer advances to Appointment; search collapses.
-4. Completing service + employee + date advances to Time (no manual hunt).
-5. Time step shows the availability **grid** immediately (`alwaysExpanded` / `workspaceMode`).
-6. Selecting a time advances to Payment.
-7. Payment is one decision card: Appointment total + Deposit required + four choices; details progressive; projected balance after choice.
-8. Continue → Confirm review (financial + notifications). Confirm CTA in sticky footer.
-9. Sticky footer: status left; Cancel + Continue/Confirm right.
-10. History / Summer / Notes / Advanced secondary — never interrupt the path.
-11. Prefer step changes over long auto-scroll.
-12. Optional employee “Assign later” remains coming-soon until engine flag ships.
-13. Edit appointment may retain denser layout; create must stay progressive.
+One booking engine; only prefill differs.
+
+## Workspace chrome
+
+- Fixed header + compact progress  
+- **Summary strip** of known facts (Change chips — not full completed stage cards)  
+- **One** main decision area  
+- Sticky footer: status · Back · Continue / Confirm  
+- **More options** collapsed (notes, duration, location, source)  
+- Silent grounded hints only — no Summer chat panel on create  
+- Success state with confirmed notification/payment outcomes only  
+
+## Benchmark principles (inspiration only — do not copy)
+
+| Product | What they do well | What Chasum borrows | How Chasum differentiates |
+|---------|-------------------|---------------------|---------------------------|
+| **Calendly** | Round-robin / any available host reduces forced staff choice | Future “Any available professional” routing without rebuilding the workflow | Service businesses need eligibility, rooms, deposits — Chasum OS depth |
+| **Fresha** | Book from calendar slot; any professional; waitlist recovery; deposit while booking | Context prefill; date+time as one decision; no dead-end availability | Truthful capabilities only — no fake waitlist/any-pro until engines exist |
+| **Square Appointments** | Profiles + cards + history accelerate repeats | Returning customer context (upcoming, balance) only when it affects decisions | AI Business OS + Summer/Chase — not payments-first POS |
+| **Mindbody** | Discovery → book → pay → visit → repeat; certainty after save | Success state with confirmation/payment outcomes | Honest pending/failed delivery — no theater |
+| **Vagaro** | One engine across channels | Reception / Calendar / CRM / Command Centre → same sheet + engine | Shared OS kernel + commerce ledger |
+| **Appointy** | Temporary slot hold during online payment | Documented future HELD → CONFIRMED / RELEASED | Not implemented while Preview shares Production DB |
+
+## Future capabilities (documented — not in this chapter)
+
+- Any available professional / automatic routing  
+- Waitlist + next available recovery  
+- Online payment slot holds  
+- Repeat “Book again” from prior service/employee  
+- Location + resource scheduling (Chapter 9)  
 
 ## Preserve
 
-- Tax / deposit calculations (`resolveBookingFinancials`)
-- Payment form field names (`payment_mode`, `payment_amount_cents`, …) in the sticky footer form
-- Customer + business confirmation emails
-- Reception / Calendar / CRM open the same `BookingSheet`
+- Tax / deposit (`resolveBookingFinancials`)  
+- Footer `payment_*` field names for `createAppointment`  
+- Customer + business emails  
+- Named employee required until optional-staff flag ships  
