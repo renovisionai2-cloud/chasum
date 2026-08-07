@@ -369,8 +369,9 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | *(feature commit pending stamp)* |
+| **SHA** | `6661f0b9bd3b9de35481b7a56701cbef33552a6b` |
 | **Subject** | feat: Chapter 4 Booking Workspace UX consolidation |
+| **Short** | `6661f0b` |
 | **Prior tip** | `ef295c9` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
