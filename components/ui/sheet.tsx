@@ -31,6 +31,10 @@ type SheetProps = {
   side?: "right" | "left";
   /** When set, enables desktop width presets + drag resize. */
   resizable?: boolean;
+  /** Show Narrow/Standard/Wide buttons when resizable. Default false — production UX. */
+  showWidthControls?: boolean;
+  /** Fixed desktop width in px when resizable (default standard). */
+  defaultWidthPx?: number;
   /** localStorage key for remembered width (defaults to booking sheet key). */
   widthStorageKey?: string;
 };
@@ -58,12 +62,24 @@ export function Sheet({
   className,
   side = "right",
   resizable = false,
+  showWidthControls = false,
+  defaultWidthPx = BOOKING_SHEET_STANDARD_PX,
   widthStorageKey = BOOKING_SHEET_WIDTH_KEY,
 }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
-  const [widthPx, setWidthPx] = useState(BOOKING_SHEET_STANDARD_PX);
+  const [widthPx, setWidthPx] = useState(() => {
+    if (typeof window === "undefined") return defaultWidthPx;
+    try {
+      const raw = window.localStorage.getItem(widthStorageKey);
+      const parsed = raw ? Number(raw) : NaN;
+      if (Number.isFinite(parsed)) return clampWidth(parsed);
+    } catch {
+      /* ignore */
+    }
+    return defaultWidthPx;
+  });
   const [isDesktop, setIsDesktop] = useState(false);
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
@@ -73,15 +89,8 @@ export function Sheet({
     const apply = () => setIsDesktop(mq.matches);
     apply();
     mq.addEventListener("change", apply);
-    try {
-      const raw = window.localStorage.getItem(widthStorageKey);
-      const parsed = raw ? Number(raw) : NaN;
-      if (Number.isFinite(parsed)) setWidthPx(clampWidth(parsed));
-    } catch {
-      /* ignore */
-    }
     return () => mq.removeEventListener("change", apply);
-  }, [resizable, widthStorageKey]);
+  }, [resizable]);
 
   const persistWidth = useCallback(
     (next: number) => {
@@ -200,7 +209,7 @@ export function Sheet({
           "pb-[env(safe-area-inset-bottom)]",
           resizable
             ? "md:h-full md:max-h-none md:rounded-none md:pb-0"
-            : "md:h-full md:max-h-none md:w-[min(34rem,100%)] md:rounded-none md:pb-0",
+            : "md:h-full md:max-h-none md:w-[min(44rem,100%)] md:rounded-none md:pb-0",
           side === "right"
             ? "md:border-l md:border-y-0 md:border-r-0"
             : "md:border-r md:border-y-0 md:border-l-0",
@@ -256,7 +265,7 @@ export function Sheet({
                 {description}
               </p>
             ) : null}
-            {resizable && isDesktop ? (
+            {resizable && isDesktop && showWidthControls ? (
               <div className="mt-2 flex flex-wrap gap-1">
                 {(
                   [

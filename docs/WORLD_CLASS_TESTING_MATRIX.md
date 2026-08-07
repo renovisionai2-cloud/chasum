@@ -200,6 +200,24 @@
 | Blueprint | `WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
 | Approval | Awaiting PO |
 
+### Chapter 4 Final Correction — Booking Workspace
+
+| Field | Value |
+|-------|--------|
+| Surface | New Appointment / Edit Appointment (`BookingSheet`) |
+| Purpose | Premium receptionist booking with minimal scroll |
+| Flow lock | Customer → Appointment → Time → Payment → Confirm |
+| Layout controls | Narrow/Standard/Wide **hidden** (`showWidthControls={false}`) |
+| Date → time | Availability immediately after Appointment section |
+| Payment | One `BookingPaymentSection`; projected “Balance after confirmation” |
+| History / Summer | Collapsed disclosures |
+| Sticky footer | Status + Cancel + Confirm / Confirm & record $X |
+| Mobile | Full-height sheet; sticky header/footer; min 44px targets |
+| Regression risk | Booking/payment/tax/deposit/notification engines unchanged |
+| Contract | `WORLD_CLASS_BOOKING_WORKSPACE.md` |
+| Automated tests | `tests/unit/booking/booking-workspace-ux.test.ts` |
+| Approval | Awaiting PO |
+
 ### Chapter 4 correction & premium polish
 
 | Check | Result |

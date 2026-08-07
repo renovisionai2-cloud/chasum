@@ -159,7 +159,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Correction & premium polish delivered on Preview — awaiting PO review.** Tight directory columns; Customer overview health (avg spend Unavailable without commerce rollup); CRM status vs derived segments; read-first Overview + Edit sheet; Messages tab label; billing sections; Insights “Completed service list value”; Summer Observed vs Recommendations. Blueprint + data dictionary: [`WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md), [`WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md).
+**Booking Workspace final correction delivered on Preview — awaiting PO review.** Customer Workspace (directory/profile) + Booking Workspace UX contract: Customer → Appointment → Time → Payment → Confirm; no Narrow/Standard/Wide; Date→times adjacency; one projected Payment summary; sticky footer. Docs: [`WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md), [`WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md), [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md).
 
 ## Chapter 9 — Business Structure Engine (planning)
 
@@ -183,4 +183,4 @@ This is **planning-locked now**; implementation is **not** started by this docum
 
 ## Next step after PO approval
 
-Begin **Execution Chapter 5** only after PO reviews Chapter 4 Customer Workspace. Continue progressive polish backlog items; do not wait for chat memory.
+Begin **Execution Chapter 5** only after PO reviews Chapter 4 (Customer Workspace + Booking Workspace). Continue progressive polish backlog items; do not wait for chat memory.

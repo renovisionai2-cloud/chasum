@@ -1,6 +1,5 @@
 "use client";
 
-import { BookingPriceSummary } from "@/components/booking/booking-price-summary";
 import { BookingSection } from "@/components/booking/booking-section";
 import { Button } from "@/components/ui/button";
 import { DateField } from "@/components/ui/date-field";
@@ -106,6 +105,7 @@ export function AppointmentSection({
   allowDurationOverride = true,
 }: AppointmentSectionProps) {
   const [adjustOpen, setAdjustOpen] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(Boolean(notes?.trim()));
   const [draftOverride, setDraftOverride] = useState(
     String(durationMinutes || ""),
   );
@@ -268,19 +268,13 @@ export function AppointmentSection({
             )}
           </Select>
           {selectedService ? (
-            <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
-              <p className="text-sm font-medium">{selectedService.name}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {selectedService.duration_minutes} minutes
-                {servicePriceCents != null
-                  ? ` · ${formatMoneyCents(servicePriceCents, currency)}`
-                  : ""}
-                {(selectedService.tax_rate_bps ?? 0) > 0 ? " · Taxable" : ""}
-                {selectedService.category
-                  ? ` · ${selectedService.category}`
-                  : ""}
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Duration: {selectedService.duration_minutes} min
+              {servicePriceCents != null
+                ? ` · ${formatMoneyCents(servicePriceCents, currency)}`
+                : ""}
+              {(selectedService.tax_rate_bps ?? 0) > 0 ? " · Taxable" : ""}
+            </p>
           ) : null}
         </div>
 
@@ -323,107 +317,92 @@ export function AppointmentSection({
           onAfterSelect={onDateSelected}
         />
 
-        <div className="space-y-1.5">
-          <Label id="bs-duration-label">Duration</Label>
-          <div
-            className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-3 py-2"
-            aria-labelledby="bs-duration-label"
-          >
+        <div className="space-y-1 sm:col-span-2">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Duration:</span>
             {durationUnresolved ? (
-              <p className="text-sm text-muted-foreground">
-                Waiting for service duration…
-              </p>
+              <span className="text-muted-foreground">Waiting…</span>
             ) : (
-              <>
-                <p className="text-sm font-medium tabular-nums">
-                  {durationMinutes} minutes
-                </p>
-                {durationIsOverride && catalogDuration != null ? (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    Custom for this appointment · Service default:{" "}
-                    {catalogDuration} minutes
-                  </p>
-                ) : (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    From selected service
-                  </p>
-                )}
-              </>
+              <span className="font-medium tabular-nums">
+                {durationMinutes} min
+                {durationIsOverride ? " (custom)" : ""}
+              </span>
             )}
-          </div>
-          {allowDurationOverride && !durationUnresolved ? (
-            adjustOpen ? (
-              <div className="mt-2 space-y-2 rounded-[var(--radius-md)] border border-border/80 bg-card px-3 py-2.5">
-                <p className="text-[11px] text-muted-foreground">
-                  Changes this appointment only. Availability will be checked
-                  again for the new length.
-                </p>
-                {catalogDuration != null ? (
-                  <p className="text-[11px] text-muted-foreground">
-                    Service duration: {catalogDuration} minutes
-                  </p>
-                ) : null}
-                <div className="flex flex-wrap items-end gap-2">
-                  <div className="min-w-[7rem] flex-1 space-y-1">
-                    <Label htmlFor="bs-duration-override" className="text-xs">
-                      Appointment override
-                    </Label>
-                    <Input
-                      id="bs-duration-override"
-                      type="number"
-                      min={MIN_BOOKING_DURATION_MINUTES}
-                      step={5}
-                      value={draftOverride}
-                      onChange={(e) => setDraftOverride(e.target.value)}
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => {
-                      const n = Number(draftOverride);
-                      if (
-                        !Number.isFinite(n) ||
-                        n < MIN_BOOKING_DURATION_MINUTES
-                      ) {
-                        return;
-                      }
-                      onDurationChange(Math.round(n));
-                      setAdjustOpen(false);
-                    }}
-                  >
-                    Apply
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      onDurationChange(null);
-                      setDraftOverride(
-                        String(catalogDuration ?? durationMinutes),
-                      );
-                      setAdjustOpen(false);
-                    }}
-                  >
-                    Use service default
-                  </Button>
-                </div>
-              </div>
-            ) : (
+            {allowDurationOverride && !durationUnresolved ? (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="mt-1 h-8 px-2 text-xs text-muted-foreground"
+                className="h-8 px-2 text-xs text-muted-foreground"
                 onClick={() => {
                   setDraftOverride(String(durationMinutes));
-                  setAdjustOpen(true);
+                  setAdjustOpen((v) => !v);
                 }}
               >
-                Adjust duration
+                {adjustOpen ? "Hide duration" : "Edit duration"}
               </Button>
-            )
+            ) : null}
+          </div>
+          {adjustOpen && allowDurationOverride && !durationUnresolved ? (
+            <div className="mt-2 space-y-2 rounded-[var(--radius-md)] border border-border/80 bg-card px-3 py-2.5">
+              <p className="text-[11px] text-muted-foreground">
+                Changes this appointment only. Availability will be checked
+                again for the new length.
+              </p>
+              {catalogDuration != null ? (
+                <p className="text-[11px] text-muted-foreground">
+                  Service duration: {catalogDuration} minutes
+                </p>
+              ) : null}
+              <div className="flex flex-wrap items-end gap-2">
+                <div className="min-w-[7rem] flex-1 space-y-1">
+                  <Label htmlFor="bs-duration-override" className="text-xs">
+                    Appointment override
+                  </Label>
+                  <Input
+                    id="bs-duration-override"
+                    type="number"
+                    min={MIN_BOOKING_DURATION_MINUTES}
+                    step={5}
+                    value={draftOverride}
+                    onChange={(e) => setDraftOverride(e.target.value)}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="min-h-11"
+                  onClick={() => {
+                    const n = Number(draftOverride);
+                    if (
+                      !Number.isFinite(n) ||
+                      n < MIN_BOOKING_DURATION_MINUTES
+                    ) {
+                      return;
+                    }
+                    onDurationChange(Math.round(n));
+                    setAdjustOpen(false);
+                  }}
+                >
+                  Apply
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="min-h-11"
+                  onClick={() => {
+                    onDurationChange(null);
+                    setDraftOverride(
+                      String(catalogDuration ?? durationMinutes),
+                    );
+                    setAdjustOpen(false);
+                  }}
+                >
+                  Use service default
+                </Button>
+              </div>
+            </div>
           ) : null}
         </div>
       </div>
@@ -489,21 +468,41 @@ export function AppointmentSection({
         </div>
       </BookingSection>
 
-      <BookingPriceSummary
-        financials={financials}
-        currency={currency}
-      />
-
-      <div className="space-y-1.5">
-        <Label htmlFor="bs-notes">Notes</Label>
-        <Textarea
-          id="bs-notes"
-          rows={2}
-          value={notes}
-          onChange={(e) => onNotesChange(e.target.value)}
-          placeholder="Optional notes for the visit"
-        />
-      </div>
+      {!notesOpen ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="min-h-11 px-2 text-xs text-muted-foreground"
+          onClick={() => setNotesOpen(true)}
+        >
+          + Add note
+        </Button>
+      ) : (
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="bs-notes">Notes</Label>
+            {!notes?.trim() ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs"
+                onClick={() => setNotesOpen(false)}
+              >
+                Hide
+              </Button>
+            ) : null}
+          </div>
+          <Textarea
+            id="bs-notes"
+            rows={2}
+            value={notes}
+            onChange={(e) => onNotesChange(e.target.value)}
+            placeholder="Optional notes for the visit"
+          />
+        </div>
+      )}
     </section>
   );
 }

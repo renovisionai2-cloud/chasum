@@ -28,8 +28,22 @@
 | 2026-08-06 | **Polish & Intelligence backlog lock** | `c8ce8e7` | Docs-only | Locked portal review recommendations → chapters + final Polish & Intelligence Program; Chapter 4 not started |
 | 2026-08-06 | **Chapter 4 — Customer Workspace** | `3793ec6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (SSO). Unique Ready URL after Vercel deploy. | Directory redesign; payment summary; profile workspace; honest empty states; collected ≠ revenue |
 | 2026-08-06 | **Chapter 4 correction & premium polish** | `0052bc3` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tight directory; health overview; read-first profile; avg spend Unavailable; billing sections; data dictionary |
+| 2026-08-07 | **Chapter 4 Final Correction — Booking Workspace** | *(pending push)* | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Progressive booking IA; no width debug controls; Date→time; one Payment card; sticky footer |
 
 ---
+
+## Chapter 4 Booking Workspace quality report
+
+| Check | Result |
+|-------|--------|
+| Typecheck | **Pass** (pending stamp) |
+| Build | **Pass** |
+| Unit tests | **329 pass / 1 fail**; inherited `multi-business-selection` only |
+| Booking UX tests | `booking-workspace-ux.test.ts` **8 pass** |
+| Production | Untouched |
+| Migrations 034–036 | Not applied |
+| Engines | Unchanged |
+| Chapter 5 | Not started |
 
 ## Chapter 4 correction quality report
 

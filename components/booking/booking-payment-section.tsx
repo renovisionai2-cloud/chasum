@@ -72,16 +72,19 @@ export function BookingPaymentSection({
     depositRequired,
     currency,
   });
+  const paymentToday =
+    value.mode === "none" ? 0 : Math.max(0, value.amountCents);
   const withToday = resolveBookingFinancials({
     catalogPriceCents: base.subtotalCents,
     taxInclusive: false,
     taxCents: base.taxCents,
     depositRequiredCents: base.depositRequiredCents,
-    paymentTodayCents: value.mode === "none" ? 0 : value.amountCents,
+    paymentTodayCents: paymentToday,
     currency,
   });
   const depositNeeded = base.depositRequiredCents > 0;
-  const expanded = defaultExpanded || value.mode !== "none" || depositNeeded;
+  void defaultExpanded;
+  void compact;
 
   function setMode(mode: BookingPaymentMode) {
     const amountCents = suggestPaymentTodayCents(mode, base, value.amountCents);
@@ -90,61 +93,84 @@ export function BookingPaymentSection({
 
   return (
     <section
+      id="bs-payment"
       className={cn(
         "rounded-[var(--radius-md)] border border-border bg-card px-3 py-3 space-y-3",
         className,
       )}
       aria-label="Payment"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold tracking-tight">Payment</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Optional — record cash or other payment with this booking.
-          </p>
-        </div>
-        {depositNeeded ? (
-          <p className="text-xs font-medium tabular-nums text-foreground shrink-0">
-            Deposit {base.formatted.depositRequired}
-          </p>
-        ) : null}
+      <div>
+        <p className="text-sm font-semibold tracking-tight">Payment</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          One financial summary before confirmation. Figures below are projected
+          until you confirm.
+        </p>
       </div>
 
-      <dl
-        className={cn(
-          "grid gap-1.5 text-sm",
-          compact ? "grid-cols-1" : "sm:grid-cols-2",
-        )}
-      >
-        <div className="flex justify-between gap-2 sm:block">
-          <dt className="text-muted-foreground text-xs">Appointment total</dt>
+      <dl className={cn("space-y-1.5 text-sm", compact && "text-sm")}>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Subtotal</dt>
+          <dd className="tabular-nums">{base.formatted.subtotal}</dd>
+        </div>
+        {base.taxCents > 0 ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">
+              Tax{base.taxInclusive ? " (included)" : ""}
+            </dt>
+            <dd className="tabular-nums">{base.formatted.tax}</dd>
+          </div>
+        ) : null}
+        <div className="flex justify-between gap-3 border-t border-border/70 pt-1.5">
+          <dt className="font-medium">Total</dt>
           <dd className="font-semibold tabular-nums">
             {base.formatted.appointmentTotal}
           </dd>
         </div>
-        <div className="flex justify-between gap-2 sm:block">
-          <dt className="text-muted-foreground text-xs">Balance after booking</dt>
+        {depositNeeded ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">Deposit required</dt>
+            <dd className="tabular-nums">{base.formatted.depositRequired}</dd>
+          </div>
+        ) : null}
+        {paymentToday > 0 ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">Payment being recorded</dt>
+            <dd className="tabular-nums">
+              −{formatMoneyCents(paymentToday, currency)}
+            </dd>
+          </div>
+        ) : null}
+        <div className="flex justify-between gap-3 border-t border-border/70 pt-1.5">
+          <dt className="font-medium">Balance after confirmation</dt>
           <dd className="font-semibold tabular-nums">
             {withToday.formatted.remainingBalance}
           </dd>
         </div>
       </dl>
 
-      {expanded ? (
-        <div className="space-y-3 border-t border-border pt-3">
+      <div className="space-y-3 border-t border-border pt-3">
+          <p className="text-xs font-medium text-muted-foreground">
+            Payment today
+          </p>
           <div className="grid gap-2">
             {(
               [
                 ["none", "No payment now"],
-                ["deposit", depositNeeded ? `Record ${base.formatted.depositRequired} deposit` : "Record deposit"],
-                ["full", `Pay in full (${base.formatted.appointmentTotal})`],
-                ["custom", "Record a different amount"],
+                [
+                  "deposit",
+                  depositNeeded
+                    ? `Record ${base.formatted.depositRequired} deposit`
+                    : "Record deposit",
+                ],
+                ["full", `Pay in full — ${base.formatted.appointmentTotal}`],
+                ["custom", "Other amount"],
               ] as const
             ).map(([mode, label]) => (
               <label
                 key={mode}
                 className={cn(
-                  "flex items-center gap-2 rounded-md border px-3 py-2.5 text-sm cursor-pointer min-h-11",
+                  "flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2.5 text-sm",
                   value.mode === mode
                     ? "border-foreground/30 bg-muted/40"
                     : "border-border",
@@ -171,14 +197,16 @@ export function BookingPaymentSection({
                   type="number"
                   min={0.01}
                   step="0.01"
+                  className="min-h-11"
                   value={(value.amountCents / 100).toFixed(2)}
                   onChange={(e) => {
                     const dollars = Number(e.target.value);
                     onChange({
                       ...value,
-                      mode: value.mode === "deposit" || value.mode === "full"
-                        ? "custom"
-                        : value.mode,
+                      mode:
+                        value.mode === "deposit" || value.mode === "full"
+                          ? "custom"
+                          : value.mode,
                       amountCents: Number.isFinite(dollars)
                         ? Math.max(0, Math.round(dollars * 100))
                         : 0,
@@ -213,6 +241,7 @@ export function BookingPaymentSection({
                 <Label htmlFor="booking_payment_note">Reference / note</Label>
                 <Input
                   id="booking_payment_note"
+                  className="min-h-11"
                   value={value.note}
                   placeholder="Optional"
                   onChange={(e) =>
@@ -220,7 +249,7 @@ export function BookingPaymentSection({
                   }
                 />
               </div>
-              <label className="flex items-center gap-2 text-sm sm:col-span-2 min-h-11">
+              <label className="flex min-h-11 items-center gap-2 text-sm sm:col-span-2">
                 <input
                   type="checkbox"
                   className="size-4"
@@ -233,26 +262,9 @@ export function BookingPaymentSection({
               </label>
             </div>
           ) : null}
-
-          <p className="text-xs text-muted-foreground">
-            Payment today:{" "}
-            <span className="font-medium text-foreground tabular-nums">
-              {formatMoneyCents(
-                value.mode === "none" ? 0 : value.amountCents,
-                currency,
-              )}
-            </span>
-            {depositNeeded && value.mode === "none" ? (
-              <>
-                {" "}
-                · Deposit required remains {base.formatted.depositRequired}
-              </>
-            ) : null}
-          </p>
         </div>
-      ) : null}
 
-      {/* Hidden fields for form submit */}
+      {/* Hidden fields for form submit — names must match createAppointment */}
       <input type="hidden" name="payment_mode" value={value.mode} />
       <input
         type="hidden"
@@ -299,7 +311,7 @@ export function defaultBookingPaymentDraft(
   depositRequiredCents = 0,
 ): BookingPaymentDraft {
   return {
-    mode: depositRequiredCents > 0 ? "none" : "none",
+    mode: "none",
     amountCents: depositRequiredCents > 0 ? depositRequiredCents : 0,
     method: "cash",
     note: "",
@@ -313,5 +325,5 @@ export function confirmButtonLabel(
   currency?: string | null,
 ): string {
   if (mode === "none" || amountCents <= 0) return "Confirm appointment";
-  return `Confirm and record ${formatMoneyCents(amountCents, currency)}`;
+  return `Confirm & record ${formatMoneyCents(amountCents, currency)}`;
 }

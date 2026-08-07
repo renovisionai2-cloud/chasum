@@ -1,7 +1,8 @@
 "use client";
 
-import { BookingSection } from "@/components/booking/booking-section";
 import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
+import { useState } from "react";
 
 type SummerAssistantProps = {
   disabled?: boolean;
@@ -12,7 +13,7 @@ type SummerAssistantProps = {
 
 /**
  * Summer booking assistance — secondary to the main booking journey.
- * Suggestions only nudge the sheet; times still come from real availability.
+ * Collapsed by default; opens only when asked.
  */
 export function SummerAssistant({
   disabled,
@@ -20,19 +21,47 @@ export function SummerAssistant({
   onSuggestOtherEmployee,
   onMoveTomorrowMorning,
 }: SummerAssistantProps) {
+  const [open, setOpen] = useState(false);
+
+  if (!open) {
+    return (
+      <Button
+        type="button"
+        size="sm"
+        variant="ghost"
+        className="min-h-11 gap-1.5 text-xs text-muted-foreground"
+        disabled={disabled}
+        onClick={() => setOpen(true)}
+      >
+        <Sparkles className="size-3.5" aria-hidden />
+        Ask Summer
+      </Button>
+    );
+  }
+
   return (
-    <BookingSection
-      title="Summer suggestions"
-      description="Helpful shortcuts when you need another option."
-      collapsible
-      defaultOpen={false}
-    >
-      <div className="flex flex-wrap gap-1.5">
+    <div className="space-y-2 rounded-[var(--radius-md)] border border-dashed border-border px-3 py-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold tracking-tight">Ask Summer</p>
         <Button
           type="button"
           size="sm"
           variant="ghost"
           className="h-8 text-xs"
+          onClick={() => setOpen(false)}
+        >
+          Hide
+        </Button>
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Grounded shortcuts only — times still come from real availability.
+      </p>
+      <div className="flex flex-wrap gap-1.5">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="min-h-11 text-xs"
           disabled={disabled}
           onClick={onSuggestAfternoon}
         >
@@ -41,8 +70,8 @@ export function SummerAssistant({
         <Button
           type="button"
           size="sm"
-          variant="ghost"
-          className="h-8 text-xs"
+          variant="outline"
+          className="min-h-11 text-xs"
           disabled={disabled}
           onClick={onSuggestOtherEmployee}
         >
@@ -51,14 +80,14 @@ export function SummerAssistant({
         <Button
           type="button"
           size="sm"
-          variant="ghost"
-          className="h-8 text-xs"
+          variant="outline"
+          className="min-h-11 text-xs"
           disabled={disabled}
           onClick={onMoveTomorrowMorning}
         >
           Move to tomorrow morning
         </Button>
       </div>
-    </BookingSection>
+    </div>
   );
 }

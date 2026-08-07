@@ -5,8 +5,9 @@ import type { getBookingSheetCustomerSnapshot } from "@/lib/actions/booking-shee
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { format } from "date-fns";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 type Snapshot = NonNullable<
   Awaited<ReturnType<typeof getBookingSheetCustomerSnapshot>>
@@ -25,6 +26,35 @@ export function TimelineSection({
   loading,
   onLoadHistory,
 }: TimelineSectionProps) {
+  const [open, setOpen] = useState(false);
+
+  if (!open) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          className="min-h-11 text-xs text-muted-foreground"
+          onClick={() => {
+            setOpen(true);
+            onLoadHistory();
+          }}
+        >
+          View customer history
+        </Button>
+        {appointment?.customer_id ? (
+          <Link
+            href={`/dashboard/clients/${appointment.customer_id}`}
+            className="inline-flex min-h-11 items-center px-2 text-xs font-medium text-muted-foreground underline-offset-2 hover:underline"
+          >
+            Open profile
+          </Link>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <section className="space-y-3" aria-labelledby="bs-timeline-heading">
       <div className="flex items-end justify-between gap-2">
@@ -33,25 +63,29 @@ export function TimelineSection({
             id="bs-timeline-heading"
             className="text-sm font-semibold tracking-tight"
           >
-            Timeline
+            Customer history
           </h3>
           <p className="text-xs text-muted-foreground">
-            Visit history and notes — load when you need them
+            Secondary context — not required to confirm a booking
           </p>
         </div>
         <Button
           type="button"
           size="sm"
-          variant="outline"
-          disabled={loading || !appointment?.customer_id}
-          onClick={onLoadHistory}
+          variant="ghost"
+          className="min-h-11"
+          onClick={() => setOpen(false)}
         >
-          {loading ? (
-            <Loader2 className="size-3.5 animate-spin" aria-hidden />
-          ) : null}
-          Load history
+          Hide
         </Button>
       </div>
+
+      {loading ? (
+        <p className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="size-3.5 animate-spin" aria-hidden />
+          Loading history…
+        </p>
+      ) : null}
 
       <ol className="space-y-3 border-l border-border pl-3 text-xs">
         {appointment ? (
@@ -81,30 +115,6 @@ export function TimelineSection({
             </p>
           </li>
         ))}
-
-        {snapshot ? (
-          <li className="flex items-center gap-1.5 text-muted-foreground">
-            <MessageSquare className="size-3.5" aria-hidden />
-            {snapshot.communicationsCount} communication
-            {snapshot.communicationsCount === 1 ? "" : "s"} on file
-          </li>
-        ) : null}
-
-        <li className="text-muted-foreground">
-          {appointment?.customer_id ? (
-            <>
-              Full customer history in{" "}
-              <Link
-                href={`/dashboard/clients/${appointment.customer_id}`}
-                className="text-primary underline-offset-2 hover:underline"
-              >
-                CRM
-              </Link>
-            </>
-          ) : (
-            "No previous activity for this appointment."
-          )}
-        </li>
       </ol>
     </section>
   );

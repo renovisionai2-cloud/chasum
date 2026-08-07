@@ -183,6 +183,7 @@ export function CustomerSection({
   const { toast } = useToast();
   const [showQuickAdd, setShowQuickAdd] = useState(initialShowQuickAdd);
   const [editOpen, setEditOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [draft, setDraft] = useState({ name: "", email: "", phone: "" });
 
@@ -258,37 +259,42 @@ export function CustomerSection({
 
   return (
     <section className="space-y-4" aria-labelledby="bs-customer-heading">
-      <div className="flex items-end justify-between gap-2">
-        <div>
-          <h3
-            id="bs-customer-heading"
-            className="text-sm font-semibold tracking-tight"
-          >
-            Customer
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            Find a customer or add someone new
-          </p>
-        </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => setShowQuickAdd((v) => !v)}
-        >
-          <Plus className="size-3.5" />
-          Quick add
-        </Button>
-      </div>
+      {selected ? null : (
+        <>
+          <div className="flex items-end justify-between gap-2">
+            <div>
+              <h3
+                id="bs-customer-heading"
+                className="text-sm font-semibold tracking-tight"
+              >
+                Customer
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Find a customer or add someone new
+              </p>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="min-h-11"
+              onClick={() => setShowQuickAdd((v) => !v)}
+            >
+              <Plus className="size-3.5" />
+              Quick add
+            </Button>
+          </div>
 
-      <CustomerSearch
-        selectedId={selected?.id}
-        seedCustomers={customers}
-        autoFocus={!selected}
-        onSelect={handleSelect}
-      />
+          <CustomerSearch
+            selectedId={undefined}
+            seedCustomers={customers}
+            autoFocus
+            onSelect={handleSelect}
+          />
+        </>
+      )}
 
-      {showQuickAdd ? (
+      {selected ? null : showQuickAdd ? (
         <div className="space-y-3 rounded-[var(--radius-md)] border border-border bg-muted/20 p-3">
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
@@ -466,25 +472,50 @@ export function CustomerSection({
           </div>
 
           {snapshot?.upcoming && snapshot.upcoming.length > 0 ? (
-            <ul className="mt-3 space-y-1.5 border-t border-border/70 pt-3">
-              <li className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Timeline preview
-              </li>
-              {snapshot.upcoming.map((a) => (
-                <li
-                  key={a.id}
-                  className="flex items-center justify-between gap-2 text-xs"
+            <div className="mt-3 border-t border-border/70 pt-3">
+              {!historyOpen ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="min-h-11 px-2 text-xs text-muted-foreground"
+                  onClick={() => setHistoryOpen(true)}
                 >
-                  <span className="truncate">
-                    {format(parseISO(a.start), "MMM d")} ·{" "}
-                    {formatTime(parseISO(a.start))} · {a.serviceName}
-                  </span>
-                  <span className="shrink-0 capitalize text-muted-foreground">
-                    {a.status.replace("_", " ")}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                  View history ({snapshot.upcoming.length} upcoming)
+                </Button>
+              ) : (
+                <ul className="space-y-1.5">
+                  <li className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Upcoming
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 text-xs"
+                      onClick={() => setHistoryOpen(false)}
+                    >
+                      Hide
+                    </Button>
+                  </li>
+                  {snapshot.upcoming.map((a) => (
+                    <li
+                      key={a.id}
+                      className="flex items-center justify-between gap-2 text-xs"
+                    >
+                      <span className="truncate">
+                        {format(parseISO(a.start), "MMM d")} ·{" "}
+                        {formatTime(parseISO(a.start))} · {a.serviceName}
+                      </span>
+                      <span className="shrink-0 capitalize text-muted-foreground">
+                        {a.status.replace("_", " ")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           ) : null}
         </div>
       ) : (

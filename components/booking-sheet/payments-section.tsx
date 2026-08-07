@@ -69,11 +69,10 @@ export function PaymentsSection({
 
   useEffect(() => {
     const id = appointment?.id;
-    if (!id) {
-      setActivity(null);
-      return;
-    }
+    if (!id) return;
     let cancelled = false;
+    // Async load — loading flag must sync when appointment id changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch lifecycle
     setActivityLoading(true);
     loadAppointmentFinancialActivity(id)
       .then((data) => {
@@ -90,6 +89,7 @@ export function PaymentsSection({
     };
   }, [appointment?.id]);
 
+  const resolvedActivity = appointment?.id ? activity : null;
   const catalogCents = service
     ? Math.round(Number(service.price) * 100)
     : 0;
@@ -118,7 +118,6 @@ export function PaymentsSection({
   const amountPaid = financials.paidToDateCents;
   const amountRefunded = financials.amountRefundedCents;
   const depositRequired = depositCents > 0;
-  const netPaid = Math.max(0, amountPaid - amountRefunded);
   const outstandingTotal = financials.remainingBalanceCents;
   const status = deriveStatus({
     totalCents: financials.appointmentTotalCents,
@@ -231,7 +230,7 @@ export function PaymentsSection({
             Financial activity
           </p>
           <AppointmentFinancialActivityList
-            activity={activity}
+            activity={resolvedActivity}
             loading={activityLoading}
             variant="panel"
           />
