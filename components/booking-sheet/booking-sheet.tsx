@@ -64,6 +64,7 @@ import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
   RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
@@ -551,6 +552,8 @@ export function BookingSheet({
           if (!cancelled) {
             setAvailability({
               slots: [],
+              intervalMinutes: DEFAULT_BOOKING_INTERVAL_MINUTES,
+              timezone: null,
               emptyReason: "Could not load availability. Try again.",
               alternativeStaff: [],
               alternativeDays: [],
@@ -1157,7 +1160,20 @@ export function BookingSheet({
                   Back
                 </Button>
               ) : null}
-              {!isEditing && activeDecision === "payment" ? (
+              {!isEditing && activeDecision === "datetime" ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="min-h-11"
+                  disabled={!slot || !selectedSlotValid || pending}
+                  onClick={() => {
+                    setPaymentAcknowledged(false);
+                    setFocusDecision(null);
+                  }}
+                >
+                  Continue
+                </Button>
+              ) : !isEditing && activeDecision === "payment" ? (
                 <Button
                   type="button"
                   size="sm"
@@ -1170,16 +1186,13 @@ export function BookingSheet({
                 >
                   Continue
                 </Button>
-              ) : !isEditing && activeDecision === "success" ? null : (
+              ) : !isEditing && activeDecision === "success" ? null : !isEditing &&
+                activeDecision !== "review" ? null : (
                 <Button
                   type="submit"
                   size="sm"
                   className="min-h-11"
-                  disabled={
-                    !canSubmit ||
-                    pending ||
-                    (!isEditing && activeDecision !== "review")
-                  }
+                  disabled={!canSubmit || pending}
                 >
                   {pending
                     ? "Confirming…"

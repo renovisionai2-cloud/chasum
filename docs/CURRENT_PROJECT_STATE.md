@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-07  
-**Updated by:** World Class — Booking micro-interaction correction (money input + View Appointment; Preview; Production unchanged)  
+**Updated by:** World Class — Date & Time slot density correction (Preview; Production unchanged)  
 
 ---
 
@@ -158,6 +158,16 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-07)
+
+**World Class — Date & Time slot density correction**
+
+- Present useful start times on business booking increment (`appointment_interval_minutes`); defensive UI filter + “More times” for dense days
+- Next available highlight; Morning/Afternoon/Evening preserved; Date & Time remains one step
+- Footer: Continue on Date & Time (not Confirm appointment before Review)
+- Locked: Chasum presents useful appointment start times, not raw availability granularity
+- Availability/payment engines unchanged; Chapter 5 not started
+
+### Immediately prior (2026-08-07)
 
 **World Class — Booking micro-interaction correction**
 

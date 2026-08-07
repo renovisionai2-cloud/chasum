@@ -1,7 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { groupSlotsByTimeOfDay } from "@/lib/booking/time-groups";
+import { bookingIntervalLabel, DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
+import {
+  DEFAULT_VISIBLE_STARTS_PER_PERIOD,
+  presentStartTimesForBookingUI,
+  visibleItemsForPeriod,
+} from "@/lib/booking/presentable-start-times";
+import type { TimeOfDayGroupId } from "@/lib/booking/time-groups";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -38,6 +44,9 @@ type AvailableTimeSelectorProps = {
   forceExpanded?: boolean;
   /** Progressive Time step: show the grid immediately (no collapse chrome). */
   alwaysExpanded?: boolean;
+  /** Business/location booking start increment from availability context. */
+  intervalMinutes?: number;
+  timezone?: string | null;
   className?: string;
   id?: string;
 };
@@ -61,6 +70,8 @@ export const AvailableTimeSelector = forwardRef<
     selectedInvalidHint = null,
     forceExpanded = false,
     alwaysExpanded = false,
+    intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
+    timezone = null,
     className,
     id,
   },
@@ -70,9 +81,16 @@ export const AvailableTimeSelector = forwardRef<
   const panelId = id ?? `available-times-${reactId}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [expanded, setExpanded] = useState(alwaysExpanded);
-  const [jumpTo, setJumpTo] = useState<"morning" | "afternoon" | "evening" | null>(
-    null,
-  );
+  const [jumpTo, setJumpTo] = useState<TimeOfDayGroupId | null>(null);
+  const [expandedPeriods, setExpandedPeriods] = useState<
+    Partial<Record<TimeOfDayGroupId, boolean>>
+  >({});
+  const slotSetKey = `${intervalMinutes}:${slots.map((s) => s.start).join("|").slice(0, 120)}`;
+  const [periodResetKey, setPeriodResetKey] = useState(slotSetKey);
+  if (periodResetKey !== slotSetKey) {
+    setPeriodResetKey(slotSetKey);
+    setExpandedPeriods({});
+  }
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -88,9 +106,14 @@ export const AvailableTimeSelector = forwardRef<
     }
   }, [forceExpanded, selectedInvalid, alwaysExpanded]);
 
-  const groups = useMemo(
-    () => groupSlotsByTimeOfDay(slots, (s) => s.start),
-    [slots],
+  const presented = useMemo(
+    () =>
+      presentStartTimesForBookingUI(slots, {
+        intervalMinutes,
+        timeZone: timezone,
+        visiblePerPeriod: DEFAULT_VISIBLE_STARTS_PER_PERIOD,
+      }),
+    [slots, intervalMinutes, timezone],
   );
 
   const showPanel = alwaysExpanded || expanded;
@@ -114,86 +137,92 @@ export const AvailableTimeSelector = forwardRef<
     ? formatTime(parseISO(selectedStart))
     : null;
 
+  const nextStart = presented.nextAvailable?.start ?? null;
+
   return (
     <div className={cn("space-y-2", className)}>
       <p className="text-sm font-medium" id={`${panelId}-label`}>
         Available time
       </p>
 
-      {!alwaysExpanded ? (
+      {selectedStart && !selectedInvalid ? (
         <button
           ref={triggerRef}
           type="button"
-          id={`${panelId}-trigger`}
           className={cn(
-            "flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] border px-3 py-3 text-left text-sm transition-colors",
-            "hover:border-primary/60 hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            selectedInvalid
-              ? "border-amber-500/50 bg-amber-500/10"
-              : selectedStart
-                ? "border-primary/50 bg-accent/30"
-                : "border-border bg-card",
+            "flex w-full min-h-11 items-center justify-between gap-2 rounded-[var(--radius-md)] border border-border bg-card px-3 text-sm",
+            "hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           )}
-          aria-expanded={expanded}
+          aria-expanded={showPanel}
           aria-controls={panelId}
-          aria-labelledby={`${panelId}-label`}
           onClick={() => setExpanded((v) => !v)}
         >
-          <span className="min-w-0">
-            <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              {selectedStart ? "Selected time" : "Choose a time"}
-            </span>
-            <span
-              className={cn(
-                "mt-0.5 block truncate font-semibold tabular-nums",
-                selectedInvalid && "text-amber-900 dark:text-amber-100",
-              )}
-            >
-              {loading
-                ? "Loading times…"
-                : selectedLabel
-                  ? selectedLabel
-                  : slots.length > 0
-                    ? slots.length <= 8
-                      ? `${slots.length} times available — choose a time`
-                      : "Many times available — choose a time"
-                    : "No times yet"}
-            </span>
-          </span>
-          {expanded ? (
-            <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          <span className="tabular-nums font-medium">{selectedLabel}</span>
+          {alwaysExpanded ? null : showPanel ? (
+            <ChevronUp className="size-4 text-muted-foreground" aria-hidden />
           ) : (
-            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+            <ChevronDown className="size-4 text-muted-foreground" aria-hidden />
           )}
         </button>
-      ) : null}
-
-      {selectedInvalid && selectedStart ? (
-        <p className="text-[11px] text-amber-800 dark:text-amber-200" role="status">
-          {selectedInvalidHint ??
-            "The previously selected time is no longer available for this service, employee, or date. Choose another time."}
-        </p>
-      ) : null}
+      ) : (
+        <button
+          ref={triggerRef}
+          type="button"
+          className={cn(
+            "flex w-full min-h-11 items-center justify-between gap-2 rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 text-sm text-muted-foreground",
+            "hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            selectedInvalid && "border-amber-500/40 text-foreground",
+          )}
+          aria-expanded={showPanel}
+          aria-controls={panelId}
+          onClick={() => setExpanded(true)}
+        >
+          <span>
+            {selectedInvalid
+              ? (selectedInvalidHint ?? "Choose another time")
+              : "Choose a time"}
+          </span>
+          {alwaysExpanded ? null : (
+            <ChevronDown className="size-4" aria-hidden />
+          )}
+        </button>
+      )}
 
       {showPanel ? (
         <div
           id={panelId}
-          role="region"
-          aria-labelledby={`${panelId}-label`}
-          className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-card shadow-sm"
+          className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-card"
         >
           {loading ? (
-            <p className="px-3 py-4 text-sm text-muted-foreground" aria-live="polite">
-              Loading available times…
-            </p>
-          ) : slots.length === 0 ? (
-            <p className="px-3 py-4 text-sm text-muted-foreground" role="status">
-              {emptyMessage}
-            </p>
+            <p className="p-3 text-sm text-muted-foreground">Loading times…</p>
+          ) : presented.slots.length === 0 ? (
+            <p className="p-3 text-sm text-muted-foreground">{emptyMessage}</p>
           ) : (
             <>
-              <div className="flex flex-wrap gap-1.5 border-b border-border px-2 py-2">
-                {groups.map((g) => (
+              {nextStart ? (
+                <div className="flex flex-wrap items-center gap-2 border-b border-border px-3 py-2">
+                  <p className="text-xs text-muted-foreground">Next available</p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={
+                      slotKey(selectedStart) === slotKey(nextStart)
+                        ? "primary"
+                        : "outline"
+                    }
+                    className="min-h-9 tabular-nums"
+                    onClick={() => selectTime(nextStart)}
+                  >
+                    {formatTime(parseISO(nextStart))}
+                  </Button>
+                  <p className="ml-auto text-[11px] text-muted-foreground">
+                    {bookingIntervalLabel(presented.intervalMinutes)}
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="flex flex-wrap gap-1 border-b border-border px-2 py-1.5">
+                {presented.groups.map((g) => (
                   <Button
                     key={g.id}
                     type="button"
@@ -212,8 +241,7 @@ export const AvailableTimeSelector = forwardRef<
                     variant="ghost"
                     className="ml-auto h-7 px-2 text-xs"
                     onClick={() => {
-                      const group = timeOfDayFromIso(selectedStart);
-                      setJumpTo(group);
+                      setJumpTo(timeOfDayFromIso(selectedStart));
                     }}
                   >
                     Jump to selection
@@ -226,50 +254,109 @@ export const AvailableTimeSelector = forwardRef<
                 role="listbox"
                 aria-labelledby={`${panelId}-label`}
               >
-                {groups.map((group) => (
-                  <div key={group.id} id={`${panelId}-${group.id}`} className="space-y-1.5">
-                    <p className="sticky top-0 z-[1] bg-card/95 px-1 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
-                      {group.label}
-                      <span className="ml-1 font-normal normal-case text-muted-foreground/80">
-                        ({group.items.length})
-                      </span>
-                    </p>
-                    <div className="grid grid-cols-2 gap-1.5 min-[420px]:grid-cols-3 min-[560px]:grid-cols-4">
-                      {group.items.map((slot) => {
-                        const selected =
-                          slotKey(selectedStart) === slotKey(slot.start);
-                        return (
-                          <button
-                            key={slot.start}
-                            type="button"
-                            role="option"
-                            aria-selected={selected}
-                            disabled={slot.disabled}
-                            onClick={() => selectTime(slot.start)}
-                            className={cn(
-                              "rounded-lg border px-2 py-2.5 text-sm font-medium tabular-nums transition-colors",
-                              "hover:border-primary hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                              "disabled:cursor-not-allowed disabled:opacity-40",
-                              selected
-                                ? "border-primary bg-accent ring-1 ring-primary/40"
-                                : "border-border bg-background",
-                            )}
-                          >
-                            {slot.label ?? formatTime(parseISO(slot.start))}
-                            {selected ? (
-                              <span className="sr-only"> (selected)</span>
-                            ) : null}
-                          </button>
-                        );
-                      })}
+                {presented.groups.map((group) => {
+                  const periodOpen = Boolean(expandedPeriods[group.id]);
+                  const { visible, hiddenCount } = visibleItemsForPeriod(
+                    group.items,
+                    periodOpen,
+                    {
+                      dense: presented.dense || group.items.length > DEFAULT_VISIBLE_STARTS_PER_PERIOD,
+                      visiblePerPeriod: DEFAULT_VISIBLE_STARTS_PER_PERIOD,
+                      forceInclude: (item) =>
+                        slotKey(selectedStart) === slotKey(item.start),
+                    },
+                  );
+                  return (
+                    <div
+                      key={group.id}
+                      id={`${panelId}-${group.id}`}
+                      className="space-y-1.5"
+                    >
+                      <p className="sticky top-0 z-[1] bg-card/95 px-1 py-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
+                        {group.label}
+                        <span className="ml-1 font-normal normal-case text-muted-foreground/80">
+                          ({group.items.length})
+                        </span>
+                      </p>
+                      <div className="grid grid-cols-2 gap-1.5 min-[420px]:grid-cols-3 min-[560px]:grid-cols-4">
+                        {visible.map((slot) => {
+                          const selected =
+                            slotKey(selectedStart) === slotKey(slot.start);
+                          const isNext =
+                            slotKey(nextStart) === slotKey(slot.start);
+                          return (
+                            <button
+                              key={slot.start}
+                              type="button"
+                              role="option"
+                              aria-selected={selected}
+                              disabled={slot.disabled}
+                              onClick={() => selectTime(slot.start)}
+                              className={cn(
+                                "rounded-lg border px-2 py-2.5 text-sm font-medium tabular-nums transition-colors",
+                                "hover:border-primary hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                "disabled:cursor-not-allowed disabled:opacity-40",
+                                selected
+                                  ? "border-primary bg-accent ring-1 ring-primary/40"
+                                  : "border-border bg-background",
+                              )}
+                            >
+                              {slot.label ?? formatTime(parseISO(slot.start))}
+                              {isNext && !selected ? (
+                                <span className="mt-0.5 block text-[10px] font-normal normal-case text-muted-foreground">
+                                  Next
+                                </span>
+                              ) : null}
+                              {selected ? (
+                                <span className="sr-only"> (selected)</span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {hiddenCount > 0 ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 px-2 text-xs"
+                          onClick={() =>
+                            setExpandedPeriods((prev) => ({
+                              ...prev,
+                              [group.id]: true,
+                            }))
+                          }
+                        >
+                          More {group.label.toLowerCase()} times ({hiddenCount})
+                        </Button>
+                      ) : periodOpen &&
+                        group.items.length > DEFAULT_VISIBLE_STARTS_PER_PERIOD ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 px-2 text-xs"
+                          onClick={() =>
+                            setExpandedPeriods((prev) => ({
+                              ...prev,
+                              [group.id]: false,
+                            }))
+                          }
+                        >
+                          Show fewer
+                        </Button>
+                      ) : null}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-2">
                 <p className="text-[11px] text-muted-foreground">
-                  {slots.length} available
+                  {presented.slots.length} available
+                  {presented.slots.length !== slots.length
+                    ? ` · shown on ${bookingIntervalLabel(presented.intervalMinutes).toLowerCase()}`
+                    : ""}
                 </p>
                 {!alwaysExpanded ? (
                   <Button
@@ -293,7 +380,7 @@ export const AvailableTimeSelector = forwardRef<
   );
 });
 
-function timeOfDayFromIso(iso: string): "morning" | "afternoon" | "evening" {
+function timeOfDayFromIso(iso: string): TimeOfDayGroupId {
   try {
     const hour = parseISO(iso).getHours();
     if (hour < 12) return "morning";

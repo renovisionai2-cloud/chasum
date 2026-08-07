@@ -4,6 +4,11 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getCustomerProfile } from "@/lib/actions/customers";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { previewAvailableSlots } from "@/lib/booking-engine";
+import {
+  DEFAULT_BOOKING_INTERVAL_MINUTES,
+  normalizeBookingIntervalMinutes,
+  type BookingIntervalMinutes,
+} from "@/lib/booking/interval";
 import { addDays, format } from "date-fns";
 
 export type BookingSheetSlot = {
@@ -15,6 +20,9 @@ export type BookingSheetSlot = {
 
 export type BookingSheetAvailability = {
   slots: BookingSheetSlot[];
+  /** Resolved booking start increment (location → business → default). */
+  intervalMinutes: BookingIntervalMinutes;
+  timezone: string | null;
   emptyReason: string | null;
   alternativeStaff: Array<{
     staffId: string;
@@ -56,6 +64,8 @@ export async function previewBookingSheetAvailability(input: {
   if (!input.serviceId || !locationId) {
     return {
       slots: [],
+      intervalMinutes: DEFAULT_BOOKING_INTERVAL_MINUTES,
+      timezone: null,
       emptyReason: "Choose a service to see open times.",
       alternativeStaff: [],
       alternativeDays: [],
@@ -70,6 +80,8 @@ export async function previewBookingSheetAvailability(input: {
   if (staffPool.length === 0) {
     return {
       slots: [],
+      intervalMinutes: DEFAULT_BOOKING_INTERVAL_MINUTES,
+      timezone: null,
       emptyReason: input.staffId
         ? "Choose a service and employee to see open times."
         : "No employees are assigned to this service yet. Add staff or choose another service.",
@@ -80,6 +92,8 @@ export async function previewBookingSheetAvailability(input: {
 
   const collected: BookingSheetSlot[] = [];
   let primaryEmpty: string | null = null;
+  let intervalMinutes: BookingIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES;
+  let timezone: string | null = null;
 
   for (const member of staffPool) {
     const result = await previewAvailableSlots({
@@ -92,6 +106,14 @@ export async function previewBookingSheetAvailability(input: {
       excludeAppointmentId: input.excludeAppointmentId,
       durationMinutes: input.durationMinutes,
     });
+    if (result.context?.intervalMinutes) {
+      intervalMinutes = normalizeBookingIntervalMinutes(
+        result.context.intervalMinutes,
+      );
+    }
+    if (result.context?.timezone) {
+      timezone = result.context.timezone;
+    }
     for (const s of result.slots) {
       collected.push({
         start: s.start,
@@ -173,7 +195,7 @@ export async function previewBookingSheetAvailability(input: {
     }
   }
 
-  return { slots, emptyReason, alternativeStaff, alternativeDays };
+  return { slots, intervalMinutes, timezone, emptyReason, alternativeStaff, alternativeDays };
 }
 
 /** Lazy customer snapshot for Booking Sheet CRM panel. */

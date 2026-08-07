@@ -128,6 +128,8 @@ export const AvailabilitySection = forwardRef<
           selectedInvalid={Boolean(selectedSlot && !selectedSlotValid)}
           forceExpanded={Boolean(selectedSlot && !selectedSlotValid)}
           alwaysExpanded={workspaceMode}
+          intervalMinutes={availability?.intervalMinutes}
+          timezone={availability?.timezone}
           selectedInvalidHint={
             selectedSlot && !selectedInDay
               ? `${formatTime(parseISO(selectedSlot))} is already booked or unavailable. Choose another time.`

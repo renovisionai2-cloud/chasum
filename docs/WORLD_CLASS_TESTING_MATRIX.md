@@ -224,6 +224,20 @@
 | Locked principles | Money fields must not fight cursor; View opens exact appointment; never search for a known entity |
 | Approval | Awaiting PO |
 
+### Chapter 4 Date & Time slot density correction
+
+| Field | Value |
+|-------|--------|
+| Trigger | PO Preview video — ~139 five-minute start times |
+| Root cause | Engine steps by `appointment_interval_minutes` (location → business → 30); UI dumped all openings |
+| Config | Existing booking increment — no hard-coded 30 in presentation |
+| Presentation | Interval filter + Next available + More times per period |
+| Footer | Continue on Date & Time; Confirm only on Review |
+| Unified Date & Time | Preserved |
+| Tests | `slot-density-presentation.test.ts` |
+| Locked principle | Useful start times, not raw availability granularity |
+| Approval | Awaiting PO |
+
 ### Chapter 4 Adaptive Booking Workspace
 
 | Field | Value |
