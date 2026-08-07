@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-06  
-**Updated by:** World Class Execution Program — Chapter 4 Customer Workspace (Preview branch; Production unchanged)  
+**Updated by:** World Class Execution Program — Chapter 4 Customer Workspace correction & premium polish (Preview; Production unchanged)  
 
 ---
 
@@ -119,7 +119,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Customer Workspace delivered — awaiting PO before Chapter 5.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Customer Workspace + correction polish delivered — awaiting PO before Chapter 5.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -158,13 +158,21 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-06)
 
+**World Class Execution — Chapter 4 correction & premium polish**
+
+- Directory: tight operational columns, Clear filters, mobile Filters sheet, CRM status vs derived segments
+- Customer overview health (avg spend Unavailable without commerce rollup); Chase observations grounded only
+- Profile: read-first Overview + Edit sheet; Book / Message / Collect + More; Messages tab label
+- Billing sections; Insights “Completed service list value”; Summer Observed vs Recommendations
+- Data dictionary + docs updated
+- **Production untouched · no migrations 034–036 · engines unchanged**
+
+### Immediately prior (2026-08-06)
+
 **World Class Execution — Chapter 4 Customer Workspace**
 
-- Redesigned Customers directory: search, quick filters (Active/Inactive/VIP/New/Recent/Balance due), tags, last visit, next appointment, outstanding, assigned employee, preferred location
-- Profile workspace: payment summary (collected ≠ revenue), appointment cards with payment status, notes search/pin, documents empty state, honest packages empty, Summer Observed Facts / Recommendations
-- Helpers: `lib/crm/directory-metrics.ts`, `lib/crm/payment-summary.ts`; loading skeletons on list + profile
-- Docs: Customer Workspace blueprint; release log / testing matrix / implementation blueprint updated
-- **Production untouched · no migrations 034–036 · booking/payment engines unchanged**
+- Redesigned Customers directory + payment summary + profile workspace
+- Feature commit `3793ec6` · stamp `6c5d939`
 
 ### Immediately prior (2026-08-06)
 

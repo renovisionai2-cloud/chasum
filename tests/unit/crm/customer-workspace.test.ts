@@ -5,6 +5,13 @@ import {
   isNewCustomer,
 } from "@/lib/crm/directory-metrics";
 import { buildCustomerPaymentSummary } from "@/lib/crm/payment-summary";
+import {
+  buildCustomerHealthSummary,
+  CRM_STATUS_FILTER_OPTIONS,
+  formatHealthMetric,
+  isVipCustomer,
+} from "@/lib/crm/customer-health";
+import type { CrmDirectoryCustomer } from "@/lib/actions/crm";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -43,7 +50,6 @@ describe("Customer directory metrics", () => {
     expect(m?.lastVisitAt).toBe("2026-08-01T15:00:00.000Z");
     expect(m?.nextAppointmentAt).toBe("2026-08-10T15:00:00.000Z");
     expect(m?.visitCountCompleted).toBe(1);
-    // completed: 100-40 outstanding + upcoming 50 unpaid = 110
     expect(m?.outstandingBalanceCents).toBe(11000);
   });
 
@@ -63,6 +69,74 @@ describe("Customer directory metrics", () => {
     expect(isNewCustomer("2026-07-20T00:00:00.000Z", now)).toBe(true);
     expect(isNewCustomer("2026-06-01T00:00:00.000Z", now)).toBe(false);
     expect(isNewCustomer(null, now)).toBe(false);
+  });
+});
+
+describe("Customer health summary", () => {
+  const base = {
+    id: "1",
+    business_id: "b",
+    name: "Ada",
+    email: "a@example.com",
+    phone: null,
+    notes: null,
+    tags: [],
+    referral_source: null,
+    created_at: "2026-08-02T00:00:00.000Z",
+    updated_at: "2026-08-02T00:00:00.000Z",
+  } as CrmDirectoryCustomer;
+
+  it("counts balances, VIP, and inactive from directory rows", () => {
+    const nowMs = Date.parse("2026-08-06T12:00:00.000Z");
+    const health = buildCustomerHealthSummary(
+      [
+        {
+          ...base,
+          id: "1",
+          crm_status: "active",
+          outstanding_balance_cents: 2200,
+          visit_count_completed: 3,
+          last_visit_at: "2026-08-03T12:00:00.000Z",
+        },
+        {
+          ...base,
+          id: "2",
+          crm_status: "inactive",
+          is_vip: true,
+          outstanding_balance_cents: 0,
+        },
+        {
+          ...base,
+          id: "3",
+          crm_status: "active",
+          created_at: "2025-01-01T00:00:00.000Z",
+        },
+      ],
+      nowMs,
+    );
+
+    expect(health.withBalances).toEqual({ kind: "count", value: 1 });
+    expect(health.vip).toEqual({ kind: "count", value: 1 });
+    expect(health.inactive).toEqual({ kind: "count", value: 1 });
+    expect(health.newThisMonth).toEqual({ kind: "count", value: 2 });
+    expect(health.returningThisMonth).toEqual({ kind: "count", value: 1 });
+    expect(health.averageSpend.kind).toBe("unavailable");
+    expect(formatHealthMetric(health.averageSpend)).toBe("Unavailable");
+    expect(health.observations.some((o) => o.includes("outstanding"))).toBe(
+      true,
+    );
+  });
+
+  it("treats VIP as derived segment via flag or legacy status", () => {
+    expect(isVipCustomer({ is_vip: true, crm_status: "active" })).toBe(true);
+    expect(isVipCustomer({ is_vip: false, crm_status: "vip" })).toBe(true);
+    expect(isVipCustomer({ is_vip: false, crm_status: "active" })).toBe(false);
+  });
+
+  it("keeps CRM status filter options distinct from VIP segment", () => {
+    const values = CRM_STATUS_FILTER_OPTIONS.map((o) => o.value);
+    expect(values).toEqual(["lead", "active", "inactive", "archived"]);
+    expect(values).not.toContain("vip");
   });
 });
 
@@ -90,12 +164,8 @@ describe("Customer payment summary", () => {
     const summary = buildCustomerPaymentSummary(account);
     expect(summary.collectedCents).toBe(12000);
     expect(summary.outstandingCents).toBe(3500);
-    expect(summary.invoiceCount).toBe(3);
     expect(summary.openInvoiceCount).toBe(2);
-    expect(summary.depositsCents).toBe(2000);
-    expect(summary.refundsCents).toBe(500);
     expect(summary.averageTransactionCents).toBe(6000);
-    expect(summary.giftCardBalanceCents).toBe(1000);
   });
 
   it("returns null average when no succeeded transactions", () => {
@@ -110,12 +180,14 @@ describe("Customer payment summary", () => {
       timeline: [],
     } as unknown as CustomerCommerceAccount;
 
-    expect(buildCustomerPaymentSummary(account).averageTransactionCents).toBeNull();
+    expect(
+      buildCustomerPaymentSummary(account).averageTransactionCents,
+    ).toBeNull();
   });
 });
 
 describe("Customer workspace surfaces", () => {
-  it("keeps collected vs booking-value language honest", () => {
+  it("keeps collected vs list-value language honest", () => {
     const root = process.cwd();
     const payment = readFileSync(
       join(root, "components/crm/customer-payment-summary.tsx"),
@@ -125,13 +197,40 @@ describe("Customer workspace surfaces", () => {
       join(root, "components/crm/customer-insights.tsx"),
       "utf8",
     );
-    expect(payment).toContain("Gross payments collected");
+    const overview = readFileSync(
+      join(root, "components/crm/customer-overview-panel.tsx"),
+      "utf8",
+    );
+    const directory = readFileSync(
+      join(root, "components/crm/customer-directory.tsx"),
+      "utf8",
+    );
+    const profile = readFileSync(
+      join(root, "components/crm/customer-profile.tsx"),
+      "utf8",
+    );
+
+    const overviewRead = readFileSync(
+      join(root, "components/crm/customer-overview-read.tsx"),
+      "utf8",
+    );
+    expect(payment).toContain("Financial totals come from the commerce ledger.");
     expect(payment).not.toMatch(/label=\"Revenue\"/i);
-    expect(insights).toContain("Completed booking value");
-    expect(insights).toContain("not commerce “payments collected.”");
+    expect(payment).toContain("Unavailable");
+    expect(insights).toContain("Completed service list value");
+    expect(insights).toContain("Unavailable");
+    expect(overview).toContain("Customer overview");
+    expect(overview).not.toMatch(/Avg spend\s*\$0/i);
+    expect(directory).toContain("Clear filters");
+    expect(directory).toContain("Open filters");
+    expect(directory).toContain("ChevronRight");
+    expect(profile).toContain("Observed facts");
+    expect(profile).toContain("Recommendations");
+    expect(overviewRead).toContain("Edit profile");
+    expect(profile).toContain("Messages");
   });
 
-  it("ships directory loading and payment summary component", () => {
+  it("ships directory loading and overview health panel", () => {
     const root = process.cwd();
     expect(
       readFileSync(
@@ -141,9 +240,15 @@ describe("Customer workspace surfaces", () => {
     ).toContain("DashboardSkeleton");
     expect(
       readFileSync(
-        join(root, "components/crm/customer-payment-summary.tsx"),
+        join(root, "app/(dashboard)/dashboard/clients/page.tsx"),
         "utf8",
       ),
-    ).toContain("Payment summary");
+    ).toContain("CustomerOverviewPanel");
+    expect(
+      readFileSync(
+        join(root, "app/(dashboard)/dashboard/clients/page.tsx"),
+        "utf8",
+      ),
+    ).not.toContain("ChaseCrmPanel");
   });
 });

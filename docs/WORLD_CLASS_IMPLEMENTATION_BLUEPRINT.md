@@ -159,7 +159,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Delivered on Preview branch — awaiting PO review.** Customer Workspace at `/dashboard/clients`: modern directory (search, filters, tags, VIP/new/recent/balance, last/next/outstanding), profile with payment summary (collected ≠ revenue), appointment cards, notes search, documents empty state, honest packages empty, Summer Observed Facts / Recommendations. Blueprint: [`WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md).
+**Correction & premium polish delivered on Preview — awaiting PO review.** Tight directory columns; Customer overview health (avg spend Unavailable without commerce rollup); CRM status vs derived segments; read-first Overview + Edit sheet; Messages tab label; billing sections; Insights “Completed service list value”; Summer Observed vs Recommendations. Blueprint + data dictionary: [`WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md), [`WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md).
 
 ## Chapter 9 — Business Structure Engine (planning)
 

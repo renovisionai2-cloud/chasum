@@ -27,8 +27,23 @@
 | 2026-08-06 | **Chapter 3 correction pass** | `d4fdf14` | https://chasum-5znagtas1-renovisionappcom.vercel.app (Ready Preview; SSO). Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ week/month; unassigned coming-soon; filter order; Chase Unavailable; Resources empty; Ch9 architecture |
 | 2026-08-06 | **Polish & Intelligence backlog lock** | `c8ce8e7` | Docs-only | Locked portal review recommendations → chapters + final Polish & Intelligence Program; Chapter 4 not started |
 | 2026-08-06 | **Chapter 4 — Customer Workspace** | `3793ec6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (SSO). Unique Ready URL after Vercel deploy. | Directory redesign; payment summary; profile workspace; honest empty states; collected ≠ revenue |
+| 2026-08-06 | **Chapter 4 correction & premium polish** | _(stamp after push)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tight directory; health overview; read-first profile; avg spend Unavailable; billing sections; data dictionary |
 
 ---
+
+## Chapter 4 correction quality report
+
+| Check | Result |
+|-------|--------|
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Unit tests | **321 pass / 1 fail**; inherited `multi-business-selection` only |
+| Ch4 tests | `customer-workspace.test.ts` **10 pass** |
+| Ch4 eslint | **Clean** |
+| Production | Untouched |
+| Migrations 034–036 | Not applied |
+| Engines | Unchanged |
+| Chapter 5 | Not started |
 
 ## Chapter 4 quality report
 

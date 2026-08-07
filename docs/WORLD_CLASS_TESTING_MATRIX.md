@@ -200,6 +200,21 @@
 | Blueprint | `WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
 | Approval | Awaiting PO |
 
+### Chapter 4 correction & premium polish
+
+| Check | Result |
+|-------|--------|
+| Directory columns | Tight operational list + chevron |
+| Avg spend | Unavailable (no commerce rollup on directory) |
+| CRM status vs segments | Status dropdown Lead/Active/Inactive/Archived; VIP/New/Recent/Balance due segments |
+| Overview | Read-first + Edit profile sheet |
+| Billing | Sectioned balance / collect / invoices / receipts / history |
+| Insights | Completed service list value + X of Y rates |
+| Summer | Observed facts vs Recommendations |
+| Data dictionary | `WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md` |
+| Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
+| Approval | Awaiting PO |
+
 ### Polish & Intelligence backlog (locked)
 
 | Field | Value |

@@ -11,9 +11,11 @@ import {
   PAYMENT_METHOD_LABELS,
   centsToDollars,
 } from "@/lib/commerce/types";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useActionState, useState, useTransition } from "react";
 
@@ -22,9 +24,11 @@ const initial: CommerceActionState = {};
 export function CustomerCommercePanel({
   customerId,
   account,
+  currency = "cad",
 }: {
   customerId: string;
   account: CustomerCommerceAccount;
+  currency?: string | null;
 }) {
   const [payState, payAction, payPending] = useActionState(
     recordPaymentAction,
@@ -38,15 +42,36 @@ export function CustomerCommercePanel({
     account.giftCards[0]?.id ?? "",
   );
 
+  const money = (cents: number) => formatMoneyCents(cents, currency);
+
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Stat label="Outstanding balance" value={centsToDollars(account.outstandingBalanceCents)} />
-        <Stat label="Deposit paid" value={centsToDollars(account.depositsCents)} />
-        <Stat label="Remaining balance" value={centsToDollars(account.remainingBalanceCents)} />
-        <Stat label="Total paid" value={centsToDollars(account.totalPaidCents)} />
-        <Stat label="Store credit" value={centsToDollars(account.storeCreditCents)} />
-      </div>
+      <p className="text-xs text-muted-foreground">
+        Financial totals come from the commerce ledger. Directory outstanding may
+        also reflect unpaid appointment list prices when commerce invoices are
+        not yet linked.
+      </p>
+
+      <section aria-label="Balance overview">
+        <h3 className="mb-2 text-sm font-semibold">Balance overview</h3>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat
+            label="Outstanding balance"
+            value={money(account.outstandingBalanceCents)}
+            emphasize={account.outstandingBalanceCents > 0}
+          />
+          <Stat label="Deposits paid" value={money(account.depositsCents)} />
+          <Stat label="Total paid" value={money(account.totalPaidCents)} />
+          <Stat label="Store credit" value={money(account.storeCreditCents)} />
+        </div>
+        {account.remainingBalanceCents !== account.outstandingBalanceCents ? (
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Remaining balance (ledger): {money(account.remainingBalanceCents)}.
+            Outstanding and remaining may differ when deposits or store credit
+            apply.
+          </p>
+        ) : null}
+      </section>
 
       <form
         action={payAction}
@@ -55,10 +80,17 @@ export function CustomerCommercePanel({
         <p className="ds-label">Collect payment</p>
         <input type="hidden" name="customer_id" value={customerId} />
         <div className="grid gap-3 sm:grid-cols-3">
-          <Input name="amount" placeholder="Amount" required inputMode="decimal" />
+          <Input
+            name="amount"
+            placeholder="Amount"
+            required
+            inputMode="decimal"
+            aria-label="Payment amount"
+            className="min-h-11"
+          />
           <select
             name="method"
-            className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
+            className="min-h-11 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
             value={method}
             onChange={(e) => setMethod(e.target.value)}
             aria-label="Method"
@@ -69,14 +101,19 @@ export function CustomerCommercePanel({
               </option>
             ))}
           </select>
-          <Input name="description" placeholder="Description" />
+          <Input
+            name="description"
+            placeholder="Description"
+            aria-label="Payment description"
+            className="min-h-11"
+          />
         </div>
         {method === "gift_card" ? (
           <div className="grid gap-3 sm:grid-cols-2">
             {account.giftCards.length > 0 ? (
               <select
                 name="gift_card_id"
-                className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
+                className="min-h-11 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
                 value={giftCardId}
                 onChange={(e) => setGiftCardId(e.target.value)}
                 aria-label="Gift certificate"
@@ -93,6 +130,7 @@ export function CustomerCommercePanel({
                 placeholder="Gift certificate code"
                 required
                 aria-label="Gift certificate code"
+                className="min-h-11"
               />
             )}
             {account.giftCards.length > 0 ? (
@@ -107,7 +145,7 @@ export function CustomerCommercePanel({
           </div>
         ) : null}
         <AlertMessage error={payState.error} success={payState.success} />
-        <Button type="submit" size="sm" disabled={payPending}>
+        <Button type="submit" size="sm" className="min-h-11" disabled={payPending}>
           {payPending ? "Saving…" : "Record payment"}
         </Button>
       </form>
@@ -116,33 +154,64 @@ export function CustomerCommercePanel({
         {account.invoices.length === 0 ? (
           <Empty />
         ) : (
-          <ul className="space-y-2">
-            {account.invoices.map((inv) => (
-              <li
-                key={inv.id}
-                className="flex items-center justify-between gap-2 text-sm"
-              >
-                <span>
-                  {inv.invoiceNumber} · {invoiceStatusLabel(inv.status)} ·{" "}
-                  {centsToDollars(inv.balanceCents)} due
-                </span>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={pending}
-                  onClick={() => {
-                    startTransition(async () => {
-                      const res = await downloadInvoiceTextAction(inv.id);
-                      if (res.text) setViewer(res.text);
-                    });
-                  }}
-                >
-                  View
-                </Button>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[36rem] text-left text-sm">
+              <thead className="border-b border-border text-[10px] uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="py-2 pr-2 font-medium">Invoice</th>
+                  <th className="py-2 pr-2 font-medium">Status</th>
+                  <th className="py-2 pr-2 font-medium">Issued</th>
+                  <th className="py-2 pr-2 text-right font-medium">Total</th>
+                  <th className="py-2 pr-2 text-right font-medium">Paid</th>
+                  <th className="py-2 pr-2 text-right font-medium">Balance</th>
+                  <th className="py-2 font-medium"> </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {account.invoices.map((inv) => (
+                  <tr key={inv.id}>
+                    <td className="py-2.5 pr-2 font-medium">
+                      {inv.invoiceNumber}
+                    </td>
+                    <td className="py-2.5 pr-2">
+                      {invoiceStatusLabel(inv.status)}
+                    </td>
+                    <td className="py-2.5 pr-2 tabular-nums text-muted-foreground">
+                      {inv.issueDate
+                        ? format(new Date(inv.issueDate), "MMM d, yyyy")
+                        : "—"}
+                    </td>
+                    <td className="py-2.5 pr-2 text-right tabular-nums">
+                      {money(inv.totalCents)}
+                    </td>
+                    <td className="py-2.5 pr-2 text-right tabular-nums">
+                      {money(inv.amountPaidCents)}
+                    </td>
+                    <td className="py-2.5 pr-2 text-right tabular-nums">
+                      {money(inv.balanceCents)}
+                    </td>
+                    <td className="py-2.5 text-right">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="min-h-9"
+                        disabled={pending}
+                        onClick={() => {
+                          startTransition(async () => {
+                            const res = await downloadInvoiceTextAction(inv.id);
+                            if (res.text) setViewer(res.text);
+                          });
+                        }}
+                      >
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Section>
 
@@ -150,21 +219,24 @@ export function CustomerCommercePanel({
         {account.receipts.length === 0 ? (
           <Empty />
         ) : (
-          <ul className="space-y-2">
+          <ul className="divide-y divide-border">
             {account.receipts.map((r) => (
               <li
                 key={r.id}
-                className="flex flex-wrap items-center justify-between gap-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
               >
-                <span>
-                  {r.receiptNumber} · {centsToDollars(r.amountCents)} ·{" "}
-                  {receiptEmailLabel(r.emailStatus)}
-                </span>
+                <div>
+                  <p className="font-medium">{r.receiptNumber}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {money(r.amountCents)} · {receiptEmailLabel(r.emailStatus)}
+                  </p>
+                </div>
                 <div className="flex gap-2">
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="min-h-9"
                     disabled={pending}
                     onClick={() => {
                       startTransition(async () => {
@@ -179,6 +251,7 @@ export function CustomerCommercePanel({
                     type="button"
                     size="sm"
                     variant="outline"
+                    className="min-h-9"
                     disabled={pending}
                     onClick={() => {
                       startTransition(async () => {
@@ -197,39 +270,43 @@ export function CustomerCommercePanel({
         <AlertMessage error={emailMsg.error} success={emailMsg.success} />
       </Section>
 
-      <Section title="Refunds">
-        {account.refunds.length === 0 ? (
+      <Section title="Payment history">
+        {account.timeline.length === 0 ? (
           <Empty />
         ) : (
-          <ul className="space-y-2 text-sm">
-            {account.refunds.map((r) => (
-              <li key={r.id}>
-                {centsToDollars(r.amountCents)} · {r.refundType} · {r.reason}
+          <ul className="divide-y divide-border">
+            {account.timeline.map((t) => (
+              <li
+                key={t.id}
+                className="grid grid-cols-2 gap-2 py-2.5 text-sm sm:grid-cols-5"
+              >
+                <span className="tabular-nums text-muted-foreground">
+                  {format(new Date(t.occurredAt), "MMM d, yyyy")}
+                </span>
+                <span className="capitalize">{t.kind}</span>
+                <span>{PAYMENT_METHOD_LABELS[t.method] ?? t.method}</span>
+                <span className="font-medium tabular-nums">{money(t.amountCents)}</span>
+                <span className="capitalize text-muted-foreground">
+                  {t.status}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </Section>
 
-      <Section title="Payment timeline">
-        {account.timeline.length === 0 ? (
-          <Empty />
-        ) : (
-          <ul className="divide-y divide-border">
-            {account.timeline.map((t) => (
-              <li key={t.id} className="flex justify-between gap-2 py-2 text-sm">
-                <span>
-                  {centsToDollars(t.amountCents)} · {t.kind} ·{" "}
-                  {PAYMENT_METHOD_LABELS[t.method]}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {format(new Date(t.occurredAt), "MMM d, yyyy")}
-                </span>
+      {account.refunds.length > 0 ? (
+        <Section title="Refunds">
+          <ul className="space-y-2 text-sm">
+            {account.refunds.map((r) => (
+              <li key={r.id}>
+                {money(r.amountCents)} · {r.refundType}
+                {r.reason ? ` · ${r.reason}` : ""}
               </li>
             ))}
           </ul>
-        )}
-      </Section>
+        </Section>
+      ) : null}
 
       {viewer ? (
         <div
@@ -244,7 +321,12 @@ export function CustomerCommercePanel({
           >
             <div className="mb-3 flex justify-between">
               <p className="font-semibold">Preview</p>
-              <Button type="button" size="sm" variant="outline" onClick={() => setViewer(null)}>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setViewer(null)}
+              >
                 Close
               </Button>
             </div>
@@ -273,9 +355,22 @@ export function CustomerCommercePanel({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  emphasize,
+}: {
+  label: string;
+  value: string;
+  emphasize?: boolean;
+}) {
   return (
-    <div className="rounded-[var(--radius-md)] border border-border px-3 py-2">
+    <div
+      className={cn(
+        "rounded-[var(--radius-md)] border border-border px-3 py-2.5",
+        emphasize && "border-amber-500/35",
+      )}
+    >
       <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
         {label}
       </p>

@@ -11,11 +11,17 @@ import {
 } from "lucide-react";
 
 export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
+  const decided =
+    insights.completedAppointments +
+    insights.cancellationCount +
+    insights.noShowCount;
+
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground">
-        Observed facts from appointment history. Booking values below use
-        service list prices — not commerce “payments collected.”
+        Observed facts from appointment history. Completed service list value
+        uses service list prices — not commerce payments collected, and not
+        labeled as revenue.
       </p>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
@@ -26,23 +32,39 @@ export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
           accent="primary"
         />
         <StatCard
-          title="Completed booking value"
-          value={`$${insights.lifetimeRevenue.toFixed(0)}`}
-          description={`Avg $${insights.averageSpend.toFixed(0)} per completed visit`}
+          title="Completed service list value"
+          value={
+            insights.completedAppointments > 0
+              ? `$${insights.lifetimeRevenue.toFixed(0)}`
+              : "Unavailable"
+          }
+          description={
+            insights.completedAppointments > 0
+              ? `Avg $${insights.averageSpend.toFixed(0)} per completed visit (list price)`
+              : "No completed visits with list prices"
+          }
           icon={CircleDollarSign}
           accent="success"
         />
         <StatCard
           title="No-show rate"
-          value={`${insights.noShowRate}%`}
-          description={`${insights.noShowCount} no-shows`}
+          value={decided > 0 ? `${insights.noShowRate}%` : "Unavailable"}
+          description={
+            decided > 0
+              ? `${insights.noShowCount} of ${decided} past appointments no-show`
+              : "No decided appointments yet"
+          }
           icon={Percent}
           accent="warning"
         />
         <StatCard
           title="Cancellation rate"
-          value={`${insights.cancellationRate}%`}
-          description={`${insights.cancellationCount} cancelled`}
+          value={decided > 0 ? `${insights.cancellationRate}%` : "Unavailable"}
+          description={
+            decided > 0
+              ? `${insights.cancellationCount} of ${decided} past appointments cancelled`
+              : "No decided appointments yet"
+          }
           icon={Percent}
           accent="spark"
         />

@@ -6,6 +6,10 @@ import { CommunicationCenter } from "@/components/communication/communication-ce
 import { CustomerPaymentSummary } from "@/components/crm/customer-payment-summary";
 import { CustomerInsightsPanel } from "@/components/crm/customer-insights";
 import { CustomerNotesPanel } from "@/components/crm/customer-notes-panel";
+import {
+  CustomerMarketingForm,
+  CustomerOverviewRead,
+} from "@/components/crm/customer-overview-read";
 import { CustomerQuickActions } from "@/components/crm/customer-quick-actions";
 import { CustomerTimeline } from "@/components/crm/customer-timeline";
 import { CustomerDocumentsPanel } from "@/components/customers/customer-documents-panel";
@@ -13,111 +17,116 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge, TagBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
-import { ImageUploadField } from "@/components/ui/image-upload-field";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { cancelAppointment } from "@/lib/actions/appointments";
 import {
   getCrmAppointmentForBooking,
   sparkCrmQueryAction,
-  updateCrmCustomer,
 } from "@/lib/actions/crm";
 import type { Membership } from "@/lib/business/types";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
 import { chaseHintsFromInsights } from "@/lib/crm/chase-hints";
-import { displayCustomerName } from "@/lib/crm/display";
 import {
-  COMM_METHOD_LABELS,
-  CRM_STATUS_LABELS,
-  LOYALTY_STATUS_LABELS,
-  type CrmProfile,
-} from "@/lib/crm/types";
+  displayCrmStatusLabel,
+  isVipCustomer,
+} from "@/lib/crm/customer-health";
+import { displayCustomerName } from "@/lib/crm/display";
+import type { CrmProfile } from "@/lib/crm/types";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type {
-  ActionState,
   AppointmentWithRelations,
   Customer,
   Location,
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
-import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { confirmDelete, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
-import { Calendar, Sparkles } from "lucide-react";
+import { MessageSquare, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { useActionState, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 type TabKey =
   | "overview"
-  | "timeline"
   | "appointments"
   | "billing"
   | "communication"
-  | "documents"
   | "notes"
+  | "documents"
+  | "timeline"
   | "insights"
   | "marketing"
   | "spark";
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "overview", label: "Overview" },
-  { key: "timeline", label: "Timeline" },
   { key: "appointments", label: "Appointments" },
   { key: "billing", label: "Billing" },
-  { key: "communication", label: "Communication" },
-  { key: "documents", label: "Documents" },
+  { key: "communication", label: "Messages" },
   { key: "notes", label: "Notes" },
+  { key: "documents", label: "Documents" },
+  { key: "timeline", label: "Timeline" },
   { key: "insights", label: "Insights" },
   { key: "marketing", label: "Marketing" },
   { key: "spark", label: "Summer" },
 ];
 
-function appointmentDisplayPrice(appt: CrmProfile["appointments"]["upcoming"][number]): string | null {
-  if (typeof appt.price_cents === "number" && appt.price_cents > 0) {
-    return `$${(appt.price_cents / 100).toFixed(0)}`;
-  }
-  if (typeof appt.service?.price === "number") {
-    return `$${Number(appt.service.price).toFixed(0)}`;
-  }
-  return null;
+function appointmentBalanceDueCents(
+  appt: CrmProfile["appointments"]["upcoming"][number],
+): number | null {
+  const price =
+    typeof appt.price_cents === "number" && appt.price_cents > 0
+      ? appt.price_cents
+      : typeof appt.service?.price === "number"
+        ? Math.round(Number(appt.service.price) * 100)
+        : null;
+  if (price == null) return null;
+  const paid = Number(appt.amount_paid_cents ?? 0);
+  return Math.max(0, price - paid);
 }
 
-function paymentStatusLabel(status: string | null | undefined): string | null {
-  if (!status) return null;
-  return status.replace(/_/g, " ");
+function appointmentPaymentActionLabel(
+  appt: CrmProfile["appointments"]["upcoming"][number],
+): string {
+  const status = (appt.payment_status ?? "").toLowerCase();
+  if (status === "fully_paid" || status === "paid") return "Paid";
+  const due = appointmentBalanceDueCents(appt);
+  if (due != null && due > 0) return "Balance due";
+  if (status.includes("deposit")) return "View billing";
+  if (status === "unpaid" || status === "partially_paid" || status === "partial") {
+    return "View billing";
+  }
+  return "View billing";
 }
 
 function AppointmentList({
   items,
   emptyTitle,
   emptyDescription,
+  currency,
   onOpenBilling,
 }: {
   items: CrmProfile["appointments"]["upcoming"];
   emptyTitle: string;
   emptyDescription: string;
+  currency?: string | null;
   onOpenBilling?: () => void;
 }) {
   if (items.length === 0) {
     return (
-      <EmptyState
-        variant="panel"
-        glyph={Calendar}
-        title={emptyTitle}
-        description={emptyDescription}
-      />
+      <div className="rounded-[var(--radius-md)] border border-dashed border-border px-3 py-4">
+        <p className="text-sm font-medium">{emptyTitle}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{emptyDescription}</p>
+      </div>
     );
   }
 
   return (
     <ul className="space-y-2">
       {items.map((appt) => {
-        const price = appointmentDisplayPrice(appt);
-        const payLabel = paymentStatusLabel(appt.payment_status);
+        const due = appointmentBalanceDueCents(appt);
+        const actionLabel = appointmentPaymentActionLabel(appt);
         return (
           <li
             key={appt.id}
@@ -139,8 +148,12 @@ function AppointmentList({
                     appt.location?.name
                       ? `Location: ${appt.location.name}`
                       : null,
-                    price ? `Price: ${price}` : null,
-                    payLabel ? `Payment: ${payLabel}` : null,
+                    appt.payment_status
+                      ? `Payment: ${appt.payment_status.replace(/_/g, " ")}`
+                      : null,
+                    due != null && due > 0
+                      ? `Due: ${formatMoneyCents(due, currency)}`
+                      : null,
                   ]
                     .filter(Boolean)
                     .join(" · ")}
@@ -158,10 +171,10 @@ function AppointmentList({
                     type="button"
                     size="sm"
                     variant="ghost"
-                    className="h-7 px-2 text-xs"
+                    className="min-h-9 px-2 text-xs"
                     onClick={onOpenBilling}
                   >
-                    Billing
+                    {actionLabel}
                   </Button>
                 ) : null}
               </div>
@@ -171,6 +184,43 @@ function AppointmentList({
       })}
     </ul>
   );
+}
+
+function buildObservedFacts(
+  profile: CrmProfile,
+  commerceAccount: CustomerCommerceAccount,
+  currency: string | null | undefined,
+): string[] {
+  const facts: string[] = [];
+  const upcoming = profile.appointments.upcoming.length;
+  if (upcoming > 0) {
+    facts.push(
+      `This customer has ${upcoming} upcoming appointment${upcoming === 1 ? "" : "s"}.`,
+    );
+  } else {
+    facts.push("No upcoming appointments on file.");
+  }
+  if (commerceAccount.outstandingBalanceCents > 0) {
+    facts.push(
+      `The customer has ${formatMoneyCents(commerceAccount.outstandingBalanceCents, currency)} outstanding.`,
+    );
+  } else {
+    facts.push("No outstanding balance on the commerce ledger.");
+  }
+  if (profile.customer.preferred_communication_method) {
+    facts.push(
+      `Preferred communication method: ${profile.customer.preferred_communication_method}.`,
+    );
+  }
+  facts.push(
+    `${profile.insights.completedAppointments} completed visit${profile.insights.completedAppointments === 1 ? "" : "s"} recorded.`,
+  );
+  if (profile.insights.cancellationCount > 0) {
+    facts.push(
+      `${profile.insights.cancellationCount} of ${profile.insights.totalAppointments} appointments cancelled.`,
+    );
+  }
+  return facts;
 }
 
 export function CustomerProfileView({
@@ -200,10 +250,6 @@ export function CustomerProfileView({
 }) {
   const { customer } = profile;
   const [tab, setTab] = useState<TabKey>("overview");
-  const [state, formAction, pending] = useActionState(
-    updateCrmCustomer,
-    {} as ActionState,
-  );
   const [sparkPending, startSpark] = useTransition();
   const [actionBusy, startAction] = useTransition();
   const [sparkResult, setSparkResult] = useState<string | null>(null);
@@ -212,11 +258,15 @@ export function CustomerProfileView({
     useState<AppointmentWithRelations | null>(null);
   const refresh = useRefresh();
   const { toast } = useToast();
-  useFormAction(state, () => refresh());
 
   const displayName = displayCustomerName(customer);
   const nextUpcoming = profile.appointments.upcoming[0] ?? null;
   const chaseHints = chaseHintsFromInsights(profile.insights);
+  const outstanding = commerceAccount.outstandingBalanceCents;
+  const observedFacts = useMemo(
+    () => buildObservedFacts(profile, commerceAccount, currency),
+    [profile, commerceAccount, currency],
+  );
 
   function openBook() {
     setSheetAppointment(null);
@@ -256,10 +306,10 @@ export function CustomerProfileView({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Card className="print:shadow-none">
-        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-          <div className="relative mx-auto h-20 w-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted sm:mx-0">
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start">
+          <div className="relative mx-auto h-16 w-16 shrink-0 overflow-hidden rounded-full border border-border bg-muted sm:mx-0">
             {customer.photo_url ? (
               <Image
                 src={customer.photo_url}
@@ -279,38 +329,50 @@ export function CustomerProfileView({
               </div>
             )}
           </div>
-          <div className="min-w-0 flex-1 space-y-1 text-center sm:text-left">
-            <h2 className="truncate text-xl font-semibold tracking-tight">
-              {displayName}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {customer.email}
-              {customer.phone ? ` · ${customer.phone}` : ""}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {CRM_STATUS_LABELS[
-                (customer.crm_status as keyof typeof CRM_STATUS_LABELS) ??
-                  "active"
-              ] ?? "Active"}
-              {profile.assignedStaff?.name
-                ? ` · Preferred: ${profile.assignedStaff.name}`
-                : ""}
-              {profile.membership?.name
-                ? ` · ${profile.membership.name}`
-                : ""}
-              {customer.is_vip ? " · VIP" : ""}
-              {customer.marketing_consent ? " · Marketing OK" : ""}
-            </p>
+          <div className="min-w-0 flex-1 space-y-2 text-center sm:text-left">
+            <div>
+              <h2 className="truncate text-xl font-semibold tracking-tight">
+                {displayName}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {customer.email}
+                {customer.phone ? ` · ${customer.phone}` : ""}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {displayCrmStatusLabel(customer.crm_status)}
+                {isVipCustomer(customer) ? " · VIP" : ""}
+                {profile.assignedStaff?.name
+                  ? ` · ${profile.assignedStaff.name}`
+                  : ""}
+                {profile.preferredLocation?.name
+                  ? ` · ${profile.preferredLocation.name}`
+                  : ""}
+              </p>
+            </div>
             {(customer.tags?.length ?? 0) > 0 ? (
-              <div className="flex flex-wrap justify-center gap-1 pt-1 sm:justify-start">
-                {customer.tags.map((tag, i) => (
+              <div className="flex flex-wrap justify-center gap-1 sm:justify-start">
+                {customer.tags.slice(0, 6).map((tag, i) => (
                   <TagBadge key={tag} tag={tag} index={i} />
                 ))}
               </div>
             ) : null}
-            <div className="pt-2">
+            <div className="flex flex-wrap justify-center gap-3 text-xs sm:justify-start">
+              <span className="text-muted-foreground">
+                Next:{" "}
+                {nextUpcoming
+                  ? `${format(parseISO(nextUpcoming.start_time), "MMM d")} · ${nextUpcoming.service?.name ?? "Appointment"}`
+                  : "None scheduled"}
+              </span>
+              {outstanding > 0 ? (
+                <span className="font-medium text-amber-800 dark:text-amber-200">
+                  Balance due {formatMoneyCents(outstanding, currency)}
+                </span>
+              ) : null}
+            </div>
+            <div className="pt-1">
               <CustomerQuickActions
                 hasUpcoming={Boolean(nextUpcoming)}
+                hasOutstanding={outstanding > 0}
                 busy={actionBusy}
                 onBook={openBook}
                 onReschedule={openReschedule}
@@ -335,68 +397,6 @@ export function CustomerProfileView({
 
       <CustomerPaymentSummary account={commerceAccount} currency={currency} />
 
-      {tab === "overview" ? (
-        <div className="grid gap-3 md:grid-cols-3">
-          <section className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Next appointment
-            </h3>
-            {nextUpcoming ? (
-              <p className="mt-2 text-sm">
-                <span className="font-medium">
-                  {nextUpcoming.service?.name ?? "Service"}
-                </span>
-                <span className="mt-1 block text-xs text-muted-foreground">
-                  {format(parseISO(nextUpcoming.start_time), "EEE, MMM d")} ·{" "}
-                  {formatTime(parseISO(nextUpcoming.start_time))}
-                  {nextUpcoming.staff?.name
-                    ? ` · ${nextUpcoming.staff.name}`
-                    : ""}
-                  {nextUpcoming.location?.name
-                    ? ` · ${nextUpcoming.location.name}`
-                    : ""}
-                </span>
-              </p>
-            ) : (
-              <p className="mt-2 text-sm text-muted-foreground">
-                No upcoming appointment.
-              </p>
-            )}
-          </section>
-          <section className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Packages
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Customer package ownership is not linked on this profile yet.
-              Manage package catalog under Business.
-            </p>
-          </section>
-          <section className="rounded-[var(--radius-md)] border border-border bg-card px-3 py-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Gift cards & membership
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {commerceAccount.giftCards.length > 0
-                ? `${commerceAccount.giftCards.length} active gift card${commerceAccount.giftCards.length === 1 ? "" : "s"} on file.`
-                : "No active gift cards on file."}
-              {profile.membership?.name
-                ? ` Membership: ${profile.membership.name}.`
-                : " No membership assigned."}
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Preferred location:{" "}
-              {profile.preferredLocation?.name ??
-                profile.insights.preferredLocationName ??
-                "Not set"}
-              {" · "}
-              Assigned employee:{" "}
-              {profile.assignedStaff?.name ?? "Unassigned"}
-            </p>
-          </section>
-        </div>
-      ) : null}
-
       {chaseHints.length > 0 ? (
         <div className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-4 py-3 print:hidden">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -410,15 +410,21 @@ export function CustomerProfileView({
         </div>
       ) : null}
 
-      <div className="-mx-1 flex gap-1 overflow-x-auto pb-1 print:hidden">
+      <div
+        className="-mx-1 flex gap-1 overflow-x-auto pb-1 print:hidden"
+        role="tablist"
+        aria-label="Customer workspace sections"
+      >
         {TABS.map((item) => (
           <button
             key={item.key}
             type="button"
+            role="tab"
+            aria-selected={tab === item.key}
             onClick={() => setTab(item.key)}
-            className={`shrink-0 rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            className={`min-h-11 shrink-0 rounded-[var(--radius-sm)] px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
               tab === item.key
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-primary-foreground shadow-sm"
                 : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
@@ -427,10 +433,19 @@ export function CustomerProfileView({
         ))}
       </div>
 
+      {tab === "overview" ? (
+        <CustomerOverviewRead
+          profile={profile}
+          staff={staff}
+          locations={locations}
+          memberships={memberships}
+        />
+      ) : null}
+
       {tab === "timeline" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Customer timeline</CardTitle>
+            <CardTitle>Timeline</CardTitle>
           </CardHeader>
           <CardContent>
             <CustomerTimeline
@@ -442,7 +457,7 @@ export function CustomerProfileView({
       ) : null}
 
       {tab === "appointments" ? (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Upcoming</CardTitle>
@@ -451,7 +466,8 @@ export function CustomerProfileView({
               <AppointmentList
                 items={profile.appointments.upcoming}
                 emptyTitle="No upcoming appointments"
-                emptyDescription="Book the next visit with Quick Actions."
+                emptyDescription="Book the next visit from Quick Actions."
+                currency={currency}
                 onOpenBilling={() => setTab("billing")}
               />
             </CardContent>
@@ -464,7 +480,8 @@ export function CustomerProfileView({
               <AppointmentList
                 items={profile.appointments.completed}
                 emptyTitle="No completed visits"
-                emptyDescription="Completed appointments appear here."
+                emptyDescription="Completed appointments appear here after visits finish."
+                currency={currency}
                 onOpenBilling={() => setTab("billing")}
               />
             </CardContent>
@@ -478,6 +495,7 @@ export function CustomerProfileView({
                 items={profile.appointments.cancelled}
                 emptyTitle="No cancellations"
                 emptyDescription="Cancelled appointments appear here."
+                currency={currency}
                 onOpenBilling={() => setTab("billing")}
               />
             </CardContent>
@@ -491,36 +509,63 @@ export function CustomerProfileView({
                 items={profile.appointments.noShows}
                 emptyTitle="No no-shows"
                 emptyDescription="No-show appointments appear here."
+                currency={currency}
                 onOpenBilling={() => setTab("billing")}
               />
-            </CardContent>
-          </Card>
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Booking history</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CustomerInsightsPanel insights={profile.insights} />
             </CardContent>
           </Card>
         </div>
       ) : null}
 
       {tab === "communication" ? (
-        <CommunicationCenter
-          customer={{
-            id: customer.id,
-            name: displayName,
-            email: customer.email,
-            phone: customer.phone,
-            address: customer.address,
-            notes: customer.notes,
-          }}
-          mapsAddress={mapsAddress}
-          bundle={profile.communications}
-          smsAllowed={smsAllowed}
-          smsBlockedReason={smsBlockedReason}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Messages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(profile.communications.history?.length ?? 0) === 0 &&
+            (profile.communications.emailHistory?.length ?? 0) === 0 &&
+            (profile.communications.smsHistory?.length ?? 0) === 0 ? (
+              <div className="space-y-3">
+                <EmptyState
+                  variant="panel"
+                  glyph={MessageSquare}
+                  title="No customer messages yet"
+                  description="Customer-specific message history appears after email or SMS is sent from Chasum. Phone logs are not available yet."
+                />
+                <CommunicationCenter
+                  customer={{
+                    id: customer.id,
+                    name: displayName,
+                    email: customer.email,
+                    phone: customer.phone,
+                    address: customer.address,
+                    notes: customer.notes,
+                  }}
+                  mapsAddress={mapsAddress}
+                  bundle={profile.communications}
+                  smsAllowed={smsAllowed}
+                  smsBlockedReason={smsBlockedReason}
+                />
+              </div>
+            ) : (
+              <CommunicationCenter
+                customer={{
+                  id: customer.id,
+                  name: displayName,
+                  email: customer.email,
+                  phone: customer.phone,
+                  address: customer.address,
+                  notes: customer.notes,
+                }}
+                mapsAddress={mapsAddress}
+                bundle={profile.communications}
+                smsAllowed={smsAllowed}
+                smsBlockedReason={smsBlockedReason}
+              />
+            )}
+          </CardContent>
+        </Card>
       ) : null}
 
       {tab === "documents" ? (
@@ -555,12 +600,13 @@ export function CustomerProfileView({
       {tab === "billing" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Invoices, payments & ledger</CardTitle>
+            <CardTitle>Billing</CardTitle>
           </CardHeader>
           <CardContent>
             <CustomerCommercePanel
               customerId={customer.id}
               account={commerceAccount}
+              currency={currency}
             />
           </CardContent>
         </Card>
@@ -569,14 +615,24 @@ export function CustomerProfileView({
       {tab === "insights" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Customer insights</CardTitle>
+            <CardTitle>Insights</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent>
             <CustomerInsightsPanel insights={profile.insights} />
-            <p className="text-sm text-muted-foreground">
-              Observed from appointment history only. Collected money is on the
-              Payment summary and Billing tab — not relabeled as revenue here.
-            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {tab === "marketing" ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Marketing & loyalty</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CustomerMarketingForm
+              profile={profile}
+              memberships={memberships}
+            />
           </CardContent>
         </Card>
       ) : null}
@@ -590,53 +646,59 @@ export function CustomerProfileView({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Summer is the AI Business Manager (Early Access). Answers must stay
-              grounded in this customer’s CRM history. Chase signals stay
-              Preview until capabilities are verified. Summer never writes
-              bookings or payments.
+              Summer is the AI Business Manager (Early Access). Facts below are
+              grounded in this customer’s recorded data. Recommendations never
+              run automatically.
             </p>
-            <div className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">Observed Facts</p>
-              <p>
-                Visits, cancellations, no-shows, and preferences from recorded
-                appointments.
-              </p>
-              <p className="mt-2 font-medium text-foreground">
-                Recommendations
-              </p>
-              <p>
-                Suggested follow-ups only — require your approval before any
-                consequential action.
-              </p>
+            <div className="grid gap-3 md:grid-cols-2">
+              <section className="rounded-[var(--radius-md)] border border-border bg-muted/15 px-3 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                  Observed facts
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                  {observedFacts.map((fact) => (
+                    <li key={fact}>{fact}</li>
+                  ))}
+                </ul>
+              </section>
+              <section className="rounded-[var(--radius-md)] border border-dashed border-border px-3 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                  Recommendations
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Optional suggestions only — require your approval. Summer does
+                  not send messages or change customer data here.
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
+                  {chaseHints.length > 0 ? (
+                    chaseHints.map((hint) => <li key={hint}>{hint}</li>)
+                  ) : outstanding > 0 ? (
+                    <li>Consider sending a payment reminder.</li>
+                  ) : (
+                    <li>No recommendations from current observed visits.</li>
+                  )}
+                </ul>
+              </section>
             </div>
             <div className="flex flex-wrap gap-2">
-              {(
-                [
-                  ["summarize_customer", "Summarize for Summer"],
-                  ["inactive_customers", "Chase · Inactive"],
-                  ["top_spenders", "Chase · High value"],
-                  ["birthday_promotions", "Chase · Birthday"],
-                ] as const
-              ).map(([kind, label]) => (
-                <Button
-                  key={kind}
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={sparkPending}
-                  onClick={() => {
-                    startSpark(async () => {
-                      const result = await sparkCrmQueryAction({
-                        kind,
-                        customerId: customer.id,
-                      });
-                      setSparkResult(result.summary);
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="min-h-11"
+                disabled={sparkPending}
+                onClick={() => {
+                  startSpark(async () => {
+                    const result = await sparkCrmQueryAction({
+                      kind: "summarize_customer",
+                      customerId: customer.id,
                     });
-                  }}
-                >
-                  {label}
-                </Button>
-              ))}
+                    setSparkResult(result.summary);
+                  });
+                }}
+              >
+                Summarize for Summer
+              </Button>
             </div>
             {sparkResult ? (
               <p className="rounded-[var(--radius-md)] border border-border bg-muted/20 p-3 text-sm text-muted-foreground">
@@ -646,392 +708,6 @@ export function CustomerProfileView({
           </CardContent>
         </Card>
       ) : null}
-
-      {(tab === "overview" || tab === "marketing") && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {tab === "overview" ? "Profile" : "Marketing & loyalty"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form action={formAction} className="space-y-5">
-              <input type="hidden" name="id" value={customer.id} />
-
-              {tab === "overview" ? (
-                <>
-                  <ImageUploadField
-                    id="photo_url"
-                    name="photo_url"
-                    label="Profile photo"
-                    folder="customer-photos"
-                    defaultValue={customer.photo_url}
-                  />
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="first_name">First name</Label>
-                      <Input
-                        id="first_name"
-                        name="first_name"
-                        defaultValue={customer.first_name ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="last_name">Last name</Label>
-                      <Input
-                        id="last_name"
-                        name="last_name"
-                        defaultValue={customer.last_name ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="preferred_name">Preferred name</Label>
-                      <Input
-                        id="preferred_name"
-                        name="preferred_name"
-                        defaultValue={customer.preferred_name ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        defaultValue={customer.email}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        defaultValue={customer.phone ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="date_of_birth">Birthday</Label>
-                      <Input
-                        id="date_of_birth"
-                        name="date_of_birth"
-                        type="date"
-                        defaultValue={customer.date_of_birth ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="gender">Gender (optional)</Label>
-                      <Input
-                        id="gender"
-                        name="gender"
-                        defaultValue={customer.gender ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="preferred_communication_method">
-                        Preferred communication
-                      </Label>
-                      <Select
-                        id="preferred_communication_method"
-                        name="preferred_communication_method"
-                        defaultValue={
-                          customer.preferred_communication_method ?? "any"
-                        }
-                      >
-                        {Object.entries(COMM_METHOD_LABELS).map(
-                          ([key, label]) => (
-                            <option key={key} value={key}>
-                              {label}
-                            </option>
-                          ),
-                        )}
-                      </Select>
-                    </div>
-                    <div className="space-y-2 sm:col-span-2">
-                      <Label htmlFor="address">Address</Label>
-                      <Input
-                        id="address"
-                        name="address"
-                        defaultValue={customer.address ?? ""}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 rounded-[var(--radius-md)] border border-border p-4">
-                    <p className="ds-label">Emergency contact</p>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <Input
-                        name="emergency_contact_name"
-                        placeholder="Name"
-                        defaultValue={customer.emergency_contact_name ?? ""}
-                      />
-                      <Input
-                        name="emergency_contact_phone"
-                        placeholder="Phone"
-                        defaultValue={customer.emergency_contact_phone ?? ""}
-                      />
-                      <Input
-                        name="emergency_contact_relationship"
-                        placeholder="Relationship"
-                        defaultValue={
-                          customer.emergency_contact_relationship ?? ""
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="crm_status">Status</Label>
-                      <Select
-                        id="crm_status"
-                        name="crm_status"
-                        defaultValue={customer.crm_status ?? "active"}
-                      >
-                        {Object.entries(CRM_STATUS_LABELS).map(
-                          ([key, label]) => (
-                            <option key={key} value={key}>
-                              {label}
-                            </option>
-                          ),
-                        )}
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="assigned_staff_id">
-                        Preferred employee
-                      </Label>
-                      <Select
-                        id="assigned_staff_id"
-                        name="assigned_staff_id"
-                        defaultValue={customer.assigned_staff_id ?? ""}
-                      >
-                        <option value="">Unassigned</option>
-                        {staff.map((member) => (
-                          <option key={member.id} value={member.id}>
-                            {member.name}
-                          </option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="preferred_location_id">
-                        Preferred location
-                      </Label>
-                      <Select
-                        id="preferred_location_id"
-                        name="preferred_location_id"
-                        defaultValue={customer.preferred_location_id ?? ""}
-                      >
-                        <option value="">None</option>
-                        {locations.map((location) => (
-                          <option key={location.id} value={location.id}>
-                            {location.name}
-                          </option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="membership_id">Membership</Label>
-                      <Select
-                        id="membership_id"
-                        name="membership_id"
-                        defaultValue={customer.membership_id ?? ""}
-                      >
-                        <option value="">None</option>
-                        {memberships.map((plan) => (
-                          <option key={plan.id} value={plan.id}>
-                            {plan.name}
-                          </option>
-                        ))}
-                      </Select>
-                    </div>
-                  </div>
-                  <input
-                    type="hidden"
-                    name="is_vip"
-                    value={customer.is_vip ? "true" : "false"}
-                  />
-                  <input
-                    type="hidden"
-                    name="marketing_consent"
-                    value={customer.marketing_consent ? "true" : "false"}
-                  />
-                  <input
-                    type="hidden"
-                    name="tags"
-                    value={(customer.tags ?? []).join(", ")}
-                  />
-                  <input
-                    type="hidden"
-                    name="loyalty_status"
-                    value={customer.loyalty_status ?? "standard"}
-                  />
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">Profile notes</Label>
-                    <Textarea
-                      id="notes"
-                      name="notes"
-                      rows={3}
-                      defaultValue={customer.notes ?? ""}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="tags">Tags</Label>
-                      <Input
-                        id="tags"
-                        name="tags"
-                        defaultValue={(customer.tags ?? []).join(", ")}
-                        placeholder="VIP, Regular, New"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="referral_source">Referral source</Label>
-                      <Input
-                        id="referral_source"
-                        name="referral_source"
-                        defaultValue={customer.referral_source ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="loyalty_status">Loyalty status</Label>
-                      <Select
-                        id="loyalty_status"
-                        name="loyalty_status"
-                        defaultValue={customer.loyalty_status ?? "standard"}
-                      >
-                        {Object.entries(LOYALTY_STATUS_LABELS).map(
-                          ([key, label]) => (
-                            <option key={key} value={key}>
-                              {label}
-                            </option>
-                          ),
-                        )}
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="membership_id_mkt">Membership</Label>
-                      <Select
-                        id="membership_id_mkt"
-                        name="membership_id"
-                        defaultValue={customer.membership_id ?? ""}
-                      >
-                        <option value="">None</option>
-                        {memberships.map((plan) => (
-                          <option key={plan.id} value={plan.id}>
-                            {plan.name}
-                          </option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="anniversary_date">Anniversary</Label>
-                      <Input
-                        id="anniversary_date"
-                        name="anniversary_date"
-                        type="date"
-                        defaultValue={customer.anniversary_date ?? ""}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="date_of_birth_mkt">Birthday</Label>
-                      <Input
-                        id="date_of_birth_mkt"
-                        name="date_of_birth"
-                        type="date"
-                        defaultValue={customer.date_of_birth ?? ""}
-                      />
-                    </div>
-                    <label className="flex items-center gap-2 self-end pb-2 text-sm">
-                      <input
-                        type="checkbox"
-                        name="is_vip"
-                        defaultChecked={Boolean(customer.is_vip)}
-                      />
-                      VIP customer
-                    </label>
-                    <label className="flex items-center gap-2 self-end pb-2 text-sm">
-                      <input
-                        type="checkbox"
-                        name="marketing_consent"
-                        defaultChecked={Boolean(customer.marketing_consent)}
-                      />
-                      Marketing consent
-                    </label>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Marketing consent gates promotional email/SMS. Summer reads
-                    preferences; Chase ranks retention opportunities.
-                  </p>
-                  <input
-                    type="hidden"
-                    name="first_name"
-                    value={customer.first_name ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="last_name"
-                    value={customer.last_name ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="preferred_name"
-                    value={customer.preferred_name ?? ""}
-                  />
-                  <input type="hidden" name="email" value={customer.email} />
-                  <input
-                    type="hidden"
-                    name="phone"
-                    value={customer.phone ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="address"
-                    value={customer.address ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="photo_url"
-                    value={customer.photo_url ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="crm_status"
-                    value={customer.crm_status ?? "active"}
-                  />
-                  <input
-                    type="hidden"
-                    name="assigned_staff_id"
-                    value={customer.assigned_staff_id ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="preferred_location_id"
-                    value={customer.preferred_location_id ?? ""}
-                  />
-                  <input
-                    type="hidden"
-                    name="preferred_communication_method"
-                    value={customer.preferred_communication_method ?? "any"}
-                  />
-                  <input
-                    type="hidden"
-                    name="notes"
-                    value={customer.notes ?? ""}
-                  />
-                </>
-              )}
-
-              <AlertMessage error={state.error} success={state.success} />
-              <FormFooter pending={pending} submitLabel="Save profile" />
-            </form>
-          </CardContent>
-        </Card>
-      )}
 
       <BookingSheet
         key={

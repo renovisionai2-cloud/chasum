@@ -6,7 +6,7 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production:** Untouched (`4eecbec`)  
 **Mode:** Planning lock only — **do not implement in this commit**  
-**Do not:** Redesign pages now · alter booking/payment engines · run migrations · write shared DB · begin Chapter 4  
+**Do not:** Redesign unrelated pages · alter booking/payment engines · run migrations · write shared DB · begin Chapter 5  
 
 Canonical companion docs:
 
@@ -264,7 +264,7 @@ Formal program after functional World Class chapters. See section above.
 | 8 | Payments / financial intelligence | **6**, **10** | Yes | Yes |
 | 9 | Command Centre evolution | 2 follow-ons + Intelligence | Yes | Yes |
 | 10 | Reports / charts | **10** | Yes | Yes |
-| 11 | Customer profile depth | **4**, 7, commerce | Yes | Partial |
+| 11 | Customer profile depth | **4**, 7, commerce | Yes | Advanced in Ch4 correction (read-first Overview + Edit sheet; remaining depth Ch7/commerce) |
 | 12 | Mobile experience | Every chapter | Yes | Yes (audit) |
 | 13 | Micro-interactions / motion | Polish Program | Soft | Yes |
 | 14 | System states | Every chapter | Yes | Yes (audit) |
@@ -279,7 +279,7 @@ Formal program after functional World Class chapters. See section above.
 - No Production deploy / alias / branch changes  
 - No migrations 034–036  
 - No shared database writes  
-- **Chapter 4 not started**
+- **Chapter 4 delivered + correction polish in progress / complete on Preview**
 
 ---
 

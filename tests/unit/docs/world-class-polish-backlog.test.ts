@@ -15,7 +15,7 @@ describe("World Class Polish & Intelligence backlog lock", () => {
     expect(backlog).toMatch(/Customer profile depth/);
     expect(backlog).toMatch(/REQUIRED BEFORE LAUNCH/);
     expect(backlog).toMatch(/FINAL POLISH/);
-    expect(backlog).toMatch(/Chapter 4 not started/);
+    expect(backlog).toMatch(/Chapter 4 delivered/);
     expect(backlog).toMatch(/do not implement in this commit/i);
 
     const parity = readFileSync(
