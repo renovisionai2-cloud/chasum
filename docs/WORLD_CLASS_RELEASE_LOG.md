@@ -29,7 +29,7 @@
 | 2026-08-06 | **Chapter 4 — Customer Workspace** | `3793ec6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app (SSO). Unique Ready URL after Vercel deploy. | Directory redesign; payment summary; profile workspace; honest empty states; collected ≠ revenue |
 | 2026-08-06 | **Chapter 4 correction & premium polish** | `0052bc3` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tight directory; health overview; read-first profile; avg spend Unavailable; billing sections; data dictionary |
 | 2026-08-07 | **Chapter 4 Final Correction — Booking Workspace** | `6661f0b` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Progressive booking IA; no width debug controls; Date→time; one Payment card; sticky footer |
-| 2026-08-07 | **Chapter 4 Final Acceptance — Progressive stages** | *(pending push)* | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | True staged workflow; only active expanded; acceptance lock |
+| 2026-08-07 | **Chapter 4 Final Acceptance — Progressive stages** | `c56aad2` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | True staged workflow; only active expanded; acceptance lock |
 
 ---
 
@@ -37,9 +37,9 @@
 
 | Check | Result |
 |-------|--------|
-| Typecheck | **Pass** (pending stamp) |
-| Build | pending |
-| Unit tests | pending stamp |
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Unit tests | **330 pass / 1 fail**; inherited multi-business-selection only |
 | Booking UX tests | progressive stage contract |
 | Production | Untouched |
 | Migrations 034–036 | Not applied |
@@ -51,7 +51,7 @@
 
 | Check | Result |
 |-------|--------|
-| Typecheck | **Pass** (pending stamp) |
+| Typecheck | **Pass** |
 | Build | **Pass** |
 | Unit tests | **329 pass / 1 fail**; inherited `multi-business-selection` only |
 | Booking UX tests | `booking-workspace-ux.test.ts` **8 pass** |

@@ -376,7 +376,8 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | *(feature commit pending stamp)* |
+| **SHA** | `c56aad23477459c49408e931d558dee0dd392f39` |
+| **Short** | `c56aad2` |
 | **Subject** | feat: Chapter 4 progressive booking workflow stages |
 | **Prior tip** | `8c700b0` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
