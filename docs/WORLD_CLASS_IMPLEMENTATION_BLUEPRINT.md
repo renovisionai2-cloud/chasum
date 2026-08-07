@@ -159,7 +159,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Booking Workspace final correction delivered on Preview — awaiting PO review.** Customer Workspace (directory/profile) + Booking Workspace UX contract: Customer → Appointment → Time → Payment → Confirm; no Narrow/Standard/Wide; Date→times adjacency; one projected Payment summary; sticky footer. Docs: [`WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md), [`WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md), [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md).
+**Booking Workspace final acceptance delivered on Preview — awaiting PO review.** True progressive stages (Customer → Appointment → Time → Payment → Confirm); only active stage expanded. Acceptance lock: Chapter 4 Booking Workspace passed only after true progressive workflow acceptance. Docs: [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md), Customer Workspace blueprints.
 
 ## Chapter 9 — Business Structure Engine (planning)
 

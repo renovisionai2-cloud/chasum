@@ -48,6 +48,13 @@ export type BookingPaymentSectionProps = {
   compact?: boolean;
   /** When false, parent form supplies price_cents / tax_cents / deposit_cents. */
   includePricingFields?: boolean;
+  /**
+   * decision = progressive Payment step (total + deposit + choices).
+   * full = legacy denser breakdown (edit / other surfaces).
+   */
+  variant?: "decision" | "full";
+  /** When false, parent form owns payment_* / price hidden fields. */
+  includeFormFields?: boolean;
 };
 
 export function BookingPaymentSection({
@@ -63,6 +70,8 @@ export function BookingPaymentSection({
   className,
   compact = false,
   includePricingFields = true,
+  variant = "decision",
+  includeFormFields = true,
 }: BookingPaymentSectionProps) {
   const base = resolveBookingFinancials({
     catalogPriceCents,
@@ -100,209 +109,237 @@ export function BookingPaymentSection({
       )}
       aria-label="Payment"
     >
-      <div>
-        <p className="text-sm font-semibold tracking-tight">Payment</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          One financial summary before confirmation. Figures below are projected
-          until you confirm.
-        </p>
-      </div>
-
-      <dl className={cn("space-y-1.5 text-sm", compact && "text-sm")}>
-        <div className="flex justify-between gap-3">
-          <dt className="text-muted-foreground">Subtotal</dt>
-          <dd className="tabular-nums">{base.formatted.subtotal}</dd>
-        </div>
-        {base.taxCents > 0 ? (
-          <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">
-              Tax{base.taxInclusive ? " (included)" : ""}
-            </dt>
-            <dd className="tabular-nums">{base.formatted.tax}</dd>
-          </div>
-        ) : null}
-        <div className="flex justify-between gap-3 border-t border-border/70 pt-1.5">
-          <dt className="font-medium">Total</dt>
-          <dd className="font-semibold tabular-nums">
-            {base.formatted.appointmentTotal}
-          </dd>
-        </div>
-        {depositNeeded ? (
-          <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">Deposit required</dt>
-            <dd className="tabular-nums">{base.formatted.depositRequired}</dd>
-          </div>
-        ) : null}
-        {paymentToday > 0 ? (
-          <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">Payment being recorded</dt>
-            <dd className="tabular-nums">
-              −{formatMoneyCents(paymentToday, currency)}
-            </dd>
-          </div>
-        ) : null}
-        <div className="flex justify-between gap-3 border-t border-border/70 pt-1.5">
-          <dt className="font-medium">Balance after confirmation</dt>
-          <dd className="font-semibold tabular-nums">
-            {withToday.formatted.remainingBalance}
-          </dd>
-        </div>
-      </dl>
-
-      <div className="space-y-3 border-t border-border pt-3">
-          <p className="text-xs font-medium text-muted-foreground">
-            Payment today
-          </p>
-          <div className="grid gap-2">
-            {(
-              [
-                ["none", "No payment now"],
-                [
-                  "deposit",
-                  depositNeeded
-                    ? `Record ${base.formatted.depositRequired} deposit`
-                    : "Record deposit",
-                ],
-                ["full", `Pay in full — ${base.formatted.appointmentTotal}`],
-                ["custom", "Other amount"],
-              ] as const
-            ).map(([mode, label]) => (
-              <label
-                key={mode}
-                className={cn(
-                  "flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2.5 text-sm",
-                  value.mode === mode
-                    ? "border-foreground/30 bg-muted/40"
-                    : "border-border",
-                )}
-              >
-                <input
-                  type="radio"
-                  name="booking_payment_mode_ui"
-                  className="size-4"
-                  checked={value.mode === mode}
-                  onChange={() => setMode(mode)}
-                />
-                <span>{label}</span>
-              </label>
-            ))}
-          </div>
-
-          {value.mode !== "none" ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="booking_payment_amount">Amount</Label>
-                <Input
-                  id="booking_payment_amount"
-                  type="number"
-                  min={0.01}
-                  step="0.01"
-                  className="min-h-11"
-                  value={(value.amountCents / 100).toFixed(2)}
-                  onChange={(e) => {
-                    const dollars = Number(e.target.value);
-                    onChange({
-                      ...value,
-                      mode:
-                        value.mode === "deposit" || value.mode === "full"
-                          ? "custom"
-                          : value.mode,
-                      amountCents: Number.isFinite(dollars)
-                        ? Math.max(0, Math.round(dollars * 100))
-                        : 0,
-                    });
-                  }}
-                />
-                <p className="text-[11px] text-muted-foreground">
-                  Record payment — does not charge a card online.
-                </p>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="booking_payment_method">Payment method</Label>
-                <Select
-                  id="booking_payment_method"
-                  value={value.method}
-                  onChange={(e) =>
-                    onChange({
-                      ...value,
-                      method: e.target.value as PaymentMethod,
-                    })
-                  }
-                >
-                  {BOOKING_METHODS.map((m) => (
-                    <option key={m} value={m}>
-                      {PAYMENT_METHOD_LABELS[m]}
-                      {m === "other" ? " / Cheque" : ""}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="booking_payment_note">Reference / note</Label>
-                <Input
-                  id="booking_payment_note"
-                  className="min-h-11"
-                  value={value.note}
-                  placeholder="Optional"
-                  onChange={(e) =>
-                    onChange({ ...value, note: e.target.value })
-                  }
-                />
-              </div>
-              <label className="flex min-h-11 items-center gap-2 text-sm sm:col-span-2">
-                <input
-                  type="checkbox"
-                  className="size-4"
-                  checked={value.sendReceipt}
-                  onChange={(e) =>
-                    onChange({ ...value, sendReceipt: e.target.checked })
-                  }
-                />
-                Send payment receipt email
-              </label>
-            </div>
-          ) : null}
-        </div>
-
-      {/* Hidden fields for form submit — names must match createAppointment */}
-      <input type="hidden" name="payment_mode" value={value.mode} />
-      <input
-        type="hidden"
-        name="payment_amount_cents"
-        value={value.mode === "none" ? "0" : String(value.amountCents)}
-      />
-      <input type="hidden" name="payment_method" value={value.method} />
-      <input type="hidden" name="payment_note" value={value.note} />
-      <input
-        type="hidden"
-        name="payment_send_receipt"
-        value={value.sendReceipt ? "1" : "0"}
-      />
-      {includePricingFields ? (
+      {variant === "full" ? (
         <>
-          <input
-            type="hidden"
-            name="deposit_cents"
-            value={String(base.depositRequiredCents || "")}
-          />
-          <input
-            type="hidden"
-            name="price_cents"
-            value={String(base.subtotalCents || "")}
-          />
-          <input
-            type="hidden"
-            name="tax_cents"
-            value={String(base.taxCents || "")}
-          />
+          <div>
+            <p className="text-sm font-semibold tracking-tight">Payment</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Figures below are projected until you confirm.
+            </p>
+          </div>
+          <dl className="space-y-1.5 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Subtotal</dt>
+              <dd className="tabular-nums">{base.formatted.subtotal}</dd>
+            </div>
+            {base.taxCents > 0 ? (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">
+                  Tax{base.taxInclusive ? " (included)" : ""}
+                </dt>
+                <dd className="tabular-nums">{base.formatted.tax}</dd>
+              </div>
+            ) : null}
+            <div className="flex justify-between gap-3 border-t border-border/70 pt-1.5">
+              <dt className="font-medium">Total</dt>
+              <dd className="font-semibold tabular-nums">
+                {base.formatted.appointmentTotal}
+              </dd>
+            </div>
+            {depositNeeded ? (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Deposit required</dt>
+                <dd className="tabular-nums">{base.formatted.depositRequired}</dd>
+              </div>
+            ) : null}
+          </dl>
         </>
       ) : (
-        <input
-          type="hidden"
-          name="deposit_cents"
-          value={String(base.depositRequiredCents || "")}
-        />
+        <dl className="space-y-1.5 text-sm">
+          <div className="flex justify-between gap-3">
+            <dt className="font-medium">Appointment total</dt>
+            <dd className="font-semibold tabular-nums">
+              {base.formatted.appointmentTotal}
+            </dd>
+          </div>
+          {depositNeeded ? (
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Deposit required</dt>
+              <dd className="tabular-nums">{base.formatted.depositRequired}</dd>
+            </div>
+          ) : null}
+        </dl>
       )}
+
+      <div className="space-y-3 border-t border-border pt-3">
+        <p className="text-xs font-medium text-muted-foreground">Payment today</p>
+        <div className="grid gap-2">
+          {(
+            [
+              ["none", "No payment now"],
+              [
+                "deposit",
+                depositNeeded
+                  ? `Record ${base.formatted.depositRequired} deposit`
+                  : "Record deposit",
+              ],
+              ["full", `Pay in full — ${base.formatted.appointmentTotal}`],
+              ["custom", "Other amount"],
+            ] as const
+          ).map(([mode, label]) => (
+            <label
+              key={mode}
+              className={cn(
+                "flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2.5 text-sm",
+                value.mode === mode
+                  ? "border-foreground/30 bg-muted/40"
+                  : "border-border",
+              )}
+            >
+              <input
+                type="radio"
+                name="booking_payment_mode_ui"
+                className="size-4"
+                checked={value.mode === mode}
+                onChange={() => setMode(mode)}
+              />
+              <span>{label}</span>
+            </label>
+          ))}
+        </div>
+
+        {value.mode !== "none" ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="booking_payment_amount">Amount</Label>
+              <Input
+                id="booking_payment_amount"
+                type="number"
+                min={0.01}
+                step="0.01"
+                className="min-h-11"
+                value={(value.amountCents / 100).toFixed(2)}
+                onChange={(e) => {
+                  const dollars = Number(e.target.value);
+                  onChange({
+                    ...value,
+                    mode:
+                      value.mode === "deposit" || value.mode === "full"
+                        ? "custom"
+                        : value.mode,
+                    amountCents: Number.isFinite(dollars)
+                      ? Math.max(0, Math.round(dollars * 100))
+                      : 0,
+                  });
+                }}
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Record payment — does not charge a card online.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="booking_payment_method">Payment method</Label>
+              <Select
+                id="booking_payment_method"
+                value={value.method}
+                onChange={(e) =>
+                  onChange({
+                    ...value,
+                    method: e.target.value as PaymentMethod,
+                  })
+                }
+              >
+                {BOOKING_METHODS.map((m) => (
+                  <option key={m} value={m}>
+                    {PAYMENT_METHOD_LABELS[m]}
+                    {m === "other" ? " / Cheque" : ""}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label htmlFor="booking_payment_note">Reference / note</Label>
+              <Input
+                id="booking_payment_note"
+                className="min-h-11"
+                value={value.note}
+                placeholder="Optional"
+                onChange={(e) => onChange({ ...value, note: e.target.value })}
+              />
+            </div>
+            <label className="flex min-h-11 items-center gap-2 text-sm sm:col-span-2">
+              <input
+                type="checkbox"
+                className="size-4"
+                checked={value.sendReceipt}
+                onChange={(e) =>
+                  onChange({ ...value, sendReceipt: e.target.checked })
+                }
+              />
+              Send payment receipt email
+            </label>
+          </div>
+        ) : null}
+
+        {value.mode !== "none" && paymentToday > 0 ? (
+          <dl className="space-y-1.5 border-t border-border/70 pt-3 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">Payment today</dt>
+              <dd className="tabular-nums">
+                {formatMoneyCents(paymentToday, currency)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="font-medium">Balance after confirmation</dt>
+              <dd className="font-semibold tabular-nums">
+                {withToday.formatted.remainingBalance}
+              </dd>
+            </div>
+          </dl>
+        ) : value.mode === "none" ? (
+          <dl className="space-y-1.5 border-t border-border/70 pt-3 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="font-medium">Balance after confirmation</dt>
+              <dd className="font-semibold tabular-nums">
+                {base.formatted.appointmentTotal}
+              </dd>
+            </div>
+          </dl>
+        ) : null}
+      </div>
+
+      {includeFormFields ? (
+        <>
+          <input type="hidden" name="payment_mode" value={value.mode} />
+          <input
+            type="hidden"
+            name="payment_amount_cents"
+            value={value.mode === "none" ? "0" : String(value.amountCents)}
+          />
+          <input type="hidden" name="payment_method" value={value.method} />
+          <input type="hidden" name="payment_note" value={value.note} />
+          <input
+            type="hidden"
+            name="payment_send_receipt"
+            value={value.sendReceipt ? "1" : "0"}
+          />
+          {includePricingFields ? (
+            <>
+              <input
+                type="hidden"
+                name="deposit_cents"
+                value={String(base.depositRequiredCents || "")}
+              />
+              <input
+                type="hidden"
+                name="price_cents"
+                value={String(base.subtotalCents || "")}
+              />
+              <input
+                type="hidden"
+                name="tax_cents"
+                value={String(base.taxCents || "")}
+              />
+            </>
+          ) : (
+            <input
+              type="hidden"
+              name="deposit_cents"
+              value={String(base.depositRequiredCents || "")}
+            />
+          )}
+        </>
+      ) : null}
     </section>
   );
 }

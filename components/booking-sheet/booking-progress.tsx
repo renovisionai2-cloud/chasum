@@ -1,35 +1,38 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import type { BookingWorkflowStep } from "@/components/booking-sheet/booking-workflow";
+import { BOOKING_WORKFLOW_STEPS } from "@/components/booking-sheet/booking-workflow";
 
-const STEPS = [
-  { id: "customer", label: "Customer" },
-  { id: "appointment", label: "Appointment" },
-  { id: "time", label: "Time" },
-  { id: "review", label: "Review" },
-] as const;
+const LABELS: Record<BookingWorkflowStep, string> = {
+  customer: "Customer",
+  appointment: "Appointment",
+  time: "Time",
+  payment: "Payment",
+  confirm: "Confirm",
+};
 
-export type BookingProgressStep = (typeof STEPS)[number]["id"];
+export type BookingProgressStep = BookingWorkflowStep;
 
 export function BookingProgressIndicator({
   active,
   completed,
 }: {
-  active: BookingProgressStep;
-  completed: Partial<Record<BookingProgressStep, boolean>>;
+  active: BookingWorkflowStep;
+  completed: Partial<Record<BookingWorkflowStep, boolean>>;
 }) {
-  const activeIndex = STEPS.findIndex((s) => s.id === active);
+  const activeIndex = BOOKING_WORKFLOW_STEPS.indexOf(active);
 
   return (
     <nav
       aria-label="Booking progress"
       className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground"
     >
-      {STEPS.map((step, index) => {
-        const done = Boolean(completed[step.id]);
-        const isActive = step.id === active;
+      {BOOKING_WORKFLOW_STEPS.map((step, index) => {
+        const done = Boolean(completed[step]);
+        const isActive = step === active;
         return (
-          <span key={step.id} className="inline-flex items-center gap-1.5">
+          <span key={step} className="inline-flex items-center gap-1.5">
             {index > 0 ? (
               <span className="text-border" aria-hidden>
                 →
@@ -44,7 +47,7 @@ export function BookingProgressIndicator({
               aria-current={isActive ? "step" : undefined}
             >
               {done && !isActive ? "✓ " : index < activeIndex ? "✓ " : ""}
-              {step.label}
+              {LABELS[step]}
             </span>
           </span>
         );

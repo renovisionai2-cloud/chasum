@@ -200,6 +200,22 @@
 | Blueprint | `WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
 | Approval | Awaiting PO |
 
+### Chapter 4 Final Acceptance — Progressive Booking Workspace
+
+| Field | Value |
+|-------|--------|
+| Surface | New Appointment (`BookingSheet` create path) |
+| Architecture | True progressive stages — only active expanded |
+| Flow | Customer → Appointment → Time → Payment → Confirm |
+| Auto-advance | Customer select → Appointment; appointment ready → Time; slot → Payment; Continue → Confirm |
+| Time UI | `workspaceMode` + `alwaysExpanded` grid |
+| Payment | One decision card; footer owns `payment_*` fields |
+| Confirm | `BookingConfirmStep` review + sticky Confirm CTA |
+| Acceptance | Passed only after true progressive workflow acceptance |
+| Contract | `WORLD_CLASS_BOOKING_WORKSPACE.md` |
+| Automated tests | `tests/unit/booking/booking-workspace-ux.test.ts` |
+| Approval | Awaiting PO |
+
 ### Chapter 4 Final Correction — Booking Workspace
 
 | Field | Value |

@@ -24,6 +24,8 @@ type AvailabilitySectionProps = {
   onPickStaff: (staffId: string) => void;
   onPickDay: (date: string) => void;
   unassigned?: boolean;
+  /** Progressive Time step: grid always visible. */
+  workspaceMode?: boolean;
 };
 
 export type AvailabilitySectionHandle = {
@@ -43,6 +45,7 @@ export const AvailabilitySection = forwardRef<
     onPickStaff,
     onPickDay,
     unassigned = false,
+    workspaceMode = false,
   },
   ref,
 ) {
@@ -59,19 +62,25 @@ export const AvailabilitySection = forwardRef<
 
   return (
     <section className="space-y-4" aria-labelledby="bs-avail-heading">
-      <div>
-        <h3
-          id="bs-avail-heading"
-          className="text-sm font-semibold tracking-tight"
-        >
-          Date and time
+      {!workspaceMode ? (
+        <div>
+          <h3
+            id="bs-avail-heading"
+            className="text-sm font-semibold tracking-tight"
+          >
+            Date and time
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {unassigned
+              ? "Showing openings across your team. You can assign an employee later."
+              : "Choose an open time for this appointment."}
+          </p>
+        </div>
+      ) : (
+        <h3 id="bs-avail-heading" className="sr-only">
+          Available times
         </h3>
-        <p className="text-xs text-muted-foreground">
-          {unassigned
-            ? "Showing openings across your team. You can assign an employee later."
-            : "Choose an open time for this appointment."}
-        </p>
-      </div>
+      )}
 
       {loading ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -118,6 +127,7 @@ export const AvailabilitySection = forwardRef<
           loading={loading}
           selectedInvalid={Boolean(selectedSlot && !selectedSlotValid)}
           forceExpanded={Boolean(selectedSlot && !selectedSlotValid)}
+          alwaysExpanded={workspaceMode}
           selectedInvalidHint={
             selectedSlot && !selectedInDay
               ? `${formatTime(parseISO(selectedSlot))} is already booked or unavailable. Choose another time.`

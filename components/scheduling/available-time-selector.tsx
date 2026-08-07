@@ -36,6 +36,8 @@ type AvailableTimeSelectorProps = {
   selectedInvalidHint?: string | null;
   /** Force expanded (e.g. after an invalid selection). */
   forceExpanded?: boolean;
+  /** Progressive Time step: show the grid immediately (no collapse chrome). */
+  alwaysExpanded?: boolean;
   className?: string;
   id?: string;
 };
@@ -58,6 +60,7 @@ export const AvailableTimeSelector = forwardRef<
     selectedInvalid = false,
     selectedInvalidHint = null,
     forceExpanded = false,
+    alwaysExpanded = false,
     className,
     id,
   },
@@ -66,7 +69,7 @@ export const AvailableTimeSelector = forwardRef<
   const reactId = useId();
   const panelId = id ?? `available-times-${reactId}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(alwaysExpanded);
   const [jumpTo, setJumpTo] = useState<"morning" | "afternoon" | "evening" | null>(
     null,
   );
@@ -80,27 +83,31 @@ export const AvailableTimeSelector = forwardRef<
   }));
 
   useEffect(() => {
-    if (forceExpanded || selectedInvalid) {
+    if (forceExpanded || selectedInvalid || alwaysExpanded) {
       setExpanded(true);
     }
-  }, [forceExpanded, selectedInvalid]);
+  }, [forceExpanded, selectedInvalid, alwaysExpanded]);
 
   const groups = useMemo(
     () => groupSlotsByTimeOfDay(slots, (s) => s.start),
     [slots],
   );
 
+  const showPanel = alwaysExpanded || expanded;
+
   useEffect(() => {
-    if (!expanded || !jumpTo) return;
+    if (!showPanel || !jumpTo) return;
     const el = document.getElementById(`${panelId}-${jumpTo}`);
     el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     setJumpTo(null);
-  }, [expanded, jumpTo, panelId]);
+  }, [showPanel, jumpTo, panelId]);
 
   function selectTime(start: string) {
     onSelect(start);
-    setExpanded(false);
-    window.setTimeout(() => triggerRef.current?.focus(), 0);
+    if (!alwaysExpanded) {
+      setExpanded(false);
+      window.setTimeout(() => triggerRef.current?.focus(), 0);
+    }
   }
 
   const selectedLabel = selectedStart
@@ -113,51 +120,53 @@ export const AvailableTimeSelector = forwardRef<
         Available time
       </p>
 
-      <button
-        ref={triggerRef}
-        type="button"
-        id={`${panelId}-trigger`}
-        className={cn(
-          "flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] border px-3 py-3 text-left text-sm transition-colors",
-          "hover:border-primary/60 hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          selectedInvalid
-            ? "border-amber-500/50 bg-amber-500/10"
-            : selectedStart
-              ? "border-primary/50 bg-accent/30"
-              : "border-border bg-card",
-        )}
-        aria-expanded={expanded}
-        aria-controls={panelId}
-        aria-labelledby={`${panelId}-label`}
-        onClick={() => setExpanded((v) => !v)}
-      >
-        <span className="min-w-0">
-          <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            {selectedStart ? "Selected time" : "Choose a time"}
+      {!alwaysExpanded ? (
+        <button
+          ref={triggerRef}
+          type="button"
+          id={`${panelId}-trigger`}
+          className={cn(
+            "flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] border px-3 py-3 text-left text-sm transition-colors",
+            "hover:border-primary/60 hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            selectedInvalid
+              ? "border-amber-500/50 bg-amber-500/10"
+              : selectedStart
+                ? "border-primary/50 bg-accent/30"
+                : "border-border bg-card",
+          )}
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          aria-labelledby={`${panelId}-label`}
+          onClick={() => setExpanded((v) => !v)}
+        >
+          <span className="min-w-0">
+            <span className="block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {selectedStart ? "Selected time" : "Choose a time"}
+            </span>
+            <span
+              className={cn(
+                "mt-0.5 block truncate font-semibold tabular-nums",
+                selectedInvalid && "text-amber-900 dark:text-amber-100",
+              )}
+            >
+              {loading
+                ? "Loading times…"
+                : selectedLabel
+                  ? selectedLabel
+                  : slots.length > 0
+                    ? slots.length <= 8
+                      ? `${slots.length} times available — choose a time`
+                      : "Many times available — choose a time"
+                    : "No times yet"}
+            </span>
           </span>
-          <span
-            className={cn(
-              "mt-0.5 block truncate font-semibold tabular-nums",
-              selectedInvalid && "text-amber-900 dark:text-amber-100",
-            )}
-          >
-            {loading
-              ? "Loading times…"
-              : selectedLabel
-                ? selectedLabel
-                : slots.length > 0
-                  ? slots.length <= 8
-                    ? `${slots.length} times available — choose a time`
-                    : "Many times available — choose a time"
-                  : "No times yet"}
-          </span>
-        </span>
-        {expanded ? (
-          <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-        ) : (
-          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-        )}
-      </button>
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          ) : (
+            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          )}
+        </button>
+      ) : null}
 
       {selectedInvalid && selectedStart ? (
         <p className="text-[11px] text-amber-800 dark:text-amber-200" role="status">
@@ -166,7 +175,7 @@ export const AvailableTimeSelector = forwardRef<
         </p>
       ) : null}
 
-      {expanded ? (
+      {showPanel ? (
         <div
           id={panelId}
           role="region"
@@ -262,17 +271,19 @@ export const AvailableTimeSelector = forwardRef<
                 <p className="text-[11px] text-muted-foreground">
                   {slots.length} available
                 </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => {
-                    setExpanded(false);
-                    triggerRef.current?.focus();
-                  }}
-                >
-                  Done
-                </Button>
+                {!alwaysExpanded ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setExpanded(false);
+                      triggerRef.current?.focus();
+                    }}
+                  >
+                    Done
+                  </Button>
+                ) : null}
               </div>
             </>
           )}

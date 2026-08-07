@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-07  
-**Updated by:** World Class Execution Program — Chapter 4 Final Correction: Booking Workspace UX (Preview; Production unchanged)  
+**Updated by:** World Class Execution Program — Chapter 4 Booking Workspace final acceptance (true progressive stages; Preview; Production unchanged)  
 
 ---
 
@@ -159,14 +159,21 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-07)
 
+**World Class Execution — Chapter 4 Booking Workspace final acceptance**
+
+- True progressive stages: only active stage expanded; completed → Change summaries
+- Auto-advance Customer → Appointment → Time → Payment → Confirm
+- Time grid always expanded in workspace mode; one Payment decision card; Confirm review
+- Payment_* fields in sticky footer form; engines unchanged
+- **Acceptance:** Chapter 4 Booking Workspace passed only after true progressive workflow acceptance
+- Contract: [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md)
+
+### Immediately prior (2026-08-07)
+
 **World Class Execution — Chapter 4 Final Correction: Booking Workspace**
 
-- New Appointment drawer: Customer → Appointment → Time → Payment → Confirm
-- Removed Narrow/Standard/Wide layout debug controls from normal UX
-- Date → available times adjacency; one Payment card with projected balance language
-- Sticky footer + live summary; history/notes/Summer progressive disclosure
-- Contract: [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md)
-- **Production untouched · no migrations 034–036 · booking/payment engines unchanged**
+- New Appointment drawer: Customer → Appointment → Time → Payment → Confirm (labels + collapse pass)
+- Removed Narrow/Standard/Wide; sticky footer; projected balance language
 
 ### Immediately prior (2026-08-06)
 
@@ -369,10 +376,9 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `6661f0b9bd3b9de35481b7a56701cbef33552a6b` |
-| **Subject** | feat: Chapter 4 Booking Workspace UX consolidation |
-| **Short** | `6661f0b` |
-| **Prior tip** | `ef295c9` |
+| **SHA** | *(feature commit pending stamp)* |
+| **Subject** | feat: Chapter 4 progressive booking workflow stages |
+| **Prior tip** | `8c700b0` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
 | **Branch Preview alias** | https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app |
 | **Production SHA** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` |
