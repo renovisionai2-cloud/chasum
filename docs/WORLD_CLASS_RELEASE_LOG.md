@@ -30,7 +30,7 @@
 | 2026-08-06 | **Chapter 4 correction & premium polish** | `0052bc3` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tight directory; health overview; read-first profile; avg spend Unavailable; billing sections; data dictionary |
 | 2026-08-07 | **Chapter 4 Final Correction — Booking Workspace** | `6661f0b` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Progressive booking IA; no width debug controls; Date→time; one Payment card; sticky footer |
 | 2026-08-07 | **Chapter 4 Final Acceptance — Progressive stages** | `c56aad2` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | True staged workflow; only active expanded; acceptance lock |
-| 2026-08-07 | **Chapter 4 Adaptive Booking Workspace** | *(pending push)* | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Ask-only-missing; summary strip; date+time; success; benchmarks |
+| 2026-08-07 | **Chapter 4 Adaptive Booking Workspace** | `32a9ce1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Ask-only-missing; summary strip; date+time; success; benchmarks |
 
 ---
 
@@ -38,9 +38,9 @@
 
 | Check | Result |
 |-------|--------|
-| Typecheck | pending stamp |
-| Build | pending |
-| Unit tests | pending |
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Unit tests | **334 pass / 1 fail**; inherited multi-business-selection only |
 | Production | Untouched |
 | Migrations 034–036 | Not applied |
 | Engines | Unchanged |

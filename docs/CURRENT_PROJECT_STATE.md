@@ -374,8 +374,8 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | *(feature commit pending stamp)* |
-| **Short** | pending |
+| **SHA** | `32a9ce1396a7d88e2097b7ad0d2c70d99bf7a35d` |
+| **Short** | `32a9ce1` |
 | **Subject** | feat: Chapter 4 adaptive booking workspace |
 | **Prior tip** | `6ebcd13` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
