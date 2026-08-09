@@ -44,10 +44,10 @@
 
 | Check | Result |
 |-------|--------|
-| Typecheck | _(run at ship)_ |
-| Build | _(run at ship)_ |
-| Lint (touched) | _(run at ship)_ |
-| Unit tests | _(run at ship)_ |
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Lint (touched) | **Pass** |
+| Unit tests | **392 pass / 1 fail**; inherited multi-business-selection only |
 | Production | Untouched |
 | Migrations 034–036 | Not applied |
 | Engines | Unchanged |
