@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { firstMissingDecision } from "@/components/booking-sheet/booking-workflow";
+import { firstMissingDecision, bookingFactsFromValues } from "@/components/booking-sheet/booking-workflow";
 import {
   BOOKING_SHEET_MANAGEMENT_MAX_PX,
 } from "@/components/ui/sheet";
@@ -71,16 +71,18 @@ describe("Existing appointment expandable management workspace", () => {
 describe("Adaptive New Appointment regression (protected)", () => {
   it("still asks only for missing decisions", () => {
     expect(
-      firstMissingDecision({
-        customerId: "c1",
-        serviceId: "",
-        needsNamedEmployee: true,
-        date: "",
-        slot: null,
-        slotValid: false,
-        paymentAcknowledged: false,
-        success: false,
-      }),
+      firstMissingDecision(
+        bookingFactsFromValues({
+          customerId: "c1",
+          serviceId: "",
+          needsNamedEmployee: true,
+          date: "",
+          slot: null,
+          slotValid: false,
+          paymentAcknowledged: false,
+          success: false,
+        }),
+      ),
     ).toBe("service");
   });
 

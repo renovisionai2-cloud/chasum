@@ -27,8 +27,10 @@ import {
   bookingDecisionAccess,
   bookingFooterStatus,
   firstMissingDecision,
+  isIntentionallyResolved,
   previousDecision,
   type BookingDecision,
+  type BookingDecisionProvenance,
 } from "@/components/booking-sheet/booking-workflow";
 import { CustomerSection } from "@/components/booking-sheet/customer-section";
 import { PaymentsSection } from "@/components/booking-sheet/payments-section";
@@ -225,26 +227,37 @@ export function BookingSheet({
     );
 
     // Adaptive workspace: do not silently invent a service from the catalog.
-    // Prefill only from appointment, draft, explicit default, or saved prefs.
+    // Prefill only from appointment, draft, or explicit entry defaults.
+    // Reception prefs (last-used service/staff) are NOT intentional resolution.
+    let serviceProvenance: BookingDecisionProvenance = "none";
     const serviceId =
-      appointment?.service_id ??
-      (!appointment &&
-      draft?.serviceId &&
-      services.some((s) => s.id === draft.serviceId)
-        ? draft.serviceId
-        : null) ??
-      (!appointment &&
-      defaultServiceId &&
-      locationServices.some((s) => s.id === defaultServiceId)
-        ? defaultServiceId
-        : null) ??
-      (!appointment &&
-      prefs.serviceId &&
-      locationServices.some((s) => s.id === prefs.serviceId)
-        ? prefs.serviceId
-        : null) ??
-      (appointment ? locationServices[0]?.id : null) ??
-      "";
+      (() => {
+        if (appointment?.service_id) {
+          serviceProvenance = "appointment";
+          return appointment.service_id;
+        }
+        if (
+          !appointment &&
+          draft?.serviceId &&
+          services.some((s) => s.id === draft.serviceId)
+        ) {
+          serviceProvenance = "valid_draft";
+          return draft.serviceId;
+        }
+        if (
+          !appointment &&
+          defaultServiceId &&
+          locationServices.some((s) => s.id === defaultServiceId)
+        ) {
+          serviceProvenance = "entry_context";
+          return defaultServiceId;
+        }
+        if (appointment && locationServices[0]?.id) {
+          serviceProvenance = "default";
+          return locationServices[0].id;
+        }
+        return "";
+      })() ?? "";
 
     const selectedSvc = services.find((s) => s.id === serviceId);
     const appointmentDuration = appointment
@@ -273,22 +286,32 @@ export function BookingSheet({
         ? draft.staffId
         : undefined;
 
-    const staffId = appointment
-      ? (appointment.staff_id ?? "")
-      : defaultStaffId === ""
-        ? ""
-        : draftStaff !== undefined
-          ? draftStaff === "" ||
-            eligible.some((m) => m.id === draftStaff)
-            ? (draftStaff ?? "")
-            : ""
-          : ((defaultStaffId && eligible.some((m) => m.id === defaultStaffId)
-              ? defaultStaffId
-              : null) ??
-            (prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
-              ? prefs.staffId
-              : null) ??
-            "");
+    let staffProvenance: BookingDecisionProvenance = "none";
+    const staffId = (() => {
+      if (appointment) {
+        staffProvenance = "appointment";
+        return appointment.staff_id ?? "";
+      }
+      if (defaultStaffId === "") {
+        // Explicit unassigned from calendar column — still intentional entry.
+        staffProvenance = "entry_context";
+        return "";
+      }
+      if (draftStaff !== undefined) {
+        const ok =
+          draftStaff === "" || eligible.some((m) => m.id === draftStaff);
+        if (ok) {
+          staffProvenance = "valid_draft";
+          return draftStaff ?? "";
+        }
+        return "";
+      }
+      if (defaultStaffId && eligible.some((m) => m.id === defaultStaffId)) {
+        staffProvenance = "entry_context";
+        return defaultStaffId;
+      }
+      return "";
+    })();
 
     const date = appointment
       ? slotDateInBusinessTimezone(appointment.start_time, zone)
@@ -298,14 +321,37 @@ export function BookingSheet({
           ? slotDateInBusinessTimezone(initialStart, zone)
           : format(new Date(), "yyyy-MM-dd");
 
+    let customerProvenance: BookingDecisionProvenance = "none";
+    const customerId =
+      (() => {
+        if (appointment?.customer_id) {
+          customerProvenance = "appointment";
+          return appointment.customer_id;
+        }
+        if (!appointment && draft?.customerId) {
+          customerProvenance = "valid_draft";
+          return draft.customerId;
+        }
+        if (defaultCustomerId) {
+          customerProvenance = "entry_context";
+          return defaultCustomerId;
+        }
+        return "";
+      })() ?? "";
+
+    let datetimeProvenance: BookingDecisionProvenance = "none";
+    if (appointment) {
+      datetimeProvenance = "appointment";
+    } else if (draft?.startIso) {
+      datetimeProvenance = "valid_draft";
+    } else if (defaultDate) {
+      datetimeProvenance = "entry_context";
+    }
+
     return {
       serviceId,
       staffId,
-      customerId:
-        appointment?.customer_id ??
-        (!appointment ? draft?.customerId : null) ??
-        defaultCustomerId ??
-        "",
+      customerId,
       locationId,
       date,
       slot: initialStart,
@@ -317,6 +363,10 @@ export function BookingSheet({
       status: (appointment?.status ?? "confirmed") as AppointmentStatus,
       notes: appointment?.notes ?? (!appointment ? draft?.notes : null) ?? "",
       packageId: !appointment ? (draft?.packageId ?? "") : "",
+      customerProvenance,
+      serviceProvenance,
+      staffProvenance,
+      datetimeProvenance,
     };
   }, [
     appointment,
@@ -330,8 +380,6 @@ export function BookingSheet({
     draft,
     timezone,
     prefs.locationId,
-    prefs.serviceId,
-    prefs.staffId,
   ]);
 
   const [customers, setCustomers] = useState(initialCustomers);
@@ -363,6 +411,14 @@ export function BookingSheet({
   const [focusDecision, setFocusDecision] = useState<BookingDecision | null>(
     null,
   );
+  const [customerProvenance, setCustomerProvenance] =
+    useState<BookingDecisionProvenance>(preferred.customerProvenance);
+  const [serviceProvenance, setServiceProvenance] =
+    useState<BookingDecisionProvenance>(preferred.serviceProvenance);
+  const [staffProvenance, setStaffProvenance] =
+    useState<BookingDecisionProvenance>(preferred.staffProvenance);
+  const [datetimeProvenance, setDatetimeProvenance] =
+    useState<BookingDecisionProvenance>(preferred.datetimeProvenance);
   const [paymentAcknowledged, setPaymentAcknowledged] = useState(false);
   const [successInfo, setSuccessInfo] = useState<BookingSuccessInfo | null>(
     null,
@@ -445,6 +501,10 @@ export function BookingSheet({
     );
     setStatus(preferred.status);
     setNotes(preferred.notes);
+    setCustomerProvenance(preferred.customerProvenance);
+    setServiceProvenance(preferred.serviceProvenance);
+    setStaffProvenance(preferred.staffProvenance);
+    setDatetimeProvenance(preferred.datetimeProvenance);
     setAvailability(null);
     setSnapshot(null);
     setSnapshotForId(null);
@@ -477,6 +537,10 @@ export function BookingSheet({
     !staffId || eligibleStaff.some((m) => m.id === staffId);
   if (open && staffId && !staffEligible) {
     setStaffId("");
+    setStaffProvenance("none");
+    setSlot(null);
+    setDatetimeProvenance("none");
+    setPaymentAcknowledged(false);
     setStaffEligibilityNote(
       "The previously selected employee is not available for this service or location. Selection reset to Unassigned — assign later.",
     );
@@ -634,13 +698,38 @@ export function BookingSheet({
     !OPTIONAL_STAFF_PERSISTENCE_ENABLED &&
     isUnassignedStaffSelection(activeStaffId);
 
+  const customerResolved = isIntentionallyResolved(
+    customerProvenance,
+    Boolean(selectedCustomer?.id),
+  );
+  const serviceResolved = isIntentionallyResolved(
+    serviceProvenance,
+    Boolean(serviceId),
+  );
+  const employeeResolved =
+    OPTIONAL_STAFF_PERSISTENCE_ENABLED &&
+    isUnassignedStaffSelection(activeStaffId)
+      ? staffProvenance === "user_selected" ||
+        staffProvenance === "entry_context" ||
+        staffProvenance === "valid_draft" ||
+        staffProvenance === "appointment"
+      : isIntentionallyResolved(staffProvenance, Boolean(activeStaffId));
+  const datetimeResolved = isIntentionallyResolved(
+    datetimeProvenance,
+    Boolean(slot && selectedSlotValid),
+  );
+
   const bookingFacts = {
     customerId: selectedCustomer?.id ?? null,
+    customerResolved,
     serviceId,
+    serviceResolved,
     needsNamedEmployee,
+    employeeResolved,
     date,
     slot,
     slotValid: Boolean(slot && selectedSlotValid),
+    datetimeResolved,
     paymentAcknowledged,
     success: Boolean(successInfo),
   };
@@ -729,8 +818,10 @@ export function BookingSheet({
 
   function handleServiceChange(id: string) {
     setServiceId(id);
+    setServiceProvenance("user_selected");
     setDurationOverride(null);
     setSlot(null);
+    setDatetimeProvenance("none");
     setPaymentAcknowledged(false);
     if (!isEditing) advanceAfterSelection();
     else setFocusDecision(null);
@@ -761,8 +852,10 @@ export function BookingSheet({
       ) ?? "";
     if (firstServiceId) {
       setServiceId(firstServiceId);
+      setServiceProvenance("user_selected");
       setDurationOverride(null);
       setSlot(null);
+      setDatetimeProvenance("none");
     }
     if (!isEditing) advanceAfterSelection();
     else setFocusDecision(null);
@@ -771,13 +864,16 @@ export function BookingSheet({
   function handleDurationOverride(minutes: number | null) {
     setDurationOverride(minutes);
     setSlot(null);
+    setDatetimeProvenance("none");
     setPaymentAcknowledged(false);
   }
 
   function handleStaffChange(id: string) {
     setStaffId(id);
+    setStaffProvenance("user_selected");
     setStaffEligibilityNote(null);
     setSlot(null);
+    setDatetimeProvenance("none");
     setPaymentAcknowledged(false);
     if (!isEditing) advanceAfterSelection();
     else setFocusDecision(null);
@@ -786,12 +882,14 @@ export function BookingSheet({
   function handleLocationChange(id: string) {
     setLocationId(id);
     setSlot(null);
+    setDatetimeProvenance("none");
     setPaymentAcknowledged(false);
   }
 
   function handleDateChange(next: string) {
     setDate(next);
     setSlot(null);
+    setDatetimeProvenance("none");
     setPaymentAcknowledged(false);
   }
 
@@ -836,6 +934,7 @@ export function BookingSheet({
 
   function handleSlotSelect(next: string) {
     setSlot(next);
+    setDatetimeProvenance("user_selected");
     setPaymentAcknowledged(false);
     if (!isEditing) {
       advanceAfterSelection();
@@ -1283,6 +1382,10 @@ export function BookingSheet({
                 setDate(calendarDateInTimezone(new Date(), timezone));
                 setDurationOverride(null);
                 setNotes("");
+                setCustomerProvenance("none");
+                setServiceProvenance("none");
+                setStaffProvenance("none");
+                setDatetimeProvenance("none");
                 setAvailability(null);
                 setSnapshot(null);
                 setSnapshotForId(null);
@@ -1301,10 +1404,10 @@ export function BookingSheet({
                 facts={bookingFacts}
                 onNavigate={navigateToDecision}
                 known={{
-                  customer: Boolean(selectedCustomer),
-                  service: Boolean(serviceId),
-                  employee: Boolean(activeStaffId) || !needsNamedEmployee,
-                  datetime: Boolean(slot && selectedSlotValid),
+                  customer: customerResolved,
+                  service: serviceResolved,
+                  employee: employeeResolved,
+                  datetime: datetimeResolved,
                   payment: paymentAcknowledged,
                   review: paymentAcknowledged && canSubmit,
                 }}
@@ -1312,7 +1415,7 @@ export function BookingSheet({
 
               <BookingSummaryStrip
                 chips={[
-                  selectedCustomer
+                  customerResolved && selectedCustomer
                     ? {
                         id: "customer",
                         label: "Customer",
@@ -1320,7 +1423,7 @@ export function BookingSheet({
                         onChange: () => setFocusDecision("customer"),
                       }
                     : null,
-                  serviceId
+                  serviceResolved && serviceId
                     ? {
                         id: "service",
                         label: "Service",
@@ -1334,7 +1437,7 @@ export function BookingSheet({
                         },
                       }
                     : null,
-                  activeStaffId
+                  employeeResolved && activeStaffId
                     ? {
                         id: "employee",
                         label: "Employee",
@@ -1345,12 +1448,13 @@ export function BookingSheet({
                           "Employee",
                         onChange: () => {
                           setSlot(null);
+                          setDatetimeProvenance("none");
                           setPaymentAcknowledged(false);
                           setFocusDecision("employee");
                         },
                       }
                     : null,
-                  slot
+                  datetimeResolved && slot
                     ? {
                         id: "when",
                         label: "When",
@@ -1360,14 +1464,7 @@ export function BookingSheet({
                           setFocusDecision("datetime");
                         },
                       }
-                    : date && activeDecision !== "datetime"
-                      ? {
-                          id: "date",
-                          label: "Date",
-                          value: format(parseISO(`${date}T12:00:00`), "MMM d"),
-                          onChange: () => setFocusDecision("datetime"),
-                        }
-                      : null,
+                    : null,
                 ].filter(Boolean) as {
                   id: string;
                   label: string;
@@ -1408,6 +1505,9 @@ export function BookingSheet({
                     compact
                     onSelect={(c) => {
                       setSelectedCustomer(c);
+                      setCustomerProvenance(
+                        c ? "user_selected" : "none",
+                      );
                       advanceAfterSelection();
                     }}
                     onCustomersChange={setCustomers}

@@ -26,7 +26,37 @@ Ask only what’s missing:
 Customer → Service → Employee → Date & time → Payment → Review → Success
 ```
 
-Entry context may skip known decisions:
+### Booking decision provenance (locked)
+
+A value being present in booking state does **not** by itself mean the decision is resolved.
+
+| Concept | Meaning |
+|---------|---------|
+| **Accessible** | May the receptionist open this decision? |
+| **Resolved** | Is there a valid, **intentionally** resolved value? |
+| **Required** | Must this decision be resolved before forward progress? |
+| **Provenance** | Why does the value exist? |
+
+**Resolving provenance:** `user_selected` · `entry_context` · `valid_draft` · `appointment`  
+**Non-resolving:** `preference` · `default` · `none` (and any silent catalog/prefs hydrate)
+
+Canonical forward progression: `firstMissingDecision` / `nextRequiredDecision` — first **required** and **not intentionally resolved**.
+
+Reception last-used prefs may remain for **location** operating context only. Prefs must **not** silently resolve Service or Employee on generic New Appointment.
+
+### Entry-point state matrix
+
+| Entry | Intentional prefill (RESOLVED when valid) | Not resolving |
+|-------|-------------------------------------------|---------------|
+| **Command Centre → New Appointment** (`?book=1`) | Business / location operating context | Last-used service/staff prefs; today date default without slot |
+| **CRM Customer → Book** | Customer (`entry_context`) | — |
+| **Calendar empty slot / column** | Only explicitly supplied slot / staff / draft fields | Unrelated stale sheet state |
+| **Reception Quick Appointment draft** | Draft fields (`valid_draft`) | Prefs |
+| **Book Another** | Fresh booking; safe location context only | Prior customer/service/employee/time/payment/appointment id/success |
+
+Invalidation (existing engine rules): service change may clear employee eligibility, slot, pricing/payment projection; employee change clears slot; date/time updates slot/review.
+
+### Entry context may skip known decisions
 
 | Entry | Typically known | Starts at |
 |-------|-----------------|-----------|
@@ -64,6 +94,13 @@ One booking engine; only prefill differs.
 7. Book another starts a fresh appointment inside the current workspace.
 8. View Appointment, Book Another, and Done have distinct guaranteed behaviors.
 9. The current booking decision must visually dominate; completed facts stay compact; the next action must be obvious without hunting.
+10. Adaptive booking may skip only decisions that are intentionally and validly resolved.
+11. A value being present does not by itself mean that a booking decision is resolved.
+12. Accessible, resolved, required, and provenance are distinct workflow concepts.
+13. Required unresolved decisions determine normal forward progression.
+14. Chasum must not silently choose required business decisions and present them as user-completed.
+15. Interactive controls must be visually distinguishable from static text before hover (`Button` variant `subtle` for Change/Edit/View/Manage on booking surfaces; global rollout later).
+16. Booking transitions must preserve spatial continuity: selection → acknowledgement → next decision (no multi-stage jump; avoid unnecessary full-sheet scroll).
 
 ## Benchmark principles (inspiration only — do not copy)
 

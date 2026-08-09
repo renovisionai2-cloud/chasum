@@ -3,30 +3,38 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   bookingDecisionAccess,
+  bookingFactsFromValues,
   firstMissingDecision,
 } from "@/components/booking-sheet/booking-workflow";
 
-const baseFacts = {
-  customerId: null as string | null,
+const baseFacts = bookingFactsFromValues({
+  customerId: null,
   serviceId: "",
   needsNamedEmployee: true,
   date: "2026-08-08",
-  slot: null as string | null,
+  slot: null,
   slotValid: false,
   paymentAcknowledged: false,
   success: false,
-};
+  customerResolved: false,
+  serviceResolved: false,
+  employeeResolved: false,
+  datetimeResolved: false,
+});
 
 describe("bookingDecisionAccess — progress navigation", () => {
   it("allows revisiting a prefilled Service without a customer yet", () => {
-    const facts = {
+    const facts = bookingFactsFromValues({
       ...baseFacts,
       serviceId: "svc-premium",
+      serviceResolved: true,
       needsNamedEmployee: false,
+      employeeResolved: true,
       date: "2026-08-07",
       slot: "2026-08-07T15:00:00.000Z",
       slotValid: true,
-    };
+      datetimeResolved: true,
+    });
     expect(firstMissingDecision(facts)).toBe("customer");
     expect(bookingDecisionAccess("service", facts).accessible).toBe(true);
     expect(bookingDecisionAccess("employee", facts).accessible).toBe(true);
@@ -35,11 +43,13 @@ describe("bookingDecisionAccess — progress navigation", () => {
   });
 
   it("keeps Payment and Review disabled until prerequisites exist", () => {
-    const facts = {
+    const facts = bookingFactsFromValues({
       ...baseFacts,
       serviceId: "svc-1",
+      serviceResolved: true,
       needsNamedEmployee: false,
-    };
+      employeeResolved: true,
+    });
     expect(bookingDecisionAccess("payment", facts)).toEqual({
       accessible: false,
       reason: "Choose a time first",
@@ -49,28 +59,36 @@ describe("bookingDecisionAccess — progress navigation", () => {
   });
 
   it("opens Payment when a valid time exists", () => {
-    const facts = {
+    const facts = bookingFactsFromValues({
       ...baseFacts,
       customerId: "c1",
+      customerResolved: true,
       serviceId: "s1",
+      serviceResolved: true,
       needsNamedEmployee: false,
+      employeeResolved: true,
       slot: "2026-08-08T13:00:00.000Z",
       slotValid: true,
-    };
+      datetimeResolved: true,
+    });
     expect(bookingDecisionAccess("payment", facts).accessible).toBe(true);
     expect(bookingDecisionAccess("review", facts).accessible).toBe(false);
   });
 
   it("opens Review only after payment is acknowledged with a complete booking", () => {
-    const facts = {
+    const facts = bookingFactsFromValues({
       ...baseFacts,
       customerId: "c1",
+      customerResolved: true,
       serviceId: "s1",
+      serviceResolved: true,
       needsNamedEmployee: false,
+      employeeResolved: true,
       slot: "2026-08-08T13:00:00.000Z",
       slotValid: true,
+      datetimeResolved: true,
       paymentAcknowledged: true,
-    };
+    });
     expect(bookingDecisionAccess("review", facts).accessible).toBe(true);
   });
 

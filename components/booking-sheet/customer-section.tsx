@@ -446,7 +446,8 @@ export function CustomerSection({
               <Button
                 type="button"
                 size="sm"
-                variant="ghost"
+                variant="subtle"
+                className="h-8 min-h-8 rounded-md px-2.5 text-xs"
                 onClick={() => onSelect(null)}
               >
                 Change

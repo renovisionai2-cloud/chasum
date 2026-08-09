@@ -9,81 +9,94 @@ import {
   firstMissingDecision,
   previousDecision,
   bookingFooterStatus,
+  bookingFactsFromValues,
 } from "@/components/booking-sheet/booking-workflow";
 
 describe("Adaptive booking decisions", () => {
   it("skips known customer and asks for service next", () => {
     expect(
-      firstMissingDecision({
-        customerId: "c1",
-        serviceId: "",
-        needsNamedEmployee: true,
-        date: "2026-08-08",
-        slot: null,
-        slotValid: false,
-        paymentAcknowledged: false,
-        success: false,
-      }),
+      firstMissingDecision(
+        bookingFactsFromValues({
+          customerId: "c1",
+          serviceId: "",
+          needsNamedEmployee: true,
+          date: "2026-08-08",
+          slot: null,
+          slotValid: false,
+          paymentAcknowledged: false,
+          success: false,
+        }),
+      ),
     ).toBe("service");
   });
 
   it("skips datetime when slot already known from calendar context", () => {
     expect(
-      firstMissingDecision({
-        customerId: "c1",
-        serviceId: "s1",
-        needsNamedEmployee: false,
-        date: "2026-08-08",
-        slot: "2026-08-08T13:30:00.000Z",
-        slotValid: true,
-        paymentAcknowledged: false,
-        success: false,
-      }),
+      firstMissingDecision(
+        bookingFactsFromValues({
+          customerId: "c1",
+          serviceId: "s1",
+          needsNamedEmployee: false,
+          date: "2026-08-08",
+          slot: "2026-08-08T13:30:00.000Z",
+          slotValid: true,
+          paymentAcknowledged: false,
+          success: false,
+        }),
+      ),
     ).toBe("payment");
   });
 
   it("requires employee when named staff is mandatory", () => {
     expect(
-      firstMissingDecision({
-        customerId: "c1",
-        serviceId: "s1",
-        needsNamedEmployee: true,
-        date: "2026-08-08",
-        slot: null,
-        slotValid: false,
-        paymentAcknowledged: false,
-        success: false,
-      }),
+      firstMissingDecision(
+        bookingFactsFromValues({
+          customerId: "c1",
+          serviceId: "s1",
+          needsNamedEmployee: true,
+          date: "2026-08-08",
+          slot: null,
+          slotValid: false,
+          paymentAcknowledged: false,
+          success: false,
+          employeeResolved: false,
+        }),
+      ),
     ).toBe("employee");
   });
 
   it("reaches review only after payment is acknowledged", () => {
     expect(
-      firstMissingDecision({
-        customerId: "c1",
-        serviceId: "s1",
-        needsNamedEmployee: false,
-        date: "2026-08-08",
-        slot: "2026-08-08T13:30:00.000Z",
-        slotValid: true,
-        paymentAcknowledged: true,
-        success: false,
-      }),
+      firstMissingDecision(
+        bookingFactsFromValues({
+          customerId: "c1",
+          serviceId: "s1",
+          needsNamedEmployee: false,
+          date: "2026-08-08",
+          slot: "2026-08-08T13:30:00.000Z",
+          slotValid: true,
+          paymentAcknowledged: true,
+          success: false,
+        }),
+      ),
     ).toBe("review");
   });
 
   it("supports Back to a prior decision", () => {
     expect(
-      previousDecision("payment", {
-        customerId: "c1",
-        serviceId: "s1",
-        needsNamedEmployee: false,
-        date: "2026-08-08",
-        slot: "2026-08-08T13:30:00.000Z",
-        slotValid: true,
-        paymentAcknowledged: false,
-        success: false,
-      }),
+      previousDecision(
+        "payment",
+        bookingFactsFromValues({
+          customerId: "c1",
+          serviceId: "s1",
+          needsNamedEmployee: false,
+          date: "2026-08-08",
+          slot: "2026-08-08T13:30:00.000Z",
+          slotValid: true,
+          paymentAcknowledged: false,
+          success: false,
+        }),
+      ),
     ).toBe("datetime");
   });
 

@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-09  
-**Updated by:** World Class — Chapter 4 Final Booking Interaction & Front-Desk Speed Pass (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 4 Booking state integrity / decision provenance (Preview; Production unchanged)  
 
 ---
 
@@ -158,6 +158,16 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-09)
+
+**World Class — Chapter 4 Booking state integrity, required-sequence & transition continuity**
+
+- Root cause: reception prefs hydrated service/staff into create state; workflow treated truthy IDs as resolved → after Customer jumped to Date & time
+- Booking decision provenance: VALUE ≠ RESOLVED; Accessible / Resolved / Required distinct
+- Generic New Appointment: Customer → Service → Employee → Date & time → Payment → Review
+- Change uses `subtle` Button variant (visible before hover); Book Another clears provenance
+- Chapter 5 not started; Production untouched; PO acceptance still required
+
+### Immediately prior (2026-08-09)
 
 **World Class — Chapter 4 Final Booking Interaction & Front-Desk Speed Pass**
 
@@ -400,10 +410,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `5394b7d2a8e6d6e08bc2156518e22f32821c45d2` |
-| **Short** | `5394b7d` |
-| **Subject** | fix: front-desk speed polish for adaptive booking |
-| **Prior tip** | `97a083d` |
+| **SHA** | _(pending feature commit — see tip after push)_ |
+| **Short** | _(pending)_ |
+| **Subject** | fix: booking decision provenance & required sequence |
+| **Prior tip** | `b2f389e` |
+| **Prior feature (front-desk speed)** | `5394b7d` |
 | **Feature (expand management)** | `c2f8962` |
 | **Feature (adaptive booking)** | `32a9ce1` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |

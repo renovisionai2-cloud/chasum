@@ -159,7 +159,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Adaptive New Appointment + Expandable Existing Appointment + interaction corrections on Preview — Final Booking Interaction & Front-Desk Speed Pass shipped; awaiting PO hands-on acceptance.** Product distinction locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Chapter 5 not started.
+**Adaptive New Appointment + Expandable Existing Appointment + interaction corrections on Preview — Booking state integrity / decision provenance shipped; awaiting PO hands-on acceptance.** Product distinction locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Chapter 5 not started.
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 

@@ -47,9 +47,9 @@ export function BookingSummaryStrip({
           {chip.onChange ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="subtle"
               size="sm"
-              className="h-7 shrink-0 px-1.5 text-[11px] text-muted-foreground"
+              className="h-7 min-h-7 shrink-0 rounded-md px-2 text-[11px]"
               onClick={chip.onChange}
             >
               Change

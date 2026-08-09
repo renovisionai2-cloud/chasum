@@ -1,6 +1,13 @@
 /**
  * Adaptive Booking Workspace — ask only for what Chasum does not already know.
  * Engines unchanged; this is presentation / workflow orchestration only.
+ *
+ * LOCKED PRINCIPLES
+ * 1. Adaptive booking may skip only decisions that are intentionally and validly resolved.
+ * 2. A value being present does not by itself mean that a booking decision is resolved.
+ * 3. Accessible, resolved, required, and provenance are distinct workflow concepts.
+ * 4. Required unresolved decisions determine normal forward progression.
+ * 5. Chasum must not silently choose required business decisions and present them as user-completed.
  */
 
 export const BOOKING_DECISIONS = [
@@ -15,14 +22,50 @@ export const BOOKING_DECISIONS = [
 
 export type BookingDecision = (typeof BOOKING_DECISIONS)[number];
 
+/**
+ * Why a booking decision value exists.
+ * Only resolving provenance may skip a required decision.
+ */
+export type BookingDecisionProvenance =
+  | "user_selected"
+  | "entry_context"
+  | "valid_draft"
+  | "appointment"
+  | "preference"
+  | "default"
+  | "none";
+
+const RESOLVING_PROVENANCE = new Set<BookingDecisionProvenance>([
+  "user_selected",
+  "entry_context",
+  "valid_draft",
+  "appointment",
+]);
+
+/** True when provenance counts as an intentional, skip-worthy resolution. */
+export function isIntentionallyResolved(
+  provenance: BookingDecisionProvenance,
+  valuePresent: boolean,
+): boolean {
+  return valuePresent && RESOLVING_PROVENANCE.has(provenance);
+}
+
 export type BookingFacts = {
   customerId: string | null;
+  /** Intentionally resolved — not merely a truthy id in state. */
+  customerResolved: boolean;
   serviceId: string;
-  /** True when a named employee is still required. */
+  serviceResolved: boolean;
+  /**
+   * Named employee still required by product rules (optional/unassigned gated off).
+   * Distinct from employeeResolved (intentional selection).
+   */
   needsNamedEmployee: boolean;
+  employeeResolved: boolean;
   date: string;
   slot: string | null;
   slotValid: boolean;
+  datetimeResolved: boolean;
   /** User continued past payment checkout (including “no payment”). */
   paymentAcknowledged: boolean;
   success: boolean;
@@ -44,8 +87,8 @@ export const BOOKING_PROGRESS_STEPS: Exclude<BookingDecision, "success">[] = [
 ];
 
 /**
- * Whether a progress stage may open for review/edit.
- * Based on known state + real prerequisites — not linear step numbers.
+ * Whether a progress stage may open for review/edit (ACCESSIBLE).
+ * Based on intentionally resolved prerequisites — not linear step numbers.
  * Prefills remain revisitable without forcing upstream completion first.
  */
 export function bookingDecisionAccess(
@@ -56,31 +99,31 @@ export function bookingDecisionAccess(
     case "customer":
       return { accessible: true };
     case "service":
-      if (facts.serviceId || facts.customerId) {
+      if (facts.serviceResolved || facts.customerResolved) {
         return { accessible: true };
       }
       return { accessible: false, reason: "Select a customer first" };
     case "employee":
-      if (!facts.serviceId) {
+      if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
       }
       return { accessible: true };
     case "datetime":
-      if (!facts.serviceId) {
+      if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
       }
-      if (facts.needsNamedEmployee) {
+      if (!facts.employeeResolved) {
         return { accessible: false, reason: "Choose an employee first" };
       }
       return { accessible: true };
     case "payment":
-      if (!facts.serviceId) {
+      if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
       }
-      if (facts.needsNamedEmployee) {
+      if (!facts.employeeResolved) {
         return { accessible: false, reason: "Choose an employee first" };
       }
-      if (!facts.slot || !facts.slotValid) {
+      if (!facts.datetimeResolved) {
         return { accessible: false, reason: "Choose a time first" };
       }
       return { accessible: true };
@@ -88,16 +131,16 @@ export function bookingDecisionAccess(
       if (!facts.paymentAcknowledged) {
         return { accessible: false, reason: "Choose payment before review" };
       }
-      if (!facts.customerId) {
+      if (!facts.customerResolved) {
         return { accessible: false, reason: "Select a customer first" };
       }
-      if (!facts.serviceId) {
+      if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
       }
-      if (facts.needsNamedEmployee) {
+      if (!facts.employeeResolved) {
         return { accessible: false, reason: "Choose an employee first" };
       }
-      if (!facts.slot || !facts.slotValid) {
+      if (!facts.datetimeResolved) {
         return { accessible: false, reason: "Choose a time first" };
       }
       return { accessible: true };
@@ -106,16 +149,23 @@ export function bookingDecisionAccess(
   }
 }
 
-/** First missing decision given known facts (context-aware entry). */
+/**
+ * Canonical next required unresolved decision (forward progression).
+ * Finds the FIRST decision that is REQUIRED and NOT intentionally resolved.
+ * Do not use furthest accessible / hydrated UI / truthy-value heuristics.
+ */
 export function firstMissingDecision(facts: BookingFacts): BookingDecision {
   if (facts.success) return "success";
-  if (!facts.customerId) return "customer";
-  if (!facts.serviceId) return "service";
-  if (facts.needsNamedEmployee) return "employee";
-  if (!facts.date || !facts.slot || !facts.slotValid) return "datetime";
+  if (!facts.customerResolved) return "customer";
+  if (!facts.serviceResolved) return "service";
+  if (!facts.employeeResolved) return "employee";
+  if (!facts.datetimeResolved) return "datetime";
   if (!facts.paymentAcknowledged) return "payment";
   return "review";
 }
+
+/** Alias — one canonical mechanism for next required unresolved decision. */
+export const nextRequiredDecision = firstMissingDecision;
 
 export function bookingDecisionLabel(decision: BookingDecision): string {
   switch (decision) {
@@ -159,7 +209,7 @@ export function bookingFooterStatus(decision: BookingDecision): string {
   }
 }
 
-/** Prior decision for Back — skips already-known facts. */
+/** Prior decision for Back — prefers intentionally resolved facts. */
 export function previousDecision(
   current: BookingDecision,
   facts: BookingFacts,
@@ -176,11 +226,11 @@ export function previousDecision(
   if (idx <= 0) return null;
   for (let i = idx - 1; i >= 0; i--) {
     const d = order[i];
-    if (d === "customer" && facts.customerId) return "customer";
-    if (d === "service" && facts.serviceId) return "service";
-    if (d === "employee" && !facts.needsNamedEmployee) continue;
-    if (d === "employee") return "employee";
-    if (d === "datetime" && facts.date && facts.slot) return "datetime";
+    if (d === "customer" && facts.customerResolved) return "customer";
+    if (d === "service" && facts.serviceResolved) return "service";
+    if (d === "employee" && facts.employeeResolved) return "employee";
+    if (d === "employee") continue;
+    if (d === "datetime" && facts.datetimeResolved) return "datetime";
     if (d === "datetime") return "datetime";
     if (d === "payment") return "payment";
   }
@@ -193,4 +243,43 @@ export function invalidateAfterServiceChange(facts: {
 }): void {
   facts.clearSlot();
   facts.setPaymentAcknowledged(false);
+}
+
+/**
+ * Test / call-site helper: treat present values as intentionally resolved.
+ * Production create flow must set resolved flags from provenance explicitly.
+ */
+export function bookingFactsFromValues(
+  values: Omit<
+    BookingFacts,
+    | "customerResolved"
+    | "serviceResolved"
+    | "employeeResolved"
+    | "datetimeResolved"
+  > &
+    Partial<
+      Pick<
+        BookingFacts,
+        | "customerResolved"
+        | "serviceResolved"
+        | "employeeResolved"
+        | "datetimeResolved"
+      >
+    >,
+): BookingFacts {
+  const customerResolved =
+    values.customerResolved ?? Boolean(values.customerId);
+  const serviceResolved = values.serviceResolved ?? Boolean(values.serviceId);
+  const employeeResolved =
+    values.employeeResolved ?? !values.needsNamedEmployee;
+  const datetimeResolved =
+    values.datetimeResolved ??
+    Boolean(values.slot && values.slotValid);
+  return {
+    ...values,
+    customerResolved,
+    serviceResolved,
+    employeeResolved,
+    datetimeResolved,
+  };
 }

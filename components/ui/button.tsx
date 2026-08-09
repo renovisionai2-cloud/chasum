@@ -1,7 +1,14 @@
 import { cn } from "@/lib/utils";
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "outline" | "spark" | "destructive";
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "ghost"
+  | "outline"
+  | "subtle"
+  | "spark"
+  | "destructive";
 type ButtonSize = "sm" | "md" | "lg";
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -17,6 +24,9 @@ const variantStyles: Record<ButtonVariant, string> = {
   ghost: "hover:bg-muted text-foreground active:scale-[0.98]",
   outline:
     "border border-border bg-card/60 hover:bg-muted text-foreground shadow-xs active:scale-[0.98]",
+  /** Compact secondary action — Change / Edit / View / Manage (visible before hover). */
+  subtle:
+    "border border-border/80 bg-muted/50 text-foreground font-semibold shadow-xs hover:bg-muted/80 active:bg-muted active:scale-[0.98]",
   spark:
     "bg-spark text-spark-foreground shadow-sm shadow-spark/25 hover:bg-spark/90 active:scale-[0.98]",
   destructive:

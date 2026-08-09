@@ -251,6 +251,18 @@
 | Locked principles | Revisitable decisions; no silent dead clicks; Book another = fresh in-workspace |
 | Approval | Awaiting PO |
 
+### Chapter 4 Booking state integrity / decision provenance
+
+| Item | Detail |
+|------|--------|
+| Trigger | PO video — CC New Appointment → select customer → jumped to Date & time |
+| Root cause | Reception prefs hydrated service/staff; workflow equated truthy IDs with resolved |
+| Fix | Provenance + intentional resolution flags; stop prefs hydrate for service/staff |
+| Forward | `firstMissingDecision` = first required unresolved |
+| Change affordance | `Button` variant `subtle` on booking summary / customer Change |
+| Tests | `booking-decision-provenance.test.ts` + updated workflow tests |
+| Locked principles | VALUE≠RESOLVED; Accessible/Resolved/Required/Provenance distinct |
+
 ### Chapter 4 Final Booking Interaction & Front-Desk Speed Pass
 
 | Field | Value |

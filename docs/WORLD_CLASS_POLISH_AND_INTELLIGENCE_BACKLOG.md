@@ -279,7 +279,7 @@ Formal program after functional World Class chapters. See section above.
 - No Production deploy / alias / branch changes  
 - No migrations 034–036  
 - No shared database writes  
-- **Chapter 4 delivered** (Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Final Front-Desk Speed Pass) on Preview — awaiting PO hands-on before Chapter 5
+- **Chapter 4 delivered** (Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + **decision provenance / required-sequence**) on Preview — awaiting PO hands-on before Chapter 5
 - Locked usability: revisitable decisions; no silent dead clicks; Book another = fresh in-workspace; current decision must dominate
 
 ---
@@ -288,6 +288,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-09 | Chapter 4 Booking state integrity — decision provenance & required sequence |
 | 2026-08-09 | Chapter 4 Final Booking Interaction & Front-Desk Speed Pass |
 | 2026-08-09 | Booking progress navigation + Book another success-action fix |
 | 2026-08-07 | Date & Time slot density — present booking-increment starts + More times |
