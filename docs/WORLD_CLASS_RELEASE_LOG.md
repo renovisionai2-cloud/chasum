@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-09 | **Chapter 4 Booking state integrity / decision provenance** | _(pending)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | VALUE≠RESOLVED; prefs no longer skip Service/Employee; Change `subtle` |
+| 2026-08-09 | **Chapter 4 Booking state integrity / decision provenance** | `cb3421e` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | VALUE≠RESOLVED; prefs no longer skip Service/Employee; Change `subtle` |
 | 2026-08-09 | **Chapter 4 Final Booking Interaction & Front-Desk Speed Pass** | `5394b7d` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Decision focus; selection beat; payment chrome; no time Continue |
 | 2026-08-09 | **Chapter 4 Booking progress & Book another** | `d6f65a7` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Clickable progress; Book another fresh draft |
 | 2026-08-07 | **Chapter 4 Date & Time slot density correction** | `6066e4d` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Useful start times on booking increment; More times; Continue footer |

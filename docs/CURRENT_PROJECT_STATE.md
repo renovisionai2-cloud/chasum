@@ -410,9 +410,9 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | _(pending feature commit — see tip after push)_ |
-| **Short** | _(pending)_ |
-| **Subject** | fix: booking decision provenance & required sequence |
+| **SHA** | `cb3421eecd1786e4695deebd0b2a7eb622106c69` |
+| **Short** | `cb3421e` |
+| **Subject** | fix: booking decision provenance and required sequence |
 | **Prior tip** | `b2f389e` |
 | **Prior feature (front-desk speed)** | `5394b7d` |
 | **Feature (expand management)** | `c2f8962` |
