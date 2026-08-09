@@ -400,10 +400,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `6066e4df303d80233494fb6f04c33a4cfdb330db` |
-| **Short** | `6066e4d` |
-| **Subject** | fix: present useful Date & Time start times |
-| **Prior tip** | `da6d67d` |
+| **SHA** | `d6f65a7342c3de20a4be9f77f5c43e8f6fe5133b` |
+| **Short** | `d6f65a7` |
+| **Subject** | fix: booking progress navigation and Book another reset |
+| **Prior tip** | `609dff5` |
 | **Feature (expand management)** | `c2f8962` |
 | **Feature (adaptive booking)** | `32a9ce1` |
 | **Chapter 4 Customer Workspace** | `3793ec6` / polish `0052bc3` |
