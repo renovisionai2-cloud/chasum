@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-07  
-**Updated by:** World Class — Date & Time slot density correction (Preview; Production unchanged)  
+**Last updated:** 2026-08-09  
+**Updated by:** World Class — Booking progress navigation & Book another correction (Preview; Production unchanged)  
 
 ---
 
@@ -157,7 +157,15 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-07)
+### Most recent (2026-08-09)
+
+**World Class — Booking progress navigation & Book another correction**
+
+- Progress stages are real buttons: completed/prefilled revisitable; unavailable stages visibly disabled with reason
+- Book another clears success without re-hydration from lingering action state; starts fresh booking in-workspace
+- View Appointment / Done remain distinct; adaptive architecture unchanged; Chapter 5 not started
+
+### Immediately prior (2026-08-07)
 
 **World Class — Date & Time slot density correction**
 

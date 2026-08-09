@@ -238,6 +238,19 @@
 | Locked principle | Useful start times, not raw availability granularity |
 | Approval | Awaiting PO |
 
+### Chapter 4 Booking progress navigation & Book another
+
+| Field | Value |
+|-------|--------|
+| Trigger | PO Preview — dead progress clicks; Book another no-op |
+| Progress | Real buttons; completed/prefilled revisitable via `bookingDecisionAccess` |
+| Disabled stages | Visually muted + `disabled` + title reason |
+| Book another | Suppress success re-hydration; fresh draft in same workspace |
+| Success actions | View / Book another / Done remain distinct |
+| Tests | `booking-progress-navigation.test.ts` |
+| Locked principles | Revisitable decisions; no silent dead clicks; Book another = fresh in-workspace |
+| Approval | Awaiting PO |
+
 ### Chapter 4 Adaptive Booking Workspace
 
 | Field | Value |

@@ -279,8 +279,8 @@ Formal program after functional World Class chapters. See section above.
 - No Production deploy / alias / branch changes  
 - No migrations 034–036  
 - No shared database writes  
-- **Chapter 4 delivered** (Customer Workspace + Adaptive Booking Workspace + expandable management + micro-interaction + slot density) on Preview — awaiting PO before Chapter 5
-- Locked usability: monetary fields must not fight the cursor; View Appointment opens the exact created appointment; never require search for a known entity; useful start times not raw availability granularity
+- **Chapter 4 delivered** (Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another) on Preview — awaiting PO before Chapter 5
+- Locked usability: revisitable completed decisions; no silent dead clicks; Book another = fresh in-workspace; View / Book another / Done distinct
 
 ---
 
@@ -288,6 +288,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-09 | Booking progress navigation + Book another success-action fix |
 | 2026-08-07 | Date & Time slot density — present booking-increment starts + More times |
 | 2026-08-07 | Booking micro-interaction correction — money input + View Appointment exact ID |
 | 2026-08-07 | Existing Appointment expandable management (PO video) |

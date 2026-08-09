@@ -28,6 +28,84 @@ export type BookingFacts = {
   success: boolean;
 };
 
+export type BookingDecisionAccess = {
+  accessible: boolean;
+  /** Concise reason when inaccessible — suitable for title/tooltip. */
+  reason?: string;
+};
+
+export const BOOKING_PROGRESS_STEPS: Exclude<BookingDecision, "success">[] = [
+  "customer",
+  "service",
+  "employee",
+  "datetime",
+  "payment",
+  "review",
+];
+
+/**
+ * Whether a progress stage may open for review/edit.
+ * Based on known state + real prerequisites — not linear step numbers.
+ * Prefills remain revisitable without forcing upstream completion first.
+ */
+export function bookingDecisionAccess(
+  decision: Exclude<BookingDecision, "success">,
+  facts: BookingFacts,
+): BookingDecisionAccess {
+  switch (decision) {
+    case "customer":
+      return { accessible: true };
+    case "service":
+      if (facts.serviceId || facts.customerId) {
+        return { accessible: true };
+      }
+      return { accessible: false, reason: "Select a customer first" };
+    case "employee":
+      if (!facts.serviceId) {
+        return { accessible: false, reason: "Choose a service first" };
+      }
+      return { accessible: true };
+    case "datetime":
+      if (!facts.serviceId) {
+        return { accessible: false, reason: "Choose a service first" };
+      }
+      if (facts.needsNamedEmployee) {
+        return { accessible: false, reason: "Choose an employee first" };
+      }
+      return { accessible: true };
+    case "payment":
+      if (!facts.serviceId) {
+        return { accessible: false, reason: "Choose a service first" };
+      }
+      if (facts.needsNamedEmployee) {
+        return { accessible: false, reason: "Choose an employee first" };
+      }
+      if (!facts.slot || !facts.slotValid) {
+        return { accessible: false, reason: "Choose a time first" };
+      }
+      return { accessible: true };
+    case "review":
+      if (!facts.paymentAcknowledged) {
+        return { accessible: false, reason: "Choose payment before review" };
+      }
+      if (!facts.customerId) {
+        return { accessible: false, reason: "Select a customer first" };
+      }
+      if (!facts.serviceId) {
+        return { accessible: false, reason: "Choose a service first" };
+      }
+      if (facts.needsNamedEmployee) {
+        return { accessible: false, reason: "Choose an employee first" };
+      }
+      if (!facts.slot || !facts.slotValid) {
+        return { accessible: false, reason: "Choose a time first" };
+      }
+      return { accessible: true };
+    default:
+      return { accessible: false };
+  }
+}
+
 /** First missing decision given known facts (context-aware entry). */
 export function firstMissingDecision(facts: BookingFacts): BookingDecision {
   if (facts.success) return "success";

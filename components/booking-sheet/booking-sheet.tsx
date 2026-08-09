@@ -24,6 +24,7 @@ import {
   type BookingSuccessInfo,
 } from "@/components/booking-sheet/booking-success-state";
 import {
+  bookingDecisionAccess,
   bookingFooterStatus,
   firstMissingDecision,
   previousDecision,
@@ -375,6 +376,12 @@ export function BookingSheet({
   const paymentIdempotencyKey = useRef(
     `bs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   );
+  /**
+   * After “Book another”, suppress re-showing success for the same created ID.
+   * useActionState keeps state.success until the next create — without this,
+   * clearing successInfo immediately re-hydrates the success screen.
+   */
+  const suppressedSuccessAppointmentId = useRef<string | null>(null);
 
   const [availability, setAvailability] =
     useState<BookingSheetAvailability | null>(null);
@@ -447,6 +454,9 @@ export function BookingSheet({
     setSuccessInfo(null);
     setFocusDecision(null);
     setManagementExpanded(false);
+    suppressedSuccessAppointmentId.current = null;
+    setViewAppointmentError(null);
+    setViewAppointmentPending(false);
   }
 
   const eligibleStaff = useMemo(
@@ -639,19 +649,18 @@ export function BookingSheet({
   const focusIsValid =
     focusDecision != null &&
     focusDecision !== "success" &&
-    (focusDecision === "customer" ||
-      (focusDecision === "service" && Boolean(selectedCustomer)) ||
-      (focusDecision === "employee" &&
-        Boolean(selectedCustomer && serviceId)) ||
-      (focusDecision === "datetime" &&
-        Boolean(selectedCustomer && serviceId && !needsNamedEmployee)) ||
-      (focusDecision === "payment" && Boolean(slot && selectedSlotValid)) ||
-      (focusDecision === "review" && paymentAcknowledged));
+    bookingDecisionAccess(focusDecision, bookingFacts).accessible;
   const activeDecision: BookingDecision = successInfo
     ? "success"
     : focusIsValid && focusDecision
       ? focusDecision
       : computedDecision;
+
+  function navigateToDecision(decision: Exclude<BookingDecision, "success">) {
+    const access = bookingDecisionAccess(decision, bookingFacts);
+    if (!access.accessible) return;
+    setFocusDecision(decision);
+  }
 
   const canSubmit =
     !!selectedCustomer?.id &&
@@ -831,7 +840,8 @@ export function BookingSheet({
     !isEditing &&
     state.success &&
     state.appointmentId &&
-    !successInfo
+    !successInfo &&
+    suppressedSuccessAppointmentId.current !== state.appointmentId
   ) {
     setSuccessInfo({
       appointmentId: state.appointmentId,
@@ -1243,14 +1253,26 @@ export function BookingSheet({
                 }
               }}
               onBookAnother={() => {
+                const createdId =
+                  successInfo?.appointmentId ?? state.appointmentId ?? null;
+                if (createdId) {
+                  suppressedSuccessAppointmentId.current = createdId;
+                }
                 setSuccessInfo(null);
                 setViewAppointmentError(null);
+                setViewAppointmentPending(false);
                 setSelectedCustomer(null);
                 setServiceId("");
                 setPackageId("");
                 setOfferType("service");
                 setStaffId("");
                 setSlot(null);
+                setDate(calendarDateInTimezone(new Date(), timezone));
+                setDurationOverride(null);
+                setNotes("");
+                setAvailability(null);
+                setSnapshot(null);
+                setSnapshotForId(null);
                 setPaymentAcknowledged(false);
                 setPaymentDraft(defaultBookingPaymentDraft());
                 setPaymentDraftSeed("");
@@ -1263,6 +1285,8 @@ export function BookingSheet({
             <>
               <BookingProgressIndicator
                 active={activeDecision}
+                facts={bookingFacts}
+                onNavigate={navigateToDecision}
                 known={{
                   customer: Boolean(selectedCustomer),
                   service: Boolean(serviceId),

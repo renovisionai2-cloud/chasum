@@ -49,6 +49,8 @@ One booking engine; only prefill differs.
 - **View Appointment** opens the exact created appointment via the Existing Appointment Management Workspace (same `openEdit` path as calendar selection) — never dumps the user to hunt on the calendar  
 - **Monetary amount fields** use plain editable drafts while focused; normalize on blur — never fight the caret with per-keystroke currency reformatting  
 - **Date & time** presents useful start times on the business booking increment — not an endless dump of raw availability granularity; dense days use “More times”  
+- **Progress stages** that are completed or context-prefilled are real navigation controls; unavailable stages are visibly disabled (never silent dead clicks)  
+- **Book another** starts a fresh appointment inside the same workspace; View Appointment / Book Another / Done remain distinct  
 
 ## Locked usability principles
 
@@ -56,6 +58,10 @@ One booking engine; only prefill differs.
 2. View Appointment after booking must open the exact appointment that was just created.
 3. Chasum must never require the user to search for an entity that the current workflow already knows.
 4. Chasum presents useful appointment start times, not raw availability granularity.
+5. Completed or context-prefilled booking decisions must be directly revisitable.
+6. Unavailable booking stages must visibly communicate that they are unavailable; Chasum must never use silent dead clicks.
+7. Book another starts a fresh appointment inside the current workspace.
+8. View Appointment, Book Another, and Done have distinct guaranteed behaviors.
 
 ## Benchmark principles (inspiration only — do not copy)
 
