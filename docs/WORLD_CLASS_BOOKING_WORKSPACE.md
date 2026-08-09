@@ -51,6 +51,7 @@ One booking engine; only prefill differs.
 - **Date & time** presents useful start times on the business booking increment — not an endless dump of raw availability granularity; dense days use “More times”  
 - **Progress stages** that are completed or context-prefilled are real navigation controls; unavailable stages are visibly disabled (never silent dead clicks)  
 - **Book another** starts a fresh appointment inside the same workspace; View Appointment / Book Another / Done remain distinct  
+- **Front-desk speed:** active decision dominates; compact completed summary; short selection beat then advance; payment modes use unmistakable selected chrome; no redundant time Continue  
 
 ## Locked usability principles
 
@@ -62,6 +63,7 @@ One booking engine; only prefill differs.
 6. Unavailable booking stages must visibly communicate that they are unavailable; Chasum must never use silent dead clicks.
 7. Book another starts a fresh appointment inside the current workspace.
 8. View Appointment, Book Another, and Done have distinct guaranteed behaviors.
+9. The current booking decision must visually dominate; completed facts stay compact; the next action must be obvious without hunting.
 
 ## Benchmark principles (inspiration only — do not copy)
 

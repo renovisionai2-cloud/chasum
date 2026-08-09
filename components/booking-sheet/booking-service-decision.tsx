@@ -73,8 +73,8 @@ export function BookingServiceDecision({
               className={cn(
                 "min-h-10 rounded-md border px-3 text-sm",
                 offerType === type
-                  ? "border-foreground/30 bg-muted/40 font-medium"
-                  : "border-border text-muted-foreground",
+                  ? "border-primary bg-accent/30 font-medium ring-1 ring-primary/30"
+                  : "border-border text-muted-foreground hover:border-primary/40",
               )}
               onClick={() => onOfferTypeChange(type)}
             >

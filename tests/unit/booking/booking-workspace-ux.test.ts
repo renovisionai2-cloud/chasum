@@ -125,7 +125,8 @@ describe("Adaptive booking workspace contract", () => {
     );
     expect(panel).toContain("DateField");
     expect(panel).toContain("workspaceMode");
-    expect(panel).toContain("md:grid-cols-");
+    expect(panel).toContain("AvailabilitySection");
+    expect(panel).toContain("onAfterSelect");
   });
 
   it("keeps payment as one checkout card with footer field wiring", () => {
@@ -155,7 +156,8 @@ describe("Adaptive booking workspace contract", () => {
     );
     expect(employee).toContain("ASSIGN_LATER_COMING_SOON_LABEL");
     expect(employee).not.toContain("Add to waitlist");
-    expect(employee).toContain("any available professional");
+    // Coming-soon note stays truthful and compact — no fake selectable “any pro”.
+    expect(employee).not.toMatch(/onClick=\{.*any available/i);
   });
 
   it("keeps More options and silent hints secondary", () => {

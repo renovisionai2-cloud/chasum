@@ -162,9 +162,9 @@ export function BookingPaymentSection({
         </dl>
       )}
 
-      <div className="space-y-3 border-t border-border pt-3">
+      <div className="space-y-2.5 border-t border-border pt-2.5">
         <p className="text-xs font-medium text-muted-foreground">Payment today</p>
-        <div className="grid gap-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           {(
             [
               ["none", "No payment now"],
@@ -181,10 +181,10 @@ export function BookingPaymentSection({
             <label
               key={mode}
               className={cn(
-                "flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2.5 text-sm",
+                "flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors",
                 value.mode === mode
-                  ? "border-foreground/30 bg-muted/40"
-                  : "border-border",
+                  ? "border-primary bg-accent/30 ring-1 ring-primary/30"
+                  : "border-border hover:border-primary/40",
               )}
             >
               <input

@@ -30,7 +30,7 @@ export function BookingProgressIndicator({
   return (
     <nav
       aria-label="Booking progress"
-      className="flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground"
+      className="flex flex-nowrap items-center gap-1 overflow-x-auto overscroll-x-contain text-[11px] text-muted-foreground [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {BOOKING_PROGRESS_STEPS.map((step, index) => {
         const isActive = step === active;

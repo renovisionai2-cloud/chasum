@@ -57,12 +57,8 @@ export function BookingEmployeeDecision({
       </ul>
 
       {!OPTIONAL_STAFF_PERSISTENCE_ENABLED ? (
-        <p
-          className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground"
-          role="note"
-        >
-          {ASSIGN_LATER_COMING_SOON_LABEL}. Automatic “any available professional”
-          routing is planned — not available in this release.
+        <p className="text-[11px] text-muted-foreground" role="note">
+          {ASSIGN_LATER_COMING_SOON_LABEL}.
         </p>
       ) : null}
     </div>

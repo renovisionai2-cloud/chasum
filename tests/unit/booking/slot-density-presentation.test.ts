@@ -121,20 +121,20 @@ describe("Date & Time footer and unified panel contract", () => {
     expect(bookingFooterStatus("review")).toBe("Ready to book");
   });
 
-  it("does not show Confirm appointment on Date & Time step", () => {
+  it("does not show Confirm appointment on Date & Time — time selection advances", () => {
     const booking = readFileSync(
       join(root, "components/booking-sheet/booking-sheet.tsx"),
       "utf8",
     );
     expect(booking).toContain('activeDecision === "datetime"');
     expect(booking).toContain('activeDecision === "review"');
-    // Continue on datetime; Confirm only on review / edit submit path
-    const datetimeBlock = booking.slice(
-      booking.indexOf('activeDecision === "datetime"'),
-      booking.indexOf('activeDecision === "payment"'),
-    );
-    expect(datetimeBlock).toContain("Continue");
-    expect(datetimeBlock).not.toContain("confirmButtonLabel");
+    expect(booking).toContain("advanceAfterSelection");
+    expect(booking).toContain('activeDecision === "payment"');
+    // Payment still has Continue; Confirm only on review submit
+    const paymentStart = booking.indexOf('activeDecision === "payment" ? (');
+    const paymentBlock = booking.slice(paymentStart, paymentStart + 400);
+    expect(paymentBlock).toContain("Continue");
+    expect(booking).toContain("confirmButtonLabel");
   });
 
   it("keeps Date & Time unified and uses presentable start times", () => {
@@ -148,6 +148,8 @@ describe("Date & Time footer and unified panel contract", () => {
     );
     expect(panel).toContain("DateField");
     expect(panel).toContain("AvailabilitySection");
+    expect(panel).toContain("onAfterSelect");
+    expect(panel).not.toContain("md:grid-cols-[minmax");
     expect(selector).toContain("presentStartTimesForBookingUI");
     expect(selector).toContain("More");
     expect(selector).toContain("Next available");

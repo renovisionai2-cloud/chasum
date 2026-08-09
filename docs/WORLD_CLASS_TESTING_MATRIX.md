@@ -251,6 +251,19 @@
 | Locked principles | Revisitable decisions; no silent dead clicks; Book another = fresh in-workspace |
 | Approval | Awaiting PO |
 
+### Chapter 4 Final Booking Interaction & Front-Desk Speed Pass
+
+| Field | Value |
+|-------|--------|
+| Trigger | Latest PO video — speed, continuity, selection clarity |
+| Focus | Active decision dominates; compact customer; labeled summary chips |
+| Selection | Primary ring chrome; 120ms beat then auto-advance |
+| Date/time | Unified; date above times; `onAfterSelect` focuses times; no time Continue |
+| Payment | 2×2 modes; primary selected chrome; MoneyAmountInput preserved |
+| Footer | Status + contextual Continue/Confirm; money line on payment/review; Close on success |
+| Tests | `booking-front-desk-speed.test.ts` |
+| Approval | Awaiting PO hands-on (not auto-accepted) |
+
 ### Chapter 4 Adaptive Booking Workspace
 
 | Field | Value |

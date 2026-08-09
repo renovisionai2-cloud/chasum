@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-09  
-**Updated by:** World Class — Booking progress navigation & Book another correction (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 4 Final Booking Interaction & Front-Desk Speed Pass (Preview; Production unchanged)  
 
 ---
 
@@ -159,6 +159,15 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-09)
 
+**World Class — Chapter 4 Final Booking Interaction & Front-Desk Speed Pass**
+
+- Decision area dominates; compact customer search; stronger selection chrome
+- Short confirmation beat then auto-advance; time selects without redundant Continue
+- Date above times; payment 2×2 with primary selection; footer money only on payment/review
+- Preserves progress navigation, Book another, View Appointment; Chapter 5 not started; PO acceptance still required
+
+### Immediately prior (2026-08-09)
+
 **World Class — Booking progress navigation & Book another correction**
 
 - Progress stages are real buttons: completed/prefilled revisitable; unavailable stages visibly disabled with reason
@@ -169,29 +178,20 @@ Shared money recognition, commerce + platform events, business operating context
 
 **World Class — Date & Time slot density correction**
 
-- Present useful start times on business booking increment (`appointment_interval_minutes`); defensive UI filter + “More times” for dense days
-- Next available highlight; Morning/Afternoon/Evening preserved; Date & Time remains one step
-- Footer: Continue on Date & Time (not Confirm appointment before Review)
-- Locked: Chasum presents useful appointment start times, not raw availability granularity
-- Availability/payment engines unchanged; Chapter 5 not started
+- Present useful start times on business booking increment; More times; Continue footer on payment/review path
+- Locked: useful start times, not raw availability granularity
 
 ### Immediately prior (2026-08-07)
 
 **World Class — Booking micro-interaction correction**
 
-- Payment amount: draft-while-focused `MoneyAmountInput` (temporary empty, select-all/replace, blur normalize)
-- View Appointment: opens exact created appointment via existing management workspace (`openEdit` / fetch by ID)
-- Locked: money fields must not fight cursor; View opens exact appointment; never search for a known entity
-- Adaptive booking architecture and expandable management layout unchanged; Chapter 5 not started
+- MoneyAmountInput + exact View Appointment
 
 ### Immediately prior (2026-08-07)
 
 **World Class — Existing Appointment expandable management workspace**
 
-- Desktop Expand/Collapse for edit mode (~60–70vw management width)
-- Multi-column layout: appointment/customer/notes left; financials/actions right
-- Sticky management actions; operational header; Adaptive New Appointment unchanged
-- Triggered by PO Preview video review of narrow appointment panel
+- Desktop Expand/Collapse; multi-column management
 
 ### Immediately prior (2026-08-07)
 

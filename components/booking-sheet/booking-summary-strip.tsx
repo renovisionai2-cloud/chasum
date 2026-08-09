@@ -26,20 +26,22 @@ export function BookingSummaryStrip({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2",
+        "flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-2.5 py-1.5",
         className,
       )}
       aria-label="Booking summary"
     >
       {chips.map((chip, i) => (
-        <span key={chip.id} className="inline-flex min-w-0 items-center gap-1.5">
+        <span key={chip.id} className="inline-flex min-w-0 items-center gap-1">
           {i > 0 ? (
             <span className="text-border" aria-hidden>
               ·
             </span>
           ) : null}
           <span className="min-w-0 truncate text-sm">
-            <span className="sr-only">{chip.label}: </span>
+            <span className="mr-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {chip.label}
+            </span>
             <span className="font-medium">{chip.value}</span>
           </span>
           {chip.onChange ? (
@@ -72,7 +74,7 @@ export function BookingDecisionFrame({
 }) {
   return (
     <section
-      className={cn("space-y-3", className)}
+      className={cn("space-y-2.5", className)}
       aria-labelledby="bs-decision-title"
       aria-current="step"
     >

@@ -662,6 +662,11 @@ export function BookingSheet({
     setFocusDecision(decision);
   }
 
+  /** Brief beat so selected state is visible before the next decision appears. */
+  function advanceAfterSelection() {
+    window.setTimeout(() => setFocusDecision(null), 120);
+  }
+
   const canSubmit =
     !!selectedCustomer?.id &&
     !!serviceId &&
@@ -727,7 +732,8 @@ export function BookingSheet({
     setDurationOverride(null);
     setSlot(null);
     setPaymentAcknowledged(false);
-    setFocusDecision(null);
+    if (!isEditing) advanceAfterSelection();
+    else setFocusDecision(null);
   }
 
   function handleOfferTypeChange(type: BookingOfferType) {
@@ -758,7 +764,8 @@ export function BookingSheet({
       setDurationOverride(null);
       setSlot(null);
     }
-    setFocusDecision(null);
+    if (!isEditing) advanceAfterSelection();
+    else setFocusDecision(null);
   }
 
   function handleDurationOverride(minutes: number | null) {
@@ -772,7 +779,8 @@ export function BookingSheet({
     setStaffEligibilityNote(null);
     setSlot(null);
     setPaymentAcknowledged(false);
-    setFocusDecision(null);
+    if (!isEditing) advanceAfterSelection();
+    else setFocusDecision(null);
   }
 
   function handleLocationChange(id: string) {
@@ -830,7 +838,7 @@ export function BookingSheet({
     setSlot(next);
     setPaymentAcknowledged(false);
     if (!isEditing) {
-      setFocusDecision(null);
+      advanceAfterSelection();
       return;
     }
     scrollToPayment();
@@ -1109,7 +1117,12 @@ export function BookingSheet({
             />
           ) : null}
 
-          {slot && selectedCustomer && durationMinutes != null ? (
+          {slot &&
+          selectedCustomer &&
+          durationMinutes != null &&
+          (activeDecision === "payment" ||
+            activeDecision === "review" ||
+            isEditing) ? (
             <p className="text-[11px] leading-snug text-muted-foreground">
               {(offerType === "package" && selectedPackage
                 ? selectedPackage.name
@@ -1142,16 +1155,29 @@ export function BookingSheet({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <p className="flex-1 text-xs text-muted-foreground">{footerStatus}</p>
             <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="min-h-11"
-                onClick={onClose}
-                disabled={pending}
-              >
-                Cancel
-              </Button>
+              {!isEditing && activeDecision === "success" ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-11"
+                  onClick={onClose}
+                  disabled={pending}
+                >
+                  Close
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-11"
+                  onClick={onClose}
+                  disabled={pending}
+                >
+                  Cancel
+                </Button>
+              )}
               {!isEditing &&
               activeDecision !== "success" &&
               activeDecision !== "review" &&
@@ -1170,20 +1196,7 @@ export function BookingSheet({
                   Back
                 </Button>
               ) : null}
-              {!isEditing && activeDecision === "datetime" ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  className="min-h-11"
-                  disabled={!slot || !selectedSlotValid || pending}
-                  onClick={() => {
-                    setPaymentAcknowledged(false);
-                    setFocusDecision(null);
-                  }}
-                >
-                  Continue
-                </Button>
-              ) : !isEditing && activeDecision === "payment" ? (
+              {!isEditing && activeDecision === "payment" ? (
                 <Button
                   type="button"
                   size="sm"
@@ -1392,9 +1405,10 @@ export function BookingSheet({
                   <CustomerSection
                     customers={customers}
                     selected={selectedCustomer}
+                    compact
                     onSelect={(c) => {
                       setSelectedCustomer(c);
-                      setFocusDecision(null);
+                      advanceAfterSelection();
                     }}
                     onCustomersChange={setCustomers}
                     snapshot={activeSnapshot}
@@ -1420,11 +1434,9 @@ export function BookingSheet({
                     onOfferTypeChange={handleOfferTypeChange}
                     onPackageChange={(id) => {
                       handlePackageChange(id);
-                      setFocusDecision(null);
                     }}
                     onServiceChange={(id) => {
                       handleServiceChange(id);
-                      setFocusDecision(null);
                     }}
                   />
                 </BookingDecisionFrame>

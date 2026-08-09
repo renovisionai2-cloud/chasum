@@ -159,13 +159,16 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Adaptive New Appointment + Expandable Existing Appointment management on Preview — micro-interaction correction shipped (money input + View Appointment).** Product distinction locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Chapter 5 not started.
+**Adaptive New Appointment + Expandable Existing Appointment + interaction corrections on Preview — Final Booking Interaction & Front-Desk Speed Pass shipped; awaiting PO hands-on acceptance.** Product distinction locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Chapter 5 not started.
 
-### Locked usability principles (post-booking + money)
+### Locked usability principles (post-booking + money + navigation + speed)
 
 1. Monetary fields must behave like normal high-quality editable inputs and must not fight the user's cursor.
 2. View Appointment after booking must open the exact appointment that was just created.
 3. Chasum must never require the user to search for an entity that the current workflow already knows.
+4. Completed or context-prefilled booking decisions must be directly revisitable.
+5. Unavailable booking stages must visibly communicate that they are unavailable; never silent dead clicks.
+6. The current booking decision must visually dominate; the next action must be obvious.
 
 ## Chapter 9 — Business Structure Engine (planning)
 

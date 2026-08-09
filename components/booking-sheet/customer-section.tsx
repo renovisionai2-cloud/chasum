@@ -44,6 +44,11 @@ type CustomerSectionProps = {
   snapshotLoading: boolean;
   /** Open straight into the quick-add form (e.g. Summer / Reception flows). */
   initialShowQuickAdd?: boolean;
+  /**
+   * Adaptive create: decision frame already titles the step — hide duplicate
+   * heading and empty placeholder to keep the search immediate.
+   */
+  compact?: boolean;
 };
 
 function initials(name: string) {
@@ -179,6 +184,7 @@ export function CustomerSection({
   snapshot,
   snapshotLoading,
   initialShowQuickAdd = false,
+  compact = false,
 }: CustomerSectionProps) {
   const { toast } = useToast();
   const [showQuickAdd, setShowQuickAdd] = useState(initialShowQuickAdd);
@@ -258,32 +264,51 @@ export function CustomerSection({
   }
 
   return (
-    <section className="space-y-4" aria-labelledby="bs-customer-heading">
+    <section
+      className={cn("space-y-3", compact && "space-y-2.5")}
+      aria-labelledby={compact ? undefined : "bs-customer-heading"}
+      aria-label={compact ? "Customer" : undefined}
+    >
       {selected ? null : (
         <>
-          <div className="flex items-end justify-between gap-2">
-            <div>
-              <h3
-                id="bs-customer-heading"
-                className="text-sm font-semibold tracking-tight"
+          {compact ? (
+            <div className="flex items-center justify-end">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="min-h-10"
+                onClick={() => setShowQuickAdd((v) => !v)}
               >
-                Customer
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Find a customer or add someone new
-              </p>
+                <Plus className="size-3.5" />
+                Quick add
+              </Button>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="min-h-11"
-              onClick={() => setShowQuickAdd((v) => !v)}
-            >
-              <Plus className="size-3.5" />
-              Quick add
-            </Button>
-          </div>
+          ) : (
+            <div className="flex items-end justify-between gap-2">
+              <div>
+                <h3
+                  id="bs-customer-heading"
+                  className="text-sm font-semibold tracking-tight"
+                >
+                  Customer
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Find a customer or add someone new
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="min-h-11"
+                onClick={() => setShowQuickAdd((v) => !v)}
+              >
+                <Plus className="size-3.5" />
+                Quick add
+              </Button>
+            </div>
+          )}
 
           <CustomerSearch
             selectedId={undefined}
@@ -518,7 +543,7 @@ export function CustomerSection({
             </div>
           ) : null}
         </div>
-      ) : (
+      ) : compact ? null : (
         <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-dashed border-border px-3 py-4 text-sm text-muted-foreground">
           <UserRound className="mt-0.5 size-4 shrink-0" aria-hidden />
           <p>

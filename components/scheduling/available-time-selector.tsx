@@ -80,6 +80,7 @@ export const AvailableTimeSelector = forwardRef<
   const reactId = useId();
   const panelId = id ?? `available-times-${reactId}`;
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(alwaysExpanded);
   const [jumpTo, setJumpTo] = useState<TimeOfDayGroupId | null>(null);
   const [expandedPeriods, setExpandedPeriods] = useState<
@@ -121,7 +122,14 @@ export const AvailableTimeSelector = forwardRef<
   useEffect(() => {
     if (!showPanel || !jumpTo) return;
     const el = document.getElementById(`${panelId}-${jumpTo}`);
-    el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    const list = listRef.current;
+    if (el && list) {
+      const top =
+        el.getBoundingClientRect().top -
+        list.getBoundingClientRect().top +
+        list.scrollTop;
+      list.scrollTo({ top: Math.max(0, top - 8), behavior: "smooth" });
+    }
     setJumpTo(null);
   }, [showPanel, jumpTo, panelId]);
 
@@ -141,11 +149,28 @@ export const AvailableTimeSelector = forwardRef<
 
   return (
     <div className={cn("space-y-2", className)}>
-      <p className="text-sm font-medium" id={`${panelId}-label`}>
+      <p
+        className={cn(
+          "text-sm font-medium",
+          alwaysExpanded && "sr-only",
+        )}
+        id={`${panelId}-label`}
+      >
         Available time
       </p>
 
-      {selectedStart && !selectedInvalid ? (
+      {alwaysExpanded ? (
+        selectedStart && !selectedInvalid ? (
+          <p className="text-sm tabular-nums text-muted-foreground">
+            Selected{" "}
+            <span className="font-semibold text-foreground">{selectedLabel}</span>
+          </p>
+        ) : selectedInvalid ? (
+          <p className="text-sm text-amber-800 dark:text-amber-100">
+            {selectedInvalidHint ?? "Choose another time"}
+          </p>
+        ) : null
+      ) : selectedStart && !selectedInvalid ? (
         <button
           ref={triggerRef}
           type="button"
@@ -158,7 +183,7 @@ export const AvailableTimeSelector = forwardRef<
           onClick={() => setExpanded((v) => !v)}
         >
           <span className="tabular-nums font-medium">{selectedLabel}</span>
-          {alwaysExpanded ? null : showPanel ? (
+          {showPanel ? (
             <ChevronUp className="size-4 text-muted-foreground" aria-hidden />
           ) : (
             <ChevronDown className="size-4 text-muted-foreground" aria-hidden />
@@ -182,9 +207,7 @@ export const AvailableTimeSelector = forwardRef<
               ? (selectedInvalidHint ?? "Choose another time")
               : "Choose a time"}
           </span>
-          {alwaysExpanded ? null : (
-            <ChevronDown className="size-4" aria-hidden />
-          )}
+          <ChevronDown className="size-4" aria-hidden />
         </button>
       )}
 
@@ -250,7 +273,8 @@ export const AvailableTimeSelector = forwardRef<
               </div>
 
               <div
-                className="max-h-[min(38vh,360px)] space-y-3 overflow-y-auto overscroll-contain p-2 sm:max-h-[380px]"
+                ref={listRef}
+                className="max-h-[min(42vh,400px)] space-y-3 overflow-y-auto overscroll-contain p-2 sm:max-h-[420px]"
                 role="listbox"
                 aria-labelledby={`${panelId}-label`}
               >
