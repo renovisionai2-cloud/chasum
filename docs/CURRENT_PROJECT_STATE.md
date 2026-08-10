@@ -436,11 +436,13 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `e2a034c05388d002248c23a9b4bd112598f7d987` |
-| **Short** | `e2a034c` |
-| **Subject** | feat: Chapter 5 Phase 5.0 booking engine contract foundation |
+| **SHA** | `15fd26c1d203b9a58288068b4caded563b29acd1` |
+| **Short** | `15fd26c` |
+| **Subject** | feat: Chapter 5 Phase 5.1 availability truth and scheduling policy |
+| **Tip / stamp** | `7de6398` |
 | **Chapter 4 PO-accepted tip** | `4da237c` |
-| **Chapter 5 Phase 5.0 feature** | `e2a034c` |
+| **Chapter 5 Phase 5.1 feature** | `15fd26c` |
+| **Chapter 5 Phase 5.0 feature** | `e2a034c` / tip `60c71cd` |
 | **Chapter 4 feature (provenance)** | `cb3421e` |
 | **Prior feature (front-desk speed)** | `5394b7d` |
 | **Feature (expand management)** | `c2f8962` |

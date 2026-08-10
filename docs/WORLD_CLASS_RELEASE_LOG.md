@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-10 | **Chapter 5 Phase 5.1 — Availability Truth** | _(pending)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | SchedulingPolicy; capability matrix; DB gap report; Ch4 unchanged |
+| 2026-08-10 | **Chapter 5 Phase 5.1 — Availability Truth** | `15fd26c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | SchedulingPolicy; capability matrix; DB gap report; Ch4 unchanged |
 | 2026-08-10 | **Chapter 5 Phase 5.0 — Engine Contract Foundation** | `e2a034c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | BookingFacade; conflicts explain; capability matrix; Ch4 unchanged |
 | 2026-08-10 | **Chapter 4 Booking Workspace PO acceptance lock** | `e3e9b0a` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Architecture + core flow PO-accepted; tip `4da237c`; Ch5 not started |
 | 2026-08-09 | **Chapter 4 Booking state integrity / decision provenance** | `cb3421e` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | VALUE≠RESOLVED; prefs no longer skip Service/Employee; Change `subtle` |
@@ -51,6 +51,10 @@
 | Second slot engine | **None** |
 | Capability matrix | Documented |
 | DB gap report | Documented — **no migrations applied** |
+| Typecheck | **Pass** |
+| Build | **Pass** |
+| Lint (touched) | **Pass** |
+| Unit tests | **414 pass / 1 fail**; inherited multi-business-selection only |
 | Chapter 4 UI | Unchanged |
 | Phase 5.2 | **Not started** |
 | Chapter 6 | **Not started** |
@@ -69,7 +73,7 @@
 | Unit tests | **405 pass / 1 fail**; inherited multi-business-selection only |
 | Migrations | None |
 | Production | Untouched |
-| Phase 5.1 | **Not started** |
+| Phase 5.1 | Completed in follow-on tip `15fd26c` / `7de6398` |
 | Chapter 6 | **Not started** |
 | PO acceptance | Required for Phase 5.0 — not auto-accepted |
 
