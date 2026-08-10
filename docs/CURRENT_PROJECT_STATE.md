@@ -428,10 +428,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `e3e9b0ab3aef74abd286319e46b3be286a508cc4` |
-| **Short** | `e3e9b0a` |
-| **Subject** | docs: lock Chapter 4 Booking Workspace PO acceptance |
+| **SHA** | `e2a034c05388d002248c23a9b4bd112598f7d987` |
+| **Short** | `e2a034c` |
+| **Subject** | feat: Chapter 5 Phase 5.0 booking engine contract foundation |
 | **Chapter 4 PO-accepted tip** | `4da237c` |
+| **Chapter 5 Phase 5.0 feature** | `e2a034c` |
 | **Chapter 4 feature (provenance)** | `cb3421e` |
 | **Prior feature (front-desk speed)** | `5394b7d` |
 | **Feature (expand management)** | `c2f8962` |
