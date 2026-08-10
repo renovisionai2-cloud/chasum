@@ -5,6 +5,7 @@
 **This document:** Planning only — **no database changes in Chapter 3**  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Related:** Migration **036** / `CHASUM_RESOURCES_ENABLED` remain gated; do not apply without PO  
+**Chapter 5 Phase 5.0:** Resource scheduling remains **FUTURE** — `resourceIds` may appear on booking contracts; do not invent RESOURCE_BUSY from a resource engine that is not live. See [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md).
 
 ---
 

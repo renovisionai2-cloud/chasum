@@ -100,7 +100,7 @@ export function mapRpcErrorToConflict(
   }
 
   return match(
-    "UNKNOWN",
+    "UNMAPPED",
     true,
     message.includes("Time slot")
       ? "This time slot is not available."

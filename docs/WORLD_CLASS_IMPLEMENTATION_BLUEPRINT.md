@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 4 — Customers + Booking Workspace (**PO-accepted** — tip `4da237c`)  
+**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.0 — Engine Contract Foundation**)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -29,7 +29,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
-| 5 | Appointment workspace (Execution Ch5) | Not started — do not begin until explicitly directed |
+| 5 | Calendar & Booking Engine | **Phase 5.0 in progress** — engine contract foundation; Phase 5.1 not started |
 | 6 | Sales, payments, invoices, receipts | Not started |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
@@ -159,7 +159,11 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing** (accepted tip `4da237c`). Product distinction and provenance locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Remaining visual polish stays in the Polish & Intelligence backlog — not architecture reopen. **Chapter 5 implementation not started.**
+**Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing** (accepted tip `4da237c`). Product distinction and provenance locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Remaining visual polish stays in the Polish & Intelligence backlog — not architecture reopen.
+
+## Chapter 5 status
+
+**Phase 5.0 — Engine Contract Foundation.** One `BookingFacade`; SQL RPCs authoritative; Chapter 4 UI unchanged. Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). **Phase 5.1 not started. Chapter 6 not started.**
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -190,6 +194,6 @@ Includes cross-portal hierarchy, spacing, icons, tables, charts, Summer/Chase ve
 
 This is **planning-locked now**; implementation is **not** started by this documentation commit.
 
-## Next step after Chapter 4 PO acceptance
+## Next step after Chapter 5 Phase 5.0
 
-Begin **Execution Chapter 5** only when explicitly directed. Continue progressive polish backlog items (motion, typography, spacing, hierarchy, action styling, appointment-management visual refinement, micro-interactions); do not reopen Chapter 4 architecture for polish alone.
+Await **PO review of Phase 5.0**. Do not start Phase 5.1 (Day View / enriched RPC work / bypass elimination) until approved. Chapter 4 architecture remains locked.

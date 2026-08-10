@@ -3,6 +3,9 @@
  *
  * THE only write/read API for bookings across staff, reception, public, Summer, and API.
  * TypeScript orchestrates; SQL RPCs validate.
+ *
+ * Prefer `BookingFacade` for new call sites (Chapter 5 Phase 5.0 contract).
+ * Named function exports remain for existing imports.
  */
 
 export type {
@@ -34,6 +37,8 @@ export type {
   ValidateBookingResult,
 } from "@/lib/booking-engine/types";
 
+export { BookingFacade, type BookingFacadeApi } from "@/lib/booking-engine/facade";
+
 export {
   clearAvailabilityCache,
   composeAvailabilityContext,
@@ -47,7 +52,11 @@ export {
 
 export {
   conflictFromCode,
+  explainConflict,
+  explainConflicts,
+  explanationForCode,
   findRoomConflicts,
+  isUnmappedConflict,
   logAppointmentChange,
   mapRpcErrorToConflict,
   netAppointmentTotalCents,

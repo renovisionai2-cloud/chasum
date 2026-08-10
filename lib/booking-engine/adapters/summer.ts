@@ -2,18 +2,9 @@
  * Summer AI adapter.
  * Summer MUST call BookingFacade only — never insert into Supabase directly,
  * never calculate slots locally.
+ * Status: ACTIVE (wrappers); new write product enablement is not Phase 5.0 scope.
  */
-import {
-  previewAvailableSlots,
-  validateBooking,
-} from "@/lib/booking-engine/availability";
-import {
-  cancelBooking,
-  createBooking,
-  rescheduleBooking,
-  resizeBooking,
-  updateBooking,
-} from "@/lib/booking-engine/mutations";
+import { BookingFacade } from "@/lib/booking-engine/facade";
 import type {
   BookingIntent,
   CancelIntent,
@@ -22,6 +13,8 @@ import type {
   ResizeIntent,
   UpdateBookingIntent,
 } from "@/lib/booking-engine/types";
+
+export const SUMMER_ADAPTER_STATUS = "ACTIVE" as const;
 
 export function summerCreateIntent(
   input: Omit<BookingIntent, "channel">,
@@ -38,41 +31,41 @@ export function summerPreviewInput(
 export async function summerCreateBooking(
   input: Omit<BookingIntent, "channel">,
 ) {
-  return createBooking(summerCreateIntent(input));
+  return BookingFacade.create(summerCreateIntent(input));
 }
 
 export async function summerUpdateBooking(
   input: Omit<UpdateBookingIntent, "channel">,
 ) {
-  return updateBooking({ ...input, channel: "summer" });
+  return BookingFacade.update({ ...input, channel: "summer" });
 }
 
 export async function summerRescheduleBooking(
   input: Omit<RescheduleIntent, "channel">,
 ) {
-  return rescheduleBooking({ ...input, channel: "summer" });
+  return BookingFacade.reschedule({ ...input, channel: "summer" });
 }
 
 export async function summerResizeBooking(
   input: Omit<ResizeIntent, "channel">,
 ) {
-  return resizeBooking({ ...input, channel: "summer" });
+  return BookingFacade.resize({ ...input, channel: "summer" });
 }
 
 export async function summerCancelBooking(
   input: Omit<CancelIntent, "channel">,
 ) {
-  return cancelBooking({ ...input, channel: "summer" });
+  return BookingFacade.cancel({ ...input, channel: "summer" });
 }
 
 export async function summerPreviewAvailableSlots(
   input: Omit<PreviewSlotsInput, "channel">,
 ) {
-  return previewAvailableSlots(summerPreviewInput(input));
+  return BookingFacade.previewSlots(summerPreviewInput(input));
 }
 
 export async function summerValidateBooking(
   input: Omit<BookingIntent, "channel">,
 ) {
-  return validateBooking(summerCreateIntent(input));
+  return BookingFacade.validate(summerCreateIntent(input));
 }

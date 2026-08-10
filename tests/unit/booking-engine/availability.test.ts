@@ -18,6 +18,10 @@ describe("availability / booking engine", () => {
     expect(mapRpcErrorToConflict("Staff on vacation").code).toBe("VACATION");
   });
 
+  it("keeps unclassified errors as UNMAPPED", () => {
+    expect(mapRpcErrorToConflict("totally novel failure").code).toBe("UNMAPPED");
+  });
+
   it("scores sooner slots higher", () => {
     const now = new Date("2026-07-18T12:00:00Z");
     const soon = scoreSlot({

@@ -1,11 +1,13 @@
 # World Class Testing Matrix
 
-**Chapter:** 0–2 (scaffold through Command Centre)  
+**Chapter:** 0–5 (scaffold through Calendar & Booking Engine Phase 5.0)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
 **Rule:** Do not mark complete on appearance alone; verify data and workflow.  
 **Chapter 2:** Command Centre page depth — approved tip `0f1f423`.  
-**Chapter 3:** Reception / Calendar — see route block below.
+**Chapter 3:** Reception / Calendar — see route block below.  
+**Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
+**Chapter 5:** Phase 5.0 Engine Contract Foundation — see block below.
 
 ---
 
@@ -349,6 +351,21 @@
 | Data dictionary | `WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md` |
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
+
+## Chapter 5 — Calendar & Booking Engine (Phase 5.0)
+
+| Field | Value |
+|-------|--------|
+| Phase | **5.0 — Engine Contract Foundation** |
+| Purpose | One BookingFacade; RPC authority; no Day View rebuild |
+| Contract | `BookingFacade.previewSlots/create/update/reschedule/resize/cancel` |
+| Docs | `WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md` |
+| Chapter 4 regression | Must remain green — no UI redesign |
+| Migrations | None (034–036 unapplied) |
+| Adapters | staff ACTIVE · reception PARTIAL · public PARTIAL · summer ACTIVE · api FUTURE |
+| Conflicts | Structured codes + UNMAPPED; `explainConflict` grounded only |
+| Automated tests | `tests/unit/booking-engine/facade-contracts.test.ts`, `availability.test.ts`, Chapter 4 booking suite |
+| Approval | Awaiting PO review of Phase 5.0 |
 
 ### Polish & Intelligence backlog (locked)
 

@@ -134,18 +134,34 @@ export type BookingConflictCode =
   | "RESOURCE_BUSY"
   | "OUTSIDE_BUSINESS_HOURS"
   | "OUTSIDE_EMPLOYEE_HOURS"
+  /** Architectural alias — prefer specific OUTSIDE_* when known */
+  | "OUTSIDE_HOURS"
   | "VACATION"
   | "LUNCH_BREAK"
+  /** Architectural alias for LUNCH_BREAK */
+  | "LUNCH_BLOCK"
   | "SERVICE_BLACKOUT"
   | "SERVICE_INACTIVE"
   | "BUSINESS_CLOSURE"
+  /** Architectural alias for BUSINESS_CLOSURE */
+  | "CLOSURE"
   | "MIN_NOTICE"
   | "MAX_BOOKING_WINDOW"
+  /** Architectural alias for MAX_BOOKING_WINDOW */
+  | "MAX_AHEAD"
   | "MAX_APPOINTMENTS"
+  /** Architectural alias for MAX_APPOINTMENTS */
+  | "DAILY_CAP"
   | "INVALID_RANGE"
   | "DOUBLE_BOOKING"
   | "NOT_AUTHORIZED"
-  | "UNKNOWN";
+  /** FUTURE — employee/service qualification; do not invent from unstructured errors */
+  | "NOT_QUALIFIED"
+  /** FUTURE — channel policy; do not invent from unstructured errors */
+  | "CHANNEL_FORBIDDEN"
+  | "UNKNOWN"
+  /** Synonym for UNKNOWN when RPC text cannot be classified */
+  | "UNMAPPED";
 
 export type BookingConflictReport = {
   code: BookingConflictCode;

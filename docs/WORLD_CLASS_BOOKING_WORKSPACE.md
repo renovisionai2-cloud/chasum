@@ -23,6 +23,8 @@ Adaptive skip remains allowed **only** when a decision is intentionally and vali
 
 Remaining visual refinements (motion, typography, spacing, hierarchy, action styling consistency, appointment-management visual refinement, final micro-interactions) are preserved in [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md). They are **not** reasons to reopen Chapter 4 architecture.
 
+Chapter 5 Phase 5.0 may route engine calls through `BookingFacade` without changing this accepted UX. Engine SoT: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md).
+
 ## Product distinction (locked)
 
 | Mode | Experience |

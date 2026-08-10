@@ -1,14 +1,19 @@
 /**
  * Staff / calendar channel adapter.
  * Server actions should call BookingFacade; this helper builds intents.
+ *
+ * Reception intents live in adapters/reception.ts (PARTIAL).
  */
 import type {
   BookingIntent,
   CancelIntent,
+  PreviewSlotsInput,
   RescheduleIntent,
   ResizeIntent,
   UpdateBookingIntent,
 } from "@/lib/booking-engine/types";
+
+export const STAFF_ADAPTER_STATUS = "ACTIVE" as const;
 
 export function staffCreateIntent(
   input: Omit<BookingIntent, "channel">,
@@ -16,10 +21,10 @@ export function staffCreateIntent(
   return { ...input, channel: "staff" };
 }
 
-export function receptionCreateIntent(
-  input: Omit<BookingIntent, "channel">,
-): BookingIntent {
-  return { ...input, channel: "reception" };
+export function staffPreviewInput(
+  input: Omit<PreviewSlotsInput, "channel">,
+): PreviewSlotsInput {
+  return { ...input, channel: "staff" };
 }
 
 export function staffUpdateIntent(
