@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-10 | **Chapter 4 Booking Workspace PO acceptance lock** | _(stamp pending)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Architecture + core flow PO-accepted; tip `4da237c`; Ch5 not started |
 | 2026-08-09 | **Chapter 4 Booking state integrity / decision provenance** | `cb3421e` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | VALUE≠RESOLVED; prefs no longer skip Service/Employee; Change `subtle` |
 | 2026-08-09 | **Chapter 4 Final Booking Interaction & Front-Desk Speed Pass** | `5394b7d` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Decision focus; selection beat; payment chrome; no time Continue |
 | 2026-08-09 | **Chapter 4 Booking progress & Book another** | `d6f65a7` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Clickable progress; Book another fresh draft |
@@ -40,6 +41,20 @@
 
 ---
 
+## Chapter 4 Booking Workspace PO acceptance lock
+
+| Check | Result |
+|-------|--------|
+| PO hands-on Preview | **Accepted** |
+| Acceptance language | Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing |
+| Accepted tip | `4da237c` |
+| Feature (provenance) | `cb3421e` |
+| Architecture reopen for polish | **No** — polish remains in Polish & Intelligence backlog |
+| Product code changed | **No** (docs stamp only) |
+| Production | Untouched (`4eecbec`) |
+| Migrations 034–036 | Not applied |
+| Chapter 5 | **Not started** |
+
 ## Chapter 4 Booking state integrity / decision provenance quality report
 
 | Check | Result |
@@ -52,7 +67,7 @@
 | Migrations 034–036 | Not applied |
 | Engines | Unchanged |
 | Chapter 5 | Not started |
-| PO acceptance | Required — not auto-accepted |
+| PO acceptance | **Accepted** (`4da237c` tip) — see PO acceptance lock above |
 
 ## Chapter 4 Final Booking Interaction & Front-Desk Speed Pass quality report
 
@@ -66,7 +81,7 @@
 | Migrations 034–036 | Not applied |
 | Engines | Unchanged |
 | Chapter 5 | Not started |
-| PO acceptance | Required — not auto-accepted |
+| PO acceptance | **Accepted** (`4da237c`) |
 
 ## Chapter 4 Booking progress & Book another quality report
 

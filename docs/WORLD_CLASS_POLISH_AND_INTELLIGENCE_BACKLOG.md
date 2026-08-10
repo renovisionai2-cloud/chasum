@@ -279,8 +279,10 @@ Formal program after functional World Class chapters. See section above.
 - No Production deploy / alias / branch changes  
 - No migrations 034–036  
 - No shared database writes  
-- **Chapter 4 delivered** (Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + **decision provenance / required-sequence**) on Preview — awaiting PO hands-on before Chapter 5
-- Locked usability: revisitable decisions; no silent dead clicks; Book another = fresh in-workspace; current decision must dominate
+- **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
+- Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
+- **Chapter 5 implementation not started** by this acceptance stamp
+- Locked usability: revisitable decisions; no silent dead clicks; Book another = fresh in-workspace; current decision must dominate; VALUE≠RESOLVED; provenance-aware adaptive skip
 
 ---
 
@@ -288,6 +290,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-10 | Chapter 4 Booking Workspace PO-accepted on Preview (`4da237c`); visual polish remains backlog-only |
 | 2026-08-09 | Chapter 4 Booking state integrity — decision provenance & required sequence |
 | 2026-08-09 | Chapter 4 Final Booking Interaction & Front-Desk Speed Pass |
 | 2026-08-09 | Booking progress navigation + Book another success-action fix |

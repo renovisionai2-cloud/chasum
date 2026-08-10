@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 3 — Reception and Calendar (**complete — awaiting PO review**)  
+**Chapter:** 4 — Customers + Booking Workspace (**PO-accepted** — tip `4da237c`)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -28,8 +28,8 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 1 | Design system and portal foundation | **Approved** (`3682717`) |
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
-| 4 | Customers | Not started |
-| 5 | Appointment workspace | Not started |
+| 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
+| 5 | Appointment workspace (Execution Ch5) | Not started — do not begin until explicitly directed |
 | 6 | Sales, payments, invoices, receipts | Not started |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
@@ -159,7 +159,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 4 status
 
-**Adaptive New Appointment + Expandable Existing Appointment + interaction corrections on Preview — Booking state integrity / decision provenance shipped; awaiting PO hands-on acceptance.** Product distinction locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Chapter 5 not started.
+**Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing** (accepted tip `4da237c`). Product distinction and provenance locked in [`WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md). Remaining visual polish stays in the Polish & Intelligence backlog — not architecture reopen. **Chapter 5 implementation not started.**
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -190,6 +190,6 @@ Includes cross-portal hierarchy, spacing, icons, tables, charts, Summer/Chase ve
 
 This is **planning-locked now**; implementation is **not** started by this documentation commit.
 
-## Next step after PO approval
+## Next step after Chapter 4 PO acceptance
 
-Begin **Execution Chapter 5** only after PO reviews Chapter 4 (Customer Workspace + Booking Workspace). Continue progressive polish backlog items; do not wait for chat memory.
+Begin **Execution Chapter 5** only when explicitly directed. Continue progressive polish backlog items (motion, typography, spacing, hierarchy, action styling, appointment-management visual refinement, micro-interactions); do not reopen Chapter 4 architecture for polish alone.

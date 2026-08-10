@@ -198,7 +198,7 @@
 | Regression risk | Booking engine / payment engine / Production / migrations unchanged |
 | Automated tests | `tests/unit/crm/customer-workspace.test.ts` |
 | Blueprint | `WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md` |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Existing Appointment expandable management workspace
 
@@ -209,7 +209,7 @@
 | Layout | Multi-column when expanded; quick-view when collapsed |
 | New Appointment | Protected / unchanged |
 | Tests | `appointment-management-expand.test.ts` |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Chapter 4 Booking micro-interaction correction
 
@@ -222,7 +222,7 @@
 | Book Another / Done | Remain distinct |
 | Tests | `booking-money-and-view-appointment.test.ts`, `money-amount-input.test.tsx` |
 | Locked principles | Money fields must not fight cursor; View opens exact appointment; never search for a known entity |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Chapter 4 Date & Time slot density correction
 
@@ -236,7 +236,7 @@
 | Unified Date & Time | Preserved |
 | Tests | `slot-density-presentation.test.ts` |
 | Locked principle | Useful start times, not raw availability granularity |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Chapter 4 Booking progress navigation & Book another
 
@@ -249,7 +249,19 @@
 | Success actions | View / Book another / Done remain distinct |
 | Tests | `booking-progress-navigation.test.ts` |
 | Locked principles | Revisitable decisions; no silent dead clicks; Book another = fresh in-workspace |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
+
+### Chapter 4 Booking Workspace — PO acceptance lock
+
+| Item | Detail |
+|------|--------|
+| Status | **Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing** |
+| Accepted tip | `4da237c` |
+| Accepted flow | Customer → Service → Employee → Date & Time → Payment → Review → Confirmation |
+| Adaptive | Skip only intentionally + validly resolved decisions (provenance) |
+| Architecture reopen | Not for remaining visual polish items |
+| Polish backlog | Motion, typography, spacing, hierarchy, action styling, appointment-management visual refinement, micro-interactions remain in Polish & Intelligence backlog |
+| Chapter 5 | Implementation not started |
 
 ### Chapter 4 Booking state integrity / decision provenance
 
@@ -261,7 +273,7 @@
 | Forward | `firstMissingDecision` = first required unresolved |
 | Change affordance | `Button` variant `subtle` on booking summary / customer Change |
 | Tests | `booking-decision-provenance.test.ts` + updated workflow tests |
-| Locked principles | VALUE≠RESOLVED; Accessible/Resolved/Required/Provenance distinct |
+| Approval | **PO-accepted** on Preview after hands-on testing (`4da237c`) |
 
 ### Chapter 4 Final Booking Interaction & Front-Desk Speed Pass
 
@@ -274,7 +286,7 @@
 | Payment | 2×2 modes; primary selected chrome; MoneyAmountInput preserved |
 | Footer | Status + contextual Continue/Confirm; money line on payment/review; Close on success |
 | Tests | `booking-front-desk-speed.test.ts` |
-| Approval | Awaiting PO hands-on (not auto-accepted) |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Chapter 4 Adaptive Booking Workspace
 
@@ -287,7 +299,7 @@
 | Success | Confirmed outcomes only |
 | Contract | `WORLD_CLASS_BOOKING_WORKSPACE.md` (+ benchmarks) |
 | Automated tests | `booking-workspace-ux.test.ts` |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Chapter 4 Final Acceptance — Progressive Booking Workspace
 
@@ -303,7 +315,7 @@
 | Acceptance | Passed only after true progressive workflow acceptance |
 | Contract | `WORLD_CLASS_BOOKING_WORKSPACE.md` |
 | Automated tests | `tests/unit/booking/booking-workspace-ux.test.ts` |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Chapter 4 Final Correction — Booking Workspace
 
@@ -321,7 +333,7 @@
 | Regression risk | Booking/payment/tax/deposit/notification engines unchanged |
 | Contract | `WORLD_CLASS_BOOKING_WORKSPACE.md` |
 | Automated tests | `tests/unit/booking/booking-workspace-ux.test.ts` |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Chapter 4 correction & premium polish
 
@@ -336,7 +348,7 @@
 | Summer | Observed facts vs Recommendations |
 | Data dictionary | `WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md` |
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
-| Approval | Awaiting PO |
+| Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
 ### Polish & Intelligence backlog (locked)
 

@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-09  
-**Updated by:** World Class — Chapter 4 Booking state integrity / decision provenance (Preview; Production unchanged)  
+**Last updated:** 2026-08-10  
+**Updated by:** World Class — Chapter 4 Booking Workspace PO acceptance lock (Preview; Production unchanged)  
 
 ---
 
@@ -120,7 +120,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Customer Workspace + Booking Workspace final correction delivered — awaiting PO before Chapter 5.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; **Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing** (tip `4da237c`). Chapter 5 implementation not started.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -157,7 +157,16 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-09)
+### Most recent (2026-08-10)
+
+**World Class — Chapter 4 Booking Workspace PO acceptance lock**
+
+- Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing
+- Accepted tip: `4da237c` (feature `cb3421e` provenance + required sequence)
+- Remaining visual refinements stay in the Polish & Intelligence backlog — not reasons to reopen Chapter 4 architecture
+- Chapter 5 implementation not started; Production untouched
+
+### Immediately prior (2026-08-09)
 
 **World Class — Chapter 4 Booking state integrity, required-sequence & transition continuity**
 
@@ -165,7 +174,7 @@ Shared money recognition, commerce + platform events, business operating context
 - Booking decision provenance: VALUE ≠ RESOLVED; Accessible / Resolved / Required distinct
 - Generic New Appointment: Customer → Service → Employee → Date & time → Payment → Review
 - Change uses `subtle` Button variant (visible before hover); Book Another clears provenance
-- Chapter 5 not started; Production untouched; PO acceptance still required
+- Chapter 5 not started; Production untouched
 
 ### Immediately prior (2026-08-09)
 
@@ -174,7 +183,7 @@ Shared money recognition, commerce + platform events, business operating context
 - Decision area dominates; compact customer search; stronger selection chrome
 - Short confirmation beat then auto-advance; time selects without redundant Continue
 - Date above times; payment 2×2 with primary selection; footer money only on payment/review
-- Preserves progress navigation, Book another, View Appointment; Chapter 5 not started; PO acceptance still required
+- Preserves progress navigation, Book another, View Appointment; Chapter 5 not started
 
 ### Immediately prior (2026-08-09)
 
@@ -410,10 +419,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `cb3421eecd1786e4695deebd0b2a7eb622106c69` |
-| **Short** | `cb3421e` |
-| **Subject** | fix: booking decision provenance and required sequence |
-| **Prior tip** | `b2f389e` |
+| **SHA** | `4da237c484e913a078f0e1ca411dd8cf038f13e7` |
+| **Short** | `4da237c` |
+| **Subject** | docs: record provenance pass gate results (Chapter 4 accepted tip) |
+| **Chapter 4 PO-accepted tip** | `4da237c` |
+| **Chapter 4 feature (provenance)** | `cb3421e` |
 | **Prior feature (front-desk speed)** | `5394b7d` |
 | **Feature (expand management)** | `c2f8962` |
 | **Feature (adaptive booking)** | `32a9ce1` |
@@ -439,12 +449,12 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 4** — Customer Workspace + Booking Workspace Preview before Chapter 5.
-2. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — apply progressive items during later chapters.
+1. **Begin Execution Chapter 5 only when explicitly directed** — Chapter 4 Booking Workspace is PO-accepted; do not reopen architecture for visual polish alone.
+2. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — apply progressive polish (motion, typography, spacing, hierarchy, action styling, appointment-management visual refinement, micro-interactions) during later chapters / Polish Program.
 3. **Operation GVM Production** — remain protected.
 4. Marketing claim fixes only with **explicit PO** (locked pages).
 
-Do **not** start Chapter 5 until PO approves.  
+Do **not** start Chapter 5 implementation in this acceptance stamp.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 

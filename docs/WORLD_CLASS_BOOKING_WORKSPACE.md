@@ -3,9 +3,25 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Surface:** New Appointment / Edit Appointment drawer (`BookingSheet`)  
 **Production:** untouched (`4eecbec`)  
-**Engines:** booking, availability, tax, deposit, payment, notification — **unchanged**
+**Engines:** booking, availability, tax, deposit, payment, notification — **unchanged**  
+**PO acceptance:** Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`)
 
 ---
+
+## PO acceptance (locked)
+
+**Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing.**
+
+Accepted tip: `4da237c`  
+Accepted flow:
+
+```
+Customer → Service → Employee → Date & Time → Payment → Review → Confirmation
+```
+
+Adaptive skip remains allowed **only** when a decision is intentionally and validly resolved by entry context / provenance.
+
+Remaining visual refinements (motion, typography, spacing, hierarchy, action styling consistency, appointment-management visual refinement, final micro-interactions) are preserved in [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md). They are **not** reasons to reopen Chapter 4 architecture.
 
 ## Product distinction (locked)
 
