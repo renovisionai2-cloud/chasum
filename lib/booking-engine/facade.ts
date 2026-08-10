@@ -13,6 +13,7 @@
 import {
   composeAvailabilityContext,
   previewAvailableSlots,
+  resolveSchedulingPolicy,
   validateBooking,
 } from "@/lib/booking-engine/availability";
 import {
@@ -34,6 +35,8 @@ export const BookingFacade = {
   validate: validateBooking,
   /** Compose Business / Location / Service / Employee scheduling inputs. */
   composeContext: composeAvailabilityContext,
+  /** Resolve SchedulingPolicy from AvailabilityContext — not a second validator. */
+  resolvePolicy: resolveSchedulingPolicy,
   create: createBooking,
   update: updateBooking,
   reschedule: rescheduleBooking,

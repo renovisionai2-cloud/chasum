@@ -352,6 +352,20 @@
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
+## Chapter 5 — Calendar & Booking Engine (Phase 5.1)
+
+| Field | Value |
+|-------|--------|
+| Phase | **5.1 — Availability Truth & Scheduling Rules Foundation** |
+| Principle | EMPTY TIME ≠ AVAILABLE TIME |
+| Policy | `SchedulingPolicy` via `BookingFacade.resolvePolicy` |
+| Interval vs duration | Distinguished; RPC generates starts |
+| Matrix | `WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md` |
+| DB changes | **None** — gap report only |
+| Chapter 4 | Unchanged |
+| Tests | `scheduling-policy.test.ts`, booking-engine suite |
+| Approval | Awaiting PO review of Phase 5.1 |
+
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.0)
 
 | Field | Value |
@@ -365,7 +379,7 @@
 | Adapters | staff ACTIVE · reception PARTIAL · public PARTIAL · summer ACTIVE · api FUTURE |
 | Conflicts | Structured codes + UNMAPPED; `explainConflict` grounded only |
 | Automated tests | `tests/unit/booking-engine/facade-contracts.test.ts`, `availability.test.ts`, Chapter 4 booking suite |
-| Approval | Awaiting PO review of Phase 5.0 |
+| Approval | Covered by Phase 5.0 tip `60c71cd` — Phase 5.1 continues |
 
 ### Polish & Intelligence backlog (locked)
 

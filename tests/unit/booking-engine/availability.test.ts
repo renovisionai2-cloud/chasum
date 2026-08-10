@@ -10,12 +10,16 @@ const baseContext = {
 describe("availability / booking engine", () => {
   it("maps double-booking RPC errors", () => {
     const conflict = mapRpcErrorToConflict("overlaps an existing appointment");
-    expect(conflict.code).toBe("DOUBLE_BOOKING");
+    expect(conflict.code).toBe("STAFF_BUSY");
     expect(conflict.recoverable).toBe(true);
   });
 
   it("maps vacation conflicts", () => {
     expect(mapRpcErrorToConflict("Staff on vacation").code).toBe("VACATION");
+  });
+
+  it("maps lunch to LUNCH_BLOCK", () => {
+    expect(mapRpcErrorToConflict("lunch break conflict").code).toBe("LUNCH_BLOCK");
   });
 
   it("keeps unclassified errors as UNMAPPED", () => {

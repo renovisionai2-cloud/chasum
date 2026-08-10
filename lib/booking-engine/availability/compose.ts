@@ -64,7 +64,7 @@ async function composeAvailabilityContextUncached(
     supabase
       .from("businesses")
       .select(
-        "id, timezone, min_notice_minutes, allow_double_booking, booking_limit_days, booking_confirmation_mode, appointment_interval_minutes",
+        "id, timezone, min_notice_minutes, allow_double_booking, booking_limit_days, booking_confirmation_mode, appointment_interval_minutes, online_booking_enabled",
       )
       .eq("id", input.businessId)
       .maybeSingle(),
@@ -140,16 +140,18 @@ async function composeAvailabilityContextUncached(
 
   if (!service.is_active) {
     conflicts.push(
-      conflictFromCode("UNKNOWN", "Service is inactive.", {
+      conflictFromCode("SERVICE_INACTIVE", "This service is not available for booking.", {
         recoverable: false,
       }),
     );
   }
   if (!staff.is_active) {
     conflicts.push(
-      conflictFromCode("UNKNOWN", "Employee is inactive.", {
-        recoverable: false,
-      }),
+      conflictFromCode(
+        "NOT_AUTHORIZED",
+        "This employee is not available for booking.",
+        { recoverable: false },
+      ),
     );
   }
 
@@ -157,6 +159,21 @@ async function composeAvailabilityContextUncached(
     (service.booking_visibility as AvailabilityContext["bookingVisibility"]) ??
     null;
   const onlineBooking = service.online_booking !== false;
+  const businessOnlineEnabled = business.online_booking_enabled !== false;
+
+  if (
+    (input.channel === "public" || input.channel === "summer") &&
+    businessOnlineEnabled === false
+  ) {
+    conflicts.push(
+      conflictFromCode(
+        "CHANNEL_FORBIDDEN",
+        "Online booking is disabled for this business.",
+        { recoverable: false },
+      ),
+    );
+  }
+
   if (
     (input.channel === "public" || input.channel === "summer") &&
     (visibility === "hidden" ||
@@ -165,7 +182,7 @@ async function composeAvailabilityContextUncached(
   ) {
     conflicts.push(
       conflictFromCode(
-        "NOT_AUTHORIZED",
+        "CHANNEL_FORBIDDEN",
         "Service is not available for online booking.",
         { recoverable: false },
       ),
@@ -178,18 +195,15 @@ async function composeAvailabilityContextUncached(
   ) {
     conflicts.push(
       conflictFromCode(
-        "NOT_AUTHORIZED",
+        "CHANNEL_FORBIDDEN",
         "Employee does not accept online bookings.",
         { recoverable: false },
       ),
     );
   }
 
-  if (
-    (input.channel === "public" || input.channel === "summer") &&
-    linkRes.error == null &&
-    !link
-  ) {
+  // Proven SoT: staff_services link. Distinguish EXISTS from QUALIFIED.
+  if (linkRes.error == null && !link) {
     const { count } = await supabase
       .from("staff_services")
       .select("service_id", { count: "exact", head: true })
@@ -197,8 +211,8 @@ async function composeAvailabilityContextUncached(
     if ((count ?? 0) > 0) {
       conflicts.push(
         conflictFromCode(
-          "NOT_AUTHORIZED",
-          "Employee is not assigned to this service.",
+          "NOT_QUALIFIED",
+          "This employee is not qualified for the selected service.",
           { recoverable: true },
         ),
       );

@@ -114,11 +114,11 @@ describe("Chapter 5 Phase 5.0 — BookingFacade contracts", () => {
 
   it("maps structured RPC conflicts and keeps unmapped truthful", () => {
     expect(mapRpcErrorToConflict("overlaps an existing appointment").code).toBe(
-      "DOUBLE_BOOKING",
+      "STAFF_BUSY",
     );
     expect(mapRpcErrorToConflict("Staff on vacation").code).toBe("VACATION");
     expect(mapRpcErrorToConflict("lunch break conflict").code).toBe(
-      "LUNCH_BREAK",
+      "LUNCH_BLOCK",
     );
     const unmapped = mapRpcErrorToConflict("weird backend failure xyz");
     expect(unmapped.code).toBe("UNMAPPED");

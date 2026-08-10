@@ -42,12 +42,16 @@ export { BookingFacade, type BookingFacadeApi } from "@/lib/booking-engine/facad
 export {
   clearAvailabilityCache,
   composeAvailabilityContext,
+  distinguishesIntervalFromDuration,
   getAvailabilityExtensions,
   previewAvailableSlots,
   registerAvailabilityExtensions,
   resetAvailabilityExtensions,
   resolveRequestedStatus,
+  resolveSchedulingPolicy,
   validateBooking,
+  applyPolicyChecks,
+  type SchedulingPolicy,
 } from "@/lib/booking-engine/availability";
 
 export {

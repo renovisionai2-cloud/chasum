@@ -1,13 +1,20 @@
 # World Class — Calendar & Booking Engine
 
 **Chapter:** 5 — Calendar & Booking Engine  
-**Phase:** **5.0 — Engine Contract Foundation** (first approved implementation slice)  
+**Phase:** **5.1 — Availability Truth & Scheduling Rules Foundation** (Phase 5.0 complete)  
 **Branch:** `cursor/world-class-portal-foundation`  
-**Chapter 4 accepted tip:** `4da237c` (architecture + core booking flow PO-accepted)  
+**Chapter 4 accepted tip:** `4da237c`  
+**Phase 5.0 tip:** `60c71cd`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.0**
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.1**
 
 ---
+
+## Locked principle
+
+**EMPTY TIME ≠ AVAILABLE TIME.**
+
+A valid slot may depend on hours, eligibility, duration, interval, buffers, conflicts, breaks, vacations, closures, blackouts, notice, advance window, daily caps, channel restrictions, and future resources. Phase 5.1 documents what Chasum can prove **today** versus what remains future.
 
 ## Product thesis
 
@@ -34,7 +41,7 @@ All booking actors must ultimately use **one Booking Engine**.
 2. **SQL / scheduling RPCs remain authoritative** — concurrent-safe slot/conflict validation stays in Postgres. TypeScript orchestrates.
 3. **UI never owns business rules** — hours, duration, buffers, prices, permissions, notice, availability, conflicts come from SoT + RPC.
 4. **Source-of-truth modules remain authoritative** — Business, Services, Employees, Resources; Calendar composes them.
-5. **Phase 5.0 is foundation only** — do not rebuild Day View; do not start Phase 5.1.
+5. **Phase 5.0 = contracts; Phase 5.1 = availability truth** — do not rebuild Day View (Phase 5.2); do not invent unsupported rules.
 
 ---
 
@@ -47,6 +54,7 @@ Public contract: `lib/booking-engine/facade.ts` (exported from `lib/booking-engi
 | `previewSlots` | `previewAvailableSlots` | `get_available_slots` RPC |
 | `validate` | `validateBooking` | `validate_appointment_slot` RPC (named staff) |
 | `composeContext` | `composeAvailabilityContext` | SoT tables (no slot math) |
+| `resolvePolicy` | `resolveSchedulingPolicy` | Snapshot from AvailabilityContext — not a second validator |
 | `create` | `createBooking` | validate → insert |
 | `update` | `updateBooking` | validate → update |
 | `reschedule` | `rescheduleBooking` | validate → update |
@@ -59,7 +67,39 @@ Named function exports remain for existing call sites. Prefer `BookingFacade` fo
 
 ---
 
-## BookingIntent
+## SchedulingPolicy (Phase 5.1)
+
+Resolved rule snapshot: `lib/booking-engine/availability/policy.ts`.
+
+Fields: `bookingIntervalMinutes` (start grid) · `serviceDurationMinutes` (block length) · buffers · cleanup · notice · advance days · daily cap · timezone · channel · online flags.
+
+**Not a second validation engine.** RPC remains slot authority.
+
+### Policy precedence (actual product)
+
+| Knob | Precedence |
+|------|------------|
+| Interval | location_settings → business → 30 |
+| Min notice | max(business, service, location) present values |
+| Max ahead | min(business, service, location) present values (>0) |
+| Daily cap | min(service, staff, location) present values (>0) |
+| Buffers before/after | max(service, staff) |
+| Cleanup | service only |
+| Duration | staff_services.duration_override → service.duration |
+| Timezone | location → business |
+
+**Ambiguity (documented):** if `location_settings` row exists but `max_daily_bookings` is null, SQL may not fall back to business daily cap.
+
+### Service duration vs booking interval
+
+These are **different**:
+
+- Duration = how long the appointment lasts once started  
+- Interval = how frequently starts may begin (e.g. every 5 minutes for a 30-minute service)
+
+GVM may legitimately use a 5-minute interval. Slot generation stays in `get_available_slots`.
+
+---
 
 Canonical create/validate intent (`lib/booking-engine/types.ts`):
 
@@ -110,13 +150,11 @@ UI must not parse raw RPC arrays differently per surface.
 
 Structured `BookingConflictReport`: `code`, `message`, `severity`, `recoverable`, optional ids/details.
 
-**Mapped today when RPC text is clear:** STAFF_BUSY, DOUBLE_BOOKING, VACATION, LUNCH_BREAK, SERVICE_BLACKOUT, OUTSIDE_*, BUSINESS_CLOSURE, MIN_NOTICE, MAX_BOOKING_WINDOW, MAX_APPOINTMENTS, RESOURCE_BUSY (soft), NOT_AUTHORIZED, …
+**Mapped when proven:** STAFF_BUSY · OUTSIDE_HOURS · LUNCH_BLOCK · VACATION · CLOSURE · SERVICE_BLACKOUT · MIN_NOTICE · MAX_AHEAD · DAILY_CAP · NOT_QUALIFIED (staff_services / compose) · CHANNEL_FORBIDDEN (online flags) · SERVICE_INACTIVE · NOT_AUTHORIZED · RESOURCE_BUSY (soft room messages only)
+
+**Aliases retained:** DOUBLE_BOOKING, LUNCH_BREAK, OUTSIDE_BUSINESS_HOURS, OUTSIDE_EMPLOYEE_HOURS, BUSINESS_CLOSURE, MAX_BOOKING_WINDOW, MAX_APPOINTMENTS
 
 **Unmapped:** `UNMAPPED` / `UNKNOWN` — retain raw message; never upgrade to a guessed code.
-
-**Architectural aliases** (documented; prefer specific codes when known): OUTSIDE_HOURS, LUNCH_BLOCK, CLOSURE, MAX_AHEAD, DAILY_CAP.
-
-**Future — do not invent from unstructured errors:** NOT_QUALIFIED, CHANNEL_FORBIDDEN.
 
 Human explanations: `lib/booking-engine/conflicts/explain.ts` — grounded only.
 
@@ -138,34 +176,71 @@ Orchestration (TS) ≠ authoritative validation (Postgres).
 
 ---
 
-## Current vs future scheduling capability matrix
+## Scheduling capability matrix (Phase 5.1 definitive)
 
-Audit basis: `026_availability_engine.sql` + `lib/booking-engine` + Chapter 4 gates.
+Audit basis: `026_availability_engine.sql`, `composeAvailabilityContext`, `lib/booking/interval.ts`, Chapter 4 gates.
 
-| Capability | Label | Notes |
-|------------|-------|-------|
-| Basic staff conflicts | **CURRENT** | `validate_appointment_slot` / slot overlap |
-| Business / location hours | **CURRENT** | RPC |
-| Employee hours | **CURRENT** | RPC |
-| Service duration | **CURRENT** | Service SoT + duration override |
-| Booking interval | **CURRENT** | location → business → 30 |
-| Employee eligibility (service/location) | **CURRENT** | compose / staff_services |
-| Lunch / break blocks | **CURRENT** | RPC |
-| Cleanup / buffers | **CURRENT** | RPC + context |
-| Closures | **CURRENT** | RPC |
-| Service blackouts | **CURRENT** | RPC |
-| Min notice | **CURRENT** | RPC + TS policy mirror |
-| Max ahead / booking window | **CURRENT** | RPC + TS policy mirror |
-| Daily caps | **CURRENT** | RPC |
-| Online booking flags | **PARTIAL** | fields on context; channel policy not fully enforced |
-| Optional / unassigned staff | **NOT WIRED** (gated) | migration 034 not applied; Ch4 named employee required |
-| Resource scheduling (rooms/equipment) | **FUTURE** | `resourceIds` on contracts; no RESOURCE_BUSY from true resource engine |
-| Cross-employee DnD validation UX | **FUTURE** | Phase 5.2 — facade methods ready |
-| Enriched conflict codes from RPC payload | **PARTIAL** | text classification today |
-| API v1 full facade convergence | **FUTURE** | intent adapter only |
-| Public named-staff via facade only | **PARTIAL** | RPC create path remains |
+| RULE | SOURCE OF TRUTH | ENFORCED WHERE | STATUS | CONFLICT CODE | DB CHANGE NEEDED? | NEXT PHASE |
+|------|-----------------|----------------|--------|---------------|-------------------|------------|
+| Business hours | `business_hours` (seed/template) | Not in RPC after multi-location | **PARTIAL** | OUTSIDE_HOURS (via location) | Optional sync→location | 5.1+ docs |
+| Location hours | `location_hours` / segments | `get_available_slots` | **CURRENT** | OUTSIDE_HOURS | No | — |
+| Employee working hours | `staff_working_hours` / segments | RPC | **CURRENT** | OUTSIDE_HOURS | No | — |
+| Employee↔location | `staff.location_id`; `staff_locations` exists | RPC uses **primary only** | **PARTIAL** | UNMAPPED / empty slots | RPC or sync | Gap report |
+| Service duration | `services.duration_minutes` + override | RPC + compose | **CURRENT** | SERVICE_INACTIVE (invalid) | No | — |
+| Employee↔service eligibility | `staff_services` | RPC + compose (`NOT_QUALIFIED`) | **CURRENT** | NOT_QUALIFIED | No | — |
+| Booking interval | location_settings → business → 30 | RPC step + TS resolve | **CURRENT** | — | 035 optional constraint | — |
+| Appointment conflicts | appointments + GiST | RPC + DB | **CURRENT** | STAFF_BUSY | No | — |
+| Buffer before | service/staff columns | RPC `greatest` | **CURRENT** | STAFF_BUSY / hours | No | — |
+| Buffer after + cleanup | service/staff + cleanup | RPC | **CURRENT** | STAFF_BUSY / hours | No | — |
+| Lunch / break | lunch cols + segments | RPC | **CURRENT** | LUNCH_BLOCK | No | — |
+| Vacation / time off | `staff_vacations` / closures | RPC | **CURRENT** | VACATION | No | — |
+| Business closures | `business_closures` + holidays | RPC | **CURRENT** | CLOSURE | No | — |
+| Location closures | scoped business_closures / availability | RPC | **PARTIAL** | CLOSURE | No dedicated table | — |
+| Service blackouts | `service_blackouts` | `availability_block_reason` | **CURRENT** | SERVICE_BLACKOUT | `slot_is_blocked` omits service | Gap report |
+| Min notice | business / location / service | RPC + `applyPolicyChecks` | **CURRENT** | MIN_NOTICE | No | — |
+| Max advance | business / location / service | RPC + policy | **CURRENT** | MAX_AHEAD | No | — |
+| Daily caps | location / staff / service | RPC | **CURRENT** | DAILY_CAP | Loc null fallback ambiguity | Gap report |
+| Public/online flags | service/staff/business columns | Compose (public/summer); **not SQL** | **PARTIAL** | CHANNEL_FORBIDDEN | SQL enforce later | Gap report |
+| Channel restrictions | `BookingChannel` + compose | Soft TS only | **PARTIAL** | CHANNEL_FORBIDDEN | Policy table FUTURE | — |
+| Resources | tables exist; 036 unapplied | Soft room only | **FUTURE** | RESOURCE_BUSY (soft msgs) | Yes for true engine | Ch9 / later |
+| Optional unassigned staff | 034 prepared / gated | Not production | **NOT WIRED** | — | 034 | PO only |
+| `min_break_minutes` | staff column | Settings only | **NOT WIRED** | — | RPC gap | Later |
 
 ---
+
+## Phase 5.1 database gap report
+
+**STOP — do not apply.** Preview shares Production Supabase.
+
+| Required change | Why | Risk | Additive? | Surfaces | Suggested order |
+|-----------------|-----|------|-----------|----------|-----------------|
+| RPC honor `staff_locations` (or sync primary) | Multi-location employees (GVM) | Medium — wrong empty slots today | Additive RPC | Calendar, Booking, public | After PO |
+| Pass service id into `slot_is_blocked` / deprecate | Blackouts skipped in wrapper | Low | Additive | Rare callers | After PO |
+| SQL coalesce location daily cap → business | Null loc settings gap | Low | Additive | Caps | After PO |
+| Enforce online/channel flags in RPC | Bypass via raw RPC | Medium | Additive | Public, Summer, API | After PO |
+| Wire `businesses.online_booking_enabled` everywhere | Partial S | Low | Already partially in compose | Public | Done in TS compose |
+| Resource concurrency RPCs | True RESOURCE_BUSY | High | Needs 036+ | Future | Ch9 |
+| Optional staff (034) | Unassigned booking | High / gated | Migration | Reception | PO only |
+| Interval allowed-values (035) | Constraint hygiene | Low | Migration | Settings | PO only |
+| Enriched RPC conflict codes | Stop text classification | Medium | Additive | All | 5.1+ |
+
+---
+
+## Performance (Phase 5.1)
+
+Typical staff slot preview:
+
+1. `composeAvailabilityContext` — parallel SoT reads (memoized ~30s)  
+2. One `get_available_slots` RPC  
+3. Enrich/score starts in TS  
+
+No per-interval TS generation. Multi-staff previews may call compose/RPC per staff — bounded by eligible set; avoid inventing batch RPC in 5.1 without evidence.
+
+---
+
+## Current vs future scheduling capability matrix
+
+See **Scheduling capability matrix** above (Phase 5.1 definitive). Summary highlights:
 
 ## Adapter responsibilities
 
@@ -193,13 +268,13 @@ Accepted flow remains locked:
 
 Customer → Service → Employee → Date & Time → Payment → Review → Confirmation  
 
-Provenance, required-step integrity, MoneyAmountInput, slot density, View Appointment, Book Another, expandable management — **unchanged** in Phase 5.0.
+Provenance, required-step integrity, MoneyAmountInput, slot density, View Appointment, Book Another, expandable management — **unchanged** in Phase 5.0 / 5.1. Date & Time continues to consume `BookingFacade.previewSlots`.
 
 ---
 
 ## Database safety
 
-**No migrations in Phase 5.0.** Do not apply 034 / 035 / 036 or alter shared RPCs. If a DB requirement is discovered: document and stop.
+**No migrations in Phase 5.0 or 5.1.** Do not apply 034 / 035 / 036 or alter shared RPCs. Gaps are listed in the Phase 5.1 database gap report — document and stop.
 
 ---
 
@@ -210,18 +285,24 @@ Provenance, required-step integrity, MoneyAmountInput, slot density, View Appoin
 - Conflict explanation layer + UNMAPPED truthfulness
 - Adapter status matrix
 - Contract tests
-- This architecture document
 
-## Phase 5.1 deferred (do not start)
+## Phase 5.1 completed scope
 
-- Full surface migration / bypass elimination
-- Day View rebuild
-- Enriched RPC conflict payloads
-- Resource scheduling
+- Availability truth principle locked
+- `SchedulingPolicy` + precedence documentation
+- Interval ≠ duration formalized
+- Stronger truthful conflict codes (OUTSIDE_HOURS, LUNCH_BLOCK, CLOSURE, MIN_NOTICE, MAX_AHEAD, DAILY_CAP, NOT_QUALIFIED, CHANNEL_FORBIDDEN when proven)
+- Capability matrix + database gap report
+- Policy / conflict unit tests
+- Chapter 4 UI unchanged; no Day View redesign
+
+## Phase 5.2 deferred (do not start)
+
+- Day View rebuild / DnD geometry UX
+- Full surface bypass elimination
+- Enriched RPC conflict payloads (DB)
+- Resource scheduling productization
 - Optional staff enablement
-- Channel policy enforcement
-- Chase utilization productization
-- DnD geometry → intent UX (Phase 5.2+)
 
 ---
 

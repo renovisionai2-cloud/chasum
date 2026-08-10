@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-10  
-**Updated by:** World Class — Chapter 5 Phase 5.0 Engine Contract Foundation (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 5 Phase 5.1 Availability Truth (Preview; Production unchanged)  
 
 ---
 
@@ -120,7 +120,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); **Chapter 5 Phase 5.0 — Engine Contract Foundation in progress** (facade/contracts only; no Day View rebuild). Phase 5.1 not started.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 complete (`60c71cd`); **Phase 5.1 — Availability Truth in progress**. Phase 5.2 / Chapter 6 not started.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -159,12 +159,20 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-10)
 
+**World Class — Chapter 5 Phase 5.1 Availability Truth & Scheduling Rules Foundation**
+
+- EMPTY TIME ≠ AVAILABLE TIME locked; SchedulingPolicy + precedence
+- Interval ≠ duration; truthful conflict codes; capability matrix + DB gap report (no migrations)
+- Chapter 4 UI unchanged; Phase 5.2 not started
+
+### Immediately prior (2026-08-10)
+
 **World Class — Chapter 5 Phase 5.0 Engine Contract Foundation**
 
 - Formal `BookingFacade` (`previewSlots` / `create` / `update` / `reschedule` / `resize` / `cancel`)
 - Conflict explanation + UNMAPPED truthfulness; adapter status ACTIVE/PARTIAL/FUTURE
 - Architecture doc `WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md` + current-vs-future capability matrix
-- Chapter 4 UI/workflow unchanged; no migrations; Phase 5.1 not started
+- Chapter 4 UI/workflow unchanged; no migrations; Phase 5.1 not started at that stamp
 
 ### Immediately prior (2026-08-10)
 
@@ -459,13 +467,13 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 5 Phase 5.0** — Engine Contract Foundation on Preview before Phase 5.1.
-2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as the Chapter 5 engine SoT for Phase 5.0.
-3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — apply progressive polish during later chapters / Polish Program (do not reopen Chapter 4 architecture).
+1. **PO review of Chapter 5 Phase 5.1** — Availability Truth on Preview before Phase 5.2.
+2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) capability matrix + DB gap report as SoT; do not apply migrations without PO.
+3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4 architecture.
 4. **Operation GVM Production** — remain protected.
 5. Marketing claim fixes only with **explicit PO** (locked pages).
 
-Do **not** start Phase 5.1 or Chapter 6 until PO approves Phase 5.0.  
+Do **not** start Phase 5.2 or Chapter 6 until PO approves Phase 5.1.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 

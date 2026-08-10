@@ -17,3 +17,8 @@ export {
 } from "@/lib/booking-engine/availability/extensions";
 export { enrichSlotCandidates } from "@/lib/booking-engine/availability/enrich";
 export { scoreSlot, compareSlotCandidates } from "@/lib/booking-engine/availability/score";
+export {
+  resolveSchedulingPolicy,
+  distinguishesIntervalFromDuration,
+  type SchedulingPolicy,
+} from "@/lib/booking-engine/availability/policy";

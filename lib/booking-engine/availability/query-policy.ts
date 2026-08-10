@@ -21,7 +21,7 @@ export function applyPolicyChecks(
       conflicts.push(
         conflictFromCode(
           "MIN_NOTICE",
-          `Bookings require at least ${context.minNoticeMinutes} minutes notice.`,
+          "This appointment is too soon to book under the current booking rules.",
         ),
       );
     }
@@ -32,8 +32,8 @@ export function applyPolicyChecks(
     if (start > latest) {
       conflicts.push(
         conflictFromCode(
-          "MAX_BOOKING_WINDOW",
-          `Bookings cannot be more than ${context.maxBookingDaysAhead} days ahead.`,
+          "MAX_AHEAD",
+          "This time is outside the maximum booking window.",
         ),
       );
     }
