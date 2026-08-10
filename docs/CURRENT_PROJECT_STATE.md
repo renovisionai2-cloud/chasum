@@ -419,9 +419,9 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `4da237c484e913a078f0e1ca411dd8cf038f13e7` |
-| **Short** | `4da237c` |
-| **Subject** | docs: record provenance pass gate results (Chapter 4 accepted tip) |
+| **SHA** | `e3e9b0ab3aef74abd286319e46b3be286a508cc4` |
+| **Short** | `e3e9b0a` |
+| **Subject** | docs: lock Chapter 4 Booking Workspace PO acceptance |
 | **Chapter 4 PO-accepted tip** | `4da237c` |
 | **Chapter 4 feature (provenance)** | `cb3421e` |
 | **Prior feature (front-desk speed)** | `5394b7d` |
