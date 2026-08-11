@@ -27,6 +27,11 @@ import {
   isSameBusinessCalendarDay,
   minutesToGridPercent,
 } from "@/lib/calendar/day-geometry";
+import {
+  hasUnassignedAppointmentsOnDay,
+  shouldShowUnassignedLane,
+  staffIdsForDayLanes,
+} from "@/lib/calendar/day-surface";
 import { appointmentStatusTone } from "@/lib/calendar/appointment-status-ui";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type {
@@ -60,6 +65,7 @@ type DayControlCenterProps = {
   loading?: boolean;
   error?: string | null;
   onRetry?: () => void;
+  staffFilter?: string | null;
 };
 
 function OverlayBand({
@@ -167,11 +173,11 @@ function StaffColumn({
 
   return (
     <div
-      className="relative min-w-[9.5rem] flex-1 border-l border-border/80 first:border-l-0 sm:min-w-[11rem]"
+      className="relative min-w-[12.5rem] max-w-[20rem] flex-1 border-l border-border/50 first:border-l-0"
       data-staff-column={member.id}
     >
       <div
-        className="sticky top-0 z-20 border-b border-border px-2 py-2 backdrop-blur-sm"
+        className="sticky top-0 z-20 border-b border-border/80 px-2.5 py-2.5 backdrop-blur-sm"
         style={{
           background:
             "color-mix(in oklab, var(--card) 92%, transparent)",
@@ -187,7 +193,7 @@ function StaffColumn({
             {initials || "?"}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-xs font-semibold sm:text-sm">
+            <p className="truncate text-sm font-semibold">
               {member.name}
             </p>
             <p className="truncate text-[10px] text-muted-foreground">
@@ -330,16 +336,22 @@ export function DayControlCenter({
   loading = false,
   error = null,
   onRetry,
+  staffFilter = "all",
 }: DayControlCenterProps) {
   const hours = useMemo(() => getHourSlots(), []);
   const scrollRef = useRef<HTMLDivElement>(null);
   const didInitialScroll = useRef(false);
 
   const activeStaff = useMemo(() => {
-    return [...staff.filter((s) => s.is_active)].sort((a, b) =>
+    const ordered = [...staff.filter((s) => s.is_active)].sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
     );
-  }, [staff]);
+    const ids = staffIdsForDayLanes({
+      activeStaffIds: ordered.map((s) => s.id),
+      staffFilter,
+    });
+    return ordered.filter((s) => ids.includes(s.id));
+  }, [staff, staffFilter]);
 
   const overlayByStaff = useMemo(() => {
     const map = new Map<string, StaffDayOverlay>();
@@ -365,6 +377,14 @@ export function DayControlCenter({
     [appointments, date, timeZone],
   );
   const dayCount = dayAppts.length;
+  const showUnassigned = shouldShowUnassignedLane({
+    hasUnassignedAppointments: hasUnassignedAppointmentsOnDay(
+      appointments,
+      date,
+      timeZone,
+    ),
+    staffFilter,
+  });
 
   const nowNext = useMemo(() => {
     if (!showNow) {
@@ -454,50 +474,40 @@ export function DayControlCenter({
     <div
       ref={scrollRef}
       className={cn(
-        "max-h-[min(72vh,54rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
+        "max-h-[min(82vh,64rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
         loading && "opacity-90",
       )}
+      data-unassigned-lane={showUnassigned ? "visible" : "hidden"}
       role="region"
       aria-busy={loading || undefined}
       aria-label={`Day view for ${formatDayHeaderInTimezone(date, timeZone)}`}
     >
       <div
         className={cn(
-          "sticky top-0 z-30 flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2 backdrop-blur-sm",
-          showNow ? "bg-accent/45" : "bg-card/95",
+          "sticky top-0 z-30 flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-1.5 backdrop-blur-sm",
+          showNow ? "bg-accent/30" : "bg-card/95",
         )}
       >
-        <div className="min-w-0">
-          <p className="text-sm font-semibold">
-            {formatDayHeaderInTimezone(date, timeZone)}
-            {showNow ? (
-              <span className="ml-2 text-xs font-medium text-primary">
-                Today
-              </span>
-            ) : null}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {loading
-              ? "Loading appointments…"
-              : dayCount === 0
-                ? "No appointments scheduled for this day."
-                : `${dayCount} appointment${dayCount === 1 ? "" : "s"} · ${activeStaff.length} employee${activeStaff.length === 1 ? "" : "s"}`}
-            {showNow && nowNext.now ? (
-              <>
-                {" "}
-                · Now: {nowNext.now.customer.name}
-              </>
-            ) : null}
-            {showNow && !nowNext.now && nowNext.next ? (
-              <>
-                {" "}
-                · Next:{" "}
-                {formatTimeInTimezone(nowNext.next.start_time, timeZone)}{" "}
-                {nowNext.next.customer.name}
-              </>
-            ) : null}
-          </p>
-        </div>
+        <p className="min-w-0 text-xs text-muted-foreground">
+          {loading
+            ? "Loading appointments…"
+            : dayCount === 0
+              ? "No appointments scheduled for this day."
+              : `${dayCount} appointment${dayCount === 1 ? "" : "s"}`}
+          {showNow && nowNext.now ? (
+            <>
+              {" "}
+              · Now {nowNext.now.customer.name}
+            </>
+          ) : null}
+          {showNow && !nowNext.now && nowNext.next ? (
+            <>
+              {" "}
+              · Next {formatTimeInTimezone(nowNext.next.start_time, timeZone)}{" "}
+              {nowNext.next.customer.name}
+            </>
+          ) : null}
+        </p>
         {dayCount === 0 && onNewAppointment ? (
           <Button
             type="button"
@@ -568,32 +578,33 @@ export function DayControlCenter({
               intervalMinutes={intervalMinutes}
             />
           ))}
-          {/* Unassigned last — view/filter only; create remains gated */}
-          <StaffColumn
-            key="__unassigned__"
-            member={
-              {
-                id: "__unassigned__",
-                name: "Unassigned",
-                color: "#94a3b8",
-                is_active: true,
-                location_id: null,
-                photo_url: null,
-                staff_services: [],
-              } as unknown as StaffWithServices
-            }
-            date={date}
-            appointments={appointments}
-            hours={hours}
-            showNow={showNow}
-            timeZone={timeZone}
-            onSelectAppointment={onSelectAppointment}
-            onSelectSlot={(slot) => onSelectSlot(slot, "")}
-            onReschedule={undefined}
-            onResize={onResize}
-            colorMode={colorMode}
-            intervalMinutes={intervalMinutes}
-          />
+          {showUnassigned ? (
+            <StaffColumn
+              key="__unassigned__"
+              member={
+                {
+                  id: "__unassigned__",
+                  name: "Unassigned",
+                  color: "#94a3b8",
+                  is_active: true,
+                  location_id: null,
+                  photo_url: null,
+                  staff_services: [],
+                } as unknown as StaffWithServices
+              }
+              date={date}
+              appointments={appointments}
+              hours={hours}
+              showNow={showNow}
+              timeZone={timeZone}
+              onSelectAppointment={onSelectAppointment}
+              onSelectSlot={(slot) => onSelectSlot(slot, "")}
+              onReschedule={undefined}
+              onResize={onResize}
+              colorMode={colorMode}
+              intervalMinutes={intervalMinutes}
+            />
+          ) : null}
         </div>
       </div>
     </div>

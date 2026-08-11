@@ -82,11 +82,8 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Reception"
-        description="Today’s operating centre — who is arriving, what needs attention, and what to do next. Use Day for the floor queue; Week and Month for planning across dates. All views share the same appointments."
-      />
+    <div className="space-y-3">
+      <PageHeader title="Reception" />
       <ReceptionWorkspace
         brief={brief}
         insights={insights}

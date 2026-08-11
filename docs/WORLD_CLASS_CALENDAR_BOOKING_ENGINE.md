@@ -296,6 +296,18 @@ Provenance, required-step integrity, MoneyAmountInput, slot density, View Appoin
 - Policy / conflict unit tests
 - Chapter 4 UI unchanged; no Day View redesign
 
+## Phase 5.2 — Day View Operating Surface Correction (PO visual review pending)
+
+**Locks**
+
+- Day View is schedule-first. Contextual booking/appointment workspaces must not permanently compress the calendar.
+- Calendar views, filters/scopes, alternate representations, and contextual actions must have distinct hierarchy.
+- Empty Unassigned scheduling space must not compete equally with active employee lanes while unassigned creation is gated.
+
+Idle Day View: no Reception rail, no Morning Brief, compact header. New Appointment / empty slot → Chapter 4 Booking Workspace overlay. Appointment click → existing management workspace. Close restores full-width schedule without refetching for layout.
+
+Toolbar: Day / Week / Month + date + employee/status scope + New Appointment. Secondary views and Undo/Duplicate/New Customer live under More.
+
 ## Phase 5.2 — Day View (implementation complete; PO visual review pending)
 
 ### Architecture

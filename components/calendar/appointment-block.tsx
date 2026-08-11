@@ -260,8 +260,8 @@ export function CurrentTimeIndicator({
       aria-hidden="true"
     >
       <div className="relative">
-        <div className="absolute -left-1.5 h-3 w-3 rounded-full border-2 border-white bg-red-500 shadow-sm" />
-        <div className="h-0.5 w-full bg-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]" />
+        <div className="absolute -left-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-500 shadow-sm" />
+        <div className="h-px w-full bg-red-500/90" />
       </div>
     </div>
   );

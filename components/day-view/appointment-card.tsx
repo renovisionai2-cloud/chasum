@@ -153,8 +153,8 @@ export function DayAppointmentCard({
       onDragEnd={() => setDragging(false)}
       title={`${appointment.customer.name} · ${appointment.service.name} · ${startLabel}–${endLabel} · ${statusTone.label}${showPayment && paymentLabel ? ` · ${paymentLabel}` : ""}`}
       className={cn(
-        "pointer-events-auto absolute overflow-hidden rounded-[0.55rem] border border-white/20 px-1.5 py-1 text-left text-white shadow-sm transition-[box-shadow,opacity,transform] motion-safe:hover:z-20 motion-safe:hover:scale-[1.01] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        "text-[10px] leading-tight sm:text-[11px]",
+        "pointer-events-auto absolute overflow-hidden rounded-[0.55rem] border border-white/15 px-2 py-1.5 text-left text-white shadow-sm transition-[box-shadow,opacity] hover:z-20 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "leading-snug",
         draggable &&
           appointment.status !== "cancelled" &&
           "cursor-grab active:cursor-grabbing",
@@ -164,42 +164,44 @@ export function DayAppointmentCard({
       style={{
         top: `${top}%`,
         height: `${previewHeight ?? height}%`,
-        left: `calc(${leftPct}% + 2px)`,
-        width: `calc(${widthPct}% - 4px)`,
-        minHeight: compact ? "28px" : "36px",
+        left: `calc(${leftPct}% + 3px)`,
+        width: `calc(${widthPct}% - 6px)`,
+        minHeight: compact ? "36px" : "48px",
         ...getAppointmentBlockStyle(appointment.status, fillColor),
       }}
       onClick={() => onSelect(appointment)}
       aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${startLabel}, ${statusTone.label}${showPayment && paymentLabel ? `, ${paymentLabel}` : ""}`}
     >
       <div className="flex items-start gap-1.5">
-        {!compact ? (
+        {rich ? (
           <span
-            className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-black/25 text-[9px] font-semibold"
+            className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-black/25 text-[10px] font-semibold"
             aria-hidden
           >
             {initials(appointment.customer.name || "?")}
           </span>
         ) : null}
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold tracking-tight">
+          <p className="truncate text-[13px] font-semibold tracking-tight">
             {appointment.customer.name}
           </p>
-          {!compact ? (
-            <p className="truncate opacity-95">{appointment.service.name}</p>
-          ) : null}
-          {rich ? (
-            <p className="truncate text-[9px] opacity-85 sm:text-[10px]">
-              {startLabel}–{endLabel}
-              {!inStaffLane && appointment.staff?.name
-                ? ` · ${appointment.staff.name}`
-                : ""}
+          {compact ? (
+            <p className="truncate text-[11px] tabular-nums opacity-90">
+              {startLabel} · {appointment.service.name}
             </p>
-          ) : compact ? (
-            <p className="truncate text-[9px] opacity-90">
-              {appointment.service.name} · {startLabel}
-            </p>
-          ) : null}
+          ) : (
+            <>
+              <p className="truncate text-[12px] opacity-95">
+                {appointment.service.name}
+              </p>
+              <p className="truncate text-[11px] tabular-nums opacity-90">
+                {startLabel}–{endLabel}
+                {!inStaffLane && appointment.staff?.name
+                  ? ` · ${appointment.staff.name}`
+                  : ""}
+              </p>
+            </>
+          )}
         </div>
       </div>
       {(showStatus || showPayment) && (

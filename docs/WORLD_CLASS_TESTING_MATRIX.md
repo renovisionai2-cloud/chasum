@@ -352,6 +352,17 @@
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
+## Chapter 5 — Calendar & Booking Engine (Phase 5.2 operating surface)
+
+| Field | Value |
+|-------|--------|
+| Phase | **5.2 — Day View Operating Surface Correction** |
+| Idle Day View | No persistent Reception rail (`shouldMountReceptionRail`) |
+| Toolbar | Primary Day/Week/Month; secondary + contextual under More |
+| Unassigned | Hidden when empty; visible when appointments or filter |
+| Tests | `tests/unit/calendar/day-surface.test.ts` |
+| Approval | Awaiting PO hands-on visual review — not auto-accepted |
+
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2)
 
 | Field | Value |

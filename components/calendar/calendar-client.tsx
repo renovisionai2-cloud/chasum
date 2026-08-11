@@ -69,7 +69,15 @@ import {
   formatCalendarDateParam,
 } from "@/lib/calendar/date-param";
 import { getCalendarViewRange } from "@/lib/calendar/view-range";
+import {
+  isDayViewIdle,
+  shouldMountReceptionRail,
+  shouldShowMorningBrief,
+} from "@/lib/calendar/day-surface";
 import { parseISO } from "@/lib/calendar/utils";
+import { MorningBrief } from "@/components/day-view/morning-brief";
+import type { MorningBriefData } from "@/lib/actions/morning-brief";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -111,6 +119,7 @@ type CalendarClientProps = {
   timezone?: string | null;
   /** Booking start-time interval (minutes) from location/business settings. */
   appointmentIntervalMinutes?: number;
+  morningBrief?: MorningBriefData | null;
 };
 
 export function CalendarClient({
@@ -131,6 +140,7 @@ export function CalendarClient({
   taxRates = [],
   timezone = null,
   appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
+  morningBrief = null,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -160,7 +170,7 @@ export function CalendarClient({
   const [defaultStaffId, setDefaultStaffId] = useState<string | undefined>();
   const [bookingDraft, setBookingDraft] = useState<BookingDraft | null>(null);
   const [forceQuickAddCustomer, setForceQuickAddCustomer] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
   const [mobileStaffId, setMobileStaffId] = useState<string | null>(null);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
@@ -207,11 +217,23 @@ export function CalendarClient({
           setCreateCustomerSignal((n) => n + 1);
           break;
         case "book-appointment":
-          setPanelOpen(true);
+          setSelectedAppointment(null);
+          setBookingDraft(null);
+          setDefaultSlot(undefined);
+          setDefaultStaffId(undefined);
+          setForceQuickAddCustomer(false);
+          setDrawerOpen(false);
+          setDialogOpen(true);
           setBookFocusSignal((n) => n + 1);
           break;
         case "walk-in":
-          setPanelOpen(true);
+          setSelectedAppointment(null);
+          setBookingDraft(null);
+          setDefaultSlot(date);
+          setDefaultStaffId(undefined);
+          setForceQuickAddCustomer(false);
+          setDrawerOpen(false);
+          setDialogOpen(true);
           setWalkInSignal((n) => n + 1);
           break;
         case "block-time":
@@ -221,7 +243,13 @@ export function CalendarClient({
           setNoteOpen(true);
           break;
         case "focus-customer-search":
-          setPanelOpen(true);
+          setSelectedAppointment(null);
+          setBookingDraft(null);
+          setDefaultSlot(undefined);
+          setDefaultStaffId(undefined);
+          setForceQuickAddCustomer(false);
+          setDrawerOpen(false);
+          setDialogOpen(true);
           setSearchFocusSignal((n) => n + 1);
           break;
       }
@@ -510,8 +538,14 @@ export function CalendarClient({
     );
   }
 
+  const filtersActive =
+    boardFilters.staffId !== DEFAULT_CALENDAR_BOARD_FILTERS.staffId ||
+    boardFilters.status !== DEFAULT_CALENDAR_BOARD_FILTERS.status;
+  const filteredEmpty =
+    filteredAppointments.length === 0 && appointments.length > 0;
+
   const calendarBody = (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <CalendarToolbar
         view={view}
         date={date}
@@ -522,6 +556,9 @@ export function CalendarClient({
         onNewAppointment={() => openNew()}
         onNewCustomer={openNewCustomer}
         timeZone={timezone}
+        staff={staff}
+        filters={boardFilters}
+        onFiltersChange={setBoardFilters}
         onUndo={() => {
           startTransition(async () => {
             const result = await undoLastAppointmentChange();
@@ -549,17 +586,20 @@ export function CalendarClient({
         canDuplicate={Boolean(selectedAppointment)}
       />
 
-      <CalendarFilters
-        staff={staff}
-        filters={boardFilters}
-        onChange={setBoardFilters}
-        matchedCount={filteredAppointments.length}
-        totalCount={appointments.length}
-      />
+      {effectiveView !== "day" ? (
+        <>
+          <CalendarFilters
+            staff={staff}
+            filters={boardFilters}
+            onChange={setBoardFilters}
+            matchedCount={filteredAppointments.length}
+            totalCount={appointments.length}
+          />
+          <ColorLegend colorMode={colorMode} services={services} staff={staff} />
+        </>
+      ) : null}
 
-      <ColorLegend colorMode={colorMode} services={services} staff={staff} />
-
-      {filteredAppointments.length === 0 && appointments.length > 0 ? (
+      {filteredEmpty && effectiveView !== "day" ? (
         <div
           role="status"
           className="rounded-[var(--radius-lg)] border border-dashed border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground"
@@ -578,6 +618,24 @@ export function CalendarClient({
         </div>
       ) : (
         <>
+          {effectiveView === "day" && filteredEmpty ? (
+            <div
+              role="status"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed border-border bg-card/70 px-3 py-2 text-sm text-muted-foreground"
+            >
+              <span>No appointments match these filters.</span>
+              {filtersActive ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setBoardFilters(DEFAULT_CALENDAR_BOARD_FILTERS)}
+                >
+                  Clear filters
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
           {effectiveView === "day" &&
             (isNarrow ? (
               <DayAgendaList
@@ -605,6 +663,7 @@ export function CalendarClient({
                 timeZone={timezone}
                 onNewAppointment={() => openNew()}
                 loading={isRefreshing}
+                staffFilter={boardFilters.staffId}
               />
             ))}
           {effectiveView === "week" && (
@@ -670,9 +729,29 @@ export function CalendarClient({
     </div>
   );
 
+  const mountReceptionRail = shouldMountReceptionRail({
+    view: effectiveView,
+    receptionPanelOpen: panelOpen,
+    showReceptionPanel,
+  });
+  const dayIdle = isDayViewIdle({
+    view: effectiveView,
+    bookingOpen: dialogOpen && !selectedAppointment,
+    appointmentOpen: drawerOpen || (dialogOpen && Boolean(selectedAppointment)),
+    receptionPanelOpen: mountReceptionRail,
+  });
+
   return (
-    <div className="relative space-y-4">
+    <div
+      className="relative space-y-3"
+      data-day-surface={effectiveView === "day" ? "day" : "other"}
+      data-day-idle={dayIdle ? "true" : "false"}
+      data-reception-rail={mountReceptionRail ? "open" : "closed"}
+    >
       {showReceptionPanel ? <ReceptionShortcuts /> : null}
+      {morningBrief && shouldShowMorningBrief(effectiveView) ? (
+        <MorningBrief brief={morningBrief} />
+      ) : null}
       {isRefreshing ? (
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-30 h-0.5 overflow-hidden rounded-full bg-primary/15"
@@ -681,13 +760,19 @@ export function CalendarClient({
           <div className="h-full w-1/3 animate-pulse bg-primary" />
         </div>
       ) : null}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div
+        className={cn(
+          "flex flex-col gap-4 lg:items-start",
+          mountReceptionRail ? "lg:flex-row" : "lg:flex-col",
+        )}
+      >
         <div
           className={`min-w-0 flex-1 transition-opacity ${isRefreshing ? "opacity-80" : ""}`}
+          data-calendar-canvas="primary"
         >
           {calendarBody}
         </div>
-        {showReceptionPanel && (
+        {mountReceptionRail ? (
           <ReceptionPanel
             customers={customers}
             services={services}
@@ -721,21 +806,8 @@ export function CalendarClient({
             walkInSignal={walkInSignal}
             createCustomerSignal={createCustomerSignal}
           />
-        )}
+        ) : null}
       </div>
-
-      {showReceptionPanel && !panelOpen && (
-        <div className="lg:hidden">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => setPanelOpen(true)}
-          >
-            Open reception panel
-          </Button>
-        </div>
-      )}
 
       {showReceptionPanel && <QuickActionsFab />}
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { CalendarClient } from "@/components/calendar/calendar-client";
-import { MorningBrief } from "@/components/day-view/morning-brief";
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
 import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
@@ -66,7 +65,6 @@ export function ReceptionWorkspace({
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
-      <MorningBrief brief={brief} />
       <CalendarClient
         appointments={appointments}
         services={services}
@@ -85,6 +83,7 @@ export function ReceptionWorkspace({
         taxRates={taxRates}
         timezone={timezone}
         appointmentIntervalMinutes={appointmentIntervalMinutes}
+        morningBrief={brief}
       />
     </div>
   );
