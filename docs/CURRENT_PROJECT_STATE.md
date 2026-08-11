@@ -458,11 +458,12 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `c3a5851008cb2ad57ba791e80cdd64354ded1e1a` |
-| **Short** | `c3a5851` |
-| **Subject** | feat: Chapter 5 Phase 5.2 world-class calendar Day View |
-| **Tip / stamp** | _(stamp after successful Preview push)_ |
-| **Chapter 5 Phase 5.2 feature** | `c3a5851` |
+| **SHA** | `5a62800a420b22bdc4071f6bce61f7f25522ef47` |
+| **Short** | `5a62800` |
+| **Subject** | fix: Phase 5.2 Day View operating surface correction |
+| **Tip / stamp** | _(after this stamp commit)_ |
+| **Chapter 5 Phase 5.2 correction** | `5a62800` |
+| **Chapter 5 Phase 5.2 feature** | `c3a5851` / tip `b578848` |
 | **Chapter 5 Phase 5.1 feature** | `15fd26c` / tip `3c843e5` |
 | **Chapter 5 Phase 5.0 feature** | `e2a034c` / tip `60c71cd` |
 | **Chapter 4 PO-accepted tip** | `4da237c` |
