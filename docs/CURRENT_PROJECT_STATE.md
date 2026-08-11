@@ -476,10 +476,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `3a433e18051af19bb27441eafdf3b1271de59571` |
-| **Short** | `3a433e1` |
-| **Subject** | fix: Phase 5.2 final Day View density and width |
+| **SHA** | `a556a909add3d6e06156c54993787c168c5b6ace` |
+| **Short** | `a556a90` |
+| **Subject** | fix: Phase 5.2 shared Reception calendar canvas |
 | **Tip / stamp** | _(after this stamp commit)_ |
+| **Chapter 5 Phase 5.2 shared canvas** | `a556a90` |
 | **Chapter 5 Phase 5.2 density** | `3a433e1` |
 | **Chapter 5 Phase 5.2 correction** | `5a62800` |
 | **Chapter 5 Phase 5.2 feature** | `c3a5851` / tip `b578848` |
