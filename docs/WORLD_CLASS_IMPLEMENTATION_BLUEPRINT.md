@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.3** — Week/Month planning; 5.2 PO-accepted)  
+**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.3 PO-accepted**; 5.2 PO-accepted)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -29,7 +29,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
-| 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3** Week/Month planning — awaiting PO review; Chapter 6 not started |
+| 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`); Chapter 6 not started |
 | 6 | Sales, payments, invoices, receipts | Not started |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
@@ -163,7 +163,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 5 status
 
-**Phase 5.2 PO-accepted.** **Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence** (PO-narrowed; Preview review pending). Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). Enriched RPC payloads, resource productization, and optional staff remain deferred. **Chapter 6 not started.**
+**Phase 5.2 PO-accepted.** **Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review** (`caef495` / tip `284d726`). Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). Enriched RPC payloads, resource productization, and optional staff remain deferred. **Chapter 6 not started.** No Phase 5.4.
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -196,4 +196,4 @@ This is **planning-locked now**; implementation is **not** started by this docum
 
 ## Next step after Chapter 5 Phase 5.3
 
-Await **PO hands-on visual review of Phase 5.3**. Do not start Chapter 6. Do not redesign Phase 5.2. Do not apply gap-report migrations without explicit PO.
+Await **explicit PO direction**. Do not invent Phase 5.4. Do not start Chapter 6. Do not reopen Phase 5.2 or Phase 5.3 for deferred polish. Do not apply gap-report migrations without explicit PO.

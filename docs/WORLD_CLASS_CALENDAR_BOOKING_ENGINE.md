@@ -1,16 +1,84 @@
 # World Class — Calendar & Booking Engine
 
 **Chapter:** 5 — Calendar & Booking Engine  
-**Phase:** **5.3 — Week/Month Planning Intelligence + Safe Engine Convergence** (5.0 / 5.1 complete; **5.2 PO-accepted**; 5.3 implementation — PO review pending)  
+**Phase:** **5.3 — Week/Month Planning Intelligence + Safe Engine Convergence** (5.0 / 5.1 complete; **5.2 PO-accepted**; **5.3 PO-accepted**)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 4 accepted tip:** `4da237c`  
 **Phase 5.0 tip:** `60c71cd`  
 **Phase 5.1 tip:** `3c843e5`  
 **Phase 5.2 accepted Preview tip:** `e88f22d` · lock `5756a45`  
+**Phase 5.3 feature:** `caef495` · accepted Preview tip `284d726`  
 **Production baseline:** `4eecbec` — untouched  
 **Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.3**
 
 ---
+
+## PO acceptance (Phase 5.3 — locked)
+
+**Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review.**
+
+Do **not** reopen Phase 5.3 for deferred polish. Do **not** invent Phase 5.4. Do **not** start Chapter 6. Do **not** apply migrations. Production remains untouched.
+
+Accepted Preview state includes:
+
+- Day = operate today (Phase 5.2 remains locked)
+- Week = plan the working week
+- Month = broader planning/navigation
+- Week redesigned as a planning surface rather than seven stretched Day views
+- Month redesigned as a calm 7×6 planning grid
+- Week/Month use the accepted shared Reception calendar canvas
+- business-timezone civil-date geometry
+- DST-safe Week/Month date handling
+- Today state uses business/location timezone
+- selected date remains independent from Today
+- appointment grouping uses business civil dates
+- dense Week appointment overflow
+- dense Month appointment overflow
+- date-level New Appointment uses date context only
+- empty calendar space is NOT treated as authoritative availability
+- appointment click opens exact existing Appointment Management Workspace
+- existing location/employee filters preserved
+- existing unassigned appointments remain visible
+- new unassigned creation remains gated
+- safe cancellation bypasses converged through BookingFacade where appropriate
+- public named booking RPC intentionally retained for security/atomicity
+- API create/non-cancel update remains PARTIAL
+- resource scheduling remains FUTURE
+- no fake capacity/availability/revenue intelligence
+- no database/schema/RPC changes
+- Production untouched
+
+### Intentionally deferred (later phases / final polish)
+
+These remain backlog — they are **not** reasons to reopen Phase 5.3:
+
+- repeated Week "New Appointment" CTA treatment
+- Reception summary/header compression
+- Week/Month typography refinement
+- Week/Month contrast refinement
+- final appointment-row/card styling
+- premium select/filter/menu styling
+- Agenda/Timeline refinement
+- global Business Settings hierarchy/density
+- Employee workspace polish
+- final motion and micro-interactions
+- loading/empty/error-state final polish
+- keyboard drag/resize accessibility
+- final responsive refinement
+
+### Known architectural gaps (not solved)
+
+- `staff_locations` not fully authoritative in RPC
+- API POST / non-cancel PATCH remain PARTIAL
+- public named create intentionally retains `create_public_appointment`
+- calendar undo remains FUTURE
+- keyboard drag/resize not implemented
+- enriched RPC conflict payloads not started
+- resource concurrency / `RESOURCE_BUSY` not implemented
+- optional staff enablement not started
+- migrations 034 / 035 / 036 remain unapplied
+- resource scheduling productization remains FUTURE
+- `CHASUM_OPTIONAL_STAFF_ENABLED` remains disabled
 
 ## PO acceptance (Phase 5.2 — locked)
 
@@ -455,7 +523,11 @@ EMPTY TIME ≠ AVAILABLE TIME. Week/Month must not infer availability, capacity 
 Bypass inventory: `lib/booking-engine/bypass-registry.ts`.  
 `create_public_appointment` is **INTENTIONALLY RETAINED** (SECURITY DEFINER + anon authorization + atomic validate/insert). API POST / non-cancel PATCH remain **PARTIAL**. Portal cancel and API DELETE are **CONVERGED**.
 
-Feature: `caef495`. Phase 5.3 is **not** auto-accepted. Chapter 6 not started.
+Feature: `caef495`. Accepted Preview tip: `284d726`.
+
+**Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review.**
+
+Chapter 6 not started. No Phase 5.4.
 
 ---
 

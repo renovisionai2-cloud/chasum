@@ -7,7 +7,7 @@
 **Chapter 2:** Command Centre page depth — approved tip `0f1f423`.  
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
-**Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — awaiting PO review.
+**Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).
 
 ---
 
@@ -365,7 +365,8 @@
 | Deferred | Enriched RPC payloads · resource productization · optional staff |
 | Tests | `planning-geometry.test.ts`, `bypass-convergence.test.ts` |
 | Feature | `caef495` |
-| Approval | Awaiting PO visual review — not auto-accepted |
+| Accepted Preview tip | `284d726` |
+| Approval | **Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review.** |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 PO acceptance)
 
