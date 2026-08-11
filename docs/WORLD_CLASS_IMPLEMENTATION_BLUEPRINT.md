@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.1 — Availability Truth**)  
+**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.2 — Day View**)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -29,7 +29,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
-| 5 | Calendar & Booking Engine | **Phase 5.1 in progress** — availability truth; Phase 5.2 not started |
+| 5 | Calendar & Booking Engine | **Phase 5.2 implemented** — Day View; awaiting PO visual; Phase 5.3 not started |
 | 6 | Sales, payments, invoices, receipts | Not started |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
@@ -163,7 +163,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 5 status
 
-**Phase 5.1 — Availability Truth & Scheduling Rules Foundation.** `SchedulingPolicy`; EMPTY TIME ≠ AVAILABLE TIME; capability matrix + DB gap report (no migrations). Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). **Phase 5.2 not started. Chapter 6 not started.**
+**Phase 5.2 — World-Class Calendar Day View.** Business-TZ geometry; employee lanes; operational cards; empty-slot → Chapter 4 Booking Workspace; drag/resize via BookingFacade. Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). **Phase 5.3 not started. Chapter 6 not started.** Awaiting PO visual acceptance.
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -194,6 +194,6 @@ Includes cross-portal hierarchy, spacing, icons, tables, charts, Summer/Chase ve
 
 This is **planning-locked now**; implementation is **not** started by this documentation commit.
 
-## Next step after Chapter 5 Phase 5.1
+## Next step after Chapter 5 Phase 5.2
 
-Await **PO review of Phase 5.1**. Do not start Phase 5.2 (Day View) until approved. Do not apply gap-report migrations without explicit PO.
+Await **PO hands-on visual review of Phase 5.2 Day View**. Do not start Phase 5.3 until accepted. Do not apply gap-report migrations without explicit PO.

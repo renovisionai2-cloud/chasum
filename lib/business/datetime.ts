@@ -6,7 +6,8 @@
 import { getBusinessTimezone, type BusinessLocaleInput } from "@/lib/locale";
 import { addDays } from "date-fns";
 
-function partsInZone(date: Date, timeZone: string) {
+/** Calendar parts for an instant in an IANA timezone. */
+export function partsInZone(date: Date, timeZone: string) {
   const dtf = new Intl.DateTimeFormat("en-US", {
     timeZone,
     year: "numeric",
@@ -45,7 +46,8 @@ function zoneOffsetMs(date: Date, timeZone: string): number {
   return asUtc - date.getTime();
 }
 
-function zonedTimeToUtc(
+/** Convert a wall-clock civil time in `timeZone` to a UTC Date. */
+export function zonedTimeToUtc(
   year: number,
   month: number,
   day: number,
@@ -57,6 +59,58 @@ function zonedTimeToUtc(
   const utcGuess = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
   const offset = zoneOffsetMs(utcGuess, timeZone);
   return new Date(utcGuess.getTime() - offset);
+}
+
+/**
+ * Wall-clock hour:minute on the business calendar day of `dayAnchor`.
+ * Used by Day View empty-slot clicks and drag drop targets.
+ */
+export function wallTimeOnBusinessDay(
+  dayAnchor: Date,
+  hour: number,
+  minute: number,
+  timeZone: string | null | undefined,
+): Date {
+  const zone =
+    timeZone && timeZone.trim().length > 0 ? timeZone.trim() : "UTC";
+  const p = partsInZone(dayAnchor, zone);
+  return zonedTimeToUtc(p.year, p.month, p.day, hour, minute, 0, zone);
+}
+
+/** Minutes from midnight in the given timezone (0–1439). */
+export function minutesOfDayInTimezone(
+  date: Date,
+  timeZone: string | null | undefined,
+): number {
+  const zone =
+    timeZone && timeZone.trim().length > 0 ? timeZone.trim() : "UTC";
+  const p = partsInZone(date, zone);
+  return p.hour * 60 + p.minute;
+}
+
+/** True when both instants fall on the same calendar date in `timeZone`. */
+export function isSameBusinessCalendarDay(
+  a: Date | string,
+  b: Date | string,
+  timeZone: string | null | undefined,
+): boolean {
+  return (
+    calendarDateInTimezone(a, timeZone) ===
+    calendarDateInTimezone(b, timeZone)
+  );
+}
+
+/** Day-of-week (0=Sun … 6=Sat) for an instant in the business timezone. */
+export function dayOfWeekInTimezone(
+  date: Date | string,
+  timeZone: string | null | undefined,
+): number {
+  const zone =
+    timeZone && timeZone.trim().length > 0 ? timeZone.trim() : "UTC";
+  const instant = typeof date === "string" ? new Date(date) : date;
+  const p = partsInZone(instant, zone);
+  // Use UTC noon of the civil date so weekday matches the zone calendar.
+  return new Date(Date.UTC(p.year, p.month - 1, p.day, 12)).getUTCDay();
 }
 
 export function resolveBusinessTimezone(

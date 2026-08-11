@@ -9,6 +9,7 @@ import {
 import {
   cancelBooking,
   createBooking,
+  explainConflicts,
   queryAppointmentsInRange,
   rescheduleBooking,
   resizeBooking,
@@ -49,6 +50,7 @@ function mutationToAction(
   }
   return {
     error:
+      explainConflicts(result.conflicts) ??
       result.error ??
       result.conflicts?.[0]?.message ??
       "Booking could not be completed.",

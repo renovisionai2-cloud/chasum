@@ -162,6 +162,7 @@ export function CalendarClient({
   const [forceQuickAddCustomer, setForceQuickAddCustomer] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [isNarrow, setIsNarrow] = useState(false);
+  const [mobileStaffId, setMobileStaffId] = useState<string | null>(null);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [searchFocusSignal, setSearchFocusSignal] = useState(0);
@@ -364,7 +365,7 @@ export function CalendarClient({
       );
     });
 
-    const dateStr = format(newStart, "yyyy-MM-dd");
+    const dateStr = formatCalendarDateParam(newStart, timezone);
     if (!nextStaffId) {
       const result = await rescheduleAppointment(
         appointment.id,
@@ -475,7 +476,7 @@ export function CalendarClient({
     setView(newView);
     const range = getCalendarViewRange(newView, date, locale);
     router.replace(
-      `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(range.start)}`,
+      `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(range.start, timezone)}`,
       { scroll: false },
     );
   }
@@ -484,7 +485,7 @@ export function CalendarClient({
     setDate(newDate);
     const range = getCalendarViewRange(view, newDate, locale);
     router.replace(
-      `/dashboard/calendar?view=${view}&date=${formatCalendarDateParam(range.start)}`,
+      `/dashboard/calendar?view=${view}&date=${formatCalendarDateParam(range.start, timezone)}`,
       { scroll: false },
     );
   }
@@ -520,6 +521,7 @@ export function CalendarClient({
         onColorModeChange={setColorMode}
         onNewAppointment={() => openNew()}
         onNewCustomer={openNewCustomer}
+        timeZone={timezone}
         onUndo={() => {
           startTransition(async () => {
             const result = await undoLastAppointmentChange();
@@ -582,6 +584,11 @@ export function CalendarClient({
                 date={date}
                 appointments={filteredAppointments}
                 onSelectAppointment={openDrawer}
+                timeZone={timezone}
+                onNewAppointment={() => openNew()}
+                staff={staff}
+                selectedStaffId={mobileStaffId}
+                onStaffChange={setMobileStaffId}
               />
             ) : (
               <DayControlCenter
@@ -595,6 +602,9 @@ export function CalendarClient({
                 onResize={handleResize}
                 colorMode={colorMode}
                 intervalMinutes={appointmentIntervalMinutes}
+                timeZone={timezone}
+                onNewAppointment={() => openNew()}
+                loading={isRefreshing}
               />
             ))}
           {effectiveView === "week" && (

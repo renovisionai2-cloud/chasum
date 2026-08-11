@@ -17,11 +17,15 @@ export function getAppointmentBlockStyle(
   };
 }
 
+/**
+ * Browser-local current-time position (Week/Month legacy).
+ * Day View must use getCurrentTimePositionInTimezone from day-geometry.
+ */
 export function getCurrentTimePosition(
   startHour: number,
   endHour: number,
+  now: Date = new Date(),
 ): number | null {
-  const now = new Date();
   const minutes = now.getHours() * 60 + now.getMinutes();
   const startMinutes = startHour * 60;
   const totalMinutes = (endHour - startHour) * 60;

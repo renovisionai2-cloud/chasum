@@ -2,6 +2,10 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
+import {
+  calendarDateInTimezone,
+  dayOfWeekInTimezone,
+} from "@/lib/business/datetime";
 import { createClient } from "@/lib/supabase/server";
 
 export type StaffDayOverlay = {
@@ -30,8 +34,10 @@ export async function getStaffDayOverlays(
   const locationId = await getActiveLocationId();
   const supabase = await createClient();
   const date = new Date(dateIso);
-  const dow = date.getDay();
-  const dateStr = date.toISOString().slice(0, 10);
+  const timezone = business.timezone ?? "UTC";
+  // Business-TZ weekday + civil date — not browser/server local getDay().
+  const dow = dayOfWeekInTimezone(date, timezone);
+  const dateStr = calendarDateInTimezone(date, timezone);
 
   const [{ data: staff }, { data: hours }, { data: vacations }, { data: segments }] =
     await Promise.all([

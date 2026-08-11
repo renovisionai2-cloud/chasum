@@ -8,6 +8,9 @@
  * Never concatenate "T12:00:00" onto an ISO string — that yields Invalid Date
  * and crashes Server Components calling toISOString().
  */
+
+import { calendarDateInTimezone } from "@/lib/business/datetime";
+
 export function parseCalendarDateParam(
   raw: string | null | undefined,
   fallback: Date = new Date(),
@@ -25,10 +28,20 @@ export function parseCalendarDateParam(
   return Number.isFinite(parsed.getTime()) ? parsed : fallback;
 }
 
-/** Prefer YYYY-MM-DD in calendar URLs for stable round-trips. */
-export function formatCalendarDateParam(date: Date): string {
+/**
+ * Prefer YYYY-MM-DD in calendar URLs for stable round-trips.
+ * When `timeZone` is provided, use business civil date (not browser local).
+ */
+export function formatCalendarDateParam(
+  date: Date,
+  timeZone?: string | null,
+): string {
   if (!Number.isFinite(date.getTime())) {
-    return formatCalendarDateParam(new Date());
+    return formatCalendarDateParam(new Date(), timeZone);
+  }
+  if (timeZone) {
+    const civil = calendarDateInTimezone(date, timeZone);
+    if (civil) return civil;
   }
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");

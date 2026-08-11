@@ -10,6 +10,8 @@ import {
   snapMinutesInHour,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle, getCurrentTimePosition } from "@/lib/calendar/status-colors";
+import { getCurrentTimePositionInTimezone } from "@/lib/calendar/day-geometry";
+import { wallTimeOnBusinessDay } from "@/lib/business/datetime";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
@@ -181,14 +183,24 @@ export function AppointmentBlock({
 export function CurrentTimeIndicator({
   show,
   autoScroll = true,
+  timeZone = null,
+  viewDate,
 }: {
   show: boolean;
   /** When false, skip scrollIntoView (multi-column day grids). */
   autoScroll?: boolean;
+  /** Business/location IANA timezone — Day View must pass this. */
+  timeZone?: string | null;
+  /** Selected calendar day; used with timeZone for Today check. */
+  viewDate?: Date;
 }) {
   const [position, setPosition] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const didScroll = useRef(false);
+
+  const viewDateKey = viewDate
+    ? `${viewDate.getFullYear()}-${viewDate.getMonth()}-${viewDate.getDate()}`
+    : "";
 
   useEffect(() => {
     if (!show) {
@@ -197,17 +209,28 @@ export function CurrentTimeIndicator({
     }
 
     function update() {
-      const next = getCurrentTimePosition(
-        CALENDAR_START_HOUR,
-        CALENDAR_END_HOUR,
-      );
+      const now = new Date();
+      const next =
+        timeZone != null && timeZone !== ""
+          ? getCurrentTimePositionInTimezone(
+              viewDate ?? now,
+              timeZone,
+              now,
+            )
+          : getCurrentTimePosition(
+              CALENDAR_START_HOUR,
+              CALENDAR_END_HOUR,
+              now,
+            );
       setPosition((prev) => (prev === next ? prev : next));
     }
 
     update();
     const interval = setInterval(update, 30000);
     return () => clearInterval(interval);
-  }, [show]);
+    // viewDateKey captures civil day without Date identity churn
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show, timeZone, viewDateKey]);
 
   useEffect(() => {
     if (
@@ -249,18 +272,26 @@ type DropZoneProps = {
   hour: number;
   /** Business/location booking start-time interval (minutes). */
   intervalMinutes?: number;
+  /** Business/location IANA timezone for wall-clock → UTC conversion. */
+  timeZone?: string | null;
   onDrop: (date: Date, appointmentId?: string) => void;
   onClick: (date: Date) => void;
   className?: string;
+  /** When true, empty-slot book / drop is blocked (off-hours, vacation). */
+  blocked?: boolean;
+  blockedReason?: string;
 };
 
 export function TimeSlotDropZone({
   date,
   hour,
   intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
+  timeZone = null,
   onDrop,
   onClick,
   className,
+  blocked = false,
+  blockedReason,
 }: DropZoneProps) {
   const [hoverMinutes, setHoverMinutes] = useState<number | null>(null);
 
@@ -270,8 +301,22 @@ export function TimeSlotDropZone({
     return snapMinutesInHour(offsetY, rect.height, intervalMinutes);
   }
 
+  function slotFromMinutes(minutes: number): Date {
+    if (timeZone) {
+      return wallTimeOnBusinessDay(date, hour, minutes, timeZone);
+    }
+    const slot = new Date(date);
+    slot.setHours(hour, minutes, 0, 0);
+    return slot;
+  }
+
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
+    if (blocked) {
+      e.dataTransfer.dropEffect = "none";
+      setHoverMinutes(null);
+      return;
+    }
     e.dataTransfer.dropEffect = "move";
     setHoverMinutes(minutesFromEvent(e));
   }
@@ -284,12 +329,10 @@ export function TimeSlotDropZone({
     e.preventDefault();
     const minutes = minutesFromEvent(e);
     setHoverMinutes(null);
+    if (blocked) return;
     const appointmentId = e.dataTransfer.getData("appointmentId");
     if (!appointmentId) return;
-
-    const slot = new Date(date);
-    slot.setHours(hour, minutes, 0, 0);
-    onDrop(slot, appointmentId);
+    onDrop(slotFromMinutes(minutes), appointmentId);
   }
 
   const ghostTop =
@@ -301,22 +344,33 @@ export function TimeSlotDropZone({
   return (
     <button
       type="button"
+      disabled={blocked}
+      title={blocked ? blockedReason : undefined}
+      aria-label={
+        blocked
+          ? blockedReason ?? "Unavailable"
+          : `Book at ${hour}:00`
+      }
       className={cn(
-        "relative transition-colors hover:bg-muted/35",
-        hoverMinutes !== null && "bg-primary/12 ring-1 ring-inset ring-primary/35",
+        "relative transition-colors",
+        blocked
+          ? "cursor-not-allowed"
+          : "hover:bg-muted/35",
+        hoverMinutes !== null &&
+          !blocked &&
+          "bg-primary/12 ring-1 ring-inset ring-primary/35",
         className,
       )}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={(e) => {
+        if (blocked) return;
         const minutes = minutesFromEvent(e);
-        const slot = new Date(date);
-        slot.setHours(hour, minutes, 0, 0);
-        onClick(slot);
+        onClick(slotFromMinutes(minutes));
       }}
     >
-      {ghostTop != null && (
+      {ghostTop != null && !blocked && (
         <span
           className="pointer-events-none absolute inset-x-1 rounded-sm border border-dashed border-primary/50 bg-primary/10"
           style={{
@@ -326,8 +380,8 @@ export function TimeSlotDropZone({
           aria-hidden
         />
       )}
-      {/* Subtle mid-hour mark only when interval divides the hour evenly into halves */}
-      {60 % intervalMinutes === 0 && intervalMinutes < 60 ? (
+      {/* Subtle mid-hour mark — visual density ≠ booking interval */}
+      {60 % intervalMinutes === 0 && intervalMinutes <= 30 ? (
         <span
           className="pointer-events-none absolute inset-x-0 border-t border-dashed border-border/40"
           style={{ top: "50%" }}

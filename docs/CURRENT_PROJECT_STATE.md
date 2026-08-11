@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-10  
-**Updated by:** World Class — Chapter 5 Phase 5.1 Availability Truth (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 5 Phase 5.2 Day View (Preview; Production unchanged)  
 
 ---
 
@@ -120,7 +120,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 complete (`60c71cd`); **Phase 5.1 — Availability Truth in progress**. Phase 5.2 / Chapter 6 not started.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 (`60c71cd`) + Phase 5.1 (`3c843e5`) complete; **Phase 5.2 — Day View implemented — awaiting PO visual review**. Phase 5.3 / Chapter 6 not started.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -159,11 +159,23 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-10)
 
+**World Class — Chapter 5 Phase 5.2 World-Class Calendar Day View**
+
+- Day View operating workspace: business-TZ geometry, now line, employee lanes (alpha → Unassigned last)
+- Appointment cards: customer/service/time hierarchy; status + balance-due attention only when useful
+- Empty slot → Chapter 4 Booking Workspace with intentional context; Unassigned create remains gated
+- Drag/resize retained via BookingFacade; conflict explain on reject; blocked hours not bookable in UI
+- Mobile agenda: employee switcher, Now/Next, New Appointment empty state
+- No DB migrations; no Week/Month redesign; no resource scheduling; Phase 5.3 not started
+- Awaiting PO hands-on visual acceptance
+
+### Immediately prior (2026-08-10)
+
 **World Class — Chapter 5 Phase 5.1 Availability Truth & Scheduling Rules Foundation**
 
 - EMPTY TIME ≠ AVAILABLE TIME locked; SchedulingPolicy + precedence
 - Interval ≠ duration; truthful conflict codes; capability matrix + DB gap report (no migrations)
-- Chapter 4 UI unchanged; Phase 5.2 not started
+- Chapter 4 UI unchanged at Phase 5.1 tip
 
 ### Immediately prior (2026-08-10)
 
@@ -436,13 +448,14 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `15fd26c1d203b9a58288068b4caded563b29acd1` |
-| **Short** | `15fd26c` |
-| **Subject** | feat: Chapter 5 Phase 5.1 availability truth and scheduling policy |
-| **Tip / stamp** | `7de6398` |
-| **Chapter 4 PO-accepted tip** | `4da237c` |
-| **Chapter 5 Phase 5.1 feature** | `15fd26c` |
+| **SHA** | _(pending Phase 5.2 feature commit)_ |
+| **Short** | _(pending)_ |
+| **Subject** | feat: Chapter 5 Phase 5.2 world-class calendar Day View |
+| **Tip / stamp** | _(pending after Preview)_ |
+| **Chapter 5 Phase 5.2** | Day View — awaiting PO visual review |
+| **Chapter 5 Phase 5.1 feature** | `15fd26c` / tip `3c843e5` |
 | **Chapter 5 Phase 5.0 feature** | `e2a034c` / tip `60c71cd` |
+| **Chapter 4 PO-accepted tip** | `4da237c` |
 | **Chapter 4 feature (provenance)** | `cb3421e` |
 | **Prior feature (front-desk speed)** | `5394b7d` |
 | **Feature (expand management)** | `c2f8962` |
@@ -469,13 +482,13 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of Chapter 5 Phase 5.1** — Availability Truth on Preview before Phase 5.2.
-2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) capability matrix + DB gap report as SoT; do not apply migrations without PO.
+1. **PO hands-on visual review of Chapter 5 Phase 5.2 Day View** on Preview.
+2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for engine + Day View architecture; do not apply migrations without PO.
 3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4 architecture.
 4. **Operation GVM Production** — remain protected.
 5. Marketing claim fixes only with **explicit PO** (locked pages).
 
-Do **not** start Phase 5.2 or Chapter 6 until PO approves Phase 5.1.  
+Do **not** start Phase 5.3 or Chapter 6 until PO accepts Phase 5.2.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 

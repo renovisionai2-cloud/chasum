@@ -352,6 +352,22 @@
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
+## Chapter 5 — Calendar & Booking Engine (Phase 5.2)
+
+| Field | Value |
+|-------|--------|
+| Phase | **5.2 — World-Class Calendar Day View** |
+| Geometry | `lib/calendar/day-geometry.ts` — business TZ position / now / wall slots |
+| Status UI | `lib/calendar/appointment-status-ui.ts` — real statuses only |
+| Desktop | `DayControlCenter` — lanes alpha → Unassigned last; overlays; Now/Next |
+| Mobile | `DayAgendaList` — employee switcher; agenda; empty CTA |
+| Entry | Empty slot → Chapter 4 Booking Workspace; click → management workspace |
+| Mutations | Drag/resize via BookingFacade; `explainConflicts` on reject |
+| DB changes | **None** |
+| Resources | Still FUTURE — not activated |
+| Tests | `tests/unit/calendar/day-geometry.test.ts` + prior calendar/booking-engine suites |
+| Approval | Awaiting PO hands-on visual review — not auto-accepted |
+
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.1)
 
 | Field | Value |
@@ -364,8 +380,7 @@
 | DB changes | **None** — gap report only |
 | Chapter 4 | Unchanged |
 | Tests | `scheduling-policy.test.ts`, booking-engine suite |
-| Approval | Awaiting PO review of Phase 5.1 |
-
+| Approval | Tip `3c843e5` — Phase 5.2 continues |
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.0)
 
 | Field | Value |

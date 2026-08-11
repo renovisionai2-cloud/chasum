@@ -6,7 +6,7 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production:** Untouched (`4eecbec`)  
 **Mode:** Planning lock only — **do not implement in this commit**  
-**Do not:** Redesign unrelated pages · rewrite booking/payment engines · run migrations · write shared DB · begin Phase 5.2 or Chapter 6 without PO  
+**Do not:** Redesign unrelated pages · rewrite booking/payment engines · run migrations · write shared DB · begin Phase 5.3 or Chapter 6 without PO
 
 Canonical companion docs:
 
@@ -281,7 +281,8 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 5 Phase 5.1** — Availability Truth (SchedulingPolicy / capability matrix); Day View redesign not in scope; Phase 5.2 not started
+- **Chapter 5 Phase 5.2** — Day View operating workspace (business TZ; cards; mobile agenda); awaiting PO visual; Phase 5.3 not started
+- **Chapter 5 Phase 5.1** — Availability Truth (SchedulingPolicy / capability matrix); DB gaps documented only
 - Locked usability: revisitable decisions; no silent dead clicks; Book another = fresh in-workspace; current decision must dominate; VALUE≠RESOLVED; provenance-aware adaptive skip
 
 ---
@@ -290,6 +291,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-10 | Chapter 5 Phase 5.2 Day View implemented (geometry; lanes; cards; mobile; no migrations; PO visual pending) |
 | 2026-08-10 | Chapter 5 Phase 5.1 Availability Truth started (policy; no Day View; no migrations) |
 | 2026-08-10 | Chapter 5 Phase 5.0 Engine Contract Foundation started (facade; no Day View) |
 | 2026-08-10 | Chapter 4 Booking Workspace PO-accepted on Preview (`4da237c`); visual polish remains backlog-only |

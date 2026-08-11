@@ -296,9 +296,59 @@ Provenance, required-step integrity, MoneyAmountInput, slot density, View Appoin
 - Policy / conflict unit tests
 - Chapter 4 UI unchanged; no Day View redesign
 
-## Phase 5.2 deferred (do not start)
+## Phase 5.2 — Day View (implementation complete; PO visual review pending)
 
-- Day View rebuild / DnD geometry UX
+### Architecture
+
+| Surface | Role |
+|---------|------|
+| **Day View** | Operate the business day — schedule is the dominant surface |
+| **Week / Month** | Planning (unchanged beyond shared TZ helpers / drop-zone props) |
+| **Reception** | Today-focused queue / floor — separate mode; same booking truth |
+| **Booking Workspace** | Sole New Appointment / management workspace (Chapter 4) |
+| **BookingFacade** | Sole mutation / legality authority |
+
+### Desktop structure
+
+1. Compact control bar: prev / Today / next / date / view tabs / New Appointment  
+2. Operating strip: civil date (business TZ), count, Now/Next when Today  
+3. Time axis (hour labels; visual density ≠ booking interval)  
+4. Employee lanes: alphabetical active staff → **Unassigned last** (view only; create gated)  
+5. Overlays: off / vacation / before-after shift / lunch (labeled only when data proves it)  
+6. Appointment cards: customer → service → time; status/payment attention when useful  
+
+### Mobile structure
+
+- Agenda list (≤767px) — not squeezed columns  
+- Horizontal employee switcher (All + staff)  
+- Now / Next emphasis  
+- Empty day → New Appointment  
+- Tap → existing Appointment Management drawer / workspace  
+
+### Geometry & timezone
+
+- `lib/calendar/day-geometry.ts` — position, now-line, wall-clock slot construction, formatters  
+- Day overlays DOW/date use business TZ (`dayOfWeekInTimezone` / `calendarDateInTimezone`)  
+- URL date params use business civil date when timezone provided  
+
+### Mutations
+
+- Empty slot → `openNew(slot, staffId)` → Chapter 4 Adaptive Booking Workspace  
+- Appointment click → existing management drawer  
+- Drag / resize → BookingFacade via `rescheduleAppointment` / `resizeAppointment`; optimistic rollback on error; `explainConflicts` preferred  
+- Grid creates **intent**; engine decides legality  
+
+### Known limitations (Phase 5.2)
+
+- Week/Month still use browser-local geometry for blocks/now-line (Day View fixed)  
+- `staff_locations` not fully authoritative in RPC (Phase 5.1 gap) — not faked as solved  
+- Resource scheduling still FUTURE empty state  
+- Keyboard drag-and-drop not implemented  
+- Full surface bypass elimination deferred  
+
+## Phase 5.3 deferred (do not start)
+
+- Week/Month redesign
 - Full surface bypass elimination
 - Enriched RPC conflict payloads (DB)
 - Resource scheduling productization

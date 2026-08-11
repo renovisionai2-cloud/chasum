@@ -1,14 +1,16 @@
 "use client";
 
-import { StatusBadge } from "@/components/ui/badge";
 import {
   CALENDAR_END_HOUR,
   CALENDAR_START_HOUR,
-  formatTime,
-  getAppointmentPosition,
   parseISO,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
+import {
+  formatTimeInTimezone,
+  getAppointmentPositionInTimezone,
+} from "@/lib/calendar/day-geometry";
+import { appointmentStatusTone } from "@/lib/calendar/appointment-status-ui";
 import {
   paymentReadinessFromStatus,
   paymentReadinessLabel,
@@ -16,7 +18,7 @@ import {
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { addMinutes } from "date-fns";
-import { FileText, Wallet } from "lucide-react";
+import { Wallet } from "lucide-react";
 import { useState } from "react";
 
 export type CalendarColorMode = "service" | "staff";
@@ -29,6 +31,10 @@ type DayAppointmentCardProps = {
   draggable?: boolean;
   column?: number;
   columns?: number;
+  /** Business/location IANA timezone for geometry + labels. */
+  timeZone?: string | null;
+  /** When true, lane already shows employee — omit staff echo. */
+  inStaffLane?: boolean;
 };
 
 function initials(name: string) {
@@ -47,12 +53,15 @@ export function DayAppointmentCard({
   draggable = false,
   column = 0,
   columns = 1,
+  timeZone = null,
+  inStaffLane = true,
 }: DayAppointmentCardProps) {
   const [dragging, setDragging] = useState(false);
   const [previewHeight, setPreviewHeight] = useState<number | null>(null);
-  const { top, height } = getAppointmentPosition(
+  const { top, height } = getAppointmentPositionInTimezone(
     appointment.start_time,
     appointment.end_time,
+    timeZone,
   );
   const fillColor =
     colorMode === "staff"
@@ -61,27 +70,32 @@ export function DayAppointmentCard({
 
   const widthPct = 100 / columns;
   const leftPct = column * widthPct;
-  const startLabel = formatTime(parseISO(appointment.start_time));
-  const endLabel = formatTime(parseISO(appointment.end_time));
-  const hasNotes = Boolean(appointment.notes?.trim());
+  const startLabel = formatTimeInTimezone(appointment.start_time, timeZone);
+  const endLabel = formatTimeInTimezone(appointment.end_time, timeZone);
+  const durationMin =
+    (parseISO(appointment.end_time).getTime() -
+      parseISO(appointment.start_time).getTime()) /
+    60000;
+  const compact = durationMin < 30;
+  const rich = durationMin >= 45;
+  const statusTone = appointmentStatusTone(appointment.status);
   const readiness = paymentReadinessFromStatus(appointment.payment_status);
   const paymentLabel = paymentReadinessLabel(readiness);
   const paymentDue =
     appointment.status !== "cancelled" &&
     (readiness === "payment_due" || readiness === "balance_due");
+  const showPayment = paymentDue;
+  const showStatus =
+    !compact &&
+    (statusTone.attention === "action" ||
+      statusTone.attention === "risk" ||
+      appointment.status === "completed");
 
   function handleDragStart(e: React.DragEvent) {
     setDragging(true);
     e.dataTransfer.setData("appointmentId", appointment.id);
     e.dataTransfer.setData("staffId", appointment.staff_id ?? "");
-    e.dataTransfer.setData(
-      "duration",
-      String(
-        (parseISO(appointment.end_time).getTime() -
-          parseISO(appointment.start_time).getTime()) /
-          60000,
-      ),
-    );
+    e.dataTransfer.setData("duration", String(durationMin));
     e.dataTransfer.effectAllowed = "move";
   }
 
@@ -137,63 +151,72 @@ export function DayAppointmentCard({
       draggable={draggable && appointment.status !== "cancelled"}
       onDragStart={handleDragStart}
       onDragEnd={() => setDragging(false)}
-      title={`${appointment.customer.name} · ${appointment.service.name} · ${startLabel}–${endLabel}`}
+      title={`${appointment.customer.name} · ${appointment.service.name} · ${startLabel}–${endLabel} · ${statusTone.label}${showPayment && paymentLabel ? ` · ${paymentLabel}` : ""}`}
       className={cn(
-        "pointer-events-auto absolute overflow-hidden rounded-[0.55rem] border border-white/25 px-1.5 py-1 text-left text-white shadow-sm transition-[box-shadow,opacity,transform] motion-safe:hover:z-20 motion-safe:hover:scale-[1.01] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "pointer-events-auto absolute overflow-hidden rounded-[0.55rem] border border-white/20 px-1.5 py-1 text-left text-white shadow-sm transition-[box-shadow,opacity,transform] motion-safe:hover:z-20 motion-safe:hover:scale-[1.01] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "text-[10px] leading-tight sm:text-[11px]",
         draggable &&
           appointment.status !== "cancelled" &&
           "cursor-grab active:cursor-grabbing",
         dragging && "opacity-55 ring-2 ring-white/70",
+        statusTone.attention === "risk" && "ring-1 ring-white/40",
       )}
       style={{
         top: `${top}%`,
         height: `${previewHeight ?? height}%`,
         left: `calc(${leftPct}% + 2px)`,
         width: `calc(${widthPct}% - 4px)`,
-        minHeight: "36px",
+        minHeight: compact ? "28px" : "36px",
         ...getAppointmentBlockStyle(appointment.status, fillColor),
       }}
       onClick={() => onSelect(appointment)}
-      aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${startLabel}, ${appointment.status}`}
+      aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${startLabel}, ${statusTone.label}${showPayment && paymentLabel ? `, ${paymentLabel}` : ""}`}
     >
       <div className="flex items-start gap-1.5">
-        <span
-          className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-black/25 text-[9px] font-semibold"
-          aria-hidden
-        >
-          {initials(appointment.customer.name || "?")}
-        </span>
+        {!compact ? (
+          <span
+            className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-black/25 text-[9px] font-semibold"
+            aria-hidden
+          >
+            {initials(appointment.customer.name || "?")}
+          </span>
+        ) : null}
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold tracking-tight">
             {appointment.customer.name}
           </p>
-          <p className="truncate opacity-95">{appointment.service.name}</p>
-          <p className="truncate text-[9px] opacity-85 sm:text-[10px]">
-            {startLabel}–{endLabel}
-          </p>
+          {!compact ? (
+            <p className="truncate opacity-95">{appointment.service.name}</p>
+          ) : null}
+          {rich ? (
+            <p className="truncate text-[9px] opacity-85 sm:text-[10px]">
+              {startLabel}–{endLabel}
+              {!inStaffLane && appointment.staff?.name
+                ? ` · ${appointment.staff.name}`
+                : ""}
+            </p>
+          ) : compact ? (
+            <p className="truncate text-[9px] opacity-90">
+              {appointment.service.name} · {startLabel}
+            </p>
+          ) : null}
         </div>
       </div>
-      <div className="mt-1 flex flex-wrap items-center gap-1">
-        <span className="rounded bg-black/20 px-1 py-px text-[9px] font-medium capitalize">
-          {appointment.status.replace("_", " ")}
-        </span>
-        {paymentLabel &&
-        (paymentDue ||
-          readiness === "paid" ||
-          readiness === "refunded") ? (
-          <span className="inline-flex items-center gap-0.5 rounded bg-black/20 px-1 py-px text-[9px]">
-            <Wallet className="size-2.5" aria-hidden />
-            {paymentLabel}
-          </span>
-        ) : null}
-        {hasNotes ? (
-          <span className="inline-flex items-center gap-0.5 rounded bg-black/20 px-1 py-px text-[9px]">
-            <FileText className="size-2.5" aria-hidden />
-            Note
-          </span>
-        ) : null}
-      </div>
+      {(showStatus || showPayment) && (
+        <div className="mt-1 flex flex-wrap items-center gap-1">
+          {showStatus ? (
+            <span className="rounded bg-black/20 px-1 py-px text-[9px] font-medium">
+              {statusTone.label}
+            </span>
+          ) : null}
+          {showPayment && paymentLabel ? (
+            <span className="inline-flex items-center gap-0.5 rounded bg-black/25 px-1 py-px text-[9px] font-medium">
+              <Wallet className="size-2.5" aria-hidden />
+              {paymentLabel}
+            </span>
+          ) : null}
+        </div>
+      )}
       {onResize && appointment.status !== "cancelled" ? (
         <span
           role="separator"
@@ -209,5 +232,4 @@ export function DayAppointmentCard({
   );
 }
 
-/** Re-export for drawer consumers */
-export { StatusBadge };
+export { StatusBadge } from "@/components/ui/badge";
