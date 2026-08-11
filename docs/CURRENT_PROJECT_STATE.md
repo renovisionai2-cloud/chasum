@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-11  
-**Updated by:** World Class — Chapter 5 Phase 5.2 shared calendar canvas correction (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 5 Phase 5.2 PO acceptance lock (Preview; Production unchanged)  
 
 ---
 
@@ -120,7 +120,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 (`60c71cd`) + Phase 5.1 (`3c843e5`) complete; **Phase 5.2 shared calendar canvas — awaiting PO visual review**. Phase 5.3 / Chapter 6 not started.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 (`60c71cd`) + Phase 5.1 (`3c843e5`) complete; **Phase 5.2 PO-accepted** (accepted Preview tip `e88f22d`). Phase 5.3 / Chapter 6 not started.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -159,12 +159,20 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-11)
 
+**World Class — Chapter 5 Phase 5.2 PO acceptance lock**
+
+- **Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review.**
+- Accepted Preview tip: `e88f22d` (shared canvas `a556a90`; density `3a433e1` / `024e1c4`).
+- Remaining polish / intelligence items stay in the Polish & Intelligence backlog — not reasons to reopen Phase 5.2.
+- Phase 5.3 not started. Production untouched. No migrations.
+
+### Immediately prior (2026-08-11)
+
 **World Class — Chapter 5 Phase 5.2 final shared calendar canvas correction**
 
 - Primary Reception calendar views share one full operating canvas. Day, Week and Month must not use inconsistent page-width constraints.
 - Root cause: shared `lg:items-start` plus Week/Month missing `w-full` (Week shrink-wrapped to `min-w-[780px]`).
 - Day View density (`dayLaneFlexStyle`, 240px min, geometry) preserved.
-- Awaiting PO hands-on visual acceptance — not auto-accepted. Phase 5.3 not started.
 
 ### Immediately prior (2026-08-11)
 
@@ -173,7 +181,7 @@ Shared money recognition, commerce + platform events, business operating context
 - Phase 5.2 final density correction — Day View must use the available operating workspace rather than leave large unused desktop space.
 - Root cause: employee lanes capped at `max-w-[20rem]` after the operating-surface pass.
 - Lanes now share full schedule width (240px minimum; many employees scroll).
-- Awaiting PO hands-on visual acceptance — not auto-accepted.
+- Later included in Phase 5.2 PO acceptance.
 
 ### Immediately prior (2026-08-11)
 
@@ -183,7 +191,7 @@ Shared money recognition, commerce + platform events, business operating context
 - Calendar views, filters/scopes, alternate representations, and contextual actions have distinct hierarchy.
 - Empty Unassigned scheduling space does not compete equally with active employee lanes while unassigned creation is gated.
 - Reception rail not mounted on idle Day View; Morning Brief hidden on Day; compact page header.
-- Awaiting PO hands-on visual acceptance — not auto-accepted.
+- Later included in Phase 5.2 PO acceptance.
 
 ### Immediately prior (2026-08-10)
 
@@ -195,7 +203,7 @@ Shared money recognition, commerce + platform events, business operating context
 - Drag/resize retained via BookingFacade; conflict explain on reject; blocked hours not bookable in UI
 - Mobile agenda: employee switcher, Now/Next, New Appointment empty state
 - No DB migrations; no Week/Month redesign; no resource scheduling; Phase 5.3 not started
-- Awaiting PO hands-on visual acceptance
+- Later included in Phase 5.2 PO acceptance
 
 ### Immediately prior (2026-08-10)
 
@@ -476,11 +484,12 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `a556a909add3d6e06156c54993787c168c5b6ace` |
-| **Short** | `a556a90` |
-| **Subject** | fix: Phase 5.2 shared Reception calendar canvas |
-| **Tip / stamp** | _(after this stamp commit)_ |
-| **Chapter 5 Phase 5.2 shared canvas** | `a556a90` |
+| **SHA** | _(this PO acceptance lock commit)_ |
+| **Short** | _(this commit)_ |
+| **Subject** | docs: lock Chapter 5 Phase 5.2 PO acceptance |
+| **Accepted Preview tip** | `e88f22d` |
+| **Chapter 5 Phase 5.2 PO acceptance** | this documentation commit |
+| **Chapter 5 Phase 5.2 shared canvas** | `a556a90` / tip `e88f22d` |
 | **Chapter 5 Phase 5.2 density** | `3a433e1` |
 | **Chapter 5 Phase 5.2 correction** | `5a62800` |
 | **Chapter 5 Phase 5.2 feature** | `c3a5851` / tip `b578848` |
@@ -513,13 +522,13 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on visual review of Chapter 5 Phase 5.2 shared calendar canvas** on Preview.
-2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for engine + Day View architecture; do not apply migrations without PO.
-3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4 architecture.
+1. **Await explicit PO direction for Chapter 5 Phase 5.3.** Do not start Phase 5.3 or redesign Phase 5.2.
+2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for the accepted Day View + shared canvas; do not apply migrations without PO.
+3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4 or Phase 5.2 architecture for remaining polish.
 4. **Operation GVM Production** — remain protected.
 5. Marketing claim fixes only with **explicit PO** (locked pages).
 
-Do **not** start Phase 5.3 or Chapter 6 until PO accepts Phase 5.2.  
+Do **not** start Phase 5.3 or Chapter 6 until the product owner explicitly directs it.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 

@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.2 — Day View**)  
+**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.2 PO-accepted** — Day View + shared canvas)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -29,7 +29,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
-| 5 | Calendar & Booking Engine | **Phase 5.2 shared canvas correction** — awaiting PO visual; Phase 5.3 not started |
+| 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted** — Day View + shared Reception canvas; Phase 5.3 not started |
 | 6 | Sales, payments, invoices, receipts | Not started |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
@@ -163,7 +163,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 5 status
 
-**Phase 5.2 — Final shared calendar canvas correction.** Primary Reception views (Day, Week, Month) share one full operating canvas. Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). **Phase 5.3 not started. Chapter 6 not started.** Awaiting PO visual acceptance — not auto-accepted.
+**Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review.** Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). Accepted Preview tip `e88f22d` (includes `3a433e1` / `024e1c4` density + `a556a90` shared canvas). Remaining visual/intelligence items stay in the Polish & Intelligence backlog — not reasons to reopen Phase 5.2. **Phase 5.3 not started. Chapter 6 not started.**
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -196,4 +196,4 @@ This is **planning-locked now**; implementation is **not** started by this docum
 
 ## Next step after Chapter 5 Phase 5.2
 
-Await **PO hands-on visual review of Phase 5.2 shared calendar canvas**. Do not start Phase 5.3 until accepted. Do not apply gap-report migrations without explicit PO.
+Phase 5.2 is **PO-accepted**. Do **not** start Phase 5.3 or Chapter 6 until the product owner explicitly directs it. Do not redesign Phase 5.2. Do not apply gap-report migrations without explicit PO.

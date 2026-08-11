@@ -1,13 +1,13 @@
 # World Class Testing Matrix
 
-**Chapter:** 0–5 (scaffold through Calendar & Booking Engine Phase 5.0)  
+**Chapter:** 0–5 (scaffold through Calendar & Booking Engine Phase 5.2)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
 **Rule:** Do not mark complete on appearance alone; verify data and workflow.  
 **Chapter 2:** Command Centre page depth — approved tip `0f1f423`.  
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
-**Chapter 5:** Phase 5.0 Engine Contract Foundation — see block below.
+**Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 not started.
 
 ---
 
@@ -352,6 +352,18 @@
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
+## Chapter 5 — Calendar & Booking Engine (Phase 5.2 PO acceptance)
+
+| Field | Value |
+|-------|--------|
+| Status | **Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review.** |
+| Accepted Preview tip | `e88f22d` |
+| Density commits | `3a433e1` / `024e1c4` |
+| Shared canvas | `a556a90` |
+| Architecture reopen | **No** — remaining polish stays in Polish & Intelligence backlog |
+| Phase 5.3 | **Not started** |
+| Product code in this lock | **None** (docs stamp only) |
+
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 shared canvas)
 
 | Field | Value |
@@ -364,7 +376,7 @@
 | Month | `grid w-full grid-cols-7` |
 | Day | `dayLaneFlexStyle` unchanged (240px min; no 20rem cap) |
 | Tests | `tests/unit/calendar/day-surface.test.ts` shared-canvas block |
-| Approval | Awaiting PO visual review — not auto-accepted |
+| Approval | **PO-accepted** after hands-on Preview review (`e88f22d`) |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 density)
 
@@ -374,7 +386,7 @@
 | Constraint removed | Day lane `max-w-[20rem]` |
 | Sizing | `dayLaneFlexStyle` — fill remaining width; min 240px |
 | Tests | `tests/unit/calendar/day-surface.test.ts` density block |
-| Approval | Awaiting PO visual review — not auto-accepted |
+| Approval | **PO-accepted** after hands-on Preview review (`e88f22d`) |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 operating surface)
 
@@ -385,7 +397,7 @@
 | Toolbar | Primary Day/Week/Month; secondary + contextual under More |
 | Unassigned | Hidden when empty; visible when appointments or filter |
 | Tests | `tests/unit/calendar/day-surface.test.ts` |
-| Approval | Awaiting PO hands-on visual review — not auto-accepted |
+| Approval | **PO-accepted** after hands-on Preview review (`e88f22d`) |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2)
 
@@ -401,7 +413,7 @@
 | DB changes | **None** |
 | Resources | Still FUTURE — not activated |
 | Tests | `tests/unit/calendar/day-geometry.test.ts` + prior calendar/booking-engine suites |
-| Approval | Awaiting PO hands-on visual review — not auto-accepted |
+| Approval | **PO-accepted** after hands-on Preview review (`e88f22d`) |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.1)
 

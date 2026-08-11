@@ -12,9 +12,10 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-11 | **Chapter 5 Phase 5.2 — Shared calendar canvas** | `a556a90` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day/Week/Month share one full operating canvas; PO visual pending — not auto-accepted |
-| 2026-08-11 | **Chapter 5 Phase 5.2 — Final density & width** | `3a433e1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View uses full operating workspace; 20rem lane cap removed; PO visual pending |
-| 2026-08-11 | **Chapter 5 Phase 5.2 — Operating Surface Correction** | `5a62800` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Schedule-first Day View; contextual workspaces; toolbar hierarchy; empty Unassigned hidden; PO visual pending |
+| 2026-08-11 | **Chapter 5 Phase 5.2 PO acceptance lock** | this documentation commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View + shared Reception canvas PO-accepted after hands-on Preview review; Phase 5.3 not started |
+| 2026-08-11 | **Chapter 5 Phase 5.2 — Shared calendar canvas** | `a556a90` / tip `e88f22d` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day/Week/Month share one full operating canvas; included in Phase 5.2 PO acceptance |
+| 2026-08-11 | **Chapter 5 Phase 5.2 — Final density & width** | `3a433e1` / tip `024e1c4` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View uses full operating workspace; 20rem lane cap removed; included in Phase 5.2 PO acceptance |
+| 2026-08-11 | **Chapter 5 Phase 5.2 — Operating Surface Correction** | `5a62800` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Schedule-first Day View; contextual workspaces; toolbar hierarchy; empty Unassigned hidden; included in Phase 5.2 PO acceptance |
 | 2026-08-10 | **Chapter 5 Phase 5.2 — Day View** | `c3a5851` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ Day View; cards; mobile agenda; Ch4 entry preserved; no DB; Phase 5.3 not started |
 | 2026-08-10 | **Chapter 5 Phase 5.1 — Availability Truth** | `15fd26c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | SchedulingPolicy; capability matrix; DB gap report; Ch4 unchanged |
 | 2026-08-10 | **Chapter 5 Phase 5.0 — Engine Contract Foundation** | `e2a034c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | BookingFacade; conflicts explain; capability matrix; Ch4 unchanged |
@@ -47,6 +48,22 @@
 
 ---
 
+## Chapter 5 Phase 5.2 — PO acceptance lock
+
+| Check | Result |
+|-------|--------|
+| PO hands-on Preview | **Accepted** |
+| Acceptance language | Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review. |
+| Accepted Preview tip | `e88f22d` |
+| Density | `3a433e1` / `024e1c4` |
+| Shared canvas | `a556a90` |
+| Architecture reopen for polish | **No** — deferred items stay in Polish & Intelligence backlog |
+| Product code changed | **No** (docs stamp only) |
+| Production | Untouched (`4eecbec`) |
+| Migrations 034–036 | Not applied |
+| Phase 5.3 | **Not started** |
+| Chapter 6 | **Not started** |
+
 ## Chapter 5 Phase 5.2 — Shared calendar canvas quality report
 
 | Check | Result |
@@ -62,7 +79,7 @@
 | Production | Untouched |
 | Phase 5.3 | **Not started** |
 | Chapter 6 | **Not started** |
-| PO acceptance | Required visual review — not auto-accepted |
+| PO acceptance | **Accepted** after hands-on Preview review |
 
 ## Chapter 5 Phase 5.2 — Operating Surface Correction quality report
 
@@ -76,7 +93,7 @@
 | Production | Untouched |
 | Phase 5.3 | **Not started** |
 | Chapter 6 | **Not started** |
-| PO acceptance | Required visual review — not auto-accepted |
+| PO acceptance | **Accepted** after hands-on Preview review |
 
 ## Chapter 5 Phase 5.2 — Day View quality report
 
@@ -93,7 +110,7 @@
 | Production | Untouched |
 | Phase 5.3 | **Not started** |
 | Chapter 6 | **Not started** |
-| PO acceptance | Required visual review — not auto-accepted |
+| PO acceptance | **Accepted** after hands-on Preview review |
 
 ## Chapter 5 Phase 5.1 — Availability Truth quality report
 

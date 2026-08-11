@@ -1,12 +1,59 @@
 # World Class — Calendar & Booking Engine
 
 **Chapter:** 5 — Calendar & Booking Engine  
-**Phase:** **5.1 — Availability Truth & Scheduling Rules Foundation** (Phase 5.0 complete)  
+**Phase:** **5.2 — Calendar Day View and shared Reception calendar operating surface** (Phase 5.0 / 5.1 complete; **5.2 PO-accepted**)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 4 accepted tip:** `4da237c`  
 **Phase 5.0 tip:** `60c71cd`  
+**Phase 5.1 tip:** `3c843e5`  
+**Phase 5.2 accepted Preview tip:** `e88f22d` (product `a556a90`; density `3a433e1` / `024e1c4`)  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.1**
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.2**
+
+---
+
+## PO acceptance (Phase 5.2 — locked)
+
+**Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review.**
+
+Do **not** redesign Phase 5.2 further. Do **not** start Phase 5.3 until explicitly directed. Do **not** apply migrations. Production remains untouched.
+
+Accepted Preview state includes:
+
+- world-class Day View foundation
+- schedule-first operating surface
+- contextual booking/appointment workspaces
+- improved toolbar hierarchy
+- full-width Reception calendar canvas
+- responsive employee lane distribution
+- Week/Month using the shared calendar canvas
+- business-timezone geometry
+- current-time line
+- truthful blocked-time overlays
+- Chapter 4 booking integration
+- exact appointment-management opening
+- engine-validated drag/resize
+- empty Unassigned lane de-emphasis
+- mobile agenda direction
+- no fake resource/capacity data
+
+Correction commits included in the accepted surface: `3a433e1` (final Day View density and width), `024e1c4` (density stamp), `a556a90` / `e88f22d` (shared canvas).
+
+### Intentionally deferred (later phases / final polish)
+
+These remain backlog — they are **not** reasons to reopen Phase 5.2:
+
+- further Reception header/operational-summary compression
+- typography refinement
+- appointment-card final visual polish
+- Week/Month deeper intelligence
+- Agenda/Timeline refinement
+- premium select/filter/menu styling
+- final motion and micro-interactions
+- loading/empty/error-state final polish
+- `staff_locations` RPC multi-location gap
+- keyboard drag/resize accessibility
+- resource scheduling remains FUTURE
 
 ---
 
@@ -296,7 +343,7 @@ Provenance, required-step integrity, MoneyAmountInput, slot density, View Appoin
 - Policy / conflict unit tests
 - Chapter 4 UI unchanged; no Day View redesign
 
-## Phase 5.2 — Final shared calendar canvas correction (PO visual review pending)
+## Phase 5.2 — Final shared calendar canvas correction (PO-accepted)
 
 **Primary Reception calendar views share one full operating canvas. Day, Week and Month must not use inconsistent page-width constraints.**
 
@@ -307,9 +354,9 @@ Provenance, required-step integrity, MoneyAmountInput, slot density, View Appoin
 - Week: seven `flex-1 min-w-0` columns across the canvas; `min-w-[780px]` remains a scroll floor so columns stay readable.
 - Month: `grid w-full grid-cols-7` fills the same canvas. No Month intelligence redesign.
 - Day View density (`dayLaneFlexStyle`, 240px min, geometry, drag/resize, Now line) unchanged.
-- Do not fill unused space with widgets. Phase 5.2 is **not** auto-accepted. Phase 5.3 not started.
+- Do not fill unused space with widgets. Phase 5.2 is **PO-accepted**. Phase 5.3 not started.
 
-## Phase 5.2 — Final density & width correction (PO visual review pending)
+## Phase 5.2 — Final density & width correction (PO-accepted)
 
 Phase 5.2 final density correction — Day View must use the available operating workspace rather than leave large unused desktop space.
 
@@ -319,7 +366,7 @@ Phase 5.2 final density correction — Day View must use the available operating
 - Reception workspace no longer uses `ds-page` vertical stacking that kept the schedule visually secondary.
 - Later PO video: Week/Month still used a narrower canvas — see shared canvas correction above.
 
-## Phase 5.2 — Day View Operating Surface Correction (PO visual review pending)
+## Phase 5.2 — Day View Operating Surface Correction (PO-accepted)
 
 **Locks**
 
@@ -331,7 +378,7 @@ Idle Day View: no Reception rail, no Morning Brief, compact header. New Appointm
 
 Toolbar: Day / Week / Month + date + employee/status scope + New Appointment. Secondary views and Undo/Duplicate/New Customer live under More.
 
-## Phase 5.2 — Day View (implementation complete; PO visual review pending)
+## Phase 5.2 — Day View (PO-accepted)
 
 ### Architecture
 
