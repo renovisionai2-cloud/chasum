@@ -364,6 +364,7 @@
 | Bypasses | `lib/booking-engine/bypass-registry.ts` |
 | Deferred | Enriched RPC payloads · resource productization · optional staff |
 | Tests | `planning-geometry.test.ts`, `bypass-convergence.test.ts` |
+| Feature | `caef495` |
 | Approval | Awaiting PO visual review — not auto-accepted |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 PO acceptance)

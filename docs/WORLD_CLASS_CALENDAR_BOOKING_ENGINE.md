@@ -455,7 +455,7 @@ EMPTY TIME ≠ AVAILABLE TIME. Week/Month must not infer availability, capacity 
 Bypass inventory: `lib/booking-engine/bypass-registry.ts`.  
 `create_public_appointment` is **INTENTIONALLY RETAINED** (SECURITY DEFINER + anon authorization + atomic validate/insert). API POST / non-cancel PATCH remain **PARTIAL**. Portal cancel and API DELETE are **CONVERGED**.
 
-Phase 5.3 is **not** auto-accepted. Chapter 6 not started.
+Feature: `caef495`. Phase 5.3 is **not** auto-accepted. Chapter 6 not started.
 
 ---
 

@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-11 | **Chapter 5 Phase 5.3 — Week/Month planning + safe convergence** | _(feature SHA in tip)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO-narrowed 5.3; 034–036 not applied; PO review pending |
+| 2026-08-11 | **Chapter 5 Phase 5.3 — Week/Month planning + safe convergence** | `caef495` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO-narrowed 5.3; 034–036 not applied; PO review pending |
 | 2026-08-11 | **Chapter 5 Phase 5.2 PO acceptance lock** | `5756a45` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View + shared Reception canvas PO-accepted after hands-on Preview review |
 | 2026-08-11 | **Chapter 5 Phase 5.2 — Shared calendar canvas** | `a556a90` / tip `e88f22d` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day/Week/Month share one full operating canvas; included in Phase 5.2 PO acceptance |
 | 2026-08-11 | **Chapter 5 Phase 5.2 — Final density & width** | `3a433e1` / tip `024e1c4` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View uses full operating workspace; 20rem lane cap removed; included in Phase 5.2 PO acceptance |

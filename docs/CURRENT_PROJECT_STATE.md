@@ -495,11 +495,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | _(Phase 5.3 feature SHA in tip)_ |
-| **Short** | _(Phase 5.3 feature SHA in tip)_ |
-| **Subject** | feat: Chapter 5 Phase 5.3 week/month planning + safe engine convergence |
+| **SHA** | _(this tip commit)_ |
+| **Short** | _(this tip)_ |
+| **Subject** | docs: stamp Chapter 5 Phase 5.3 Preview tip |
 | **Accepted Preview tip** | `e88f22d` (Phase 5.2) |
-| **Chapter 5 Phase 5.3 feature** | _(this feature commit)_ |
+| **Chapter 5 Phase 5.3 feature** | `caef495` |
 | **Chapter 5 Phase 5.2 PO acceptance** | `5756a45` |
 | **Chapter 5 Phase 5.2 shared canvas** | `a556a90` / tip `e88f22d` |
 | **Chapter 5 Phase 5.2 density** | `3a433e1` |
