@@ -1,13 +1,13 @@
 # World Class Testing Matrix
 
-**Chapter:** 0–5 (scaffold through Calendar & Booking Engine Phase 5.2)  
+**Chapter:** 0–5 (scaffold through Calendar & Booking Engine Phase 5.3)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
 **Rule:** Do not mark complete on appearance alone; verify data and workflow.  
 **Chapter 2:** Command Centre page depth — approved tip `0f1f423`.  
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
-**Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 not started.
+**Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — awaiting PO review.
 
 ---
 
@@ -351,6 +351,20 @@
 | Data dictionary | `WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md` |
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
+
+## Chapter 5 — Calendar & Booking Engine (Phase 5.3)
+
+| Field | Value |
+|-------|--------|
+| Phase | **5.3 — Week/Month Planning Intelligence + Safe Engine Convergence** |
+| Title | Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence |
+| Week | Planning columns; business-TZ days; overflow; date-only New Appointment |
+| Month | Density + truthful counts; business-TZ grid; date → Day View |
+| Geometry | `lib/calendar/planning-geometry.ts` |
+| Bypasses | `lib/booking-engine/bypass-registry.ts` |
+| Deferred | Enriched RPC payloads · resource productization · optional staff |
+| Tests | `planning-geometry.test.ts`, `bypass-convergence.test.ts` |
+| Approval | Awaiting PO visual review — not auto-accepted |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 PO acceptance)
 

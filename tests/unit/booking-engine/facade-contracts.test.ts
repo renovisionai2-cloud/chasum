@@ -77,7 +77,7 @@ describe("Chapter 5 Phase 5.0 — BookingFacade contracts", () => {
     expect(BOOKING_ADAPTER_STATUS.reception).toBe("PARTIAL");
     expect(BOOKING_ADAPTER_STATUS.public).toBe("PARTIAL");
     expect(BOOKING_ADAPTER_STATUS.summer).toBe("ACTIVE");
-    expect(BOOKING_ADAPTER_STATUS.api).toBe("FUTURE");
+    expect(BOOKING_ADAPTER_STATUS.api).toBe("PARTIAL");
   });
 
   it("preview input adapters never invent rules — only set channel", () => {

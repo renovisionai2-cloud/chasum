@@ -5,11 +5,13 @@ import {
 } from "@/lib/booking-engine/events";
 import type { CancelIntent, MutationResult } from "@/lib/booking-engine/types";
 import { createClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export async function cancelBooking(
   intent: CancelIntent,
+  options?: { client?: SupabaseClient },
 ): Promise<MutationResult<{ appointmentId: string }>> {
-  const supabase = await createClient();
+  const supabase = options?.client ?? (await createClient());
   const { data: existing } = await supabase
     .from("appointments")
     .select("id, status, start_time, end_time")

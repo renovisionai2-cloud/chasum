@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-11  
-**Updated by:** World Class — Chapter 5 Phase 5.2 PO acceptance lock (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 5 Phase 5.3 Week/Month planning intelligence (Preview; Production unchanged)  
 
 ---
 
@@ -120,7 +120,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 (`60c71cd`) + Phase 5.1 (`3c843e5`) complete; **Phase 5.2 PO-accepted** (accepted Preview tip `e88f22d`). Phase 5.3 / Chapter 6 not started.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 Week/Month planning + safe convergence — awaiting PO review**. Chapter 6 not started.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -158,6 +158,17 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-11)
+
+**World Class — Chapter 5 Phase 5.3 Week/Month Planning Intelligence + Safe Engine Convergence**
+
+- **Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence** (PO-narrowed).
+- Week = plan the working week. Month = navigate broader demand. Day remains Phase 5.2 locked.
+- Business-TZ week/month geometry; date-only New Appointment (time not inferred from empty cells).
+- Safe bypasses: portal cancel + API DELETE via `cancelBooking`. `create_public_appointment` intentionally retained.
+- Deferred: enriched RPC payloads, resource productization, optional staff. No migrations. Chapter 6 not started.
+- Awaiting PO hands-on visual review — not auto-accepted.
+
+### Immediately prior (2026-08-11)
 
 **World Class — Chapter 5 Phase 5.2 PO acceptance lock**
 
@@ -484,11 +495,12 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | _(this PO acceptance lock commit)_ |
-| **Short** | _(this commit)_ |
-| **Subject** | docs: lock Chapter 5 Phase 5.2 PO acceptance |
-| **Accepted Preview tip** | `e88f22d` |
-| **Chapter 5 Phase 5.2 PO acceptance** | this documentation commit |
+| **SHA** | _(Phase 5.3 feature SHA in tip)_ |
+| **Short** | _(Phase 5.3 feature SHA in tip)_ |
+| **Subject** | feat: Chapter 5 Phase 5.3 week/month planning + safe engine convergence |
+| **Accepted Preview tip** | `e88f22d` (Phase 5.2) |
+| **Chapter 5 Phase 5.3 feature** | _(this feature commit)_ |
+| **Chapter 5 Phase 5.2 PO acceptance** | `5756a45` |
 | **Chapter 5 Phase 5.2 shared canvas** | `a556a90` / tip `e88f22d` |
 | **Chapter 5 Phase 5.2 density** | `3a433e1` |
 | **Chapter 5 Phase 5.2 correction** | `5a62800` |
@@ -522,13 +534,13 @@ As of last update:
 
 **Priority order:**
 
-1. **Await explicit PO direction for Chapter 5 Phase 5.3.** Do not start Phase 5.3 or redesign Phase 5.2.
+1. **PO hands-on visual review of Chapter 5 Phase 5.3** Week/Month planning on Preview. Do not start Chapter 6. Do not reopen Phase 5.2.
 2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for the accepted Day View + shared canvas; do not apply migrations without PO.
 3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4 or Phase 5.2 architecture for remaining polish.
 4. **Operation GVM Production** — remain protected.
 5. Marketing claim fixes only with **explicit PO** (locked pages).
 
-Do **not** start Phase 5.3 or Chapter 6 until the product owner explicitly directs it.  
+Do **not** start Chapter 6 until the product owner explicitly directs it. Phase 5.3 is not auto-accepted.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 

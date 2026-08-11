@@ -99,14 +99,19 @@ export async function DELETE(
 
   const { id } = await context.params;
   const supabase = createServiceClient();
+  const { cancelBooking } = await import("@/lib/booking-engine");
+  const result = await cancelBooking(
+    {
+      channel: "api",
+      businessId: auth.businessId,
+      appointmentId: id,
+    },
+    { client: supabase },
+  );
 
-  const { error } = await supabase
-    .from("appointments")
-    .update({ status: "cancelled" })
-    .eq("id", id)
-    .eq("business_id", auth.businessId);
-
-  if (error) return apiNotFound();
+  if (result.phase !== "success") {
+    return apiNotFound();
+  }
 
   const { handleAppointmentEvent } = await import(
     "@/lib/integrations/notifications/orchestrator"

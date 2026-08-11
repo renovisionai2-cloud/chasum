@@ -26,6 +26,9 @@ export const BOOKING_ADAPTER_STATUS = {
    * New Summer write activation is not part of Phase 5.0 product enablement.
    */
   summer: "ACTIVE",
-  /** Intent builders only — API v1 route may still bypass; convergence is Phase 5.1+. */
-  api: "FUTURE",
+  /**
+   * API v1 DELETE/cancel now uses cancelBooking (service client after API-key auth).
+   * POST / non-cancel PATCH remain PARTIAL — user-session facade cannot represent API keys.
+   */
+  api: "PARTIAL",
 } as const satisfies Record<string, BookingAdapterStatus>;

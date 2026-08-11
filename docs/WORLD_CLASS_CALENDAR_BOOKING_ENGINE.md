@@ -1,14 +1,14 @@
 # World Class — Calendar & Booking Engine
 
 **Chapter:** 5 — Calendar & Booking Engine  
-**Phase:** **5.2 — Calendar Day View and shared Reception calendar operating surface** (Phase 5.0 / 5.1 complete; **5.2 PO-accepted**)  
+**Phase:** **5.3 — Week/Month Planning Intelligence + Safe Engine Convergence** (5.0 / 5.1 complete; **5.2 PO-accepted**; 5.3 implementation — PO review pending)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 4 accepted tip:** `4da237c`  
 **Phase 5.0 tip:** `60c71cd`  
 **Phase 5.1 tip:** `3c843e5`  
-**Phase 5.2 accepted Preview tip:** `e88f22d` (product `a556a90`; density `3a433e1` / `024e1c4`)  
+**Phase 5.2 accepted Preview tip:** `e88f22d` · lock `5756a45`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.2**
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.3**
 
 ---
 
@@ -16,7 +16,7 @@
 
 **Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review.**
 
-Do **not** redesign Phase 5.2 further. Do **not** start Phase 5.3 until explicitly directed. Do **not** apply migrations. Production remains untouched.
+Do **not** redesign Phase 5.2 further. Phase 5.3 is PO-narrowed (below). Do **not** apply migrations. Production remains untouched.
 
 Accepted Preview state includes:
 
@@ -46,7 +46,6 @@ These remain backlog — they are **not** reasons to reopen Phase 5.2:
 - further Reception header/operational-summary compression
 - typography refinement
 - appointment-card final visual polish
-- Week/Month deeper intelligence
 - Agenda/Timeline refinement
 - premium select/filter/menu styling
 - final motion and micro-interactions
@@ -422,19 +421,41 @@ Toolbar: Day / Week / Month + date + employee/status scope + New Appointment. Se
 
 ### Known limitations (Phase 5.2)
 
-- Week/Month still use browser-local geometry for blocks/now-line (Day View fixed)  
+- Week/Month browser-local geometry — **corrected in Phase 5.3**
 - `staff_locations` not fully authoritative in RPC (Phase 5.1 gap) — not faked as solved  
 - Resource scheduling still FUTURE empty state  
 - Keyboard drag-and-drop not implemented  
-- Full surface bypass elimination deferred  
+- Full surface bypass elimination — **safe subset in Phase 5.3**; see bypass registry  
 
-## Phase 5.3 deferred (do not start)
+## Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence
 
-- Week/Month redesign
-- Full surface bypass elimination
-- Enriched RPC conflict payloads (DB)
-- Resource scheduling productization
-- Optional staff enablement
+**PO-narrowed scope.** Do not use pre–World Class “Unified Booking Sheet” numbering.
+
+| View | Role |
+|------|------|
+| **Day** | Operate the business today (Phase 5.2 locked) |
+| **Week** | Plan the working week |
+| **Month** | Understand and navigate broader scheduling demand |
+
+**In scope**
+
+1. Week View redesign + planning intelligence  
+2. Month View redesign + planning intelligence  
+3. Week/Month business-timezone geometry  
+4. Safe mutation bypass elimination through existing BookingFacade (no DB/RPC)
+
+**Explicitly deferred (not this implementation)**
+
+- Enriched RPC conflict payloads  
+- Resource scheduling productization  
+- Optional staff enablement (034 / `CHASUM_OPTIONAL_STAFF_ENABLED`)
+
+EMPTY TIME ≠ AVAILABLE TIME. Week/Month must not infer availability, capacity %, utilization, or open slots. Counts are derived only from loaded appointments.
+
+Bypass inventory: `lib/booking-engine/bypass-registry.ts`.  
+`create_public_appointment` is **INTENTIONALLY RETAINED** (SECURITY DEFINER + anon authorization + atomic validate/insert). API POST / non-cancel PATCH remain **PARTIAL**. Portal cancel and API DELETE are **CONVERGED**.
+
+Phase 5.3 is **not** auto-accepted. Chapter 6 not started.
 
 ---
 

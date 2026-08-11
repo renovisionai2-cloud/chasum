@@ -5,12 +5,11 @@
 
 import {
   endOfBusinessDay,
-  endOfBusinessMonth,
   endOfBusinessWeek,
   startOfBusinessDay,
-  startOfBusinessMonth,
   startOfBusinessWeek,
 } from "@/lib/business/datetime";
+import { businessMonthGridRange } from "@/lib/calendar/planning-geometry";
 import type { BusinessLocaleInput } from "@/lib/locale";
 import type { CalendarView } from "@/lib/types/booking";
 
@@ -22,7 +21,7 @@ export type CalendarViewRange = {
 /**
  * Appointment fetch window for a calendar view.
  * Week = Sunday–Saturday in business TZ (matches startOfBusinessWeek).
- * Month = first through last instant of the business-local month.
+ * Month = Sunday–Saturday grid covering the business-local month (outside-month cells included).
  */
 export function getCalendarViewRange(
   view: CalendarView,
@@ -46,10 +45,10 @@ export function getCalendarViewRange(
         end: endOfBusinessWeek(date, locale),
       };
     case "month":
-      return {
-        start: startOfBusinessMonth(date, locale),
-        end: endOfBusinessMonth(date, locale),
-      };
+      return businessMonthGridRange(
+        date,
+        locale.locationTimezone ?? locale.timezone,
+      );
     default:
       return {
         start: startOfBusinessDay(date, locale),

@@ -2,10 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   calendarDateInTimezone,
   endOfBusinessDay,
-  endOfBusinessMonth,
   endOfBusinessWeek,
   startOfBusinessDay,
-  startOfBusinessMonth,
   startOfBusinessWeek,
 } from "@/lib/business/datetime";
 import { getCalendarViewRange } from "@/lib/calendar/view-range";
@@ -45,20 +43,15 @@ describe("business calendar view ranges", () => {
     );
   });
 
-  it("uses business-TZ month bounds for month view", () => {
+  it("uses business-TZ month grid bounds so outside-month cells can load", () => {
     const mid = new Date("2026-08-15T16:00:00.000Z");
     const range = getCalendarViewRange("month", mid, TORONTO);
-    expect(range.start.toISOString()).toBe(
-      startOfBusinessMonth(mid, TORONTO).toISOString(),
-    );
-    expect(range.end.toISOString()).toBe(
-      endOfBusinessMonth(mid, TORONTO).toISOString(),
-    );
+    // Aug 1 2026 is Saturday in Toronto → grid starts Sun Jul 26, ends Sat Sep 5.
     expect(calendarDateInTimezone(range.start, TORONTO.timezone)).toBe(
-      "2026-08-01",
+      "2026-07-26",
     );
     expect(calendarDateInTimezone(range.end, TORONTO.timezone)).toBe(
-      "2026-08-31",
+      "2026-09-05",
     );
   });
 

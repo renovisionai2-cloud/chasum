@@ -238,8 +238,8 @@ describe("Shared Reception calendar canvas", () => {
     expect(client).toContain('data-calendar-canvas="primary"');
     expect(client).toContain('data-calendar-canvas-width="full"');
     expect(client).toContain("DayControlCenter");
-    expect(client).toContain("<WeekView");
-    expect(client).toContain("<MonthView");
+    expect(client).toContain("WeekPlanningView");
+    expect(client).toContain("MonthPlanningView");
     expect(client).toMatch(
       /mountReceptionRail \? "lg:flex-row lg:items-start lg:gap-4"/,
     );
@@ -253,20 +253,24 @@ describe("Shared Reception calendar canvas", () => {
       join(process.cwd(), "components/day-view/day-control-center.tsx"),
       "utf8",
     );
-    const views = readFileSync(
-      join(process.cwd(), "components/calendar/calendar-views.tsx"),
+    const week = readFileSync(
+      join(process.cwd(), "components/calendar/week-planning-view.tsx"),
+      "utf8",
+    );
+    const month = readFileSync(
+      join(process.cwd(), "components/calendar/month-planning-view.tsx"),
       "utf8",
     );
     expect(day).toContain("w-full max-w-none");
     expect(day).toContain("dayLaneFlexStyle");
     expect(day).not.toMatch(/max-w-\[20rem\]/);
-    expect(views).toContain("CALENDAR_CANVAS_CLASS");
-    expect(views).toContain('data-calendar-view="week"');
-    expect(views).toContain('data-calendar-view="month"');
-    expect(views).toContain('data-calendar-canvas-width="full"');
-    expect(views).toContain("w-full min-w-[780px]");
-    expect(views).toContain("min-w-0 flex-1");
-    expect(views).toContain("grid w-full grid-cols-7");
+    expect(week).toContain("CALENDAR_CANVAS_CLASS");
+    expect(week).toContain('data-calendar-view="week"');
+    expect(week).toContain('data-calendar-canvas-width="full"');
+    expect(week).toContain("grid-cols-7");
+    expect(month).toContain("CALENDAR_CANVAS_CLASS");
+    expect(month).toContain('data-calendar-view="month"');
+    expect(month).toContain("grid w-full grid-cols-7");
   });
 
   it("toolbar stays on the same canvas width as the calendar", () => {

@@ -6,7 +6,7 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production:** Untouched (`4eecbec`)  
 **Mode:** Planning lock only — **do not implement in this commit**  
-**Do not:** Redesign unrelated pages · rewrite booking/payment engines · run migrations · write shared DB · begin Phase 5.3 or Chapter 6 without PO
+**Do not:** Redesign unrelated pages · rewrite booking/payment engines · run migrations · write shared DB · begin Chapter 6 without PO
 
 Canonical companion docs:
 
@@ -281,7 +281,8 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 5 Phase 5.2 PO-accepted** — Calendar Day View and shared Reception calendar operating surface PO-accepted after hands-on Preview review (`e88f22d`). Phase 5.3 not started. Do not reopen Phase 5.2 for remaining polish.
+- **Chapter 5 Phase 5.3** — Week/Month Planning Intelligence + Safe Engine Convergence (PO-narrowed; Preview review pending). Explicitly deferred: enriched RPC conflict payloads · resource scheduling productization · optional staff enablement.
+- **Chapter 5 Phase 5.2 PO-accepted** — Calendar Day View and shared Reception calendar operating surface PO-accepted after hands-on Preview review (`e88f22d` / lock `5756a45`). Do not reopen Phase 5.2 for remaining polish.
 - Remaining Phase 5.2 visual / intelligence refinements are **preserved here** and are **not** reasons to reopen the accepted surface: further Reception header/operational-summary compression · typography refinement · appointment-card final visual polish · Week/Month deeper intelligence · Agenda/Timeline refinement · premium select/filter/menu styling · final motion and micro-interactions · loading/empty/error-state final polish · `staff_locations` RPC multi-location gap · keyboard drag/resize accessibility · resource scheduling remains FUTURE
 - **Chapter 5 Phase 5.1** — Availability Truth (SchedulingPolicy / capability matrix); DB gaps documented only
 - Locked usability: revisitable decisions; no silent dead clicks; Book another = fresh in-workspace; current decision must dominate; VALUE≠RESOLVED; provenance-aware adaptive skip
@@ -292,7 +293,8 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
-| 2026-08-11 | Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review. Deferred polish preserved; Phase 5.3 not started. |
+| 2026-08-11 | Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence (PO-narrowed). Enriched RPC / resources / optional staff remain deferred. |
+| 2026-08-11 | Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review. Deferred polish preserved. |
 | 2026-08-11 | Chapter 5 Phase 5.2 shared canvas — Primary Reception calendar views share one full operating canvas. Day, Week and Month must not use inconsistent page-width constraints. |
 | 2026-08-11 | Chapter 5 Phase 5.2 final density correction — Day View must use the available operating workspace rather than leave large unused desktop space |
 | 2026-08-11 | Chapter 5 Phase 5.2 Day View Operating Surface Correction (schedule-first; no idle rail; toolbar hierarchy; PO visual pending) |

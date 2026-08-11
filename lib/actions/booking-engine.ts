@@ -262,13 +262,30 @@ export async function portalCancelAppointment(
   }
 
   const service = createServiceClient();
-  const { error } = await service
+  const { data: existing, error: lookupError } = await service
     .from("appointments")
-    .update({ status: "cancelled" })
+    .select("id, customer_id")
     .eq("id", appointmentId)
-    .eq("customer_id", session.customer.id)
-    .eq("business_id", session.business.id);
+    .eq("business_id", session.business.id)
+    .maybeSingle();
 
-  if (error) return { error: error.message };
+  if (lookupError) return { error: lookupError.message };
+  if (!existing || existing.customer_id !== session.customer.id) {
+    return { error: "Appointment not found." };
+  }
+
+  const { cancelBooking } = await import("@/lib/booking-engine");
+  const result = await cancelBooking(
+    {
+      channel: "public",
+      businessId: session.business.id,
+      appointmentId,
+    },
+    { client: service },
+  );
+
+  if (result.phase !== "success") {
+    return { error: result.error ?? "Could not cancel appointment." };
+  }
   return { success: "Appointment cancelled." };
 }

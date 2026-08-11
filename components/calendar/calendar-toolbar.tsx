@@ -3,13 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import {
-  formatDayHeader,
-  formatMonthYear,
-  formatWeekRange,
-} from "@/lib/calendar/utils";
+import { formatDayHeader } from "@/lib/calendar/utils";
 import { formatDayHeaderInTimezone } from "@/lib/calendar/day-geometry";
 import { calendarDateInTimezone } from "@/lib/business/datetime";
+import {
+  formatMonthYearInTimezone,
+  formatWeekRangeInTimezone,
+  shiftBusinessCivilDate,
+  shiftBusinessMonth,
+} from "@/lib/calendar/planning-geometry";
 import {
   PRIMARY_CALENDAR_VIEWS,
   SECONDARY_CALENDAR_VIEWS,
@@ -38,7 +40,7 @@ import {
   Undo2,
   UserPlus,
 } from "lucide-react";
-import { addDays, addMonths, addWeeks, format, parse } from "date-fns";
+import { format, parse } from "date-fns";
 import { useEffect, useId, useRef, useState } from "react";
 
 type CalendarToolbarProps = {
@@ -105,19 +107,26 @@ function getTitle(
         : formatDayHeader(date);
     case "week":
     case "agenda":
-      return formatWeekRange(date);
+      return formatWeekRangeInTimezone(date, timeZone);
     case "month":
-      return formatMonthYear(date);
+      return formatMonthYearInTimezone(date, timeZone);
     default:
       return format(date, "MMM d, yyyy");
   }
 }
 
-function navigate(view: CalendarView, date: Date, direction: "prev" | "next"): Date {
+function navigate(
+  view: CalendarView,
+  date: Date,
+  direction: "prev" | "next",
+  timeZone?: string | null,
+): Date {
   const delta = direction === "prev" ? -1 : 1;
-  if (view === "month") return addMonths(date, delta);
-  if (view === "week" || view === "agenda") return addWeeks(date, delta);
-  return addDays(date, delta);
+  if (view === "month") return shiftBusinessMonth(date, timeZone, delta);
+  if (view === "week" || view === "agenda") {
+    return shiftBusinessCivilDate(date, timeZone, delta * 7);
+  }
+  return shiftBusinessCivilDate(date, timeZone, delta);
 }
 
 function MoreMenu({
@@ -339,7 +348,7 @@ export function CalendarToolbar({
               variant="ghost"
               size="sm"
               className="min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-lg"
-              onClick={() => onDateChange(navigate(view, date, "prev"))}
+              onClick={() => onDateChange(navigate(view, date, "prev", timeZone))}
               aria-label="Previous"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -357,7 +366,7 @@ export function CalendarToolbar({
               variant="ghost"
               size="sm"
               className="min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-lg"
-              onClick={() => onDateChange(navigate(view, date, "next"))}
+              onClick={() => onDateChange(navigate(view, date, "next", timeZone))}
               aria-label="Next"
             >
               <ChevronRight className="h-4 w-4" />

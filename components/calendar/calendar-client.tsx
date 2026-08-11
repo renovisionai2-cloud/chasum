@@ -6,10 +6,8 @@ import {
 } from "@/components/calendar/appointment-block";
 import { CalendarFilters } from "@/components/calendar/calendar-filters";
 import { CalendarToolbar } from "@/components/calendar/calendar-toolbar";
-import {
-  MonthView,
-  WeekView,
-} from "@/components/calendar/calendar-views";
+import { MonthPlanningView } from "@/components/calendar/month-planning-view";
+import { WeekPlanningView } from "@/components/calendar/week-planning-view";
 import {
   DEFAULT_CALENDAR_BOARD_FILTERS,
   filterAppointmentsForBoard,
@@ -270,13 +268,35 @@ export function CalendarClient({
   const hasSetup = services.length > 0 && staff.length > 0;
   const effectiveView = view;
 
+  function openPlanDay(civilDate: string) {
+    setSelectedAppointment(null);
+    setBookingDraft({ date: civilDate });
+    setDefaultSlot(undefined);
+    setDefaultStaffId(undefined);
+    setForceQuickAddCustomer(false);
+    setDrawerOpen(false);
+    setDialogOpen(true);
+  }
+
+  function inspectDay(day: Date) {
+    setView("day");
+    setDate(day);
+    const range = getCalendarViewRange("day", day, locale);
+    router.replace(
+      `/dashboard/calendar?view=day&date=${formatCalendarDateParam(range.start, timezone)}`,
+      { scroll: false },
+    );
+  }
+
   function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null) {
     setSelectedAppointment(null);
     setBookingDraft(draft ?? null);
     setDefaultSlot(
       draft?.startIso
         ? parseISO(draft.startIso)
-        : slot,
+        : draft?.date && !slot
+          ? undefined
+          : slot,
     );
     setDefaultStaffId(
       draft?.staffId !== undefined && draft?.staffId !== null
@@ -668,27 +688,25 @@ export function CalendarClient({
               />
             ))}
           {effectiveView === "week" && (
-            <WeekView
+            <WeekPlanningView
               date={date}
               appointments={filteredAppointments}
               onSelectAppointment={openEdit}
-              onSelectSlot={openNew}
-              onReschedule={handleReschedule}
-              onResize={handleResize}
-              colorMode={colorMode}
-              intervalMinutes={appointmentIntervalMinutes}
+              onInspectDay={inspectDay}
+              onPlanDay={openPlanDay}
+              timeZone={timezone}
+              isNarrow={isNarrow}
             />
           )}
           {effectiveView === "month" && (
-            <MonthView
+            <MonthPlanningView
               date={date}
               appointments={filteredAppointments}
               onSelectAppointment={openEdit}
-              onSelectDay={(day) => {
-                setView("day");
-                setDate(day);
-              }}
-              colorMode={colorMode}
+              onInspectDay={inspectDay}
+              onPlanDay={openPlanDay}
+              timeZone={timezone}
+              isNarrow={isNarrow}
             />
           )}
           {effectiveView === "agenda" && (
@@ -848,7 +866,7 @@ export function CalendarClient({
       <BookingSheet
         key={
           selectedAppointment?.id ??
-          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${forceQuickAddCustomer ? "qc" : ""}`
+          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${bookingDraft?.date ?? ""}-${forceQuickAddCustomer ? "qc" : ""}`
         }
         open={dialogOpen}
         onClose={() => {
