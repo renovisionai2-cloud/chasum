@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-11  
-**Updated by:** World Class — Chapter 5 Phase 5.2 final density & width correction (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 5 Phase 5.2 shared calendar canvas correction (Preview; Production unchanged)  
 
 ---
 
@@ -120,7 +120,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 (`60c71cd`) + Phase 5.1 (`3c843e5`) complete; **Phase 5.2 final density correction — awaiting PO visual review**. Phase 5.3 / Chapter 6 not started.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 (`60c71cd`) + Phase 5.1 (`3c843e5`) complete; **Phase 5.2 shared calendar canvas — awaiting PO visual review**. Phase 5.3 / Chapter 6 not started.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -158,6 +158,15 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-11)
+
+**World Class — Chapter 5 Phase 5.2 final shared calendar canvas correction**
+
+- Primary Reception calendar views share one full operating canvas. Day, Week and Month must not use inconsistent page-width constraints.
+- Root cause: shared `lg:items-start` plus Week/Month missing `w-full` (Week shrink-wrapped to `min-w-[780px]`).
+- Day View density (`dayLaneFlexStyle`, 240px min, geometry) preserved.
+- Awaiting PO hands-on visual acceptance — not auto-accepted. Phase 5.3 not started.
+
+### Immediately prior (2026-08-11)
 
 **World Class — Chapter 5 Phase 5.2 final density & width correction**
 
@@ -503,7 +512,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on visual review of Chapter 5 Phase 5.2 final density & width correction** on Preview.
+1. **PO hands-on visual review of Chapter 5 Phase 5.2 shared calendar canvas** on Preview.
 2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for engine + Day View architecture; do not apply migrations without PO.
 3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4 architecture.
 4. **Operation GVM Production** — remain protected.

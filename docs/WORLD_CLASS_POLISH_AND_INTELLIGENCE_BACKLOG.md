@@ -281,7 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 5 Phase 5.2** — Day View operating-surface correction (schedule-first; contextual workspaces); awaiting PO visual; Phase 5.3 not started
+- **Chapter 5 Phase 5.2** — Shared Reception calendar canvas (Day/Week/Month one operating width); Day density preserved; awaiting PO visual; Phase 5.3 not started
 - **Chapter 5 Phase 5.1** — Availability Truth (SchedulingPolicy / capability matrix); DB gaps documented only
 - Locked usability: revisitable decisions; no silent dead clicks; Book another = fresh in-workspace; current decision must dominate; VALUE≠RESOLVED; provenance-aware adaptive skip
 
@@ -291,6 +291,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-11 | Chapter 5 Phase 5.2 shared canvas — Primary Reception calendar views share one full operating canvas. Day, Week and Month must not use inconsistent page-width constraints. |
 | 2026-08-11 | Chapter 5 Phase 5.2 final density correction — Day View must use the available operating workspace rather than leave large unused desktop space |
 | 2026-08-11 | Chapter 5 Phase 5.2 Day View Operating Surface Correction (schedule-first; no idle rail; toolbar hierarchy; PO visual pending) |
 | 2026-08-10 | Chapter 5 Phase 5.2 Day View implemented (geometry; lanes; cards; mobile; no migrations; PO visual pending) |

@@ -2,11 +2,13 @@
 
 import { StatusBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
+import { CALENDAR_CANVAS_CLASS } from "@/lib/calendar/day-surface";
 import {
   formatTime,
   isSameDay,
   parseISO,
 } from "@/lib/calendar/utils";
+import { cn } from "@/lib/utils";
 import type {
   AppointmentWithRelations,
   Location,
@@ -52,7 +54,12 @@ export function AgendaView({
   }
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+    <div
+      className={cn(
+        CALENDAR_CANVAS_CLASS,
+        "rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
+      )}
+    >
       <ul className="divide-y divide-border/80">
         {items.map((appt) => (
           <li key={appt.id}>
@@ -94,7 +101,12 @@ export function TimelineView({
     );
 
   return (
-    <div className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm">
+    <div
+      className={cn(
+        CALENDAR_CANVAS_CLASS,
+        "space-y-3 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm",
+      )}
+    >
       <p className="text-sm font-semibold">
         Timeline · {format(date, "EEEE, MMM d")}
       </p>
@@ -179,7 +191,12 @@ export function ResourceView({
   );
 
   return (
-    <div className="overflow-x-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+    <div
+      className={cn(
+        CALENDAR_CANVAS_CLASS,
+        "overflow-x-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
+      )}
+    >
       <div
         className="grid min-w-[640px] gap-px bg-border"
         style={{

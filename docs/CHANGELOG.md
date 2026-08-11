@@ -192,6 +192,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Calendar + Reception full editor open Booking Sheet (`AppointmentDialog` is a thin alias)
 - Channel registry for staff, reception, public, Summer, API, mobile
 
+### Fixed (Phase 5.2 — Shared Reception calendar canvas)
+
+- Day, Week, and Month now inherit one full operating canvas (`CALENDAR_CANVAS_CLASS`). Week/Month no longer shrink-wrap beside unused white space.
+
 ### Added (Phase 5.2 — Day View Control Center)
 
 - Morning Brief strip: appointments, revenue, staff working, open slots, waitlist, no-shows, outstanding payments, Summer activity, Chase recommendations

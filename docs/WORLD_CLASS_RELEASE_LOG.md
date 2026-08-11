@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-11 | **Chapter 5 Phase 5.2 — Shared calendar canvas** | _(feature SHA in tip)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day/Week/Month share one full operating canvas; PO visual pending — not auto-accepted |
 | 2026-08-11 | **Chapter 5 Phase 5.2 — Final density & width** | `3a433e1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View uses full operating workspace; 20rem lane cap removed; PO visual pending |
 | 2026-08-11 | **Chapter 5 Phase 5.2 — Operating Surface Correction** | `5a62800` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Schedule-first Day View; contextual workspaces; toolbar hierarchy; empty Unassigned hidden; PO visual pending |
 | 2026-08-10 | **Chapter 5 Phase 5.2 — Day View** | `c3a5851` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ Day View; cards; mobile agenda; Ch4 entry preserved; no DB; Phase 5.3 not started |
@@ -45,6 +46,23 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 5 Phase 5.2 — Shared calendar canvas quality report
+
+| Check | Result |
+|-------|--------|
+| Shared canvas | `CALENDAR_CANVAS_CLASS` — no narrow max-width |
+| Day / Week / Month same outer bounds | Yes — parent canvas `w-full max-w-none` |
+| Week columns | `flex-1 min-w-0` across canvas; 780px scroll floor |
+| Month grid | `grid w-full grid-cols-7` |
+| Day geometry / lanes | Unchanged |
+| Agenda / Timeline | Inherit canvas; no new max-width |
+| Toolbar | Inside the same canvas as the calendar |
+| DB / migrations | **None** |
+| Production | Untouched |
+| Phase 5.3 | **Not started** |
+| Chapter 6 | **Not started** |
+| PO acceptance | Required visual review — not auto-accepted |
 
 ## Chapter 5 Phase 5.2 — Operating Surface Correction quality report
 

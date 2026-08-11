@@ -144,3 +144,15 @@ export function hasFixedCalendarWidthConstraint(className: string): boolean {
     /\bw-\[(?:[1-9]\d{2}|[1-3]\d{3})px\]/.test(className)
   );
 }
+
+/**
+ * Shared Reception calendar operating canvas.
+ * Day, Week, and Month must inherit the same full content width.
+ * Do not add max-w-6xl / shrink-to-fit wrappers here.
+ */
+export const CALENDAR_CANVAS_CLASS =
+  "w-full max-w-none min-w-0";
+
+export function sharedCalendarCanvasClassName(): string {
+  return CALENDAR_CANVAS_CLASS;
+}

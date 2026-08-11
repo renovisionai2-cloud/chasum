@@ -29,7 +29,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
-| 5 | Calendar & Booking Engine | **Phase 5.2 final density correction** — awaiting PO visual; Phase 5.3 not started |
+| 5 | Calendar & Booking Engine | **Phase 5.2 shared canvas correction** — awaiting PO visual; Phase 5.3 not started |
 | 6 | Sales, payments, invoices, receipts | Not started |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
@@ -163,7 +163,7 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 5 status
 
-**Phase 5.2 — Final density & width correction.** Day View uses the available operating workspace; lanes share full schedule width. Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). **Phase 5.3 not started. Chapter 6 not started.** Awaiting PO visual acceptance.
+**Phase 5.2 — Final shared calendar canvas correction.** Primary Reception views (Day, Week, Month) share one full operating canvas. Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). **Phase 5.3 not started. Chapter 6 not started.** Awaiting PO visual acceptance — not auto-accepted.
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -196,4 +196,4 @@ This is **planning-locked now**; implementation is **not** started by this docum
 
 ## Next step after Chapter 5 Phase 5.2
 
-Await **PO hands-on visual review of Phase 5.2 Day View Operating Surface Correction**. Do not start Phase 5.3 until accepted. Do not apply gap-report migrations without explicit PO.
+Await **PO hands-on visual review of Phase 5.2 shared calendar canvas**. Do not start Phase 5.3 until accepted. Do not apply gap-report migrations without explicit PO.

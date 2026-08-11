@@ -19,6 +19,7 @@ import {
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
+import { CALENDAR_CANVAS_CLASS } from "@/lib/calendar/day-surface";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
@@ -164,9 +165,16 @@ export function WeekView({
   const todayInWeek = days.some((d) => isSameDay(d, new Date()));
 
   return (
-    <div className="max-h-[min(70vh,52rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-      <div className="min-w-[780px]">
-        <div className="sticky top-0 z-20 flex border-b border-border bg-card/95 backdrop-blur-sm">
+    <div
+      className={cn(
+        CALENDAR_CANVAS_CLASS,
+        "max-h-[min(70vh,52rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
+      )}
+      data-calendar-view="week"
+      data-calendar-canvas-width="full"
+    >
+      <div className="w-full min-w-[780px]">
+        <div className="sticky top-0 z-20 flex w-full border-b border-border bg-card/95 backdrop-blur-sm">
           <div
             className={cn(
               "sticky left-0 z-30 border-r border-border bg-card",
@@ -179,7 +187,7 @@ export function WeekView({
               <div
                 key={day.toISOString()}
                 className={cn(
-                  "flex-1 border-l border-border px-1 py-2.5 text-center sm:px-2",
+                  "min-w-0 flex-1 border-l border-border px-1 py-2.5 text-center sm:px-2",
                   isToday && "bg-accent/50",
                 )}
               >
@@ -202,7 +210,7 @@ export function WeekView({
 
         <div className="relative">
           {hours.map((hour) => (
-            <div key={hour} className="flex border-b border-border/80 last:border-b-0">
+            <div key={hour} className="flex w-full border-b border-border/80 last:border-b-0">
               <div
                 className={cn(
                   "sticky left-0 z-10 border-r border-border bg-card px-2 py-4 text-right text-[11px] tabular-nums text-muted-foreground sm:text-xs",
@@ -218,7 +226,7 @@ export function WeekView({
                   hour={hour}
                   intervalMinutes={intervalMinutes}
                   className={cn(
-                    "min-h-[56px] flex-1 border-l border-border/60",
+                    "min-h-[56px] min-w-0 flex-1 border-l border-border/60",
                     isSameDay(day, new Date()) && "bg-accent/10",
                   )}
                   onClick={onSelectSlot}
@@ -239,7 +247,7 @@ export function WeekView({
 
           <div
             className={cn(
-              "pointer-events-none absolute inset-0 grid grid-cols-7",
+              "pointer-events-none absolute inset-0 grid w-full grid-cols-7",
               "pl-16 sm:pl-[4.25rem]",
             )}
           >
@@ -320,8 +328,15 @@ export function MonthView({
 
   return (
     <>
-      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-        <div className="sticky top-0 z-10 grid grid-cols-7 border-b border-border bg-card">
+      <div
+        className={cn(
+          CALENDAR_CANVAS_CLASS,
+          "overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
+        )}
+        data-calendar-view="month"
+        data-calendar-canvas-width="full"
+      >
+        <div className="sticky top-0 z-10 grid w-full grid-cols-7 border-b border-border bg-card">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div
               key={day}
@@ -331,7 +346,7 @@ export function MonthView({
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7">
+        <div className="grid w-full grid-cols-7">
           {days.map((day) => {
             const dayAppts = appointments
               .filter((appt) => isSameDay(parseISO(appt.start_time), day))

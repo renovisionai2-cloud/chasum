@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  CALENDAR_CANVAS_CLASS,
   DAY_LANE_MIN_PX,
   dayLaneFlexStyle,
   hasFixedCalendarWidthConstraint,
@@ -9,6 +10,7 @@ import {
   isDayViewIdle,
   isPrimaryCalendarView,
   isSecondaryCalendarView,
+  sharedCalendarCanvasClassName,
   shouldMountReceptionRail,
   shouldShowMorningBrief,
   shouldShowUnassignedLane,
@@ -215,5 +217,92 @@ describe("Day View density and width", () => {
     expect(day).toContain("w-full max-w-none");
     expect(day).not.toMatch(/max-w-\[20rem\]/);
     expect(day).toContain("dayLaneFlexStyle");
+  });
+});
+
+describe("Shared Reception calendar canvas", () => {
+  it("shared canvas class has no narrow max-width", () => {
+    expect(sharedCalendarCanvasClassName()).toBe(CALENDAR_CANVAS_CLASS);
+    expect(CALENDAR_CANVAS_CLASS).toContain("w-full");
+    expect(CALENDAR_CANVAS_CLASS).toContain("max-w-none");
+    expect(CALENDAR_CANVAS_CLASS).toContain("min-w-0");
+    expect(hasFixedCalendarWidthConstraint(CALENDAR_CANVAS_CLASS)).toBe(false);
+  });
+
+  it("CalendarClient locks one full operating canvas; items-start only with the rail", () => {
+    const client = readFileSync(
+      join(process.cwd(), "components/calendar/calendar-client.tsx"),
+      "utf8",
+    );
+    expect(client).toContain("CALENDAR_CANVAS_CLASS");
+    expect(client).toContain('data-calendar-canvas="primary"');
+    expect(client).toContain('data-calendar-canvas-width="full"');
+    expect(client).toContain("DayControlCenter");
+    expect(client).toContain("<WeekView");
+    expect(client).toContain("<MonthView");
+    expect(client).toMatch(
+      /mountReceptionRail \? "lg:flex-row lg:items-start lg:gap-4"/,
+    );
+    expect(client).not.toMatch(/flex flex-col gap-4 lg:items-start/);
+    expect(client).toContain("DayAgendaList");
+    expect(client).toContain("isNarrow");
+  });
+
+  it("Day, Week, and Month inherit the shared canvas; Week columns distribute; Month fills", () => {
+    const day = readFileSync(
+      join(process.cwd(), "components/day-view/day-control-center.tsx"),
+      "utf8",
+    );
+    const views = readFileSync(
+      join(process.cwd(), "components/calendar/calendar-views.tsx"),
+      "utf8",
+    );
+    expect(day).toContain("w-full max-w-none");
+    expect(day).toContain("dayLaneFlexStyle");
+    expect(day).not.toMatch(/max-w-\[20rem\]/);
+    expect(views).toContain("CALENDAR_CANVAS_CLASS");
+    expect(views).toContain('data-calendar-view="week"');
+    expect(views).toContain('data-calendar-view="month"');
+    expect(views).toContain('data-calendar-canvas-width="full"');
+    expect(views).toContain("w-full min-w-[780px]");
+    expect(views).toContain("min-w-0 flex-1");
+    expect(views).toContain("grid w-full grid-cols-7");
+  });
+
+  it("toolbar stays on the same canvas width as the calendar", () => {
+    const client = readFileSync(
+      join(process.cwd(), "components/calendar/calendar-client.tsx"),
+      "utf8",
+    );
+    const toolbar = readFileSync(
+      join(process.cwd(), "components/calendar/calendar-toolbar.tsx"),
+      "utf8",
+    );
+    expect(client).toMatch(/calendarBody[\s\S]*CalendarToolbar/);
+    expect(toolbar).toContain("data-calendar-toolbar");
+    expect(toolbar).toContain("flex w-full flex-col gap-2");
+    expect(toolbar).toMatch(/PRIMARY_TABS/);
+    expect(toolbar).toMatch(/New Appointment/);
+  });
+
+  it("Agenda/Timeline and page wrappers do not reintroduce a narrow canvas", () => {
+    const extended = readFileSync(
+      join(process.cwd(), "components/calendar/calendar-views-extended.tsx"),
+      "utf8",
+    );
+    const page = readFileSync(
+      join(process.cwd(), "app/(dashboard)/dashboard/calendar/page.tsx"),
+      "utf8",
+    );
+    const workspace = readFileSync(
+      join(process.cwd(), "components/reception/reception-workspace.tsx"),
+      "utf8",
+    );
+    expect(extended).toContain("CALENDAR_CANVAS_CLASS");
+    expect(page).toContain("w-full min-w-0");
+    expect(page).not.toMatch(/overflow-x-scroll/);
+    expect(workspace).toContain("w-full min-w-0");
+    expect(workspace).not.toMatch(/max-w-6xl/);
+    expect(hasFixedCalendarWidthConstraint(workspace)).toBe(false);
   });
 });

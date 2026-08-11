@@ -352,6 +352,20 @@
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
+## Chapter 5 — Calendar & Booking Engine (Phase 5.2 shared canvas)
+
+| Field | Value |
+|-------|--------|
+| Phase | **5.2 — Final shared calendar canvas correction** |
+| Rule | Primary Reception views share one full operating canvas |
+| Constraint removed | Shared `lg:items-start` shrink-to-fit + Week/Month missing `w-full` |
+| Shared class | `CALENDAR_CANVAS_CLASS` — `w-full max-w-none min-w-0` |
+| Week | Seven `flex-1 min-w-0` columns; `min-w-[780px]` scroll floor |
+| Month | `grid w-full grid-cols-7` |
+| Day | `dayLaneFlexStyle` unchanged (240px min; no 20rem cap) |
+| Tests | `tests/unit/calendar/day-surface.test.ts` shared-canvas block |
+| Approval | Awaiting PO visual review — not auto-accepted |
+
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 density)
 
 | Field | Value |

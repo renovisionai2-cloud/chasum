@@ -70,6 +70,7 @@ import {
 } from "@/lib/calendar/date-param";
 import { getCalendarViewRange } from "@/lib/calendar/view-range";
 import {
+  CALENDAR_CANVAS_CLASS,
   isDayViewIdle,
   shouldMountReceptionRail,
   shouldShowMorningBrief,
@@ -762,13 +763,18 @@ export function CalendarClient({
       ) : null}
       <div
         className={cn(
-          "flex flex-col gap-4 lg:items-start",
-          mountReceptionRail ? "lg:flex-row" : "lg:flex-col",
+          "flex w-full min-w-0 flex-col gap-2",
+          mountReceptionRail ? "lg:flex-row lg:items-start lg:gap-4" : null,
         )}
       >
         <div
-          className={`min-w-0 flex-1 transition-opacity ${isRefreshing ? "opacity-80" : ""}`}
+          className={cn(
+            CALENDAR_CANVAS_CLASS,
+            "flex-1 transition-opacity",
+            isRefreshing && "opacity-80",
+          )}
           data-calendar-canvas="primary"
+          data-calendar-canvas-width="full"
         >
           {calendarBody}
         </div>

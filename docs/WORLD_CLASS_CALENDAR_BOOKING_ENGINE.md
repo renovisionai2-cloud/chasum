@@ -296,14 +296,28 @@ Provenance, required-step integrity, MoneyAmountInput, slot density, View Appoin
 - Policy / conflict unit tests
 - Chapter 4 UI unchanged; no Day View redesign
 
+## Phase 5.2 — Final shared calendar canvas correction (PO visual review pending)
+
+**Primary Reception calendar views share one full operating canvas. Day, Week and Month must not use inconsistent page-width constraints.**
+
+- Chain: sidebar → normal shell content margin → calendar workspace fills remaining width → normal right margin.
+- Shared rule: `CALENDAR_CANVAS_CLASS` (`w-full max-w-none min-w-0`) on CalendarClient + Week + Month.
+- Root cause of the Week/Month dead region: `lg:items-start` on the shared flex wrapper plus Week/Month missing `w-full`, so Week shrink-wrapped to `min-w-[780px]`.
+- `lg:items-start` applies only when the Reception rail is actually a side-by-side row.
+- Week: seven `flex-1 min-w-0` columns across the canvas; `min-w-[780px]` remains a scroll floor so columns stay readable.
+- Month: `grid w-full grid-cols-7` fills the same canvas. No Month intelligence redesign.
+- Day View density (`dayLaneFlexStyle`, 240px min, geometry, drag/resize, Now line) unchanged.
+- Do not fill unused space with widgets. Phase 5.2 is **not** auto-accepted. Phase 5.3 not started.
+
 ## Phase 5.2 — Final density & width correction (PO visual review pending)
 
 Phase 5.2 final density correction — Day View must use the available operating workspace rather than leave large unused desktop space.
 
 - Portal shell already treats `/dashboard/calendar` as wide (`max-w-none`).
-- The remaining constraint was Day View lane `max-w-[20rem]`.
+- The remaining Day-only constraint was employee lane `max-w-[20rem]`.
 - Lanes now flex-fill the schedule (`dayLaneFlexStyle`); min 240px; no artificial max.
 - Reception workspace no longer uses `ds-page` vertical stacking that kept the schedule visually secondary.
+- Later PO video: Week/Month still used a narrower canvas — see shared canvas correction above.
 
 ## Phase 5.2 — Day View Operating Surface Correction (PO visual review pending)
 
