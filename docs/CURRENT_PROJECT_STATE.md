@@ -467,10 +467,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `5a62800a420b22bdc4071f6bce61f7f25522ef47` |
-| **Short** | `5a62800` |
-| **Subject** | fix: Phase 5.2 Day View operating surface correction |
+| **SHA** | `3a433e18051af19bb27441eafdf3b1271de59571` |
+| **Short** | `3a433e1` |
+| **Subject** | fix: Phase 5.2 final Day View density and width |
 | **Tip / stamp** | _(after this stamp commit)_ |
+| **Chapter 5 Phase 5.2 density** | `3a433e1` |
 | **Chapter 5 Phase 5.2 correction** | `5a62800` |
 | **Chapter 5 Phase 5.2 feature** | `c3a5851` / tip `b578848` |
 | **Chapter 5 Phase 5.1 feature** | `15fd26c` / tip `3c843e5` |
@@ -502,7 +503,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on visual review of Chapter 5 Phase 5.2 Day View Operating Surface Correction** on Preview.
+1. **PO hands-on visual review of Chapter 5 Phase 5.2 final density & width correction** on Preview.
 2. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for engine + Day View architecture; do not apply migrations without PO.
 3. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4 architecture.
 4. **Operation GVM Production** — remain protected.
