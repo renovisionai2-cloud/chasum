@@ -545,7 +545,7 @@ export function CalendarClient({
     filteredAppointments.length === 0 && appointments.length > 0;
 
   const calendarBody = (
-    <div className="space-y-2">
+    <div className="w-full min-w-0 space-y-2">
       <CalendarToolbar
         view={view}
         date={date}
@@ -743,7 +743,7 @@ export function CalendarClient({
 
   return (
     <div
-      className="relative space-y-3"
+      className="relative w-full min-w-0 space-y-2"
       data-day-surface={effectiveView === "day" ? "day" : "other"}
       data-day-idle={dayIdle ? "true" : "false"}
       data-reception-rail={mountReceptionRail ? "open" : "closed"}

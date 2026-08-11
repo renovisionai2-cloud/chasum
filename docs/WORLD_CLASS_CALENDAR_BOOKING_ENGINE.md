@@ -296,6 +296,15 @@ Provenance, required-step integrity, MoneyAmountInput, slot density, View Appoin
 - Policy / conflict unit tests
 - Chapter 4 UI unchanged; no Day View redesign
 
+## Phase 5.2 — Final density & width correction (PO visual review pending)
+
+Phase 5.2 final density correction — Day View must use the available operating workspace rather than leave large unused desktop space.
+
+- Portal shell already treats `/dashboard/calendar` as wide (`max-w-none`).
+- The remaining constraint was Day View lane `max-w-[20rem]`.
+- Lanes now flex-fill the schedule (`dayLaneFlexStyle`); min 240px; no artificial max.
+- Reception workspace no longer uses `ds-page` vertical stacking that kept the schedule visually secondary.
+
 ## Phase 5.2 — Day View Operating Surface Correction (PO visual review pending)
 
 **Locks**

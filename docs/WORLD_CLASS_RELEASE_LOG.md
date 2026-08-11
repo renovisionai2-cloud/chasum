@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-11 | **Chapter 5 Phase 5.2 — Final density & width** | _(pending)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View uses full operating workspace; 20rem lane cap removed; PO visual pending |
 | 2026-08-11 | **Chapter 5 Phase 5.2 — Operating Surface Correction** | `5a62800` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Schedule-first Day View; contextual workspaces; toolbar hierarchy; empty Unassigned hidden; PO visual pending |
 | 2026-08-10 | **Chapter 5 Phase 5.2 — Day View** | `c3a5851` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ Day View; cards; mobile agenda; Ch4 entry preserved; no DB; Phase 5.3 not started |
 | 2026-08-10 | **Chapter 5 Phase 5.1 — Availability Truth** | `15fd26c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | SchedulingPolicy; capability matrix; DB gap report; Ch4 unchanged |

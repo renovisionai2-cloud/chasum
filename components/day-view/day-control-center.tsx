@@ -28,6 +28,7 @@ import {
   minutesToGridPercent,
 } from "@/lib/calendar/day-geometry";
 import {
+  dayLaneFlexStyle,
   hasUnassignedAppointmentsOnDay,
   shouldShowUnassignedLane,
   staffIdsForDayLanes,
@@ -138,6 +139,7 @@ function StaffColumn({
   onResize,
   colorMode,
   intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
+  laneCount,
 }: {
   member: StaffWithServices;
   overlay?: StaffDayOverlay;
@@ -152,6 +154,7 @@ function StaffColumn({
   onResize?: DayControlCenterProps["onResize"];
   colorMode: CalendarColorMode;
   intervalMinutes?: number;
+  laneCount: number;
 }) {
   const dayAppts = appointments.filter(
     (a) =>
@@ -170,11 +173,20 @@ function StaffColumn({
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase() ?? "")
     .join("");
+  const laneStyle = dayLaneFlexStyle(laneCount);
 
   return (
     <div
-      className="relative min-w-[12.5rem] max-w-[20rem] flex-1 border-l border-border/50 first:border-l-0"
+      className="relative border-l border-border/50 first:border-l-0"
       data-staff-column={member.id}
+      data-lane-sizing={laneCount <= 1 ? "solo" : "fill"}
+      style={{
+        minWidth: laneStyle.minWidth,
+        maxWidth: laneStyle.maxWidth ?? undefined,
+        flexGrow: laneStyle.flexGrow,
+        flexShrink: laneStyle.flexShrink,
+        flexBasis: laneStyle.flexBasis,
+      }}
     >
       <div
         className="sticky top-0 z-20 border-b border-border/80 px-2.5 py-2.5 backdrop-blur-sm"
@@ -385,6 +397,7 @@ export function DayControlCenter({
     ),
     staffFilter,
   });
+  const laneCount = activeStaff.length + (showUnassigned ? 1 : 0);
 
   const nowNext = useMemo(() => {
     if (!showNow) {
@@ -474,9 +487,11 @@ export function DayControlCenter({
     <div
       ref={scrollRef}
       className={cn(
-        "max-h-[min(82vh,64rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
+        "w-full max-w-none max-h-[calc(100dvh-10.5rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm",
         loading && "opacity-90",
       )}
+      data-day-canvas="fluid"
+      data-lane-count={laneCount}
       data-unassigned-lane={showUnassigned ? "visible" : "hidden"}
       role="region"
       aria-busy={loading || undefined}
@@ -540,7 +555,7 @@ export function DayControlCenter({
         </div>
       ) : null}
 
-      <div className={cn("flex min-w-0", loading && "sr-only")}>
+      <div className={cn("flex w-full min-w-0", loading && "sr-only")}>
         <div
           className="sticky left-0 z-20 w-14 shrink-0 border-r border-border bg-card sm:w-16"
           aria-hidden
@@ -559,7 +574,7 @@ export function DayControlCenter({
           ))}
         </div>
 
-        <div className="flex min-w-0 flex-1 overflow-x-auto">
+        <div className="flex min-w-0 w-full flex-1 overflow-x-auto">
           {activeStaff.map((member) => (
             <StaffColumn
               key={member.id}
@@ -576,6 +591,7 @@ export function DayControlCenter({
               onResize={onResize}
               colorMode={colorMode}
               intervalMinutes={intervalMinutes}
+              laneCount={laneCount}
             />
           ))}
           {showUnassigned ? (
@@ -603,6 +619,7 @@ export function DayControlCenter({
               onResize={onResize}
               colorMode={colorMode}
               intervalMinutes={intervalMinutes}
+              laneCount={laneCount}
             />
           ) : null}
         </div>

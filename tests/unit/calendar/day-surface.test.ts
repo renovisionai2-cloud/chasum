@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  DAY_LANE_MIN_PX,
+  dayLaneFlexStyle,
+  hasFixedCalendarWidthConstraint,
   hasUnassignedAppointmentsOnDay,
   isDayViewIdle,
   isPrimaryCalendarView,
@@ -11,6 +14,7 @@ import {
   shouldShowUnassignedLane,
   staffIdsForDayLanes,
 } from "@/lib/calendar/day-surface";
+import { isWidePortalPath } from "@/lib/dashboard/nav";
 
 describe("Day View operating surface", () => {
   it("treats idle Day View as schedule-first (no booking, appointment, or rail)", () => {
@@ -169,5 +173,47 @@ describe("Day View operating surface", () => {
     expect(toolbar).toMatch(/data-toolbar-hierarchy="primary-secondary"/);
     expect(toolbar).toMatch(/New Appointment/);
     expect(toolbar).not.toMatch(/viewTabs = \[/);
+  });
+});
+
+describe("Day View density and width", () => {
+  it("distributes lanes for 1 / 3 / many employees without a 20rem cap", () => {
+    const solo = dayLaneFlexStyle(1);
+    const three = dayLaneFlexStyle(3);
+    const many = dayLaneFlexStyle(12);
+    expect(solo.minWidth).toBe(DAY_LANE_MIN_PX);
+    expect(three.minWidth).toBe(DAY_LANE_MIN_PX);
+    expect(many.minWidth).toBe(DAY_LANE_MIN_PX);
+    expect(solo.maxWidth).toBeNull();
+    expect(three.maxWidth).toBeNull();
+    expect(many.maxWidth).toBeNull();
+    expect(three.flexGrow).toBe(1);
+    expect(many.flexShrink).toBe(0);
+  });
+
+  it("flags permanent fixed-width calendar constraints", () => {
+    expect(hasFixedCalendarWidthConstraint("mx-auto w-full max-w-6xl")).toBe(
+      true,
+    );
+    expect(hasFixedCalendarWidthConstraint("min-w-[12.5rem] max-w-[20rem]")).toBe(
+      true,
+    );
+    expect(hasFixedCalendarWidthConstraint("w-full max-w-none")).toBe(false);
+  });
+
+  it("keeps Reception/Calendar on the wide portal shell", () => {
+    expect(isWidePortalPath("/dashboard/calendar")).toBe(true);
+    expect(isWidePortalPath("/dashboard/calendar?view=day")).toBe(true);
+  });
+
+  it("Day View canvas is fluid and lanes are not hard-capped at 20rem", () => {
+    const day = readFileSync(
+      join(process.cwd(), "components/day-view/day-control-center.tsx"),
+      "utf8",
+    );
+    expect(day).toContain('data-day-canvas="fluid"');
+    expect(day).toContain("w-full max-w-none");
+    expect(day).not.toMatch(/max-w-\[20rem\]/);
+    expect(day).toContain("dayLaneFlexStyle");
   });
 });

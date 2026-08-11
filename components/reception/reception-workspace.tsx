@@ -64,7 +64,7 @@ export function ReceptionWorkspace({
   appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: ReceptionWorkspaceProps) {
   return (
-    <div className="ds-page">
+    <div className="w-full min-w-0">
       <CalendarClient
         appointments={appointments}
         services={services}

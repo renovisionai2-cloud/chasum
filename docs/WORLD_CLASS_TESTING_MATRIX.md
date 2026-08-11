@@ -352,6 +352,16 @@
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
 
+## Chapter 5 — Calendar & Booking Engine (Phase 5.2 density)
+
+| Field | Value |
+|-------|--------|
+| Phase | **5.2 — Final density & width correction** |
+| Constraint removed | Day lane `max-w-[20rem]` |
+| Sizing | `dayLaneFlexStyle` — fill remaining width; min 240px |
+| Tests | `tests/unit/calendar/day-surface.test.ts` density block |
+| Approval | Awaiting PO visual review — not auto-accepted |
+
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.2 operating surface)
 
 | Field | Value |

@@ -109,3 +109,38 @@ export function staffIdsForDayLanes(input: {
   if (input.staffFilter === "unassigned") return [];
   return input.activeStaffIds.filter((id) => id === input.staffFilter);
 }
+
+/** Minimum readable lane width (px). Many employees scroll instead of shrinking below this. */
+export const DAY_LANE_MIN_PX = 240;
+
+/**
+ * Lane flex sizing for the Day View schedule.
+ * Visible lanes share all remaining schedule width — no 20rem artificial cap.
+ * 10+ employees keep the 240px minimum and the schedule scrolls horizontally.
+ * Appointment cards stay percentage-width inside the lane; do not add extra fields.
+ */
+export function dayLaneFlexStyle(laneCount: number): {
+  minWidth: number;
+  maxWidth: number | null;
+  flexGrow: number;
+  flexShrink: number;
+  flexBasis: string;
+} {
+  const count = Math.max(1, laneCount);
+  return {
+    minWidth: DAY_LANE_MIN_PX,
+    maxWidth: null,
+    flexGrow: 1,
+    flexShrink: 0,
+    flexBasis: count === 1 ? "100%" : "0%",
+  };
+}
+
+/** True when a container class list imposes a fixed/narrow calendar width. */
+export function hasFixedCalendarWidthConstraint(className: string): boolean {
+  return (
+    /\bmax-w-(xs|sm|md|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl)\b/.test(className) ||
+    /\bmax-w-\[20rem\]/.test(className) ||
+    /\bw-\[(?:[1-9]\d{2}|[1-3]\d{3})px\]/.test(className)
+  );
+}

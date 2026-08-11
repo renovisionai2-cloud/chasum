@@ -82,8 +82,8 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="space-y-3">
-      <PageHeader title="Reception" />
+    <div className="w-full min-w-0 space-y-2">
+      <PageHeader title="Reception" className="gap-2" />
       <ReceptionWorkspace
         brief={brief}
         insights={insights}

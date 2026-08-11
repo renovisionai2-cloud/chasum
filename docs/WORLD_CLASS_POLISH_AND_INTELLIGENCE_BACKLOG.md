@@ -291,6 +291,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-11 | Chapter 5 Phase 5.2 final density correction — Day View must use the available operating workspace rather than leave large unused desktop space |
 | 2026-08-11 | Chapter 5 Phase 5.2 Day View Operating Surface Correction (schedule-first; no idle rail; toolbar hierarchy; PO visual pending) |
 | 2026-08-10 | Chapter 5 Phase 5.2 Day View implemented (geometry; lanes; cards; mobile; no migrations; PO visual pending) |
 | 2026-08-10 | Chapter 5 Phase 5.1 Availability Truth started (policy; no Day View; no migrations) |

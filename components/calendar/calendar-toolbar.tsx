@@ -296,7 +296,7 @@ export function CalendarToolbar({
 
   return (
     <div
-      className="flex flex-col gap-2"
+      className="flex w-full flex-col gap-2"
       data-calendar-toolbar
       data-toolbar-hierarchy="primary-secondary"
     >
