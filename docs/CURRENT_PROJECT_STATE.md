@@ -448,11 +448,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | _(pending Phase 5.2 feature commit)_ |
-| **Short** | _(pending)_ |
+| **SHA** | `c3a5851008cb2ad57ba791e80cdd64354ded1e1a` |
+| **Short** | `c3a5851` |
 | **Subject** | feat: Chapter 5 Phase 5.2 world-class calendar Day View |
-| **Tip / stamp** | _(pending after Preview)_ |
-| **Chapter 5 Phase 5.2** | Day View — awaiting PO visual review |
+| **Tip / stamp** | _(stamp after successful Preview push)_ |
+| **Chapter 5 Phase 5.2 feature** | `c3a5851` |
 | **Chapter 5 Phase 5.1 feature** | `15fd26c` / tip `3c843e5` |
 | **Chapter 5 Phase 5.0 feature** | `e2a034c` / tip `60c71cd` |
 | **Chapter 4 PO-accepted tip** | `4da237c` |
