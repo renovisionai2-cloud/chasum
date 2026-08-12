@@ -6,7 +6,7 @@ import {
 import { listRefunds } from "@/lib/commerce/refunds";
 import { normalizeCurrency } from "@/lib/commerce/money";
 import {
-  appointmentMoneyFromStamps,
+  appointmentCollectibleMoneyFromStamps,
   isCommerceInvoiceRecord,
   isGrossCollectionTransaction,
   isOutstandingInvoiceStatus,
@@ -170,16 +170,17 @@ export async function getCommerceDashboardSnapshot(
   let outstandingAppointmentBalancesCents = 0;
   let outstandingAppointmentBalancesCount = 0;
   for (const a of depositRows) {
-    const money = appointmentMoneyFromStamps({
+    const money = appointmentCollectibleMoneyFromStamps({
       ...a,
       services: (a as { services?: unknown }).services,
     });
-    if (money.depositDueNowCents > 0) {
-      outstandingDepositsCents += money.depositDueNowCents;
+    if (money.collectibleDepositDueNowCents > 0) {
+      outstandingDepositsCents += money.collectibleDepositDueNowCents;
       outstandingDepositsCount += 1;
     }
-    if (money.remainingBalanceCents > 0) {
-      outstandingAppointmentBalancesCents += money.remainingBalanceCents;
+    if (money.collectibleRemainingBalanceCents > 0) {
+      outstandingAppointmentBalancesCents +=
+        money.collectibleRemainingBalanceCents;
       outstandingAppointmentBalancesCount += 1;
     }
   }

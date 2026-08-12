@@ -3,6 +3,7 @@
  * Status and payment readiness must not drift between surfaces.
  */
 
+import { isAppointmentCollectible } from "@/lib/commerce/money-contract";
 import { isActiveBooking, isCancelledOrNoShow } from "@/lib/commerce/recognize";
 import type { AppointmentStatus } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
@@ -92,6 +93,18 @@ export function paymentReadinessFromStatus(
   return "none";
 }
 
+/** Collection attention only when the appointment lifecycle is still collectible. */
+export function paymentCollectionLabel(input: {
+  status?: string | null;
+  paymentStatus?: string | null;
+}): string | null {
+  if (!isAppointmentCollectible(input.status, input.paymentStatus)) {
+    return null;
+  }
+  const readiness = paymentReadinessFromStatus(input.paymentStatus);
+  return paymentReadinessLabel(readiness);
+}
+
 export function paymentReadinessLabel(readiness: PaymentReadiness): string | null {
   switch (readiness) {
     case "paid":
@@ -157,7 +170,10 @@ export function countDailyStatuses(
     if (isUnassignedAppointment(row.staff_id)) counts.unassigned += 1;
 
     const ready = paymentReadinessFromStatus(row.payment_status);
-    if (ready === "payment_due" || ready === "balance_due") {
+    if (
+      isAppointmentCollectible(row.status, row.payment_status) &&
+      (ready === "payment_due" || ready === "balance_due")
+    ) {
       counts.paymentAttention += 1;
     }
   }

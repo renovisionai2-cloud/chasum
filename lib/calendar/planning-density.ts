@@ -4,6 +4,7 @@
  */
 
 import { appointmentStatusTone } from "@/lib/calendar/appointment-status-ui";
+import { isAppointmentCollectible } from "@/lib/commerce/money-contract";
 import {
   paymentReadinessFromStatus,
   paymentReadinessLabel,
@@ -50,6 +51,10 @@ export function planningAttentionLabel(input: {
   paymentStatus?: string | null;
 }): string | null {
   const status = input.status as AppointmentStatus | undefined;
+  // Cancelled is hidden from active boards; never show collection pressure if stale.
+  if (!isAppointmentCollectible(status, input.paymentStatus)) {
+    return null;
+  }
   if (status) {
     const tone = appointmentStatusTone(status);
     if (tone.attention === "action" || tone.attention === "risk") {

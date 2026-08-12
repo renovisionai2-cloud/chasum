@@ -1,5 +1,5 @@
 /**
- * Chapter 6 Phase 6.0 — application-level customer-money contract.
+ * Chapter 6 Phase 6.0 / 6.0A — customer-money contract.
  *
  * price_cents = exclusive subtotal
  * tax_cents = tax
@@ -10,6 +10,7 @@
  * Invoices are documents. Receipts are transaction-bound evidence.
  *
  * Collected (ledger cash-in) ≠ recognized revenue (recognize.ts).
+ * Arithmetic remaining ≠ current collectible obligation (Phase 6.0A).
  */
 
 import {
@@ -163,6 +164,69 @@ export function appointmentMoneyFromStamps(
       amountPaidCents: paid,
       amountRefundedCents: refunded,
     }),
+  };
+}
+
+/**
+ * Phase 6.0A — lifecycle collectibility.
+ * Arithmetic remaining/deposit helpers stay amount-truth.
+ * Cancelled appointments are not collectible (no cancellation-fee policy yet).
+ * No-show collectibility is unchanged until an explicit PO decision.
+ * paymentStatus may be supplied for future policy; cancelled short-circuits first.
+ */
+export function isAppointmentCollectible(
+  status?: string | null,
+  paymentStatus?: string | null,
+): boolean {
+  // paymentStatus reserved for future cancellation/no-show fee policy.
+  void paymentStatus;
+  if (status === "cancelled") return false;
+  return true;
+}
+
+/** Current collectible remaining balance (0 when not collectible). */
+export function collectibleRemainingBalanceCents(
+  stamps: AppointmentMoneyStamps,
+): number {
+  if (!isAppointmentCollectible(stamps.status, stamps.payment_status)) {
+    return 0;
+  }
+  return remainingBalanceCents(stamps);
+}
+
+/** Current collectible deposit due now (0 when not collectible). */
+export function collectibleDepositDueNowCents(
+  stamps: AppointmentMoneyStamps,
+): number {
+  if (!isAppointmentCollectible(stamps.status, stamps.payment_status)) {
+    return 0;
+  }
+  return depositDueNowCents(stamps);
+}
+
+export type AppointmentCollectibleMoney = AppointmentMoney & {
+  collectibleRemainingBalanceCents: number;
+  collectibleDepositDueNowCents: number;
+  isCollectible: boolean;
+};
+
+export function appointmentCollectibleMoneyFromStamps(
+  stamps: AppointmentMoneyStamps,
+): AppointmentCollectibleMoney {
+  const money = appointmentMoneyFromStamps(stamps);
+  const isCollectible = isAppointmentCollectible(
+    stamps.status,
+    stamps.payment_status,
+  );
+  return {
+    ...money,
+    isCollectible,
+    collectibleRemainingBalanceCents: isCollectible
+      ? money.remainingBalanceCents
+      : 0,
+    collectibleDepositDueNowCents: isCollectible
+      ? money.depositDueNowCents
+      : 0,
   };
 }
 

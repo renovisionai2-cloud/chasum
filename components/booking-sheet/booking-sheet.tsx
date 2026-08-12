@@ -127,6 +127,11 @@ export type BookingSheetProps = {
   channel?: BookingSheetChannel;
   onSuccess: () => void;
   /**
+   * When provided (Reception calendar), cancel uses shared optimistic lifecycle
+   * sync instead of a local cancelAppointment call.
+   */
+  onCancelAppointment?: () => void | Promise<void>;
+  /**
    * After create success, open this exact appointment in the existing
    * appointment-management workspace (same path as clicking it on the calendar).
    */
@@ -183,6 +188,7 @@ export function BookingSheet({
   draft = null,
   channel = "staff",
   onSuccess,
+  onCancelAppointment,
   onViewCreatedAppointment,
   currency,
   taxRates = [],
@@ -1081,6 +1087,11 @@ export function BookingSheet({
             onCancel={() => {
               if (!appointment) return;
               startBusy(async () => {
+                if (onCancelAppointment) {
+                  await onCancelAppointment();
+                  onClose();
+                  return;
+                }
                 const result = await cancelAppointment(appointment.id);
                 if (result.error) toast(result.error, "error");
                 else {

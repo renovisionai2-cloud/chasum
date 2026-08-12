@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
+  appointmentCollectibleMoneyFromStamps,
   appointmentMoneyFromStamps,
   appointmentSubtotalCents,
   appointmentTaxCents,
   appointmentTotalCents,
+  collectibleDepositDueNowCents,
+  collectibleRemainingBalanceCents,
   depositCollectedCents,
   depositDueNowCents,
   depositRequiredCents,
   GROSS_PAYMENTS_COLLECTED_LABEL,
   invoiceAmountsFromAppointmentStamps,
+  isAppointmentCollectible,
   isCommerceInvoiceRecord,
   isGrossCollectionTransaction,
   isOutstandingInvoiceStatus,
@@ -16,6 +20,9 @@ import {
   sumGrossPaymentsCollectedCents,
 } from "@/lib/commerce/money-contract";
 import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
+import { planningAttentionLabel } from "@/lib/calendar/planning-density";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const exclusiveHst = [
   {
@@ -206,5 +213,108 @@ describe("Chapter 6 money contract", () => {
     expect(sumGrossPaymentsCollectedCents(txs)).toBe(13000);
     expect(isGrossCollectionTransaction(txs[2]!)).toBe(false);
     expect(GROSS_PAYMENTS_COLLECTED_LABEL).toBe("Gross payments collected");
+  });
+});
+
+describe("Phase 6.0A collectibility", () => {
+  const unpaid = {
+    price_cents: 10000,
+    tax_cents: 1300,
+    deposit_cents: 5000,
+    amount_paid_cents: 0,
+    amount_refunded_cents: 0,
+  };
+
+  it("cancelled unpaid → collectible balance 0 while arithmetic remaining retained", () => {
+    const stamps = { ...unpaid, status: "cancelled" };
+    expect(remainingBalanceCents(stamps)).toBe(11300);
+    expect(collectibleRemainingBalanceCents(stamps)).toBe(0);
+    expect(isAppointmentCollectible("cancelled")).toBe(false);
+  });
+
+  it("cancelled deposit-required → deposit due 0", () => {
+    const stamps = { ...unpaid, status: "cancelled" };
+    expect(depositDueNowCents(stamps)).toBe(5000);
+    expect(collectibleDepositDueNowCents(stamps)).toBe(0);
+  });
+
+  it("cancelled partially paid → collectible balance 0; historical paid retained", () => {
+    const stamps = {
+      ...unpaid,
+      status: "cancelled",
+      amount_paid_cents: 5000,
+    };
+    const money = appointmentCollectibleMoneyFromStamps(stamps);
+    expect(money.netPaidCents).toBe(5000);
+    expect(money.remainingBalanceCents).toBe(6300);
+    expect(money.collectibleRemainingBalanceCents).toBe(0);
+  });
+
+  it("cancelled fully paid → historical paid retained; collectible 0", () => {
+    const stamps = {
+      ...unpaid,
+      status: "cancelled",
+      amount_paid_cents: 11300,
+    };
+    const money = appointmentCollectibleMoneyFromStamps(stamps);
+    expect(money.netPaidCents).toBe(11300);
+    expect(money.collectibleRemainingBalanceCents).toBe(0);
+    expect(money.collectibleDepositDueNowCents).toBe(0);
+  });
+
+  it("cancelled refunded → history retained; collectible 0", () => {
+    const stamps = {
+      ...unpaid,
+      status: "cancelled",
+      amount_paid_cents: 11300,
+      amount_refunded_cents: 11300,
+    };
+    const money = appointmentCollectibleMoneyFromStamps(stamps);
+    expect(money.refundedCents).toBe(11300);
+    expect(money.netPaidCents).toBe(0);
+    expect(money.collectibleRemainingBalanceCents).toBe(0);
+  });
+
+  it("active and completed unpaid remain collectible", () => {
+    expect(
+      collectibleRemainingBalanceCents({ ...unpaid, status: "confirmed" }),
+    ).toBe(11300);
+    expect(
+      collectibleRemainingBalanceCents({ ...unpaid, status: "completed" }),
+    ).toBe(11300);
+  });
+
+  it("no-show preserves current collectible behavior", () => {
+    expect(isAppointmentCollectible("no_show")).toBe(true);
+    expect(
+      collectibleRemainingBalanceCents({ ...unpaid, status: "no_show" }),
+    ).toBe(11300);
+    expect(
+      collectibleDepositDueNowCents({ ...unpaid, status: "no_show" }),
+    ).toBe(5000);
+  });
+
+  it("planning attention never shows Payment due for cancelled", () => {
+    expect(
+      planningAttentionLabel({
+        status: "cancelled",
+        paymentStatus: "unpaid",
+      }),
+    ).toBeNull();
+    expect(
+      planningAttentionLabel({
+        status: "confirmed",
+        paymentStatus: "unpaid",
+      }),
+    ).toBe("Payment due");
+  });
+
+  it("cancel mutation only updates status and does not touch commerce", () => {
+    const src = readFileSync(
+      join(process.cwd(), "lib/booking-engine/mutations/cancel.ts"),
+      "utf8",
+    );
+    expect(src).toContain('status: "cancelled"');
+    expect(src).not.toMatch(/commerce_invoices|commerce_transactions|amount_paid|processCommerceRefund/);
   });
 });

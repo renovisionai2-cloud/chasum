@@ -1,7 +1,7 @@
 import { listInvoices } from "@/lib/commerce/invoices";
 import { listActiveGiftCardsForCustomer } from "@/lib/commerce/gift-cards";
 import {
-  appointmentMoneyFromStamps,
+  appointmentCollectibleMoneyFromStamps,
   isGrossCollectionTransaction,
   isOutstandingInvoiceStatus,
 } from "@/lib/commerce/money-contract";
@@ -41,8 +41,7 @@ export async function getCustomerCommerceAccount(
         "id, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, status, services(price, deposit_cents, deposit_required)",
       )
       .eq("business_id", businessId)
-      .eq("customer_id", customerId)
-      .neq("status", "cancelled"),
+      .eq("customer_id", customerId),
     listActiveGiftCardsForCustomer(businessId, customerId),
   ]);
 
@@ -58,8 +57,7 @@ export async function getCustomerCommerceAccount(
       .from("appointments")
       .select("id, deposit_cents, status, services(price)")
       .eq("business_id", businessId)
-      .eq("customer_id", customerId)
-      .neq("status", "cancelled");
+      .eq("customer_id", customerId);
     appointments = (fallback.data ?? []).map((row) => ({
       ...row,
       price_cents: null,
@@ -76,14 +74,15 @@ export async function getCustomerCommerceAccount(
   let appointmentDepositsCollected = 0;
 
   for (const appt of appointments) {
-    const money = appointmentMoneyFromStamps({
+    const money = appointmentCollectibleMoneyFromStamps({
       ...appt,
       services: (appt as { services?: unknown }).services,
     });
+    // Historical paid stamps remain for lifetime totals even when not collectible.
     appointmentPaid += money.netPaidCents;
     appointmentDepositsCollected += money.depositCollectedCents;
-    outstandingAppointmentBalanceCents += money.remainingBalanceCents;
-    outstandingDepositDueCents += money.depositDueNowCents;
+    outstandingAppointmentBalanceCents += money.collectibleRemainingBalanceCents;
+    outstandingDepositDueCents += money.collectibleDepositDueNowCents;
   }
 
   const outstandingInvoiceCents = invoices

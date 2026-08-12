@@ -314,9 +314,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           </div>
           <p className="text-xs text-muted-foreground">
             Gross payments collected and outstanding invoice balances match
-            Command Centre and Payments (commerce ledger — open invoices plus
-            unpaid booking balances). Appointment counts use business timezone
-            and exclude cancelled / no-show. Inventory reporting is Coming Soon.
+            Command Centre and Payments (commerce ledger — real open invoices
+            only). Outstanding appointment balances are a separate Payments
+            metric. Appointment counts use business timezone and exclude
+            cancelled / no-show. Inventory reporting is Coming Soon.
             Membership collected revenue is Beta and hidden until billing
             lifecycle is complete. Deeper BI redesign is Chapter 10.
           </p>

@@ -11,10 +11,7 @@ import {
   getAppointmentPositionInTimezone,
 } from "@/lib/calendar/day-geometry";
 import { appointmentStatusTone } from "@/lib/calendar/appointment-status-ui";
-import {
-  paymentReadinessFromStatus,
-  paymentReadinessLabel,
-} from "@/lib/dashboard/appointment-ops";
+import { paymentCollectionLabel } from "@/lib/dashboard/appointment-ops";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { addMinutes } from "date-fns";
@@ -79,11 +76,12 @@ export function DayAppointmentCard({
   const compact = durationMin < 30;
   const rich = durationMin >= 45;
   const statusTone = appointmentStatusTone(appointment.status);
-  const readiness = paymentReadinessFromStatus(appointment.payment_status);
-  const paymentLabel = paymentReadinessLabel(readiness);
+  const paymentLabel = paymentCollectionLabel({
+    status: appointment.status,
+    paymentStatus: appointment.payment_status,
+  });
   const paymentDue =
-    appointment.status !== "cancelled" &&
-    (readiness === "payment_due" || readiness === "balance_due");
+    paymentLabel === "Payment due" || paymentLabel === "Balance due";
   const showPayment = paymentDue;
   const showStatus =
     !compact &&

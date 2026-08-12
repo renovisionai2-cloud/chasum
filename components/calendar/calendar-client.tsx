@@ -35,6 +35,7 @@ import { EmptyState } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
 import {
+  cancelAppointment,
   rescheduleAppointment,
   resizeAppointment,
   setAppointmentStatus,
@@ -178,16 +179,30 @@ export function CalendarClient({
   const [bookFocusSignal, setBookFocusSignal] = useState(0);
   const [walkInSignal, setWalkInSignal] = useState(0);
   const [createCustomerSignal, setCreateCustomerSignal] = useState(0);
-  const [appointments, setOptimisticAppointments] = useOptimistic(
+  const [appointmentsBase, setOptimisticAppointments] = useOptimistic(
     serverAppointments,
     (
       current: AppointmentWithRelations[],
       update: AppointmentWithRelations[],
     ) => update,
   );
+  /** Survives view switches until the operator leaves; server cancelled is authoritative when present. */
+  const [cancelledOverrideIds, setCancelledOverrideIds] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
   const [isRefreshing, startTransition] = useTransition();
   const [boardFilters, setBoardFilters] = useState<CalendarBoardFilters>(
     DEFAULT_CALENDAR_BOARD_FILTERS,
+  );
+
+  const appointments = useMemo(
+    () =>
+      appointmentsBase.map((a) =>
+        cancelledOverrideIds.has(a.id) && a.status !== "cancelled"
+          ? { ...a, status: "cancelled" as const }
+          : a,
+      ),
+    [appointmentsBase, cancelledOverrideIds],
   );
 
   const filteredAppointments = useMemo(
@@ -521,6 +536,33 @@ export function CalendarClient({
     refresh();
   }
 
+  async function handleCancel(appointment: AppointmentWithRelations) {
+    if (appointment.status === "cancelled") return;
+    setCancelledOverrideIds((prev) => new Set(prev).add(appointment.id));
+    startTransition(() => {
+      setOptimisticAppointments(
+        appointments.map((a) =>
+          a.id === appointment.id
+            ? { ...a, status: "cancelled" as const }
+            : a,
+        ),
+      );
+    });
+    const result = await cancelAppointment(appointment.id);
+    if (result.error) {
+      setCancelledOverrideIds((prev) => {
+        const next = new Set(prev);
+        next.delete(appointment.id);
+        return next;
+      });
+      toast(result.error, "error");
+      refresh();
+      return;
+    }
+    toast(result.success ?? "Appointment cancelled.", "success");
+    refresh();
+  }
+
   function handleViewChange(newView: CalendarView) {
     setView(newView);
     const range = getCalendarViewRange(newView, date, locale);
@@ -528,6 +570,7 @@ export function CalendarClient({
       `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(range.start, timezone)}`,
       { scroll: false },
     );
+    refresh();
   }
 
   function handleDateChange(newDate: Date) {
@@ -855,6 +898,7 @@ export function CalendarClient({
           onClose={() => setDrawerOpen(false)}
           onEdit={openEdit}
           onStatusChange={handleStatusChange}
+          onCancel={handleCancel}
           onRescheduleRequest={(appt) => {
             setDrawerOpen(false);
             openEdit(appt);
@@ -895,6 +939,13 @@ export function CalendarClient({
         }
         forceQuickAddCustomer={forceQuickAddCustomer}
         onSuccess={refresh}
+        onCancelAppointment={
+          selectedAppointment
+            ? async () => {
+                await handleCancel(selectedAppointment);
+              }
+            : undefined
+        }
         onViewCreatedAppointment={openCreatedAppointment}
       />
     </div>

@@ -44,7 +44,7 @@ describe("Phase 6.0 locks", () => {
     const dashboard = read("lib/commerce/dashboard.ts");
     expect(dashboard).not.toMatch(/appt:\$\{/);
     expect(dashboard).toContain("isCommerceInvoiceRecord");
-    expect(dashboard).toContain("depositDueNowCents");
+    expect(dashboard).toContain("collectibleDepositDueNowCents");
     expect(dashboard).toContain("outstandingAppointmentBalancesCents");
   });
 
@@ -77,8 +77,8 @@ describe("Phase 6.0 locks", () => {
 
   it("keeps outstanding deposits distinct from remaining appointment balances", () => {
     const dashboard = read("lib/commerce/dashboard.ts");
-    expect(dashboard).toContain("money.depositDueNowCents");
-    expect(dashboard).toContain("money.remainingBalanceCents");
+    expect(dashboard).toContain("money.collectibleDepositDueNowCents");
+    expect(dashboard).toContain("money.collectibleRemainingBalanceCents");
     const payments = read("components/commerce/payments-dashboard.tsx");
     expect(payments).toContain("Outstanding deposits");
     expect(payments).toContain("Outstanding appointment balances");
@@ -102,5 +102,13 @@ describe("Phase 6.0 locks", () => {
     const recognize = read("lib/commerce/recognize.ts");
     expect(recognize).toMatch(/NOT cash collection/);
     expect(recognize).toContain("collected ≠ revenue");
+  });
+
+  it("wires Phase 6.0A collectibility helpers", () => {
+    const money = read("lib/commerce/money-contract.ts");
+    expect(money).toContain("isAppointmentCollectible");
+    expect(money).toContain("collectibleRemainingBalanceCents");
+    expect(money).toContain("collectibleDepositDueNowCents");
+    expect(money).toContain("Arithmetic remaining ≠ current collectible");
   });
 });

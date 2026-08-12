@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0 Money Contract — **implemented, awaiting PO review.** 6.1 not started.
+**Chapter 6:** Phase 6.0 Money Contract + **Phase 6.0A Lifecycle Collectibility** — **implemented, awaiting PO hands-on review.** 6.1 not started.
 
 ---
 
@@ -352,6 +352,21 @@
 | Data dictionary | `WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md` |
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
+
+## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0A)
+
+| Field | Value |
+|-------|--------|
+| Phase | **6.0A — Appointment Lifecycle + Collectibility Integrity** |
+| Collectibility | `isAppointmentCollectible` / `collectibleRemainingBalanceCents` / `collectibleDepositDueNowCents` |
+| Cancelled | Not collectible for appointment balance or deposit due |
+| Calendar | Optimistic cancel + override; Day/Week/Month/Agenda/Timeline agree |
+| Invoices on cancel | Unchanged (PO policy later) |
+| Auto-refund | **No** |
+| Hard delete | **No** |
+| Tests | `tests/unit/calendar/phase-6-0a-lifecycle.test.ts` + money-contract collectibility |
+| Phase 6.1 | **Not started** |
+| Approval | Awaiting PO hands-on review |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0)
 

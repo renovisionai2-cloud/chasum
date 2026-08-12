@@ -12,8 +12,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/badge";
 import type { StaffDayOverlay } from "@/lib/actions/day-overlays";
 import {
-  paymentReadinessFromStatus,
-  paymentReadinessLabel,
+  paymentCollectionLabel,
 } from "@/lib/dashboard/appointment-ops";
 import {
   assignOverlapLayout,
@@ -745,10 +744,12 @@ export function DayAgendaList({
       ) : (
         <ul className="divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
           {items.map((appt) => {
-            const readiness = paymentReadinessFromStatus(appt.payment_status);
-            const paymentLabel = paymentReadinessLabel(readiness);
+            const paymentLabel = paymentCollectionLabel({
+              status: appt.status,
+              paymentStatus: appt.payment_status,
+            });
             const paymentDue =
-              readiness === "payment_due" || readiness === "balance_due";
+              paymentLabel === "Payment due" || paymentLabel === "Balance due";
             const staffLabel = appt.staff?.name?.trim()
               ? appt.staff.name
               : "Unassigned";

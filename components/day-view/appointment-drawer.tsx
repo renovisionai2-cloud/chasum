@@ -4,9 +4,6 @@ import { AppointmentFinancialActivityList } from "@/components/booking/appointme
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-activity";
-import {
-  cancelAppointment,
-} from "@/lib/actions/appointments";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
 import { resolveDepositDueNowCents } from "@/lib/commerce/booking-financials";
@@ -44,6 +41,7 @@ type AppointmentDrawerProps = {
     appointment: AppointmentWithRelations,
     status: AppointmentStatus,
   ) => Promise<void>;
+  onCancel: (appointment: AppointmentWithRelations) => Promise<void>;
   onRescheduleRequest: (appointment: AppointmentWithRelations) => void;
   onRefresh: () => void;
 };
@@ -72,9 +70,11 @@ export function AppointmentDrawer({
   onClose,
   onEdit,
   onStatusChange,
+  onCancel,
   onRescheduleRequest,
-  onRefresh,
+  onRefresh: _onRefresh,
 }: AppointmentDrawerProps) {
+  void _onRefresh;
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -401,13 +401,8 @@ export function AppointmentDrawer({
               disabled={pending || appointment.status === "cancelled"}
               onClick={() => {
                 startTransition(async () => {
-                  const result = await cancelAppointment(appointment.id);
-                  if (result.error) toast(result.error, "error");
-                  else {
-                    toast(result.success ?? "Cancelled.", "success");
-                    onRefresh();
-                    onClose();
-                  }
+                  await onCancel(appointment);
+                  onClose();
                 });
               }}
             >

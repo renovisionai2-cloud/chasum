@@ -1,14 +1,32 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.0 — Money Contract & Source-of-Truth Foundation**  
-**Feature:** `9e7d72a`  
+**Phase:** **6.0A — Appointment Lifecycle + Collectibility Integrity** (correction to 6.0)  
+**Feature 6.0:** `9e7d72a` · stamp `160b10e`  
+**Feature 6.0A:** _(this commit)_  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0**  
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.0A**  
 **Canonical helpers:** `lib/commerce/money-contract.ts`  
 **Booking-time resolver (preserved):** `lib/commerce/booking-financials.ts` (`resolveBookingFinancials` / `computeBookingPricing`)
 
+---
+
+## Phase 6.0A lock — Historical cash ≠ current collectible
+
+| Concept | Rule |
+|---------|------|
+| Arithmetic remaining / deposit due | Pure amount math from stamps |
+| Collectible remaining / deposit due | Amount math **and** lifecycle allow collection |
+| `cancelled` | Collectible appointment balance = 0; collectible deposit due = 0 |
+| Historical payments / receipts / refunds | Remain auditable; cancel does not erase |
+| Open invoices | Remain open until explicitly resolved (**PO decision later**) |
+| `no_show` | Collectibility unchanged until explicit PO fee policy |
+| Normal Cancel | Soft `status = cancelled` — not hard delete / not test-data purge |
+
+Helpers: `isAppointmentCollectible`, `collectibleRemainingBalanceCents`, `collectibleDepositDueNowCents`, `appointmentCollectibleMoneyFromStamps`.
+
+Calendar: optimistic cancel + cancelled-ID override so Day/Week/Month/Agenda/Timeline agree without stale pre-cancel rows.
 ---
 
 ## Chapter 6 purpose
@@ -229,7 +247,8 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 
 | Phase | Name | Status |
 |-------|------|--------|
-| **6.0** | Money Contract & Source-of-Truth Foundation | **Implemented — awaiting PO review** |
+| **6.0** | Money Contract & Source-of-Truth Foundation | Implemented (`9e7d72a`) |
+| **6.0A** | Appointment Lifecycle + Collectibility Integrity | **Implemented — awaiting PO hands-on review** |
 | 6.1 | Front-Desk Payments Operating Surface | **Not started** |
 | 6.2 | Invoice & Receipt Workspace | **Not started** |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **Not started** |
@@ -258,7 +277,9 @@ Partial productization remains documented — not a 6.0 product expansion.
 | Receipt numbering race (RCT-count) | Phase 6.2 |
 | `recognize.ts` `appointmentPriceCents` omits tax | Technical debt; keep separate from cash contract |
 | Internal `revenueTodayCents` field names | Compatibility debt; UI/CSV labels corrected |
-| Fully refunded appointments: formula remaining = total because net paid = 0 | Dashboard metrics exclude `refunded`; customer remaining uses the formula. Owner decision on void vs refund. |
+| Open invoice resolution on appointment cancel | **Owner decision pending** (leave open / prompt void / fee / refund) — 6.0A leaves invoices unchanged |
+| No-show collectibility / fee policy | **Owner decision pending** — 6.0A preserves current collectible behavior |
+| Normal Cancel is not a test-data purge | Documented — no automated cleanup on shared Supabase |
 | Stripe Elements / public online pay | Phase 6.4, PO-gated |
 | Staff payment RBAC | Future explicit decision |
 | SaaS `billing_invoices` | Out of this contract |

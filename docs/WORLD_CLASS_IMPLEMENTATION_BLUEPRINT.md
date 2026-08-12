@@ -30,7 +30,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
 | 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`) |
-| 6 | Sales, payments, invoices, receipts | **Phase 6.0 implemented — awaiting PO review.** 6.1 / 6.2 / 6.3 / 6.4 not started. |
+| 6 | Sales, payments, invoices, receipts | **Phase 6.0 + 6.0A implemented — awaiting PO hands-on review.** 6.1 / 6.2 / 6.3 / 6.4 not started. |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
 | 9 | **Business Structure Engine** (locations, resources, service requirements) | Not started — architecture documented |
@@ -167,9 +167,9 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 6 status
 
-**Phase 6.0 — Money Contract & Source-of-Truth Foundation implemented on Preview — awaiting PO review.** Contract: [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md). One customer-money ledger (`commerce_transactions`). `price_cents` = exclusive subtotal. No Stripe Elements. No migrations. Phase 6.1 not started.
+**Phase 6.0 — Money Contract & Source-of-Truth Foundation implemented on Preview.** **Phase 6.0A — Appointment Lifecycle + Collectibility Integrity implemented — awaiting PO hands-on review.** Contract: [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md). Cancelled appointments are not collectible; historical cash remains. No Stripe Elements. No migrations. Phase 6.1 not started.
 
-Sequence: 6.0 foundation → 6.1 front-desk payments surface → 6.2 invoice & receipt workspace → 6.3 refunds / outstanding / follow-up → 6.4 online payment completion (PO-gated).
+Sequence: 6.0 foundation → **6.0A collectibility** → 6.1 front-desk payments surface → 6.2 invoice & receipt workspace → 6.3 refunds / outstanding / follow-up → 6.4 online payment completion (PO-gated).
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -200,6 +200,6 @@ Includes cross-portal hierarchy, spacing, icons, tables, charts, Summer/Chase ve
 
 This is **planning-locked now**; implementation is **not** started by this documentation commit.
 
-## Next step after Chapter 6 Phase 6.0
+## Next step after Chapter 6 Phase 6.0A
 
-Await **PO review of Phase 6.0**. Do **not** start Phase 6.1. Do **not** start Chapter 7. Do not invent Phase 5.4. Do not reopen Phase 5.2 or Phase 5.3 for deferred polish. Do not apply gap-report migrations without explicit PO. Do not implement Stripe Elements or public online payment.
+Await **PO hands-on review of Phase 6.0A**. Do **not** start Phase 6.1. Do **not** start Chapter 7. Do not invent Phase 5.4. Do not reopen Phase 5.2 or Phase 5.3 for deferred polish. Do not apply gap-report migrations without explicit PO. Do not implement Stripe Elements or public online payment.

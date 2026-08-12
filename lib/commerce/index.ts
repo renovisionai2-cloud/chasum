@@ -68,14 +68,18 @@ export {
 
 export {
   appointmentMoneyFromStamps,
+  appointmentCollectibleMoneyFromStamps,
   appointmentSubtotalCents,
   appointmentTaxCents,
   appointmentTotalCents,
+  collectibleDepositDueNowCents,
+  collectibleRemainingBalanceCents,
   depositCollectedCents,
   depositDueNowCents,
   depositRequiredCents,
   GROSS_PAYMENTS_COLLECTED_LABEL,
   invoiceAmountsFromAppointmentStamps,
+  isAppointmentCollectible,
   isCommerceInvoiceRecord,
   isGrossCollectionTransaction,
   isOutstandingInvoiceStatus,

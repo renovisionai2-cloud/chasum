@@ -3,7 +3,7 @@
  * Never invent outstanding balances or visit dates.
  */
 
-import { remainingBalanceCents } from "@/lib/commerce/money-contract";
+import { collectibleRemainingBalanceCents } from "@/lib/commerce/money-contract";
 import { isActiveBooking } from "@/lib/commerce/recognize";
 
 export type DirectoryAppointmentRow = {
@@ -78,16 +78,15 @@ export function buildDirectoryMetricsByCustomer(
       }
     }
 
-    if (row.status !== "cancelled") {
-      existing.outstandingBalanceCents += remainingBalanceCents({
-        price_cents: row.price_cents,
-        tax_cents: row.tax_cents,
-        amount_paid_cents: row.amount_paid_cents ?? row.deposit_cents,
-        amount_refunded_cents: row.amount_refunded_cents,
-        deposit_cents: row.deposit_cents,
-        services: row.service ?? row.services,
-      });
-    }
+    existing.outstandingBalanceCents += collectibleRemainingBalanceCents({
+      price_cents: row.price_cents,
+      tax_cents: row.tax_cents,
+      amount_paid_cents: row.amount_paid_cents ?? row.deposit_cents,
+      amount_refunded_cents: row.amount_refunded_cents,
+      deposit_cents: row.deposit_cents,
+      status: row.status,
+      services: row.service ?? row.services,
+    });
 
     map.set(row.customer_id, existing);
   }
