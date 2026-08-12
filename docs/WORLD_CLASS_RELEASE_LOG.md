@@ -57,6 +57,7 @@
 | Check | Result |
 |-------|--------|
 | Title | Appointment Lifecycle + Collectibility Integrity |
+| Feature | `efaea51` |
 | Cancelled collectible balance | **0** |
 | Cancelled deposit due | **0** |
 | Historical cash | Retained |
