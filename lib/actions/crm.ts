@@ -140,7 +140,7 @@ export async function getCrmDirectory(): Promise<CrmDirectoryCustomer[]> {
   const { data: apptRows, error: apptError } = await supabase
     .from("appointments")
     .select(
-      "customer_id, start_time, status, price_cents, amount_paid_cents, amount_refunded_cents, deposit_cents, service:services(price)",
+      "customer_id, start_time, status, price_cents, tax_cents, amount_paid_cents, amount_refunded_cents, deposit_cents, service:services(price)",
     )
     .eq("business_id", business.id);
 

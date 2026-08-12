@@ -340,7 +340,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     ? buildChaseInsights({
         kpis,
         pendingConfirmations: brief.pendingConfirmations,
-        outstandingDeposits: brief.outstandingPayments,
+        outstandingDeposits: commerce.outstandingDepositsCount,
         topServiceName: topService,
         topStaffName: topStaffRow?.name ?? null,
         topStaffUtilPct: topStaffRow?.utilizationPct ?? null,
@@ -354,7 +354,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
 
   const alerts = buildChaseAlerts({
     pendingConfirmations: brief.pendingConfirmations,
-    outstandingDeposits: brief.outstandingPayments,
+    outstandingDeposits: commerce.outstandingDepositsCount,
     cancellationRatePct: cancelRate,
     availableSlots: brief.availableSlots,
     todayAppointments: brief.todayAppointments,
@@ -379,10 +379,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     upcomingClosures: closuresPack.closures,
     forecast: CHASE_FORECAST_HOOKS,
     pendingConfirmations: brief.pendingConfirmations,
-    outstandingDeposits:
-      commerce.outstandingDepositsCents > 0
-        ? Math.round(commerce.outstandingDepositsCents / 100)
-        : brief.outstandingPayments,
+    outstandingDeposits: commerce.outstandingDepositsCount,
     commerce,
     communications,
   };

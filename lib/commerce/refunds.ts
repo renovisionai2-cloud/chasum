@@ -1,5 +1,6 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapRefund, mapTransaction } from "@/lib/commerce/mappers";
+import { appointmentMoneyFromStamps } from "@/lib/commerce/money-contract";
 import { resolvePaymentProvider } from "@/lib/commerce/providers";
 import type { CommerceRefund, PaymentMethod } from "@/lib/commerce/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
@@ -178,26 +179,24 @@ export async function processCommerceRefund(
     if (tx.appointmentId) {
       const { data: appt } = await supabase
         .from("appointments")
-        .select("amount_paid_cents, amount_refunded_cents, price_cents, deposit_cents, payment_status")
+        .select(
+          "amount_paid_cents, amount_refunded_cents, price_cents, tax_cents, deposit_cents, payment_status, services(price, deposit_cents, deposit_required)",
+        )
         .eq("id", tx.appointmentId)
         .maybeSingle();
       if (appt) {
         const amountRefunded =
           Number(appt.amount_refunded_cents ?? 0) + input.amountCents;
-        const amountPaid = Number(appt.amount_paid_cents ?? 0);
-        const priceCents = Number(appt.price_cents ?? 0);
-        const net = Math.max(0, amountPaid - amountRefunded);
-        const paymentStatus =
-          net <= 0
-            ? "refunded"
-            : net < priceCents
-              ? "partially_paid"
-              : "fully_paid";
+        const money = appointmentMoneyFromStamps({
+          ...appt,
+          amount_refunded_cents: amountRefunded,
+          services: (appt as { services?: unknown }).services,
+        });
         await supabase
           .from("appointments")
           .update({
             amount_refunded_cents: amountRefunded,
-            payment_status: paymentStatus,
+            payment_status: money.paymentStatus,
           })
           .eq("id", tx.appointmentId);
       }

@@ -152,6 +152,7 @@ export function buildAttentionItems(input: {
   failedCommunicationsToday: number | null;
   outstandingDepositsCount: number;
   outstandingInvoicesCount: number;
+  outstandingAppointmentBalancesCount?: number;
   unassignedTodayCount: number;
   pendingConfirmations: number;
   cancelledTodayCount: number;
@@ -190,10 +191,27 @@ export function buildAttentionItems(input: {
       id: "outstanding-deposits",
       title:
         input.outstandingDepositsCount === 1
-          ? "1 outstanding deposit or balance"
-          : `${input.outstandingDepositsCount} outstanding deposits or balances`,
-      why: "Collecting balances reduces no-shows and keeps cash flow clear.",
+          ? "1 outstanding deposit"
+          : `${input.outstandingDepositsCount} outstanding deposits`,
+      why: "Required deposits still due now — not remaining appointment balances.",
       status: "Payment follow-up",
+      href: "/dashboard/payments",
+    });
+  }
+
+  if (
+    input.commerceSchemaReady &&
+    (input.outstandingAppointmentBalancesCount ?? 0) > 0
+  ) {
+    const n = input.outstandingAppointmentBalancesCount ?? 0;
+    items.push({
+      id: "outstanding-appointment-balances",
+      title:
+        n === 1
+          ? "1 outstanding appointment balance"
+          : `${n} outstanding appointment balances`,
+      why: "Remaining appointment totals after payments and refunds.",
+      status: "Outstanding",
       href: "/dashboard/payments",
     });
   }
@@ -203,9 +221,9 @@ export function buildAttentionItems(input: {
       id: "outstanding-invoices",
       title:
         input.outstandingInvoicesCount === 1
-          ? "1 open invoice balance"
-          : `${input.outstandingInvoicesCount} open invoice balances`,
-      why: "Open balances need follow-up or payment recording.",
+          ? "1 open invoice"
+          : `${input.outstandingInvoicesCount} open invoices`,
+      why: "Commerce invoices with a remaining balance — not unpaid bookings.",
       status: "Outstanding",
       href: "/dashboard/payments",
     });

@@ -1,13 +1,14 @@
 # World Class Testing Matrix
 
-**Chapter:** 0–5 (scaffold through Calendar & Booking Engine Phase 5.3)  
+**Chapter:** 0–6 (scaffold through Chapter 6 Phase 6.0 Money Contract)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
 **Rule:** Do not mark complete on appearance alone; verify data and workflow.  
 **Chapter 2:** Command Centre page depth — approved tip `0f1f423`.  
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
-**Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).
+**Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
+**Chapter 6:** Phase 6.0 Money Contract — **implemented, awaiting PO review.** 6.1 not started.
 
 ---
 
@@ -351,6 +352,24 @@
 | Data dictionary | `WORLD_CLASS_CUSTOMER_WORKSPACE_DATA_DICTIONARY.md` |
 | Automated tests | Expanded `tests/unit/crm/customer-workspace.test.ts` |
 | Approval | Covered by Chapter 4 PO acceptance (`4da237c`) |
+
+## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0)
+
+| Field | Value |
+|-------|--------|
+| Phase | **6.0 — Money Contract & Source-of-Truth Foundation** |
+| Contract | `docs/WORLD_CLASS_COMMERCE_MONEY_ENGINE.md` |
+| Ledger | `commerce_transactions` (succeeded payment + deposit = gross payments collected) |
+| `price_cents` | Exclusive subtotal; total = subtotal + tax |
+| Remaining | `max(0, total − net paid)` including tax |
+| Deposits | Required ≠ collected ≠ due now ≠ remaining |
+| Invoices | Real `commerce_invoices` only; new totals use appointment contract |
+| Stripe Elements | **Not implemented** |
+| Public named-staff RPC | Gap documented; **not modified** |
+| Migrations | **None** (034–036 unapplied) |
+| Tests | `tests/unit/commerce/money-contract.test.ts`, `tests/unit/commerce/phase-6-0-locks.test.ts` + commerce / GVM / Ch4 / Ch5 regression |
+| Phase 6.1 | **Not started** |
+| Approval | Awaiting PO review |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.3)
 

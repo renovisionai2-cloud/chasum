@@ -35,6 +35,15 @@ describe("Financial terminology surfaces", () => {
     expect(src).not.toMatch(/label="Revenue today"/);
   });
 
+  it("Chase commerce cards use gross payments collected, not revenue", () => {
+    const src = readFileSync(
+      join(process.cwd(), "components/chase/chase-ops-workspace.tsx"),
+      "utf8",
+    );
+    expect(src).toMatch(/Gross payments collected today/);
+    expect(src).not.toMatch(/label="Revenue today"/);
+  });
+
   it("Reports executive cards use payments collected language", () => {
     const src = readFileSync(
       join(process.cwd(), "components/reports/reports-hub.tsx"),

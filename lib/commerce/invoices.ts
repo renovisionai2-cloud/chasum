@@ -1,6 +1,7 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapInvoice, mapInvoiceLine } from "@/lib/commerce/mappers";
 import { formatMoneyCents } from "@/lib/commerce/money";
+import { invoiceAmountsFromAppointmentStamps } from "@/lib/commerce/money-contract";
 import type { CommerceInvoice } from "@/lib/commerce/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
@@ -47,7 +48,7 @@ export async function createInvoiceForAppointment(input: {
   const supabase = await createClient();
 
   const apptSelectFull =
-    "id, business_id, customer_id, service_id, price_cents, tax_cents, discount_cents, deposit_cents, invoice_number, payment_status, amount_paid_cents, services(name, price)";
+    "id, business_id, customer_id, service_id, price_cents, tax_cents, discount_cents, deposit_cents, invoice_number, payment_status, amount_paid_cents, amount_refunded_cents, services(name, price)";
   const apptSelectCompat =
     "id, business_id, customer_id, service_id, deposit_cents, invoice_number, services(name, price)";
 
@@ -64,7 +65,8 @@ export async function createInvoiceForAppointment(input: {
       apptErr.message.includes("price_cents") ||
       apptErr.message.includes("amount_paid") ||
       apptErr.message.includes("tax_cents") ||
-      apptErr.message.includes("discount_cents"))
+      apptErr.message.includes("discount_cents") ||
+      apptErr.message.includes("amount_refunded"))
   ) {
     const fallback = await supabase
       .from("appointments")
@@ -80,6 +82,7 @@ export async function createInvoiceForAppointment(input: {
           discount_cents: 0,
           payment_status: null,
           amount_paid_cents: Number(fallback.data.deposit_cents ?? 0),
+          amount_refunded_cents: 0,
         } as typeof appt)
       : null;
     apptErr = fallback.error;
@@ -126,17 +129,22 @@ export async function createInvoiceForAppointment(input: {
       .maybeSingle(),
   ]);
 
-  const priceCents =
-    Number(appt.price_cents ?? 0) ||
-    Math.round(Number(serviceRow?.price ?? 0) * 100);
-  const taxCents = Number(appt.tax_cents ?? 0);
+  const money = invoiceAmountsFromAppointmentStamps({
+    price_cents: appt.price_cents,
+    tax_cents: appt.tax_cents,
+    deposit_cents: appt.deposit_cents,
+    amount_paid_cents: appt.amount_paid_cents,
+    amount_refunded_cents: (appt as { amount_refunded_cents?: number | null })
+      .amount_refunded_cents,
+    services: appt.services,
+  });
   const discountCents = Number(appt.discount_cents ?? 0);
-  const subtotal = Math.max(0, priceCents - taxCents + discountCents);
-  // Normalize: treat price_cents as service total before tax when tax separate
-  const lineUnit = Math.max(0, priceCents - taxCents);
-  const total = Math.max(0, priceCents);
-  const amountPaid = Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0);
-  const balance = Math.max(0, total - amountPaid);
+  const subtotal = money.subtotalCents;
+  const taxCents = money.taxCents;
+  const lineUnit = money.subtotalCents;
+  const total = money.totalCents;
+  const amountPaid = money.amountPaidCents;
+  const balance = money.balanceCents;
 
   const invoiceNumber =
     (appt.invoice_number as string | null) ||

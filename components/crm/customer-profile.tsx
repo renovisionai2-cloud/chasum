@@ -200,12 +200,17 @@ function buildObservedFacts(
   } else {
     facts.push("No upcoming appointments on file.");
   }
-  if (commerceAccount.outstandingBalanceCents > 0) {
+  if (commerceAccount.outstandingAppointmentBalanceCents > 0) {
     facts.push(
-      `The customer has ${formatMoneyCents(commerceAccount.outstandingBalanceCents, currency)} outstanding.`,
+      `The customer has ${formatMoneyCents(commerceAccount.outstandingAppointmentBalanceCents, currency)} outstanding on appointments.`,
     );
   } else {
-    facts.push("No outstanding balance on the commerce ledger.");
+    facts.push("No outstanding appointment balance.");
+  }
+  if (commerceAccount.outstandingInvoiceCents > 0) {
+    facts.push(
+      `${formatMoneyCents(commerceAccount.outstandingInvoiceCents, currency)} remains on commerce invoices.`,
+    );
   }
   if (profile.customer.preferred_communication_method) {
     facts.push(

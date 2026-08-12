@@ -126,6 +126,30 @@ describe("Command Centre attention items", () => {
     });
     expect(items.find((i) => i.id.startsWith("outstanding"))).toBeUndefined();
   });
+
+  it("separates outstanding deposits from appointment balances and real invoices", () => {
+    const items = buildAttentionItems({
+      setupComplete: true,
+      failedCommunicationsToday: 0,
+      outstandingDepositsCount: 2,
+      outstandingInvoicesCount: 1,
+      outstandingAppointmentBalancesCount: 4,
+      unassignedTodayCount: 0,
+      pendingConfirmations: 0,
+      cancelledTodayCount: 0,
+      commerceSchemaReady: true,
+    });
+    expect(items.map((i) => i.id)).toEqual([
+      "outstanding-deposits",
+      "outstanding-appointment-balances",
+      "outstanding-invoices",
+    ]);
+    expect(items[0]?.title).toBe("2 outstanding deposits");
+    expect(items[0]?.why).toMatch(/Required deposits still due now/);
+    expect(items[1]?.title).toBe("4 outstanding appointment balances");
+    expect(items[2]?.title).toBe("1 open invoice");
+    expect(items[2]?.why).toMatch(/not unpaid bookings/);
+  });
 });
 
 describe("Command Centre Summer facts", () => {

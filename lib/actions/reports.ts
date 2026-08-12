@@ -464,10 +464,10 @@ export async function buildReportCsv(
       const e = bundle.executive;
       headers = ["Metric", "Value"];
       rows = [
-        ["Revenue Today", e.revenueToday],
-        ["Revenue Week", e.revenueWeek],
-        ["Revenue Month", e.revenueMonth],
-        ["Revenue Year", e.revenueYear],
+        ["Gross Payments Collected Today", e.revenueToday],
+        ["Gross Payments Collected Week", e.revenueWeek],
+        ["Gross Payments Collected Month", e.revenueMonth],
+        ["Recognized Revenue Year (deferred)", e.revenueYear],
         ["Appointments Today", e.appointmentsToday],
         ["Upcoming", e.upcomingAppointments],
         ["New Customers", e.newCustomers],

@@ -134,6 +134,8 @@ export type ChaseOperationsSnapshot = {
     revenueMonthCents: number;
     outstandingInvoicesCents: number;
     outstandingDepositsCents: number;
+    outstandingDepositsCount: number;
+    outstandingAppointmentBalancesCents: number;
     refundsTrendCents: number;
     averageTransactionCents: number | null;
     averageCustomerValueCents: number | null;

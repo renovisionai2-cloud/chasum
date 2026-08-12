@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 5 — Calendar & Booking Engine (**Phase 5.3 PO-accepted**; 5.2 PO-accepted)  
+**Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.0 implemented — awaiting PO review**; Chapter 5 Phase 5.3 PO-accepted)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -29,8 +29,8 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 2 | Command Centre | **Approved** (`0f1f423` tip) |
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
-| 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`); Chapter 6 not started |
-| 6 | Sales, payments, invoices, receipts | Not started |
+| 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`) |
+| 6 | Sales, payments, invoices, receipts | **Phase 6.0 implemented — awaiting PO review.** 6.1 / 6.2 / 6.3 / 6.4 not started. |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
 | 9 | **Business Structure Engine** (locations, resources, service requirements) | Not started — architecture documented |
@@ -163,7 +163,13 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 5 status
 
-**Phase 5.2 PO-accepted.** **Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review** (`caef495` / tip `284d726`). Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). Enriched RPC payloads, resource productization, and optional staff remain deferred. **Chapter 6 not started.** No Phase 5.4.
+**Phase 5.2 PO-accepted.** **Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review** (`caef495` / tip `284d726`). Architecture: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). Enriched RPC payloads, resource productization, and optional staff remain deferred. No Phase 5.4.
+
+## Chapter 6 status
+
+**Phase 6.0 — Money Contract & Source-of-Truth Foundation implemented on Preview — awaiting PO review.** Contract: [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md). One customer-money ledger (`commerce_transactions`). `price_cents` = exclusive subtotal. No Stripe Elements. No migrations. Phase 6.1 not started.
+
+Sequence: 6.0 foundation → 6.1 front-desk payments surface → 6.2 invoice & receipt workspace → 6.3 refunds / outstanding / follow-up → 6.4 online payment completion (PO-gated).
 
 ### Locked usability principles (post-booking + money + navigation + speed)
 
@@ -194,6 +200,6 @@ Includes cross-portal hierarchy, spacing, icons, tables, charts, Summer/Chase ve
 
 This is **planning-locked now**; implementation is **not** started by this documentation commit.
 
-## Next step after Chapter 5 Phase 5.3
+## Next step after Chapter 6 Phase 6.0
 
-Await **explicit PO direction**. Do not invent Phase 5.4. Do not start Chapter 6. Do not reopen Phase 5.2 or Phase 5.3 for deferred polish. Do not apply gap-report migrations without explicit PO.
+Await **PO review of Phase 6.0**. Do **not** start Phase 6.1. Do **not** start Chapter 7. Do not invent Phase 5.4. Do not reopen Phase 5.2 or Phase 5.3 for deferred polish. Do not apply gap-report migrations without explicit PO. Do not implement Stripe Elements or public online payment.

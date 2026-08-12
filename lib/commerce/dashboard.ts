@@ -5,6 +5,12 @@ import {
 } from "@/lib/commerce/payments";
 import { listRefunds } from "@/lib/commerce/refunds";
 import { normalizeCurrency } from "@/lib/commerce/money";
+import {
+  appointmentMoneyFromStamps,
+  isCommerceInvoiceRecord,
+  isGrossCollectionTransaction,
+  isOutstandingInvoiceStatus,
+} from "@/lib/commerce/money-contract";
 import type {
   ChaseCommerceMetrics,
   CommerceDashboardSnapshot,
@@ -40,8 +46,7 @@ function sumSucceededPayments(
 ): number {
   return txs
     .filter((t) => {
-      if (t.status !== "succeeded") return false;
-      if (t.kind !== "payment" && t.kind !== "deposit") return false;
+      if (!isGrossCollectionTransaction(t)) return false;
       const at = new Date(t.occurredAt).getTime();
       return at >= from.getTime() && at <= to.getTime();
     })
@@ -49,9 +54,9 @@ function sumSucceededPayments(
 }
 
 function isOutstandingInvoice(invoice: CommerceInvoice): boolean {
+  if (!isCommerceInvoiceRecord(invoice.id)) return false;
   if (invoice.balanceCents <= 0) return false;
-  if (["paid", "void", "refunded"].includes(invoice.status)) return false;
-  return true;
+  return isOutstandingInvoiceStatus(invoice.status);
 }
 
 export async function getCommerceDashboardSnapshot(
@@ -85,6 +90,8 @@ export async function getCommerceDashboardSnapshot(
     outstandingInvoicesCount: 0,
     outstandingDepositsCents: 0,
     outstandingDepositsCount: 0,
+    outstandingAppointmentBalancesCents: 0,
+    outstandingAppointmentBalancesCount: 0,
     refundsMonthCents: 0,
     averageTransactionCents: null,
     averageCustomerValueCents: null,
@@ -114,7 +121,7 @@ export async function getCommerceDashboardSnapshot(
     supabase
       .from("appointments")
       .select(
-        "id, customer_id, price_cents, amount_paid_cents, amount_refunded_cents, deposit_cents, payment_status, status, invoice_number, customer:customers(name)",
+        "id, customer_id, price_cents, tax_cents, amount_paid_cents, amount_refunded_cents, deposit_cents, payment_status, status, invoice_number, services(price, deposit_cents, deposit_required)",
       )
       .eq("business_id", businessId)
       .in("payment_status", [
@@ -150,73 +157,30 @@ export async function getCommerceDashboardSnapshot(
     monthEndBiz,
   );
 
-  let openInvoices = invoices.filter(isOutstandingInvoice);
-
-  // Surface unpaid appointment balances that have no matching open commerce invoice.
-  const openInvoiceApptIds = new Set(
-    openInvoices
-      .map((i) => i.appointmentId)
-      .filter((id): id is string => Boolean(id)),
-  );
-  const depositRows = depositAppts.data ?? [];
-  const syntheticFromAppts: CommerceInvoice[] = [];
-  for (const a of depositRows) {
-    if (openInvoiceApptIds.has(String(a.id))) continue;
-    const price = Number(a.price_cents ?? 0);
-    const paid = Number(a.amount_paid_cents ?? 0);
-    const refunded = Number(a.amount_refunded_cents ?? 0);
-    const balance = Math.max(0, price - Math.max(0, paid - refunded));
-    if (balance <= 0) continue;
-    const cust = a.customer as
-      | { name?: string | null }
-      | { name?: string | null }[]
-      | null;
-    const custName = Array.isArray(cust)
-      ? cust[0]?.name
-      : cust?.name;
-    syntheticFromAppts.push({
-      id: `appt:${a.id}`,
-      businessId,
-      customerId: String(a.customer_id ?? ""),
-      appointmentId: String(a.id),
-      invoiceNumber:
-        (a.invoice_number as string | null) ||
-        `Booking ${String(a.id).slice(0, 8)}`,
-      status:
-        paid > 0 ? "partial" : ("open" as const),
-      issueDate: now.toISOString().slice(0, 10),
-      dueDate: null,
-      currency,
-      subtotalCents: price,
-      taxCents: 0,
-      discountCents: 0,
-      totalCents: price,
-      amountPaidCents: Math.max(0, paid - refunded),
-      amountRefundedCents: refunded,
-      balanceCents: balance,
-      notes: null,
-      businessSnapshot: {},
-      customerSnapshot: { name: custName ?? null },
-      lines: [],
-      createdAt: now.toISOString(),
-    });
-  }
-  openInvoices = [...openInvoices, ...syntheticFromAppts];
+  const openInvoices = invoices.filter(isOutstandingInvoice);
 
   const outstandingInvoicesCents = openInvoices.reduce(
     (s, i) => s + i.balanceCents,
     0,
   );
 
+  const depositRows = depositAppts.data ?? [];
   let outstandingDepositsCents = 0;
   let outstandingDepositsCount = 0;
+  let outstandingAppointmentBalancesCents = 0;
+  let outstandingAppointmentBalancesCount = 0;
   for (const a of depositRows) {
-    const price = Number(a.price_cents ?? 0);
-    const paid = Number(a.amount_paid_cents ?? a.deposit_cents ?? 0);
-    const due = Math.max(0, price - paid);
-    if (due > 0) {
-      outstandingDepositsCents += due;
+    const money = appointmentMoneyFromStamps({
+      ...a,
+      services: (a as { services?: unknown }).services,
+    });
+    if (money.depositDueNowCents > 0) {
+      outstandingDepositsCents += money.depositDueNowCents;
       outstandingDepositsCount += 1;
+    }
+    if (money.remainingBalanceCents > 0) {
+      outstandingAppointmentBalancesCents += money.remainingBalanceCents;
+      outstandingAppointmentBalancesCount += 1;
     }
   }
 
@@ -230,11 +194,7 @@ export async function getCommerceDashboardSnapshot(
   });
   const refundsMonthCents = monthRefunds.reduce((s, r) => s + r.amountCents, 0);
 
-  const succeeded = transactions.filter(
-    (t) =>
-      t.status === "succeeded" &&
-      (t.kind === "payment" || t.kind === "deposit"),
-  );
+  const succeeded = transactions.filter(isGrossCollectionTransaction);
   const averageTransactionCents =
     succeeded.length > 0
       ? Math.round(
@@ -269,6 +229,8 @@ export async function getCommerceDashboardSnapshot(
     outstandingInvoicesCount: openInvoices.length,
     outstandingDepositsCents,
     outstandingDepositsCount,
+    outstandingAppointmentBalancesCents,
+    outstandingAppointmentBalancesCount,
     refundsMonthCents,
     averageTransactionCents,
     averageCustomerValueCents,
@@ -289,6 +251,8 @@ export async function getChaseCommerceMetrics(
     revenueMonthCents: snap.revenueMonthCents,
     outstandingInvoicesCents: snap.outstandingInvoicesCents,
     outstandingDepositsCents: snap.outstandingDepositsCents,
+    outstandingDepositsCount: snap.outstandingDepositsCount,
+    outstandingAppointmentBalancesCents: snap.outstandingAppointmentBalancesCents,
     refundsTrendCents: snap.refundsMonthCents,
     averageTransactionCents: snap.averageTransactionCents,
     averageCustomerValueCents: snap.averageCustomerValueCents,

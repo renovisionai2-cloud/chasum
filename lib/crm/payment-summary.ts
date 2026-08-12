@@ -3,11 +3,14 @@
  * Labels use “collected” / “outstanding”, never generic “revenue”.
  */
 
+import { isGrossCollectionTransaction } from "@/lib/commerce/money-contract";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
 
 export type CustomerPaymentSummaryView = {
   collectedCents: number;
   outstandingCents: number;
+  outstandingInvoiceCents: number;
+  depositDueNowCents: number;
   invoiceCount: number;
   openInvoiceCount: number;
   depositsCents: number;
@@ -25,7 +28,7 @@ export function buildCustomerPaymentSummary(
     (sum, r) => sum + Number(r.amountCents ?? 0),
     0,
   );
-  const succeeded = account.timeline.filter((t) => t.status === "succeeded");
+  const succeeded = account.timeline.filter(isGrossCollectionTransaction);
   const averageTransactionCents =
     succeeded.length > 0
       ? Math.round(
@@ -35,7 +38,9 @@ export function buildCustomerPaymentSummary(
 
   return {
     collectedCents: account.totalPaidCents,
-    outstandingCents: account.outstandingBalanceCents,
+    outstandingCents: account.outstandingAppointmentBalanceCents,
+    outstandingInvoiceCents: account.outstandingInvoiceCents,
+    depositDueNowCents: account.outstandingDepositDueCents,
     invoiceCount: account.invoices.length,
     openInvoiceCount: account.invoices.filter((i) =>
       ["open", "partial", "overdue"].includes(i.status),

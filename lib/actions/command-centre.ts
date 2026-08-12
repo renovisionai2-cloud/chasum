@@ -90,6 +90,7 @@ export type CommandCentreSnapshot = {
   outstandingActionsCount: number;
   outstandingDepositsCount: number | null;
   outstandingInvoicesCount: number | null;
+  outstandingAppointmentBalancesCount: number | null;
   newCustomersThisMonth: number | null;
   attention: CommandCentreAttentionItem[];
   schedule: CommandCentreScheduleRow[];
@@ -320,12 +321,17 @@ export async function getCommandCentreSnapshot(): Promise<CommandCentreSnapshot>
   const outstandingInvoicesCount = commerce
     ? commerce.outstandingInvoicesCount
     : null;
+  const outstandingAppointmentBalancesCount = commerce
+    ? commerce.outstandingAppointmentBalancesCount
+    : null;
 
   const attention = buildAttentionItems({
     setupComplete,
     failedCommunicationsToday,
     outstandingDepositsCount: outstandingDepositsCount ?? 0,
     outstandingInvoicesCount: outstandingInvoicesCount ?? 0,
+    outstandingAppointmentBalancesCount:
+      outstandingAppointmentBalancesCount ?? 0,
     unassignedTodayCount,
     pendingConfirmations: pendingRes.error ? 0 : (pendingRes.count ?? 0),
     cancelledTodayCount: cancelledTodayRes.error
@@ -470,6 +476,7 @@ export async function getCommandCentreSnapshot(): Promise<CommandCentreSnapshot>
     outstandingActionsCount: attention.length,
     outstandingDepositsCount,
     outstandingInvoicesCount,
+    outstandingAppointmentBalancesCount,
     newCustomersThisMonth: newCustomersMonthRes.error
       ? null
       : (newCustomersMonthRes.count ?? 0),

@@ -191,15 +191,15 @@ export function ChaseOpsWorkspace({
       >
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
-            label="Revenue today"
+            label="Gross payments collected today"
             value={money(snapshot.commerce.revenueTodayCents / 100)}
           />
           <Metric
-            label="Revenue this week"
+            label="Gross payments collected this week"
             value={money(snapshot.commerce.revenueWeekCents / 100)}
           />
           <Metric
-            label="Revenue this month"
+            label="Gross payments collected this month"
             value={money(snapshot.commerce.revenueMonthCents / 100)}
           />
           <Metric
@@ -217,6 +217,12 @@ export function ChaseOpsWorkspace({
           <Metric
             label="Outstanding deposits"
             value={money(snapshot.commerce.outstandingDepositsCents / 100)}
+          />
+          <Metric
+            label="Outstanding appointment balances"
+            value={money(
+              snapshot.commerce.outstandingAppointmentBalancesCents / 100,
+            )}
           />
           <Metric
             label="Refunds (month)"

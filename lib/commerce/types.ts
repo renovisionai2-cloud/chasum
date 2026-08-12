@@ -156,7 +156,11 @@ export type BookingPaymentSummary = {
 
 export type CustomerCommerceAccount = {
   customerId: string;
+  /** Remaining appointment balances (total − net paid). Not invoice documents. */
   outstandingBalanceCents: number;
+  outstandingAppointmentBalanceCents: number;
+  outstandingInvoiceCents: number;
+  outstandingDepositDueCents: number;
   lifetimeSpendCents: number;
   depositsCents: number;
   remainingBalanceCents: number;
@@ -180,6 +184,10 @@ export type CommerceDashboardSnapshot = {
   generatedAt: string;
   schemaReady: boolean;
   schemaMessage: string | null;
+  /**
+   * Gross payments collected (succeeded payment + deposit ledger rows).
+   * Internal name retained for compatibility — not recognized revenue.
+   */
   revenueTodayCents: number;
   revenueWeekCents: number;
   revenueMonthCents: number;
@@ -187,6 +195,8 @@ export type CommerceDashboardSnapshot = {
   outstandingInvoicesCount: number;
   outstandingDepositsCents: number;
   outstandingDepositsCount: number;
+  outstandingAppointmentBalancesCents: number;
+  outstandingAppointmentBalancesCount: number;
   refundsMonthCents: number;
   averageTransactionCents: number | null;
   averageCustomerValueCents: number | null;
@@ -205,6 +215,8 @@ export type ChaseCommerceMetrics = {
   revenueMonthCents: number;
   outstandingInvoicesCents: number;
   outstandingDepositsCents: number;
+  outstandingDepositsCount: number;
+  outstandingAppointmentBalancesCents: number;
   refundsTrendCents: number;
   averageTransactionCents: number | null;
   averageCustomerValueCents: number | null;
@@ -228,7 +240,7 @@ export const APPOINTMENT_PAYMENT_STATUS_LABELS: Record<
   deposit_required: "Deposit required",
   deposit_paid: "Deposit paid",
   partially_paid: "Outstanding balance",
-  fully_paid: "Fully paid",
+  fully_paid: "Paid in full",
   refunded: "Refunded",
   voided: "Voided",
 };

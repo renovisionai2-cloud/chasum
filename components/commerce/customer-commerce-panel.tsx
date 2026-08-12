@@ -47,30 +47,33 @@ export function CustomerCommercePanel({
   return (
     <div className="space-y-6">
       <p className="text-xs text-muted-foreground">
-        Financial totals come from the commerce ledger. Directory outstanding may
-        also reflect unpaid appointment list prices when commerce invoices are
-        not yet linked.
+        Financial totals use the customer-money contract. Appointment remaining,
+        invoice remaining, and deposit due now are separate — unpaid bookings
+        are not invoices.
       </p>
 
       <section aria-label="Balance overview">
         <h3 className="mb-2 text-sm font-semibold">Balance overview</h3>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <Stat
-            label="Outstanding balance"
-            value={money(account.outstandingBalanceCents)}
-            emphasize={account.outstandingBalanceCents > 0}
+            label="Outstanding appointment balance"
+            value={money(account.outstandingAppointmentBalanceCents)}
+            emphasize={account.outstandingAppointmentBalanceCents > 0}
+          />
+          <Stat
+            label="Outstanding invoices"
+            value={money(account.outstandingInvoiceCents)}
+            emphasize={account.outstandingInvoiceCents > 0}
+          />
+          <Stat
+            label="Deposit due now"
+            value={money(account.outstandingDepositDueCents)}
+            emphasize={account.outstandingDepositDueCents > 0}
           />
           <Stat label="Deposits paid" value={money(account.depositsCents)} />
           <Stat label="Total paid" value={money(account.totalPaidCents)} />
           <Stat label="Store credit" value={money(account.storeCreditCents)} />
         </div>
-        {account.remainingBalanceCents !== account.outstandingBalanceCents ? (
-          <p className="mt-2 text-[11px] text-muted-foreground">
-            Remaining balance (ledger): {money(account.remainingBalanceCents)}.
-            Outstanding and remaining may differ when deposits or store credit
-            apply.
-          </p>
-        ) : null}
       </section>
 
       <form

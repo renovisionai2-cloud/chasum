@@ -53,6 +53,23 @@ describe("Customer directory metrics", () => {
     expect(m?.outstandingBalanceCents).toBe(11000);
   });
 
+  it("includes tax in directory outstanding remaining balance", () => {
+    const metrics = buildDirectoryMetricsByCustomer(
+      [
+        {
+          customer_id: "c1",
+          start_time: "2026-08-01T15:00:00.000Z",
+          status: "confirmed",
+          price_cents: 10000,
+          tax_cents: 1300,
+          amount_paid_cents: 0,
+        },
+      ],
+      new Date("2026-08-06T12:00:00.000Z"),
+    );
+    expect(metrics.get("c1")?.outstandingBalanceCents).toBe(11300);
+  });
+
   it("falls back to service list price when price_cents missing", () => {
     expect(
       appointmentPriceCents({
@@ -145,6 +162,9 @@ describe("Customer payment summary", () => {
     const account = {
       totalPaidCents: 12000,
       outstandingBalanceCents: 3500,
+      outstandingAppointmentBalanceCents: 3500,
+      outstandingInvoiceCents: 0,
+      outstandingDepositDueCents: 0,
       depositsCents: 2000,
       storeCreditCents: 0,
       invoices: [
@@ -155,9 +175,9 @@ describe("Customer payment summary", () => {
       refunds: [{ amountCents: 500 }],
       giftCards: [{ balanceCents: 1000 }],
       timeline: [
-        { status: "succeeded", amountCents: 7000 },
-        { status: "succeeded", amountCents: 5000 },
-        { status: "failed", amountCents: 1000 },
+        { status: "succeeded", kind: "payment", amountCents: 7000 },
+        { status: "succeeded", kind: "deposit", amountCents: 5000 },
+        { status: "failed", kind: "payment", amountCents: 1000 },
       ],
     } as unknown as CustomerCommerceAccount;
 
@@ -172,6 +192,9 @@ describe("Customer payment summary", () => {
     const account = {
       totalPaidCents: 0,
       outstandingBalanceCents: 0,
+      outstandingAppointmentBalanceCents: 0,
+      outstandingInvoiceCents: 0,
+      outstandingDepositDueCents: 0,
       depositsCents: 0,
       storeCreditCents: 0,
       invoices: [],

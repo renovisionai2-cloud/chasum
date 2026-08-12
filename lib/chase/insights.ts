@@ -132,8 +132,8 @@ export function buildChaseInsights(input: {
     list.push(
       insight(
         "deposits",
-        `${input.outstandingDeposits} appointments still need payment collection`,
-        "Collect deposits from Reception or CRM — Chase will not charge customers.",
+        `${input.outstandingDeposits} outstanding deposits still due now`,
+        "Collect required deposits from Reception or CRM — Chase will not charge customers.",
         "medium",
         "revenue",
       ),
@@ -243,7 +243,7 @@ export function buildChaseAlerts(input: {
     alerts.push({
       id: "deposits",
       title: "Outstanding deposits",
-      body: `${input.outstandingDeposits} upcoming visits still need payment collection.`,
+      body: `${input.outstandingDeposits} required deposits are still due now.`,
       severity: "warning",
     });
   }

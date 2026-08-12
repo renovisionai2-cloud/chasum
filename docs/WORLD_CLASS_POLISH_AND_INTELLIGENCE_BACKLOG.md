@@ -6,7 +6,7 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production:** Untouched (`4eecbec`)  
 **Mode:** Planning lock only — **do not implement in this commit**  
-**Do not:** Redesign unrelated pages · rewrite booking/payment engines · run migrations · write shared DB · begin Chapter 6 without PO
+**Do not:** Redesign unrelated pages · rewrite booking/payment engines · run migrations · write shared DB · begin Phase 6.1 without PO
 
 Canonical companion docs:
 
@@ -281,7 +281,8 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 5 Phase 5.3 PO-accepted** — Week/Month Planning Intelligence + Safe Engine Convergence PO-accepted after hands-on Preview review (`caef495` / tip `284d726`). Do not reopen Phase 5.3 for remaining polish. No Phase 5.4. Chapter 6 not started.
+- **Chapter 6 Phase 6.0 implemented — awaiting PO review** — Money contract only. Do not start Phase 6.1, Stripe Elements, invoice/receipt workspace redesign, or Chapter 7. Payments intelligence polish remains this backlog.
+- **Chapter 5 Phase 5.3 PO-accepted** — Week/Month Planning Intelligence + Safe Engine Convergence PO-accepted after hands-on Preview review (`caef495` / tip `284d726`). Do not reopen Phase 5.3 for remaining polish. No Phase 5.4.
 - Remaining Phase 5.3 visual / polish items are **preserved here** and are **not** reasons to reopen the accepted surface: repeated Week "New Appointment" CTA treatment · Reception summary/header compression · Week/Month typography refinement · Week/Month contrast refinement · final appointment-row/card styling · premium select/filter/menu styling · Agenda/Timeline refinement · global Business Settings hierarchy/density · Employee workspace polish · final motion and micro-interactions · loading/empty/error-state final polish · keyboard drag/resize accessibility · final responsive refinement
 - Known architectural gaps remain **documented, not solved**: `staff_locations` not fully authoritative in RPC · API POST / non-cancel PATCH remain PARTIAL · public named create intentionally retains `create_public_appointment` · calendar undo remains FUTURE · keyboard drag/resize not implemented · enriched RPC conflict payloads not started · resource concurrency / `RESOURCE_BUSY` not implemented · optional staff enablement not started · migrations 034 / 035 / 036 remain unapplied · resource scheduling productization remains FUTURE · `CHASUM_OPTIONAL_STAFF_ENABLED` remains disabled
 - **Chapter 5 Phase 5.2 PO-accepted** — Calendar Day View and shared Reception calendar operating surface PO-accepted after hands-on Preview review (`e88f22d` / lock `5756a45`). Do not reopen Phase 5.2 for remaining polish.
@@ -295,6 +296,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-11 | Chapter 6 Phase 6.0 Money Contract implemented on Preview — awaiting PO review. Phase 6.1 not started. Payments visual polish remains backlog. |
 | 2026-08-11 | Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review. Deferred polish and architectural gaps preserved. |
 | 2026-08-11 | Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence (PO-narrowed). Enriched RPC / resources / optional staff remain deferred. |
 | 2026-08-11 | Chapter 5 Phase 5.2 — Calendar Day View and shared Reception calendar operating surface — PO accepted after hands-on Preview review. Deferred polish preserved. |

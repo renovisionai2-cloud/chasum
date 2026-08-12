@@ -4,12 +4,9 @@
  */
 
 import { writeCommerceAudit } from "@/lib/commerce/audit";
-import { resolveConfiguredDepositCents } from "@/lib/commerce/booking-financials";
 import { createInvoiceForAppointment } from "@/lib/commerce/invoices";
-import {
-  deriveAppointmentPaymentStatus,
-  mapTransaction,
-} from "@/lib/commerce/mappers";
+import { mapTransaction } from "@/lib/commerce/mappers";
+import { appointmentMoneyFromStamps } from "@/lib/commerce/money-contract";
 import {
   getActiveProviderSummary,
   resolvePaymentProvider,
@@ -90,53 +87,26 @@ async function syncAppointmentPayment(
     return { ok: false, error: "Appointment not found for payment sync." };
   }
 
-  const service = appt.services as
-    | {
-        price?: number;
-        deposit_cents?: number;
-        deposit_required?: boolean;
-      }
-    | {
-        price?: number;
-        deposit_cents?: number;
-        deposit_required?: boolean;
-      }[]
-    | null;
-  const serviceRow = Array.isArray(service) ? service[0] : service;
-
-  const priceCents =
-    Number(appt.price_cents ?? 0) ||
-    Math.round(Number(serviceRow?.price ?? 0) * 100);
-  const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
-  const appointmentTotalCents = priceCents + taxCents;
-  const depositRequiredCents = resolveConfiguredDepositCents({
-    appointmentDepositCents: appt.deposit_cents,
-    serviceDepositCents: serviceRow?.deposit_cents,
-    serviceDepositRequired: serviceRow?.deposit_required,
-    appointmentTotalCents,
-  });
-  const amountPaid =
+  const nextPaid =
     Number(appt.amount_paid_cents ?? 0) + Math.max(0, paidDeltaCents);
-  const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
-  const paymentStatus = deriveAppointmentPaymentStatus({
-    priceCents: appointmentTotalCents,
-    depositRequiredCents,
-    amountPaidCents: amountPaid,
-    amountRefundedCents: amountRefunded,
+  const money = appointmentMoneyFromStamps({
+    ...appt,
+    amount_paid_cents: nextPaid,
+    services: appt.services,
   });
 
   const { error: updErr } = await supabase
     .from("appointments")
     .update({
-      price_cents: priceCents || null,
-      tax_cents: taxCents,
-      amount_paid_cents: amountPaid,
-      payment_status: paymentStatus,
+      price_cents: money.subtotalCents || null,
+      tax_cents: money.taxCents,
+      amount_paid_cents: nextPaid,
+      payment_status: money.paymentStatus,
       // Preserve an existing explicit deposit; never inflate with a % of subtotal.
       deposit_cents:
         Number(appt.deposit_cents ?? 0) > 0
           ? Number(appt.deposit_cents)
-          : depositRequiredCents,
+          : money.depositRequiredCents,
     })
     .eq("id", appointmentId);
 
@@ -716,40 +686,10 @@ export async function getBookingPaymentSummary(
     return null;
   }
 
-  const service = appt.services as
-    | {
-        price?: number;
-        deposit_cents?: number;
-        deposit_required?: boolean;
-      }
-    | null
-    | Array<{
-        price?: number;
-        deposit_cents?: number;
-        deposit_required?: boolean;
-      }>;
-  const serviceRow = Array.isArray(service) ? service[0] : service;
-  const priceCents =
-    Number(appt.price_cents ?? 0) ||
-    Math.round(Number(serviceRow?.price ?? 0) * 100);
-  const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
-  const appointmentTotalCents = priceCents + taxCents;
-  const depositRequiredCents = resolveConfiguredDepositCents({
-    appointmentDepositCents: appt.deposit_cents,
-    serviceDepositCents: serviceRow?.deposit_cents,
-    serviceDepositRequired: serviceRow?.deposit_required,
-    appointmentTotalCents,
+  const money = appointmentMoneyFromStamps({
+    ...appt,
+    services: appt.services,
   });
-  const amountPaid = Number(appt.amount_paid_cents ?? 0);
-  const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
-  const paymentStatus =
-    (appt.payment_status as ReturnType<typeof deriveAppointmentPaymentStatus>) ||
-    deriveAppointmentPaymentStatus({
-      priceCents: appointmentTotalCents,
-      depositRequiredCents,
-      amountPaidCents: amountPaid,
-      amountRefundedCents: amountRefunded,
-    });
 
   const history = await listTransactions({
     businessId,
@@ -759,17 +699,14 @@ export async function getBookingPaymentSummary(
 
   return {
     appointmentId,
-    paymentStatus,
-    priceCents: appointmentTotalCents,
-    subtotalCents: priceCents,
-    taxCents,
-    depositRequiredCents,
-    amountPaidCents: amountPaid,
-    amountRefundedCents: amountRefunded,
-    outstandingBalanceCents: Math.max(
-      0,
-      appointmentTotalCents - (amountPaid - amountRefunded),
-    ),
+    paymentStatus: money.paymentStatus,
+    priceCents: money.totalCents,
+    subtotalCents: money.subtotalCents,
+    taxCents: money.taxCents,
+    depositRequiredCents: money.depositRequiredCents,
+    amountPaidCents: money.grossPaidCents,
+    amountRefundedCents: money.refundedCents,
+    outstandingBalanceCents: money.remainingBalanceCents,
     invoiceNumber: (appt.invoice_number as string) ?? null,
     history,
   };

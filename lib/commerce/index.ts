@@ -67,6 +67,24 @@ export {
 } from "@/lib/commerce/gift-cards";
 
 export {
+  appointmentMoneyFromStamps,
+  appointmentSubtotalCents,
+  appointmentTaxCents,
+  appointmentTotalCents,
+  depositCollectedCents,
+  depositDueNowCents,
+  depositRequiredCents,
+  GROSS_PAYMENTS_COLLECTED_LABEL,
+  invoiceAmountsFromAppointmentStamps,
+  isCommerceInvoiceRecord,
+  isGrossCollectionTransaction,
+  isOutstandingInvoiceStatus,
+  netPaidCents,
+  remainingBalanceCents,
+  sumGrossPaymentsCollectedCents,
+} from "@/lib/commerce/money-contract";
+
+export {
   appointmentPriceCents,
   appointmentRecognizedCents,
   isActiveBooking,

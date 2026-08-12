@@ -188,12 +188,17 @@ export function PaymentsDashboard({
           <Metric
             label="Outstanding invoices"
             value={money(snapshot.outstandingInvoicesCents)}
-            hint={`${snapshot.outstandingInvoicesCount} open`}
+            hint={`${snapshot.outstandingInvoicesCount} commerce invoices`}
           />
           <Metric
             label="Outstanding deposits"
             value={money(snapshot.outstandingDepositsCents)}
-            hint={`${snapshot.outstandingDepositsCount} bookings`}
+            hint={`${snapshot.outstandingDepositsCount} required deposits due now`}
+          />
+          <Metric
+            label="Outstanding appointment balances"
+            value={money(snapshot.outstandingAppointmentBalancesCents)}
+            hint={`${snapshot.outstandingAppointmentBalancesCount} bookings with remaining balance`}
           />
           <Metric
             label="Refunds (month)"

@@ -66,7 +66,7 @@ export function CustomerPaymentSummary({
           value={formatMoneyCents(summary.collectedCents, currency)}
         />
         <Metric
-          label="Outstanding"
+          label="Appointment balance"
           value={formatMoneyCents(summary.outstandingCents, currency)}
           emphasize={summary.outstandingCents > 0}
         />

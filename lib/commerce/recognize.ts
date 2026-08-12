@@ -1,11 +1,23 @@
 /**
- * Single source of truth for appointment revenue recognition.
- * Dashboards, reports, CRM, employees, and AI snapshots must use this.
+ * Recognized-revenue projection — NOT cash collection.
  *
- * Rule: count revenue when the visit is completed OR money was collected.
- * Collected money is stamped onto appointments from `commerce_transactions`
- * (amount_paid_cents / payment_status) — never invent parallel formulas.
+ * Chapter 6 lock: collected ≠ revenue.
+ * Gross payments collected = succeeded payment + deposit rows on
+ * commerce_transactions (see money-contract.ts).
+ * This module estimates recognized appointment value for ops snapshots
+ * (completed visit OR collected stamp). It is not a cash ledger and must
+ * not be labeled “Gross payments collected.”
+ *
+ * Do not expand accounting functionality in Phase 6.0.
+ *
+ * Rule: count recognized value when the visit is completed OR money was
+ * collected. Collected money is stamped onto appointments from
+ * commerce_transactions (amount_paid_cents / payment_status).
  * Cancelled / no-show visits never recognize revenue.
+ *
+ * Technical debt: appointmentPriceCents still reads exclusive price_cents
+ * (or catalog dollars) and does not add tax_cents. Keep separate from the
+ * customer-money contract until an explicit recognized-revenue model ships.
  */
 
 export type RecognizableAppointment = {
