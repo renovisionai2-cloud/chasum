@@ -2,6 +2,7 @@
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
 **Phase:** **6.0 — Money Contract & Source-of-Truth Foundation**  
+**Feature:** `9e7d72a`  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
 **Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0**  

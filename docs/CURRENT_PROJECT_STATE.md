@@ -168,7 +168,7 @@ Shared money recognition, commerce + platform events, business operating context
 - Outstanding deposits ≠ remaining appointment balances. Outstanding invoices = real `commerce_invoices` only.
 - Public named-staff `create_public_appointment` price-stamp gap documented, **not** RPC-fixed.
 - No Stripe Elements. No migrations. No Production. Phase 6.1 not started.
-- Contract: [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md).
+- Feature `9e7d72a`. Contract: [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md).
 
 ### Immediately prior (2026-08-11)
 
@@ -517,10 +517,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | _(this Phase 6.0 feature commit)_ |
-| **Short** | _(this commit)_ |
-| **Subject** | feat: Chapter 6 Phase 6.0 money contract foundation |
-| **Chapter 6 Phase 6.0** | this feature commit (tip stamp follows) |
+| **SHA** | `9e7d72a` |
+| **Short** | `9e7d72a` |
+| **Subject** | feat: lock Chapter 6 Phase 6.0 customer-money contract |
+| **Chapter 6 Phase 6.0 feature** | `9e7d72a` |
 | **Accepted Preview tip** | `284d726` (Phase 5.3) |
 | **Chapter 5 Phase 5.3 PO acceptance** | `5456296` |
 | **Chapter 5 Phase 5.3 feature** | `caef495` / tip `284d726` |

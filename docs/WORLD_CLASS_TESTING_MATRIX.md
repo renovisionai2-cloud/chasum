@@ -369,6 +369,7 @@
 | Migrations | **None** (034–036 unapplied) |
 | Tests | `tests/unit/commerce/money-contract.test.ts`, `tests/unit/commerce/phase-6-0-locks.test.ts` + commerce / GVM / Ch4 / Ch5 regression |
 | Phase 6.1 | **Not started** |
+| Feature | `9e7d72a` |
 | Approval | Awaiting PO review |
 
 ## Chapter 5 — Calendar & Booking Engine (Phase 5.3)

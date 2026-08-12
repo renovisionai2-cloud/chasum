@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-11 | **Chapter 6 Phase 6.0 — Money Contract & Source-of-Truth Foundation** | _(this feature commit)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Canonical customer-money contract; no Stripe Elements; no migrations; 6.1 not started |
+| 2026-08-11 | **Chapter 6 Phase 6.0 — Money Contract & Source-of-Truth Foundation** | `9e7d72a` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Canonical customer-money contract; no Stripe Elements; no migrations; 6.1 not started |
 | 2026-08-11 | **Chapter 5 Phase 5.3 PO acceptance lock** | `5456296` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Week/Month planning + safe convergence PO-accepted after hands-on Preview review |
 | 2026-08-11 | **Chapter 5 Phase 5.3 — Week/Month planning + safe convergence** | `caef495` / tip `284d726` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO-narrowed 5.3; 034–036 not applied; included in Phase 5.3 PO acceptance |
 | 2026-08-11 | **Chapter 5 Phase 5.2 PO acceptance lock** | `5756a45` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Day View + shared Reception canvas PO-accepted after hands-on Preview review |
@@ -56,6 +56,7 @@
 | Check | Result |
 |-------|--------|
 | Title | Money Contract & Source-of-Truth Foundation |
+| Feature | `9e7d72a` |
 | Canonical ledger | `commerce_transactions` |
 | `price_cents` | Exclusive subtotal |
 | Appointment total | subtotal + tax |
