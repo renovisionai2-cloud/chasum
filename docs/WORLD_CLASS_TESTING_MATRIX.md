@@ -365,6 +365,7 @@
 | Auto-refund | **No** |
 | Hard delete | **No** |
 | Tests | `tests/unit/calendar/phase-6-0a-lifecycle.test.ts` + money-contract collectibility |
+| Feature | `efaea51` |
 | Phase 6.1 | **Not started** |
 | Approval | Awaiting PO hands-on review |
 

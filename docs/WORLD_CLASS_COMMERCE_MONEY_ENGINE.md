@@ -3,7 +3,7 @@
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
 **Phase:** **6.0A — Appointment Lifecycle + Collectibility Integrity** (correction to 6.0)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
-**Feature 6.0A:** _(this commit)_  
+**Feature 6.0A:** `efaea51`  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
 **Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.0A**  
