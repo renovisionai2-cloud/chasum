@@ -186,7 +186,9 @@ export async function processCommerceRefund(
       currency: tx.currency,
       provider: tx.provider,
       provider_reference: providerRef,
-      description: `Refund: ${input.reason.trim()}`,
+      description: input.reason.trim()
+        ? `Reason: ${input.reason.trim()}`
+        : "Refund",
       created_by: input.actorId ?? null,
     });
 
@@ -254,7 +256,9 @@ export async function processCommerceRefund(
       currency: tx.currency,
       status: "refunded",
       method: tx.method,
-      description: `Refund: ${input.reason.trim()}`,
+      description: input.reason.trim()
+        ? `Reason: ${input.reason.trim()}`
+        : "Refund",
       provider: tx.provider,
       provider_reference: providerRef,
     });

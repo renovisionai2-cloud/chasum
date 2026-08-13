@@ -469,13 +469,14 @@ export function renderEmailTemplate(
     }
     case "appointment.cancellation": {
       const content = `${appointmentDetails(ctx)}
-        <p style="margin:16px 0 0;">This appointment has been cancelled. Reply anytime if you’d like to rebook — we’d love to have you back.</p>
+        <p style="margin:16px 0 0;">This confirms your appointment has been cancelled. This message is not a payment or refund notice.</p>
+        <p style="margin:12px 0 0;">Reply anytime if you’d like to rebook — we’d love to have you back.</p>
         ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Cancelled — ${ctx.serviceName} on ${monthDay}`,
         html: layout(content, b, { headline: "Appointment cancelled" }),
-        text: `Your ${ctx.serviceName} on ${whenLabel(ctx)} has been cancelled.`,
+        text: `Your ${ctx.serviceName} on ${whenLabel(ctx)} with ${ctx.businessName} has been cancelled. This is not a payment or refund notice.`,
       };
     }
     case "commerce.invoice": {

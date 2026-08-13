@@ -1,4 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 vi.mock("@/lib/communications/delivery", () => ({
   sendEmail: vi.fn(),
@@ -171,5 +173,52 @@ describe("deliverBookingNotifications", () => {
     expect(customer?.canRetry).toBe(true);
     expect(customer?.detail).toMatch(/Domain not verified/);
     expect(report.items.every((i) => i.status !== "pending")).toBe(true);
+  });
+});
+
+describe("deliverCancellationNotifications", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockAppointmentClient();
+  });
+
+  it("sends appointment.cancellation inline, not confirmation", async () => {
+    const { deliverCancellationNotifications } = await import(
+      "@/lib/notifications/booking-delivery"
+    );
+    vi.mocked(sendEmail)
+      .mockResolvedValueOnce({
+        ok: true,
+        messageId: "re_cancel_1",
+        provider: "resend",
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        messageId: "re_biz_cancel_1",
+        provider: "resend",
+      });
+
+    const report = await deliverCancellationNotifications("appt-1");
+    const customer = report.items.find((i) => i.channel === "customer_email");
+    expect(customer?.status).toBe("sent");
+    expect(sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        templateKey: "appointment.cancellation",
+        to: "dardin.gvm@gmail.com",
+        skipPreferenceCheck: true,
+      }),
+    );
+    expect(sendEmail).not.toHaveBeenCalledWith(
+      expect.objectContaining({ templateKey: "appointment.confirmation" }),
+    );
+  });
+
+  it("staff cancel action awaits inline cancellation delivery", () => {
+    const src = readFileSync(
+      join(process.cwd(), "lib/actions/appointments.ts"),
+      "utf8",
+    );
+    expect(src).toContain("deliverCancellationNotifications");
+    expect(src).toContain("cancellationCustomerEmailNote");
   });
 });

@@ -9,7 +9,7 @@ import { mapRefund, mapTransaction } from "@/lib/commerce/mappers";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
 import type { AppointmentTemplateContext } from "@/lib/communications/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { format } from "date-fns";
 
 export type RefundEmailStatus =
@@ -51,7 +51,7 @@ export async function buildRefundEmailContext(input: {
     }
   | { ok: false; error: string; status: RefundEmailStatus }
 > {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: refundRow, error } = await supabase
     .from("commerce_refunds")
     .select("*")
@@ -283,7 +283,7 @@ export async function sendRefundConfirmationEmail(input: {
 
     // Best-effort metadata stamp when column exists — no migration.
     try {
-      const supabase = await createClient();
+      const supabase = createServiceClient();
       await supabase
         .from("commerce_refunds")
         .update({

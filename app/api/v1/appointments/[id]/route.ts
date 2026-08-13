@@ -113,6 +113,15 @@ export async function DELETE(
     return apiNotFound();
   }
 
+  try {
+    const { deliverCancellationNotifications } = await import(
+      "@/lib/notifications/booking-delivery"
+    );
+    await deliverCancellationNotifications(id);
+  } catch (err) {
+    console.error("[notifications] API cancellation email failed", err);
+  }
+
   const { handleAppointmentEvent } = await import(
     "@/lib/integrations/notifications/orchestrator"
   );

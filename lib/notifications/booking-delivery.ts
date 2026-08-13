@@ -743,6 +743,191 @@ export async function deliverBookingNotifications(
   };
 }
 
+function emptyCancelReport(
+  appointmentId: string,
+  emailConfigured: boolean,
+  smsConfigured: boolean,
+  detail: string,
+): BookingNotificationReport {
+  return {
+    appointmentId,
+    emailConfigured,
+    smsConfigured,
+    smsPlanIncluded: false,
+    items: [
+      {
+        channel: "customer_email",
+        status: "failed",
+        label: "Customer cancellation email",
+        detail,
+        canRetry: true,
+      },
+      {
+        channel: "business_email",
+        status: "failed",
+        label: "Business cancellation email",
+        detail,
+        canRetry: true,
+      },
+      {
+        channel: "customer_sms",
+        status: "not_requested",
+        label: "Customer SMS",
+      },
+      {
+        channel: "staff_email",
+        status: "not_requested",
+        label: "Staff notification",
+      },
+    ],
+  };
+}
+
+/**
+ * Awaited inline customer cancellation email — same request as cancelAppointment.
+ * Job enqueue from appointment.cancelled remains best-effort; cron must not be
+ * required for Preview delivery. Does not mention refunds.
+ */
+export async function deliverCancellationNotifications(
+  appointmentId: string,
+): Promise<BookingNotificationReport> {
+  const emailConfigured = Boolean(getResendApiKey());
+  const smsConfigured = Boolean(getTwilioConfig());
+  const ctx = await loadAppointmentNotifyContext(appointmentId);
+
+  if (!ctx) {
+    return emptyCancelReport(
+      appointmentId,
+      emailConfigured,
+      smsConfigured,
+      "Could not load appointment for cancellation email.",
+    );
+  }
+
+  const businessTo = resolveBusinessRecipient(ctx);
+  const items: BookingNotificationItem[] = [];
+
+  if (!ctx.customerEmail) {
+    items.push({
+      channel: "customer_email",
+      status: "no_recipient",
+      label: "Customer cancellation email",
+      detail: "Customer has no email address.",
+    });
+  } else if (!emailConfigured) {
+    items.push({
+      channel: "customer_email",
+      status: "not_configured",
+      label: "Customer cancellation email",
+      detail: "Email delivery is not configured for this environment.",
+    });
+  } else {
+    items.push(
+      await sendChannelEmail({
+        channel: "customer_email",
+        label: "Customer cancellation email",
+        ctx,
+        to: ctx.customerEmail,
+        templateKey: "appointment.cancellation",
+        skipPreferenceCheck: true,
+      }),
+    );
+  }
+
+  if (!ctx.emailEnabled || !ctx.ownerEnabled) {
+    items.push({
+      channel: "business_email",
+      status: "not_enabled",
+      label: "Business cancellation email",
+    });
+  } else if (!businessTo) {
+    items.push({
+      channel: "business_email",
+      status: "no_recipient",
+      label: "Business cancellation email",
+      detail: "No business notification email configured.",
+    });
+  } else if (!emailConfigured) {
+    items.push({
+      channel: "business_email",
+      status: "not_configured",
+      label: "Business cancellation email",
+      detail: "Email delivery is not configured for this environment.",
+    });
+  } else {
+    items.push(
+      await sendChannelEmail({
+        channel: "business_email",
+        label: "Business cancellation email",
+        ctx,
+        to: businessTo,
+        templateKey: "appointment.business",
+        skipPreferenceCheck: true,
+        action: "Appointment cancelled",
+      }),
+    );
+  }
+
+  items.push({
+    channel: "customer_sms",
+    status: "not_requested",
+    label: "Customer SMS",
+  });
+  items.push({
+    channel: "staff_email",
+    status: "not_requested",
+    label: "Staff notification",
+  });
+
+  for (const item of items) {
+    if (item.status === "pending") {
+      item.status = "failed";
+      item.detail =
+        item.detail ??
+        "Email could not be sent before the request completed.";
+      item.canRetry = true;
+    }
+  }
+
+  logger.info("notifications", "inline_cancellation_delivery_complete", {
+    appointmentId,
+    results: items.map((i) => ({
+      channel: i.channel,
+      status: i.status,
+      providerMessageId: i.providerMessageId ?? null,
+    })),
+  });
+
+  return {
+    appointmentId,
+    items,
+    emailConfigured,
+    smsConfigured,
+    smsPlanIncluded: planIncludesSms({
+      subscription_plan_key: ctx.subscriptionPlanKey,
+      private_alpha_enabled: ctx.privateAlphaEnabled,
+    }),
+  };
+}
+
+export function cancellationCustomerEmailNote(
+  report: BookingNotificationReport,
+): string {
+  const customer = report.items.find((i) => i.channel === "customer_email");
+  if (customer?.status === "sent") return " Customer confirmation sent.";
+  if (customer?.status === "no_recipient") {
+    return " Customer email could not be sent (no email on file).";
+  }
+  if (
+    customer?.status === "failed" ||
+    customer?.status === "not_configured" ||
+    customer?.status === "skipped"
+  ) {
+    return " Customer email could not be sent.";
+  }
+  return "";
+}
+
 /** @deprecated Prefer deliverBookingNotifications — kept for retry helpers. */
 export async function flushAppointmentNotificationJobs(
   appointmentId: string,

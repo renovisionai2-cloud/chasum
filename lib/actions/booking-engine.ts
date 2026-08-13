@@ -287,5 +287,20 @@ export async function portalCancelAppointment(
   if (result.phase !== "success") {
     return { error: result.error ?? "Could not cancel appointment." };
   }
-  return { success: "Appointment cancelled." };
+
+  const action: ActionState = { success: "Appointment cancelled." };
+  try {
+    const {
+      deliverCancellationNotifications,
+      cancellationCustomerEmailNote,
+    } = await import("@/lib/notifications/booking-delivery");
+    const report = await deliverCancellationNotifications(appointmentId);
+    action.notifications = report.items;
+    action.success = `${action.success}${cancellationCustomerEmailNote(report)}`;
+  } catch (err) {
+    console.error("[notifications] portal cancellation email failed", err);
+    action.success =
+      "Appointment cancelled. Customer email could not be sent.";
+  }
+  return action;
 }

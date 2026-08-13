@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-12  
-**Updated by:** World Class — Chapter 6 Phase 6.0B refund confirmation email correction (Preview; Production unchanged)  
+**Last updated:** 2026-08-13  
+**Updated by:** World Class — Chapter 6 Phase 6.0B customer lifecycle email integrity  
 
 ---
 
@@ -158,7 +158,16 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-12)
+### Most recent (2026-08-13)
+
+**World Class — Chapter 6 Phase 6.0B customer lifecycle email integrity**
+
+- Cancellation emails now send inline in the same request as cancel (Preview-safe; cron no longer required).
+- Refund confirmation lookups use the service client; recipient is refund → original payment → customer.
+- Transaction history: Refund · Succeeded vs Payment · Succeeded; operator reason is not a refund status.
+- No migrations; no Stripe Elements; Phase 6.1 not started.
+
+### Immediately prior (2026-08-12)
 
 **World Class — Chapter 6 Phase 6.0B refund confirmation email correction**
 
@@ -589,7 +598,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on review of Chapter 6 Phase 6.0B refund confirmation email.** Do **not** start Phase 6.1. Do **not** start Chapter 7.
+1. **PO hands-on review of Chapter 6 Phase 6.0B lifecycle emails** (cancellation + refund). Do **not** start Phase 6.1. Do **not** start Chapter 7.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.

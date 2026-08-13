@@ -62,6 +62,18 @@ function statusLabel(status: string): string {
   return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function ledgerKindLabel(kind: string): string {
+  if (kind === "refund") return "Refund";
+  if (kind === "deposit") return "Deposit";
+  return "Payment";
+}
+
+function ledgerReasonLabel(description: string | null | undefined): string {
+  const raw = description?.trim() ?? "";
+  if (!raw) return "";
+  return raw.replace(/^Refund:\s*/i, "Reason: ");
+}
+
 function Metric({
   label,
   value,
@@ -438,12 +450,14 @@ export function PaymentsDashboard({
                           {PAYMENT_METHOD_LABELS[tx.method]}
                         </p>
                         <p className="truncate text-xs text-muted-foreground">
-                          {tx.kind === "deposit" ? "Deposit" : "Payment"} ·{" "}
+                          {ledgerKindLabel(tx.kind)} ·{" "}
                           {statusLabel(tx.status)}
                           {customerLabelById.get(tx.customerId)
                             ? ` · ${customerLabelById.get(tx.customerId)}`
                             : ""}
-                          {tx.description ? ` · ${tx.description}` : ""}
+                          {ledgerReasonLabel(tx.description)
+                            ? ` · ${ledgerReasonLabel(tx.description)}`
+                            : ""}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">

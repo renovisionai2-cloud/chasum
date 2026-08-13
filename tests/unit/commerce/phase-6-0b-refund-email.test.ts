@@ -24,7 +24,11 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
 }));
 
-import { createClient } from "@/lib/supabase/server";
+vi.mock("@/lib/supabase/service", () => ({
+  createServiceClient: vi.fn(),
+}));
+
+import { createServiceClient } from "@/lib/supabase/service";
 import {
   buildRefundEmailContext,
   sendRefundConfirmationEmail,
@@ -123,11 +127,34 @@ describe("Phase 6.0B refund confirmation email", () => {
     );
   });
 
-  it("no Stripe Elements / no migration in refund email path", () => {
+  it("cancellation template confirms cancel without refund language", () => {
+    const rendered = renderEmailTemplate("appointment.cancellation", {
+      businessId: "biz",
+      businessName: "Glow Studio",
+      customerName: "Ana",
+      staffName: "Jordan",
+      serviceName: "Facial",
+      startTime: "2026-08-12T15:00:00.000Z",
+      timezone: "America/Toronto",
+      locationName: "Main studio",
+    });
+    expect(rendered.subject).toMatch(/Cancelled/);
+    expect(rendered.html).toContain("Glow Studio");
+    expect(rendered.html).toContain("Ana");
+    expect(rendered.html).toContain("Facial");
+    expect(rendered.html).toContain("Jordan");
+    expect(rendered.html).toContain("Main studio");
+    expect(rendered.html).toMatch(/not a payment or refund notice/i);
+    expect(rendered.text).toMatch(/not a payment or refund notice/i);
+  });
+
+  it("refund email lookups use service client", () => {
     const email = read("lib/commerce/refund-email.ts");
     expect(email).not.toContain("Stripe Elements");
     expect(email).not.toContain("create migration");
     expect(email).toContain("commerce.refund");
+    expect(email).toContain("createServiceClient");
+    expect(email).not.toContain('from "@/lib/supabase/server"');
   });
 
   it("customer without email → unavailable, does not call sendEmail", async () => {
@@ -182,7 +209,7 @@ describe("Phase 6.0B refund confirmation email", () => {
       }
       return chain({ data: null, error: null });
     });
-    vi.mocked(createClient).mockResolvedValue({ from } as never);
+    vi.mocked(createServiceClient).mockReturnValue({ from } as never);
 
     const built = await buildRefundEmailContext({
       businessId: "biz",
@@ -266,7 +293,7 @@ describe("Phase 6.0B refund confirmation email", () => {
       }
       return chain({ data: null, error: null });
     });
-    vi.mocked(createClient).mockResolvedValue({ from } as never);
+    vi.mocked(createServiceClient).mockReturnValue({ from } as never);
     sendEmail.mockResolvedValue({ ok: false, error: "Resend down" });
 
     const sent = await sendRefundConfirmationEmail({

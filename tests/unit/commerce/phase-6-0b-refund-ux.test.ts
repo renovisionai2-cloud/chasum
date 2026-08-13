@@ -155,6 +155,17 @@ describe("Phase 6.0B transaction-linked refund", () => {
     expect(action).toContain("Refunded");
   });
 
+  it("history labels Refund · Succeeded, not Payment with Refund: cancelled", () => {
+    const dash = read("components/commerce/payments-dashboard.tsx");
+    expect(dash).toContain("ledgerKindLabel");
+    expect(dash).toContain('if (kind === "refund") return "Refund"');
+    expect(dash).toContain("ledgerReasonLabel");
+    expect(dash).toContain('replace(/^Refund:\\s*/i, "Reason: ")');
+    const refunds = read("lib/commerce/refunds.ts");
+    expect(refunds).toContain("`Reason: ${input.reason.trim()}`");
+    expect(refunds).not.toContain("`Refund: ${input.reason.trim()}`");
+  });
+
   it("appointment-native refund deferred (Payments path first)", () => {
     const activity = read(
       "components/booking/appointment-financial-activity.tsx",

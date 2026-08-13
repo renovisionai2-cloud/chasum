@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-13 | **Chapter 6 Phase 6.0B — Customer lifecycle email integrity** | (pending) | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Inline cancellation email; refund lookup via service client; truthful ledger labels; 6.1 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.0B — Refund confirmation email** | `20177bb` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer refund email after success; email failure never reverses refund |
 | 2026-08-12 | **Chapter 6 Phase 6.0B — Calendar sync + transaction-linked refund** | `309bc67` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Civil-anchor URL; payment-record Refund; 6.1 not started |
 | 2026-08-12 | **Chapter 6 Phase 6.0A — Lifecycle + Collectibility Integrity** | `efaea51` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cancelled not collectible; optimistic calendar cancel; 6.1 not started |

@@ -744,6 +744,18 @@ export async function cancelAppointment(id: string): Promise<ActionState> {
   const action = mutationToAction(result, "Appointment cancelled.");
   if (result.phase === "success") {
     await enqueueWaitlistNotification(business.id, id);
+    try {
+      const {
+        deliverCancellationNotifications,
+        cancellationCustomerEmailNote,
+      } = await import("@/lib/notifications/booking-delivery");
+      const report = await deliverCancellationNotifications(id);
+      action.notifications = report.items;
+      action.success = `${action.success ?? "Appointment cancelled."}${cancellationCustomerEmailNote(report)}`;
+    } catch (err) {
+      console.error("[notifications] cancellation email failed", err);
+      action.success = `${action.success ?? "Appointment cancelled."} Customer email could not be sent.`;
+    }
     revalidateCalendar();
   }
   return action;
