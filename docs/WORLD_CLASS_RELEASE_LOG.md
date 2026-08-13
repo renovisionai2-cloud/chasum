@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-13 | **Chapter 6 Phase 6.0B — Refund confirmation email** | _(this feature commit)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer refund email after success; email failure never reverses refund |
+| 2026-08-13 | **Chapter 6 Phase 6.0B — Refund confirmation email** | `20177bb` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer refund email after success; email failure never reverses refund |
 | 2026-08-12 | **Chapter 6 Phase 6.0B — Calendar sync + transaction-linked refund** | `309bc67` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Civil-anchor URL; payment-record Refund; 6.1 not started |
 | 2026-08-12 | **Chapter 6 Phase 6.0A — Lifecycle + Collectibility Integrity** | `efaea51` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cancelled not collectible; optimistic calendar cancel; 6.1 not started |
 | 2026-08-11 | **Chapter 6 Phase 6.0 — Money Contract & Source-of-Truth Foundation** | `9e7d72a` / stamp `160b10e` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Canonical customer-money contract; no Stripe Elements; no migrations; 6.1 not started |
@@ -59,7 +59,7 @@
 | Check | Result |
 |-------|--------|
 | Title | Refund confirmation email correction |
-| Feature | _(this feature commit)_ |
+| Feature | `20177bb` |
 | Trigger | After succeeded `processCommerceRefund` only |
 | Template | `commerce.refund` |
 | Email failure | Refund remains successful |

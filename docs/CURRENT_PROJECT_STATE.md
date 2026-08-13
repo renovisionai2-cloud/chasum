@@ -545,10 +545,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | _(this refund-email feature commit)_ |
-| **Short** | _(this commit)_ |
+| **SHA** | `20177bb` |
+| **Short** | `20177bb` |
 | **Subject** | fix: Chapter 6 Phase 6.0B refund confirmation email |
-| **Chapter 6 Phase 6.0B refund email** | this feature commit (tip stamp follows) |
+| **Chapter 6 Phase 6.0B refund email** | `20177bb` |
 | **Chapter 6 Phase 6.0B feature** | `309bc67` / `ee38142` |
 | **Chapter 6 Phase 6.0A feature** | `efaea51` |
 | **Chapter 6 Phase 6.0 feature** | `9e7d72a` / stamp `160b10e` |
