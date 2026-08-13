@@ -11,7 +11,10 @@ import { getWaitlistEntries } from "@/lib/actions/notifications";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
 import { getCalendarViewRange } from "@/lib/calendar/view-range";
-import { parseCalendarDateParam } from "@/lib/calendar/date-param";
+import {
+  formatCalendarDateParam,
+  parseCalendarDateParam,
+} from "@/lib/calendar/date-param";
 import { buildDashboardInsights } from "@/lib/dashboard/insights";
 import type { CalendarView } from "@/lib/types/booking";
 import type { Metadata } from "next";
@@ -34,14 +37,14 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const business = await getOrCreateBusiness();
   const params = await searchParams;
   const view = (params.view as CalendarView) ?? "day";
-  // Accept YYYY-MM-DD or full ISO from client navigation — never concat T12
-  // onto an ISO string (Invalid Date → toISOString crash).
-  const date = parseCalendarDateParam(params.date);
+  // Civil anchor identity — never Month/Week fetch-window start.
+  const anchor = parseCalendarDateParam(params.date);
   const locale = {
     timezone: business.timezone,
     currency: business.currency,
   };
-  const range = getCalendarViewRange(view, date, locale);
+  const range = getCalendarViewRange(view, anchor, locale);
+  const civilAnchor = formatCalendarDateParam(anchor, business.timezone);
 
   const [
     appointments,
@@ -93,7 +96,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         customers={customers}
         locations={locations}
         waitlist={waitlist}
-        initialDate={date.toISOString()}
+        initialDate={civilAnchor}
         initialView={view}
         dayOverlays={dayOverlays}
         openBookOnLoad={params.book === "1"}

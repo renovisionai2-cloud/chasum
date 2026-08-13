@@ -3,6 +3,7 @@ import {
   formatCalendarDateParam,
   parseCalendarDateParam,
 } from "@/lib/calendar/date-param";
+import { getCalendarViewRange } from "@/lib/calendar/view-range";
 
 describe("parseCalendarDateParam", () => {
   it("parses YYYY-MM-DD without UTC day drift on local noon", () => {
@@ -39,5 +40,18 @@ describe("formatCalendarDateParam", () => {
   it("emits YYYY-MM-DD for URL round-trips", () => {
     const d = new Date(2026, 7, 8, 12, 0, 0);
     expect(formatCalendarDateParam(d)).toBe("2026-08-08");
+  });
+
+  it("LOCK: civil anchor is not Month fetch-window start", () => {
+    const anchor = parseCalendarDateParam("2026-08-12");
+    const month = getCalendarViewRange("month", anchor, {
+      timezone: "America/Toronto",
+      currency: "cad",
+    });
+    const civil = formatCalendarDateParam(anchor, "America/Toronto");
+    const windowStart = formatCalendarDateParam(month.start, "America/Toronto");
+    expect(civil).toBe("2026-08-12");
+    expect(windowStart).not.toBe(civil);
+    expect(windowStart.startsWith("2026-07-")).toBe(true);
   });
 });

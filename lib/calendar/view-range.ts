@@ -1,6 +1,9 @@
 /**
  * Shared calendar query ranges for Reception / Calendar views.
  * Day, week, and month use business-timezone boundaries (not browser local).
+ *
+ * LOCK: `date` here is the selected civil **anchor**, not a fetch-window edge.
+ * Callers must never write `range.start` / `range.end` back into `?date=`.
  */
 
 import {
@@ -19,9 +22,10 @@ export type CalendarViewRange = {
 };
 
 /**
- * Appointment fetch window for a calendar view.
+ * Appointment fetch window for a calendar view from a civil anchor.
  * Week = Sunday–Saturday in business TZ (matches startOfBusinessWeek).
  * Month = Sunday–Saturday grid covering the business-local month (outside-month cells included).
+ * The returned start/end are fetch bounds only — not URL identity.
  */
 export function getCalendarViewRange(
   view: CalendarView,

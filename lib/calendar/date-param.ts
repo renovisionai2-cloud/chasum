@@ -1,12 +1,14 @@
 /**
- * Parse calendar ?date= search params safely.
+ * Calendar ?date= identity — LOCK (Phase 6.0B)
  *
- * Clients historically push either:
- * - YYYY-MM-DD
- * - full ISO timestamptz (from range.start.toISOString())
+ * `?date=` is ALWAYS the selected business civil anchor (YYYY-MM-DD preferred).
+ * It must NEVER represent:
+ * - Month padded grid start
+ * - Week fetch-window start
+ * - Any other getCalendarViewRange().start / .end bound
  *
- * Never concatenate "T12:00:00" onto an ISO string — that yields Invalid Date
- * and crashes Server Components calling toISOString().
+ * Derive fetch windows with getCalendarViewRange(view, anchor) only.
+ * Parse tolerates legacy full-ISO values for deep links; writers must emit civil dates.
  */
 
 import { calendarDateInTimezone } from "@/lib/business/datetime";
@@ -29,7 +31,7 @@ export function parseCalendarDateParam(
 }
 
 /**
- * Prefer YYYY-MM-DD in calendar URLs for stable round-trips.
+ * Encode the selected civil anchor for calendar URLs / client initialDate.
  * When `timeZone` is provided, use business civil date (not browser local).
  */
 export function formatCalendarDateParam(

@@ -66,6 +66,7 @@ import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
 import {
   formatCalendarDateParam,
+  parseCalendarDateParam,
 } from "@/lib/calendar/date-param";
 import {
   CALENDAR_CANVAS_CLASS,
@@ -144,7 +145,7 @@ export function CalendarClient({
   const router = useRouter();
   const { toast } = useToast();
   const [view, setView] = useState<CalendarView>(initialView);
-  const [date, setDate] = useState(new Date(initialDate));
+  const [date, setDate] = useState(() => parseCalendarDateParam(initialDate));
   const [colorMode, setColorMode] = useState<CalendarColorMode>("service");
   const urlAppointment = useMemo(
     () =>
@@ -625,7 +626,11 @@ export function CalendarClient({
     refresh();
   }
 
-  /** URL ?date= is always the selected civil anchor — never Month grid padding start. */
+  /**
+   * LOCK: URL ?date= is always the selected civil anchor.
+   * Never write getCalendarViewRange(...).start (Month padding / week window).
+   * router.replace then refresh so RSC reloads the derived fetch range.
+   */
   function navigateCalendar(nextView: CalendarView, nextDate: Date) {
     setView(nextView);
     setDate(nextDate);

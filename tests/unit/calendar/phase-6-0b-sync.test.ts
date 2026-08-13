@@ -29,10 +29,31 @@ describe("Phase 6.0B calendar mutation convergence", () => {
     );
   });
 
-  it("calendar page seeds initialDate from civil anchor, not range.start", () => {
+  it("calendar page seeds initialDate from civil anchor YYYY-MM-DD, not range.start", () => {
     const src = read("app/(dashboard)/dashboard/calendar/page.tsx");
-    expect(src).toContain("initialDate={date.toISOString()}");
+    expect(src).toContain("const anchor = parseCalendarDateParam(params.date)");
+    expect(src).toContain(
+      "formatCalendarDateParam(anchor, business.timezone)",
+    );
+    expect(src).toContain("initialDate={civilAnchor}");
+    expect(src).toContain("getCalendarViewRange(view, anchor, locale)");
     expect(src).not.toContain("initialDate={range.start.toISOString()}");
+    expect(src).not.toContain("initialDate={date.toISOString()}");
+  });
+
+  it("inspectDay and navigateCalendar write civil day, then refresh", () => {
+    const src = read("components/calendar/calendar-client.tsx");
+    expect(src).toMatch(
+      /function inspectDay[\s\S]*formatCalendarDateParam\(day, timezone\)[\s\S]*refresh\(\)/,
+    );
+    expect(src).toMatch(
+      /function navigateCalendar[\s\S]*formatCalendarDateParam\(nextDate, timezone\)[\s\S]*refresh\(\)/,
+    );
+    expect(src).toContain("parseCalendarDateParam(initialDate)");
+    // No writer may put range.start into the URL.
+    expect(src).not.toMatch(
+      /formatCalendarDateParam\(\s*range\.start/,
+    );
   });
 
   it("Month grid padding start is prior-month Sunday while civil anchor stays in-month", () => {
