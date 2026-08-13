@@ -554,9 +554,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `20177bb` |
-| **Short** | `20177bb` |
-| **Subject** | fix: Chapter 6 Phase 6.0B refund confirmation email |
+| **SHA** | `fd8560f` |
+| **Short** | `fd8560f` |
+| **Subject** | fix: send cancellation emails inline with booking confirmations |
+| **Chapter 6 Phase 6.0B lifecycle emails** | `fd8560f` |
 | **Chapter 6 Phase 6.0B refund email** | `20177bb` |
 | **Chapter 6 Phase 6.0B feature** | `309bc67` / `ee38142` |
 | **Chapter 6 Phase 6.0A feature** | `efaea51` |
