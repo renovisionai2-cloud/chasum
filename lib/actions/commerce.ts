@@ -15,6 +15,8 @@ import {
   queueReceiptEmail,
   recordCommercePayment,
 } from "@/lib/commerce";
+import { humanizeRefundError } from "@/lib/commerce/refundability";
+import { centsToDollars } from "@/lib/commerce/types";
 import { normalizeCurrency } from "@/lib/commerce/money";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -151,7 +153,11 @@ export async function refundPaymentAction(
   const approval = String(formData.get("approval") ?? "approved");
 
   if (!transactionId || Number.isNaN(amount) || amount <= 0) {
-    return { error: "Transaction and refund amount are required." };
+    return {
+      error: !transactionId
+        ? "Select a payment to refund."
+        : "Enter a refund amount greater than zero.",
+    };
   }
 
   const result = await processCommerceRefund({
@@ -169,11 +175,16 @@ export async function refundPaymentAction(
   });
 
   if (!result.ok) {
-    return { error: result.error ?? "Refund failed." };
+    return {
+      error: humanizeRefundError(result.error ?? "The refund could not be completed."),
+    };
   }
 
   revalidateCommerce(result.refund?.customerId);
-  return { success: "Refund processed." };
+  const refunded = result.refund?.amountCents ?? Math.round(amount * 100);
+  return {
+    success: `Refunded ${centsToDollars(refunded, result.refund?.currency ?? business.currency ?? "usd")}.`,
+  };
 }
 
 export async function downloadInvoiceTextAction(

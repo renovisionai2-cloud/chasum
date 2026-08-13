@@ -1,14 +1,30 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.0A — Appointment Lifecycle + Collectibility Integrity** (correction to 6.0)  
+**Phase:** **6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow** (PO testing correction)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
+**Feature 6.0B:** _(this commit)_  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.0A**  
-**Canonical helpers:** `lib/commerce/money-contract.ts`  
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.0A / 6.0B**  
+**Canonical helpers:** `lib/commerce/money-contract.ts` + `lib/commerce/refundability.ts`  
 **Booking-time resolver (preserved):** `lib/commerce/booking-financials.ts` (`resolveBookingFinancials` / `computeBookingPricing`)
+
+---
+
+## Phase 6.0B lock — Mutation-wide calendar sync + payment-record refunds
+
+| Concept | Rule |
+|---------|------|
+| Calendar `?date=` | Selected **civil anchor** only — never Month grid padding `range.start` |
+| Mutation convergence | CREATE / UPDATE / RESCHEDULE / CANCEL share one overlay + refresh path |
+| Refund UX | Payment-record driven — internal transaction ID is **not** required user input |
+| Gross payments collected | Unchanged historical cash-in semantics |
+| Cancel + refund | Cancel does **not** auto-refund; historical payment may still be manually refunded |
+| Record Payment appointment picker | **Locked for Phase 6.1** |
+| Appointment-native refund entry | Documented for 6.1/6.3 — Payments history Refund ships first |
+| Reception today vs planning date | Documented for final polish — not redesigned in 6.0B |
 
 ---
 
@@ -248,7 +264,8 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | Phase | Name | Status |
 |-------|------|--------|
 | **6.0** | Money Contract & Source-of-Truth Foundation | Implemented (`9e7d72a`) |
-| **6.0A** | Appointment Lifecycle + Collectibility Integrity | **Implemented — awaiting PO hands-on review** |
+| **6.0A** | Appointment Lifecycle + Collectibility Integrity | Implemented (`efaea51`) |
+| **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund | **Implemented — awaiting PO hands-on review** |
 | 6.1 | Front-Desk Payments Operating Surface | **Not started** |
 | 6.2 | Invoice & Receipt Workspace | **Not started** |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **Not started** |
@@ -279,6 +296,9 @@ Partial productization remains documented — not a 6.0 product expansion.
 | Internal `revenueTodayCents` field names | Compatibility debt; UI/CSV labels corrected |
 | Open invoice resolution on appointment cancel | **Owner decision pending** (leave open / prompt void / fee / refund) — 6.0A leaves invoices unchanged |
 | No-show collectibility / fee policy | **Owner decision pending** — 6.0A preserves current collectible behavior |
+| Record Payment appointment picker | **Locked for Phase 6.1** |
+| Appointment-native Refund action | **Deferred to 6.1/6.3** — Payments history Refund ships in 6.0B |
+| Reception today vs planning date clarity | **Final polish** — Operating Centre = today; Week/Month may plan ahead |
 | Normal Cancel is not a test-data purge | Documented — no automated cleanup on shared Supabase |
 | Stripe Elements / public online pay | Phase 6.4, PO-gated |
 | Staff payment RBAC | Future explicit decision |

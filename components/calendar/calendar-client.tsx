@@ -67,7 +67,6 @@ import type { BookingDraft } from "@/lib/booking/booking-draft";
 import {
   formatCalendarDateParam,
 } from "@/lib/calendar/date-param";
-import { getCalendarViewRange } from "@/lib/calendar/view-range";
 import {
   CALENDAR_CANVAS_CLASS,
   isDayViewIdle,
@@ -144,10 +143,6 @@ export function CalendarClient({
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const locale = useMemo(
-    () => ({ timezone: timezone ?? null, currency: currency ?? null }),
-    [timezone, currency],
-  );
   const [view, setView] = useState<CalendarView>(initialView);
   const [date, setDate] = useState(new Date(initialDate));
   const [colorMode, setColorMode] = useState<CalendarColorMode>("service");
@@ -186,7 +181,15 @@ export function CalendarClient({
       update: AppointmentWithRelations[],
     ) => update,
   );
-  /** Survives view switches until the operator leaves; server cancelled is authoritative when present. */
+  /**
+   * Mutation-wide overlay: survives Day/Week/Month switches until server catches up.
+   * Used for CREATE upserts, UPDATE/RESCHEDULE patches, and CANCEL status.
+   * Do not invent a second calendar store — merge onto the RSC appointment list.
+   */
+  const [appointmentOverrides, setAppointmentOverrides] = useState<
+    ReadonlyMap<string, AppointmentWithRelations>
+  >(() => new Map());
+  /** Survives view switches; server cancelled is authoritative when present. */
   const [cancelledOverrideIds, setCancelledOverrideIds] = useState<
     ReadonlySet<string>
   >(() => new Set());
@@ -195,14 +198,29 @@ export function CalendarClient({
     DEFAULT_CALENDAR_BOARD_FILTERS,
   );
 
-  const appointments = useMemo(
-    () =>
-      appointmentsBase.map((a) =>
-        cancelledOverrideIds.has(a.id) && a.status !== "cancelled"
-          ? { ...a, status: "cancelled" as const }
-          : a,
-      ),
-    [appointmentsBase, cancelledOverrideIds],
+  const appointments = useMemo(() => {
+    const byId = new Map<string, AppointmentWithRelations>();
+    for (const a of appointmentsBase) byId.set(a.id, a);
+    for (const [id, override] of appointmentOverrides) {
+      const existing = byId.get(id);
+      byId.set(id, existing ? { ...existing, ...override } : override);
+    }
+    return Array.from(byId.values()).map((a) =>
+      cancelledOverrideIds.has(a.id) && a.status !== "cancelled"
+        ? { ...a, status: "cancelled" as const }
+        : a,
+    );
+  }, [appointmentsBase, appointmentOverrides, cancelledOverrideIds]);
+
+  const upsertAppointmentOverride = useCallback(
+    (appointment: AppointmentWithRelations) => {
+      setAppointmentOverrides((prev) => {
+        const next = new Map(prev);
+        next.set(appointment.id, appointment);
+        return next;
+      });
+    },
+    [],
   );
 
   const filteredAppointments = useMemo(
@@ -215,6 +233,17 @@ export function CalendarClient({
       router.refresh();
     });
   }, [router]);
+
+  const convergeAfterMutation = useCallback(
+    async (appointmentId?: string | null) => {
+      if (appointmentId) {
+        const appt = await getCrmAppointmentForBooking(appointmentId);
+        if (appt) upsertAppointmentOverride(appt);
+      }
+      refresh();
+    },
+    [refresh, upsertAppointmentOverride],
+  );
 
   useEffect(() => {
     function onAction(e: Event) {
@@ -296,11 +325,11 @@ export function CalendarClient({
   function inspectDay(day: Date) {
     setView("day");
     setDate(day);
-    const range = getCalendarViewRange("day", day, locale);
     router.replace(
-      `/dashboard/calendar?view=day&date=${formatCalendarDateParam(range.start, timezone)}`,
+      `/dashboard/calendar?view=day&date=${formatCalendarDateParam(day, timezone)}`,
       { scroll: false },
     );
+    refresh();
   }
 
   function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null) {
@@ -365,6 +394,7 @@ export function CalendarClient({
     if (!appt) {
       throw new Error("Appointment not found");
     }
+    upsertAppointmentOverride(appt);
     refresh();
     openEdit(appt);
   }
@@ -444,6 +474,13 @@ export function CalendarClient({
         `Rescheduled · ${appointment.customer.name} · ${format(newStart, "MMM d · h:mm a")}`,
         "success",
       );
+      upsertAppointmentOverride({
+        ...appointment,
+        start_time: newStart.toISOString(),
+        end_time: optimisticEnd.toISOString(),
+        staff_id: null,
+        staff: appointment.staff,
+      });
       refresh();
       return;
     }
@@ -481,10 +518,26 @@ export function CalendarClient({
       refresh();
       return;
     }
+    const matchedStart = parseISO(match);
+    const matchedEnd = new Date(matchedStart.getTime() + duration);
     toast(
-      `Rescheduled · ${appointment.customer.name} · ${format(parseISO(match), "MMM d · h:mm a")}`,
+      `Rescheduled · ${appointment.customer.name} · ${format(matchedStart, "MMM d · h:mm a")}`,
       "success",
     );
+    upsertAppointmentOverride({
+      ...appointment,
+      start_time: match,
+      end_time: matchedEnd.toISOString(),
+      staff_id: nextStaffId,
+      staff: nextStaff
+        ? {
+            id: nextStaff.id,
+            name: nextStaff.name,
+            color: nextStaff.color,
+            photo_url: nextStaff.photo_url ?? null,
+          }
+        : appointment.staff,
+    });
     refresh();
   }
 
@@ -512,6 +565,10 @@ export function CalendarClient({
       return;
     }
     toast(result.success ?? "Duration updated.", "success");
+    upsertAppointmentOverride({
+      ...appointment,
+      end_time: newEnd.toISOString(),
+    });
     refresh();
   }
 
@@ -533,6 +590,7 @@ export function CalendarClient({
       return;
     }
     toast(result.success ?? "Updated.", "success");
+    upsertAppointmentOverride({ ...appointment, status });
     refresh();
   }
 
@@ -560,26 +618,30 @@ export function CalendarClient({
       return;
     }
     toast(result.success ?? "Appointment cancelled.", "success");
+    upsertAppointmentOverride({
+      ...appointment,
+      status: "cancelled" as const,
+    });
+    refresh();
+  }
+
+  /** URL ?date= is always the selected civil anchor — never Month grid padding start. */
+  function navigateCalendar(nextView: CalendarView, nextDate: Date) {
+    setView(nextView);
+    setDate(nextDate);
+    router.replace(
+      `/dashboard/calendar?view=${nextView}&date=${formatCalendarDateParam(nextDate, timezone)}`,
+      { scroll: false },
+    );
     refresh();
   }
 
   function handleViewChange(newView: CalendarView) {
-    setView(newView);
-    const range = getCalendarViewRange(newView, date, locale);
-    router.replace(
-      `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(range.start, timezone)}`,
-      { scroll: false },
-    );
-    refresh();
+    navigateCalendar(newView, date);
   }
 
   function handleDateChange(newDate: Date) {
-    setDate(newDate);
-    const range = getCalendarViewRange(view, newDate, locale);
-    router.replace(
-      `/dashboard/calendar?view=${view}&date=${formatCalendarDateParam(range.start, timezone)}`,
-      { scroll: false },
-    );
+    navigateCalendar(view, newDate);
   }
 
   if (!hasSetup) {
@@ -938,7 +1000,9 @@ export function CalendarClient({
           null
         }
         forceQuickAddCustomer={forceQuickAddCustomer}
-        onSuccess={refresh}
+        onSuccess={(meta) => {
+          void convergeAfterMutation(meta?.appointmentId);
+        }}
         onCancelAppointment={
           selectedAppointment
             ? async () => {

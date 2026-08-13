@@ -93,7 +93,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         customers={customers}
         locations={locations}
         waitlist={waitlist}
-        initialDate={range.start.toISOString()}
+        initialDate={date.toISOString()}
         initialView={view}
         dayOverlays={dayOverlays}
         openBookOnLoad={params.book === "1"}

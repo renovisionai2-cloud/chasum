@@ -4,16 +4,23 @@ import {
   createInvoiceAction,
   downloadInvoiceTextAction,
   recordPaymentAction,
-  refundPaymentAction,
   type CommerceActionState,
 } from "@/lib/actions/commerce";
-import type { CommerceDashboardSnapshot } from "@/lib/commerce/types";
+import type {
+  CommerceDashboardSnapshot,
+  CommerceTransaction,
+} from "@/lib/commerce/types";
 import {
   APPOINTMENT_PAYMENT_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
   centsToDollars,
   type TransactionStatus,
 } from "@/lib/commerce/types";
+import {
+  isRefundableTransaction,
+  remainingRefundableCents,
+} from "@/lib/commerce/refundability";
+import { RefundTransactionSheet } from "@/components/commerce/refund-transaction-sheet";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +41,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useMemo, useState, useTransition } from "react";
 import { useFormAction } from "@/hooks/use-form-action";
 
 const initial: CommerceActionState = {};
@@ -95,12 +102,7 @@ export function PaymentsDashboard({
     recordPaymentAction,
     initial,
   );
-  const [refundState, refundAction, refundPending] = useActionState(
-    refundPaymentAction,
-    initial,
-  );
   useFormAction(payState as { error?: string; success?: string });
-  useFormAction(refundState as { error?: string; success?: string });
   const [viewer, setViewer] = useState<{
     title: string;
     body: string;
@@ -108,6 +110,15 @@ export function PaymentsDashboard({
   const [pending, startTransition] = useTransition();
   const [invoiceApptId, setInvoiceApptId] = useState(initialAppointmentId);
   const [invoiceMsg, setInvoiceMsg] = useState<CommerceActionState>({});
+  const [refundTarget, setRefundTarget] = useState<CommerceTransaction | null>(
+    null,
+  );
+
+  const customerLabelById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const c of customers) map.set(c.id, c.label);
+    return map;
+  }, [customers]);
 
   function openText(title: string, body: string) {
     setViewer({ title, body });
@@ -332,6 +343,10 @@ export function PaymentsDashboard({
                 {payPending ? "Recording…" : "Record payment"}
               </Button>
             </form>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Appointment picker for Record Payment is locked for Phase 6.1.
+              Deep links may still prefill an appointment ID.
+            </p>
           </CardContent>
         </Card>
 
@@ -339,52 +354,19 @@ export function PaymentsDashboard({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <RefreshCcw className="size-4" aria-hidden />
-              Refund workflow
+              Refund from a payment
             </CardTitle>
             <CardDescription>
-              Full or partial refunds with reason, approval, and audit history.
+              Choose Refund on a row in Transaction history. Chasum resolves the
+              payment internally — no Transaction ID to copy or type.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form action={refundAction} className="space-y-3">
-              <Input
-                name="transaction_id"
-                placeholder="Transaction ID"
-                required
-                aria-label="Transaction ID"
-              />
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Input
-                  name="amount"
-                  placeholder="Refund amount"
-                  required
-                  inputMode="decimal"
-                  aria-label="Refund amount"
-                />
-                <select
-                  name="approval"
-                  className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
-                  defaultValue="approved"
-                  aria-label="Approval"
-                >
-                  <option value="approved">Approve now</option>
-                  <option value="pending">Pending approval</option>
-                </select>
-              </div>
-              <Input
-                name="reason"
-                placeholder="Reason (required)"
-                required
-                aria-label="Refund reason"
-              />
-              <AlertMessage
-                error={refundState.error}
-                success={refundState.success}
-              />
-              <Button type="submit" size="sm" variant="outline" disabled={refundPending}>
-                {refundPending ? "Processing…" : "Process refund"}
-              </Button>
-            </form>
+          <CardContent className="text-sm text-muted-foreground">
+            <ol className="list-decimal space-y-1.5 pl-4">
+              <li>Open Transaction history below.</li>
+              <li>Select Refund on the payment you want to reverse.</li>
+              <li>Confirm full or partial amount, reason, and approval.</li>
+            </ol>
           </CardContent>
         </Card>
       </div>
@@ -429,7 +411,9 @@ export function PaymentsDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Transaction history</CardTitle>
-            <CardDescription>Recent ledger activity</CardDescription>
+            <CardDescription>
+              Recent ledger activity — refund from the payment record
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {snapshot.recentTransactions.length === 0 ? (
@@ -439,27 +423,47 @@ export function PaymentsDashboard({
               </p>
             ) : (
               <ul className="divide-y divide-border" role="list">
-                {snapshot.recentTransactions.map((tx) => (
-                  <li
-                    key={tx.id}
-                    className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
-                  >
-                    <div className="min-w-0">
-                      <p className="font-medium tabular-nums">
-                        {money(tx.amountCents)} ·{" "}
-                        {PAYMENT_METHOD_LABELS[tx.method]}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {tx.kind === "deposit" ? "Deposit" : "Payment"} ·{" "}
-                        {statusLabel(tx.status)}
-                        {tx.description ? ` · ${tx.description}` : ""}
-                      </p>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {format(new Date(tx.occurredAt), "MMM d")}
-                    </span>
-                  </li>
-                ))}
+                {snapshot.recentTransactions.map((tx) => {
+                  const refundable =
+                    isRefundableTransaction(tx) &&
+                    remainingRefundableCents(tx, snapshot.recentRefunds) > 0;
+                  return (
+                    <li
+                      key={tx.id}
+                      className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium tabular-nums">
+                          {money(tx.amountCents)} ·{" "}
+                          {PAYMENT_METHOD_LABELS[tx.method]}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {tx.kind === "deposit" ? "Deposit" : "Payment"} ·{" "}
+                          {statusLabel(tx.status)}
+                          {customerLabelById.get(tx.customerId)
+                            ? ` · ${customerLabelById.get(tx.customerId)}`
+                            : ""}
+                          {tx.description ? ` · ${tx.description}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(tx.occurredAt), "MMM d")}
+                        </span>
+                        {refundable ? (
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setRefundTarget(tx)}
+                          >
+                            Refund
+                          </Button>
+                        ) : null}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </CardContent>
@@ -562,6 +566,22 @@ export function PaymentsDashboard({
         Booking statuses:{" "}
         {Object.values(APPOINTMENT_PAYMENT_STATUS_LABELS).join(" · ")}
       </p>
+
+      {refundTarget ? (
+        <RefundTransactionSheet
+          open
+          onClose={() => setRefundTarget(null)}
+          transaction={refundTarget}
+          refunds={snapshot.recentRefunds}
+          currency={snapshot.currency}
+          customerLabel={
+            customerLabelById.get(refundTarget.customerId) ?? null
+          }
+          appointmentLabel={
+            refundTarget.appointmentId ? "Linked appointment" : null
+          }
+        />
+      ) : null}
 
       {viewer ? (
         <div

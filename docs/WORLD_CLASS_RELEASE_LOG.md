@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-12 | **Chapter 6 Phase 6.0B — Calendar sync + transaction-linked refund** | _(this feature commit)_ | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Civil-anchor URL; payment-record Refund; 6.1 not started |
 | 2026-08-12 | **Chapter 6 Phase 6.0A — Lifecycle + Collectibility Integrity** | `efaea51` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cancelled not collectible; optimistic calendar cancel; 6.1 not started |
 | 2026-08-11 | **Chapter 6 Phase 6.0 — Money Contract & Source-of-Truth Foundation** | `9e7d72a` / stamp `160b10e` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Canonical customer-money contract; no Stripe Elements; no migrations; 6.1 not started |
 | 2026-08-11 | **Chapter 5 Phase 5.3 PO acceptance lock** | `5456296` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Week/Month planning + safe convergence PO-accepted after hands-on Preview review |
@@ -51,6 +52,22 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.0B — quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Cross-View Calendar Synchronization + Transaction-Linked Refund Flow |
+| Feature | _(this feature commit)_ |
+| Month create root cause | `?date=` used Month grid padding start |
+| Civil-anchor URL | Fixed |
+| Mutation overlay | CREATE/UPDATE/RESCHEDULE/CANCEL |
+| Refund primary UX | Transaction-history Refund action |
+| Raw Transaction ID required | **No** |
+| Gross collected | Unchanged |
+| Migrations 034–036 | **Not applied** |
+| Phase 6.1 | **Not started** |
+| PO review | **Awaiting hands-on** |
 
 ## Chapter 6 Phase 6.0A — quality report
 

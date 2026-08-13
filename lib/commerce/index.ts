@@ -98,6 +98,13 @@ export {
 } from "@/lib/commerce/recognize";
 
 export {
+  alreadyRefundedCents,
+  humanizeRefundError,
+  isRefundableTransaction,
+  remainingRefundableCents,
+} from "@/lib/commerce/refundability";
+
+export {
   createCommerceEvent,
   emitCommerceEvent,
   onCommerceEvent,

@@ -34,12 +34,15 @@ export async function processCommerceRefund(
     .maybeSingle();
 
   if (txErr || !txRow) {
-    return { ok: false, error: txErr?.message ?? "Transaction not found." };
+    return { ok: false, error: "That payment could not be found." };
   }
 
   const tx = mapTransaction(txRow as Record<string, unknown>);
   if (tx.status !== "succeeded" && tx.status !== "partially_refunded") {
-    return { ok: false, error: "Only succeeded payments can be refunded." };
+    return {
+      ok: false,
+      error: "This payment cannot be refunded in its current state.",
+    };
   }
 
   const { data: priorRefunds } = await supabase
@@ -54,9 +57,15 @@ export async function processCommerceRefund(
   );
   const remaining = tx.amountCents - alreadyRefunded;
   if (input.amountCents > remaining) {
+    if (remaining <= 0) {
+      return {
+        ok: false,
+        error: "This payment has already been fully refunded.",
+      };
+    }
     return {
       ok: false,
-      error: `Refund exceeds remaining amount ($${(remaining / 100).toFixed(2)}).`,
+      error: "Refund amount exceeds the remaining refundable amount.",
     };
   }
 

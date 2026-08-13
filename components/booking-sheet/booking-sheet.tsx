@@ -125,7 +125,7 @@ export type BookingSheetProps = {
   /** Structured draft from Quick Appointment — IDs win over prefs. */
   draft?: BookingDraft | null;
   channel?: BookingSheetChannel;
-  onSuccess: () => void;
+  onSuccess: (meta?: { appointmentId?: string | null }) => void;
   /**
    * When provided (Reception calendar), cancel uses shared optimistic lifecycle
    * sync instead of a local cancelAppointment call.
@@ -459,7 +459,10 @@ export function BookingSheet({
   useFormAction(
     state,
     () => {
-      onSuccess();
+      onSuccess({
+        appointmentId:
+          state.appointmentId ?? appointment?.id ?? null,
+      });
       if (isEditing) onClose();
     },
     isEditing ? onClose : undefined,
@@ -1013,7 +1016,7 @@ export function BookingSheet({
       if (result.error) toast(result.error, "error");
       else {
         toast(result.success ?? "Status updated.", "success");
-        onSuccess();
+        onSuccess({ appointmentId: appointment.id });
         onClose();
       }
     });
@@ -1096,7 +1099,7 @@ export function BookingSheet({
                 if (result.error) toast(result.error, "error");
                 else {
                   toast(result.success ?? "Appointment cancelled.", "success");
-                  onSuccess();
+                  onSuccess({ appointmentId: appointment.id });
                   onClose();
                 }
               });
