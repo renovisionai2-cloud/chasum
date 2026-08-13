@@ -4,7 +4,7 @@
 **Phase:** **6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow** (PO testing correction)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
-**Feature 6.0B:** _(this commit)_  
+**Feature 6.0B:** `309bc67`  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
 **Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.0A / 6.0B**  

@@ -358,7 +358,7 @@
 | Field | Value |
 |-------|--------|
 | Phase | **6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow** |
-| Feature | _(this feature commit)_ |
+| Feature | `309bc67` |
 | Calendar | Civil-anchor `?date=`; mutation-wide overlay for CREATE/UPDATE/RESCHEDULE/CANCEL |
 | Refund UX | Transaction-history Refund → contextual sheet; no raw Transaction ID required |
 | Tests | `tests/unit/calendar/phase-6-0b-sync.test.ts` + `tests/unit/commerce/phase-6-0b-refund-ux.test.ts` |

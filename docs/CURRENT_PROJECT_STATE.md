@@ -537,10 +537,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | _(this Phase 6.0B feature commit)_ |
-| **Short** | _(this commit)_ |
+| **SHA** | `309bc67` |
+| **Short** | `309bc67` |
 | **Subject** | fix: Chapter 6 Phase 6.0B calendar sync and refund UX |
-| **Chapter 6 Phase 6.0B feature** | this feature commit (tip stamp follows) |
+| **Chapter 6 Phase 6.0B feature** | `309bc67` |
 | **Chapter 6 Phase 6.0A feature** | `efaea51` |
 | **Chapter 6 Phase 6.0 feature** | `9e7d72a` / stamp `160b10e` |
 | **Accepted Preview tip** | `284d726` (Phase 5.3) |
