@@ -1,10 +1,11 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow** (PO testing correction)  
+**Phase:** **6.0B — Cross-View Calendar Sync + Transaction-Linked Refund + Refund Confirmation Email** (PO testing correction)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
-**Feature 6.0B:** `309bc67`  
+**Feature 6.0B:** `309bc67` / civil-anchor `ee38142`
+**Feature 6.0B refund email:** _(this commit)_  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
 **Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.0A / 6.0B**  
@@ -25,6 +26,9 @@
 | Record Payment appointment picker | **Locked for Phase 6.1** |
 | Appointment-native refund entry | Documented for 6.1/6.3 — Payments history Refund ships first |
 | Reception today vs planning date | Documented for final polish — not redesigned in 6.0B |
+| Refund confirmation email | After succeeded refund only — never reverses financial truth |
+| Email failure | Refund remains successful; status logged |
+| Template | `commerce.refund` — distinct from payment receipt; resend UI deferred to 6.2/6.3 |
 
 ---
 
@@ -265,7 +269,7 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 |-------|------|--------|
 | **6.0** | Money Contract & Source-of-Truth Foundation | Implemented (`9e7d72a`) |
 | **6.0A** | Appointment Lifecycle + Collectibility Integrity | Implemented (`efaea51`) |
-| **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund | **Implemented — awaiting PO hands-on review** |
+| **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **Implemented — awaiting PO hands-on review** |
 | 6.1 | Front-Desk Payments Operating Surface | **Not started** |
 | 6.2 | Invoice & Receipt Workspace | **Not started** |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **Not started** |

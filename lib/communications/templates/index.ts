@@ -548,6 +548,59 @@ export function renderEmailTemplate(
         text: textLines.join("\n"),
       };
     }
+    case "commerce.refund": {
+      const refundAmount = ctx.amountCents ?? 0;
+      const refundLabel = money(refundAmount);
+      const refundType = (ctx.refundTypeLabel ?? "Refund").trim() || "Refund";
+      const isPartial = /partial/i.test(refundType);
+      const original = ctx.originalPaymentCents;
+      const previously = ctx.previouslyRefundedCents;
+      const remaining = ctx.remainingRefundableCents;
+      const intro = isPartial
+        ? `A partial refund of <strong>${refundLabel}</strong> has been processed successfully.`
+        : `Your refund of <strong>${refundLabel}</strong> has been processed successfully.`;
+      const tenderNote =
+        ctx.refundTenderNote?.trim() ||
+        "This refund has been recorded by the business.";
+      const content = `
+        <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
+        <p style="margin:0 0 12px;">${intro}</p>
+        <p style="margin:0 0 16px;color:#475569;font-size:14px;">${escapeHtml(tenderNote)}</p>
+        <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
+          ${detailRow("Refund type", escapeHtml(refundType))}
+          ${detailRow("Refund amount", `<strong>${refundLabel}</strong>`)}
+          ${original != null ? detailRow("Original payment", money(original)) : ""}
+          ${previously != null && previously > 0 ? detailRow("Previously refunded", money(previously)) : ""}
+          ${remaining != null ? detailRow("Remaining refundable", money(remaining)) : ""}
+          ${ctx.paymentMethodLabel ? detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)) : ""}
+          ${ctx.refundDateLabel ? detailRow("Refund date", escapeHtml(ctx.refundDateLabel)) : ""}
+          ${ctx.serviceName && ctx.serviceName !== "Payment" ? detailRow("Service", escapeHtml(ctx.serviceName)) : ""}
+          ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx))) : ""}
+          ${ctx.invoiceNumber ? detailRow("Invoice", escapeHtml(ctx.invoiceNumber)) : ""}
+          ${ctx.receiptNumber ? detailRow("Reference", escapeHtml(ctx.receiptNumber)) : ""}
+        </table>
+        <p style="margin:16px 0 0;color:#475569;font-size:14px;">If you have questions about this refund, reply to this email or contact ${escapeHtml(ctx.businessName)}.</p>
+        ${appointmentContactCta(b, ctx)}`;
+      const textLines = [
+        `Refund confirmation from ${ctx.businessName}.`,
+        `${refundType}: ${refundLabel}`,
+        original != null ? `Original payment: ${money(original)}` : null,
+        previously != null && previously > 0
+          ? `Previously refunded: ${money(previously)}`
+          : null,
+        remaining != null ? `Remaining refundable: ${money(remaining)}` : null,
+        ctx.paymentMethodLabel
+          ? `Payment method: ${ctx.paymentMethodLabel}`
+          : null,
+        tenderNote,
+      ].filter(Boolean);
+      return {
+        key,
+        subject: `Refund confirmation — ${ctx.businessName}`,
+        html: layout(content, b, { headline: "Refund confirmation" }),
+        text: textLines.join("\n"),
+      };
+    }
     case "commerce.gift_certificate": {
       const code = ctx.invoiceNumber ?? "GIFT";
       const content = `

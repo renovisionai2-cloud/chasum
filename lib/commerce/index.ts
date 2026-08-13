@@ -51,6 +51,11 @@ export {
 } from "@/lib/commerce/payments";
 
 export { listRefunds, processCommerceRefund } from "@/lib/commerce/refunds";
+export {
+  buildRefundEmailContext,
+  sendRefundConfirmationEmail,
+} from "@/lib/commerce/refund-email";
+export type { RefundEmailStatus } from "@/lib/commerce/refund-email";
 
 export {
   getCustomerCommerceAccount,

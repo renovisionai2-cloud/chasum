@@ -26,6 +26,8 @@ export type CommerceActionState = {
   success?: string;
   clientSecret?: string | null;
   requiresAction?: boolean;
+  /** Phase 6.0B — refund confirmation email outcome (never rolls back refund). */
+  emailStatus?: "sent" | "failed" | "unavailable" | "skipped";
 };
 
 function revalidateCommerce(customerId?: string | null) {
@@ -182,8 +184,22 @@ export async function refundPaymentAction(
 
   revalidateCommerce(result.refund?.customerId);
   const refunded = result.refund?.amountCents ?? Math.round(amount * 100);
+  const money = centsToDollars(
+    refunded,
+    result.refund?.currency ?? business.currency ?? "usd",
+  );
+  const emailStatus = result.emailStatus ?? "skipped";
+  const emailNote =
+    emailStatus === "sent"
+      ? " Customer confirmation sent."
+      : emailStatus === "unavailable"
+        ? " Customer email could not be sent (no email on file)."
+        : emailStatus === "failed"
+          ? " Customer email could not be sent."
+          : "";
   return {
-    success: `Refunded ${centsToDollars(refunded, result.refund?.currency ?? business.currency ?? "usd")}.`,
+    success: `Refunded ${money}.${emailNote}`,
+    emailStatus,
   };
 }
 

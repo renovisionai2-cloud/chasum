@@ -220,11 +220,7 @@ export function RefundTransactionSheet({
 
             <AlertMessage
               error={state.error ? displayError : undefined}
-              success={
-                state.success
-                  ? `Refunded ${money(amountCents)}`
-                  : undefined
-              }
+              success={state.success}
             />
 
             <div className="flex flex-wrap gap-2">

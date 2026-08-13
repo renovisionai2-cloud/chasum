@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-12  
-**Updated by:** World Class — Chapter 6 Phase 6.0B Cross-View Calendar Sync + Transaction-Linked Refund (Preview; Production unchanged)  
+**Updated by:** World Class — Chapter 6 Phase 6.0B refund confirmation email correction (Preview; Production unchanged)  
 
 ---
 
@@ -159,6 +159,14 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-12)
+
+**World Class — Chapter 6 Phase 6.0B refund confirmation email correction**
+
+- After successful refund, customer receives `commerce.refund` confirmation email (transaction-bound).
+- Email failure never reverses the refund; UI reports confirmation sent / could not be sent.
+- No migrations; no Stripe Elements; Phase 6.1 not started.
+
+### Immediately prior (2026-08-12)
 
 **World Class — Chapter 6 Phase 6.0B Cross-View Calendar Synchronization + Transaction-Linked Refund Flow**
 
@@ -537,10 +545,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `309bc67` |
-| **Short** | `309bc67` |
-| **Subject** | fix: Chapter 6 Phase 6.0B calendar sync and refund UX |
-| **Chapter 6 Phase 6.0B feature** | `309bc67` |
+| **SHA** | _(this refund-email feature commit)_ |
+| **Short** | _(this commit)_ |
+| **Subject** | fix: Chapter 6 Phase 6.0B refund confirmation email |
+| **Chapter 6 Phase 6.0B refund email** | this feature commit (tip stamp follows) |
+| **Chapter 6 Phase 6.0B feature** | `309bc67` / `ee38142` |
 | **Chapter 6 Phase 6.0A feature** | `efaea51` |
 | **Chapter 6 Phase 6.0 feature** | `9e7d72a` / stamp `160b10e` |
 | **Accepted Preview tip** | `284d726` (Phase 5.3) |
@@ -580,7 +589,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on review of Chapter 6 Phase 6.0B.** Do **not** start Phase 6.1. Do **not** start Chapter 7.
+1. **PO hands-on review of Chapter 6 Phase 6.0B refund confirmation email.** Do **not** start Phase 6.1. Do **not** start Chapter 7.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.

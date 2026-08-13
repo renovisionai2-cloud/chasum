@@ -17,7 +17,12 @@ export type ProcessRefundInput = {
 
 export async function processCommerceRefund(
   input: ProcessRefundInput,
-): Promise<{ ok: boolean; error?: string; refund?: CommerceRefund }> {
+): Promise<{
+  ok: boolean;
+  error?: string;
+  refund?: CommerceRefund;
+  emailStatus?: import("@/lib/commerce/refund-email").RefundEmailStatus;
+}> {
   if (input.amountCents <= 0) {
     return { ok: false, error: "Refund amount must be greater than zero." };
   }
@@ -265,7 +270,31 @@ export async function processCommerceRefund(
     afterState: { status, approval },
   });
 
-  return { ok: true, refund: mapRefund(refundRow as Record<string, unknown>) };
+  const refund = mapRefund(refundRow as Record<string, unknown>);
+
+  // Customer refund confirmation — only after financial success.
+  // Email failure must never reverse the refund.
+  let emailStatus: import("@/lib/commerce/refund-email").RefundEmailStatus =
+    "skipped";
+  if (status === "succeeded") {
+    try {
+      const { sendRefundConfirmationEmail } = await import(
+        "@/lib/commerce/refund-email"
+      );
+      const emailed = await sendRefundConfirmationEmail({
+        businessId: input.businessId,
+        refundId: refund.id,
+        actorId: input.actorId,
+      });
+      emailStatus = emailed.status;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logQueryError("commerce.refund.email.trigger", message);
+      emailStatus = "failed";
+    }
+  }
+
+  return { ok: true, refund, emailStatus };
 }
 
 export async function listRefunds(input: {

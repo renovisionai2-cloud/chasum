@@ -167,13 +167,13 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 6 status
 
-**Phase 6.0 — Money Contract & Source-of-Truth Foundation implemented on Preview.** **Phase 6.0A — Appointment Lifecycle + Collectibility Integrity implemented.** **Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow implemented — awaiting PO hands-on review.** Contract: [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md). Calendar sync is mutation-wide (CREATE/UPDATE/RESCHEDULE/CANCEL). Refund UX is payment-record driven. No Stripe Elements. No migrations. Phase 6.1 not started.
+**Phase 6.0 — Money Contract & Source-of-Truth Foundation implemented on Preview.** **Phase 6.0A — Appointment Lifecycle + Collectibility Integrity implemented.** **Phase 6.0B — Cross-View Calendar Sync + Transaction-Linked Refund + Refund Confirmation Email implemented — awaiting PO hands-on review.** Contract: [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md). Calendar sync is mutation-wide (CREATE/UPDATE/RESCHEDULE/CANCEL). Refund UX is payment-record driven. No Stripe Elements. No migrations. Phase 6.1 not started.
 
 Sequence: 6.0 foundation → 6.0A collectibility → **6.0B calendar sync + refund UX** → 6.1 front-desk payments surface → 6.2 invoice & receipt workspace → 6.3 refunds / outstanding / follow-up → 6.4 online payment completion (PO-gated).
 
 ## Next step after Chapter 6 Phase 6.0B
 
-Await **PO hands-on review of Phase 6.0B**. Do **not** start Phase 6.1. Do **not** start Chapter 7. Do not invent Phase 5.4. Do not reopen Phase 5.2 or Phase 5.3 for deferred polish. Do not apply gap-report migrations without explicit PO. Do not implement Stripe Elements or public online payment.
+Await **PO hands-on review of Phase 6.0B (including refund confirmation email)**. Do **not** start Phase 6.1. Do **not** start Chapter 7. Do not invent Phase 5.4. Do not reopen Phase 5.2 or Phase 5.3 for deferred polish. Do not apply gap-report migrations without explicit PO. Do not implement Stripe Elements or public online payment.
 ### Locked usability principles (post-booking + money + navigation + speed)
 
 1. Monetary fields must behave like normal high-quality editable inputs and must not fight the user's cursor.

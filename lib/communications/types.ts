@@ -24,6 +24,7 @@ export type EmailTemplateKey =
   | "appointment.cancellation"
   | "commerce.invoice"
   | "commerce.receipt"
+  | "commerce.refund"
   | "commerce.deposit_request"
   | "commerce.gift_certificate"
   | "auth.welcome"
@@ -109,6 +110,13 @@ export type AppointmentTemplateContext = {
   previousStartTime?: string | null;
   customMessage?: string | null;
   branding?: BrandingContext;
+  /** Phase 6.0B refund confirmation fields (optional). */
+  refundTypeLabel?: string | null;
+  originalPaymentCents?: number | null;
+  previouslyRefundedCents?: number | null;
+  remainingRefundableCents?: number | null;
+  refundDateLabel?: string | null;
+  refundTenderNote?: string | null;
 };
 
 export type QueueNotificationInput = {

@@ -281,7 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 6 Phase 6.0B implemented — awaiting PO hands-on review** — Calendar mutation-wide sync + payment-record refunds. Do not start Phase 6.1.
+- **Chapter 6 Phase 6.0B implemented — awaiting PO hands-on review** — Calendar sync + payment-record refunds + refund confirmation email. Refund email resend UI deferred to 6.2/6.3. Do not start Phase 6.1.
 - **Chapter 6 Phase 6.0A implemented** — Collectibility + calendar cancel sync.
 - **Chapter 6 Phase 6.0 implemented** — Money contract. Do not start Phase 6.1, Stripe Elements, invoice/receipt workspace redesign, or Chapter 7. Payments intelligence polish remains this backlog.
 - **Chapter 5 Phase 5.3 PO-accepted** — Week/Month Planning Intelligence + Safe Engine Convergence PO-accepted after hands-on Preview review (`caef495` / tip `284d726`). Do not reopen Phase 5.3 for remaining polish. No Phase 5.4.
@@ -298,6 +298,7 @@ Formal program after functional World Class chapters. See section above.
 
 | Date | Change |
 |------|--------|
+| 2026-08-13 | Chapter 6 Phase 6.0B refund confirmation email correction — awaiting PO hands-on review. Phase 6.1 not started. |
 | 2026-08-12 | Chapter 6 Phase 6.0B Cross-View Calendar Sync + Transaction-Linked Refund — awaiting PO hands-on review. Phase 6.1 not started. |
 | 2026-08-12 | Chapter 6 Phase 6.0A Appointment Lifecycle + Collectibility Integrity — awaiting PO hands-on review. Phase 6.1 not started. |
 | 2026-08-11 | Chapter 6 Phase 6.0 Money Contract implemented on Preview — awaiting PO review. Phase 6.1 not started. Payments visual polish remains backlog. |
