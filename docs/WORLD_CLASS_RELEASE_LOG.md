@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-14 | **Chapter 6 Phase 6.1A — Financial Integrity + Front-Desk UX Correction** | (pending) | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Strip internal IDs; reconcile labels; 6.1 not PO-accepted; 6.2 not started |
+| 2026-08-14 | **Chapter 6 Phase 6.1A — Financial Integrity + Front-Desk UX Correction** | `4fbc357` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Strip internal IDs; reconcile labels; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.1 — Front-Desk Payments Operating Surface** | `95a8f38` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer → Appointment → Payment; no UUID input; 6.2 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.0B PO acceptance lock** | `5dbf4a8` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cross-view calendar sync + transaction-linked refund PO-accepted after hands-on Preview testing |
 | 2026-08-13 | **Chapter 6 Phase 6.0B — Customer lifecycle email integrity** | `fd8560f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Inline cancellation email; refund lookup via service client; truthful ledger labels; 6.1 not started |

@@ -581,10 +581,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `95a8f38` |
-| **Short** | `95a8f38` |
-| **Subject** | feat: ship Chapter 6 Phase 6.1 front-desk payments surface |
-| **Chapter 6 Phase 6.1** | `95a8f38` |
+| **SHA** | `4fbc357` |
+| **Short** | `4fbc357` |
+| **Subject** | fix: correct Phase 6.1 money labels and hide internal IDs |
+| **Chapter 6 Phase 6.1A** | `4fbc357` |
+| **Chapter 6 Phase 6.1** | `95a8f38` / stamp `25952a3` |
 | **Chapter 6 Phase 6.0B PO acceptance** | `5dbf4a8` |
 | **Chapter 6 Phase 6.0B lifecycle emails** | `fd8560f` |
 | **Chapter 6 Phase 6.0B refund email** | `20177bb` |
