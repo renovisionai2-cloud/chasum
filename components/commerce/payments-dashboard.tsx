@@ -1,26 +1,30 @@
 "use client";
 
+import { CollectPaymentWorkspace } from "@/components/commerce/collect-payment-workspace";
+import { RefundTransactionSheet } from "@/components/commerce/refund-transaction-sheet";
 import {
   createInvoiceAction,
   downloadInvoiceTextAction,
-  recordPaymentAction,
   type CommerceActionState,
 } from "@/lib/actions/commerce";
+import type { FrontDeskAppointmentOption } from "@/lib/commerce/front-desk";
+import {
+  ledgerKindLabel,
+  ledgerReasonLabel,
+  transactionStatusLabel,
+} from "@/lib/commerce/front-desk";
+import {
+  isRefundableTransaction,
+  remainingRefundableCents,
+} from "@/lib/commerce/refundability";
 import type {
   CommerceDashboardSnapshot,
   CommerceTransaction,
 } from "@/lib/commerce/types";
 import {
-  APPOINTMENT_PAYMENT_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
   centsToDollars,
-  type TransactionStatus,
 } from "@/lib/commerce/types";
-import {
-  isRefundableTransaction,
-  remainingRefundableCents,
-} from "@/lib/commerce/refundability";
-import { RefundTransactionSheet } from "@/components/commerce/refund-transaction-sheet";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,47 +36,19 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import type { Customer } from "@/lib/types/booking";
 import { format } from "date-fns";
-import {
-  Banknote,
-  FileText,
-  Receipt,
-  RefreshCcw,
-  ShieldCheck,
-} from "lucide-react";
-import Link from "next/link";
-import { useActionState, useMemo, useState, useTransition } from "react";
-import { useFormAction } from "@/hooks/use-form-action";
+import { Banknote, FileText, Receipt } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
 
-const initial: CommerceActionState = {};
-
-const TRANSACTION_STATUS_LABELS: Record<TransactionStatus, string> = {
-  pending: "Pending",
-  requires_action: "Needs action",
-  succeeded: "Succeeded",
-  failed: "Didn't go through",
-  canceled: "Canceled",
-  refunded: "Refunded",
-  partially_refunded: "Partially refunded",
-};
-
-function statusLabel(status: string): string {
-  const known = TRANSACTION_STATUS_LABELS[status as TransactionStatus];
-  if (known) return known;
-  return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-function ledgerKindLabel(kind: string): string {
-  if (kind === "refund") return "Refund";
-  if (kind === "deposit") return "Deposit";
-  return "Payment";
-}
-
-function ledgerReasonLabel(description: string | null | undefined): string {
-  const raw = description?.trim() ?? "";
-  if (!raw) return "";
-  return raw.replace(/^Refund:\s*/i, "Reason: ");
-}
+type FilterKey =
+  | "all"
+  | "payment"
+  | "deposit"
+  | "refund"
+  | "succeeded"
+  | "failed"
+  | "requires_action";
 
 function Metric({
   label,
@@ -101,26 +77,42 @@ function Metric({
 export function PaymentsDashboard({
   snapshot,
   customers = [],
+  seedCustomers = [],
   initialCustomerId = "",
   initialAppointmentId = "",
+  outstandingBalances = [],
+  outstandingDeposits = [],
+  appointmentLabels = {},
 }: {
   snapshot: CommerceDashboardSnapshot;
   customers?: Array<{ id: string; label: string }>;
+  seedCustomers?: Customer[];
   initialCustomerId?: string;
   initialAppointmentId?: string;
+  outstandingBalances?: FrontDeskAppointmentOption[];
+  outstandingDeposits?: FrontDeskAppointmentOption[];
+  appointmentLabels?: Record<string, string>;
 }) {
   const money = (cents: number) => centsToDollars(cents, snapshot.currency);
-  const [payState, payAction, payPending] = useActionState(
-    recordPaymentAction,
-    initial,
+  const [collectOpen, setCollectOpen] = useState(
+    Boolean(initialCustomerId || initialAppointmentId),
   );
-  useFormAction(payState as { error?: string; success?: string });
-  const [viewer, setViewer] = useState<{
-    title: string;
-    body: string;
-  } | null>(null);
+  const [collectIntent, setCollectIntent] = useState<"payment" | "deposit">(
+    "payment",
+  );
+  const [collectCustomerId, setCollectCustomerId] = useState(initialCustomerId);
+  const [collectAppointmentId, setCollectAppointmentId] = useState(
+    initialAppointmentId,
+  );
+  const [collectCustomerName, setCollectCustomerName] = useState(
+    customers.find((c) => c.id === initialCustomerId)?.label ?? "",
+  );
+  const [filter, setFilter] = useState<FilterKey>("all");
+  const [query, setQuery] = useState("");
+  const [viewer, setViewer] = useState<{ title: string; body: string } | null>(
+    null,
+  );
   const [pending, startTransition] = useTransition();
-  const [invoiceApptId, setInvoiceApptId] = useState(initialAppointmentId);
   const [invoiceMsg, setInvoiceMsg] = useState<CommerceActionState>({});
   const [refundTarget, setRefundTarget] = useState<CommerceTransaction | null>(
     null,
@@ -132,8 +124,52 @@ export function PaymentsDashboard({
     return map;
   }, [customers]);
 
-  function openText(title: string, body: string) {
-    setViewer({ title, body });
+  const filteredTx = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return snapshot.recentTransactions.filter((tx) => {
+      if (filter === "payment" && tx.kind !== "payment") return false;
+      if (filter === "deposit" && tx.kind !== "deposit") return false;
+      if (filter === "refund" && tx.kind !== "refund") return false;
+      if (filter === "succeeded" && tx.status !== "succeeded") return false;
+      if (filter === "failed" && tx.status !== "failed") return false;
+      if (filter === "requires_action" && tx.status !== "requires_action") {
+        return false;
+      }
+      if (!q) return true;
+      const hay = [
+        customerLabelById.get(tx.customerId),
+        appointmentLabels[tx.appointmentId ?? ""],
+        PAYMENT_METHOD_LABELS[tx.method],
+        ledgerKindLabel(tx.kind),
+        ledgerReasonLabel(tx.description),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [
+    snapshot.recentTransactions,
+    filter,
+    query,
+    customerLabelById,
+    appointmentLabels,
+  ]);
+
+  function openCollect(input: {
+    customerId?: string;
+    appointmentId?: string;
+    intent?: "payment" | "deposit";
+  }) {
+    setCollectIntent(input.intent ?? "payment");
+    setCollectCustomerId(input.customerId ?? "");
+    setCollectAppointmentId(input.appointmentId ?? "");
+    setCollectCustomerName(
+      input.customerId
+        ? (customerLabelById.get(input.customerId) ?? "")
+        : "",
+    );
+    setCollectOpen(true);
   }
 
   return (
@@ -154,64 +190,28 @@ export function PaymentsDashboard({
               <Banknote className="size-5" aria-hidden />
             </span>
             <div>
-              <h2 className="text-lg font-semibold tracking-tight">
-                Commerce
-              </h2>
+              <h2 className="text-lg font-semibold tracking-tight">Payments</h2>
               <p className="text-sm text-muted-foreground">
-                Payments & billing for {snapshot.businessName} — part of every
-                customer journey
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Provider: {snapshot.provider.active}
-                {snapshot.provider.stripeConfigured
-                  ? " · Stripe configured"
-                  : " · Stripe key not set (manual methods active)"}
-                {" · "}
-                Updated {format(new Date(snapshot.generatedAt), "MMM d · h:mm a")}
+                Collect, refund, and follow outstanding balances for{" "}
+                {snapshot.businessName}
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/dashboard/clients"
-              className="inline-flex h-8 items-center rounded-[var(--radius-sm)] border border-border px-3 text-xs font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              CRM accounts
-            </Link>
-            <Link
-              href="/dashboard/workforce/chase"
-              className="inline-flex h-8 items-center rounded-[var(--radius-sm)] border border-border px-3 text-xs font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              Chase insights
-            </Link>
-          </div>
+          <Button type="button" onClick={() => openCollect({})} className="min-h-11">
+            Collect payment
+          </Button>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <Metric
-            label="Gross payments collected today"
-            value={money(snapshot.revenueTodayCents)}
-          />
-          <Metric
-            label="Gross payments collected this week"
-            value={money(snapshot.revenueWeekCents)}
-          />
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <Metric
             label="Gross payments collected this month"
             value={money(snapshot.revenueMonthCents)}
+            hint={`Gross payments collected today ${money(snapshot.revenueTodayCents)}`}
           />
           <Metric
-            label="Avg transaction"
-            value={
-              snapshot.averageTransactionCents != null
-                ? money(snapshot.averageTransactionCents)
-                : "—"
-            }
-          />
-          <Metric
-            label="Outstanding invoices"
-            value={money(snapshot.outstandingInvoicesCents)}
-            hint={`${snapshot.outstandingInvoicesCount} commerce invoices`}
+            label="Outstanding appointment balances"
+            value={money(snapshot.outstandingAppointmentBalancesCents)}
+            hint={`${snapshot.outstandingAppointmentBalancesCount} bookings`}
           />
           <Metric
             label="Outstanding deposits"
@@ -219,336 +219,229 @@ export function PaymentsDashboard({
             hint={`${snapshot.outstandingDepositsCount} required deposits due now`}
           />
           <Metric
-            label="Outstanding appointment balances"
-            value={money(snapshot.outstandingAppointmentBalancesCents)}
-            hint={`${snapshot.outstandingAppointmentBalancesCount} bookings with remaining balance`}
+            label="Outstanding invoices"
+            value={money(snapshot.outstandingInvoicesCents)}
+            hint={`${snapshot.outstandingInvoicesCount} commerce invoices`}
           />
           <Metric
             label="Refunds (month)"
             value={money(snapshot.refundsMonthCents)}
           />
-          <Metric
-            label="Avg customer value"
-            value={
-              snapshot.averageCustomerValueCents != null
-                ? money(snapshot.averageCustomerValueCents)
-                : "—"
-            }
-          />
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <ShieldCheck className="size-4" aria-hidden />
-              Record payment
-            </CardTitle>
-            <CardDescription>
-              Cash, e-transfer, gift card, store credit, or card (Stripe when
-              configured). Never stores card numbers.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form action={payAction} className="space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                {customers.length > 0 ? (
-                  <select
-                    name="customer_id"
-                    className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm sm:col-span-2"
-                    defaultValue={initialCustomerId}
-                    required
-                    aria-label="Customer"
-                  >
-                    <option value="">Select customer…</option>
-                    {customers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.label}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="space-y-1 sm:col-span-2">
-                    <Input
-                      name="customer_id"
-                      placeholder="Customer ID"
-                      defaultValue={initialCustomerId}
-                      required
-                      aria-label="Customer ID"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      No customers yet —{" "}
-                      <Link
-                        href="/dashboard/clients"
-                        className="underline underline-offset-2"
-                      >
-                        add one in CRM
-                      </Link>{" "}
-                      first.
-                    </p>
-                  </div>
-                )}
-                <Input
-                  name="appointment_id"
-                  placeholder="Appointment ID (optional)"
-                  defaultValue={initialAppointmentId}
-                  aria-label="Appointment ID"
-                />
-                <Input
-                  name="amount"
-                  placeholder="Amount"
-                  required
-                  inputMode="decimal"
-                  aria-label="Amount"
-                />
-                <select
-                  name="method"
-                  className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
-                  defaultValue="cash"
-                  aria-label="Payment method"
-                >
-                  {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <Input
-                  name="gift_card_code"
-                  placeholder="Gift cert code (if gift card)"
-                  aria-label="Gift certificate code"
-                />
-                <select
-                  name="kind"
-                  className="h-10 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm sm:col-span-2"
-                  defaultValue="payment"
-                  aria-label="Payment kind"
-                >
-                  <option value="payment">Payment</option>
-                  <option value="deposit">Deposit</option>
-                </select>
-                <Input
-                  name="description"
-                  placeholder="Description"
-                  className="sm:col-span-2"
-                  aria-label="Description"
-                />
-              </div>
-              <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                <input
-                  type="checkbox"
-                  name="force_manual"
-                  value="1"
-                  defaultChecked
-                />
-                Record card as manual POS (skip Stripe intent)
-              </label>
-              <AlertMessage error={payState.error} success={payState.success} />
-              {payState.requiresAction ? (
-                <p className="text-xs text-muted-foreground">
-                  Client secret ready for Stripe Elements — complete collection
-                  on the client.
-                </p>
-              ) : null}
-              <Button type="submit" size="sm" disabled={payPending}>
-                {payPending ? "Recording…" : "Record payment"}
-              </Button>
-            </form>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Appointment picker for Record Payment is locked for Phase 6.1.
-              Deep links may still prefill an appointment ID.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <RefreshCcw className="size-4" aria-hidden />
-              Refund from a payment
-            </CardTitle>
-            <CardDescription>
-              Choose Refund on a row in Transaction history. Chasum resolves the
-              payment internally — no Transaction ID to copy or type.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            <ol className="list-decimal space-y-1.5 pl-4">
-              <li>Open Transaction history below.</li>
-              <li>Select Refund on the payment you want to reverse.</li>
-              <li>Confirm full or partial amount, reason, and approval.</li>
-            </ol>
-          </CardContent>
-        </Card>
+      <div className="grid gap-6 xl:grid-cols-2">
+        <QueueCard
+          title="Outstanding appointment balances"
+          empty="No outstanding appointment balances."
+          rows={outstandingBalances}
+          money={money}
+          actionLabel="Collect payment"
+          onAction={(row) =>
+            openCollect({ customerId: row.customerId, appointmentId: row.id })
+          }
+        />
+        <QueueCard
+          title="Outstanding deposits"
+          empty="No deposits are currently due."
+          rows={outstandingDeposits}
+          money={money}
+          deposit
+          actionLabel="Collect deposit"
+          onAction={(row) =>
+            openCollect({
+              customerId: row.customerId,
+              appointmentId: row.id,
+              intent: "deposit",
+            })
+          }
+        />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Recent transactions</CardTitle>
+          <CardDescription>
+            Payments, deposits, and refunds stay on separate rows
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search customer, service, method…"
+              aria-label="Search transactions"
+              className="sm:max-w-xs"
+            />
+            <div className="flex flex-wrap gap-1">
+              {(
+                [
+                  ["all", "All"],
+                  ["payment", "Payments"],
+                  ["deposit", "Deposits"],
+                  ["refund", "Refunds"],
+                  ["succeeded", "Succeeded"],
+                  ["failed", "Failed"],
+                  ["requires_action", "Needs action"],
+                ] as const
+              ).map(([key, label]) => (
+                <Button
+                  key={key}
+                  type="button"
+                  size="sm"
+                  variant={filter === key ? "primary" : "outline"}
+                  onClick={() => setFilter(key)}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+          {filteredTx.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No recent transactions match these filters.
+            </p>
+          ) : (
+            <ul className="divide-y divide-border" role="list">
+              {filteredTx.map((tx) => {
+                const remaining = remainingRefundableCents(
+                  tx,
+                  snapshot.recentRefunds,
+                );
+                const refundable =
+                  isRefundableTransaction(tx) && remaining > 0;
+                const refundState = !isRefundableTransaction(tx)
+                  ? null
+                  : remaining <= 0
+                    ? "Refunded"
+                    : remaining < tx.amountCents
+                      ? "Partially refunded"
+                      : "Refundable";
+                return (
+                  <li
+                    key={tx.id}
+                    className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium tabular-nums">
+                        {ledgerKindLabel(tx.kind)} · {money(tx.amountCents)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {transactionStatusLabel(tx.status)}
+                        {refundState ? ` · ${refundState}` : ""}
+                        {` · ${PAYMENT_METHOD_LABELS[tx.method]}`}
+                        {customerLabelById.get(tx.customerId)
+                          ? ` · ${customerLabelById.get(tx.customerId)}`
+                          : ""}
+                        {tx.appointmentId && appointmentLabels[tx.appointmentId]
+                          ? ` · ${appointmentLabels[tx.appointmentId]}`
+                          : ""}
+                        {ledgerReasonLabel(tx.description)
+                          ? ` · ${ledgerReasonLabel(tx.description)}`
+                          : ""}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(tx.occurredAt), "MMM d")}
+                      </span>
+                      {refundable ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRefundTarget(tx)}
+                        >
+                          Refund
+                        </Button>
+                      ) : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <FileText className="size-4" aria-hidden />
-            Generate invoice from appointment
+            Outstanding invoices
           </CardTitle>
           <CardDescription>
-            Professional invoice with business/customer details, services, tax,
-            discounts, payments, and balance.
+            Commerce invoices only — not booking balances
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap items-end gap-3">
-          <Input
-            value={invoiceApptId}
-            onChange={(e) => setInvoiceApptId(e.target.value)}
-            placeholder="Appointment ID"
-            className="max-w-sm"
-            aria-label="Appointment ID for invoice"
-          />
-          <Button
-            type="button"
-            size="sm"
-            disabled={pending || !invoiceApptId.trim()}
-            onClick={() => {
-              startTransition(async () => {
-                const res = await createInvoiceAction(invoiceApptId.trim());
-                setInvoiceMsg(res);
-              });
-            }}
-          >
-            Create invoice
-          </Button>
-          <AlertMessage error={invoiceMsg.error} success={invoiceMsg.success} />
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Transaction history</CardTitle>
-            <CardDescription>
-              Recent ledger activity — refund from the payment record
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {snapshot.recentTransactions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No transactions yet. Record a payment after your first booking,
-                or use Collect payment from the calendar.
-              </p>
-            ) : (
-              <ul className="divide-y divide-border" role="list">
-                {snapshot.recentTransactions.map((tx) => {
-                  const refundable =
-                    isRefundableTransaction(tx) &&
-                    remainingRefundableCents(tx, snapshot.recentRefunds) > 0;
-                  return (
-                    <li
-                      key={tx.id}
-                      className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-medium tabular-nums">
-                          {money(tx.amountCents)} ·{" "}
-                          {PAYMENT_METHOD_LABELS[tx.method]}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {ledgerKindLabel(tx.kind)} ·{" "}
-                          {statusLabel(tx.status)}
-                          {customerLabelById.get(tx.customerId)
-                            ? ` · ${customerLabelById.get(tx.customerId)}`
-                            : ""}
-                          {ledgerReasonLabel(tx.description)
-                            ? ` · ${ledgerReasonLabel(tx.description)}`
-                            : ""}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(tx.occurredAt), "MMM d")}
-                        </span>
-                        {refundable ? (
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setRefundTarget(tx)}
-                          >
-                            Refund
-                          </Button>
-                        ) : null}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Outstanding invoices</CardTitle>
-            <CardDescription>Open balances</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {snapshot.openInvoices.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No open invoices. Generate one from a completed appointment above.
-              </p>
-            ) : (
-              <ul className="divide-y divide-border" role="list">
-                {snapshot.openInvoices.map((inv) => {
-                  const isBookingBalance = inv.id.startsWith("appt:");
-                  const custName =
-                    (inv.customerSnapshot?.name as string | null | undefined) ??
-                    null;
-                  return (
+        <CardContent>
+          {snapshot.openInvoices.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No open invoices.</p>
+          ) : (
+            <ul className="divide-y divide-border" role="list">
+              {snapshot.openInvoices.map((inv) => {
+                const custName =
+                  (inv.customerSnapshot?.name as string | null | undefined) ??
+                  customerLabelById.get(inv.customerId) ??
+                  null;
+                return (
                   <li
                     key={inv.id}
-                    className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
+                    className="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
                       <p className="font-medium">{inv.invoiceNumber}</p>
                       <p className="text-xs text-muted-foreground">
                         {custName ? `${custName} · ` : ""}
-                        {statusLabel(inv.status)} · balance{" "}
-                        {money(inv.balanceCents)}
-                        {isBookingBalance ? " · booking balance" : ""}
+                        {transactionStatusLabel(inv.status)} · total{" "}
+                        {money(inv.totalCents)} · paid {money(inv.amountPaidCents)}{" "}
+                        · balance {money(inv.balanceCents)}
                       </p>
                     </div>
-                    {isBookingBalance ? (
-                      inv.appointmentId ? (
-                        <Link
-                          href={`/dashboard/payments?appointment=${inv.appointmentId}${inv.customerId ? `&customer=${inv.customerId}` : ""}`}
-                          className="inline-flex h-8 items-center rounded-[var(--radius-sm)] border border-border px-3 text-xs font-medium hover:bg-muted"
-                        >
-                          Collect
-                        </Link>
-                      ) : null
-                    ) : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={pending}
-                      onClick={() => {
-                        startTransition(async () => {
-                          const res = await downloadInvoiceTextAction(inv.id);
-                          if (res.text) {
-                            openText(`Invoice ${inv.invoiceNumber}`, res.text);
+                    <div className="flex flex-wrap gap-2">
+                      {inv.appointmentId ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            openCollect({
+                              customerId: inv.customerId,
+                              appointmentId: inv.appointmentId ?? "",
+                            })
                           }
-                        });
-                      }}
-                    >
-                      View
-                    </Button>
-                    )}
+                        >
+                          Collect payment
+                        </Button>
+                      ) : null}
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        disabled={pending}
+                        onClick={() => {
+                          startTransition(async () => {
+                            const res = await downloadInvoiceTextAction(inv.id);
+                            if (res.text) {
+                              setViewer({
+                                title: `Invoice ${inv.invoiceNumber}`,
+                                body: res.text,
+                              });
+                            }
+                          });
+                        }}
+                      >
+                        View
+                      </Button>
+                    </div>
                   </li>
-                  );
-                })}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -565,10 +458,13 @@ export function PaymentsDashboard({
               {snapshot.recentRefunds.map((r) => (
                 <li key={r.id} className="py-2.5 text-sm">
                   <p className="font-medium tabular-nums">
-                    {money(r.amountCents)} · {r.refundType} ·{" "}
-                    {r.approvalStatus}
+                    Refund · {money(r.amountCents)} ·{" "}
+                    {transactionStatusLabel(String(r.status))}
                   </p>
-                  <p className="text-xs text-muted-foreground">{r.reason}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {r.refundType === "full" ? "Full" : "Partial"}
+                    {r.reason ? ` · Reason: ${r.reason}` : ""}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -576,10 +472,37 @@ export function PaymentsDashboard({
         </CardContent>
       </Card>
 
-      <p className="text-xs text-muted-foreground">
-        Booking statuses:{" "}
-        {Object.values(APPOINTMENT_PAYMENT_STATUS_LABELS).join(" · ")}
-      </p>
+      {collectAppointmentId ? (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={pending}
+            onClick={() => {
+              const id = collectAppointmentId;
+              startTransition(async () => {
+                setInvoiceMsg(await createInvoiceAction(id));
+              });
+            }}
+          >
+            Create invoice for selected appointment
+          </Button>
+          <AlertMessage error={invoiceMsg.error} success={invoiceMsg.success} />
+        </div>
+      ) : null}
+
+      <CollectPaymentWorkspace
+        key={`${collectOpen}-${collectCustomerId}-${collectAppointmentId}-${collectIntent}`}
+        open={collectOpen}
+        onClose={() => setCollectOpen(false)}
+        currency={snapshot.currency}
+        initialCustomerId={collectCustomerId}
+        initialCustomerName={collectCustomerName}
+        initialAppointmentId={collectAppointmentId}
+        seedCustomers={seedCustomers}
+        intent={collectIntent}
+      />
 
       {refundTarget ? (
         <RefundTransactionSheet
@@ -588,11 +511,12 @@ export function PaymentsDashboard({
           transaction={refundTarget}
           refunds={snapshot.recentRefunds}
           currency={snapshot.currency}
-          customerLabel={
-            customerLabelById.get(refundTarget.customerId) ?? null
-          }
+          customerLabel={customerLabelById.get(refundTarget.customerId) ?? null}
           appointmentLabel={
-            refundTarget.appointmentId ? "Linked appointment" : null
+            refundTarget.appointmentId
+              ? (appointmentLabels[refundTarget.appointmentId] ??
+                "Linked appointment")
+              : null
           }
         />
       ) : null}
@@ -604,9 +528,6 @@ export function PaymentsDashboard({
           aria-modal="true"
           aria-labelledby="commerce-viewer-title"
           onClick={() => setViewer(null)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setViewer(null);
-          }}
         >
           <div
             className={cn(
@@ -615,55 +536,79 @@ export function PaymentsDashboard({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-start justify-between gap-3">
-              <h3
-                id="commerce-viewer-title"
-                className="text-base font-semibold"
-              >
+              <h3 id="commerce-viewer-title" className="text-base font-semibold">
                 {viewer.title}
               </h3>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => setViewer(null)}
-              >
+              <Button type="button" size="sm" variant="outline" onClick={() => setViewer(null)}>
                 Close
               </Button>
             </div>
-            <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed text-foreground">
+            <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed">
               {viewer.body}
             </pre>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  void navigator.clipboard?.writeText(viewer.body);
-                }}
-              >
-                Copy
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const blob = new Blob([viewer.body], { type: "text/plain" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `${viewer.title.replace(/\s+/g, "-").toLowerCase()}.txt`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-              >
-                Download
-              </Button>
-            </div>
           </div>
         </div>
       ) : null}
     </div>
+  );
+}
+
+function QueueCard({
+  title,
+  empty,
+  rows,
+  money,
+  onAction,
+  actionLabel,
+  deposit,
+}: {
+  title: string;
+  empty: string;
+  rows: FrontDeskAppointmentOption[];
+  money: (cents: number) => string;
+  onAction: (row: FrontDeskAppointmentOption) => void;
+  actionLabel: string;
+  deposit?: boolean;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{empty}</p>
+        ) : (
+          <ul className="divide-y divide-border" role="list">
+            {rows.map((row) => (
+              <li
+                key={row.id}
+                className="flex flex-col gap-2 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium">{row.customerName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.serviceName} · {row.whenLabel} · {row.paymentStatusLabel}
+                  </p>
+                  <p className="text-xs tabular-nums text-muted-foreground">
+                    {deposit
+                      ? `Deposit due ${money(row.depositDueNowCents)} · required ${money(row.depositRequiredCents)}`
+                      : `Total ${money(row.totalCents)} · Paid ${money(row.paidCents)} · Balance ${money(row.remainingCents)}`}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onAction(row)}
+                >
+                  {actionLabel}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
   );
 }

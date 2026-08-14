@@ -10,7 +10,10 @@
 
 ## Entries
 
-| 2026-08-13 | **Chapter 6 Phase 6.0B PO acceptance lock** | (this commit) | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cross-view calendar sync + transaction-linked refund PO-accepted after hands-on Preview testing; 6.1 not started |
+| Date | Chapter | Commit | Preview | Notes |
+|------|---------|--------|---------|-------|
+| 2026-08-13 | **Chapter 6 Phase 6.1 — Front-Desk Payments Operating Surface** | (pending) | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer → Appointment → Payment; no UUID input; 6.2 not started |
+| 2026-08-13 | **Chapter 6 Phase 6.0B PO acceptance lock** | `5dbf4a8` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cross-view calendar sync + transaction-linked refund PO-accepted after hands-on Preview testing |
 | 2026-08-13 | **Chapter 6 Phase 6.0B — Customer lifecycle email integrity** | `fd8560f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Inline cancellation email; refund lookup via service client; truthful ledger labels; 6.1 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.0B — Refund confirmation email** | `20177bb` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer refund email after success; email failure never reverses refund |
 | 2026-08-12 | **Chapter 6 Phase 6.0B — Calendar sync + transaction-linked refund** | `309bc67` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Civil-anchor URL; payment-record Refund; 6.1 not started |
@@ -53,6 +56,20 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.1 — quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Front-Desk Payments Operating Surface |
+| Collect Payment | Customer search + appointment selector |
+| UUID input | Not primary UX |
+| Overpayment | Blocked at UI + action |
+| Appointment-native refund | Same RefundTransactionSheet |
+| Stripe Elements | **Not implemented** |
+| Migrations | **None** |
+| Phase 6.2 | **Not started** |
+| PO review | **Awaiting hands-on** |
 
 ## Chapter 6 Phase 6.0B — PO acceptance lock
 

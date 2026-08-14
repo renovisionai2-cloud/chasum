@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0 + 6.0A + **6.0B — PO-accepted** after hands-on Preview testing. 6.1 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 implemented — awaiting PO hands-on review.** 6.2 not started.
 
 ---
 
@@ -367,6 +367,19 @@
 | Customer emails (PO hands-on) | Cancellation confirmation received; refund confirmation received |
 | Phase 6.1 | **Not started** |
 | Status | **Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing.** |
+
+## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1)
+
+| Field | Value |
+|-------|--------|
+| Phase | **6.1 — Front-Desk Payments Operating Surface** |
+| Collect Payment | Customer search → appointment list → amount (full / deposit / custom) |
+| IDs | Appointment ID / Customer ID / Transaction ID not user input |
+| Appointment-native | Collect Payment + Refund share Payments workflows |
+| Tests | `tests/unit/commerce/phase-6-1-front-desk.test.ts` |
+| Stripe Elements | **Not implemented** |
+| Phase 6.2 | **Not started** |
+| Status | Implemented — awaiting PO hands-on review |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0A)
 

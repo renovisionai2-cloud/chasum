@@ -43,6 +43,7 @@ type AppointmentDrawerProps = {
   ) => Promise<void>;
   onCancel: (appointment: AppointmentWithRelations) => Promise<void>;
   onRescheduleRequest: (appointment: AppointmentWithRelations) => void;
+  onCollectPayment?: (appointment: AppointmentWithRelations) => void;
   onRefresh: () => void;
 };
 
@@ -72,6 +73,7 @@ export function AppointmentDrawer({
   onStatusChange,
   onCancel,
   onRescheduleRequest,
+  onCollectPayment,
   onRefresh: _onRefresh,
 }: AppointmentDrawerProps) {
   void _onRefresh;
@@ -374,6 +376,10 @@ export function AppointmentDrawer({
               size="sm"
               variant="outline"
               onClick={() => {
+                if (onCollectPayment) {
+                  onCollectPayment(appointment);
+                  return;
+                }
                 const params = new URLSearchParams();
                 if (appointment.customer_id) {
                   params.set("customer", appointment.customer_id);

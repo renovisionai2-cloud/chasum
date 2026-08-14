@@ -281,7 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 6 Phase 6.0B PO-accepted** — Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing. Customer cancellation email received. Customer refund confirmation email received. Do **not** reopen Phase 6.0B. Deferred: Record Payment appointment picker · appointment-native refund entry · Reception today-vs-planning-context polish · business refund notification · visible refund-email resend UI · transaction-history wording polish · open-invoice cancellation policy · no-show collectibility policy · Stripe Elements / public online payment · staff payment permissions · historical invoice cleanup / repair policy · test-data purge tooling. Do not start Phase 6.1.
+- **Chapter 6 Phase 6.1 implemented — awaiting PO hands-on review** — Front-desk Collect Payment (Customer → Appointment → Payment). Do not start Phase 6.2. Do not reopen 6.0B.
 - **Chapter 6 Phase 6.0A implemented** — Collectibility + calendar cancel sync.
 - **Chapter 6 Phase 6.0 implemented** — Money contract. Do not start Phase 6.1, Stripe Elements, invoice/receipt workspace redesign, or Chapter 7. Payments intelligence polish remains this backlog.
 - **Chapter 5 Phase 5.3 PO-accepted** — Week/Month Planning Intelligence + Safe Engine Convergence PO-accepted after hands-on Preview review (`caef495` / tip `284d726`). Do not reopen Phase 5.3 for remaining polish. No Phase 5.4.
@@ -296,6 +296,9 @@ Formal program after functional World Class chapters. See section above.
 
 ## Revision
 
+| Date | Change |
+|------|--------|
+| 2026-08-13 | Chapter 6 Phase 6.1 Front-Desk Payments Operating Surface implemented — awaiting PO hands-on review. Phase 6.2 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing. Cancellation and refund customer emails confirmed. Phase 6.1 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B refund confirmation email correction — awaiting PO hands-on review. Phase 6.1 not started. |
 | 2026-08-12 | Chapter 6 Phase 6.0B Cross-View Calendar Sync + Transaction-Linked Refund — awaiting PO hands-on review. Phase 6.1 not started. |

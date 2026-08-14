@@ -1,7 +1,10 @@
 "use client";
 
 import { AppointmentFinancialActivityList } from "@/components/booking/appointment-financial-activity";
+import { CollectPaymentWorkspace } from "@/components/commerce/collect-payment-workspace";
+import { RefundTransactionSheet } from "@/components/commerce/refund-transaction-sheet";
 import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-activity";
+import { loadAppointmentLedger } from "@/lib/actions/commerce";
 import type { TaxRate } from "@/lib/business/types";
 import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
 import {
@@ -11,10 +14,16 @@ import {
 import { formatMoneyCents } from "@/lib/commerce/money";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
 import {
+  isRefundableTransaction,
+  remainingRefundableCents,
+} from "@/lib/commerce/refundability";
+import {
   APPOINTMENT_PAYMENT_STATUS_LABELS,
   type AppointmentPaymentStatus,
+  type CommerceRefund,
+  type CommerceTransaction,
 } from "@/lib/commerce/types";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
 type PaymentsSectionProps = {
@@ -66,12 +75,19 @@ export function PaymentsSection({
     null,
   );
   const [activityLoading, setActivityLoading] = useState(false);
+  const [ledger, setLedger] = useState<{
+    history: CommerceTransaction[];
+    refunds: CommerceRefund[];
+  }>({ history: [], refunds: [] });
+  const [collectOpen, setCollectOpen] = useState(false);
+  const [refundTarget, setRefundTarget] = useState<CommerceTransaction | null>(
+    null,
+  );
 
   useEffect(() => {
     const id = appointment?.id;
     if (!id) return;
     let cancelled = false;
-    // Async load — loading flag must sync when appointment id changes.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch lifecycle
     setActivityLoading(true);
     loadAppointmentFinancialActivity(id)
@@ -83,6 +99,13 @@ export function PaymentsSection({
       })
       .finally(() => {
         if (!cancelled) setActivityLoading(false);
+      });
+    loadAppointmentLedger(id)
+      .then((data) => {
+        if (!cancelled) setLedger(data);
+      })
+      .catch(() => {
+        if (!cancelled) setLedger({ history: [], refunds: [] });
       });
     return () => {
       cancelled = true;
@@ -234,20 +257,79 @@ export function PaymentsSection({
             loading={activityLoading}
             variant="panel"
           />
+          {ledger.history.filter((tx) => isRefundableTransaction(tx)).length >
+          0 ? (
+            <ul className="space-y-1.5" role="list">
+              {ledger.history
+                .filter((tx) => isRefundableTransaction(tx))
+                .map((tx) => {
+                  const remaining = remainingRefundableCents(
+                    tx,
+                    ledger.refunds,
+                  );
+                  if (remaining <= 0) return null;
+                  return (
+                    <li
+                      key={tx.id}
+                      className="flex items-center justify-between gap-2 text-xs"
+                    >
+                      <span className="tabular-nums">
+                        {formatMoneyCents(tx.amountCents, currency)} ·{" "}
+                        {tx.kind === "deposit" ? "Deposit" : "Payment"}
+                      </span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setRefundTarget(tx)}
+                      >
+                        Refund
+                      </Button>
+                    </li>
+                  );
+                })}
+            </ul>
+          ) : null}
         </div>
       ) : null}
 
-      <p className="text-xs text-muted-foreground">
-        <Link
-          href="/dashboard/payments"
-          className="font-medium text-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      {appointment?.id ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => setCollectOpen(true)}
         >
-          Open Payments
-        </Link>
+          Collect payment
+        </Button>
+      ) : null}
+
+      <p className="text-xs text-muted-foreground">
         {appointment?.invoice_number
-          ? ` · Invoice #${appointment.invoice_number}`
-          : null}
+          ? `Invoice #${appointment.invoice_number}`
+          : "Receipts stay attached to each payment."}
       </p>
+
+      {collectOpen && appointment ? (
+        <CollectPaymentWorkspace
+          open={collectOpen}
+          onClose={() => setCollectOpen(false)}
+          currency={currency}
+          initialCustomerId={appointment.customer_id}
+          initialAppointmentId={appointment.id}
+        />
+      ) : null}
+
+      {refundTarget ? (
+        <RefundTransactionSheet
+          open
+          onClose={() => setRefundTarget(null)}
+          transaction={refundTarget}
+          refunds={ledger.refunds}
+          currency={currency ?? "cad"}
+          appointmentLabel={service?.name ?? "Appointment"}
+        />
+      ) : null}
     </section>
   );
 }

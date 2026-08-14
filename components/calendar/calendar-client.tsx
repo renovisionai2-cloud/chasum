@@ -19,6 +19,7 @@ import {
   TimelineView,
 } from "@/components/calendar/calendar-views-extended";
 import { AppointmentDrawer } from "@/components/day-view/appointment-drawer";
+import { CollectPaymentWorkspace } from "@/components/commerce/collect-payment-workspace";
 import {
   DayAgendaList,
   DayControlCenter,
@@ -159,6 +160,11 @@ export function CalendarClient({
   );
   // Deep-link / post-booking focus opens management workspace (BookingSheet), not the quick drawer.
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [collectTarget, setCollectTarget] = useState<{
+    customerId: string;
+    appointmentId: string;
+    customerName: string;
+  } | null>(null);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentWithRelations | null>(urlAppointment);
   const focusHandledRef = useRef<string | null>(null);
@@ -970,6 +976,15 @@ export function CalendarClient({
             setDrawerOpen(false);
             openEdit(appt);
           }}
+          onCollectPayment={(appt) => {
+            const customer = appt.customer;
+            const customerRel = Array.isArray(customer) ? customer[0] : customer;
+            setCollectTarget({
+              customerId: appt.customer_id,
+              appointmentId: appt.id,
+              customerName: customerRel?.name ?? "",
+            });
+          }}
           onRefresh={refresh}
         />
       ) : null}
@@ -1017,6 +1032,18 @@ export function CalendarClient({
         }
         onViewCreatedAppointment={openCreatedAppointment}
       />
+      {collectTarget ? (
+        <CollectPaymentWorkspace
+          key={`${collectTarget.appointmentId}-${collectTarget.customerId}`}
+          open
+          onClose={() => setCollectTarget(null)}
+          currency={currency}
+          initialCustomerId={collectTarget.customerId}
+          initialCustomerName={collectTarget.customerName}
+          initialAppointmentId={collectTarget.appointmentId}
+          seedCustomers={customers}
+        />
+      ) : null}
     </div>
   );
 }

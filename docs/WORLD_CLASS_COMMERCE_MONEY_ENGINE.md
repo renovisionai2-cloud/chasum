@@ -1,7 +1,7 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO-accepted**  
+**Phase:** **6.1 — Front-Desk Payments Operating Surface** (6.0B PO-accepted)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
 **Feature 6.0B:** `309bc67` / civil-anchor `ee38142`  
@@ -24,8 +24,8 @@
 | Refund UX | Payment-record driven — internal transaction ID is **not** required user input |
 | Gross payments collected | Unchanged historical cash-in semantics |
 | Cancel + refund | Cancel does **not** auto-refund; historical payment may still be manually refunded |
-| Record Payment appointment picker | **Locked for Phase 6.1** |
-| Appointment-native refund entry | Documented for 6.1/6.3 — Payments history Refund ships first |
+| Record Payment appointment picker | **Shipped in Phase 6.1** — customer → appointment, no UUID input |
+| Appointment-native refund entry | **Shipped in Phase 6.1** — same RefundTransactionSheet |
 | Reception today vs planning date | Documented for final polish — not redesigned in 6.0B |
 | Refund confirmation email | After succeeded refund only — never reverses financial truth. **PO confirmed customer received.** |
 | Cancellation confirmation email | Inline after successful cancel — not a refund notice. **PO confirmed customer received.** |
@@ -50,6 +50,11 @@
 Helpers: `isAppointmentCollectible`, `collectibleRemainingBalanceCents`, `collectibleDepositDueNowCents`, `appointmentCollectibleMoneyFromStamps`.
 
 Calendar: optimistic cancel + cancelled-ID override so Day/Week/Month/Agenda/Timeline agree without stale pre-cancel rows.
+
+## Phase 6.1 lock — Front-desk operating surface
+
+Users operate money through human business context: **Customer → Appointment → Payment**. Internal IDs are not normal user input. All money surfaces share one money engine (`commerce_transactions` + money-contract). Collect Payment, appointment-native refund, and Payments history refund use the same workflows.
+
 ---
 
 ## Chapter 6 purpose
@@ -273,12 +278,12 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0** | Money Contract & Source-of-Truth Foundation | Implemented (`9e7d72a`) |
 | **6.0A** | Appointment Lifecycle + Collectibility Integrity | Implemented (`efaea51`) |
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
-| 6.1 | Front-Desk Payments Operating Surface | **Not started** |
+| **6.1** | Front-Desk Payments Operating Surface | **Implemented — awaiting PO hands-on review** |
 | 6.2 | Invoice & Receipt Workspace | **Not started** |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **Not started** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-Do **not** automatically start 6.1. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B for deferred polish.
+Do **not** automatically start 6.2. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B.
 
 ---
 
@@ -303,8 +308,8 @@ Partial productization remains documented — not a 6.0 product expansion.
 | Internal `revenueTodayCents` field names | Compatibility debt; UI/CSV labels corrected |
 | Open invoice resolution on appointment cancel | **Owner decision pending** (leave open / prompt void / fee / refund) — 6.0A leaves invoices unchanged |
 | No-show collectibility / fee policy | **Owner decision pending** — 6.0A preserves current collectible behavior |
-| Record Payment appointment picker | **Locked for Phase 6.1** |
-| Appointment-native Refund action | **Deferred to 6.1/6.3** — Payments history Refund ships in 6.0B |
+| Record Payment appointment picker | **Shipped in 6.1** |
+| Appointment-native Refund action | **Shipped in 6.1** — same RefundTransactionSheet |
 | Reception today vs planning date clarity | **Final polish** — Operating Centre = today; Week/Month may plan ahead |
 | Normal Cancel is not a test-data purge | Documented — no automated cleanup on shared Supabase |
 | Stripe Elements / public online pay | Phase 6.4, PO-gated |

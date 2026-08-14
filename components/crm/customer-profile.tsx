@@ -1,6 +1,7 @@
 "use client";
 
 import { BookingSheet } from "@/components/booking-sheet";
+import { CollectPaymentWorkspace } from "@/components/commerce/collect-payment-workspace";
 import { CustomerCommercePanel } from "@/components/commerce/customer-commerce-panel";
 import { CommunicationCenter } from "@/components/communication/communication-center";
 import { CustomerPaymentSummary } from "@/components/crm/customer-payment-summary";
@@ -261,6 +262,7 @@ export function CustomerProfileView({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sheetAppointment, setSheetAppointment] =
     useState<AppointmentWithRelations | null>(null);
+  const [collectOpen, setCollectOpen] = useState(false);
   const refresh = useRefresh();
   const { toast } = useToast();
 
@@ -382,7 +384,7 @@ export function CustomerProfileView({
                 onBook={openBook}
                 onReschedule={openReschedule}
                 onCancel={cancelNext}
-                onCollectPayment={() => setTab("billing")}
+                onCollectPayment={() => setCollectOpen(true)}
                 onMessage={() => setTab("communication")}
                 onEmail={() => {
                   if (customer.email) {
@@ -746,6 +748,14 @@ export function CustomerProfileView({
           setSheetOpen(true);
           refresh();
         }}
+      />
+      <CollectPaymentWorkspace
+        open={collectOpen}
+        onClose={() => setCollectOpen(false)}
+        currency={currency}
+        initialCustomerId={customer.id}
+        initialCustomerName={displayName}
+        seedCustomers={customers}
       />
     </div>
   );

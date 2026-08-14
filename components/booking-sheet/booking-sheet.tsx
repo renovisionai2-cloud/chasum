@@ -1,5 +1,6 @@
 "use client";
 
+import { CollectPaymentWorkspace } from "@/components/commerce/collect-payment-workspace";
 import { AppointmentSection, type BookingOfferType } from "@/components/booking-sheet/appointment-section";
 import { AppointmentCustomerContext } from "@/components/booking-sheet/appointment-customer-context";
 import { AppointmentExpandToggle } from "@/components/booking-sheet/appointment-expand-toggle";
@@ -1022,21 +1023,14 @@ export function BookingSheet({
     });
   }
 
+  const [collectOpen, setCollectOpen] = useState(false);
+
   function collectPaymentNavigate() {
-    const params = new URLSearchParams();
-    if (selectedCustomer?.id) {
-      params.set("customer", selectedCustomer.id);
-    }
-    if (appointment?.id) {
-      params.set("appointment", appointment.id);
-    }
-    const qs = params.toString();
-    window.location.href = qs
-      ? `/dashboard/payments?${qs}`
-      : "/dashboard/payments";
+    setCollectOpen(true);
   }
 
   return (
+    <>
     <Sheet
       open={open}
       onClose={onClose}
@@ -1966,5 +1960,18 @@ export function BookingSheet({
         )}
       </div>
     </Sheet>
+    {collectOpen ? (
+      <CollectPaymentWorkspace
+        key={`bs-collect-${appointment?.id ?? "new"}-${collectOpen}`}
+        open={collectOpen}
+        onClose={() => setCollectOpen(false)}
+        initialCustomerId={selectedCustomer?.id ?? appointment?.customer_id ?? ""}
+        initialCustomerName={selectedCustomer?.name ?? ""}
+        initialAppointmentId={appointment?.id ?? ""}
+        seedCustomers={customers}
+        currency={currency}
+      />
+    ) : null}
+    </>
   );
 }
