@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-13  
-**Updated by:** World Class — Chapter 6 Phase 6.0B customer lifecycle email integrity  
+**Updated by:** World Class — Chapter 6 Phase 6.0B PO acceptance lock  
 
 ---
 
@@ -121,7 +121,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0 + 6.0A + 6.0B implemented — awaiting PO hands-on review of 6.0B.** Phase 6.1 / Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted** after hands-on Preview testing. Phase 6.1 / Chapter 7 not started. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -159,6 +159,15 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-13)
+
+**World Class — Chapter 6 Phase 6.0B PO acceptance lock**
+
+- Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing.
+- Appointment cancellation email received by customer.
+- Refund confirmation email received by customer.
+- Docs only. No implementation code. No migrations. Phase 6.1 not started.
+
+### Immediately prior (2026-08-13)
 
 **World Class — Chapter 6 Phase 6.0B customer lifecycle email integrity**
 
@@ -554,9 +563,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `fd8560f` |
-| **Short** | `fd8560f` |
-| **Subject** | fix: send cancellation emails inline with booking confirmations |
+| **SHA** | `598a799` |
+| **Short** | `598a799` |
+| **Subject** | docs: stamp Chapter 6 Phase 6.0B lifecycle email tip |
+| **Chapter 6 Phase 6.0B PO acceptance** | this docs-only lock commit |
 | **Chapter 6 Phase 6.0B lifecycle emails** | `fd8560f` |
 | **Chapter 6 Phase 6.0B refund email** | `20177bb` |
 | **Chapter 6 Phase 6.0B feature** | `309bc67` / `ee38142` |
@@ -599,7 +609,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on review of Chapter 6 Phase 6.0B lifecycle emails** (cancellation + refund). Do **not** start Phase 6.1. Do **not** start Chapter 7.
+1. **Phase 6.0B is PO-accepted.** Do **not** start Phase 6.1. Do **not** start Chapter 7. Do not reopen 6.0B for deferred polish.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.

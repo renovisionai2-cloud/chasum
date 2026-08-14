@@ -10,8 +10,7 @@
 
 ## Entries
 
-| Date | Chapter | Commit | Preview | Notes |
-|------|---------|--------|---------|-------|
+| 2026-08-13 | **Chapter 6 Phase 6.0B PO acceptance lock** | (this commit) | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cross-view calendar sync + transaction-linked refund PO-accepted after hands-on Preview testing; 6.1 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.0B — Customer lifecycle email integrity** | `fd8560f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Inline cancellation email; refund lookup via service client; truthful ledger labels; 6.1 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.0B — Refund confirmation email** | `20177bb` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer refund email after success; email failure never reverses refund |
 | 2026-08-12 | **Chapter 6 Phase 6.0B — Calendar sync + transaction-linked refund** | `309bc67` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Civil-anchor URL; payment-record Refund; 6.1 not started |
@@ -55,6 +54,24 @@
 
 ---
 
+## Chapter 6 Phase 6.0B — PO acceptance lock
+
+| Check | Result |
+|-------|--------|
+| PO hands-on Preview | **Accepted** |
+| Acceptance language | Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing. |
+| Feature | `309bc67` / civil-anchor `ee38142` / refund email `20177bb` / lifecycle emails `fd8560f` |
+| Accepted Preview tip (pre-lock) | `598a799` |
+| Customer cancellation email | **Received** (PO hands-on) |
+| Customer refund confirmation email | **Received** (PO hands-on) |
+| Refund email failure | Does not reverse the refund |
+| Architecture reopen for polish | **No** — deferred items stay in Polish & Intelligence backlog |
+| Product code changed | **No** (docs stamp only) |
+| Production | Untouched (`4eecbec`) |
+| Migrations 034–036 | Not applied |
+| Phase 6.1 | **Not started** |
+| Chapter 7 | **Not started** |
+
 ## Chapter 6 Phase 6.0B — refund email quality report
 
 | Check | Result |
@@ -66,7 +83,7 @@
 | Email failure | Refund remains successful |
 | Migrations | **None** |
 | Phase 6.1 | **Not started** |
-| PO review | **Awaiting hands-on** |
+| PO review | **Accepted** after hands-on Preview testing (customer refund email received) |
 
 ## Chapter 6 Phase 6.0B — quality report
 
@@ -82,9 +99,7 @@
 | Gross collected | Unchanged |
 | Migrations 034–036 | **Not applied** |
 | Phase 6.1 | **Not started** |
-| PO review | **Awaiting hands-on** |
-
-## Chapter 6 Phase 6.0A — quality report
+| PO review | **Accepted** after hands-on Preview testing |
 
 | Check | Result |
 |-------|--------|

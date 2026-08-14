@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0 + 6.0A + **6.0B (calendar sync, refund UX, refund confirmation email)** — **implemented, awaiting PO hands-on review.** 6.1 not started.
+**Chapter 6:** Phase 6.0 + 6.0A + **6.0B — PO-accepted** after hands-on Preview testing. 6.1 not started.
 
 ---
 
@@ -363,8 +363,10 @@
 | Refund UX | Transaction-history Refund → contextual sheet; no raw Transaction ID required |
 | Tests | `phase-6-0b-sync` + `phase-6-0b-refund-ux` + `phase-6-0b-refund-email` |
 | Refund email | `commerce.refund` after succeeded refund only |
+| Cancellation email | Inline `appointment.cancellation` after successful cancel |
+| Customer emails (PO hands-on) | Cancellation confirmation received; refund confirmation received |
 | Phase 6.1 | **Not started** |
-| Status | Awaiting PO hands-on review |
+| Status | **Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing.** |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0A)
 
