@@ -572,10 +572,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `598a799` |
-| **Short** | `598a799` |
-| **Subject** | docs: stamp Chapter 6 Phase 6.0B lifecycle email tip |
-| **Chapter 6 Phase 6.0B PO acceptance** | this docs-only lock commit |
+| **SHA** | `95a8f38` |
+| **Short** | `95a8f38` |
+| **Subject** | feat: ship Chapter 6 Phase 6.1 front-desk payments surface |
+| **Chapter 6 Phase 6.1** | `95a8f38` |
+| **Chapter 6 Phase 6.0B PO acceptance** | `5dbf4a8` |
 | **Chapter 6 Phase 6.0B lifecycle emails** | `fd8560f` |
 | **Chapter 6 Phase 6.0B refund email** | `20177bb` |
 | **Chapter 6 Phase 6.0B feature** | `309bc67` / `ee38142` |
