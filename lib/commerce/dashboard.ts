@@ -9,6 +9,7 @@ import {
   appointmentCollectibleMoneyFromStamps,
   isCommerceInvoiceRecord,
   isGrossCollectionTransaction,
+  isGrossDepositTransaction,
   isOutstandingInvoiceStatus,
 } from "@/lib/commerce/money-contract";
 import type {
@@ -86,6 +87,8 @@ export async function getCommerceDashboardSnapshot(
     revenueTodayCents: 0,
     revenueWeekCents: 0,
     revenueMonthCents: 0,
+    depositsMonthCents: 0,
+    timezone: localeInput.timezone,
     outstandingInvoicesCents: 0,
     outstandingInvoicesCount: 0,
     outstandingDepositsCents: 0,
@@ -156,6 +159,13 @@ export async function getCommerceDashboardSnapshot(
     monthStart,
     monthEndBiz,
   );
+  const depositsMonthCents = transactions
+    .filter((t) => {
+      if (!isGrossDepositTransaction(t)) return false;
+      const at = new Date(t.occurredAt).getTime();
+      return at >= monthStart.getTime() && at <= monthEndBiz.getTime();
+    })
+    .reduce((s, t) => s + t.amountCents, 0);
 
   const openInvoices = invoices.filter(isOutstandingInvoice);
 
@@ -226,6 +236,8 @@ export async function getCommerceDashboardSnapshot(
     revenueTodayCents,
     revenueWeekCents,
     revenueMonthCents,
+    depositsMonthCents,
+    timezone: localeInput.timezone,
     outstandingInvoicesCents,
     outstandingInvoicesCount: openInvoices.length,
     outstandingDepositsCents,

@@ -11,6 +11,7 @@ import type { FrontDeskAppointmentOption } from "@/lib/commerce/front-desk";
 import {
   ledgerKindLabel,
   ledgerReasonLabel,
+  staffFacingContextLabel,
   transactionStatusLabel,
 } from "@/lib/commerce/front-desk";
 import {
@@ -138,7 +139,9 @@ export function PaymentsDashboard({
       if (!q) return true;
       const hay = [
         customerLabelById.get(tx.customerId),
-        appointmentLabels[tx.appointmentId ?? ""],
+        appointmentLabels[tx.appointmentId ?? ""]
+          ? staffFacingContextLabel(appointmentLabels[tx.appointmentId ?? ""])
+          : "",
         PAYMENT_METHOD_LABELS[tx.method],
         ledgerKindLabel(tx.kind),
         ledgerReasonLabel(tx.description),
@@ -206,12 +209,12 @@ export function PaymentsDashboard({
           <Metric
             label="Gross payments collected this month"
             value={money(snapshot.revenueMonthCents)}
-            hint={`Gross payments collected today ${money(snapshot.revenueTodayCents)}`}
+            hint={`Gross payments collected today ${money(snapshot.revenueTodayCents)} · business timezone`}
           />
           <Metric
             label="Outstanding appointment balances"
             value={money(snapshot.outstandingAppointmentBalancesCents)}
-            hint={`${snapshot.outstandingAppointmentBalancesCount} bookings`}
+            hint={`${snapshot.outstandingAppointmentBalancesCount} appointments`}
           />
           <Metric
             label="Outstanding deposits"
@@ -226,6 +229,7 @@ export function PaymentsDashboard({
           <Metric
             label="Refunds (month)"
             value={money(snapshot.refundsMonthCents)}
+            hint="Shown separately — not subtracted from gross collected"
           />
         </div>
       </div>
@@ -262,7 +266,8 @@ export function PaymentsDashboard({
         <CardHeader>
           <CardTitle className="text-base">Recent transactions</CardTitle>
           <CardDescription>
-            Payments, deposits, and refunds stay on separate rows
+            Payments and Deposits exclude refunds. Succeeded includes successful
+            payments, deposits, and refunds.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -318,34 +323,56 @@ export function PaymentsDashboard({
                     : remaining < tx.amountCents
                       ? "Partially refunded"
                       : "Refundable";
+                const appointmentLabel = staffFacingContextLabel(
+                  tx.appointmentId
+                    ? appointmentLabels[tx.appointmentId]
+                    : "",
+                );
+                const customerLabel =
+                  customerLabelById.get(tx.customerId) ?? "";
+                const reason =
+                  tx.kind === "refund"
+                    ? ledgerReasonLabel(tx.description)
+                    : "";
+                const signedAmount =
+                  tx.kind === "refund"
+                    ? `−${money(tx.amountCents)}`
+                    : money(tx.amountCents);
                 return (
                   <li
                     key={tx.id}
-                    className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-2 py-3 sm:flex-row sm:items-start sm:justify-between"
                   >
-                    <div className="min-w-0">
-                      <p className="font-medium tabular-nums">
-                        {ledgerKindLabel(tx.kind)} · {money(tx.amountCents)}
+                    <div className="min-w-0 space-y-0.5">
+                      <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-medium">
+                        <span>{ledgerKindLabel(tx.kind)}</span>
+                        <span className="tabular-nums">{signedAmount}</span>
+                      </p>
+                      {(customerLabel || appointmentLabel) && (
+                        <p className="text-sm text-foreground/90">
+                          {[customerLabel, appointmentLabel]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {PAYMENT_METHOD_LABELS[tx.method]}
+                        {" · "}
+                        {format(new Date(tx.occurredAt), "MMM d, h:mm a")}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {transactionStatusLabel(tx.status)}
-                        {refundState ? ` · ${refundState}` : ""}
-                        {` · ${PAYMENT_METHOD_LABELS[tx.method]}`}
-                        {customerLabelById.get(tx.customerId)
-                          ? ` · ${customerLabelById.get(tx.customerId)}`
-                          : ""}
-                        {tx.appointmentId && appointmentLabels[tx.appointmentId]
-                          ? ` · ${appointmentLabels[tx.appointmentId]}`
-                          : ""}
-                        {ledgerReasonLabel(tx.description)
-                          ? ` · ${ledgerReasonLabel(tx.description)}`
-                          : ""}
+                        <span>{transactionStatusLabel(tx.status)}</span>
+                        {refundState ? (
+                          <span>{` · ${refundState}`}</span>
+                        ) : null}
                       </p>
+                      {reason ? (
+                        <p className="text-xs text-muted-foreground">
+                          Reason: {reason}
+                        </p>
+                      ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(tx.occurredAt), "MMM d")}
-                      </span>
                       {refundable ? (
                         <Button
                           type="button"
@@ -458,7 +485,7 @@ export function PaymentsDashboard({
               {snapshot.recentRefunds.map((r) => (
                 <li key={r.id} className="py-2.5 text-sm">
                   <p className="font-medium tabular-nums">
-                    Refund · {money(r.amountCents)} ·{" "}
+                    Refund · −{money(r.amountCents)} ·{" "}
                     {transactionStatusLabel(String(r.status))}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -514,8 +541,9 @@ export function PaymentsDashboard({
           customerLabel={customerLabelById.get(refundTarget.customerId) ?? null}
           appointmentLabel={
             refundTarget.appointmentId
-              ? (appointmentLabels[refundTarget.appointmentId] ??
-                "Linked appointment")
+              ? staffFacingContextLabel(
+                  appointmentLabels[refundTarget.appointmentId],
+                ) || "Linked appointment"
               : null
           }
         />

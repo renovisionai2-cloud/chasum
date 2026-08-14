@@ -161,7 +161,8 @@ describe("Phase 6.0B transaction-linked refund", () => {
     expect(dash).toContain("ledgerReasonLabel");
     const helpers = read("lib/commerce/front-desk.ts");
     expect(helpers).toContain('if (kind === "refund") return "Refund"');
-    expect(helpers).toContain('replace(/^Refund:\\s*/i, "Reason: ")');
+    expect(helpers).toContain("Appointment cancelled");
+    expect(helpers).toContain("sanitizeStaffFacingText");
     const refunds = read("lib/commerce/refunds.ts");
     expect(refunds).toContain("`Reason: ${input.reason.trim()}`");
     expect(refunds).not.toContain("`Refund: ${input.reason.trim()}`");

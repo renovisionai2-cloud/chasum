@@ -57,7 +57,9 @@ describe("Phase 6.1 front-desk payments", () => {
   it("separates refund kind from reason cancelled", () => {
     expect(ledgerKindLabel("refund")).toBe("Refund");
     expect(ledgerKindLabel("payment")).toBe("Payment");
-    expect(ledgerReasonLabel("Refund: cancelled")).toBe("Reason: cancelled");
+    expect(ledgerReasonLabel("Refund: cancelled")).toBe(
+      "Appointment cancelled",
+    );
     expect(ledgerReasonLabel("Appointment cancelled")).toBe(
       "Appointment cancelled",
     );

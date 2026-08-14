@@ -55,8 +55,9 @@ export function CustomerOverviewPanel({
             Customer overview
           </h2>
           <p className="text-xs text-muted-foreground">
-            Counts from your customer directory. Average spend stays Unavailable
-            until a commerce ledger rollup is loaded for the full list.
+            Counts from your customer directory. “Customers with balances due”
+            counts customers, not appointments. Payments outstanding appointment
+            balances counts appointments.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
@@ -70,7 +71,7 @@ export function CustomerOverviewPanel({
             value={formatHealthMetric(health.returningThisMonth)}
           />
           <Metric
-            label="Balances due"
+            label="Customers with balances due"
             value={formatHealthMetric(health.withBalances)}
             emphasize
           />

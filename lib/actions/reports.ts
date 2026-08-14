@@ -232,18 +232,21 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
   let outstandingInvoicesCents = 0;
   let outstandingInvoicesCount = 0;
   let outstandingInvoicesAvailable = false;
+  let commerceSnap: Awaited<
+    ReturnType<typeof getCommerceDashboardSnapshot>
+  > | null = null;
   try {
-    const commerce = await getCommerceDashboardSnapshot(
+    commerceSnap = await getCommerceDashboardSnapshot(
       business.id,
       business.name,
       locale,
     );
-    if (commerce.schemaReady) {
-      paymentsTodayDollars = commerce.revenueTodayCents / 100;
-      paymentsWeekDollars = commerce.revenueWeekCents / 100;
-      paymentsMonthDollars = commerce.revenueMonthCents / 100;
-      outstandingInvoicesCents = commerce.outstandingInvoicesCents;
-      outstandingInvoicesCount = commerce.outstandingInvoicesCount;
+    if (commerceSnap.schemaReady) {
+      paymentsTodayDollars = commerceSnap.revenueTodayCents / 100;
+      paymentsWeekDollars = commerceSnap.revenueWeekCents / 100;
+      paymentsMonthDollars = commerceSnap.revenueMonthCents / 100;
+      outstandingInvoicesCents = commerceSnap.outstandingInvoicesCents;
+      outstandingInvoicesCount = commerceSnap.outstandingInvoicesCount;
       outstandingInvoicesAvailable = true;
     }
   } catch (err) {
@@ -322,7 +325,21 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     staffByLocation,
     now,
   );
-  const financial = buildFinancial(appointments, payments, now);
+  const financial = buildFinancial(
+    appointments,
+    payments,
+    now,
+    commerceSnap?.schemaReady
+      ? {
+          paymentsCollectedMonthCents: commerceSnap.revenueMonthCents,
+          depositsCollectedMonthCents: commerceSnap.depositsMonthCents,
+          refundsMonthCents: commerceSnap.refundsMonthCents,
+          outstandingAppointmentBalancesCents:
+            commerceSnap.outstandingAppointmentBalancesCents,
+          outstandingInvoicesCents: commerceSnap.outstandingInvoicesCents,
+        }
+      : null,
+  );
   const inventory = buildInventoryPlaceholder();
   const schedules = await listSchedules(business.id);
 
@@ -568,13 +585,13 @@ export async function buildReportCsv(
       const f = bundle.financial;
       headers = ["Metric", "Amount ($)"];
       rows = [
-        ["Invoices", f.invoicesCents / 100],
-        ["Payments", f.paymentsCents / 100],
+        ["Outstanding invoices ($)", f.invoicesCents / 100],
+        ["Payments collected (includes deposits)", f.paymentsCents / 100],
+        ["Of which deposits", f.depositsCents / 100],
         ["Refunds", f.refundsCents / 100],
-        ["Taxes", f.taxesCents / 100],
-        ["Discounts", f.discountsCents / 100],
-        ["Deposits", f.depositsCents / 100],
-        ["Outstanding", f.outstandingCents / 100],
+        ["Taxes (appointment stamps)", f.taxesCents / 100],
+        ["Discounts (appointment stamps)", f.discountsCents / 100],
+        ["Outstanding appointment balances", f.outstandingCents / 100],
       ];
       break;
     }

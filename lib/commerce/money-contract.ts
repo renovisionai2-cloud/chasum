@@ -258,6 +258,13 @@ export function isGrossCollectionTransaction(
   return tx.kind === "payment" || tx.kind === "deposit";
 }
 
+/** Succeeded deposit ledger rows — a subset of gross payments collected. */
+export function isGrossDepositTransaction(
+  tx: Pick<CommerceTransaction, "status" | "kind">,
+): boolean {
+  return tx.status === "succeeded" && tx.kind === "deposit";
+}
+
 export function sumGrossPaymentsCollectedCents(
   txs: Array<Pick<CommerceTransaction, "status" | "kind" | "amountCents">>,
 ): number {

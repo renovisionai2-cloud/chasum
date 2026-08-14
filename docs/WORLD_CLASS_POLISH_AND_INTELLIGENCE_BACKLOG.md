@@ -281,7 +281,8 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 6 Phase 6.1 implemented — awaiting PO hands-on review** — Front-desk Collect Payment (Customer → Appointment → Payment). Do not start Phase 6.2. Do not reopen 6.0B.
+- **Chapter 6 Phase 6.1A implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
+- **Chapter 6 Phase 6.1 implemented** — Front-desk Collect Payment (Customer → Appointment → Payment). Internal IDs are not staff-facing. Do not reopen 6.0B.
 - **Chapter 6 Phase 6.0A implemented** — Collectibility + calendar cancel sync.
 - **Chapter 6 Phase 6.0 implemented** — Money contract. Do not start Phase 6.1, Stripe Elements, invoice/receipt workspace redesign, or Chapter 7. Payments intelligence polish remains this backlog.
 - **Chapter 5 Phase 5.3 PO-accepted** — Week/Month Planning Intelligence + Safe Engine Convergence PO-accepted after hands-on Preview review (`caef495` / tip `284d726`). Do not reopen Phase 5.3 for remaining polish. No Phase 5.4.
@@ -294,10 +295,30 @@ Formal program after functional World Class chapters. See section above.
 
 ---
 
+## Phase 6.1 PO findings — backlog only (do not implement in 6.1A)
+
+Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
+
+| ID | Finding |
+|----|---------|
+| A | Account & billing navigation/content overlaps Business Profile — future information-architecture consolidation. |
+| B | Packages sidebar opens a Business-styled settings surface; Packages should become a clearer first-class catalog workspace. |
+| C | Service names containing “Package” coexist with real package objects — terminology confusion. |
+| D | Reports has many equal-weight tabs and needs future information architecture / hierarchy refinement. |
+| E | Automations empty states duplicate actions (Add to waitlist / Add rule). |
+| F | Summer workspace is visually underutilized — richer AI operating-surface treatment belongs in its dedicated chapter. |
+| G | AI Workforce shows planned Coming Later specialists while some “Open” controls may imply availability; readiness messaging must remain honest. |
+| H | Calendar integrations must not visually overpromise two-way sync unless each integration is genuinely operational. |
+| I | Developer / API / Webhook / Zapier / Make surfaces must reflect real launch readiness and security. |
+| J | Large-screen density / empty-canvas balance remains part of global polish. |
+
+---
+
 ## Revision
 
 | Date | Change |
 |------|--------|
+| 2026-08-14 | Chapter 6 Phase 6.1A Financial Integrity + Front-Desk UX Correction. Phase 6.1 not PO-accepted. Product-wide PO findings A–J recorded. Phase 6.2 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.1 Front-Desk Payments Operating Surface implemented — awaiting PO hands-on review. Phase 6.2 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing. Cancellation and refund customer emails confirmed. Phase 6.1 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B refund confirmation email correction — awaiting PO hands-on review. Phase 6.1 not started. |

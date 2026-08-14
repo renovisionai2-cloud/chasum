@@ -60,6 +60,42 @@ export function formatFrontDeskWhen(
   }
 }
 
+const UUID_RE =
+  /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi;
+const BOOKING_REF_RE = /\bbooking:[^\s·,;]+/gi;
+const BS_REF_RE = /\bbs-[a-z0-9]+(?:-[a-z0-9]+)*/gi;
+const PROVIDER_REF_RE = /\b(?:pi_|ch_|in_|re_)[A-Za-z0-9]+/g;
+
+export function sanitizeStaffFacingText(
+  raw: string | null | undefined,
+): string {
+  if (!raw?.trim()) return "";
+  return raw
+    .replace(BOOKING_REF_RE, "")
+    .replace(BS_REF_RE, "")
+    .replace(UUID_RE, "")
+    .replace(PROVIDER_REF_RE, "")
+    .replace(/\s*[·|]\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function containsInternalIdentifier(text: string | null | undefined): boolean {
+  const raw = text ?? "";
+  return (
+    /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i.test(raw) ||
+    /booking:/i.test(raw) ||
+    /\bbs-[a-z0-9]/i.test(raw) ||
+    /\b(?:pi_|ch_|in_|re_)[A-Za-z0-9]+/.test(raw)
+  );
+}
+
+export function staffFacingContextLabel(
+  label: string | null | undefined,
+): string {
+  return sanitizeStaffFacingText(label);
+}
+
 export function ledgerKindLabel(kind: string): string {
   if (kind === "refund") return "Refund";
   if (kind === "deposit") return "Deposit";
@@ -70,12 +106,19 @@ export function ledgerKindLabel(kind: string): string {
   return "Payment";
 }
 
+/** Human refund reason only — never a status, never internal refs. */
 export function ledgerReasonLabel(
   description: string | null | undefined,
 ): string {
-  const raw = description?.trim() ?? "";
-  if (!raw) return "";
-  return raw.replace(/^Refund:\s*/i, "Reason: ");
+  const cleaned = sanitizeStaffFacingText(description).replace(
+    /^(Refund|Reason):\s*/i,
+    "",
+  );
+  if (!cleaned) return "";
+  if (/^cancelled$/i.test(cleaned) || /appointment cancelled/i.test(cleaned)) {
+    return "Appointment cancelled";
+  }
+  return cleaned;
 }
 
 export function transactionStatusLabel(status: string): string {

@@ -191,6 +191,9 @@ export type CommerceDashboardSnapshot = {
   revenueTodayCents: number;
   revenueWeekCents: number;
   revenueMonthCents: number;
+  /** Succeeded deposit-kind rows this business month — subset of revenueMonthCents. */
+  depositsMonthCents: number;
+  timezone: string;
   outstandingInvoicesCents: number;
   outstandingInvoicesCount: number;
   outstandingDepositsCents: number;

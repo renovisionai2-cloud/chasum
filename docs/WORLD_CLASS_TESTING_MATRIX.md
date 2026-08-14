@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 implemented — awaiting PO hands-on review.** 6.2 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 not PO-accepted.** **Phase 6.1A implemented — awaiting PO hands-on review.** 6.2 not started.
 
 ---
 
@@ -376,10 +376,25 @@
 | Collect Payment | Customer search → appointment list → amount (full / deposit / custom) |
 | IDs | Appointment ID / Customer ID / Transaction ID not user input |
 | Appointment-native | Collect Payment + Refund share Payments workflows |
-| Tests | `tests/unit/commerce/phase-6-1-front-desk.test.ts` |
+| Tests | `tests/unit/commerce/phase-6-1-front-desk.test.ts` + `phase-6-1a-integrity.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Phase 6.2 | **Not started** |
-| Status | Implemented — awaiting PO hands-on review |
+| Status | Implemented — **not PO-accepted**. Corrected in Phase 6.1A.
+
+## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1A)
+
+| Field | Value |
+|-------|--------|
+| Phase | **6.1A — Financial Integrity + Front-Desk UX Correction** |
+| IDs | Internal booking refs / UUIDs stripped from staff-facing money UI |
+| Gross collected | Payments = Reports Executive = commerce ledger, business TZ, cents |
+| Revenue report | Recognized appointment value (YTD on Revenue tab); not cash collected |
+| Financial | Payments collected include deposits as a subset |
+| Customers | “Customers with balances due” (customers) vs outstanding appointments |
+| Tests | `tests/unit/commerce/phase-6-1a-integrity.test.ts` |
+| Stripe Elements | **Not implemented** |
+| Phase 6.2 | **Not started** |
+| Status | Implemented — awaiting PO hands-on review. Phase 6.1 **not** PO-accepted. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0A)
 

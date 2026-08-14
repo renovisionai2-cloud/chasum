@@ -61,7 +61,7 @@ describe("Financial terminology surfaces", () => {
       "utf8",
     );
     expect(reportsAction).toMatch(
-      /outstandingInvoicesCents = commerce\.outstandingInvoicesCents/,
+      /outstandingInvoicesCents = commerceSnap\.outstandingInvoicesCents/,
     );
     expect(reportsAction).not.toMatch(
       /outstandingInvoicesCents = payments\s*\n\s*\.filter\(\(p\) => p\.status === "pending"\)/,

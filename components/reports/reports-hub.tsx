@@ -213,33 +213,37 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               title="Gross payments collected today"
               value={
                 e.paymentsCollectedAvailable
-                  ? $(e.revenueToday)
+                  ? $c(Math.round(e.revenueToday * 100))
                   : "Unavailable"
               }
               icon={Wallet}
               accent="success"
               href="/dashboard/payments"
-              description="Commerce ledger · same as Payments"
+              description="Commerce ledger · business timezone · same as Payments"
             />
             <StatCard
               title="Gross payments collected this week"
               value={
-                e.paymentsCollectedAvailable ? $(e.revenueWeek) : "Unavailable"
+                e.paymentsCollectedAvailable
+                  ? $c(Math.round(e.revenueWeek * 100))
+                  : "Unavailable"
               }
               icon={BarChart3}
               accent="primary"
               href="/dashboard/payments"
+              description="Business timezone · same as Payments"
             />
             <StatCard
               title="Gross payments collected this month"
               value={
                 e.paymentsCollectedAvailable
-                  ? $(e.revenueMonth)
+                  ? $c(Math.round(e.revenueMonth * 100))
                   : "Unavailable"
               }
               icon={BarChart3}
               accent="spark"
               href="/dashboard/payments"
+              description="Business timezone · same as Payments"
             />
             <StatCard
               title="Payments collected this year"
@@ -325,10 +329,18 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
       ) : null}
 
       {tab === "revenue" ? (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Recognized appointment value (completed visit or collected stamp),
+            tax-exclusive. This is not Gross payments collected. Daily = last 14
+            days. Monthly, employee, location, service, and category on this tab
+            = year to date. Employee / location / service tabs below use this
+            calendar month.
+          </p>
+          <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Daily revenue (14 days)</CardTitle>
+              <CardTitle>Daily recognized value (last 14 days)</CardTitle>
             </CardHeader>
             <CardContent>
               {bundle.revenue.daily.length === 0 ? (
@@ -344,7 +356,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Monthly</CardTitle>
+              <CardTitle>Monthly (year to date)</CardTitle>
             </CardHeader>
             <CardContent>
               <BarChart data={bundle.revenue.monthly} />
@@ -352,7 +364,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>By employee</CardTitle>
+              <CardTitle>By employee (year to date)</CardTitle>
             </CardHeader>
             <CardContent>
               <BarChart data={bundle.revenue.byEmployee} />
@@ -360,7 +372,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>By location</CardTitle>
+              <CardTitle>By location (year to date)</CardTitle>
             </CardHeader>
             <CardContent>
               <BarChart data={bundle.revenue.byLocation} />
@@ -368,7 +380,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>By service</CardTitle>
+              <CardTitle>By service (year to date)</CardTitle>
             </CardHeader>
             <CardContent>
               <BarChart data={bundle.revenue.byService} />
@@ -376,7 +388,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>By category</CardTitle>
+              <CardTitle>By category (year to date)</CardTitle>
             </CardHeader>
             <CardContent>
               <BarChart data={bundle.revenue.byCategory} />
@@ -391,6 +403,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               <BarChart data={bundle.revenue.yearly} />
             </CardContent>
           </Card>
+        </div>
         </div>
       ) : null}
 
@@ -527,6 +540,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
         <Card>
           <CardHeader>
             <CardTitle>Employee performance</CardTitle>
+            <p className="text-xs font-normal text-muted-foreground">
+              This calendar month · recognized appointment value (not Gross
+              payments collected). Revenue tab employee chart is year to date.
+            </p>
           </CardHeader>
           <CardContent>
             {bundle.employees.length === 0 ? (
@@ -612,6 +629,9 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             <Card>
               <CardHeader>
                 <CardTitle>Revenue by service</CardTitle>
+                <p className="text-xs font-normal text-muted-foreground">
+                  This calendar month · recognized appointment value
+                </p>
               </CardHeader>
               <CardContent>
                 <BarChart data={bundle.services.revenueByService} />
@@ -633,6 +653,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
         <Card>
           <CardHeader>
             <CardTitle>Location performance</CardTitle>
+            <p className="text-xs font-normal text-muted-foreground">
+              This calendar month · recognized appointment value (not Gross
+              payments collected). Revenue tab location chart is year to date.
+            </p>
           </CardHeader>
           <CardContent>
             {bundle.locations.length === 0 ? (
@@ -691,45 +715,63 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
       ) : null}
 
       {tab === "financial" ? (
+        <div className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Payments collected this month include deposits. Refunds are
+            separate and are not subtracted. Taxes and discounts are appointment
+            stamps for this calendar month, not the cash ledger.
+          </p>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
-            title="Invoices"
+            title="Outstanding invoices"
             value={$c(bundle.financial.invoicesCents)}
             icon={FileSpreadsheet}
+            description="Commerce invoices · same as Payments"
           />
           <StatCard
-            title="Payments"
+            title="Payments collected"
             value={$c(bundle.financial.paymentsCents)}
             icon={Wallet}
             accent="success"
+            description={
+              bundle.financial.paymentsIncludeDeposits
+                ? `This month · of which deposits ${$c(bundle.financial.depositsCents)}`
+                : "Legacy payment events"
+            }
           />
           <StatCard
             title="Refunds"
             value={$c(bundle.financial.refundsCents)}
             icon={Wallet}
             accent="warning"
+            description="This month · not subtracted from payments collected"
           />
           <StatCard
-            title="Taxes"
+            title="Taxes (appointment stamps)"
             value={$c(bundle.financial.taxesCents)}
             icon={FileSpreadsheet}
+            description="This calendar month"
           />
           <StatCard
-            title="Discounts"
+            title="Discounts (appointment stamps)"
             value={$c(bundle.financial.discountsCents)}
             icon={FileSpreadsheet}
+            description="This calendar month"
           />
           <StatCard
-            title="Deposits"
+            title="Deposits collected"
             value={$c(bundle.financial.depositsCents)}
             icon={Wallet}
+            description="Subset of payments collected this month"
           />
           <StatCard
-            title="Outstanding balances"
+            title="Outstanding appointment balances"
             value={$c(bundle.financial.outstandingCents)}
             icon={FileSpreadsheet}
             accent="warning"
+            description="Collectible remaining · not invoices"
           />
+        </div>
         </div>
       ) : null}
 

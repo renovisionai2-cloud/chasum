@@ -113,6 +113,18 @@ export type FinancialReport = {
   discountsCents: number;
   depositsCents: number;
   outstandingCents: number;
+  /** Deposits are included inside paymentsCents when using the commerce ledger. */
+  paymentsIncludeDeposits: boolean;
+  invoicesAreOutstandingCommerce: boolean;
+  outstandingAreAppointmentBalances: boolean;
+};
+
+export type FinancialLedgerOverlay = {
+  paymentsCollectedMonthCents: number;
+  depositsCollectedMonthCents: number;
+  refundsMonthCents: number;
+  outstandingAppointmentBalancesCents: number;
+  outstandingInvoicesCents: number;
 };
 
 export type InventoryReport = {

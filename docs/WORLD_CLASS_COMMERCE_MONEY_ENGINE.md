@@ -1,7 +1,7 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.1 — Front-Desk Payments Operating Surface** (6.0B PO-accepted)  
+**Phase:** **6.1A — Financial Integrity + Front-Desk UX Correction** (6.1 not PO-accepted; 6.0B PO-accepted)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
 **Feature 6.0B:** `309bc67` / civil-anchor `ee38142`  
@@ -50,6 +50,25 @@
 Helpers: `isAppointmentCollectible`, `collectibleRemainingBalanceCents`, `collectibleDepositDueNowCents`, `appointmentCollectibleMoneyFromStamps`.
 
 Calendar: optimistic cancel + cancelled-ID override so Day/Week/Month/Agenda/Timeline agree without stale pre-cancel rows.
+
+## Phase 6.1A lock — Integrity + staff-facing labels
+
+Users operate money through **Customer → Appointment → Payment**. Internal IDs are not normal user input **or** normal user-facing output (`booking:bs-…`, UUIDs).
+
+| Surface | Metric | Source | Notes |
+|---------|--------|--------|--------|
+| Payments / Reports Executive / Command Centre | Gross payments collected | `commerce_transactions` succeeded payment+deposit, business TZ | Refunds not subtracted |
+| Payments | Outstanding appointment balances | Collectible remaining on non-cancelled appointments | Counts **appointments** |
+| Payments | Outstanding deposits | Collectible deposit due now | Not remaining balance |
+| Payments / Reports Executive | Outstanding invoices | `commerce_invoices` only | Not `appt:` synthetics |
+| Reports → Revenue | Recognized appointment value | Completed or collected stamps, tax-exclusive `price_cents` | YTD on that tab; **not** cash collected |
+| Reports → Employees / Locations / Services | Same recognized value | **This calendar month** | Intentionally different window from Revenue tab YTD |
+| Reports → Financial | Payments collected | Same commerce month cash-in | Deposits are a **subset** |
+| Customers overview | Customers with balances due | Directory rows with collectible remaining > 0 | Counts **customers** |
+
+Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1A.
+
+---
 
 ## Phase 6.1 lock — Front-desk operating surface
 

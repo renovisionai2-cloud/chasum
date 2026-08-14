@@ -12,6 +12,7 @@ import type {
   CustomerReport,
   EmployeeReportRow,
   ExecutiveDashboard,
+  FinancialLedgerOverlay,
   FinancialReport,
   InventoryReport,
   LocationReportRow,
@@ -634,6 +635,7 @@ export function buildFinancial(
   appointments: ReportAppointmentRow[],
   payments: ReportPaymentRow[],
   now: Date,
+  ledger?: FinancialLedgerOverlay | null,
 ): FinancialReport {
   const monthStart = startOfMonth(now);
   const monthAppts = appointments.filter((a) =>
@@ -642,6 +644,30 @@ export function buildFinancial(
   const monthPay = payments.filter((p) =>
     inRange(p.occurred_at, monthStart, now),
   );
+
+  const taxesCents = monthAppts.reduce(
+    (s, a) => s + (a.tax_cents ?? 0),
+    0,
+  );
+  const discountsCents = monthAppts.reduce(
+    (s, a) => s + (a.discount_cents ?? 0),
+    0,
+  );
+
+  if (ledger) {
+    return {
+      invoicesCents: ledger.outstandingInvoicesCents,
+      paymentsCents: ledger.paymentsCollectedMonthCents,
+      refundsCents: ledger.refundsMonthCents,
+      taxesCents,
+      discountsCents,
+      depositsCents: ledger.depositsCollectedMonthCents,
+      outstandingCents: ledger.outstandingAppointmentBalancesCents,
+      paymentsIncludeDeposits: true,
+      invoicesAreOutstandingCommerce: true,
+      outstandingAreAppointmentBalances: true,
+    };
+  }
 
   const paymentsCents = monthPay
     .filter((p) => p.status === "paid" || p.status === "recorded")
@@ -652,15 +678,6 @@ export function buildFinancial(
   const outstandingCents = monthPay
     .filter((p) => p.status === "pending")
     .reduce((s, p) => s + p.amount_cents, 0);
-
-  const taxesCents = monthAppts.reduce(
-    (s, a) => s + (a.tax_cents ?? 0),
-    0,
-  );
-  const discountsCents = monthAppts.reduce(
-    (s, a) => s + (a.discount_cents ?? 0),
-    0,
-  );
   const depositsCents = monthAppts.reduce(
     (s, a) => s + (a.deposit_cents ?? 0),
     0,
@@ -675,6 +692,9 @@ export function buildFinancial(
     discountsCents,
     depositsCents,
     outstandingCents,
+    paymentsIncludeDeposits: false,
+    invoicesAreOutstandingCommerce: false,
+    outstandingAreAppointmentBalances: false,
   };
 }
 

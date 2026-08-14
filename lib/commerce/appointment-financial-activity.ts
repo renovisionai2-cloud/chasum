@@ -160,9 +160,7 @@ export function mapTransactionsToFinancialActivity(input: {
       PAYMENT_METHOD_LABELS[tx.method] ?? String(tx.method);
     const changeMeta = input.changeLogByTransactionId?.[tx.id];
     const amountLabel = formatMoneyCents(tx.amountCents, tx.currency);
-    const ref =
-      tx.providerReference?.trim() ||
-      (tx.id ? tx.id.slice(0, 8).toUpperCase() : null);
+    const ref = null;
 
     items.push({
       id: tx.id,
