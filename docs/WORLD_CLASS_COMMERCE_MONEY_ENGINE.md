@@ -1,7 +1,7 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.1B — Reporting Integrity + Propagation** (6.1 not PO-accepted; 6.0B PO-accepted)  
+**Phase:** **6.1C — Final Closeout** (6.1 not PO-accepted; 6.0B PO-accepted)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
 **Feature 6.0B:** `309bc67` / civil-anchor `ee38142`  
@@ -64,7 +64,19 @@ Users operate money through **Customer → Appointment → Payment**. Internal I
 | Reports → Revenue | Recognized appointment value | Completed or collected stamps, tax-exclusive `price_cents` | YTD on that tab; **not** cash collected |
 | Reports → Employees / Locations / Services | Same recognized value as Revenue tab | **This business calendar month** · `appointmentPriceCents` / 100 on recognized rows | Not `amount_paid_cents` / deposit cash |
 
-Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1B.
+Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1C.
+
+## Phase 6.1C lock — Collect chrome + cents + Booked
+
+| Concept | Rule |
+|---------|------|
+| Appointment-native Collect | Only when `collectibleRemainingBalanceCents` > 0 |
+| Fully paid | Show **Paid in full** (or hide Collect); do not open a zero-balance workspace |
+| Payments hub Collect | Remains a global front-desk action; selected appointment with $0 remaining cannot be collected |
+| Customer report money | Presentation uses `formatMoneyCents` / `formatMoneyDollars` — preserve cents |
+| Staff status | Stored `confirmed` displays as **Booked**; `pending` remains a distinct awaiting-confirmation state |
+
+---
 
 ## Phase 6.1B lock — Reports interpretation (not a new ledger)
 

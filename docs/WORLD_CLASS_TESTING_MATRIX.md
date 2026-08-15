@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 not PO-accepted.** **Phase 6.1B implemented — awaiting PO hands-on review.** 6.2 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 not PO-accepted.** **Phase 6.1C implemented — awaiting PO hands-on Preview verification.** 6.2 not started.
 
 ---
 
@@ -410,6 +410,20 @@
 | Stripe Elements | **Not implemented** |
 | Phase 6.2 | **Not started** |
 | Status | Implemented — awaiting PO hands-on review. Phase 6.1 **not** PO-accepted. |
+
+## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1C)
+
+| Field | Value |
+|-------|--------|
+| Phase | **6.1C — Final Closeout** |
+| Collect | Hidden when collectible remaining = 0; partial still collects |
+| Copy | Collect Payment subtitle is staff-facing |
+| Customer reports | Exact cents via `formatMoneyDollars` / `formatMoneyCents` |
+| Status | Stored `confirmed` → staff **Booked** |
+| Tests | `tests/unit/commerce/phase-6-1c-closeout.test.ts` |
+| Stripe Elements | **Not implemented** |
+| Phase 6.2 | **Not started** |
+| Status | Implemented — awaiting PO hands-on Preview verification. Phase 6.1 **not** PO-accepted. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0A)
 
