@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-14 | **Chapter 6 Phase 6.1B — Reporting Integrity + Propagation** | `987385f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ analytics; employee/location recognized value; Reports revalidate on booking; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-14 | **Chapter 6 Phase 6.1A — Financial Integrity + Front-Desk UX Correction** | `4fbc357` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Strip internal IDs; reconcile labels; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.1 — Front-Desk Payments Operating Surface** | `95a8f38` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Customer → Appointment → Payment; no UUID input; 6.2 not started |
 | 2026-08-13 | **Chapter 6 Phase 6.0B PO acceptance lock** | `5dbf4a8` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Cross-view calendar sync + transaction-linked refund PO-accepted after hands-on Preview testing |
@@ -57,6 +58,19 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.1B — quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Reporting Integrity + Propagation Diagnostic / Correction |
+| Timezone | Business civil date / hour |
+| Employee/location revenue | Same recognized value as Revenue tab |
+| Completed | Finished visits only |
+| Stripe Elements | **Not implemented** |
+| Migrations | **None** |
+| Phase 6.2 | **Not started** |
+| PO review | **Awaiting hands-on** |
 
 ## Chapter 6 Phase 6.1 — quality report
 

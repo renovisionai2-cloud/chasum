@@ -590,10 +590,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `4fbc357` |
-| **Short** | `4fbc357` |
-| **Subject** | fix: correct Phase 6.1 money labels and hide internal IDs |
-| **Chapter 6 Phase 6.1A** | `4fbc357` |
+| **SHA** | `987385f` |
+| **Short** | `987385f` |
+| **Subject** | fix: interpret Reports in business timezone and align recognized value |
+| **Chapter 6 Phase 6.1B** | `987385f` |
+| **Chapter 6 Phase 6.1A** | `4fbc357` / stamp `9a0cf51` |
 | **Chapter 6 Phase 6.1** | `95a8f38` / stamp `25952a3` |
 | **Chapter 6 Phase 6.0B PO acceptance** | `5dbf4a8` |
 | **Chapter 6 Phase 6.0B lifecycle emails** | `fd8560f` |
