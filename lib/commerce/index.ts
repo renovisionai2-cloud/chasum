@@ -79,6 +79,8 @@ export {
   appointmentTotalCents,
   collectibleDepositDueNowCents,
   collectibleRemainingBalanceCents,
+  appointmentOffersCollection,
+  appointmentCollectionAction,
   depositCollectedCents,
   depositDueNowCents,
   depositRequiredCents,

@@ -14,6 +14,8 @@ type AppointmentManagementActionsProps = {
   onEditFocus?: () => void;
   onReschedule: () => void;
   onCollectPayment: () => void;
+  canCollectPayment?: boolean;
+  showPaidInFull?: boolean;
   onMessage: () => void;
   moreMenu?: ReactNode;
   disabled?: boolean;
@@ -27,6 +29,8 @@ export function AppointmentManagementActions({
   onEditFocus,
   onReschedule,
   onCollectPayment,
+  canCollectPayment = false,
+  showPaidInFull = false,
   onMessage,
   moreMenu,
   disabled,
@@ -65,6 +69,7 @@ export function AppointmentManagementActions({
         <CalendarClock className="size-3.5" aria-hidden />
         Reschedule
       </Button>
+      {canCollectPayment ? (
       <Button
         type="button"
         size="sm"
@@ -76,6 +81,11 @@ export function AppointmentManagementActions({
         <Banknote className="size-3.5" aria-hidden />
         Collect
       </Button>
+      ) : showPaidInFull ? (
+        <span className="inline-flex min-h-10 items-center px-1 text-xs font-medium text-muted-foreground">
+          Paid in full
+        </span>
+      ) : null}
       <Button
         type="button"
         size="sm"

@@ -12,6 +12,7 @@ import {
   resolveFinancialsFromAppointment,
 } from "@/lib/commerce/booking-financials";
 import { formatMoneyCents } from "@/lib/commerce/money";
+import { appointmentCollectionAction } from "@/lib/commerce/money-contract";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
 import {
   isRefundableTransaction,
@@ -293,7 +294,8 @@ export function PaymentsSection({
         </div>
       ) : null}
 
-      {appointment?.id ? (
+      {appointment?.id &&
+      appointmentCollectionAction(appointment) === "collect" ? (
         <Button
           type="button"
           size="sm"
@@ -302,6 +304,9 @@ export function PaymentsSection({
         >
           Collect payment
         </Button>
+      ) : appointment?.id &&
+        appointmentCollectionAction(appointment) === "paid_in_full" ? (
+        <p className="text-xs font-medium text-muted-foreground">Paid in full</p>
       ) : null}
 
       <p className="text-xs text-muted-foreground">
@@ -310,7 +315,9 @@ export function PaymentsSection({
           : "Receipts stay attached to each payment."}
       </p>
 
-      {collectOpen && appointment ? (
+      {collectOpen &&
+      appointment &&
+      appointmentCollectionAction(appointment) === "collect" ? (
         <CollectPaymentWorkspace
           open={collectOpen}
           onClose={() => setCollectOpen(false)}

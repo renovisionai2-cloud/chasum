@@ -28,6 +28,7 @@ type QuickActionsMenuProps = {
   onReschedule: () => void;
   onDuplicate: () => void;
   onCollectPayment: () => void;
+  canCollectPayment?: boolean;
   onPrint: () => void;
   onMessage: () => void;
   onCommunications?: () => void;
@@ -43,6 +44,7 @@ export function QuickActionsMenu({
   onReschedule,
   onDuplicate,
   onCollectPayment,
+  canCollectPayment = false,
   onPrint,
   onMessage,
   onCommunications,
@@ -93,10 +95,10 @@ export function QuickActionsMenu({
       show: isEditing,
     },
     {
-      label: "Collect Payment",
+      label: "Collect payment",
       icon: Banknote,
       onClick: onCollectPayment,
-      show: true,
+      show: isEditing && canCollectPayment,
     },
     {
       label: "Communications",

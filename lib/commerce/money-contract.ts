@@ -194,6 +194,25 @@ export function collectibleRemainingBalanceCents(
   return remainingBalanceCents(stamps);
 }
 
+/** Appointment-native Collect is offered only when collectible remaining > 0. */
+export function appointmentOffersCollection(
+  stamps: AppointmentMoneyStamps,
+): boolean {
+  return collectibleRemainingBalanceCents(stamps) > 0;
+}
+
+/**
+ * Staff-facing collection chrome for an appointment.
+ * Cancelled visits hide Collect (not collectible). Zero remaining shows Paid in full.
+ */
+export function appointmentCollectionAction(
+  stamps: AppointmentMoneyStamps,
+): "collect" | "paid_in_full" | "none" {
+  if (appointmentOffersCollection(stamps)) return "collect";
+  if (stamps.status === "cancelled") return "none";
+  return "paid_in_full";
+}
+
 /** Current collectible deposit due now (0 when not collectible). */
 export function collectibleDepositDueNowCents(
   stamps: AppointmentMoneyStamps,

@@ -88,7 +88,12 @@ export async function listFrontDeskAppointmentsForCustomer(input: {
   const includeId = input.includeAppointmentId?.trim();
   if (includeId && !collectible.some((row) => row.id === includeId)) {
     const extra = mapped.find((row) => row.id === includeId);
-    if (extra) collectible.push(extra);
+    if (
+      extra &&
+      (extra.remainingCents > 0 || extra.depositDueNowCents > 0)
+    ) {
+      collectible.push(extra);
+    }
   }
   return sortFrontDeskAppointments(collectible);
 }

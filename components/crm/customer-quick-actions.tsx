@@ -124,6 +124,7 @@ export function CustomerQuickActions(props: CustomerQuickActionsProps) {
         <MessageSquare className="h-3.5 w-3.5" aria-hidden />
         Message
       </Button>
+      {props.hasOutstanding ? (
       <Button
         type="button"
         size="sm"
@@ -135,6 +136,7 @@ export function CustomerQuickActions(props: CustomerQuickActionsProps) {
         <CircleDollarSign className="h-3.5 w-3.5" aria-hidden />
         Collect payment
       </Button>
+      ) : null}
       <Button
         type="button"
         size="sm"

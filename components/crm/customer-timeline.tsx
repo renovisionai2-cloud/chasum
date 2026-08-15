@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { CrmTimelineItem } from "@/lib/crm/types";
+import { appointmentStatusLabel } from "@/lib/dashboard/appointment-ops";
+import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
 import { format } from "date-fns";
 import {
   Ban,
@@ -78,8 +80,10 @@ export function CustomerTimeline({
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-medium">{item.title}</p>
                 {item.status ? (
-                  <span className="text-xs capitalize text-muted-foreground">
-                    {item.status.replace(/_/g, " ")}
+                  <span className="text-xs text-muted-foreground">
+                    {item.status in APPOINTMENT_STATUS_LABELS
+                      ? appointmentStatusLabel(item.status)
+                      : item.status.replace(/_/g, " ")}
                   </span>
                 ) : null}
               </div>

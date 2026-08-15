@@ -11,6 +11,8 @@ import {
   APPOINTMENT_PAYMENT_STATUS_LABELS,
 } from "@/lib/commerce/types";
 import { formatMoneyCents } from "@/lib/commerce/money";
+import { appointmentCollectionAction } from "@/lib/commerce/money-contract";
+import { appointmentStatusLabel } from "@/lib/dashboard/appointment-ops";
 import type {
   AppointmentStatus,
   AppointmentWithRelations,
@@ -156,6 +158,7 @@ export function AppointmentDrawer({
           paymentStatus as keyof typeof APPOINTMENT_PAYMENT_STATUS_LABELS
         ]
       : paymentStatus;
+  const collectionAction = appointmentCollectionAction(appointment);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="presentation">
@@ -238,8 +241,8 @@ export function AppointmentDrawer({
               </li>
               <li>
                 <span className="font-medium">Status</span>
-                <span className="ml-2 text-muted-foreground capitalize">
-                  {appointment.status.replace("_", " ")}
+                <span className="ml-2 text-muted-foreground">
+                  {appointmentStatusLabel(appointment.status)}
                 </span>
               </li>
             </ol>
@@ -371,6 +374,7 @@ export function AppointmentDrawer({
               <CheckCircle2 className="size-3.5" />
               Complete
             </Button>
+            {collectionAction === "collect" ? (
             <Button
               type="button"
               size="sm"
@@ -391,6 +395,11 @@ export function AppointmentDrawer({
               <Banknote className="size-3.5" />
               Collect payment
             </Button>
+            ) : collectionAction === "paid_in_full" ? (
+              <p className="text-xs font-medium text-muted-foreground">
+                Paid in full
+              </p>
+            ) : null}
             <Button
               type="button"
               size="sm"

@@ -144,7 +144,7 @@ export function CollectPaymentWorkspace({
       open={open}
       onClose={onClose}
       title="Collect payment"
-      description="Customer → appointment → amount. No internal IDs."
+      description="Select the appointment, amount, and payment method."
       className="sm:max-w-lg"
     >
       {success ? (
@@ -213,6 +213,16 @@ export function CollectPaymentWorkspace({
               Done
             </Button>
           </div>
+        </div>
+      ) : selected && remaining <= 0 && depositDue <= 0 ? (
+        <div className="space-y-3">
+          <p className="text-sm font-medium">Paid in full</p>
+          <p className="text-sm text-muted-foreground">
+            This appointment has no remaining balance to collect.
+          </p>
+          <Button type="button" size="sm" onClick={onClose}>
+            Done
+          </Button>
         </div>
       ) : (
         <form action={payAction} className="space-y-4">

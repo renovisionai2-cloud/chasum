@@ -10,7 +10,7 @@ import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
 
 export const APPOINTMENT_STATUS_MEANING: Record<AppointmentStatus, string> = {
   pending: "Awaiting confirmation — not yet confirmed with the customer",
-  confirmed: "Confirmed and expected",
+  confirmed: "Scheduled and expected",
   arrived: "Customer has checked in",
   waiting: "Checked in and waiting for service",
   in_progress: "Service is underway",

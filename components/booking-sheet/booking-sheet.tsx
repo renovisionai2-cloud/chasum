@@ -96,6 +96,7 @@ import type {
   StaffWithServices,
 } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
+import { appointmentCollectionAction } from "@/lib/commerce/money-contract";
 import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { addDays, format } from "date-fns";
@@ -1024,8 +1025,13 @@ export function BookingSheet({
   }
 
   const [collectOpen, setCollectOpen] = useState(false);
+  const collectionAction = appointment
+    ? appointmentCollectionAction(appointment)
+    : "none";
+  const canCollectPayment = collectionAction === "collect";
 
   function collectPaymentNavigate() {
+    if (!canCollectPayment) return;
     setCollectOpen(true);
   }
 
@@ -1111,6 +1117,7 @@ export function BookingSheet({
               });
             }}
             onCollectPayment={collectPaymentNavigate}
+            canCollectPayment={canCollectPayment}
             onPrint={() => window.print()}
             onMessage={() =>
               toast("Compose from the customer profile in CRM.", "info")
@@ -1672,6 +1679,8 @@ export function BookingSheet({
               }}
               onReschedule={scrollToAvailability}
               onCollectPayment={collectPaymentNavigate}
+              canCollectPayment={canCollectPayment}
+              showPaidInFull={collectionAction === "paid_in_full"}
               onMessage={() =>
                 toast("Compose from the customer profile in CRM.", "info")
               }

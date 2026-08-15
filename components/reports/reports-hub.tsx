@@ -23,7 +23,7 @@ import {
   upsertReportSchedule,
 } from "@/lib/actions/reports";
 import type { ReportsBundle, ReportType } from "@/lib/reports/types";
-import { currencyCode } from "@/lib/commerce/money";
+import { formatMoneyCents, formatMoneyDollars } from "@/lib/commerce/money";
 import type { ActionState } from "@/lib/types/booking";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
@@ -70,18 +70,11 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 function money(n: number, currency = "usd") {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode(currency),
-    maximumFractionDigits: 0,
-  }).format(n);
+  return formatMoneyDollars(n, currency);
 }
 
 function moneyExact(cents: number, currency = "usd") {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode(currency),
-  }).format(cents / 100);
+  return formatMoneyCents(cents, currency);
 }
 
 function MetricList({

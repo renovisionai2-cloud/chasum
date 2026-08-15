@@ -76,6 +76,7 @@ import {
   shouldShowMorningBrief,
 } from "@/lib/calendar/day-surface";
 import { parseISO } from "@/lib/calendar/utils";
+import { appointmentOffersCollection } from "@/lib/commerce/money-contract";
 import { MorningBrief } from "@/components/day-view/morning-brief";
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
 import { cn } from "@/lib/utils";
@@ -977,6 +978,7 @@ export function CalendarClient({
             openEdit(appt);
           }}
           onCollectPayment={(appt) => {
+            if (!appointmentOffersCollection(appt)) return;
             const customer = appt.customer;
             const customerRel = Array.isArray(customer) ? customer[0] : customer;
             setCollectTarget({
