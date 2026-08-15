@@ -6,6 +6,7 @@ import {
   logAppointmentChange,
 } from "@/lib/booking-engine";
 import type { BookingResource, PortalAppointment } from "@/lib/booking-engine/types";
+import { BOOKING_ENGINE_MUTATION_REVALIDATE_PATHS } from "@/lib/reports/revalidate-paths";
 import { logQueryError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -15,8 +16,9 @@ import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
 
 function revalidateCalendar() {
-  revalidatePath("/dashboard/calendar");
-  revalidatePath("/dashboard/automation");
+  for (const path of BOOKING_ENGINE_MUTATION_REVALIDATE_PATHS) {
+    revalidatePath(path);
+  }
 }
 
 export async function getBookingResources(): Promise<BookingResource[]> {

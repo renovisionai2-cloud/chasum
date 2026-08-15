@@ -274,10 +274,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               description="This month"
             />
             <StatCard
-              title="Returning customers"
+              title="Prior customers booked this month"
               value={String(e.returningCustomers)}
               icon={Users}
-              description="This month"
+              description="Active booking this month · customer created before this month (not repeat completed visits)"
             />
             <StatCard
               title="Active employees"
@@ -490,20 +490,22 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               description="This month"
             />
             <StatCard
-              title="Returning"
+              title="Repeat completed visits"
               value={String(bundle.customers.returningCustomers)}
               icon={Users}
+              description="Customers with 2+ completed appointments (all time). Cancelled / booked-only do not count."
             />
             <StatCard
-              title="Avg lifetime value"
+              title="Avg recorded payments"
               value={$(bundle.customers.lifetimeValueAvg)}
               icon={Wallet}
+              description="Mean of paid/recorded customer_payment_events; if none, completed appointment catalog value. Not recognized appointment value."
             />
             <StatCard
-              title="Retention"
+              title="Directory activity (90d)"
               value={`${bundle.customers.retentionRate}%`}
               icon={Users}
-              description="Active in last 90 days"
+              description="Customers whose last_activity_at (or created_at) is within 90 days ÷ all customers"
             />
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
@@ -522,9 +524,9 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               format="plain"
              currency={currency} />
             <MetricList
-              title="Top customers"
+              title="Top customers (recorded payments)"
               items={bundle.customers.topCustomers}
-              empty="No customer spend yet."
+              empty="No recorded payment events or completed-visit fallback spend yet."
               format="money"
              currency={currency} />
             <MetricList
@@ -541,8 +543,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           <CardHeader>
             <CardTitle>Employee performance</CardTitle>
             <p className="text-xs font-normal text-muted-foreground">
-              This calendar month · recognized appointment value (not Gross
-              payments collected). Revenue tab employee chart is year to date.
+              This calendar month (business timezone) · recognized appointment
+              value, same as Revenue tab (tax-exclusive catalog/price — not
+              Gross payments collected). Completed = status completed only.
+              Productivity = active bookings this month.
             </p>
           </CardHeader>
           <CardContent>
@@ -558,10 +562,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                   <TableRow>
                     <TableHead>Employee</TableHead>
                     <TableHead>Revenue</TableHead>
-                    <TableHead>Completed</TableHead>
+                    <TableHead>Completed visits</TableHead>
                     <TableHead>Avg time</TableHead>
                     <TableHead>Commission</TableHead>
-                    <TableHead>Productivity</TableHead>
+                    <TableHead>Booked (productivity)</TableHead>
                     <TableHead>Rating</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -654,8 +658,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
           <CardHeader>
             <CardTitle>Location performance</CardTitle>
             <p className="text-xs font-normal text-muted-foreground">
-              This calendar month · recognized appointment value (not Gross
-              payments collected). Revenue tab location chart is year to date.
+              This calendar month (business timezone) · recognized appointment
+              value, same as Revenue tab (not Gross payments collected).
+              Appointments = non-cancelled this month. Customers = distinct
+              customers on those appointments.
             </p>
           </CardHeader>
           <CardContent>

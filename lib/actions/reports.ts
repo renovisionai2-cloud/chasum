@@ -274,17 +274,19 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     showMembershipMetric: false,
   });
 
-  const revenue = buildRevenueBreakdown(appointments, now);
+  const revenue = buildRevenueBreakdown(appointments, now, locale);
   const appointmentsReport = buildAppointmentReport(
     appointments,
     waitlistRes.count ?? 0,
     now,
+    locale,
   );
   const customersReport = buildCustomerReport(
     customers,
     appointments,
     payments,
     now,
+    locale,
   );
   const employees = buildEmployeeReports(
     appointments,
@@ -295,6 +297,7 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
       is_active: s.is_active ?? undefined,
     })),
     now,
+    locale,
   );
 
   const services = buildServiceReport(
@@ -303,6 +306,7 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     memberships.filter((m) => m.is_active).length,
     giftCards.length,
     now,
+    locale,
   );
 
   const staffByLocation = new Map<string, number>();
@@ -324,6 +328,7 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     scopedLocations,
     staffByLocation,
     now,
+    locale,
   );
   const financial = buildFinancial(
     appointments,
@@ -339,6 +344,7 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
           outstandingInvoicesCents: commerceSnap.outstandingInvoicesCents,
         }
       : null,
+    locale,
   );
   const inventory = buildInventoryPlaceholder();
   const schedules = await listSchedules(business.id);

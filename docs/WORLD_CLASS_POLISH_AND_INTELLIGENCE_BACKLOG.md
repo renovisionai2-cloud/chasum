@@ -281,6 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
+- **Chapter 6 Phase 6.1B implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
 - **Chapter 6 Phase 6.1A implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
 - **Chapter 6 Phase 6.1 implemented** — Front-desk Collect Payment (Customer → Appointment → Payment). Internal IDs are not staff-facing. Do not reopen 6.0B.
 - **Chapter 6 Phase 6.0A implemented** — Collectibility + calendar cancel sync.
@@ -311,6 +312,8 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 | H | Calendar integrations must not visually overpromise two-way sync unless each integration is genuinely operational. |
 | I | Developer / API / Webhook / Zapier / Make surfaces must reflect real launch readiness and security. |
 | J | Large-screen density / empty-canvas balance remains part of global polish. |
+| K | Appointment drawer top **Collect** and lower **Collect payment** both open `CollectPaymentWorkspace` — duplication polish later; do not remove either without UX review. |
+| L | Reception morning-brief KPI still titled “Payment due” while per-appointment copy uses “Balance due” after a deposit — wording only; collectibility unchanged. |
 
 ---
 
@@ -318,7 +321,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 
 | Date | Change |
 |------|--------|
-| 2026-08-14 | Chapter 6 Phase 6.1A Financial Integrity + Front-Desk UX Correction. Phase 6.1 not PO-accepted. Product-wide PO findings A–J recorded. Phase 6.2 not started. |
+| 2026-08-14 | Chapter 6 Phase 6.1B Reporting Integrity + Propagation. Phase 6.1 not PO-accepted. Collect duplication and Payment due vs Balance due recorded. Phase 6.2 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.1 Front-Desk Payments Operating Surface implemented — awaiting PO hands-on review. Phase 6.2 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing. Cancellation and refund customer emails confirmed. Phase 6.1 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B refund confirmation email correction — awaiting PO hands-on review. Phase 6.1 not started. |

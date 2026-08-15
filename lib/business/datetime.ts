@@ -217,3 +217,52 @@ export function startOfBusinessYear(
   const p = partsInZone(date, timeZone);
   return zonedTimeToUtc(p.year, 1, 1, 0, 0, 0, timeZone);
 }
+
+const MONTH_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+/**
+ * Staff-facing instant in business timezone. Does not change stored timestamps.
+ * Example: `Aug 14, 2026 · 8:21 PM`
+ */
+export function formatStaffFacingInstant(
+  isoOrDate: string | Date,
+  timeZone: string | null | undefined,
+): string {
+  const date =
+    typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate;
+  if (!Number.isFinite(date.getTime())) {
+    return typeof isoOrDate === "string" ? isoOrDate : "";
+  }
+  const zone =
+    timeZone && timeZone.trim().length > 0 ? timeZone.trim() : "UTC";
+  const p = partsInZone(date, zone);
+  const hour12 = p.hour % 12 || 12;
+  const ampm = p.hour < 12 ? "AM" : "PM";
+  return `${MONTH_SHORT[p.month - 1]} ${p.day}, ${p.year} · ${hour12}:${String(p.minute).padStart(2, "0")} ${ampm}`;
+}
+
+/** en-US short weekday (Sun–Sat) in the given timezone. */
+export function weekdayShortInTimezone(
+  date: Date,
+  timeZone: string | null | undefined,
+): string {
+  const zone =
+    timeZone && timeZone.trim().length > 0 ? timeZone.trim() : "UTC";
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: zone,
+    weekday: "short",
+  }).format(date);
+}

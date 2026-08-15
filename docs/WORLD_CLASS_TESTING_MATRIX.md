@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 not PO-accepted.** **Phase 6.1A implemented — awaiting PO hands-on review.** 6.2 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 not PO-accepted.** **Phase 6.1B implemented — awaiting PO hands-on review.** 6.2 not started.
 
 ---
 
@@ -392,6 +392,21 @@
 | Financial | Payments collected include deposits as a subset |
 | Customers | “Customers with balances due” (customers) vs outstanding appointments |
 | Tests | `tests/unit/commerce/phase-6-1a-integrity.test.ts` |
+| Stripe Elements | **Not implemented** |
+| Phase 6.2 | **Not started** |
+| Status | Implemented — awaiting PO hands-on review. Phase 6.1 **not** PO-accepted. |
+
+## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1B)
+
+| Field | Value |
+|-------|--------|
+| Phase | **6.1B — Reporting Integrity + Propagation** |
+| Timezone | Appointment analytics + report month windows use business civil date |
+| Employee / location revenue | Same recognized appointment value as Revenue tab (`appointmentPriceCents`) |
+| Completed | `status === completed` only |
+| Propagation | Calendar / booking-engine mutations revalidate `/dashboard/reports`; no polling |
+| Customer labels | Prior customers booked this month vs repeat completed visits vs recorded payments |
+| Tests | `tests/unit/commerce/phase-6-1b-reporting-integrity.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Phase 6.2 | **Not started** |
 | Status | Implemented — awaiting PO hands-on review. Phase 6.1 **not** PO-accepted. |

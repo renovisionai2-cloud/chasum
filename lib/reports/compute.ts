@@ -1,4 +1,13 @@
 import {
+  calendarDateInTimezone,
+  hourInBusinessTimezone,
+  partsInZone,
+  resolveBusinessTimezone,
+  startOfBusinessMonth,
+  startOfBusinessWeek,
+  startOfBusinessYear,
+} from "@/lib/business/datetime";
+import {
   appointmentPriceCents,
   isActiveBooking,
   recognizesAppointmentRevenue,
@@ -80,25 +89,25 @@ function inRange(iso: string, start: Date, end: Date) {
   return t >= start.getTime() && t <= end.getTime();
 }
 
-function startOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
+function reportLocale(locale?: BusinessLocaleInput): BusinessLocaleInput {
+  return locale ?? { timezone: "UTC" };
 }
 
-function startOfWeek(d: Date) {
-  const x = startOfDay(d);
-  const day = x.getDay();
-  x.setDate(x.getDate() - day);
-  return x;
+function reportTz(locale?: BusinessLocaleInput): string {
+  return resolveBusinessTimezone(reportLocale(locale));
 }
 
-function startOfMonth(d: Date) {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
+function monthStartAt(now: Date, locale?: BusinessLocaleInput) {
+  return startOfBusinessMonth(now, reportLocale(locale));
 }
 
-function startOfYear(d: Date) {
-  return new Date(d.getFullYear(), 0, 1);
+function yearStartAt(now: Date, locale?: BusinessLocaleInput) {
+  return startOfBusinessYear(now, reportLocale(locale));
+}
+
+/** Tax-exclusive catalog/price — same as Revenue tab `moneyFromAppt`. */
+function recognizedAppointmentValueDollars(appts: ReportAppointmentRow[]) {
+  return revenueAppts(appts).reduce((sum, a) => sum + moneyFromAppt(a), 0);
 }
 
 function completed(appts: ReportAppointmentRow[]) {
@@ -163,7 +172,7 @@ export function buildExecutive(input: {
 }): ExecutiveDashboard {
   const { now, appointments, customers } = input;
   const locale = input.locale ?? { timezone: "UTC" };
-  const monthStart = startOfMonth(now);
+  const monthStart = monthStartAt(now, locale);
 
   const appointmentsToday = countAppointmentsToday(appointments, now, locale);
   const upcoming = appointments.filter(
@@ -227,8 +236,10 @@ export function buildExecutive(input: {
 export function buildRevenueBreakdown(
   appointments: ReportAppointmentRow[],
   now: Date,
+  locale?: BusinessLocaleInput,
 ): RevenueBreakdown {
-  const yearStart = startOfYear(now);
+  const yearStart = yearStartAt(now, locale);
+  const tz = reportTz(locale);
   const yearAppts = appointments.filter((a) =>
     inRange(a.start_time, yearStart, now),
   );
@@ -247,21 +258,22 @@ export function buildRevenueBreakdown(
   for (const a of done) {
     const d = new Date(a.start_time);
     const money = moneyFromAppt(a);
-    const dayKey = d.toISOString().slice(0, 10);
+    const dayKey = calendarDateInTimezone(d, tz);
     daily.set(dayKey, (daily.get(dayKey) ?? 0) + money);
 
-    const week = startOfWeek(d);
-    const weekKey = week.toISOString().slice(0, 10);
+    const week = startOfBusinessWeek(d, reportLocale(locale));
+    const weekKey = calendarDateInTimezone(week, tz);
     weekly.set(weekKey, (weekly.get(weekKey) ?? 0) + money);
 
-    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const p = partsInZone(d, tz);
+    const monthKey = `${p.year}-${String(p.month).padStart(2, "0")}`;
     monthly.set(monthKey, (monthly.get(monthKey) ?? 0) + money);
 
-    const q = Math.floor(d.getMonth() / 3) + 1;
-    const qKey = `${d.getFullYear()} Q${q}`;
+    const q = Math.floor((p.month - 1) / 3) + 1;
+    const qKey = `${p.year} Q${q}`;
     quarterly.set(qKey, (quarterly.get(qKey) ?? 0) + money);
 
-    const yKey = String(d.getFullYear());
+    const yKey = String(p.year);
     yearly.set(yKey, (yearly.get(yKey) ?? 0) + money);
 
     const emp = a.staff?.name ?? "Unassigned";
@@ -310,8 +322,10 @@ export function buildAppointmentReport(
   appointments: ReportAppointmentRow[],
   waitlistConversions: number,
   now: Date,
+  locale?: BusinessLocaleInput,
 ): AppointmentReport {
-  const monthStart = startOfMonth(now);
+  const monthStart = monthStartAt(now, locale);
+  const tz = reportTz(locale);
   const month = appointments.filter((a) =>
     inRange(a.start_time, monthStart, now),
   );
@@ -324,11 +338,15 @@ export function buildAppointmentReport(
 
   for (const a of booked) {
     const d = new Date(a.start_time);
-    const hour = `${String(d.getHours()).padStart(2, "0")}:00`;
+    const hourNum = hourInBusinessTimezone(d, reportLocale(locale));
+    const hour = `${String(hourNum).padStart(2, "0")}:00`;
     hourMap.set(hour, (hourMap.get(hour) ?? 0) + 1);
-    const day = d.toLocaleDateString("en-US", { weekday: "short" });
+    const day = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      weekday: "short",
+    }).format(d);
     dayMap.set(day, (dayMap.get(day) ?? 0) + 1);
-    const key = d.toISOString().slice(0, 10);
+    const key = calendarDateInTimezone(d, tz);
     trend.set(key, (trend.get(key) ?? 0) + 1);
   }
 
@@ -374,9 +392,11 @@ export function buildCustomerReport(
   appointments: ReportAppointmentRow[],
   payments: ReportPaymentRow[],
   now: Date,
+  locale?: BusinessLocaleInput,
 ): CustomerReport {
-  const monthStart = startOfMonth(now);
-  const yearStart = startOfYear(now);
+  const monthStart = monthStartAt(now, locale);
+  const yearStart = yearStartAt(now, locale);
+  const tz = reportTz(locale);
   const newCustomers = customers.filter((c) =>
     inRange(c.created_at, monthStart, now),
   ).length;
@@ -427,16 +447,17 @@ export function buildCustomerReport(
   for (const c of customers.filter((x) =>
     inRange(x.created_at, yearStart, now),
   )) {
-    const key = new Date(c.created_at).toISOString().slice(0, 7);
+    const civil = calendarDateInTimezone(c.created_at, tz);
+    const key = civil.slice(0, 7);
     growth.set(key, (growth.get(key) ?? 0) + 1);
   }
 
-  const month = now.getMonth();
+  const month = partsInZone(now, tz).month;
   const birthdays: NamedMetric[] = customers
     .filter((c) => {
       if (!c.date_of_birth) return false;
       const d = new Date(c.date_of_birth + "T00:00:00");
-      return d.getMonth() === month;
+      return d.getUTCMonth() + 1 === month;
     })
     .slice(0, 20)
     .map((c) => ({
@@ -494,8 +515,9 @@ export function buildEmployeeReports(
     is_active?: boolean;
   }[],
   now: Date,
+  locale?: BusinessLocaleInput,
 ): EmployeeReportRow[] {
-  const monthStart = startOfMonth(now);
+  const monthStart = monthStartAt(now, locale);
   const month = appointments.filter((a) =>
     inRange(a.start_time, monthStart, now),
   );
@@ -505,7 +527,7 @@ export function buildEmployeeReports(
     const theirs = month.filter((a) => a.staff_id === s.id);
     const booked = activeBookings(theirs);
     const done = completed(theirs);
-    const revenue = sumRevenue(theirs);
+    const revenue = recognizedAppointmentValueDollars(theirs);
     const minutes = booked.reduce((sum, a) => {
       const start = new Date(a.start_time).getTime();
       const end = new Date(a.end_time).getTime();
@@ -520,7 +542,7 @@ export function buildEmployeeReports(
       id: s.id,
       name: s.name,
       revenue: Math.round(revenue * 100) / 100,
-      completed: Math.max(done.length, booked.length),
+      completed: done.length,
       averageRating: null,
       averageServiceMinutes:
         booked.length === 0 ? 0 : Math.round(minutes / booked.length),
@@ -538,8 +560,9 @@ export function buildServiceReport(
   membershipCount: number,
   giftCardCount: number,
   now: Date,
+  locale?: BusinessLocaleInput,
 ): ServiceReport {
-  const monthStart = startOfMonth(now);
+  const monthStart = monthStartAt(now, locale);
   const done = revenueAppts(
     appointments.filter((a) => inRange(a.start_time, monthStart, now)),
   );
@@ -583,12 +606,11 @@ export function buildLocationReports(
   locations: { id: string; name: string }[],
   staffByLocation: Map<string, number>,
   now: Date,
+  locale?: BusinessLocaleInput,
 ): LocationReportRow[] {
-  const monthStart = startOfMonth(now);
-  const prevStart = startOfMonth(
-    new Date(now.getFullYear(), now.getMonth() - 1, 1),
-  );
+  const monthStart = monthStartAt(now, locale);
   const prevEnd = new Date(monthStart.getTime() - 1);
+  const prevStart = startOfBusinessMonth(prevEnd, reportLocale(locale));
 
   return locations.map((loc) => {
     const month = appointments.filter(
@@ -603,8 +625,8 @@ export function buildLocationReports(
     const customers = new Set(
       month.map((a) => a.customer_id).filter(Boolean),
     );
-    const rev = sumRevenue(month);
-    const prevRev = sumRevenue(prev);
+    const rev = recognizedAppointmentValueDollars(month);
+    const prevRev = recognizedAppointmentValueDollars(prev);
     const growth =
       prevRev === 0
         ? rev > 0
@@ -636,8 +658,9 @@ export function buildFinancial(
   payments: ReportPaymentRow[],
   now: Date,
   ledger?: FinancialLedgerOverlay | null,
+  locale?: BusinessLocaleInput,
 ): FinancialReport {
-  const monthStart = startOfMonth(now);
+  const monthStart = monthStartAt(now, locale);
   const monthAppts = appointments.filter((a) =>
     inRange(a.start_time, monthStart, now),
   );

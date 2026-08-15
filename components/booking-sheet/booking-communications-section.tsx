@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   loadAppointmentCommunicationsAction,
   retryAppointmentNotification,
@@ -73,6 +74,8 @@ export function BookingCommunicationsSection({
 
   useEffect(() => {
     if (state.notifications) {
+      // Merge retry action results into the loaded channel list.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- action state is an external system
       setItems((prev) => {
         const map = new Map(prev.map((item) => [item.channel, item]));
         for (const item of state.notifications ?? []) {
@@ -150,6 +153,16 @@ export function BookingCommunicationsSection({
                 <p className="mt-0.5 break-words text-[11px] text-muted-foreground">
                   {item.detail}
                 </p>
+              ) : null}
+              {item.channel === "staff_email" &&
+              item.status === "no_recipient" &&
+              item.staffProfileId ? (
+                <Link
+                  href={`/dashboard/employees/${item.staffProfileId}`}
+                  className="mt-1 inline-block text-[11px] font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  Open employee profile
+                </Link>
               ) : null}
             </div>
             {item.canRetry ? (

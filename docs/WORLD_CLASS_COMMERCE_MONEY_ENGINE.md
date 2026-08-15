@@ -1,7 +1,7 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.1A — Financial Integrity + Front-Desk UX Correction** (6.1 not PO-accepted; 6.0B PO-accepted)  
+**Phase:** **6.1B — Reporting Integrity + Propagation** (6.1 not PO-accepted; 6.0B PO-accepted)  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
 **Feature 6.0B:** `309bc67` / civil-anchor `ee38142`  
@@ -62,11 +62,20 @@ Users operate money through **Customer → Appointment → Payment**. Internal I
 | Payments | Outstanding deposits | Collectible deposit due now | Not remaining balance |
 | Payments / Reports Executive | Outstanding invoices | `commerce_invoices` only | Not `appt:` synthetics |
 | Reports → Revenue | Recognized appointment value | Completed or collected stamps, tax-exclusive `price_cents` | YTD on that tab; **not** cash collected |
-| Reports → Employees / Locations / Services | Same recognized value | **This calendar month** | Intentionally different window from Revenue tab YTD |
-| Reports → Financial | Payments collected | Same commerce month cash-in | Deposits are a **subset** |
-| Customers overview | Customers with balances due | Directory rows with collectible remaining > 0 | Counts **customers** |
+| Reports → Employees / Locations / Services | Same recognized value as Revenue tab | **This business calendar month** · `appointmentPriceCents` / 100 on recognized rows | Not `amount_paid_cents` / deposit cash |
 
-Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1A.
+Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1B.
+
+## Phase 6.1B lock — Reports interpretation (not a new ledger)
+
+| Concept | Rule |
+|---------|------|
+| Gross / recognized / tax-inclusive / outstanding | Remain distinct; do not force them to match |
+| Analytics bucketing | Business timezone civil date/hour — do not rewrite stored `start_time` |
+| Employee Completed | `status === completed` only |
+| Customer “returning” | Executive = prior customers booked this month; Customers tab = 2+ completed visits |
+| Avg recorded payments / top customers | Prefer `customer_payment_events` paid/recorded; else completed appointment catalog value |
+| Reports freshness | RSC + `revalidatePath`; no poll; open tab stays until next navigation |
 
 ---
 

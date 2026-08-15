@@ -22,6 +22,7 @@ import {
   startOfBusinessWeek,
 } from "@/lib/business/datetime";
 import { businessDayBounds } from "@/lib/dashboard/appointments-today";
+import { CALENDAR_MUTATION_REVALIDATE_PATHS } from "@/lib/reports/revalidate-paths";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -58,9 +59,9 @@ function mutationToAction(
 }
 
 function revalidateCalendar() {
-  revalidatePath("/dashboard/calendar");
-  revalidatePath("/dashboard");
-  revalidatePath("/dashboard/clients");
+  for (const path of CALENDAR_MUTATION_REVALIDATE_PATHS) {
+    revalidatePath(path);
+  }
 }
 
 export async function getAppointments(start: string, end: string) {

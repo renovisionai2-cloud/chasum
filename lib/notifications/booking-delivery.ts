@@ -22,6 +22,7 @@ import {
 } from "@/lib/notifications/status-labels";
 import { logger } from "@/lib/observability/logger";
 import { unwrapRelation } from "@/lib/supabase/relations";
+import { formatStaffFacingInstant } from "@/lib/business/datetime";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export type { NotificationChannelStatus, BookingNotificationChannel };
@@ -35,6 +36,8 @@ export type BookingNotificationItem = {
   providerMessageId?: string | null;
   canRetry?: boolean;
   jobId?: string | null;
+  /** Assigned employee profile for no-recipient staff email. */
+  staffProfileId?: string | null;
 };
 
 export type BookingNotificationReport = {
@@ -78,6 +81,7 @@ type AppointmentNotifyContext = AppointmentTemplateContext & {
   ownerEnabled: boolean;
   staffEnabled: boolean;
   staffEmail: string | null;
+  staffId: string | null;
   subscriptionPlanKey: string | null;
   privateAlphaEnabled: boolean | null;
 };
@@ -91,7 +95,7 @@ export async function loadAppointmentNotifyContext(
     .from("appointments")
     .select(
       `
-      id, business_id, customer_id, start_time, end_time, status, notes,
+      id, business_id, customer_id, staff_id, start_time, end_time, status, notes,
       price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents,
       payment_status,
       business:businesses(
@@ -101,7 +105,7 @@ export async function loadAppointmentNotifyContext(
         subscription_plan_key, private_alpha_enabled
       ),
       service:services(name),
-      staff:staff(name, email),
+      staff:staff(id, name, email),
       customer:customers(id, name, email, phone),
       location:locations(name, timezone)
     `,
@@ -131,6 +135,7 @@ export async function loadAppointmentNotifyContext(
   } | null;
   const service = unwrapRelation(data.service) as { name: string } | null;
   const staff = unwrapRelation(data.staff) as {
+    id?: string;
     name: string;
     email: string | null;
   } | null;
@@ -252,6 +257,7 @@ export async function loadAppointmentNotifyContext(
     customerPhone: customer.phone,
     staffName: staff?.name ?? "To be assigned",
     staffEmail: staff?.email?.trim() || null,
+    staffId: staff?.id ?? (data as { staff_id?: string | null }).staff_id ?? null,
     serviceName,
     startTime: data.start_time,
     endTime: data.end_time,
@@ -1052,6 +1058,8 @@ export async function loadAppointmentCommunicationStatus(
     private_alpha_enabled: ctx.privateAlphaEnabled,
   });
   const businessTo = resolveBusinessRecipient(ctx);
+  const staffTime = (iso: string | null | undefined) =>
+    iso ? formatStaffFacingInstant(iso, ctx.timezone) : null;
 
   const { data: logs } = await supabase
     .from("notification_logs")
@@ -1112,7 +1120,7 @@ export async function loadAppointmentCommunicationStatus(
       status: log ? mapLogStatus(log.status) : "not_applicable",
       label: "Customer confirmation email",
       detail: log
-        ? [log.recipient, log.sentAt ? `Last attempt ${log.sentAt}` : null, log.detail]
+        ? [log.recipient, log.sentAt ? `Last attempt ${staffTime(log.sentAt)}` : null, log.detail]
             .filter(Boolean)
             .join(" · ")
         : `Recipient ${ctx.customerEmail}`,
@@ -1136,7 +1144,7 @@ export async function loadAppointmentCommunicationStatus(
       status: log ? mapLogStatus(log.status) : "not_applicable",
       label: "Business confirmation email",
       detail: log
-        ? [log.recipient, log.sentAt ? `Last attempt ${log.sentAt}` : null, log.detail]
+        ? [log.recipient, log.sentAt ? `Last attempt ${staffTime(log.sentAt)}` : null, log.detail]
             .filter(Boolean)
             .join(" · ")
         : `Recipient ${businessTo}`,
@@ -1207,7 +1215,9 @@ export async function loadAppointmentCommunicationStatus(
       detail: [
         receiptRow.receipt_number ? `Receipt ${receiptRow.receipt_number}` : null,
         ctx.customerEmail ? `To ${ctx.customerEmail}` : null,
-        receiptRow.issued_at ? `Issued ${receiptRow.issued_at}` : null,
+        receiptRow.issued_at
+          ? `Issued ${formatStaffFacingInstant(receiptRow.issued_at, ctx.timezone)}`
+          : null,
       ]
         .filter(Boolean)
         .join(" · "),
@@ -1223,6 +1233,7 @@ export async function loadAppointmentCommunicationStatus(
       label: "Staff notification",
       detail: "No recipient — assigned employee has no email address.",
       canRetry: false,
+      staffProfileId: ctx.staffId,
     });
   } else {
     const log = latestFor("appointment.staff", ctx.staffEmail);
@@ -1231,7 +1242,7 @@ export async function loadAppointmentCommunicationStatus(
       status: log ? mapLogStatus(log.status) : "not_applicable",
       label: "Staff notification",
       detail: log
-        ? [log.recipient, log.sentAt ? `Last attempt ${log.sentAt}` : null, log.detail]
+        ? [log.recipient, log.sentAt ? `Last attempt ${staffTime(log.sentAt)}` : null, log.detail]
             .filter(Boolean)
             .join(" · ")
         : `Recipient ${ctx.staffEmail}`,
