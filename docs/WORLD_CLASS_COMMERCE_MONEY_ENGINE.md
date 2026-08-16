@@ -1,7 +1,8 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.1E — Reschedule Analytics Integrity** (6.1 not PO-accepted; 6.0B PO-accepted)  
+**Phase:** **6.2A — Professional Invoice & Receipt Workspace Foundation** (6.1 PO-accepted; 6.2A **not** PO-accepted; 6.0B PO-accepted)  
+**Feature 6.2A:** `6a25f96`  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
@@ -11,7 +12,7 @@
 **Feature 6.0B lifecycle emails:** `fd8560f`  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.0A / 6.0B**  
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.1 / 6.2A**  
 **Canonical helpers:** `lib/commerce/money-contract.ts` + `lib/commerce/refundability.ts`  
 **Booking-time resolver (preserved):** `lib/commerce/booking-financials.ts` (`resolveBookingFinancials` / `computeBookingPricing`)
 
@@ -53,6 +54,40 @@ Helpers: `isAppointmentCollectible`, `collectibleRemainingBalanceCents`, `collec
 
 Calendar: optimistic cancel + cancelled-ID override so Day/Week/Month/Agenda/Timeline agree without stale pre-cancel rows.
 
+## Phase 6.2A lock — Invoice & Receipt Workspace
+
+Display-only professional documents over existing `commerce_invoices` / `commerce_receipts`. Not an accounting rewrite.
+
+| Concept | Rule |
+|---------|------|
+| Invoice Workspace | `/dashboard/payments/invoices/{INV-…}` — commerce invoices only |
+| Receipt Workspace | `/dashboard/payments/receipts/{RCT-…}` — one payment, not the full invoice |
+| SaaS `billing_invoices` | Must not appear |
+| Manual invoice create / edit amounts / void / delete | **Not in 6.2A** |
+| Auto-email invoice on booking | **Forbidden** |
+| Intentional invoice email | Staff action from Invoice Workspace; failure must not mutate money columns |
+| Receipt resend | Existing `sendPaymentReceiptNow` on the existing receipt row |
+| Collect from invoice | Only when appointment collectible remaining > 0; routes to existing Payments collect |
+| Print | Browser print / Save as PDF; hide portal chrome; no PDF library |
+| Numbering | Unchanged; non-atomic invoice sequence and RCT `count(*)+1` remain deferred |
+| Refund math | `applyInvoicePayment` unchanged; display stored paid / refunded / balance / status |
+| Currency | Show **stored** document currency. Do not relabel USD as CAD. New invoice inserts stamp `businesses.currency`. Do **not** rewrite INV-0033. |
+
+### Currency forensics (read-only)
+
+| Item | Finding |
+|------|---------|
+| Business currency | `businesses.currency` = `cad` |
+| INV-0033 stored | `usd` (historical insert omitted currency; DB default) |
+| RCT-0001 | `usd` $50.00 |
+| RCT-0002 | `cad` $198.60 |
+| Contradiction | **YES** |
+| Historical rewrite | **Forbidden** without PO |
+
+Invoice **Balance** is `commerce_invoices.balance_cents`. Appointment collectible remaining is separate.
+
+Phase 6.2A PO acceptance = **NOT YET**. Phase 6.2B / 6.3 / 6.4 not started.
+
 ## Phase 6.1A lock — Integrity + staff-facing labels
 
 Users operate money through **Customer → Appointment → Payment**. Internal IDs are not normal user input **or** normal user-facing output (`booking:bs-…`, UUIDs).
@@ -66,7 +101,7 @@ Users operate money through **Customer → Appointment → Payment**. Internal I
 | Reports → Revenue | Recognized appointment value | Completed or collected stamps, tax-exclusive `price_cents` | YTD on that tab; **not** cash collected |
 | Reports → Employees / Locations / Services | Same recognized value as Revenue tab | **This business calendar month** · `appointmentPriceCents` / 100 on recognized rows | Not `amount_paid_cents` / deposit cash |
 
-Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1D.
+Phase 6.1 is **PO-accepted**.
 
 ## Phase 6.1C lock — Collect chrome + cents + Booked
 
@@ -344,12 +379,13 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0** | Money Contract & Source-of-Truth Foundation | Implemented (`9e7d72a`) |
 | **6.0A** | Appointment Lifecycle + Collectibility Integrity | Implemented (`efaea51`) |
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
-| **6.1** | Front-Desk Payments Operating Surface | **Implemented — awaiting PO hands-on review** |
-| 6.2 | Invoice & Receipt Workspace | **Not started** |
+| **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
+| **6.2A** | Invoice & Receipt Workspace Foundation | **Implemented — not PO-accepted** |
+| 6.2B+ | Remaining invoice/receipt lifecycle | **Not started** |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **Not started** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-Do **not** automatically start 6.2. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B.
+Do **not** automatically start 6.2B. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B.
 
 ---
 
@@ -369,7 +405,11 @@ Partial productization remains documented — not a 6.0 product expansion.
 |-----|----------------|
 | `create_public_appointment` named-staff path does not stamp `price_cents` / `tax_cents` / `deposit_cents` | **Dedicated future public-money remediation.** RPC is SECURITY DEFINER — **not modified in 6.0.** Unassigned public booking via BookingFacade **does** stamp financials. Do not claim the named-staff gap fixed. |
 | Historical invoices that stored exclusive subtotal as total | Display persisted rows; no bulk repair |
-| Receipt numbering race (RCT-count) | Phase 6.2 |
+| Receipt numbering race (RCT-count) | **Deferred** — not fixed in 6.2A |
+| Invoice sequence non-atomic | **Deferred** — not fixed in 6.2A |
+| No unique `appointment_id` / `transaction_id` on invoices/receipts | **Deferred** — no migration |
+| Post-refund + later payment invoice math (`applyInvoicePayment`) | **Deferred** — 6.2A displays stored columns |
+| Historical USD on CAD business (INV-0033) | **Documented** — no historical rewrite |
 | `recognize.ts` `appointmentPriceCents` omits tax | Technical debt; keep separate from cash contract |
 | Internal `revenueTodayCents` field names | Compatibility debt; UI/CSV labels corrected |
 | Open invoice resolution on appointment cancel | **Owner decision pending** (leave open / prompt void / fee / refund) — 6.0A leaves invoices unchanged |

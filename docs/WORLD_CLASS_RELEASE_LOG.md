@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-16 | **Chapter 6 Phase 6.2A — Invoice & Receipt Workspace Foundation** | `6a25f96` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Professional invoice/receipt documents; currency contradiction documented; 6.2A not PO-accepted; 6.2B not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1E — Reschedule Analytics Integrity** | `f7c7fa1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Rescheduled = real start/end move; Ana not rescheduled; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1D — Final Integrity Closeout** | `28b7bf6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Zero-balance Billing gate; past Booked Needs attention; own-slot hold; staff skipped UI; avg collected per customer; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1C — Final Closeout** | `7db7d3b` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Hide Collect at $0 remaining; customer report cents; Booked label; 6.1 not PO-accepted; 6.2 not started |
@@ -61,6 +62,21 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2A — quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Professional Invoice & Receipt Workspace Foundation |
+| INV-0033 currency stored | **usd** (not rewritten) |
+| Business currency | **cad** (`businesses.currency`) |
+| Contradiction | **YES** — display stored; staff mismatch banner |
+| Invoice / receipt numbers | Unchanged |
+| Financial rows rewritten | **No** (receipt email_status may update on resend, existing contract) |
+| Stripe Elements | **Not implemented** |
+| Migrations | **None** |
+| Phase 6.2B | **Not started** |
+| PO review | **Awaiting hands-on Preview verification** |
 
 ## Chapter 6 Phase 6.1E — quality report
 

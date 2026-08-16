@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 not PO-accepted.** **Phase 6.1E implemented — awaiting PO hands-on Preview verification.** 6.2 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 PO-accepted.** **Phase 6.2A implemented — not PO-accepted.** 6.2B not started.
 
 ---
 
@@ -368,6 +368,21 @@
 | Phase 6.1 | **Not started** |
 | Status | **Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing.** |
 
+## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.2A)
+
+| Field | Value |
+|-------|--------|
+| Phase | **6.2A — Professional Invoice & Receipt Workspace Foundation** |
+| Invoice | Commerce invoices only; INV-0033 cents preserved; stored currency displayed |
+| Receipt | One payment (RCT-0001 $50, RCT-0002 $198.60); not the full invoice |
+| Email | Intentional invoice send; failure does not mutate money; receipt resend existing row |
+| Print | Browser print; `print:hidden` portal chrome |
+| Collect | Hidden at $0 collectible remaining; cancelled not collectible |
+| Tests | `tests/unit/commerce/phase-6-2a-documents.test.ts` |
+| Stripe Elements | **Not implemented** |
+| Migrations | **None** |
+| Status | Implemented — **not PO-accepted**. Do not start 6.2B. |
+
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1)
 
 | Field | Value |
@@ -378,8 +393,8 @@
 | Appointment-native | Collect Payment + Refund share Payments workflows |
 | Tests | `tests/unit/commerce/phase-6-1-front-desk.test.ts` + `phase-6-1a-integrity.test.ts` |
 | Stripe Elements | **Not implemented** |
-| Phase 6.2 | **Not started** |
-| Status | Implemented — **not PO-accepted**. Corrected in Phase 6.1A.
+| Phase 6.2 | **6.2A implemented — not PO-accepted** |
+| Status | **PO-accepted** (Phase 6.1). Corrected in Phase 6.1A.
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1A)
 
@@ -393,7 +408,7 @@
 | Customers | “Customers with balances due” (customers) vs outstanding appointments |
 | Tests | `tests/unit/commerce/phase-6-1a-integrity.test.ts` |
 | Stripe Elements | **Not implemented** |
-| Phase 6.2 | **Not started** |
+| Phase 6.2 | **6.2A implemented — not PO-accepted** |
 | Status | Implemented — awaiting PO hands-on review. Phase 6.1 **not** PO-accepted. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1B)
@@ -408,7 +423,7 @@
 | Customer labels | Prior customers booked this month vs repeat completed visits vs recorded payments |
 | Tests | `tests/unit/commerce/phase-6-1b-reporting-integrity.test.ts` |
 | Stripe Elements | **Not implemented** |
-| Phase 6.2 | **Not started** |
+| Phase 6.2 | **6.2A implemented — not PO-accepted** |
 | Status | Implemented — awaiting PO hands-on review. Phase 6.1 **not** PO-accepted. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1E)
@@ -420,7 +435,7 @@
 | Not counted | Unchanged save, notes, payments, `updated_at` heuristic |
 | Tests | `tests/unit/commerce/phase-6-1e-reschedule-analytics.test.ts` |
 | Stripe Elements | **Not implemented** |
-| Phase 6.2 | **Not started** |
+| Phase 6.2 | **6.2A implemented — not PO-accepted** |
 | Status | Implemented — awaiting PO hands-on Preview verification. Phase 6.1 **not** PO-accepted. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1D)
@@ -436,7 +451,7 @@
 | Reports | Avg collected per customer (mean of customer totals) |
 | Tests | `tests/unit/commerce/phase-6-1d-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
-| Phase 6.2 | **Not started** |
+| Phase 6.2 | **6.2A implemented — not PO-accepted** |
 | Status | Implemented — awaiting PO hands-on Preview verification. Phase 6.1 **not** PO-accepted. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1C)
@@ -450,7 +465,7 @@
 | Status | Stored `confirmed` → staff **Booked** |
 | Tests | `tests/unit/commerce/phase-6-1c-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
-| Phase 6.2 | **Not started** |
+| Phase 6.2 | **6.2A implemented — not PO-accepted** |
 | Status | Implemented — awaiting PO hands-on Preview verification. Phase 6.1 **not** PO-accepted. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.0A)

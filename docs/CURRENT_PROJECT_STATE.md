@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-15  
-**Updated by:** World Class — Chapter 6 Phase 6.1E Reschedule Analytics Integrity  
+**Last updated:** 2026-08-16  
+**Updated by:** World Class — Chapter 6 Phase 6.2A Invoice & Receipt Workspace Foundation  
 
 ---
 
@@ -121,7 +121,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 not PO-accepted.** **Phase 6.1E implemented — awaiting PO hands-on Preview verification.** Phase 6.2 / Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 PO-accepted.** **Phase 6.2A implemented — not PO-accepted.** Phase 6.2B / Chapter 7 not started. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -158,7 +158,16 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-15)
+### Most recent (2026-08-16)
+
+**World Class — Chapter 6 Phase 6.2A Professional Invoice & Receipt Workspace Foundation**
+
+- Invoice Workspace and Receipt Workspace over existing `commerce_invoices` / `commerce_receipts`.
+- Intentional invoice email; receipt resend preserved; browser print hides portal chrome.
+- INV-0033 stored currency is **usd**; business currency is **cad**; historical rows were not rewritten.
+- Phase 6.1 is **PO-accepted**. Phase 6.2A is **not** PO-accepted. Phase 6.2B not started.
+
+### Immediately prior (2026-08-15)
 
 **World Class — Chapter 6 Phase 6.1E Reschedule Analytics Integrity**
 
@@ -617,9 +626,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `f7c7fa1` |
-| **Short** | `f7c7fa1` |
-| **Subject** | fix: count Reports reschedules from real schedule moves |
+| **SHA** | `6a25f96` |
+| **Short** | `6a25f96` |
+| **Subject** | feat: add Invoice and Receipt workspaces over existing commerce documents |
+| **Chapter 6 Phase 6.2A** | `6a25f96` / stamp pending |
 | **Chapter 6 Phase 6.1E** | `f7c7fa1` |
 | **Chapter 6 Phase 6.1D** | `28b7bf6` |
 | **Chapter 6 Phase 6.1C** | `7db7d3b` |
@@ -669,14 +679,14 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on review of Chapter 6 Phase 6.1E (Phase 6.1 not PO-accepted).** Do **not** start Phase 6.2. Do **not** start Chapter 7.
+1. **PO hands-on review of Chapter 6 Phase 6.2A (not PO-accepted).** Do **not** start Phase 6.2B. Do **not** start Chapter 7.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
 5. **Operation GVM Production** — remain protected.
 6. Marketing claim fixes only with **explicit PO** (locked pages).
 
-Do **not** start Phase 6.2, Stripe Elements, public online payment, or Chapter 7 until the product owner explicitly directs it.  
+Do **not** start Phase 6.2B, Stripe Elements, public online payment, or Chapter 7 until the product owner explicitly directs it.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 
