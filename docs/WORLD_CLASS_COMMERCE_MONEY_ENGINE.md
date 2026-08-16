@@ -1,7 +1,8 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.1D — Final Integrity Closeout** (6.1 not PO-accepted; 6.0B PO-accepted)  
+**Phase:** **6.1E — Reschedule Analytics Integrity** (6.1 not PO-accepted; 6.0B PO-accepted)  
+**Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
@@ -88,6 +89,18 @@ Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1D.
 | Staff notification UI | No log + recipient → **skipped** (not Not applicable) with Send if email is configured. **Not applicable** must not show Resend. Do not auto-enable a new policy. |
 | Reports Customers metric | Label **Avg collected per customer** = mean of per-customer payment totals. Workspace **Avg transaction** remains mean of succeeded commerce txs. |
 | Paid in full | Non-interactive status badge on appointment editor when collectible remaining is 0. |
+
+## Phase 6.1E lock — Rescheduled analytics
+
+| Concept | Rule |
+|---------|------|
+| **Before** | Reports counted any non-cancelled month appointment whose `updated_at` was >60s after `created_at` and `start_time !== created_at`. Payments, notes, and unchanged saves all bump `updated_at`. |
+| **After** | Count distinct month-window appointments that have an `appointment_change_log` row whose **start_time or end_time actually moved** (`reschedule`, `resize`, or `update`). |
+| Edit / unchanged save / payment | Not rescheduled |
+| Employee/location only | Not rescheduled unless start or end also moved |
+| Date/time change | Rescheduled |
+| Duration (end) change | Rescheduled (slot length moved) |
+| Ana forensic | Create `2026-08-15T00:30:00Z`; current start unchanged; logs are `create` + deposit `update`; `updated_at` later from payment/edits. **Not a reschedule.** Historical logs not rewritten. |
 
 ---
 

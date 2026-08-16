@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-15 | **Chapter 6 Phase 6.1E — Reschedule Analytics Integrity** | `f7c7fa1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Rescheduled = real start/end move; Ana not rescheduled; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1D — Final Integrity Closeout** | `28b7bf6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Zero-balance Billing gate; past Booked Needs attention; own-slot hold; staff skipped UI; avg collected per customer; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1C — Final Closeout** | `7db7d3b` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Hide Collect at $0 remaining; customer report cents; Booked label; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-14 | **Chapter 6 Phase 6.1B — Reporting Integrity + Propagation** | `987385f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business-TZ analytics; employee/location recognized value; Reports revalidate on booking; 6.1 not PO-accepted; 6.2 not started |
@@ -60,6 +61,19 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.1E — quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Reschedule Analytics Integrity |
+| Formula | Change-log start/end move (not `updated_at`) |
+| Ana | Not rescheduled — same start as create |
+| Historical logs | Unchanged |
+| Stripe Elements | **Not implemented** |
+| Migrations | **None** |
+| Phase 6.2 | **Not started** |
+| PO review | **Awaiting hands-on Preview verification** |
 
 ## Chapter 6 Phase 6.1D — quality report
 
