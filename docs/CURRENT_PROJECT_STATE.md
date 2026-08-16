@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-14  
-**Updated by:** World Class — Chapter 6 Phase 6.1C Final Closeout  
+**Last updated:** 2026-08-15  
+**Updated by:** World Class — Chapter 6 Phase 6.1D Final Integrity Closeout  
 
 ---
 
@@ -121,7 +121,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 not PO-accepted.** **Phase 6.1C implemented — awaiting PO hands-on Preview verification.** Phase 6.2 / Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 not PO-accepted.** **Phase 6.1D implemented — awaiting PO hands-on Preview verification.** Phase 6.2 / Chapter 7 not started. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -159,6 +159,17 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-15)
+
+**World Class — Chapter 6 Phase 6.1D Final Integrity Closeout**
+
+- Customer Billing no longer records unallocated payments; zero-obligation customers see a paid/current empty state.
+- Past Booked visits appear under **Needs attention**; Last visit is completed-only.
+- Existing appointment own-slot edits skip availability/min-notice; reschedule still validates.
+- Staff notification with a recipient but no log is **skipped**, not Not applicable + Resend.
+- Reports metric renamed **Avg collected per customer** (mean of customer payment totals).
+- Phase 6.1 is **not** PO-accepted. Phase 6.2 not started.
+
+### Immediately prior (2026-08-15)
 
 **World Class — Chapter 6 Phase 6.1C Final Closeout**
 
@@ -598,9 +609,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `7db7d3b` |
-| **Short** | `7db7d3b` |
-| **Subject** | fix: close Phase 6.1 payment and reporting UX gaps |
+| **SHA** | `28b7bf6` |
+| **Short** | `28b7bf6` |
+| **Subject** | fix: close Phase 6.1D integrity gaps |
+| **Chapter 6 Phase 6.1D** | `28b7bf6` |
 | **Chapter 6 Phase 6.1C** | `7db7d3b` |
 | **Chapter 6 Phase 6.1B** | `987385f` / stamp `35d6e9f` |
 | **Chapter 6 Phase 6.1A** | `4fbc357` / stamp `9a0cf51` |
@@ -648,7 +660,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on review of Chapter 6 Phase 6.1C (Phase 6.1 not PO-accepted).** Do **not** start Phase 6.2. Do **not** start Chapter 7.
+1. **PO hands-on review of Chapter 6 Phase 6.1D (Phase 6.1 not PO-accepted).** Do **not** start Phase 6.2. Do **not** start Chapter 7.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.

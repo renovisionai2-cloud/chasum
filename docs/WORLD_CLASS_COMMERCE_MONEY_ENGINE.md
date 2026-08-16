@@ -1,7 +1,8 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.1C — Final Closeout** (6.1 not PO-accepted; 6.0B PO-accepted)  
+**Phase:** **6.1D — Final Integrity Closeout** (6.1 not PO-accepted; 6.0B PO-accepted)  
+**Feature 6.1D:** `28b7bf6`  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
 **Feature 6.0A:** `efaea51`  
 **Feature 6.0B:** `309bc67` / civil-anchor `ee38142`  
@@ -64,7 +65,7 @@ Users operate money through **Customer → Appointment → Payment**. Internal I
 | Reports → Revenue | Recognized appointment value | Completed or collected stamps, tax-exclusive `price_cents` | YTD on that tab; **not** cash collected |
 | Reports → Employees / Locations / Services | Same recognized value as Revenue tab | **This business calendar month** · `appointmentPriceCents` / 100 on recognized rows | Not `amount_paid_cents` / deposit cash |
 
-Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1C.
+Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1D.
 
 ## Phase 6.1C lock — Collect chrome + cents + Booked
 
@@ -76,6 +77,18 @@ Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1C.
 | Customer report money | Presentation uses `formatMoneyCents` / `formatMoneyDollars` — preserve cents |
 | Staff status | Stored `confirmed` displays as **Booked**; `pending` remains a distinct awaiting-confirmation state |
 
+## Phase 6.1D lock — Integrity closeout (presentation + gating)
+
+| Concept | Rule |
+|---------|------|
+| Customer Billing Record payment | Generic unallocated `commerce_transactions` (no `appointment_id` / `invoice_id`) is **not** a 6.1 product path. Server rejects it. Panel shows paid/current empty state when collectible appointment, invoice, and deposit-due-now are all 0. No store credit / wallet / unapplied cash invented. Gift-card redeem on that form is deferred. |
+| Past Booked / open visit | Non-cancelled, non-completed visit whose **end** is in the past → Customer Workspace **Needs attention**. Never silently Completed. Do not auto-complete or auto no-show. |
+| Last visit | **Completed** appointments only (profile insights, directory, Chase last-visit). Past Booked is not a last visit. |
+| Own-slot edit | Unchanged start + staff + location + duration skips Availability Engine / min-notice. Changing date/time still validates. Exclude-self overlap remains. |
+| Staff notification UI | No log + recipient → **skipped** (not Not applicable) with Send if email is configured. **Not applicable** must not show Resend. Do not auto-enable a new policy. |
+| Reports Customers metric | Label **Avg collected per customer** = mean of per-customer payment totals. Workspace **Avg transaction** remains mean of succeeded commerce txs. |
+| Paid in full | Non-interactive status badge on appointment editor when collectible remaining is 0. |
+
 ---
 
 ## Phase 6.1B lock — Reports interpretation (not a new ledger)
@@ -86,7 +99,7 @@ Phase 6.1 PO acceptance requires another hands-on Preview review after 6.1C.
 | Analytics bucketing | Business timezone civil date/hour — do not rewrite stored `start_time` |
 | Employee Completed | `status === completed` only |
 | Customer “returning” | Executive = prior customers booked this month; Customers tab = 2+ completed visits |
-| Avg recorded payments / top customers | Prefer `customer_payment_events` paid/recorded; else completed appointment catalog value |
+| Avg collected per customer / top customers | Mean of each paying customer's summed `customer_payment_events` (paid/recorded); else completed appointment catalog value. **Not** average transaction size (workspace Avg transaction). |
 | Reports freshness | RSC + `revalidatePath`; no poll; open tab stays until next navigation |
 
 ---

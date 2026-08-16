@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.1C implemented — 6.1 not PO-accepted**; 6.0B PO-accepted)  
+**Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.1D implemented — 6.1 not PO-accepted**; 6.0B PO-accepted)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -30,7 +30,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
 | 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`) |
-| 6 | Sales, payments, invoices, receipts | **Phase 6.0B PO-accepted. Phase 6.1 not PO-accepted. Phase 6.1C implemented — awaiting PO hands-on Preview verification.** 6.2 / 6.3 / 6.4 not started. |
+| 6 | Sales, payments, invoices, receipts | **Phase 6.0B PO-accepted. Phase 6.1 not PO-accepted. Phase 6.1D implemented — awaiting PO hands-on Preview verification.** 6.2 / 6.3 / 6.4 not started. |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
 | 9 | **Business Structure Engine** (locations, resources, service requirements) | Not started — architecture documented |

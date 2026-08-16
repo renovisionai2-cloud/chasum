@@ -281,7 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 6 Phase 6.1C implemented — awaiting PO hands-on Preview verification.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
+- **Chapter 6 Phase 6.1D implemented — awaiting PO hands-on Preview verification.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
 - **Chapter 6 Phase 6.1B implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
 - **Chapter 6 Phase 6.1A implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
 - **Chapter 6 Phase 6.1 implemented** — Front-desk Collect Payment (Customer → Appointment → Payment). Internal IDs are not staff-facing. Do not reopen 6.0B.
@@ -315,7 +315,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 | J | Large-screen density / empty-canvas balance remains part of global polish. |
 | K | Appointment editor top **Collect** and lower **Collect payment** both open `CollectPaymentWorkspace` when a balance remains — duplication polish later. Both now hide / show Paid in full when remaining is 0. |
 | L | Reception morning-brief KPI still titled “Payment due” while per-appointment copy uses “Balance due” after a deposit — wording only; collectibility unchanged. |
-| M | Customer commerce panel still has an account-level Collect form (not appointment-native); leave until a dedicated customer-ledger UX. |
+| M | ~~Account-level Collect form~~ **Closed in 6.1D** — generic Record payment removed; unallocated writes rejected. Gift-card redeem on that form deferred (not a wallet). |
 
 ---
 
@@ -323,6 +323,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 
 | Date | Change |
 |------|--------|
+| 2026-08-15 | Chapter 6 Phase 6.1D Final Integrity Closeout. Phase 6.1 not PO-accepted. Phase 6.2 not started. |
 | 2026-08-15 | Chapter 6 Phase 6.1C Final Closeout. Phase 6.1 not PO-accepted. Phase 6.2 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.1 Front-Desk Payments Operating Surface implemented — awaiting PO hands-on review. Phase 6.2 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing. Cancellation and refund customer emails confirmed. Phase 6.1 not started. |
