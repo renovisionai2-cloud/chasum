@@ -105,7 +105,9 @@ export const AvailabilitySection = forwardRef<
         </div>
       ) : null}
 
-      {!loading && availability?.emptyReason ? (
+      {!loading &&
+      availability?.emptyReason &&
+      !(selectedSlot && selectedSlotValid) ? (
         <div
           role="status"
           className="flex gap-2 rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-950 dark:text-amber-100"

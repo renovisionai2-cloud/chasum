@@ -2,6 +2,7 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getCommunicationService } from "@/lib/communication/service";
+import { lastCompletedVisitAt } from "@/lib/crm/appointment-buckets";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -287,7 +288,7 @@ export async function getCustomerProfile(id: string) {
   }, 0);
 
   const totalVisits = completed.length;
-  const lastVisit = history[0]?.start_time ?? null;
+  const lastVisit = lastCompletedVisitAt(rows);
 
   return {
     customer,

@@ -396,9 +396,12 @@ export function AppointmentDrawer({
               Collect payment
             </Button>
             ) : collectionAction === "paid_in_full" ? (
-              <p className="text-xs font-medium text-muted-foreground">
+              <span
+                className="inline-flex items-center rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-medium text-emerald-800 dark:text-emerald-200"
+                role="status"
+              >
                 Paid in full
-              </p>
+              </span>
             ) : null}
             <Button
               type="button"

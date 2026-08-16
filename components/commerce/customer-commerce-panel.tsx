@@ -3,26 +3,18 @@ import {
   downloadInvoiceTextAction,
   downloadReceiptTextAction,
   queueReceiptEmailAction,
-  recordPaymentAction,
   type CommerceActionState,
 } from "@/lib/actions/commerce";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
-import {
-  PAYMENT_METHOD_LABELS,
-  centsToDollars,
-} from "@/lib/commerce/types";
+import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { useActionState, useState, useTransition } from "react";
-
-const initial: CommerceActionState = {};
+import { useState, useTransition } from "react";
 
 export function CustomerCommercePanel({
-  customerId,
   account,
   currency = "cad",
 }: {
@@ -30,19 +22,15 @@ export function CustomerCommercePanel({
   account: CustomerCommerceAccount;
   currency?: string | null;
 }) {
-  const [payState, payAction, payPending] = useActionState(
-    recordPaymentAction,
-    initial,
-  );
   const [viewer, setViewer] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [emailMsg, setEmailMsg] = useState<CommerceActionState>({});
-  const [method, setMethod] = useState("cash");
-  const [giftCardId, setGiftCardId] = useState(
-    account.giftCards[0]?.id ?? "",
-  );
 
   const money = (cents: number) => formatMoneyCents(cents, currency);
+  const hasCollectibleObligation =
+    account.outstandingAppointmentBalanceCents > 0 ||
+    account.outstandingInvoiceCents > 0 ||
+    account.outstandingDepositDueCents > 0;
 
   return (
     <div className="space-y-6">
@@ -76,82 +64,17 @@ export function CustomerCommercePanel({
         </div>
       </section>
 
-      <form
-        action={payAction}
-        className="space-y-3 rounded-[var(--radius-md)] border border-dashed border-border p-4"
-      >
-        <p className="ds-label">Collect payment</p>
-        <input type="hidden" name="customer_id" value={customerId} />
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Input
-            name="amount"
-            placeholder="Amount"
-            required
-            inputMode="decimal"
-            aria-label="Payment amount"
-            className="min-h-11"
-          />
-          <select
-            name="method"
-            className="min-h-11 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
-            value={method}
-            onChange={(e) => setMethod(e.target.value)}
-            aria-label="Method"
-          >
-            {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <Input
-            name="description"
-            placeholder="Description"
-            aria-label="Payment description"
-            className="min-h-11"
-          />
-        </div>
-        {method === "gift_card" ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {account.giftCards.length > 0 ? (
-              <select
-                name="gift_card_id"
-                className="min-h-11 rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
-                value={giftCardId}
-                onChange={(e) => setGiftCardId(e.target.value)}
-                aria-label="Gift certificate"
-              >
-                {account.giftCards.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.code} · {centsToDollars(g.balanceCents)} left
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <Input
-                name="gift_card_code"
-                placeholder="Gift certificate code"
-                required
-                aria-label="Gift certificate code"
-                className="min-h-11"
-              />
-            )}
-            {account.giftCards.length > 0 ? (
-              <p className="self-center text-xs text-muted-foreground">
-                Customer gift certificates appear here automatically.
-              </p>
-            ) : (
-              <p className="self-center text-xs text-muted-foreground">
-                No linked certificates — enter the code to redeem.
-              </p>
-            )}
-          </div>
-        ) : null}
-        <AlertMessage error={payState.error} success={payState.success} />
-        <Button type="submit" size="sm" className="min-h-11" disabled={payPending}>
-          {payPending ? "Saving…" : "Record payment"}
-        </Button>
-      </form>
+      {hasCollectibleObligation ? (
+      <p className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+        This customer has a balance due. Collect it from the appointment using
+        Collect payment — do not record an unallocated amount here.
+      </p>
+      ) : (
+      <p className="rounded-[var(--radius-md)] border border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+        Paid in full — no outstanding appointment balance, invoice, or deposit
+        due.
+      </p>
+      )}
 
       <Section title="Invoices">
         {account.invoices.length === 0 ? (

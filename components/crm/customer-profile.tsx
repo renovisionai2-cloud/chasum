@@ -465,6 +465,27 @@ export function CustomerProfileView({
 
       {tab === "appointments" ? (
         <div className="grid gap-4 lg:grid-cols-2">
+          {(profile.appointments.needsAttention?.length ?? 0) > 0 ? (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Needs attention</CardTitle>
+              <p className="text-xs font-normal text-muted-foreground">
+                Scheduled time has passed and the visit is still Booked — mark
+                completed, no-show, or cancel. Not counted as a completed last
+                visit.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <AppointmentList
+                items={profile.appointments.needsAttention}
+                emptyTitle="Nothing needs attention"
+                emptyDescription=""
+                currency={currency}
+                onOpenBilling={() => setTab("billing")}
+              />
+            </CardContent>
+          </Card>
+          ) : null}
           <Card>
             <CardHeader>
               <CardTitle>Upcoming</CardTitle>

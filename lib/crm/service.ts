@@ -10,6 +10,10 @@ import type {
 import { preferredFromHistory } from "@/lib/reception/preferences";
 import { createClient } from "@/lib/supabase/server";
 import { displayCustomerName } from "@/lib/crm/display";
+import {
+  bucketCustomerAppointments,
+  lastCompletedVisitAt,
+} from "@/lib/crm/appointment-buckets";
 
 export { displayCustomerName };
 
@@ -71,17 +75,6 @@ function buildInsights(
         new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
     );
 
-  const history = appointments
-    .filter(
-      (a) =>
-        a.status !== "cancelled" &&
-        new Date(a.start_time).getTime() < now,
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.start_time).getTime() - new Date(a.start_time).getTime(),
-    );
-
   const lifetimeRevenue = completed.reduce((sum, a) => {
     const price = (a.service as { price?: number } | null)?.price ?? 0;
     return sum + Number(price);
@@ -105,7 +98,7 @@ function buildInsights(
     preferredEmployeeName: prefs.preferredStaffName,
     preferredServiceName: prefs.preferredServiceName,
     preferredLocationName: prefs.preferredLocationName,
-    lastVisit: history[0]?.start_time ?? null,
+    lastVisit: lastCompletedVisitAt(appointments),
     nextAppointment: upcoming[0]?.start_time ?? null,
     upcomingCount: upcoming.length,
     cancellationCount: cancelled.length,
@@ -259,17 +252,14 @@ export async function loadCrmProfile(
     .order("start_time", { ascending: false });
 
   const appointments = (appointmentRows ?? []) as unknown as CrmAppointmentBucket[];
-  const now = Date.now();
-
-  const upcoming = appointments.filter(
-    (a) =>
-      a.status !== "cancelled" &&
-      new Date(a.start_time).getTime() >= now,
-  );
-  const completed = appointments.filter((a) => a.status === "completed");
-  const cancelled = appointments.filter((a) => a.status === "cancelled");
-  const noShows = appointments.filter((a) => a.status === "no_show");
-  const recurring = appointments.filter((a) => Boolean(a.recurring_rule_id));
+  const {
+    upcoming,
+    needsAttention,
+    completed,
+    cancelled,
+    noShows,
+    recurring,
+  } = bucketCustomerAppointments(appointments);
 
   const { data: documents } = await supabase
     .from("customer_documents")
@@ -361,6 +351,7 @@ export async function loadCrmProfile(
     appointments: {
       all: appointments,
       upcoming,
+      needsAttention,
       completed,
       cancelled,
       noShows,

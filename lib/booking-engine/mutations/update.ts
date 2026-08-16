@@ -11,6 +11,7 @@ import type {
   MutationResult,
   UpdateBookingIntent,
 } from "@/lib/booking-engine/types";
+import { isUnchangedExistingSchedule } from "@/lib/booking-engine/schedule-hold";
 import { createClient } from "@/lib/supabase/server";
 
 export async function updateBooking(
@@ -40,16 +41,29 @@ export async function updateBooking(
     intent.requestedStatus ?? (existing.status as string) ?? "pending";
 
   if (status !== "cancelled") {
-    const validation = await validateBooking({
-      ...intent,
-      excludeAppointmentId: intent.appointmentId,
-    });
-    if (!validation.ok) {
-      return {
-        phase: "conflict",
-        conflicts: validation.conflicts,
-        error: validation.conflicts[0]?.message,
-      };
+    const holdSchedule = isUnchangedExistingSchedule(existing, intent);
+    let endTime = String(existing.end_time ?? intent.requestedStart);
+    let resolvedStatus = status;
+
+    if (!holdSchedule) {
+      const validation = await validateBooking({
+        ...intent,
+        excludeAppointmentId: intent.appointmentId,
+      });
+      if (!validation.ok) {
+        return {
+          phase: "conflict",
+          conflicts: validation.conflicts,
+          error: validation.conflicts[0]?.message,
+        };
+      }
+      endTime = validation.endTime ?? endTime;
+      resolvedStatus =
+        status === "pending" ||
+        status === "confirmed" ||
+        !intent.requestedStatus
+          ? resolveRequestedStatus(validation.context, status)
+          : status;
     }
 
     if (intent.roomId) {
@@ -57,7 +71,7 @@ export async function updateBooking(
         businessId: intent.businessId,
         roomId: intent.roomId,
         startIso: intent.requestedStart,
-        endIso: validation.endTime,
+        endIso: endTime,
         excludeAppointmentId: intent.appointmentId,
       });
       if (roomConflicts.length > 0) {
@@ -69,11 +83,6 @@ export async function updateBooking(
       }
     }
 
-    const resolvedStatus =
-      status === "pending" || status === "confirmed" || !intent.requestedStatus
-        ? resolveRequestedStatus(validation.context, status)
-        : status;
-
     const { error } = await supabase
       .from("appointments")
       .update({
@@ -82,7 +91,7 @@ export async function updateBooking(
         customer_id: intent.customerId ?? existing.customer_id,
         location_id: intent.locationId,
         start_time: intent.requestedStart,
-        end_time: validation.endTime,
+        end_time: endTime,
         status: resolvedStatus,
         notes: intent.notes ?? null,
         room_id: intent.roomId ?? existing.room_id ?? null,
@@ -118,7 +127,7 @@ export async function updateBooking(
       beforeState,
       afterState: {
         start_time: intent.requestedStart,
-        end_time: validation.endTime,
+        end_time: endTime,
         status: resolvedStatus,
       },
     });

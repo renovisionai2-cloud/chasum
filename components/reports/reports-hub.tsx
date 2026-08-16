@@ -489,10 +489,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               description="Customers with 2+ completed appointments (all time). Cancelled / booked-only do not count."
             />
             <StatCard
-              title="Avg recorded payments"
+              title="Avg collected per customer"
               value={$(bundle.customers.lifetimeValueAvg)}
               icon={Wallet}
-              description="Mean of paid/recorded customer_payment_events; if none, completed appointment catalog value. Not recognized appointment value."
+              description="Mean of each paying customer's recorded payment total — not average transaction size."
             />
             <StatCard
               title="Directory activity (90d)"

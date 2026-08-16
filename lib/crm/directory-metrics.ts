@@ -54,9 +54,6 @@ export function buildDirectoryMetricsByCustomer(
     const startMs = new Date(row.start_time).getTime();
     if (row.status === "completed") {
       existing.visitCountCompleted += 1;
-    }
-
-    if (startMs < nowMs && row.status !== "cancelled" && row.status !== "no_show") {
       if (
         !existing.lastVisitAt ||
         startMs > new Date(existing.lastVisitAt).getTime()

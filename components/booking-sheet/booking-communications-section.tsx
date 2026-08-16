@@ -30,7 +30,10 @@ function tone(status: BookingNotificationItem["status"]): string {
   }
 }
 
-function resendLabel(channel: BookingNotificationItem["channel"]): string {
+function resendLabel(
+  channel: BookingNotificationItem["channel"],
+  status?: BookingNotificationItem["status"],
+): string {
   switch (channel) {
     case "customer_email":
       return "Resend confirmation";
@@ -39,7 +42,9 @@ function resendLabel(channel: BookingNotificationItem["channel"]): string {
     case "payment_receipt":
       return "Resend payment receipt";
     case "staff_email":
-      return "Resend staff notification";
+      return status === "sent" || status === "failed" || status === "pending"
+        ? "Resend staff notification"
+        : "Send staff notification";
     case "customer_sms":
       return "Resend SMS";
     default:
@@ -165,7 +170,7 @@ export function BookingCommunicationsSection({
                 </Link>
               ) : null}
             </div>
-            {item.canRetry ? (
+            {item.canRetry && item.status !== "not_applicable" ? (
               <form action={action}>
                 <input
                   type="hidden"
@@ -180,7 +185,7 @@ export function BookingCommunicationsSection({
                   disabled={pending}
                   className="h-8 shrink-0 text-[11px]"
                 >
-                  {resendLabel(item.channel)}
+                  {resendLabel(item.channel, item.status)}
                 </Button>
               </form>
             ) : null}

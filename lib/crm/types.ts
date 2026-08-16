@@ -162,6 +162,7 @@ export type CrmProfile = {
   appointments: {
     all: CrmAppointmentBucket[];
     upcoming: CrmAppointmentBucket[];
+    needsAttention: CrmAppointmentBucket[];
     completed: CrmAppointmentBucket[];
     cancelled: CrmAppointmentBucket[];
     noShows: CrmAppointmentBucket[];

@@ -82,7 +82,10 @@ export function AppointmentManagementActions({
         Collect
       </Button>
       ) : showPaidInFull ? (
-        <span className="inline-flex min-h-10 items-center px-1 text-xs font-medium text-muted-foreground">
+        <span
+          className="inline-flex min-h-10 items-center rounded-full bg-emerald-500/15 px-2.5 text-xs font-medium text-emerald-800 dark:text-emerald-200"
+          role="status"
+        >
           Paid in full
         </span>
       ) : null}

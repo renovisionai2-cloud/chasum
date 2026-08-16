@@ -158,13 +158,13 @@ export async function getChaseCrmAnalytics(
       const price = (a.service as { price?: number } | null)?.price ?? 0;
       cur.spend += Number(price);
       cur.visits += 1;
-    }
-    const start = a.start_time as string;
-    if (
-      new Date(start).getTime() < now &&
-      (!cur.lastVisit || new Date(start) > new Date(cur.lastVisit))
-    ) {
-      cur.lastVisit = start;
+      const start = a.start_time as string;
+      if (
+        !cur.lastVisit ||
+        new Date(start) > new Date(cur.lastVisit)
+      ) {
+        cur.lastVisit = start;
+      }
     }
     spendByCustomer.set(cid, cur);
   }

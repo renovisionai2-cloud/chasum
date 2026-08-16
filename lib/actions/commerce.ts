@@ -155,6 +155,13 @@ export async function recordPaymentAction(
     return { error: "Choose a customer and enter a valid amount." };
   }
 
+  if (!appointmentId && !invoiceId) {
+    return {
+      error:
+        "There is no outstanding balance to collect. Record payment from the appointment.",
+    };
+  }
+
   if (appointmentId) {
     const ctx = await getFrontDeskAppointmentContext({
       businessId: business.id,

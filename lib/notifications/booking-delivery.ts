@@ -1081,7 +1081,8 @@ export async function loadAppointmentCommunicationStatus(
   } | null {
     const row = (logs ?? []).find((l) => {
       if (String(l.template_key) !== templateKey) return false;
-      if (recipient && String(l.recipient) !== recipient) return false;
+      if (recipient && String(l.recipient).toLowerCase() !== recipient.toLowerCase())
+        return false;
       return true;
     });
     if (!row) return null;
@@ -1239,14 +1240,14 @@ export async function loadAppointmentCommunicationStatus(
     const log = latestFor("appointment.staff", ctx.staffEmail);
     items.push({
       channel: "staff_email",
-      status: log ? mapLogStatus(log.status) : "not_applicable",
+      status: log ? mapLogStatus(log.status) : "skipped",
       label: "Staff notification",
       detail: log
         ? [log.recipient, log.sentAt ? `Last attempt ${staffTime(log.sentAt)}` : null, log.detail]
             .filter(Boolean)
             .join(" · ")
-        : `Recipient ${ctx.staffEmail}`,
-      canRetry: emailConfigured,
+        : `No staff notification was recorded for this appointment. Recipient ${ctx.staffEmail}`,
+      canRetry: log ? emailConfigured && mapLogStatus(log.status) !== "not_applicable" : emailConfigured,
     });
   }
 

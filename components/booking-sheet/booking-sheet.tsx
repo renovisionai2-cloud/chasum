@@ -699,6 +699,8 @@ export function BookingSheet({
   const selectedSlotValid =
     !slot ||
     availLoading ||
+    (Boolean(isEditing && appointment?.start_time) &&
+      slotKey(slot) === slotKey(appointment?.start_time)) ||
     (availability?.slots ?? []).some((s) => slotKey(s.start) === slotKey(slot));
   const slotConflict =
     slot && !selectedSlotValid
