@@ -45,12 +45,12 @@ function ShellInner({
     <div className="flex min-h-screen bg-background">
       <a
         href="#portal-main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[calc(var(--z-palette)+1)] focus:rounded-[var(--radius-md)] focus:bg-card focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-md ds-focus-ring"
+        className="sr-only print:hidden focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[calc(var(--z-palette)+1)] focus:rounded-[var(--radius-md)] focus:bg-card focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-md ds-focus-ring"
       >
         Skip to main content
       </a>
 
-      <div className="hidden lg:block">
+      <div className="hidden lg:block print:hidden">
         <DashboardSidebar
           userEmail={userEmail}
           showHq={showHq}
@@ -60,6 +60,7 @@ function ShellInner({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
+        <div className="print:hidden">
         <DashboardTopNav
           userEmail={userEmail}
           locations={locations}
@@ -67,6 +68,7 @@ function ShellInner({
           locationQuota={locationQuota}
           onMenuOpen={() => setMobileOpen(true)}
         />
+        </div>
         <main
           id="portal-main"
           tabIndex={-1}
@@ -79,6 +81,7 @@ function ShellInner({
         </main>
       </div>
 
+      <div className="print:hidden">
       <MobileSidebar
         open={mobileOpen}
         userEmail={userEmail}
@@ -90,6 +93,7 @@ function ShellInner({
       <MobileBottomNav onMore={() => setMobileOpen(true)} />
 
       <CommandPalette />
+      </div>
     </div>
   );
 }

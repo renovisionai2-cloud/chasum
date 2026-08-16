@@ -4426,3 +4426,13 @@ body {
     transition: none !important;
   }
 }
+
+@media print {
+  body {
+    background: #fff !important;
+  }
+  .commerce-print-sheet {
+    box-shadow: none !important;
+    max-width: none !important;
+  }
+}

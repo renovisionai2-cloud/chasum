@@ -204,6 +204,8 @@ export type CommerceDashboardSnapshot = {
   averageTransactionCents: number | null;
   averageCustomerValueCents: number | null;
   recentTransactions: CommerceTransaction[];
+  /** Human receipt numbers for recent payment/deposit rows (read-only). */
+  receiptNumberByTransactionId: Record<string, string>;
   openInvoices: CommerceInvoice[];
   recentRefunds: CommerceRefund[];
   provider: {

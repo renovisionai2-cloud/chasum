@@ -1,6 +1,6 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapInvoice, mapInvoiceLine } from "@/lib/commerce/mappers";
-import { formatMoneyCents } from "@/lib/commerce/money";
+import { formatMoneyCents, normalizeCurrency } from "@/lib/commerce/money";
 import { invoiceAmountsFromAppointmentStamps } from "@/lib/commerce/money-contract";
 import type { CommerceInvoice } from "@/lib/commerce/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
@@ -124,7 +124,7 @@ export async function createInvoiceForAppointment(input: {
       .maybeSingle(),
     supabase
       .from("businesses")
-      .select("name, email, phone")
+      .select("name, email, phone, currency, legal_name")
       .eq("id", input.businessId)
       .maybeSingle(),
   ]);
@@ -145,6 +145,7 @@ export async function createInvoiceForAppointment(input: {
   const total = money.totalCents;
   const amountPaid = money.amountPaidCents;
   const balance = money.balanceCents;
+  const documentCurrency = normalizeCurrency(businessRow?.currency);
 
   const invoiceNumber =
     (appt.invoice_number as string | null) ||
@@ -174,6 +175,7 @@ export async function createInvoiceForAppointment(input: {
       appointment_id: input.appointmentId,
       invoice_number: invoiceNumber,
       status,
+      currency: documentCurrency,
       issue_date: issueDate,
       due_date: dueDate,
       subtotal_cents: lineUnit || subtotal,

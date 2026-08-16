@@ -12,6 +12,7 @@ import {
   resolveFinancialsFromAppointment,
 } from "@/lib/commerce/booking-financials";
 import { formatMoneyCents } from "@/lib/commerce/money";
+import { invoiceWorkspacePath } from "@/lib/commerce/document-paths";
 import { appointmentCollectionAction } from "@/lib/commerce/money-contract";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
 import {
@@ -25,6 +26,7 @@ import {
   type CommerceTransaction,
 } from "@/lib/commerce/types";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type PaymentsSectionProps = {
@@ -310,9 +312,19 @@ export function PaymentsSection({
       ) : null}
 
       <p className="text-xs text-muted-foreground">
-        {appointment?.invoice_number
-          ? `Invoice #${appointment.invoice_number}`
-          : "Receipts stay attached to each payment."}
+        {appointment?.invoice_number ? (
+          <>
+            Invoice{" "}
+            <Link
+              href={invoiceWorkspacePath(appointment.invoice_number)}
+              className="font-medium text-foreground underline-offset-4 hover:underline"
+            >
+              {appointment.invoice_number}
+            </Link>
+          </>
+        ) : (
+          "Receipts stay attached to each payment."
+        )}
       </p>
 
       {collectOpen &&

@@ -46,6 +46,25 @@ export function formatMoneyCents(
   }
 }
 
+/** Always two decimal places — financial documents and emails. */
+export function formatMoneyCentsExact(
+  cents: number,
+  currency?: string | null,
+): string {
+  const meta = CURRENCY_META[normalizeCurrency(currency)];
+  const amount = cents / 100;
+  try {
+    return new Intl.NumberFormat(meta.locale, {
+      style: "currency",
+      currency: meta.code,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${meta.symbol}${amount.toFixed(2)}`;
+  }
+}
+
 export function formatMoneyDollars(
   amount: number,
   currency?: string | null,

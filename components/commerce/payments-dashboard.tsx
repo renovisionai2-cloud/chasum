@@ -4,9 +4,12 @@ import { CollectPaymentWorkspace } from "@/components/commerce/collect-payment-w
 import { RefundTransactionSheet } from "@/components/commerce/refund-transaction-sheet";
 import {
   createInvoiceAction,
-  downloadInvoiceTextAction,
   type CommerceActionState,
 } from "@/lib/actions/commerce";
+import {
+  invoiceWorkspacePath,
+  receiptWorkspacePath,
+} from "@/lib/commerce/document-paths";
 import type { FrontDeskAppointmentOption } from "@/lib/commerce/front-desk";
 import {
   ledgerKindLabel,
@@ -36,10 +39,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import type { Customer } from "@/lib/types/booking";
 import { format } from "date-fns";
 import { Banknote, FileText, Receipt } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 
 type FilterKey =
@@ -110,9 +113,6 @@ export function PaymentsDashboard({
   );
   const [filter, setFilter] = useState<FilterKey>("all");
   const [query, setQuery] = useState("");
-  const [viewer, setViewer] = useState<{ title: string; body: string } | null>(
-    null,
-  );
   const [pending, startTransition] = useTransition();
   const [invoiceMsg, setInvoiceMsg] = useState<CommerceActionState>({});
   const [refundTarget, setRefundTarget] = useState<CommerceTransaction | null>(
@@ -373,6 +373,16 @@ export function PaymentsDashboard({
                       ) : null}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
+                      {snapshot.receiptNumberByTransactionId?.[tx.id] ? (
+                        <Link
+                          href={receiptWorkspacePath(
+                            snapshot.receiptNumberByTransactionId[tx.id],
+                          )}
+                          className="inline-flex h-10 items-center px-3 text-sm font-medium underline-offset-4 hover:underline"
+                        >
+                          View receipt
+                        </Link>
+                      ) : null}
                       {refundable ? (
                         <Button
                           type="button"
@@ -442,25 +452,12 @@ export function PaymentsDashboard({
                           Collect payment
                         </Button>
                       ) : null}
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={pending}
-                        onClick={() => {
-                          startTransition(async () => {
-                            const res = await downloadInvoiceTextAction(inv.id);
-                            if (res.text) {
-                              setViewer({
-                                title: `Invoice ${inv.invoiceNumber}`,
-                                body: res.text,
-                              });
-                            }
-                          });
-                        }}
+                      <Link
+                        href={invoiceWorkspacePath(inv.invoiceNumber)}
+                        className="inline-flex h-10 items-center rounded-[var(--radius-sm)] border border-border px-3.5 text-sm font-medium"
                       >
                         View
-                      </Button>
+                      </Link>
                     </div>
                   </li>
                 );
@@ -547,35 +544,6 @@ export function PaymentsDashboard({
               : null
           }
         />
-      ) : null}
-
-      {viewer ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="commerce-viewer-title"
-          onClick={() => setViewer(null)}
-        >
-          <div
-            className={cn(
-              "max-h-[85vh] w-full max-w-lg overflow-auto rounded-[var(--radius-lg)] border border-border bg-background p-5 shadow-lg",
-            )}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-3 flex items-start justify-between gap-3">
-              <h3 id="commerce-viewer-title" className="text-base font-semibold">
-                {viewer.title}
-              </h3>
-              <Button type="button" size="sm" variant="outline" onClick={() => setViewer(null)}>
-                Close
-              </Button>
-            </div>
-            <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed">
-              {viewer.body}
-            </pre>
-          </div>
-        </div>
       ) : null}
     </div>
   );

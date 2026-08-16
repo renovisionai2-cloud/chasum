@@ -33,6 +33,7 @@ export {
   getInvoiceById,
   listInvoices,
 } from "@/lib/commerce/invoices";
+export { sendInvoiceEmail } from "@/lib/commerce/invoice-email";
 
 export {
   createReceiptForTransaction,

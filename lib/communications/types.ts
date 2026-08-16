@@ -117,6 +117,12 @@ export type AppointmentTemplateContext = {
   remainingRefundableCents?: number | null;
   refundDateLabel?: string | null;
   refundTenderNote?: string | null;
+  /** Phase 6.2A invoice document fields. */
+  invoicePaidCents?: number | null;
+  invoiceBalanceCents?: number | null;
+  invoiceIssueDate?: string | null;
+  invoiceDueDate?: string | null;
+  documentCurrency?: string | null;
 };
 
 export type QueueNotificationInput = {

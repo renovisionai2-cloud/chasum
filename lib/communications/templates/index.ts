@@ -1,3 +1,4 @@
+import { currencyCode } from "@/lib/commerce/money";
 import { getAppUrl } from "@/lib/env";
 import { BRAND_NAME } from "@/lib/brand/assets";
 import {
@@ -13,9 +14,25 @@ import type {
   RenderedTemplate,
 } from "@/lib/communications/types";
 
-function money(cents: number | null | undefined): string {
+function money(
+  cents: number | null | undefined,
+  currency?: string | null,
+): string {
   if (cents == null) return "";
-  return `$${(cents / 100).toFixed(2)}`;
+  const amount = cents / 100;
+  if (currency) {
+    try {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: currencyCode(currency),
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    } catch {
+      return `$${amount.toFixed(2)}`;
+    }
+  }
+  return `$${amount.toFixed(2)}`;
 }
 
 function escapeHtml(value: string): string {
@@ -480,17 +497,36 @@ export function renderEmailTemplate(
       };
     }
     case "commerce.invoice": {
+      const cur = ctx.documentCurrency;
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
-        <p>Your invoice ${escapeHtml(ctx.invoiceNumber ?? "")} from <strong>${escapeHtml(ctx.businessName)}</strong> is ready.</p>
-        <p style="font-size:20px;font-weight:600;margin:16px 0;">${money(ctx.amountCents)}</p>
+        <p>Invoice ${escapeHtml(ctx.invoiceNumber ?? "")} from <strong>${escapeHtml(ctx.businessName)}</strong> is ready.</p>
+        <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
+          ${ctx.serviceName ? detailRow("Service", escapeHtml(ctx.serviceName)) : ""}
+          ${ctx.invoiceIssueDate ? detailRow("Issued", escapeHtml(ctx.invoiceIssueDate)) : ""}
+          ${ctx.invoiceDueDate ? detailRow("Due", escapeHtml(ctx.invoiceDueDate)) : ""}
+          ${ctx.subtotalCents != null ? detailRow("Subtotal", money(ctx.subtotalCents, cur)) : ""}
+          ${ctx.taxCents != null && ctx.taxCents > 0 ? detailRow("Tax", money(ctx.taxCents, cur)) : ""}
+          ${detailRow("Invoice total", `<strong>${money(ctx.appointmentTotalCents ?? ctx.amountCents, cur)}</strong>`)}
+          ${ctx.invoicePaidCents != null ? detailRow("Paid", money(ctx.invoicePaidCents, cur)) : ""}
+          ${ctx.invoiceBalanceCents != null ? detailRow("Balance", money(ctx.invoiceBalanceCents, cur)) : ""}
+        </table>
         <p style="margin:0;color:#475569;font-size:14px;">Questions? Reply to this email or contact the studio directly.</p>
         ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Invoice ${ctx.invoiceNumber ?? ""} from ${ctx.businessName}`,
-        html: layout(content, b),
-        text: `Invoice ${ctx.invoiceNumber ?? ""} for ${money(ctx.amountCents)} from ${ctx.businessName}.`,
+        html: layout(content, b, { headline: "Invoice" }),
+        text: [
+          `Invoice ${ctx.invoiceNumber ?? ""} from ${ctx.businessName}.`,
+          ctx.subtotalCents != null ? `Subtotal: ${money(ctx.subtotalCents, cur)}` : null,
+          ctx.taxCents != null ? `Tax: ${money(ctx.taxCents, cur)}` : null,
+          `Total: ${money(ctx.appointmentTotalCents ?? ctx.amountCents, cur)}`,
+          ctx.invoicePaidCents != null ? `Paid: ${money(ctx.invoicePaidCents, cur)}` : null,
+          ctx.invoiceBalanceCents != null ? `Balance: ${money(ctx.invoiceBalanceCents, cur)}` : null,
+        ]
+          .filter(Boolean)
+          .join("\n"),
       };
     }
     case "commerce.receipt": {

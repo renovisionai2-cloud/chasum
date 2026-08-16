@@ -47,7 +47,7 @@ export function PreviewBuildBadge() {
 
   return (
     <div
-      className="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg"
+      className="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg print:hidden"
       role="status"
       aria-label="Preview build identity"
     >

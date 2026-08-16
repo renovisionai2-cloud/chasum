@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
 import {
-  downloadInvoiceTextAction,
-  downloadReceiptTextAction,
   queueReceiptEmailAction,
   type CommerceActionState,
 } from "@/lib/actions/commerce";
+import { invoiceWorkspacePath, receiptWorkspacePath } from "@/lib/commerce/document-paths";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
 import { formatMoneyCents } from "@/lib/commerce/money";
@@ -12,6 +11,7 @@ import { AlertMessage } from "@/components/ui/form-feedback";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 
 export function CustomerCommercePanel({
@@ -22,7 +22,6 @@ export function CustomerCommercePanel({
   account: CustomerCommerceAccount;
   currency?: string | null;
 }) {
-  const [viewer, setViewer] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [emailMsg, setEmailMsg] = useState<CommerceActionState>({});
 
@@ -117,21 +116,12 @@ export function CustomerCommercePanel({
                       {money(inv.balanceCents)}
                     </td>
                     <td className="py-2.5 text-right">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="min-h-9"
-                        disabled={pending}
-                        onClick={() => {
-                          startTransition(async () => {
-                            const res = await downloadInvoiceTextAction(inv.id);
-                            if (res.text) setViewer(res.text);
-                          });
-                        }}
+                      <Link
+                        href={invoiceWorkspacePath(inv.invoiceNumber)}
+                        className="inline-flex h-10 min-h-9 items-center rounded-[var(--radius-sm)] border border-border px-3.5 text-sm font-medium"
                       >
                         View
-                      </Button>
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -158,21 +148,12 @@ export function CustomerCommercePanel({
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="min-h-9"
-                    disabled={pending}
-                    onClick={() => {
-                      startTransition(async () => {
-                        const res = await downloadReceiptTextAction(r.id);
-                        if (res.text) setViewer(res.text);
-                      });
-                    }}
+                  <Link
+                    href={receiptWorkspacePath(r.receiptNumber)}
+                    className="inline-flex h-10 min-h-9 items-center rounded-[var(--radius-sm)] border border-border px-3.5 text-sm font-medium"
                   >
                     View
-                  </Button>
+                  </Link>
                   <Button
                     type="button"
                     size="sm"
@@ -232,50 +213,6 @@ export function CustomerCommercePanel({
             ))}
           </ul>
         </Section>
-      ) : null}
-
-      {viewer ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setViewer(null)}
-        >
-          <div
-            className="max-h-[85vh] w-full max-w-lg overflow-auto rounded-[var(--radius-lg)] border border-border bg-background p-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-3 flex justify-between">
-              <p className="font-semibold">Preview</p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => setViewer(null)}
-              >
-                Close
-              </Button>
-            </div>
-            <pre className="whitespace-pre-wrap font-mono text-xs">{viewer}</pre>
-            <Button
-              type="button"
-              size="sm"
-              className="mt-3"
-              variant="outline"
-              onClick={() => {
-                const blob = new Blob([viewer], { type: "text/plain" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "chasum-document.txt";
-                a.click();
-                URL.revokeObjectURL(url);
-              }}
-            >
-              Download
-            </Button>
-          </div>
-        </div>
       ) : null}
     </div>
   );

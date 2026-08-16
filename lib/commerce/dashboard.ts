@@ -99,6 +99,7 @@ export async function getCommerceDashboardSnapshot(
     averageTransactionCents: null,
     averageCustomerValueCents: null,
     recentTransactions: [],
+    receiptNumberByTransactionId: {},
     openInvoices: [],
     recentRefunds: [],
     provider,
@@ -226,6 +227,22 @@ export async function getCommerceDashboardSnapshot(
       ? Math.round(values.reduce((a, b) => a + b, 0) / values.length)
       : null;
 
+  const recentTransactions = transactions.slice(0, 25);
+  const receiptNumberByTransactionId: Record<string, string> = {};
+  const recentIds = recentTransactions.map((t) => t.id);
+  if (recentIds.length > 0) {
+    const { data: receiptRows } = await supabase
+      .from("commerce_receipts")
+      .select("transaction_id, receipt_number")
+      .eq("business_id", businessId)
+      .in("transaction_id", recentIds);
+    for (const row of receiptRows ?? []) {
+      const txId = String(row.transaction_id ?? "");
+      const num = String(row.receipt_number ?? "").trim();
+      if (txId && num) receiptNumberByTransactionId[txId] = num;
+    }
+  }
+
   return {
     businessId,
     businessName,
@@ -247,7 +264,8 @@ export async function getCommerceDashboardSnapshot(
     refundsMonthCents,
     averageTransactionCents,
     averageCustomerValueCents,
-    recentTransactions: transactions.slice(0, 25),
+    recentTransactions,
+    receiptNumberByTransactionId,
     openInvoices: openInvoices.slice(0, 20),
     recentRefunds: refunds.slice(0, 15),
     provider,
