@@ -30,6 +30,10 @@ import type {
   RevenueBreakdown,
   ServiceReport,
 } from "@/lib/reports/types";
+import {
+  countRescheduledAppointments,
+  type ScheduleChangeLogRow,
+} from "@/lib/reports/reschedule-analytics";
 
 export type ReportAppointmentRow = {
   id: string;
@@ -323,6 +327,7 @@ export function buildAppointmentReport(
   waitlistConversions: number,
   now: Date,
   locale?: BusinessLocaleInput,
+  scheduleLogs: ScheduleChangeLogRow[] = [],
 ): AppointmentReport {
   const monthStart = monthStartAt(now, locale);
   const tz = reportTz(locale);
@@ -350,15 +355,7 @@ export function buildAppointmentReport(
     trend.set(key, (trend.get(key) ?? 0) + 1);
   }
 
-  const rescheduled = month.filter((a) => {
-    if (!a.created_at || !a.updated_at) return false;
-    return (
-      a.status !== "cancelled" &&
-      new Date(a.updated_at).getTime() - new Date(a.created_at).getTime() >
-        60_000 &&
-      a.start_time !== a.created_at
-    );
-  }).length;
+  const rescheduled = countRescheduledAppointments(month, scheduleLogs);
 
   const avg =
     valued.length === 0

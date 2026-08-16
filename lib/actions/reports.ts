@@ -21,6 +21,7 @@ import {
   type ReportCustomerRow,
   type ReportPaymentRow,
 } from "@/lib/reports/compute";
+import type { ScheduleChangeLogRow } from "@/lib/reports/reschedule-analytics";
 import type {
   ReportCadence,
   ReportExportFormat,
@@ -99,6 +100,7 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     locationsRes,
     paymentsRes,
     waitlistRes,
+    changeLogRes,
     giftRes,
     membershipRes,
     packageRes,
@@ -127,6 +129,11 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
       .select("id", { count: "exact", head: true })
       .eq("business_id", business.id)
       .eq("status", "booked"),
+    supabase
+      .from("appointment_change_log")
+      .select("appointment_id, action, before_state, after_state")
+      .eq("business_id", business.id)
+      .gte("created_at", yearAgo.toISOString()),
     supabase
       .from("gift_cards")
       .select("initial_balance_cents, balance_cents, status")
@@ -275,11 +282,17 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
   });
 
   const revenue = buildRevenueBreakdown(appointments, now, locale);
+  if (changeLogRes.error) {
+    logQueryError("reports-appointment-change-log", changeLogRes.error.message);
+  }
+  const scheduleLogs: ScheduleChangeLogRow[] =
+    (changeLogRes.data as ScheduleChangeLogRow[] | null) ?? [];
   const appointmentsReport = buildAppointmentReport(
     appointments,
     waitlistRes.count ?? 0,
     now,
     locale,
+    scheduleLogs,
   );
   const customersReport = buildCustomerReport(
     customers,

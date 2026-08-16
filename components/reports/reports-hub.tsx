@@ -431,6 +431,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               title="Rescheduled"
               value={String(bundle.appointments.rescheduled)}
               icon={CalendarDays}
+              description="Appointments whose start or end time actually moved — not ordinary edits or payments."
             />
             <StatCard
               title="Waitlist conversions"
