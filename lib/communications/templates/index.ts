@@ -1,3 +1,4 @@
+import { formatDocumentEmailMoney } from "@/lib/commerce/document-currency";
 import { currencyCode } from "@/lib/commerce/money";
 import { getAppUrl } from "@/lib/env";
 import { BRAND_NAME } from "@/lib/brand/assets";
@@ -498,6 +499,8 @@ export function renderEmailTemplate(
     }
     case "commerce.invoice": {
       const cur = ctx.documentCurrency;
+      const docMoney = (cents: number | null | undefined) =>
+        cents == null ? "" : formatDocumentEmailMoney(cents, cur ?? "usd");
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
         <p>Invoice ${escapeHtml(ctx.invoiceNumber ?? "")} from <strong>${escapeHtml(ctx.businessName)}</strong> is ready.</p>
@@ -505,13 +508,14 @@ export function renderEmailTemplate(
           ${ctx.serviceName ? detailRow("Service", escapeHtml(ctx.serviceName)) : ""}
           ${ctx.invoiceIssueDate ? detailRow("Issued", escapeHtml(ctx.invoiceIssueDate)) : ""}
           ${ctx.invoiceDueDate ? detailRow("Due", escapeHtml(ctx.invoiceDueDate)) : ""}
-          ${ctx.subtotalCents != null ? detailRow("Subtotal", money(ctx.subtotalCents, cur)) : ""}
-          ${ctx.taxCents != null && ctx.taxCents > 0 ? detailRow("Tax", money(ctx.taxCents, cur)) : ""}
-          ${detailRow("Invoice total", `<strong>${money(ctx.appointmentTotalCents ?? ctx.amountCents, cur)}</strong>`)}
-          ${ctx.invoicePaidCents != null ? detailRow("Paid", money(ctx.invoicePaidCents, cur)) : ""}
-          ${ctx.invoiceBalanceCents != null ? detailRow("Balance", money(ctx.invoiceBalanceCents, cur)) : ""}
+          ${cur ? detailRow("Currency", escapeHtml(currencyCode(cur))) : ""}
+          ${ctx.subtotalCents != null ? detailRow("Subtotal", docMoney(ctx.subtotalCents)) : ""}
+          ${ctx.taxCents != null && ctx.taxCents > 0 ? detailRow("Tax", docMoney(ctx.taxCents)) : ""}
+          ${detailRow("Invoice total", `<strong>${docMoney(ctx.appointmentTotalCents ?? ctx.amountCents)}</strong>`)}
+          ${ctx.invoicePaidCents != null ? detailRow("Paid", docMoney(ctx.invoicePaidCents)) : ""}
+          ${ctx.invoiceBalanceCents != null ? detailRow("Balance", docMoney(ctx.invoiceBalanceCents)) : ""}
         </table>
-        <p style="margin:0;color:#475569;font-size:14px;">Questions? Reply to this email or contact the studio directly.</p>
+        <p style="margin:0;color:#475569;font-size:14px;">Questions? Reply to this email or contact ${escapeHtml(ctx.businessName)} directly.</p>
         ${contactBlock(b, ctx)}`;
       return {
         key,
@@ -519,11 +523,12 @@ export function renderEmailTemplate(
         html: layout(content, b, { headline: "Invoice" }),
         text: [
           `Invoice ${ctx.invoiceNumber ?? ""} from ${ctx.businessName}.`,
-          ctx.subtotalCents != null ? `Subtotal: ${money(ctx.subtotalCents, cur)}` : null,
-          ctx.taxCents != null ? `Tax: ${money(ctx.taxCents, cur)}` : null,
-          `Total: ${money(ctx.appointmentTotalCents ?? ctx.amountCents, cur)}`,
-          ctx.invoicePaidCents != null ? `Paid: ${money(ctx.invoicePaidCents, cur)}` : null,
-          ctx.invoiceBalanceCents != null ? `Balance: ${money(ctx.invoiceBalanceCents, cur)}` : null,
+          cur ? `Currency: ${currencyCode(cur)}` : null,
+          ctx.subtotalCents != null ? `Subtotal: ${docMoney(ctx.subtotalCents)}` : null,
+          ctx.taxCents != null ? `Tax: ${docMoney(ctx.taxCents)}` : null,
+          `Total: ${docMoney(ctx.appointmentTotalCents ?? ctx.amountCents)}`,
+          ctx.invoicePaidCents != null ? `Paid: ${docMoney(ctx.invoicePaidCents)}` : null,
+          ctx.invoiceBalanceCents != null ? `Balance: ${docMoney(ctx.invoiceBalanceCents)}` : null,
         ]
           .filter(Boolean)
           .join("\n"),

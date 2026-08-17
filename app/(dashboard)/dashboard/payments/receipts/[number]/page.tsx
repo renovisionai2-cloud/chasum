@@ -23,7 +23,7 @@ export default async function ReceiptWorkspacePage({ params }: Props) {
   if (!model) notFound();
 
   return (
-    <div className="ds-page space-y-6">
+    <div className="ds-page space-y-6 print:space-y-0">
       <div className="print:hidden">
         <PageHeader
           eyebrow="Payments"

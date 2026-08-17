@@ -6,6 +6,8 @@ import {
 import { invoiceWorkspacePath, receiptWorkspacePath } from "@/lib/commerce/document-paths";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
+import { formatDocumentMoneyCents } from "@/lib/commerce/document-currency";
+import { formatCommerceCivilDate } from "@/lib/commerce/document-dates";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import { AlertMessage } from "@/components/ui/form-feedback";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,8 @@ export function CustomerCommercePanel({
   const [emailMsg, setEmailMsg] = useState<CommerceActionState>({});
 
   const money = (cents: number) => formatMoneyCents(cents, currency);
+  const documentMoney = (cents: number, stored: string) =>
+    formatDocumentMoneyCents(cents, stored, currency);
   const hasCollectibleObligation =
     account.outstandingAppointmentBalanceCents > 0 ||
     account.outstandingInvoiceCents > 0 ||
@@ -102,18 +106,16 @@ export function CustomerCommercePanel({
                       {invoiceStatusLabel(inv.status)}
                     </td>
                     <td className="py-2.5 pr-2 tabular-nums text-muted-foreground">
-                      {inv.issueDate
-                        ? format(new Date(inv.issueDate), "MMM d, yyyy")
-                        : "—"}
+                      {formatCommerceCivilDate(inv.issueDate) ?? "—"}
                     </td>
                     <td className="py-2.5 pr-2 text-right tabular-nums">
-                      {money(inv.totalCents)}
+                      {documentMoney(inv.totalCents, inv.currency)}
                     </td>
                     <td className="py-2.5 pr-2 text-right tabular-nums">
-                      {money(inv.amountPaidCents)}
+                      {documentMoney(inv.amountPaidCents, inv.currency)}
                     </td>
                     <td className="py-2.5 pr-2 text-right tabular-nums">
-                      {money(inv.balanceCents)}
+                      {documentMoney(inv.balanceCents, inv.currency)}
                     </td>
                     <td className="py-2.5 text-right">
                       <Link
@@ -144,7 +146,7 @@ export function CustomerCommercePanel({
                 <div>
                   <p className="font-medium">{r.receiptNumber}</p>
                   <p className="text-xs text-muted-foreground">
-                    {money(r.amountCents)} · {receiptEmailLabel(r.emailStatus)}
+                    {documentMoney(r.amountCents, r.currency)} · {receiptEmailLabel(r.emailStatus)}
                   </p>
                 </div>
                 <div className="flex gap-2">

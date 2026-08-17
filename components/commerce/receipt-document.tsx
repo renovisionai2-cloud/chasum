@@ -14,7 +14,7 @@ export function ReceiptDocument({ model }: { model: ReceiptWorkspaceModel }) {
           {model.kindLabel} · {model.methodLabel}
         </p>
         <p className="text-sm text-neutral-600">{model.paidAt}</p>
-        <p className="mt-1 text-xs text-neutral-500">Currency {model.currencyCode}</p>
+        <p className="mt-1 text-xs font-medium text-neutral-700">Currency {model.currencyCode}</p>
       </header>
 
       {model.currencyMismatch ? (

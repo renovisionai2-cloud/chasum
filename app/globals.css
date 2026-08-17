@@ -4428,11 +4428,26 @@ body {
 }
 
 @media print {
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+  html,
   body {
     background: #fff !important;
+    height: auto !important;
+  }
+  .ds-page {
+    animation: none !important;
+    overflow: visible !important;
   }
   .commerce-print-sheet {
     box-shadow: none !important;
     max-width: none !important;
+  }
+  .commerce-print-keep,
+  .commerce-print-payments {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

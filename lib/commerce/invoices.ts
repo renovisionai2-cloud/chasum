@@ -5,7 +5,8 @@ import { invoiceAmountsFromAppointmentStamps } from "@/lib/commerce/money-contra
 import type { CommerceInvoice } from "@/lib/commerce/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
-import { addDays, format } from "date-fns";
+import { calendarDateInTimezone } from "@/lib/business/datetime";
+import { addCommerceCivilDays } from "@/lib/commerce/document-dates";
 
 async function nextInvoiceNumber(businessId: string): Promise<string | null> {
   const supabase = await createClient();
@@ -124,7 +125,7 @@ export async function createInvoiceForAppointment(input: {
       .maybeSingle(),
     supabase
       .from("businesses")
-      .select("name, email, phone, currency, legal_name")
+      .select("name, email, phone, currency, legal_name, timezone")
       .eq("id", input.businessId)
       .maybeSingle(),
   ]);
@@ -146,6 +147,7 @@ export async function createInvoiceForAppointment(input: {
   const amountPaid = money.amountPaidCents;
   const balance = money.balanceCents;
   const documentCurrency = normalizeCurrency(businessRow?.currency);
+  const businessTimezone = businessRow?.timezone?.trim() || "America/Toronto";
 
   const invoiceNumber =
     (appt.invoice_number as string | null) ||
@@ -161,11 +163,8 @@ export async function createInvoiceForAppointment(input: {
 
   const status =
     balance <= 0 ? "paid" : amountPaid > 0 ? "partial" : ("open" as const);
-  const issueDate = format(new Date(), "yyyy-MM-dd");
-  const dueDate = format(
-    addDays(new Date(), input.dueInDays ?? 7),
-    "yyyy-MM-dd",
-  );
+  const issueDate = calendarDateInTimezone(new Date(), businessTimezone);
+  const dueDate = addCommerceCivilDays(issueDate, input.dueInDays ?? 7);
 
   const { data: inv, error: invErr } = await supabase
     .from("commerce_invoices")
@@ -216,10 +215,10 @@ export async function createInvoiceForAppointment(input: {
     sort_order: 0,
     description: serviceRow?.name ?? "Service",
     quantity: 1,
-    unit_amount_cents: lineUnit || total,
+    unit_amount_cents: lineUnit || subtotal,
     tax_cents: taxCents,
     discount_cents: discountCents,
-    total_cents: total,
+    total_cents: lineUnit || subtotal,
     service_id: appt.service_id,
   });
 

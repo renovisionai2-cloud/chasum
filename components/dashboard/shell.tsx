@@ -42,7 +42,7 @@ function ShellInner({
   const wide = isWidePortalPath(pathname);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background print:min-h-0">
       <a
         href="#portal-main"
         className="sr-only print:hidden focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[calc(var(--z-palette)+1)] focus:rounded-[var(--radius-md)] focus:bg-card focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-md ds-focus-ring"
@@ -59,7 +59,7 @@ function ShellInner({
         />
       </div>
 
-      <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
+      <div className="flex min-w-0 flex-1 flex-col lg:pl-64 print:pl-0">
         <div className="print:hidden">
         <DashboardTopNav
           userEmail={userEmail}
@@ -73,7 +73,7 @@ function ShellInner({
           id="portal-main"
           tabIndex={-1}
           className={cn(
-            "flex-1 px-4 py-5 pb-24 md:px-6 md:py-7 lg:px-8 lg:pb-7",
+            "flex-1 px-4 py-5 pb-24 md:px-6 md:py-7 lg:px-8 lg:pb-7 print:p-0 print:pb-0",
             wide ? "w-full max-w-none" : "mx-auto w-full max-w-6xl",
           )}
         >
@@ -105,7 +105,7 @@ export function DashboardShell(props: DashboardShellProps) {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen bg-background">
+        <div className="flex min-h-screen bg-background print:min-h-0">
           <div className="hidden w-64 shrink-0 border-r border-white/10 bg-[#0B1324] lg:block" />
           <div className="flex-1" />
         </div>

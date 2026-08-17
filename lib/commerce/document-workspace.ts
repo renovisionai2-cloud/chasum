@@ -7,14 +7,19 @@ import {
   invoiceWorkspacePath,
   receiptWorkspacePath,
 } from "@/lib/commerce/document-paths";
-import { documentCurrencyMismatch } from "@/lib/commerce/document-currency";
+import {
+  documentCurrencyMismatch,
+  formatDocumentMoneyCents,
+} from "@/lib/commerce/document-currency";
+import { formatCommerceCivilDate } from "@/lib/commerce/document-dates";
+import { invoiceLineExclusiveCents } from "@/lib/commerce/document-lines";
 import { mapInvoice, mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import {
   appointmentCollectibleMoneyFromStamps,
   INVOICE_STATUS_UI,
   isCommerceInvoiceRecord,
 } from "@/lib/commerce/money-contract";
-import { formatMoneyCentsExact, normalizeCurrency } from "@/lib/commerce/money";
+import { normalizeCurrency } from "@/lib/commerce/money";
 import {
   isRefundableTransaction,
   remainingRefundableCents,
@@ -74,6 +79,12 @@ export type InvoiceWorkspaceModel = {
     receiptNumber: string | null;
   }>;
   receipts: Array<{ number: string; href: string; amount: string }>;
+  displayLines: Array<{
+    key: string;
+    description: string;
+    quantity: number;
+    amount: string;
+  }>;
   emailStatus: "sent" | "failed" | "no_recipient" | "never_sent";
   emailDetail: string | null;
 };
@@ -109,8 +120,8 @@ export type ReceiptWorkspaceModel = {
   refundHref: string | null;
 };
 
-function money(cents: number, currency: string) {
-  return formatMoneyCentsExact(cents, currency);
+function money(cents: number, stored: string, business: string) {
+  return formatDocumentMoneyCents(cents, stored, business);
 }
 
 function formatAddress(row: {
@@ -128,17 +139,6 @@ function formatAddress(row: {
     row.postal_code,
   ].filter((p) => Boolean(p && String(p).trim()));
   return parts.length ? parts.join(", ") : null;
-}
-
-function formatCivilDate(value: string | null | undefined): string | null {
-  if (!value) return null;
-  const d = new Date(`${value}T12:00:00`);
-  if (!Number.isFinite(d.getTime())) return value;
-  return new Intl.DateTimeFormat("en-CA", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(d);
 }
 
 export async function loadInvoiceWorkspace(input: {
@@ -271,7 +271,7 @@ export async function loadInvoiceWorkspace(input: {
       const rec = receiptByTx.get(t.id);
       return {
         label: t.kind === "deposit" ? "Deposit" : "Payment",
-        amount: money(t.amountCents, t.currency),
+        amount: money(t.amountCents, t.currency, businessCurrency),
         method: PAYMENT_METHOD_LABELS[t.method] ?? t.method,
         when: formatStaffFacingInstant(t.occurredAt, timezone),
         receiptHref: rec ? receiptWorkspacePath(rec.receiptNumber) : null,
@@ -341,8 +341,8 @@ export async function loadInvoiceWorkspace(input: {
     businessAddress: formatAddress(business),
     businessLogoUrl: business?.logo_url ?? null,
     taxNumber: business?.tax_number ?? null,
-    issueDateLabel: formatCivilDate(mapped.issueDate) ?? mapped.issueDate,
-    dueDateLabel: formatCivilDate(mapped.dueDate),
+    issueDateLabel: formatCommerceCivilDate(mapped.issueDate) ?? mapped.issueDate,
+    dueDateLabel: formatCommerceCivilDate(mapped.dueDate),
     notes: mapped.notes,
     serviceName,
     appointmentWhen,
@@ -350,13 +350,13 @@ export async function loadInvoiceWorkspace(input: {
     locationName,
     staffName,
     money: {
-      subtotal: money(mapped.subtotalCents, stored),
-      discount: money(mapped.discountCents, stored),
-      tax: money(mapped.taxCents, stored),
-      total: money(mapped.totalCents, stored),
-      paid: money(mapped.amountPaidCents, stored),
-      refunded: money(mapped.amountRefundedCents, stored),
-      balance: money(mapped.balanceCents, stored),
+      subtotal: money(mapped.subtotalCents, stored, businessCurrency),
+      discount: money(mapped.discountCents, stored, businessCurrency),
+      tax: money(mapped.taxCents, stored, businessCurrency),
+      total: money(mapped.totalCents, stored, businessCurrency),
+      paid: money(mapped.amountPaidCents, stored, businessCurrency),
+      refunded: money(mapped.amountRefundedCents, stored, businessCurrency),
+      balance: money(mapped.balanceCents, stored, businessCurrency),
     },
     collectibleRemainingCents,
     collectHref,
@@ -364,8 +364,28 @@ export async function loadInvoiceWorkspace(input: {
     receipts: receipts.map((r) => ({
       number: r.receiptNumber,
       href: receiptWorkspacePath(r.receiptNumber),
-      amount: money(r.amountCents, r.currency),
+      amount: money(r.amountCents, r.currency, businessCurrency),
     })),
+    displayLines:
+      mapped.lines.length === 0
+        ? [
+            {
+              key: "service",
+              description: serviceName ?? "Service",
+              quantity: 1,
+              amount: money(mapped.subtotalCents, stored, businessCurrency),
+            },
+          ]
+        : mapped.lines.map((line) => ({
+            key: line.id,
+            description: line.description,
+            quantity: line.quantity,
+            amount: money(
+              invoiceLineExclusiveCents(line, mapped),
+              stored,
+              businessCurrency,
+            ),
+          })),
     emailStatus,
     emailDetail,
   };
@@ -463,9 +483,9 @@ export async function loadReceiptWorkspace(input: {
       staffName = (Array.isArray(st) ? st[0] : st)?.name ?? null;
       const sub = Math.max(0, Number(appt.price_cents ?? 0));
       const tax = Math.max(0, Number(appt.tax_cents ?? 0));
-      appointmentSubtotal = money(sub, stored);
-      appointmentTax = money(tax, stored);
-      appointmentTotal = money(sub + tax, stored);
+      appointmentSubtotal = money(sub, stored, businessCurrency);
+      appointmentTax = money(tax, stored, businessCurrency);
+      appointmentTotal = money(sub + tax, stored, businessCurrency);
 
       const { data: apptTx } = await supabase
         .from("commerce_transactions")
@@ -484,8 +504,8 @@ export async function loadReceiptWorkspace(input: {
         }
         running += t.amountCents;
         if (t.id === receipt.transactionId) {
-          totalPaidAfter = money(running, stored);
-          balanceAfter = money(Math.max(0, sub + tax - running), stored);
+          totalPaidAfter = money(running, stored, businessCurrency);
+          balanceAfter = money(Math.max(0, sub + tax - running), stored, businessCurrency);
           break;
         }
       }
@@ -527,7 +547,7 @@ export async function loadReceiptWorkspace(input: {
     businessCurrency,
     currencyMismatch: documentCurrencyMismatch(stored, businessCurrency),
     timezone,
-    amount: money(receipt.amountCents, stored),
+    amount: money(receipt.amountCents, stored, businessCurrency),
     kindLabel: tx?.kind === "deposit" ? "Deposit" : "Payment",
     methodLabel: PAYMENT_METHOD_LABELS[receipt.method] ?? receipt.method,
     paidAt: formatStaffFacingInstant(receipt.issuedAt, timezone),
@@ -545,7 +565,7 @@ export async function loadReceiptWorkspace(input: {
     appointmentSubtotal,
     appointmentTax,
     appointmentTotal,
-    thisPayment: money(receipt.amountCents, stored),
+    thisPayment: money(receipt.amountCents, stored, businessCurrency),
     totalPaidAfter,
     balanceAfter,
     refundHref,
