@@ -2,7 +2,7 @@
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
 **Phase:** **6.2A — Professional Invoice & Receipt Workspace Foundation** (6.1 PO-accepted; 6.2A **not** PO-accepted; 6.0B PO-accepted)  
-**Feature 6.2A:** `6a25f96`  
+**Feature 6.2A:** `6a25f96` · closeout `3e7e3d3`  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
@@ -68,10 +68,12 @@ Display-only professional documents over existing `commerce_invoices` / `commerc
 | Intentional invoice email | Staff action from Invoice Workspace; failure must not mutate money columns |
 | Receipt resend | Existing `sendPaymentReceiptNow` on the existing receipt row |
 | Collect from invoice | Only when appointment collectible remaining > 0; routes to existing Payments collect |
-| Print | Browser print / Save as PDF; hide portal chrome; no PDF library |
+| Print | Browser print / Save as PDF; hide portal chrome; no PDF library; normal one-service invoice fits one US Letter page |
 | Numbering | Unchanged; non-atomic invoice sequence and RCT `count(*)+1` remain deferred |
 | Refund math | `applyInvoicePayment` unchanged; display stored paid / refunded / balance / status |
-| Currency | Show **stored** document currency. Do not relabel USD as CAD. New invoice inserts stamp `businesses.currency`. Do **not** rewrite INV-0033. |
+| Currency | Show **stored** document currency. Mismatch documents prefix ISO (e.g. `USD $248.60`). Do not relabel USD as CAD. New invoice inserts stamp `businesses.currency`. Do **not** rewrite INV-0033. |
+| Civil dates | `issue_date` / `due_date` are date-only. Display via `formatCommerceCivilDate` (YYYY-MM-DD parts). Never `new Date("YYYY-MM-DD")`. New issue dates use business-timezone civil day. |
+| Line items | Service line shows tax-exclusive amount when tax is itemized. Subtotal + tax − discount = total. Historical line rows are not rewritten. |
 
 ### Currency forensics (read-only)
 
@@ -85,6 +87,18 @@ Display-only professional documents over existing `commerce_invoices` / `commerc
 | Historical rewrite | **Forbidden** without PO |
 
 Invoice **Balance** is `commerce_invoices.balance_cents`. Appointment collectible remaining is separate.
+
+### Phase 6.2A closeout — document integrity
+
+| Surface | Date source after |
+|---------|-------------------|
+| Customer Billing issued | `formatCommerceCivilDate(issue_date)` |
+| Invoice Workspace / print | same helper |
+| Invoice email Issued | `model.issueDateLabel` from the same helper |
+
+Root cause: Billing used `format(new Date(issueDate))` which treats `YYYY-MM-DD` as UTC midnight and shifts the civil day in America/Toronto. Workspace used a noon local parse (UTC on Vercel), so INV-0033 showed Aug 14 in Billing and Aug 15 on the document. Stored `date` was not rewritten.
+
+Line presentation: display exclusive service amount (`$220.00`) when tax is itemized; stored `commerce_invoice_lines.total_cents` for INV-0033 may remain tax-inclusive.
 
 Phase 6.2A PO acceptance = **NOT YET**. Phase 6.2B / 6.3 / 6.4 not started.
 

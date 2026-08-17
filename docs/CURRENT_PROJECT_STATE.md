@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-16  
-**Updated by:** World Class — Chapter 6 Phase 6.2A Invoice & Receipt Workspace Foundation  
+**Last updated:** 2026-08-17  
+**Updated by:** World Class — Chapter 6 Phase 6.2A closeout (document integrity)  
 
 ---
 
@@ -158,7 +158,15 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-16)
+### Most recent (2026-08-17)
+
+**World Class — Chapter 6 Phase 6.2A closeout (document integrity)**
+
+- Unified invoice issue/due dates on stored civil `date` values (`formatCommerceCivilDate`). INV-0033 row not rewritten.
+- Service line shows tax-exclusive $220 when tax is itemized; print compact enough for one US Letter page; mismatch amounts prefix USD; invoice email no longer says “studio.”
+- Phase 6.2A is **not** PO-accepted. Phase 6.2B not started.
+
+### Immediately prior (2026-08-16)
 
 **World Class — Chapter 6 Phase 6.2A Professional Invoice & Receipt Workspace Foundation**
 
@@ -626,10 +634,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `6a25f96` |
-| **Short** | `6a25f96` |
-| **Subject** | feat: add Invoice and Receipt workspaces over existing commerce documents |
-| **Chapter 6 Phase 6.2A** | `6a25f96` / stamp pending |
+| **SHA** | `3e7e3d3` |
+| **Short** | `3e7e3d3` |
+| **Subject** | fix: unify invoice document dates, exclusive lines, and print fit |
+| **Chapter 6 Phase 6.2A closeout** | `3e7e3d3` / stamp pending |
+| **Chapter 6 Phase 6.2A** | `6a25f96` |
 | **Chapter 6 Phase 6.1E** | `f7c7fa1` |
 | **Chapter 6 Phase 6.1D** | `28b7bf6` |
 | **Chapter 6 Phase 6.1C** | `7db7d3b` |

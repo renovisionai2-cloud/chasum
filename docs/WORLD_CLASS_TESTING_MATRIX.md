@@ -376,9 +376,9 @@
 | Invoice | Commerce invoices only; INV-0033 cents preserved; stored currency displayed |
 | Receipt | One payment (RCT-0001 $50, RCT-0002 $198.60); not the full invoice |
 | Email | Intentional invoice send; failure does not mutate money; receipt resend existing row |
-| Print | Browser print; `print:hidden` portal chrome |
+| Print | Browser print; one-service invoice fits one US Letter page; `print:hidden` portal chrome |
 | Collect | Hidden at $0 collectible remaining; cancelled not collectible |
-| Tests | `tests/unit/commerce/phase-6-2a-documents.test.ts` |
+| Tests | `tests/unit/commerce/phase-6-2a-documents.test.ts` + `phase-6-2a-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** |
 | Status | Implemented — **not PO-accepted**. Do not start 6.2B. |

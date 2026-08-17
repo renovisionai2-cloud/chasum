@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.2A implemented — not PO-accepted**; 6.1 PO-accepted; 6.0B PO-accepted)  
+**Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.2A closeout implemented — not PO-accepted**; 6.1 PO-accepted; 6.0B PO-accepted)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
