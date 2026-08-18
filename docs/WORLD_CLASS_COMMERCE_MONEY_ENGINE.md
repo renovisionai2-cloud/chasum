@@ -1,8 +1,9 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.2B STARTING — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B = **STARTING**; 6.3 = **NOT STARTED**; 6.0B PO-accepted)  
-**Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44` · **PO accepted** after hands-on Preview E2E (RCT-0006)  
+**Phase:** **6.2B — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B implemented — **not PO-accepted**; 6.3 = **NOT STARTED**; 6.0B PO-accepted)  
+**Feature 6.2B:** `8f21f77`  
+**Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44` · **PO accepted** `fa0c8e1` (Preview E2E; RCT-0006)  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
@@ -12,7 +13,7 @@
 **Feature 6.0B lifecycle emails:** `fd8560f`  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.1 / 6.2A**  
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.1 / 6.2A / 6.2B**  
 **Canonical helpers:** `lib/commerce/money-contract.ts` + `lib/commerce/refundability.ts`  
 **Booking-time resolver (preserved):** `lib/commerce/booking-financials.ts` (`resolveBookingFinancials` / `computeBookingPricing`)
 
@@ -123,9 +124,73 @@ Line presentation: display exclusive service amount (`$220.00`) when tax is item
 
 **Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
 
-**Phase 6.2B = STARTING.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
+**Phase 6.2B implemented — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
+
+## Phase 6.2B lock — Document integrity + lifecycle hardening
+
+App-level integrity only. No schema, RPC, or unique-index migration.
+
+| Concept | Rule |
+|---------|------|
+| Invoice numbers | Per-business `commerce_invoice_sequences`. Allocate with `UPDATE … WHERE next_number = n` (CAS) + retry. Existing unique `(business_id, invoice_number)` is the committed duplicate backstop. |
+| Receipt numbers | Per-business `RCT-` from **max existing + 1** (not `count(*)+1`). Existing unique `(business_id, receipt_number)` + retry. Deleted rows do not reuse a lower number. |
+| One appointment → invoice | Reuse earliest `commerce_invoices` row for the appointment. Do not delete extras. No unique `(appointment_id)` yet. |
+| One payment → receipt | Reuse earliest `commerce_receipts` row for the transaction. Do not delete extras. Do not rewrite RCT-0001 / RCT-0002 / RCT-0006. No unique `(transaction_id)` yet. |
+| Refund presentation | Invoice shows payments received, refunded, **net paid**, collectible remaining. A refund is a separate commerce event and does **not** automatically reopen invoice debt on the document. Collect still follows appointment collectible remaining (existing money contract). |
+| Historical receipt | Original payment amount is immutable. Later refunds surface as subsequently refunded / net retained. Receipt email remaining uses running cash-in **at payment time**. |
+| Delivery | Never label Queued/Failed as Sent. Invoice uses `notification_logs`. Email failure does not roll back money. |
+| Currency / civil dates / print | Unchanged 6.2A contracts. |
+
+### Why app-only numbering cannot fully guarantee uniqueness
+
+PostgreSQL unique `(business_id, invoice_number)` / `(business_id, receipt_number)` already prevent **committed duplicate numbers**. Concurrent creates can still:
+
+1. Allocate the same sequence value if CAS is bypassed (now hardened).
+2. Insert **two invoices for one appointment** (index on `appointment_id` is not unique).
+3. Insert **two receipts for one payment** (`transaction_id` is not unique).
+
+App lookup-then-insert is not a substitute for those unique indexes. This phase does **not** fake that guarantee.
+
+### Proposed migration (DO NOT APPLY — PO approval required)
+
+Not a file under `supabase/migrations/`. Do not apply with 034 / 035 / 036.
+
+```sql
+-- Atomic invoice number (returns the allocated integer).
+create or replace function public.allocate_commerce_invoice_number(p_business_id uuid)
+returns table(prefix text, allocated integer)
+language plpgsql
+as $$
+begin
+  return query
+  insert into public.commerce_invoice_sequences (business_id, next_number, prefix)
+  values (p_business_id, 2, 'INV')
+  on conflict (business_id) do update
+    set next_number = public.commerce_invoice_sequences.next_number + 1,
+        updated_at = now()
+  returning
+    public.commerce_invoice_sequences.prefix,
+    public.commerce_invoice_sequences.next_number - 1;
+end;
+$$;
+
+create unique index if not exists commerce_invoices_one_per_appointment
+  on public.commerce_invoices (appointment_id)
+  where appointment_id is not null;
+
+create unique index if not exists commerce_receipts_one_per_transaction
+  on public.commerce_receipts (transaction_id);
+```
+
+Optional later: a `commerce_receipt_sequences` table matching invoices, so receipts are not derived from existing rows.
+
+Before applying: inspect whether any appointment already has multiple invoices, or any transaction multiple receipts. Do not rewrite historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006.
+
+### PO policy still required
+
+Appointment collectible remaining already increases after refunds (`total − net paid`). Invoice **document** due amount is **not** auto-reopened in 6.2B presentation. Confirm whether Collect after refund should remain appointment-collectible (current money contract) or stay closed until an explicit reopen action.
 
 ## Phase 6.1A lock — Integrity + staff-facing labels
 
@@ -420,11 +485,11 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
 | **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **PO ACCEPTED** (Preview E2E; RCT-0006) |
-| **6.2B** | Commerce document integrity + lifecycle hardening | **STARTING** |
+| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`8f21f77`) |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-**Phase 6.2B = STARTING.** Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
+**Phase 6.2B implemented — PO acceptance = NOT YET.** Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
 
 ---
 
@@ -444,10 +509,10 @@ Partial productization remains documented — not a 6.0 product expansion.
 |-----|----------------|
 | `create_public_appointment` named-staff path does not stamp `price_cents` / `tax_cents` / `deposit_cents` | **Dedicated future public-money remediation.** RPC is SECURITY DEFINER — **not modified in 6.0.** Unassigned public booking via BookingFacade **does** stamp financials. Do not claim the named-staff gap fixed. |
 | Historical invoices that stored exclusive subtotal as total | Display persisted rows; no bulk repair |
-| Receipt numbering race (RCT-count) | **Deferred** — not fixed in 6.2A |
-| Invoice sequence non-atomic | **Deferred** — not fixed in 6.2A |
-| No unique `appointment_id` / `transaction_id` on invoices/receipts | **Deferred** — no migration |
-| Post-refund + later payment invoice math (`applyInvoicePayment`) | **Deferred** — 6.2A displays stored columns |
+| Receipt numbering race (RCT-count) | **6.2B** uses max+1 + unique retry. True safety still wants unique `(transaction_id)` |
+| Invoice sequence non-atomic | **6.2B** CAS on `next_number`. True gapless allocate still wants SQL function |
+| No unique `appointment_id` / `transaction_id` on invoices/receipts | **PO / migration required** — documented, not applied |
+| Post-refund invoice document due | **6.2B** presentation does not auto-reopen invoice debt. Collect still uses appointment collectible remaining |
 | Historical USD on CAD business (INV-0033) | **Documented** — no historical rewrite |
 | `recognize.ts` `appointmentPriceCents` omits tax | Technical debt; keep separate from cash contract |
 | Internal `revenueTodayCents` field names | Compatibility debt; UI/CSV labels corrected |

@@ -12,7 +12,8 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-18 | **Chapter 6 Phase 6.2A PO acceptance lock** | (this stamp) | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.1 = PO ACCEPTED; 6.2A = PO ACCEPTED (RCT-0006 E2E); 6.2B = STARTING; 6.3 = NOT STARTED |
+| 2026-08-18 | **Chapter 6 Phase 6.2B — document integrity + lifecycle** | `8f21f77` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Numbering CAS/max+1; payment↔receipt and appointment↔invoice identity; refund presentation; 6.2B not PO-accepted; 6.3 not started |
+| 2026-08-18 | **Chapter 6 Phase 6.2A PO acceptance lock** | `fa0c8e1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.1 = PO ACCEPTED; 6.2A = PO ACCEPTED (RCT-0006 E2E); 6.2B followed; 6.3 = NOT STARTED |
 | 2026-08-18 | **Chapter 6 Phase 6.2A — booking / payment UX closeout** | `c65bd44` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | View Appointment read-first; success hierarchy; location sequencing; now included in 6.2A PO acceptance |
 | 2026-08-16 | **Chapter 6 Phase 6.2A — Invoice & Receipt Workspace Foundation** | `6a25f96` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Professional invoice/receipt documents; currency contradiction documented; 6.2A not PO-accepted; 6.2B not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1E — Reschedule Analytics Integrity** | `f7c7fa1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Rescheduled = real start/end move; Ana not rescheduled; 6.1 not PO-accepted; 6.2 not started |
@@ -64,6 +65,21 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2B — quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Commerce document integrity + lifecycle hardening |
+| Feature | `8f21f77` |
+| Invoice sequence | CAS on `next_number` + unique retry |
+| Receipt sequence | Max existing + 1 (not `count(*)+1`) |
+| Historical receipts rewritten | **No** |
+| Migrations | **None** |
+| Unique appointment/transaction | **Not applied** — PO decision |
+| Stripe Elements | **Not implemented** |
+| Phase 6.3 | **NOT STARTED** |
+| PO review | **NOT YET** |
 
 ## Chapter 6 Phase 6.2A — PO acceptance lock
 

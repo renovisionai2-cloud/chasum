@@ -5,7 +5,7 @@
 **Production:** untouched (`4eecbec`)  
 **Engines:** booking, availability, tax, deposit, payment, notification — **unchanged**  
 **PO acceptance:** Chapter 4 Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`)  
-**Phase 6.2A closeout (PO accepted):** post-booking View Appointment is read-first; one-location GVM skips Location; success hierarchy locked. Do not reopen. Phase 6.2B starting. Phase 6.3 not started.
+**Phase 6.2A closeout (PO accepted):** post-booking View Appointment is read-first; one-location GVM skips Location; success hierarchy locked. Do not reopen. Phase 6.2B implemented — not PO-accepted. Phase 6.3 not started.
 
 ---
 
