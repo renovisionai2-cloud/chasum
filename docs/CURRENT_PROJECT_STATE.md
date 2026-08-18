@@ -643,10 +643,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `3e7e3d3` |
-| **Short** | `3e7e3d3` |
-| **Subject** | fix: unify invoice document dates, exclusive lines, and print fit |
-| **Chapter 6 Phase 6.2A closeout** | `3e7e3d3` / stamp pending |
+| **SHA** | `c65bd44` |
+| **Short** | `c65bd44` |
+| **Subject** | fix: open post-booking appointment as operating view with location sequencing |
+| **Chapter 6 Phase 6.2A UX closeout** | `c65bd44` / stamp pending |
+| **Chapter 6 Phase 6.2A closeout** | `3e7e3d3` / stamp `61bd578` |
 | **Chapter 6 Phase 6.2A** | `6a25f96` |
 | **Chapter 6 Phase 6.1E** | `f7c7fa1` |
 | **Chapter 6 Phase 6.1D** | `28b7bf6` |

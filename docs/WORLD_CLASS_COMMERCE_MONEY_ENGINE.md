@@ -2,7 +2,7 @@
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
 **Phase:** **6.2A — Professional Invoice & Receipt Workspace Foundation + booking/payment UX closeout** (6.1 PO-accepted; 6.2A **not** PO-accepted; 6.0B PO-accepted)  
-**Feature 6.2A:** `6a25f96` · closeout `3e7e3d3`  
+**Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44`  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
