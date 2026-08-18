@@ -6,6 +6,7 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { createInvoiceForAppointment } from "@/lib/commerce/invoices";
 import { mapTransaction } from "@/lib/commerce/mappers";
+import { resolveNewCommerceCurrency } from "@/lib/commerce/money";
 import { appointmentMoneyFromStamps } from "@/lib/commerce/money-contract";
 import {
   getActiveProviderSummary,
@@ -161,6 +162,15 @@ export async function recordCommercePayment(
   }
 
   const supabase = await createClient();
+  let currency = resolveNewCommerceCurrency(input.currency);
+  if (!String(input.currency ?? "").trim()) {
+    const { data: biz } = await supabase
+      .from("businesses")
+      .select("currency")
+      .eq("id", input.businessId)
+      .maybeSingle();
+    currency = resolveNewCommerceCurrency(input.currency, biz?.currency);
+  }
   let invoiceId = input.invoiceId ?? null;
 
   if (input.ensureInvoice && input.appointmentId && !invoiceId) {
@@ -284,7 +294,7 @@ export async function recordCommercePayment(
     businessId: input.businessId,
     customerId: input.customerId,
     amountCents: input.amountCents,
-    currency: input.currency ?? "usd",
+    currency,
     method: input.method,
     description: input.description ?? undefined,
     providerCustomerId: customerRow.payment_provider_customer_id as string | null,
@@ -311,7 +321,7 @@ export async function recordCommercePayment(
         status: "requires_action",
         method: input.method,
         amount_cents: input.amountCents,
-        currency: input.currency ?? "usd",
+        currency,
         provider: charge.provider,
         provider_reference: charge.providerReference,
         provider_payment_intent_id: charge.providerPaymentIntentId,
@@ -359,7 +369,7 @@ export async function recordCommercePayment(
       status: "succeeded",
       method: input.method,
       amount_cents: input.amountCents,
-      currency: input.currency ?? "usd",
+      currency,
       provider: charge.provider,
       provider_reference: charge.providerReference,
       provider_payment_intent_id: charge.providerPaymentIntentId,
@@ -442,7 +452,7 @@ export async function recordCommercePayment(
     customer_id: input.customerId,
     appointment_id: input.appointmentId ?? null,
     amount_cents: input.amountCents,
-    currency: input.currency ?? "usd",
+    currency,
     status: "paid",
     method: input.method,
     description: input.description ?? null,
@@ -501,7 +511,7 @@ export async function recordCommercePayment(
       payload: {
         amount_cents: input.amountCents,
         method: input.method,
-        currency: input.currency ?? "usd",
+        currency,
       },
     }),
   );

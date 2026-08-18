@@ -448,6 +448,7 @@ export async function createAppointment(
       try {
         const { recordCommercePayment, listTransactions, parsePaymentMethod } =
           await import("@/lib/commerce");
+        const { normalizeCurrency } = await import("@/lib/commerce/money");
         const { paymentKindForAmount } = await import(
           "@/lib/commerce/booking-financials"
         );
@@ -496,6 +497,7 @@ export async function createAppointment(
             amountCents: paymentAmountCents,
             method,
             kind,
+            currency: normalizeCurrency(business.currency),
             description: [
               paymentNote,
               paymentIdempotencyKey

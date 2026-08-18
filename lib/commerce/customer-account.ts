@@ -2,7 +2,9 @@ import { listInvoices } from "@/lib/commerce/invoices";
 import { listActiveGiftCardsForCustomer } from "@/lib/commerce/gift-cards";
 import {
   appointmentCollectibleMoneyFromStamps,
+  invoiceCollectibleBalanceCents,
   isGrossCollectionTransaction,
+  isGrossDepositTransaction,
   isOutstandingInvoiceStatus,
 } from "@/lib/commerce/money-contract";
 import { listTransactions } from "@/lib/commerce/payments";
@@ -86,14 +88,18 @@ export async function getCustomerCommerceAccount(
   }
 
   const outstandingInvoiceCents = invoices
-    .filter((i) => isOutstandingInvoiceStatus(i.status) && i.balanceCents > 0)
-    .reduce((s, i) => s + i.balanceCents, 0);
+    .filter(
+      (i) =>
+        isOutstandingInvoiceStatus(i.status) &&
+        invoiceCollectibleBalanceCents(i) > 0,
+    )
+    .reduce((s, i) => s + invoiceCollectibleBalanceCents(i), 0);
 
   const ledgerSpend = sumGrossFromTimeline(timeline);
 
   const depositsCents = Math.max(
     timeline
-      .filter((t) => t.kind === "deposit" && t.status === "succeeded")
+      .filter(isGrossDepositTransaction)
       .reduce((s, t) => s + t.amountCents, 0),
     appointmentDepositsCollected,
   );
@@ -138,7 +144,9 @@ export async function getSummerCommerceSnapshot(
 ) {
   const account = await getCustomerCommerceAccount(businessId, customerId);
   const openInvoices = account.invoices.filter(
-    (i) => isOutstandingInvoiceStatus(i.status) && i.balanceCents > 0,
+    (i) =>
+      isOutstandingInvoiceStatus(i.status) &&
+      invoiceCollectibleBalanceCents(i) > 0,
   );
   return {
     outstandingBalanceCents: account.outstandingBalanceCents,

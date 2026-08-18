@@ -24,6 +24,19 @@ export function normalizeCurrency(raw: string | null | undefined): string {
   return CURRENCY_META[key] ? key : "usd";
 }
 
+/**
+ * Currency for NEW commerce ledger rows.
+ * Explicit value wins (externally settled). Otherwise businesses.currency.
+ * Do not use this to rewrite historical USD rows.
+ */
+export function resolveNewCommerceCurrency(
+  explicit?: string | null,
+  businessCurrency?: string | null,
+): string {
+  if (String(explicit ?? "").trim()) return normalizeCurrency(explicit);
+  return normalizeCurrency(businessCurrency);
+}
+
 export function currencyCode(raw: string | null | undefined): string {
   return CURRENCY_META[normalizeCurrency(raw)].code;
 }

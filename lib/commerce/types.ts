@@ -185,7 +185,8 @@ export type CommerceDashboardSnapshot = {
   schemaReady: boolean;
   schemaMessage: string | null;
   /**
-   * Gross payments collected (succeeded payment + deposit ledger rows).
+   * Gross payments collected (payment + deposit ledger rows, including
+   * original rows later marked partially_refunded / refunded).
    * Internal name retained for compatibility — not recognized revenue.
    */
   revenueTodayCents: number;

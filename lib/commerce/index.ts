@@ -87,6 +87,7 @@ export {
   depositRequiredCents,
   GROSS_PAYMENTS_COLLECTED_LABEL,
   invoiceAmountsFromAppointmentStamps,
+  invoiceCollectibleBalanceCents,
   isAppointmentCollectible,
   isCommerceInvoiceRecord,
   isGrossCollectionTransaction,

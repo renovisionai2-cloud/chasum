@@ -715,7 +715,7 @@ export async function deliverBookingNotifications(
         to: ctx.staffEmail,
         templateKey: "appointment.staff",
         skipPreferenceCheck: true,
-        action: "new appointment",
+        action: "New appointment booked",
       }),
     );
   }
@@ -1006,7 +1006,7 @@ export async function retryBookingNotification(input: {
         to: ctx.staffEmail,
         templateKey: "appointment.staff",
         skipPreferenceCheck: true,
-        action: "new appointment",
+        action: "New appointment booked",
         forceResend: true,
       }),
     );

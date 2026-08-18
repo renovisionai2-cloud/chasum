@@ -7,6 +7,7 @@ import { listRefunds } from "@/lib/commerce/refunds";
 import { normalizeCurrency } from "@/lib/commerce/money";
 import {
   appointmentCollectibleMoneyFromStamps,
+  invoiceCollectibleBalanceCents,
   isCommerceInvoiceRecord,
   isGrossCollectionTransaction,
   isGrossDepositTransaction,
@@ -56,7 +57,7 @@ function sumSucceededPayments(
 
 function isOutstandingInvoice(invoice: CommerceInvoice): boolean {
   if (!isCommerceInvoiceRecord(invoice.id)) return false;
-  if (invoice.balanceCents <= 0) return false;
+  if (invoiceCollectibleBalanceCents(invoice) <= 0) return false;
   return isOutstandingInvoiceStatus(invoice.status);
 }
 
@@ -171,7 +172,7 @@ export async function getCommerceDashboardSnapshot(
   const openInvoices = invoices.filter(isOutstandingInvoice);
 
   const outstandingInvoicesCents = openInvoices.reduce(
-    (s, i) => s + i.balanceCents,
+    (s, i) => s + invoiceCollectibleBalanceCents(i),
     0,
   );
 

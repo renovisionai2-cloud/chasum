@@ -209,6 +209,16 @@ export function endOfBusinessMonth(
   return new Date(nextMonthStart.getTime() - 1);
 }
 
+/** Inclusive end of the business-local year (Dec 31 23:59:59). */
+export function endOfBusinessYear(
+  date: Date,
+  input: BusinessLocaleInput & { locationTimezone?: string | null },
+): Date {
+  const yearStart = startOfBusinessYear(date, input);
+  const nextYearStart = startOfBusinessYear(addDays(yearStart, 400), input);
+  return new Date(nextYearStart.getTime() - 1);
+}
+
 export function startOfBusinessYear(
   date: Date,
   input: BusinessLocaleInput & { locationTimezone?: string | null },

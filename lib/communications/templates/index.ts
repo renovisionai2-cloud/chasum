@@ -183,6 +183,42 @@ function contactBlock(
     </div>`;
 }
 
+function staffAppointmentCopy(ctx: AppointmentTemplateContext): {
+  subject: string;
+  intro: string;
+} {
+  const customer = (ctx.customerName || "customer").trim();
+  const action = String(ctx.customMessage ?? "").trim().toLowerCase();
+  if (
+    !action ||
+    action === "new appointment" ||
+    action.includes("new appointment") ||
+    action === "created" ||
+    action === "confirmed"
+  ) {
+    return {
+      subject: `New appointment — ${customer}`,
+      intro: "A new appointment has been booked.",
+    };
+  }
+  if (action.includes("cancel")) {
+    return {
+      subject: `Appointment cancelled — ${customer}`,
+      intro: "An appointment has been cancelled.",
+    };
+  }
+  if (action.includes("reschedule")) {
+    return {
+      subject: `Appointment rescheduled — ${customer}`,
+      intro: "An appointment has been rescheduled.",
+    };
+  }
+  return {
+    subject: `Appointment update — ${customer}`,
+    intro: "An appointment has been updated.",
+  };
+}
+
 function financialBlock(
   ctx: AppointmentTemplateContext,
   audience: "customer" | "business",
@@ -238,7 +274,7 @@ function financialBlock(
       rows.push(detailRow("Payment status", escapeHtml(ctx.paymentStatusLabel)));
     }
     if (depositPaid > 0 && ctx.paymentMethodLabel) {
-      rows.push(detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)));
+      rows.push(detailRow("Deposit method", escapeHtml(ctx.paymentMethodLabel)));
     }
   } else {
     if (depositRequired > 0) {
@@ -739,17 +775,17 @@ export function renderEmailTemplate(
       };
     }
     case "appointment.staff": {
-      const action = ctx.customMessage || "updated";
+      const copy = staffAppointmentCopy(ctx);
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.staffName)},</p>
-        <p>Appointment ${escapeHtml(action)}:</p>
+        <p>${escapeHtml(copy.intro)}</p>
         ${appointmentDetails(ctx)}
         ${financialBlock(ctx, "business")}`;
       return {
         key,
-        subject: `Staff: appointment ${action}`,
+        subject: copy.subject,
         html: layout(content, b),
-        text: `Appointment ${action}: ${ctx.serviceName} with ${ctx.customerName} on ${whenLabel(ctx)}.`,
+        text: `${copy.intro} ${ctx.serviceName} with ${ctx.customerName} on ${whenLabel(ctx)}.`,
       };
     }
     case "appointment.business": {
@@ -787,6 +823,9 @@ export function renderEmailTemplate(
             : null,
           ctx.paymentStatusLabel
             ? `Payment status: ${ctx.paymentStatusLabel}`
+            : null,
+          ctx.depositPaidCents && ctx.paymentMethodLabel
+            ? `Deposit method: ${ctx.paymentMethodLabel}`
             : null,
           ctx.remainingBalanceCents != null
             ? `Balance remaining: ${money(ctx.remainingBalanceCents)}`

@@ -202,7 +202,7 @@ describe("Chapter 6 money contract", () => {
     expect(isOutstandingInvoiceStatus("void")).toBe(false);
   });
 
-  it("counts gross payments collected from succeeded payment and deposit rows only", () => {
+  it("counts gross payments collected from payment and deposit cash-in rows", () => {
     const txs = [
       { status: "succeeded" as const, kind: "payment" as const, amountCents: 8000 },
       { status: "succeeded" as const, kind: "deposit" as const, amountCents: 5000 },
@@ -213,6 +213,22 @@ describe("Chapter 6 money contract", () => {
     expect(sumGrossPaymentsCollectedCents(txs)).toBe(13000);
     expect(isGrossCollectionTransaction(txs[2]!)).toBe(false);
     expect(GROSS_PAYMENTS_COLLECTED_LABEL).toBe("Gross payments collected");
+    expect(
+      isGrossCollectionTransaction({
+        status: "partially_refunded",
+        kind: "payment",
+      }),
+    ).toBe(true);
+    expect(
+      sumGrossPaymentsCollectedCents([
+        ...txs,
+        {
+          status: "partially_refunded" as const,
+          kind: "payment" as const,
+          amountCents: 21668,
+        },
+      ]),
+    ).toBe(34668);
   });
 });
 

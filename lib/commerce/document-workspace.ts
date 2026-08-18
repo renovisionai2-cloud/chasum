@@ -19,7 +19,9 @@ import {
 import { mapInvoice, mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import {
   appointmentCollectibleMoneyFromStamps,
+  invoiceCollectibleBalanceCents,
   isCommerceInvoiceRecord,
+  isGrossCollectionTransaction,
 } from "@/lib/commerce/money-contract";
 import { normalizeCurrency } from "@/lib/commerce/money";
 import {
@@ -251,6 +253,11 @@ export async function loadInvoiceWorkspace(input: {
     }
   }
 
+  collectibleRemainingCents = Math.min(
+    collectibleRemainingCents,
+    invoiceCollectibleBalanceCents(mapped),
+  );
+
   const { data: txRows } = await supabase
     .from("commerce_transactions")
     .select("*")
@@ -272,10 +279,10 @@ export async function loadInvoiceWorkspace(input: {
 
   const payments = (txRows ?? [])
     .map((r) => mapTransaction(r as Record<string, unknown>))
-    .filter(
-      (t) =>
-        t.status === "succeeded" &&
-        (t.kind === "payment" || t.kind === "deposit" || t.kind === "refund"),
+    .filter((t) =>
+      t.kind === "refund"
+        ? t.status === "succeeded"
+        : isGrossCollectionTransaction(t),
     )
     .map((t) => {
       const rec = receiptByTx.get(t.id);

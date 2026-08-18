@@ -166,7 +166,7 @@ export async function handleAppointmentEvent(
         appointmentId,
         templateKey: "appointment.staff",
         recipient: staff.email,
-        action: titleMap[event].toLowerCase(),
+        action: titleMap[event],
         idempotencyKey: `${appointmentId}:appointment.staff:${staff.email}:${event}`,
       });
     }

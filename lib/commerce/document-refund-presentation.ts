@@ -11,7 +11,7 @@
  * merely because a refund posted.
  */
 
-import { INVOICE_STATUS_UI } from "@/lib/commerce/money-contract";
+import { INVOICE_STATUS_UI, isGrossCollectionStatus } from "@/lib/commerce/money-contract";
 
 export function invoiceNetPaidCents(
   amountPaidCents: number,
@@ -110,7 +110,7 @@ export function runningCashInAfterTransaction(
   });
   let running = 0;
   for (const tx of ordered) {
-    if (tx.status !== "succeeded") continue;
+    if (!isGrossCollectionStatus(tx.status)) continue;
     if (tx.kind !== "payment" && tx.kind !== "deposit") continue;
     running += Math.max(0, tx.amountCents);
     if (tx.id === targetTransactionId) {

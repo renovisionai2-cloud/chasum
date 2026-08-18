@@ -169,7 +169,9 @@ export function appointmentMoneyFromStamps(
 
 /**
  * Phase 6.0A — lifecycle collectibility.
- * Arithmetic remaining/deposit helpers stay amount-truth.
+ * Arithmetic remaining/deposit helpers stay amount-truth (total − net paid).
+ * Phase 6.2B PO: a voluntary refund does not create new customer debt.
+ * Collectible remaining = max(0, total − gross paid). Refunds never increase it.
  * Cancelled appointments are not collectible (no cancellation-fee policy yet).
  * No-show collectibility is unchanged until an explicit PO decision.
  * paymentStatus may be supplied for future policy; cancelled short-circuits first.
@@ -191,7 +193,7 @@ export function collectibleRemainingBalanceCents(
   if (!isAppointmentCollectible(stamps.status, stamps.payment_status)) {
     return 0;
   }
-  return remainingBalanceCents(stamps);
+  return Math.max(0, appointmentTotalCents(stamps) - grossPaidCents(stamps));
 }
 
 /** Appointment-native Collect is offered only when collectible remaining > 0. */
@@ -220,7 +222,11 @@ export function collectibleDepositDueNowCents(
   if (!isAppointmentCollectible(stamps.status, stamps.payment_status)) {
     return 0;
   }
-  return depositDueNowCents(stamps);
+  const required = depositRequiredCents(stamps);
+  return resolveDepositDueNowCents({
+    depositRequiredCents: required,
+    netPaidCents: grossPaidCents(stamps),
+  }).depositDueNowCents;
 }
 
 export type AppointmentCollectibleMoney = AppointmentMoney & {
@@ -241,10 +247,13 @@ export function appointmentCollectibleMoneyFromStamps(
     ...money,
     isCollectible,
     collectibleRemainingBalanceCents: isCollectible
-      ? money.remainingBalanceCents
+      ? Math.max(0, money.totalCents - money.grossPaidCents)
       : 0,
     collectibleDepositDueNowCents: isCollectible
-      ? money.depositDueNowCents
+      ? resolveDepositDueNowCents({
+          depositRequiredCents: money.depositRequiredCents,
+          netPaidCents: money.grossPaidCents,
+        }).depositDueNowCents
       : 0,
   };
 }
@@ -269,19 +278,53 @@ export function invoiceAmountsFromAppointmentStamps(
   };
 }
 
-/** Succeeded payment + deposit ledger rows. Refunds are never cash-in. */
+/**
+ * Original payment/deposit rows that still count as cash-in.
+ * Partial/full refunds change the row status but must not erase gross collected.
+ * Separate kind:"refund" rows are never cash-in.
+ */
+const GROSS_COLLECTION_STATUSES = new Set<string>([
+  "succeeded",
+  "partially_refunded",
+  "refunded",
+]);
+
+export function isGrossCollectionStatus(
+  status: TransactionStatus | string,
+): boolean {
+  return GROSS_COLLECTION_STATUSES.has(status);
+}
+
+/** Payment + deposit ledger rows that represent gross cash-in. Refunds are never cash-in. */
 export function isGrossCollectionTransaction(
   tx: Pick<CommerceTransaction, "status" | "kind">,
 ): boolean {
-  if (tx.status !== "succeeded") return false;
+  if (!isGrossCollectionStatus(tx.status)) return false;
   return tx.kind === "payment" || tx.kind === "deposit";
 }
 
-/** Succeeded deposit ledger rows — a subset of gross payments collected. */
+/** Deposit ledger rows — a subset of gross payments collected. */
 export function isGrossDepositTransaction(
   tx: Pick<CommerceTransaction, "status" | "kind">,
 ): boolean {
-  return tx.status === "succeeded" && tx.kind === "deposit";
+  return isGrossCollectionStatus(tx.status) && tx.kind === "deposit";
+}
+
+/**
+ * Invoice amount due for collection. Refunds do not reopen customer debt.
+ * Stored balance_cents may still equal total − net paid; do not use that for Collect.
+ */
+export function invoiceCollectibleBalanceCents(inv: {
+  totalCents: number;
+  amountPaidCents: number;
+  status?: string | null;
+}): number {
+  if (inv.status === "void") return 0;
+  return Math.max(
+    0,
+    Math.round(Number(inv.totalCents ?? 0)) -
+      Math.round(Number(inv.amountPaidCents ?? 0)),
+  );
 }
 
 export function sumGrossPaymentsCollectedCents(

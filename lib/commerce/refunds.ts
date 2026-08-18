@@ -228,20 +228,21 @@ export async function processCommerceRefund(
         const amountRefunded =
           Number(inv.amount_refunded_cents ?? 0) + input.amountCents;
         const amountPaid = Number(inv.amount_paid_cents ?? 0);
-        const balance = Math.max(
-          0,
-          Number(inv.total_cents ?? 0) - (amountPaid - amountRefunded),
-        );
+        const total = Number(inv.total_cents ?? 0);
+        // Gross paid stays on amount_paid. Refunds do not reopen collection debt.
+        const collectibleBalance = Math.max(0, total - amountPaid);
         await supabase
           .from("commerce_invoices")
           .update({
             amount_refunded_cents: amountRefunded,
-            balance_cents: balance,
+            balance_cents: collectibleBalance,
             status:
               amountRefunded >= amountPaid
                 ? "refunded"
-                : balance > 0
-                  ? "partial"
+                : collectibleBalance > 0
+                  ? amountPaid > 0
+                    ? "partial"
+                    : "open"
                   : "paid",
           })
           .eq("id", tx.invoiceId);
