@@ -30,13 +30,13 @@ export function ReceiptDocument({ model }: { model: ReceiptWorkspaceModel }) {
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
             Customer
           </p>
-          <p className="mt-1 font-medium">{model.customerName}</p>
+          <p className="mt-1 font-medium break-words">{model.customerName}</p>
         </div>
         <div>
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
             Appointment
           </p>
-          <p className="mt-1 font-medium">{model.serviceName ?? "Service"}</p>
+          <p className="mt-1 font-medium break-words">{model.serviceName ?? "Service"}</p>
           {model.appointmentWhen ? (
             <p className="text-sm text-neutral-600">{model.appointmentWhen}</p>
           ) : null}
@@ -84,7 +84,39 @@ export function ReceiptDocument({ model }: { model: ReceiptWorkspaceModel }) {
             <dd className="tabular-nums">{model.balanceAfter}</dd>
           </div>
         ) : null}
+        {model.refundedAfter ? (
+          <>
+            <div className="flex justify-between border-t border-neutral-200 pt-2">
+              <dt className="text-neutral-600">Original payment</dt>
+              <dd className="tabular-nums">{model.originalPayment}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-neutral-600">Subsequently refunded</dt>
+              <dd className="tabular-nums">{model.refundedAfter}</dd>
+            </div>
+            <div className="flex justify-between font-semibold">
+              <dt>Net retained</dt>
+              <dd className="tabular-nums">{model.netRetained}</dd>
+            </div>
+          </>
+        ) : null}
       </dl>
+
+      {model.refundActivity.length > 0 ? (
+        <section className="mt-6 print:mt-3">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+            Later refund activity
+          </p>
+          <ul className="mt-2 space-y-1 text-sm">
+            {model.refundActivity.map((item, i) => (
+              <li key={`${item.when}-${i}`} className="flex justify-between gap-2">
+                <span>Refund{item.when ? ` · ${item.when}` : ""}</span>
+                <span className="tabular-nums">{item.amount}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {model.invoiceNumber ? (
         <p className="mt-6 text-sm text-neutral-600">

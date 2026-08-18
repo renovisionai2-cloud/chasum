@@ -118,21 +118,23 @@ function mockBoundReceiptClient(opts: {
   vi.mocked(createClient).mockResolvedValue({
     from: (table: string) => {
       if (table === "commerce_receipts") {
+        const receiptRow = () => ({
+          ...opts.receipt,
+          email_status: statusRef.current,
+        });
+        const receiptChain = () => {
+          const chain: Record<string, unknown> = {};
+          chain.eq = () => chain;
+          chain.maybeSingle = async () => ({
+            data: receiptRow(),
+            error: null,
+          });
+          chain.then = (resolve: (v: unknown) => unknown) =>
+            Promise.resolve({ data: [receiptRow()], error: null }).then(resolve);
+          return chain;
+        };
         return {
-          select: () => ({
-            eq: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({
-                  data: { ...opts.receipt, email_status: statusRef.current },
-                  error: null,
-                }),
-              }),
-              maybeSingle: async () => ({
-                data: { email_status: statusRef.current },
-                error: null,
-              }),
-            }),
-          }),
+          select: () => receiptChain(),
           update: (payload: { email_status?: string }) => {
             if (payload.email_status) statusRef.current = payload.email_status;
             const self = {
@@ -140,7 +142,7 @@ function mockBoundReceiptClient(opts: {
               in: () => self,
               select: () => ({
                 maybeSingle: async () => ({
-                  data: { ...opts.receipt, email_status: statusRef.current },
+                  data: receiptRow(),
                   error: null,
                 }),
               }),
@@ -150,14 +152,16 @@ function mockBoundReceiptClient(opts: {
         };
       }
       if (table === "commerce_transactions") {
+        const txChain = () => {
+          const chain: Record<string, unknown> = {};
+          chain.eq = () => chain;
+          chain.maybeSingle = async () => ({ data: opts.tx, error: null });
+          chain.then = (resolve: (v: unknown) => unknown) =>
+            Promise.resolve({ data: [opts.tx], error: null }).then(resolve);
+          return chain;
+        };
         return {
-          select: () => ({
-            eq: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({ data: opts.tx, error: null }),
-              }),
-            }),
-          }),
+          select: () => txChain(),
         };
       }
       if (table === "appointments") {
@@ -222,21 +226,23 @@ function mockBoundReceiptClient(opts: {
   vi.mocked(createClient).mockResolvedValue({
     from: (table: string) => {
       if (table === "commerce_receipts") {
+        const receiptRow = () => ({
+          ...opts.receipt,
+          email_status: statusRef.current,
+        });
+        const receiptChain = () => {
+          const chain: Record<string, unknown> = {};
+          chain.eq = () => chain;
+          chain.maybeSingle = async () => ({
+            data: receiptRow(),
+            error: null,
+          });
+          chain.then = (resolve: (v: unknown) => unknown) =>
+            Promise.resolve({ data: [receiptRow()], error: null }).then(resolve);
+          return chain;
+        };
         return {
-          select: () => ({
-            eq: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({
-                  data: { ...opts.receipt, email_status: statusRef.current },
-                  error: null,
-                }),
-              }),
-              maybeSingle: async () => ({
-                data: { email_status: statusRef.current },
-                error: null,
-              }),
-            }),
-          }),
+          select: () => receiptChain(),
           update: (payload: { email_status?: string }) => {
             if (payload.email_status) statusRef.current = payload.email_status;
             const self = {
@@ -244,7 +250,7 @@ function mockBoundReceiptClient(opts: {
               in: () => self,
               select: () => ({
                 maybeSingle: async () => ({
-                  data: { ...opts.receipt, email_status: statusRef.current },
+                  data: receiptRow(),
                   error: null,
                 }),
               }),
@@ -254,14 +260,16 @@ function mockBoundReceiptClient(opts: {
         };
       }
       if (table === "commerce_transactions") {
+        const txChain = () => {
+          const chain: Record<string, unknown> = {};
+          chain.eq = () => chain;
+          chain.maybeSingle = async () => ({ data: opts.tx, error: null });
+          chain.then = (resolve: (v: unknown) => unknown) =>
+            Promise.resolve({ data: [opts.tx], error: null }).then(resolve);
+          return chain;
+        };
         return {
-          select: () => ({
-            eq: () => ({
-              eq: () => ({
-                maybeSingle: async () => ({ data: opts.tx, error: null }),
-              }),
-            }),
-          }),
+          select: () => txChain(),
         };
       }
       if (table === "appointments") {

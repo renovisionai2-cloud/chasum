@@ -1,11 +1,55 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
+import { pickCanonicalRow } from "@/lib/commerce/document-identity";
+import {
+  DEFAULT_RECEIPT_PREFIX,
+  DOCUMENT_NUMBER_ALLOCATE_ATTEMPTS,
+  nextPaddedDocumentNumber,
+} from "@/lib/commerce/document-numbering";
+import { runningCashInAfterTransaction } from "@/lib/commerce/document-refund-presentation";
 import { mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import type { CommerceReceipt } from "@/lib/commerce/types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
 import type { AppointmentTemplateContext } from "@/lib/communications/types";
-import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
+import {
+  logQueryError,
+  isSoftSchemaFallbackAllowed,
+  isUniqueViolation,
+} from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
+
+type ReceiptRow = Record<string, unknown> & {
+  id: string;
+  created_at?: string;
+  issued_at?: string;
+  transaction_id?: string;
+  receipt_number?: string;
+};
+
+function canonicalReceiptRow(rows: ReceiptRow[]): ReceiptRow | null {
+  return pickCanonicalRow(
+    rows,
+    (row) => String(row.created_at ?? row.issued_at ?? ""),
+    (row) => String(row.id),
+  );
+}
+
+async function loadReceiptsForTransaction(
+  transactionId: string,
+): Promise<ReceiptRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("commerce_receipts")
+    .select("*")
+    .eq("transaction_id", transactionId);
+  if (error) {
+    if (!isSoftSchemaFallbackAllowed(error.message)) {
+      logQueryError("commerce.receipt.by_tx", error.message);
+    }
+    return [];
+  }
+  return (data ?? []) as ReceiptRow[];
+}
 
 type ReceiptEmailContextResult =
   | {
@@ -143,17 +187,30 @@ export async function buildReceiptEmailContext(input: {
     appointmentTotalCents =
       subtotalCents != null ? subtotalCents + taxCents : null;
     depositRequiredCents = Math.max(0, Number(appt.deposit_cents ?? 0));
-    const paid = Math.max(0, Number(appt.amount_paid_cents ?? 0));
-    const refunded = Math.max(0, Number(appt.amount_refunded_cents ?? 0));
-    const netPaid = Math.max(0, paid - refunded);
-    depositPaidCents = netPaid > 0 ? netPaid : amountReceived;
+    const { data: apptTx } = await supabase
+      .from("commerce_transactions")
+      .select("id, status, kind, amount_cents, occurred_at")
+      .eq("appointment_id", tx.appointmentId)
+      .eq("business_id", input.businessId);
+    const running = runningCashInAfterTransaction(
+      (apptTx ?? []).map((raw) => ({
+        id: String(raw.id),
+        status: String(raw.status ?? ""),
+        kind: String(raw.kind ?? ""),
+        amountCents: Number(raw.amount_cents ?? 0),
+        occurredAt: String(raw.occurred_at ?? ""),
+      })),
+      transactionId,
+    );
+    const paidAfter = running.found ? running.paidAfterCents : amountReceived;
+    depositPaidCents = paidAfter;
     remainingBalanceCents =
       appointmentTotalCents != null
-        ? Math.max(0, appointmentTotalCents - depositPaidCents)
+        ? Math.max(0, appointmentTotalCents - paidAfter)
         : null;
-    if (String(appt.payment_status ?? "") === "fully_paid") {
+    if (appointmentTotalCents != null && paidAfter >= appointmentTotalCents) {
       paymentStatusLabel = "Paid in full";
-    } else if (tx.kind === "deposit" || depositPaidCents < (appointmentTotalCents ?? Infinity)) {
+    } else if (tx.kind === "deposit" || paidAfter < (appointmentTotalCents ?? Infinity)) {
       paymentStatusLabel = "Deposit paid";
     }
 
@@ -228,14 +285,21 @@ export async function buildReceiptEmailContext(input: {
   };
 }
 
-async function nextReceiptNumber(businessId: string): Promise<string> {
+async function nextReceiptNumber(businessId: string): Promise<string | null> {
   const supabase = await createClient();
-  const { count } = await supabase
+  const { data, error } = await supabase
     .from("commerce_receipts")
-    .select("id", { count: "exact", head: true })
+    .select("receipt_number")
     .eq("business_id", businessId);
-  const n = (count ?? 0) + 1;
-  return `RCT-${String(n).padStart(4, "0")}`;
+  if (error) {
+    if (isSoftSchemaFallbackAllowed(error.message)) return null;
+    logQueryError("commerce.receipt.seq", error.message);
+    return null;
+  }
+  return nextPaddedDocumentNumber(
+    (data ?? []).map((row) => String(row.receipt_number ?? "")),
+    DEFAULT_RECEIPT_PREFIX,
+  );
 }
 
 export async function createReceiptForTransaction(input: {
@@ -245,11 +309,8 @@ export async function createReceiptForTransaction(input: {
 }): Promise<CommerceReceipt | null> {
   const supabase = await createClient();
 
-  const { data: existing } = await supabase
-    .from("commerce_receipts")
-    .select("*")
-    .eq("transaction_id", input.transactionId)
-    .maybeSingle();
+  const existingRows = await loadReceiptsForTransaction(input.transactionId);
+  const existing = canonicalReceiptRow(existingRows);
   if (existing) return mapReceipt(existing as Record<string, unknown>);
 
   const { data: tx, error } = await supabase
@@ -267,7 +328,6 @@ export async function createReceiptForTransaction(input: {
   }
 
   const transaction = mapTransaction(tx as Record<string, unknown>);
-  const receiptNumber = await nextReceiptNumber(input.businessId);
   const issuedAt = new Date();
 
   const { data: biz } = await supabase
@@ -282,51 +342,86 @@ export async function createReceiptForTransaction(input: {
     .maybeSingle();
 
   const { formatMoneyCents } = await import("@/lib/commerce/money");
-  const bodyText = [
-    `Receipt ${receiptNumber}`,
-    `Issued: ${format(issuedAt, "MMM d, yyyy h:mm a")}`,
-    "",
-    `${biz?.name ?? "Business"}`,
-    biz?.email ? String(biz.email) : null,
-    biz?.phone ? String(biz.phone) : null,
-    "",
-    `Customer: ${cust?.name ?? "Guest"}`,
-    cust?.email ? String(cust.email) : null,
-    "",
-    `Amount paid: ${formatMoneyCents(transaction.amountCents, transaction.currency)}`,
-    `Payment method: ${PAYMENT_METHOD_LABELS[transaction.method]}`,
-    transaction.description ? `Note: ${transaction.description}` : null,
-    transaction.providerReference
-      ? `Reference: ${transaction.providerReference}`
-      : null,
-    "",
-    `Thank you for visiting ${biz?.name ?? "us"}.`,
-  ]
-    .filter(Boolean)
-    .join("\n");
 
-  const { data: receipt, error: recErr } = await supabase
-    .from("commerce_receipts")
-    .insert({
-      business_id: input.businessId,
-      customer_id: transaction.customerId,
-      transaction_id: input.transactionId,
-      invoice_id: transaction.invoiceId,
-      receipt_number: receiptNumber,
-      issued_at: issuedAt.toISOString(),
-      amount_cents: transaction.amountCents,
-      currency: transaction.currency,
-      method: transaction.method,
-      body_text: bodyText,
-      email_status: "not_sent",
-    })
-    .select("*")
-    .single();
+  let receipt: ReceiptRow | null = null;
 
-  if (recErr || !receipt) {
-    if (recErr && isSoftSchemaFallbackAllowed(recErr.message)) return null;
-    if (recErr) logQueryError("commerce.receipt.create", recErr.message);
-    return null;
+  for (let attempt = 0; attempt < DOCUMENT_NUMBER_ALLOCATE_ATTEMPTS; attempt++) {
+    const raced = canonicalReceiptRow(
+      await loadReceiptsForTransaction(input.transactionId),
+    );
+    if (raced) return mapReceipt(raced as Record<string, unknown>);
+
+    const receiptNumber = await nextReceiptNumber(input.businessId);
+    if (!receiptNumber) return null;
+
+    const bodyText = [
+      `Receipt ${receiptNumber}`,
+      `Issued: ${format(issuedAt, "MMM d, yyyy h:mm a")}`,
+      "",
+      `${biz?.name ?? "Business"}`,
+      biz?.email ? String(biz.email) : null,
+      biz?.phone ? String(biz.phone) : null,
+      "",
+      `Customer: ${cust?.name ?? "Guest"}`,
+      cust?.email ? String(cust.email) : null,
+      "",
+      `Amount paid: ${formatMoneyCents(transaction.amountCents, transaction.currency)}`,
+      `Payment method: ${PAYMENT_METHOD_LABELS[transaction.method]}`,
+      transaction.description ? `Note: ${transaction.description}` : null,
+      transaction.providerReference
+        ? `Reference: ${transaction.providerReference}`
+        : null,
+      "",
+      `Thank you for visiting ${biz?.name ?? "us"}.`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const inserted = await supabase
+      .from("commerce_receipts")
+      .insert({
+        business_id: input.businessId,
+        customer_id: transaction.customerId,
+        transaction_id: input.transactionId,
+        invoice_id: transaction.invoiceId,
+        receipt_number: receiptNumber,
+        issued_at: issuedAt.toISOString(),
+        amount_cents: transaction.amountCents,
+        currency: transaction.currency,
+        method: transaction.method,
+        body_text: bodyText,
+        email_status: "not_sent",
+      })
+      .select("*")
+      .single();
+
+    if (inserted.data) {
+      receipt = inserted.data as ReceiptRow;
+      break;
+    }
+    if (inserted.error && isSoftSchemaFallbackAllowed(inserted.error.message)) {
+      return null;
+    }
+    if (inserted.error && isUniqueViolation(inserted.error)) {
+      const afterRace = canonicalReceiptRow(
+        await loadReceiptsForTransaction(input.transactionId),
+      );
+      if (afterRace) return mapReceipt(afterRace as Record<string, unknown>);
+      continue;
+    }
+    if (inserted.error) {
+      logQueryError("commerce.receipt.create", inserted.error.message);
+      return null;
+    }
+  }
+
+  if (!receipt) return null;
+
+  const afterInsert = canonicalReceiptRow(
+    await loadReceiptsForTransaction(input.transactionId),
+  );
+  if (afterInsert && String(afterInsert.id) !== String(receipt.id)) {
+    return mapReceipt(afterInsert as Record<string, unknown>);
   }
 
   await writeCommerceAudit({
@@ -335,7 +430,7 @@ export async function createReceiptForTransaction(input: {
     action: "receipt.created",
     entityType: "commerce_receipt",
     entityId: String(receipt.id),
-    summary: `Receipt ${receiptNumber} issued`,
+    summary: `Receipt ${String(receipt.receipt_number)} issued`,
   });
 
   return mapReceipt(receipt as Record<string, unknown>);
@@ -384,9 +479,20 @@ export async function queueReceiptEmail(
   businessId: string,
   receiptId: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("commerce_receipts")
+    .select("email_status")
+    .eq("id", receiptId)
+    .eq("business_id", businessId)
+    .maybeSingle();
+  const rowStatus = String(existing?.email_status ?? "");
+  if (rowStatus === "sent" || rowStatus === "queued") {
+    return { ok: true };
+  }
+
   const built = await buildReceiptEmailContext({ businessId, receiptId });
   if (!built.ok) {
-    const supabase = await createClient();
     if (/no email/i.test(built.error)) {
       await supabase
         .from("commerce_receipts")
@@ -417,7 +523,6 @@ export async function queueReceiptEmail(
     },
   });
 
-  const supabase = await createClient();
   await supabase
     .from("commerce_receipts")
     .update({

@@ -1,22 +1,24 @@
 import { formatCalendarDateParam } from "@/lib/calendar/date-param";
 import { formatStaffFacingInstant } from "@/lib/business/datetime";
 import {
-  appointmentWorkspacePath,
-  collectPaymentPath,
-  customerWorkspacePath,
-  invoiceWorkspacePath,
-  receiptWorkspacePath,
-} from "@/lib/commerce/document-paths";
+  deliveryStatusLabel,
+  recordedDeliveryStatus,
+} from "@/lib/commerce/document-delivery-truth";
+import { invoiceWorkspacePath, receiptWorkspacePath, customerWorkspacePath, appointmentWorkspacePath, collectPaymentPath } from "@/lib/commerce/document-paths";
 import {
   documentCurrencyMismatch,
   formatDocumentMoneyCents,
 } from "@/lib/commerce/document-currency";
 import { formatCommerceCivilDate } from "@/lib/commerce/document-dates";
 import { invoiceLineExclusiveCents } from "@/lib/commerce/document-lines";
+import {
+  invoiceRefundPresentation,
+  receiptRefundPresentation,
+  runningCashInAfterTransaction,
+} from "@/lib/commerce/document-refund-presentation";
 import { mapInvoice, mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import {
   appointmentCollectibleMoneyFromStamps,
-  INVOICE_STATUS_UI,
   isCommerceInvoiceRecord,
 } from "@/lib/commerce/money-contract";
 import { normalizeCurrency } from "@/lib/commerce/money";
@@ -66,8 +68,11 @@ export type InvoiceWorkspaceModel = {
     total: string;
     paid: string;
     refunded: string;
+    netPaid: string;
     balance: string;
+    collectibleRemaining: string;
   };
+  refundNote: string | null;
   collectibleRemainingCents: number;
   collectHref: string | null;
   payments: Array<{
@@ -77,6 +82,7 @@ export type InvoiceWorkspaceModel = {
     when: string;
     receiptHref: string | null;
     receiptNumber: string | null;
+    kind: "payment" | "deposit" | "refund";
   }>;
   receipts: Array<{ number: string; href: string; amount: string }>;
   displayLines: Array<{
@@ -85,7 +91,7 @@ export type InvoiceWorkspaceModel = {
     quantity: number;
     amount: string;
   }>;
-  emailStatus: "sent" | "failed" | "no_recipient" | "never_sent";
+  emailStatus: "sent" | "failed" | "no_recipient" | "never_sent" | "queued";
   emailDetail: string | null;
 };
 
@@ -117,6 +123,10 @@ export type ReceiptWorkspaceModel = {
   thisPayment: string;
   totalPaidAfter: string | null;
   balanceAfter: string | null;
+  originalPayment: string;
+  refundedAfter: string | null;
+  netRetained: string | null;
+  refundActivity: Array<{ amount: string; when: string }>;
   refundHref: string | null;
 };
 
@@ -265,17 +275,26 @@ export async function loadInvoiceWorkspace(input: {
     .filter(
       (t) =>
         t.status === "succeeded" &&
-        (t.kind === "payment" || t.kind === "deposit"),
+        (t.kind === "payment" || t.kind === "deposit" || t.kind === "refund"),
     )
     .map((t) => {
       const rec = receiptByTx.get(t.id);
+      const isRefund = t.kind === "refund";
       return {
-        label: t.kind === "deposit" ? "Deposit" : "Payment",
+        label: isRefund
+          ? "Refund"
+          : t.kind === "deposit"
+            ? "Deposit"
+            : "Payment",
         amount: money(t.amountCents, t.currency, businessCurrency),
         method: PAYMENT_METHOD_LABELS[t.method] ?? t.method,
         when: formatStaffFacingInstant(t.occurredAt, timezone),
-        receiptHref: rec ? receiptWorkspacePath(rec.receiptNumber) : null,
-        receiptNumber: rec?.receiptNumber ?? null,
+        receiptHref: rec && !isRefund ? receiptWorkspacePath(rec.receiptNumber) : null,
+        receiptNumber: rec && !isRefund ? rec.receiptNumber : null,
+        kind: (isRefund ? "refund" : t.kind === "deposit" ? "deposit" : "payment") as
+          | "payment"
+          | "deposit"
+          | "refund",
       };
     });
 
@@ -301,11 +320,13 @@ export async function loadInvoiceWorkspace(input: {
       const st = String(l.status ?? "");
       return st === "sent" || st === "delivered" || st === "failed";
     });
+    emailStatus = recordedDeliveryStatus({
+      hasRecipient: true,
+      logStatus: log ? String(log.status) : null,
+    });
     if (log) {
-      const st = String(log.status);
-      emailStatus = st === "failed" ? "failed" : "sent";
       emailDetail = log.sent_at
-        ? `Last ${emailStatus} ${formatStaffFacingInstant(String(log.sent_at), timezone)}`
+        ? `Last ${deliveryStatusLabel(emailStatus)} ${formatStaffFacingInstant(String(log.sent_at), timezone)}`
         : (log.error_message as string | null);
     }
   }
@@ -321,10 +342,19 @@ export async function loadInvoiceWorkspace(input: {
         })
       : null;
 
+  const presentation = invoiceRefundPresentation({
+    totalCents: mapped.totalCents,
+    amountPaidCents: mapped.amountPaidCents,
+    amountRefundedCents: mapped.amountRefundedCents,
+    storedBalanceCents: mapped.balanceCents,
+    storedStatus: mapped.status,
+    collectibleRemainingCents,
+  });
+
   return {
     invoice: mapped,
     invoiceNumber: mapped.invoiceNumber,
-    statusLabel: INVOICE_STATUS_UI[mapped.status] ?? mapped.status,
+    statusLabel: presentation.statusLabel,
     currencyStored: stored,
     currencyCode: stored.toUpperCase(),
     businessCurrency,
@@ -354,10 +384,20 @@ export async function loadInvoiceWorkspace(input: {
       discount: money(mapped.discountCents, stored, businessCurrency),
       tax: money(mapped.taxCents, stored, businessCurrency),
       total: money(mapped.totalCents, stored, businessCurrency),
-      paid: money(mapped.amountPaidCents, stored, businessCurrency),
-      refunded: money(mapped.amountRefundedCents, stored, businessCurrency),
-      balance: money(mapped.balanceCents, stored, businessCurrency),
+      paid: money(presentation.paymentsReceivedCents, stored, businessCurrency),
+      refunded: money(presentation.refundedCents, stored, businessCurrency),
+      netPaid: money(presentation.netPaidCents, stored, businessCurrency),
+      balance: money(presentation.storedLedgerBalanceCents, stored, businessCurrency),
+      collectibleRemaining: money(
+        presentation.collectibleRemainingCents,
+        stored,
+        businessCurrency,
+      ),
     },
+    refundNote:
+      presentation.refundedCents > 0
+        ? "Refunds are separate commerce events. This invoice is not automatically reopened as a new customer debt."
+        : null,
     collectibleRemainingCents,
     collectHref,
     payments,
@@ -418,7 +458,7 @@ export async function loadReceiptWorkspace(input: {
         .maybeSingle(),
       supabase
         .from("customers")
-        .select("id, name")
+        .select("id, name, email")
         .eq("id", receipt.customerId)
         .maybeSingle(),
       supabase
@@ -493,52 +533,103 @@ export async function loadReceiptWorkspace(input: {
         .eq("appointment_id", appointmentId)
         .eq("business_id", input.businessId)
         .order("occurred_at", { ascending: true });
-      let running = 0;
-      for (const raw of apptTx ?? []) {
-        const t = mapTransaction(raw as Record<string, unknown>);
-        if (
-          t.status !== "succeeded" ||
-          (t.kind !== "payment" && t.kind !== "deposit")
-        ) {
-          continue;
-        }
-        running += t.amountCents;
-        if (t.id === receipt.transactionId) {
-          totalPaidAfter = money(running, stored, businessCurrency);
-          balanceAfter = money(Math.max(0, sub + tax - running), stored, businessCurrency);
-          break;
-        }
+      const running = runningCashInAfterTransaction(
+        (apptTx ?? []).map((raw) => {
+          const t = mapTransaction(raw as Record<string, unknown>);
+          return {
+            id: t.id,
+            status: t.status,
+            kind: t.kind,
+            amountCents: t.amountCents,
+            occurredAt: t.occurredAt,
+          };
+        }),
+        receipt.transactionId,
+      );
+      if (running.found) {
+        totalPaidAfter = money(running.paidAfterCents, stored, businessCurrency);
+        balanceAfter = money(
+          Math.max(0, sub + tax - running.paidAfterCents),
+          stored,
+          businessCurrency,
+        );
       }
     }
   }
 
   let refundHref: string | null = null;
-  if (tx && appointmentId && isRefundableTransaction(tx)) {
+  let refundedFromThisPaymentCents = 0;
+  const refundActivity: ReceiptWorkspaceModel["refundActivity"] = [];
+  if (tx) {
     const { data: refunds } = await supabase
       .from("commerce_refunds")
-      .select("transaction_id, amount_cents, status")
+      .select("transaction_id, amount_cents, status, created_at")
       .eq("transaction_id", tx.id);
-    const remaining = remainingRefundableCents(
-      tx,
-      (refunds ?? []).map((r) => ({
-        transactionId: String(r.transaction_id),
-        amountCents: Number(r.amount_cents ?? 0),
-        status: (String(r.status ?? "succeeded") as CommerceRefund["status"]),
-      })),
+    const succeeded = (refunds ?? []).filter(
+      (r) => String(r.status ?? "succeeded") === "succeeded",
     );
-    if (remaining > 0) {
-      refundHref = appointmentHref;
+    refundedFromThisPaymentCents = succeeded.reduce(
+      (sum, r) => sum + Math.max(0, Number(r.amount_cents ?? 0)),
+      0,
+    );
+    for (const r of succeeded) {
+      refundActivity.push({
+        amount: money(Number(r.amount_cents ?? 0), stored, businessCurrency),
+        when: r.created_at
+          ? formatStaffFacingInstant(String(r.created_at), timezone)
+          : "",
+      });
+    }
+    if (appointmentId && isRefundableTransaction(tx)) {
+      const remaining = remainingRefundableCents(
+        tx,
+        (refunds ?? []).map((r) => ({
+          transactionId: String(r.transaction_id),
+          amountCents: Number(r.amount_cents ?? 0),
+          status: (String(r.status ?? "succeeded") as CommerceRefund["status"]),
+        })),
+      );
+      if (remaining > 0) {
+        refundHref = appointmentHref;
+      }
     }
   }
 
-  const emailLabel =
-    receipt.emailStatus === "sent"
-      ? "Sent"
-      : receipt.emailStatus === "failed"
-        ? "Failed"
-        : receipt.emailStatus === "queued"
-          ? "Queued"
-          : "Not sent";
+  const refundView = receiptRefundPresentation({
+    originalPaymentCents: receipt.amountCents,
+    refundedFromThisPaymentCents,
+  });
+
+  let emailStatus = deliveryStatusLabel(
+    recordedDeliveryStatus({
+      hasRecipient: Boolean(customer?.email?.trim()),
+      rowEmailStatus: receipt.emailStatus,
+    }),
+  );
+  const recipient = customer?.email?.trim() || null;
+  if (recipient) {
+    const { data: recLogs } = await supabase
+      .from("notification_logs")
+      .select("status")
+      .eq("business_id", input.businessId)
+      .eq("template_key", "commerce.receipt")
+      .eq("recipient", recipient)
+      .order("created_at", { ascending: false })
+      .limit(8);
+    const recLog = (recLogs ?? []).find((l) => {
+      const st = String(l.status ?? "");
+      return st === "sent" || st === "delivered" || st === "failed";
+    });
+    if (recLog) {
+      emailStatus = deliveryStatusLabel(
+        recordedDeliveryStatus({
+          hasRecipient: true,
+          logStatus: String(recLog.status),
+          rowEmailStatus: receipt.emailStatus,
+        }),
+      );
+    }
+  }
 
   return {
     receiptNumber: receipt.receiptNumber,
@@ -552,7 +643,7 @@ export async function loadReceiptWorkspace(input: {
     methodLabel: PAYMENT_METHOD_LABELS[receipt.method] ?? receipt.method,
     paidAt: formatStaffFacingInstant(receipt.issuedAt, timezone),
     issuedAt: formatStaffFacingInstant(receipt.issuedAt, timezone),
-    emailStatus: emailLabel,
+    emailStatus,
     customerName: customer?.name?.trim() || "Customer",
     customerHref: customerWorkspacePath(receipt.customerId),
     serviceName,
@@ -565,9 +656,19 @@ export async function loadReceiptWorkspace(input: {
     appointmentSubtotal,
     appointmentTax,
     appointmentTotal,
-    thisPayment: money(receipt.amountCents, stored, businessCurrency),
+    thisPayment: money(refundView.originalPaymentCents, stored, businessCurrency),
     totalPaidAfter,
     balanceAfter,
+    originalPayment: money(refundView.originalPaymentCents, stored, businessCurrency),
+    refundedAfter:
+      refundView.refundedFromThisPaymentCents > 0
+        ? money(refundView.refundedFromThisPaymentCents, stored, businessCurrency)
+        : null,
+    netRetained:
+      refundView.refundedFromThisPaymentCents > 0
+        ? money(refundView.netRetainedCents, stored, businessCurrency)
+        : null,
+    refundActivity,
     refundHref,
   };
 }

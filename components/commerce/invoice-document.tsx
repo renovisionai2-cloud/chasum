@@ -17,7 +17,7 @@ export function InvoiceDocument({ model }: { model: InvoiceWorkspaceModel }) {
               className="h-12 w-auto max-w-[12rem] object-contain print:h-9"
             />
           ) : null}
-          <p className="text-lg font-semibold tracking-tight">{model.businessName}</p>
+          <p className="text-lg font-semibold tracking-tight break-words">{model.businessName}</p>
           {model.businessLegalName && model.businessLegalName !== model.businessName ? (
             <p className="text-sm text-neutral-600">{model.businessLegalName}</p>
           ) : null}
@@ -60,7 +60,7 @@ export function InvoiceDocument({ model }: { model: InvoiceWorkspaceModel }) {
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
             Bill to
           </p>
-          <p className="mt-1 font-medium">{model.customerName}</p>
+          <p className="mt-1 font-medium break-words">{model.customerName}</p>
           {model.customerEmail ? (
             <p className="text-sm text-neutral-600">{model.customerEmail}</p>
           ) : null}
@@ -72,7 +72,7 @@ export function InvoiceDocument({ model }: { model: InvoiceWorkspaceModel }) {
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
             Appointment
           </p>
-          <p className="mt-1 font-medium">{model.serviceName ?? "Service"}</p>
+          <p className="mt-1 font-medium break-words">{model.serviceName ?? "Service"}</p>
           {model.appointmentWhen ? (
             <p className="text-sm text-neutral-600">{model.appointmentWhen}</p>
           ) : null}
@@ -96,7 +96,7 @@ export function InvoiceDocument({ model }: { model: InvoiceWorkspaceModel }) {
         <tbody>
           {model.displayLines.map((line) => (
             <tr key={line.key} className="border-b border-neutral-100">
-              <td className="py-3 print:py-2">{line.description}</td>
+              <td className="py-3 print:py-2 break-words">{line.description}</td>
               <td className="py-3 text-right tabular-nums print:py-2">{line.quantity}</td>
               <td className="py-3 text-right tabular-nums print:py-2">{line.amount}</td>
             </tr>
@@ -125,18 +125,26 @@ export function InvoiceDocument({ model }: { model: InvoiceWorkspaceModel }) {
             <dd className="tabular-nums">{model.money.total}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-neutral-600">Paid</dt>
+            <dt className="text-neutral-600">Payments received</dt>
             <dd className="tabular-nums">{model.money.paid}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-neutral-600">Refunded</dt>
             <dd className="tabular-nums">{model.money.refunded}</dd>
           </div>
+          <div className="flex justify-between">
+            <dt className="text-neutral-600">Net paid</dt>
+            <dd className="tabular-nums">{model.money.netPaid}</dd>
+          </div>
           <div className="flex justify-between font-semibold">
-            <dt>Balance</dt>
-            <dd className="tabular-nums">{model.money.balance}</dd>
+            <dt>Collectible remaining</dt>
+            <dd className="tabular-nums">{model.money.collectibleRemaining}</dd>
           </div>
         </dl>
+
+        {model.refundNote ? (
+          <p className="mt-4 text-xs text-neutral-500 print:mt-2">{model.refundNote}</p>
+        ) : null}
 
         {model.notes ? (
           <p className="mt-6 text-sm text-neutral-600 print:mt-3">{model.notes}</p>
@@ -144,10 +152,10 @@ export function InvoiceDocument({ model }: { model: InvoiceWorkspaceModel }) {
 
         <section className="commerce-print-payments mt-8 border-t border-neutral-200 pt-5 print:mt-4 print:pt-3">
           <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
-            Payments
+            Payments and refunds
           </p>
           {model.payments.length === 0 ? (
-            <p className="mt-2 text-sm text-neutral-600">No payments recorded on this invoice.</p>
+            <p className="mt-2 text-sm text-neutral-600">No payments or refunds recorded on this invoice.</p>
           ) : (
             <ul className="mt-2 space-y-1 text-sm">
               {model.payments.map((p) => (
@@ -178,7 +186,9 @@ export function InvoiceDocument({ model }: { model: InvoiceWorkspaceModel }) {
                 ? "Failed"
                 : model.emailStatus === "no_recipient"
                   ? "No recipient"
-                  : "Never sent"}
+                  : model.emailStatus === "queued"
+                    ? "Queued"
+                    : "Never sent"}
             {model.emailDetail ? ` · ${model.emailDetail}` : ""}
           </p>
         </section>

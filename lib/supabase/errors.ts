@@ -3,6 +3,21 @@
 import { captureMessage } from "@/lib/observability/sentry";
 import { logger } from "@/lib/observability/logger";
 
+/** Postgres unique_violation (23505) or PostgREST duplicate-key wording. */
+export function isUniqueViolation(error: {
+  code?: string | null;
+  message?: string | null;
+} | null | undefined): boolean {
+  if (!error) return false;
+  if (String(error.code ?? "") === "23505") return true;
+  const m = (error.message ?? "").toLowerCase();
+  return (
+    m.includes("duplicate key") ||
+    m.includes("unique constraint") ||
+    m.includes("already exists")
+  );
+}
+
 export function isMissingSchemaError(message: string | null | undefined): boolean {
   if (!message) return false;
   const m = message.toLowerCase();
