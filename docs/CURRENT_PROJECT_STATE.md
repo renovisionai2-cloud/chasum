@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-18  
-**Updated by:** World Class — Chapter 6 Phase 6.2A booking / payment UX closeout  
+**Updated by:** World Class — Chapter 6 Phase 6.2A PO acceptance lock  
 
 ---
 
@@ -121,7 +121,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 PO-accepted.** **Phase 6.2A implemented with booking/payment UX closeout — not PO-accepted.** Phase 6.2B / Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = STARTING.** **Phase 6.3 = NOT STARTED.** Chapter 7 not started. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -160,12 +160,38 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-18)
 
+**World Class — Chapter 6 Phase 6.2A PO ACCEPTED** (docs stamp only; no behavior change)
+
+PO completed a fresh hands-on Vercel Preview end-to-end booking/payment test with a new GVM customer.
+
+| Status | |
+|--------|--|
+| **Phase 6.1** | **PO ACCEPTED** |
+| **Phase 6.2A** | **PO ACCEPTED** |
+| **Phase 6.2B** | **STARTING** |
+| **Phase 6.3** | **NOT STARTED** |
+
+Verified workflow: Customer → Service → Employee → Date & Time → Payment → Review → Confirmation → View Appointment → Payment completion → Receipt delivery → Payments / Customer / Reporting propagation.
+
+- One-location GVM flow correctly skipped an unnecessary Location step.
+- View Appointment opened the read-first operating workspace (not the editor).
+- Booking success hierarchy accepted.
+- Appointment status and payment status remained separate: Booked ≠ Completed; Paid in full ≠ Completed.
+
+Accepted money example: Elite Package subtotal **$236.00** · HST 13% **$30.68** · appointment total **$266.68** · deposit **$50.00** · remaining **$216.68** · final payment **$216.68** · total paid **$266.68** · outstanding **$0.00** · Paid in full.
+
+Customer received receipt **RCT-0006** (Elite Package, appointment date/time, subtotal/HST/total, this payment $216.68, E-Transfer, total paid $266.68, balance $0.00, Paid in full). Do not rewrite INV-0033 / RCT-0001 / RCT-0002 / RCT-0006.
+
+Feature SHA remains `c65bd44`. This stamp does not change working behavior.
+
+### Immediately prior (2026-08-18)
+
 **World Class — Chapter 6 Phase 6.2A booking / payment UX closeout**
 
 - After booking, View Appointment opens the existing appointment operating/read workspace. Edit is explicit.
 - Success screen leads with Appointment booked and a compact recorded payment/delivery summary.
 - One usable location auto-selects; multiple locations require Location after Service and before Employee/time (UI eligibility only; RPC still primary `staff.location_id`).
-- Money contract unchanged (PO GVM $236.00 / $30.68 / $266.68 / $50.00 / $216.68). Phase 6.2A is **not** PO-accepted. Phase 6.2B not started.
+- Money contract unchanged (PO GVM $236.00 / $30.68 / $266.68 / $50.00 / $216.68).
 
 ### Immediately prior (2026-08-17)
 
@@ -643,10 +669,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `c65bd44` |
-| **Short** | `c65bd44` |
-| **Subject** | fix: open post-booking appointment as operating view with location sequencing |
-| **Chapter 6 Phase 6.2A UX closeout** | `c65bd44` / stamp pending |
+| **SHA** | (this 6.2A PO acceptance stamp) |
+| **Short** | pending after stamp commit |
+| **Subject** | docs: lock Phase 6.2A PO acceptance |
+| **Chapter 6 Phase 6.2A PO acceptance** | this stamp · feature `c65bd44` |
+| **Chapter 6 Phase 6.2A UX closeout** | `c65bd44` / stamp `a9d9ea7` |
 | **Chapter 6 Phase 6.2A closeout** | `3e7e3d3` / stamp `61bd578` |
 | **Chapter 6 Phase 6.2A** | `6a25f96` |
 | **Chapter 6 Phase 6.1E** | `f7c7fa1` |
@@ -698,14 +725,14 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on re-test of Chapter 6 Phase 6.2A including the booking / payment UX closeout (not PO-accepted).** Do **not** start Phase 6.2B. Do **not** start Chapter 7.
+1. **Chapter 6 Phase 6.2B — Commerce document integrity + lifecycle hardening (STARTING).** Invoice/receipt numbering integrity, one-payment→one-receipt identity, refund presentation, currency/date/print/delivery truth. No Stripe/public pay. No schema/RPC/migration without PO.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
 5. **Operation GVM Production** — remain protected.
 6. Marketing claim fixes only with **explicit PO** (locked pages).
 
-Do **not** start Phase 6.2B, Stripe Elements, public online payment, or Chapter 7 until the product owner explicitly directs it.  
+Do **not** start Phase 6.3, Stripe Elements, public online payment, or Chapter 7.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
 Do **not** redesign locked marketing pages unless the product owner explicitly requests it.
 

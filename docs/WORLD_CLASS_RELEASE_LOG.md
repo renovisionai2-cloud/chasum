@@ -12,7 +12,8 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-18 | **Chapter 6 Phase 6.2A — booking / payment UX closeout** | `c65bd44` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | View Appointment read-first; success hierarchy; location sequencing; 6.2A not PO-accepted; 6.2B not started |
+| 2026-08-18 | **Chapter 6 Phase 6.2A PO acceptance lock** | (this stamp) | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.1 = PO ACCEPTED; 6.2A = PO ACCEPTED (RCT-0006 E2E); 6.2B = STARTING; 6.3 = NOT STARTED |
+| 2026-08-18 | **Chapter 6 Phase 6.2A — booking / payment UX closeout** | `c65bd44` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | View Appointment read-first; success hierarchy; location sequencing; now included in 6.2A PO acceptance |
 | 2026-08-16 | **Chapter 6 Phase 6.2A — Invoice & Receipt Workspace Foundation** | `6a25f96` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Professional invoice/receipt documents; currency contradiction documented; 6.2A not PO-accepted; 6.2B not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1E — Reschedule Analytics Integrity** | `f7c7fa1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Rescheduled = real start/end move; Ana not rescheduled; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1D — Final Integrity Closeout** | `28b7bf6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Zero-balance Billing gate; past Booked Needs attention; own-slot hold; staff skipped UI; avg collected per customer; 6.1 not PO-accepted; 6.2 not started |
@@ -64,6 +65,25 @@
 
 ---
 
+## Chapter 6 Phase 6.2A — PO acceptance lock
+
+| Check | Result |
+|-------|--------|
+| PO hands-on Preview | **Accepted** |
+| Acceptance language | Chapter 6 Phase 6.2A — Invoice & Receipt Workspace Foundation + booking/payment UX closeout — PO accepted after hands-on Preview testing. |
+| Feature | `c65bd44` / `3e7e3d3` / `6a25f96` |
+| Test | New GVM customer; Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006** |
+| View Appointment | Read-first operating workspace |
+| Location | One-location GVM skipped Location |
+| Status separation | Booked ≠ Completed; Paid in full ≠ Completed |
+| Product code changed | **No** (docs stamp only) |
+| Production | Untouched (`4eecbec`) |
+| Migrations 034–036 | Not applied |
+| Phase 6.1 | **PO ACCEPTED** |
+| Phase 6.2A | **PO ACCEPTED** |
+| Phase 6.2B | **STARTING** |
+| Phase 6.3 | **NOT STARTED** |
+
 ## Chapter 6 Phase 6.2A — quality report
 
 | Check | Result |
@@ -76,8 +96,8 @@
 | Financial rows rewritten | **No** (receipt email_status may update on resend, existing contract) |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** |
-| Phase 6.2B | **Not started** |
-| PO review | **Awaiting hands-on Preview verification** |
+| Phase 6.2B | **STARTING** |
+| PO review | **PO ACCEPTED** after hands-on Preview E2E (RCT-0006) |
 
 ## Chapter 6 Phase 6.1E — quality report
 

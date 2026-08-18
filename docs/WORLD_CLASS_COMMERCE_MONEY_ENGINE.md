@@ -1,8 +1,8 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.2A — Professional Invoice & Receipt Workspace Foundation + booking/payment UX closeout** (6.1 PO-accepted; 6.2A **not** PO-accepted; 6.0B PO-accepted)  
-**Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44`  
+**Phase:** **6.2B STARTING — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B = **STARTING**; 6.3 = **NOT STARTED**; 6.0B PO-accepted)  
+**Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44` · **PO accepted** after hands-on Preview E2E (RCT-0006)  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
 **Feature 6.0:** `9e7d72a` · stamp `160b10e`  
@@ -54,6 +54,27 @@ Helpers: `isAppointmentCollectible`, `collectibleRemainingBalanceCents`, `collec
 
 Calendar: optimistic cancel + cancelled-ID override so Day/Week/Month/Agenda/Timeline agree without stale pre-cancel rows.
 
+## Phase 6.2A PO acceptance lock
+
+| Check | Result |
+|-------|--------|
+| PO hands-on Preview | **Accepted** (fresh E2E with a new GVM customer) |
+| Acceptance language | Chapter 6 Phase 6.2A — Invoice & Receipt Workspace Foundation + booking/payment UX closeout — PO accepted after hands-on Preview testing. |
+| Feature | `c65bd44` (UX closeout) · `3e7e3d3` (document integrity) · `6a25f96` (workspace foundation) |
+| Workflow | Customer → Service → Employee → Date & Time → Payment → Review → Confirmation → View Appointment → payment completion → receipt → Payments / Customer / Reporting |
+| Location | One-location GVM correctly skipped Location |
+| View Appointment | Read-first operating workspace (not the editor) |
+| Success hierarchy | Accepted |
+| Receipt | **RCT-0006** — Elite Package; $236.00 / $30.68 / $266.68; this payment $216.68; E-Transfer; total paid $266.68; balance $0.00; Paid in full |
+| Status separation | Booked ≠ Completed; Paid in full ≠ Completed |
+| Historical rows | Do not rewrite INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 |
+| Product code changed in this stamp | **No** |
+| Production | Untouched (`4eecbec`) |
+| Phase 6.1 | **PO ACCEPTED** |
+| Phase 6.2A | **PO ACCEPTED** |
+| Phase 6.2B | **STARTING** |
+| Phase 6.3 | **NOT STARTED** |
+
 ## Phase 6.2A lock — Invoice & Receipt Workspace
 
 Display-only professional documents over existing `commerce_invoices` / `commerce_receipts`. Not an accounting rewrite.
@@ -100,7 +121,9 @@ Root cause: Billing used `format(new Date(issueDate))` which treats `YYYY-MM-DD`
 
 Line presentation: display exclusive service amount (`$220.00`) when tax is itemized; stored `commerce_invoice_lines.total_cents` for INV-0033 may remain tax-inclusive.
 
-Phase 6.2A PO acceptance = **NOT YET**. Phase 6.2B / 6.3 / 6.4 not started.
+**Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
+
+**Phase 6.2B = STARTING.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
 
@@ -396,12 +419,12 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0A** | Appointment Lifecycle + Collectibility Integrity | Implemented (`efaea51`) |
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
-| **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **Implemented — not PO-accepted** |
-| 6.2B+ | Remaining invoice/receipt lifecycle | **Not started** |
-| 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **Not started** |
+| **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **PO ACCEPTED** (Preview E2E; RCT-0006) |
+| **6.2B** | Commerce document integrity + lifecycle hardening | **STARTING** |
+| 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-Do **not** automatically start 6.2B. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B.
+**Phase 6.2B = STARTING.** Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
 
 ---
 
