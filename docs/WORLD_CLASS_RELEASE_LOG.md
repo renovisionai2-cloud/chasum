@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-17 | **Chapter 6 Phase 6.2A closeout — document integrity** | `3e7e3d3` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Civil-date unify; exclusive line amount; one-page print; USD honesty; generic email wording; 6.2A not PO-accepted; 6.2B not started |
+| 2026-08-18 | **Chapter 6 Phase 6.2A — booking / payment UX closeout** | stamp pending | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | View Appointment read-first; success hierarchy; location sequencing; 6.2A not PO-accepted; 6.2B not started |
 | 2026-08-16 | **Chapter 6 Phase 6.2A — Invoice & Receipt Workspace Foundation** | `6a25f96` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Professional invoice/receipt documents; currency contradiction documented; 6.2A not PO-accepted; 6.2B not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1E — Reschedule Analytics Integrity** | `f7c7fa1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Rescheduled = real start/end move; Ana not rescheduled; 6.1 not PO-accepted; 6.2 not started |
 | 2026-08-15 | **Chapter 6 Phase 6.1D — Final Integrity Closeout** | `28b7bf6` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Zero-balance Billing gate; past Booked Needs attention; own-slot hold; staff skipped UI; avg collected per customer; 6.1 not PO-accepted; 6.2 not started |

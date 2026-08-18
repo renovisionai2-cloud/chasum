@@ -3,34 +3,35 @@
 import { Button } from "@/components/ui/button";
 import type { BookingNotificationStatusItem } from "@/lib/types/booking";
 import { formatMoneyCents } from "@/lib/commerce/money";
-import { formatTime, parseISO } from "@/lib/calendar/utils";
-import { format } from "date-fns";
+import {
+  BOOKING_SUCCESS_PAYMENT_LABELS,
+  bookingSuccessPaymentState,
+  recordedDeliveryLabel,
+  type BookingSuccessPaymentState,
+} from "@/lib/booking/booking-success-summary";
+import { formatStaffFacingInstant } from "@/lib/business/datetime";
 import { CheckCircle2 } from "lucide-react";
 
 export type BookingSuccessInfo = {
   appointmentId: string;
   serviceName: string | null;
   customerName: string | null;
+  employeeName: string | null;
+  locationName: string | null;
   startIso: string;
   durationMinutes: number | null;
+  appointmentTotalCents: number;
+  collectedCents: number;
+  remainingCents: number;
+  depositRequiredCents: number;
   paymentAmountCents: number;
   paymentStatus?: "recorded" | "failed" | "skipped";
+  paymentState: BookingSuccessPaymentState;
   receiptStatus?: string | null;
   notifications?: BookingNotificationStatusItem[];
   currency?: string | null;
+  timezone?: string | null;
 };
-
-function statusMark(
-  item: BookingNotificationStatusItem | undefined,
-  fallback: "—",
-): string {
-  if (!item) return fallback;
-  if (item.status === "sent") return "Sent ✓";
-  if (item.status === "pending") return "Pending";
-  if (item.status === "failed") return "Failed";
-  if (item.status === "not_requested" || item.status === "skipped") return "—";
-  return item.label || item.status;
-}
 
 export function BookingSuccessState({
   info,
@@ -47,20 +48,24 @@ export function BookingSuccessState({
   viewPending?: boolean;
   viewError?: string | null;
 }) {
-  const end =
-    info.durationMinutes != null
-      ? new Date(
-          parseISO(info.startIso).getTime() + info.durationMinutes * 60_000,
-        )
-      : null;
   const customerEmail = info.notifications?.find(
     (n) => n.channel === "customer_email",
   );
   const businessEmail = info.notifications?.find(
     (n) => n.channel === "business_email",
   );
-  const receipt = info.notifications?.find(
-    (n) => n.channel === "payment_receipt",
+  const paymentRecorded = info.paymentStatus === "recorded";
+  const paymentState =
+    info.paymentState ??
+    bookingSuccessPaymentState({
+      appointmentTotalCents: info.appointmentTotalCents,
+      collectedCents: info.collectedCents,
+      depositRequiredCents: info.depositRequiredCents,
+      paymentRecorded,
+    });
+  const remainingCents = Math.max(
+    0,
+    info.appointmentTotalCents - (paymentRecorded ? info.collectedCents : 0),
   );
 
   return (
@@ -75,66 +80,78 @@ export function BookingSuccessState({
           aria-hidden
         />
         <div>
-          <p className="text-base font-semibold tracking-tight">
-            Appointment booked ✓
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-success">
+            Appointment booked
           </p>
-          <p className="mt-1 text-sm font-medium">
-            {info.serviceName ?? "Appointment"}
+          <p className="mt-1 text-lg font-semibold tracking-tight">
+            {info.customerName ?? "Appointment confirmed"}
           </p>
-          <p className="text-sm tabular-nums text-muted-foreground">
-            {format(parseISO(info.startIso), "EEEE, MMM d")}
-            {" · "}
-            {formatTime(parseISO(info.startIso))}
-            {end ? ` – ${formatTime(end)}` : ""}
-          </p>
-          {info.customerName ? (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {info.customerName}
-            </p>
-          ) : null}
         </div>
       </div>
 
-      <ul className="space-y-1 text-sm text-muted-foreground">
-        <li>
-          Customer confirmation{" "}
-          <span className="text-foreground">
-            {statusMark(customerEmail, "—")}
-          </span>
-        </li>
-        <li>
-          Business notification{" "}
-          <span className="text-foreground">
-            {statusMark(businessEmail, "—")}
-          </span>
-        </li>
-        {info.paymentAmountCents > 0 ? (
-          <li>
-            Deposit{" "}
-            <span className="text-foreground">
-              {info.paymentStatus === "recorded"
-                ? `${formatMoneyCents(info.paymentAmountCents, info.currency)} recorded ✓`
-                : info.paymentStatus === "failed"
-                  ? "Failed"
-                  : formatMoneyCents(info.paymentAmountCents, info.currency)}
-            </span>
-          </li>
-        ) : null}
-        {info.paymentAmountCents > 0 ? (
-          <li>
-            Receipt{" "}
-            <span className="text-foreground">
-              {receipt
-                ? statusMark(receipt, "—")
-                : info.receiptStatus === "sent"
-                  ? "Sent ✓"
-                  : info.receiptStatus === "failed"
-                    ? "Failed"
-                    : "—"}
-            </span>
-          </li>
-        ) : null}
-      </ul>
+      <dl className="space-y-1.5 text-sm">
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Customer</dt>
+          <dd className="font-medium text-right">{info.customerName ?? "—"}</dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Service</dt>
+          <dd className="text-right">{info.serviceName ?? "—"}</dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Employee</dt>
+          <dd className="text-right">{info.employeeName ?? "—"}</dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Location</dt>
+          <dd className="text-right">{info.locationName ?? "—"}</dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">When</dt>
+          <dd className="tabular-nums text-right">
+            {formatStaffFacingInstant(info.startIso, info.timezone)}
+          </dd>
+        </div>
+        <div className="flex justify-between gap-3 border-t border-border/60 pt-1.5">
+          <dt className="text-muted-foreground">Appointment total</dt>
+          <dd className="font-medium tabular-nums">
+            {formatMoneyCents(info.appointmentTotalCents, info.currency)}
+          </dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Amount collected</dt>
+          <dd className="tabular-nums">
+            {info.paymentStatus === "failed"
+              ? "Payment failed"
+              : formatMoneyCents(
+                  paymentRecorded ? info.collectedCents : 0,
+                  info.currency,
+                )}
+          </dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Payment</dt>
+          <dd className="text-right">
+            {BOOKING_SUCCESS_PAYMENT_LABELS[paymentState]}
+          </dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Remaining</dt>
+          <dd className="tabular-nums">
+            {remainingCents <= 0
+              ? "Paid in full"
+              : formatMoneyCents(remainingCents, info.currency)}
+          </dd>
+        </div>
+        <div className="flex justify-between gap-3 border-t border-border/60 pt-1.5">
+          <dt className="text-muted-foreground">Customer confirmation</dt>
+          <dd className="text-right">{recordedDeliveryLabel(customerEmail)}</dd>
+        </div>
+        <div className="flex justify-between gap-3">
+          <dt className="text-muted-foreground">Business notification</dt>
+          <dd className="text-right">{recordedDeliveryLabel(businessEmail)}</dd>
+        </div>
+      </dl>
 
       <div className="flex flex-col gap-2 sm:flex-row">
         {onViewAppointment ? (

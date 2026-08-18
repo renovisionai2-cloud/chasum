@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 PO-accepted.** **Phase 6.2A implemented — not PO-accepted.** 6.2B not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 PO-accepted.** **Phase 6.2A implemented with booking/payment UX closeout — not PO-accepted.** 6.2B not started.
 
 ---
 
@@ -378,10 +378,10 @@
 | Email | Intentional invoice send; failure does not mutate money; receipt resend existing row |
 | Print | Browser print; one-service invoice fits one US Letter page; `print:hidden` portal chrome |
 | Collect | Hidden at $0 collectible remaining; cancelled not collectible |
-| Tests | `tests/unit/commerce/phase-6-2a-documents.test.ts` + `phase-6-2a-closeout.test.ts` |
+| Tests | `tests/unit/commerce/phase-6-2a-documents.test.ts` + `phase-6-2a-closeout.test.ts` + `tests/unit/booking/phase-6-booking-ux-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** |
-| Status | Implemented — **not PO-accepted**. Do not start 6.2B. |
+| Status | Implemented with booking/payment UX closeout — **not PO-accepted**. Do not start 6.2B. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1)
 

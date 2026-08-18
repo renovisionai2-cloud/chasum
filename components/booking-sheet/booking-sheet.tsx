@@ -5,6 +5,8 @@ import { AppointmentSection, type BookingOfferType } from "@/components/booking-
 import { AppointmentCustomerContext } from "@/components/booking-sheet/appointment-customer-context";
 import { AppointmentExpandToggle } from "@/components/booking-sheet/appointment-expand-toggle";
 import { AppointmentManagementActions } from "@/components/booking-sheet/appointment-management-actions";
+import { AppointmentOperatingView } from "@/components/booking-sheet/appointment-operating-view";
+import { BookingLocationDecision } from "@/components/booking-sheet/booking-location-decision";
 import {
   AvailabilitySection,
   type AvailabilitySectionHandle,
@@ -67,8 +69,29 @@ import {
 import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
+import { bookingSuccessPaymentState } from "@/lib/booking/booking-success-summary";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
+import {
+  locationDecisionRequired,
+  resolveInitialBookingLocation,
+  usableBookingLocations,
+} from "@/lib/booking/usable-locations";
+import { customerWorkspacePath } from "@/lib/commerce/document-paths";
+import {
+  calendarDateInTimezone,
+  formatStaffFacingInstant,
+} from "@/lib/business/datetime";
+import { formatTime, parseISO } from "@/lib/calendar/utils";
+import { formatMoneyCents } from "@/lib/commerce/money";
+import {
+  resolveBookingFinancials,
+  resolveFinancialsFromAppointment,
+} from "@/lib/commerce/booking-financials";
+import {
+  APPOINTMENT_PAYMENT_STATUS_LABELS,
+  type AppointmentPaymentStatus,
+} from "@/lib/commerce/types";
 import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
   RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
@@ -78,10 +101,6 @@ import {
   durationFromAppointmentTimes,
   resolveBookingDuration,
 } from "@/lib/booking/resolved-duration";
-import { calendarDateInTimezone } from "@/lib/business/datetime";
-import { formatTime, parseISO } from "@/lib/calendar/utils";
-import { formatMoneyCents } from "@/lib/commerce/money";
-import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import {
   useBookingPreferences,
   writeBookingPreferences,
@@ -220,15 +239,14 @@ export function BookingSheet({
       locations[0]?.timezone ??
       null;
 
-    const locationId =
-      appointment?.location_id ??
-      (!appointment ? draft?.locationId : null) ??
-      (prefs.locationId && locations.some((l) => l.id === prefs.locationId)
-        ? prefs.locationId
-        : null) ??
-      locations.find((l) => l.is_default)?.id ??
-      locations[0]?.id ??
-      "";
+    const initialLocation = resolveInitialBookingLocation({
+      locations,
+      appointmentLocationId: appointment?.location_id,
+      draftLocationId: !appointment ? draft?.locationId : null,
+      preferenceLocationId: prefs.locationId,
+    });
+    const locationId = initialLocation.locationId;
+    const locationProvenance = initialLocation.provenance;
 
     const locationServices = services.filter(
       (s) => s.is_active && (!locationId || s.location_id === locationId),
@@ -361,6 +379,7 @@ export function BookingSheet({
       staffId,
       customerId,
       locationId,
+      locationProvenance,
       date,
       slot: initialStart,
       duration: resolved.minutes,
@@ -427,6 +446,8 @@ export function BookingSheet({
     useState<BookingDecisionProvenance>(preferred.staffProvenance);
   const [datetimeProvenance, setDatetimeProvenance] =
     useState<BookingDecisionProvenance>(preferred.datetimeProvenance);
+  const [locationProvenance, setLocationProvenance] =
+    useState<BookingDecisionProvenance>(preferred.locationProvenance);
   const [paymentAcknowledged, setPaymentAcknowledged] = useState(false);
   const [successInfo, setSuccessInfo] = useState<BookingSuccessInfo | null>(
     null,
@@ -437,6 +458,8 @@ export function BookingSheet({
   >(null);
   /** Existing appointment management workspace expand (UI-only, session). */
   const [managementExpanded, setManagementExpanded] = useState(false);
+  /** Existing appointments open read-first; Edit enters the booking editor. */
+  const [managementMode, setManagementMode] = useState<"view" | "edit">("view");
   const paymentIdempotencyKey = useRef(
     `bs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   );
@@ -516,6 +539,7 @@ export function BookingSheet({
     setServiceProvenance(preferred.serviceProvenance);
     setStaffProvenance(preferred.staffProvenance);
     setDatetimeProvenance(preferred.datetimeProvenance);
+    setLocationProvenance(preferred.locationProvenance);
     setAvailability(null);
     setSnapshot(null);
     setSnapshotForId(null);
@@ -525,6 +549,7 @@ export function BookingSheet({
     setSuccessInfo(null);
     setFocusDecision(null);
     setManagementExpanded(false);
+    setManagementMode("view");
     suppressedSuccessAppointmentId.current = null;
     setViewAppointmentError(null);
     setViewAppointmentPending(false);
@@ -609,6 +634,7 @@ export function BookingSheet({
 
   useEffect(() => {
     if (!open) return;
+    if (isEditing && managementMode === "view") return;
     let cancelled = false;
     const timer = window.setTimeout(() => {
       void (async () => {
@@ -655,6 +681,8 @@ export function BookingSheet({
     };
   }, [
     open,
+    isEditing,
+    managementMode,
     serviceId,
     activeStaffId,
     locationId,
@@ -731,6 +759,10 @@ export function BookingSheet({
     datetimeProvenance,
     Boolean(slot && selectedSlotValid),
   );
+  const locationRequired = locationDecisionRequired(locations);
+  const locationResolved = locationRequired
+    ? isIntentionallyResolved(locationProvenance, Boolean(locationId))
+    : Boolean(locationId) || usableBookingLocations(locations).length <= 1;
 
   const bookingFacts = {
     customerId: selectedCustomer?.id ?? null,
@@ -739,6 +771,8 @@ export function BookingSheet({
     serviceResolved,
     needsNamedEmployee,
     employeeResolved,
+    locationRequired,
+    locationResolved,
     date,
     slot,
     slotValid: Boolean(slot && selectedSlotValid),
@@ -814,11 +848,14 @@ export function BookingSheet({
     needsNamedEmployee,
   ]);
 
-  const footerStatus = isEditing
-    ? canSubmit
-      ? "Ready to save"
-      : validationMessage || "Complete required fields"
-    : bookingFooterStatus(activeDecision);
+  const footerStatus =
+    isEditing && managementMode === "view"
+      ? "Appointment overview"
+      : isEditing
+        ? canSubmit
+          ? "Ready to save"
+          : validationMessage || "Complete required fields"
+        : bookingFooterStatus(activeDecision);
 
   const bookingSourceLabel =
     channel === "reception"
@@ -894,9 +931,12 @@ export function BookingSheet({
 
   function handleLocationChange(id: string) {
     setLocationId(id);
+    setLocationProvenance("user_selected");
     setSlot(null);
     setDatetimeProvenance("none");
     setPaymentAcknowledged(false);
+    if (!isEditing) advanceAfterSelection();
+    else setFocusDecision(null);
   }
 
   function handleDateChange(next: string) {
@@ -970,14 +1010,41 @@ export function BookingSheet({
           ? (packages.find((p) => p.id === packageId)?.name ?? null)
           : (services.find((s) => s.id === serviceId)?.name ?? null),
       customerName: selectedCustomer?.name ?? null,
+      employeeName: activeStaffId
+        ? (eligibleStaff.find((m) => m.id === activeStaffId)?.name ??
+          staff.find((m) => m.id === activeStaffId)?.name ??
+          null)
+        : null,
+      locationName: selectedLocation?.name ?? null,
       startIso: slot ?? new Date().toISOString(),
       durationMinutes,
+      appointmentTotalCents: financialsForSubmit.appointmentTotalCents,
+      collectedCents:
+        paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+      remainingCents: Math.max(
+        0,
+        financialsForSubmit.appointmentTotalCents -
+          (state.payment?.status === "recorded"
+            ? paymentDraft.mode === "none"
+              ? 0
+              : paymentDraft.amountCents
+            : 0),
+      ),
+      depositRequiredCents: financialsForSubmit.depositRequiredCents,
       paymentAmountCents:
         paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
       paymentStatus: state.payment?.status,
+      paymentState: bookingSuccessPaymentState({
+        appointmentTotalCents: financialsForSubmit.appointmentTotalCents,
+        collectedCents:
+          paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+        depositRequiredCents: financialsForSubmit.depositRequiredCents,
+        paymentRecorded: state.payment?.status === "recorded",
+      }),
       receiptStatus: state.payment?.receiptStatus ?? null,
       notifications: state.notifications,
       currency,
+      timezone: timezone ?? selectedLocation?.timezone ?? null,
     });
     setFocusDecision("success");
   }
@@ -1031,6 +1098,25 @@ export function BookingSheet({
     ? appointmentCollectionAction(appointment)
     : "none";
   const canCollectPayment = collectionAction === "collect";
+  const operatingFinancials = appointment
+    ? resolveFinancialsFromAppointment({
+        priceCents: appointment.price_cents,
+        taxCents: appointment.tax_cents,
+        depositCents: appointment.deposit_cents,
+        amountPaidCents: appointment.amount_paid_cents,
+        amountRefundedCents: appointment.amount_refunded_cents,
+        currency,
+      })
+    : null;
+  const operatingPaymentStatusLabel = (() => {
+    const raw = appointment?.payment_status;
+    if (raw && raw in APPOINTMENT_PAYMENT_STATUS_LABELS) {
+      return APPOINTMENT_PAYMENT_STATUS_LABELS[raw as AppointmentPaymentStatus];
+    }
+    if (collectionAction === "paid_in_full") return "Paid in full";
+    if (collectionAction === "collect") return "Balance due";
+    return "No payment";
+  })();
 
   function collectPaymentNavigate() {
     if (!canCollectPayment) return;
@@ -1106,7 +1192,10 @@ export function BookingSheet({
                 }
               });
             }}
-            onReschedule={scrollToAvailability}
+            onReschedule={() => {
+              setManagementMode("edit");
+              window.setTimeout(() => scrollToAvailability(), 50);
+            }}
             onDuplicate={() => {
               if (!appointment) return;
               startBusy(async () => {
@@ -1238,7 +1327,7 @@ export function BookingSheet({
           durationMinutes != null &&
           (activeDecision === "payment" ||
             activeDecision === "review" ||
-            isEditing) ? (
+            (isEditing && managementMode === "edit")) ? (
             <p className="text-[11px] leading-snug text-muted-foreground">
               {(offerType === "package" && selectedPackage
                 ? selectedPackage.name
@@ -1272,6 +1361,17 @@ export function BookingSheet({
             <p className="flex-1 text-xs text-muted-foreground">{footerStatus}</p>
             <div className="flex gap-2">
               {!isEditing && activeDecision === "success" ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="min-h-11"
+                  onClick={onClose}
+                  disabled={pending}
+                >
+                  Close
+                </Button>
+              ) : isEditing && managementMode === "view" ? (
                 <Button
                   type="button"
                   variant="outline"
@@ -1325,7 +1425,8 @@ export function BookingSheet({
                 >
                   Continue
                 </Button>
-              ) : !isEditing && activeDecision === "success" ? null : !isEditing &&
+              ) : !isEditing && activeDecision === "success" ? null : isEditing &&
+                managementMode === "view" ? null : !isEditing &&
                 activeDecision !== "review" ? null : (
                 <Button
                   type="submit"
@@ -1403,6 +1504,12 @@ export function BookingSheet({
                 setServiceProvenance("none");
                 setStaffProvenance("none");
                 setDatetimeProvenance("none");
+                const nextLocation = resolveInitialBookingLocation({
+                  locations,
+                  preferenceLocationId: prefs.locationId,
+                });
+                setLocationId(nextLocation.locationId);
+                setLocationProvenance(nextLocation.provenance);
                 setAvailability(null);
                 setSnapshot(null);
                 setSnapshotForId(null);
@@ -1423,6 +1530,7 @@ export function BookingSheet({
                 known={{
                   customer: customerResolved,
                   service: serviceResolved,
+                  location: locationResolved,
                   employee: employeeResolved,
                   datetime: datetimeResolved,
                   payment: paymentAcknowledged,
@@ -1451,6 +1559,19 @@ export function BookingSheet({
                         onChange: () => {
                           setPaymentAcknowledged(false);
                           setFocusDecision("service");
+                        },
+                      }
+                    : null,
+                  locationRequired && locationResolved && selectedLocation
+                    ? {
+                        id: "location",
+                        label: "Location",
+                        value: selectedLocation.name,
+                        onChange: () => {
+                          setSlot(null);
+                          setDatetimeProvenance("none");
+                          setPaymentAcknowledged(false);
+                          setFocusDecision("location");
                         },
                       }
                     : null,
@@ -1543,7 +1664,9 @@ export function BookingSheet({
                   <BookingServiceDecision
                     services={services}
                     packages={packages}
-                    locationId={locationId}
+                    locationId={
+                      locationRequired && !locationResolved ? "" : locationId
+                    }
                     serviceId={serviceId}
                     packageId={packageId}
                     offerType={offerType}
@@ -1555,6 +1678,20 @@ export function BookingSheet({
                     onServiceChange={(id) => {
                       handleServiceChange(id);
                     }}
+                  />
+                </BookingDecisionFrame>
+              ) : null}
+
+              {activeDecision === "location" ? (
+                <BookingDecisionFrame
+                  title="Where?"
+                  hint="Choose the location before employee and time."
+                >
+                  <BookingLocationDecision
+                    locations={usableBookingLocations(locations)}
+                    locationId={locationId}
+                    serviceLocationId={selectedService?.location_id ?? null}
+                    onLocationChange={handleLocationChange}
                   />
                 </BookingDecisionFrame>
               ) : null}
@@ -1675,11 +1812,17 @@ export function BookingSheet({
               className="sticky top-0 z-10 -mx-1 border-b border-border/60 bg-card/95 px-1 py-2 backdrop-blur-sm"
               disabled={pending || busy}
               onEditFocus={() => {
-                document
-                  .getElementById("bs-appt-heading")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                setManagementMode("edit");
+                window.setTimeout(() => {
+                  document
+                    .getElementById("bs-appt-heading")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }, 50);
               }}
-              onReschedule={scrollToAvailability}
+              onReschedule={() => {
+                setManagementMode("edit");
+                window.setTimeout(() => scrollToAvailability(), 50);
+              }}
               onCollectPayment={collectPaymentNavigate}
               canCollectPayment={canCollectPayment}
               showPaidInFull={collectionAction === "paid_in_full"}
@@ -1696,6 +1839,73 @@ export function BookingSheet({
               }
             >
               <div className="space-y-4 min-w-0">
+                {managementMode === "view" ? (
+                  <AppointmentOperatingView
+                    customerName={selectedCustomer?.name ?? appointment?.customer.name ?? null}
+                    customerHref={
+                      selectedCustomer?.id
+                        ? customerWorkspacePath(selectedCustomer.id)
+                        : appointment?.customer_id
+                          ? customerWorkspacePath(appointment.customer_id)
+                          : null
+                    }
+                    status={status}
+                    serviceName={
+                      offerType === "package" && selectedPackage
+                        ? selectedPackage.name
+                        : (selectedService?.name ?? appointment?.service.name ?? null)
+                    }
+                    employeeName={
+                      activeStaffId
+                        ? (eligibleStaff.find((m) => m.id === activeStaffId)?.name ??
+                          staff.find((m) => m.id === activeStaffId)?.name ??
+                          appointment?.staff?.name ??
+                          null)
+                        : (appointment?.staff?.name ?? null)
+                    }
+                    locationName={
+                      selectedLocation?.name ?? appointment?.location?.name ?? null
+                    }
+                    whenLabel={
+                      appointment?.start_time
+                        ? formatStaffFacingInstant(
+                            appointment.start_time,
+                            timezone ?? selectedLocation?.timezone ?? null,
+                          )
+                        : slot
+                          ? formatStaffFacingInstant(
+                              slot,
+                              timezone ?? selectedLocation?.timezone ?? null,
+                            )
+                          : null
+                    }
+                    subtotalLabel={
+                      operatingFinancials?.formatted.subtotal ?? "—"
+                    }
+                    taxLabel={operatingFinancials?.taxLabel ?? "Tax"}
+                    taxAmountLabel={
+                      operatingFinancials && operatingFinancials.taxCents > 0
+                        ? operatingFinancials.formatted.tax
+                        : null
+                    }
+                    appointmentTotalLabel={
+                      operatingFinancials?.formatted.appointmentTotal ?? "—"
+                    }
+                    amountPaidLabel={
+                      operatingFinancials?.formatted.paidToDate ?? "—"
+                    }
+                    remainingCents={
+                      operatingFinancials?.remainingBalanceCents ?? 0
+                    }
+                    remainingLabel={
+                      operatingFinancials?.formatted.remainingBalance ?? "—"
+                    }
+                    paymentStatusLabel={operatingPaymentStatusLabel}
+                    invoiceNumber={appointment?.invoice_number ?? null}
+                    currency={currency}
+                  />
+                ) : (
+                  <>
                 {managementExpanded ? (
                   <AppointmentCustomerContext
                     customer={selectedCustomer}
@@ -1873,6 +2083,8 @@ export function BookingSheet({
                     customerName={selectedCustomer?.name ?? null}
                   />
                 ) : null}
+                  </>
+                )}
 
                 {managementExpanded && appointment?.id ? (
                   <BookingCommunicationsSection

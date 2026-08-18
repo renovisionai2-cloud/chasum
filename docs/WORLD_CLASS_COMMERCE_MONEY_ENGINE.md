@@ -1,7 +1,7 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.2A — Professional Invoice & Receipt Workspace Foundation** (6.1 PO-accepted; 6.2A **not** PO-accepted; 6.0B PO-accepted)  
+**Phase:** **6.2A — Professional Invoice & Receipt Workspace Foundation + booking/payment UX closeout** (6.1 PO-accepted; 6.2A **not** PO-accepted; 6.0B PO-accepted)  
 **Feature 6.2A:** `6a25f96` · closeout `3e7e3d3`  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
@@ -101,6 +101,8 @@ Root cause: Billing used `format(new Date(issueDate))` which treats `YYYY-MM-DD`
 Line presentation: display exclusive service amount (`$220.00`) when tax is itemized; stored `commerce_invoice_lines.total_cents` for INV-0033 may remain tax-inclusive.
 
 Phase 6.2A PO acceptance = **NOT YET**. Phase 6.2B / 6.3 / 6.4 not started.
+
+Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
 
 ## Phase 6.1A lock — Integrity + staff-facing labels
 
@@ -394,7 +396,7 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0A** | Appointment Lifecycle + Collectibility Integrity | Implemented (`efaea51`) |
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
-| **6.2A** | Invoice & Receipt Workspace Foundation | **Implemented — not PO-accepted** |
+| **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **Implemented — not PO-accepted** |
 | 6.2B+ | Remaining invoice/receipt lifecycle | **Not started** |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **Not started** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
@@ -431,6 +433,7 @@ Partial productization remains documented — not a 6.0 product expansion.
 | Record Payment appointment picker | **Shipped in 6.1** |
 | Appointment-native Refund action | **Shipped in 6.1** — same RefundTransactionSheet |
 | Reception today vs planning date clarity | **Final polish** — Operating Centre = today; Week/Month may plan ahead |
+| Multi-location staff eligibility in availability RPC | **Documented** — UI filters `staff_locations` when loaded; RPC still primary `staff.location_id`. No schema change in 6.2A UX closeout |
 | Normal Cancel is not a test-data purge | Documented — no automated cleanup on shared Supabase |
 | Stripe Elements / public online pay | Phase 6.4, PO-gated |
 | Staff payment RBAC | Future explicit decision |

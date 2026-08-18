@@ -107,6 +107,7 @@ describe("View Appointment post-booking navigation", () => {
     expect(success).toContain("Book another");
     expect(success).toContain("Done");
     expect(success).toContain("Retry opening appointment");
+    expect(success).toContain("Appointment booked");
   });
 
   it("BookingSheet wires View Appointment through onViewCreatedAppointment", () => {
@@ -127,8 +128,14 @@ describe("View Appointment post-booking navigation", () => {
       join(root, "components/calendar/calendar-client.tsx"),
       "utf8",
     );
+    const booking = readFileSync(
+      join(root, "components/booking-sheet/booking-sheet.tsx"),
+      "utf8",
+    );
     expect(calendar).toContain("onViewCreatedAppointment={openCreatedAppointment}");
     expect(calendar).toContain("getCrmAppointmentForBooking");
     expect(calendar).toContain("openEdit(appt)");
+    expect(booking).toContain("AppointmentOperatingView");
+    expect(booking).toContain('useState<"view" | "edit">("view")');
   });
 });

@@ -21,6 +21,8 @@ Customer → Service → Employee → Date & Time → Payment → Review → Con
 
 Adaptive skip remains allowed **only** when a decision is intentionally and validly resolved by entry context / provenance.
 
+When the business has more than one usable booking location, Location is an explicit required decision after Service. One-location businesses auto-resolve Location and do not show the step.
+
 Remaining visual refinements (motion, typography, spacing, hierarchy, action styling consistency, appointment-management visual refinement, final micro-interactions) are preserved in [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md). They are **not** reasons to reopen Chapter 4 architecture.
 
 Chapter 5 Phase 5.0/5.1 may route engine calls through `BookingFacade` / `SchedulingPolicy` without changing this accepted UX. Engine SoT: [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md). Availability truth: EMPTY TIME ≠ AVAILABLE TIME.
@@ -41,7 +43,7 @@ Do not force these into the same layout.
 
 ```
 Ask only what’s missing:
-Customer → Service → Employee → Date & time → Payment → Review → Success
+Customer → Service → Location (when required) → Employee → Date & time → Payment → Review → Success
 ```
 
 ### Booking decision provenance (locked)
@@ -94,7 +96,7 @@ One booking engine; only prefill differs.
 - **More options** collapsed (notes, duration, location, source)  
 - Silent grounded hints only — no Summer chat panel on create  
 - Success state with confirmed notification/payment outcomes only  
-- **View Appointment** opens the exact created appointment via the Existing Appointment Management Workspace (same `openEdit` path as calendar selection) — never dumps the user to hunt on the calendar  
+- **View Appointment** opens the exact created appointment in the Existing Appointment **operating/read** workspace first (same sheet as calendar selection). Edit is explicit — never dump into service/employee/date dropdowns after booking  
 - **Monetary amount fields** use plain editable drafts while focused; normalize on blur — never fight the caret with per-keystroke currency reformatting  
 - **Date & time** presents useful start times on the business booking increment — not an endless dump of raw availability granularity; dense days use “More times”  
 - **Progress stages** that are completed or context-prefilled are real navigation controls; unavailable stages are visibly disabled (never silent dead clicks)  
@@ -119,6 +121,41 @@ One booking engine; only prefill differs.
 14. Chasum must not silently choose required business decisions and present them as user-completed.
 15. Interactive controls must be visually distinguishable from static text before hover (`Button` variant `subtle` for Change/Edit/View/Manage on booking surfaces; global rollout later).
 16. Booking transitions must preserve spatial continuity: selection → acknowledgement → next decision (no multi-stage jump; avoid unnecessary full-sheet scroll).
+17. After successful booking, View Appointment opens the operating/read workspace. The full booking editor requires an explicit Edit (or Reschedule) action.
+18. Booking success copy reports recorded delivery only — never “Sent” unless the channel status is `sent`.
+19. One usable booking location is auto-selected. More than one usable location is an explicit decision after Service and before Employee / Date & time.
+
+## Post-booking operating workspace (Phase 6 UX closeout)
+
+Existing Appointment opens **read-first**. The initial view prioritizes confirmation and operational context:
+
+- customer, appointment status, service/package, employee, location, date/time
+- subtotal, tax, appointment total, amount paid, remaining / Paid in full
+- invoice/receipt status where available
+- communication status
+- operational actions: Edit, Reschedule, Message, Cancel, Arrived, Complete, CRM, Summer, collect/refunds, invoice/receipt navigation
+
+**Edit** opens the existing booking editor (service/employee/date/availability + Save changes).  
+Appointment status and payment status remain separate. Paid in full does **not** auto-complete the visit (`confirmed` remains staff-facing **Booked**).
+
+## Booking success-state contract
+
+After Create Appointment succeeds, the completion state leads with **Appointment booked**, then a compact summary: customer, service, employee, location, date/time, appointment total, amount collected, payment state (No payment / Deposit paid / Partially paid / Paid in full), remaining balance, and recorded customer/business delivery only.
+
+Primary: **View appointment**. Secondary: **Book another**. Tertiary: **Done**.
+
+## Location sequencing contract
+
+```
+Customer → Service → Location when required → Employee → Date & Time → Payment → Review → Confirmation
+```
+
+| Usable active locations | Behavior |
+|-------------------------|----------|
+| Exactly one | Auto-select (`entry_context`). Do not show a Location progress step. Visible GVM flow remains Customer → Service → Employee → Date & time → Payment → Review. |
+| More than one | Location is required after Service and before Employee/time. Prefs do **not** skip it. Calendar/draft location may resolve it (`entry_context`). Employee lists use `filterEligibleBookingStaff`. Availability fetches only with a resolved `locationId`. |
+
+**Limitation (documented, not faked):** `staff_locations` is loaded for UI eligibility when present. The availability RPC still uses primary `staff.location_id` (Phase 5.1 gap). No resource/room capacity. No schema or RPC change in this closeout. Inactive locations are not usable booking locations.
 
 ## Benchmark principles (inspiration only — do not copy)
 

@@ -13,6 +13,7 @@
 export const BOOKING_DECISIONS = [
   "customer",
   "service",
+  "location",
   "employee",
   "datetime",
   "payment",
@@ -62,6 +63,12 @@ export type BookingFacts = {
    */
   needsNamedEmployee: boolean;
   employeeResolved: boolean;
+  /**
+   * More than one usable booking location — Location is an explicit decision.
+   * One-location businesses auto-resolve and must not show a Location step.
+   */
+  locationRequired: boolean;
+  locationResolved: boolean;
   date: string;
   slot: string | null;
   slotValid: boolean;
@@ -86,6 +93,22 @@ export const BOOKING_PROGRESS_STEPS: Exclude<BookingDecision, "success">[] = [
   "review",
 ];
 
+/** Progress stages for this booking — Location appears only when required. */
+export function bookingProgressSteps(
+  facts: Pick<BookingFacts, "locationRequired">,
+): Exclude<BookingDecision, "success">[] {
+  if (!facts.locationRequired) return BOOKING_PROGRESS_STEPS;
+  return [
+    "customer",
+    "service",
+    "location",
+    "employee",
+    "datetime",
+    "payment",
+    "review",
+  ];
+}
+
 /**
  * Whether a progress stage may open for review/edit (ACCESSIBLE).
  * Based on intentionally resolved prerequisites — not linear step numbers.
@@ -103,14 +126,28 @@ export function bookingDecisionAccess(
         return { accessible: true };
       }
       return { accessible: false, reason: "Select a customer first" };
+    case "location":
+      if (!facts.locationRequired) {
+        return { accessible: false, reason: "Location is already resolved" };
+      }
+      if (!facts.serviceResolved) {
+        return { accessible: false, reason: "Choose a service first" };
+      }
+      return { accessible: true };
     case "employee":
       if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
+      }
+      if (facts.locationRequired && !facts.locationResolved) {
+        return { accessible: false, reason: "Choose a location first" };
       }
       return { accessible: true };
     case "datetime":
       if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
+      }
+      if (facts.locationRequired && !facts.locationResolved) {
+        return { accessible: false, reason: "Choose a location first" };
       }
       if (!facts.employeeResolved) {
         return { accessible: false, reason: "Choose an employee first" };
@@ -119,6 +156,9 @@ export function bookingDecisionAccess(
     case "payment":
       if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
+      }
+      if (facts.locationRequired && !facts.locationResolved) {
+        return { accessible: false, reason: "Choose a location first" };
       }
       if (!facts.employeeResolved) {
         return { accessible: false, reason: "Choose an employee first" };
@@ -136,6 +176,9 @@ export function bookingDecisionAccess(
       }
       if (!facts.serviceResolved) {
         return { accessible: false, reason: "Choose a service first" };
+      }
+      if (facts.locationRequired && !facts.locationResolved) {
+        return { accessible: false, reason: "Choose a location first" };
       }
       if (!facts.employeeResolved) {
         return { accessible: false, reason: "Choose an employee first" };
@@ -158,6 +201,7 @@ export function firstMissingDecision(facts: BookingFacts): BookingDecision {
   if (facts.success) return "success";
   if (!facts.customerResolved) return "customer";
   if (!facts.serviceResolved) return "service";
+  if (facts.locationRequired && !facts.locationResolved) return "location";
   if (!facts.employeeResolved) return "employee";
   if (!facts.datetimeResolved) return "datetime";
   if (!facts.paymentAcknowledged) return "payment";
@@ -173,6 +217,8 @@ export function bookingDecisionLabel(decision: BookingDecision): string {
       return "Customer";
     case "service":
       return "Service";
+    case "location":
+      return "Location";
     case "employee":
       return "Employee";
     case "datetime":
@@ -194,6 +240,8 @@ export function bookingFooterStatus(decision: BookingDecision): string {
       return "Select a customer";
     case "service":
       return "Choose a service";
+    case "location":
+      return "Choose a location";
     case "employee":
       return "Choose an employee";
     case "datetime":
@@ -214,20 +262,17 @@ export function previousDecision(
   current: BookingDecision,
   facts: BookingFacts,
 ): BookingDecision | null {
-  const order: BookingDecision[] = [
-    "customer",
-    "service",
-    "employee",
-    "datetime",
-    "payment",
-    "review",
-  ];
-  const idx = order.indexOf(current);
+  const order = bookingProgressSteps(facts);
+  const idx = order.indexOf(
+    current === "success" ? "review" : (current as Exclude<BookingDecision, "success">),
+  );
   if (idx <= 0) return null;
   for (let i = idx - 1; i >= 0; i--) {
     const d = order[i];
     if (d === "customer" && facts.customerResolved) return "customer";
     if (d === "service" && facts.serviceResolved) return "service";
+    if (d === "location" && facts.locationResolved) return "location";
+    if (d === "location") continue;
     if (d === "employee" && facts.employeeResolved) return "employee";
     if (d === "employee") continue;
     if (d === "datetime" && facts.datetimeResolved) return "datetime";
@@ -256,6 +301,8 @@ export function bookingFactsFromValues(
     | "serviceResolved"
     | "employeeResolved"
     | "datetimeResolved"
+    | "locationRequired"
+    | "locationResolved"
   > &
     Partial<
       Pick<
@@ -264,6 +311,8 @@ export function bookingFactsFromValues(
         | "serviceResolved"
         | "employeeResolved"
         | "datetimeResolved"
+        | "locationRequired"
+        | "locationResolved"
       >
     >,
 ): BookingFacts {
@@ -275,11 +324,16 @@ export function bookingFactsFromValues(
   const datetimeResolved =
     values.datetimeResolved ??
     Boolean(values.slot && values.slotValid);
+  const locationRequired = values.locationRequired ?? false;
+  const locationResolved =
+    values.locationResolved ?? !locationRequired;
   return {
     ...values,
     customerResolved,
     serviceResolved,
     employeeResolved,
     datetimeResolved,
+    locationRequired,
+    locationResolved,
   };
 }

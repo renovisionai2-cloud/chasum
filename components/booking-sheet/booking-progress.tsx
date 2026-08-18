@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  BOOKING_PROGRESS_STEPS,
   bookingDecisionAccess,
   bookingDecisionLabel,
+  bookingProgressSteps,
   type BookingDecision,
   type BookingDecisionAccess,
   type BookingFacts,
@@ -32,7 +32,7 @@ export function BookingProgressIndicator({
       aria-label="Booking progress"
       className="flex flex-nowrap items-center gap-1 overflow-x-auto overscroll-x-contain text-[11px] text-muted-foreground [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      {BOOKING_PROGRESS_STEPS.map((step, index) => {
+      {bookingProgressSteps(facts).map((step, index) => {
         const isActive = step === active;
         const done = Boolean(known[step]) && !isActive;
         const access: BookingDecisionAccess = bookingDecisionAccess(

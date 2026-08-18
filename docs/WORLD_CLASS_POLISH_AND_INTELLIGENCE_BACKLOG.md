@@ -281,7 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 6 Phase 6.2A closeout implemented — awaiting PO re-verification.** Phase 6.2A is **not** PO-accepted. Do not start Phase 6.2B.
+- **Chapter 6 Phase 6.2A booking/payment UX closeout implemented — awaiting PO re-verification.** Phase 6.2A is **not** PO-accepted. Do not start Phase 6.2B.
 - **Chapter 6 Phase 6.1 PO-accepted.** Do not reopen 6.1 money contract.
 - **Chapter 6 Phase 6.1B implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
 - **Chapter 6 Phase 6.1A implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
@@ -324,6 +324,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 
 | Date | Change |
 |------|--------|
+| 2026-08-18 | Chapter 6 Phase 6.2A booking/payment UX closeout. 6.2A not PO-accepted. 6.2B not started. |
 | 2026-08-17 | Chapter 6 Phase 6.2A closeout — document integrity. 6.2A not PO-accepted. 6.2B not started. |
 | 2026-08-15 | Chapter 6 Phase 6.1D Final Integrity Closeout. Phase 6.1 not PO-accepted. Phase 6.2 not started. |
 | 2026-08-15 | Chapter 6 Phase 6.1C Final Closeout. Phase 6.1 not PO-accepted. Phase 6.2 not started. |
