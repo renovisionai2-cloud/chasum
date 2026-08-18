@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented — not PO-accepted.** Phase 6.3 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented (integrity + forensic closeout) — not PO-accepted.** Phase 6.3 not started.
 
 ---
 
@@ -372,12 +372,16 @@
 
 | Field | Value |
 |-------|--------|
-| Phase | **6.2B — Commerce document integrity + lifecycle hardening** |
+| Phase | **6.2B — Commerce document integrity + forensic closeout** |
 | Invoice numbers | Sequence CAS + unique `(business_id, invoice_number)` retry |
 | Receipt numbers | Max existing + 1 (not `count(*)+1`) + unique retry |
 | Identity | Earliest invoice per appointment; earliest receipt per payment; no historical deletes |
-| Refunds | Payments received / refunded / net paid / collectible remaining; original receipt immutable |
-| Tests | `tests/unit/commerce/phase-6-2b-integrity.test.ts` |
+| Currency | New rows default to `businesses.currency`; historical USD unchanged |
+| Reports | Booked / employee / service / location use full business calendar month including future starts |
+| Gross cash | Original payment/deposit rows remain cash-in after partial refund; date = transaction timestamp |
+| Refunds | Voluntary refund does not recreate collectible debt (`total − gross paid`) |
+| Staff email | New appointment subject/body; Deposit method (not generic Payment method) |
+| Tests | `tests/unit/commerce/phase-6-2b-integrity.test.ts` + `phase-6-2b-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** (proposed unique indexes + allocate RPC documented only) |
 | Status | Implemented — **not PO-accepted**. Phase 6.3 = NOT STARTED. |

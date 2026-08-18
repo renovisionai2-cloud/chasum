@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-18  
-**Updated by:** World Class — Chapter 6 Phase 6.2B document integrity  
+**Updated by:** World Class — Chapter 6 Phase 6.2B forensic closeout  
 
 ---
 
@@ -121,7 +121,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented — not PO-accepted.** **Phase 6.3 = NOT STARTED.** Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented (integrity + forensic closeout) — not PO-accepted.** **Phase 6.3 = NOT STARTED.** Chapter 7 not started. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -160,6 +160,17 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-18)
 
+**World Class — Chapter 6 Phase 6.2B forensic closeout**
+
+- New CAD money rows stamp `businesses.currency` (booking deposits no longer default to USD). Historical USD documents are unchanged.
+- Reports booked / employee / service / location metrics use the full business calendar month, including future appointments.
+- Gross payments collected keep original payment/deposit rows after partial refund; cash date is the transaction timestamp, not the appointment start.
+- Voluntary refunds no longer recreate collectible customer debt (`total − gross paid`).
+- Staff booking notification uses professional copy and **Deposit method**.
+- Phase 6.2A remains **PO ACCEPTED**. Phase 6.2B PO acceptance = **NOT YET**. Phase 6.3 = **NOT STARTED**.
+
+### Immediately prior (2026-08-18)
+
 **World Class — Chapter 6 Phase 6.2B Commerce document integrity + lifecycle hardening**
 
 - App-level invoice sequence CAS + unique-violation retry; receipt numbers from max existing + 1 (not `count(*)+1`).
@@ -178,7 +189,7 @@ PO completed a fresh hands-on Vercel Preview end-to-end booking/payment test wit
 |--------|--|
 | **Phase 6.1** | **PO ACCEPTED** |
 | **Phase 6.2A** | **PO ACCEPTED** |
-| **Phase 6.2B** | implemented — **not PO-accepted** |
+| **Phase 6.2B** | implemented (integrity + forensic closeout) — **not PO-accepted** |
 | **Phase 6.3** | **NOT STARTED** |
 
 Verified workflow: Customer → Service → Employee → Date & Time → Payment → Review → Confirmation → View Appointment → Payment completion → Receipt delivery → Payments / Customer / Reporting propagation.
@@ -679,10 +690,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `8f21f77` (feature) / stamp pending this commit |
-| **Short** | `8f21f77` |
-| **Subject** | fix: harden invoice and receipt document identity without schema changes |
-| **Chapter 6 Phase 6.2B** | `8f21f77` |
+| **SHA** | `5d30df8` (feature) / stamp pending this commit |
+| **Short** | `5d30df8` |
+| **Subject** | fix: close Phase 6.2B integrity gaps without schema changes |
+| **Chapter 6 Phase 6.2B closeout** | `5d30df8` |
+| **Chapter 6 Phase 6.2B identity** | `8f21f77` |
 | **Chapter 6 Phase 6.2A PO acceptance** | `fa0c8e1` · feature `c65bd44` |
 | **Chapter 6 Phase 6.2A UX closeout** | `c65bd44` / stamp `a9d9ea7` |
 | **Chapter 6 Phase 6.2A closeout** | `3e7e3d3` / stamp `61bd578` |
@@ -736,7 +748,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on review of Chapter 6 Phase 6.2B** (document integrity + refund presentation). Decide whether to approve the proposed unique indexes / atomic invoice-number RPC. Do **not** start Phase 6.3.
+1. **PO hands-on review of Chapter 6 Phase 6.2B** (document integrity + forensic closeout). Decide whether to approve the proposed unique indexes / atomic invoice-number RPC. Historical USD deposit rows (RCT-0003 / RCT-0005) remain until PO says otherwise. Do **not** start Phase 6.3.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.

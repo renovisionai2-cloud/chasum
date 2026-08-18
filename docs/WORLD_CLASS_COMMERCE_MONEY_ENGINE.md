@@ -124,7 +124,7 @@ Line presentation: display exclusive service amount (`$220.00`) when tax is item
 
 **Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
 
-**Phase 6.2B implemented — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
+**Phase 6.2B implemented (integrity + forensic closeout) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
 
@@ -138,7 +138,10 @@ App-level integrity only. No schema, RPC, or unique-index migration.
 | Receipt numbers | Per-business `RCT-` from **max existing + 1** (not `count(*)+1`). Existing unique `(business_id, receipt_number)` + retry. Deleted rows do not reuse a lower number. |
 | One appointment → invoice | Reuse earliest `commerce_invoices` row for the appointment. Do not delete extras. No unique `(appointment_id)` yet. |
 | One payment → receipt | Reuse earliest `commerce_receipts` row for the transaction. Do not delete extras. Do not rewrite RCT-0001 / RCT-0002 / RCT-0006. No unique `(transaction_id)` yet. |
-| Refund presentation | Invoice shows payments received, refunded, **net paid**, collectible remaining. A refund is a separate commerce event and does **not** automatically reopen invoice debt on the document. Collect still follows appointment collectible remaining (existing money contract). |
+| Refund presentation | Invoice shows payments received, refunded, **net paid**, collectible remaining. A voluntary refund is a separate commerce event and does **not** create new customer debt. Collectible remaining = `max(0, total − gross paid)`. |
+| New ledger currency | `businesses.currency` is the default for new transactions/receipts unless an explicit externally settled currency is passed. Do **not** rewrite historical USD rows (INV-0033 / RCT-0001 / RCT-0002 / RCT-0003 / RCT-0005). |
+| Gross payments collected | Original payment/deposit rows with status `succeeded` \| `partially_refunded` \| `refunded`. Date = transaction `occurred_at` in business TZ. Not appointment start. Refunds are a separate metric. |
+| Booked this month | Qualifying appointments whose **start civil date** is inside the current business calendar month, **including future**. Cancelled excluded via `isActiveBooking`. Booked ≠ occurred. |
 | Historical receipt | Original payment amount is immutable. Later refunds surface as subsequently refunded / net retained. Receipt email remaining uses running cash-in **at payment time**. |
 | Delivery | Never label Queued/Failed as Sent. Invoice uses `notification_logs`. Email failure does not roll back money. |
 | Currency / civil dates / print | Unchanged 6.2A contracts. |
@@ -188,9 +191,36 @@ Optional later: a `commerce_receipt_sequences` table matching invoices, so recei
 
 Before applying: inspect whether any appointment already has multiple invoices, or any transaction multiple receipts. Do not rewrite historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006.
 
-### PO policy still required
+### PO policy — voluntary refund collectibility (6.2B closeout)
 
-Appointment collectible remaining already increases after refunds (`total − net paid`). Invoice **document** due amount is **not** auto-reopened in 6.2B presentation. Confirm whether Collect after refund should remain appointment-collectible (current money contract) or stay closed until an explicit reopen action.
+A normal voluntary refund **must not** automatically create a new customer debt.
+
+After a fully paid invoice and a partial refund:
+
+| Field | Rule |
+|-------|------|
+| Payments received | Gross paid (unchanged) |
+| Refunded | Refund total |
+| Net retained | Gross − refunded |
+| Invoice status (presentation) | Partially refunded |
+| Customer amount due | **$0** |
+| Appointment collectible remaining | `max(0, total − gross paid)` = **$0** |
+| Outstanding invoice for collection | `max(0, total − amount_paid)` = **$0** |
+
+Arithmetic remaining (`total − net paid`) is audit-only. Charging the customer again after a refund is an explicit later action, not a side effect of Refund. Original payment/receipt rows are not rewritten.
+
+### 6.2B closeout — Reports date windows
+
+| Metric | Window |
+|--------|--------|
+| Booked this month / employee booked productivity / service popularity / location appointments | `startOfBusinessMonth` → `endOfBusinessMonth` (includes future starts) |
+| Gross payments collected | Transaction `occurred_at` in the same civil month (and day/week equivalents) |
+| Recognized appointment value | Unchanged rule: completed visit **or** collected stamp. Month/YTD **windows** include future starts in the selected year/month so prepaid future visits are not dropped. |
+| New customers this month | `created_at` monthStart → now (cannot create customers in the future) |
+
+### PO policy still required (database)
+
+True one-invoice-per-appointment and one-receipt-per-payment uniqueness still need PO-approved unique indexes + atomic sequence RPC. Do **not** apply with 034 / 035 / 036.
 
 ## Phase 6.1A lock — Integrity + staff-facing labels
 
@@ -198,7 +228,7 @@ Users operate money through **Customer → Appointment → Payment**. Internal I
 
 | Surface | Metric | Source | Notes |
 |---------|--------|--------|--------|
-| Payments / Reports Executive / Command Centre | Gross payments collected | `commerce_transactions` succeeded payment+deposit, business TZ | Refunds not subtracted |
+| Payments / Reports Executive / Command Centre | Gross payments collected | `commerce_transactions` payment+deposit cash-in (`succeeded` / `partially_refunded` / `refunded`), business TZ | Refunds not subtracted |
 | Payments | Outstanding appointment balances | Collectible remaining on non-cancelled appointments | Counts **appointments** |
 | Payments | Outstanding deposits | Collectible deposit due now | Not remaining balance |
 | Payments / Reports Executive | Outstanding invoices | `commerce_invoices` only | Not `appt:` synthetics |
@@ -489,7 +519,7 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-**Phase 6.2B implemented — PO acceptance = NOT YET.** Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
+**Phase 6.2B implemented (integrity + forensic closeout) — PO acceptance = NOT YET** (`5d30df8`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
 
 ---
 

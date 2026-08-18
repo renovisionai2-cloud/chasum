@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-18 | **Chapter 6 Phase 6.2B — forensic closeout** | `5d30df8` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | CAD new-money path; booked-month includes future; gross cash after partial refund; voluntary refund no new debt; staff Deposit method; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — document integrity + lifecycle** | `8f21f77` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Numbering CAS/max+1; payment↔receipt and appointment↔invoice identity; refund presentation; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2A PO acceptance lock** | `fa0c8e1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.1 = PO ACCEPTED; 6.2A = PO ACCEPTED (RCT-0006 E2E); 6.2B followed; 6.3 = NOT STARTED |
 | 2026-08-18 | **Chapter 6 Phase 6.2A — booking / payment UX closeout** | `c65bd44` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | View Appointment read-first; success hierarchy; location sequencing; now included in 6.2A PO acceptance |
@@ -65,6 +66,23 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2B — forensic closeout quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Forensic integrity closeout |
+| Feature | `5d30df8` |
+| New CAD currency | `businesses.currency`; historical USD untouched |
+| Booked this month | Full business civil month including future |
+| Gross payments | Original payment/deposit still cash-in after `partially_refunded` |
+| Voluntary refund | Collectible remaining = total − gross paid |
+| Staff email | New appointment copy; Deposit method |
+| Migrations | **None** |
+| Unique appointment/transaction | **Not applied** — PO decision |
+| Stripe Elements | **Not implemented** |
+| Phase 6.3 | **NOT STARTED** |
+| PO review | **NOT YET** |
 
 ## Chapter 6 Phase 6.2B — quality report
 
