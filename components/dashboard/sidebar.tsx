@@ -1,6 +1,7 @@
 "use client";
 
 import { Logo } from "@/components/brand/logo";
+import { BusinessSwitcher, type BusinessSwitcherItem } from "@/components/dashboard/business-switcher";
 import { CommandTrigger } from "@/components/dashboard/command-trigger";
 import { LocationSwitcher } from "@/components/dashboard/location-switcher";
 import { QuickCreateMenu } from "@/components/dashboard/quick-create-menu";
@@ -243,6 +244,8 @@ type DashboardTopNavProps = {
     currentCount: number;
     canAdd: boolean;
   };
+  authorizedBusinesses?: BusinessSwitcherItem[];
+  activeBusinessId?: string;
   onMenuOpen?: () => void;
 };
 
@@ -251,6 +254,8 @@ export function DashboardTopNav({
   locations,
   locationScope,
   locationQuota,
+  authorizedBusinesses = [],
+  activeBusinessId = "",
   onMenuOpen,
 }: DashboardTopNavProps) {
   return (
@@ -276,6 +281,10 @@ export function DashboardTopNav({
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <QuickCreateMenu />
+        <BusinessSwitcher
+          businesses={authorizedBusinesses}
+          activeBusinessId={activeBusinessId}
+        />
         <LocationSwitcher
           locations={locations}
           scope={locationScope}

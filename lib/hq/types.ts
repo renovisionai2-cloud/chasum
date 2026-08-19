@@ -1,5 +1,6 @@
 /**
- * Chasum HQ — Founder Operating System contracts.
+ * Platform Admin / Control Centre contracts (`/dashboard/hq`).
+ * Not the Chasum HQ product tenant.
  * Internal only. Never exposed to tenant customers.
  */
 

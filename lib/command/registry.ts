@@ -160,10 +160,10 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     id: "go-hq",
-    title: "Open Chasum HQ",
-    subtitle: "Founder operating system",
+    title: "Open Platform Admin",
+    subtitle: "SaaS control plane — internal only",
     href: "/dashboard/hq",
-    keywords: ["hq", "founder", "ceo", "pipeline", "launch", "owner"],
+    keywords: ["hq", "platform", "admin", "control", "founder", "ceo", "pipeline", "launch", "owner"],
     group: "navigate",
     ownerOnly: true,
   },

@@ -152,8 +152,8 @@ export function HqWorkspace({ snapshot }: { snapshot: HqSnapshot }) {
   return (
     <div className="ds-page space-y-12 pb-16">
       <PageHeader
-        title="Chasum HQ"
-        description="Founder operating system — pipeline, health, revenue, and launch readiness. Internal only."
+        title="Platform Admin"
+        description="SaaS control plane — pipeline, health, revenue, and launch readiness. Internal only. Not the Chasum HQ tenant."
       >
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="rounded-full px-3 py-1">

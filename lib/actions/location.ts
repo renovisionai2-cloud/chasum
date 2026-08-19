@@ -10,10 +10,10 @@ import {
 import {
   ALL_LOCATIONS,
   LOCATION_SCOPE_COOKIE,
-  parseLocationScope,
   type LocationScope,
 } from "@/lib/location/constants";
 import { readLocationScopeCookie } from "@/lib/location/scope";
+import { resolveLocationScopeForBusiness } from "@/lib/tenancy/location-reset";
 import { createClient } from "@/lib/supabase/server";
 import type {
   ActionState,
@@ -57,12 +57,18 @@ export const getDefaultLocation = cache(async (): Promise<Location | null> => {
 });
 
 export const getLocationScope = cache(async (): Promise<LocationScope> => {
-  const defaultLocation = await getDefaultLocation();
+  const locations = await getLocations();
+  const defaultLocation =
+    locations.find((row) => row.is_default) ?? locations[0] ?? null;
   if (!defaultLocation) {
     throw new Error("No locations configured for this business.");
   }
   const cookieValue = await readLocationScopeCookie();
-  return parseLocationScope(cookieValue, defaultLocation.id);
+  return resolveLocationScopeForBusiness({
+    cookieValue,
+    locationIds: locations.map((row) => row.id),
+    defaultLocationId: defaultLocation.id,
+  });
 });
 
 /** Active location for mutations — falls back to default when scope is ALL. */

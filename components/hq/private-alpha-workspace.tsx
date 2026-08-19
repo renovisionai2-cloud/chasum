@@ -309,7 +309,7 @@ export function PrivateAlphaWorkspace({
             href="/dashboard/hq"
             className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
           >
-            Chasum HQ
+            Platform Admin
           </Link>
         </div>
       </PageHeader>

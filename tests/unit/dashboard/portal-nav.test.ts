@@ -153,6 +153,7 @@ describe("portal navigation IA", () => {
     expect(getPageTitle("/dashboard/calendar")).toBe("Reception");
     expect(getPageTitle("/dashboard/notifications")).toBe("Communications");
     expect(getPageTitle("/dashboard/ai-workforce/summer")).toBe("Summer");
-    expect(getPageTitle("/dashboard/hq")).toBe("Chasum HQ");
+    expect(getPageTitle("/dashboard/hq")).toBe("Platform Admin");
+    expect(HQ_NAV_ITEM.label).toBe("Platform Admin");
   });
 });

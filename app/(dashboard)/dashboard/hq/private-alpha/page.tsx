@@ -3,7 +3,7 @@ import { getPrivateAlphaSnapshot } from "@/lib/hq/private-alpha/snapshot";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Private Alpha · Chasum HQ",
+  title: "Private Alpha · Platform Admin",
   description:
     "Private Alpha management platform for Founding Design Partners — internal only.",
 };

@@ -198,7 +198,7 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
 
 export const HQ_NAV_ITEM: DashboardNavItem = {
   href: "/dashboard/hq",
-  label: "HQ",
+  label: "Platform Admin",
   icon: "crown",
   ownerOnly: true,
 };
@@ -271,7 +271,7 @@ export function getPageTitle(pathname: string, search = ""): string {
   if (pathname.startsWith("/dashboard/hq/private-alpha")) {
     return "Private Alpha";
   }
-  if (pathname.startsWith("/dashboard/hq")) return "Chasum HQ";
+  if (pathname.startsWith("/dashboard/hq")) return "Platform Admin";
   if (pathname.startsWith("/dashboard/workforce/chase")) return "Chase";
   if (pathname.startsWith("/dashboard/ai-workforce/command")) {
     return "AI Command";

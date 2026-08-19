@@ -1,6 +1,7 @@
 "use client";
 
 import { CommandPalette } from "@/components/command-palette/command-palette";
+import type { BusinessSwitcherItem } from "@/components/dashboard/business-switcher";
 import { MobileBottomNav } from "@/components/dashboard/mobile-bottom-nav";
 import {
   DashboardSidebar,
@@ -25,6 +26,8 @@ type DashboardShellProps = {
   };
   showHq?: boolean;
   showDeveloper?: boolean;
+  authorizedBusinesses?: BusinessSwitcherItem[];
+  activeBusinessId?: string;
   children: React.ReactNode;
 };
 
@@ -35,6 +38,8 @@ function ShellInner({
   locationQuota,
   showHq = false,
   showDeveloper = false,
+  authorizedBusinesses = [],
+  activeBusinessId = "",
   children,
 }: DashboardShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -52,7 +57,6 @@ function ShellInner({
 
       <div className="hidden lg:block print:hidden">
         <DashboardSidebar
-          userEmail={userEmail}
           showHq={showHq}
           showDeveloper={showDeveloper}
           className="fixed inset-y-0"
@@ -66,6 +70,8 @@ function ShellInner({
           locations={locations}
           locationScope={locationScope}
           locationQuota={locationQuota}
+          authorizedBusinesses={authorizedBusinesses}
+          activeBusinessId={activeBusinessId}
           onMenuOpen={() => setMobileOpen(true)}
         />
         </div>

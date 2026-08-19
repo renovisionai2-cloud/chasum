@@ -3,8 +3,8 @@ import { getHqSnapshot } from "@/lib/hq/snapshot";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Chasum HQ",
-  description: "Founder operating system — internal only.",
+  title: "Platform Admin",
+  description: "SaaS control plane — internal only. Not the Chasum HQ tenant.",
 };
 
 export default async function HqPage() {

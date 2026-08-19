@@ -2,7 +2,10 @@ export const dynamic = "force-dynamic";
 
 import { DashboardShell } from "@/components/dashboard/shell";
 import { PreviewBuildBadge } from "@/components/system/preview-build-badge";
-import { getOrCreateBusiness } from "@/lib/actions/business";
+import {
+  getOrCreateBusiness,
+  listAuthorizedBusinesses,
+} from "@/lib/actions/business";
 import { getSupabaseEnv } from "@/lib/env";
 import {
   getLocationQuota,
@@ -32,13 +35,14 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const [locations, locationScope, locationQuota, showHq, business] =
+  const business = await getOrCreateBusiness();
+  const [locations, locationScope, locationQuota, showHq, authorized] =
     await Promise.all([
       getLocations(),
       getLocationScope(),
       getLocationQuota(),
       isPlatformOwner(user),
-      getOrCreateBusiness(),
+      listAuthorizedBusinesses(),
     ]);
 
   const showDeveloper =
@@ -52,6 +56,11 @@ export default async function DashboardLayout({
       locationQuota={locationQuota}
       showHq={showHq}
       showDeveloper={showDeveloper}
+      authorizedBusinesses={authorized.map((row) => ({
+        id: row.id,
+        name: row.name,
+      }))}
+      activeBusinessId={business.id}
     >
       {children}
       <PreviewBuildBadge />
