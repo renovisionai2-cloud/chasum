@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-18  
-**Updated by:** World Class — Chapter 6 Phase 6.2B PO acceptance lock  
+**Last updated:** 2026-08-19  
+**Updated by:** World Class — Tenant Safety + Multi-Business Foundation  
 
 ---
 
@@ -46,6 +46,8 @@
 | [`docs/WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md) | Chapter 4 Customer Workspace blueprint |
 | [`docs/WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md) | Chapter 4 Booking Workspace UX contract |
 | [`docs/WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) | Chapter 6 customer-money contract (Phase 6.0) |
+| [`docs/WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) | Chasum HQ tenant discovery — tenant **not created** |
+| [`docs/WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md) | Tenant isolation + multi-business app foundation |
 
 ---
 
@@ -90,11 +92,11 @@ Backend pattern: **Server Actions + Route Handlers** — no separate API server.
 | Tenant product | Business owners | `/dashboard/*` |
 | Public booking / portal | End customers | `/book/[slug]`, `/portal/[token]` |
 | Owner platform | Chasum super-admins | `/owner/*` |
-| Internal HQ | Founders | `/dashboard/hq`, `/dashboard/hq/private-alpha` |
+| Platform Admin | Founders | `/dashboard/hq`, `/dashboard/hq/private-alpha` (legacy path; **not** the Chasum HQ tenant) |
 
 ### Key `lib/` domains
 
-`booking-engine`, `commerce`, `crm`, `employees`, `communications`, `billing`, `reports`, `integrations`, `summer`, `chase`, `website-concierge`, `ai-workforce`, `ai-receptionist`, `marketing`, `hq`, `owner`, `os`, `business`, `supabase`, …
+`booking-engine`, `commerce`, `crm`, `employees`, `communications`, `billing`, `reports`, `integrations`, `summer`, `chase`, `website-concierge`, `ai-workforce`, `ai-receptionist`, `marketing`, `hq`, `owner`, `os`, `business`, `tenancy`, `supabase`, …
 
 ### AI systems (truth over theater)
 
@@ -121,7 +123,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** **Phase 6.3 = NOT STARTED.** Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** **Phase 6.3 = NOT STARTED.** Tenant safety foundation shipped (app-only); **Chasum HQ tenant not created.** Chapter 7 not started. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -158,7 +160,15 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-18)
+### Most recent (2026-08-19)
+
+**World Class — Tenant Safety + Multi-Business Foundation** (app-only)
+
+Canonical report: [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md).
+
+Authorized-business list, active-business cookie/resolver, business switcher, location reset, Platform Admin labels. **Chasum HQ tenant NOT created.** Phase 6.3 implementation **NOT STARTED.** No migrations. No RLS changes.
+
+### Prior (2026-08-18)
 
 **World Class — Chapter 6 Phase 6.2B PO ACCEPTED** (docs stamp; no behavior change)
 
@@ -755,9 +765,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | stamp pending this commit (docs-only PO acceptance) |
+| **SHA** | pending this documentation commit |
 | **Short** | pending this commit |
-| **Subject** | docs: lock Chapter 6 Phase 6.2B PO acceptance |
+| **Subject** | docs: record tenant safety and multi-business foundation |
+| **Tenant safety feature** | `e6dc026e777c843d3a927829e841931c0cf977bd` |
 | **Chapter 6 Phase 6.2B PO acceptance** | pending this commit · feature tip `5f055cf` / `0a5001c` |
 | **Chapter 6 Phase 6.2B historical comms truth** | `0a5001c` |
 | **Chapter 6 Phase 6.2B first-send copy** | `bb655e5` |
@@ -818,12 +829,13 @@ As of last update:
 
 **Priority order:**
 
-1. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied. Historical USD cleanup, package entitlement, no-show collectibility, cancellation→invoice policy, Stripe/public online payment, staff payment RBAC, and receipt numbering race remain deferred. Do **not** reopen accepted Chapter 4 / 5 / 6.0B / 6.1 / 6.2A / 6.2B contracts.
-2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
-3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
-4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
-5. **Operation GVM Production** — remain protected.
-6. Marketing claim fixes only with **explicit PO** (locked pages).
+1. **Do not create Chasum HQ** until PO accepts shared-DB visibility, public `businesses` SELECT narrowing, owner/membership strategy, and metric classification. See [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md).
+2. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied. Historical USD cleanup, package entitlement, no-show collectibility, cancellation→invoice policy, Stripe/public online payment, staff payment RBAC, and receipt numbering race remain deferred. Do **not** reopen accepted Chapter 4 / 5 / 6.0B / 6.1 / 6.2A / 6.2B contracts.
+3. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
+4. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
+5. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
+6. **Operation GVM Production** — remain protected.
+7. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Phase 6.3, Stripe Elements, public online payment, or Chapter 7.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  

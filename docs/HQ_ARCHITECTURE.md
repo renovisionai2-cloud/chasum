@@ -1,6 +1,6 @@
 # Platform Admin — `/dashboard/hq` (legacy name)
 
-> **Naming lock (2026-08-19 discovery):** This document describes the **Chasum Platform Admin / Control Centre**, not a product tenant. The internal operating **business** Chasum HQ is a normal `businesses` row and is **not created**. See [`WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md). Do not add `if name === "Chasum"` special cases.
+> **Naming lock (2026-08-19 discovery):** This document describes the **Chasum Platform Admin / Control Centre**, not a product tenant. The internal operating **business** Chasum HQ is a normal `businesses` row and is **not created**. See [`WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) and [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md). Do not add `if name === "Chasum"` special cases.
 
 **Surface:** `/dashboard/hq`  
 **Audience:** Founder / platform owners only (`requirePlatformOwner`)  
@@ -10,7 +10,7 @@
 
 ## Purpose
 
-Chasum HQ is the internal operating system for running the company: pipeline, partner health, product readiness, roadmap, and launch percentages — in one premium CEO view.
+Chasum Platform Admin is the internal SaaS control plane: pipeline, partner health, product readiness, roadmap, and launch percentages — in one premium operator view. It is **not** the Chasum HQ product tenant.
 
 ---
 
@@ -32,7 +32,7 @@ Chasum HQ is the internal operating system for running the company: pipeline, pa
 1. User must be signed in (dashboard layout).  
 2. `getHqSnapshot()` calls `requirePlatformOwner()` — env `PLATFORM_OWNER_EMAILS` or `platform_admins`.  
 3. Non-owners redirect away from HQ (same as `/owner`).  
-4. Sidebar shows **HQ** only when `showHq` is true.
+4. Sidebar shows **Platform Admin** only when `showHq` is true. Routes remain `/dashboard/hq` and `/owner` until a staged rename.
 
 ---
 

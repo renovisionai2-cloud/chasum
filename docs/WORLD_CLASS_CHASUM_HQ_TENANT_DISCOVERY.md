@@ -428,9 +428,9 @@ Until then, HQ creation requires a **dedicated auth user** as `owner_id` **or** 
 
 ## AC. Can Chasum HQ be created NOW?
 
-**NO.**
+**NO** as an immediate create. After Tenant Safety + Multi-Business Foundation ([`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md)): **CONDITIONAL**.
 
-**CONDITIONAL** only after AD — and still not via SQL on shared Production without an explicit PO “accept Production-visible tenant” decision.
+App-level switcher/resolver exist. Remaining blockers: public `businesses` SELECT, shared Preview/Production DB, owner uniqueness vs membership attach, Platform Admin metric mixing, no `account_class`. **Tenant was not created.**
 
 ---
 

@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-19 | **Tenant Safety + Multi-Business Foundation** | docs this commit · feature `e6dc026` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | App-only resolver/switcher; Platform Admin labels; HQ tenant NOT created; 6.3 implementation NOT STARTED; public businesses SELECT remains PO/RLS gate |
 | 2026-08-18 | **Chapter 6 Phase 6.2B PO acceptance lock** | stamp pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.2B = PO ACCEPTED after hands-on Preview (Chase money/refund + Sum historical recovery); 6.3 = NOT STARTED |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — historical communications truth** | `0a5001c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Missing booking logs are Not recorded, not Not applicable/Skipped; explicit first send; included in 6.2B PO acceptance |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — first-send copy** | `bb655e5` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | First send “sent.” vs explicit resend “resent.”; failures do not claim success; 6.2B not PO-accepted; 6.3 not started |

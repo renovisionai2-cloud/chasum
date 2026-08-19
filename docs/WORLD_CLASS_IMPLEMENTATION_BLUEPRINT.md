@@ -2,7 +2,7 @@
 
 **Program:** Chasum World Class Execution Program  
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.2A = PO ACCEPTED**; **Phase 6.2B = PO ACCEPTED**; **Phase 6.3 discovery complete / implementation NOT STARTED**; 6.1 PO-accepted; 6.0B PO-accepted)  
-**Chasum HQ tenant:** discovery only — [`WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) — **not created**. Existing `/dashboard/hq` is Platform Admin, not that tenant.  
+**Chasum HQ tenant:** discovery complete — **not created**. Tenant safety + multi-business **app-only foundation** — [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md). Existing `/dashboard/hq` is Platform Admin, not that tenant.  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -31,7 +31,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
 | 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`) |
-| 6 | Sales, payments, invoices, receipts | **Phase 6.0B PO-accepted. Phase 6.1 = PO ACCEPTED. Phase 6.2A = PO ACCEPTED. Phase 6.2B = PO ACCEPTED.** Phase 6.3 discovery complete ([`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md)); **implementation NOT STARTED.** Phase 6.4 not started. |
+| 6 | Sales, payments, invoices, receipts | **Phase 6.0B PO-accepted. Phase 6.1 = PO ACCEPTED. Phase 6.2A = PO ACCEPTED. Phase 6.2B = PO ACCEPTED.** Phase 6.3 discovery complete ([`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md)); **implementation NOT STARTED.** Phase 6.4 not started. Tenant safety foundation: app-only resolver/switcher; HQ tenant **not created**. |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
 | 9 | **Business Structure Engine** (locations, resources, service requirements) | Not started — architecture documented |

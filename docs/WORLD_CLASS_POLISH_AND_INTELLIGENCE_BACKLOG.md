@@ -281,6 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
+- **Tenant Safety + Multi-Business Foundation (2026-08-19)** — App-only authorized-business resolver, cookie, switcher, location reset, Platform Admin labels. See [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md). **Do not create Chasum HQ. Do not start Phase 6.3 implementation.** RLS `"Public can view businesses"` remains a PO/database gate.
 - **Chapter 6 Phase 6.2B = PO ACCEPTED** after hands-on Preview (`5f055cf` / `0a5001c`). Unique appointment/transaction indexes remain PO/database decisions. Historical USD cleanup remains a PO decision. Package entitlement is not built. Phase 6.3 **discovery** is in [`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md); **do not start Phase 6.3 implementation** until PO accepts that scope.
 - **Chapter 6 Phase 6.2A = PO ACCEPTED** after hands-on Preview E2E (RCT-0006). Do not reopen 6.2A money or booking contracts.
 - **Chapter 6 Phase 6.1 PO-accepted.** Do not reopen 6.1 money contract.
@@ -325,6 +326,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 
 | Date | Change |
 |------|--------|
+| 2026-08-19 | Tenant Safety + Multi-Business Foundation (app-only). HQ tenant NOT created. Phase 6.3 implementation NOT STARTED. |
 | 2026-08-19 | Chasum HQ **tenant** discovery recorded (`WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`). Tenant NOT created. Existing `/dashboard/hq` = Platform Admin. Shared DB; do not create HQ now. Phase 6.3 implementation NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.3 **discovery** recorded (`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`). Implementation NOT STARTED. 6.2B contract intact. DB/Production impact none. |
 | 2026-08-18 | Chapter 6 Phase 6.2B **PO ACCEPTED** after hands-on Preview (Chase money/refund + Sum historical recovery). Phase 6.3 NOT STARTED. |
