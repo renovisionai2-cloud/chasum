@@ -1,8 +1,10 @@
-# Chasum HQ Architecture
+# Platform Admin — `/dashboard/hq` (legacy name)
+
+> **Naming lock (2026-08-19 discovery):** This document describes the **Chasum Platform Admin / Control Centre**, not a product tenant. The internal operating **business** Chasum HQ is a normal `businesses` row and is **not created**. See [`WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md). Do not add `if name === "Chasum"` special cases.
 
 **Surface:** `/dashboard/hq`  
 **Audience:** Founder / platform owners only (`requirePlatformOwner`)  
-**Not** customer-facing.
+**Not** customer-facing. **Not** the Chasum HQ tenant.
 
 ---
 

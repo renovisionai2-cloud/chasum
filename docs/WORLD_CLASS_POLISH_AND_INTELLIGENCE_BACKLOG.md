@@ -325,6 +325,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 
 | Date | Change |
 |------|--------|
+| 2026-08-19 | Chasum HQ **tenant** discovery recorded (`WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`). Tenant NOT created. Existing `/dashboard/hq` = Platform Admin. Shared DB; do not create HQ now. Phase 6.3 implementation NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.3 **discovery** recorded (`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`). Implementation NOT STARTED. 6.2B contract intact. DB/Production impact none. |
 | 2026-08-18 | Chapter 6 Phase 6.2B **PO ACCEPTED** after hands-on Preview (Chase money/refund + Sum historical recovery). Phase 6.3 NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.2B historical communications truth (`0a5001c`). Missing booking logs are Not recorded, not Not applicable/Skipped. Included in 6.2B PO acceptance. Phase 6.3 NOT STARTED. |

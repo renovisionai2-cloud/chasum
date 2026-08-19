@@ -2,6 +2,7 @@
 
 **Program:** Chasum World Class Execution Program  
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.2A = PO ACCEPTED**; **Phase 6.2B = PO ACCEPTED**; **Phase 6.3 discovery complete / implementation NOT STARTED**; 6.1 PO-accepted; 6.0B PO-accepted)  
+**Chasum HQ tenant:** discovery only — [`WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) — **not created**. Existing `/dashboard/hq` is Platform Admin, not that tenant.  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
