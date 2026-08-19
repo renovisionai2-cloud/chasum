@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-18 | **Chapter 6 Phase 6.2B — historical communications truth** | `0a5001c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Missing booking logs are Not recorded, not Not applicable/Skipped; explicit first send; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — first-send copy** | `bb655e5` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | First send “sent.” vs explicit resend “resent.”; failures do not claim success; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — final PO correction** | `022837f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Collectible remaining on appointment drawer/balance/attention; first-send business refund notification; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — PO closeout** | `cb0a809` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business refund notification; structured reasons; staff no customer greeting; Subtotal copy; stacked email rows; package catalog forensic; 6.2B not PO-accepted; 6.3 not started |
@@ -69,6 +70,20 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2B — historical communications truth quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Historical booking emails are Not recorded, not Not applicable |
+| Feature | `0a5001c` |
+| Sum fixture | `ac96f967` Elite Package; RCT-0004; no confirmation/staff logs |
+| Chase fixture | `d905d4c6` confirmation/business/staff logs remain Sent |
+| Auto-send | Loading/render never sends; stale pending jobs not drained |
+| DB / schema / migrations | None |
+| Production | Untouched (`4eecbec`) |
+| Phase 6.2B PO acceptance | **NOT YET** |
+| Phase 6.3 | **NOT STARTED** |
 
 ## Chapter 6 Phase 6.2B — first-send copy quality report
 

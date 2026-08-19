@@ -124,7 +124,7 @@ Line presentation: display exclusive service amount (`$220.00`) when tax is item
 
 **Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
 
-**Phase 6.2B implemented (final PO correction + first-send copy) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
+**Phase 6.2B implemented (historical communications truth) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
 
@@ -228,7 +228,7 @@ Hands-on Preview proved the **customer** refund confirmation. The business did *
 | Business refund email | `commerce.refund.business` after every succeeded refund. Recipient = `notification_email` then business `email`. Default-on when `owner_notifications_enabled !== false` and `email_notifications_enabled !== false`. |
 | Delivery truth | UI Sent only when `notification_logs` records `sent`/`delivered` (or equivalent recorded status). Never claim Sent from queued/failed. |
 | Idempotency | Same refund row does not send a second business email (`metadata.business_email_status === "sent"`). |
-| Communications | Appointment read-first workspace shows customer + business refund delivery truth. First send is available when never recorded; explicit resend after Sent. Result copy is “sent.” vs “resent.” from prior delivery truth. Failed attempts never claim sent/resent. Loading never auto-sends. |
+| Communications | Appointment read-first workspace shows booking + refund delivery truth. Missing logs on an applicable channel are **Not recorded**. True **Not applicable** only when the event does not exist. First send is available when never recorded; explicit resend after Sent. Result copy is “sent.” vs “resent.” from prior delivery truth. Failed attempts never claim sent/resent. Loading never auto-sends. |
 | Refund reason | Structured UI codes mapped into existing `commerce_refunds.reason` text. Other requires a meaningful explanation. Historical rows are not rewritten. |
 | Staff booking email | Greets the assigned employee. Customer is a labeled field — never a second `Hi <customer>`. Deposit method unchanged. |
 | Customer terminology | Customer/business booking emails say **Subtotal**, not Catalog subtotal. Values unchanged. |
@@ -251,6 +251,10 @@ Package entitlement / lifecycle is a later World Class phase. Do **not** invent 
 ### 6.2B first-send copy (`bb655e5`)
 
 Communications result copy is classified from recorded delivery truth *before* the send. First-ever business refund notification → “Business refund notification sent.” Explicit resend after Sent → “Business refund notification resent.” Failed first send / failed resend never claim sent or resent. Loading still never auto-sends. Duplicate automatic send remains skipped. Refund amounts, recipients, and notification_logs truth are unchanged.
+
+### 6.2B historical communications truth (`0a5001c`)
+
+A booked appointment with a valid recipient and no `notification_logs` row is **Not recorded**, not **Not applicable** and not **Skipped**. **Not applicable** is reserved for events that do not exist (no refund, no receipt). **Skipped** requires a recorded policy skip. Explicit first send is available; opening the appointment never auto-sends. Stale pending `background_jobs` are not treated as delivery truth and are not drained on render.
 
 ### Print / invoice-receipt visual redesign
 
@@ -555,11 +559,11 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
 | **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **PO ACCEPTED** (Preview E2E; RCT-0006) |
-| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`bb655e5`) |
+| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`0a5001c`) |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-**Phase 6.2B implemented (final PO correction + first-send copy) — PO acceptance = NOT YET** (`bb655e5`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
+**Phase 6.2B implemented (historical communications truth) — PO acceptance = NOT YET** (`0a5001c`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
 
 ---
 

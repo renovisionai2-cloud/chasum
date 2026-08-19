@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented (final PO correction + first-send copy) — not PO-accepted.** Phase 6.3 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented (historical communications truth) — not PO-accepted.** Phase 6.3 not started.
 
 ---
 
@@ -381,13 +381,14 @@
 | Gross cash | Original payment/deposit rows remain cash-in after partial refund; date = transaction timestamp |
 | Refunds | Voluntary refund does not recreate collectible debt (`total − gross paid`). Operating remaining/outstanding uses collectible remaining, not `total − net paid`. |
 | Business refund email | `commerce.refund.business`; first send available when never recorded; result copy is “sent.” vs “resent.” from prior delivery truth; Sent only from delivery truth; no automatic duplicate |
+| Historical booking emails | Missing `notification_logs` on an applicable channel = **Not recorded** (not Not applicable / not Skipped). True Not applicable only when the event does not exist. Explicit first send; no auto-send on render |
 | Staff email | New appointment subject/body; Deposit method; no customer greeting |
 | Customer email | Subtotal (not Catalog subtotal); stacked label/value on narrow screens |
 | Package catalog | Counts active `service_packages`; services named Package are services; no entitlement |
-| Tests | `tests/unit/commerce/phase-6-2b-integrity.test.ts` + `phase-6-2b-closeout.test.ts` + `phase-6-2b-po-closeout.test.ts` + `phase-6-2b-po-final-correction.test.ts` |
+| Tests | `tests/unit/commerce/phase-6-2b-integrity.test.ts` + `phase-6-2b-closeout.test.ts` + `phase-6-2b-po-closeout.test.ts` + `phase-6-2b-po-final-correction.test.ts` + `tests/unit/notifications/phase-6-2b-historical-comms-truth.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** (proposed unique indexes + allocate RPC documented only) |
-| Status | Implemented (final PO correction `022837f` + first-send copy `bb655e5`) — **not PO-accepted**. Phase 6.3 = NOT STARTED. |
+| Status | Implemented (historical communications truth `0a5001c`) — **not PO-accepted**. Phase 6.3 = NOT STARTED. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.2A)
 
@@ -402,7 +403,7 @@
 | Tests | `tests/unit/commerce/phase-6-2a-documents.test.ts` + `phase-6-2a-closeout.test.ts` + `tests/unit/booking/phase-6-booking-ux-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** |
-| Status | **PO ACCEPTED** after hands-on Preview E2E (RCT-0006). Phase 6.2B implemented (final PO correction + first-send copy) — not PO-accepted. Phase 6.3 = NOT STARTED. |
+| Status | **PO ACCEPTED** after hands-on Preview E2E (RCT-0006). Phase 6.2B implemented (historical communications truth) — not PO-accepted. Phase 6.3 = NOT STARTED. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1)
 
@@ -468,7 +469,7 @@
 | Past Booked | Needs attention (not Completed) |
 | Last visit | Completed only |
 | Own-slot | Hold existing schedule; reschedule still validates |
-| Staff comms | No log + recipient = skipped; no Resend on not_applicable |
+| Staff comms | No log + recipient = Not recorded; explicit first send; no Resend on not_applicable |
 | Reports | Avg collected per customer (mean of customer totals) |
 | Tests | `tests/unit/commerce/phase-6-1d-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
