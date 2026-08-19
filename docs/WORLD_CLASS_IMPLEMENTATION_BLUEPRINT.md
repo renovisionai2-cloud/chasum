@@ -55,7 +55,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 
 | Restriction | Policy |
 |-------------|--------|
-| Shared Supabase Preview ↔ Production | **Current** — Staging project exists but is **empty and not connected**. See [`WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md). Do not connect Preview until PO approves. |
+| Shared Supabase Preview ↔ Production | **Current** — Staging project exists but is **empty and not initialized from this agent** ([`WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md)). Preview still on Production. Do not connect Preview until PO approves cutover. |
 | Migrations **034, 035, 036** | **Do not apply** without explicit PO |
 | Production branch / alias / deploy | **Do not touch** |
 | Live GVM data | **Do not modify** |

@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-19  
-**Updated by:** World Class — Environment Separation discovery  
+**Updated by:** World Class — Staging init STOP (no SQL)  
 
 ---
 
@@ -49,6 +49,7 @@
 | [`docs/WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) | Chasum HQ tenant discovery — tenant **not created** |
 | [`docs/WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md) | Tenant isolation + multi-business app foundation |
 | [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — Staging **not connected** |
+| [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging init **STOPPED** — no Staging credentials in agent environment |
 
 ---
 
@@ -162,6 +163,14 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-19)
+
+**World Class — Staging initialization STOPPED before SQL**
+
+Canonical: [`WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md).
+
+PO approved `001`–`033` on empty Chasum Staging. Agent could not prove the target was Staging (local `.env.local` is Production-era project `kxcydvhswkuzepwzzinq`; Management API 401). **No SQL. No Vercel cutover. No HQ. No GVM copy.**
+
+### Prior (2026-08-19)
 
 **World Class — Environment Separation discovery** (docs only)
 
@@ -776,8 +785,9 @@ cursor/world-class-portal-foundation
 |-------|--------|
 | **SHA** | pending this documentation commit |
 | **Short** | pending this commit |
-| **Subject** | docs: record staging/production environment separation discovery |
-| **Environment separation** | pending this commit |
+| **Subject** | docs: record staging init stop before unverified SQL |
+| **Staging init stop** | pending this commit |
+| **Environment separation** | `93da74680c1f338d1e8b40efdea80d3a8b0be2e9` |
 | **Tenant safety docs** | `ffb4422f3e27cc6128f5ae5373ac3565ae10798d` |
 | **Tenant safety feature** | `e6dc026e777c843d3a927829e841931c0cf977bd` |
 | **Chapter 6 Phase 6.2B PO acceptance** | pending this commit · feature tip `5f055cf` / `0a5001c` |
@@ -840,14 +850,15 @@ As of last update:
 
 **Priority order:**
 
-1. **Do not connect Preview to Staging yet.** Complete [`WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) PO decisions first. Do **not** initialize Staging, copy Production data, or create Chasum HQ.
-2. **Do not create Chasum HQ** until Staging is the Preview database and remaining tenant-safety DB gates are accepted. See [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md).
-3. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
-4. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
-5. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
-6. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
-7. **Operation GVM Production** — remain protected.
-8. Marketing claim fixes only with **explicit PO** (locked pages).
+1. **Provide Staging-only credentials** as `.env.staging.local` (see [`WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md)), then re-run Staging init. Do **not** use Production `.env.local` for migrations.
+2. **Do not connect Preview to Staging yet.**
+3. **Do not create Chasum HQ** until Staging is the Preview database and remaining tenant-safety DB gates are accepted. See [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md).
+4. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
+5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
+6. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
+7. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
+8. **Operation GVM Production** — remain protected.
+9. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Phase 6.3, Stripe Elements, public online payment, or Chapter 7.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  

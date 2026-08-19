@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-19 | **Staging init STOP** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | No SQL; Staging target unverified in agent env; Preview still Production DB; 034–036 unapplied; HQ not created |
 | 2026-08-19 | **Environment separation discovery** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Staging project empty/not connected; Preview still Production DB; 001–033 replay recommended later; 034–036 unapplied; HQ not created; 6.3 NOT STARTED |
 | 2026-08-19 | **Tenant Safety + Multi-Business Foundation** | docs this commit · feature `e6dc026` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | App-only resolver/switcher; Platform Admin labels; HQ tenant NOT created; 6.3 implementation NOT STARTED; public businesses SELECT remains PO/RLS gate |
 | 2026-08-18 | **Chapter 6 Phase 6.2B PO acceptance lock** | stamp pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.2B = PO ACCEPTED after hands-on Preview (Chase money/refund + Sum historical recovery); 6.3 = NOT STARTED |
