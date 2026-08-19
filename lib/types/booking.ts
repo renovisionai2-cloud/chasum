@@ -521,7 +521,9 @@ export type BookingNotificationStatusItem = {
     | "business_refund_email";
   status:
     | "sent"
+    | "delivered"
     | "pending"
+    | "queued"
     | "failed"
     | "not_enabled"
     | "not_configured"
@@ -529,6 +531,7 @@ export type BookingNotificationStatusItem = {
     | "no_recipient"
     | "skipped"
     | "not_requested"
+    | "not_recorded"
     | "not_applicable";
   label: string;
   detail?: string | null;

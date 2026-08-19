@@ -194,8 +194,11 @@ describe("Phase 6.2B final PO correction — business refund first send", () => 
     });
     expect(action.canRetry).toBe(true);
     expect(action.actionLabel).toBe("Send business refund notification");
+    const labels = read("lib/notifications/booking-channel-status.ts");
+    expect(labels).toContain("Send business refund notification");
     const comms = read("components/booking-sheet/booking-communications-section.tsx");
-    expect(comms).toContain("Send business refund notification");
+    expect(comms).toContain("businessRefundNotificationAction");
+    expect(comms).toContain("bookingChannelActionLabel");
     const delivery = read("lib/notifications/booking-delivery.ts");
     expect(delivery).toContain("businessRefundNotificationAction");
   });

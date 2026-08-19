@@ -17,10 +17,12 @@ type Props = {
 function tone(status: BookingNotificationStatusItem["status"]): string {
   switch (status) {
     case "sent":
+    case "delivered":
       return "text-success";
     case "failed":
       return "text-destructive";
     case "pending":
+    case "queued":
       return "text-amber-700 dark:text-amber-300";
     default:
       return "text-muted-foreground";
@@ -94,7 +96,9 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
             (item.status === "failed" ||
               item.status === "skipped" ||
               item.status === "sent" ||
-              item.status === "not_requested") ? (
+              item.status === "delivered" ||
+              item.status === "not_requested" ||
+              item.status === "not_recorded") ? (
               <form action={action}>
                 <input type="hidden" name="appointment_id" value={appointmentId} />
                 <input type="hidden" name="channel" value={item.channel} />

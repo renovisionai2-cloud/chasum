@@ -13,7 +13,9 @@ export type BookingNotificationChannel =
 
 export type NotificationChannelStatus =
   | "sent"
+  | "delivered"
   | "pending"
+  | "queued"
   | "failed"
   | "not_enabled"
   | "not_configured"
@@ -21,6 +23,7 @@ export type NotificationChannelStatus =
   | "no_recipient"
   | "skipped"
   | "not_requested"
+  | "not_recorded"
   | "not_applicable";
 
 export function formatNotificationStatus(
@@ -29,8 +32,12 @@ export function formatNotificationStatus(
   switch (status) {
     case "sent":
       return "Sent";
+    case "delivered":
+      return "Delivered";
     case "pending":
       return "Pending";
+    case "queued":
+      return "Queued";
     case "failed":
       return "Failed";
     case "not_enabled":
@@ -45,6 +52,8 @@ export function formatNotificationStatus(
       return "Skipped";
     case "not_requested":
       return "Not requested";
+    case "not_recorded":
+      return "Not recorded";
     case "not_applicable":
       return "Not applicable";
   }

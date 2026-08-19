@@ -3,6 +3,11 @@
  * Client-safe — no server imports.
  */
 
+import { isResendActionStatus } from "@/lib/notifications/booking-channel-status";
+import {
+  bookingChannelNotificationFeedback,
+  bookingNotificationSendKind,
+} from "@/lib/notifications/booking-notification-feedback";
 import type { NotificationChannelStatus } from "@/lib/notifications/status-labels";
 
 export const BUSINESS_REFUND_SENT_MESSAGE =
@@ -20,7 +25,7 @@ export type BusinessRefundSendKind = "first" | "resend";
 export function businessRefundSendKind(input: {
   priorRecordedSent: boolean;
 }): BusinessRefundSendKind {
-  return input.priorRecordedSent ? "resend" : "first";
+  return bookingNotificationSendKind(input);
 }
 
 export function businessRefundNotificationFeedback(input: {
@@ -28,19 +33,12 @@ export function businessRefundNotificationFeedback(input: {
   resultStatus: string;
   detail?: string | null;
 }): { success?: string; error?: string } {
-  if (input.resultStatus === "sent") {
-    return {
-      success:
-        input.kind === "resend"
-          ? BUSINESS_REFUND_RESENT_MESSAGE
-          : BUSINESS_REFUND_SENT_MESSAGE,
-    };
-  }
-  const detail = String(input.detail ?? "").trim();
-  return {
-    error:
-      detail || "Business refund notification could not be sent.",
-  };
+  return bookingChannelNotificationFeedback({
+    channel: "business_refund_email",
+    kind: input.kind,
+    resultStatus: input.resultStatus,
+    detail: input.detail,
+  });
 }
 
 export type RefundNotificationAction = {
@@ -73,17 +71,17 @@ export function businessRefundNotificationAction(input: {
   if (!input.emailConfigured) {
     return { canRetry: false, actionLabel: null };
   }
-  if (input.status === "not_requested" || input.status === "skipped") {
+  if (
+    input.status === "not_requested" ||
+    input.status === "skipped" ||
+    input.status === "not_recorded"
+  ) {
     return {
       canRetry: true,
       actionLabel: "Send business refund notification",
     };
   }
-  if (
-    input.status === "failed" ||
-    input.status === "sent" ||
-    input.status === "pending"
-  ) {
+  if (isResendActionStatus(input.status)) {
     return {
       canRetry: true,
       actionLabel: "Resend business refund notification",

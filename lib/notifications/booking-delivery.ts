@@ -9,6 +9,9 @@
 import { planIncludesSms } from "@/lib/billing/plan-features";
 import { recordedDeliveryStatus } from "@/lib/commerce/document-delivery-truth";
 import { businessRefundNotificationAction } from "@/lib/notifications/refund-notification-action";
+import {
+  historicalApplicableChannelStatus,
+} from "@/lib/notifications/booking-channel-status";
 import { sendRefundBusinessNotification, sendRefundConfirmationEmail } from "@/lib/commerce/refund-email";
 import { sendEmail, sendSMS } from "@/lib/communications/delivery";
 import type { AppointmentTemplateContext } from "@/lib/communications/types";
@@ -968,10 +971,18 @@ export async function retryBookingNotification(input: {
   });
   const businessTo = resolveBusinessRecipient(ctx);
   const items: BookingNotificationItem[] = [];
+  let attemptKind: BookingNotificationReport["attemptKind"];
 
   if (input.channel === "customer_email") {
     if (!ctx.customerEmail) throw new Error("Customer has no email address.");
     if (!emailConfigured) throw new Error("Email delivery is not configured.");
+    attemptKind = (await alreadySent(
+      input.appointmentId,
+      "appointment.confirmation",
+      ctx.customerEmail,
+    ))
+      ? "resend"
+      : "first";
     items.push(
       await sendChannelEmail({
         channel: "customer_email",
@@ -985,6 +996,13 @@ export async function retryBookingNotification(input: {
   } else if (input.channel === "business_email") {
     if (!businessTo) throw new Error("No business notification email configured.");
     if (!emailConfigured) throw new Error("Email delivery is not configured.");
+    attemptKind = (await alreadySent(
+      input.appointmentId,
+      "appointment.business",
+      businessTo,
+    ))
+      ? "resend"
+      : "first";
     items.push(
       await sendChannelEmail({
         channel: "business_email",
@@ -1002,6 +1020,13 @@ export async function retryBookingNotification(input: {
       throw new Error("No recipient — assigned employee has no email address.");
     }
     if (!emailConfigured) throw new Error("Email delivery is not configured.");
+    attemptKind = (await alreadySent(
+      input.appointmentId,
+      "appointment.staff",
+      ctx.staffEmail,
+    ))
+      ? "resend"
+      : "first";
     items.push(
       await sendChannelEmail({
         channel: "staff_email",
@@ -1105,6 +1130,7 @@ export async function retryBookingNotification(input: {
     emailConfigured,
     smsConfigured,
     smsPlanIncluded,
+    attemptKind,
   };
 }
 
@@ -1170,15 +1196,6 @@ export async function loadAppointmentCommunicationStatus(
     };
   }
 
-  function mapLogStatus(
-    raw: string,
-  ): BookingNotificationItem["status"] {
-    if (raw === "sent" || raw === "delivered") return "sent";
-    if (raw === "skipped") return "skipped";
-    if (raw === "pending" || raw === "queued" || raw === "sending") return "pending";
-    return "failed";
-  }
-
   const items: BookingNotificationItem[] = [];
 
   // Customer confirmation
@@ -1194,13 +1211,13 @@ export async function loadAppointmentCommunicationStatus(
     const log = latestFor("appointment.confirmation", ctx.customerEmail);
     items.push({
       channel: "customer_email",
-      status: log ? mapLogStatus(log.status) : "not_applicable",
+      status: historicalApplicableChannelStatus(log?.status),
       label: "Customer confirmation email",
       detail: log
         ? [log.recipient, log.sentAt ? `Last attempt ${staffTime(log.sentAt)}` : null, log.detail]
             .filter(Boolean)
             .join(" · ")
-        : `Recipient ${ctx.customerEmail}`,
+        : `No customer confirmation was recorded for this appointment. Recipient ${ctx.customerEmail}`,
       canRetry: Boolean(ctx.customerEmail) && emailConfigured,
     });
   }
@@ -1218,13 +1235,13 @@ export async function loadAppointmentCommunicationStatus(
     const log = latestFor("appointment.business", businessTo);
     items.push({
       channel: "business_email",
-      status: log ? mapLogStatus(log.status) : "not_applicable",
+      status: historicalApplicableChannelStatus(log?.status),
       label: "Business confirmation email",
       detail: log
         ? [log.recipient, log.sentAt ? `Last attempt ${staffTime(log.sentAt)}` : null, log.detail]
             .filter(Boolean)
             .join(" · ")
-        : `Recipient ${businessTo}`,
+        : `No business confirmation was recorded for this appointment. Recipient ${businessTo}`,
       canRetry: emailConfigured,
     });
   }
@@ -1316,14 +1333,14 @@ export async function loadAppointmentCommunicationStatus(
     const log = latestFor("appointment.staff", ctx.staffEmail);
     items.push({
       channel: "staff_email",
-      status: log ? mapLogStatus(log.status) : "skipped",
+      status: historicalApplicableChannelStatus(log?.status),
       label: "Staff notification",
       detail: log
         ? [log.recipient, log.sentAt ? `Last attempt ${staffTime(log.sentAt)}` : null, log.detail]
             .filter(Boolean)
             .join(" · ")
         : `No staff notification was recorded for this appointment. Recipient ${ctx.staffEmail}`,
-      canRetry: log ? emailConfigured && mapLogStatus(log.status) !== "not_applicable" : emailConfigured,
+      canRetry: emailConfigured,
     });
   }
 
@@ -1463,9 +1480,9 @@ export async function loadAppointmentCommunicationStatus(
   } else {
     items.push({
       channel: "customer_sms",
-      status: "not_applicable",
+      status: "not_recorded",
       label: "Customer SMS",
-      detail: `Recipient ${ctx.customerPhone}`,
+      detail: `No customer SMS was recorded for this appointment. Recipient ${ctx.customerPhone}`,
       canRetry: true,
     });
   }

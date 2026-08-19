@@ -9,8 +9,10 @@ describe("booking notification status labels", () => {
       "Not included in plan",
     );
     expect(formatNotificationStatus("no_recipient")).toBe("No recipient");
-    expect(formatNotificationStatus("sent")).toBe("Sent");
-    expect(formatNotificationStatus("failed")).toBe("Failed");
+    expect(formatNotificationStatus("not_recorded")).toBe("Not recorded");
+    expect(formatNotificationStatus("not_applicable")).toBe("Not applicable");
+    expect(formatNotificationStatus("delivered")).toBe("Delivered");
+    expect(formatNotificationStatus("queued")).toBe("Queued");
   });
 
   it("reports provider presence without secrets", () => {

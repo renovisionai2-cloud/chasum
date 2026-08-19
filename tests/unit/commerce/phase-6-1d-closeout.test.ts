@@ -101,7 +101,7 @@ describe("Phase 6.1D staff notification presentation", () => {
   it("does not pair Not applicable with Resend when no log exists", () => {
     const src = read("lib/notifications/booking-delivery.ts");
     expect(src).toContain("No staff notification was recorded");
-    expect(src).toContain('status: log ? mapLogStatus(log.status) : "skipped"');
+    expect(src).toContain("historicalApplicableChannelStatus");
     const ui = read(
       "components/booking-sheet/booking-communications-section.tsx",
     );
