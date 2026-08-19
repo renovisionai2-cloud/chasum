@@ -1,7 +1,7 @@
 # World Class Implementation Blueprint
 
 **Program:** Chasum World Class Execution Program  
-**Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.2A = PO ACCEPTED**; **Phase 6.2B implemented (PO closeout) — not PO-accepted**; **Phase 6.3 = NOT STARTED**; 6.1 PO-accepted; 6.0B PO-accepted)  
+**Chapter:** 6 — Sales, Payments, Invoices & Receipts (**Phase 6.2A = PO ACCEPTED**; **Phase 6.2B implemented (final PO correction) — not PO-accepted**; **Phase 6.3 = NOT STARTED**; 6.1 PO-accepted; 6.0B PO-accepted)  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Chapter 3 commit:** `4b4a29e` · Preview https://chasum-76u5xrh9c-renovisionappcom.vercel.app  
 **Chapter 2 tip (approved):** `0f1f423`  
@@ -30,7 +30,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 | 3 | Reception and calendar | **Correction pass — awaiting PO review** |
 | 4 | Customers + Booking Workspace | **PO-accepted** (`4da237c`) — architecture + core interaction flow locked |
 | 5 | Calendar & Booking Engine | **Phase 5.2 PO-accepted**; **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`) |
-| 6 | Sales, payments, invoices, receipts | **Phase 6.0B PO-accepted. Phase 6.1 = PO ACCEPTED. Phase 6.2A = PO ACCEPTED.** Phase 6.2B implemented (PO closeout) — not PO-accepted. Phase 6.3 / 6.4 not started. |
+| 6 | Sales, payments, invoices, receipts | **Phase 6.0B PO-accepted. Phase 6.1 = PO ACCEPTED. Phase 6.2A = PO ACCEPTED.** Phase 6.2B implemented (final PO correction) — not PO-accepted. Phase 6.3 / 6.4 not started. |
 | 7 | Communications | Not started |
 | 8 | Employees and team | Not started |
 | 9 | **Business Structure Engine** (locations, resources, service requirements) | Not started — architecture documented |
@@ -167,13 +167,13 @@ Total: **54 problems (34 errors, 20 warnings)** — predate Chapter 0 product wo
 
 ## Chapter 6 status
 
-**Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED** after hands-on Preview E2E (RCT-0006). **Phase 6.2B implemented (PO closeout) — not PO-accepted** (`cb0a809`). **Phase 6.3 = NOT STARTED.** No Stripe Elements. No migrations.
+**Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED** after hands-on Preview E2E (RCT-0006). **Phase 6.2B implemented (final PO correction) — not PO-accepted** (`022837f`). **Phase 6.3 = NOT STARTED.** No Stripe Elements. No migrations.
 
 Sequence: 6.0 foundation → 6.0A collectibility → **6.0B calendar sync + refund UX** → **6.1 front-desk payments** → **6.2A invoice/receipt workspace (PO accepted)** → **6.2B document integrity + lifecycle** → 6.3 refunds / outstanding / follow-up → 6.4 online payment completion (PO-gated).
 
 ## Next step after Chapter 6 Phase 6.2B
 
-Await **PO hands-on review of Phase 6.2B** (business refund notification, structured reasons, email copy, package-catalog forensic). Unique `(appointment_id)` / `(transaction_id)` and atomic sequence RPC remain PO/database decisions. Historical USD cleanup remains a separate PO decision. Do **not** start Phase 6.3. Do **not** start Chapter 7.
+Await **PO re-review of Phase 6.2B** after collectibility convergence + first-send business refund notification (`022837f`). Unique `(appointment_id)` / `(transaction_id)` and atomic sequence RPC remain PO/database decisions. Historical USD cleanup remains a separate PO decision. Do **not** start Phase 6.3. Do **not** start Chapter 7.
 ### Locked usability principles (post-booking + money + navigation + speed)
 
 1. Monetary fields must behave like normal high-quality editable inputs and must not fight the user's cursor.

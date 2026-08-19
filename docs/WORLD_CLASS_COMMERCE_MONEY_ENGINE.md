@@ -124,7 +124,7 @@ Line presentation: display exclusive service amount (`$220.00`) when tax is item
 
 **Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
 
-**Phase 6.2B implemented (PO closeout) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
+**Phase 6.2B implemented (final PO correction) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
 
@@ -551,11 +551,11 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
 | **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **PO ACCEPTED** (Preview E2E; RCT-0006) |
-| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`cb0a809`) |
+| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`022837f`) |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-**Phase 6.2B implemented (PO closeout) — PO acceptance = NOT YET** (`cb0a809`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
+**Phase 6.2B implemented (final PO correction) — PO acceptance = NOT YET** (`022837f`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
 
 ---
 

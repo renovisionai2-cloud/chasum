@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-18 | **Chapter 6 Phase 6.2B — final PO correction** | `022837f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Collectible remaining on appointment drawer/balance/attention; first-send business refund notification; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — PO closeout** | `cb0a809` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business refund notification; structured reasons; staff no customer greeting; Subtotal copy; stacked email rows; package catalog forensic; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — forensic closeout** | `5d30df8` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | CAD new-money path; booked-month includes future; gross cash after partial refund; voluntary refund no new debt; staff Deposit method; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — document integrity + lifecycle** | `8f21f77` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Numbering CAS/max+1; payment↔receipt and appointment↔invoice identity; refund presentation; 6.2B not PO-accepted; 6.3 not started |
@@ -67,6 +68,26 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2B — final PO correction quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Appointment collectibility convergence + first-send business refund notification |
+| Feature | `022837f` |
+| Collectible remaining | `max(0, total − gross paid)`; refunds never reopen customer debt |
+| Arithmetic remaining | `total − net paid` retained for audit only |
+| Appointment drawer / balance | Amount due $0 after fully paid $337.87 + voluntary $50 refund |
+| Payment state | Partially refunded / Paid in full — not Outstanding balance |
+| Reception / Payments / customer / Command Centre | No payment attention from the voluntary refund alone |
+| Business refund first send | Available when refund succeeded, recipient resolved, no recorded business send |
+| Duplicate send | Automatic path skipped when `business_email_status === "sent"`; explicit Communications resend uses `forceResend` |
+| Delivery truth | Sent only from recorded sent/delivered |
+| Historical reason | `na` may render; new refund validation still rejects it |
+| DB / schema / migrations | None |
+| Production | Untouched (`4eecbec`) |
+| Phase 6.2B PO acceptance | **NOT YET** |
+| Phase 6.3 | **NOT STARTED** |
 
 ## Chapter 6 Phase 6.2B — PO closeout quality report
 
