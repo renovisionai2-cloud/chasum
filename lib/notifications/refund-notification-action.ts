@@ -5,6 +5,44 @@
 
 import type { NotificationChannelStatus } from "@/lib/notifications/status-labels";
 
+export const BUSINESS_REFUND_SENT_MESSAGE =
+  "Business refund notification sent.";
+export const BUSINESS_REFUND_RESENT_MESSAGE =
+  "Business refund notification resent.";
+
+export type BusinessRefundSendKind = "first" | "resend";
+
+/**
+ * First send vs explicit resend from recorded delivery truth *before* this attempt.
+ * A prior Sent record means this click is a resend. Not requested / failed /
+ * skipped / never-sent remain a first send until a successful delivery exists.
+ */
+export function businessRefundSendKind(input: {
+  priorRecordedSent: boolean;
+}): BusinessRefundSendKind {
+  return input.priorRecordedSent ? "resend" : "first";
+}
+
+export function businessRefundNotificationFeedback(input: {
+  kind: BusinessRefundSendKind;
+  resultStatus: string;
+  detail?: string | null;
+}): { success?: string; error?: string } {
+  if (input.resultStatus === "sent") {
+    return {
+      success:
+        input.kind === "resend"
+          ? BUSINESS_REFUND_RESENT_MESSAGE
+          : BUSINESS_REFUND_SENT_MESSAGE,
+    };
+  }
+  const detail = String(input.detail ?? "").trim();
+  return {
+    error:
+      detail || "Business refund notification could not be sent.",
+  };
+}
+
 export type RefundNotificationAction = {
   canRetry: boolean;
   actionLabel: string | null;

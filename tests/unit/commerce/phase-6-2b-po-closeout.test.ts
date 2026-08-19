@@ -371,6 +371,7 @@ describe("Phase 6.2B PO closeout — business refund notification", () => {
       refundId: "rf-chase",
     });
     expect(sent.status).toBe("skipped");
+    expect(sent.sendKind).toBe("resend");
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
@@ -383,6 +384,7 @@ describe("Phase 6.2B PO closeout — business refund notification", () => {
       refundId: "rf-chase",
     });
     expect(sent.status).toBe("sent");
+    expect(sent.sendKind).toBe("first");
     expect(sendEmail).toHaveBeenCalledTimes(1);
   });
 
@@ -396,6 +398,7 @@ describe("Phase 6.2B PO closeout — business refund notification", () => {
       forceResend: true,
     });
     expect(sent.status).toBe("sent");
+    expect(sent.sendKind).toBe("resend");
     expect(sendEmail).toHaveBeenCalledTimes(1);
   });
 
@@ -408,6 +411,23 @@ describe("Phase 6.2B PO closeout — business refund notification", () => {
     });
     expect(sent.status).toBe("failed");
     expect(sent.ok).toBe(false);
+    expect(sent.sendKind).toBe("first");
+  });
+
+  it("failed resend is not Sent and is classified as a resend attempt", async () => {
+    mockRefundTables({
+      refund: { ...refundRow, metadata: { business_email_status: "sent" } },
+      logs: { status: "failed" },
+    });
+    sendEmail.mockResolvedValue({ ok: false, error: "Mailbox rejected." });
+    const sent = await sendRefundBusinessNotification({
+      businessId: "biz",
+      refundId: "rf-chase",
+      forceResend: true,
+    });
+    expect(sent.status).toBe("failed");
+    expect(sent.ok).toBe(false);
+    expect(sent.sendKind).toBe("resend");
   });
 
   it("preserves customer refund confirmation", async () => {

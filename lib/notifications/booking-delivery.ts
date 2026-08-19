@@ -48,6 +48,8 @@ export type BookingNotificationReport = {
   emailConfigured: boolean;
   smsConfigured: boolean;
   smsPlanIncluded: boolean;
+  /** First send vs resend for the channel just attempted. */
+  attemptKind?: "first" | "resend";
 };
 
 const STALE_PENDING_MS = 60_000;
@@ -1057,6 +1059,12 @@ export async function retryBookingNotification(input: {
           : result.status === "skipped"
             ? "skipped"
             : "failed";
+    const attemptKind =
+      input.channel === "business_refund_email"
+        ? result.sendKind === "resend"
+          ? "resend"
+          : "first"
+        : undefined;
     const businessAction =
       input.channel === "business_refund_email"
         ? businessRefundNotificationAction({
@@ -1079,6 +1087,14 @@ export async function retryBookingNotification(input: {
           ? businessAction?.canRetry ?? status === "failed"
           : status === "failed",
     });
+    return {
+      appointmentId: input.appointmentId,
+      items,
+      emailConfigured,
+      smsConfigured,
+      smsPlanIncluded,
+      attemptKind,
+    };
   } else {
     throw new Error("Unknown notification channel.");
   }

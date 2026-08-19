@@ -7,6 +7,7 @@ import {
   loadAppointmentCommunicationStatus,
   type BookingNotificationItem,
 } from "@/lib/notifications/booking-delivery";
+import { businessRefundNotificationFeedback } from "@/lib/notifications/refund-notification-action";
 import type { ActionState } from "@/lib/types/booking";
 
 /**
@@ -93,6 +94,22 @@ export async function retryAppointmentNotification(
 
   try {
     const report = await retryBookingNotification({ appointmentId, channel });
+    if (channel === "business_refund_email") {
+      const item = report.items.find(
+        (entry) => entry.channel === "business_refund_email",
+      );
+      const feedback = businessRefundNotificationFeedback({
+        kind: report.attemptKind === "resend" ? "resend" : "first",
+        resultStatus: item?.status ?? "failed",
+        detail: item?.detail,
+      });
+      return {
+        success: feedback.success,
+        error: feedback.error,
+        appointmentId,
+        notifications: report.items,
+      };
+    }
     return {
       success: "Notification resent.",
       appointmentId,

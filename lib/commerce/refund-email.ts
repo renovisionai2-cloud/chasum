@@ -27,6 +27,8 @@ export type RefundEmailResult = {
   ok: boolean;
   status: RefundEmailStatus;
   error?: string;
+  /** Classified from recorded truth before this attempt. */
+  sendKind?: "first" | "resend";
 };
 
 function methodLabel(method: string): string {
@@ -493,14 +495,24 @@ export async function sendRefundBusinessNotification(input: {
         summary: `Business refund email ${built.status}: ${built.error}`,
         afterState: { status: built.status, error: built.error },
       }).catch(() => undefined);
-      return { ok: false, status: built.status, error: built.error };
+      return { ok: false, status: built.status, error: built.error, sendKind: "first" };
     }
+
+    const sendKind =
+      String(built.metadata.business_email_status ?? "") === "sent"
+        ? "resend"
+        : "first";
 
     if (
       !input.forceResend &&
       String(built.metadata.business_email_status ?? "") === "sent"
     ) {
-      return { ok: true, status: "skipped", error: "Already sent." };
+      return {
+        ok: true,
+        status: "skipped",
+        error: "Already sent.",
+        sendKind: "resend",
+      };
     }
 
     if (!built.ownerNotificationsEnabled || !built.emailNotificationsEnabled) {
@@ -516,6 +528,7 @@ export async function sendRefundBusinessNotification(input: {
         ok: false,
         status: "skipped",
         error: "Business operational notifications are disabled.",
+        sendKind,
       };
     }
 
@@ -532,6 +545,7 @@ export async function sendRefundBusinessNotification(input: {
         ok: false,
         status: "unavailable",
         error: "No business notification email configured.",
+        sendKind,
       };
     }
 
@@ -587,12 +601,13 @@ export async function sendRefundBusinessNotification(input: {
         ok: false,
         status: "failed",
         error: result.error ?? "Could not send business refund notification.",
+        sendKind,
       };
     }
-    return { ok: true, status: "sent" };
+    return { ok: true, status: "sent", sendKind };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     logQueryError("commerce.refund.business_email", message);
-    return { ok: false, status: "failed", error: message };
+    return { ok: false, status: "failed", error: message, sendKind: "first" };
   }
 }

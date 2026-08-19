@@ -20,7 +20,13 @@ import {
   paymentReadinessFromStamps,
 } from "@/lib/dashboard/appointment-ops";
 import { planningAttentionLabel } from "@/lib/calendar/planning-density";
-import { businessRefundNotificationAction } from "@/lib/notifications/refund-notification-action";
+import {
+  BUSINESS_REFUND_RESENT_MESSAGE,
+  BUSINESS_REFUND_SENT_MESSAGE,
+  businessRefundNotificationAction,
+  businessRefundNotificationFeedback,
+  businessRefundSendKind,
+} from "@/lib/notifications/refund-notification-action";
 import { recordedDeliveryStatus } from "@/lib/commerce/document-delivery-truth";
 
 const root = process.cwd();
@@ -227,6 +233,56 @@ describe("Phase 6.2B final PO correction — business refund first send", () => 
     );
     const delivery = read("lib/notifications/booking-delivery.ts");
     expect(delivery).toContain("forceResend: true");
+  });
+
+  it("first-send success uses the first-send message, not resent", () => {
+    expect(businessRefundSendKind({ priorRecordedSent: false })).toBe("first");
+    const feedback = businessRefundNotificationFeedback({
+      kind: "first",
+      resultStatus: "sent",
+    });
+    expect(feedback.success).toBe(BUSINESS_REFUND_SENT_MESSAGE);
+    expect(feedback.success).toBe("Business refund notification sent.");
+    expect(feedback.error).toBeUndefined();
+    expect(feedback.success).not.toContain("resent");
+    const retry = read("lib/actions/notification-retry.ts");
+    expect(retry).toContain("businessRefundNotificationFeedback");
+    expect(retry).toContain('kind: report.attemptKind === "resend" ? "resend" : "first"');
+  });
+
+  it("explicit resend success uses the resend message", () => {
+    expect(businessRefundSendKind({ priorRecordedSent: true })).toBe("resend");
+    const feedback = businessRefundNotificationFeedback({
+      kind: "resend",
+      resultStatus: "sent",
+    });
+    expect(feedback.success).toBe(BUSINESS_REFUND_RESENT_MESSAGE);
+    expect(feedback.success).toBe("Business refund notification resent.");
+    expect(feedback.error).toBeUndefined();
+  });
+
+  it("failed first send does not claim sent or resent", () => {
+    const feedback = businessRefundNotificationFeedback({
+      kind: "first",
+      resultStatus: "failed",
+      detail: "Mailbox rejected.",
+    });
+    expect(feedback.success).toBeUndefined();
+    expect(feedback.error).toBe("Mailbox rejected.");
+    expect(feedback.error).not.toBe(BUSINESS_REFUND_SENT_MESSAGE);
+    expect(feedback.error).not.toBe(BUSINESS_REFUND_RESENT_MESSAGE);
+  });
+
+  it("failed resend does not claim sent or resent", () => {
+    const feedback = businessRefundNotificationFeedback({
+      kind: "resend",
+      resultStatus: "failed",
+      detail: "Mailbox rejected.",
+    });
+    expect(feedback.success).toBeUndefined();
+    expect(feedback.error).toBe("Mailbox rejected.");
+    expect(feedback.error).not.toBe(BUSINESS_REFUND_SENT_MESSAGE);
+    expect(feedback.error).not.toBe(BUSINESS_REFUND_RESENT_MESSAGE);
   });
 });
 
