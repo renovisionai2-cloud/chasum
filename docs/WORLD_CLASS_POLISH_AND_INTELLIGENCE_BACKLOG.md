@@ -281,7 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 6 Phase 6.2B implemented (final PO correction) — not PO-accepted** (`022837f`). Unique appointment/transaction indexes remain PO/database decisions. Historical USD cleanup remains a PO decision. Package entitlement is not built. Do not start Phase 6.3.
+- **Chapter 6 Phase 6.2B implemented (final PO correction + first-send copy) — not PO-accepted** (`bb655e5`). Unique appointment/transaction indexes remain PO/database decisions. Historical USD cleanup remains a PO decision. Package entitlement is not built. Do not start Phase 6.3.
 - **Chapter 6 Phase 6.2A = PO ACCEPTED** after hands-on Preview E2E (RCT-0006). Do not reopen 6.2A money or booking contracts.
 - **Chapter 6 Phase 6.1 PO-accepted.** Do not reopen 6.1 money contract.
 - **Chapter 6 Phase 6.1B implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
@@ -325,6 +325,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 
 | Date | Change |
 |------|--------|
+| 2026-08-18 | Chapter 6 Phase 6.2B first-send copy (`bb655e5`). First send “sent.” vs resend “resent.”; failures do not claim success. 6.2B not PO-accepted. Phase 6.3 NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.2B final PO correction (`022837f`). Collectible remaining on appointment operating surfaces; first-send business refund notification; historical `na` unchanged. 6.2B not PO-accepted. Phase 6.3 NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.2B PO closeout (`cb0a809`). Business refund notification, structured refund reasons, staff/customer email copy, mobile stacked rows, package-catalog forensic. 6.2B not PO-accepted. Phase 6.3 NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.2B forensic closeout (`5d30df8`). CAD deposits, booked-month window, gross cash after partial refund, voluntary refund collectibility, staff notification copy. 6.2B not PO-accepted. Phase 6.3 NOT STARTED. |

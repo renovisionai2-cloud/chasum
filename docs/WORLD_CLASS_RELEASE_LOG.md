@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-18 | **Chapter 6 Phase 6.2B — first-send copy** | `bb655e5` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | First send “sent.” vs explicit resend “resent.”; failures do not claim success; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — final PO correction** | `022837f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Collectible remaining on appointment drawer/balance/attention; first-send business refund notification; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — PO closeout** | `cb0a809` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business refund notification; structured reasons; staff no customer greeting; Subtotal copy; stacked email rows; package catalog forensic; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — forensic closeout** | `5d30df8` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | CAD new-money path; booked-month includes future; gross cash after partial refund; voluntary refund no new debt; staff Deposit method; 6.2B not PO-accepted; 6.3 not started |
@@ -68,6 +69,22 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2B — first-send copy quality report
+
+| Check | Result |
+|-------|--------|
+| Title | First-send vs resend Communications result copy |
+| Feature | `bb655e5` |
+| First send | “Business refund notification sent.” |
+| Explicit resend | “Business refund notification resent.” |
+| Failed send | No sent/resent success claim; retry remains |
+| Auto-send | Loading/render never sends |
+| Duplicate send | Unchanged skip when already recorded sent without `forceResend` |
+| DB / schema / migrations | None |
+| Production | Untouched (`4eecbec`) |
+| Phase 6.2B PO acceptance | **NOT YET** |
+| Phase 6.3 | **NOT STARTED** |
 
 ## Chapter 6 Phase 6.2B — final PO correction quality report
 
