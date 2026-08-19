@@ -55,7 +55,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 
 | Restriction | Policy |
 |-------------|--------|
-| Shared Supabase Preview ↔ Production | No experimental writes; prefer read-only audits |
+| Shared Supabase Preview ↔ Production | **Current** — Staging project exists but is **empty and not connected**. See [`WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md). Do not connect Preview until PO approves. |
 | Migrations **034, 035, 036** | **Do not apply** without explicit PO |
 | Production branch / alias / deploy | **Do not touch** |
 | Live GVM data | **Do not modify** |

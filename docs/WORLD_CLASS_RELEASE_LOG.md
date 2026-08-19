@@ -3,7 +3,7 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` · tag `phase-0-gvm-production-2026-08-04` · https://chasum.vercel.app  
 **Shell Preview (Ch1 base):** https://chasum-f2djbjdae-renovisionappcom.vercel.app @ `d86e398`  
-**Shared Supabase:** Preview ↔ Production — no experimental writes  
+**Shared Supabase:** Preview ↔ Production until Staging cutover — see [`WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md). Staging empty, **not connected**.  
 **Migrations 034–036:** Do not apply without PO  
 
 ---
@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-19 | **Environment separation discovery** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Staging project empty/not connected; Preview still Production DB; 001–033 replay recommended later; 034–036 unapplied; HQ not created; 6.3 NOT STARTED |
 | 2026-08-19 | **Tenant Safety + Multi-Business Foundation** | docs this commit · feature `e6dc026` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | App-only resolver/switcher; Platform Admin labels; HQ tenant NOT created; 6.3 implementation NOT STARTED; public businesses SELECT remains PO/RLS gate |
 | 2026-08-18 | **Chapter 6 Phase 6.2B PO acceptance lock** | stamp pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.2B = PO ACCEPTED after hands-on Preview (Chase money/refund + Sum historical recovery); 6.3 = NOT STARTED |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — historical communications truth** | `0a5001c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Missing booking logs are Not recorded, not Not applicable/Skipped; explicit first send; included in 6.2B PO acceptance |
