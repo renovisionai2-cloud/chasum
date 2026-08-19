@@ -5,7 +5,7 @@ import { getLocations, getLocationScope } from "@/lib/actions/location";
 import {
   countDailyStatuses,
   isActiveBooking,
-  paymentReadinessFromStatus,
+  paymentReadinessFromStamps,
   sortAppointmentsChronologically,
   type DailyStatusCounts,
 } from "@/lib/dashboard/appointment-ops";
@@ -99,7 +99,7 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
     .from("appointments")
     .select(
       `id, customer_id, status, staff_id, start_time, payment_status,
-         price_cents, deposit_cents, amount_paid_cents,
+         price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents,
          customer:customers(name),
          service:services(name, price)`,
     )
@@ -169,8 +169,10 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
     start_time: string;
     payment_status?: string | null;
     price_cents?: number | null;
+    tax_cents?: number | null;
     deposit_cents?: number | null;
     amount_paid_cents?: number | null;
+    amount_refunded_cents?: number | null;
     customer?:
       | { name?: string | null }
       | { name?: string | null }[]
@@ -187,7 +189,7 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
   ).size;
 
   const outstandingPayments = activeRows.filter((a) => {
-    const ready = paymentReadinessFromStatus(a.payment_status);
+    const ready = paymentReadinessFromStamps(a);
     return ready === "payment_due" || ready === "balance_due";
   }).length;
 

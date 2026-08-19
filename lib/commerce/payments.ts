@@ -7,7 +7,7 @@ import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { createInvoiceForAppointment } from "@/lib/commerce/invoices";
 import { mapTransaction } from "@/lib/commerce/mappers";
 import { resolveNewCommerceCurrency } from "@/lib/commerce/money";
-import { appointmentMoneyFromStamps } from "@/lib/commerce/money-contract";
+import { appointmentCollectibleMoneyFromStamps, appointmentMoneyFromStamps } from "@/lib/commerce/money-contract";
 import {
   getActiveProviderSummary,
   resolvePaymentProvider,
@@ -696,7 +696,7 @@ export async function getBookingPaymentSummary(
     return null;
   }
 
-  const money = appointmentMoneyFromStamps({
+  const money = appointmentCollectibleMoneyFromStamps({
     ...appt,
     services: appt.services,
   });
@@ -716,7 +716,7 @@ export async function getBookingPaymentSummary(
     depositRequiredCents: money.depositRequiredCents,
     amountPaidCents: money.grossPaidCents,
     amountRefundedCents: money.refundedCents,
-    outstandingBalanceCents: money.remainingBalanceCents,
+    outstandingBalanceCents: money.collectibleRemainingBalanceCents,
     invoiceNumber: (appt.invoice_number as string) ?? null,
     history,
   };

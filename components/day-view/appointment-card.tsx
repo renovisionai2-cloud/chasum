@@ -79,6 +79,10 @@ export function DayAppointmentCard({
   const paymentLabel = paymentCollectionLabel({
     status: appointment.status,
     paymentStatus: appointment.payment_status,
+    price_cents: appointment.price_cents,
+    tax_cents: appointment.tax_cents,
+    amount_paid_cents: appointment.amount_paid_cents,
+    amount_refunded_cents: appointment.amount_refunded_cents,
   });
   const paymentDue =
     paymentLabel === "Payment due" || paymentLabel === "Balance due";

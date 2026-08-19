@@ -3,7 +3,15 @@
  * Status and payment readiness must not drift between surfaces.
  */
 
-import { isAppointmentCollectible } from "@/lib/commerce/money-contract";
+import {
+  appointmentHasMoneyStamps,
+  collectibleRemainingBalanceCents,
+  grossPaidCents,
+  isAppointmentCollectible,
+  netPaidCents,
+  refundedCents,
+  type AppointmentMoneyStamps,
+} from "@/lib/commerce/money-contract";
 import { isActiveBooking, isCancelledOrNoShow } from "@/lib/commerce/recognize";
 import type { AppointmentStatus } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
@@ -93,15 +101,49 @@ export function paymentReadinessFromStatus(
   return "none";
 }
 
+/**
+ * Operational payment readiness from money stamps.
+ * Stored payment_status is a fallback only when amount/price stamps are missing.
+ * Voluntary refunds never create balance_due / payment_due by themselves.
+ */
+export function paymentReadinessFromStamps(
+  stamps: AppointmentMoneyStamps,
+): PaymentReadiness {
+  if (!appointmentHasMoneyStamps(stamps)) {
+    return paymentReadinessFromStatus(stamps.payment_status);
+  }
+  if (!isAppointmentCollectible(stamps.status, stamps.payment_status)) {
+    return paymentReadinessFromStatus(stamps.payment_status);
+  }
+  if (collectibleRemainingBalanceCents(stamps) > 0) {
+    return grossPaidCents(stamps) > 0 ? "balance_due" : "payment_due";
+  }
+  if (refundedCents(stamps) > 0 && netPaidCents(stamps) <= 0) {
+    return "refunded";
+  }
+  return "paid";
+}
+
 /** Collection attention only when the appointment lifecycle is still collectible. */
 export function paymentCollectionLabel(input: {
   status?: string | null;
   paymentStatus?: string | null;
+  price_cents?: number | null;
+  tax_cents?: number | null;
+  amount_paid_cents?: number | null;
+  amount_refunded_cents?: number | null;
 }): string | null {
   if (!isAppointmentCollectible(input.status, input.paymentStatus)) {
     return null;
   }
-  const readiness = paymentReadinessFromStatus(input.paymentStatus);
+  const readiness = paymentReadinessFromStamps({
+    status: input.status,
+    payment_status: input.paymentStatus,
+    price_cents: input.price_cents,
+    tax_cents: input.tax_cents,
+    amount_paid_cents: input.amount_paid_cents,
+    amount_refunded_cents: input.amount_refunded_cents,
+  });
   return paymentReadinessLabel(readiness);
 }
 
@@ -137,6 +179,10 @@ export function countDailyStatuses(
     status?: string | null;
     staff_id?: string | null;
     payment_status?: string | null;
+    price_cents?: number | null;
+    tax_cents?: number | null;
+    amount_paid_cents?: number | null;
+    amount_refunded_cents?: number | null;
   }>,
 ): DailyStatusCounts {
   const counts: DailyStatusCounts = {
@@ -169,7 +215,14 @@ export function countDailyStatuses(
     if (isCompletedAppointment(row.status)) counts.completed += 1;
     if (isUnassignedAppointment(row.staff_id)) counts.unassigned += 1;
 
-    const ready = paymentReadinessFromStatus(row.payment_status);
+    const ready = paymentReadinessFromStamps({
+      status: row.status,
+      payment_status: row.payment_status,
+      price_cents: row.price_cents,
+      tax_cents: row.tax_cents,
+      amount_paid_cents: row.amount_paid_cents,
+      amount_refunded_cents: row.amount_refunded_cents,
+    });
     if (
       isAppointmentCollectible(row.status, row.payment_status) &&
       (ready === "payment_due" || ready === "balance_due")

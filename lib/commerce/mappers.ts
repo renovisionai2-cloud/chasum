@@ -121,21 +121,20 @@ export function deriveAppointmentPaymentStatus(input: {
   voided?: boolean;
 }): AppointmentPaymentStatus {
   if (input.voided) return "voided";
-  const netPaid = Math.max(0, input.amountPaidCents - input.amountRefundedCents);
-  if (input.amountRefundedCents > 0 && netPaid <= 0) return "refunded";
-  if (input.amountRefundedCents > 0 && netPaid < input.priceCents) {
-    return "partially_paid";
-  }
-  if (input.priceCents <= 0) {
-    return netPaid > 0 ? "fully_paid" : "unpaid";
-  }
-  if (netPaid >= input.priceCents) return "fully_paid";
+  const grossPaid = Math.max(0, input.amountPaidCents);
+  const refunded = Math.max(0, input.amountRefundedCents);
+  const netPaid = Math.max(0, grossPaid - refunded);
+  const price = Math.max(0, input.priceCents);
+  if (refunded > 0 && netPaid <= 0 && grossPaid > 0) return "refunded";
+  // Collectible remaining = max(0, total − gross paid). Refunds never reopen debt.
+  if (price > 0 && grossPaid >= price) return "fully_paid";
+  if (price <= 0) return grossPaid > 0 ? "fully_paid" : "unpaid";
   if (input.depositRequiredCents > 0) {
-    if (netPaid <= 0) return "deposit_required";
-    if (netPaid >= input.depositRequiredCents && netPaid < input.priceCents) {
+    if (grossPaid <= 0) return "deposit_required";
+    if (grossPaid >= input.depositRequiredCents && grossPaid < price) {
       return "deposit_paid";
     }
   }
-  if (netPaid > 0) return "partially_paid";
+  if (grossPaid > 0) return "partially_paid";
   return "unpaid";
 }

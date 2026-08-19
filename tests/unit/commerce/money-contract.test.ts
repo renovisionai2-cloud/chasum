@@ -174,7 +174,7 @@ describe("Chapter 6 money contract", () => {
     });
     expect(partialRefund.netPaidCents).toBe(8300);
     expect(partialRefund.remainingBalanceCents).toBe(3000);
-    expect(partialRefund.paymentStatus).toBe("partially_paid");
+    expect(partialRefund.paymentStatus).toBe("fully_paid");
   });
 
   it("creates invoice totals from appointment total, not exclusive subtotal alone", () => {

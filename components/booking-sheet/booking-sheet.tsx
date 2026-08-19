@@ -89,10 +89,6 @@ import {
   resolveFinancialsFromAppointment,
 } from "@/lib/commerce/booking-financials";
 import {
-  APPOINTMENT_PAYMENT_STATUS_LABELS,
-  type AppointmentPaymentStatus,
-} from "@/lib/commerce/types";
-import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
   RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
   isUnassignedStaffSelection,
@@ -115,7 +111,11 @@ import type {
   StaffWithServices,
 } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
-import { appointmentCollectionAction } from "@/lib/commerce/money-contract";
+import {
+  appointmentCollectibleMoneyFromStamps,
+  appointmentCollectionAction,
+  appointmentCollectionFacingLabel,
+} from "@/lib/commerce/money-contract";
 import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { addDays, format } from "date-fns";
@@ -1108,15 +1108,12 @@ export function BookingSheet({
         currency,
       })
     : null;
-  const operatingPaymentStatusLabel = (() => {
-    const raw = appointment?.payment_status;
-    if (raw && raw in APPOINTMENT_PAYMENT_STATUS_LABELS) {
-      return APPOINTMENT_PAYMENT_STATUS_LABELS[raw as AppointmentPaymentStatus];
-    }
-    if (collectionAction === "paid_in_full") return "Paid in full";
-    if (collectionAction === "collect") return "Balance due";
-    return "No payment";
-  })();
+  const operatingMoney = appointment
+    ? appointmentCollectibleMoneyFromStamps(appointment)
+    : null;
+  const operatingPaymentStatusLabel = appointment
+    ? appointmentCollectionFacingLabel(appointment)
+    : "No payment";
 
   function collectPaymentNavigate() {
     if (!canCollectPayment) return;
@@ -1895,12 +1892,30 @@ export function BookingSheet({
                       operatingFinancials?.formatted.paidToDate ?? "—"
                     }
                     remainingCents={
-                      operatingFinancials?.remainingBalanceCents ?? 0
+                      operatingMoney?.collectibleRemainingBalanceCents ?? 0
                     }
                     remainingLabel={
-                      operatingFinancials?.formatted.remainingBalance ?? "—"
+                      operatingMoney
+                        ? formatMoneyCents(
+                            operatingMoney.collectibleRemainingBalanceCents,
+                            currency,
+                          )
+                        : "—"
                     }
                     paymentStatusLabel={operatingPaymentStatusLabel}
+                    refundedLabel={
+                      operatingMoney && operatingMoney.refundedCents > 0
+                        ? formatMoneyCents(
+                            operatingMoney.refundedCents,
+                            currency,
+                          )
+                        : null
+                    }
+                    netRetainedLabel={
+                      operatingMoney && operatingMoney.refundedCents > 0
+                        ? formatMoneyCents(operatingMoney.netPaidCents, currency)
+                        : null
+                    }
                     invoiceNumber={appointment?.invoice_number ?? null}
                     currency={currency}
                   />

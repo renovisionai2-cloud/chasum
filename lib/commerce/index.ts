@@ -89,6 +89,8 @@ export {
   collectibleRemainingBalanceCents,
   appointmentOffersCollection,
   appointmentCollectionAction,
+  appointmentCollectionFacingLabel,
+  appointmentHasMoneyStamps,
   depositCollectedCents,
   depositDueNowCents,
   depositRequiredCents,

@@ -8,6 +8,7 @@ import {
 } from "@/lib/actions/notification-retry";
 import { formatNotificationStatus } from "@/lib/notifications/status-labels";
 import type { BookingNotificationItem } from "@/lib/notifications/booking-delivery";
+import { businessRefundNotificationAction } from "@/lib/notifications/refund-notification-action";
 import type { ActionState } from "@/lib/types/booking";
 import { useActionState, useEffect, useState, useTransition } from "react";
 
@@ -44,7 +45,9 @@ function resendLabel(
     case "customer_refund_email":
       return "Resend customer refund confirmation";
     case "business_refund_email":
-      return "Resend business refund notification";
+      return status === "sent" || status === "failed" || status === "pending"
+        ? "Resend business refund notification"
+        : "Send business refund notification";
     case "staff_email":
       return status === "sent" || status === "failed" || status === "pending"
         ? "Resend staff notification"
@@ -191,7 +194,15 @@ export function BookingCommunicationsSection({
                   disabled={pending}
                   className="h-8 shrink-0 text-[11px]"
                 >
-                  {resendLabel(item.channel, item.status)}
+                  {item.channel === "business_refund_email"
+                    ? businessRefundNotificationAction({
+                        refundExists: true,
+                        status: item.status,
+                        hasRecipient: item.status !== "no_recipient",
+                        emailConfigured: true,
+                      }).actionLabel ??
+                      resendLabel(item.channel, item.status)
+                    : resendLabel(item.channel, item.status)}
                 </Button>
               </form>
             ) : null}

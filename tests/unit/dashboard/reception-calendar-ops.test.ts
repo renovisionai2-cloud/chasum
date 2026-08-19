@@ -4,6 +4,7 @@ import {
   countDailyStatuses,
   filterAppointmentsForBoard,
   paymentReadinessFromStatus,
+  paymentReadinessFromStamps,
   paymentReadinessLabel,
   sortAppointmentsChronologically,
   sortStaffForBoardFilter,
@@ -42,7 +43,7 @@ describe("Reception appointment ops", () => {
     expect(counts.paymentAttention).toBe(3);
   });
 
-  it("maps payment_status to readiness labels", () => {
+  it("maps payment_status to readiness labels and stamps override stored partially_paid after refund", () => {
     expect(paymentReadinessLabel(paymentReadinessFromStatus("fully_paid"))).toBe(
       "Paid",
     );
@@ -55,6 +56,16 @@ describe("Reception appointment ops", () => {
     expect(paymentReadinessLabel(paymentReadinessFromStatus("refunded"))).toBe(
       "Refunded",
     );
+    expect(
+      paymentReadinessFromStamps({
+        status: "confirmed",
+        payment_status: "partially_paid",
+        price_cents: 29900,
+        tax_cents: 3887,
+        amount_paid_cents: 33787,
+        amount_refunded_cents: 5000,
+      }),
+    ).toBe("paid");
   });
 
   it("filters calendar board by employee and status", () => {

@@ -6,6 +6,7 @@
 
 import {
   appointmentCollectibleMoneyFromStamps,
+  appointmentCollectionFacingLabel,
   type AppointmentMoneyStamps,
 } from "@/lib/commerce/money-contract";
 import {
@@ -210,7 +211,10 @@ export function mapFrontDeskAppointment(input: {
     staffName: input.staffName?.trim() || null,
     appointmentStatus: input.appointmentStatus,
     paymentStatus: money.paymentStatus,
-    paymentStatusLabel: appointmentPaymentFacingLabel(money.paymentStatus),
+    paymentStatusLabel: appointmentCollectionFacingLabel({
+      ...input.stamps,
+      status: input.appointmentStatus,
+    }),
     subtotalCents: money.subtotalCents,
     taxCents: money.taxCents,
     totalCents: money.totalCents,

@@ -362,7 +362,7 @@ describe("Phase 6.2B PO closeout — business refund notification", () => {
     expect(delivery).toContain("logDelivery");
   });
 
-  it("does not send a duplicate business refund notification on retry", async () => {
+  it("does not send a duplicate business refund notification without forceResend", async () => {
     mockRefundTables({
       refund: { ...refundRow, metadata: { business_email_status: "sent" } },
     });
@@ -372,6 +372,42 @@ describe("Phase 6.2B PO closeout — business refund notification", () => {
     });
     expect(sent.status).toBe("skipped");
     expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("sends a first business notification when historical refund has no business send marker", async () => {
+    mockRefundTables({
+      refund: { ...refundRow, metadata: {} },
+    });
+    const sent = await sendRefundBusinessNotification({
+      businessId: "biz",
+      refundId: "rf-chase",
+    });
+    expect(sent.status).toBe("sent");
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("explicit forceResend may resend after a recorded sent marker", async () => {
+    mockRefundTables({
+      refund: { ...refundRow, metadata: { business_email_status: "sent" } },
+    });
+    const sent = await sendRefundBusinessNotification({
+      businessId: "biz",
+      refundId: "rf-chase",
+      forceResend: true,
+    });
+    expect(sent.status).toBe("sent");
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("failed business refund email is not Sent", async () => {
+    mockRefundTables({ logs: { status: "failed" } });
+    sendEmail.mockResolvedValue({ ok: false, error: "Mailbox rejected." });
+    const sent = await sendRefundBusinessNotification({
+      businessId: "biz",
+      refundId: "rf-chase",
+    });
+    expect(sent.status).toBe("failed");
+    expect(sent.ok).toBe(false);
   });
 
   it("preserves customer refund confirmation", async () => {

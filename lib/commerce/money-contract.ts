@@ -215,6 +215,35 @@ export function appointmentCollectionAction(
   return "paid_in_full";
 }
 
+/**
+ * Staff-facing payment state for operating surfaces (drawer, balance panel, cards).
+ * Amount due / outstanding / remaining-to-collect always follow collectible remaining.
+ * Arithmetic remaining (total − net paid) is audit-only and must not drive this label.
+ */
+export function appointmentCollectionFacingLabel(
+  stamps: AppointmentMoneyStamps,
+): string {
+  const money = appointmentCollectibleMoneyFromStamps(stamps);
+  if (money.collectibleRemainingBalanceCents > 0) {
+    return APPOINTMENT_PAYMENT_STATUS_UI[money.paymentStatus];
+  }
+  if (money.refundedCents > 0 && money.netPaidCents <= 0) {
+    return APPOINTMENT_PAYMENT_STATUS_UI.refunded;
+  }
+  if (
+    money.refundedCents > 0 &&
+    money.totalCents > 0 &&
+    money.grossPaidCents >= money.totalCents
+  ) {
+    return TRANSACTION_STATUS_UI.partially_refunded;
+  }
+  if (money.totalCents > 0 && money.grossPaidCents >= money.totalCents) {
+    return APPOINTMENT_PAYMENT_STATUS_UI.fully_paid;
+  }
+  if (money.totalCents <= 0) return "No payment";
+  return APPOINTMENT_PAYMENT_STATUS_UI[money.paymentStatus];
+}
+
 /** Current collectible deposit due now (0 when not collectible). */
 export function collectibleDepositDueNowCents(
   stamps: AppointmentMoneyStamps,
@@ -256,6 +285,13 @@ export function appointmentCollectibleMoneyFromStamps(
         }).depositDueNowCents
       : 0,
   };
+}
+
+/** True when amount/price stamps exist so collectible remaining can be derived. */
+export function appointmentHasMoneyStamps(
+  stamps: AppointmentMoneyStamps,
+): boolean {
+  return stamps.amount_paid_cents != null || stamps.price_cents != null;
 }
 
 /** Amounts for a newly created commerce invoice from appointment stamps. */

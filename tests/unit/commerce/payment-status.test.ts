@@ -51,6 +51,15 @@ describe("deriveAppointmentPaymentStatus", () => {
         amountRefundedCents: 10_000,
       }),
     ).toBe("refunded");
+
+    expect(
+      deriveAppointmentPaymentStatus({
+        priceCents: 33787,
+        depositRequiredCents: 5000,
+        amountPaidCents: 33787,
+        amountRefundedCents: 5000,
+      }),
+    ).toBe("fully_paid");
   });
 
   it("voids when flagged", () => {

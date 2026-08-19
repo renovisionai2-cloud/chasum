@@ -8,6 +8,7 @@
 
 import { planIncludesSms } from "@/lib/billing/plan-features";
 import { recordedDeliveryStatus } from "@/lib/commerce/document-delivery-truth";
+import { businessRefundNotificationAction } from "@/lib/notifications/refund-notification-action";
 import { sendRefundBusinessNotification, sendRefundConfirmationEmail } from "@/lib/commerce/refund-email";
 import { sendEmail, sendSMS } from "@/lib/communications/delivery";
 import type { AppointmentTemplateContext } from "@/lib/communications/types";
@@ -159,23 +160,21 @@ export async function loadAppointmentNotifyContext(
   const appointmentTotalCents =
     subtotalCents != null ? subtotalCents + taxCents : null;
   const depositRequiredCents = Math.max(0, Number(data.deposit_cents ?? 0));
-  const amountPaidCents = Math.max(0, Number(data.amount_paid_cents ?? 0));
-  const amountRefundedCents = Math.max(
-    0,
-    Number(data.amount_refunded_cents ?? 0),
-  );
-  const netPaid = Math.max(0, amountPaidCents - amountRefundedCents);
+  const collectibleMoney = await import("@/lib/commerce/money-contract");
+  const collectible = collectibleMoney.appointmentCollectibleMoneyFromStamps({
+    price_cents: data.price_cents,
+    tax_cents: data.tax_cents,
+    deposit_cents: data.deposit_cents,
+    amount_paid_cents: data.amount_paid_cents,
+    amount_refunded_cents: data.amount_refunded_cents,
+    payment_status: data.payment_status,
+    status: data.status,
+  });
   const remainingBalanceCents =
     appointmentTotalCents != null
-      ? Math.max(0, appointmentTotalCents - netPaid)
+      ? collectible.collectibleRemainingBalanceCents
       : null;
-  const { resolveDepositDueNowCents } = await import(
-    "@/lib/commerce/booking-financials"
-  );
-  const { depositDueNowCents } = resolveDepositDueNowCents({
-    depositRequiredCents,
-    netPaidCents: netPaid,
-  });
+  const depositDueNowCents = collectible.collectibleDepositDueNowCents;
 
   let taxRateBps: number | null = null;
   let taxLabel: string | null = null;
@@ -206,8 +205,7 @@ export async function loadAppointmentNotifyContext(
     taxRateBps = Math.round((taxCents * 10_000) / subtotalCents);
   }
 
-  const { PAYMENT_METHOD_LABELS, APPOINTMENT_PAYMENT_STATUS_LABELS } =
-    await import("@/lib/commerce/types");
+  const { PAYMENT_METHOD_LABELS } = await import("@/lib/commerce/types");
   let paymentMethodLabel: string | null = null;
   try {
     const { data: txRows } = await supabase
@@ -230,13 +228,16 @@ export async function loadAppointmentNotifyContext(
     /* optional enrichment */
   }
 
-  const paymentStatus = String(data.payment_status ?? "unpaid");
   const paymentStatusLabel =
-    paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
-      ? APPOINTMENT_PAYMENT_STATUS_LABELS[
-          paymentStatus as keyof typeof APPOINTMENT_PAYMENT_STATUS_LABELS
-        ]
-      : paymentStatus;
+    collectibleMoney.appointmentCollectionFacingLabel({
+      price_cents: data.price_cents,
+      tax_cents: data.tax_cents,
+      deposit_cents: data.deposit_cents,
+      amount_paid_cents: data.amount_paid_cents,
+      amount_refunded_cents: data.amount_refunded_cents,
+      payment_status: data.payment_status,
+      status: data.status,
+    });
 
   const { resolveAppointmentEmailTimezone } = await import(
     "@/lib/communications/appointment-datetime"
@@ -274,7 +275,7 @@ export async function loadAppointmentNotifyContext(
     taxLabel,
     appointmentTotalCents,
     depositRequiredCents,
-    depositPaidCents: netPaid,
+    depositPaidCents: collectible.netPaidCents,
     depositDueNowCents,
     remainingBalanceCents,
     paymentMethodLabel,
@@ -1046,6 +1047,7 @@ export async function retryBookingNotification(input: {
         : await sendRefundBusinessNotification({
             businessId: ctx.businessId,
             refundId: String(refundRow.id),
+            forceResend: true,
           });
     const status: BookingNotificationItem["status"] =
       result.status === "sent"
@@ -1055,6 +1057,15 @@ export async function retryBookingNotification(input: {
           : result.status === "skipped"
             ? "skipped"
             : "failed";
+    const businessAction =
+      input.channel === "business_refund_email"
+        ? businessRefundNotificationAction({
+            refundExists: true,
+            status,
+            hasRecipient: status !== "no_recipient",
+            emailConfigured,
+          })
+        : null;
     items.push({
       channel: input.channel,
       status,
@@ -1063,7 +1074,10 @@ export async function retryBookingNotification(input: {
           ? "Customer refund confirmation"
           : "Business refund notification",
       detail: result.error ?? null,
-      canRetry: status === "failed",
+      canRetry:
+        input.channel === "business_refund_email"
+          ? businessAction?.canRetry ?? status === "failed"
+          : status === "failed",
     });
   } else {
     throw new Error("Unknown notification channel.");
@@ -1386,6 +1400,12 @@ export async function loadAppointmentCommunicationStatus(
         : null,
       hasRecipient: Boolean(businessTo),
     });
+    const businessRefundAction = businessRefundNotificationAction({
+      refundExists: true,
+      status: businessRefundStatus,
+      hasRecipient: Boolean(businessTo),
+      emailConfigured,
+    });
     items.push({
       channel: "business_refund_email",
       status: businessRefundStatus,
@@ -1403,7 +1423,7 @@ export async function loadAppointmentCommunicationStatus(
         : businessTo
           ? `Recipient ${businessTo}`
           : "No business notification email configured.",
-      canRetry: businessRefundStatus === "failed" && emailConfigured,
+      canRetry: businessRefundAction.canRetry,
     });
   }
 

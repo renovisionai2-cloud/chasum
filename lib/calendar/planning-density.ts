@@ -6,7 +6,7 @@
 import { appointmentStatusTone } from "@/lib/calendar/appointment-status-ui";
 import { isAppointmentCollectible } from "@/lib/commerce/money-contract";
 import {
-  paymentReadinessFromStatus,
+  paymentReadinessFromStamps,
   paymentReadinessLabel,
 } from "@/lib/dashboard/appointment-ops";
 import type { AppointmentStatus } from "@/lib/types/booking";
@@ -45,10 +45,14 @@ export function truthfulAppointmentCountLabel(total: number): string {
   return `${total} appointment${total === 1 ? "" : "s"}`;
 }
 
-/** Attention from real status / payment — not invented demand language. */
+/** Attention from real status / collectible remaining — not stored payment_status alone. */
 export function planningAttentionLabel(input: {
   status?: string | null;
   paymentStatus?: string | null;
+  price_cents?: number | null;
+  tax_cents?: number | null;
+  amount_paid_cents?: number | null;
+  amount_refunded_cents?: number | null;
 }): string | null {
   const status = input.status as AppointmentStatus | undefined;
   // Cancelled is hidden from active boards; never show collection pressure if stale.
@@ -62,20 +66,38 @@ export function planningAttentionLabel(input: {
     }
   }
   const pay = paymentReadinessLabel(
-    paymentReadinessFromStatus(input.paymentStatus),
+    paymentReadinessFromStamps({
+      status: input.status,
+      payment_status: input.paymentStatus,
+      price_cents: input.price_cents,
+      tax_cents: input.tax_cents,
+      amount_paid_cents: input.amount_paid_cents,
+      amount_refunded_cents: input.amount_refunded_cents,
+    }),
   );
   if (pay === "Balance due" || pay === "Payment due") return pay;
   return null;
 }
 
 export function dayHasPlanningAttention<
-  T extends { status?: string | null; payment_status?: string | null },
+  T extends {
+    status?: string | null;
+    payment_status?: string | null;
+    price_cents?: number | null;
+    tax_cents?: number | null;
+    amount_paid_cents?: number | null;
+    amount_refunded_cents?: number | null;
+  },
 >(appointments: T[]): boolean {
   return appointments.some(
     (appointment) =>
       planningAttentionLabel({
         status: appointment.status,
         paymentStatus: appointment.payment_status,
+        price_cents: appointment.price_cents,
+        tax_cents: appointment.tax_cents,
+        amount_paid_cents: appointment.amount_paid_cents,
+        amount_refunded_cents: appointment.amount_refunded_cents,
       }) != null,
   );
 }

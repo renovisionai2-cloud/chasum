@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-activity";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
-import { resolveDepositDueNowCents } from "@/lib/commerce/booking-financials";
-import {
-  APPOINTMENT_PAYMENT_STATUS_LABELS,
-} from "@/lib/commerce/types";
 import { formatMoneyCents } from "@/lib/commerce/money";
-import { appointmentCollectionAction } from "@/lib/commerce/money-contract";
+import {
+  appointmentCollectibleMoneyFromStamps,
+  appointmentCollectionAction,
+  appointmentCollectionFacingLabel,
+} from "@/lib/commerce/money-contract";
 import { appointmentStatusLabel } from "@/lib/dashboard/appointment-ops";
 import type {
   AppointmentStatus,
@@ -138,26 +138,16 @@ export function AppointmentDrawer({
     "—";
   const start = parseISO(appointment.start_time);
   const end = parseISO(appointment.end_time);
-  const deposit = Number(appointment.deposit_cents ?? 0);
-  const priceCents = Number(appointment.price_cents ?? 0);
-  const taxCents = Number(appointment.tax_cents ?? 0);
-  const appointmentTotal = priceCents + taxCents;
-  const amountPaid = Number(appointment.amount_paid_cents ?? 0);
-  const amountRefunded = Number(appointment.amount_refunded_cents ?? 0);
-  const netPaid = Math.max(0, amountPaid - amountRefunded);
-  const remaining = Math.max(0, appointmentTotal - netPaid);
-  const { amountPaidTowardDepositCents, depositDueNowCents } =
-    resolveDepositDueNowCents({
-      depositRequiredCents: deposit,
-      netPaidCents: netPaid,
-    });
-  const paymentStatus = String(appointment.payment_status ?? "unpaid");
-  const paymentStatusLabel =
-    paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
-      ? APPOINTMENT_PAYMENT_STATUS_LABELS[
-          paymentStatus as keyof typeof APPOINTMENT_PAYMENT_STATUS_LABELS
-        ]
-      : paymentStatus;
+  const money = appointmentCollectibleMoneyFromStamps(appointment);
+  const priceCents = money.subtotalCents;
+  const taxCents = money.taxCents;
+  const appointmentTotal = money.totalCents;
+  const amountPaid = money.grossPaidCents;
+  const remaining = money.collectibleRemainingBalanceCents;
+  const amountPaidTowardDepositCents = money.depositCollectedCents;
+  const depositDueNowCents = money.collectibleDepositDueNowCents;
+  const deposit = money.depositRequiredCents;
+  const paymentStatusLabel = appointmentCollectionFacingLabel(appointment);
   const collectionAction = appointmentCollectionAction(appointment);
 
   return (
@@ -315,11 +305,27 @@ export function AppointmentDrawer({
                 ) : null}
                 <div className="flex justify-between gap-3">
                   <dt className="text-muted-foreground">Paid</dt>
-                  <dd className="tabular-nums">{formatMoneyCents(netPaid)}</dd>
+                  <dd className="tabular-nums">{formatMoneyCents(amountPaid)}</dd>
                 </div>
+                {money.refundedCents > 0 ? (
+                  <>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Refunded</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(money.refundedCents)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Net retained</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(money.netPaidCents)}
+                      </dd>
+                    </div>
+                  </>
+                ) : null}
                 <div className="flex justify-between gap-3 font-medium">
                   <dt>Balance remaining</dt>
-                  <dd className="tabular-nums">
+                  <dd className="tabular-nums" data-amount-due={remaining}>
                     {formatMoneyCents(remaining)}
                   </dd>
                 </div>

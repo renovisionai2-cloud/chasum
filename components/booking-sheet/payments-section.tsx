@@ -13,17 +13,19 @@ import {
 } from "@/lib/commerce/booking-financials";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import { invoiceWorkspacePath } from "@/lib/commerce/document-paths";
-import { appointmentCollectionAction } from "@/lib/commerce/money-contract";
+import {
+  appointmentCollectibleMoneyFromStamps,
+  appointmentCollectionAction,
+  appointmentCollectionFacingLabel,
+} from "@/lib/commerce/money-contract";
 import type { AppointmentWithRelations, Service } from "@/lib/types/booking";
 import {
   isRefundableTransaction,
   remainingRefundableCents,
 } from "@/lib/commerce/refundability";
-import {
-  APPOINTMENT_PAYMENT_STATUS_LABELS,
-  type AppointmentPaymentStatus,
-  type CommerceRefund,
-  type CommerceTransaction,
+import type {
+  CommerceRefund,
+  CommerceTransaction,
 } from "@/lib/commerce/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -35,38 +37,6 @@ type PaymentsSectionProps = {
   currency?: string | null;
   taxRates?: TaxRate[];
 };
-
-function deriveStatus(input: {
-  totalCents: number;
-  depositCents: number;
-  amountPaidCents: number;
-  amountRefundedCents: number;
-  paymentStatus?: string | null;
-  depositRequired: boolean;
-}): AppointmentPaymentStatus | "no_payment_due" {
-  if (input.totalCents <= 0) {
-    return "no_payment_due";
-  }
-  if (
-    input.paymentStatus &&
-    input.paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
-  ) {
-    return input.paymentStatus as AppointmentPaymentStatus;
-  }
-  const net = Math.max(0, input.amountPaidCents - input.amountRefundedCents);
-  if (input.amountRefundedCents > 0 && net <= 0) return "refunded";
-  if (net >= input.totalCents && input.totalCents > 0) return "fully_paid";
-  if (input.depositRequired && net <= 0) return "deposit_required";
-  if (
-    input.depositRequired &&
-    net >= input.depositCents &&
-    net < input.totalCents
-  ) {
-    return "deposit_paid";
-  }
-  if (net > 0 && net < input.totalCents) return "partially_paid";
-  return "unpaid";
-}
 
 export function PaymentsSection({
   service,
@@ -144,17 +114,28 @@ export function PaymentsSection({
   const amountPaid = financials.paidToDateCents;
   const amountRefunded = financials.amountRefundedCents;
   const depositRequired = depositCents > 0;
-  const outstandingTotal = financials.remainingBalanceCents;
-  const status = deriveStatus({
-    totalCents: financials.appointmentTotalCents,
-    depositCents,
-    amountPaidCents: amountPaid,
-    amountRefundedCents: amountRefunded,
-    paymentStatus: appointment?.payment_status,
-    depositRequired,
-  });
+  const collectible = appointment
+    ? appointmentCollectibleMoneyFromStamps(appointment)
+    : null;
+  const outstandingTotal = collectible
+    ? collectible.collectibleRemainingBalanceCents
+    : financials.remainingBalanceCents;
+  const statusLabel = appointment
+    ? appointmentCollectionFacingLabel(appointment)
+    : financials.appointmentTotalCents <= 0
+      ? "No payment due"
+      : appointmentCollectionFacingLabel({
+          price_cents: financials.subtotalCents,
+          tax_cents: financials.taxCents,
+          deposit_cents: depositCents,
+          amount_paid_cents: amountPaid,
+          amount_refunded_cents: amountRefunded,
+        });
+  const depositDueNowCents = collectible
+    ? collectible.collectibleDepositDueNowCents
+    : financials.depositDueNowCents;
 
-  if (status === "no_payment_due") {
+  if (financials.appointmentTotalCents <= 0) {
     return (
       <section className="space-y-1" aria-labelledby="bs-pay-heading">
         <h3 id="bs-pay-heading" className="text-sm font-semibold tracking-tight">
@@ -180,14 +161,17 @@ export function PaymentsSection({
               Status
             </p>
             <p className="text-sm font-semibold">
-              {APPOINTMENT_PAYMENT_STATUS_LABELS[status]}
+              {statusLabel}
             </p>
           </div>
           <div className="text-right">
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
               Outstanding
             </p>
-            <p className="text-sm font-semibold tabular-nums">
+            <p
+              className="text-sm font-semibold tabular-nums"
+              data-amount-due={outstandingTotal}
+            >
               {formatMoneyCents(outstandingTotal, currency)}
             </p>
           </div>
@@ -220,7 +204,7 @@ export function PaymentsSection({
               <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">Deposit due now</dt>
                 <dd className="font-medium tabular-nums">
-                  {formatMoneyCents(financials.depositDueNowCents, currency)}
+                  {formatMoneyCents(depositDueNowCents, currency)}
                 </dd>
               </div>
               <div className="flex justify-between gap-3">
@@ -230,10 +214,7 @@ export function PaymentsSection({
                     Math.max(
                       0,
                       financials.appointmentTotalCents -
-                        Math.max(
-                          depositCents,
-                          financials.amountPaidTowardDepositCents,
-                        ),
+                        Math.max(depositCents, amountPaid),
                     ),
                     currency,
                   )}
@@ -247,6 +228,25 @@ export function PaymentsSection({
               {formatMoneyCents(amountPaid, currency)}
             </dd>
           </div>
+          {amountRefunded > 0 ? (
+            <>
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Refunded</dt>
+                <dd className="tabular-nums">
+                  {formatMoneyCents(amountRefunded, currency)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted-foreground">Net retained</dt>
+                <dd className="tabular-nums">
+                  {formatMoneyCents(
+                    Math.max(0, amountPaid - amountRefunded),
+                    currency,
+                  )}
+                </dd>
+              </div>
+            </>
+          ) : null}
         </dl>
       </div>
 

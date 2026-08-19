@@ -473,6 +473,8 @@ export async function sendRefundBusinessNotification(input: {
   businessId: string;
   refundId: string;
   actorId?: string | null;
+  /** Explicit Communications resend. Automatic processors must omit this. */
+  forceResend?: boolean;
 }): Promise<RefundEmailResult> {
   try {
     const built = await buildRefundEmailContext({
@@ -494,7 +496,10 @@ export async function sendRefundBusinessNotification(input: {
       return { ok: false, status: built.status, error: built.error };
     }
 
-    if (String(built.metadata.business_email_status ?? "") === "sent") {
+    if (
+      !input.forceResend &&
+      String(built.metadata.business_email_status ?? "") === "sent"
+    ) {
       return { ok: true, status: "skipped", error: "Already sent." };
     }
 

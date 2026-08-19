@@ -271,7 +271,7 @@ describe("Phase 6 UX closeout — appointment vs payment status", () => {
     );
     expect(view).toContain("appointmentStatus");
     expect(view).toContain("paymentStatusLabel");
-    expect(view).toContain("Paid in full");
+    expect(view).toContain("remainingCents");
     const sheet = readFileSync(
       join(root, "components/booking-sheet/booking-sheet.tsx"),
       "utf8",

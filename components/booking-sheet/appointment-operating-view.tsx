@@ -20,6 +20,8 @@ export type AppointmentOperatingViewProps = {
   remainingCents: number;
   remainingLabel: string;
   paymentStatusLabel: string;
+  refundedLabel?: string | null;
+  netRetainedLabel?: string | null;
   invoiceNumber?: string | null;
   currency?: string | null;
 };
@@ -44,10 +46,11 @@ export function AppointmentOperatingView({
   remainingCents,
   remainingLabel,
   paymentStatusLabel,
+  refundedLabel,
+  netRetainedLabel,
   invoiceNumber,
 }: AppointmentOperatingViewProps) {
   const appointmentStatus = APPOINTMENT_STATUS_LABELS[status] ?? status;
-  const paidInFull = remainingCents <= 0;
 
   return (
     <section
@@ -121,10 +124,25 @@ export function AppointmentOperatingView({
           <dt className="text-muted-foreground">Amount paid</dt>
           <dd className="tabular-nums">{amountPaidLabel}</dd>
         </div>
+        {refundedLabel ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">Refunded</dt>
+            <dd className="tabular-nums">{refundedLabel}</dd>
+          </div>
+        ) : null}
+        {netRetainedLabel ? (
+          <div className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">Net retained</dt>
+            <dd className="tabular-nums">{netRetainedLabel}</dd>
+          </div>
+        ) : null}
         <div className="flex justify-between gap-3">
           <dt className="text-muted-foreground">Remaining</dt>
-          <dd className="font-medium tabular-nums">
-            {paidInFull ? "Paid in full" : remainingLabel}
+          <dd
+            className="font-medium tabular-nums"
+            data-amount-due={remainingCents}
+          >
+            {remainingLabel}
           </dd>
         </div>
         <div className="flex justify-between gap-3">

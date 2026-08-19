@@ -747,6 +747,10 @@ export function DayAgendaList({
             const paymentLabel = paymentCollectionLabel({
               status: appt.status,
               paymentStatus: appt.payment_status,
+              price_cents: appt.price_cents,
+              tax_cents: appt.tax_cents,
+              amount_paid_cents: appt.amount_paid_cents,
+              amount_refunded_cents: appt.amount_refunded_cents,
             });
             const paymentDue =
               paymentLabel === "Payment due" || paymentLabel === "Balance due";
