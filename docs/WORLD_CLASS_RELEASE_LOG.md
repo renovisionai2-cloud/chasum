@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-18 | **Chapter 6 Phase 6.2B — PO closeout** | `cb0a809` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business refund notification; structured reasons; staff no customer greeting; Subtotal copy; stacked email rows; package catalog forensic; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — forensic closeout** | `5d30df8` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | CAD new-money path; booked-month includes future; gross cash after partial refund; voluntary refund no new debt; staff Deposit method; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — document integrity + lifecycle** | `8f21f77` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Numbering CAS/max+1; payment↔receipt and appointment↔invoice identity; refund presentation; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2A PO acceptance lock** | `fa0c8e1` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.1 = PO ACCEPTED; 6.2A = PO ACCEPTED (RCT-0006 E2E); 6.2B followed; 6.3 = NOT STARTED |
@@ -66,6 +67,29 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2B — PO closeout quality report
+
+| Check | Result |
+|-------|--------|
+| Title | Operational refund notification + email polish |
+| Feature | `cb0a809` |
+| Business refund email | `commerce.refund.business`; recipient follows notification_email then business email |
+| Customer refund email | Preserved; failure does not roll back refund |
+| Delivery truth | Sent only from recorded `notification_logs` / delivery-truth helper |
+| Duplicate business email | Skipped when `metadata.business_email_status === "sent"` |
+| Refund reason | Structured UI → existing `reason` text; historical rows unchanged |
+| Staff email | No customer greeting; Customer is a labeled field; Deposit method |
+| Customer terminology | Subtotal, not Catalog subtotal |
+| Mobile email | Stacked label/value; full-width CTA |
+| Package catalog | Counts `service_packages`; Ultimate 2 Visit Package is a **service**; no entitlement |
+| Reports fixture | Booked 4 · recognized $991 · tax $128.83 · gross $1,119.83 · deposits $200 · refunds $75 |
+| Historical USD rewritten | **No** |
+| Migrations | **None** |
+| Unique appointment/transaction | **Not applied** — PO decision |
+| Stripe Elements | **Not implemented** |
+| Phase 6.3 | **NOT STARTED** |
+| PO review | **NOT YET** |
 
 ## Chapter 6 Phase 6.2B — forensic closeout quality report
 

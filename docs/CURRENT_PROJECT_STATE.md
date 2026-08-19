@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-18  
-**Updated by:** World Class — Chapter 6 Phase 6.2B forensic closeout  
+**Updated by:** World Class — Chapter 6 Phase 6.2B PO closeout  
 
 ---
 
@@ -121,7 +121,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented (integrity + forensic closeout) — not PO-accepted.** **Phase 6.3 = NOT STARTED.** Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B implemented (PO closeout) — not PO-accepted.** **Phase 6.3 = NOT STARTED.** Chapter 7 not started. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -159,6 +159,19 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-18)
+
+**World Class — Chapter 6 Phase 6.2B PO closeout**
+
+- Business refund notification (`commerce.refund.business`) after every succeeded refund. Recipient follows `notification_email` then business `email`. Default-on when operational notifications are enabled.
+- Customer refund confirmation preserved. Email failure does not roll back the refund. Duplicate business refund emails for the same refund row are skipped.
+- Appointment communications show business/customer refund delivery truth.
+- Structured refund reasons in the refund sheet, stored in the existing `reason` text field. Historical rows unchanged.
+- Staff booking email no longer greets the customer. Customer emails say Subtotal, not Catalog subtotal. Narrow email rows stack label above value.
+- Package catalog forensic: Ultimate 2 Visit Package is a **service**; Reports Package catalog counts `service_packages` (0 can be correct); no multi-visit entitlement today.
+- Proven GVM money/reporting behavior is unchanged. Historical USD is unchanged. No migrations.
+- Phase 6.2A remains **PO ACCEPTED**. Phase 6.2B PO acceptance = **NOT YET**. Phase 6.3 = **NOT STARTED**.
+
+### Immediately prior (2026-08-18)
 
 **World Class — Chapter 6 Phase 6.2B forensic closeout**
 
@@ -690,9 +703,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `5d30df8` (feature) / stamp pending this commit |
-| **Short** | `5d30df8` |
-| **Subject** | fix: close Phase 6.2B integrity gaps without schema changes |
+| **SHA** | `cb0a809` (feature) / stamp pending this commit |
+| **Short** | `cb0a809` |
+| **Subject** | fix: notify the business of refunds and polish operational email copy |
+| **Chapter 6 Phase 6.2B PO closeout** | `cb0a809` |
 | **Chapter 6 Phase 6.2B closeout** | `5d30df8` |
 | **Chapter 6 Phase 6.2B identity** | `8f21f77` |
 | **Chapter 6 Phase 6.2A PO acceptance** | `fa0c8e1` · feature `c65bd44` |
@@ -748,7 +762,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO hands-on review of Chapter 6 Phase 6.2B** (document integrity + forensic closeout). Decide whether to approve the proposed unique indexes / atomic invoice-number RPC. Historical USD deposit rows (RCT-0003 / RCT-0005) remain until PO says otherwise. Do **not** start Phase 6.3.
+1. **PO hands-on review of Chapter 6 Phase 6.2B** (business refund notification, structured reasons, email copy, package-catalog forensic). Decide whether to approve the proposed unique indexes / atomic invoice-number RPC. Historical USD deposit rows remain until PO says otherwise. Do **not** start Phase 6.3.
 2. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 3. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 4. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.

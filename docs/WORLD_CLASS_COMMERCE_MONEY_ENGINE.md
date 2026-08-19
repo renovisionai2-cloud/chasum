@@ -2,7 +2,7 @@
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
 **Phase:** **6.2B — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B implemented — **not PO-accepted**; 6.3 = **NOT STARTED**; 6.0B PO-accepted)  
-**Feature 6.2B:** `8f21f77`  
+**Feature 6.2B:** `cb0a809` (PO closeout) · forensic `5d30df8` · identity `8f21f77`  
 **Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44` · **PO accepted** `fa0c8e1` (Preview E2E; RCT-0006)  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
@@ -124,7 +124,7 @@ Line presentation: display exclusive service amount (`$220.00`) when tax is item
 
 **Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
 
-**Phase 6.2B implemented (integrity + forensic closeout) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
+**Phase 6.2B implemented (PO closeout) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
 
@@ -218,9 +218,45 @@ Arithmetic remaining (`total − net paid`) is audit-only. Charging the customer
 | Recognized appointment value | Unchanged rule: completed visit **or** collected stamp. Month/YTD **windows** include future starts in the selected year/month so prepaid future visits are not dropped. |
 | New customers this month | `created_at` monthStart → now (cannot create customers in the future) |
 
+### 6.2B PO closeout — business refund notification + email polish (`cb0a809`)
+
+Hands-on Preview proved the **customer** refund confirmation. The business did **not** receive a refund notification after Chase’s $50 refund. This closeout adds that operational path without changing money math.
+
+| Concept | Rule |
+|---------|------|
+| Customer refund email | Preserved (`commerce.refund`). Failure does not roll back the refund. |
+| Business refund email | `commerce.refund.business` after every succeeded refund. Recipient = `notification_email` then business `email`. Default-on when `owner_notifications_enabled !== false` and `email_notifications_enabled !== false`. |
+| Delivery truth | UI Sent only when `notification_logs` records `sent`/`delivered` (or equivalent recorded status). Never claim Sent from queued/failed. |
+| Idempotency | Same refund row does not send a second business email (`metadata.business_email_status === "sent"`). |
+| Communications | Appointment read-first workspace shows customer + business refund delivery truth. Retry is allowed only after failure. |
+| Refund reason | Structured UI codes mapped into existing `commerce_refunds.reason` text. Other requires a meaningful explanation. Historical rows are not rewritten. |
+| Staff booking email | Greets the assigned employee. Customer is a labeled field — never a second `Hi <customer>`. Deposit method unchanged. |
+| Customer terminology | Customer/business booking emails say **Subtotal**, not Catalog subtotal. Values unchanged. |
+| Mobile email | Label stacks above value; CTA is full-width. Not a visual redesign. |
+
+### Package catalog forensic (do not build lifecycle)
+
+GVM booked **Ultimate 2 Visit Package**. Reports → Services **Package catalog = 0**.
+
+| Question | Finding |
+|----------|---------|
+| What is Ultimate 2 Visit Package stored as? | A **normal `services` row** whose name contains “Package”. Not a `service_packages` catalog entity for this booking. |
+| What does Package catalog count? | Active `service_packages` products (`count(*)` where `is_active`). |
+| Is 0 technically correct? | **Yes**, when the business has no active `service_packages` rows. |
+| Operator copy | StatCard now explains it counts configured package products, not services named Package. |
+| Multi-visit entitlement? | **None today.** `createBooking` may append `Package: name (id)` to appointment **notes** only. No visit tracking / remaining visits. |
+
+Package entitlement / lifecycle is a later World Class phase. Do **not** invent it here.
+
+### Print / invoice-receipt visual redesign
+
+Verified only: one-page print where content fits, `break-words`, refund activity visible, CAD remains CAD, historical USD remains USD. Deeper invoice/receipt visual redesign is World Class backlog — not this task.
+
 ### PO policy still required (database)
 
 True one-invoice-per-appointment and one-receipt-per-payment uniqueness still need PO-approved unique indexes + atomic sequence RPC. Do **not** apply with 034 / 035 / 036.
+
+Historical USD rows (example older $50 deposits) remain honestly labeled. Database cleanup is a separate explicit PO decision. Do **not** rewrite or relabel USD as CAD.
 
 ## Phase 6.1A lock — Integrity + staff-facing labels
 
@@ -515,21 +551,23 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
 | **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **PO ACCEPTED** (Preview E2E; RCT-0006) |
-| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`8f21f77`) |
+| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`cb0a809`) |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-**Phase 6.2B implemented (integrity + forensic closeout) — PO acceptance = NOT YET** (`5d30df8`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
+**Phase 6.2B implemented (PO closeout) — PO acceptance = NOT YET** (`cb0a809`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
 
 ---
 
 ## Packages + gift cards
 
-Do not productize package purchases in 6.0. Do not turn gift certificates into a larger sales subsystem.
+Do not productize package purchases in 6.0 / 6.2B. Do not turn gift certificates into a larger sales subsystem.
+
+**Forensic (GVM, 6.2B PO closeout):** “Ultimate 2 Visit Package” is a **service name**, not a live `service_packages` catalog row for that booking. Reports **Package catalog** counts active `service_packages` products, so **0 can be technically correct**. Booking does **not** grant multi-visit entitlement today (notes annotation only). Package lifecycle is a later World Class phase.
 
 Preserved: package booking price behavior, gift-card issue/redeem, gift-card tender, store credit.
 
-Partial productization remains documented — not a 6.0 product expansion.
+Partial productization remains documented — not a 6.0 / 6.2B product expansion.
 
 ---
 
@@ -553,7 +591,8 @@ Partial productization remains documented — not a 6.0 product expansion.
 | Reception today vs planning date clarity | **Final polish** — Operating Centre = today; Week/Month may plan ahead |
 | Multi-location staff eligibility in availability RPC | **Documented** — UI filters `staff_locations` when loaded; RPC still primary `staff.location_id`. No schema change in 6.2A UX closeout |
 | Normal Cancel is not a test-data purge | Documented — no automated cleanup on shared Supabase |
-| Stripe Elements / public online pay | Phase 6.4, PO-gated |
+| Package catalog vs service named Package | **6.2B forensic:** count is `service_packages`; services named Package are services. No entitlement. Later phase. |
+| Business refund notification | **Shipped in 6.2B PO closeout** (`cb0a809`) — customer confirmation preserved |
 | Staff payment RBAC | Future explicit decision |
 | SaaS `billing_invoices` | Out of this contract |
 
