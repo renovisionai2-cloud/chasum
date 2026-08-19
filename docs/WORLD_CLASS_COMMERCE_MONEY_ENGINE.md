@@ -1,7 +1,8 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.2B — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B = **PO ACCEPTED**; 6.3 = **NOT STARTED**; 6.0B PO-accepted)  
+**Phase:** **6.2B — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B = **PO ACCEPTED**; **6.3 discovery complete / implementation NOT STARTED**; 6.0B PO-accepted)  
+**6.3 discovery:** [`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md) — forensic audit only; no product code  
 **Feature 6.2B:** **PO accepted** after hands-on Preview · historical comms `0a5001c` · first-send copy `bb655e5` · collectibility `022837f` · PO closeout `cb0a809` · forensic `5d30df8` · identity `8f21f77`  
 **Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44` · **PO accepted** `fa0c8e1` (Preview E2E; RCT-0006)  
 **Feature 6.1E:** `f7c7fa1`  
@@ -74,7 +75,7 @@ Calendar: optimistic cancel + cancelled-ID override so Day/Week/Month/Agenda/Tim
 | Phase 6.1 | **PO ACCEPTED** |
 | Phase 6.2A | **PO ACCEPTED** |
 | Phase 6.2B | **PO ACCEPTED** |
-| Phase 6.3 | **NOT STARTED** |
+| Phase 6.3 | **Discovery complete / implementation NOT STARTED** |
 
 ## Phase 6.2A lock — Invoice & Receipt Workspace
 
@@ -124,7 +125,7 @@ Line presentation: display exclusive service amount (`$220.00`) when tax is item
 
 **Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
 
-**Phase 6.2B = PO ACCEPTED** after hands-on Vercel Preview testing (Chase $337.87 / $50 refund / collectible $0; Sum historical Not recorded → Sent). **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
+**Phase 6.2B = PO ACCEPTED** after hands-on Vercel Preview testing (Chase $337.87 / $50 refund / collectible $0; Sum historical Not recorded → Sent). **Phase 6.3 discovery complete** ([`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md)); **implementation NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
 
@@ -147,7 +148,7 @@ Booking / payment UX closeout (2026-08-18) does **not** change this money contra
 | Product code changed in this stamp | **No** |
 | Production | Untouched (`4eecbec`) |
 | Phase 6.2B | **PO ACCEPTED** |
-| Phase 6.3 | **NOT STARTED** |
+| Phase 6.3 | **Discovery complete / implementation NOT STARTED** |
 
 ### Accepted communications delivery-truth vocabulary
 
@@ -603,10 +604,10 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
 | **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **PO ACCEPTED** (Preview E2E; RCT-0006) |
 | **6.2B** | Commerce document integrity + lifecycle hardening | **PO ACCEPTED** (`5f055cf` / `0a5001c`) |
-| 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
+| 6.3 | Outstanding Balances, Collection Follow-up & Money Follow-up Truth | **Discovery complete** ([`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md)). **Implementation NOT STARTED.** Not PO-accepted. |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-**Phase 6.2B = PO ACCEPTED** after hands-on Preview (`5f055cf`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A / 6.2B money, booking, or communications contracts.
+**Phase 6.2B = PO ACCEPTED** after hands-on Preview (`5f055cf`). Phase 6.3 **discovery** is recorded; do **not** start Phase 6.3 **implementation** until PO accepts the discovery scope and required policy decisions. Do **not** start Phase 6.4 or Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A / 6.2B money, booking, or communications contracts.
 
 ---
 

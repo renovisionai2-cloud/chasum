@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** Phase 6.3 not started.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** Phase 6.3 **discovery complete / implementation NOT STARTED.**
 
 ---
 
@@ -388,7 +388,7 @@
 | Tests | `tests/unit/commerce/phase-6-2b-integrity.test.ts` + `phase-6-2b-closeout.test.ts` + `phase-6-2b-po-closeout.test.ts` + `phase-6-2b-po-final-correction.test.ts` + `tests/unit/notifications/phase-6-2b-historical-comms-truth.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** (proposed unique indexes + allocate RPC documented only) |
-| Status | **PO ACCEPTED** after hands-on Preview (Chase $337.87 / $50 refund collectible $0; Sum historical Not recorded → Sent). Phase 6.3 = NOT STARTED. |
+| Status | **PO ACCEPTED** after hands-on Preview (Chase $337.87 / $50 refund collectible $0; Sum historical Not recorded → Sent). Phase 6.3 discovery = [`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md). Phase 6.3 implementation = NOT STARTED. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.2A)
 
@@ -403,7 +403,7 @@
 | Tests | `tests/unit/commerce/phase-6-2a-documents.test.ts` + `phase-6-2a-closeout.test.ts` + `tests/unit/booking/phase-6-booking-ux-closeout.test.ts` |
 | Stripe Elements | **Not implemented** |
 | Migrations | **None** |
-| Status | **PO ACCEPTED** after hands-on Preview E2E (RCT-0006). Phase 6.2B = **PO ACCEPTED**. Phase 6.3 = NOT STARTED. |
+| Status | **PO ACCEPTED** after hands-on Preview E2E (RCT-0006). Phase 6.2B = **PO ACCEPTED**. Phase 6.3 discovery complete / implementation NOT STARTED. |
 
 ## Chapter 6 — Sales, Payments, Invoices & Receipts (Phase 6.1)
 

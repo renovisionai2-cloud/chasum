@@ -281,7 +281,7 @@ Formal program after functional World Class chapters. See section above.
 - No shared database writes  
 - **Chapter 4 PO-accepted** — Booking Workspace architecture and core interaction flow PO-accepted on Preview after hands-on testing (`4da237c`). Customer Workspace + Adaptive Booking + expandable management + micro-interaction + slot density + progress/Book another + Front-Desk Speed + decision provenance / required-sequence included.
 - Remaining Chapter 4 visual refinements are **preserved here** and are **not** reasons to reopen Chapter 4 architecture: motion polish · typography · spacing · stronger information hierarchy · action styling consistency · appointment-management visual refinement · final micro-interactions
-- **Chapter 6 Phase 6.2B = PO ACCEPTED** after hands-on Preview (`5f055cf` / `0a5001c`). Unique appointment/transaction indexes remain PO/database decisions. Historical USD cleanup remains a PO decision. Package entitlement is not built. Do not start Phase 6.3.
+- **Chapter 6 Phase 6.2B = PO ACCEPTED** after hands-on Preview (`5f055cf` / `0a5001c`). Unique appointment/transaction indexes remain PO/database decisions. Historical USD cleanup remains a PO decision. Package entitlement is not built. Phase 6.3 **discovery** is in [`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`](./WORLD_CLASS_PHASE_6_3_DISCOVERY.md); **do not start Phase 6.3 implementation** until PO accepts that scope.
 - **Chapter 6 Phase 6.2A = PO ACCEPTED** after hands-on Preview E2E (RCT-0006). Do not reopen 6.2A money or booking contracts.
 - **Chapter 6 Phase 6.1 PO-accepted.** Do not reopen 6.1 money contract.
 - **Chapter 6 Phase 6.1B implemented — awaiting PO hands-on review.** Phase 6.1 is **not** PO-accepted. Do not start Phase 6.2.
@@ -325,6 +325,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 
 | Date | Change |
 |------|--------|
+| 2026-08-18 | Chapter 6 Phase 6.3 **discovery** recorded (`WORLD_CLASS_PHASE_6_3_DISCOVERY.md`). Implementation NOT STARTED. 6.2B contract intact. DB/Production impact none. |
 | 2026-08-18 | Chapter 6 Phase 6.2B **PO ACCEPTED** after hands-on Preview (Chase money/refund + Sum historical recovery). Phase 6.3 NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.2B historical communications truth (`0a5001c`). Missing booking logs are Not recorded, not Not applicable/Skipped. Included in 6.2B PO acceptance. Phase 6.3 NOT STARTED. |
 | 2026-08-18 | Chapter 6 Phase 6.2B first-send copy (`bb655e5`). First send “sent.” vs resend “resent.”; failures do not claim success. 6.2B not PO-accepted. Phase 6.3 NOT STARTED. |
