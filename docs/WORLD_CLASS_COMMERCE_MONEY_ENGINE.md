@@ -1,8 +1,8 @@
 # World Class — Commerce Money Engine
 
 **Chapter:** 6 — Sales, Payments, Invoices & Receipts  
-**Phase:** **6.2B — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B implemented — **not PO-accepted**; 6.3 = **NOT STARTED**; 6.0B PO-accepted)  
-**Feature 6.2B:** `cb0a809` (PO closeout) · forensic `5d30df8` · identity `8f21f77`  
+**Phase:** **6.2B — Commerce document integrity + lifecycle hardening** (6.1 = **PO ACCEPTED**; 6.2A = **PO ACCEPTED**; 6.2B = **PO ACCEPTED**; 6.3 = **NOT STARTED**; 6.0B PO-accepted)  
+**Feature 6.2B:** **PO accepted** after hands-on Preview · historical comms `0a5001c` · first-send copy `bb655e5` · collectibility `022837f` · PO closeout `cb0a809` · forensic `5d30df8` · identity `8f21f77`  
 **Feature 6.2A:** `6a25f96` · closeout `3e7e3d3` · UX closeout `c65bd44` · **PO accepted** `fa0c8e1` (Preview E2E; RCT-0006)  
 **Feature 6.1E:** `f7c7fa1`  
 **Feature 6.1D:** `28b7bf6`  
@@ -73,7 +73,7 @@ Calendar: optimistic cancel + cancelled-ID override so Day/Week/Month/Agenda/Tim
 | Production | Untouched (`4eecbec`) |
 | Phase 6.1 | **PO ACCEPTED** |
 | Phase 6.2A | **PO ACCEPTED** |
-| Phase 6.2B | **STARTING** |
+| Phase 6.2B | **PO ACCEPTED** |
 | Phase 6.3 | **NOT STARTED** |
 
 ## Phase 6.2A lock — Invoice & Receipt Workspace
@@ -124,9 +124,52 @@ Line presentation: display exclusive service amount (`$220.00`) when tax is item
 
 **Phase 6.2A = PO ACCEPTED** after hands-on Vercel Preview end-to-end booking/payment testing with a new GVM customer (Elite Package $236.00 + HST $30.68 = $266.68; deposit $50.00; remaining $216.68; receipt **RCT-0006**; View Appointment read-first; one-location flow skipped Location; Booked ≠ Completed; Paid in full ≠ Completed). Historical INV-0033 / RCT-0001 / RCT-0002 / RCT-0006 must not be rewritten.
 
-**Phase 6.2B implemented (historical communications truth) — PO acceptance = NOT YET.** **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
+**Phase 6.2B = PO ACCEPTED** after hands-on Vercel Preview testing (Chase $337.87 / $50 refund / collectible $0; Sum historical Not recorded → Sent). **Phase 6.3 = NOT STARTED.** Phase 6.4 not started.
 
 Booking / payment UX closeout (2026-08-18) does **not** change this money contract. View Appointment, success hierarchy, and location sequencing are presentation/workflow only.
+
+## Phase 6.2B PO acceptance lock
+
+| Check | Result |
+|-------|--------|
+| PO hands-on Preview | **Accepted** |
+| Acceptance language | Chapter 6 Phase 6.2B — Commerce document integrity + lifecycle hardening — PO accepted after hands-on Preview testing. |
+| Feature tip before stamp | `5f055cf` |
+| Chase money | Total $337.87 · gross paid $337.87 · refund $50 · net retained $287.87 · collectible remaining $0 |
+| Appointment state | Partially refunded. Paid in full CTA because no collectible debt remains |
+| Collectibility | Voluntary refund does **not** reopen customer debt. Operating remaining / outstanding = `max(0, total − gross paid)`. Arithmetic remaining (`total − net paid`) is audit-only |
+| Reports / Payments | Refunded $50 is not collectible. Gross cash still includes original partially refunded payments. Refunds remain separate from gross |
+| Currency | CAD on corrected new flows. Historical USD untouched. Historical refund reason `na` untouched |
+| Chase communications | Customer confirmation Sent · business confirmation Sent · payment receipt Sent · staff Sent · customer refund Sent. Historical business refund: Not requested → explicit first send → Sent / Resend. GVM received the email |
+| Sum historical recovery | Elite Package `ac96f967` / RCT-0004. Missing customer/business/staff logs shown as **Not recorded**. PO sent all three; inboxes received them; Sent / Resend; “Accepted by email provider”. Refund channels **Not applicable**. SMS **Not configured**. Load never auto-sends |
+| Reporting / calendar | August booked 4 · recognized $991. Future-this-month included. Day/Week/Month sync already accepted. Cancelled non-collectible. No auto-refund on cancel. No-show collectibility unchanged pending future PO policy |
+| Communications contract | See locked vocabulary below |
+| Product code changed in this stamp | **No** |
+| Production | Untouched (`4eecbec`) |
+| Phase 6.2B | **PO ACCEPTED** |
+| Phase 6.3 | **NOT STARTED** |
+
+### Accepted communications delivery-truth vocabulary
+
+| Status | Meaning |
+|--------|---------|
+| Sent / Delivered | Recorded delivery truth only |
+| Queued / Pending | Only when an actual corresponding delivery record supports it |
+| Failed | Actual failed delivery |
+| Skipped | Recorded policy/workflow skip only |
+| Not configured | Channel/config unavailable |
+| Not enabled | Disabled by settings |
+| Not included in plan | Entitlement unavailable |
+| No recipient | Applicable event but no usable recipient |
+| Not requested | Applicable event exists but send not yet requested, where appropriate |
+| Not recorded | Channel applies, valid recipient exists, no delivery record |
+| Not applicable | Underlying event does not exist |
+
+First send is semantically different from Resend. Render/load never auto-sends. Failed actions never claim Sent or Resent.
+
+### Accepted first-send vs resend
+
+Explicit first send is available when the channel applies and no successful delivery is recorded. After Sent, the action is Resend. Duplicate automatic send remains skipped. Success copy is “sent.” vs “resent.” from prior delivery truth.
 
 ## Phase 6.2B lock — Document integrity + lifecycle hardening
 
@@ -559,11 +602,11 @@ Existing customer-money commerce migrations **028 / 030 / 031** are already appl
 | **6.0B** | Cross-View Calendar Sync + Transaction-Linked Refund + Email | **PO-accepted** after hands-on Preview testing |
 | **6.1** | Front-Desk Payments Operating Surface | **PO-accepted** |
 | **6.2A** | Invoice & Receipt Workspace Foundation + booking/payment UX closeout | **PO ACCEPTED** (Preview E2E; RCT-0006) |
-| **6.2B** | Commerce document integrity + lifecycle hardening | **Implemented — not PO-accepted** (`0a5001c`) |
+| **6.2B** | Commerce document integrity + lifecycle hardening | **PO ACCEPTED** (`5f055cf` / `0a5001c`) |
 | 6.3 | Refunds, Outstanding Balances & Follow-up Truth | **NOT STARTED** |
 | 6.4 | Online Payment Completion | **Not started** — requires explicit future PO authorization |
 
-**Phase 6.2B implemented (historical communications truth) — PO acceptance = NOT YET** (`0a5001c`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A money or booking contracts.
+**Phase 6.2B = PO ACCEPTED** after hands-on Preview (`5f055cf`). Do **not** start Phase 6.3. Do **not** start Chapter 7. Do **not** reopen Phase 6.0B / 6.1 / 6.2A / 6.2B money, booking, or communications contracts.
 
 ---
 

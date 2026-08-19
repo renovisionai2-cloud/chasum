@@ -12,7 +12,8 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-18 | **Chapter 6 Phase 6.2B — historical communications truth** | `0a5001c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Missing booking logs are Not recorded, not Not applicable/Skipped; explicit first send; 6.2B not PO-accepted; 6.3 not started |
+| 2026-08-18 | **Chapter 6 Phase 6.2B PO acceptance lock** | stamp pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 6.2B = PO ACCEPTED after hands-on Preview (Chase money/refund + Sum historical recovery); 6.3 = NOT STARTED |
+| 2026-08-18 | **Chapter 6 Phase 6.2B — historical communications truth** | `0a5001c` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Missing booking logs are Not recorded, not Not applicable/Skipped; explicit first send; included in 6.2B PO acceptance |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — first-send copy** | `bb655e5` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | First send “sent.” vs explicit resend “resent.”; failures do not claim success; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — final PO correction** | `022837f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Collectible remaining on appointment drawer/balance/attention; first-send business refund notification; 6.2B not PO-accepted; 6.3 not started |
 | 2026-08-18 | **Chapter 6 Phase 6.2B — PO closeout** | `cb0a809` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business refund notification; structured reasons; staff no customer greeting; Subtotal copy; stacked email rows; package catalog forensic; 6.2B not PO-accepted; 6.3 not started |
@@ -70,6 +71,29 @@
 | 2026-08-07 | **Existing Appointment expandable workspace** | `c2f8962` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | PO video: expand management; multi-column; New Appointment protected |
 
 ---
+
+## Chapter 6 Phase 6.2B — PO acceptance lock
+
+| Check | Result |
+|-------|--------|
+| PO hands-on Preview | **Accepted** |
+| Acceptance language | Chapter 6 Phase 6.2B — Commerce document integrity + lifecycle hardening — PO accepted after hands-on Preview testing. |
+| Feature tip before stamp | `5f055cf` · historical comms `0a5001c` · first-send copy `bb655e5` · collectibility `022837f` · PO closeout `cb0a809` · forensic `5d30df8` · identity `8f21f77` |
+| Chase money | Total $337.87 · gross paid $337.87 · refund $50 · net retained $287.87 · collectible $0 · Partially refunded · Paid in full CTA |
+| Collectibility | Voluntary refund does not reopen customer debt. Operating remaining = `max(0, total − gross paid)` |
+| Currency | CAD on corrected new flows. Historical USD untouched. Historical reason `na` untouched |
+| Chase communications | Customer/business/staff booking + receipt Sent. Customer refund Sent. Business refund first-send then Sent / Resend. GVM received the business refund email |
+| Sum historical recovery | `ac96f967` Elite Package / RCT-0004. Missing booking emails Not recorded. PO sent customer, business, and staff; all three arrived; Sent / Resend. Refund channels Not applicable. SMS Not configured |
+| Reporting | August booked 4 · recognized $991. Gross cash includes partially refunded originals. Refunds separate from gross. Future-this-month included |
+| Calendar | Day / Week / Month sync already accepted. Cancelled non-collectible. No auto-refund on cancel |
+| Communications contract | Sent/Delivered from delivery truth only. Not recorded ≠ Not applicable. First send ≠ Resend. Load never auto-sends. Failed never claims success |
+| Product code changed in this stamp | **No** |
+| DB / schema / migrations | None. 034 / 035 / 036 remain unapplied |
+| Production | Untouched (`4eecbec`) |
+| Phase 6.2B | **PO ACCEPTED** |
+| Phase 6.3 | **NOT STARTED** |
+
+Deferred (still visible, not started): unique `commerce_invoices(appointment_id)`; unique `commerce_receipts(transaction_id)`; atomic invoice/receipt sequencing; historical USD cleanup; invoice/receipt visual redesign; package catalog / multi-visit entitlement; no-show collectibility policy; cancellation → invoice policy; public online payment / Stripe; staff payment RBAC; receipt numbering race.
 
 ## Chapter 6 Phase 6.2B — historical communications truth quality report
 
