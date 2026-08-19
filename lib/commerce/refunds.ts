@@ -2,6 +2,7 @@ import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapRefund, mapTransaction } from "@/lib/commerce/mappers";
 import { appointmentMoneyFromStamps } from "@/lib/commerce/money-contract";
 import { resolvePaymentProvider } from "@/lib/commerce/providers";
+import { validateStoredRefundReason } from "@/lib/commerce/refund-reason";
 import type { CommerceRefund, PaymentMethod } from "@/lib/commerce/types";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
@@ -22,13 +23,16 @@ export async function processCommerceRefund(
   error?: string;
   refund?: CommerceRefund;
   emailStatus?: import("@/lib/commerce/refund-email").RefundEmailStatus;
+  businessEmailStatus?: import("@/lib/commerce/refund-email").RefundEmailStatus;
 }> {
   if (input.amountCents <= 0) {
     return { ok: false, error: "Refund amount must be greater than zero." };
   }
-  if (!input.reason.trim()) {
-    return { ok: false, error: "Refund reason is required." };
+  const reasonCheck = validateStoredRefundReason(input.reason);
+  if (!reasonCheck.ok) {
+    return { ok: false, error: reasonCheck.error };
   }
+  const reason = reasonCheck.reason;
 
   const supabase = await createClient();
   const { data: txRow, error: txErr } = await supabase
@@ -95,7 +99,7 @@ export async function processCommerceRefund(
         currency: tx.currency,
         providerReference: tx.providerReference,
         providerPaymentIntentId: tx.providerPaymentIntentId,
-        reason: input.reason,
+        reason,
       });
       if (!result.ok) {
         // Fall back to manual ledger refund when Stripe not configured
@@ -105,7 +109,7 @@ export async function processCommerceRefund(
             currency: tx.currency,
             providerReference: tx.providerReference,
             providerPaymentIntentId: tx.providerPaymentIntentId,
-            reason: input.reason,
+            reason,
           });
           providerRef = manual.providerReference;
         } else {
@@ -120,7 +124,7 @@ export async function processCommerceRefund(
         currency: tx.currency,
         providerReference: tx.providerReference,
         providerPaymentIntentId: tx.providerPaymentIntentId,
-        reason: input.reason,
+        reason,
       });
       if (!result.ok) {
         return { ok: false, error: result.message ?? "Refund failed." };
@@ -139,7 +143,7 @@ export async function processCommerceRefund(
       appointment_id: tx.appointmentId,
       amount_cents: input.amountCents,
       currency: tx.currency,
-      reason: input.reason.trim(),
+      reason,
       refund_type: refundType,
       approval_status: approval,
       approved_by: approval === "approved" ? input.actorId ?? null : null,
@@ -186,8 +190,7 @@ export async function processCommerceRefund(
       currency: tx.currency,
       provider: tx.provider,
       provider_reference: providerRef,
-      description: input.reason.trim()
-        ? `Reason: ${input.reason.trim()}`
+      description: reason ? `Reason: ${reason}`
         : "Refund",
       created_by: input.actorId ?? null,
     });
@@ -257,8 +260,7 @@ export async function processCommerceRefund(
       currency: tx.currency,
       status: "refunded",
       method: tx.method,
-      description: input.reason.trim()
-        ? `Reason: ${input.reason.trim()}`
+      description: reason ? `Reason: ${reason}`
         : "Refund",
       provider: tx.provider,
       provider_reference: providerRef,
@@ -271,15 +273,17 @@ export async function processCommerceRefund(
     action: "refund.processed",
     entityType: "commerce_refund",
     entityId: String(refundRow.id),
-    summary: `${refundType} refund ${input.amountCents}¢ — ${input.reason}`,
+    summary: `${refundType} refund ${input.amountCents}¢ — ${reason}`,
     afterState: { status, approval },
   });
 
   const refund = mapRefund(refundRow as Record<string, unknown>);
 
-  // Customer refund confirmation — only after financial success.
+  // Customer + business refund notifications — only after financial success.
   // Email failure must never reverse the refund.
   let emailStatus: import("@/lib/commerce/refund-email").RefundEmailStatus =
+    "skipped";
+  let businessEmailStatus: import("@/lib/commerce/refund-email").RefundEmailStatus =
     "skipped";
   if (status === "succeeded") {
     try {
@@ -297,9 +301,24 @@ export async function processCommerceRefund(
       logQueryError("commerce.refund.email.trigger", message);
       emailStatus = "failed";
     }
+    try {
+      const { sendRefundBusinessNotification } = await import(
+        "@/lib/commerce/refund-email"
+      );
+      const notified = await sendRefundBusinessNotification({
+        businessId: input.businessId,
+        refundId: refund.id,
+        actorId: input.actorId,
+      });
+      businessEmailStatus = notified.status;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      logQueryError("commerce.refund.business_email.trigger", message);
+      businessEmailStatus = "failed";
+    }
   }
 
-  return { ok: true, refund, emailStatus };
+  return { ok: true, refund, emailStatus, businessEmailStatus };
 }
 
 export async function listRefunds(input: {

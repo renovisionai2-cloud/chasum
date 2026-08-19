@@ -36,6 +36,8 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
 
   useEffect(() => {
     if (state.notifications) {
+      // Merge retry action results into the loaded channel list.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- action state is an external system
       setItems((prev) => {
         const map = new Map(prev.map((item) => [item.channel, item]));
         for (const item of state.notifications ?? []) {
@@ -46,6 +48,8 @@ export function BookingNotificationStatus({ appointmentId, initial }: Props) {
           "customer_email",
           "business_email",
           "payment_receipt",
+          "customer_refund_email",
+          "business_refund_email",
           "customer_sms",
           "staff_email",
         ] as const;

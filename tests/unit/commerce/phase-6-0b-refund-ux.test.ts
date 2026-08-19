@@ -164,7 +164,7 @@ describe("Phase 6.0B transaction-linked refund", () => {
     expect(helpers).toContain("Appointment cancelled");
     expect(helpers).toContain("sanitizeStaffFacingText");
     const refunds = read("lib/commerce/refunds.ts");
-    expect(refunds).toContain("`Reason: ${input.reason.trim()}`");
+    expect(refunds).toContain("`Reason: ${reason}`");
     expect(refunds).not.toContain("`Refund: ${input.reason.trim()}`");
   });
 

@@ -15,6 +15,7 @@ import {
   queueReceiptEmail,
   recordCommercePayment,
 } from "@/lib/commerce";
+import { composeRefundReason } from "@/lib/commerce/refund-reason";
 import { humanizeRefundError } from "@/lib/commerce/refundability";
 import {
   assertCollectiblePaymentAmount,
@@ -40,6 +41,7 @@ export type CommerceActionState = {
   requiresAction?: boolean;
   /** Phase 6.0B — refund confirmation email outcome (never rolls back refund). */
   emailStatus?: "sent" | "failed" | "unavailable" | "skipped";
+  businessEmailStatus?: "sent" | "failed" | "unavailable" | "skipped";
   receiptStatus?: "sent" | "failed" | "unavailable" | "queued" | "skipped";
   receiptId?: string | null;
   remainingCents?: number;
@@ -314,7 +316,16 @@ export async function refundPaymentAction(
   const transactionId = String(formData.get("transaction_id") ?? "");
   const amountRaw = String(formData.get("amount") ?? "").replace(/[^0-9.]/g, "");
   const amount = Number(amountRaw);
-  const reason = String(formData.get("reason") ?? "").trim();
+  const composed = composeRefundReason({
+    code: String(formData.get("reason_code") ?? ""),
+    detail: String(formData.get("reason_detail") ?? ""),
+  });
+  const reason = composed.ok
+    ? composed.reason
+    : String(formData.get("reason") ?? "").trim();
+  if (!composed.ok && !reason) {
+    return { error: composed.error };
+  }
   const approval = String(formData.get("approval") ?? "approved");
 
   if (!transactionId || Number.isNaN(amount) || amount <= 0) {
@@ -352,6 +363,7 @@ export async function refundPaymentAction(
     result.refund?.currency ?? business.currency ?? "usd",
   );
   const emailStatus = result.emailStatus ?? "skipped";
+  const businessEmailStatus = result.businessEmailStatus ?? "skipped";
   const emailNote =
     emailStatus === "sent"
       ? " Customer confirmation sent."
@@ -360,9 +372,18 @@ export async function refundPaymentAction(
         : emailStatus === "failed"
           ? " Customer email could not be sent."
           : "";
+  const businessNote =
+    businessEmailStatus === "sent"
+      ? " Business notification sent."
+      : businessEmailStatus === "unavailable"
+        ? " Business notification could not be sent (no recipient)."
+        : businessEmailStatus === "failed"
+          ? " Business notification could not be sent."
+          : "";
   return {
-    success: `Refunded ${money}.${emailNote}`,
+    success: `Refunded ${money}.${emailNote}${businessNote}`,
     emailStatus,
+    businessEmailStatus,
   };
 }
 

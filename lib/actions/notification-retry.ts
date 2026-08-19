@@ -84,7 +84,9 @@ export async function retryAppointmentNotification(
     channel !== "customer_email" &&
     channel !== "customer_sms" &&
     channel !== "business_email" &&
-    channel !== "staff_email"
+    channel !== "staff_email" &&
+    channel !== "customer_refund_email" &&
+    channel !== "business_refund_email"
   ) {
     return { error: "Unknown notification channel." };
   }

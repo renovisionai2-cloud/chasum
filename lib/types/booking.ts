@@ -516,7 +516,9 @@ export type BookingNotificationStatusItem = {
     | "customer_sms"
     | "business_email"
     | "staff_email"
-    | "payment_receipt";
+    | "payment_receipt"
+    | "customer_refund_email"
+    | "business_refund_email";
   status:
     | "sent"
     | "pending"

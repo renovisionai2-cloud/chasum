@@ -215,8 +215,8 @@ describe("Phase 6.0B refund confirmation email", () => {
       businessId: "biz",
       refundId: "rf-1",
     });
-    expect(built.ok).toBe(false);
-    if (!built.ok) expect(built.status).toBe("unavailable");
+    expect(built.ok).toBe(true);
+    if (built.ok) expect(built.customerEmail).toBeNull();
 
     const sent = await sendRefundConfirmationEmail({
       businessId: "biz",

@@ -600,6 +600,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
             <StatCard
               title="Package catalog"
               value={String(bundle.services.packageSales)}
+              description="Configured package products. Services named Package are counted as services, not here."
               icon={Package}
             />
             <StatCard

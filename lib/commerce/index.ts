@@ -55,8 +55,15 @@ export { listRefunds, processCommerceRefund } from "@/lib/commerce/refunds";
 export {
   buildRefundEmailContext,
   sendRefundConfirmationEmail,
+  sendRefundBusinessNotification,
 } from "@/lib/commerce/refund-email";
 export type { RefundEmailStatus } from "@/lib/commerce/refund-email";
+
+export {
+  REFUND_REASON_OPTIONS,
+  composeRefundReason,
+  validateStoredRefundReason,
+} from "@/lib/commerce/refund-reason";
 
 export {
   getCustomerCommerceAccount,

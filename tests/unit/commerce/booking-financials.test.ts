@@ -323,7 +323,7 @@ describe("email financial copy — exclusive $700", () => {
     expect(rendered.html).toContain("Contact");
   });
 
-  it("business email shows catalog subtotal and current deposit status", () => {
+  it("business email shows subtotal and current deposit status", () => {
     const rendered = renderEmailTemplate("appointment.business", {
       ...ctx,
       depositDueNowCents: 0,
@@ -333,7 +333,8 @@ describe("email financial copy — exclusive $700", () => {
         chasumBrandingStyle: "product_context",
       },
     });
-    expect(rendered.html).toContain("Catalog subtotal");
+    expect(rendered.html).toContain("Subtotal");
+    expect(rendered.html).not.toContain("Catalog subtotal");
     expect(rendered.html).toContain("$700.00");
     expect(rendered.html).toContain("$91.00");
     expect(rendered.html).toContain("$791.00");

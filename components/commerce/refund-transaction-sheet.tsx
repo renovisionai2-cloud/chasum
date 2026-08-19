@@ -8,6 +8,7 @@ import {
   humanizeRefundError,
   remainingRefundableCents,
 } from "@/lib/commerce/refundability";
+import { REFUND_REASON_OPTIONS } from "@/lib/commerce/refund-reason";
 import {
   centsToDollars,
   PAYMENT_METHOD_LABELS,
@@ -52,6 +53,8 @@ export function RefundTransactionSheet({
   const [appliedResetKey, setAppliedResetKey] = useState(resetKey);
   const [mode, setMode] = useState<"full" | "partial">("full");
   const [amount, setAmount] = useState((remaining / 100).toFixed(2));
+  const [reasonCode, setReasonCode] = useState("");
+  const [reasonDetail, setReasonDetail] = useState("");
   const [state, action, pending] = useActionState(refundPaymentAction, initial);
 
   useFormAction(state as { error?: string; success?: string }, () => {
@@ -62,6 +65,8 @@ export function RefundTransactionSheet({
     setAppliedResetKey(resetKey);
     setMode("full");
     setAmount((remaining / 100).toFixed(2));
+    setReasonCode("");
+    setReasonDetail("");
   }
 
   if (!open) return null;
@@ -204,12 +209,33 @@ export function RefundTransactionSheet({
               <option value="pending">Pending approval</option>
             </select>
 
-            <Input
-              name="reason"
-              placeholder="Reason (required)"
+            <select
+              name="reason_code"
+              className="h-10 w-full rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
               required
               aria-label="Refund reason"
-            />
+              value={reasonCode}
+              onChange={(e) => setReasonCode(e.target.value)}
+            >
+              <option value="">Choose a reason</option>
+              {REFUND_REASON_OPTIONS.map((option) => (
+                <option key={option.code} value={option.code}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+
+            {reasonCode === "other" ? (
+              <textarea
+                name="reason_detail"
+                className="min-h-[72px] w-full rounded-[var(--radius-md)] border border-input bg-background px-3 py-2 text-sm"
+                placeholder="Explain the refund reason"
+                required
+                aria-label="Refund reason detail"
+                value={reasonDetail}
+                onChange={(e) => setReasonDetail(e.target.value)}
+              />
+            ) : null}
 
             <details className="text-xs text-muted-foreground">
               <summary className="cursor-pointer">Technical details</summary>

@@ -134,7 +134,7 @@ function appointmentContactCta(
         Need to change or cancel? Email <strong>${businessName}</strong> — or use Reply in your mail app.
       </p>
       <a href="${escapeHtml(href)}"
-         style="display:inline-block;background:${accent};color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:600;min-height:44px;line-height:20px;text-align:center;">
+         style="${emailCtaStyle(accent)}">
         Email ${businessName}
       </a>
       <p style="margin:12px 0 0;font-size:12px;color:#64748b;word-break:break-all;">
@@ -159,7 +159,7 @@ function contactBlock(
       ? appointmentMailtoHref(email, ctx)
       : `mailto:${email}`;
     lines.push(
-      `<p style="margin:0 0 10px;"><a href="${escapeHtml(href)}" style="display:inline-block;background:${accent};color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-size:14px;font-weight:600;min-height:44px;line-height:20px;">Email ${businessName}</a></p>`,
+      `<p style="margin:0 0 10px;"><a href="${escapeHtml(href)}" style="${emailCtaStyle(accent)}">Email ${businessName}</a></p>`,
     );
   }
   if (phone) {
@@ -248,10 +248,7 @@ function financialBlock(
   const rows: string[] = [];
   if (subtotal != null) {
     rows.push(
-      detailRow(
-        audience === "business" ? "Catalog subtotal" : "Subtotal",
-        money(subtotal),
-      ),
+      detailRow("Subtotal", money(subtotal)),
     );
   }
   if (tax != null && tax > 0) {
@@ -359,19 +356,24 @@ function layout(
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light">
   <title>${escapeHtml(branding.businessName)}</title>
+  <style type="text/css">
+    @media only screen and (max-width: 480px) {
+      .email-pad { padding-left: 16px !important; padding-right: 16px !important; }
+    }
+  </style>
 </head>
 <body style="margin:0;padding:0;background:#f1f5f9;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:32px 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:24px 8px;">
     <tr><td align="center">
       <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
-        <tr><td style="padding:28px 28px 12px;border-top:4px solid ${color};">
+        <tr><td class="email-pad" style="padding:24px 20px 12px;border-top:4px solid ${color};">
           ${headerIdentity(branding, color)}
           ${headline}
         </td></tr>
-        <tr><td style="padding:8px 28px 28px;color:#334155;font-size:15px;line-height:1.55;">
+        <tr><td class="email-pad" style="padding:8px 20px 24px;color:#334155;font-size:15px;line-height:1.55;word-break:break-word;">
           ${content}
         </td></tr>
-        <tr><td style="padding:14px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;line-height:1.5;color:#64748b;">
+        <tr><td class="email-pad" style="padding:14px 20px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;line-height:1.5;color:#64748b;word-break:break-word;">
           ${footerHtml(branding)}
         </td></tr>
       </table>
@@ -400,11 +402,17 @@ function dateTimeBlock(ctx: AppointmentTemplateContext): string {
   return `${escapeHtml(dateLine)}<br/>${escapeHtml(timeLine)}`;
 }
 
+function emailCtaStyle(accent: string): string {
+  return `display:block;width:100%;max-width:100%;box-sizing:border-box;background:${accent};color:#ffffff;text-decoration:none;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:600;min-height:44px;line-height:20px;text-align:center;`;
+}
+
 function detailRow(label: string, valueHtml: string): string {
   if (!valueHtml?.trim()) return "";
   return `<tr>
-    <td style="padding:10px 0;color:#64748b;width:120px;vertical-align:top;font-size:14px;">${escapeHtml(label)}</td>
-    <td style="padding:10px 0;font-weight:500;color:#0f172a;font-size:15px;">${valueHtml}</td>
+    <td style="padding:10px 0;border-bottom:1px solid #f1f5f9;vertical-align:top;">
+      <div style="color:#64748b;font-size:12px;line-height:1.4;padding-bottom:3px;word-break:break-word;">${escapeHtml(label)}</div>
+      <div style="font-weight:500;color:#0f172a;font-size:15px;line-height:1.45;word-break:break-word;">${valueHtml}</div>
+    </td>
   </tr>`;
 }
 
@@ -437,6 +445,23 @@ function appointmentDetailsBusiness(ctx: AppointmentTemplateContext): string {
     detailRow("Date and time", dateTimeBlock(ctx)),
     location ? detailRow("Location", escapeHtml(location)) : "",
     detailRow("Booking source", "Reception"),
+  ]
+    .filter(Boolean)
+    .join("");
+  return `<table role="presentation" style="width:100%;border-collapse:collapse;margin:8px 0;">${rows}</table>`;
+}
+
+/** Staff-facing appointment facts — never a second customer greeting. */
+function appointmentDetailsStaff(ctx: AppointmentTemplateContext): string {
+  const location =
+    (ctx as AppointmentTemplateContext & { locationName?: string | null })
+      .locationName?.trim() || null;
+  const rows = [
+    detailRow("Customer", escapeHtml(ctx.customerName)),
+    detailRow("Service", escapeHtml(ctx.serviceName)),
+    detailRow("Employee", escapeHtml(ctx.staffName)),
+    detailRow("Date and time", dateTimeBlock(ctx)),
+    location ? detailRow("Location", escapeHtml(location)) : "",
   ]
     .filter(Boolean)
     .join("");
@@ -627,8 +652,9 @@ export function renderEmailTemplate(
       };
     }
     case "commerce.refund": {
+      const cur = ctx.documentCurrency;
       const refundAmount = ctx.amountCents ?? 0;
-      const refundLabel = money(refundAmount);
+      const refundLabel = money(refundAmount, cur);
       const refundType = (ctx.refundTypeLabel ?? "Refund").trim() || "Refund";
       const isPartial = /partial/i.test(refundType);
       const original = ctx.originalPaymentCents;
@@ -647,26 +673,26 @@ export function renderEmailTemplate(
         <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
           ${detailRow("Refund type", escapeHtml(refundType))}
           ${detailRow("Refund amount", `<strong>${refundLabel}</strong>`)}
-          ${original != null ? detailRow("Original payment", money(original)) : ""}
-          ${previously != null && previously > 0 ? detailRow("Previously refunded", money(previously)) : ""}
-          ${remaining != null ? detailRow("Remaining refundable", money(remaining)) : ""}
+          ${original != null ? detailRow("Original payment", money(original, cur)) : ""}
+          ${previously != null && previously > 0 ? detailRow("Previously refunded", money(previously, cur)) : ""}
+          ${remaining != null ? detailRow("Remaining refundable", money(remaining, cur)) : ""}
           ${ctx.paymentMethodLabel ? detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)) : ""}
           ${ctx.refundDateLabel ? detailRow("Refund date", escapeHtml(ctx.refundDateLabel)) : ""}
           ${ctx.serviceName && ctx.serviceName !== "Payment" ? detailRow("Service", escapeHtml(ctx.serviceName)) : ""}
           ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx))) : ""}
           ${ctx.invoiceNumber ? detailRow("Invoice", escapeHtml(ctx.invoiceNumber)) : ""}
-          ${ctx.receiptNumber ? detailRow("Reference", escapeHtml(ctx.receiptNumber)) : ""}
+          ${ctx.receiptNumber ? detailRow("Receipt", escapeHtml(ctx.receiptNumber)) : ""}
         </table>
         <p style="margin:16px 0 0;color:#475569;font-size:14px;">If you have questions about this refund, reply to this email or contact ${escapeHtml(ctx.businessName)}.</p>
         ${appointmentContactCta(b, ctx)}`;
       const textLines = [
         `Refund confirmation from ${ctx.businessName}.`,
         `${refundType}: ${refundLabel}`,
-        original != null ? `Original payment: ${money(original)}` : null,
+        original != null ? `Original payment: ${money(original, cur)}` : null,
         previously != null && previously > 0
-          ? `Previously refunded: ${money(previously)}`
+          ? `Previously refunded: ${money(previously, cur)}`
           : null,
-        remaining != null ? `Remaining refundable: ${money(remaining)}` : null,
+        remaining != null ? `Remaining refundable: ${money(remaining, cur)}` : null,
         ctx.paymentMethodLabel
           ? `Payment method: ${ctx.paymentMethodLabel}`
           : null,
@@ -677,6 +703,55 @@ export function renderEmailTemplate(
         subject: `Refund confirmation — ${ctx.businessName}`,
         html: layout(content, b, { headline: "Refund confirmation" }),
         text: textLines.join("\n"),
+      };
+    }
+    case "commerce.refund.business": {
+      const cur = ctx.documentCurrency;
+      const refundAmount = ctx.amountCents ?? 0;
+      const refundLabel = money(refundAmount, cur);
+      const refundType = (ctx.refundTypeLabel ?? "Refund").trim() || "Refund";
+      const original = ctx.originalPaymentCents;
+      const previously = ctx.previouslyRefundedCents;
+      const remaining = ctx.remainingRefundableCents;
+      const openUrl =
+        ctx.actionUrl?.trim() || `${getAppUrl()}/dashboard/payments`;
+      const content = `
+        <p style="margin:0 0 16px;">A refund was processed.</p>
+        <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
+          ${detailRow("Customer", escapeHtml(ctx.customerName))}
+          ${ctx.serviceName ? detailRow("Service", escapeHtml(ctx.serviceName)) : ""}
+          ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx))) : ""}
+          ${ctx.locationName ? detailRow("Location", escapeHtml(ctx.locationName)) : ""}
+          ${detailRow("Refund type", escapeHtml(refundType))}
+          ${detailRow("Refund amount", `<strong>${refundLabel}</strong>`)}
+          ${cur ? detailRow("Currency", escapeHtml(currencyCode(cur))) : ""}
+          ${original != null ? detailRow("Original payment", money(original, cur)) : ""}
+          ${ctx.paymentMethodLabel ? detailRow("Payment method", escapeHtml(ctx.paymentMethodLabel)) : ""}
+          ${previously != null ? detailRow("Previously refunded", money(previously, cur)) : ""}
+          ${remaining != null ? detailRow("Remaining refundable", money(remaining, cur)) : ""}
+          ${ctx.invoiceNumber ? detailRow("Invoice", escapeHtml(ctx.invoiceNumber)) : ""}
+          ${ctx.receiptNumber ? detailRow("Receipt", escapeHtml(ctx.receiptNumber)) : ""}
+          ${ctx.refundReason ? detailRow("Reason", escapeHtml(ctx.refundReason)) : ""}
+          ${ctx.processedByName ? detailRow("Processed by", escapeHtml(ctx.processedByName)) : ""}
+          ${ctx.processedAtLabel ? detailRow("Processed", escapeHtml(ctx.processedAtLabel)) : ""}
+        </table>
+        <p style="margin:24px 0 0;">
+          <a href="${escapeHtml(openUrl)}" style="${emailCtaStyle("#0b1324")}">
+            Open in ${escapeHtml(BRAND_NAME)}
+          </a>
+        </p>`;
+      return {
+        key,
+        subject: `Refund processed — ${ctx.customerName} · ${refundLabel}`,
+        html: layout(content, b, { headline: "Refund processed" }),
+        text: [
+          `Refund processed for ${ctx.customerName}.`,
+          `${refundType}: ${refundLabel}`,
+          ctx.refundReason ? `Reason: ${ctx.refundReason}` : null,
+          `Open ${openUrl}`,
+        ]
+          .filter(Boolean)
+          .join("\n"),
       };
     }
     case "commerce.gift_certificate": {
@@ -779,7 +854,7 @@ export function renderEmailTemplate(
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.staffName)},</p>
         <p>${escapeHtml(copy.intro)}</p>
-        ${appointmentDetails(ctx)}
+        ${appointmentDetailsStaff(ctx)}
         ${financialBlock(ctx, "business")}`;
       return {
         key,
@@ -795,7 +870,7 @@ export function renderEmailTemplate(
         ${financialBlock(ctx, "business")}
         <p style="margin:24px 0 0;">
           <a href="${escapeHtml(openUrl)}"
-            style="display:inline-block;background:#0b1324;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;line-height:20px;">
+            style="${emailCtaStyle("#0b1324")}">
             Open appointment in ${escapeHtml(BRAND_NAME)}
           </a>
         </p>`;

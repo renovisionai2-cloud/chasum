@@ -41,6 +41,10 @@ function resendLabel(
       return "Resend business notification";
     case "payment_receipt":
       return "Resend payment receipt";
+    case "customer_refund_email":
+      return "Resend customer refund confirmation";
+    case "business_refund_email":
+      return "Resend business refund notification";
     case "staff_email":
       return status === "sent" || status === "failed" || status === "pending"
         ? "Resend staff notification"
@@ -90,6 +94,8 @@ export function BookingCommunicationsSection({
           "customer_email",
           "business_email",
           "payment_receipt",
+          "customer_refund_email",
+          "business_refund_email",
           "staff_email",
           "customer_sms",
         ] as const;

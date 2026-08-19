@@ -63,8 +63,14 @@ export function humanizeRefundError(message: string | null | undefined): string 
   if (lower.includes("must be greater than zero") || lower.includes("amount must")) {
     return "Enter a refund amount greater than zero.";
   }
-  if (lower.includes("reason is required")) {
-    return "A refund reason is required.";
+  if (lower.includes("reason is required") || lower.includes("choose a refund reason")) {
+    return "Choose a refund reason.";
+  }
+  if (lower.includes("explain the refund reason")) {
+    return "Explain the refund reason in a few words.";
+  }
+  if (lower.includes("short explanation")) {
+    return "Choose a refund reason and add a short explanation if needed.";
   }
   // Prefer known human messages; avoid dumping provider/SQL payloads.
   if (raw.length > 180 || /uuid|sql|postgres|stripe|relation\s+\w+|does not exist/i.test(raw)) {

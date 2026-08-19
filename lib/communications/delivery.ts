@@ -94,6 +94,7 @@ export async function sendEmail(input: {
   const audience =
     input.templateKey === "appointment.business" ||
     input.templateKey === "appointment.staff" ||
+    input.templateKey === "commerce.refund.business" ||
     input.templateKey.startsWith("staff.") ||
     input.templateKey.startsWith("business.")
       ? ("business" as const)

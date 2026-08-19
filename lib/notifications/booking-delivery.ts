@@ -7,6 +7,8 @@
  */
 
 import { planIncludesSms } from "@/lib/billing/plan-features";
+import { recordedDeliveryStatus } from "@/lib/commerce/document-delivery-truth";
+import { sendRefundBusinessNotification, sendRefundConfirmationEmail } from "@/lib/commerce/refund-email";
 import { sendEmail, sendSMS } from "@/lib/communications/delivery";
 import type { AppointmentTemplateContext } from "@/lib/communications/types";
 import {
@@ -14,7 +16,6 @@ import {
   getResendApiKey,
   getTwilioConfig,
 } from "@/lib/env";
-import { enqueueEmailJob, enqueueSmsJob } from "@/lib/integrations/jobs/queue";
 import {
   formatNotificationStatus,
   type BookingNotificationChannel,
@@ -1019,6 +1020,51 @@ export async function retryBookingNotification(input: {
     }
     // Fall back to full delivery path for SMS channel.
     return deliverBookingNotifications(input.appointmentId);
+  } else if (
+    input.channel === "customer_refund_email" ||
+    input.channel === "business_refund_email"
+  ) {
+    const supabase = createServiceClient();
+    const { data: refundRow } = await supabase
+      .from("commerce_refunds")
+      .select("id, metadata")
+      .eq("business_id", ctx.businessId)
+      .eq("appointment_id", input.appointmentId)
+      .eq("status", "succeeded")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!refundRow?.id) {
+      throw new Error("No refund on this appointment.");
+    }
+    const result =
+      input.channel === "customer_refund_email"
+        ? await sendRefundConfirmationEmail({
+            businessId: ctx.businessId,
+            refundId: String(refundRow.id),
+          })
+        : await sendRefundBusinessNotification({
+            businessId: ctx.businessId,
+            refundId: String(refundRow.id),
+          });
+    const status: BookingNotificationItem["status"] =
+      result.status === "sent"
+        ? "sent"
+        : result.status === "unavailable"
+          ? "no_recipient"
+          : result.status === "skipped"
+            ? "skipped"
+            : "failed";
+    items.push({
+      channel: input.channel,
+      status,
+      label:
+        input.channel === "customer_refund_email"
+          ? "Customer refund confirmation"
+          : "Business refund notification",
+      detail: result.error ?? null,
+      canRetry: status === "failed",
+    });
   } else {
     throw new Error("Unknown notification channel.");
   }
@@ -1248,6 +1294,116 @@ export async function loadAppointmentCommunicationStatus(
             .join(" · ")
         : `No staff notification was recorded for this appointment. Recipient ${ctx.staffEmail}`,
       canRetry: log ? emailConfigured && mapLogStatus(log.status) !== "not_applicable" : emailConfigured,
+    });
+  }
+
+  const { data: refundRows } = await supabase
+    .from("commerce_refunds")
+    .select("id, metadata, created_at")
+    .eq("business_id", ctx.businessId)
+    .eq("appointment_id", appointmentId)
+    .eq("status", "succeeded")
+    .order("created_at", { ascending: false })
+    .limit(10);
+  const latestRefund = refundRows?.[0] ?? null;
+  const refundMeta =
+    latestRefund?.metadata &&
+    typeof latestRefund.metadata === "object" &&
+    !Array.isArray(latestRefund.metadata)
+      ? (latestRefund.metadata as Record<string, unknown>)
+      : {};
+
+  function refundChannelStatus(input: {
+    logStatus: string | null;
+    rowStatus: string | null;
+    hasRecipient: boolean;
+  }): BookingNotificationItem["status"] {
+    const recorded = recordedDeliveryStatus({
+      hasRecipient: input.hasRecipient,
+      logStatus: input.logStatus,
+      rowEmailStatus: input.rowStatus,
+    });
+    if (recorded === "sent") return "sent";
+    if (recorded === "failed") return "failed";
+    if (recorded === "no_recipient") return "no_recipient";
+    if (recorded === "queued") return "pending";
+    return "not_requested";
+  }
+
+  if (!latestRefund) {
+    items.push({
+      channel: "customer_refund_email",
+      status: "not_applicable",
+      label: "Customer refund confirmation",
+      detail: "No refund has been processed for this appointment.",
+      canRetry: false,
+    });
+    items.push({
+      channel: "business_refund_email",
+      status: "not_applicable",
+      label: "Business refund notification",
+      detail: "No refund has been processed for this appointment.",
+      canRetry: false,
+    });
+  } else {
+    const customerRefundLog = latestFor(
+      "commerce.refund",
+      ctx.customerEmail,
+    );
+    const customerRefundStatus = refundChannelStatus({
+      logStatus: customerRefundLog?.status ?? null,
+      rowStatus: refundMeta.email_status ? String(refundMeta.email_status) : null,
+      hasRecipient: Boolean(ctx.customerEmail),
+    });
+    items.push({
+      channel: "customer_refund_email",
+      status: customerRefundStatus,
+      label: "Customer refund confirmation",
+      detail: customerRefundLog
+        ? [
+            customerRefundLog.recipient,
+            customerRefundLog.sentAt
+              ? `Last attempt ${staffTime(customerRefundLog.sentAt)}`
+              : null,
+            customerRefundLog.detail,
+          ]
+            .filter(Boolean)
+            .join(" · ")
+        : ctx.customerEmail
+          ? `Recipient ${ctx.customerEmail}`
+          : "Customer has no email address.",
+      canRetry: customerRefundStatus === "failed" && emailConfigured,
+    });
+
+    const businessRefundLog = latestFor(
+      "commerce.refund.business",
+      businessTo,
+    );
+    const businessRefundStatus = refundChannelStatus({
+      logStatus: businessRefundLog?.status ?? null,
+      rowStatus: refundMeta.business_email_status
+        ? String(refundMeta.business_email_status)
+        : null,
+      hasRecipient: Boolean(businessTo),
+    });
+    items.push({
+      channel: "business_refund_email",
+      status: businessRefundStatus,
+      label: "Business refund notification",
+      detail: businessRefundLog
+        ? [
+            businessRefundLog.recipient,
+            businessRefundLog.sentAt
+              ? `Last attempt ${staffTime(businessRefundLog.sentAt)}`
+              : null,
+            businessRefundLog.detail,
+          ]
+            .filter(Boolean)
+            .join(" · ")
+        : businessTo
+          ? `Recipient ${businessTo}`
+          : "No business notification email configured.",
+      canRetry: businessRefundStatus === "failed" && emailConfigured,
     });
   }
 

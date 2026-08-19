@@ -259,6 +259,10 @@ describe("Phase 6.2B closeout — staff booking notification copy", () => {
     expect(rendered.html).toContain("A new appointment has been booked.");
     expect(rendered.html).toContain("Deposit method");
     expect(rendered.html).toContain("Cash");
+    expect(rendered.html).toContain("Customer");
+    expect(rendered.html).toContain("Sum Dindial");
+    expect(rendered.html).toContain("Hi Bobita Singh");
+    expect(rendered.html).not.toMatch(/Hi Sum Dindial/);
     expect(rendered.html).not.toContain("Staff: appointment new appointment");
     expect(rendered.html).not.toContain("Appointment new appointment:");
     expect(rendered.html).not.toContain("Payment method");

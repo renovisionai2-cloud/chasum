@@ -25,6 +25,7 @@ export type EmailTemplateKey =
   | "commerce.invoice"
   | "commerce.receipt"
   | "commerce.refund"
+  | "commerce.refund.business"
   | "commerce.deposit_request"
   | "commerce.gift_certificate"
   | "auth.welcome"
@@ -117,6 +118,11 @@ export type AppointmentTemplateContext = {
   remainingRefundableCents?: number | null;
   refundDateLabel?: string | null;
   refundTenderNote?: string | null;
+  refundReason?: string | null;
+  processedByName?: string | null;
+  processedAtLabel?: string | null;
+  /** Direct staff CTA URL (appointment workspace or payments). */
+  actionUrl?: string | null;
   /** Phase 6.2A invoice document fields. */
   invoicePaidCents?: number | null;
   invoiceBalanceCents?: number | null;
