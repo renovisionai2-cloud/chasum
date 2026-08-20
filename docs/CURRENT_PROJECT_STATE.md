@@ -850,8 +850,8 @@ As of last update:
 
 **Priority order:**
 
-1. **Provide Staging-only credentials** as `.env.staging.local` (see [`WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md)), then re-run Staging init. Do **not** use Production `.env.local` for migrations.
-2. **Do not connect Preview to Staging yet.**
+1. **Preview → Staging Vercel cutover is PO-blocked** until someone logged into Vercel completes [`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md). Agent CLI was logged out; Preview still uses Production Supabase.
+2. **Do not open Preview `/dashboard` after Auth signup** until PO authorizes the first Staging business (`getOrCreateBusiness` auto-creates a tenant).
 3. **Do not create Chasum HQ** until Staging is the Preview database and remaining tenant-safety DB gates are accepted. See [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md).
 4. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.

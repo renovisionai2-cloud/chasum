@@ -7,6 +7,7 @@ import {
   normalizeSupabaseUrl,
   sanitizeAuthNextPath,
   getSupabaseEnv,
+  getSupabaseProjectRef,
 } from "@/lib/env";
 
 const KEYS = [
@@ -121,5 +122,12 @@ describe("normalizeSupabaseUrl", () => {
       "https://abc.supabase.co/rest/v1";
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key";
     expect(getSupabaseEnv()?.url).toBe("https://abc.supabase.co");
+  });
+
+  it("extracts the public Supabase project ref without keys", () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL =
+      "https://wnfahklzaxirftyskctd.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key";
+    expect(getSupabaseProjectRef()).toBe("wnfahklzaxirftyskctd");
   });
 });

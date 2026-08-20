@@ -174,6 +174,23 @@ export function requireSupabaseEnv(): SupabaseEnv {
   return env;
 }
 
+/**
+ * Public project ref from NEXT_PUBLIC_SUPABASE_URL hostname only.
+ * Never returns keys. Used for Preview/Staging identity checks.
+ */
+export function getSupabaseProjectRef(): string | null {
+  const env = getSupabaseEnv();
+  if (!env) return null;
+  try {
+    const host = new URL(env.url).hostname.toLowerCase();
+    if (!host.endsWith(".supabase.co")) return null;
+    const ref = host.split(".")[0]?.trim() || null;
+    return ref || null;
+  } catch {
+    return null;
+  }
+}
+
 export function getServiceRoleKey(): string | null {
   return process.env.SUPABASE_SERVICE_ROLE_KEY ?? null;
 }

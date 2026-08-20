@@ -3,7 +3,7 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` · tag `phase-0-gvm-production-2026-08-04` · https://chasum.vercel.app  
 **Shell Preview (Ch1 base):** https://chasum-f2djbjdae-renovisionappcom.vercel.app @ `d86e398`  
-**Shared Supabase:** Preview ↔ Production until Staging cutover — see [`WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md). Staging empty, **not connected**.  
+**Shared Supabase:** Preview ↔ Production until PO completes Preview-only Vercel env cutover — see [`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md). Staging schema exists; Preview **not connected**.  
 **Migrations 034–036:** Do not apply without PO  
 
 ---
@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-19 | **Preview → Staging cutover STOP** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Vercel CLI logged out; Preview SSO on; env not changed; Production GVM intact; `/dashboard` would auto-create a business |
 | 2026-08-19 | **Staging init STOP** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | No SQL; Staging target unverified in agent env; Preview still Production DB; 034–036 unapplied; HQ not created |
 | 2026-08-19 | **Environment separation discovery** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Staging project empty/not connected; Preview still Production DB; 001–033 replay recommended later; 034–036 unapplied; HQ not created; 6.3 NOT STARTED |
 | 2026-08-19 | **Tenant Safety + Multi-Business Foundation** | docs this commit · feature `e6dc026` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | App-only resolver/switcher; Platform Admin labels; HQ tenant NOT created; 6.3 implementation NOT STARTED; public businesses SELECT remains PO/RLS gate |
