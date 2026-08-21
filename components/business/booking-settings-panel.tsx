@@ -15,6 +15,7 @@ import {
 } from "@/lib/booking/interval";
 import type { ActionState, Business } from "@/lib/types/booking";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import Link from "next/link";
 import { useActionState } from "react";
 
 export function BookingSettingsPanel({ business }: { business: Business }) {
@@ -42,6 +43,14 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
               Service length stays independent — a 30-minute service can still
               begin at 9:05 when your interval allows it and the full window is
               free.
+            </p>
+            <p className="mt-2 text-xs">
+              <Link
+                href="/dashboard/settings"
+                className="font-medium text-primary hover:underline"
+              >
+                Manage location overrides
+              </Link>
             </p>
           </div>
 

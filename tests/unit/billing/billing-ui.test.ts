@@ -12,7 +12,9 @@ function read(path: string): string {
 describe("Settings scheduling rules path", () => {
   it("uses the location scheduling action, not the business booking panel action", () => {
     const src = read("components/settings/settings-manager.tsx");
-    expect(src).toMatch(/Save scheduling rules/);
+    expect(src).toMatch(/Location scheduling rules/);
+    expect(src).toMatch(/These settings apply only to/);
+    expect(src).toMatch(/Change business-wide defaults/);
     expect(src).toMatch(/updateLocationSettings/);
     expect(src).not.toMatch(/updateBusinessBookingSettings/);
   });
@@ -21,6 +23,27 @@ describe("Settings scheduling rules path", () => {
     const src = read("components/business/booking-settings-panel.tsx");
     expect(src).toMatch(/updateBusinessBookingSettings/);
     expect(src).toMatch(/Save booking settings/);
+    expect(src).toMatch(/Manage location overrides/);
+  });
+
+  it("does not let location Settings update the business interval", () => {
+    const src = read("lib/actions/location.ts");
+    expect(src).not.toMatch(/interval-sync/);
+    expect(src).not.toMatch(/propagateInheritedBookingInterval/);
+    expect(src).toMatch(/Location scheduling settings updated/);
+    const updateFn = src.slice(src.indexOf("export async function updateLocationSettings"));
+    expect(updateFn).not.toMatch(/from\("businesses"\)/);
+    expect(updateFn).not.toMatch(/\.in\(/);
+  });
+});
+
+describe("Billing reactivation honesty", () => {
+  it("keeps mock reactivation behind the same paid-subscription guard", () => {
+    const provider = read("lib/billing/subscription-service.ts");
+    expect(provider).toMatch(/NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE/);
+    expect(provider).toMatch(/showSubscriptionLifecycleControls/);
+    const action = read("lib/actions/billing.ts");
+    expect(action).toMatch(/NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE/);
   });
 });
 

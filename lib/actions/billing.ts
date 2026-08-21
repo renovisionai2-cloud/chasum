@@ -10,7 +10,9 @@ import { isPlanKey } from "@/lib/billing/catalog";
 import {
   hasCancellablePaidSubscription,
   NO_CANCELLABLE_SUBSCRIPTION_MESSAGE,
+  NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE,
   refusePaidPlanChange,
+  showSubscriptionLifecycleControls,
 } from "@/lib/billing/paid-upgrade-guard";
 import type { ActionState } from "@/lib/types/booking";
 import type { BillingInterval, PlanKey } from "@/lib/billing/types";
@@ -105,6 +107,15 @@ export async function cancelSubscriptionAction(
 
 export async function reactivateSubscriptionAction(): Promise<ActionState> {
   const business = await getOrCreateBusiness();
+  if (
+    !showSubscriptionLifecycleControls({
+      planKey: String(business.subscription_plan_key ?? "starter"),
+      status: String(business.subscription_status ?? "active"),
+      stripeSubscriptionId: business.stripe_subscription_id ?? null,
+    })
+  ) {
+    return { error: NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE };
+  }
   try {
     await getBillingProvider().reactivateSubscription({
       businessId: business.id,

@@ -3,6 +3,7 @@ import {
   ENTERPRISE_SALES_MESSAGE,
   hasCancellablePaidSubscription,
   NO_CANCELLABLE_SUBSCRIPTION_MESSAGE,
+  NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE,
   PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
   refusePaidPlanChange,
   showSubscriptionLifecycleControls,
@@ -12,10 +13,19 @@ import { MockBillingProvider } from "@/lib/billing/subscription-service";
 const getOrCreateBusiness = vi.fn();
 const changePlan = vi.fn();
 const cancelSubscription = vi.fn();
+const reactivateSubscription = vi.fn();
 const getBillingProvider = vi.fn();
+
+const supabaseFrom = vi.fn();
 
 vi.mock("@/lib/actions/business", () => ({
   getOrCreateBusiness: (...args: unknown[]) => getOrCreateBusiness(...args),
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: async () => ({
+    from: (...args: unknown[]) => supabaseFrom(...args),
+  }),
 }));
 
 vi.mock("@/lib/billing/subscription-service", async () => {
@@ -32,7 +42,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-import { cancelSubscriptionAction, changeSubscriptionPlan } from "@/lib/actions/billing";
+import {
+  cancelSubscriptionAction,
+  changeSubscriptionPlan,
+  reactivateSubscriptionAction,
+} from "@/lib/actions/billing";
 
 function planForm(planKey: string, interval = "monthly") {
   const data = new FormData();
@@ -232,5 +246,52 @@ describe("cancelSubscriptionAction", () => {
     const result = await cancelSubscriptionAction({}, new FormData());
     expect(result).toEqual({ error: NO_CANCELLABLE_SUBSCRIPTION_MESSAGE });
     expect(cancelSubscription).not.toHaveBeenCalled();
+  });
+});
+
+describe("reactivateSubscriptionAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    reactivateSubscription.mockReset();
+    getBillingProvider.mockReturnValue({
+      name: "mock",
+      changePlan,
+      cancelSubscription,
+      reactivateSubscription,
+    });
+  });
+
+  it("refuses Free/starter reactivation in MockBillingProvider", async () => {
+    supabaseFrom.mockReturnValue({
+      select: () => ({
+        eq: () => ({
+          single: async () => ({
+            data: {
+              id: "biz-1",
+              subscription_plan_key: "starter",
+              subscription_status: "canceled",
+              stripe_subscription_id: null,
+            },
+            error: null,
+          }),
+        }),
+      }),
+    });
+    const provider = new MockBillingProvider();
+    await expect(
+      provider.reactivateSubscription({ businessId: "biz-1" }),
+    ).rejects.toThrow(NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE);
+  });
+
+  it("does not reactivate a Free starter tenant with no paid subscription", async () => {
+    getOrCreateBusiness.mockResolvedValue({
+      id: "biz-1",
+      subscription_plan_key: "starter",
+      subscription_status: "canceled",
+      stripe_subscription_id: null,
+    });
+    const result = await reactivateSubscriptionAction();
+    expect(result).toEqual({ error: NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE });
+    expect(reactivateSubscription).not.toHaveBeenCalled();
   });
 });

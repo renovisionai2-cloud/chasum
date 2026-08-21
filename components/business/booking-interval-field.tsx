@@ -72,22 +72,19 @@ export function BookingIntervalField({
                   Location override active.
                 </span>{" "}
                 Business default is {bookingIntervalLabel(businessDefault!)}.
-                Matching the business default keeps this location aligned. To
-                change the business default for inherited locations, use Booking
-                settings on the Business page.
+                This change applies only to this location.
               </>
             ) : (
               <>
                 <span className="font-medium text-foreground">
-                  Using business default
+                  Currently matching the business default
                   {businessDefault
                     ? ` (${bookingIntervalLabel(businessDefault)})`
                     : ""}
                   .
                 </span>{" "}
-                Saving a new interval here updates the business default and
-                other locations that still follow it. Locations with their own
-                override are left unchanged.
+                Changing this value creates a location override. It does not
+                change the business default or other locations.
               </>
             )}
           </p>

@@ -165,6 +165,12 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-21)
 
+**World Class — location vs business booking scope**
+
+Settings → Location scheduling rules is location-only. Business → Booking settings remains the business-default cascade with checked location-write errors. Billing honesty from `a2974d0` is preserved. **Chasum HQ Staging rows were not mutated** (business 30 / Main 15 until a post-audit Business Booking save). Production was not touched.
+
+### Prior (2026-08-21)
+
 **World Class — booking interval sync + billing honesty**
 
 Settings → Scheduling rules now updates the business default when the active location is still inherited, and leaves intentional location overrides alone. Partial writes no longer report success. Free/starter tenants no longer see cancel-subscription controls. Header CTA is Apply for Professional (`/apply`). **Chasum HQ Staging rows were not mutated** (business 30 / location 15 until a post-audit Settings save). Production was not touched.

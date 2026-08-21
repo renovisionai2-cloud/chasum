@@ -387,10 +387,15 @@ function BookingSettingsForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Scheduling rules</CardTitle>
-        <CardDescription>
-          Booking time interval and booking window for {locationName}. Location
-          values override the business default when they differ.
+        <CardTitle>Location scheduling rules</CardTitle>
+        <CardDescription className="space-y-2">
+          <span className="block text-base font-medium text-foreground">
+            {locationName}
+          </span>
+          <span className="block text-sm text-foreground">
+            These settings apply only to {locationName}. They override the
+            business defaults when different.
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -430,9 +435,17 @@ function BookingSettingsForm({
             value={settings.cancellation_policy ?? ""}
           />
           <AlertMessage error={state.error} success={state.success} />
-          <Button type="submit" disabled={pending}>
-            {pending ? "Saving..." : "Save scheduling rules"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" disabled={pending}>
+              {pending ? "Saving..." : "Save scheduling rules"}
+            </Button>
+            <Link
+              href="/dashboard/business?tab=booking"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Change business-wide defaults
+            </Link>
+          </div>
         </form>
       </CardContent>
     </Card>

@@ -22,7 +22,9 @@ import {
   PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
   hasCancellablePaidSubscription,
   NO_CANCELLABLE_SUBSCRIPTION_MESSAGE,
+  NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE,
   refusePaidPlanChange,
+  showSubscriptionLifecycleControls,
 } from "@/lib/billing/paid-upgrade-guard";
 
 function asStatus(value: unknown): SubscriptionStatus {
@@ -337,11 +339,24 @@ export class MockBillingProvider implements BillingProvider {
     const supabase = await createClient();
     const { data: business, error } = await supabase
       .from("businesses")
-      .select("id, subscription_plan_key, subscription_status")
+      .select(
+        "id, subscription_plan_key, subscription_status, stripe_subscription_id",
+      )
       .eq("id", input.businessId)
       .single();
     if (error || !business) {
       throw new Error(error?.message ?? "Business not found.");
+    }
+
+    if (
+      !showSubscriptionLifecycleControls({
+        planKey: asPlanKey(business.subscription_plan_key),
+        status: asStatus(business.subscription_status),
+        stripeSubscriptionId:
+          (business.stripe_subscription_id as string | null) ?? null,
+      })
+    ) {
+      throw new Error(NO_REACTIVATABLE_SUBSCRIPTION_MESSAGE);
     }
 
     const now = new Date().toISOString();

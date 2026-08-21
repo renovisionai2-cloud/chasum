@@ -7,7 +7,6 @@ import {
   resolveBookingIntervalMinutes,
   type BookingIntervalMinutes,
 } from "@/lib/booking/interval";
-import { applyLocationSchedulingInterval } from "@/lib/booking/interval-sync";
 import {
   ALL_LOCATIONS,
   LOCATION_SCOPE_COOKIE,
@@ -424,16 +423,6 @@ export async function updateLocationSettings(
 
   if (!location) return { error: "Location not found." };
 
-  const { data: currentSettings, error: currentSettingsError } = await supabase
-    .from("location_settings")
-    .select("appointment_interval_minutes")
-    .eq("location_id", locationId)
-    .maybeSingle();
-
-  if (currentSettingsError) {
-    return { error: "Current booking settings could not be loaded." };
-  }
-
   const appointmentInterval = normalizeBookingIntervalMinutes(
     formData.get("appointment_interval_minutes"),
   );
@@ -444,32 +433,21 @@ export async function updateLocationSettings(
   const cancellationPolicy =
     (formData.get("cancellation_policy") as string) || null;
 
-  const previousBusinessInterval = normalizeBookingIntervalMinutes(
-    business.appointment_interval_minutes,
-  );
-  const currentLocationInterval = normalizeBookingIntervalMinutes(
-    currentSettings?.appointment_interval_minutes ??
-      business.appointment_interval_minutes,
-  );
-
-  const saved = await applyLocationSchedulingInterval(supabase, {
-    businessId: business.id,
-    locationId,
-    businessInterval: previousBusinessInterval,
-    currentLocationInterval,
-    nextInterval: appointmentInterval,
-    locationPatch: {
+  const { error } = await supabase
+    .from("location_settings")
+    .update({
       appointment_interval_minutes: appointmentInterval,
       booking_limit_days: bookingLimitDays || 60,
       max_daily_bookings: maxDailyBookings,
       cancellation_policy: cancellationPolicy,
-    },
-  });
-  if (saved.error) return { error: saved.error };
+    })
+    .eq("location_id", locationId);
+
+  if (error) return { error: error.message };
 
   revalidatePath("/dashboard/settings");
   revalidatePath("/dashboard/business");
-  return { success: "Booking settings updated." };
+  return { success: "Location scheduling settings updated." };
 }
 
 export async function getPublicLocations(businessId: string): Promise<Location[]> {

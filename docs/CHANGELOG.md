@@ -9,9 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (World Class — location vs business booking scope)
+
+- Settings → Location scheduling rules writes only the active location and no longer infers a business-wide change from matching interval values
+- Business → Booking settings remains the business-default cascade, with location-write errors still checked
+
 ### Fixed (World Class — booking interval sync + billing honesty)
 
-- Settings → Scheduling rules no longer creates an accidental location override when the location was still following the business default
+- Business Booking settings cascade checks location-write errors and does not report success after a failed intended cascade
 - Free/starter Billing no longer shows paid-subscription cancel controls
 - Header upgrade CTA no longer implies immediate paid checkout
 
