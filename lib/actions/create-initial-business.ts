@@ -40,7 +40,7 @@ async function applyPreferredPlan(
 
 /**
  * Explicit first-tenant creation. Call only from the onboarding form submit.
- * Does not infer a name from auth metadata. Does not create Stripe billing.
+ * Does not infer a name from auth metadata. Does not create SaaS billing rows.
  */
 export async function createInitialBusinessAction(
   _prev: ActionState,

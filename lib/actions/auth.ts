@@ -31,7 +31,9 @@ function supabaseNotConfiguredState(): AuthState {
   };
 }
 
-async function redirectAfterAuthentication(requestedPath?: string | null) {
+async function redirectAfterAuthentication(
+  requestedPath?: string | null,
+): Promise<never> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -102,7 +104,7 @@ export async function signUp(
     };
   }
 
-  await redirectAfterAuthentication(BUSINESS_ONBOARDING_PATH);
+  return redirectAfterAuthentication(BUSINESS_ONBOARDING_PATH);
 }
 
 export async function signIn(
@@ -132,7 +134,7 @@ export async function signIn(
   }
 
   const redirectTo = formData.get("redirect") as string;
-  await redirectAfterAuthentication(redirectTo || "/dashboard");
+  return redirectAfterAuthentication(redirectTo || "/dashboard");
 }
 
 export async function resetPassword(
@@ -239,7 +241,7 @@ export async function updatePassword(
     return { error: error.message };
   }
 
-  await redirectAfterAuthentication("/dashboard");
+  return redirectAfterAuthentication("/dashboard");
 }
 
 export async function signOut() {
