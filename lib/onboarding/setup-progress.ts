@@ -1,7 +1,6 @@
 import {
   BOOKING_INTERVAL_ONBOARDING_HELP,
-  isBookingIntervalMinutes,
-  normalizeBookingIntervalMinutes,
+  isBookingIntervalSetupComplete,
 } from "@/lib/booking/interval";
 import type { Business } from "@/lib/types/booking";
 
@@ -39,10 +38,9 @@ export function buildSetupSteps(input: {
   hasHours: boolean;
 }): SetupStep[] {
   const profileDone = !isPlaceholderBusiness(input.business);
-  const interval = normalizeBookingIntervalMinutes(
+  const intervalConfigured = isBookingIntervalSetupComplete(
     input.business.appointment_interval_minutes,
   );
-  const intervalConfigured = isBookingIntervalMinutes(interval);
 
   return [
     {

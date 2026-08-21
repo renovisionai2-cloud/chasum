@@ -35,4 +35,18 @@ describe("setup progress booking interval step", () => {
     });
     expect(steps.find((s) => s.id === "booking_interval")?.done).toBe(false);
   });
+
+  it("does not treat the silent 30-minute database default as configured", () => {
+    const steps = buildSetupSteps({
+      business: {
+        name: "Chasum HQ",
+        slug: "chasum-hq",
+        appointment_interval_minutes: 30,
+      },
+      serviceCount: 0,
+      staffCount: 0,
+      hasHours: true,
+    });
+    expect(steps.find((s) => s.id === "booking_interval")?.done).toBe(false);
+  });
 });

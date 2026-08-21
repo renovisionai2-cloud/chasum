@@ -1,9 +1,17 @@
 "use server";
 
 import { getBusiness, requireUser } from "@/lib/actions/business";
+import {
+  DEFAULT_BOOKING_INTERVAL_MINUTES,
+  RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
+} from "@/lib/booking/interval";
 import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
 import { preferredSlugForBusinessName } from "@/lib/onboarding/business-name";
-import { validateFirstBusinessInput } from "@/lib/onboarding/first-business";
+import {
+  DATABASE_DEFAULT_BUSINESS_CURRENCY,
+  DATABASE_DEFAULT_BUSINESS_TIMEZONE,
+  validateFirstBusinessInput,
+} from "@/lib/onboarding/first-business";
 import { createClient } from "@/lib/supabase/server";
 import { DASHBOARD_PATH } from "@/lib/tenancy/post-auth-destination";
 import type { ActionState, Business } from "@/lib/types/booking";
@@ -24,6 +32,25 @@ function readSubmittedFields(formData: FormData) {
   };
 }
 
+function shouldSeedRecommendedInterval(existing: Pick<
+  Business,
+  "timezone" | "currency" | "appointment_interval_minutes"
+>): boolean {
+  if (
+    existing.appointment_interval_minutes ===
+    RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES
+  ) {
+    return true;
+  }
+  const timezone = existing.timezone?.trim() ?? "";
+  const currency = (existing.currency ?? "").trim().toLowerCase();
+  return (
+    timezone === DATABASE_DEFAULT_BUSINESS_TIMEZONE &&
+    currency === DATABASE_DEFAULT_BUSINESS_CURRENCY &&
+    existing.appointment_interval_minutes === DEFAULT_BOOKING_INTERVAL_MINUTES
+  );
+}
+
 async function stampOperatingProfile(
   supabase: Awaited<ReturnType<typeof createClient>>,
   input: {
@@ -32,12 +59,14 @@ async function stampOperatingProfile(
     timezone: string;
     currency: string;
     preferredPlan?: string;
+    seedBookingInterval: boolean;
   },
 ): Promise<{ error?: string }> {
   const patch: {
     timezone: string;
     currency: string;
     subscription_plan_key?: string;
+    appointment_interval_minutes?: number;
   } = {
     timezone: input.timezone,
     currency: input.currency,
@@ -45,13 +74,17 @@ async function stampOperatingProfile(
   if (input.preferredPlan) {
     patch.subscription_plan_key = marketingPlanIdToDbKey(input.preferredPlan);
   }
+  if (input.seedBookingInterval) {
+    patch.appointment_interval_minutes =
+      RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES;
+  }
 
   const { data, error } = await supabase
     .from("businesses")
     .update(patch)
     .eq("id", input.businessId)
     .eq("owner_id", input.ownerId)
-    .select("id, timezone, currency")
+    .select("id, timezone, currency, appointment_interval_minutes")
     .single();
 
   if (error || !data) {
@@ -68,6 +101,17 @@ async function stampOperatingProfile(
     };
   }
 
+  if (
+    input.seedBookingInterval &&
+    data.appointment_interval_minutes !==
+      RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES
+  ) {
+    return {
+      error:
+        "Your business could not be saved with the recommended booking interval. Please try again.",
+    };
+  }
+
   const { error: locationError } = await supabase
     .from("locations")
     .update({ timezone: input.timezone })
@@ -79,6 +123,40 @@ async function stampOperatingProfile(
       error:
         "Your business was created, but the location timezone could not be saved. Open Business settings to set it.",
     };
+  }
+
+  if (input.seedBookingInterval) {
+    const { data: defaultLocations, error: defaultLocationError } =
+      await supabase
+        .from("locations")
+        .select("id")
+        .eq("business_id", input.businessId)
+        .eq("is_default", true);
+
+    if (defaultLocationError) {
+      return {
+        error:
+          "Your business was created, but the location booking interval could not be saved. Open Business settings to set it.",
+      };
+    }
+
+    const locationIds = (defaultLocations ?? []).map((row) => String(row.id));
+    if (locationIds.length > 0) {
+      const { error: settingsError } = await supabase
+        .from("location_settings")
+        .update({
+          appointment_interval_minutes:
+            RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
+        })
+        .in("location_id", locationIds);
+
+      if (settingsError) {
+        return {
+          error:
+            "Your business was created, but the location booking interval could not be saved. Open Business settings to set it.",
+        };
+      }
+    }
   }
 
   return {};
@@ -110,6 +188,7 @@ export async function createInitialBusinessAction(
         timezone: parsed.value.timezone,
         currency: parsed.value.currency,
         preferredPlan: preferred,
+        seedBookingInterval: shouldSeedRecommendedInterval(existing),
       });
       if (stamped.error) {
         return { error: stamped.error };
@@ -152,6 +231,7 @@ export async function createInitialBusinessAction(
     timezone: parsed.value.timezone,
     currency: parsed.value.currency,
     preferredPlan: preferred,
+    seedBookingInterval: true,
   });
   if (stamped.error) {
     return { error: stamped.error };

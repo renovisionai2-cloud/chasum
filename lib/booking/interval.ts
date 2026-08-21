@@ -50,6 +50,16 @@ export function isBookingIntervalMinutes(
   );
 }
 
+/**
+ * Setup checklist: the silent database default (30) is not evidence the
+ * operator chose an interval. 15 (recommended new-business default) and
+ * other allowed values count as configured.
+ */
+export function isBookingIntervalSetupComplete(value: unknown): boolean {
+  if (!isBookingIntervalMinutes(value)) return false;
+  return value !== DEFAULT_BOOKING_INTERVAL_MINUTES;
+}
+
 /** Clamp / normalize arbitrary input to an allowed booking interval. */
 export function normalizeBookingIntervalMinutes(
   value: unknown,

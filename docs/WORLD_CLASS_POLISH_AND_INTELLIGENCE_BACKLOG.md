@@ -347,6 +347,7 @@ Recorded from Preview hands-on. Not in Phase 6.1A scope except as documentation.
 | 2026-08-13 | Chapter 6 Phase 6.0B — Cross-View Calendar Synchronization + Transaction-Linked Refund Flow — PO accepted after hands-on Preview testing. Cancellation and refund customer emails confirmed. Phase 6.1 not started. |
 | 2026-08-13 | Chapter 6 Phase 6.0B refund confirmation email correction — awaiting PO hands-on review. Phase 6.1 not started. |
 | 2026-08-12 | Chapter 6 Phase 6.0B Cross-View Calendar Sync + Transaction-Linked Refund — awaiting PO hands-on review. Phase 6.1 not started. |
+| 2026-08-21 | **Chasum HQ audit P3 (deferred)** — no `app/(dashboard)/error.tsx` group-level boundary (calendar/dashboard nested `error.tsx` exist); `getHolidays()` still uses `.catch(() => [])`. Do not implement in the mock-billing / 15-minute interval fix pass. |
 | 2026-08-12 | Chapter 6 Phase 6.0A Appointment Lifecycle + Collectibility Integrity — awaiting PO hands-on review. Phase 6.1 not started. |
 | 2026-08-11 | Chapter 6 Phase 6.0 Money Contract implemented on Preview — awaiting PO review. Phase 6.1 not started. Payments visual polish remains backlog. |
 | 2026-08-11 | Chapter 5 Phase 5.3 — Week/Month Planning Intelligence + Safe Engine Convergence — PO accepted after hands-on Preview review. Deferred polish and architectural gaps preserved. |

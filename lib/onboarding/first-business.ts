@@ -2,6 +2,10 @@ import { BUSINESS_CURRENCIES } from "@/lib/commerce/money";
 import { TIMEZONES } from "@/lib/constants/timezones";
 import { validateBusinessName } from "@/lib/onboarding/business-name";
 
+/** Schema defaults on `businesses` — not product recommendations. */
+export const DATABASE_DEFAULT_BUSINESS_TIMEZONE = "America/New_York";
+export const DATABASE_DEFAULT_BUSINESS_CURRENCY = "usd";
+
 const TIMEZONE_SET = new Set(TIMEZONES);
 const CURRENCY_SET = new Set<string>(
   BUSINESS_CURRENCIES.map((row) => row.value),

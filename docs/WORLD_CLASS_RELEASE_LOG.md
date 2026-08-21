@@ -12,7 +12,9 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-21 | **First-business timezone + currency** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Onboarding collects timezone + currency; HQ not created; 034–036 unapplied |
+| 2026-08-21 | **HQ audit fix pass** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Block mock paid upgrades; seed 15-minute new-business interval; HQ Staging tenant not mutated; 034–036 unapplied |
+| 2026-08-21 | **Chasum HQ created (Staging)** | `b15f370` onboarding + explicit PO create | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | `operations@chasumai.com` confirmed; `chasum-hq` / Toronto / cad / starter; Claude CONDITIONAL PASS; not on Production |
+| 2026-08-21 | **First-business timezone + currency** | `b15f370` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Onboarding collects timezone + currency; 034–036 unapplied |
 | 2026-08-21 | **Safe Tenant Onboarding Gate** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Auth no longer auto-creates a business; `/onboarding/business`; HQ not created; 034–036 unapplied |
 | 2026-08-19 | **Preview → Staging cutover STOP** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Vercel CLI logged out; Preview SSO on; env not changed; Production GVM intact; `/dashboard` would auto-create a business |
 | 2026-08-19 | **Staging init STOP** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | No SQL; Staging target unverified in agent env; Preview still Production DB; 034–036 unapplied; HQ not created |

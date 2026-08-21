@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (World Class — HQ audit fix pass)
+
+- Settings → Billing can no longer create paid Professional/Business invoices or paid subscription state through MockBillingProvider
+- New first-business onboarding seeds a 15-minute booking interval on the business and default location settings
+- Setup progress no longer treats the silent 30-minute database default as a completed interval choice
+
 ### Changed (World Class — First-business timezone + currency)
 
 - `/onboarding/business` collects business name, timezone, and currency before creating the first tenant

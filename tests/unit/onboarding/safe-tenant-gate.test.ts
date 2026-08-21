@@ -98,7 +98,8 @@ describe("business onboarding is explicit", () => {
     expect(src).toMatch(/from\("locations"\)/);
     expect(src).toMatch(/update\(\{ timezone: input\.timezone \}\)/);
     expect(src).toMatch(/eq\("business_id", input\.businessId\)/);
-    expect(src).toMatch(/eq\("is_default", true\)/);
+    expect(src).toMatch(/from\("location_settings"\)/);
+    expect(src).toMatch(/RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES/);
   });
 
   it("does not hardcode a special-case tenant in onboarding UI", () => {

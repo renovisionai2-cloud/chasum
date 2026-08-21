@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-21  
-**Updated by:** World Class — First-business timezone + currency  
+**Updated by:** World Class — HQ audit fix pass (mock paid upgrade guard + 15-minute new-business interval)  
 
 ---
 
@@ -46,7 +46,7 @@
 | [`docs/WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md`](./WORLD_CLASS_CUSTOMER_WORKSPACE_BLUEPRINT.md) | Chapter 4 Customer Workspace blueprint |
 | [`docs/WORLD_CLASS_BOOKING_WORKSPACE.md`](./WORLD_CLASS_BOOKING_WORKSPACE.md) | Chapter 4 Booking Workspace UX contract |
 | [`docs/WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) | Chapter 6 customer-money contract (Phase 6.0) |
-| [`docs/WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) | Chasum HQ tenant discovery — tenant **not created** |
+| [`docs/WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) | Chasum HQ tenant discovery — **Staging tenant created** (see Current milestone) |
 | [`docs/WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md) | Tenant isolation + multi-business app foundation |
 | [`docs/WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md) | Auth must not auto-create a tenant — `/onboarding/business` |
 | [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — Staging **not connected** |
@@ -126,7 +126,7 @@ Shared money recognition, commerce + platform events, business operating context
 **Intent:**
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
-2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** **Phase 6.3 = NOT STARTED.** Tenant safety foundation shipped (app-only); **safe tenant onboarding gate shipped** (auth no longer auto-creates a business); **Chasum HQ tenant not created.** Chapter 7 not started. No Phase 5.4 invented.
+2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** **Phase 6.3 = NOT STARTED.** Tenant safety foundation shipped (app-only); **safe tenant onboarding gate shipped**; **Chasum HQ exists in Staging only** (`chasum-hq`, `America/Toronto`, `cad`, starter). Claude HQ audit = **CONDITIONAL PASS**; this fix pass addresses mock paid-upgrade and 15-minute new-business default. Production does **not** have Chasum HQ. No Phase 5.4 invented.
 3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
@@ -165,9 +165,23 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-21)
 
+**World Class — HQ audit fix pass (P1 mock paid upgrade + P2 15-minute interval)**
+
+Mock/non-Stripe billing can no longer create paid Professional/Business invoices or paid subscription state from Settings → Billing. New first-business onboarding seeds `appointment_interval_minutes = 15` on the business and default `location_settings`. Setup progress no longer treats the silent 30-minute DB default as “configured.” **Chasum HQ Staging records were not mutated** (still 30 until an explicit PO-approved settings change). Production was not touched.
+
+### Prior (2026-08-21)
+
+**World Class — Chasum HQ created in Staging (verified)**
+
+`operations@chasumai.com` confirmed. Chasum HQ was intentionally created through `/onboarding/business` on World Class Preview / Staging (`wnfahklzaxirftyskctd`): slug `chasum-hq`, timezone `America/Toronto`, currency `cad`, `subscription_plan_key` `starter`, default location `Chasum HQ — Main`. No duplicate HQ tenant. No fake billing rows at create. Claude independent audit = **CONDITIONAL PASS** (P1 mock upgrade path; P2 30-minute default). **Not on Production.**
+
+Canonical: [`WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md).
+
+### Prior (2026-08-21)
+
 **World Class — First-business onboarding timezone + currency**
 
-`/onboarding/business` now collects business name, IANA timezone, and currency. Values are validated server-side and stamped onto the new business and default location after `ensure_business_for_owner`. No migration. **Chasum HQ was not created.**
+`/onboarding/business` now collects business name, IANA timezone, and currency. Values are validated server-side and stamped onto the new business and default location after `ensure_business_for_owner`. No migration.
 
 Canonical: [`WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md).
 
@@ -177,7 +191,7 @@ Canonical: [`WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_O
 
 Canonical: [`WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md).
 
-Authenticated zero-business users are no longer auto-provisioned a tenant from `/dashboard`. They route to `/onboarding/business` and create a named business only on explicit submit. Platform Admin identities are not forced to create a normal tenant. **Chasum HQ was not created.** Production application and Production Supabase were not touched. Migrations 034–036 remain unapplied.
+Authenticated zero-business users are no longer auto-provisioned a tenant from `/dashboard`. They route to `/onboarding/business` and create a named business only on explicit submit. Platform Admin identities are not forced to create a normal tenant. **At that gate, Chasum HQ was not yet created.** Production application and Production Supabase were not touched. Migrations 034–036 remain unapplied.
 
 ### Prior (2026-08-19)
 
@@ -867,8 +881,8 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of first-business onboarding** (name + timezone + currency) on World Class Preview. Then explicitly create the first Staging tenant (Chasum HQ) through `/onboarding/business` — do not auto-create it.
-2. **Do not confirm** `operations@chasumai.com` or create Chasum HQ until that review.
+1. **Claude re-audit** of this HQ fix pass (mock paid-upgrade guard + 15-minute new-business interval) before PO tests Billing Upgrade.
+2. **PO-approved HQ interval correction later:** Chasum HQ remains at 30 minutes until an explicit Settings → Business booking-interval save to 15 (do not SQL-patch). Not done in this pass.
 3. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 4. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 5. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.

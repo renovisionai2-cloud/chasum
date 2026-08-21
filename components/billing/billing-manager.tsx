@@ -21,6 +21,11 @@ import {
 } from "@/lib/actions/billing";
 import { formatPlanPrice, PLAN_RANK } from "@/lib/billing/catalog";
 import type { BillingSummary } from "@/lib/billing/types";
+import { APPLY_HREF } from "@/lib/marketing/alpha";
+import {
+  ENTERPRISE_SALES_MESSAGE,
+  PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
+} from "@/lib/billing/paid-upgrade-guard";
 import { formatUsdFromCents } from "@/lib/owner/constants";
 import type { ActionState } from "@/lib/types/booking";
 import { useFormAction } from "@/hooks/use-form-action";
@@ -92,8 +97,8 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
         <CardHeader>
           <CardTitle>Current plan</CardTitle>
           <CardDescription>
-            Manage your Chasum subscription. Stripe checkout will plug into this
-            same flow later — no live Stripe credentials required for Phase 1.
+            Your current Chasum plan. Paid self-serve checkout is not connected
+            in this environment.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -167,10 +172,13 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
           <CardHeader>
             <CardTitle>Upgrade</CardTitle>
             <CardDescription>
-              Move to a higher plan. Enterprise requires Contact Sales.
+              {summary.paidSelfServeCheckoutAvailable
+                ? "Move to a higher plan. Enterprise requires Contact Sales."
+                : PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE}
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {summary.paidSelfServeCheckoutAvailable ? (
             <form action={changeAction} className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="upgrade_interval">Billing interval</Label>
@@ -212,6 +220,39 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
                 </p>
               ) : null}
             </form>
+            ) : (
+              <div className="space-y-3">
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {upgradePlans
+                    .filter((plan) => plan.planKey !== "enterprise")
+                    .map((plan) => (
+                      <li key={plan.planKey}>
+                        <span className="font-medium text-foreground">
+                          {plan.name}
+                        </span>
+                        {" · "}
+                        {formatPlanPrice(plan, interval)}
+                        {" · Coming soon"}
+                      </li>
+                    ))}
+                </ul>
+                <p className="text-sm text-muted-foreground">
+                  {ENTERPRISE_SALES_MESSAGE}
+                </p>
+                <Button type="button" variant="outline" disabled>
+                  Upgrade unavailable
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  <a
+                    href={APPLY_HREF}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    Apply for Private Alpha
+                  </a>{" "}
+                  if you need a higher plan before self-serve checkout opens.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -219,7 +260,7 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
           <CardHeader>
             <CardTitle>Downgrade</CardTitle>
             <CardDescription>
-              Move to a lower plan. Takes effect immediately in Phase 1 mock billing.
+              Move to a lower plan. This does not collect payment.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -360,7 +401,7 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
               variant="inline"
               glyph={Receipt}
               title="No invoices yet"
-              description="Paid plan changes generate invoices automatically in Phase 1."
+              description="Invoices appear when a real payment is collected. Simulated upgrades do not create invoices."
             />
           ) : (
             <ul className="divide-y divide-border">

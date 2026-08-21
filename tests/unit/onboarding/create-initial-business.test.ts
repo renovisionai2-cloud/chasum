@@ -21,6 +21,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 import { createInitialBusinessAction } from "@/lib/actions/create-initial-business";
+import { RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES } from "@/lib/booking/interval";
 
 const owner = {
   id: "user-1",
@@ -44,6 +45,7 @@ function thenableChain(result: { data?: unknown; error?: unknown }) {
   const self = () => chain;
   chain.update = vi.fn(self);
   chain.eq = vi.fn(self);
+  chain.in = vi.fn(self);
   chain.select = vi.fn(self);
   chain.single = vi.fn(async () => result);
   chain.then = (
@@ -56,8 +58,14 @@ function thenableChain(result: { data?: unknown; error?: unknown }) {
 function mockClient(options?: {
   rpcData?: unknown;
   rpcError?: { message: string } | null;
-  businessRow?: { id: string; timezone: string; currency: string };
+  businessRow?: {
+    id: string;
+    timezone: string;
+    currency: string;
+    appointment_interval_minutes?: number;
+  };
   locationError?: { message: string } | null;
+  locationRows?: { id: string }[];
 }) {
   const rpc = vi.fn(async () => ({
     data: options?.rpcData ?? null,
@@ -68,12 +76,17 @@ function mockClient(options?: {
       id: "biz-1",
       timezone: "America/Toronto",
       currency: "cad",
+      appointment_interval_minutes: RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
     },
     error: null,
   });
   const locations = thenableChain({
-    data: null,
+    data: options?.locationRows ?? [{ id: "loc-1" }],
     error: options?.locationError ?? null,
+  });
+  const locationSettings = thenableChain({
+    data: null,
+    error: null,
   });
 
   createClient.mockResolvedValue({
@@ -81,11 +94,12 @@ function mockClient(options?: {
     from: (table: string) => {
       if (table === "businesses") return businesses;
       if (table === "locations") return locations;
+      if (table === "location_settings") return locationSettings;
       return thenableChain({ error: { message: `unexpected table ${table}` } });
     },
   });
 
-  return { rpc, businesses, locations };
+  return { rpc, businesses, locations, locationSettings };
 }
 
 describe("createInitialBusinessAction", () => {
@@ -125,7 +139,7 @@ describe("createInitialBusinessAction", () => {
     expect(businesses.update).not.toHaveBeenCalled();
   });
 
-  it("creates with the explicit name, America/Toronto, and CAD — not NY/USD", async () => {
+  it("creates with Toronto, CAD, starter, and 15-minute interval — not NY/USD/30", async () => {
     const created = {
       id: "biz-1",
       owner_id: owner.id,
@@ -133,13 +147,15 @@ describe("createInitialBusinessAction", () => {
       slug: "northshore-clinic",
       timezone: "America/New_York",
       currency: "usd",
+      appointment_interval_minutes: 30,
     };
-    const { rpc, businesses, locations } = mockClient({
+    const { rpc, businesses, locations, locationSettings } = mockClient({
       rpcData: created,
       businessRow: {
         id: "biz-1",
         timezone: "America/Toronto",
         currency: "cad",
+        appointment_interval_minutes: 15,
       },
     });
 
@@ -163,6 +179,7 @@ describe("createInitialBusinessAction", () => {
       timezone: "America/Toronto",
       currency: "cad",
       subscription_plan_key: "starter",
+      appointment_interval_minutes: 15,
     });
     expect(businesses.update.mock.calls[0][0]).not.toMatchObject({
       timezone: "America/New_York",
@@ -173,8 +190,10 @@ describe("createInitialBusinessAction", () => {
     expect(locations.update).toHaveBeenCalledWith({
       timezone: "America/Toronto",
     });
-    expect(locations.eq).toHaveBeenCalledWith("business_id", "biz-1");
-    expect(locations.eq).toHaveBeenCalledWith("is_default", true);
+    expect(locationSettings.update).toHaveBeenCalledWith({
+      appointment_interval_minutes: 15,
+    });
+    expect(locationSettings.in).toHaveBeenCalledWith("location_id", ["loc-1"]);
   });
 
   it("maps preferred_plan=free to starter and does not create billing rows", async () => {
@@ -190,6 +209,7 @@ describe("createInitialBusinessAction", () => {
         id: "biz-1",
         timezone: "Europe/London",
         currency: "gbp",
+        appointment_interval_minutes: 15,
       },
     });
 
@@ -216,6 +236,9 @@ describe("createInitialBusinessAction", () => {
       id: "biz-existing",
       owner_id: owner.id,
       name: "Already Here",
+      timezone: "America/Toronto",
+      currency: "cad",
+      appointment_interval_minutes: 30,
     });
     const { rpc, businesses } = mockClient();
 
@@ -234,19 +257,21 @@ describe("createInitialBusinessAction", () => {
     expect(businesses.update).not.toHaveBeenCalled();
   });
 
-  it("retries timezone/currency stamp for the same owned name without a second RPC", async () => {
+  it("retries timezone/currency/interval for an unstamped same-name tenant without a second RPC", async () => {
     getBusiness.mockResolvedValue({
       id: "biz-1",
       owner_id: owner.id,
       name: "Northshore Clinic",
       timezone: "America/New_York",
       currency: "usd",
+      appointment_interval_minutes: 30,
     });
-    const { rpc, businesses, locations } = mockClient({
+    const { rpc, businesses, locationSettings } = mockClient({
       businessRow: {
         id: "biz-1",
         timezone: "America/Toronto",
         currency: "cad",
+        appointment_interval_minutes: 15,
       },
     });
 
@@ -266,10 +291,52 @@ describe("createInitialBusinessAction", () => {
       timezone: "America/Toronto",
       currency: "cad",
       subscription_plan_key: "starter",
+      appointment_interval_minutes: 15,
     });
-    expect(locations.update).toHaveBeenCalledWith({
+    expect(locationSettings.update).toHaveBeenCalledWith({
+      appointment_interval_minutes: 15,
+    });
+  });
+
+  it("does not rewrite a stamped existing tenant's 30-minute interval on same-name retry", async () => {
+    getBusiness.mockResolvedValue({
+      id: "biz-hq",
+      owner_id: owner.id,
+      name: "Chasum HQ",
       timezone: "America/Toronto",
+      currency: "cad",
+      appointment_interval_minutes: 30,
     });
+    const { rpc, businesses, locationSettings } = mockClient({
+      businessRow: {
+        id: "biz-hq",
+        timezone: "America/Toronto",
+        currency: "cad",
+        appointment_interval_minutes: 30,
+      },
+    });
+
+    await expect(
+      createInitialBusinessAction(
+        {},
+        form({
+          businessName: "Chasum HQ",
+          timezone: "America/Toronto",
+          currency: "CAD",
+        }),
+      ),
+    ).rejects.toThrow("REDIRECT:/dashboard");
+
+    expect(rpc).not.toHaveBeenCalled();
+    expect(businesses.update).toHaveBeenCalledWith({
+      timezone: "America/Toronto",
+      currency: "cad",
+      subscription_plan_key: "starter",
+    });
+    expect(businesses.update.mock.calls[0][0]).not.toHaveProperty(
+      "appointment_interval_minutes",
+    );
+    expect(locationSettings.update).not.toHaveBeenCalled();
   });
 
   it("does not stamp another tenant when RPC returns a different business", async () => {

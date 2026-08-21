@@ -18,6 +18,10 @@ import type {
   SubscriptionStatus,
 } from "@/lib/billing/types";
 import { createClient } from "@/lib/supabase/server";
+import {
+  PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
+  refusePaidPlanChange,
+} from "@/lib/billing/paid-upgrade-guard";
 
 function asStatus(value: unknown): SubscriptionStatus {
   const allowed: SubscriptionStatus[] = [
@@ -177,16 +181,16 @@ export async function getBillingSummary(
     events = [];
   }
 
-  return { subscription, plans, invoices, events };
+  return {
+    subscription,
+    plans,
+    invoices,
+    events,
+    paidSelfServeCheckoutAvailable: getBillingProvider().name === "stripe",
+  };
 }
 
-function nextInvoiceNumber(businessId: string): string {
-  const short = businessId.replace(/-/g, "").slice(0, 6).toUpperCase();
-  const stamp = Date.now().toString(36).toUpperCase();
-  return `INV-${short}-${stamp}`;
-}
-
-/** Mock provider: updates Postgres only. Swap for StripeBillingProvider later. */
+/** Mock provider: never collects payment. Swap for StripeBillingProvider later. */
 export class MockBillingProvider implements BillingProvider {
   readonly name = "mock" as const;
 
@@ -195,6 +199,14 @@ export class MockBillingProvider implements BillingProvider {
     planKey: PlanKey;
     interval: BillingInterval;
   }): Promise<void> {
+    const refused = refusePaidPlanChange({
+      providerName: this.name,
+      planKey: input.planKey,
+    });
+    if (refused) {
+      throw new Error(refused);
+    }
+
     const supabase = await createClient();
     const plans = await listBillingPlans();
     const target =
@@ -218,6 +230,9 @@ export class MockBillingProvider implements BillingProvider {
     const now = new Date();
     const periodEnd = addBillingPeriod(now, input.interval);
     const amount = planPriceCents(target, input.interval) ?? 0;
+    if (amount > 0) {
+      throw new Error(PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE);
+    }
     const nextStatus: SubscriptionStatus =
       input.planKey === "starter" ? "active" : "active";
 
@@ -255,31 +270,6 @@ export class MockBillingProvider implements BillingProvider {
       amount_cents: amount,
       metadata: { provider: "mock", interval: input.interval },
     });
-
-    if (amount > 0) {
-      const invoiceNumber = nextInvoiceNumber(input.businessId);
-      await supabase.from("billing_invoices").insert({
-        business_id: input.businessId,
-        invoice_number: invoiceNumber,
-        status: "paid",
-        plan_key: input.planKey,
-        billing_interval: input.interval,
-        amount_cents: amount,
-        description: `${target.name} · ${input.interval}`,
-        period_start: now.toISOString(),
-        period_end: periodEnd.toISOString(),
-        paid_at: now.toISOString(),
-        pdf_url: null,
-      });
-
-      await supabase.from("subscription_events").insert({
-        business_id: input.businessId,
-        event_type: "invoice_paid",
-        to_plan_key: input.planKey,
-        amount_cents: amount,
-        metadata: { provider: "mock", invoice_number: invoiceNumber },
-      });
-    }
   }
 
   async cancelSubscription(input: {

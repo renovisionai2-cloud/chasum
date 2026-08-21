@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_BOOKING_INTERVAL_MINUTES,
   RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
+  isBookingIntervalSetupComplete,
   isOnBookingInterval,
   normalizeBookingIntervalMinutes,
   resolveBookingIntervalMinutes,
@@ -20,6 +21,13 @@ describe("booking interval", () => {
     expect(DEFAULT_BOOKING_INTERVAL_MINUTES).not.toBe(
       RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
     );
+  });
+
+  it("does not treat a normalized 30-minute default as a completed setup choice", () => {
+    expect(isBookingIntervalSetupComplete(30)).toBe(false);
+    expect(isBookingIntervalSetupComplete(15)).toBe(true);
+    expect(isBookingIntervalSetupComplete(5)).toBe(true);
+    expect(isBookingIntervalSetupComplete(undefined)).toBe(false);
   });
 
   it("accepts platform-supported intervals including 5 minutes", () => {

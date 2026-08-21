@@ -15,7 +15,7 @@ export default async function BillingSettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Billing"
-        description="Your Chasum plan, trial, invoices, and subscription controls."
+        description="Your current plan. Paid self-serve upgrades are not available in this environment."
       >
         <Link
           href="/dashboard/settings"
