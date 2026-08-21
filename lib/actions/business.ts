@@ -1,6 +1,3 @@
-import { RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES } from "@/lib/booking/interval";
-import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
-import { isPlaceholderBusiness } from "@/lib/onboarding/setup-progress";
 import { createClient } from "@/lib/supabase/server";
 import { logQueryError } from "@/lib/supabase/errors";
 import {
@@ -11,17 +8,10 @@ import {
   type OwnedBusinessRow,
 } from "@/lib/tenancy/authorize";
 import { readActiveBusinessCookie } from "@/lib/tenancy/cookie";
+import { BUSINESS_ONBOARDING_PATH } from "@/lib/tenancy/post-auth-destination";
 import type { Business } from "@/lib/types/booking";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 48);
-}
 
 export const requireUser = cache(async () => {
   const supabase = await createClient();
@@ -127,84 +117,17 @@ export const getBusiness = cache(async (): Promise<Business | null> => {
   return resolveAuthorizedActiveBusiness(user.id);
 });
 
-/** Deduped per request — layout + pages often call this many times. */
+/**
+ * Require an already-authorized tenant for dashboard product work.
+ * Retrieval only — does not create a business as a side effect.
+ * Zero-business users are sent to explicit onboarding.
+ *
+ * Historical name kept so existing loaders keep using the canonical resolver.
+ */
 export const getOrCreateBusiness = cache(async (): Promise<Business> => {
-  const user = await requireUser();
-  const existing = await resolveAuthorizedActiveBusiness(user.id);
+  const existing = await getBusiness();
   if (existing) return existing;
-
-  const supabase = await createClient();
-
-  const baseName =
-    (user.user_metadata?.full_name as string | undefined)?.trim() ||
-    (user.user_metadata?.name as string | undefined)?.trim() ||
-    "My Business";
-  const emailPrefix = user.email?.split("@")[0] ?? "business";
-  const fromName = slugify(baseName);
-  const fromEmail = slugify(emailPrefix);
-  const preferredSlug =
-    fromName && fromName !== "my-business" && fromName.length >= 3
-      ? fromName
-      : fromEmail && !/\d{8,}/.test(fromEmail) && fromEmail.length <= 32
-        ? fromEmail
-        : `biz-${user.id.replace(/-/g, "").slice(0, 8)}`;
-
-  const { data, error } = await supabase.rpc("ensure_business_for_owner", {
-    p_name: baseName,
-    p_preferred_slug: preferredSlug,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  let business = data as Business;
-
-  if (isPlaceholderBusiness(business)) {
-    const { data: seeded, error: intervalError } = await supabase
-      .from("businesses")
-      .update({
-        appointment_interval_minutes: RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
-      })
-      .eq("id", business.id)
-      .select("*")
-      .single();
-    if (!intervalError && seeded) {
-      business = seeded as Business;
-      const { data: locs } = await supabase
-        .from("locations")
-        .select("id")
-        .eq("business_id", business.id);
-      const locationIds = (locs ?? []).map((row) => row.id);
-      if (locationIds.length > 0) {
-        await supabase
-          .from("location_settings")
-          .update({
-            appointment_interval_minutes:
-              RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
-          })
-          .in("location_id", locationIds);
-      }
-    }
-  }
-
-  const preferred = user.user_metadata?.preferred_plan as string | undefined;
-  if (preferred) {
-    const planKey = marketingPlanIdToDbKey(preferred);
-    if (business.subscription_plan_key !== planKey) {
-      const { data: updated, error: planError } = await supabase
-        .from("businesses")
-        .update({ subscription_plan_key: planKey })
-        .eq("id", business.id)
-        .select("*")
-        .single();
-      if (!planError && updated) {
-        return updated as Business;
-      }
-    }
-  }
-
-  return business;
+  redirect(BUSINESS_ONBOARDING_PATH);
 });
 
 /**

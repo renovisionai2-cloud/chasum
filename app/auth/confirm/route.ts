@@ -1,4 +1,12 @@
+import { getPlatformOwnerEmails, sanitizeAuthNextPath } from "@/lib/env";
+import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
+import { userHasAccessibleBusiness } from "@/lib/tenancy/accessible-business";
+import {
+  BUSINESS_ONBOARDING_PATH,
+  isEnvPlatformAdminEmail,
+  resolvePostAuthDestination,
+} from "@/lib/tenancy/post-auth-destination";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import type { NextRequest } from "next/server";
@@ -7,7 +15,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = sanitizeAuthNextPath(
+    searchParams.get("next") ?? BUSINESS_ONBOARDING_PATH,
+  );
 
   if (tokenHash && type) {
     const supabase = await createClient();
@@ -17,7 +27,26 @@ export async function GET(request: NextRequest) {
     });
 
     if (!error) {
-      redirect(next);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        redirect("/login?error=auth_confirm_failed");
+      }
+      const hasAccessibleBusiness = await userHasAccessibleBusiness(
+        supabase,
+        user.id,
+      );
+      const isPlatformAdmin =
+        (await isPlatformOwner(user)) ||
+        isEnvPlatformAdminEmail(user.email, getPlatformOwnerEmails());
+      redirect(
+        resolvePostAuthDestination({
+          hasAccessibleBusiness,
+          isPlatformAdmin,
+          requestedPath: next,
+        }),
+      );
     }
   }
 

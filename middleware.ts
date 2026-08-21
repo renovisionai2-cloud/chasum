@@ -10,6 +10,8 @@ export const config = {
     "/dashboard/:path*",
     "/owner",
     "/owner/:path*",
+    "/onboarding",
+    "/onboarding/:path*",
     "/login",
     "/signup",
     "/forgot-password",

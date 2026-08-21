@@ -52,9 +52,11 @@ export function OnboardingPlanSelect({
               <p className="mt-0.5 text-xs font-medium text-foreground">
                 {plan.tagline}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {plan.description}
-              </p>
+              {plan.description && plan.description !== plan.tagline ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {plan.description}
+                </p>
+              ) : null}
               {plan.badge ? (
                 <p className="mt-1.5 text-[10px] font-medium text-primary">
                   {plan.badge}

@@ -9,7 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Changed (Marketing — Roadmap + Summer Onboarding)
+### Fixed (World Class — Safe Tenant Onboarding Gate)
+
+- Authenticated users with zero businesses are routed to `/onboarding/business` instead of auto-creating a tenant from `/dashboard`
+- Signup confirmation / auth callback no longer land a zero-business user on `/dashboard`
+- Login/signup middleware no longer sends zero-business sessions to `/dashboard`
+- Signup plan picker no longer duplicates the selected plan description
 
 - Summer consultation subheading finalized; Summer Onboarding **v1** lock docs refreshed as baseline
 - Public `/roadmap` rebuilt as a premium vertical timeline (Completed / In Progress / Upcoming / Future Vision) with benefit-first copy

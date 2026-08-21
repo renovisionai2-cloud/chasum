@@ -28,6 +28,17 @@ describe("canonical active-business resolver", () => {
     expect(src).toMatch(/getBusinessBySlug/);
   });
 
+  it("does not auto-create a tenant from the dashboard resolver", () => {
+    const src = read("lib/actions/business.ts");
+    const fn = src.slice(src.indexOf("export const getOrCreateBusiness"));
+    const body = fn.slice(0, fn.indexOf("export async function getBusinessBySlug"));
+    expect(body).toMatch(/getBusiness/);
+    expect(body).toMatch(/BUSINESS_ONBOARDING_PATH/);
+    expect(body).not.toMatch(/ensure_business_for_owner/);
+    expect(body).not.toMatch(/My Business/);
+    expect(src).not.toMatch(/user_metadata\?\.full_name/);
+  });
+
   it("keeps public slug lookup separate from dashboard activation", () => {
     const src = read("lib/actions/business.ts");
     const slugFn = src.slice(src.indexOf("export async function getBusinessBySlug"));

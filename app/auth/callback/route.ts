@@ -1,7 +1,43 @@
-import { getSupabaseEnv, sanitizeAuthNextPath } from "@/lib/env";
+import { getPlatformOwnerEmails, getSupabaseEnv, sanitizeAuthNextPath } from "@/lib/env";
+import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
+import { userHasAccessibleBusiness } from "@/lib/tenancy/accessible-business";
+import {
+  BUSINESS_ONBOARDING_PATH,
+  isEnvPlatformAdminEmail,
+  resolvePostAuthDestination,
+} from "@/lib/tenancy/post-auth-destination";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+
+type ServerSupabase = Awaited<ReturnType<typeof createClient>>;
+
+async function resolveAuthenticatedDestination(
+  supabase: ServerSupabase,
+  next: string,
+): Promise<string> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return "/login";
+  }
+
+  const hasAccessibleBusiness = await userHasAccessibleBusiness(
+    supabase,
+    user.id,
+  );
+  const isPlatformAdmin =
+    (await isPlatformOwner(user)) ||
+    isEnvPlatformAdminEmail(user.email, getPlatformOwnerEmails());
+
+  return resolvePostAuthDestination({
+    hasAccessibleBusiness,
+    isPlatformAdmin,
+    requestedPath: next,
+  });
+}
 
 export async function GET(request: Request) {
   if (!getSupabaseEnv()) {
@@ -17,7 +53,7 @@ export async function GET(request: Request) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const next = sanitizeAuthNextPath(
     searchParams.get("next") ??
-      (type === "recovery" ? "/reset-password" : "/dashboard"),
+      (type === "recovery" ? "/reset-password" : BUSINESS_ONBOARDING_PATH),
   );
 
   const supabase = await createClient();
@@ -26,7 +62,8 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const destination = await resolveAuthenticatedDestination(supabase, next);
+      return NextResponse.redirect(`${origin}${destination}`);
     }
   } else if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({
@@ -35,9 +72,11 @@ export async function GET(request: Request) {
     });
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const destination = await resolveAuthenticatedDestination(supabase, next);
+      return NextResponse.redirect(`${origin}${destination}`);
     }
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
 }
+

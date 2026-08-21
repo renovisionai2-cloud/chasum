@@ -137,17 +137,17 @@ Public booking still uses `getBusinessBySlug` (unauthenticated). Dashboard must 
 | List of businesses | `listAuthorizedBusinesses()`: `businesses.owner_id = user` ∪ `business_members` where `user_id` and `role in (owner, admin)`. |
 | Selection | Cookie if that id is in the list; else Private Alpha membership (historical); else earliest authorized. |
 | Persistence | HttpOnly cookie `chasum_active_business` (same options as location cookie). Not a security boundary. |
-| Server components | `getOrCreateBusiness()` (React `cache` per request). Layout calls it **before** listing authorized so first-run create is visible. |
-| Server actions | Same `getOrCreateBusiness()` / `listAuthorizedBusinesses()`. Switch action does **not** trust the posted id without `isAuthorizedBusinessId`. |
+| Server components | `getBusiness()` (retrieval) in dashboard layout. Empty authorized set redirects to `/onboarding/business`. Product loaders still call `getOrCreateBusiness()`, which now **requires** an existing tenant and does not create one. |
+| Server actions | Same `getOrCreateBusiness()` / `listAuthorizedBusinesses()`. Switch action does **not** trust the posted id without `isAuthorizedBusinessId`. First-tenant create is `createInitialBusinessAction` only. |
 | API routes | Unchanged; tenant product APIs already use server auth. Do not add client business id as sole scope. |
 | Background jobs | Continue to use stored `business_id` on the job/notification row. Switcher does not rewrite those rows. |
 | Location | Child of active business. See § I. |
 | Access revoked | Cookie id missing from list → fallback. |
 | Business deleted | Same fallback. |
-| Exactly one business | No switcher; resolver returns that tenant. Create path unchanged when list is empty. |
+| Exactly one business | No switcher; resolver returns that tenant. |
 | Multiple businesses | Switcher + cookie. |
-| First onboarding | Empty authorized set → existing `ensure_business_for_owner` RPC (placeholder interval / preferred plan unchanged). RPC itself is **not** modified. |
-| Platform Admin users | Still a **normal** tenant operator in `/dashboard`. They do **not** get every customer tenant in the switcher. Control plane remains `/dashboard/hq` + `/owner` via `requirePlatformOwner`. |
+| First onboarding | Empty authorized set is valid. Route `/onboarding/business`. `ensure_business_for_owner` runs only on explicit submit with the entered name. RPC itself is **not** modified. No "My Business" / display-name fallback. |
+| Platform Admin users | Control plane remains `/dashboard/hq` + `/owner` via `requirePlatformOwner`. Authenticating as Platform Admin does **not** create a normal business tenant. |
 
 One resolver: `getOrCreateBusiness` / `getBusiness` / `listAuthorizedBusinesses` in `lib/actions/business.ts` + pure helpers in `lib/tenancy/*`.
 

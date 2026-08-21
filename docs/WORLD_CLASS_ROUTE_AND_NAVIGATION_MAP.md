@@ -58,6 +58,7 @@
 | Growth | Automations / packages / gift cards in hubs | Partial — no fake Growth page |
 | Summer | `/dashboard/ai-workforce/summer` | Early Access |
 | Setup and Settings | Business + Settings | Partial |
+| First-business onboarding | `/onboarding/business` | Authenticated zero-business gateway; no auto-create |
 
 ---
 

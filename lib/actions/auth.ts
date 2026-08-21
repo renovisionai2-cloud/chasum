@@ -5,9 +5,17 @@ import {
   getAppUrlFromRequestHeaders,
   getAuthCallbackUrl,
   getPasswordResetRedirectUrl,
+  getPlatformOwnerEmails,
   getSupabaseEnv,
 } from "@/lib/env";
+import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
+import { userHasAccessibleBusiness } from "@/lib/tenancy/accessible-business";
+import {
+  BUSINESS_ONBOARDING_PATH,
+  isEnvPlatformAdminEmail,
+  resolvePostAuthDestination,
+} from "@/lib/tenancy/post-auth-destination";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -21,6 +29,33 @@ function supabaseNotConfiguredState(): AuthState {
     error:
       "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local",
   };
+}
+
+async function redirectAfterAuthentication(requestedPath?: string | null) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const hasAccessibleBusiness = await userHasAccessibleBusiness(
+    supabase,
+    user.id,
+  );
+  const isPlatformAdmin =
+    (await isPlatformOwner(user)) ||
+    isEnvPlatformAdminEmail(user.email, getPlatformOwnerEmails());
+
+  redirect(
+    resolvePostAuthDestination({
+      hasAccessibleBusiness,
+      isPlatformAdmin,
+      requestedPath,
+    }),
+  );
 }
 
 export async function signUp(
@@ -53,7 +88,7 @@ export async function signUp(
         full_name: fullName,
         preferred_plan: formData.get("plan") as string | null,
       },
-      emailRedirectTo: getAuthCallbackUrl("/dashboard"),
+      emailRedirectTo: getAuthCallbackUrl(BUSINESS_ONBOARDING_PATH),
     },
   });
 
@@ -67,7 +102,7 @@ export async function signUp(
     };
   }
 
-  redirect("/dashboard");
+  await redirectAfterAuthentication(BUSINESS_ONBOARDING_PATH);
 }
 
 export async function signIn(
@@ -97,7 +132,7 @@ export async function signIn(
   }
 
   const redirectTo = formData.get("redirect") as string;
-  redirect(redirectTo || "/dashboard");
+  await redirectAfterAuthentication(redirectTo || "/dashboard");
 }
 
 export async function resetPassword(
@@ -204,7 +239,7 @@ export async function updatePassword(
     return { error: error.message };
   }
 
-  redirect("/dashboard");
+  await redirectAfterAuthentication("/dashboard");
 }
 
 export async function signOut() {

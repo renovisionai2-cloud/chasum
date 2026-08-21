@@ -45,9 +45,6 @@ export function SignUpForm({
           </CardHeader>
           <CardContent className="space-y-4">
             <OnboardingPlanSelect value={plan} onChange={setPlan} />
-            <p className="text-sm text-muted-foreground">
-              {selected.description}
-            </p>
             <a href={selected.href} className="block">
               <Button type="button" className="w-full">
                 {selected.cta}
