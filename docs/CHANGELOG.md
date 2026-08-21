@@ -13,6 +13,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Settings → Billing can no longer create paid Professional/Business invoices or paid subscription state through MockBillingProvider
 - New first-business onboarding seeds a 15-minute booking interval on the business and default location settings
+- Same-name onboarding retry no longer infers a missing interval stamp from timezone, currency, or interval values
 - Setup progress no longer treats the silent 30-minute database default as a completed interval choice
 
 ### Changed (World Class — First-business timezone + currency)

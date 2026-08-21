@@ -123,6 +123,8 @@ describe("business onboarding is explicit", () => {
     );
     expect(src).toMatch(/created\.owner_id !== user\.id/);
     expect(src).toMatch(/created\.name\.trim\(\) !== parsed\.value\.name/);
+    expect(src).not.toMatch(/shouldSeedRecommendedInterval/);
+    expect(src).toMatch(/seedBookingInterval: false/);
   });
 });
 

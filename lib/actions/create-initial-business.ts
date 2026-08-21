@@ -1,17 +1,10 @@
 "use server";
 
 import { getBusiness, requireUser } from "@/lib/actions/business";
-import {
-  DEFAULT_BOOKING_INTERVAL_MINUTES,
-  RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
-} from "@/lib/booking/interval";
+import { RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
 import { preferredSlugForBusinessName } from "@/lib/onboarding/business-name";
-import {
-  DATABASE_DEFAULT_BUSINESS_CURRENCY,
-  DATABASE_DEFAULT_BUSINESS_TIMEZONE,
-  validateFirstBusinessInput,
-} from "@/lib/onboarding/first-business";
+import { validateFirstBusinessInput } from "@/lib/onboarding/first-business";
 import { createClient } from "@/lib/supabase/server";
 import { DASHBOARD_PATH } from "@/lib/tenancy/post-auth-destination";
 import type { ActionState, Business } from "@/lib/types/booking";
@@ -30,25 +23,6 @@ function readSubmittedFields(formData: FormData) {
     timezone: String(formData.get("timezone") ?? ""),
     currency: String(formData.get("currency") ?? ""),
   };
-}
-
-function shouldSeedRecommendedInterval(existing: Pick<
-  Business,
-  "timezone" | "currency" | "appointment_interval_minutes"
->): boolean {
-  if (
-    existing.appointment_interval_minutes ===
-    RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES
-  ) {
-    return true;
-  }
-  const timezone = existing.timezone?.trim() ?? "";
-  const currency = (existing.currency ?? "").trim().toLowerCase();
-  return (
-    timezone === DATABASE_DEFAULT_BUSINESS_TIMEZONE &&
-    currency === DATABASE_DEFAULT_BUSINESS_CURRENCY &&
-    existing.appointment_interval_minutes === DEFAULT_BOOKING_INTERVAL_MINUTES
-  );
 }
 
 async function stampOperatingProfile(
@@ -182,13 +156,17 @@ export async function createInitialBusinessAction(
     ) {
       const supabase = await createClient();
       const preferred = user.user_metadata?.preferred_plan as string | undefined;
+      // Existing tenants keep their interval. Timezone/currency/plan may
+      // still be repaired after a partial first create. There is no
+      // persisted onboarding-incomplete signal, so configuration values
+      // (including New York + USD + 30) must never imply a rewrite.
       const stamped = await stampOperatingProfile(supabase, {
         businessId: existing.id,
         ownerId: user.id,
         timezone: parsed.value.timezone,
         currency: parsed.value.currency,
         preferredPlan: preferred,
-        seedBookingInterval: shouldSeedRecommendedInterval(existing),
+        seedBookingInterval: false,
       });
       if (stamped.error) {
         return { error: stamped.error };
@@ -225,6 +203,8 @@ export async function createInitialBusinessAction(
   }
 
   const preferred = user.user_metadata?.preferred_plan as string | undefined;
+  // First create in this request: getBusiness() found no tenant. Seed 15
+  // here only — never from timezone/currency/interval inference.
   const stamped = await stampOperatingProfile(supabase, {
     businessId: created.id,
     ownerId: user.id,

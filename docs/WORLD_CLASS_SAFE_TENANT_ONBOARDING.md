@@ -73,7 +73,7 @@ Retrieval and mutation remain separated. Auth still must not auto-create a tenan
 Claude’s HQ audit **conditionally passed** with two required fixes:
 
 1. **P1 — Block fake paid billing.** `MockBillingProvider.changePlan()` must not mint paid Professional/Business invoices, paid subscription state, or MRR. Server-side `refusePaidPlanChange` rejects paid plans unless the active provider is Stripe. Settings → Billing shows current starter plan; Upgrade is coming-soon / unavailable. Enterprise remains sales.
-2. **P2 — 15-minute new-business default.** First-business create seeds `RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES` (15) on the business and default `location_settings`. Setup progress no longer treats the silent 30-minute DB default as configured. **Existing Chasum HQ stays at 30** until an explicit PO-approved settings change.
+2. **P2 — 15-minute new-business default.** A genuinely new first-business create seeds `RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES` (15) on the business and default `location_settings`. Same-name retry never infers incompleteness from timezone, currency, or interval values (including New York + USD + 30). Existing tenants keep their interval unless the operator saves it in Settings. Setup progress no longer treats the silent 30-minute DB default as configured. **Existing Chasum HQ stays at 30** until an explicit Settings → Business booking-interval save.
 
 Deferred P3 (not in this pass): dashboard-group `error.tsx`; `getHolidays()` silent empty fallback.
 
