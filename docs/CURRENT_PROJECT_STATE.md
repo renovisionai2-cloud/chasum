@@ -832,9 +832,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `7d35346b53568643c8f8cbb620a939e2898ced19` |
-| **Short** | `7d35346` |
-| **Subject** | Keep Settings scheduling rules location-only instead of inferring a business-wide interval change. |
+| **SHA** | `39f3b482124a04113d187383eb1d16d84456650e` |
+| **Short** | `39f3b48` |
+| **Subject** | Remount booking settings forms after persisted values change. |
+| **Post-save booking settings UI** | `39f3b482124a04113d187383eb1d16d84456650e` |
 | **Location-scope correction** | `7d35346b53568643c8f8cbb620a939e2898ced19` |
 | **Booking interval sync + billing honesty** | `a2974d0c165c15fca20f7a215dba6e4313cef9e3` |
 | **Staging init stop** | pending this commit |
