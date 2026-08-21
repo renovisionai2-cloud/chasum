@@ -2,13 +2,15 @@ import { ReceptionWorkspace } from "@/components/reception/reception-workspace";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getAppointments, getDashboardStats } from "@/lib/actions/appointments";
+import { listTaxRates } from "@/lib/actions/business-management";
 import { getCustomers } from "@/lib/actions/customers";
 import { getStaffDayOverlays } from "@/lib/actions/day-overlays";
-import { getLocations } from "@/lib/actions/location";
+import { getLocations, getBookingIntervalMinutes } from "@/lib/actions/location";
 import { getMorningBrief } from "@/lib/actions/morning-brief";
 import { getWaitlistEntries } from "@/lib/actions/notifications";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
+import { parseCalendarDateParam } from "@/lib/calendar/date-param";
 import { buildDashboardInsights } from "@/lib/dashboard/insights";
 import type { CalendarView } from "@/lib/types/booking";
 import type { Metadata } from "next";
@@ -61,10 +63,12 @@ function getRange(view: CalendarView, date: Date) {
 }
 
 export default async function CalendarPage({ searchParams }: PageProps) {
-  await getOrCreateBusiness();
+  const business = await getOrCreateBusiness();
   const params = await searchParams;
   const view = (params.view as CalendarView) ?? "day";
-  const date = params.date ? new Date(params.date) : new Date();
+  // Accept YYYY-MM-DD or full ISO from client navigation — never concat T12
+  // onto an ISO string (Invalid Date → toISOString crash).
+  const date = parseCalendarDateParam(params.date);
   const range = getRange(view, date);
 
   const [
@@ -77,6 +81,8 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     stats,
     waitlist,
     dayOverlays,
+    taxRates,
+    appointmentIntervalMinutes,
   ] = await Promise.all([
     getAppointments(range.start.toISOString(), range.end.toISOString()),
     getServices(),
@@ -87,6 +93,8 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     getDashboardStats(),
     getWaitlistEntries(),
     getStaffDayOverlays(range.start.toISOString()),
+    listTaxRates(),
+    getBookingIntervalMinutes(),
   ]);
 
   const insights = buildDashboardInsights({
@@ -118,9 +126,13 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         waitlist={waitlist}
         initialDate={range.start.toISOString()}
         initialView={view}
-        focusAppointmentId={params.appointment ?? null}
         dayOverlays={dayOverlays}
         openBookOnLoad={params.book === "1"}
+        focusAppointmentId={params.appointment ?? null}
+        currency={business.currency ?? "usd"}
+        taxRates={taxRates.filter((t) => t.is_active)}
+        timezone={business.timezone}
+        appointmentIntervalMinutes={appointmentIntervalMinutes}
       />
     </div>
   );

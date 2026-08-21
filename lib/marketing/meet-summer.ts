@@ -14,18 +14,22 @@ export const MEET_SUMMER_PROMPTS = [
 export const MEET_SUMMER_CH1 = {
   brand: "Meet Summer",
   headline: "The Intelligence Behind Every Business Decision.",
-  aside: "AI Business Assistant",
+  aside: "Your AI Business Manager",
 } as const;
 
 /** Chapter 7 — operating system roadmap */
 export const MEET_SUMMER_CH7 = {
   eyebrow: "Chapter 07",
   title: "The AI Business Operating System",
-  lede: "Summer is only the beginning — one shared brain across every department.",
+  lede: "Summer is the face of Chasum — one AI Business Manager across discovery, onboarding, operations, and growth.",
   phases: [
     {
       phase: "Today",
-      items: ["Website Concierge", "AI Reception"],
+      items: [
+        "AI Business Manager",
+        "Website Concierge",
+        "AI Receptionist capability",
+      ],
     },
     {
       phase: "Next",
@@ -56,7 +60,7 @@ export const MEET_SUMMER_EXPERIENCE = {
   eyebrow: "Chapters 02–06",
   title: "Meet the intelligence layer.",
   lede:
-    "Summer enters. She discovers your business. You watch her understand — then recommend with reasoning.",
+    "Meet Summer, the AI Business Manager behind Chasum. She discovers your business, helps you get set up, and recommends with reasoning.",
 } as const;
 
 /** Visible intelligence labels shown beside the experience */

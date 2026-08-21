@@ -33,30 +33,26 @@ export const NAV_RESOURCES = [
   {
     href: "/private-alpha",
     label: "Why Private Alpha?",
-    description: "Design partner program",
+    description: "Why join Chasum now",
   },
   {
     href: "/security",
     label: "Security",
-    description: "Safeguards implemented today",
+    description: "Why you can trust Chasum",
   },
   {
     href: "/status",
     label: "Status",
-    description: "Service availability",
+    description: "Can I rely on Chasum?",
   },
 ] as const;
 
 export const NAV_SUPPORT_HREF = "/contact";
 
-export const TIMEZONES = [
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "America/Phoenix",
-  "Europe/London",
-  "Europe/Paris",
-  "Asia/Tokyo",
-  "Australia/Sydney",
-] as const;
+export {
+  TIMEZONES,
+  TIMEZONE_OPTIONS,
+  timezoneLabel,
+  filterTimezoneOptions,
+  withSavedTimezone,
+} from "@/lib/constants/timezones";

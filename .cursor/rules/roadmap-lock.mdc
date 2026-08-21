@@ -1,0 +1,31 @@
+---
+description: Roadmap v1 is product-owner locked — no redesign or polish
+globs:
+  - lib/marketing/roadmap.ts
+  - components/landing/roadmap-experience.tsx
+  - app/(marketing)/roadmap/**
+alwaysApply: false
+---
+
+# Roadmap Lock — Roadmap v1
+
+**STATUS:** ✅ APPROVED  
+**VERSION:** Roadmap v1  
+**STATE:** Locked  
+**Route:** `/roadmap`  
+**Source of truth (visual):** https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap  
+**Canonical doc:** `docs/marketing/ROADMAP_V1_LOCK.md`
+
+## Do not change without explicit product-owner request
+
+Hero, Available in Chasum Today, Coming Soon, Future Vision, Built With Our Customers, card copy, layout, spacing, typography, icons, colors, animations, or responsive behavior.
+
+## Consistency
+
+Keep Available Today aligned with approved Pricing (e.g. Business Calls & Texting, SMS Reminders). Do not move priced-today capabilities into Coming Soon.
+
+## Allowed only
+
+Bug fixes · broken responsive layouts · accessibility fixes · product-owner-requested updates · Pricing/Product Truth claim alignment when directed.
+
+Do **not** redesign or polish `/roadmap`.

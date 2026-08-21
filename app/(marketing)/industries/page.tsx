@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Chasum for Service Businesses",
     description:
-      "Explore how Chasum supports healthcare, beauty, fitness, home services, automotive, and more.",
+      "Explore how Chasum supports healthcare, beauty, fitness, home services, automotive, legal services, and more.",
     images: [{ url: BRAND_ASSETS.ogImage, width: 1200, height: 630, alt: BRAND_NAME }],
   },
 };

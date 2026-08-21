@@ -37,7 +37,10 @@ function revalidateCommerce(customerId?: string | null) {
 
 export async function loadCommerceDashboard() {
   const business = await getOrCreateBusiness();
-  return getCommerceDashboardSnapshot(business.id, business.name);
+  return getCommerceDashboardSnapshot(business.id, business.name, {
+    currency: business.currency,
+    timezone: business.timezone,
+  });
 }
 
 export async function loadCustomerCommerceAccount(customerId: string) {
@@ -92,21 +95,18 @@ export async function recordPaymentAction(
     forceManual,
     giftCardCode,
     giftCardId,
+    sendReceiptEmail: true,
   });
 
   if (!result.ok) {
-    return { error: result.error ?? "Could not record payment." };
+    return {
+      error: result.error ?? "Could not record payment.",
+      clientSecret: result.clientSecret,
+      requiresAction: result.requiresAction,
+    };
   }
 
   revalidateCommerce(customerId);
-
-  if (result.requiresAction) {
-    return {
-      success: "Card payment requires customer confirmation.",
-      clientSecret: result.clientSecret,
-      requiresAction: true,
-    };
-  }
 
   return { success: "Payment saved." };
 }

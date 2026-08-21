@@ -6,6 +6,8 @@ export type UnderstandingField = {
   label: string;
   value: string | null;
   discovered: boolean;
+  /** Soft status when not yet discovered */
+  pendingLabel?: string;
 };
 
 export type ThinkingCue = {
@@ -14,68 +16,108 @@ export type ThinkingCue = {
 };
 
 /**
- * Live Business Understanding fields — derived from Session Memory / Discovery.
+ * Live Business Memory fields — Summer's working memory for the consultation.
  */
 export function buildUnderstandingFields(
   memory: SessionMemory,
   options?: {
     businessOverride?: string | null;
-    /** When true, always return the full profile scaffold (ellipsis for empty) */
+    /** When true, always return the full profile scaffold */
     showPending?: boolean;
   },
 ): UnderstandingField[] {
-  const businessLabel =
+  const industryLabel =
     options?.businessOverride?.trim() ||
     (memory.businessTypes.length > 0
       ? memory.businessTypes.join(" · ")
-      : memory.businessType !== "unknown"
-        ? formatBusinessType(memory.businessType)
-        : null);
+      : null);
+
+  const businessTypeLabel =
+    memory.businessType !== "unknown"
+      ? formatBusinessType(memory.businessType)
+      : null;
+
+  const preparingRecommendations =
+    memory.discoveryPhase === "recommending" ||
+    memory.discoveryPhase === "open" ||
+    memory.recommendationsMade.length > 0;
 
   const fields: UnderstandingField[] = [
     {
-      id: "business",
-      label: "Business",
-      value: businessLabel,
-      discovered: !!businessLabel,
+      id: "industry",
+      label: "Industry",
+      value: industryLabel,
+      discovered: !!industryLabel,
+      pendingLabel: "Learning…",
+    },
+    {
+      id: "businessType",
+      label: "Business Type",
+      value: businessTypeLabel ?? industryLabel,
+      discovered: !!(businessTypeLabel || industryLabel),
+      pendingLabel: "Learning…",
     },
     {
       id: "employees",
-      label: "Employees",
+      label: "Team Size",
       value: memory.employeeCount,
       discovered: !!memory.employeeCount,
+      pendingLabel: "Learning…",
     },
     {
       id: "locations",
       label: "Locations",
       value: memory.locationCount,
       discovered: !!memory.locationCount,
-    },
-    {
-      id: "software",
-      label: "Current Software",
-      value: memory.currentSoftware,
-      discovered: !!memory.currentSoftware,
-    },
-    {
-      id: "pain",
-      label: "Biggest Challenge",
-      value: memory.challenges[0] ?? null,
-      discovered: memory.challenges.length > 0,
+      pendingLabel: "Learning…",
     },
     {
       id: "goals",
       label: "Goals",
       value: memory.goals[0] ?? memory.growthPlans,
       discovered: memory.goals.length > 0 || !!memory.growthPlans,
+      pendingLabel: "Learning…",
+    },
+    {
+      id: "challenge",
+      label: "Primary Challenge",
+      value: memory.challenges[0] ?? null,
+      discovered: memory.challenges.length > 0,
+      pendingLabel: "Learning…",
+    },
+    {
+      id: "recommendations",
+      label: "Recommendations",
+      value: preparingRecommendations ? "Ready" : null,
+      discovered: preparingRecommendations,
+      pendingLabel: "Preparing Recommendations…",
     },
   ];
 
   if (!options?.showPending) {
-    return fields;
+    return fields.filter((f) => f.discovered || f.id !== "recommendations");
   }
 
   return fields;
+}
+
+/**
+ * Completed Business Memory rows for the Understanding Complete / Profile summary.
+ * Goals included only when discovered. Recommendations excluded.
+ */
+export function buildBusinessProfileSummary(
+  memory: SessionMemory,
+  options?: { businessOverride?: string | null },
+): UnderstandingField[] {
+  return buildUnderstandingFields(memory, {
+    businessOverride: options?.businessOverride ?? null,
+    showPending: false,
+  }).filter(
+    (field) =>
+      field.discovered &&
+      field.id !== "recommendations" &&
+      (field.id !== "goals" || !!field.value),
+  );
 }
 
 /**

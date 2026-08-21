@@ -114,7 +114,8 @@ export function TimelineView({
                   {formatTime(parseISO(appt.end_time))}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {appt.customer.name} · {appt.service.name} · {appt.staff.name}
+                  {appt.customer.name} · {appt.service.name} ·{" "}
+                  {appt.staff?.name ?? "Unassigned"}
                 </p>
               </button>
             </li>
@@ -137,6 +138,19 @@ export function ResourceView({
   mode?: "employees" | "locations" | "resource";
   locations?: Location[];
 }) {
+  // Physical resources require migration 036 + CHASUM_RESOURCES_ENABLED.
+  // While disabled, never query resource tables — show a stable empty state.
+  if (mode === "resource") {
+    return (
+      <EmptyState
+        variant="panel"
+        glyph={Calendar}
+        title="Resource scheduling"
+        description="Resource scheduling is not enabled for this business."
+      />
+    );
+  }
+
   const columns =
     mode === "locations"
       ? locations.map((l) => ({ id: l.id, name: l.name, color: "#64748b" }))

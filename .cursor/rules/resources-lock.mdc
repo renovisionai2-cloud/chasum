@@ -1,0 +1,35 @@
+---
+description: Resources v1 locked — Why Private Alpha, Security, Status
+globs:
+  - lib/marketing/resources-*.ts
+  - components/landing/private-alpha-experience.tsx
+  - components/landing/security-experience.tsx
+  - components/landing/status-experience.tsx
+  - app/(marketing)/private-alpha/**
+  - app/(marketing)/security/**
+  - app/(marketing)/status/**
+alwaysApply: false
+---
+
+# Resources Lock — Resources v1
+
+**STATUS:** ✅ APPROVED  
+**VERSION:** Resources v1  
+**STATE:** Locked  
+**Routes:** `/private-alpha`, `/security`, `/status`  
+
+**Why Private Alpha visual SoT:** https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha  
+**Security visual SoT:** https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security  
+**Status visual SoT:** https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status  
+
+**Canonical docs:** `docs/marketing/RESOURCES_V1_LOCK.md`, `docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`, `docs/marketing/SECURITY_V1_LOCK.md`
+
+## Do not change without explicit product-owner request
+
+Hero, messaging, Design Partner benefits, How Private Alpha Works, Who We're Looking For, Our Commitment, Final CTA, Security cards, Status badges/layout, typography, colors, spacing, animations, or responsive design language.
+
+## Allowed only
+
+Bug fixes · accessibility improvements · responsive/mobile improvements · performance improvements · minor wording corrections · manual status updates in `resources-status.ts`.
+
+Do **not** redesign or restructure Resources pages.

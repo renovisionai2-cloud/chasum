@@ -13,6 +13,10 @@ import {
   type SessionMemory,
 } from "@/lib/website-concierge";
 import { detectMarketingPage } from "@/lib/website-concierge/page-awareness";
+import {
+  consultationThinkMs,
+  sleep,
+} from "@/lib/marketing/summer-intelligence-pacing";
 import { usePathname } from "next/navigation";
 import { startTransition, useEffect, useSyncExternalStore } from "react";
 
@@ -336,12 +340,18 @@ export function useConciergeConversation() {
       });
 
       try {
+        const thinkStarted = performance.now();
         const result = await runConciergeTurn({
           pathname,
           userMessage: content,
           messages: transcript,
           memory,
         });
+        if (!getReducedMotion()) {
+          const elapsed = performance.now() - thinkStarted;
+          const minThink = consultationThinkMs();
+          if (elapsed < minThink) await sleep(minThink - elapsed);
+        }
         const nextMemory = {
           ...result.memory,
           businessTypes:
@@ -393,12 +403,18 @@ export function useConciergeConversation() {
       });
 
       try {
+        const thinkStarted = performance.now();
         const result = await runConciergeTurn({
           pathname,
           userMessage: content,
           messages: engineTranscript,
           memory: store.memory,
         });
+        if (!getReducedMotion()) {
+          const elapsed = performance.now() - thinkStarted;
+          const minThink = consultationThinkMs();
+          if (elapsed < minThink) await sleep(minThink - elapsed);
+        }
         const nextMessages = greeting
           ? [greeting, userMessage, result.assistantMessage]
           : [userMessage, result.assistantMessage];

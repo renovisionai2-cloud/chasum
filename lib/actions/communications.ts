@@ -77,7 +77,7 @@ export async function sendCustomerSmsAction(
     "@/lib/integrations/providers/sms"
   );
 
-  if (!planIncludesSms(business.subscription_plan_key)) {
+  if (!planIncludesSms(business)) {
     return { error: SMS_PLAN_UPGRADE_MESSAGE };
   }
 

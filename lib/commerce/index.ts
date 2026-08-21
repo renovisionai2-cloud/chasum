@@ -39,7 +39,10 @@ export {
   getReceiptById,
   listReceipts,
   queueReceiptEmail,
+  retryPaymentReceiptForAppointment,
+  sendPaymentReceiptNow,
 } from "@/lib/commerce/receipts";
+export type { PaymentReceiptRetryResult } from "@/lib/commerce/receipts";
 
 export {
   getBookingPaymentSummary,

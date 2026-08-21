@@ -1,30 +1,61 @@
 "use client";
 
+import {
+  AvailableTimeSelector,
+  type AvailableTimeSelectorHandle,
+} from "@/components/scheduling/available-time-selector";
 import { Button } from "@/components/ui/button";
 import type { BookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
-import { cn } from "@/lib/utils";
-import { AlertTriangle, Clock, Loader2, UserRound, CalendarDays } from "lucide-react";
+import { AlertTriangle, CalendarDays, Loader2, UserRound } from "lucide-react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
+
+function slotKey(iso: string | null | undefined): string {
+  if (!iso) return "";
+  return iso.slice(0, 16);
+}
 
 type AvailabilitySectionProps = {
   loading: boolean;
   availability: BookingSheetAvailability | null;
   selectedSlot: string | null;
+  selectedSlotValid: boolean;
   onSelectSlot: (iso: string) => void;
   onPickStaff: (staffId: string) => void;
   onPickDay: (date: string) => void;
+  unassigned?: boolean;
 };
 
-export function AvailabilitySection({
-  loading,
-  availability,
-  selectedSlot,
-  onSelectSlot,
-  onPickStaff,
-  onPickDay,
-}: AvailabilitySectionProps) {
+export type AvailabilitySectionHandle = {
+  focusTimes: () => void;
+};
+
+export const AvailabilitySection = forwardRef<
+  AvailabilitySectionHandle,
+  AvailabilitySectionProps
+>(function AvailabilitySection(
+  {
+    loading,
+    availability,
+    selectedSlot,
+    selectedSlotValid,
+    onSelectSlot,
+    onPickStaff,
+    onPickDay,
+    unassigned = false,
+  },
+  ref,
+) {
+  const timeRef = useRef<AvailableTimeSelectorHandle>(null);
+  useImperativeHandle(ref, () => ({
+    focusTimes: () => timeRef.current?.focus(),
+  }));
+
   const slots = availability?.slots ?? [];
-  const suggested = [...slots].sort((a, b) => b.score - a.score).slice(0, 8);
+  const selectedInDay = Boolean(
+    selectedSlot &&
+      slots.some((s) => slotKey(s.start) === slotKey(selectedSlot)),
+  );
 
   return (
     <section className="space-y-4" aria-labelledby="bs-avail-heading">
@@ -33,18 +64,36 @@ export function AvailabilitySection({
           id="bs-avail-heading"
           className="text-sm font-semibold tracking-tight"
         >
-          Availability
+          Date and time
         </h3>
         <p className="text-xs text-muted-foreground">
-          Suggested times from the Availability Engine — never invented locally
+          {unassigned
+            ? "Showing openings across your team. You can assign an employee later."
+            : "Choose an open time for this appointment."}
         </p>
       </div>
 
       {loading ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" aria-hidden />
-          Checking real openings…
+          Checking availability…
         </p>
+      ) : null}
+
+      {!loading && selectedSlot && !selectedSlotValid ? (
+        <div
+          role="status"
+          className="flex gap-2 rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-950 dark:text-amber-100"
+        >
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+          <div>
+            <p className="font-medium">Selected time needs an update</p>
+            <p className="mt-0.5 text-xs opacity-90">
+              {formatTime(parseISO(selectedSlot))} is still selected but is not
+              currently available. Choose another time below.
+            </p>
+          </div>
+        </div>
       ) : null}
 
       {!loading && availability?.emptyReason ? (
@@ -54,47 +103,27 @@ export function AvailabilitySection({
         >
           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
           <div>
-            <p className="font-medium">Why this time is blocked</p>
+            <p className="font-medium">No openings right now</p>
             <p className="mt-0.5 text-xs opacity-90">{availability.emptyReason}</p>
           </div>
         </div>
       ) : null}
 
-      {!loading && suggested.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Suggested times
-          </p>
-          <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {suggested.map((slot) => {
-              const active = selectedSlot === slot.start;
-              return (
-                <button
-                  key={slot.start}
-                  type="button"
-                  onClick={() => onSelectSlot(slot.start)}
-                  className={cn(
-                    "rounded-[var(--radius-md)] border px-2 py-2 text-sm font-medium transition-colors",
-                    "hover:border-primary hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    active
-                      ? "border-primary bg-accent"
-                      : "border-border bg-card",
-                  )}
-                  title={
-                    slot.warnings.length
-                      ? slot.warnings.join(" · ")
-                      : undefined
-                  }
-                >
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="size-3 opacity-70" aria-hidden />
-                    {formatTime(parseISO(slot.start))}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {!loading && slots.length > 0 ? (
+        <AvailableTimeSelector
+          ref={timeRef}
+          slots={slots.map((s) => ({ start: s.start }))}
+          selectedStart={selectedSlot}
+          onSelect={onSelectSlot}
+          loading={loading}
+          selectedInvalid={Boolean(selectedSlot && !selectedSlotValid)}
+          forceExpanded={Boolean(selectedSlot && !selectedSlotValid)}
+          selectedInvalidHint={
+            selectedSlot && !selectedInDay
+              ? `${formatTime(parseISO(selectedSlot))} is already booked or unavailable. Choose another time.`
+              : null
+          }
+        />
       ) : null}
 
       {!loading && (availability?.alternativeStaff.length ?? 0) > 0 ? (
@@ -116,7 +145,9 @@ export function AvailabilitySection({
                   <span className="flex-1 text-left">
                     {alt.name}
                     <span className="ml-2 text-xs text-muted-foreground">
-                      {alt.slotCount} openings
+                      {alt.slotCount <= 5
+                        ? `${alt.slotCount} times available`
+                        : "Available today"}
                     </span>
                   </span>
                 </Button>
@@ -142,7 +173,11 @@ export function AvailabilitySection({
               >
                 <CalendarDays className="size-3.5" aria-hidden />
                 {day.label}
-                <span className="text-muted-foreground">({day.slotCount})</span>
+                <span className="text-muted-foreground">
+                  {day.slotCount <= 5
+                    ? ` · ${day.slotCount} times`
+                    : " · Times available"}
+                </span>
               </Button>
             ))}
           </div>
@@ -151,13 +186,14 @@ export function AvailabilitySection({
 
       {!loading &&
       !availability?.emptyReason &&
-      suggested.length === 0 &&
+      slots.length === 0 &&
       !(availability?.alternativeStaff.length ||
         availability?.alternativeDays.length) ? (
         <p className="text-sm text-muted-foreground">
-          Choose service, employee, and date to load openings.
+          Choose service and date to load openings
+          {unassigned ? "" : " (employee optional)"}.
         </p>
       ) : null}
     </section>
   );
-}
+});

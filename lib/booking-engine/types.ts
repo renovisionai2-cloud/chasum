@@ -20,7 +20,8 @@ export type BookingIntent = {
   businessId: string;
   locationId: string;
   serviceId: string;
-  staffId: string;
+  /** Null/empty = unassigned (assign later). */
+  staffId: string | null;
   /** Required for create/update mutations; optional for validate-only calls */
   customerId?: string;
   resourceIds?: string[];
@@ -34,6 +35,7 @@ export type BookingIntent = {
   durationMinutes?: number;
   /** Commercial stamp — package or service price in cents */
   priceCents?: number;
+  taxCents?: number;
   depositCents?: number;
   packageId?: string;
   packageName?: string;
@@ -78,6 +80,8 @@ export type PreviewSlotsInput = {
   /** YYYY-MM-DD */
   date: string;
   excludeAppointmentId?: string;
+  /** When set, slot end / scoring use this length instead of service default. */
+  durationMinutes?: number;
 };
 
 // —— Availability context (composed from Business / Services / Employees) ——
@@ -86,7 +90,7 @@ export type AvailabilityContext = {
   businessId: string;
   locationId: string;
   serviceId: string;
-  staffId: string;
+  staffId: string | null;
   channel: BookingChannel;
   /** IANA timezone from location → business */
   timezone: string | null;
@@ -133,10 +137,12 @@ export type BookingConflictCode =
   | "VACATION"
   | "LUNCH_BREAK"
   | "SERVICE_BLACKOUT"
+  | "SERVICE_INACTIVE"
   | "BUSINESS_CLOSURE"
   | "MIN_NOTICE"
   | "MAX_BOOKING_WINDOW"
   | "MAX_APPOINTMENTS"
+  | "INVALID_RANGE"
   | "DOUBLE_BOOKING"
   | "NOT_AUTHORIZED"
   | "UNKNOWN";

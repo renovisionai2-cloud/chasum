@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingIntervalField } from "@/components/business/booking-interval-field";
 import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +8,11 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateBusinessBookingSettings } from "@/lib/actions/business-management";
+import {
+  BOOKING_INTERVAL_ONBOARDING_HELP,
+  RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
+  bookingIntervalLabel,
+} from "@/lib/booking/interval";
 import type { ActionState, Business } from "@/lib/types/booking";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useActionState } from "react";
@@ -26,19 +32,25 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
       </CardHeader>
       <CardContent>
         <form action={action} className="space-y-4">
+          <div className="rounded-[var(--radius-md)] border border-border bg-muted/30 px-3 py-3 text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">
+              {BOOKING_INTERVAL_ONBOARDING_HELP}
+            </p>
+            <p className="mt-1 text-xs">
+              Recommended for most businesses:{" "}
+              {bookingIntervalLabel(RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES)}.
+              Service length stays independent — a 30-minute service can still
+              begin at 9:05 when your interval allows it and the full window is
+              free.
+            </p>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="appointment_interval_minutes">Slot interval (minutes)</Label>
-              <Input
-                id="appointment_interval_minutes"
-                name="appointment_interval_minutes"
-                type="number"
-                min={5}
-                step={5}
-                defaultValue={business.appointment_interval_minutes ?? 30}
-                required
-              />
-            </div>
+            <BookingIntervalField
+              defaultValue={business.appointment_interval_minutes}
+              scope="business"
+              className="space-y-2 sm:col-span-2"
+            />
             <div className="space-y-2">
               <Label htmlFor="booking_limit_days">Maximum future booking (days)</Label>
               <Input
@@ -140,8 +152,8 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Per-service appointment buffers are configured on each service. Slot
-            interval syncs to the active location for the availability engine.
+            Per-service duration, buffers, and cleanup stay on each service.
+            Start-time interval only controls how often bookings may begin.
           </p>
 
           <AlertMessage error={state.error} success={state.success} />

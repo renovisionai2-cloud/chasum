@@ -71,31 +71,33 @@ export function LandingHeader() {
           : "border-transparent bg-background/40 backdrop-blur-lg dark:bg-background/45",
       )}
     >
-      <div className="mx-auto flex h-[4.25rem] max-w-[1480px] items-center justify-between gap-3 px-5 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[4.5rem] max-w-[1400px] items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
         <Logo
           priority
           href="/"
           size="md"
           className={cn(
-            "origin-left scale-[1.18]",
+            "shrink-0 self-center",
             homeActive && "marketing-logo-home-active",
           )}
           aria-current={homeActive ? "page" : undefined}
         />
 
         <nav
-          className="hidden items-center gap-2 xl:flex"
+          className="hidden items-center gap-0 xl:flex"
           aria-label="Marketing"
         >
           {NAV_LINKS.map((link) => {
             const active = isPrimaryNavActive(pathname, link.href);
+            const longLabel = link.label.length > 10;
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 data-active={active}
                 className={cn(
-                  "marketing-nav-link marketing-focus-ring rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-[color,background-color] duration-250",
+                  "marketing-nav-link marketing-focus-ring inline-flex h-9 items-center justify-center rounded-full text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
+                  longLabel ? "px-3" : "px-3.5",
                   active
                     ? "bg-foreground/[0.06] text-foreground"
                     : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -107,12 +109,12 @@ export function LandingHeader() {
             );
           })}
 
-          <div className="relative" ref={resourcesRef}>
+          <div className="relative flex items-center self-center" ref={resourcesRef}>
             <button
               type="button"
               onClick={() => setResourcesOpen((open) => !open)}
               className={cn(
-                "marketing-focus-ring inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-medium tracking-tight transition-[color,background-color] duration-250",
+                "marketing-focus-ring inline-flex h-9 items-center justify-center gap-1 rounded-full px-3 text-[13px] font-medium leading-none tracking-tight transition-[color,background-color] duration-250",
                 resourcesOpen || resourcesActive
                   ? "bg-foreground/[0.06] text-foreground"
                   : "text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground",
@@ -123,9 +125,10 @@ export function LandingHeader() {
               Resources
               <ChevronDown
                 className={cn(
-                  "h-3.5 w-3.5 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  "h-3.5 w-3.5 shrink-0 opacity-80 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                   resourcesOpen && "rotate-180",
                 )}
+                aria-hidden
               />
             </button>
             {resourcesOpen ? (
@@ -161,15 +164,22 @@ export function LandingHeader() {
           </div>
         </nav>
 
-        <div className="hidden items-center gap-2 xl:flex">
-          <ThemeToggle />
-          <Link href={LOGIN_HREF}>
-            <Button variant="ghost" size="sm" className="text-[13px]">
+        <div className="hidden items-center gap-1.5 xl:flex">
+          <ThemeToggle className="h-9 w-9 min-h-9 rounded-full" />
+          <Link href={LOGIN_HREF} className="inline-flex items-center self-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 min-h-9 rounded-full px-3.5 text-[13px] leading-none"
+            >
               {CTA_LOGIN_LABEL}
             </Button>
           </Link>
-          <Link href={APPLY_HREF} className="ml-2">
-            <Button size="sm" className="marketing-cta-button rounded-full px-5">
+          <Link href={APPLY_HREF} className="inline-flex items-center self-center">
+            <Button
+              size="sm"
+              className="marketing-cta-button h-9 min-h-9 rounded-full px-5 text-[13px] leading-none"
+            >
               {CTA_APPLY_LABEL}
             </Button>
           </Link>
@@ -180,7 +190,7 @@ export function LandingHeader() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-11 w-11 p-0"
+            className="h-11 min-h-11 w-11 p-0"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}

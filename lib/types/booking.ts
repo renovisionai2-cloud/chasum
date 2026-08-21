@@ -86,6 +86,8 @@ export type Business = {
   cancellation_policy: string | null;
   max_daily_bookings: number | null;
   subscription_plan_key?: string;
+  /** Design-partner override: unlock Private Alpha features while keeping Free plan billing. */
+  private_alpha_enabled?: boolean;
   subscription_status?:
     | "trialing"
     | "active"
@@ -463,7 +465,8 @@ export type Appointment = {
   business_id: string;
   location_id: string;
   service_id: string;
-  staff_id: string;
+  /** Null when unassigned / assign later. */
+  staff_id: string | null;
   customer_id: string;
   start_time: string;
   end_time: string;
@@ -491,7 +494,7 @@ export type Appointment = {
 
 export type AppointmentWithRelations = Appointment & {
   service: Pick<Service, "id" | "name" | "color" | "duration_minutes" | "buffer_before_minutes" | "buffer_after_minutes">;
-  staff: Pick<Staff, "id" | "name" | "color" | "photo_url">;
+  staff: Pick<Staff, "id" | "name" | "color" | "photo_url"> | null;
   customer: Pick<Customer, "id" | "name" | "email" | "phone">;
   location?: Pick<Location, "id" | "name">;
 };
@@ -506,14 +509,59 @@ export type CalendarView =
   | "locations"
   | "employees";
 
+/** Per-channel notification outcome after booking (serializable for ActionState). */
+export type BookingNotificationStatusItem = {
+  channel:
+    | "customer_email"
+    | "customer_sms"
+    | "business_email"
+    | "staff_email"
+    | "payment_receipt";
+  status:
+    | "sent"
+    | "pending"
+    | "failed"
+    | "not_enabled"
+    | "not_configured"
+    | "not_included"
+    | "no_recipient"
+    | "skipped"
+    | "not_requested"
+    | "not_applicable";
+  label: string;
+  detail?: string | null;
+  canRetry?: boolean;
+};
+
 export type ActionState = {
   error?: string;
   success?: string;
+  /** Created or updated appointment id when the mutation succeeds. */
+  appointmentId?: string;
+  /** Delivery outcomes — independent of booking success. */
+  notifications?: BookingNotificationStatusItem[];
+  /** Payment recorded (or failed) during booking — independent of appointment success. */
+  payment?: {
+    status: "recorded" | "failed" | "skipped";
+    amountCents?: number;
+    detail?: string | null;
+    transactionId?: string | null;
+    canRetry?: boolean;
+    receiptStatus?:
+      | "sent"
+      | "failed"
+      | "not_requested"
+      | "not_applicable"
+      | "skipped";
+    receiptDetail?: string | null;
+  };
 };
 
 export type PublicBookingSummary = {
   serviceName: string;
   staffName: string;
+  /** True when the guest chose Any available staff (no named employee yet). */
+  staffUnassigned?: boolean;
   locationName: string | null;
   startTime: string;
   endTime: string;

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Dialog } from "@/components/ui/dialog";
 import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
 import { IconButton } from "@/components/ui/icon-button";
@@ -20,6 +21,7 @@ import {
 import type { ActionState } from "@/lib/types/booking";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
+import { format } from "date-fns";
 import { Plus, Trash2 } from "lucide-react";
 import { useActionState, useState } from "react";
 
@@ -58,6 +60,12 @@ export function AutomationManager({
 }) {
   const [waitlistOpen, setWaitlistOpen] = useState(false);
   const [recurringOpen, setRecurringOpen] = useState(false);
+  const [waitlistDate, setWaitlistDate] = useState(
+    format(new Date(), "yyyy-MM-dd"),
+  );
+  const [recurringStartDate, setRecurringStartDate] = useState(
+    format(new Date(), "yyyy-MM-dd"),
+  );
   const [waitlistState, waitlistAction, waitlistPending] = useActionState(addToWaitlist, {} as ActionState);
   const [recurringState, recurringAction, recurringPending] = useActionState(createRecurringRule, {} as ActionState);
   const refresh = useRefresh();
@@ -175,10 +183,14 @@ export function AutomationManager({
               {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="wl_date">Preferred date</Label>
-            <Input id="wl_date" name="preferred_date" type="date" required />
-          </div>
+          <DateField
+            id="wl_date"
+            name="preferred_date"
+            label="Preferred date"
+            value={waitlistDate}
+            onChange={setWaitlistDate}
+            required
+          />
           <AlertMessage error={waitlistState.error} />
           <FormFooter onCancel={() => setWaitlistOpen(false)} pending={waitlistPending} submitLabel="Add" />
         </form>
@@ -217,10 +229,13 @@ export function AutomationManager({
                 <option value="monthly">Monthly</option>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Start date</Label>
-              <Input name="start_date" type="date" required />
-            </div>
+            <DateField
+              name="start_date"
+              label="Start date"
+              value={recurringStartDate}
+              onChange={setRecurringStartDate}
+              required
+            />
             <div className="space-y-2">
               <Label>Start time</Label>
               <Input name="start_time" type="time" required />

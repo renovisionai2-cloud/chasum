@@ -4,9 +4,8 @@ import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
 import { Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { updateLocationFromForm } from "@/lib/actions/location";
-import { TIMEZONES } from "@/lib/constants";
 import type { ActionState, Location } from "@/lib/types/booking";
 import { useFormAction } from "@/hooks/use-form-action";
 import { useActionState } from "react";
@@ -67,20 +66,13 @@ export function EditLocationDialog({
             />
           </div>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="edit_location_timezone">Timezone</Label>
-          <Select
-            id="edit_location_timezone"
-            name="timezone"
-            defaultValue={location.timezone || "America/New_York"}
-          >
-            {TIMEZONES.map((tz) => (
-              <option key={tz} value={tz}>
-                {tz}
-              </option>
-            ))}
-          </Select>
-        </div>
+        <TimezoneSelect
+          id="edit_location_timezone"
+          name="timezone"
+          label="Timezone"
+          defaultValue={location.timezone || "America/Toronto"}
+          required
+        />
         <div className="space-y-2">
           <Label htmlFor="edit_address_line1">Street address</Label>
           <Input

@@ -35,7 +35,7 @@ export const CTA_MEET_SUMMER_LABEL = "Meet Summer";
 export const CTA_START_WITH_SUMMER_LABEL = "Start with Summer";
 
 /** Sales conversation CTA */
-export const CTA_DEMO_LABEL = "Book a Walkthrough";
+export const CTA_DEMO_LABEL = "Schedule a Demo";
 
 /** Prefer contact walkthrough path; mailto remains fallback only */
 export const DEMO_HREF = `${CONTACT_HREF}#walkthrough`;
@@ -51,7 +51,7 @@ export const ALPHA_BANNER =
   "Built with real service businesses. Available to a limited number of design partners.";
 
 export const FOUNDER_PRICING_NOTE =
-  "Private Alpha access, included features and fees are confirmed in writing during onboarding. Public self-serve checkout is not yet available.";
+  "During Private Alpha, we confirm your plan and pricing together. Online self-serve billing isn’t open yet.";
 
 export const LEGAL_ALPHA_NOTICE =
   "Private Alpha legal pages are provided for transparency and will be finalized with counsel before broader launch.";

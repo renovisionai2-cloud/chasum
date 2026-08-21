@@ -1,12 +1,24 @@
 "use client";
 
 import { AppointmentSection, type BookingOfferType } from "@/components/booking-sheet/appointment-section";
-import { AvailabilitySection } from "@/components/booking-sheet/availability-section";
+import {
+  AvailabilitySection,
+  type AvailabilitySectionHandle,
+} from "@/components/booking-sheet/availability-section";
 import { CustomerSection } from "@/components/booking-sheet/customer-section";
 import { PaymentsSection } from "@/components/booking-sheet/payments-section";
+import { BookingCommunicationsSection } from "@/components/booking-sheet/booking-communications-section";
 import { QuickActionsMenu } from "@/components/booking-sheet/quick-actions-menu";
+import { SelectedAppointmentBanner } from "@/components/booking-sheet/selected-appointment-banner";
 import { SummerAssistant } from "@/components/booking-sheet/summer-assistant";
 import { TimelineSection } from "@/components/booking-sheet/timeline-section";
+import { BookingReviewCard } from "@/components/booking/booking-review-card";
+import {
+  BookingPaymentSection,
+  confirmButtonLabel,
+  defaultBookingPaymentDraft,
+  type BookingPaymentDraft,
+} from "@/components/booking/booking-payment-section";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import {
@@ -23,8 +35,22 @@ import {
   type BookingSheetAvailability,
 } from "@/lib/actions/booking-sheet";
 import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
-import type { ServicePackage } from "@/lib/business/types";
-import { parseISO } from "@/lib/calendar/utils";
+import type { BookingDraft } from "@/lib/booking/booking-draft";
+import type { ServicePackage, TaxRate } from "@/lib/business/types";
+import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
+import {
+  OPTIONAL_STAFF_PERSISTENCE_ENABLED,
+  RECEPTION_EMPLOYEE_REQUIRED_MESSAGE,
+  isUnassignedStaffSelection,
+} from "@/lib/booking/optional-staff";
+import {
+  durationFromAppointmentTimes,
+  resolveBookingDuration,
+} from "@/lib/booking/resolved-duration";
+import { calendarDateInTimezone } from "@/lib/business/datetime";
+import { formatTime, parseISO } from "@/lib/calendar/utils";
+import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
+import { resolveEditBookingPaymentSummary } from "@/lib/commerce/edit-booking-payment-summary";
 import {
   useBookingPreferences,
   writeBookingPreferences,
@@ -45,6 +71,7 @@ import {
   useActionState,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -62,18 +89,47 @@ export type BookingSheetProps = {
   defaultStaffId?: string;
   /** Prefill customer when opening from CRM / Reception without an appointment. */
   defaultCustomerId?: string;
+  /** Prefill service from Reception / calendar draft. */
+  defaultServiceId?: string;
+  /** Structured draft from Quick Appointment — IDs win over prefs. */
+  draft?: BookingDraft | null;
   channel?: BookingSheetChannel;
   onSuccess: () => void;
+  /** Business currency for money formatting. */
+  currency?: string | null;
+  /** Active tax catalog for pricing. */
+  taxRates?: TaxRate[];
+  /** Location/business timezone for the Selected Appointment banner. */
+  timezone?: string | null;
+  /** Open straight into the quick-add customer form (e.g. from Summer / Reception). */
+  forceQuickAddCustomer?: boolean;
 };
 
-function slotDateInLocalTimezone(iso: string): string {
+function slotDateInBusinessTimezone(
+  iso: string,
+  timeZone: string | null | undefined,
+): string {
+  const zoned = calendarDateInTimezone(iso, timeZone);
+  if (zoned) return zoned;
+  // Last resort: noon-anchor local format (avoid UTC date-only parse).
   return format(parseISO(iso), "yyyy-MM-dd");
+}
+
+function slotKey(iso: string | null | undefined): string {
+  if (!iso) return "";
+  return iso.slice(0, 16);
 }
 
 /**
  * Unified Booking Sheet — the only staff/reception booking workspace.
  * Calendar, Reception, Summer suggestions, and mobile all open this surface.
  * Mutations go through Booking Engine actions. Summer never invents slots.
+ *
+ * Slot authority: once a time is selected (by click, by Summer, or by
+ * choosing an alternate employee) it stays selected across every other
+ * field change. Only an explicit date change — by the user or by Summer
+ * moving to tomorrow — clears it. Availability results are suggestions
+ * only; they never overwrite the selection.
  */
 export function BookingSheet({
   open,
@@ -87,8 +143,14 @@ export function BookingSheet({
   defaultDate,
   defaultStaffId,
   defaultCustomerId,
+  defaultServiceId,
+  draft = null,
   channel = "staff",
   onSuccess,
+  currency,
+  taxRates = [],
+  timezone,
+  forceQuickAddCustomer = false,
 }: BookingSheetProps) {
   const isEditing = !!appointment;
   const action = isEditing ? updateAppointment : createAppointment;
@@ -98,25 +160,24 @@ export function BookingSheet({
   const [busy, startBusy] = useTransition();
 
   const preferred = useMemo(() => {
+    const draftStart = draft?.startIso?.trim() || null;
+    // Edit mode: appointment start is authoritative. Never let a leftover
+    // draft or calendar focus date replace the saved appointment.
     const initialStart = appointment
       ? appointment.start_time
-      : (defaultDate?.toISOString() ?? null);
-    const service =
-      services.find((s) => s.id === appointment?.service_id) ??
-      services.find((s) => s.is_active);
-    const duration = appointment
-      ? Math.max(
-          5,
-          Math.round(
-            (parseISO(appointment.end_time).getTime() -
-              parseISO(appointment.start_time).getTime()) /
-              60_000,
-          ),
-        )
-      : (service?.duration_minutes ?? 30);
+      : (draftStart ?? defaultDate?.toISOString() ?? null);
+
+    const zone =
+      timezone ??
+      locations.find((l) => l.id === (appointment?.location_id ?? ""))
+        ?.timezone ??
+      locations.find((l) => l.is_default)?.timezone ??
+      locations[0]?.timezone ??
+      null;
 
     const locationId =
       appointment?.location_id ??
+      (!appointment ? draft?.locationId : null) ??
       (prefs.locationId && locations.some((l) => l.id === prefs.locationId)
         ? prefs.locationId
         : null) ??
@@ -127,45 +188,100 @@ export function BookingSheet({
     const locationServices = services.filter(
       (s) => s.is_active && (!locationId || s.location_id === locationId),
     );
+
+    // Resolve serviceId FIRST — duration must follow this service, never the
+    // first catalog row or a silent 30-minute fallback.
     const serviceId =
       appointment?.service_id ??
-      (prefs.serviceId &&
+      (!appointment &&
+      draft?.serviceId &&
+      services.some((s) => s.id === draft.serviceId)
+        ? draft.serviceId
+        : null) ??
+      (!appointment &&
+      defaultServiceId &&
+      locationServices.some((s) => s.id === defaultServiceId)
+        ? defaultServiceId
+        : null) ??
+      (!appointment &&
+      prefs.serviceId &&
       locationServices.some((s) => s.id === prefs.serviceId)
         ? prefs.serviceId
         : null) ??
       locationServices[0]?.id ??
-      service?.id ??
       "";
 
-    const eligible = staff.filter(
-      (m) =>
-        m.is_active &&
-        (!locationId || m.location_id === locationId) &&
-        m.staff_services.some((ss) => ss.service_id === serviceId),
-    );
-    const staffId =
-      appointment?.staff_id ??
-      (defaultStaffId && eligible.some((m) => m.id === defaultStaffId)
-        ? defaultStaffId
-        : null) ??
-      (prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
-        ? prefs.staffId
-        : null) ??
-      eligible[0]?.id ??
-      "";
+    const selectedSvc = services.find((s) => s.id === serviceId);
+    const appointmentDuration = appointment
+      ? durationFromAppointmentTimes(
+          appointment.start_time,
+          appointment.end_time,
+        )
+      : null;
+
+    const resolved = resolveBookingDuration({
+      appointmentDurationMinutes: appointmentDuration,
+      overrideMinutes:
+        !appointment && draft?.durationIsOverride
+          ? draft.durationMinutes
+          : null,
+      serviceDurationMinutes: selectedSvc?.duration_minutes ?? null,
+    });
+
+    const eligible = filterEligibleBookingStaff(staff, {
+      serviceId,
+      locationId,
+    });
+
+    const draftStaff =
+      !appointment && (draft?.staffId === "" || draft?.staffId)
+        ? draft.staffId
+        : undefined;
+
+    const staffId = appointment
+      ? (appointment.staff_id ?? "")
+      : defaultStaffId === ""
+        ? ""
+        : draftStaff !== undefined
+          ? draftStaff === "" ||
+            eligible.some((m) => m.id === draftStaff)
+            ? (draftStaff ?? "")
+            : ""
+          : ((defaultStaffId && eligible.some((m) => m.id === defaultStaffId)
+              ? defaultStaffId
+              : null) ??
+            (prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
+              ? prefs.staffId
+              : null) ??
+            "");
+
+    const date = appointment
+      ? slotDateInBusinessTimezone(appointment.start_time, zone)
+      : draft?.date
+        ? draft.date
+        : initialStart
+          ? slotDateInBusinessTimezone(initialStart, zone)
+          : format(new Date(), "yyyy-MM-dd");
 
     return {
       serviceId,
       staffId,
-      customerId: appointment?.customer_id ?? defaultCustomerId ?? "",
+      customerId:
+        appointment?.customer_id ??
+        (!appointment ? draft?.customerId : null) ??
+        defaultCustomerId ??
+        "",
       locationId,
-      date: initialStart
-        ? slotDateInLocalTimezone(initialStart)
-        : format(new Date(), "yyyy-MM-dd"),
+      date,
       slot: initialStart,
-      duration,
+      duration: resolved.minutes,
+      durationIsOverride: Boolean(
+        !appointment && draft?.durationIsOverride && resolved.minutes != null,
+      ),
+      serviceDefaultMinutes: resolved.serviceDefaultMinutes,
       status: (appointment?.status ?? "confirmed") as AppointmentStatus,
-      notes: appointment?.notes ?? "",
+      notes: appointment?.notes ?? (!appointment ? draft?.notes : null) ?? "",
+      packageId: !appointment ? (draft?.packageId ?? "") : "",
     };
   }, [
     appointment,
@@ -175,6 +291,9 @@ export function BookingSheet({
     defaultDate,
     defaultStaffId,
     defaultCustomerId,
+    defaultServiceId,
+    draft,
+    timezone,
     prefs.locationId,
     prefs.serviceId,
     prefs.staffId,
@@ -183,8 +302,10 @@ export function BookingSheet({
   const [customers, setCustomers] = useState(initialCustomers);
   const [loadedPackages, setLoadedPackages] = useState<ServicePackage[]>([]);
   const packages = packagesProp ?? loadedPackages;
-  const [offerType, setOfferType] = useState<BookingOfferType>("service");
-  const [packageId, setPackageId] = useState("");
+  const [offerType, setOfferType] = useState<BookingOfferType>(
+    preferred.packageId ? "package" : "service",
+  );
+  const [packageId, setPackageId] = useState(preferred.packageId);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     () =>
       initialCustomers.find((c) => c.id === preferred.customerId) ?? null,
@@ -194,9 +315,18 @@ export function BookingSheet({
   const [locationId, setLocationId] = useState(preferred.locationId);
   const [date, setDate] = useState(preferred.date);
   const [slot, setSlot] = useState<string | null>(preferred.slot);
-  const [durationMinutes, setDurationMinutes] = useState(preferred.duration);
+  /** Explicit override only — null means use the selected service duration. */
+  const [durationOverride, setDurationOverride] = useState<number | null>(
+    preferred.durationIsOverride ? preferred.duration : null,
+  );
   const [status, setStatus] = useState(preferred.status);
   const [notes, setNotes] = useState(preferred.notes);
+  const [paymentDraft, setPaymentDraft] = useState<BookingPaymentDraft>(
+    defaultBookingPaymentDraft(),
+  );
+  const paymentIdempotencyKey = useRef(
+    `bs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  );
 
   const [availability, setAvailability] =
     useState<BookingSheetAvailability | null>(null);
@@ -206,26 +336,116 @@ export function BookingSheet({
   > | null>(null);
   const [snapshotForId, setSnapshotForId] = useState<string | null>(null);
   const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [communicationsFocusSignal, setCommunicationsFocusSignal] =
+    useState(0);
 
   useFormAction(state, onSuccess, onClose);
 
+  // Reset every field from `preferred` whenever the sheet opens for a
+  // (possibly) different appointment/default. The sheet can stay mounted
+  // across opens (callers don't always remount it), so this guards against
+  // stale state from the previous booking leaking into the next one.
+  // Adjusted during render (React's recommended pattern for resetting state
+  // from props) rather than in an effect, so it applies before paint with
+  // no extra render flash.
+  const openResetKey = open
+    ? [
+        appointment?.id ?? "new",
+        defaultDate?.toISOString() ?? "",
+        defaultStaffId ?? "",
+        defaultCustomerId ?? "",
+        defaultServiceId ?? "",
+        draft?.serviceId ?? "",
+        draft?.startIso ?? "",
+        draft?.durationMinutes ?? "",
+        draft?.customerId ?? "",
+        draft?.staffId ?? "",
+        draft?.locationId ?? "",
+      ].join("|")
+    : null;
+  const [appliedResetKey, setAppliedResetKey] = useState<string | null>(null);
+  if (open && openResetKey !== appliedResetKey) {
+    setAppliedResetKey(openResetKey);
+    setCustomers(initialCustomers);
+    setSelectedCustomer(
+      initialCustomers.find((c) => c.id === preferred.customerId) ?? null,
+    );
+    setOfferType(preferred.packageId ? "package" : "service");
+    setPackageId(preferred.packageId);
+    setServiceId(preferred.serviceId);
+    setStaffId(preferred.staffId);
+    setLocationId(preferred.locationId);
+    setDate(preferred.date);
+    setSlot(preferred.slot);
+    setDurationOverride(
+      preferred.durationIsOverride ? preferred.duration : null,
+    );
+    setStatus(preferred.status);
+    setNotes(preferred.notes);
+    setAvailability(null);
+    setSnapshot(null);
+    setSnapshotForId(null);
+  }
+
   const eligibleStaff = useMemo(
     () =>
-      staff.filter(
-        (m) =>
-          m.is_active &&
-          (!locationId || m.location_id === locationId) &&
-          m.staff_services.some((ss) => ss.service_id === serviceId),
-      ),
+      filterEligibleBookingStaff(staff, {
+        serviceId,
+        locationId,
+      }),
     [staff, locationId, serviceId],
   );
 
-  const activeStaffId = eligibleStaff.some((m) => m.id === staffId)
-    ? staffId
-    : (eligibleStaff[0]?.id ?? "");
+  // If a named employee is no longer eligible after service/location change,
+  // reset to Unassigned — never keep a stale forced selection.
+  const [staffEligibilityNote, setStaffEligibilityNote] = useState<string | null>(
+    null,
+  );
+  useEffect(() => {
+    if (!open) return;
+    if (!staffId) {
+      setStaffEligibilityNote(null);
+      return;
+    }
+    if (eligibleStaff.some((m) => m.id === staffId)) {
+      setStaffEligibilityNote(null);
+      return;
+    }
+    setStaffId("");
+    setStaffEligibilityNote(
+      "The previously selected employee is not available for this service or location. Selection reset to Unassigned — assign later.",
+    );
+  }, [open, eligibleStaff, staffId]);
+
+  // The user is the authority on staff assignment. Unassigned ("") is a
+  // deliberate, valid choice and must never be silently overridden by
+  // falling back to the first eligible employee.
+  const activeStaffId = staffId;
 
   const selectedService = services.find((s) => s.id === serviceId);
   const selectedPackage = packages.find((p) => p.id === packageId);
+  const selectedLocation = locations.find((l) => l.id === locationId);
+
+  const appointmentDuration = appointment
+    ? durationFromAppointmentTimes(
+        appointment.start_time,
+        appointment.end_time,
+      )
+    : null;
+
+  const resolvedDuration = resolveBookingDuration({
+    appointmentDurationMinutes:
+      isEditing &&
+      durationOverride == null &&
+      serviceId === appointment?.service_id
+        ? appointmentDuration
+        : null,
+    overrideMinutes: durationOverride,
+    serviceDurationMinutes: selectedService?.duration_minutes ?? null,
+  });
+
+  /** Authoritative duration for this booking — never a silent 30. */
+  const durationMinutes = resolvedDuration.minutes;
   const excludeId = appointment?.id;
   const staffOptionKey = eligibleStaff.map((m) => m.id).join(",");
 
@@ -250,7 +470,7 @@ export function BookingSheet({
     let cancelled = false;
     const timer = window.setTimeout(() => {
       void (async () => {
-        if (!serviceId || !activeStaffId || !locationId || !date) {
+        if (!serviceId || !locationId || !date) {
           if (!cancelled) setAvailability(null);
           return;
         }
@@ -266,7 +486,10 @@ export function BookingSheet({
               id: m.id,
               name: m.name,
             })),
+            durationMinutes: durationMinutes ?? undefined,
           });
+          // Availability is display-only. Never auto-select a slot here —
+          // the user (or Summer, explicitly) chooses the time.
           if (!cancelled) setAvailability(result);
         } catch {
           if (!cancelled) {
@@ -295,6 +518,7 @@ export function BookingSheet({
     excludeId,
     staffOptionKey,
     eligibleStaff,
+    durationMinutes,
   ]);
 
   useEffect(() => {
@@ -323,13 +547,68 @@ export function BookingSheet({
       ? snapshot
       : null;
 
+  // Slot validity — the selected slot stays the source of truth in the
+  // banner even when it no longer appears in the current availability
+  // list; we only flag the conflict, we never drop the selection. While a
+  // fetch is in flight we hold the previous validity to avoid flashing a
+  // false conflict.
+  const selectedSlotValid =
+    !slot ||
+    availLoading ||
+    (availability?.slots ?? []).some((s) => slotKey(s.start) === slotKey(slot));
+  const slotConflict =
+    slot && !selectedSlotValid
+      ? "This time conflicts with employee hours, duration, or an existing booking."
+      : null;
+
+  const needsNamedEmployee =
+    !OPTIONAL_STAFF_PERSISTENCE_ENABLED &&
+    isUnassignedStaffSelection(activeStaffId);
+
   const canSubmit =
     !!selectedCustomer?.id &&
     !!serviceId &&
-    !!activeStaffId &&
-    !!slot &&
     !!locationId &&
-    durationMinutes > 0;
+    !!slot &&
+    durationMinutes != null &&
+    durationMinutes > 0 &&
+    selectedSlotValid &&
+    !needsNamedEmployee;
+
+  const validationMessage = useMemo(() => {
+    if (needsNamedEmployee && slot && selectedCustomer?.id && serviceId) {
+      return RECEPTION_EMPLOYEE_REQUIRED_MESSAGE;
+    }
+    if (canSubmit) {
+      return isEditing
+        ? "Ready to save your changes."
+        : "Ready to confirm this appointment.";
+    }
+    const missing: string[] = [];
+    if (!selectedCustomer?.id) missing.push("a client");
+    if (!serviceId) missing.push("a service");
+    if (!locationId) missing.push("a location");
+    if (!slot) missing.push("a time");
+    if (needsNamedEmployee) missing.push("an employee");
+    if (durationMinutes == null || durationMinutes <= 0) {
+      missing.push("a valid duration");
+    }
+    if (slot && !selectedSlotValid && durationMinutes != null && durationMinutes > 0) {
+      return "Choose another time to continue.";
+    }
+    if (missing.length === 0) return "Check the highlighted fields above.";
+    return `Still need ${missing.join(", ")}.`;
+  }, [
+    canSubmit,
+    isEditing,
+    selectedCustomer?.id,
+    serviceId,
+    locationId,
+    slot,
+    durationMinutes,
+    selectedSlotValid,
+    needsNamedEmployee,
+  ]);
 
   const bookingSourceLabel =
     channel === "reception"
@@ -342,14 +621,12 @@ export function BookingSheet({
 
   function handleServiceChange(id: string) {
     setServiceId(id);
-    const svc = services.find((s) => s.id === id);
-    if (svc) setDurationMinutes(svc.duration_minutes);
-    setSlot(null);
+    setDurationOverride(null);
+    // Changing service length can invalidate the selected time range.
   }
 
   function handleOfferTypeChange(type: BookingOfferType) {
     setOfferType(type);
-    setSlot(null);
     if (type === "service") {
       setPackageId("");
       return;
@@ -371,20 +648,21 @@ export function BookingSheet({
       ) ?? "";
     if (firstServiceId) {
       setServiceId(firstServiceId);
-      const svc = services.find((s) => s.id === firstServiceId);
-      if (svc) setDurationMinutes(svc.duration_minutes);
+      setDurationOverride(null);
     }
-    setSlot(null);
   }
 
-  function handleStaffChange(id: string) {
+  function handleDurationOverride(minutes: number | null) {
+    setDurationOverride(minutes);
+  }
+
+function handleStaffChange(id: string) {
     setStaffId(id);
-    setSlot(null);
+    setStaffEligibilityNote(null);
   }
 
   function handleLocationChange(id: string) {
     setLocationId(id);
-    setSlot(null);
   }
 
   function handleDateChange(next: string) {
@@ -392,12 +670,58 @@ export function BookingSheet({
     setSlot(null);
   }
 
-  const priceCentsForSubmit =
+  const availabilityRef = useRef<AvailabilitySectionHandle>(null);
+
+  function handleDateSelected(_next: string) {
+    window.setTimeout(() => availabilityRef.current?.focusTimes(), 50);
+  }
+
+  const subtotalCentsForSubmit =
     offerType === "package" && selectedPackage
       ? selectedPackage.price_cents
       : selectedService
         ? Math.round(Number(selectedService.price) * 100)
         : 0;
+
+  const financialsForSubmit = resolveBookingFinancials({
+    catalogPriceCents: subtotalCentsForSubmit,
+    serviceTaxRateBps: selectedService?.tax_rate_bps ?? 0,
+    taxRates,
+    depositRequiredCents: selectedService?.deposit_cents,
+    depositRequired: selectedService?.deposit_required,
+    currency,
+  });
+  const depositCentsForSubmit = financialsForSubmit.depositRequiredCents;
+
+  const alreadyPaidCents = isEditing
+    ? Math.max(
+        0,
+        Number(appointment?.amount_paid_cents ?? 0) -
+          Number(appointment?.amount_refunded_cents ?? 0),
+      )
+    : 0;
+
+  const appointmentTotalForReview =
+    isEditing && appointment?.price_cents != null
+      ? Math.max(0, Number(appointment.price_cents)) +
+        Math.max(0, Number(appointment.tax_cents ?? 0))
+      : financialsForSubmit.appointmentTotalCents;
+
+  const reviewPayment = resolveEditBookingPaymentSummary({
+    appointmentTotalCents: appointmentTotalForReview,
+    alreadyPaidCents,
+    paymentTodayCents:
+      paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+    depositRequiredCents: isEditing
+      ? Number(appointment?.deposit_cents ?? depositCentsForSubmit)
+      : depositCentsForSubmit,
+    paymentStatus: appointment?.payment_status ?? null,
+  });
+
+  useEffect(() => {
+    if (isEditing) return;
+    setPaymentDraft(defaultBookingPaymentDraft(depositCentsForSubmit));
+  }, [serviceId, packageId, depositCentsForSubmit, isEditing]);
 
   function scrollToAvailability() {
     document
@@ -426,7 +750,6 @@ export function BookingSheet({
       return;
     }
     setStaffId(alt.staffId);
-    setSlot(null);
     toast(`Summer suggests ${alt.name}.`, "success");
   }
 
@@ -455,7 +778,13 @@ export function BookingSheet({
       open={open}
       onClose={onClose}
       title={isEditing ? "Edit booking" : "New booking"}
-      description={`${bookingSourceLabel} · calm workspace, not a form pile`}
+      description={
+        isEditing
+          ? `${bookingSourceLabel} · update details and save`
+          : "Customer · Appointment · Time · Review"
+      }
+      resizable
+      widthStorageKey="chasum.bookingSheetWidthPx"
       headerActions={
         <QuickActionsMenu
           isEditing={isEditing}
@@ -504,6 +833,9 @@ export function BookingSheet({
           onMessage={() =>
             toast("Compose from the customer profile in CRM.", "info")
           }
+          onCommunications={() =>
+            setCommunicationsFocusSignal((n) => n + 1)
+          }
         />
       }
       footer={
@@ -535,7 +867,7 @@ export function BookingSheet({
           <input
             type="hidden"
             name="duration_minutes"
-            value={String(durationMinutes)}
+            value={durationMinutes != null ? String(durationMinutes) : ""}
           />
           <input type="hidden" name="status" value={status} />
           <input type="hidden" name="notes" value={notes} />
@@ -556,15 +888,28 @@ export function BookingSheet({
           <input
             type="hidden"
             name="price_cents"
-            value={String(priceCentsForSubmit || "")}
+            value={String(financialsForSubmit.subtotalCents || "")}
           />
+          <input
+            type="hidden"
+            name="tax_cents"
+            value={String(financialsForSubmit.taxCents || "")}
+          />
+          <input
+            type="hidden"
+            name="deposit_cents"
+            value={String(financialsForSubmit.depositRequiredCents || "")}
+          />
+          {!isEditing ? (
+            <input
+              type="hidden"
+              name="payment_idempotency_key"
+              value={paymentIdempotencyKey.current}
+            />
+          ) : null}
 
           <p className="flex-1 text-xs text-muted-foreground">
-            {canSubmit
-              ? isEditing
-                ? "Ready to save your changes."
-                : "Ready to book — saves as confirmed unless you change status."
-              : "Still need a client, service, employee, and a valid time."}
+            {validationMessage}
           </p>
           <div className="flex gap-2">
             <Button
@@ -577,7 +922,17 @@ export function BookingSheet({
               Close
             </Button>
             <Button type="submit" size="sm" disabled={!canSubmit || pending}>
-              {pending ? "Saving…" : isEditing ? "Save changes" : "Book"}
+              {pending
+                ? "Confirming…"
+                : isEditing
+                  ? "Save changes"
+                  : confirmButtonLabel(
+                      paymentDraft.mode,
+                      paymentDraft.mode === "none"
+                        ? 0
+                        : paymentDraft.amountCents,
+                      currency,
+                    )}
             </Button>
           </div>
         </form>
@@ -591,7 +946,17 @@ export function BookingSheet({
           onCustomersChange={setCustomers}
           snapshot={activeSnapshot}
           snapshotLoading={snapshotLoading}
+          initialShowQuickAdd={forceQuickAddCustomer}
         />
+
+        {staffEligibilityNote ? (
+          <p
+            role="status"
+            className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-950 dark:text-amber-100"
+          >
+            {staffEligibilityNote}
+          </p>
+        ) : null}
 
         <AppointmentSection
           services={services}
@@ -604,35 +969,130 @@ export function BookingSheet({
           staffId={activeStaffId}
           locationId={locationId}
           date={date}
-          durationMinutes={durationMinutes}
+          durationMinutes={durationMinutes ?? 0}
+          serviceDefaultMinutes={
+            resolvedDuration.serviceDefaultMinutes ?? null
+          }
+          durationIsOverride={resolvedDuration.source === "override"}
+          durationUnresolved={durationMinutes == null}
           status={status}
           notes={notes}
           bookingSource={bookingSourceLabel}
+          currency={currency}
+          taxRates={taxRates}
           onOfferTypeChange={handleOfferTypeChange}
           onPackageChange={handlePackageChange}
           onServiceChange={handleServiceChange}
           onStaffChange={handleStaffChange}
           onLocationChange={handleLocationChange}
           onDateChange={handleDateChange}
-          onDurationChange={setDurationMinutes}
+          onDateSelected={handleDateSelected}
+          onDurationChange={handleDurationOverride}
           onStatusChange={setStatus}
           onNotesChange={setNotes}
           minDate={format(new Date(), "yyyy-MM-dd")}
         />
 
         <AvailabilitySection
+          ref={availabilityRef}
           loading={availLoading}
           availability={availability}
           selectedSlot={slot}
+          selectedSlotValid={selectedSlotValid}
+          unassigned={!activeStaffId}
           onSelectSlot={setSlot}
-          onPickStaff={(id) => {
-            setStaffId(id);
-            setSlot(null);
-          }}
+          onPickStaff={(id) => handleStaffChange(id)}
           onPickDay={(next) => {
             setDate(next);
             setSlot(null);
+            window.setTimeout(() => availabilityRef.current?.focusTimes(), 50);
           }}
+        />
+
+        {isEditing &&
+        appointment &&
+        slot &&
+        slotKey(slot) !== slotKey(appointment.start_time) ? (
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Current appointment
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {format(parseISO(appointment.start_time), "EEEE, MMMM d, yyyy")}
+              </p>
+              <p className="text-sm tabular-nums text-muted-foreground">
+                {formatTime(parseISO(appointment.start_time))}–
+                {formatTime(parseISO(appointment.end_time))}
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="mt-2 h-8 px-2 text-xs"
+                onClick={() => {
+                  setSlot(appointment.start_time);
+                  setDate(
+                    slotDateInBusinessTimezone(
+                      appointment.start_time,
+                      timezone ?? selectedLocation?.timezone ?? null,
+                    ),
+                  );
+                  setDurationOverride(null);
+                }}
+              >
+                Keep original time
+              </Button>
+            </div>
+            <div className="rounded-[var(--radius-md)] border border-primary/25 bg-primary/[0.04] px-3 py-2.5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Proposed change
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {format(parseISO(slot), "EEEE, MMMM d, yyyy")}
+              </p>
+              <p className="text-sm tabular-nums">
+                {formatTime(parseISO(slot))}
+                {durationMinutes != null
+                  ? `–${formatTime(
+                      new Date(
+                        parseISO(slot).getTime() + durationMinutes * 60_000,
+                      ),
+                    )}`
+                  : null}
+              </p>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Save changes to apply this time.
+              </p>
+            </div>
+          </div>
+        ) : null}
+
+        <SelectedAppointmentBanner
+          startIso={slot}
+          durationMinutes={durationMinutes ?? 0}
+          locationName={selectedLocation?.name ?? null}
+          employeeName={
+            activeStaffId
+              ? (eligibleStaff.find((m) => m.id === activeStaffId)?.name ??
+                staff.find((m) => m.id === activeStaffId)?.name ??
+                null)
+              : null
+          }
+          timezone={timezone ?? selectedLocation?.timezone ?? null}
+          slotConflict={
+            durationMinutes == null
+              ? "Duration is still loading for this service."
+              : slotConflict
+                ? "Needs update"
+                : null
+          }
+          serviceName={
+            offerType === "package" && selectedPackage
+              ? selectedPackage.name
+              : (selectedService?.name ?? null)
+          }
+          customerName={selectedCustomer?.name ?? null}
         />
 
         <SummerAssistant
@@ -642,7 +1102,75 @@ export function BookingSheet({
           onMoveTomorrowMorning={summerTomorrowMorning}
         />
 
-        <PaymentsSection service={selectedService} appointment={appointment} />
+        {canSubmit && slot && selectedCustomer && durationMinutes != null ? (
+          <BookingReviewCard
+            customerName={selectedCustomer.name}
+            serviceName={
+              offerType === "package" && selectedPackage
+                ? selectedPackage.name
+                : (selectedService?.name ?? "Appointment")
+            }
+            dateLabel={format(parseISO(slot), "EEEE, MMMM d, yyyy")}
+            timeLabel={`${formatTime(parseISO(slot))}–${formatTime(
+              new Date(
+                parseISO(slot).getTime() + durationMinutes * 60_000,
+              ),
+            )}`}
+            locationName={selectedLocation?.name ?? null}
+            employeeName={
+              activeStaffId
+                ? (eligibleStaff.find((m) => m.id === activeStaffId)?.name ??
+                  null)
+                : null
+            }
+            subtotalCents={
+              isEditing && appointment?.price_cents != null
+                ? Math.max(0, Number(appointment.price_cents))
+                : financialsForSubmit.subtotalCents
+            }
+            taxCents={
+              isEditing && appointment?.price_cents != null
+                ? Math.max(0, Number(appointment.tax_cents ?? 0))
+                : financialsForSubmit.taxCents
+            }
+            totalCents={reviewPayment.appointmentTotalCents}
+            depositRequiredCents={reviewPayment.depositRequiredCents}
+            depositDueNowCents={reviewPayment.depositDueNowCents}
+            alreadyPaidCents={reviewPayment.alreadyPaidCents}
+            paymentTodayCents={reviewPayment.paymentTodayCents}
+            depositStatusLabel={reviewPayment.depositStatusLabel}
+            currency={currency}
+          />
+        ) : null}
+
+        {!isEditing && financialsForSubmit.appointmentTotalCents > 0 ? (
+          <BookingPaymentSection
+            catalogPriceCents={subtotalCentsForSubmit}
+            serviceTaxRateBps={selectedService?.tax_rate_bps}
+            depositCents={selectedService?.deposit_cents}
+            depositRequired={selectedService?.deposit_required}
+            taxRates={taxRates}
+            currency={currency}
+            value={paymentDraft}
+            onChange={setPaymentDraft}
+            defaultExpanded={depositCentsForSubmit > 0}
+            includePricingFields={false}
+          />
+        ) : null}
+
+        <PaymentsSection
+          service={selectedService}
+          appointment={appointment}
+          currency={currency}
+          taxRates={taxRates}
+        />
+
+        {isEditing && appointment?.id ? (
+          <BookingCommunicationsSection
+            appointmentId={appointment.id}
+            focusSignal={communicationsFocusSignal}
+          />
+        ) : null}
 
         <TimelineSection
           appointment={appointment}

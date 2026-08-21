@@ -63,7 +63,7 @@ export async function createBooking(
   // Stamp commercial fields so deposits / balances / invoices stay in sync.
   const { data: serviceRow } = await supabase
     .from("services")
-    .select("price, deposit_cents, deposit_required")
+    .select("price, deposit_cents, deposit_required, tax_rate_bps")
     .eq("id", intent.serviceId)
     .eq("business_id", intent.businessId)
     .maybeSingle();
@@ -72,11 +72,58 @@ export async function createBooking(
     intent.priceCents != null && intent.priceCents > 0
       ? intent.priceCents
       : Math.round(Number(serviceRow?.price ?? 0) * 100);
+
+  // Authoritative tax + exclusive subtotal from catalog + tax rates.
+  const { data: taxRows } = await supabase
+    .from("tax_rates")
+    .select("id, name, rate_bps, inclusive, is_default, is_active")
+    .eq("business_id", intent.businessId)
+    .eq("is_active", true);
+  const { resolveBookingFinancials } = await import(
+    "@/lib/commerce/booking-financials"
+  );
+
+  // When the form already stamped exclusive price + tax, keep that exclusive
+  // convention. Never reinterpret (price + tax) as a tax-inclusive catalog.
+  const formProvidedTax =
+    intent.taxCents != null && Number.isFinite(intent.taxCents);
+  const financials = formProvidedTax
+    ? resolveBookingFinancials({
+        catalogPriceCents: priceCents,
+        taxInclusive: false,
+        taxCents: Math.max(0, Math.round(intent.taxCents!)),
+        depositRequiredCents:
+          intent.depositCents ?? serviceRow?.deposit_cents ?? null,
+        depositRequired: serviceRow?.deposit_required,
+      })
+    : resolveBookingFinancials({
+        catalogPriceCents:
+          intent.priceCents != null && intent.priceCents > 0
+            ? Math.round(Number(serviceRow?.price ?? 0) * 100) || priceCents
+            : Math.round(Number(serviceRow?.price ?? 0) * 100),
+        serviceTaxRateBps: serviceRow?.tax_rate_bps ?? null,
+        taxRates: (taxRows ?? []) as Parameters<
+          typeof resolveBookingFinancials
+        >[0]["taxRates"],
+        depositRequiredCents:
+          intent.depositCents ?? serviceRow?.deposit_cents ?? null,
+        depositRequired: serviceRow?.deposit_required,
+      });
+
+  // Prefer form exclusive stamp when both price and tax were provided.
+  const stampedPriceCents = formProvidedTax
+    ? priceCents
+    : financials.subtotalCents;
+  const taxCents = formProvidedTax
+    ? Math.max(0, Math.round(intent.taxCents!))
+    : financials.taxCents;
   const depositCents =
-    intent.depositCents != null
+    intent.depositCents != null && intent.depositCents > 0
       ? intent.depositCents
-      : Number(serviceRow?.deposit_cents ?? 0) ||
-        (serviceRow?.deposit_required ? Math.round(priceCents * 0.2) : 0);
+      : financials.depositRequiredCents;
+
+  const paymentStatus =
+    depositCents > 0 ? "deposit_required" : "unpaid";
 
   const notes =
     intent.packageId && intent.packageName
@@ -92,7 +139,7 @@ export async function createBooking(
     business_id: intent.businessId,
     location_id: intent.locationId,
     service_id: intent.serviceId,
-    staff_id: intent.staffId,
+    staff_id: intent.staffId || null,
     customer_id: intent.customerId!,
     start_time: intent.requestedStart,
     end_time: validation.endTime,
@@ -105,10 +152,11 @@ export async function createBooking(
     .from("appointments")
     .insert({
       ...insertBase,
-      price_cents: priceCents || null,
+      price_cents: stampedPriceCents || null,
+      tax_cents: taxCents,
       deposit_cents: depositCents || 0,
       amount_paid_cents: 0,
-      payment_status: priceCents > 0 ? "unpaid" : "unpaid",
+      payment_status: paymentStatus,
     })
     .select("id")
     .single();
@@ -118,15 +166,39 @@ export async function createBooking(
     (error.message.includes("price_cents") ||
       error.message.includes("payment_status") ||
       error.message.includes("amount_paid") ||
-      error.message.includes("deposit_cents"))
+      error.message.includes("deposit_cents") ||
+      error.message.includes("tax_cents"))
   ) {
     const fallback = await supabase
       .from("appointments")
-      .insert(insertBase)
+      .insert({
+        ...insertBase,
+        ...(error.message.includes("tax_cents")
+          ? {}
+          : { tax_cents: taxCents }),
+      })
       .select("id")
       .single();
     data = fallback.data;
     error = fallback.error;
+  }
+
+  // Nullable staff_id may not be available yet — never expose schema/migration wording.
+  if (
+    error &&
+    !intent.staffId &&
+    (error.message.includes("staff_id") ||
+      error.message.toLowerCase().includes("null value"))
+  ) {
+    const { unassignedStaffBlockedMessage } = await import(
+      "@/lib/booking/optional-staff"
+    );
+    return {
+      phase: "rollback",
+      error:
+        unassignedStaffBlockedMessage(intent.channel) ??
+        "Please select an employee to complete this booking.",
+    };
   }
 
   if (error || !data?.id) {

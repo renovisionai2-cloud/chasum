@@ -30,7 +30,12 @@ export const metadata: Metadata = {
   title: "Business",
 };
 
-export default async function BusinessPage() {
+type PageProps = {
+  searchParams: Promise<{ tab?: string }>;
+};
+
+export default async function BusinessPage({ searchParams }: PageProps) {
+  const params = await searchParams;
   const business = await getOrCreateBusiness();
   const [
     locations,
@@ -117,6 +122,28 @@ export default async function BusinessPage() {
         holidays={holidays}
         closures={closures}
         documents={documents}
+        initialTab={
+          params.tab as
+            | "profile"
+            | "hours"
+            | "booking"
+            | "branding"
+            | "notifications"
+            | "ai"
+            | "documents"
+            | "locations"
+            | "services"
+            | "categories"
+            | "rooms"
+            | "memberships"
+            | "packages"
+            | "giftcards"
+            | "taxes"
+            | "discounts"
+            | "forms"
+            | "automation"
+            | undefined
+        }
       />
     </div>
   );

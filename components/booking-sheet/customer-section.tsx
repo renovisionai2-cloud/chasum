@@ -2,13 +2,20 @@
 
 import { CustomerSearch } from "@/components/reception/customer-search";
 import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { AlertMessage, FormFooter } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { getBookingSheetCustomerSnapshot } from "@/lib/actions/booking-sheet";
-import { quickCreateCustomer } from "@/lib/actions/customers";
+import {
+  quickCreateCustomer,
+  updateCustomer,
+} from "@/lib/actions/customers";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
+import { useFormAction } from "@/hooks/use-form-action";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
-import type { Customer } from "@/lib/types/booking";
+import type { ActionState, Customer } from "@/lib/types/booking";
 import { useToast } from "@/providers/toast-provider";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -16,13 +23,13 @@ import {
   Cake,
   FileText,
   Mail,
+  Pencil,
   Phone,
   Plus,
-  Sparkles,
   UserRound,
   Wallet,
 } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 
 type Snapshot = NonNullable<
   Awaited<ReturnType<typeof getBookingSheetCustomerSnapshot>>
@@ -35,6 +42,8 @@ type CustomerSectionProps = {
   onCustomersChange: (customers: Customer[]) => void;
   snapshot: Snapshot | null;
   snapshotLoading: boolean;
+  /** Open straight into the quick-add form (e.g. Summer / Reception flows). */
+  initialShowQuickAdd?: boolean;
 };
 
 function initials(name: string) {
@@ -45,6 +54,123 @@ function initials(name: string) {
     .join("");
 }
 
+function EditCustomerDialog({
+  customer,
+  onClose,
+  onSaved,
+}: {
+  customer: Customer;
+  onClose: () => void;
+  onSaved: (next: Customer) => void;
+}) {
+  const [state, formAction, pending] = useActionState(
+    updateCustomer,
+    {} as ActionState,
+  );
+
+  useFormAction(state, () => {
+    const form = document.getElementById(
+      "bs-edit-customer-form",
+    ) as HTMLFormElement | null;
+    if (!form) {
+      onClose();
+      return;
+    }
+    const fd = new FormData(form);
+    const tagsRaw = String(fd.get("tags") ?? "");
+    const tags = tagsRaw
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    onSaved({
+      ...customer,
+      name: String(fd.get("name") ?? customer.name).trim(),
+      email: String(fd.get("email") ?? customer.email).trim(),
+      phone: String(fd.get("phone") ?? "").trim() || null,
+      address: String(fd.get("address") ?? "").trim() || null,
+      notes: String(fd.get("notes") ?? "").trim() || null,
+      referral_source: String(fd.get("referral_source") ?? "").trim() || null,
+      tags,
+      updated_at: new Date().toISOString(),
+    });
+    onClose();
+  });
+
+  return (
+    <Dialog open onClose={onClose} title="Edit customer">
+      <form id="bs-edit-customer-form" action={formAction} className="space-y-4">
+        <input type="hidden" name="id" value={customer.id} />
+        <div className="space-y-2">
+          <Label htmlFor="bs-edit-name">Name</Label>
+          <Input
+            id="bs-edit-name"
+            name="name"
+            defaultValue={customer.name}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bs-edit-email">Email</Label>
+          <Input
+            id="bs-edit-email"
+            name="email"
+            type="email"
+            defaultValue={customer.email}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bs-edit-phone">Phone</Label>
+          <Input
+            id="bs-edit-phone"
+            name="phone"
+            type="tel"
+            defaultValue={customer.phone ?? ""}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bs-edit-address">Address</Label>
+          <Input
+            id="bs-edit-address"
+            name="address"
+            defaultValue={customer.address ?? ""}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bs-edit-referral">Referral source</Label>
+          <Input
+            id="bs-edit-referral"
+            name="referral_source"
+            defaultValue={customer.referral_source ?? ""}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bs-edit-tags">Tags (comma-separated)</Label>
+          <Input
+            id="bs-edit-tags"
+            name="tags"
+            defaultValue={(customer.tags ?? []).join(", ")}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="bs-edit-notes">Notes</Label>
+          <Textarea
+            id="bs-edit-notes"
+            name="notes"
+            defaultValue={customer.notes ?? ""}
+          />
+        </div>
+        <AlertMessage error={state.error} />
+        <FormFooter
+          onCancel={onClose}
+          pending={pending}
+          submitLabel="Save customer"
+        />
+      </form>
+    </Dialog>
+  );
+}
+
 export function CustomerSection({
   customers,
   selected,
@@ -52,9 +178,11 @@ export function CustomerSection({
   onCustomersChange,
   snapshot,
   snapshotLoading,
+  initialShowQuickAdd = false,
 }: CustomerSectionProps) {
   const { toast } = useToast();
-  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(initialShowQuickAdd);
+  const [editOpen, setEditOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [draft, setDraft] = useState({ name: "", email: "", phone: "" });
 
@@ -71,6 +199,38 @@ export function CustomerSection({
     }
     startTransition(async () => {
       const result = await quickCreateCustomer(draft);
+      if (result.duplicates && result.duplicates.length > 0) {
+        toast(
+          result.error ??
+            "A matching customer may already exist — select them instead.",
+          "error",
+        );
+        const first = result.duplicates[0];
+        const existing = customers.find((c) => c.id === first.id);
+        if (existing) {
+          handleSelect(existing);
+          return;
+        }
+        const asCustomer: Customer = {
+          id: first.id,
+          business_id: "",
+          name: first.name,
+          email: first.email,
+          phone: first.phone,
+          notes: null,
+          tags: [],
+          referral_source: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        onCustomersChange(
+          [...customers, asCustomer].sort((a, b) =>
+            a.name.localeCompare(b.name),
+          ),
+        );
+        handleSelect(asCustomer);
+        return;
+      }
       if (result.error || !result.customerId) {
         toast(result.error ?? "Could not add customer.", "error");
         return;
@@ -107,7 +267,7 @@ export function CustomerSection({
             Customer
           </h3>
           <p className="text-xs text-muted-foreground">
-            Search, select, or quick-add — keyboard first
+            Find a customer or add someone new
           </p>
         </div>
         <Button
@@ -242,15 +402,25 @@ export function CustomerSection({
                 ) : null}
               </div>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              className="shrink-0"
-              onClick={() => onSelect(null)}
-            >
-              Change
-            </Button>
+            <div className="flex shrink-0 flex-col gap-1">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setEditOpen(true)}
+              >
+                <Pencil className="size-3.5" />
+                Edit
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => onSelect(null)}
+              >
+                Change
+              </Button>
+            </div>
           </div>
 
           <div className="mt-3 grid grid-cols-3 gap-2 border-t border-border/70 pt-3 text-center">
@@ -306,8 +476,8 @@ export function CustomerSection({
                   className="flex items-center justify-between gap-2 text-xs"
                 >
                   <span className="truncate">
-                    {format(parseISO(a.start), "MMM d")} · {formatTime(parseISO(a.start))} ·{" "}
-                    {a.serviceName}
+                    {format(parseISO(a.start), "MMM d")} ·{" "}
+                    {formatTime(parseISO(a.start))} · {a.serviceName}
                   </span>
                   <span className="shrink-0 capitalize text-muted-foreground">
                     {a.status.replace("_", " ")}
@@ -322,13 +492,25 @@ export function CustomerSection({
           <UserRound className="mt-0.5 size-4 shrink-0" aria-hidden />
           <p>
             Select a customer to see membership, last visit, and upcoming visits.
-            <span className="mt-1 block text-xs">
-              <Sparkles className="mr-1 inline size-3 text-spark" aria-hidden />
-              Summer can suggest regulars once activity exists.
-            </span>
           </p>
         </div>
       )}
+
+      {editOpen && selected ? (
+        <EditCustomerDialog
+          customer={selected}
+          onClose={() => setEditOpen(false)}
+          onSaved={(next) => {
+            onSelect(next);
+            onCustomersChange(
+              customers
+                .map((c) => (c.id === next.id ? next : c))
+                .sort((a, b) => a.name.localeCompare(b.name)),
+            );
+            pushRecentCustomer(next);
+          }}
+        />
+      ) : null}
     </section>
   );
 }

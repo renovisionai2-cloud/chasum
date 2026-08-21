@@ -59,14 +59,14 @@ export function TrustSection() {
           {STATEMENTS.map((statement, index) => {
             const Icon = statement.icon;
             return (
-              <Reveal key={statement.label} delayMs={index * 40}>
-                <li className="flex items-start gap-3.5 rounded-2xl border border-border/60 bg-card/50 px-5 py-4">
+              <Reveal key={statement.label} delayMs={index * 40} className="h-full">
+                <li className="flex h-full items-center gap-3.5 rounded-2xl border border-border/60 bg-card/50 px-5 py-4">
                   <Icon
-                    className="mt-0.5 h-5 w-5 shrink-0 text-primary"
+                    className="h-5 w-5 shrink-0 text-primary"
                     strokeWidth={1.5}
                     aria-hidden
                   />
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-sm font-medium leading-snug text-foreground">
                     {statement.label}
                   </span>
                 </li>
@@ -84,7 +84,7 @@ export function TrustSection() {
               {STATUSES.map((status) => (
                 <li
                   key={status}
-                  className="rounded-full border border-border/70 bg-background px-3.5 py-1.5 text-xs font-medium text-muted-foreground"
+                  className="inline-flex items-center rounded-full border border-border/70 bg-background px-3.5 py-1.5 text-xs font-medium leading-none text-muted-foreground"
                 >
                   {status}
                 </li>
@@ -94,16 +94,16 @@ export function TrustSection() {
         </Reveal>
 
         <Reveal delayMs={160}>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
             <Link
               href={PRIVATE_ALPHA_HREF}
-              className="marketing-focus-ring text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              className="marketing-focus-ring inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-4 hover:underline"
             >
               Why Private Alpha?
             </Link>
             <Link
               href={APPLY_HREF}
-              className="marketing-focus-ring text-sm font-semibold text-foreground underline-offset-4 hover:underline"
+              className="marketing-focus-ring inline-flex min-h-11 items-center text-sm font-semibold text-foreground underline-offset-4 hover:underline"
             >
               Apply for Private Alpha
             </Link>

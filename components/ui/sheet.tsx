@@ -3,26 +3,49 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { useEffect, useId, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+
+export const BOOKING_SHEET_WIDTH_KEY = "chasum.bookingSheetWidthPx";
+export const BOOKING_SHEET_NARROW_PX = 440;
+export const BOOKING_SHEET_STANDARD_PX = 600;
+export const BOOKING_SHEET_WIDE_PX = 820;
+const SHEET_MIN_PX = 400;
+const SHEET_MAX_VIEWPORT_RATIO = 0.78;
 
 type SheetProps = {
   open: boolean;
   onClose: () => void;
   title: string;
   description?: string;
-  children: React.ReactNode;
-  /** Sticky footer (actions) */
-  footer?: React.ReactNode;
-  /** Header trailing actions (menus) */
-  headerActions?: React.ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+  headerActions?: ReactNode;
   className?: string;
-  /** Desktop side; mobile always bottom */
   side?: "right" | "left";
+  /** When set, enables desktop width presets + drag resize. */
+  resizable?: boolean;
+  /** localStorage key for remembered width (defaults to booking sheet key). */
+  widthStorageKey?: string;
 };
+
+function clampWidth(width: number): number {
+  if (typeof window === "undefined") {
+    return Math.max(SHEET_MIN_PX, Math.min(width, BOOKING_SHEET_WIDE_PX));
+  }
+  const max = Math.floor(window.innerWidth * SHEET_MAX_VIEWPORT_RATIO);
+  return Math.max(SHEET_MIN_PX, Math.min(width, max));
+}
 
 /**
  * Unified sheet shell — right drawer on desktop, bottom sheet on mobile.
- * Focus trap + Escape close. Honors prefers-reduced-motion via CSS.
+ * Optional desktop resize (narrow / standard / wide + drag).
  */
 export function Sheet({
   open,
@@ -34,10 +57,44 @@ export function Sheet({
   headerActions,
   className,
   side = "right",
+  resizable = false,
+  widthStorageKey = BOOKING_SHEET_WIDTH_KEY,
 }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const descriptionId = useId();
+  const [widthPx, setWidthPx] = useState(BOOKING_SHEET_STANDARD_PX);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  useEffect(() => {
+    if (!resizable) return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    const apply = () => setIsDesktop(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    try {
+      const raw = window.localStorage.getItem(widthStorageKey);
+      const parsed = raw ? Number(raw) : NaN;
+      if (Number.isFinite(parsed)) setWidthPx(clampWidth(parsed));
+    } catch {
+      /* ignore */
+    }
+    return () => mq.removeEventListener("change", apply);
+  }, [resizable, widthStorageKey]);
+
+  const persistWidth = useCallback(
+    (next: number) => {
+      const clamped = clampWidth(next);
+      setWidthPx(clamped);
+      try {
+        window.localStorage.setItem(widthStorageKey, String(clamped));
+      } catch {
+        /* ignore */
+      }
+    },
+    [widthStorageKey],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -85,7 +142,35 @@ export function Sheet({
     };
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (!resizable || !isDesktop) return;
+    function onMove(e: PointerEvent) {
+      if (!dragRef.current) return;
+      const delta =
+        side === "right"
+          ? dragRef.current.startX - e.clientX
+          : e.clientX - dragRef.current.startX;
+      persistWidth(dragRef.current.startWidth + delta);
+    }
+    function onUp() {
+      dragRef.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [resizable, isDesktop, persistWidth, side]);
+
   if (!open) return null;
+
+  const desktopWidthStyle =
+    resizable && isDesktop
+      ? { width: `${widthPx}px`, maxWidth: "100%" }
+      : undefined;
 
   return (
     <div
@@ -108,24 +193,92 @@ export function Sheet({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
+        style={desktopWidthStyle}
         className={cn(
           "relative z-10 flex w-full flex-col border-border bg-card shadow-xl",
           "max-h-[92dvh] rounded-t-[var(--radius-lg)] border",
           "pb-[env(safe-area-inset-bottom)]",
-          "md:h-full md:max-h-none md:w-[min(34rem,100%)] md:rounded-none md:pb-0",
-          side === "right" ? "md:border-l md:border-y-0 md:border-r-0" : "md:border-r md:border-y-0 md:border-l-0",
+          resizable
+            ? "md:h-full md:max-h-none md:rounded-none md:pb-0"
+            : "md:h-full md:max-h-none md:w-[min(34rem,100%)] md:rounded-none md:pb-0",
+          side === "right"
+            ? "md:border-l md:border-y-0 md:border-r-0"
+            : "md:border-r md:border-y-0 md:border-l-0",
           className,
         )}
       >
+        {resizable && isDesktop ? (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize booking panel"
+            tabIndex={0}
+            className={cn(
+              "absolute top-0 z-20 hidden h-full w-1.5 cursor-col-resize touch-none bg-transparent hover:bg-primary/20 focus-visible:bg-primary/25 focus-visible:outline-none md:block",
+              side === "right" ? "left-0" : "right-0",
+            )}
+            onPointerDown={(e) => {
+              e.preventDefault();
+              dragRef.current = { startX: e.clientX, startWidth: widthPx };
+              document.body.style.cursor = "col-resize";
+              document.body.style.userSelect = "none";
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                persistWidth(
+                  widthPx + (side === "right" ? 24 : -24),
+                );
+              }
+              if (e.key === "ArrowRight") {
+                e.preventDefault();
+                persistWidth(
+                  widthPx + (side === "right" ? -24 : 24),
+                );
+              }
+            }}
+          />
+        ) : null}
+
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div className="min-w-0">
-            <h2 id={titleId} className="truncate text-lg font-semibold tracking-tight">
+            <h2
+              id={titleId}
+              className="truncate text-lg font-semibold tracking-tight"
+            >
               {title}
             </h2>
             {description ? (
-              <p id={descriptionId} className="mt-0.5 text-sm text-muted-foreground">
+              <p
+                id={descriptionId}
+                className="mt-0.5 text-sm text-muted-foreground"
+              >
                 {description}
               </p>
+            ) : null}
+            {resizable && isDesktop ? (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {(
+                  [
+                    ["Narrow", BOOKING_SHEET_NARROW_PX],
+                    ["Standard", BOOKING_SHEET_STANDARD_PX],
+                    ["Wide", BOOKING_SHEET_WIDE_PX],
+                  ] as const
+                ).map(([label, px]) => (
+                  <Button
+                    key={label}
+                    type="button"
+                    size="sm"
+                    variant={
+                      Math.abs(widthPx - px) < 24 ? "secondary" : "ghost"
+                    }
+                    className="h-7 px-2 text-[11px]"
+                    onClick={() => persistWidth(px)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </div>
             ) : null}
           </div>
           <div className="flex shrink-0 items-center gap-1">

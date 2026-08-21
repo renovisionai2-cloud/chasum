@@ -236,7 +236,7 @@ export function runDiscoveryEngine(input: {
   const name = memory.visitorName ? `${memory.visitorName}, ` : "";
   return {
     result: {
-      message: `${name}I have a solid picture of your business. Ask me anything about Chasum — features, pricing, how we'd fit your setup — or say if you'd like a personalized tour.`,
+      message: `${name}Thank you. I now have a good understanding of how your business operates. I already see several opportunities where Chasum can reduce manual work and improve your daily operations. Ask me anything about Chasum — features, pricing, how we'd fit your setup — or say if you'd like a personalized tour.`,
       suggestions: [
         "Personalized tour",
         "Show pricing",

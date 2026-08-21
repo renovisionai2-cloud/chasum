@@ -1,8 +1,14 @@
+import {
+  BOOKING_INTERVAL_ONBOARDING_HELP,
+  isBookingIntervalMinutes,
+  normalizeBookingIntervalMinutes,
+} from "@/lib/booking/interval";
 import type { Business } from "@/lib/types/booking";
 
 export type SetupStepId =
   | "profile"
   | "hours"
+  | "booking_interval"
   | "services"
   | "staff"
   | "booking_link";
@@ -27,12 +33,17 @@ export function isPlaceholderBusiness(business: Pick<Business, "name" | "slug">)
 }
 
 export function buildSetupSteps(input: {
-  business: Pick<Business, "name" | "slug">;
+  business: Pick<Business, "name" | "slug" | "appointment_interval_minutes">;
   serviceCount: number;
   staffCount: number;
   hasHours: boolean;
 }): SetupStep[] {
   const profileDone = !isPlaceholderBusiness(input.business);
+  const interval = normalizeBookingIntervalMinutes(
+    input.business.appointment_interval_minutes,
+  );
+  const intervalConfigured = isBookingIntervalMinutes(interval);
+
   return [
     {
       id: "profile",
@@ -45,8 +56,15 @@ export function buildSetupSteps(input: {
       id: "hours",
       label: "Confirm business hours",
       description: "Include weekends if you take appointments then.",
-      href: "/dashboard/business",
+      href: "/dashboard/business?tab=hours",
       done: input.hasHours,
+    },
+    {
+      id: "booking_interval",
+      label: "Choose booking time interval",
+      description: `${BOOKING_INTERVAL_ONBOARDING_HELP} Every 15 minutes is a balanced starting point; every 5 minutes allows times like 9:05 and 9:10.`,
+      href: "/dashboard/business?tab=booking",
+      done: profileDone && intervalConfigured,
     },
     {
       id: "services",

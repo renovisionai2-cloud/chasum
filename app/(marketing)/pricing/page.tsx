@@ -1,12 +1,17 @@
 import { Pricing } from "@/components/landing/pricing";
+import { PageFade } from "@/components/landing/page-fade";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Private Alpha Pricing",
+  title: "Pricing",
   description:
-    "Founding pricing with product status made clear. Apply to discuss the right setup for your service business—public self-serve checkout Coming Next.",
+    "Simple pricing for every stage of growth. Start free, upgrade when you need more, and run bookings, communication, payments, and operations on one connected platform. Private Alpha.",
 };
 
 export default function PricingPage() {
-  return <Pricing />;
+  return (
+    <PageFade>
+      <Pricing />
+    </PageFade>
+  );
 }

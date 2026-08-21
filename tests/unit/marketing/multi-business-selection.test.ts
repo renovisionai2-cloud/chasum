@@ -31,8 +31,22 @@ describe("multi-business selection helpers", () => {
       },
     ];
     const prompt = fsBuildMultiPrompt(selections);
-    expect(prompt).toContain("Medical Clinic");
-    expect(prompt).toContain("Ultrasound");
+    expect(prompt).toMatch(/Great! I'll tailor Chasum specifically for your/i);
+    expect(prompt.toLowerCase()).toContain("clinic");
+  });
+
+  it("builds a spa confirmation in Summer's voice", () => {
+    const prompt = fsBuildMultiPrompt([
+      {
+        id: "spa",
+        label: "Spa",
+        prompt: "I run a spa",
+        categoryId: "beauty",
+      },
+    ]);
+    expect(prompt).toBe(
+      "Great! I'll tailor Chasum specifically for your spa.",
+    );
   });
 
   it("shows all businessTypes in the understanding profile", () => {

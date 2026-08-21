@@ -69,7 +69,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
   const { planIncludesSms, SMS_PLAN_UPGRADE_MESSAGE } = await import(
     "@/lib/billing/plan-features"
   );
-  const smsAllowed = planIncludesSms(business.subscription_plan_key);
+  const smsAllowed = planIncludesSms(business);
   const smsBlockedReason = smsAllowed ? null : SMS_PLAN_UPGRADE_MESSAGE;
 
   const preferredLocationFromHistory = profile.appointments.all.find(

@@ -16,7 +16,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   if (slug === "emma") {
-    return { title: "Summer · AI Receptionist" };
+    return { title: "Summer · AI Business Manager" };
   }
   if (slug === "noah" || slug === "chase") {
     return { title: "Chase · Operations Manager" };

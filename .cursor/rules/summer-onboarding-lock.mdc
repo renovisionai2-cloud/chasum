@@ -1,0 +1,26 @@
+---
+description: Summer Onboarding v1 is product-owner locked — no redesign or polish
+globs:
+  - lib/marketing/flagship-summer.ts
+  - lib/website-concierge/discovery/fields.ts
+  - components/marketing/flagship-summer/**
+alwaysApply: false
+---
+
+# Summer Onboarding Lock — v1
+
+**STATUS:** ✅ APPROVED  
+**VERSION:** Summer Onboarding v1  
+**STATE:** Locked  
+**Route:** `/meet-summer`  
+**Canonical doc:** `docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`
+
+## Do not change without explicit product-owner request
+
+Category selection, consultation copy (including `FS_GUIDED.continuePrompt`), challenge prompts/chips, What I've Learned panel, layout, spacing, typography, icons, colors, animations, or responsive behavior.
+
+## Allowed only
+
+Bug fixes · broken responsive layouts · accessibility fixes · product-owner-requested updates · deferred TODOs only when explicitly requested.
+
+Do **not** redesign or polish this experience.

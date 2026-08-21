@@ -107,7 +107,7 @@ export const TESTIMONIALS = [
     name: "Priya Nair",
     role: "Service Manager",
     company: "Ridge Auto",
-    industry: "Automotive",
+    industry: "Automotive Services",
     result: "Faster bay turnaround",
     initials: "PN",
   },
@@ -205,11 +205,12 @@ export type PlatformModule = {
 export const PLATFORM_MODULES: PlatformModule[] = [
   {
     id: "summer",
-    name: "Summer — AI Business Assistant",
+    name: "Summer — AI Business Manager",
     href: "/#platform-ai",
-    benefit: "Answer common questions and start bookings without inventing availability.",
+    benefit:
+      "Discover, launch, operate, and grow with one AI Business Manager—not only an AI receptionist.",
     explanation:
-      "Summer — Chasum's AI Business Assistant (Early Access) — uses your real hours, services, staff, and locations, recommends slots from the scheduling engine, and escalates to humans when needed.",
+      "Summer — Chasum's AI Business Manager (Early Access) — helps with discovery, setup guidance, customer questions, scheduling workflows, staff support, and growth. She uses your real hours, services, staff, and locations; recommends slots from the scheduling engine; and escalates to humans when needed. AI Receptionist work is one capability within that role.",
     cta: "Meet Summer",
     ctaHref: MEET_SUMMER_HREF,
     preview: "summer",
@@ -297,7 +298,7 @@ export const PLATFORM_MODULES: PlatformModule[] = [
     href: "/#ai-workforce",
     benefit: "Summer and Chase in Early Access — more roles on the roadmap.",
     explanation:
-      "Summer handles reception assist; Chase surfaces grounded ops insights. Additional AI employees are Coming Next / Future Vision.",
+      "Summer is your AI Business Manager; Chase surfaces grounded ops insights. Additional AI employees are Coming Next / Future Vision.",
     cta: CTA_APPLY_LABEL,
     ctaHref: APPLY_HREF,
     comingSoon: false,
@@ -305,138 +306,220 @@ export const PLATFORM_MODULES: PlatformModule[] = [
   },
 ];
 
+/**
+ * Full Industries page order (source of truth).
+ * 1 Medical Clinics · 2 Legal Services · 3 Salons · 4 Spas · 5 Gyms ·
+ * 6 Home & Field Services · 7 Automotive Services · 8 Professional Services ·
+ * 9 Photography & Creative · 10 Pet Services · 11 Cleaning
+ */
+
+/** Shared public capability chips — Available Today / Early Access only. */
+export const CORE_CHASUM_CAPABILITIES = [
+  "AI Business Manager",
+  "Appointment Scheduling",
+  "CRM",
+  "Customer Communication",
+  "Team Coordination",
+  "Payments",
+  "Reporting",
+  "Business Memory",
+  "Multi-location",
+] as const;
+
+/** Shared closing — continuous improvement, not a roadmap. */
+export const INDUSTRY_GROWING_STATEMENT =
+  "Chasum continuously evolves with new platform improvements and industry intelligence, helping your business grow while staying connected through one AI Business Operating System.";
+
 export const INDUSTRIES = [
   {
     name: "Medical Clinics",
-    problem:
-      "Appointments, providers, locations and follow-ups often live in separate systems.",
+    intro:
+      "Designed for healthcare and wellness practices that run on appointments and follow-up.",
     solution:
-      "Keep appointments, customer history, providers, locations, communication and payment records connected—without forcing staff to manage the day across several systems.",
-    modules: [
-      "Scheduling & Reception",
-      "CRM",
-      "Team & Locations",
-      "Communication",
-      "Commerce & Reporting",
+      "Keep appointments, patient communication and automated reminders connected—with staff coordination, CRM and everyday business operations in one place.",
+    types: [
+      "Family Medical Clinics",
+      "Walk-in Clinics",
+      "Private Ultrasound Clinics",
+      "3D/4D/5D Baby Ultrasound Studios",
+      "Diagnostic Imaging Clinics",
+      "Physiotherapy Clinics",
+      "Chiropractic Clinics",
+      "Massage Therapy Clinics",
+      "Mental Health & Psychology Practices",
+      "Dental Clinics",
+      "Optometry Clinics",
+      "Veterinary Clinics",
     ],
-    note: "Healthcare-specific regulatory and clinical-record requirements must be assessed separately. Chasum is business operations software and must not be presented as an electronic medical record unless that capability is intentionally built and legally reviewed.",
+    modules: [...CORE_CHASUM_CAPABILITIES],
+    status: "Private Alpha · Available Today foundations",
+  },
+  {
+    name: "Legal Services",
+    intro:
+      "Designed for legal practices that need clear consultations, client follow-up and day-to-day operations.",
+    solution:
+      "Schedule consultations, manage appointments and keep client communication, CRM, billing and team coordination connected.",
+    types: [
+      "Family Law",
+      "Criminal Defence",
+      "Personal Injury",
+      "Immigration Law",
+      "Real Estate Law",
+      "Estate Planning",
+      "Employment Law",
+      "Corporate Law",
+      "Civil Litigation",
+      "General Practice",
+    ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Salons",
-    problem: "Stylist schedules, rebooking and no-shows drain the front desk.",
+    intro:
+      "Designed for hair salons, barbers and beauty studios built around busy chairs and repeat clients.",
     solution:
-      "Staff-aware scheduling, CRM history, reminders and reports keep the floor and the relationship connected.",
-    modules: [
-      "Scheduling & Reception",
-      "Team & Locations",
-      "CRM",
-      "Communication",
-      "Reports",
-    ],
+      "Keep the appointment book and the relationship connected—with staff scheduling, client communication, payments and daily operations in one place.",
+    types: ["Hair Salons", "Barbers", "Beauty Studios"],
+    modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Spas",
-    problem: "Packages, memberships and treatment rooms are hard to track together.",
+    intro:
+      "Designed for medical spas, day spas, wellness centres and massage studios.",
     solution:
-      "Configure services, rooms/resources, packages and location hours beside CRM and commerce records.",
-    modules: [
-      "Team & Locations",
-      "Scheduling & Reception",
-      "Commerce",
-      "CRM",
+      "Coordinate treatment appointments, client communication and staff across rooms—with payments and daily operations staying connected.",
+    types: [
+      "Medical Spas",
+      "Day Spas",
+      "Wellness Centres",
+      "Massage Studios",
     ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Gyms",
-    problem: "Classes, trainers and memberships need one operating layer.",
+    intro:
+      "Designed for gyms, personal trainers and studio-based fitness businesses.",
     solution:
-      "Employees, services and membership scaffolds sit beside CRM, scheduling and reporting.",
-    modules: [
-      "Team & Locations",
-      "Scheduling & Reception",
-      "CRM",
-      "Reports",
+      "Connect sessions, memberships and staff schedules with client communication, payments and reporting.",
+    types: [
+      "Gyms",
+      "Personal Trainers",
+      "Yoga Studios",
+      "Pilates Studios",
+      "Martial Arts Schools",
     ],
-    status: "Private Alpha · Available Today foundations",
-  },
-  {
-    name: "Automotive",
-    problem: "Bays, technicians and customer vehicles create scheduling chaos.",
-    solution:
-      "Resources, staff assignment and CRM timelines keep jobs and clients connected.",
-    modules: [
-      "Team & Locations",
-      "Scheduling & Reception",
-      "CRM",
-      "Reports",
-    ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Home & Field Services",
-    problem: "Field jobs, follow-ups and calendars rarely stay in sync.",
+    intro:
+      "Designed for contractors and field teams coordinating clients, crews and the day's work.",
     solution:
-      "Location-aware booking, CRM follow-ups and configured messaging keep jobs moving.",
-    modules: [
-      "Scheduling & Reception",
-      "CRM",
-      "Communication",
-      "Team & Locations",
+      "Turn client inquiries into scheduled estimate visits and jobs—with crew coordination, customer communication and business operations in one place.",
+    types: [
+      "General Contractors",
+      "Renovation Companies",
+      "Electricians",
+      "Plumbers",
+      "HVAC",
+      "Landscapers",
+      "Painters",
+      "Roofing",
+      "Flooring",
     ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
   },
   {
-    name: "Photography & Creative",
-    problem: "Sessions, deposits and client communication live in inboxes.",
+    name: "Automotive Services",
+    intro:
+      "Designed for modern automotive service businesses—from collision centres to dealership service departments.",
     solution:
-      "Public booking, CRM and commerce records keep shoots organized without inventing availability.",
-    modules: [
-      "Scheduling & Reception",
-      "CRM",
-      "Commerce",
-      "Reports",
+      "Coordinate customer bookings, service appointments and team schedules while keeping communication, payments and reporting connected across the shop.",
+    types: [
+      "Collision Repair Centres",
+      "Auto Body Shops",
+      "Mechanical Repair Shops",
+      "Dealership Service Departments",
+      "Tire & Wheel Centres",
+      "Oil Change & Maintenance",
+      "Vehicle Detailing",
+      "Glass Repair",
+      "EV Service Centres",
+      "Fleet Maintenance",
+      "Performance Shops",
+      "Inspection & Safety Centres",
     ],
-    status: "Private Alpha · Available Today foundations",
-  },
-  {
-    name: "Pet Services",
-    problem: "Recurring visits and pet notes get lost between bookings.",
-    solution:
-      "CRM profiles, notes, reminders and calendar protect the relationship and the schedule.",
-    modules: [
-      "CRM",
-      "Scheduling & Reception",
-      "Communication",
-      "AI Assistance",
-    ],
-    status: "Private Alpha · Available Today foundations",
-  },
-  {
-    name: "Cleaning",
-    problem: "Recurring routes and last-minute changes overwhelm dispatch.",
-    solution:
-      "Scheduling, waitlist, automation rules and employee assignments reduce scramble.",
-    modules: [
-      "Scheduling & Reception",
-      "Team & Locations",
-      "Reports",
-    ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
   },
   {
     name: "Professional Services",
-    problem: "Consultants need polished booking without a clinic-sized stack.",
+    intro:
+      "Designed for advisors and consultants who live by appointments and relationships.",
     solution:
-      "Branded booking, CRM and reports scale with the practice under Private Alpha founding plans.",
-    modules: [
-      "Scheduling & Reception",
-      "CRM",
-      "Reports",
-      "Commerce",
+      "Present a polished booking experience while keeping CRM, client communication, payments and reporting connected.",
+    types: [
+      "Accountants",
+      "Financial Advisors",
+      "Consultants",
+      "Architects",
+      "Engineers",
+      "Business Advisors",
     ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
+    status: "Private Alpha · Available Today foundations",
+  },
+  {
+    name: "Photography & Creative",
+    intro:
+      "Designed for photography studios, videographers and creative teams.",
+    solution:
+      "Book sessions from real availability, keep client communication and deposits connected, and see the work reflected in reporting.",
+    types: [
+      "Photography Studios",
+      "Videographers",
+      "Creative Agencies",
+      "Content Creators",
+    ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
+    status: "Private Alpha · Available Today foundations",
+  },
+  {
+    name: "Pet Services",
+    intro:
+      "Designed for veterinary clinics, grooming, daycare, boarding and training businesses.",
+    solution:
+      "Keep recurring visits, reminders and customer care connected—with scheduling, CRM, team coordination and payments for the day-to-day.",
+    types: [
+      "Veterinary Clinics",
+      "Pet Grooming",
+      "Pet Daycare",
+      "Pet Boarding",
+      "Dog Training",
+    ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
+    status: "Private Alpha · Available Today foundations",
+  },
+  {
+    name: "Cleaning",
+    intro:
+      "Designed for commercial, office, residential and janitorial cleaning teams.",
+    solution:
+      "Organize recurring routes and last-minute changes with scheduling, crew coordination, customer communication and reporting.",
+    types: [
+      "Commercial Cleaning",
+      "Office Cleaning",
+      "Residential Cleaning",
+      "Janitorial Services",
+    ],
+    modules: [...CORE_CHASUM_CAPABILITIES],
     status: "Private Alpha · Available Today foundations",
   },
 ] as const;
@@ -491,12 +574,13 @@ export const HERO_STATS = [
 export const AI_EMPLOYEES_PREVIEW = [
   {
     name: "Summer",
-    role: "AI Business Assistant",
-    specialty: "Website concierge, product guide, reception assist",
+    role: "AI Business Manager",
+    specialty:
+      "Discovery, onboarding, operations, reception, staff guidance, growth",
     status: "Early Access",
     availability: "Early Access",
     summary:
-      "Helps visitors explore Chasum and assists with grounded business questions and booking workflows where configured.",
+      "Chasum's AI Business Manager — helps businesses discover Chasum, get set up, answer customers, manage appointments, support staff, automate work, and grow. AI Receptionist capabilities are included within that role.",
   },
   {
     name: "Chase",
@@ -597,7 +681,7 @@ export const COMPARISON_ROWS: {
     },
   },
   {
-    feature: "Summer — Grounded AI Business Assistant",
+    feature: "Summer — AI Business Manager",
     values: {
       Chasum: "yes",
       Picktime: "roadmap",
@@ -639,7 +723,23 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Is Chasum Just Another Booking Page?",
-    a: "No. Public booking is one surface. The product includes Reception, CRM, team and location configuration, reports, communication, commerce tools, and Summer — Chasum's AI Business Assistant (Early Access).",
+    a: "No. Public booking is one surface. The product includes Reception, CRM, team and location configuration, reports, communication, commerce tools, and Summer — Chasum's AI Business Manager (Early Access).",
+  },
+  {
+    q: "Who is Summer?",
+    a: "Summer is Chasum's AI Business Manager. She helps you discover Chasum, get your business running, answer customer questions, automate everyday work, support your team, and help your business grow.",
+  },
+  {
+    q: "Does Summer only answer phone calls?",
+    a: "No. Handling customer questions and appointment requests is only one of Summer's AI Receptionist capabilities (grounded chat and messaging where configured; voice calling is not available yet). She also assists with onboarding, scheduling, customer communication, product guidance, automation, staff training, reporting, and business growth.",
+  },
+  {
+    q: "Can Summer teach me how to use Chasum?",
+    a: "Yes. Summer guides new users through setup, explains features, answers “How do I…” questions, and helps teams learn the platform.",
+  },
+  {
+    q: "Is Summer included in every plan?",
+    a: "Summer — Chasum's AI Business Manager — starts with Professional and is included in Business and Enterprise. Free focuses on core scheduling and email communication.",
   },
   {
     q: "Does AI Invent Appointment Times?",
@@ -671,7 +771,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "How is AI used today?",
-    a: "Summer helps visitors explore Chasum and assists with grounded business questions and booking workflows where configured. Chase surfaces read-only operational observations and summaries where implemented. Additional AI roles are Coming Next or Future Vision.",
+    a: "Summer helps visitors discover and evaluate Chasum, guides setup conversations, answers grounded business questions, and assists with booking workflows where configured. Chase surfaces read-only operational observations and summaries where implemented. Additional AI roles are Coming Next or Future Vision.",
   },
   {
     q: "What happens when Summer does not know the answer?",
@@ -687,7 +787,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "How Does Summer Work Today?",
-    a: "Summer — Chasum's AI Business Assistant (Early Access) — answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; and escalates to staff when needed. On the marketing site she also acts as website concierge and product guide.",
+    a: "Summer — Chasum's AI Business Manager (Early Access) — helps across discovery, onboarding guidance, customer questions, scheduling workflows, staff support, and growth. She answers from your configured hours, services, employees, and locations; recommends real slots; starts the booking flow; and escalates to staff when needed. On the marketing site she is also your product guide and website concierge.",
   },
   {
     q: "Do You Support Google, Outlook, and Apple Calendars?",
@@ -699,7 +799,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "When Is Voice Calling Available?",
-    a: "Voice is Future Vision (channel reserved) but not implemented yet. Summer’s Early Access focus is grounded chat, website concierge, and booking assist.",
+    a: "Voice is Future Vision (channel reserved) but not implemented yet. Summer’s Early Access focus includes grounded chat, website concierge, product guidance, and booking assist—AI Receptionist calling is not available yet.",
   },
   {
     q: "How Do I Get Started?",

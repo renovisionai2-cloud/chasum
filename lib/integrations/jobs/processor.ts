@@ -14,9 +14,47 @@ import { generateRecurringOccurrences } from "@/lib/integrations/automation/recu
 import { notifyWaitlistForSlot } from "@/lib/integrations/automation/waitlist";
 import type { BackgroundJob } from "@/lib/types/integrations";
 
+/** Keep commerce receipt email_status in sync with delivery outcome. */
+async function syncCommerceReceiptEmailStatus(
+  payload: Record<string, unknown>,
+  status: "sent" | "failed",
+): Promise<void> {
+  if (payload.templateKey !== "commerce.receipt") return;
+  const receiptId =
+    (payload.receiptId as string | undefined) ||
+    ((payload.directContext as { receiptId?: string } | undefined)?.receiptId ??
+      null);
+  const businessId =
+    (payload.directContext as { businessId?: string } | undefined)?.businessId ??
+    null;
+  if (!receiptId || !businessId) return;
+
+  const supabase = createServiceClient();
+  await supabase
+    .from("commerce_receipts")
+    .update({
+      email_status: status,
+      emailed_at: status === "sent" ? new Date().toISOString() : null,
+    })
+    .eq("id", receiptId)
+    .eq("business_id", businessId);
+}
+
 async function getAppointmentContext(
   appointmentId: string,
 ): Promise<(AppointmentTemplateContext & { customerId: string | null }) | null> {
+  // Prefer shared notify context so business/staff emails include current deposit state.
+  const { loadAppointmentNotifyContext } = await import(
+    "@/lib/notifications/booking-delivery"
+  );
+  const rich = await loadAppointmentNotifyContext(appointmentId);
+  if (rich) {
+    return {
+      ...rich,
+      customerId: rich.customerId ?? null,
+    };
+  }
+
   const supabase = createServiceClient();
 
   const { data } = await supabase
@@ -24,10 +62,11 @@ async function getAppointmentContext(
     .select(
       `
       id, business_id, customer_id, start_time, end_time, status, notes,
-      business:businesses(name, notification_email, email_notifications_enabled, sms_notifications_enabled),
+      business:businesses(name, timezone, notification_email, email_notifications_enabled, sms_notifications_enabled),
       service:services(name),
       staff:staff(name, email),
-      customer:customers(id, name, email, phone)
+      customer:customers(id, name, email, phone),
+      location:locations(name, timezone)
     `,
     )
     .eq("id", appointmentId)
@@ -35,20 +74,37 @@ async function getAppointmentContext(
 
   if (!data) return null;
 
-  const business = unwrapRelation(data.business) as { name: string } | null;
-  const service = unwrapRelation(data.service) as { name: string };
+  const business = unwrapRelation(data.business) as {
+    name: string;
+    timezone?: string | null;
+  } | null;
+  const service = unwrapRelation(data.service) as { name: string } | null;
   const staff = unwrapRelation(data.staff) as {
     name: string;
     email: string | null;
-  };
+  } | null;
   const customer = unwrapRelation(data.customer) as {
     id: string;
     name: string;
     email: string;
     phone: string | null;
-  };
+  } | null;
+  const location = unwrapRelation(
+    (data as { location?: unknown }).location,
+  ) as { name: string; timezone?: string | null } | null;
 
-  if (!business || !service || !staff || !customer) return null;
+  // Staff may be unassigned — still deliver customer/business mail.
+  if (!business || !service || !customer) return null;
+
+  const { resolveAppointmentEmailTimezone } = await import(
+    "@/lib/communications/appointment-datetime"
+  );
+  const locationTimezone = location?.timezone?.trim() || null;
+  const businessTimezone = business.timezone?.trim() || null;
+  const timezone = resolveAppointmentEmailTimezone({
+    locationTimezone,
+    businessTimezone,
+  });
 
   return {
     appointmentId: data.id,
@@ -58,10 +114,14 @@ async function getAppointmentContext(
     customerName: customer.name,
     customerEmail: customer.email,
     customerPhone: customer.phone,
-    staffName: staff.name,
+    staffName: staff?.name ?? "To be assigned",
     serviceName: service.name,
     startTime: data.start_time,
     endTime: data.end_time,
+    timezone,
+    locationTimezone,
+    businessTimezone,
+    locationName: location?.name?.trim() || null,
     notes: data.notes,
   };
 }
@@ -84,13 +144,16 @@ async function processEmailJob(payload: Record<string, unknown>) {
       skipPreferenceCheck: Boolean(payload.skipPreferenceCheck),
     });
     if (!result.ok && !result.skipped) {
+      await syncCommerceReceiptEmailStatus(payload, "failed");
       throw new Error(result.error ?? "Email send failed");
     }
     if (result.skipped) {
+      await syncCommerceReceiptEmailStatus(payload, "failed");
       throw new PermanentDeliverySkip(
         result.error ?? "Email skipped — not delivered.",
       );
     }
+    await syncCommerceReceiptEmailStatus(payload, "sent");
     return;
   }
 

@@ -18,6 +18,7 @@ import {
   isSameDay,
   parseISO,
 } from "@/lib/calendar/utils";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type {
   AppointmentWithRelations,
   StaffWithServices,
@@ -40,6 +41,8 @@ type DayControlCenterProps = {
   ) => void;
   onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
   colorMode?: CalendarColorMode;
+  /** Booking start-time interval from business/location settings. */
+  intervalMinutes?: number;
 };
 
 function minutesToPct(minutes: number | null | undefined): number | null {
@@ -87,6 +90,7 @@ function StaffColumn({
   onReschedule,
   onResize,
   colorMode,
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: {
   member: StaffWithServices;
   overlay?: StaffDayOverlay;
@@ -99,10 +103,13 @@ function StaffColumn({
   onReschedule?: DayControlCenterProps["onReschedule"];
   onResize?: DayControlCenterProps["onResize"];
   colorMode: CalendarColorMode;
+  intervalMinutes?: number;
 }) {
   const dayAppts = appointments.filter(
     (a) =>
-      a.staff_id === member.id &&
+      (member.id === "__unassigned__"
+        ? !a.staff_id
+        : a.staff_id === member.id) &&
       isSameDay(parseISO(a.start_time), date) &&
       a.status !== "cancelled",
   );
@@ -181,6 +188,7 @@ function StaffColumn({
             key={`${member.id}-${hour}`}
             date={date}
             hour={hour}
+            intervalMinutes={intervalMinutes}
             className="relative min-h-[64px] w-full border-b border-border/60 last:border-b-0 sm:min-h-[68px]"
             onClick={(slot) => onSelectSlot(slot, member.id)}
             onDrop={(slot, appointmentId) => {
@@ -229,6 +237,7 @@ export function DayControlCenter({
   onReschedule,
   onResize,
   colorMode = "service",
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: DayControlCenterProps) {
   const hours = useMemo(() => getHourSlots(), []);
   const activeStaff = useMemo(
@@ -307,6 +316,30 @@ export function DayControlCenter({
         </div>
 
         <div className="flex min-w-0 flex-1 overflow-x-auto">
+          <StaffColumn
+            key="__unassigned__"
+            member={
+              {
+                id: "__unassigned__",
+                name: "Unassigned",
+                color: "#94a3b8",
+                is_active: true,
+                location_id: null,
+                photo_url: null,
+                staff_services: [],
+              } as unknown as StaffWithServices
+            }
+            date={date}
+            appointments={appointments}
+            hours={hours}
+            showNow={showNow}
+            onSelectAppointment={onSelectAppointment}
+            onSelectSlot={(slot) => onSelectSlot(slot, "")}
+            onReschedule={onReschedule}
+            onResize={onResize}
+            colorMode={colorMode}
+            intervalMinutes={intervalMinutes}
+          />
           {activeStaff.map((member) => (
             <StaffColumn
               key={member.id}
@@ -321,6 +354,7 @@ export function DayControlCenter({
               onReschedule={onReschedule}
               onResize={onResize}
               colorMode={colorMode}
+              intervalMinutes={intervalMinutes}
             />
           ))}
         </div>

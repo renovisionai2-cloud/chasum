@@ -31,7 +31,7 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 name="email_notifications_enabled"
                 defaultChecked={business.email_notifications_enabled !== false}
               />
-              Email reminders & confirmations
+              Customer booking confirmation email
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -39,7 +39,7 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 name="sms_notifications_enabled"
                 defaultChecked={business.sms_notifications_enabled === true}
               />
-              SMS confirmations & reminders
+              Customer booking confirmation SMS
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -55,7 +55,7 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 name="owner_notifications_enabled"
                 defaultChecked={business.owner_notifications_enabled !== false}
               />
-              Owner notifications
+              Business new-booking email
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -63,9 +63,14 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 name="staff_notifications_enabled"
                 defaultChecked={business.staff_notifications_enabled !== false}
               />
-              Staff notifications
+              Assigned employee email
             </label>
           </div>
+          <p className="text-xs text-muted-foreground">
+            SMS requires a plan that includes SMS and Twilio configuration.
+            Business email uses the notification email below, or the business
+            account email when blank.
+          </p>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -79,7 +84,7 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="notification_email">Notification email override</Label>
+              <Label htmlFor="notification_email">Notification / Reply-To email</Label>
               <Input
                 id="notification_email"
                 name="notification_email"
@@ -87,6 +92,10 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
                 defaultValue={business.notification_email ?? ""}
                 placeholder={business.email ?? "owner@business.com"}
               />
+              <p className="text-xs text-muted-foreground">
+                Used for business booking alerts and as Reply-To on customer
+                emails. Falls back to the business account email when blank.
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="quiet_hours_start">Quiet hours start</Label>

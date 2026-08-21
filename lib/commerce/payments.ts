@@ -4,10 +4,8 @@
  */
 
 import { writeCommerceAudit } from "@/lib/commerce/audit";
-import {
-  createInvoiceForAppointment,
-  getInvoiceById,
-} from "@/lib/commerce/invoices";
+import { resolveConfiguredDepositCents } from "@/lib/commerce/booking-financials";
+import { createInvoiceForAppointment } from "@/lib/commerce/invoices";
 import {
   deriveAppointmentPaymentStatus,
   mapTransaction,
@@ -44,6 +42,8 @@ export type RecordPaymentInput = {
   giftCardCode?: string | null;
   /** Gift certificate id when method is gift_card */
   giftCardId?: string | null;
+  /** When true, queue/send receipt email after recording. Default false. */
+  sendReceiptEmail?: boolean;
 };
 
 export type RecordPaymentResult = {
@@ -58,12 +58,13 @@ async function syncAppointmentPayment(
   businessId: string,
   appointmentId: string,
   paidDeltaCents: number,
+  client?: Awaited<ReturnType<typeof createClient>>,
 ): Promise<{ ok: boolean; error?: string }> {
-  const supabase = await createClient();
+  const supabase = client ?? (await createClient());
   const { data: appt, error: apptErr } = await supabase
     .from("appointments")
     .select(
-      "id, price_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(price, deposit_cents, deposit_required)",
+      "id, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, services(price, deposit_cents, deposit_required)",
     )
     .eq("id", appointmentId)
     .eq("business_id", businessId)
@@ -106,16 +107,19 @@ async function syncAppointmentPayment(
   const priceCents =
     Number(appt.price_cents ?? 0) ||
     Math.round(Number(serviceRow?.price ?? 0) * 100);
-  const depositRequiredCents = Math.max(
-    Number(appt.deposit_cents ?? 0),
-    Number(serviceRow?.deposit_cents ?? 0),
-    serviceRow?.deposit_required ? Math.round(priceCents * 0.2) : 0,
-  );
+  const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
+  const appointmentTotalCents = priceCents + taxCents;
+  const depositRequiredCents = resolveConfiguredDepositCents({
+    appointmentDepositCents: appt.deposit_cents,
+    serviceDepositCents: serviceRow?.deposit_cents,
+    serviceDepositRequired: serviceRow?.deposit_required,
+    appointmentTotalCents,
+  });
   const amountPaid =
     Number(appt.amount_paid_cents ?? 0) + Math.max(0, paidDeltaCents);
   const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
   const paymentStatus = deriveAppointmentPaymentStatus({
-    priceCents,
+    priceCents: appointmentTotalCents,
     depositRequiredCents,
     amountPaidCents: amountPaid,
     amountRefundedCents: amountRefunded,
@@ -125,12 +129,14 @@ async function syncAppointmentPayment(
     .from("appointments")
     .update({
       price_cents: priceCents || null,
+      tax_cents: taxCents,
       amount_paid_cents: amountPaid,
       payment_status: paymentStatus,
-      deposit_cents: Math.max(
-        Number(appt.deposit_cents ?? 0),
-        Math.min(amountPaid, depositRequiredCents || amountPaid),
-      ),
+      // Preserve an existing explicit deposit; never inflate with a % of subtotal.
+      deposit_cents:
+        Number(appt.deposit_cents ?? 0) > 0
+          ? Number(appt.deposit_cents)
+          : depositRequiredCents,
     })
     .eq("id", appointmentId);
 
@@ -149,14 +155,21 @@ async function applyInvoicePayment(
   businessId: string,
   invoiceId: string,
   paidDeltaCents: number,
+  client?: Awaited<ReturnType<typeof createClient>>,
 ): Promise<void> {
-  const invoice = await getInvoiceById(businessId, invoiceId);
-  if (!invoice) return;
-  const supabase = await createClient();
-  const amountPaid = invoice.amountPaidCents + paidDeltaCents;
-  const balance = Math.max(0, invoice.totalCents - amountPaid);
+  const supabase = client ?? (await createClient());
+  const { data: inv } = await supabase
+    .from("commerce_invoices")
+    .select("amount_paid_cents, total_cents, status")
+    .eq("id", invoiceId)
+    .eq("business_id", businessId)
+    .maybeSingle();
+  if (!inv) return;
+  const amountPaid = Number(inv.amount_paid_cents ?? 0) + paidDeltaCents;
+  const totalCents = Number(inv.total_cents ?? 0);
+  const balance = Math.max(0, totalCents - amountPaid);
   const status =
-    balance <= 0 ? "paid" : amountPaid > 0 ? "partial" : invoice.status;
+    balance <= 0 ? "paid" : amountPaid > 0 ? "partial" : String(inv.status);
 
   await supabase
     .from("commerce_invoices")
@@ -350,10 +363,12 @@ export async function recordCommercePayment(
     }
 
     return {
-      ok: true,
+      ok: false,
       requiresAction: true,
       clientSecret: charge.clientSecret,
       transaction: mapTransaction(pending as Record<string, unknown>),
+      error:
+        "Card payment needs customer confirmation that this screen can't finish yet. Check “Record card as manual POS” for in-person payments, or complete the PaymentIntent in Stripe.",
     };
   }
 
@@ -465,11 +480,29 @@ export async function recordCommercePayment(
     provider_reference: charge.providerReference,
   });
 
-  await createReceiptForTransaction({
+  const receipt = await createReceiptForTransaction({
     businessId: input.businessId,
     transactionId: String(row.id),
     actorId: input.actorId,
   });
+
+  if (receipt && input.sendReceiptEmail) {
+    try {
+      const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
+      const emailed = await queueReceiptEmail(input.businessId, receipt.id);
+      if (!emailed.ok) {
+        logQueryError(
+          "commerce.receipt.auto_email",
+          emailed.error ?? "Receipt email was not queued.",
+        );
+      }
+    } catch (err) {
+      logQueryError(
+        "commerce.receipt.auto_email",
+        err instanceof Error ? err.message : "Receipt email queue failed.",
+      );
+    }
+  }
 
   await writeCommerceAudit({
     businessId: input.businessId,
@@ -509,6 +542,135 @@ export async function recordCommercePayment(
   };
 }
 
+/**
+ * Finalize a Stripe PaymentIntent that was previously stored as requires_action.
+ * Used by the Stripe webhook (service role) so booking / invoice / receipt stay in sync.
+ */
+export async function finalizeStripePaymentIntent(input: {
+  providerPaymentIntentId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const { createServiceClient } = await import("@/lib/supabase/service");
+  const supabase = createServiceClient();
+  const pi = input.providerPaymentIntentId.trim();
+  if (!pi) return { ok: false, error: "Missing payment intent id." };
+
+  const { data: row, error } = await supabase
+    .from("commerce_transactions")
+    .select("*")
+    .eq("provider_payment_intent_id", pi)
+    .maybeSingle();
+
+  if (error) {
+    logQueryError("commerce.stripe.finalize.lookup", error.message);
+    return { ok: false, error: error.message };
+  }
+  if (!row) {
+    return { ok: false, error: "No commerce transaction for this PaymentIntent." };
+  }
+
+  if (String(row.status) === "succeeded") {
+    return { ok: true };
+  }
+
+  if (String(row.status) !== "requires_action" && String(row.status) !== "pending") {
+    return {
+      ok: false,
+      error: `Transaction status is ${String(row.status)}; expected requires_action.`,
+    };
+  }
+
+  const businessId = String(row.business_id);
+  const amountCents = Number(row.amount_cents ?? 0);
+  const appointmentId = (row.appointment_id as string | null) ?? null;
+  const invoiceId = (row.invoice_id as string | null) ?? null;
+  const customerId = String(row.customer_id);
+  const method = row.method as PaymentMethod;
+  const currency = String(row.currency ?? "usd");
+
+  const { error: updErr } = await supabase
+    .from("commerce_transactions")
+    .update({
+      status: "succeeded",
+      description:
+        String(row.description ?? "").replace(
+          /\s*\(awaiting confirmation\)\s*$/i,
+          "",
+        ) || "Card payment",
+    })
+    .eq("id", row.id);
+
+  if (updErr) {
+    return { ok: false, error: updErr.message };
+  }
+
+  if (appointmentId) {
+    const sync = await syncAppointmentPayment(
+      businessId,
+      appointmentId,
+      amountCents,
+      // Service role client is API-compatible for these table writes.
+      supabase as unknown as Awaited<ReturnType<typeof createClient>>,
+    );
+    if (!sync.ok) {
+      logQueryError(
+        "commerce.stripe.finalize.appt",
+        sync.error ?? "appointment sync failed",
+      );
+    }
+  }
+
+  if (invoiceId) {
+    await applyInvoicePayment(
+      businessId,
+      invoiceId,
+      amountCents,
+      supabase as unknown as Awaited<ReturnType<typeof createClient>>,
+    );
+  }
+
+  await supabase.from("customer_payment_events").insert({
+    business_id: businessId,
+    customer_id: customerId,
+    appointment_id: appointmentId,
+    amount_cents: amountCents,
+    currency,
+    status: "paid",
+    method,
+    description: "Card payment (Stripe confirmed)",
+    provider: "stripe",
+    provider_reference: pi,
+  });
+
+  // Receipt + email use the session client path; log and continue if unavailable.
+  try {
+    const receipt = await createReceiptForTransaction({
+      businessId,
+      transactionId: String(row.id),
+      actorId: null,
+    });
+    if (receipt) {
+      const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
+      await queueReceiptEmail(businessId, receipt.id);
+    }
+  } catch (err) {
+    logQueryError(
+      "commerce.stripe.finalize.receipt",
+      err instanceof Error ? err.message : "receipt create failed",
+    );
+  }
+
+  await writeCommerceAudit({
+    businessId,
+    actorId: null,
+    action: "payment.recorded",
+    entityType: "commerce_transaction",
+    entityId: String(row.id),
+    summary: `Stripe PaymentIntent ${pi} finalized`,
+  });
+
+  return { ok: true };
+}
+
 export async function listTransactions(input: {
   businessId: string;
   customerId?: string;
@@ -544,7 +706,7 @@ export async function getBookingPaymentSummary(
   const { data: appt, error } = await supabase
     .from("appointments")
     .select(
-      "id, price_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, invoice_number, services(price, deposit_cents, deposit_required)",
+      "id, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, invoice_number, services(price, deposit_cents, deposit_required)",
     )
     .eq("id", appointmentId)
     .eq("business_id", businessId)
@@ -570,16 +732,20 @@ export async function getBookingPaymentSummary(
   const priceCents =
     Number(appt.price_cents ?? 0) ||
     Math.round(Number(serviceRow?.price ?? 0) * 100);
-  const depositRequiredCents = Math.max(
-    Number(appt.deposit_cents ?? 0),
-    Number(serviceRow?.deposit_cents ?? 0),
-  );
-  const amountPaid = Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0);
+  const taxCents = Math.max(0, Number(appt.tax_cents ?? 0));
+  const appointmentTotalCents = priceCents + taxCents;
+  const depositRequiredCents = resolveConfiguredDepositCents({
+    appointmentDepositCents: appt.deposit_cents,
+    serviceDepositCents: serviceRow?.deposit_cents,
+    serviceDepositRequired: serviceRow?.deposit_required,
+    appointmentTotalCents,
+  });
+  const amountPaid = Number(appt.amount_paid_cents ?? 0);
   const amountRefunded = Number(appt.amount_refunded_cents ?? 0);
   const paymentStatus =
     (appt.payment_status as ReturnType<typeof deriveAppointmentPaymentStatus>) ||
     deriveAppointmentPaymentStatus({
-      priceCents,
+      priceCents: appointmentTotalCents,
       depositRequiredCents,
       amountPaidCents: amountPaid,
       amountRefundedCents: amountRefunded,
@@ -594,11 +760,16 @@ export async function getBookingPaymentSummary(
   return {
     appointmentId,
     paymentStatus,
-    priceCents,
+    priceCents: appointmentTotalCents,
+    subtotalCents: priceCents,
+    taxCents,
     depositRequiredCents,
     amountPaidCents: amountPaid,
     amountRefundedCents: amountRefunded,
-    outstandingBalanceCents: Math.max(0, priceCents - (amountPaid - amountRefunded)),
+    outstandingBalanceCents: Math.max(
+      0,
+      appointmentTotalCents - (amountPaid - amountRefunded),
+    ),
     invoiceNumber: (appt.invoice_number as string) ?? null,
     history,
   };

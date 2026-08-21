@@ -2,6 +2,7 @@
 
 import { Reveal } from "@/components/landing/reveal";
 import { INDUSTRIES_HREF } from "@/lib/marketing/alpha";
+import { getIndustryImage } from "@/lib/marketing/industryImages";
 import {
   BriefcaseBusiness,
   Camera,
@@ -11,12 +12,18 @@ import {
   Hammer,
   HeartPulse,
   PawPrint,
+  Scale,
   Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
-/** Homepage industry tiles — category presentation, not compliance claims. */
+/**
+ * Homepage industry tiles — category presentation, not compliance claims.
+ * Legal Services is a dedicated tile (not folded into Professional Services).
+ * Healthcare maps to Medical Clinics and related care businesses.
+ */
 export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   name: string;
   blurb: string;
@@ -25,48 +32,55 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   {
     name: "Healthcare",
     blurb:
-      "Designed for clinics where every appointment and follow-up matters.",
+      "Designed for healthcare and wellness practices that need scheduling and follow-up.",
     icon: HeartPulse,
   },
   {
+    name: "Legal Services",
+    blurb:
+      "Designed for legal practices managing consultations, clients and scheduling.",
+    icon: Scale,
+  },
+  {
     name: "Beauty & Personal Care",
-    blurb: "Built around busy schedules and repeat clients.",
+    blurb: "Designed for salons, barbers and beauty studios.",
     icon: Sparkles,
   },
   {
     name: "Fitness & Wellness",
-    blurb: "Coordinate memberships, bookings and staff.",
+    blurb: "Designed for gyms, trainers and studio-based fitness businesses.",
     icon: Dumbbell,
   },
   {
     name: "Home & Construction Services",
     blurb:
-      "Coordinate customers, crews and projects from one connected operating system.",
+      "Designed for contractors coordinating schedules, crews and customers.",
     icon: Hammer,
   },
   {
-    name: "Automotive",
-    blurb: "Keep repairs, customers and communication connected.",
+    name: "Automotive Services",
+    blurb:
+      "Designed for modern automotive service businesses and service departments.",
     icon: Car,
   },
   {
     name: "Professional Services",
-    blurb: "Organize clients, appointments and relationships.",
+    blurb: "Designed for advisors and consultants who live by appointments.",
     icon: BriefcaseBusiness,
   },
   {
     name: "Photography & Creative",
-    blurb: "Manage sessions, communication and follow-up.",
+    blurb: "Designed for studios and creators managing sessions and clients.",
     icon: Camera,
   },
   {
     name: "Pet Services",
-    blurb: "Run appointments, reminders and customer care.",
+    blurb: "Designed for grooming, daycare, boarding and veterinary teams.",
     icon: PawPrint,
   },
   {
     name: "Education",
-    blurb: "Support instructors, scheduling and communication.",
+    blurb: "Designed for instructors who need scheduling and communication.",
     icon: GraduationCap,
   },
 ];
@@ -98,26 +112,53 @@ export function HomepageIndustries() {
           </div>
         </Reveal>
 
-        <ul className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-3">
+        <ul className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5 lg:gap-4">
           {HOMEPAGE_INDUSTRY_TILES.map((tile, index) => {
             const Icon = tile.icon;
+            const visual = getIndustryImage(tile.name);
             return (
-              <Reveal key={tile.name} delayMs={Math.min(index * 40, 200)}>
-                <li>
+              <Reveal key={tile.name} delayMs={Math.min(index * 40, 200)} className="h-full">
+                <li className="h-full">
                   <Link
                     href={INDUSTRIES_HREF}
-                    className="fd-industry-tile marketing-focus-ring flex min-h-[7.5rem] flex-col items-start rounded-2xl border border-border/60 bg-card/70 p-4 sm:min-h-[8.25rem] sm:p-5"
+                    className="fd-industry-tile marketing-focus-ring relative flex h-full min-h-[11.5rem] flex-col justify-end overflow-hidden rounded-2xl border border-border/60 sm:min-h-[12.5rem]"
                   >
-                    <Icon
-                      className="h-5 w-5 text-primary"
-                      strokeWidth={1.75}
+                    {visual ? (
+                      <Image
+                        src={visual.thumbnail}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 20vw, 280px"
+                        className="fd-industry-tile-img object-cover"
+                        style={
+                          visual.objectPosition
+                            ? { objectPosition: visual.objectPosition }
+                            : undefined
+                        }
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span
+                        className="absolute inset-0 bg-muted"
+                        aria-hidden
+                      />
+                    )}
+                    <span
+                      className="fd-industry-tile-overlay pointer-events-none absolute inset-0"
                       aria-hidden
                     />
-                    <span className="mt-3 text-sm font-semibold tracking-tight text-foreground sm:text-[15px]">
-                      {tile.name}
-                    </span>
-                    <span className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
-                      {tile.blurb}
+                    <span className="relative z-[1] flex flex-col items-start gap-0 p-4 sm:p-5">
+                      <Icon
+                        className="h-5 w-5 shrink-0 text-white/90"
+                        strokeWidth={1.75}
+                        aria-hidden
+                      />
+                      <span className="mt-3 text-sm font-semibold leading-snug tracking-tight text-white sm:text-[15px]">
+                        {tile.name}
+                      </span>
+                      <span className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-white/80 sm:text-[13px]">
+                        {tile.blurb}
+                      </span>
                     </span>
                   </Link>
                 </li>
@@ -127,7 +168,7 @@ export function HomepageIndustries() {
         </ul>
 
         <Reveal delayMs={160}>
-          <div className="mt-10 text-center">
+          <div className="mt-10 flex justify-center">
             <Link
               href={INDUSTRIES_HREF}
               className="marketing-focus-ring inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-4 hover:underline"

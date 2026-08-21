@@ -3,6 +3,11 @@
 import { FREE_PLAN_LIMIT_MESSAGE } from "@/lib/marketing/pricing";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
+  normalizeBookingIntervalMinutes,
+  resolveBookingIntervalMinutes,
+  type BookingIntervalMinutes,
+} from "@/lib/booking/interval";
+import {
   ALL_LOCATIONS,
   LOCATION_SCOPE_COOKIE,
   parseLocationScope,
@@ -185,7 +190,9 @@ export async function createLocation(
 
   await supabase.from("location_settings").insert({
     location_id: location.id,
-    appointment_interval_minutes: business.appointment_interval_minutes ?? 30,
+    appointment_interval_minutes: normalizeBookingIntervalMinutes(
+      business.appointment_interval_minutes,
+    ),
     booking_limit_days: business.booking_limit_days ?? 60,
     max_daily_bookings: business.max_daily_bookings,
     cancellation_policy: business.cancellation_policy,
@@ -298,6 +305,18 @@ export async function renameLocation(
   return updateLocation(locationId, { name });
 }
 
+/** Shared booking grid interval for calendar + availability UIs. */
+export async function getBookingIntervalMinutes(
+  locationId?: string,
+): Promise<BookingIntervalMinutes> {
+  const business = await getOrCreateBusiness();
+  const loc = await getLocationWithSettings(locationId);
+  return resolveBookingIntervalMinutes({
+    locationInterval: loc?.settings?.appointment_interval_minutes,
+    businessInterval: business.appointment_interval_minutes,
+  });
+}
+
 export async function getLocationWithSettings(
   locationId?: string,
 ): Promise<LocationWithSettings | null> {
@@ -398,7 +417,9 @@ export async function updateLocationSettings(
 
   if (!location) return { error: "Location not found." };
 
-  const appointmentInterval = Number(formData.get("appointment_interval_minutes"));
+  const appointmentInterval = normalizeBookingIntervalMinutes(
+    formData.get("appointment_interval_minutes"),
+  );
   const bookingLimitDays = Number(formData.get("booking_limit_days"));
   const maxDailyBookings = formData.get("max_daily_bookings")
     ? Number(formData.get("max_daily_bookings"))
@@ -409,7 +430,7 @@ export async function updateLocationSettings(
   const { error } = await supabase
     .from("location_settings")
     .update({
-      appointment_interval_minutes: appointmentInterval || 30,
+      appointment_interval_minutes: appointmentInterval,
       booking_limit_days: bookingLimitDays || 60,
       max_daily_bookings: maxDailyBookings,
       cancellation_policy: cancellationPolicy,

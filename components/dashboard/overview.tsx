@@ -26,8 +26,10 @@ import {
   buildSetupSteps,
   isSetupComplete,
 } from "@/lib/onboarding/setup-progress";
+import { hourInBusinessTimezone } from "@/lib/business/datetime";
 import { formatMoneyDollars } from "@/lib/commerce/money";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
+import { formatBusinessDate } from "@/lib/locale";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import {
@@ -88,6 +90,10 @@ export async function DashboardOverview() {
 
   const now = new Date();
   const todayAppts = stats.todayAppointments;
+  const businessLocale = {
+    timezone: business.timezone,
+    currency: business.currency,
+  };
 
   const weekSpark = (stats.weekDayCounts ?? []).map((d) => d.value);
   const scopeLabel =
@@ -99,7 +105,7 @@ export async function DashboardOverview() {
       (user?.user_metadata?.name as string | undefined) ??
       null,
   });
-  const greeting = greetingForHour(now.getHours());
+  const greeting = greetingForHour(hourInBusinessTimezone(now, businessLocale));
 
   const aiSummary = buildAiSummary({
     todayCount: stats.todayCount,
@@ -171,7 +177,13 @@ export async function DashboardOverview() {
         <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0 max-w-2xl space-y-3">
             <p className="ds-label">
-              {format(now, "EEEE, MMMM d, yyyy")} · {scopeLabel}
+              {formatBusinessDate(now, businessLocale, {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}{" "}
+              · {scopeLabel}
             </p>
             <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-[2rem]">
               {greeting}, {firstName}.
@@ -432,7 +444,13 @@ export async function DashboardOverview() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>Today&apos;s schedule</CardTitle>
-              <CardDescription>{format(now, "EEEE, MMM d")}</CardDescription>
+              <CardDescription>
+                {formatBusinessDate(now, businessLocale, {
+                  weekday: "long",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </CardDescription>
             </div>
             <Link href="/dashboard/calendar">
               <Button variant="outline" size="sm">

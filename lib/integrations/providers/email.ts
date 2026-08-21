@@ -1,8 +1,11 @@
 import {
-  getEmailFromAddress,
   getResendApiKey,
   isProductionRuntime,
 } from "@/lib/env";
+import {
+  resolveEmailFromAddress,
+  validateEmailFromAddress,
+} from "@/lib/communications/email-from";
 import type { EmailProvider, EmailPayload, EmailResult } from "./types";
 
 class ResendEmailProvider implements EmailProvider {
@@ -18,28 +21,38 @@ class ResendEmailProvider implements EmailProvider {
       };
     }
 
+    const resolved = resolveEmailFromAddress();
+    const from = payload.from?.trim() || resolved.from;
+    const configError = validateEmailFromAddress(from);
+    if (configError) {
+      return { success: false, error: configError };
+    }
+
+    const body: Record<string, unknown> = {
+      from,
+      to: [payload.to],
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+    };
+    if (payload.replyTo?.trim()) {
+      body.reply_to = payload.replyTo.trim();
+    }
+    if (payload.attachments?.length) {
+      body.attachments = payload.attachments.map((file) => ({
+        filename: file.filename,
+        content: file.content,
+        content_type: file.contentType ?? "application/octet-stream",
+      }));
+    }
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: getEmailFromAddress(),
-        to: [payload.to],
-        subject: payload.subject,
-        html: payload.html,
-        text: payload.text,
-        ...(payload.attachments?.length
-          ? {
-              attachments: payload.attachments.map((file) => ({
-                filename: file.filename,
-                content: file.content,
-                content_type: file.contentType ?? "application/octet-stream",
-              })),
-            }
-          : {}),
-      }),
+      body: JSON.stringify(body),
     });
 
     const data = (await res.json()) as {
@@ -48,9 +61,12 @@ class ResendEmailProvider implements EmailProvider {
       name?: string;
     };
     if (!res.ok) {
-      const from = getEmailFromAddress();
       let detail = data.message ?? data.name ?? "Failed to send email.";
-      if (/smtp|icloud|550|553|554|blocked|not verified|domain|rejected/i.test(detail)) {
+      if (
+        /smtp|icloud|550|553|554|blocked|not verified|domain|rejected|not authorized/i.test(
+          detail,
+        )
+      ) {
         detail = `${detail} Chasum attempted delivery via Resend; the mail provider rejected it. Verify the From address (${from}) domain in Resend and that the recipient inbox can accept mail.`;
       } else {
         detail = `${detail} (from ${from}). Confirm the sender domain is verified for email delivery.`;
@@ -68,8 +84,11 @@ class ConsoleEmailProvider implements EmailProvider {
   readonly name = "console";
 
   async send(payload: EmailPayload): Promise<EmailResult> {
+    const resolved = resolveEmailFromAddress();
     console.info(
       "[email]",
+      `from=${payload.from ?? resolved.from}`,
+      payload.replyTo ? `replyTo=${payload.replyTo}` : "",
       payload.to,
       payload.subject,
       payload.attachments?.length

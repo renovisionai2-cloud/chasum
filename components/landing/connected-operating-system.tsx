@@ -37,15 +37,19 @@ function ModuleCard({
   delayMs: number;
 }) {
   return (
-    <Reveal delayMs={delayMs}>
-      <div className="rounded-2xl border border-border/60 bg-card/70 px-4 py-4 shadow-sm backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+    <Reveal delayMs={delayMs} className="h-full">
+      <div className="flex h-full items-center rounded-2xl border border-border/60 bg-card/70 px-4 py-4 shadow-sm backdrop-blur-sm transition-colors duration-250 hover:border-border hover:bg-card/90">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Icon className="h-4 w-4" strokeWidth={1.75} />
           </span>
-          <div>
-            <p className="text-sm font-semibold text-foreground">{name}</p>
-            <p className="text-xs text-muted-foreground">{status}</p>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold leading-snug text-foreground">
+              {name}
+            </p>
+            <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+              {status}
+            </p>
           </div>
         </div>
       </div>
@@ -80,22 +84,22 @@ export function ConnectedOperatingSystem() {
           </div>
         </Reveal>
 
-        <div className="mt-14 grid items-center gap-5 lg:grid-cols-[200px_minmax(0,1.15fr)_200px] lg:gap-7 xl:grid-cols-[220px_minmax(0,1.2fr)_220px] xl:gap-8">
-          <ul className="flex flex-row gap-3 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+        <div className="mt-12 grid items-stretch gap-4 lg:mt-14 lg:grid-cols-[minmax(11.5rem,1fr)_minmax(0,1.35fr)_minmax(11.5rem,1fr)] lg:gap-6 xl:grid-cols-[minmax(12.5rem,1fr)_minmax(0,1.4fr)_minmax(12.5rem,1fr)] xl:gap-8">
+          <ul className="flex h-auto flex-row gap-3 overflow-x-auto pb-1 lg:h-full lg:flex-col lg:justify-between lg:gap-3 lg:overflow-visible lg:pb-0">
             {LEFT.map((item, index) => (
-              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0">
+              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0 lg:flex-none">
                 <ModuleCard {...item} delayMs={index * 50} />
               </li>
             ))}
           </ul>
 
-          <Reveal delayMs={80}>
-            <div className="relative">
+          <Reveal delayMs={80} className="h-full min-h-0">
+            <div className="relative h-full">
               <div
                 className="pointer-events-none absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-primary/18 via-transparent to-spark/12 blur-2xl"
                 aria-hidden
               />
-              <div className="fd-product-frame overflow-hidden rounded-2xl border border-border/55 bg-card/90">
+              <div className="fd-product-frame h-full overflow-hidden rounded-2xl border border-border/55 bg-card/90">
                 <DashboardPreview
                   variant="overview"
                   className="min-h-[280px] border-0 shadow-none md:min-h-[400px] lg:min-h-[440px]"
@@ -104,24 +108,24 @@ export function ConnectedOperatingSystem() {
             </div>
           </Reveal>
 
-          <ul className="flex flex-row gap-3 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0">
+          <ul className="flex h-auto flex-row gap-3 overflow-x-auto pb-1 lg:h-full lg:flex-col lg:justify-between lg:gap-3 lg:overflow-visible lg:pb-0">
             {RIGHT.map((item, index) => (
-              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0">
+              <li key={item.name} className="min-w-[11rem] flex-1 lg:min-w-0 lg:flex-none">
                 <ModuleCard {...item} delayMs={index * 50 + 60} />
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="mt-4 text-center text-[11px] text-muted-foreground">
+        <p className="mt-5 text-center text-[11px] leading-relaxed text-muted-foreground">
           * Email when messaging is configured · SMS Early Access
         </p>
 
         <Reveal delayMs={120}>
-          <div className="mt-10 text-center">
+          <div className="mt-8 flex justify-center">
             <Link
               href={PLATFORM_HREF}
-              className="marketing-focus-ring text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              className="marketing-focus-ring inline-flex min-h-11 items-center text-sm font-semibold text-primary underline-offset-4 hover:underline"
             >
               Explore the Platform →
             </Link>

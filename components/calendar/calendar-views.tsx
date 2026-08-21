@@ -6,6 +6,8 @@ import {
   TimeSlotDropZone,
   type CalendarColorMode,
 } from "@/components/calendar/appointment-block";
+import { Button } from "@/components/ui/button";
+import { Sheet } from "@/components/ui/sheet";
 import {
   CALENDAR_END_HOUR,
   CALENDAR_START_HOUR,
@@ -16,8 +18,12 @@ import {
   parseISO,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
+import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
+import { APPOINTMENT_STATUS_LABELS } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { useState } from "react";
 
 type ViewProps = {
   date: Date;
@@ -27,6 +33,8 @@ type ViewProps = {
   onReschedule?: (appointment: AppointmentWithRelations, newStart: Date) => void;
   onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
   colorMode?: CalendarColorMode;
+  /** Booking start-time interval from business/location settings. */
+  intervalMinutes?: number;
 };
 
 const TIME_COL = "w-16 shrink-0 sm:w-[4.25rem]";
@@ -39,6 +47,7 @@ export function DayView({
   onReschedule,
   onResize,
   colorMode = "service",
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: ViewProps) {
   const hours = getHourSlots();
   const dayAppointments = appointments.filter((appt) =>
@@ -94,6 +103,7 @@ export function DayView({
             <TimeSlotDropZone
               date={date}
               hour={hour}
+              intervalMinutes={intervalMinutes}
               className="relative min-h-[68px] w-full border-l border-transparent"
               onClick={onSelectSlot}
               onDrop={(slot, appointmentId) => {
@@ -141,6 +151,7 @@ export function WeekView({
   onReschedule,
   onResize,
   colorMode = "service",
+  intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
 }: ViewProps) {
   const hours = getHourSlots();
   const weekStart = new Date(date);
@@ -205,6 +216,7 @@ export function WeekView({
                   key={`${day.toISOString()}-${hour}`}
                   date={day}
                   hour={hour}
+                  intervalMinutes={intervalMinutes}
                   className={cn(
                     "min-h-[56px] flex-1 border-l border-border/60",
                     isSameDay(day, new Date()) && "bg-accent/10",
@@ -288,6 +300,7 @@ export function MonthView({
   const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
   const gridStart = new Date(monthStart);
   gridStart.setDate(monthStart.getDate() - monthStart.getDay());
+  const [agendaDay, setAgendaDay] = useState<Date | null>(null);
 
   const days = Array.from({ length: 42 }, (_, i) => {
     const d = new Date(gridStart);
@@ -295,85 +308,194 @@ export function MonthView({
     return d;
   });
 
-  return (
-    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
-      <div className="sticky top-0 z-10 grid grid-cols-7 border-b border-border bg-card">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div
-            key={day}
-            className="px-2 py-3 text-center text-xs font-medium text-muted-foreground"
-          >
-            {day}
-          </div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7">
-        {days.map((day) => {
-          const dayAppts = appointments.filter((appt) =>
-            isSameDay(parseISO(appt.start_time), day),
-          );
-          const isCurrentMonth = day.getMonth() === date.getMonth();
-          const isToday = isSameDay(day, new Date());
+  const agendaAppointments = agendaDay
+    ? appointments
+        .filter((appt) => isSameDay(parseISO(appt.start_time), agendaDay))
+        .sort(
+          (a, b) =>
+            parseISO(a.start_time).getTime() - parseISO(b.start_time).getTime(),
+        )
+    : [];
+  const visibleLimit = 3;
 
-          return (
-            <button
-              key={day.toISOString()}
-              type="button"
-              className={cn(
-                "min-h-[100px] border-b border-r border-border p-2 text-left transition-colors hover:bg-muted/40 sm:min-h-[120px]",
-                !isCurrentMonth && "bg-muted/20 text-muted-foreground",
-                isToday && "bg-accent/30",
-              )}
-              onClick={() => onSelectDay(day)}
+  return (
+    <>
+      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+        <div className="sticky top-0 z-10 grid grid-cols-7 border-b border-border bg-card">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <div
+              key={day}
+              className="px-1 py-3 text-center text-[11px] font-medium text-muted-foreground sm:px-2 sm:text-xs"
             >
-              <span
+              {day}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7">
+          {days.map((day) => {
+            const dayAppts = appointments
+              .filter((appt) => isSameDay(parseISO(appt.start_time), day))
+              .sort(
+                (a, b) =>
+                  parseISO(a.start_time).getTime() -
+                  parseISO(b.start_time).getTime(),
+              );
+            const isCurrentMonth = day.getMonth() === date.getMonth();
+            const isToday = isSameDay(day, new Date());
+            const overflowCount = Math.max(0, dayAppts.length - visibleLimit);
+            const dateLabel = format(day, "MMMM d");
+
+            return (
+              <div
+                key={day.toISOString()}
                 className={cn(
-                  "inline-flex h-7 w-7 items-center justify-center rounded-full text-sm",
-                  isToday && "bg-primary font-semibold text-primary-foreground",
+                  "flex min-h-[112px] flex-col border-b border-r border-border p-1.5 sm:min-h-[120px] sm:p-2",
+                  !isCurrentMonth && "bg-muted/20 text-muted-foreground",
+                  isToday && "bg-accent/30",
                 )}
               >
-                {day.getDate()}
-              </span>
-              <div className="mt-1 space-y-1">
-                {dayAppts.slice(0, 3).map((appt) => {
-                  const fill =
-                    colorMode === "staff"
-                      ? appt.staff?.color ?? appt.service.color
-                      : appt.service.color;
-                  return (
-                    <div
-                      key={appt.id}
-                      role="button"
-                      tabIndex={0}
-                      className="truncate rounded-md border-l-2 px-1.5 py-0.5 text-[10px] text-white sm:text-xs"
-                      style={getAppointmentBlockStyle(appt.status, fill)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onSelectAppointment(appt);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isToday && "bg-primary font-semibold text-primary-foreground",
+                  )}
+                  aria-label={`Open ${dateLabel}`}
+                  onClick={() => onSelectDay(day)}
+                >
+                  {day.getDate()}
+                </button>
+                <div className="mt-1 flex min-h-0 flex-1 flex-col gap-1">
+                  {dayAppts.slice(0, visibleLimit).map((appt) => {
+                    const fill =
+                      colorMode === "staff"
+                        ? appt.staff?.color ?? appt.service.color
+                        : appt.service.color;
+                    const start = parseISO(appt.start_time);
+                    const label = `${formatTime(start)} ${appt.customer.name} · ${appt.service.name}`;
+                    return (
+                      <button
+                        key={appt.id}
+                        type="button"
+                        className="min-h-8 w-full truncate rounded-md border-l-2 px-1.5 py-1 text-left text-[12px] leading-tight text-white sm:min-h-0 sm:text-xs"
+                        style={getAppointmentBlockStyle(appt.status, fill)}
+                        aria-label={label}
+                        title={label}
+                        onClick={(e) => {
                           e.stopPropagation();
                           onSelectAppointment(appt);
-                        }
+                        }}
+                      >
+                        <span className="font-medium tabular-nums">
+                          {formatTime(start)}
+                        </span>{" "}
+                        <span>{appt.customer.name}</span>
+                      </button>
+                    );
+                  })}
+                  {overflowCount > 0 ? (
+                    <button
+                      type="button"
+                      className={cn(
+                        "mt-auto flex min-h-11 w-full items-center justify-center rounded-[var(--radius-sm)] border border-border bg-muted/60 px-2 text-center text-base font-semibold text-foreground shadow-xs",
+                        "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:bg-muted/80",
+                        "sm:min-h-9 sm:text-sm",
+                      )}
+                      aria-label={`View ${overflowCount} more appointments on ${dateLabel}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAgendaDay(day);
                       }}
                     >
-                      {formatTime(parseISO(appt.start_time))} {appt.customer.name}
-                    </div>
-                  );
-                })}
-                {dayAppts.length > 3 && (
-                  <p className="text-[10px] text-muted-foreground">
-                    +{dayAppts.length - 3} more
-                  </p>
-                )}
+                      <span className="sm:hidden">
+                        View {overflowCount} more
+                      </span>
+                      <span className="hidden sm:inline">
+                        {overflowCount} more appointments
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            </button>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      <Sheet
+        open={Boolean(agendaDay)}
+        onClose={() => setAgendaDay(null)}
+        title={
+          agendaDay
+            ? format(agendaDay, "EEEE, MMMM d, yyyy")
+            : "Day appointments"
+        }
+        description={
+          agendaDay
+            ? `${agendaAppointments.length} appointment${agendaAppointments.length === 1 ? "" : "s"}`
+            : undefined
+        }
+      >
+        <div className="space-y-2">
+          {agendaAppointments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No appointments on this day.
+            </p>
+          ) : (
+            agendaAppointments.map((appt) => {
+              const start = parseISO(appt.start_time);
+              const end = parseISO(appt.end_time);
+              return (
+                <button
+                  key={appt.id}
+                  type="button"
+                  className="flex min-h-14 w-full flex-col gap-0.5 rounded-[var(--radius-md)] border border-border bg-card px-3 py-3 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  onClick={() => {
+                    setAgendaDay(null);
+                    onSelectAppointment(appt);
+                  }}
+                >
+                  <span className="text-sm font-semibold tabular-nums">
+                    {formatTime(start)}–{formatTime(end)}
+                  </span>
+                  <span className="text-sm font-medium">
+                    {appt.customer.name}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {appt.service.name}
+                    {appt.staff?.name ? ` · ${appt.staff.name}` : ""}
+                    {" · "}
+                    {APPOINTMENT_STATUS_LABELS[appt.status] ?? appt.status}
+                  </span>
+                </button>
+              );
+            })
+          )}
+        </div>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Button
+            type="button"
+            className="w-full"
+            onClick={() => {
+              if (!agendaDay) return;
+              const day = agendaDay;
+              setAgendaDay(null);
+              onSelectDay(day);
+            }}
+          >
+            Add appointment
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => setAgendaDay(null)}
+          >
+            Close
+          </Button>
+        </div>
+      </Sheet>
+    </>
   );
 }
 

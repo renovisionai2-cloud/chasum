@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { DashboardShell } from "@/components/dashboard/shell";
+import { PreviewBuildBadge } from "@/components/system/preview-build-badge";
 import { getSupabaseEnv } from "@/lib/env";
 import {
   getLocationQuota,
@@ -45,6 +46,7 @@ export default async function DashboardLayout({
       showHq={showHq}
     >
       {children}
+      <PreviewBuildBadge />
     </DashboardShell>
   );
 }

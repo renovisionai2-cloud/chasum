@@ -36,7 +36,10 @@ function mutationToAction(
   successMessage: string,
 ): ActionState {
   if (result.phase === "success") {
-    return { success: successMessage };
+    return {
+      success: successMessage,
+      appointmentId: result.data?.appointmentId,
+    };
   }
   return {
     error:
@@ -360,9 +363,32 @@ export async function createAppointment(
   const priceCentsRaw = Number(formData.get("price_cents"));
   const priceCents =
     Number.isFinite(priceCentsRaw) && priceCentsRaw > 0 ? priceCentsRaw : undefined;
+  const taxCentsRaw = Number(formData.get("tax_cents"));
+  const taxCents =
+    Number.isFinite(taxCentsRaw) && taxCentsRaw >= 0
+      ? Math.round(taxCentsRaw)
+      : undefined;
+  const depositCentsRaw = Number(formData.get("deposit_cents"));
+  const depositCents =
+    Number.isFinite(depositCentsRaw) && depositCentsRaw >= 0
+      ? Math.round(depositCentsRaw)
+      : undefined;
 
-  if (!serviceId || !staffId || !customerId) {
-    return { error: "All required fields must be filled." };
+  const paymentMode = String(formData.get("payment_mode") ?? "none").trim();
+  const paymentAmountRaw = Number(formData.get("payment_amount_cents"));
+  const paymentAmountCents =
+    Number.isFinite(paymentAmountRaw) && paymentAmountRaw > 0
+      ? Math.round(paymentAmountRaw)
+      : 0;
+  const paymentMethodRaw = String(formData.get("payment_method") ?? "cash");
+  const paymentNote = String(formData.get("payment_note") ?? "").trim() || null;
+  const paymentSendReceipt =
+    String(formData.get("payment_send_receipt") ?? "") === "1";
+  const paymentIdempotencyKey =
+    String(formData.get("payment_idempotency_key") ?? "").trim() || null;
+
+  if (!serviceId || !customerId) {
+    return { error: "Customer and service are required." };
   }
 
   const startTime = parseAppointmentStart(formData);
@@ -370,12 +396,21 @@ export async function createAppointment(
     return { error: "Select an available time slot." };
   }
 
+  const resolvedStaffId = staffId?.trim() ? staffId : null;
+  const { assertNamedStaffRequired } = await import(
+    "@/lib/booking/optional-staff"
+  );
+  const staffGate = assertNamedStaffRequired(resolvedStaffId, "reception");
+  if (staffGate) {
+    return { error: staffGate };
+  }
+
   const result = await createBooking({
     channel: "staff",
     businessId: business.id,
     locationId,
     serviceId,
-    staffId,
+    staffId: resolvedStaffId,
     customerId,
     requestedStart: startTime.toISOString(),
     notes,
@@ -385,12 +420,241 @@ export async function createAppointment(
         ? durationOverride
         : undefined,
     priceCents,
+    taxCents,
+    depositCents,
     packageId: packageId ?? undefined,
     packageName: packageName ?? undefined,
   });
 
   const action = mutationToAction(result, "Booked — you're all set.");
   if (result.phase === "success" && result.data?.appointmentId) {
+    const appointmentId = result.data.appointmentId;
+    action.appointmentId = appointmentId;
+
+    // Record optional payment after appointment succeeds (never duplicate appointment).
+    if (paymentMode !== "none" && paymentAmountCents > 0) {
+      try {
+        const { recordCommercePayment, listTransactions, parsePaymentMethod } =
+          await import("@/lib/commerce");
+        const { paymentKindForAmount } = await import(
+          "@/lib/commerce/booking-financials"
+        );
+        const { PAYMENT_METHOD_LABELS } = await import("@/lib/commerce/types");
+        const { logAppointmentChange } = await import(
+          "@/lib/booking-engine/conflicts"
+        );
+        const existing = await listTransactions({
+          businessId: business.id,
+          appointmentId,
+          limit: 20,
+        });
+        const alreadyRecorded = existing.some(
+          (tx) =>
+            tx.status === "succeeded" &&
+            tx.amountCents === paymentAmountCents &&
+            (paymentIdempotencyKey
+              ? tx.description?.includes(paymentIdempotencyKey)
+              : true),
+        );
+        const appointmentTotalForKind =
+          (priceCents ?? 0) + (taxCents ?? 0) || paymentAmountCents;
+        const method = parsePaymentMethod(paymentMethodRaw);
+        const methodLabel = PAYMENT_METHOD_LABELS[method] ?? method;
+
+        if (alreadyRecorded) {
+          action.payment = {
+            status: "recorded",
+            amountCents: paymentAmountCents,
+            detail: "Payment already recorded.",
+            transactionId: existing[0]?.id ?? null,
+            receiptStatus: paymentSendReceipt
+              ? "skipped"
+              : "not_requested",
+          };
+        } else {
+          const kind = paymentKindForAmount(
+            paymentAmountCents,
+            depositCents ?? 0,
+            appointmentTotalForKind,
+          );
+          const payResult = await recordCommercePayment({
+            businessId: business.id,
+            customerId,
+            appointmentId,
+            amountCents: paymentAmountCents,
+            method,
+            kind,
+            description: [
+              paymentNote,
+              paymentIdempotencyKey
+                ? `booking:${paymentIdempotencyKey}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || null,
+            ensureInvoice: true,
+            forceManual: true,
+            sendReceiptEmail: false,
+          });
+          if (payResult.ok) {
+            action.payment = {
+              status: "recorded",
+              amountCents: paymentAmountCents,
+              transactionId: payResult.transaction?.id ?? null,
+              detail: `Recorded ${kind === "deposit" ? "deposit" : "payment"}.`,
+              receiptStatus: paymentSendReceipt
+                ? "not_applicable"
+                : "not_requested",
+            };
+
+            // Use allowed change-log action `update` (CHECK constraint has no
+            // payment.recorded). Marker `type` keeps financial events queryable
+            // without a schema migration.
+            await logAppointmentChange({
+              businessId: business.id,
+              appointmentId,
+              action: "update",
+              afterState: {
+                type: "payment.recorded",
+                amountCents: paymentAmountCents,
+                method,
+                methodLabel,
+                kind,
+                transactionId: payResult.transaction?.id ?? null,
+                source: "booking_confirm",
+                summary: `Deposit recorded — $${(paymentAmountCents / 100).toFixed(2)} by ${methodLabel}`,
+              },
+            });
+
+            if (paymentSendReceipt && payResult.transaction?.id) {
+              try {
+                const {
+                  createReceiptForTransaction,
+                  sendPaymentReceiptNow,
+                } = await import("@/lib/commerce/receipts");
+                const receipt = await createReceiptForTransaction({
+                  businessId: business.id,
+                  transactionId: payResult.transaction.id,
+                  actorId: null,
+                });
+                if (receipt?.id) {
+                  // Financials/service name come from receipt → transaction →
+                  // appointment — never from stale form/catalog state.
+                  const receiptResult = await sendPaymentReceiptNow({
+                    businessId: business.id,
+                    receiptId: receipt.id,
+                    appointmentId,
+                    idempotencyKey: paymentIdempotencyKey,
+                  });
+                  action.payment.receiptStatus = receiptResult.ok
+                    ? "sent"
+                    : "failed";
+                  action.payment.receiptDetail = receiptResult.ok
+                    ? receiptResult.skipped
+                      ? "Receipt already sent."
+                      : "Receipt email sent."
+                    : receiptResult.error ?? "Receipt email failed.";
+                } else {
+                  action.payment.receiptStatus = "failed";
+                  action.payment.receiptDetail =
+                    "Receipt record could not be created.";
+                }
+              } catch (receiptErr) {
+                console.error(
+                  "[booking] receipt after payment failed",
+                  receiptErr,
+                );
+                action.payment.receiptStatus = "failed";
+                action.payment.receiptDetail =
+                  receiptErr instanceof Error
+                    ? receiptErr.message
+                    : "Receipt email failed.";
+              }
+            }
+          } else {
+            action.payment = {
+              status: "failed",
+              amountCents: paymentAmountCents,
+              detail: payResult.error ?? "Payment was not recorded.",
+              canRetry: true,
+              receiptStatus: "not_applicable",
+            };
+            action.success =
+              "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
+          }
+        }
+      } catch (payErr) {
+        console.error("[booking] payment after create failed", payErr);
+        action.payment = {
+          status: "failed",
+          amountCents: paymentAmountCents,
+          detail:
+            payErr instanceof Error
+              ? payErr.message
+              : "Payment was not recorded.",
+          canRetry: true,
+          receiptStatus: "not_applicable",
+        };
+        action.success =
+          "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
+      }
+    } else {
+      action.payment = {
+        status: "skipped",
+        receiptStatus: "not_applicable",
+      };
+    }
+
+    try {
+      const { deliverBookingNotifications } = await import(
+        "@/lib/notifications/booking-delivery"
+      );
+      const report = await deliverBookingNotifications(appointmentId);
+      action.notifications = report.items;
+    } catch (err) {
+      // Booking stays confirmed — notification failure is partial success.
+      console.error("[notifications] flush after create failed", err);
+      action.notifications = [
+        {
+          channel: "customer_email",
+          status: "failed",
+          label: "Customer email",
+          detail:
+            err instanceof Error
+              ? err.message
+              : "Email could not be sent.",
+          canRetry: true,
+        },
+        {
+          channel: "business_email",
+          status: "failed",
+          label: "Business email",
+          detail: "Email could not be sent.",
+          canRetry: true,
+        },
+      ];
+    }
+
+    // Surface payment receipt as its own success-panel channel.
+    const receiptStatus = action.payment?.receiptStatus ?? "not_applicable";
+    action.notifications = [
+      ...(action.notifications ?? []),
+      {
+        channel: "payment_receipt",
+        status:
+          receiptStatus === "sent"
+            ? "sent"
+            : receiptStatus === "failed"
+              ? "failed"
+              : receiptStatus === "not_requested"
+                ? "not_requested"
+                : "not_applicable",
+        label: "Payment receipt",
+        detail: action.payment?.receiptDetail ?? null,
+        canRetry: receiptStatus === "failed",
+      },
+    ];
+
     revalidateCalendar();
   }
   return action;
@@ -411,6 +675,10 @@ export async function updateAppointment(
   const notes = (formData.get("notes") as string) || null;
   const locationFromForm = (formData.get("location_id") as string) || null;
   const durationOverride = Number(formData.get("duration_minutes"));
+
+  if (!serviceId || !customerId) {
+    return { error: "Customer and service are required." };
+  }
 
   const startTime = parseAppointmentStart(formData);
   if (!startTime) {
@@ -434,7 +702,7 @@ export async function updateAppointment(
     businessId: business.id,
     locationId,
     serviceId,
-    staffId,
+    staffId: staffId?.trim() ? staffId : null,
     customerId,
     requestedStart: startTime.toISOString(),
     notes,

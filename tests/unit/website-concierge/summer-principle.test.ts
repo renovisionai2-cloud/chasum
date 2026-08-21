@@ -26,9 +26,13 @@ describe("The Summer Principle", () => {
   it("requires every discovery field to explain before asking", () => {
     for (const field of DISCOVERY_FIELDS) {
       expect(field.why.length).toBeGreaterThan(20);
+      expect(field.question).toMatch(/\?$/);
+      if (field.id === "challenges") {
+        // Single consultative paragraph in `why`, then a separate question.
+        continue;
+      }
       expect(field.helps.length).toBeGreaterThan(20);
       expect(field.willDo.length).toBeGreaterThan(20);
-      expect(field.question).toMatch(/\?$/);
     }
   });
 

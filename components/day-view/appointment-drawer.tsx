@@ -1,11 +1,19 @@
 "use client";
 
+import { AppointmentFinancialActivityList } from "@/components/booking/appointment-financial-activity";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-activity";
 import {
   cancelAppointment,
 } from "@/lib/actions/appointments";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
+import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
+import { resolveDepositDueNowCents } from "@/lib/commerce/booking-financials";
+import {
+  APPOINTMENT_PAYMENT_STATUS_LABELS,
+} from "@/lib/commerce/types";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import type {
   AppointmentStatus,
   AppointmentWithRelations,
@@ -24,7 +32,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useId, useRef, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 
 type AppointmentDrawerProps = {
   open: boolean;
@@ -71,6 +79,9 @@ export function AppointmentDrawer({
   const panelRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
+  const [financialActivity, setFinancialActivity] =
+    useState<AppointmentFinancialActivity | null>(null);
+  const [financialLoading, setFinancialLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -89,6 +100,28 @@ export function AppointmentDrawer({
     };
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (!open || !appointment?.id) {
+      setFinancialActivity(null);
+      return;
+    }
+    let cancelled = false;
+    setFinancialLoading(true);
+    loadAppointmentFinancialActivity(appointment.id)
+      .then((data) => {
+        if (!cancelled) setFinancialActivity(data);
+      })
+      .catch(() => {
+        if (!cancelled) setFinancialActivity(null);
+      })
+      .finally(() => {
+        if (!cancelled) setFinancialLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, appointment?.id]);
+
   if (!open || !appointment) return null;
 
   const locationName =
@@ -98,7 +131,25 @@ export function AppointmentDrawer({
   const start = parseISO(appointment.start_time);
   const end = parseISO(appointment.end_time);
   const deposit = Number(appointment.deposit_cents ?? 0);
-  const priceCents = appointment.price_cents;
+  const priceCents = Number(appointment.price_cents ?? 0);
+  const taxCents = Number(appointment.tax_cents ?? 0);
+  const appointmentTotal = priceCents + taxCents;
+  const amountPaid = Number(appointment.amount_paid_cents ?? 0);
+  const amountRefunded = Number(appointment.amount_refunded_cents ?? 0);
+  const netPaid = Math.max(0, amountPaid - amountRefunded);
+  const remaining = Math.max(0, appointmentTotal - netPaid);
+  const { amountPaidTowardDepositCents, depositDueNowCents } =
+    resolveDepositDueNowCents({
+      depositRequiredCents: deposit,
+      netPaidCents: netPaid,
+    });
+  const paymentStatus = String(appointment.payment_status ?? "unpaid");
+  const paymentStatusLabel =
+    paymentStatus in APPOINTMENT_PAYMENT_STATUS_LABELS
+      ? APPOINTMENT_PAYMENT_STATUS_LABELS[
+          paymentStatus as keyof typeof APPOINTMENT_PAYMENT_STATUS_LABELS
+        ]
+      : paymentStatus;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="presentation">
@@ -171,7 +222,7 @@ export function AppointmentDrawer({
             </dl>
           </Section>
 
-          <Section title="Timeline">
+          <Section title="Appointment activity">
             <ol className="space-y-2 border-l border-border pl-3 text-xs">
               <li>
                 <span className="font-medium">Scheduled</span>
@@ -185,10 +236,15 @@ export function AppointmentDrawer({
                   {appointment.status.replace("_", " ")}
                 </span>
               </li>
-              <li className="text-muted-foreground">
-                History &amp; forms expand in a later release
-              </li>
             </ol>
+          </Section>
+
+          <Section title="Financial activity">
+            <AppointmentFinancialActivityList
+              activity={financialActivity}
+              loading={financialLoading}
+              variant="drawer"
+            />
           </Section>
 
           <Section title="Notes">
@@ -197,23 +253,76 @@ export function AppointmentDrawer({
             </p>
           </Section>
 
-          <Section title="Payments">
-            <p className="text-sm">
-              {priceCents != null
-                ? `$${(priceCents / 100).toFixed(2)}`
-                : "Price from service"}
-              {deposit > 0 ? (
-                <span className="ml-2 text-xs text-muted-foreground">
-                  Deposit ${(deposit / 100).toFixed(2)}
-                </span>
-              ) : null}
-            </p>
+          <Section title="Payment summary">
+            {appointmentTotal > 0 ? (
+              <dl className="space-y-1.5 text-sm">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Status</dt>
+                  <dd className="font-medium">{paymentStatusLabel}</dd>
+                </div>
+                {taxCents > 0 ? (
+                  <>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Subtotal before tax</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(priceCents)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Tax</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(taxCents)}
+                      </dd>
+                    </div>
+                  </>
+                ) : null}
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Appointment total</dt>
+                  <dd className="tabular-nums">
+                    {formatMoneyCents(appointmentTotal)}
+                  </dd>
+                </div>
+                {deposit > 0 ? (
+                  <>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Deposit required</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(deposit)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Deposit received</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(amountPaidTowardDepositCents)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted-foreground">Deposit due now</dt>
+                      <dd className="tabular-nums">
+                        {formatMoneyCents(depositDueNowCents)}
+                      </dd>
+                    </div>
+                  </>
+                ) : null}
+                <div className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">Paid</dt>
+                  <dd className="tabular-nums">{formatMoneyCents(netPaid)}</dd>
+                </div>
+                <div className="flex justify-between gap-3 font-medium">
+                  <dt>Balance remaining</dt>
+                  <dd className="tabular-nums">
+                    {formatMoneyCents(remaining)}
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <p className="text-sm text-muted-foreground">No payment due.</p>
+            )}
           </Section>
 
           <Section title="Communication">
             <p className="text-xs text-muted-foreground">
-              Message tools stay on the customer record. AI recommendations will
-              appear here.
+              No messages have been sent for this appointment.
             </p>
           </Section>
         </div>

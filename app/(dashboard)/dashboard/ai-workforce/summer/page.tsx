@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Summer · AI Receptionist",
+  title: "Summer · AI Business Manager",
 };
 
 export default async function SummerReceptionPage() {
@@ -15,7 +15,7 @@ export default async function SummerReceptionPage() {
     <div className="ds-page">
       <PageHeader
         title="Summer"
-        description="AI Receptionist — books and changes appointments through the Booking Engine, answers from real business data, escalates when a human is needed."
+        description="Summer — AI Business Manager. Books and changes appointments through the Booking Engine, answers from real business data, and escalates when a human is needed."
       />
       <Suspense
         fallback={

@@ -91,6 +91,24 @@ export async function sendEmail(input: {
   }>;
   skipPreferenceCheck?: boolean;
 }): Promise<SendResult> {
+  const audience =
+    input.templateKey === "appointment.business" ||
+    input.templateKey === "appointment.staff" ||
+    input.templateKey.startsWith("staff.") ||
+    input.templateKey.startsWith("business.")
+      ? ("business" as const)
+      : ("customer" as const);
+
+  const {
+    loadTenantEmailBranding,
+    toBrandingContext,
+    formatFromHeader,
+  } = await import("@/lib/communications/tenant-email-branding");
+  const { resolveEmailFromAddress } = await import(
+    "@/lib/communications/email-from"
+  );
+  const tenant = await loadTenantEmailBranding(input.businessId, audience);
+
   if (!input.skipPreferenceCheck) {
     const prefs = await loadBusinessCommPreferences(input.businessId, true);
     const customerPrefs = input.customerId
@@ -120,22 +138,73 @@ export async function sendEmail(input: {
       });
       return { ok: false, skipped: true, error: "Email disabled by preferences." };
     }
-    input.context = {
-      ...input.context,
-      branding: {
-        businessName: input.context.businessName,
-        optOutFooter: prefs.optOutFooter,
-        supportEmail: prefs.notificationEmail,
-      },
-    };
   }
 
+  const branding = tenant
+    ? toBrandingContext(tenant)
+    : {
+        businessName: input.context.businessName,
+        supportEmail: null,
+        optOutFooter: null,
+        // Prefer context branding when tenant row failed to load.
+        showChasumBranding:
+          input.context.branding?.showChasumBranding ?? true,
+        chasumBrandingStyle:
+          input.context.branding?.chasumBrandingStyle ??
+          ("powered_by" as const),
+      };
+
+  if (!tenant) {
+    console.warn(
+      "[email] tenant branding unresolved; using context fallback",
+      { businessId: input.businessId, templateKey: input.templateKey },
+    );
+  }
+
+  input.context = {
+    ...input.context,
+    businessName: tenant?.businessName ?? input.context.businessName,
+    branding: {
+      ...branding,
+      businessName:
+        tenant?.businessName ??
+        input.context.branding?.businessName ??
+        input.context.businessName,
+      logoUrl: tenant?.logoUrl ?? input.context.branding?.logoUrl ?? null,
+      primaryColor:
+        tenant?.primaryColor ?? input.context.branding?.primaryColor ?? null,
+      supportEmail:
+        tenant?.supportEmail ?? input.context.branding?.supportEmail ?? null,
+      supportPhone:
+        tenant?.supportPhone ?? input.context.branding?.supportPhone ?? null,
+      websiteUrl:
+        tenant?.websiteUrl ?? input.context.branding?.websiteUrl ?? null,
+      optOutFooter: tenant?.footerText ?? branding.optOutFooter,
+      showChasumBranding:
+        tenant?.showChasumBranding ??
+        input.context.branding?.showChasumBranding ??
+        true,
+      chasumBrandingStyle:
+        tenant?.chasumBrandingStyle ??
+        input.context.branding?.chasumBrandingStyle ??
+        "powered_by",
+    },
+  };
+
   const template = renderEmailTemplate(input.templateKey, input.context);
+  const fromHeader =
+    tenant?.fromHeader ||
+    formatFromHeader(
+      tenant?.businessName || input.context.businessName || "Chasum",
+      resolveEmailFromAddress().from,
+    );
   const result = await providerSendEmail({
     to: input.to,
     subject: template.subject ?? input.context.businessName,
     html: template.html ?? `<p>${template.text}</p>`,
     text: template.text,
+    from: fromHeader,
+    replyTo: tenant?.replyToAddress ?? undefined,
     attachments: input.attachments,
   });
 

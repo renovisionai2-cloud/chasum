@@ -1,0 +1,26 @@
+---
+description: Pricing page is product-owner locked — no redesign or polish
+globs:
+  - components/landing/pricing*.tsx
+  - components/marketing/pricing*.tsx
+  - lib/marketing/pricing.ts
+  - app/(marketing)/pricing/**
+alwaysApply: false
+---
+
+# Pricing Page Lock — Official Chasum Pricing Page v1
+
+**STATUS:** ✅ APPROVED  
+**STATE:** Locked  
+**Source of truth (visual):** https://chasum-aw2cx9wbn-renovisionappcom.vercel.app/pricing  
+**Canonical doc:** `docs/marketing/PRICING_PAGE_V1_LOCK.md`
+
+## Do not change without explicit product-owner request
+
+Hero, billing toggle, cards, copy, plan structure, feature lists, comparison table, workflow, Private Alpha, FAQ, CTA, typography, colors, spacing, animations, or responsive layout.
+
+## Allowed only
+
+Bug fixes · broken responsive layouts · accessibility fixes · product-owner-requested product/pricing/feature updates.
+
+Do **not** perform visual polish or redesigns on `/pricing`.

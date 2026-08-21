@@ -2,8 +2,10 @@
 
 import { BookingConfirmation } from "@/components/booking/booking-confirmation";
 import { BusinessContact } from "@/components/booking/business-contact";
+import { AvailableTimeSelector } from "@/components/scheduling/available-time-selector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateField } from "@/components/ui/date-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/brand/logo";
@@ -14,6 +16,10 @@ import {
   lookupPublicCustomer,
   type PublicSlotOption,
 } from "@/lib/actions/public-booking";
+import {
+  OPTIONAL_STAFF_PERSISTENCE_ENABLED,
+  PUBLIC_ANY_STAFF_UNAVAILABLE_MESSAGE,
+} from "@/lib/booking/optional-staff";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type {
   Business,
@@ -218,11 +224,9 @@ export function PublicBookingPage({
     };
   });
 
-  const resolvedStaffName = selectedSlot
-    ? selectedSlot.staffName
-    : anyStaff
-      ? "First available"
-      : selectedStaff?.name ?? "—";
+  const resolvedStaffName = anyStaff
+    ? "Any available staff"
+    : (selectedStaff?.name ?? selectedSlot?.staffName ?? "—");
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -371,9 +375,10 @@ export function PublicBookingPage({
         {step === "staff" && selectedService && (
           <section className="space-y-4">
             <BackButton onClick={() => setStep("service")} />
-            <h2 className="text-lg font-semibold">Choose a provider</h2>
+            <h2 className="text-lg font-semibold">Choose staff</h2>
             <p className="text-sm text-muted-foreground">
-              Optional — pick someone or take the first available opening.
+              Pick a specific team member, or choose Any available staff — we will
+              assign someone later.
             </p>
             {selectedService.preparation_instructions && (
               <p className="rounded-[var(--radius-md)] border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
@@ -395,9 +400,9 @@ export function PublicBookingPage({
                 <Users className="h-5 w-5" aria-hidden="true" />
               </span>
               <span>
-                <span className="block font-medium">Any available</span>
+                <span className="block font-medium">Any available staff</span>
                 <span className="mt-0.5 block text-sm text-muted-foreground">
-                  Show all real openings from the scheduling engine
+                  Show openings from every team member who offers this service
                 </span>
               </span>
             </button>
@@ -483,16 +488,16 @@ export function PublicBookingPage({
               ))}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="booking_date">Or pick another date</Label>
-              <Input
+              <DateField
                 id="booking_date"
-                type="date"
+                label="Or pick another date"
                 value={selectedDate}
                 min={format(new Date(), "yyyy-MM-dd")}
-                onChange={(e) => {
-                  setSelectedDate(e.target.value);
+                onChange={(next) => {
+                  setSelectedDate(next);
                   setSelectedSlot(null);
                 }}
+                onAfterSelect={() => setStep("time")}
               />
             </div>
             <Button
@@ -514,48 +519,31 @@ export function PublicBookingPage({
               {format(parseISO(`${selectedDate}T12:00:00`), "EEEE, MMMM d")} ·{" "}
               {resolvedStaffName}
             </p>
-            {loadingSlots ? (
-              <p className="text-sm text-muted-foreground">
-                Loading real available times…
+            {anyStaff && !OPTIONAL_STAFF_PERSISTENCE_ENABLED ? (
+              <p
+                className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm text-amber-950 dark:text-amber-100"
+                role="status"
+              >
+                {PUBLIC_ANY_STAFF_UNAVAILABLE_MESSAGE}
               </p>
-            ) : slotOptions.length === 0 ? (
-              <p className="rounded-[var(--radius-md)] border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-                No open times for this date. Try another day — we only show slots
-                from the scheduling engine.
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {slotOptions.map((option) => {
-                  const selected =
-                    selectedSlot?.start === option.start &&
-                    selectedSlot?.staffId === option.staffId;
-                  return (
-                    <button
-                      key={`${option.staffId}-${option.start}`}
-                      type="button"
-                      onClick={() => setSelectedSlot(option)}
-                      className={cn(
-                        "rounded-xl border border-border px-3 py-3 text-left transition-colors hover:border-primary hover:bg-accent/30",
-                        selected && "border-primary bg-accent",
-                      )}
-                    >
-                      <span className="block text-sm font-medium">
-                        {formatTime(parseISO(option.start))}
-                      </span>
-                      {anyStaff && (
-                        <span className="mt-0.5 block text-xs text-muted-foreground">
-                          {option.staffName}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            ) : null}
+            <AvailableTimeSelector
+              slots={slotOptions.map((option) => ({ start: option.start }))}
+              selectedStart={selectedSlot?.start ?? null}
+              onSelect={(start) => {
+                const match = slotOptions.find((o) => o.start === start) ?? null;
+                setSelectedSlot(match);
+              }}
+              loading={loadingSlots}
+              emptyMessage="No times are available on this date. Try another day or employee."
+            />
             <Button
               type="button"
               className="w-full"
-              disabled={!selectedSlot}
+              disabled={
+                !selectedSlot ||
+                (anyStaff && !OPTIONAL_STAFF_PERSISTENCE_ENABLED)
+              }
               onClick={() => setStep("details")}
             >
               Continue
@@ -635,9 +623,20 @@ export function PublicBookingPage({
             <Card>
               <CardContent className="space-y-2 p-4 text-sm">
                 <p>
-                  <strong>{selectedService.name}</strong> with{" "}
-                  {selectedSlot.staffName}
+                  <strong>{selectedService.name}</strong>
                 </p>
+                <p className="text-muted-foreground">
+                  Staff:{" "}
+                  {anyStaff
+                    ? "Any available staff"
+                    : (selectedSlot.staffName ?? selectedStaff?.name ?? "—")}
+                </p>
+                {anyStaff ? (
+                  <p className="text-xs text-muted-foreground">
+                    A team member will be assigned later — this does not confirm a
+                    specific employee.
+                  </p>
+                ) : null}
                 <p className="text-muted-foreground">
                   {format(parseISO(selectedSlot.start), "EEEE, MMM d")} at{" "}
                   {formatTime(parseISO(selectedSlot.start))}
@@ -681,7 +680,16 @@ export function PublicBookingPage({
                 value={selectedLocation?.id ?? ""}
               />
               <input type="hidden" name="service_id" value={selectedService.id} />
-              <input type="hidden" name="staff_id" value={selectedSlot.staffId} />
+              <input
+                type="hidden"
+                name="staff_id"
+                value={anyStaff ? "" : (selectedSlot.staffId ?? "")}
+              />
+              <input
+                type="hidden"
+                name="any_staff"
+                value={anyStaff ? "1" : "0"}
+              />
               <input type="hidden" name="start_time" value={selectedSlot.start} />
               <input type="hidden" name="customer_name" value={customerName} />
               <input type="hidden" name="customer_email" value={customerEmail} />

@@ -141,7 +141,7 @@ export function DashboardPreview({
           >
             Chasum
           </p>
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             {NAV.map((item) => {
               const Icon = item.icon;
               const active =
@@ -159,14 +159,21 @@ export function DashboardPreview({
                 <li
                   key={item.label}
                   className={cn(
-                    "flex items-center gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-xs transition-colors duration-300",
+                    "flex items-center gap-2.5 rounded-[var(--radius-sm)] px-2.5 py-2 text-xs leading-none transition-colors duration-300",
                     active
                       ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
                       : "text-muted-foreground",
                   )}
                 >
-                  <Icon className={hero ? "h-4 w-4" : "h-3.5 w-3.5"} />
-                  {item.label}
+                  <Icon
+                    className={cn(
+                      "shrink-0",
+                      hero ? "h-4 w-4" : "h-3.5 w-3.5",
+                    )}
+                    strokeWidth={1.75}
+                    aria-hidden
+                  />
+                  <span className="truncate">{item.label}</span>
                 </li>
               );
             })}

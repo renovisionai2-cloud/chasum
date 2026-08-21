@@ -43,11 +43,11 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="fd-footer-divider border-t border-border/80 px-6 py-16 md:py-20">
-      <div className="mx-auto max-w-6xl">
-        <div className="grid gap-12 md:grid-cols-4 md:gap-10">
+    <footer className="fd-footer-divider border-t border-border/80 px-5 py-16 sm:px-6 md:py-20 lg:px-8">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="grid gap-12 md:grid-cols-4 md:gap-10 lg:gap-12">
           <div>
-            <Logo href="/" className="origin-left scale-[1.12]" />
+            <Logo href="/" />
             <p className="mt-5 max-w-xs text-sm font-medium leading-relaxed text-foreground">
               The AI Business Operating System for service businesses.
             </p>
@@ -62,7 +62,7 @@ export function Footer() {
 
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
-              <h4 className="text-sm font-semibold text-foreground">
+              <h4 className="text-sm font-semibold tracking-tight text-foreground">
                 {category}
               </h4>
               <ul className="mt-5 space-y-3">
@@ -70,7 +70,7 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground transition-colors duration-250 hover:text-foreground"
+                      className="text-sm leading-snug text-muted-foreground transition-colors duration-250 hover:text-foreground"
                     >
                       {link.label}
                     </Link>
@@ -81,9 +81,9 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-16 flex flex-col gap-3 border-t border-border pt-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-3 border-t border-border/80 pt-8 text-sm text-muted-foreground sm:mt-16 sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} Chasum. All rights reserved.</p>
-          <p className="text-xs">
+          <p className="text-xs leading-relaxed">
             Support:{" "}
             <Link href={CONTACT_HREF} className="hover:text-foreground">
               Contact

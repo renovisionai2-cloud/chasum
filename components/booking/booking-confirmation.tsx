@@ -17,6 +17,13 @@ type BookingConfirmationProps = {
   onBookAnother: () => void;
 };
 
+function calendarTitle(summary: PublicBookingSummary): string {
+  if (summary.staffUnassigned || !summary.staffName || summary.staffName === "Any available staff" || summary.staffName === "To be assigned") {
+    return summary.serviceName;
+  }
+  return `${summary.serviceName} with ${summary.staffName}`;
+}
+
 function toGoogleCalendarUrl(summary: PublicBookingSummary, businessName: string) {
   const start = parseISO(summary.startTime);
   const end = parseISO(summary.endTime);
@@ -24,7 +31,7 @@ function toGoogleCalendarUrl(summary: PublicBookingSummary, businessName: string
     d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: `${summary.serviceName} with ${summary.staffName}`,
+    text: calendarTitle(summary),
     dates: `${fmtUtc(start)}/${fmtUtc(end)}`,
     details: `Booked via ${businessName}. Confirmation for ${summary.customerName}.`,
     location: summary.locationName ?? businessName,
@@ -39,7 +46,7 @@ function downloadIcs(
 ) {
   const ics = buildSimpleIcsEvent({
     id: reference,
-    title: `${summary.serviceName} with ${summary.staffName}`,
+    title: calendarTitle(summary),
     description: `Booked for ${summary.customerName} via ${business.name}`,
     location: summary.locationName,
     startTime: summary.startTime,
@@ -114,8 +121,20 @@ export function BookingConfirmation({
               <span className="text-right font-medium">{summary.serviceName}</span>
             </div>
             <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">Provider</span>
-              <span className="text-right font-medium">{summary.staffName}</span>
+              <span className="text-muted-foreground">Staff</span>
+              <span className="text-right font-medium">
+                {summary.staffUnassigned
+                  ? "Any available staff"
+                  : summary.staffName}
+                {summary.staffUnassigned ? (
+                  <>
+                    <br />
+                    <span className="font-normal text-muted-foreground">
+                      To be assigned
+                    </span>
+                  </>
+                ) : null}
+              </span>
             </div>
             {summary.locationName && (
               <div className="flex justify-between gap-4">

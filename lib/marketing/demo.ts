@@ -3,10 +3,14 @@
  * Keep Summer branding here — never surface legacy Emma paths on the public site.
  */
 
-export const MARKETING_SUMMER_IDENTITY =
-  "Summer — Chasum's AI Business Assistant" as const;
+import {
+  SUMMER_IDENTITY,
+  SUMMER_IDENTITY_SHORT,
+} from "@/lib/marketing/summer-positioning";
 
-export const MARKETING_SUMMER_DEMO_LABEL = "Summer · AI Business Assistant" as const;
+export const MARKETING_SUMMER_IDENTITY = SUMMER_IDENTITY;
+
+export const MARKETING_SUMMER_DEMO_LABEL = SUMMER_IDENTITY_SHORT;
 
 /** Fake address-bar paths shown inside the marketing dashboard mock. */
 export const MARKETING_DEMO_PATHS = {

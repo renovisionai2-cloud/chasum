@@ -1,5 +1,5 @@
 /**
- * Summer AI Receptionist — contracts.
+ * Summer AI Business Manager — contracts.
  * Summer is a digital employee, not a chatbot.
  * All booking mutations go through the Booking Engine (channel: summer).
  */

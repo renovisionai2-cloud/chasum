@@ -1,0 +1,91 @@
+{
+  "style": "master-final-editorial-warm-architecture",
+  "collection": "Operation Chasum — Industries Master Final Editorial Photography & QA Sprint",
+  "license": "https://unsplash.com/license",
+  "assets": [
+    {
+      "id": "medical-clinics",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — physician consulting patient in modern clinic"
+    },
+    {
+      "id": "legal-services",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — attorney consulting client in executive law office"
+    },
+    {
+      "id": "salons",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — stylist with client in luxury salon"
+    },
+    {
+      "id": "spas",
+      "photoId": "1600334129128-685c5582fd35",
+      "credit": "Toa Heftiba / Unsplash",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    },
+    {
+      "id": "gyms",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — trainer coaching member in boutique fitness studio"
+    },
+    {
+      "id": "automotive",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Automotive upgrade — luxury service centre with tablet diagnostics"
+    },
+    {
+      "id": "home-field-services",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — contractor + homeowner on premium renovation"
+    },
+    {
+      "id": "photography-creative",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Master final — photographer directing client in modern studio"
+    },
+    {
+      "id": "pet-services",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Editorial QA — luxury grooming salon with professional and pet"
+    },
+    {
+      "id": "cleaning",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Editorial QA — premium commercial cleaning in modern office"
+    },
+    {
+      "id": "professional-services",
+      "source": "approved-generated",
+      "credit": "Chasum-approved generated editorial imagery",
+      "license": "Chasum-owned generated asset",
+      "note": "Editorial QA — executive consulting meeting / boardroom"
+    },
+    {
+      "id": "education",
+      "photoId": "1524178232363-1fb2b075b655",
+      "credit": "Kenny Eliason / Unsplash",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license"
+    }
+  ]
+}

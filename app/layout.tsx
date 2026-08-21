@@ -31,6 +31,8 @@ export const metadata: Metadata = {
   keywords: [
     "Chasum",
     "AI Business Operating System",
+    "AI Business Manager",
+    "Summer",
     "service business software",
     "scheduling",
     "CRM",

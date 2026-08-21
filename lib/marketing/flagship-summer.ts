@@ -14,22 +14,23 @@ export const FS_HERO = {
     "She remembers.",
   ],
   cta: "Begin the Experience",
-  ctaHint: "A two-minute introduction to the future of business management.",
+  ctaHint:
+    "A two-minute introduction to Summer — Chasum's AI Business Manager.",
 } as const;
 
 export const FS_AWAKENING = {
-  greeting: "Welcome. I'm Summer.",
-  body: "Before I recommend anything, I'd like to understand your business so I can personalize my guidance.",
+  greeting: "Welcome. I'm Summer, your AI Business Manager.",
+  body: "I'll help you set up Chasum, recommend the right tools, and guide you as your business grows. Let's start by learning a little about your business.",
   /** @deprecated Prefer greeting + body; kept for any legacy readers */
   lines: [
-    "Welcome. I'm Summer.",
-    "Before I recommend anything, I'd like to understand your business so I can personalize my guidance.",
+    "Welcome. I'm Summer, your AI Business Manager.",
+    "I'll help you set up Chasum, recommend the right tools, and guide you as your business grows. Let's start by learning a little about your business.",
   ],
 } as const;
 
 /** Guided discovery copy & fast pacing */
 export const FS_GUIDED = {
-  question: "What type of business do you own?",
+  question: "What type of business are you setting up?",
   questionWhy:
     "Every business runs differently — the right recommendation starts with knowing yours.",
   questionHelps:
@@ -37,21 +38,29 @@ export const FS_GUIDED = {
   questionWillDo:
     "I'll use it to load relevant patterns, then ask only what still matters — one question at a time.",
   continuePrompt:
-    "A few more details will help me advise you with precision.",
+    "I'd like to understand your business so I can personalize Chasum for you.",
   backToCategories: "← Back to Categories",
   continueWithSelections: "Continue with my selections",
   addAnotherBusiness: "Add another business",
   chooseAnotherCategory: "Choose from another category",
   selectedSummary: "Your businesses",
-  industryPrompt: "Select every business that applies — you can change this anytime.",
-  /** Intro block fade delay */
-  introFadeMs: 120,
-  /** Question + cards usable after click */
-  readyMs: 280,
-  /** Stagger between category cards (full set ~500–700ms) */
-  categoryStaggerMs: 55,
+  industryPrompt: "Choose one or more categories. You can always update them later.",
+  /**
+   * TODO(summer-onboarding): Respond dynamically as the user selects categories.
+   * Examples (do not implement yet):
+   * - Healthcare: "Great! I'll tailor Chasum for your healthcare practice."
+   * - Home Services: "Perfect! I'll recommend tools for scheduling technicians, estimates, invoicing, and customer communication."
+   * - Beauty: "Excellent! I'll help you manage appointments, staff schedules, payments, memberships, and client communication."
+   * - Automotive: "Great! I'll configure Chasum for repair orders, estimates, inspections, invoicing, and customer updates."
+   * Conversational onboarding acknowledgment will be implemented later.
+   */
+  introFadeMs: 520,
+  /** Pause after greeting, before categories appear */
+  readyMs: 1100,
+  /** Soft stagger between category cards */
+  categoryStaggerMs: 70,
   /** Industry panel reveal */
-  industryRevealMs: 160,
+  industryRevealMs: 220,
   intelligenceSteps: [
     "Understanding your business…",
     "Loading industry knowledge…",
@@ -68,6 +77,81 @@ export type FsSelectedBusiness = {
   prompt: string;
   categoryId: string;
 };
+
+/**
+ * Friendly noun phrase for “your ___” / “Let’s Learn About Your ___”.
+ */
+export function fsBusinessNounPhrase(label: string): string {
+  const trimmed = label.trim();
+  if (!trimmed || /^other\b/i.test(trimmed)) return "business";
+
+  const lower = trimmed.toLowerCase();
+  if (/medical clinic|family practice|walk-?in clinic|ultrasound|veterinary|optometr|dental|chiro|physio|osteopath|massage|psychology|counsell/i.test(lower)) {
+    if (/ultrasound/i.test(lower)) return "ultrasound clinic";
+    if (/dental/i.test(lower)) return "dental practice";
+    if (/veterinary/i.test(lower)) return "veterinary clinic";
+    if (/family practice/i.test(lower)) return "clinic";
+    if (/walk-?in/i.test(lower)) return "clinic";
+    if (/medical clinic/i.test(lower)) return "clinic";
+    if (/chiro/i.test(lower)) return "chiropractic practice";
+    if (/physio/i.test(lower)) return "physiotherapy clinic";
+    if (/massage/i.test(lower)) return "massage therapy business";
+    if (/osteopath/i.test(lower)) return "osteopathy clinic";
+    if (/psychology|counsell/i.test(lower)) return "practice";
+    if (/optometr/i.test(lower)) return "optometry clinic";
+    return "clinic";
+  }
+  if (/hair salon|nail salon|medical spa|^spa$|barber|lash|brow|tattoo/i.test(lower)) {
+    if (/medical spa/i.test(lower)) return "medical spa";
+    if (/^spa$/i.test(trimmed) || /\bspa\b/i.test(lower) && !/medical/i.test(lower)) {
+      return "spa";
+    }
+    if (/hair salon/i.test(lower)) return "salon";
+    if (/nail salon/i.test(lower)) return "nail salon";
+    if (/barber/i.test(lower)) return "barber shop";
+    if (/lash/i.test(lower)) return "lash studio";
+    if (/brow/i.test(lower)) return "brow studio";
+    if (/tattoo/i.test(lower)) return "tattoo studio";
+    return "salon";
+  }
+  if (/^gym$|personal trainer|yoga|pilates|fitness/i.test(lower)) {
+    if (/personal trainer/i.test(lower)) return "training business";
+    if (/yoga/i.test(lower)) return "yoga studio";
+    if (/pilates/i.test(lower)) return "pilates studio";
+    if (/^gym$/i.test(trimmed)) return "gym";
+    return "fitness business";
+  }
+  if (/auto|automotive|repair|detail|tire|oil change/i.test(lower)) {
+    if (/detail/i.test(lower)) return "detailing business";
+    return "auto shop";
+  }
+  if (/home|hvac|plumb|electr|clean|lawn|pest|handyman|field/i.test(lower)) {
+    return "home service business";
+  }
+  if (/legal|law|attorney/i.test(lower)) return "practice";
+  if (/photo|creative/i.test(lower)) return "creative business";
+  if (/pet|groom|vet/i.test(lower)) return "pet service business";
+
+  return lower;
+}
+
+/** Title-cased noun for headings: “Your Spa”, “Your Clinic” */
+export function fsBusinessHeadingNoun(label: string): string {
+  const noun = fsBusinessNounPhrase(label);
+  return noun
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+export function fsConsultationHeading(labels: string[] | null | undefined): string {
+  const clean = (labels ?? []).map((l) => l.trim()).filter(Boolean);
+  if (clean.length === 0) return "Let's Learn About Your Business";
+  if (clean.length === 1) {
+    return `Let's Learn About Your ${fsBusinessHeadingNoun(clean[0]!)}`;
+  }
+  return "Let's Learn About Your Businesses";
+}
 
 export function fsBuildMultiAck(labels: string[]): string {
   const clean = labels.map((l) => l.trim()).filter(Boolean);
@@ -88,12 +172,15 @@ export function fsBuildMultiPrompt(selections: FsSelectedBusiness[]): string {
   const labels = selections.map((s) => s.label);
   if (labels.length === 0) return "";
   if (labels.length === 1) {
-    return `${selections[0]!.prompt}. Please personalize your guidance for this business.`;
+    return `Great! I'll tailor Chasum specifically for your ${fsBusinessNounPhrase(labels[0]!)}.`;
   }
   if (labels.length === 2) {
-    return `I operate both a ${labels[0]} and a ${labels[1]} business. Please personalize your guidance across both workflows.`;
+    return `Great! I'll tailor Chasum specifically for your ${fsBusinessNounPhrase(labels[0]!)} and your ${fsBusinessNounPhrase(labels[1]!)}.`;
   }
-  return `I operate these businesses: ${labels.join(", ")}. Please personalize your guidance across those workflows.`;
+  const nouns = labels.map((l) => fsBusinessNounPhrase(l));
+  const last = nouns[nouns.length - 1];
+  const rest = nouns.slice(0, -1).join(", ");
+  return `Great! I'll tailor Chasum specifically for your ${rest}, and your ${last}.`;
 }
 
 export function fsAckBusinessLine(label: string): string {
@@ -354,9 +441,9 @@ export const FS_ALPHA = {
 } as const;
 
 export const FS_RECS_INTRO = {
-  kicker: "Personalized recommendations",
-  title: "Based on what I've learned…",
-  lede: "I believe Chasum could help your business in four important areas.",
+  kicker: "Where to begin",
+  title: "Where we can create the greatest impact",
+  lede: "Based on your Business Profile, here is where I would start.",
 } as const;
 
 export const FS_RECOMMENDATION_COPY: Record<

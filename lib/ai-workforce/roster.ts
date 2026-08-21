@@ -11,13 +11,14 @@ export const AI_EMPLOYEES: AiEmployee[] = [
     id: "summer",
     slug: "summer",
     name: "Summer",
-    role: "AI Receptionist",
-    shortRole: "Receptionist",
+    role: "AI Business Manager",
+    shortRole: "Business Manager",
     status: "online",
     tasksCompletedToday: 0,
     summary:
-      "Digital front desk. Books, reschedules, and cancels through the Booking Engine, answers from live business data, and escalates when a human is needed — never invents times or prices.",
+      "AI Business Manager. Guides discovery and setup, books and changes appointments through the Booking Engine, answers from live business data, supports the team, and escalates when a human is needed — never invents times or prices.",
     responsibilities: [
+      "Guide discovery, setup, and day-to-day operations",
       "Book, reschedule, and cancel via Booking Engine",
       "Preview openings via Availability Engine only",
       "Answer hours, services, employees, locations, and policies",

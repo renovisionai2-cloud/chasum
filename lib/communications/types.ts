@@ -56,7 +56,11 @@ export type BrandingContext = {
   primaryColor?: string | null;
   logoUrl?: string | null;
   supportEmail?: string | null;
+  supportPhone?: string | null;
+  websiteUrl?: string | null;
   optOutFooter?: string | null;
+  showChasumBranding?: boolean;
+  chasumBrandingStyle?: "powered_by" | "product_context" | "none";
 };
 
 export type AppointmentTemplateContext = {
@@ -71,8 +75,35 @@ export type AppointmentTemplateContext = {
   startTime: string;
   endTime?: string | null;
   appointmentId?: string;
+  /**
+   * IANA timezone for formatting start/end in emails.
+   * Prefer locationTimezone → businessTimezone → America/Toronto.
+   */
+  timezone?: string | null;
+  locationTimezone?: string | null;
+  businessTimezone?: string | null;
+  /** Location display name when available — omit empty section when null. */
+  locationName?: string | null;
   notes?: string | null;
+  /** @deprecated Prefer appointmentTotalCents — kept for older callers. */
   amountCents?: number | null;
+  subtotalCents?: number | null;
+  taxCents?: number | null;
+  /** Basis points for display (e.g. 1300 → 13%). */
+  taxRateBps?: number | null;
+  /** Tax rate name when known (e.g. HST). */
+  taxLabel?: string | null;
+  appointmentTotalCents?: number | null;
+  depositRequiredCents?: number | null;
+  depositPaidCents?: number | null;
+  /**
+   * Unpaid deposit remaining (from shared resolver).
+   * depositDueNowCents = max(0, depositRequired − amount paid toward deposit).
+   */
+  depositDueNowCents?: number | null;
+  remainingBalanceCents?: number | null;
+  paymentMethodLabel?: string | null;
+  paymentStatusLabel?: string | null;
   invoiceNumber?: string | null;
   receiptNumber?: string | null;
   previousStartTime?: string | null;

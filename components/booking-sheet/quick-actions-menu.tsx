@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Copy,
   Ellipsis,
+  Mail,
   MessageSquare,
   Printer,
   Sparkles,
@@ -29,6 +30,7 @@ type QuickActionsMenuProps = {
   onCollectPayment: () => void;
   onPrint: () => void;
   onMessage: () => void;
+  onCommunications?: () => void;
 };
 
 export function QuickActionsMenu({
@@ -43,6 +45,7 @@ export function QuickActionsMenu({
   onCollectPayment,
   onPrint,
   onMessage,
+  onCommunications,
 }: QuickActionsMenuProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
@@ -94,6 +97,12 @@ export function QuickActionsMenu({
       icon: Banknote,
       onClick: onCollectPayment,
       show: true,
+    },
+    {
+      label: "Communications",
+      icon: Mail,
+      onClick: () => onCommunications?.(),
+      show: isEditing && Boolean(onCommunications),
     },
     {
       label: "Print",

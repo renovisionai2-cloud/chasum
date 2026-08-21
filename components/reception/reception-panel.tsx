@@ -9,7 +9,9 @@ import { TodayNotes } from "@/components/reception/today-notes";
 import { ReceptionWaitlistPanel } from "@/components/reception/reception-waitlist-panel";
 import { Button } from "@/components/ui/button";
 import type { NextAvailableSlot } from "@/lib/actions/reception";
+import type { BookingDraft } from "@/lib/booking/booking-draft";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
+import type { TaxRate } from "@/lib/business/types";
 import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
   Customer,
@@ -17,8 +19,20 @@ import type {
   Service,
   StaffWithServices,
 } from "@/lib/types/booking";
-import { PanelRightClose, PanelRightOpen } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Maximize2,
+  Minimize2,
+  PanelRightClose,
+  PanelRightOpen,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+
+const PANEL_WIDTH_KEY = "chasum.receptionPanelWidthPx";
+const PANEL_MIN_PX = 380;
+const PANEL_DEFAULT_PX = 480;
+const PANEL_WIDE_PX = 640;
+const PANEL_MAX_VIEWPORT_RATIO = 0.72;
 
 type WaitlistEntry = {
   id: string;
@@ -36,23 +50,38 @@ type ReceptionPanelProps = {
   services: Service[];
   staff: StaffWithServices[];
   locations: Location[];
+  taxRates?: TaxRate[];
+  currency?: string | null;
   insights: DashboardInsight[];
   waitlist?: WaitlistEntry[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBooked: () => void;
-  onOpenFullDialog: () => void;
+  onOpenFullDialog: (
+    draft?: BookingDraft | null,
+    appointmentId?: string | null,
+  ) => void;
   searchFocusSignal?: number;
   bookFocusSignal?: number;
   walkInSignal?: number;
   createCustomerSignal?: number;
 };
 
+function clampPanelWidth(width: number): number {
+  if (typeof window === "undefined") {
+    return Math.max(PANEL_MIN_PX, Math.min(width, PANEL_WIDE_PX));
+  }
+  const max = Math.floor(window.innerWidth * PANEL_MAX_VIEWPORT_RATIO);
+  return Math.max(PANEL_MIN_PX, Math.min(width, max));
+}
+
 export function ReceptionPanel({
   customers,
   services,
   staff,
   locations,
+  taxRates = [],
+  currency = "usd",
   insights,
   waitlist = [],
   open,
@@ -72,9 +101,75 @@ export function ReceptionPanel({
     staffId?: string;
   }>({});
   const formAnchorRef = useRef<HTMLDivElement>(null);
+  const draftRef = useRef<BookingDraft | null>(null);
+  const [confirmedAppointmentId, setConfirmedAppointmentId] = useState<
+    string | null
+  >(null);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [widthPx, setWidthPx] = useState(PANEL_DEFAULT_PX);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const dragRef = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setIsDesktop(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    try {
+      const raw = window.localStorage.getItem(PANEL_WIDTH_KEY);
+      if (raw) {
+        const parsed = Number(raw);
+        if (Number.isFinite(parsed)) setWidthPx(clampPanelWidth(parsed));
+      }
+    } catch {
+      /* ignore */
+    }
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    function onResize() {
+      setWidthPx((w) => clampPanelWidth(w));
+    }
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  function persistWidth(next: number) {
+    const clamped = clampPanelWidth(next);
+    setWidthPx(clamped);
+    try {
+      window.localStorage.setItem(PANEL_WIDTH_KEY, String(clamped));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function startDrag(e: React.PointerEvent) {
+    e.preventDefault();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    dragRef.current = { startX: e.clientX, startWidth: widthPx };
+  }
+
+  function onDragMove(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    const delta = dragRef.current.startX - e.clientX;
+    persistWidth(dragRef.current.startWidth + delta);
+  }
+
+  function endDrag(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  }
 
   const walkInMode = walkInSignal > 0;
   const apptFocusSignal = bookFocusSignal + walkInSignal;
+  const isWide = widthPx >= PANEL_DEFAULT_PX + 40;
 
   useEffect(() => {
     if (createCustomerSignal <= 0) return;
@@ -112,7 +207,46 @@ export function ReceptionPanel({
   }
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-5 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm sm:p-5 lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:w-[22rem] lg:overflow-y-auto xl:w-[24rem]">
+    <aside
+      className={cn(
+        "relative flex w-full shrink-0 flex-col gap-5 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm sm:p-5",
+        confirmedAppointmentId
+          ? "lg:sticky lg:top-4 lg:h-fit lg:max-h-none"
+          : "lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto",
+        !isDesktop && "lg:w-[22rem] xl:w-[24rem]",
+      )}
+      style={isDesktop ? { width: widthPx, maxWidth: `${PANEL_MAX_VIEWPORT_RATIO * 100}vw` } : undefined}
+    >
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize reception panel"
+        aria-valuemin={PANEL_MIN_PX}
+        aria-valuemax={
+          typeof window !== "undefined"
+            ? Math.floor(window.innerWidth * PANEL_MAX_VIEWPORT_RATIO)
+            : PANEL_WIDE_PX
+        }
+        aria-valuenow={widthPx}
+        tabIndex={0}
+        className="absolute inset-y-3 -left-1.5 z-20 hidden w-3 cursor-col-resize touch-none lg:block"
+        onPointerDown={startDrag}
+        onPointerMove={onDragMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            persistWidth(widthPx + 24);
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            persistWidth(widthPx - 24);
+          }
+        }}
+      >
+        <span className="absolute inset-y-10 left-1/2 w-0.5 -translate-x-1/2 rounded-full bg-border" />
+      </div>
+
       <div className="flex items-start justify-between gap-2">
         <div>
           <h2 className="text-base font-semibold tracking-tight">Reception</h2>
@@ -135,16 +269,39 @@ export function ReceptionPanel({
             walk-in
           </p>
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 shrink-0 p-0 transition-colors"
-          onClick={() => onOpenChange(false)}
-          aria-label="Close reception panel"
-        >
-          <PanelRightClose className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="hidden h-8 w-8 shrink-0 p-0 lg:inline-flex"
+            onClick={() =>
+              persistWidth(isWide ? PANEL_DEFAULT_PX : PANEL_WIDE_PX)
+            }
+            aria-label={
+              isWide
+                ? "Standard reception panel width"
+                : "Expand reception panel"
+            }
+            title={isWide ? "Standard view" : "Wide view"}
+          >
+            {isWide ? (
+              <Minimize2 className="h-4 w-4" />
+            ) : (
+              <Maximize2 className="h-4 w-4" />
+            )}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 shrink-0 p-0 transition-colors"
+            onClick={() => onOpenChange(false)}
+            aria-label="Close reception panel"
+          >
+            <PanelRightClose className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <CustomerSearch
@@ -167,7 +324,9 @@ export function ReceptionPanel({
         }}
       />
 
-      <CustomerPreview customer={selected} />
+      {confirmedAppointmentId ? null : (
+        <CustomerPreview customer={selected} />
+      )}
 
       <div ref={formAnchorRef} className="scroll-mt-4">
         <QuickAppointmentForm
@@ -176,6 +335,8 @@ export function ReceptionPanel({
           services={services}
           staff={staff}
           locations={locations}
+          taxRates={taxRates}
+          currency={currency}
           preselectedCustomerId={selected?.id}
           defaultSlotIso={slotDefaults.start}
           defaultServiceId={slotDefaults.serviceId}
@@ -195,37 +356,67 @@ export function ReceptionPanel({
               });
             }, 80);
           }}
-        />
-      </div>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
-        onClick={onOpenFullDialog}
-      >
-        Open Booking Sheet
-      </Button>
-
-      <div className="space-y-5 border-t border-border/80 pt-5">
-        <NextSlotCard
-          onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
-            setSlotDefaults({
-              start: slot.start,
-              serviceId: slot.serviceId,
-              staffId: slot.staffId,
-            });
-            formAnchorRef.current?.scrollIntoView({
-              behavior: "smooth",
-              block: "nearest",
-            });
+          onDraftChange={(draft) => {
+            draftRef.current = draft;
+          }}
+          onAppointmentConfirmed={(id) => {
+            setConfirmedAppointmentId(id);
+            draftRef.current = null;
+          }}
+          onViewAppointment={(id) => {
+            onOpenFullDialog(null, id);
+          }}
+          onStartNewDraft={() => {
+            setConfirmedAppointmentId(null);
           }}
         />
-        <TodayNotes />
-        <AiSuggestionsCard insights={insights} />
-        <ReceptionWaitlistPanel entries={waitlist} />
       </div>
+
+      {confirmedAppointmentId ? null : (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
+          onClick={() => onOpenFullDialog(draftRef.current)}
+        >
+          Open Booking Sheet
+        </Button>
+      )}
+
+      {confirmedAppointmentId ? null : (
+      <div className="border-t border-border/60 pt-3">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between rounded-[var(--radius-md)] px-1 py-1.5 text-left text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-expanded={toolsOpen}
+          onClick={() => setToolsOpen((v) => !v)}
+        >
+          More tools
+          <span className="tabular-nums">{toolsOpen ? "Hide" : "Show"}</span>
+        </button>
+        {toolsOpen ? (
+          <div className="mt-3 space-y-4">
+            <NextSlotCard
+              onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
+                setSlotDefaults({
+                  start: slot.start,
+                  serviceId: slot.serviceId,
+                  staffId: slot.staffId,
+                });
+                formAnchorRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest",
+                });
+              }}
+            />
+            <TodayNotes />
+            <AiSuggestionsCard insights={insights} />
+            <ReceptionWaitlistPanel entries={waitlist} />
+          </div>
+        ) : null}
+      </div>
+      )}
     </aside>
   );
 }

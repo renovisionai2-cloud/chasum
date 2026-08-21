@@ -28,7 +28,7 @@ describe("primary CTA destinations", () => {
     expect(CTA_APPLY_LABEL).toBe("Apply for Private Alpha");
     expect(CTA_MEET_SUMMER_LABEL).toBe("Meet Summer");
     expect(CTA_START_WITH_SUMMER_LABEL).toBe("Start with Summer");
-    expect(CTA_DEMO_LABEL).toBe("Book a Walkthrough");
+    expect(CTA_DEMO_LABEL).toBe("Schedule a Demo");
     expect(CTA_LOGIN_LABEL).toBe("Log in");
   });
 
@@ -77,12 +77,13 @@ describe("primary CTA destinations", () => {
       expect(plan.href === APPLY_HREF || plan.href.startsWith("/contact")).toBe(
         true,
       );
-      expect(plan.cta.toLowerCase()).not.toContain("contact sales");
       expect(plan.cta.toLowerCase()).not.toContain("request early access");
+      if (plan.id === "enterprise") {
+        expect(plan.cta.toLowerCase()).toMatch(/contact sales|schedule a demo/);
+      }
     }
   });
 });
-
 describe("front door marketing pages", () => {
   it("ships homepage, platform, product tour and industries pages", () => {
     const pages = [

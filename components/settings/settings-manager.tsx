@@ -1,5 +1,6 @@
 "use client";
 
+import { BookingIntervalField } from "@/components/business/booking-interval-field";
 import { WorkingHoursGrid } from "@/components/forms/working-hours-grid";
 import { AvailabilityBlocksForm } from "@/components/settings/availability-blocks-form";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ import {
   LocationWithSettings,
   Staff,
 } from "@/lib/types/booking";
-import { TIMEZONES } from "@/lib/constants";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { getAppUrl } from "@/lib/env";
 import { createHoliday, deleteHoliday } from "@/lib/actions/holidays";
 import { updateBusinessProfile } from "@/lib/actions/business-hours";
@@ -101,20 +102,13 @@ function ProfileForm({ business }: { business: Business }) {
                   <Label htmlFor="name">Business name</Label>
                   <Input id="name" name="name" defaultValue={business.name} required />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="timezone">Timezone</Label>
-                  <Select
-                    id="timezone"
-                    name="timezone"
-                    defaultValue={business.timezone}
-                  >
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz} value={tz}>
-                        {tz}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+                <TimezoneSelect
+                  id="timezone"
+                  name="timezone"
+                  label="Timezone"
+                  defaultValue={business.timezone}
+                  required
+                />
               </div>
             </div>
           </div>
@@ -377,9 +371,11 @@ function HoursForm({
 function BookingSettingsForm({
   settings,
   locationName,
+  businessIntervalMinutes,
 }: {
   settings: LocationSettings;
   locationName: string;
+  businessIntervalMinutes: number;
 }) {
   const [state, formAction, pending] = useActionState(
     updateLocationSettings,
@@ -393,25 +389,20 @@ function BookingSettingsForm({
       <CardHeader>
         <CardTitle>Scheduling rules</CardTitle>
         <CardDescription>
-          Slot interval and booking window for {locationName}.
+          Booking time interval and booking window for {locationName}. Location
+          values override the business default when they differ.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="appointment_interval_minutes">
-                Appointment interval (min)
-              </Label>
-              <Input
-                id="appointment_interval_minutes"
-                name="appointment_interval_minutes"
-                type="number"
-                min={5}
-                step={5}
-                defaultValue={settings.appointment_interval_minutes ?? 30}
-              />
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <BookingIntervalField
+              defaultValue={settings.appointment_interval_minutes}
+              scope="location"
+              businessIntervalMinutes={businessIntervalMinutes}
+              showExamples={false}
+              className="space-y-2 sm:col-span-2"
+            />
             <div className="space-y-2">
               <Label htmlFor="booking_limit_days">Booking limit (days ahead)</Label>
               <Input
@@ -572,6 +563,7 @@ export function SettingsManager({
         <BookingSettingsForm
           settings={location.settings}
           locationName={location.name}
+          businessIntervalMinutes={business.appointment_interval_minutes}
         />
         <HolidaysForm holidays={holidays} />
         <AvailabilityBlocksForm blocks={availabilityBlocks} staff={staff} />

@@ -116,9 +116,9 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   {
     id: "go-summer",
     title: "Open Summer",
-    subtitle: "AI Receptionist",
+    subtitle: "AI Business Manager",
     href: "/dashboard/ai-workforce/summer",
-    keywords: ["ai", "summer", "receptionist", "ask summer", "book"],
+    keywords: ["ai", "summer", "receptionist", "business manager", "ask summer", "book"],
     group: "navigate",
   },
   {
