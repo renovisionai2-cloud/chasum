@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   ENTERPRISE_SALES_MESSAGE,
+  hasCancellablePaidSubscription,
+  NO_CANCELLABLE_SUBSCRIPTION_MESSAGE,
   PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
   refusePaidPlanChange,
+  showSubscriptionLifecycleControls,
 } from "@/lib/billing/paid-upgrade-guard";
 import { MockBillingProvider } from "@/lib/billing/subscription-service";
 
 const getOrCreateBusiness = vi.fn();
 const changePlan = vi.fn();
+const cancelSubscription = vi.fn();
 const getBillingProvider = vi.fn();
 
 vi.mock("@/lib/actions/business", () => ({
@@ -28,7 +32,7 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-import { changeSubscriptionPlan } from "@/lib/actions/billing";
+import { cancelSubscriptionAction, changeSubscriptionPlan } from "@/lib/actions/billing";
 
 function planForm(planKey: string, interval = "monthly") {
   const data = new FormData();
@@ -122,6 +126,7 @@ describe("changeSubscriptionPlan", () => {
     getBillingProvider.mockReturnValue({
       name: "mock",
       changePlan,
+      cancelSubscription,
     });
   });
 
@@ -167,5 +172,65 @@ describe("changeSubscriptionPlan", () => {
       planKey: "professional",
       interval: "monthly",
     });
+  });
+});
+
+describe("hasCancellablePaidSubscription", () => {
+  it("is false for a Free/starter tenant with no Stripe subscription", () => {
+    expect(
+      hasCancellablePaidSubscription({
+        planKey: "starter",
+        status: "active",
+        stripeSubscriptionId: null,
+      }),
+    ).toBe(false);
+    expect(
+      showSubscriptionLifecycleControls({
+        planKey: "starter",
+        status: "active",
+        stripeSubscriptionId: null,
+      }),
+    ).toBe(false);
+  });
+
+  it("is true for a trial or a real Stripe subscription", () => {
+    expect(
+      hasCancellablePaidSubscription({
+        planKey: "starter",
+        status: "trialing",
+        stripeSubscriptionId: null,
+      }),
+    ).toBe(true);
+    expect(
+      hasCancellablePaidSubscription({
+        planKey: "professional",
+        status: "active",
+        stripeSubscriptionId: "sub_123",
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("cancelSubscriptionAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    cancelSubscription.mockReset();
+    getBillingProvider.mockReturnValue({
+      name: "mock",
+      changePlan,
+      cancelSubscription,
+    });
+  });
+
+  it("does not write cancellation state for a Free starter tenant", async () => {
+    getOrCreateBusiness.mockResolvedValue({
+      id: "biz-1",
+      subscription_plan_key: "starter",
+      subscription_status: "active",
+      stripe_subscription_id: null,
+    });
+    const result = await cancelSubscriptionAction({}, new FormData());
+    expect(result).toEqual({ error: NO_CANCELLABLE_SUBSCRIPTION_MESSAGE });
+    expect(cancelSubscription).not.toHaveBeenCalled();
   });
 });

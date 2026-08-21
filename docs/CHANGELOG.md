@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (World Class — booking interval sync + billing honesty)
+
+- Settings → Scheduling rules no longer creates an accidental location override when the location was still following the business default
+- Free/starter Billing no longer shows paid-subscription cancel controls
+- Header upgrade CTA no longer implies immediate paid checkout
+
 ### Fixed (World Class — HQ audit fix pass)
 
 - Settings → Billing can no longer create paid Professional/Business invoices or paid subscription state through MockBillingProvider

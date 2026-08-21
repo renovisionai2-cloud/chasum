@@ -25,6 +25,7 @@ import { APPLY_HREF } from "@/lib/marketing/alpha";
 import {
   ENTERPRISE_SALES_MESSAGE,
   PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
+  showSubscriptionLifecycleControls,
 } from "@/lib/billing/paid-upgrade-guard";
 import { formatUsdFromCents } from "@/lib/owner/constants";
 import type { ActionState } from "@/lib/types/booking";
@@ -296,6 +297,7 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
         </Card>
       </div>
 
+      {showSubscriptionLifecycleControls(subscription) ? (
       <Card>
         <CardHeader>
           <CardTitle>Cancel subscription</CardTitle>
@@ -352,6 +354,7 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
           )}
         </CardContent>
       </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

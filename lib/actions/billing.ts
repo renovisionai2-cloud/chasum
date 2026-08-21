@@ -7,7 +7,11 @@ import {
   getBillingSummary,
 } from "@/lib/billing/subscription-service";
 import { isPlanKey } from "@/lib/billing/catalog";
-import { refusePaidPlanChange } from "@/lib/billing/paid-upgrade-guard";
+import {
+  hasCancellablePaidSubscription,
+  NO_CANCELLABLE_SUBSCRIPTION_MESSAGE,
+  refusePaidPlanChange,
+} from "@/lib/billing/paid-upgrade-guard";
 import type { ActionState } from "@/lib/types/booking";
 import type { BillingInterval, PlanKey } from "@/lib/billing/types";
 import { revalidatePath } from "next/cache";
@@ -65,6 +69,15 @@ export async function cancelSubscriptionAction(
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
+  if (
+    !hasCancellablePaidSubscription({
+      planKey: String(business.subscription_plan_key ?? "starter"),
+      status: String(business.subscription_status ?? "active"),
+      stripeSubscriptionId: business.stripe_subscription_id ?? null,
+    })
+  ) {
+    return { error: NO_CANCELLABLE_SUBSCRIPTION_MESSAGE };
+  }
   const immediately = formData.get("immediately") === "true";
 
   try {

@@ -12,6 +12,7 @@ import type {
   TaxRate,
 } from "@/lib/business/types";
 import { createClient } from "@/lib/supabase/server";
+import { propagateInheritedBookingInterval } from "@/lib/booking/interval-sync";
 import type { ActionState, BusinessSocialLinks } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
@@ -1047,26 +1048,41 @@ export async function updateBusinessBookingSettings(
   // Push booking-window policies to all locations. Interval only updates
   // locations that still match the previous business default so intentional
   // location overrides remain intact.
-  const { data: businessLocations } = await supabase
+  const { data: businessLocations, error: locationListError } = await supabase
     .from("locations")
     .select("id")
     .eq("business_id", business.id);
+  if (locationListError) {
+    return {
+      error:
+        "Your business default was saved, but locations could not be updated. Try saving again from Settings.",
+    };
+  }
   const locationIds = (businessLocations ?? []).map((row) => row.id);
   if (locationIds.length > 0) {
-    await supabase
+    const { error: locationWindowError } = await supabase
       .from("location_settings")
       .update({
         booking_limit_days: bookingLimitDays,
         cancellation_policy: payload.cancellation_policy,
       })
       .in("location_id", locationIds);
+    if (locationWindowError) {
+      return {
+        error:
+          "Your business default was saved, but location booking windows could not be updated. Try saving again from Settings.",
+      };
+    }
 
     if (appointmentInterval !== previousInterval) {
-      await supabase
-        .from("location_settings")
-        .update({ appointment_interval_minutes: appointmentInterval })
-        .in("location_id", locationIds)
-        .eq("appointment_interval_minutes", previousInterval);
+      const inherited = await propagateInheritedBookingInterval(supabase, {
+        locationIds,
+        previousInterval,
+        nextInterval: appointmentInterval,
+      });
+      if (inherited.error) {
+        return { error: inherited.error };
+      }
     }
   }
 

@@ -24,8 +24,8 @@ export function UpgradeToProfessionalModal({
     <Dialog
       open={open}
       onClose={onClose}
-      title="Upgrade to Professional"
-      description="Unlock more capacity as you grow."
+      title="Apply for Professional"
+      description="Private Alpha review is required before a paid plan is available."
     >
       <div className="space-y-5">
         <p className="text-sm leading-relaxed text-foreground">

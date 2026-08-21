@@ -165,6 +165,12 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-21)
 
+**World Class — booking interval sync + billing honesty**
+
+Settings → Scheduling rules now updates the business default when the active location is still inherited, and leaves intentional location overrides alone. Partial writes no longer report success. Free/starter tenants no longer see cancel-subscription controls. Header CTA is Apply for Professional (`/apply`). **Chasum HQ Staging rows were not mutated** (business 30 / location 15 until a post-audit Settings save). Production was not touched.
+
+### Prior (2026-08-21)
+
 **World Class — HQ audit fix pass (P1 mock paid upgrade + P2 15-minute interval)**
 
 Mock/non-Stripe billing can no longer create paid Professional/Business invoices or paid subscription state from Settings → Billing. New first-business onboarding seeds `appointment_interval_minutes = 15` on the business and default `location_settings`. Same-name retry does not rewrite an existing interval from timezone/currency/interval values. Setup progress no longer treats the silent 30-minute DB default as “configured.” **Chasum HQ Staging records were not mutated** (still 30 until an explicit PO-approved settings change). Production was not touched.
