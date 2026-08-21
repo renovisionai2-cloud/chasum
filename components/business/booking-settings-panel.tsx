@@ -13,8 +13,9 @@ import {
   RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
   bookingIntervalLabel,
 } from "@/lib/booking/interval";
+import { businessBookingFormRevision } from "@/lib/booking/settings-form-revision";
 import type { ActionState, Business } from "@/lib/types/booking";
-import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { useFormAction } from "@/hooks/use-form-action";
 import Link from "next/link";
 import { useActionState } from "react";
 
@@ -23,8 +24,19 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
     updateBusinessBookingSettings,
     {} as ActionState,
   );
-  const refresh = useRefresh();
-  useFormAction(state, undefined, () => refresh());
+  useFormAction(state);
+  const formRevision = businessBookingFormRevision({
+    updatedAt: business.updated_at,
+    appointmentIntervalMinutes: business.appointment_interval_minutes,
+    bookingLimitDays: business.booking_limit_days,
+    minNoticeMinutes: business.min_notice_minutes,
+    cancellationWindowHours: business.cancellation_window_hours,
+    confirmationMode: business.booking_confirmation_mode,
+    reschedulePolicy: business.reschedule_policy,
+    cancellationPolicy: business.cancellation_policy,
+    onlineBookingEnabled: business.online_booking_enabled,
+    waitlistEnabled: business.waitlist_enabled,
+  });
 
   return (
     <Card>
@@ -32,7 +44,12 @@ export function BookingSettingsPanel({ business }: { business: Business }) {
         <CardTitle>Booking settings</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={action} className="space-y-4">
+        <form
+          key={formRevision}
+          action={action}
+          className="space-y-4"
+          data-form-revision={formRevision}
+        >
           <div className="rounded-[var(--radius-md)] border border-border bg-muted/30 px-3 py-3 text-sm text-muted-foreground">
             <p className="font-medium text-foreground">
               {BOOKING_INTERVAL_ONBOARDING_HELP}

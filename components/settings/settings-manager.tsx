@@ -15,6 +15,7 @@ import {
   updateLocationHours,
   updateLocationSettings,
 } from "@/lib/actions/location";
+import { locationSchedulingFormRevision } from "@/lib/booking/settings-form-revision";
 import type { LocationScope } from "@/lib/location/constants";
 import { ImageUploadField } from "@/components/ui/image-upload-field";
 import {
@@ -368,7 +369,7 @@ function HoursForm({
   );
 }
 
-function BookingSettingsForm({
+export function LocationSchedulingRulesForm({
   settings,
   locationName,
   businessIntervalMinutes,
@@ -383,6 +384,12 @@ function BookingSettingsForm({
   );
 
   useFormAction(state);
+  const formRevision = locationSchedulingFormRevision({
+    appointmentIntervalMinutes: settings.appointment_interval_minutes,
+    bookingLimitDays: settings.booking_limit_days,
+    maxDailyBookings: settings.max_daily_bookings,
+    cancellationPolicy: settings.cancellation_policy,
+  });
 
   return (
     <Card>
@@ -399,7 +406,12 @@ function BookingSettingsForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-4">
+        <form
+          key={formRevision}
+          action={formAction}
+          className="space-y-4"
+          data-form-revision={formRevision}
+        >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <BookingIntervalField
               defaultValue={settings.appointment_interval_minutes}
@@ -573,7 +585,7 @@ export function SettingsManager({
           </CardContent>
         </Card>
         <HoursForm hours={location.hours} locationName={location.name} />
-        <BookingSettingsForm
+        <LocationSchedulingRulesForm
           settings={location.settings}
           locationName={location.name}
           businessIntervalMinutes={business.appointment_interval_minutes}

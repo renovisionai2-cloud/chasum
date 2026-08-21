@@ -165,6 +165,12 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-08-21)
 
+**World Class — post-save booking settings UI**
+
+Business Booking and Location scheduling forms remount from persisted field values after a successful save so React 19 does not leave the original page-load defaults on screen. Architecture and HQ data were not changed.
+
+### Prior (2026-08-21)
+
 **World Class — location vs business booking scope**
 
 Settings → Location scheduling rules is location-only. Business → Booking settings remains the business-default cascade with checked location-write errors. Billing honesty from `a2974d0` is preserved. **Chasum HQ Staging rows were not mutated** (business 30 / Main 15 until a post-audit Business Booking save). Production was not touched.
@@ -895,8 +901,8 @@ As of last update:
 
 **Priority order:**
 
-1. **Claude re-audit** of this HQ fix pass (mock paid-upgrade guard + 15-minute new-business interval) before PO tests Billing Upgrade.
-2. **PO-approved HQ interval correction later:** Chasum HQ remains at 30 minutes until an explicit Settings → Business booking-interval save to 15 (do not SQL-patch). Not done in this pass.
+1. **Claude re-audit** of the post-save booking settings UI remount (React 19 stale defaultValue) before the Product Owner retests Business Booking in Preview.
+2. **PO Preview check after that audit (no SQL):** Business → Booking settings → Every 15 minutes → Save. Expected without refresh: dropdown stays on Every 15 minutes. Then Location scheduling 15 → 30 should stay 30 without refresh.
 3. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 4. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 5. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.

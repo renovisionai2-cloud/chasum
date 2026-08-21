@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (World Class — post-save booking settings UI)
+
+- Business Booking and Location scheduling forms remount from persisted field values after a successful save so React 19 does not leave the original page-load defaults on screen
+
 ### Fixed (World Class — location vs business booking scope)
 
 - Settings → Location scheduling rules writes only the active location and no longer infers a business-wide change from matching interval values

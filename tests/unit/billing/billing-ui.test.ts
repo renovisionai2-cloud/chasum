@@ -16,6 +16,7 @@ describe("Settings scheduling rules path", () => {
     expect(src).toMatch(/These settings apply only to/);
     expect(src).toMatch(/Change business-wide defaults/);
     expect(src).toMatch(/updateLocationSettings/);
+    expect(src).toMatch(/locationSchedulingFormRevision/);
     expect(src).not.toMatch(/updateBusinessBookingSettings/);
   });
 
@@ -24,6 +25,8 @@ describe("Settings scheduling rules path", () => {
     expect(src).toMatch(/updateBusinessBookingSettings/);
     expect(src).toMatch(/Save booking settings/);
     expect(src).toMatch(/Manage location overrides/);
+    expect(src).toMatch(/businessBookingFormRevision/);
+    expect(src).not.toMatch(/useRefresh\(\)/);
   });
 
   it("does not let location Settings update the business interval", () => {
