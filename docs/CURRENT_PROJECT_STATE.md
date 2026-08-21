@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-21  
-**Updated by:** World Class — Safe Tenant Onboarding Gate  
+**Updated by:** World Class — First-business timezone + currency  
 
 ---
 
@@ -164,6 +164,14 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-21)
+
+**World Class — First-business onboarding timezone + currency**
+
+`/onboarding/business` now collects business name, IANA timezone, and currency. Values are validated server-side and stamped onto the new business and default location after `ensure_business_for_owner`. No migration. **Chasum HQ was not created.**
+
+Canonical: [`WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md).
+
+### Prior (2026-08-21)
 
 **World Class — Safe Tenant Onboarding Gate**
 
@@ -859,7 +867,7 @@ As of last update:
 
 **Priority order:**
 
-1. **PO review of the Safe Tenant Onboarding Gate** on World Class Preview. Then explicitly create the first Staging tenant (Chasum HQ) through `/onboarding/business` — do not auto-create it.
+1. **PO review of first-business onboarding** (name + timezone + currency) on World Class Preview. Then explicitly create the first Staging tenant (Chasum HQ) through `/onboarding/business` — do not auto-create it.
 2. **Do not confirm** `operations@chasumai.com` or create Chasum HQ until that review.
 3. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 4. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.

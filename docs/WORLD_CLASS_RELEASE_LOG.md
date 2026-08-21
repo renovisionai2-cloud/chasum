@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-21 | **First-business timezone + currency** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Onboarding collects timezone + currency; HQ not created; 034–036 unapplied |
 | 2026-08-21 | **Safe Tenant Onboarding Gate** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Auth no longer auto-creates a business; `/onboarding/business`; HQ not created; 034–036 unapplied |
 | 2026-08-19 | **Preview → Staging cutover STOP** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Vercel CLI logged out; Preview SSO on; env not changed; Production GVM intact; `/dashboard` would auto-create a business |
 | 2026-08-19 | **Staging init STOP** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | No SQL; Staging target unverified in agent env; Preview still Production DB; 034–036 unapplied; HQ not created |

@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Set up your business",
+  title: "Tell us about your business",
 };
 
 export default async function BusinessOnboardingPage() {

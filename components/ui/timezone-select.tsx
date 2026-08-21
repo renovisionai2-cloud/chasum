@@ -21,6 +21,7 @@ type TimezoneSelectProps = {
   disabled?: boolean;
   onChange?: (iana: string) => void;
   options?: TimezoneOption[];
+  placeholder?: string;
 };
 
 /**
@@ -36,6 +37,7 @@ export function TimezoneSelect({
   disabled,
   onChange,
   options = TIMEZONE_OPTIONS,
+  placeholder,
 }: TimezoneSelectProps) {
   const [query, setQuery] = useState("");
   const current = value ?? defaultValue ?? "";
@@ -71,6 +73,11 @@ export function TimezoneSelect({
         defaultValue={value === undefined ? defaultValue : undefined}
         onChange={(e) => onChange?.(e.target.value)}
       >
+        {placeholder ? (
+          <option value="" disabled={required}>
+            {placeholder}
+          </option>
+        ) : null}
         {filtered.length === 0 ? (
           <option value={current || ""} disabled>
             No matches — clear search

@@ -2,6 +2,7 @@
 
 import { signOut } from "@/lib/actions/auth";
 import { createInitialBusinessAction } from "@/lib/actions/create-initial-business";
+import { BUSINESS_CURRENCIES } from "@/lib/commerce/money";
 import { BUSINESS_NAME_MAX_LENGTH } from "@/lib/onboarding/business-name";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,8 @@ import {
 } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import type { ActionState } from "@/lib/types/booking";
 import { PLATFORM_ADMIN_PATH } from "@/lib/tenancy/post-auth-destination";
 import Link from "next/link";
@@ -37,11 +40,11 @@ export function CreateBusinessForm({
           Business setup
         </p>
         <CardTitle className="text-2xl sm:text-[1.65rem]">
-          Name your business
+          Tell us about your business
         </CardTitle>
         <CardDescription className="text-pretty text-base leading-relaxed">
-          Chasum is organized around a business. Enter the name customers and
-          your team should see — this creates your workspace.
+          Enter the name, timezone, and currency customers and your team should
+          see. This creates your workspace.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -51,7 +54,6 @@ export function CreateBusinessForm({
             htmlFor="businessName"
             required
             hint="Use the real business name. It can be changed later in Business settings."
-            error={state.error}
           >
             <Input
               name="businessName"
@@ -62,6 +64,49 @@ export function CreateBusinessForm({
               required
             />
           </Field>
+
+          <Field
+            label="Timezone"
+            htmlFor="timezone"
+            required
+            hint="Appointment times and calendars use this timezone."
+          >
+            <TimezoneSelect
+              id="timezone"
+              name="timezone"
+              label=""
+              required
+              defaultValue=""
+              placeholder="Select timezone"
+            />
+          </Field>
+
+          <Field
+            label="Currency"
+            htmlFor="currency"
+            required
+            hint="Prices, invoices, and reports use this currency."
+          >
+            <Select id="currency" name="currency" required defaultValue="">
+              <option value="" disabled>
+                Select currency
+              </option>
+              {BUSINESS_CURRENCIES.map((row) => (
+                <option key={row.value} value={row.value}>
+                  {row.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
+          {state.error ? (
+            <div
+              className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              role="alert"
+            >
+              {state.error}
+            </div>
+          ) : null}
 
           {state.success ? (
             <div className="rounded-xl border border-success/20 bg-success/10 px-4 py-3 text-sm text-success">
@@ -76,7 +121,7 @@ export function CreateBusinessForm({
             disabled={pending}
             aria-busy={pending}
           >
-            {pending ? "Creating your business…" : "Create business"}
+            {pending ? "Creating your business…" : "Continue"}
           </Button>
         </form>
 

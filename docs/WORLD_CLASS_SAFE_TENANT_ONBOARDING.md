@@ -32,11 +32,18 @@ Auth user
   → if accessible businesses exist → /dashboard (existing resolver + switcher)
   → if Platform Admin and zero businesses → /dashboard/hq (no tenant created)
   → otherwise → /onboarding/business
-       → user submits a business name
+       → user submits name, timezone, and currency
+       → server validates name + IANA timezone + supported currency
        → ensure_business_for_owner(p_name = entered name)
-       → required location / hours / settings via existing RPC
+       → application stamps timezone + currency on the business
+       → default location timezone updated to the selected IANA zone
        → preferred_plan metadata mapped (Free → starter)
        → /dashboard
+
+The RPC still inserts `owner_id, name, slug` only (DB defaults remain
+`America/New_York` / `usd`). No migration was authorized, so the selected
+timezone and currency are written in the same request after create, then
+the default location timezone is updated. Invalid values never call the RPC.
 ```
 
 Retrieval and mutation are separated:

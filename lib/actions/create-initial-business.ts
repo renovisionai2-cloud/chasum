@@ -2,10 +2,8 @@
 
 import { getBusiness, requireUser } from "@/lib/actions/business";
 import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
-import {
-  preferredSlugForBusinessName,
-  validateBusinessName,
-} from "@/lib/onboarding/business-name";
+import { preferredSlugForBusinessName } from "@/lib/onboarding/business-name";
+import { validateFirstBusinessInput } from "@/lib/onboarding/first-business";
 import { createClient } from "@/lib/supabase/server";
 import { DASHBOARD_PATH } from "@/lib/tenancy/post-auth-destination";
 import type { ActionState, Business } from "@/lib/types/booking";
@@ -18,24 +16,72 @@ function asBusiness(value: unknown): Business | null {
   return row as Business;
 }
 
-async function applyPreferredPlan(
-  business: Business,
-  preferredPlan: string | undefined,
-): Promise<Business> {
-  if (!preferredPlan) return business;
-  const planKey = marketingPlanIdToDbKey(preferredPlan);
-  if (business.subscription_plan_key === planKey) return business;
+function readSubmittedFields(formData: FormData) {
+  return {
+    name: String(formData.get("businessName") ?? ""),
+    timezone: String(formData.get("timezone") ?? ""),
+    currency: String(formData.get("currency") ?? ""),
+  };
+}
 
-  const supabase = await createClient();
+async function stampOperatingProfile(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  input: {
+    businessId: string;
+    ownerId: string;
+    timezone: string;
+    currency: string;
+    preferredPlan?: string;
+  },
+): Promise<{ error?: string }> {
+  const patch: {
+    timezone: string;
+    currency: string;
+    subscription_plan_key?: string;
+  } = {
+    timezone: input.timezone,
+    currency: input.currency,
+  };
+  if (input.preferredPlan) {
+    patch.subscription_plan_key = marketingPlanIdToDbKey(input.preferredPlan);
+  }
+
   const { data, error } = await supabase
     .from("businesses")
-    .update({ subscription_plan_key: planKey })
-    .eq("id", business.id)
-    .select("*")
+    .update(patch)
+    .eq("id", input.businessId)
+    .eq("owner_id", input.ownerId)
+    .select("id, timezone, currency")
     .single();
 
-  if (error || !data) return business;
-  return data as Business;
+  if (error || !data) {
+    return {
+      error:
+        "Your business could not be saved with the selected timezone and currency. Please try again.",
+    };
+  }
+
+  if (data.timezone !== input.timezone || data.currency !== input.currency) {
+    return {
+      error:
+        "Your business could not be saved with the selected timezone and currency. Please try again.",
+    };
+  }
+
+  const { error: locationError } = await supabase
+    .from("locations")
+    .update({ timezone: input.timezone })
+    .eq("business_id", input.businessId)
+    .eq("is_default", true);
+
+  if (locationError) {
+    return {
+      error:
+        "Your business was created, but the location timezone could not be saved. Open Business settings to set it.",
+    };
+  }
+
+  return {};
 }
 
 /**
@@ -47,21 +93,40 @@ export async function createInitialBusinessAction(
   formData: FormData,
 ): Promise<ActionState> {
   const user = await requireUser();
+  const parsed = validateFirstBusinessInput(readSubmittedFields(formData));
   const existing = await getBusiness();
+
   if (existing) {
+    if (
+      parsed.ok &&
+      existing.owner_id === user.id &&
+      existing.name.trim() === parsed.value.name
+    ) {
+      const supabase = await createClient();
+      const preferred = user.user_metadata?.preferred_plan as string | undefined;
+      const stamped = await stampOperatingProfile(supabase, {
+        businessId: existing.id,
+        ownerId: user.id,
+        timezone: parsed.value.timezone,
+        currency: parsed.value.currency,
+        preferredPlan: preferred,
+      });
+      if (stamped.error) {
+        return { error: stamped.error };
+      }
+    }
     redirect(DASHBOARD_PATH);
   }
 
-  const parsed = validateBusinessName(String(formData.get("businessName") ?? ""));
   if (!parsed.ok) {
     return { error: parsed.error };
   }
 
   const supabase = await createClient();
-  const preferredSlug = preferredSlugForBusinessName(parsed.name, user.id);
+  const preferredSlug = preferredSlugForBusinessName(parsed.value.name, user.id);
 
   const { data, error } = await supabase.rpc("ensure_business_for_owner", {
-    p_name: parsed.name,
+    p_name: parsed.value.name,
     p_preferred_slug: preferredSlug,
   });
 
@@ -76,12 +141,21 @@ export async function createInitialBusinessAction(
 
   // RPC returns an existing authorized tenant if one already exists.
   // Never rename or re-plan another tenant as a side effect.
-  if (created.owner_id !== user.id || created.name.trim() !== parsed.name) {
+  if (created.owner_id !== user.id || created.name.trim() !== parsed.value.name) {
     redirect(DASHBOARD_PATH);
   }
 
   const preferred = user.user_metadata?.preferred_plan as string | undefined;
-  await applyPreferredPlan(created, preferred);
+  const stamped = await stampOperatingProfile(supabase, {
+    businessId: created.id,
+    ownerId: user.id,
+    timezone: parsed.value.timezone,
+    currency: parsed.value.currency,
+    preferredPlan: preferred,
+  });
+  if (stamped.error) {
+    return { error: stamped.error };
+  }
 
   redirect(DASHBOARD_PATH);
 }

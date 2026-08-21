@@ -66,7 +66,7 @@ describe("business onboarding is explicit", () => {
   it("explicit submit creates the submitted name via ensure_business_for_owner once", () => {
     const src = read("lib/actions/create-initial-business.ts");
     expect(src.match(/ensure_business_for_owner/g)?.length).toBe(1);
-    expect(src).toMatch(/p_name: parsed\.name/);
+    expect(src).toMatch(/p_name: parsed\.value\.name/);
     expect(src).not.toMatch(/full_name/);
     expect(src).not.toMatch(/My Business/);
     expect(src).not.toMatch(/create_default_location/);
@@ -77,11 +77,51 @@ describe("business onboarding is explicit", () => {
     expect(src).not.toMatch(/admin@/);
   });
 
+  it("validates timezone and currency before creating a tenant", () => {
+    const src = read("lib/actions/create-initial-business.ts");
+    expect(src).toMatch(/validateFirstBusinessInput/);
+    expect(src.indexOf("validateFirstBusinessInput")).toBeLessThan(
+      src.indexOf("ensure_business_for_owner"),
+    );
+    expect(src).not.toMatch(/America\/New_York/);
+    expect(src).not.toMatch(/\|\|\s*"usd"/);
+    expect(src).not.toMatch(/normalizeCurrency/);
+    expect(src.indexOf("if (!parsed.ok)")).toBeLessThan(
+      src.indexOf("ensure_business_for_owner"),
+    );
+  });
+
+  it("stamps the submitted timezone and currency onto the business and location", () => {
+    const src = read("lib/actions/create-initial-business.ts");
+    expect(src).toMatch(/timezone: input\.timezone/);
+    expect(src).toMatch(/currency: input\.currency/);
+    expect(src).toMatch(/from\("locations"\)/);
+    expect(src).toMatch(/update\(\{ timezone: input\.timezone \}\)/);
+    expect(src).toMatch(/eq\("business_id", input\.businessId\)/);
+    expect(src).toMatch(/eq\("is_default", true\)/);
+  });
+
   it("does not hardcode a special-case tenant in onboarding UI", () => {
     const src = read("components/onboarding/create-business-form.tsx");
     expect(src).not.toMatch(/Chasum HQ/);
     expect(src).not.toMatch(/My Business/);
     expect(src).toMatch(/businessName/);
+    expect(src).toMatch(/timezone/);
+    expect(src).toMatch(/currency/);
+    expect(src).not.toMatch(/defaultValue="America\/New_York"/);
+    expect(src).not.toMatch(/defaultValue="usd"/);
+    expect(src).not.toMatch(/defaultValue="America\/Toronto"/);
+    expect(src).not.toMatch(/defaultValue="cad"/);
+  });
+
+  it("keeps duplicate-submit protection for users who already have a business", () => {
+    const src = read("lib/actions/create-initial-business.ts");
+    expect(src).toMatch(/getBusiness/);
+    expect(src.indexOf("getBusiness")).toBeLessThan(
+      src.indexOf("ensure_business_for_owner"),
+    );
+    expect(src).toMatch(/created\.owner_id !== user\.id/);
+    expect(src).toMatch(/created\.name\.trim\(\) !== parsed\.value\.name/);
   });
 });
 

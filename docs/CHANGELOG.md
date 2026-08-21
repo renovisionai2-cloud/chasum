@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (World Class — First-business timezone + currency)
+
+- `/onboarding/business` collects business name, timezone, and currency before creating the first tenant
+- Selected IANA timezone and currency are stamped onto the business and default location; invalid values do not create a tenant
+
 ### Fixed (World Class — Safe Tenant Onboarding Gate)
 
 - Authenticated users with zero businesses are routed to `/onboarding/business` instead of auto-creating a tenant from `/dashboard`
