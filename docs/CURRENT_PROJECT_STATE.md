@@ -826,9 +826,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | pending this documentation commit |
-| **Short** | pending this commit |
-| **Subject** | docs: record staging init stop before unverified SQL |
+| **SHA** | `7d35346b53568643c8f8cbb620a939e2898ced19` |
+| **Short** | `7d35346` |
+| **Subject** | Keep Settings scheduling rules location-only instead of inferring a business-wide interval change. |
+| **Location-scope correction** | `7d35346b53568643c8f8cbb620a939e2898ced19` |
+| **Booking interval sync + billing honesty** | `a2974d0c165c15fca20f7a215dba6e4313cef9e3` |
 | **Staging init stop** | pending this commit |
 | **Environment separation** | `93da74680c1f338d1e8b40efdea80d3a8b0be2e9` |
 | **Tenant safety docs** | `ffb4422f3e27cc6128f5ae5373ac3565ae10798d` |
