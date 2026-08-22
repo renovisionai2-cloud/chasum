@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { updateBusinessBrandingSettings } from "@/lib/actions/business-management";
 import { parseBookingPageBranding } from "@/lib/business/settings";
 import type { ActionState, Business } from "@/lib/types/booking";
-import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { brandingSettingsRevision } from "@/lib/forms/dashboard-form-revisions";
+import { useFormAction } from "@/hooks/use-form-action";
 import { useActionState } from "react";
 
 export function BrandingSettingsPanel({ business }: { business: Business }) {
@@ -18,8 +19,7 @@ export function BrandingSettingsPanel({ business }: { business: Business }) {
     updateBusinessBrandingSettings,
     {} as ActionState,
   );
-  const refresh = useRefresh();
-  useFormAction(state, undefined, () => refresh());
+  useFormAction(state);
 
   return (
     <Card>
@@ -27,7 +27,12 @@ export function BrandingSettingsPanel({ business }: { business: Business }) {
         <CardTitle>Branding</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={action} className="space-y-4">
+        <form
+          key={brandingSettingsRevision(business)}
+          action={action}
+          className="space-y-4"
+          data-form-revision="branding-settings"
+        >
           <div className="grid gap-4 sm:grid-cols-3">
             <ImageUploadField
               id="logo_url"

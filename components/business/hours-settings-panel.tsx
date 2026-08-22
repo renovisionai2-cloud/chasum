@@ -16,6 +16,7 @@ import { createHoliday, deleteHoliday } from "@/lib/actions/holidays";
 import { updateLocationHours } from "@/lib/actions/location";
 import type { BusinessClosure } from "@/lib/business/settings";
 import type { ActionState, Holiday, LocationHours } from "@/lib/types/booking";
+import { locationHoursFormRevision } from "@/lib/booking/settings-form-revision";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { useActionState, useTransition } from "react";
@@ -81,7 +82,12 @@ export function HoursSettingsPanel({
           <CardTitle>Weekly hours (active location)</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={hoursAction} className="space-y-4">
+          <form
+            key={locationHoursFormRevision(hours)}
+            action={hoursAction}
+            className="space-y-4"
+            data-form-revision="location-hours"
+          >
             <WorkingHoursGrid hours={hours} namePrefix="day" />
             <p className="text-xs text-muted-foreground">
               Closed days: uncheck a day. If Saturday or Sunday is closed, public

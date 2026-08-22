@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateBusinessNotificationSettings } from "@/lib/actions/business-management";
 import type { ActionState, Business } from "@/lib/types/booking";
-import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { notificationSettingsRevision } from "@/lib/forms/dashboard-form-revisions";
+import { useFormAction } from "@/hooks/use-form-action";
 import { useActionState } from "react";
 
 export function NotificationSettingsPanel({ business }: { business: Business }) {
@@ -14,8 +15,7 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
     updateBusinessNotificationSettings,
     {} as ActionState,
   );
-  const refresh = useRefresh();
-  useFormAction(state, undefined, () => refresh());
+  useFormAction(state);
 
   return (
     <Card>
@@ -23,7 +23,12 @@ export function NotificationSettingsPanel({ business }: { business: Business }) 
         <CardTitle>Notifications</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={action} className="space-y-4">
+        <form
+          key={notificationSettingsRevision(business)}
+          action={action}
+          className="space-y-4"
+          data-form-revision="notification-settings"
+        >
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="flex items-center gap-2 text-sm">
               <input

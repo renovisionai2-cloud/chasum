@@ -15,7 +15,8 @@ import {
   updateLocationHours,
   updateLocationSettings,
 } from "@/lib/actions/location";
-import { locationSchedulingFormRevision } from "@/lib/booking/settings-form-revision";
+import { locationHoursFormRevision, locationSchedulingFormRevision } from "@/lib/booking/settings-form-revision";
+import { settingsBusinessProfileRevision } from "@/lib/forms/dashboard-form-revisions";
 import type { LocationScope } from "@/lib/location/constants";
 import { ImageUploadField } from "@/components/ui/image-upload-field";
 import {
@@ -39,7 +40,7 @@ import { Copy, ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 
-function ProfileForm({ business }: { business: Business }) {
+export function SettingsBusinessProfileForm({ business }: { business: Business }) {
   const [state, formAction, pending] = useActionState(
     updateBusinessProfile,
     {} as ActionState,
@@ -62,7 +63,12 @@ function ProfileForm({ business }: { business: Business }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-6">
+        <form
+          key={settingsBusinessProfileRevision(business)}
+          action={formAction}
+          className="space-y-6"
+          data-form-revision="settings-business-profile"
+        >
           <div className="grid gap-4 md:grid-cols-[120px_1fr]">
             <div className="flex flex-col items-center gap-2">
               <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted">
@@ -336,7 +342,7 @@ function ProfileForm({ business }: { business: Business }) {
   );
 }
 
-function HoursForm({
+export function LocationHoursForm({
   hours,
   locationName,
 }: {
@@ -357,7 +363,12 @@ function HoursForm({
         <CardDescription>{locationName}</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="space-y-3">
+        <form
+          key={locationHoursFormRevision(hours)}
+          action={formAction}
+          className="space-y-3"
+          data-form-revision="settings-location-hours"
+        >
           <WorkingHoursGrid hours={hours} namePrefix="day" openField="open" />
           <AlertMessage error={state.error} success={state.success} />
           <Button type="submit" disabled={pending}>
@@ -568,7 +579,7 @@ export function SettingsManager({
         </p>
       )}
       <div className="grid gap-6 lg:grid-cols-2">
-        <ProfileForm business={business} />
+        <SettingsBusinessProfileForm business={business} />
         <Card>
           <CardHeader>
             <CardTitle>Billing</CardTitle>
@@ -584,7 +595,7 @@ export function SettingsManager({
             </Link>
           </CardContent>
         </Card>
-        <HoursForm hours={location.hours} locationName={location.name} />
+        <LocationHoursForm hours={location.hours} locationName={location.name} />
         <LocationSchedulingRulesForm
           settings={location.settings}
           locationName={location.name}

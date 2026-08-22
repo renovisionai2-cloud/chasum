@@ -31,6 +31,7 @@ import type { Department, EmployeeProfile } from "@/lib/employees/types";
 import { currencyCode } from "@/lib/commerce/money";
 import type { ActionState, Location, Service } from "@/lib/types/booking";
 import { DAY_NAMES, STAFF_COLORS } from "@/lib/types/booking";
+import { employeeProfileFormRevision } from "@/lib/forms/dashboard-form-revisions";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { format } from "date-fns";
 import {
@@ -118,8 +119,8 @@ export function EmployeeProfileView({
     {} as ActionState,
   );
   const refresh = useRefresh();
-  useFormAction(state, () => refresh());
-  useFormAction(noteState, () => refresh());
+  useFormAction(state);
+  useFormAction(noteState);
 
   const defaultPermissions = useMemo(
     () =>
@@ -384,7 +385,12 @@ export function EmployeeProfileView({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={formAction} className="space-y-5">
+            <form
+              key={employeeProfileFormRevision(employee)}
+              action={formAction}
+              className="space-y-5"
+              data-form-revision="employee-profile"
+            >
               <input type="hidden" name="id" value={employee.id} />
 
               {tab === "overview" ? (

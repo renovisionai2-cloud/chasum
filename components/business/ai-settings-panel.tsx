@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { updateBusinessAiSettings } from "@/lib/actions/business-management";
 import { parseAiSettings } from "@/lib/business/settings";
 import type { ActionState, Business } from "@/lib/types/booking";
-import { useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { aiSettingsRevision } from "@/lib/forms/dashboard-form-revisions";
+import { useFormAction } from "@/hooks/use-form-action";
 import { useActionState } from "react";
 
 export function AiSettingsPanel({ business }: { business: Business }) {
@@ -18,8 +19,7 @@ export function AiSettingsPanel({ business }: { business: Business }) {
     updateBusinessAiSettings,
     {} as ActionState,
   );
-  const refresh = useRefresh();
-  useFormAction(state, undefined, () => refresh());
+  useFormAction(state);
 
   return (
     <div className="space-y-4">
@@ -28,7 +28,12 @@ export function AiSettingsPanel({ business }: { business: Business }) {
           <CardTitle>Summer — AI Business Manager</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={action} className="space-y-4">
+          <form
+            key={aiSettingsRevision(business)}
+            action={action}
+            className="space-y-4"
+            data-form-revision="ai-settings"
+          >
             <label className="flex items-center gap-2 text-sm font-medium">
               <input
                 type="checkbox"

@@ -1,19 +1,10 @@
-/**
- * Revision token for remounting uncontrolled booking settings forms.
- *
- * React 19 resets native form controls to their mount-time defaultValue after a
- * successful form action. router.refresh() then delivers new server props, but
- * defaultValue does not update an already-mounted uncontrolled input. Keying
- * the <form> on this token remounts the controls once persisted values change.
- *
- * Built from the editable persisted fields themselves so a remount happens
- * even when a table's updated_at is missing or not bumped (location_settings
- * has the column but no set_updated_at trigger).
- */
+import { persistedFormRevision } from "@/lib/forms/persisted-form-revision";
+
+/** @deprecated Use persistedFormRevision — kept as a typed booking wrapper. */
 export function persistedBookingFormRevision(
   parts: Array<string | number | boolean | null | undefined>,
 ): string {
-  return parts.map((part) => (part == null ? "" : String(part))).join("|");
+  return persistedFormRevision(parts);
 }
 
 export function businessBookingFormRevision(input: {
@@ -28,18 +19,18 @@ export function businessBookingFormRevision(input: {
   onlineBookingEnabled?: boolean | null;
   waitlistEnabled?: boolean | null;
 }): string {
-  return persistedBookingFormRevision([
-    input.updatedAt,
-    input.appointmentIntervalMinutes,
-    input.bookingLimitDays,
-    input.minNoticeMinutes,
-    input.cancellationWindowHours,
-    input.confirmationMode,
-    input.reschedulePolicy,
-    input.cancellationPolicy,
-    input.onlineBookingEnabled,
-    input.waitlistEnabled,
-  ]);
+  return persistedFormRevision({
+    updatedAt: input.updatedAt ?? null,
+    appointmentIntervalMinutes: input.appointmentIntervalMinutes ?? null,
+    bookingLimitDays: input.bookingLimitDays ?? null,
+    minNoticeMinutes: input.minNoticeMinutes ?? null,
+    cancellationWindowHours: input.cancellationWindowHours ?? null,
+    confirmationMode: input.confirmationMode ?? null,
+    reschedulePolicy: input.reschedulePolicy ?? null,
+    cancellationPolicy: input.cancellationPolicy ?? null,
+    onlineBookingEnabled: input.onlineBookingEnabled ?? null,
+    waitlistEnabled: input.waitlistEnabled ?? null,
+  });
 }
 
 export function locationSchedulingFormRevision(input: {
@@ -48,10 +39,52 @@ export function locationSchedulingFormRevision(input: {
   maxDailyBookings?: number | null;
   cancellationPolicy?: string | null;
 }): string {
-  return persistedBookingFormRevision([
-    input.appointmentIntervalMinutes,
-    input.bookingLimitDays,
-    input.maxDailyBookings,
-    input.cancellationPolicy,
-  ]);
+  return persistedFormRevision({
+    appointmentIntervalMinutes: input.appointmentIntervalMinutes ?? null,
+    bookingLimitDays: input.bookingLimitDays ?? null,
+    maxDailyBookings: input.maxDailyBookings ?? null,
+    cancellationPolicy: input.cancellationPolicy ?? null,
+  });
+}
+
+export function locationHoursFormRevision(
+  hours: ReadonlyArray<{
+    day_of_week: number;
+    is_open?: boolean;
+    open_time?: string;
+    close_time?: string;
+  }>,
+): string {
+  return persistedFormRevision(
+    hours.map((row) => ({
+      day: row.day_of_week,
+      open: row.is_open ?? null,
+      openTime: row.open_time ?? null,
+      closeTime: row.close_time ?? null,
+    })),
+  );
+}
+
+export function staffWorkingHoursFormRevision(
+  hours: ReadonlyArray<{
+    day_of_week: number;
+    is_working?: boolean;
+    start_time?: string;
+    end_time?: string;
+    lunch_start_time?: string | null;
+    lunch_end_time?: string | null;
+    overtime_eligible?: boolean;
+  }>,
+): string {
+  return persistedFormRevision(
+    hours.map((row) => ({
+      day: row.day_of_week,
+      working: row.is_working ?? null,
+      start: row.start_time ?? null,
+      end: row.end_time ?? null,
+      lunchStart: row.lunch_start_time ?? null,
+      lunchEnd: row.lunch_end_time ?? null,
+      overtime: row.overtime_eligible ?? null,
+    })),
+  );
 }

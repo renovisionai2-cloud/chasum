@@ -23,6 +23,7 @@ import {
   type CrmProfile,
 } from "@/lib/crm/types";
 import type { ActionState, Location, StaffWithServices } from "@/lib/types/booking";
+import { customerMarketingFormRevision } from "@/lib/forms/dashboard-form-revisions";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { format } from "date-fns";
 import { Pencil } from "lucide-react";
@@ -445,11 +446,15 @@ export function CustomerMarketingForm({
     updateCrmCustomer,
     {} as ActionState,
   );
-  const refresh = useRefresh();
-  useFormAction(state, () => refresh());
+  useFormAction(state);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form
+      key={customerMarketingFormRevision(customer)}
+      action={formAction}
+      className="space-y-5"
+      data-form-revision="customer-marketing"
+    >
       <input type="hidden" name="id" value={customer.id} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

@@ -20,6 +20,7 @@ import type {
   StaffVacation,
   StaffWorkingHours,
 } from "@/lib/types/booking";
+import { staffWorkingHoursFormRevision } from "@/lib/booking/settings-form-revision";
 import { useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { Trash2 } from "lucide-react";
@@ -71,7 +72,12 @@ export function StaffScheduleDialog({
       description="Working hours and vacation days"
       className="sm:max-w-xl"
     >
-      <form action={hoursAction} className="mb-6 space-y-3">
+      <form
+        key={staffWorkingHoursFormRevision(workingHours)}
+        action={hoursAction}
+        className="mb-6 space-y-3"
+        data-form-revision="staff-working-hours"
+      >
         <input type="hidden" name="staff_id" value={staff.id} />
         <h3 className="text-sm font-semibold">Working hours</h3>
         <WorkingHoursGrid

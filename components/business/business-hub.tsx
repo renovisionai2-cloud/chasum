@@ -68,6 +68,8 @@ import type {
 import { AddLocationDialog } from "@/components/dashboard/add-location-dialog";
 import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
+import { catalogFormRevision } from "@/lib/forms/persisted-form-revision";
+import { businessHubProfileRevision } from "@/lib/forms/dashboard-form-revisions";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
@@ -300,24 +302,20 @@ export function BusinessHub({
     {} as ActionState,
   );
 
-  useFormAction(profileState, () => refresh());
-  useFormAction(catState, () => refresh());
-  useFormAction(resState, () => refresh());
-  useFormAction(memState, () => refresh());
-  useFormAction(pkgState, () => refresh());
-  useFormAction(
-    gcState,
-    () => {
-      refresh();
-      const id = (gcState as ActionState & { giftCardId?: string }).giftCardId;
-      if (id) setCertificateId(id);
-    },
-  );
-  useFormAction(redeemState, () => refresh());
-  useFormAction(taxState, () => refresh());
-  useFormAction(discState, () => refresh());
-  useFormAction(formState, () => refresh());
-  useFormAction(ruleState, () => refresh());
+  useFormAction(profileState);
+  useFormAction(catState);
+  useFormAction(resState);
+  useFormAction(memState);
+  useFormAction(pkgState);
+  useFormAction(gcState, () => {
+    const id = (gcState as ActionState & { giftCardId?: string }).giftCardId;
+    if (id) setCertificateId(id);
+  });
+  useFormAction(redeemState);
+  useFormAction(taxState);
+  useFormAction(discState);
+  useFormAction(formState);
+  useFormAction(ruleState);
 
   function remove(
     label: string,
@@ -368,7 +366,12 @@ export function BusinessHub({
             </p>
           </CardHeader>
           <CardContent>
-            <form action={profileAction} className="space-y-4">
+            <form
+              key={businessHubProfileRevision(business)}
+              action={profileAction}
+              className="space-y-4"
+              data-form-revision="business-profile"
+            >
               <div className="grid gap-4 sm:grid-cols-2">
                 <ImageUploadField
                   id="logo_url"
@@ -726,7 +729,20 @@ export function BusinessHub({
               <CardTitle>Add category</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={catAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  categories.map((c) => ({
+                    id: c.id,
+                    name: c.name,
+                    description: c.description,
+                    color: c.color,
+                    sort_order: c.sort_order,
+                  })),
+                )}
+                action={catAction}
+                className="space-y-3"
+                data-form-revision="add-category"
+              >
                 <Input name="name" placeholder="Category name" required />
                 <Input name="description" placeholder="Description" />
                 <Input name="icon" placeholder="Icon key (optional)" />
@@ -764,7 +780,20 @@ export function BusinessHub({
               <CardTitle>Add resource</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={resAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  resources.map((r) => ({
+                    id: r.id,
+                    name: r.name,
+                    resource_type: r.resource_type,
+                    location_id: r.location_id,
+                    capacity: r.capacity,
+                  })),
+                )}
+                action={resAction}
+                className="space-y-3"
+                data-form-revision="add-resource"
+              >
                 <Input name="name" placeholder="Name" required />
                 <Select name="resource_type" defaultValue="room">
                   <option value="room">Room</option>
@@ -815,7 +844,21 @@ export function BusinessHub({
               <CardTitle>Add membership</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={memAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  memberships.map((m) => ({
+                    id: m.id,
+                    name: m.name,
+                    billing_interval: m.billing_interval,
+                    price_cents: m.price_cents,
+                    visit_limit: m.visit_limit,
+                    is_unlimited: m.is_unlimited,
+                  })),
+                )}
+                action={memAction}
+                className="space-y-3"
+                data-form-revision="add-membership"
+              >
                 <Input name="name" placeholder="Name" required />
                 <Textarea name="description" rows={2} placeholder="Description" />
                 <Select name="billing_interval" defaultValue="monthly">
@@ -869,7 +912,21 @@ export function BusinessHub({
               <CardTitle>Add package</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={pkgAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  packages.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    price_cents: p.price_cents,
+                    total_visits: p.total_visits,
+                    expires_after_days: p.expires_after_days,
+                    transferable: p.transferable,
+                  })),
+                )}
+                action={pkgAction}
+                className="space-y-3"
+                data-form-revision="add-package"
+              >
                 <Input name="name" placeholder="Name" required />
                 <Textarea name="description" rows={2} />
                 <Input name="price" placeholder="Price" required />
@@ -920,7 +977,19 @@ export function BusinessHub({
                 <CardTitle>Issue gift card</CardTitle>
               </CardHeader>
               <CardContent>
-                <form action={gcAction} className="space-y-3">
+                <form
+                  key={catalogFormRevision(
+                    giftCards.map((g) => ({
+                      id: g.id,
+                      code: g.code,
+                      balance_cents: g.balance_cents,
+                      status: g.status,
+                    })),
+                  )}
+                  action={gcAction}
+                  className="space-y-3"
+                  data-form-revision="issue-gift-card"
+                >
                   <Input name="amount" placeholder="Value" required />
                   <Input name="code" placeholder="Custom code (optional)" />
                   <Input
@@ -938,7 +1007,19 @@ export function BusinessHub({
                 <CardTitle>Redeem</CardTitle>
               </CardHeader>
               <CardContent>
-                <form action={redeemAction} className="space-y-3">
+                <form
+                  key={catalogFormRevision(
+                    giftCards.map((g) => ({
+                      id: g.id,
+                      code: g.code,
+                      balance_cents: g.balance_cents,
+                      status: g.status,
+                    })),
+                  )}
+                  action={redeemAction}
+                  className="space-y-3"
+                  data-form-revision="redeem-gift-card"
+                >
                   <Input name="code" placeholder="Gift card code" required />
                   <Input name="amount" placeholder="Amount to redeem" required />
                   <AlertMessage
@@ -986,7 +1067,22 @@ export function BusinessHub({
               <CardTitle>Add tax rate</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={taxAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  taxRates.map((t) => ({
+                    id: t.id,
+                    name: t.name,
+                    rate_bps: t.rate_bps,
+                    inclusive: t.inclusive,
+                    is_default: t.is_default,
+                    country: t.country,
+                    region: t.region,
+                  })),
+                )}
+                action={taxAction}
+                className="space-y-3"
+                data-form-revision="add-tax-rate"
+              >
                 <Input name="name" placeholder="Name (e.g. HST)" required />
                 <div className="space-y-1">
                   <Input
@@ -1041,7 +1137,21 @@ export function BusinessHub({
               <CardTitle>Add discount</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={discAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  discounts.map((d) => ({
+                    id: d.id,
+                    code: d.code,
+                    name: d.name,
+                    discount_type: d.discount_type,
+                    percent_bps: d.percent_bps,
+                    amount_cents: d.amount_cents,
+                  })),
+                )}
+                action={discAction}
+                className="space-y-3"
+                data-form-revision="add-discount"
+              >
                 <Input name="code" placeholder="PROMO CODE" required />
                 <Input name="name" placeholder="Display name" required />
                 <Select name="discount_type" defaultValue="percentage">
@@ -1086,7 +1196,19 @@ export function BusinessHub({
               <CardTitle>Add form template</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={formAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  forms.map((f) => ({
+                    id: f.id,
+                    name: f.name,
+                    form_type: f.form_type,
+                    requires_signature: f.requires_signature,
+                  })),
+                )}
+                action={formAction}
+                className="space-y-3"
+                data-form-revision="add-form-template"
+              >
                 <Input name="name" placeholder="Form name" required />
                 <Select name="form_type" defaultValue="intake">
                   <option value="consent">Consent</option>
@@ -1151,7 +1273,19 @@ export function BusinessHub({
               <CardTitle>Add rule</CardTitle>
             </CardHeader>
             <CardContent>
-              <form action={ruleAction} className="space-y-3">
+              <form
+                key={catalogFormRevision(
+                  automationRules.map((r) => ({
+                    id: r.id,
+                    name: r.name,
+                    rule_type: r.rule_type,
+                    enabled: r.enabled,
+                  })),
+                )}
+                action={ruleAction}
+                className="space-y-3"
+                data-form-revision="add-automation-rule"
+              >
                 <Input name="name" placeholder="Rule name" required />
                 <Select name="rule_type" defaultValue="reminder">
                   <option value="booking">Booking rules</option>
