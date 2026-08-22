@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   evaluateLocationQuota,
   evaluateStaffQuota,
+  evaluateStaffSeatRequest,
   marketingLocationLimitLabel,
   marketingStaffLimitLabel,
   maxLocationsForPlan,
@@ -16,7 +17,7 @@ describe("staff quota decision", () => {
     expect(evaluateStaffQuota(0, "starter").allowed).toBe(true);
     expect(evaluateStaffQuota(1, "starter").allowed).toBe(false);
     expect(evaluateStaffQuota(1, "starter").message).toBe(
-      "You've reached the 1 staff member included in Free.",
+      "You've reached the 1 active staff member included in Free. Deactivate another active staff member or apply for Professional.",
     );
     expect(evaluateStaffQuota(1, "free").code).toBe(STAFF_LIMIT_REACHED_CODE);
   });
@@ -26,7 +27,7 @@ describe("staff quota decision", () => {
     expect(evaluateStaffQuota(2, "professional").allowed).toBe(true);
     expect(evaluateStaffQuota(3, "professional").allowed).toBe(false);
     expect(evaluateStaffQuota(3, "professional").message).toBe(
-      "You've reached the 3 staff members included in Professional.",
+      "You've reached the 3 active staff members included in Professional. Deactivate another active staff member or apply for a higher plan.",
     );
   });
 
@@ -45,6 +46,14 @@ describe("staff quota decision", () => {
     expect(over.allowed).toBe(false);
     expect(over.currentCount).toBe(5);
     expect(over.max).toBe(1);
+  });
+
+  it("treats inactive seats as free capacity when requesting additional actives", () => {
+    expect(evaluateStaffSeatRequest(0, 1, "starter").allowed).toBe(true);
+    expect(evaluateStaffSeatRequest(1, 1, "starter").allowed).toBe(false);
+    expect(evaluateStaffSeatRequest(3, 1, "professional").allowed).toBe(false);
+    expect(evaluateStaffSeatRequest(2, 1, "professional").allowed).toBe(true);
+    expect(evaluateStaffSeatRequest(3, 0, "professional").allowed).toBe(true);
   });
 });
 
@@ -103,5 +112,7 @@ describe("marketing numeric limits match enforcement", () => {
     expect(byKey.business?.features.location_limit).toBe("Up to 6");
     expect(maxStaffForPlan("starter")).toBe(1);
     expect(maxStaffForPlan("professional")).toBe(3);
+    expect(maxStaffForPlan("business")).toBeNull();
+    expect(maxStaffForPlan("enterprise")).toBeNull();
   });
 });

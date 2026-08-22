@@ -5,8 +5,11 @@ import {
   getActiveLocationId,
   getLocationScope,
 } from "@/lib/actions/location";
-import { staffQuotaForBusiness } from "@/lib/billing/staff-quota";
-import { PAID_PLANS_PRIVATE_ALPHA_NOTE } from "@/lib/billing/plan-entitlements";
+import {
+  assertCanActivateStaff,
+  staffQuotaError,
+  staffQuotaForBusiness,
+} from "@/lib/billing/staff-quota";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   composeDisplayName,
@@ -214,7 +217,7 @@ export async function createStaff(
   const quota = await staffQuotaForBusiness(supabase, business);
   if (!quota.allowed) {
     return {
-      error: `${quota.message} Apply for Professional to add more staff. ${PAID_PLANS_PRIVATE_ALPHA_NOTE}`,
+      error: staffQuotaError(quota),
     };
   }
 
@@ -264,6 +267,7 @@ export async function createStaff(
       hire_date: hireDate,
       role_key: "employee",
       employment_status: "active",
+      is_active: true,
       permissions: permissionsForRole("employee"),
       accept_online_bookings: true,
       accept_new_clients: true,
@@ -293,6 +297,7 @@ export async function createStaff(
           photo_url: photoUrl,
           biography,
           qualifications,
+          is_active: true,
         })
         .select("id")
         .single();
@@ -356,6 +361,11 @@ export async function updateStaff(
   const supabase = await createClient();
   const id = formData.get("id") as string;
   const serviceIds = formData.getAll("service_ids") as string[];
+  const nextActive = formData.get("is_active") === "true";
+  if (nextActive) {
+    const blocked = await assertCanActivateStaff(supabase, business, [id]);
+    if (blocked) return blocked;
+  }
 
   const { error } = await supabase
     .from("staff")

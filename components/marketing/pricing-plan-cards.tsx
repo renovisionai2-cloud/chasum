@@ -18,7 +18,7 @@ function featureLabel(plan: PricingPlanConfig, id: PricingFeatureId): string {
   const name = def?.name ?? id;
   const value = plan.features[id];
   if (id === "staff_limit" && typeof value === "string") {
-    return value === "1" ? "1 Staff Member" : `${value} Staff Members`;
+    return value === "1" ? "1 Active Staff Member" : `${value} Active Staff Members`;
   }
   if (id === "location_limit" && typeof value === "string") {
     return value === "1" ? "1 Location" : `${value} Locations`;

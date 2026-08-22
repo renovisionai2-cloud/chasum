@@ -2,8 +2,7 @@
 
 import { getOrCreateBusiness, requireUser } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
-import { PAID_PLANS_PRIVATE_ALPHA_NOTE } from "@/lib/billing/plan-entitlements";
-import { staffQuotaForBusiness } from "@/lib/billing/staff-quota";
+import { staffQuotaError, staffQuotaForBusiness } from "@/lib/billing/staff-quota";
 import {
   composeDisplayName,
   permissionsForRole,
@@ -53,7 +52,7 @@ export async function ensureOwnerAsBookableStaff(): Promise<ActionState> {
   const quota = await staffQuotaForBusiness(supabase, business);
   if (!quota.allowed) {
     return {
-      error: `${quota.message} Apply for Professional to add more staff. ${PAID_PLANS_PRIVATE_ALPHA_NOTE}`,
+      error: staffQuotaError(quota),
     };
   }
 

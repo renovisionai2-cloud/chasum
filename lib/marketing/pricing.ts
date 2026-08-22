@@ -450,7 +450,7 @@ function formatCardFeature(
   const value = plan.features[id];
   const name = featureName(id);
   if (id === "staff_limit" && typeof value === "string") {
-    return value === "1" ? "1 Staff Member" : `${value} Staff Members`;
+    return value === "1" ? "1 Active Staff Member" : `${value} Active Staff Members`;
   }
   if (id === "location_limit" && typeof value === "string") {
     return value === "1" ? "1 Location" : `${value} Locations`;
@@ -609,7 +609,7 @@ export type PricingFaqItem = { q: string; a: string };
 export const PRICING_FAQ_ITEMS: PricingFaqItem[] = [
   {
     q: "Can I use Chasum for free?",
-    a: "Yes. The Free plan includes online booking, calendar, email confirmations and reminders, basic customer management, one staff member, and one location—with Chasum branding.",
+    a: "Yes. The Free plan includes online booking, calendar, email confirmations and reminders, basic customer management, one active staff member, and one location—with Chasum branding.",
   },
   {
     q: "Does the Free plan include SMS reminders?",
@@ -641,7 +641,7 @@ export const PRICING_FAQ_ITEMS: PricingFaqItem[] = [
   },
   {
     q: "What happens when I reach my staff or location limit?",
-    a: "You’ll see a clear upgrade prompt. Professional supports up to 3 staff and 3 locations; Business supports unlimited staff and up to 6 locations; Enterprise can extend locations further.",
+    a: "You’ll see a clear upgrade prompt. Professional supports up to 3 active staff and 3 locations; Business supports unlimited active staff and up to 6 locations; Enterprise can extend locations further. Inactive staff remain on file and do not occupy a seat.",
   },
   {
     q: "Is Chasum available now?",

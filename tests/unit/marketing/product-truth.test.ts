@@ -82,6 +82,17 @@ describe("marketing product truth", () => {
     expect(business?.features.staff_limit).toBe("Unlimited");
   });
 
+  it("describes staff entitlements as active seats", () => {
+    const pricing = read("lib/marketing/pricing.ts");
+    expect(pricing).toMatch(/1 Active Staff Member/);
+    expect(pricing).toMatch(/one active staff member/);
+    expect(pricing).toMatch(/up to 3 active staff/i);
+    expect(read("lib/billing/staff-quota.ts")).toMatch(/\.eq\("is_active", true\)/);
+    expect(read("lib/billing/staff-quota.ts")).not.toMatch(
+      /all staff rows count/i,
+    );
+  });
+
   it("records that SaaS subscription currency is not invented", () => {
     expect(SAAS_SUBSCRIPTION_CURRENCY_DECISION).toMatch(
       /PRODUCT OWNER DECISION REQUIRED/,

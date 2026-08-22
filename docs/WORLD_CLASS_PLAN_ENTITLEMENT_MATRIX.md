@@ -4,8 +4,8 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec`  
 **Claim source:** `lib/marketing/pricing.ts` (`PRICING_FEATURE_CATALOG`, `PRICING_PLANS`, FAQ)  
-**Runtime:** `lib/billing/plan-features.ts`, `lib/billing/catalog.ts`, location RPC, SMS paths, email branding  
-**Mode:** Evidence only — **no entitlement code or DB changes** in this addendum  
+**Runtime:** `lib/billing/plan-features.ts`, `lib/billing/catalog.ts`, `lib/billing/plan-entitlements.ts`, `lib/billing/staff-quota.ts`, location RPC, SMS paths, email branding  
+**Mode:** Chapter 0 addendum was evidence-only. Later World Class passes added **active-staff** and **application location** enforcement. **No Production/Staging SQL** in those passes. DB Business `max_locations` 10 → 6 remains **deferred**.  
 
 ---
 
@@ -27,12 +27,14 @@
 
 | Plan | `planKey` | Staff claim | Locations claim | Catalog/DB `max_locations` |
 |------|-----------|-------------|-----------------|----------------------------|
-| Free | `starter` | 1 (server-enforced) | 1 | App 1 |
-| Professional | `professional` | Up to 3 (server-enforced) | Up to 3 | App 3 |
-| Business | `business` | Unlimited | **Up to 6** | App **6**; live DB seed still **10** until PO migration |
-| Enterprise | `enterprise` | Unlimited | Unlimited | null |
+| Free | `starter` | **1 active** (server-enforced) | 1 | App 1 |
+| Professional | `professional` | **Up to 3 active** (server-enforced) | Up to 3 | App 3 |
+| Business | `business` | Unlimited **active** | **Up to 6** | App **6**; live DB seed still **10** — **DB 10 → 6 alignment deferred** |
+| Enterprise | `enterprise` | Unlimited **active** | Unlimited | null |
 
-**OWNER DECISION (locked):** Marketing / plan promise = **six** Business locations. Application catalog and `createLocation` now cap at **6**. Do **not** apply `UPDATE subscription_plans SET max_locations = 6 WHERE plan_key = 'business'` without PO approval.
+**OWNER DECISION (locked):** Plan staff limits count **ACTIVE staff only** (`staff.is_active = true`). Inactive/former rows stay for history and do not occupy a seat. Creation and reactivation are both quota-guarded. Existing over-limit active rows are grandfathered (never auto-deleted or auto-deactivated).
+
+**OWNER DECISION (locked):** Marketing / plan promise = **six** Business locations. Application catalog and `createLocation` now cap at **6**. **DB 10 → 6 alignment is deferred** to a future approved migration window. Do **not** apply `UPDATE subscription_plans SET max_locations = 6 WHERE plan_key = 'business'` and do **not** create a dedicated migration solely for this unless separately approved.
 
 ---
 
@@ -60,7 +62,7 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 | Email confirmations | `email_reminders` | Free+ | Soft | Notifications | Delivery | Resend queue | Jobs | Config | Untested | Untested | Partial | Partial | GVM | Config-dep | Config | Low | 7 |
 | Basic CRM | `customer_management` | Free+ | Customers | `/dashboard/clients` | CRM | CRM actions | Customers | N/A | Untested | Untested | Partial | Partial | Partial | Present | — | Low | 4 |
 | Chasum branding | `chasum_branding` | Free yes | Soft | Email | Branding | `planAllowsRemoveBranding` false | Email | — | Untested | Untested | — | — | — | **Server-enforced** | — | Low | 9 |
-| Staff = 1 | `staff_limit` | 1 | Employees open | Employees | Create staff | **`evaluateStaffQuota` + `createStaff` / `ensureOwnerAsBookableStaff`** | staff table | Apply for Professional | Untested | Grandfathered | Partial | Yes | Partial | **Server-enforced** (new adds) | — | Low | 8 |
+| Staff = 1 **active** | `staff_limit` | 1 active | Employees open | Employees | Create / reactivate | **`evaluateStaffSeatRequest` + `countBusinessStaff` (`is_active = true`) + `createStaff` / `ensureOwnerAsBookableStaff` / `updateStaff` / `updateEmployeeProfile` / `bulkUpdateEmployeeStatus`** | staff.is_active | Apply for Professional | Untested | Grandfathered actives; inactive rows preserved | Partial | Yes | Partial | **Server-enforced** (create + reactivate) | Inactive rows do not occupy a seat | Low | 8 |
 | Locations = 1 | `location_limit` | 1 | Business | Hub | Add location | `can_add_location` | locations | Yes UI | Untested | Untested | Partial | Partial | Partial | **Fully enforced** (vs DB max) | — | Low | 9 |
 | SMS | excluded | No | Compose blocked | Clients | Dialog | `planIncludesSms` | Twilio | Upgrade copy | Untested | Untested | Partial | Partial | — | **Fully enforced** | — | Low | 7 |
 | Invoicing | excluded | No | Payments open | Commerce | Invoice UI | **None** | invoices | None | Untested | Untested | Partial | — | — | **Not enforced** | Free can use | High | 6,13 |
@@ -82,15 +84,15 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 | Invoicing | `invoicing` | Pro+ | Soft | Commerce | Invoice | **None** | Not enforced vs Free | Gate + EA depth | Med | 6,13 |
 | Basic Reporting | `basic_reporting` | Pro+ | Yes | Reports | — | **None** | Not enforced vs Free | Gate | Med | 10,13 |
 | Remove branding | `remove_branding` | Pro+ | Soft | Email | — | **Yes** | Server-enforced | Public surfaces? | Low | 9 |
-| Staff ≤ 3 | `staff_limit` | Up to 3 | Open | Employees | Create | **Yes** | **Server-enforced** | Cap + FAQ prompt | Low | 8 |
+| Staff ≤ 3 **active** | `staff_limit` | Up to 3 active | Open | Employees | Create / reactivate | **Yes** | **Server-enforced** | Cap + FAQ prompt | Low | 8 |
 | Locations ≤ 3 | `location_limit` | Up to 3 | Business | Hub | Add | **Yes** | Fully enforced | — | Low | 9 |
 
 ### Business inclusions
 
 | Feature | Source | Promise | Nav | Page | Comp | Server | Status | Gap | Sev | Ch |
 |---------|--------|---------|-----|------|------|--------|--------|-----|-----|-----|
-| Unlimited staff | staff_limit | Unlimited | Open | Employees | — | N/A | Present directory; login Coming Next | Staff login | High | 8 |
-| Locations ≤ 6 | location_limit | Up to 6 | Business | Hub | Add | App catalog **6** (DB seed still 10) | **App-enforced 6** | Pending PO DB migration | Low | 9 |
+| Unlimited **active** staff | staff_limit | Unlimited active | Open | Employees | — | N/A | Present directory; login Coming Next | Staff login | High | 8 |
+| Locations ≤ 6 | location_limit | Up to 6 | Business | Hub | Add | App catalog **6** (DB seed still 10) | **App-enforced 6** | **DB 10 → 6 deferred** | Low | 9 |
 | Advanced Analytics | `advanced_analytics` | Biz+ | Reports | Same UI | — | **None** | Marketing-only vs “basic” | Definition | Med | 10,13 |
 | API & Integrations | `api_integrations` | Biz+ / Private Alpha | Developer Advanced (hidden when gated) | `/dashboard/developer` redirects if unauthorized | Keys | **Partial** — nav + page gate via `planAllowsApiIntegrations`; key-create server enforcement remaining | Partial | Server key ACL | Med | 9,13 |
 | Inventory | `inventory` | Coming Soon | Reports tab **hidden** | Placeholder | Placeholder | **None** | **Coming Soon** (Pricing aligned) | Do not implement this pass | Low | 10 |
@@ -117,8 +119,8 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 | Feature helpers | `lib/billing/plan-features.ts` |
 | Catalog fallback | `lib/billing/catalog.ts` |
 | Marketing claims | `lib/marketing/pricing.ts` |
-| Location create | `lib/actions/location.ts` + `can_add_location` |
-| Staff create | `lib/actions/staff.ts` — **no cap** |
+| Staff create / reactivate | `lib/actions/staff.ts`, `lib/actions/employees.ts`, `lib/actions/onboarding.ts` — **active-only cap** via `lib/billing/staff-quota.ts` |
+| Location create | `lib/actions/location.ts` + application catalog cap **6** (`can_add_location` may still return true) |
 | SMS | `lib/actions/communications.ts`, queue, booking-delivery, orchestrator |
 | Email branding | `lib/communications/tenant-email-branding.ts` |
 | Inventory placeholder | `lib/reports/compute.ts` `buildInventoryPlaceholder` |
@@ -129,9 +131,10 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 
 1. **SMS** — Fully enforced (plan + Alpha + Twilio).  
 2. **Email remove-branding** — Server-enforced.  
-3. **Location create quota** — Server-enforced against `subscription_plans.max_locations` (with Alpha unlimited bypass).  
+3. **Location create quota** — Application-enforced against canonical catalog (Free 1 / Professional 3 / Business **6** / Enterprise unlimited). Live DB Business `max_locations` remains **10**; **DB 10 → 6 alignment is deferred**. Private Alpha RPC `can_add_location` may still return true.  
+4. **Active staff quota** — Server-enforced. Counts `staff.is_active = true` only. Free 1 / Professional 3 / Business and Enterprise unlimited. Create and inactive→active reactivation are both blocked at capacity. Inactive historical rows are preserved and do not occupy a seat. Existing over-limit active rows are grandfathered.
 
-Everything else marketed as plan-exclusive is **Not enforced** or **Marketing-only**, or **Conflicting**.
+Other marketed plan-exclusive capabilities remain **Not enforced** or **Marketing-only**, or **Conflicting**.
 
 ---
 
@@ -149,6 +152,6 @@ Everything else marketed as plan-exclusive is **Not enforced** or **Marketing-on
 |--------|------:|
 | Pricing feature IDs inventoried | 24 |
 | Plans | 4 |
-| Features with server enforcement | 3 families (SMS, branding, locations) |
+| Features with server enforcement | 4 families (SMS, branding, locations, **active staff**) |
 | Critical entitlement gaps | Inventory claim; Online Payments depth; ungated Free Pro features |
-| Owner decisions | Business 6 vs 10; whether to enforce staff; Inventory fate |
+| Owner decisions | **Staff = active only (locked)**; **Business locations app 6 / DB 10 deferred**; Inventory fate; SaaS currency |

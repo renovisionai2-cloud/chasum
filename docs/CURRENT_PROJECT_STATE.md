@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-22  
-**Updated by:** World Class — product truth + entitlement alignment  
+**Updated by:** World Class — active-staff quota + Memberships Preview truth  
 
 ---
 
@@ -164,6 +164,12 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-22)
+
+**World Class — active-staff quota + Memberships Preview / Coming Soon**
+
+Plan staff limits count **ACTIVE** staff only (`staff.is_active = true`). Inactive/former staff remain on file for history and do not occupy a seat. Create and inactive→active reactivation are both server-enforced. Deactivation frees a seat without deleting the row or appointment history. Memberships stay visible in Business Hub with a restrained Preview / Coming Soon notice (catalog preview only; no recurring billing, redemption, or booking integration). Packages remain Available Today. Business locations remain application-capped at **6**; live DB `subscription_plans.business.max_locations = 10` is **deferred** (no SQL, no dedicated migration). Form-trust (`4830511` lineage) and billing honesty were not reopened.
+
+### Prior (2026-08-22)
 
 **World Class — product truth + entitlement alignment**
 
@@ -917,15 +923,15 @@ As of last update:
 
 **Priority order:**
 
-1. **Claude independent re-audit** of this product-truth + entitlement pass (staff enforcement, location 6, Inventory/Voice AI truth, Packages vs Memberships, CTA, currency decision, dead-component cleanup, Production/data safety) before Product Owner acceptance.
+1. **Claude independent re-audit** of this active-staff quota + Memberships Preview pass (active-only counting, reactivation guard, historical preservation, Memberships Coming Soon notice, Packages unaffected, location app cap 6, DB untouched, billing/tenancy/form-trust regressions) before Product Owner acceptance.
 2. **Do not start the next development phase** until that audit and PO acceptance.
-3. **Do not apply** a Business `max_locations` 10 → 6 database migration until PO approves it. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
+3. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
 4. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
-4. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
-5. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
-6. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
-7. **Operation GVM Production** — remain protected.
-8. Marketing claim fixes only with **explicit PO** (locked pages).
+5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
+6. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
+7. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
+8. **Operation GVM Production** — remain protected.
+9. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Phase 6.3, Stripe Elements, public online payment, or Chapter 7.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  

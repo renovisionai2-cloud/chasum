@@ -16,7 +16,7 @@
 
 import type { PlanKey } from "@/lib/billing/types";
 
-/** Finite maximum, or null = unlimited. */
+/** Finite maximum of ACTIVE staff (`staff.is_active = true`), or null = unlimited. */
 export const PLAN_STAFF_LIMITS: Record<PlanKey, number | null> = {
   starter: 1,
   professional: 3,
@@ -110,21 +110,33 @@ export type StaffQuotaDecision = {
 };
 
 /**
- * Grandfathering: existing rows above the cap stay. This only decides
- * whether a NEW staff insert is allowed.
+ * Plan staff limits count ACTIVE staff only (`staff.is_active = true`).
+ * Inactive/former rows are preserved for history and do not occupy a seat.
+ * Grandfathering: existing over-limit active rows stay; only new actives block.
+ *
+ * `currentActiveCount` is the business's current active staff.
+ * `additionalActiveSeats` is 1 for a new create, or the number of currently
+ * inactive rows being reactivated.
  */
-export function evaluateStaffQuota(
-  currentCount: number,
+export function evaluateStaffSeatRequest(
+  currentActiveCount: number,
+  additionalActiveSeats: number,
   planKey: string | null | undefined,
 ): StaffQuotaDecision {
   const key = normalizePlanKey(planKey);
   const max = maxStaffForPlan(key);
-  if (max === null || currentCount < max) {
+  const additional = Math.max(0, additionalActiveSeats);
+  if (
+    additional === 0 ||
+    max === null ||
+    currentActiveCount + additional <= max
+  ) {
     return {
       allowed: true,
       max,
-      currentCount,
-      remaining: max === null ? null : Math.max(0, max - currentCount),
+      currentCount: currentActiveCount,
+      remaining:
+        max === null ? null : Math.max(0, max - currentActiveCount - additional),
       planKey: key,
       code: null,
       message: null,
@@ -133,12 +145,20 @@ export function evaluateStaffQuota(
   return {
     allowed: false,
     max,
-    currentCount,
+    currentCount: currentActiveCount,
     remaining: 0,
     planKey: key,
     code: STAFF_LIMIT_REACHED_CODE,
     message: staffLimitReachedMessage(key, max),
   };
+}
+
+/** Whether one more active staff member may be created. */
+export function evaluateStaffQuota(
+  currentActiveCount: number,
+  planKey: string | null | undefined,
+): StaffQuotaDecision {
+  return evaluateStaffSeatRequest(currentActiveCount, 1, planKey);
 }
 
 export function staffLimitReachedMessage(
@@ -147,9 +167,9 @@ export function staffLimitReachedMessage(
 ): string {
   const name = planDisplayName(planKey);
   if (max === 1) {
-    return `You've reached the 1 staff member included in ${name}.`;
+    return `You've reached the 1 active staff member included in ${name}. Deactivate another active staff member or apply for Professional.`;
   }
-  return `You've reached the ${max} staff members included in ${name}.`;
+  return `You've reached the ${max} active staff members included in ${name}. Deactivate another active staff member or apply for a higher plan.`;
 }
 
 export type LocationQuotaDecision = {
@@ -165,6 +185,9 @@ export type LocationQuotaDecision = {
  * Application-layer location cap. Canonical catalog wins over a stale
  * database `subscription_plans.max_locations` (Business was seeded as 10).
  * Existing locations above the cap are grandfathered; only new adds block.
+ *
+ * DB 10 → 6 alignment is deferred to a future approved migration window.
+ * Do not apply a dedicated migration solely for this unless separately approved.
  *
  * Private Alpha RPC `can_add_location` may still return true. This helper
  * is the billed-plan product rule and must be applied in application code.

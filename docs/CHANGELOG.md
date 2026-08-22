@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (World Class — active-staff quota + Memberships Preview truth)
+
+- Plan staff limits count **active** staff only (`staff.is_active = true`); inactive/former rows stay for history and do not occupy a seat
+- Create and inactive→active reactivation are both server-enforced; deactivation frees a seat without deleting historical staff or appointment FKs
+- Business Hub Memberships tab stays visible with a Preview / Coming Soon notice; catalog preview only — recurring billing, redemption, and booking integration are not operational
+- Business location application cap remains **6**; live DB `max_locations = 10` alignment is **deferred** (no SQL / no dedicated migration)
+
 ### Changed (World Class — product truth + entitlement alignment)
 
 - Inventory is Coming Soon on Pricing (not Available Today); Voice AI rewrite removed; Business location cap aligned to **6** in application catalog/enforcement

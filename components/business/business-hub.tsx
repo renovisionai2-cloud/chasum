@@ -72,6 +72,7 @@ import { catalogFormRevision } from "@/lib/forms/persisted-form-revision";
 import { businessHubProfileRevision } from "@/lib/forms/dashboard-form-revisions";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
+import { MEMBERSHIPS_PREVIEW_NOTICE, MEMBERSHIPS_STATUS_LABEL } from "@/lib/marketing/memberships-truth";
 import { FREE_PLAN_UPGRADE_CTA } from "@/lib/marketing/pricing";
 import { useActionState, useState, useTransition } from "react";
 import {
@@ -822,6 +823,15 @@ export function BusinessHub({
       ) : null}
 
       {tab === "memberships" ? (
+        <div className="space-y-6">
+          <div className="rounded-[var(--radius-md)] border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+            <p>
+              <strong className="font-medium">
+                Status: {MEMBERSHIPS_STATUS_LABEL}.
+              </strong>{" "}
+              {MEMBERSHIPS_PREVIEW_NOTICE}
+            </p>
+          </div>
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
@@ -830,7 +840,7 @@ export function BusinessHub({
             <CardContent>
               <CatalogList
                 emptyTitle="No memberships"
-                emptyDescription="Weekly, monthly, or yearly plans — unlimited or limited visits. Stripe-ready."
+                emptyDescription="Catalog preview only. Recurring billing, redemption, and booking integration are not operational yet."
                 items={memberships.map((m) => ({
                   id: m.id,
                   title: m.name,
@@ -879,6 +889,7 @@ export function BusinessHub({
               </form>
             </CardContent>
           </Card>
+        </div>
         </div>
       ) : null}
 

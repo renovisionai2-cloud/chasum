@@ -1,6 +1,7 @@
 "use server";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import { assertCanActivateStaff } from "@/lib/billing/staff-quota";
 import {
   composeDisplayName,
   isEmployeeRoleKey,
@@ -221,6 +222,11 @@ export async function updateEmployeeProfile(
       : {}),
   };
 
+  if (fullPayload.is_active) {
+    const blocked = await assertCanActivateStaff(supabase, business, [id]);
+    if (blocked) return blocked;
+  }
+
   let { error } = await supabase
     .from("staff")
     .update(fullPayload)
@@ -365,6 +371,11 @@ export async function bulkUpdateEmployeeStatus(
   if (staffIds.length === 0) return { error: "Select at least one employee." };
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
+
+  if (isActive) {
+    const blocked = await assertCanActivateStaff(supabase, business, staffIds);
+    if (blocked) return blocked;
+  }
 
   const { error } = await supabase
     .from("staff")
