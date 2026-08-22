@@ -850,10 +850,13 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `65af6e71078fcf25830ff54f621dee093c6480be` |
-| **Short** | `65af6e7` |
-| **Subject** | Align product truth and enforce staff and location entitlements. |
-| **Product truth + entitlements** | `65af6e71078fcf25830ff54f621dee093c6480be` |
+| **SHA** |  |
+| **Short** | `2a45131` |
+| **Subject** | Record the active-staff quota pass in World Class docs. |
+| **Active-staff quota (feature)** | `b5e19ac8c6ca46c606087c07ad7196398fdcb204` |
+| **Active-staff quota (test fix)** | `0fc2133e6d0a847d7ce38053d4fe3cdac04c16d6` |
+| **Product truth + entitlements (docs)** | `4d1774d763deff1d1ff59c76a27a87cfd04f533e` |
+| **Product truth + entitlements (feature)** | `65af6e71078fcf25830ff54f621dee093c6480be` |
 | **P1 React 19 form trust (docs)** | `8768f1ca89887ff875c3603cdc092bf46b27c416` |
 | **P1 React 19 form trust (feature)** | `e66dc9f4aec1ad722bc8e5ae6f1a810b90250e95` |
 | **Post-save booking settings UI** | `39f3b482124a04113d187383eb1d16d84456650e` |
