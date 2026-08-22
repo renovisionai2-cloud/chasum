@@ -240,7 +240,7 @@ describe("Tenant operational currency", () => {
       /formatMoneyCents\(payment\.amountCents, payment\.currency\)/,
     );
     expect(read("app/portal/[token]/page.tsx")).toMatch(
-      /formatMoneyCents\(appt\.price_cents, session\.business\.currency\)/,
+      /formatMoneyCents\(appt\.price_cents, currency\)/,
     );
     expect(read("lib/commerce/payments.ts")).toMatch(
       /available \$\{formatMoneyCents\(credit, currency\)\}/,

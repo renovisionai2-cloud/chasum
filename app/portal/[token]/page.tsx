@@ -41,6 +41,8 @@ export default async function CustomerPortalPage({ params }: PageProps) {
     revalidatePath(`/portal/${token}`);
   }
 
+  const currency = session.business.currency;
+
   return (
     <div className="min-h-screen bg-background px-4 py-10">
       <div className="mx-auto max-w-2xl space-y-6">
@@ -88,10 +90,10 @@ export default async function CustomerPortalPage({ params }: PageProps) {
                             ? `Invoice ${appt.invoice_number}`
                             : null}
                           {appt.price_cents != null
-                            ? ` · ${formatMoneyCents(appt.price_cents, session.business.currency)}`
+                            ? ` · ${formatMoneyCents(appt.price_cents, currency)}`
                             : null}
                           {appt.deposit_cents
-                            ? ` · Deposit ${formatMoneyCents(appt.deposit_cents, session.business.currency)}`
+                            ? ` · Deposit ${formatMoneyCents(appt.deposit_cents, currency)}`
                             : null}
                         </p>
                       ) : null}
