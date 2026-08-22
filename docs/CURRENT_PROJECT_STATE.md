@@ -903,9 +903,13 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `130d9f5e8f3f8f189f7fe88215135364df296ed0` |
-| **Short** | `130d9f5` |
-| **Subject** | Clarify Active in Chasum and test bulk reactivation. |
+| **SHA** | `6bdc581761b460ff3c7e0aa4531d57bb429fcb3e` |
+| **Short** | `6bdc581` |
+| **Subject** | Record the trust and navigation stabilization pass in World Class docs. |
+| **Trust + nav (feature)** | `4608bb350c294d47856fa74feff0dd543e799643` |
+| **Trust + nav (remaining money)** | `41f1901` |
+| **Trust + nav (portal TS)** | `c8d7816f838da187f11ab5c4a32370435f8d57ce` |
+| **Unique Preview** | https://chasum-9e0o4wwo4-renovisionappcom.vercel.app |
 | **Staff-status clarity (feature)** | `130d9f5e8f3f8f189f7fe88215135364df296ed0` |
 | **Active-staff quota (feature)** | `b5e19ac8c6ca46c606087c07ad7196398fdcb204` |
 | **Active-staff quota (test fix)** | `0fc2133e6d0a847d7ce38053d4fe3cdac04c16d6` |
@@ -984,7 +988,7 @@ As of last update:
 2. **Do not start the next development phase** until PO acceptance of the next implementation slice.
 3. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
 4. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
-4. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
+5. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 6. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 7. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
