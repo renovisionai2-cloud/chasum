@@ -909,10 +909,12 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `6bdc581761b460ff3c7e0aa4531d57bb429fcb3e` |
-| **Short** | `6bdc581` |
-| **Subject** | Record the trust and navigation stabilization pass in World Class docs. |
-| **Trust + nav (feature)** | `4608bb350c294d47856fa74feff0dd543e799643` |
+| **SHA** | `4d6d2ab014121c62e172dd5788d14a546dcd71e4` |
+| **Short** | `4d6d2ab` |
+| **Subject** | Implement approved navigation IA and command discoverability. |
+| **Unique Preview** | https://chasum-6cls803md-renovisionappcom.vercel.app |
+| **Prior unique Preview** | https://chasum-pom3t5aug-renovisionappcom.vercel.app — SUPERSEDED / DO NOT USE |
+| **Trust + nav (docs stamp)** | `6bdc581761b460ff3c7e0aa4531d57bb429fcb3e` |
 | **Trust + nav (remaining money)** | `41f1901` |
 | **Trust + nav (portal TS)** | `c8d7816f838da187f11ab5c4a32370435f8d57ce` |
 | **Unique Preview** | https://chasum-9e0o4wwo4-renovisionappcom.vercel.app |
