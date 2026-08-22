@@ -32,7 +32,10 @@ Update this file at the start of every sprint. It is the working queue — not a
 - [ ] Environment migrations applied for Business, Reports, AI Receptionist tables
 - [ ] Emma: production FAQ/config storage (owner-approved answers) without inventing facts
 - [ ] Emma: public booking-page assist (web channel) using same service layer
-- [ ] Stripe live provider behind existing billing interface
+- [ ] Stripe live **SaaS Billing** provider behind existing billing interface (after commercial offer model + PO; not commerce PaymentIntents)
+- [ ] Commercial Strategy: PO lock CAD vs `$`, Professional `$59` vs `$79`, annual 10× vs 20% — [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](../WORLD_CLASS_COMMERCIAL_STRATEGY.md)
+- [ ] Cost-to-serve study before public price lock (do not fabricate numbers)
+- [ ] Persist Private Alpha `/apply` applications without changing founder approval
 - [ ] Staff roles / permissions enforcement for multi-staff login (Employee Management ready)
 - [ ] Reception + CRM communication: real Twilio/Resend paths verified in staging
 - [ ] Reports: scheduled email delivery worker (CRUD exists; send pipeline next)

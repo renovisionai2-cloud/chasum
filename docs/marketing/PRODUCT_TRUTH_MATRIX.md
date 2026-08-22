@@ -76,4 +76,5 @@ Status vocabulary (only):
 1. Portal gift-card UX vs operator gift cards — keep operator Available Today; avoid portal “live gift store” claims.
 2. Depth of API plan gating vs marketing Business feature list — label API as Available Today for Business when keys exist; avoid “unlimited automation.”
 3. sales@chasum.app monitoring — prefer `/contact` walkthrough path; mailto remains fallback until ops confirms mailbox.
-4. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY.** Public plan prices remain `$79` / `$149` without USD or CAD until locked. Tenant operational currency (e.g. Chasum HQ = CAD) is separate.
+4. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY.** Public plan prices remain `$79` / `$149` without USD or CAD until locked. Tenant operational currency (e.g. Chasum HQ = CAD) is separate. Development hypotheses (`$59 CAD` Professional / `$149 CAD` Business / `$590` / `$1,490` annual) live in [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](../WORLD_CLASS_COMMERCIAL_STRATEGY.md) and are **not** public locks.
+5. **PRODUCT OWNER DECISION REQUIRED — PUBLIC PROFESSIONAL LIST PRICE.** Working development hypothesis is `$59 CAD/month`; locked Pricing v1 still shows `$79`. Do not change `/pricing` until PO locks.

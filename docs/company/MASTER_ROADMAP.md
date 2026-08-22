@@ -57,11 +57,19 @@ Ordered as strategic themes — exact sprint order lives in [`MASTER_TASKS.md`](
 - Owner-approved sends only
 - Tie to Communication Center and CRM
 
+### Commercial Strategy — Pricing & Packaging (active)
+
+- Working CAD hypotheses for development (`$59` / `$149` monthly; `$590` / `$1,490` annual) are **not** public locks
+- Public Pricing v1 remains locked until PO + cost-to-serve + commercial validation
+- Stripe Billing, extra locations, and metering are sequenced after a versioned commercial offer — see [`../WORLD_CLASS_COMMERCIAL_STRATEGY.md`](../WORLD_CLASS_COMMERCIAL_STRATEGY.md)
+- Coordinated with Commercial SaaS Readiness (`/apply` persistence, self-serve lifecycle)
+
 ### Stripe
 
 - Live subscription billing and customer payments
 - Replace / augment mock billing provider
 - Webhooks, customer portal, dunning
+- Keep tenant commerce Stripe (PaymentIntents) separate from Chasum SaaS Billing
 
 ### Square
 

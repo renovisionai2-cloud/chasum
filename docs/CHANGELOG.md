@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (World Class — commercial strategy)
+
+- Pricing & Packaging is an active World Class track (`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`)
+- `$59 CAD` Professional / `$149 CAD` Business / `$590` / `$1,490` annual are recorded as **development hypotheses**, not public locks
+- Public Pricing v1, Production, Stripe, SQL, and tenant plan assignments were not changed
+
 ### Changed (World Class — trust + navigation stabilization)
 
 - Tenant operational money uses the canonical currency-aware formatter (CAD, EUR, GBP, AUD, USD) on Hub catalog, Chase, CRM insights, employee performance, reception brief, gift-card redeem copy, deposit summaries, customer emails, grounded Summer/Emma price lines, CRM payment timeline titles, customer portal prices, commerce payment-error amounts, and financial-debug lines

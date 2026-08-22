@@ -193,7 +193,11 @@ Acceptance rows: FEATURE · EXACT NAVIGATION PATH · USER GOAL · EXPECTED SCREE
 
 If the Product Owner cannot reasonably find a feature through the intended interface, that is a product/IA finding — not user error.
 
-Navigation structure changes require PO approval of [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md). **Do not implement that proposal in this pass.**
+Navigation structure changes require PO approval of [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md). **Do not implement that proposal until approved.**
+
+## Commercial Strategy — Pricing & Packaging (active track)
+
+Public Pricing v1 stays locked. Development hypotheses (`$59 CAD` Professional, `$149 CAD` Business, `$590` / `$1,490` annual) and the versioned-offer architecture live in [`WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md). Do not open self-serve billing, change Stripe products, or apply SQL from this track. Coordinate with Commercial SaaS Readiness.
 
 ## Chapter 9 — Business Structure Engine (planning)
 
