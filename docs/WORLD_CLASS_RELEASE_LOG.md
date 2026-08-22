@@ -12,7 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-22 | **Active-staff quota + Memberships Preview** | `0fc2133` · feature `b5e19ac` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Active-only staff seats; reactivation guarded; Memberships Preview/Coming Soon notice; DB 10→6 deferred; 034–036 unapplied |
+| 2026-08-22 | **Active-staff quota + Memberships Preview** | docs `95a305d` · test `0fc2133` · feature `b5e19ac` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Active-only staff seats; reactivation guarded; Memberships Preview/Coming Soon notice; DB 10→6 deferred; 034–036 unapplied |
 | 2026-08-22 | **Product truth + entitlement alignment** | `65af6e7` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Staff caps enforced; Business locations app-capped at 6; Inventory/Voice AI Coming Soon; Packages vs Memberships split; no DB migration; 034–036 unapplied |
 | 2026-08-22 | **P1 React 19 form trust** | `8768f1c` · feature `e66dc9f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Persistent dashboard forms remount after save; HQ not mutated; 034–036 unapplied |
 | 2026-08-21 | **Post-save booking settings UI** | `39f3b48` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Remount uncontrolled booking forms after persisted values change; HQ not mutated; 034–036 unapplied |
