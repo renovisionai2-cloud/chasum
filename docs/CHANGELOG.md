@@ -11,7 +11,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed (World Class — trust + navigation stabilization)
 
-- Tenant operational money uses the canonical currency-aware formatter (CAD, EUR, GBP, AUD, USD) on Hub catalog, Chase, CRM insights, employee performance, reception brief, gift-card redeem copy, deposit summaries, customer emails, and grounded Summer/Emma price lines
+- Tenant operational money uses the canonical currency-aware formatter (CAD, EUR, GBP, AUD, USD) on Hub catalog, Chase, CRM insights, employee performance, reception brief, gift-card redeem copy, deposit summaries, customer emails, grounded Summer/Emma price lines, CRM payment timeline titles, customer portal prices, commerce payment-error amounts, and financial-debug lines
 - Roles & permissions and Custom Forms show Preview / Coming Soon notices; configuration is kept; enforcement and submission capture are not faked
 - Founder-only Platform Admin / Private Alpha surfaces disclose seeded operating data and are not presented as a live system of record
 - Operator-journey completeness and Summer domain readiness (UNDERSTAND → EXPLAIN → RECOMMEND → ACT → AUDIT) are now permanent World Class acceptance rules

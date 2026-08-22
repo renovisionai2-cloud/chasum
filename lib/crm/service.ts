@@ -14,6 +14,7 @@ import {
   bucketCustomerAppointments,
   lastCompletedVisitAt,
 } from "@/lib/crm/appointment-buckets";
+import { formatMoneyCents } from "@/lib/commerce/money";
 
 export { displayCustomerName };
 
@@ -212,7 +213,7 @@ function buildTimeline(input: {
     items.push({
       id: `pay-${payment.id}`,
       type: "payment",
-      title: `Payment · $${(payment.amountCents / 100).toFixed(2)}`,
+      title: `Payment · ${formatMoneyCents(payment.amountCents, payment.currency)}`,
       body: payment.description,
       status: payment.status,
       occurredAt: payment.occurredAt,

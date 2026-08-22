@@ -6,7 +6,10 @@
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { createInvoiceForAppointment } from "@/lib/commerce/invoices";
 import { mapTransaction } from "@/lib/commerce/mappers";
-import { resolveNewCommerceCurrency } from "@/lib/commerce/money";
+import {
+  formatMoneyCents,
+  resolveNewCommerceCurrency,
+} from "@/lib/commerce/money";
 import { appointmentCollectibleMoneyFromStamps, appointmentMoneyFromStamps } from "@/lib/commerce/money-contract";
 import {
   getActiveProviderSummary,
@@ -237,7 +240,7 @@ export async function recordCommercePayment(
     if (credit < input.amountCents) {
       return {
         ok: false,
-        error: `Insufficient store credit (available $${(credit / 100).toFixed(2)}).`,
+        error: `Insufficient store credit (available ${formatMoneyCents(credit, currency)}).`,
       };
     }
   }
@@ -275,7 +278,7 @@ export async function recordCommercePayment(
     if (Number(card.balance_cents) < input.amountCents) {
       return {
         ok: false,
-        error: `Insufficient gift certificate balance (available $${(Number(card.balance_cents) / 100).toFixed(2)}).`,
+        error: `Insufficient gift certificate balance (available ${formatMoneyCents(Number(card.balance_cents), currency)}).`,
       };
     }
     giftCardRow = {

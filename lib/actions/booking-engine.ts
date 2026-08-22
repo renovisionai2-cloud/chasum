@@ -192,7 +192,13 @@ export async function issueCustomerPortalToken(
 
 export async function getPortalSession(token: string): Promise<{
   error?: string;
-  business?: { id: string; name: string; slug: string; logo_url?: string | null };
+  business?: {
+    id: string;
+    name: string;
+    slug: string;
+    logo_url?: string | null;
+    currency?: string | null;
+  };
   customer?: { id: string; name: string; email: string };
   upcoming?: PortalAppointment[];
   past?: PortalAppointment[];
@@ -202,7 +208,7 @@ export async function getPortalSession(token: string): Promise<{
   const service = createServiceClient();
   const { data: row, error } = await service
     .from("customer_portal_tokens")
-    .select("*, customer:customers(id, name, email), business:businesses(id, name, slug, logo_url)")
+    .select("*, customer:customers(id, name, email), business:businesses(id, name, slug, logo_url, currency)")
     .eq("token", token.trim())
     .maybeSingle();
 
@@ -243,6 +249,7 @@ export async function getPortalSession(token: string): Promise<{
     name: string;
     slug: string;
     logo_url?: string | null;
+    currency?: string | null;
   };
   const customer = row.customer as { id: string; name: string; email: string };
 

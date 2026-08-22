@@ -3,6 +3,8 @@
  * so testers can see why inclusive vs exclusive was chosen.
  */
 
+import { formatMoneyCentsExact } from "@/lib/commerce/money";
+
 export type FinancialDebugSnapshot = {
   catalogPriceCents: number;
   rateBps: number;
@@ -21,8 +23,9 @@ export type FinancialDebugSnapshot = {
 
 export function formatFinancialDebugLines(
   d: FinancialDebugSnapshot,
+  currency?: string | null,
 ): string[] {
-  const money = (c: number) => `$${(c / 100).toFixed(2)}`;
+  const money = (c: number) => formatMoneyCentsExact(c, currency);
   return [
     `Tax mode: ${d.effectiveInclusive ? "Inclusive" : "Exclusive"}`,
     `Source: ${d.source}`,
@@ -32,6 +35,6 @@ export function formatFinancialDebugLines(
     `Tax: ${money(d.taxCents)}`,
     `Total: ${money(d.totalCents)}`,
     `Deposit: ${money(d.depositCents)}`,
-    `After $${(d.depositCents / 100).toFixed(2)} deposit: ${money(d.remainingIfDepositPaidCents)}`,
+    `After ${money(d.depositCents)} deposit: ${money(d.remainingIfDepositPaidCents)}`,
   ];
 }

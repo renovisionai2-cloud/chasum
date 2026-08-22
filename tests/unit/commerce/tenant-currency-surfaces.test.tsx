@@ -9,7 +9,8 @@ import { EmployeePerformanceDashboard } from "@/components/employees/employee-pe
 import { BusinessBrief } from "@/components/reception/business-brief";
 import { CHASE_FORECAST_HOOKS } from "@/lib/chase/forecast";
 import type { ChaseOperationsSnapshot } from "@/lib/chase/types";
-import { formatMoneyCents, formatMoneyDollars } from "@/lib/commerce/money";
+import { formatFinancialDebugLines } from "@/lib/commerce/financial-debug";
+import { formatMoneyCents, formatMoneyCentsExact, formatMoneyDollars } from "@/lib/commerce/money";
 import type { ChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
 import type { CrmInsights } from "@/lib/crm/types";
 import type { EmployeePerformance } from "@/lib/employees/types";
@@ -36,6 +37,10 @@ const TENANT_MONEY_SURFACES = [
   "components/crm/customer-insights.tsx",
   "components/employees/employee-performance.tsx",
   "components/reception/business-brief.tsx",
+  "lib/crm/service.ts",
+  "lib/commerce/payments.ts",
+  "lib/commerce/financial-debug.ts",
+  "app/portal/[token]/page.tsx",
 ];
 
 const performance: EmployeePerformance = {
@@ -228,5 +233,40 @@ describe("Tenant operational currency", () => {
       />,
     );
     expect(screen.getByText(formatMoneyDollars(120, "gbp"))).toBeInTheDocument();
+  });
+
+  it("formats CRM payment titles, portal amounts, and payment errors without a hardcoded $", () => {
+    expect(read("lib/crm/service.ts")).toMatch(
+      /formatMoneyCents\(payment\.amountCents, payment\.currency\)/,
+    );
+    expect(read("app/portal/[token]/page.tsx")).toMatch(
+      /formatMoneyCents\(appt\.price_cents, session\.business\.currency\)/,
+    );
+    expect(read("lib/commerce/payments.ts")).toMatch(
+      /available \$\{formatMoneyCents\(credit, currency\)\}/,
+    );
+  });
+
+  it("formats financial debug lines in CAD and EUR", () => {
+    const snapshot = {
+      catalogPriceCents: 24860,
+      rateBps: 1300,
+      taxLabel: "HST",
+      taxable: true,
+      storedInclusive: false,
+      effectiveInclusive: false,
+      source: "test",
+      taxRateId: null,
+      subtotalCents: 24860,
+      taxCents: 3232,
+      totalCents: 28092,
+      depositCents: 5000,
+      remainingIfDepositPaidCents: 23092,
+    };
+    const cad = formatFinancialDebugLines(snapshot, "cad");
+    const eur = formatFinancialDebugLines(snapshot, "eur");
+    expect(cad.join(" ")).toContain(formatMoneyCentsExact(24860, "cad"));
+    expect(eur.join(" ")).toContain(formatMoneyCentsExact(24860, "eur"));
+    expect(eur.join(" ")).toMatch(/€|EUR/);
   });
 });

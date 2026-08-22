@@ -5,6 +5,7 @@ import {
   getPortalSession,
   portalCancelAppointment,
 } from "@/lib/actions/booking-engine";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 import type { Metadata } from "next";
@@ -87,10 +88,10 @@ export default async function CustomerPortalPage({ params }: PageProps) {
                             ? `Invoice ${appt.invoice_number}`
                             : null}
                           {appt.price_cents != null
-                            ? ` · $${(appt.price_cents / 100).toFixed(2)}`
+                            ? ` · ${formatMoneyCents(appt.price_cents, session.business.currency)}`
                             : null}
                           {appt.deposit_cents
-                            ? ` · Deposit $${(appt.deposit_cents / 100).toFixed(2)}`
+                            ? ` · Deposit ${formatMoneyCents(appt.deposit_cents, session.business.currency)}`
                             : null}
                         </p>
                       ) : null}
