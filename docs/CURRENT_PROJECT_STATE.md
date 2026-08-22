@@ -844,9 +844,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `8768f1ca89887ff875c3603cdc092bf46b27c416` |
-| **Short** | `8768f1c` |
-| **Subject** | Record the React 19 form-trust pass in World Class docs. |
+| **SHA** | `65af6e71078fcf25830ff54f621dee093c6480be` |
+| **Short** | `65af6e7` |
+| **Subject** | Align product truth and enforce staff and location entitlements. |
+| **Product truth + entitlements** | `65af6e71078fcf25830ff54f621dee093c6480be` |
 | **P1 React 19 form trust (docs)** | `8768f1ca89887ff875c3603cdc092bf46b27c416` |
 | **P1 React 19 form trust (feature)** | `e66dc9f4aec1ad722bc8e5ae6f1a810b90250e95` |
 | **Post-save booking settings UI** | `39f3b482124a04113d187383eb1d16d84456650e` |
