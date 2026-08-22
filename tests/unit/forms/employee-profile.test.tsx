@@ -161,7 +161,7 @@ describe("EmployeeProfileView post-save remount", () => {
     const { rerender } = renderProfile(initial);
 
     const firstName = screen.getByLabelText("First name") as HTMLInputElement;
-    const status = screen.getByLabelText("Status") as HTMLSelectElement;
+    const status = screen.getByLabelText("Active in Chasum") as HTMLSelectElement;
     fireEvent.change(firstName, { target: { value: "Augusta" } });
     fireEvent.change(status, { target: { value: "false" } });
     expect(firstName.value).toBe("Augusta");
@@ -191,11 +191,33 @@ describe("EmployeeProfileView post-save remount", () => {
     expect((screen.getByLabelText("First name") as HTMLInputElement).value).toBe(
       "Augusta",
     );
-    expect((screen.getByLabelText("Status") as HTMLSelectElement).value).toBe(
-      "false",
-    );
+    expect(
+      (screen.getByLabelText("Active in Chasum") as HTMLSelectElement).value,
+    ).toBe("false");
     expect(
       (screen.getByLabelText("First name") as HTMLInputElement).value,
     ).not.toBe("Ada");
+  });
+
+  it("keeps Employment status and Active in Chasum as independent controls", () => {
+    renderProfile(
+      employee({
+        employment_status: "terminated",
+        is_active: true,
+      }),
+    );
+
+    expect(screen.getByLabelText("Employment status")).toBeInTheDocument();
+    const seat = screen.getByLabelText("Active in Chasum") as HTMLSelectElement;
+    const employment = screen.getByLabelText(
+      "Employment status",
+    ) as HTMLSelectElement;
+    expect(employment.value).toBe("terminated");
+    expect(seat.value).toBe("true");
+    expect(screen.getByText(/count toward the plan's active-staff limit/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/do not consume an active-staff seat/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^Status$/)).not.toBeInTheDocument();
   });
 });

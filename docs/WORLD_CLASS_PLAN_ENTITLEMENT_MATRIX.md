@@ -32,7 +32,7 @@
 | Business | `business` | Unlimited **active** | **Up to 6** | App **6**; live DB seed still **10** — **DB 10 → 6 alignment deferred** |
 | Enterprise | `enterprise` | Unlimited **active** | Unlimited | null |
 
-**OWNER DECISION (locked):** Plan staff limits count **ACTIVE staff only** (`staff.is_active = true`). Inactive/former rows stay for history and do not occupy a seat. Creation and reactivation are both quota-guarded. Existing over-limit active rows are grandfathered (never auto-deleted or auto-deactivated).
+**OWNER DECISION (locked):** Plan staff limits count **ACTIVE staff only** (`staff.is_active = true`). Inactive/former rows stay for history and do not occupy a seat. Creation and reactivation are both quota-guarded. Existing over-limit active rows are grandfathered (never auto-deleted or auto-deactivated). `employment_status` is a descriptive HR field and does **not** control entitlement seats. Do not auto-map employment status onto `is_active`.
 
 **OWNER DECISION (locked):** Marketing / plan promise = **six** Business locations. Application catalog and `createLocation` now cap at **6**. **DB 10 → 6 alignment is deferred** to a future approved migration window. Do **not** apply `UPDATE subscription_plans SET max_locations = 6 WHERE plan_key = 'business'` and do **not** create a dedicated migration solely for this unless separately approved.
 
@@ -132,7 +132,7 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 1. **SMS** — Fully enforced (plan + Alpha + Twilio).  
 2. **Email remove-branding** — Server-enforced.  
 3. **Location create quota** — Application-enforced against canonical catalog (Free 1 / Professional 3 / Business **6** / Enterprise unlimited). Live DB Business `max_locations` remains **10**; **DB 10 → 6 alignment is deferred**. Private Alpha RPC `can_add_location` may still return true.  
-4. **Active staff quota** — Server-enforced. Counts `staff.is_active = true` only. Free 1 / Professional 3 / Business and Enterprise unlimited. Create and inactive→active reactivation are both blocked at capacity. Inactive historical rows are preserved and do not occupy a seat. Existing over-limit active rows are grandfathered.
+4. **Active staff quota** — Server-enforced. Counts `staff.is_active = true` only (`employment_status` does not control seats). Free 1 / Professional 3 / Business and Enterprise unlimited. Create and inactive→active reactivation are both blocked at capacity, including multi-row bulk reactivation (atomic: all-or-nothing). Inactive historical rows are preserved and do not occupy a seat. Existing over-limit active rows are grandfathered.
 
 Other marketed plan-exclusive capabilities remain **Not enforced** or **Marketing-only**, or **Conflicting**.
 

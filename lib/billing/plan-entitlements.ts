@@ -112,6 +112,7 @@ export type StaffQuotaDecision = {
 /**
  * Plan staff limits count ACTIVE staff only (`staff.is_active = true`).
  * Inactive/former rows are preserved for history and do not occupy a seat.
+ * `employment_status` is a descriptive HR field and does not control seats.
  * Grandfathering: existing over-limit active rows stay; only new actives block.
  *
  * `currentActiveCount` is the business's current active staff.

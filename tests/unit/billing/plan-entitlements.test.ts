@@ -54,6 +54,8 @@ describe("staff quota decision", () => {
     expect(evaluateStaffSeatRequest(3, 1, "professional").allowed).toBe(false);
     expect(evaluateStaffSeatRequest(2, 1, "professional").allowed).toBe(true);
     expect(evaluateStaffSeatRequest(3, 0, "professional").allowed).toBe(true);
+    expect(evaluateStaffSeatRequest(2, 3, "professional").allowed).toBe(false);
+    expect(evaluateStaffSeatRequest(1, 2, "professional").allowed).toBe(true);
   });
 });
 

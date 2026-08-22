@@ -593,4 +593,56 @@ describe("reactivation cannot bypass the server-side quota", () => {
     );
     expect(deleteStaffRow).not.toHaveBeenCalled();
   });
+
+  it("blocks a multi-row bulk reactivation atomically when requested seats exceed remaining capacity", async () => {
+    getOrCreateBusiness.mockResolvedValue({
+      id: "biz-1",
+      subscription_plan_key: "professional",
+    });
+    mockTables({
+      activeCount: 2,
+      unfilteredCount: 5,
+      rows: [
+        { id: "inactive-1", is_active: false },
+        { id: "inactive-2", is_active: false },
+        { id: "inactive-3", is_active: false },
+      ],
+    });
+
+    const result = await bulkUpdateEmployeeStatus(
+      ["inactive-1", "inactive-2", "inactive-3"],
+      true,
+    );
+    expect(result.error).toMatch(
+      /You've reached the 3 active staff members included in Professional/,
+    );
+    expect(updateStaffRow).not.toHaveBeenCalled();
+    expect(deleteStaffRow).not.toHaveBeenCalled();
+  });
+
+  it("allows a multi-row bulk reactivation that fits remaining active seats", async () => {
+    getOrCreateBusiness.mockResolvedValue({
+      id: "biz-1",
+      subscription_plan_key: "professional",
+    });
+    mockTables({
+      activeCount: 1,
+      unfilteredCount: 3,
+      rows: [
+        { id: "inactive-1", is_active: false },
+        { id: "inactive-2", is_active: false },
+      ],
+    });
+
+    const result = await bulkUpdateEmployeeStatus(
+      ["inactive-1", "inactive-2"],
+      true,
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.success).toMatch(/Activated 2/);
+    expect(updateStaffRow).toHaveBeenCalledTimes(1);
+    expect(updateStaffRow).toHaveBeenCalledWith(
+      expect.objectContaining({ is_active: true }),
+    );
+  });
 });

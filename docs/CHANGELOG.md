@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (World Class — staff-status clarity)
+
+- Employee Profile labels `staff.is_active` as **Active in Chasum** and keeps Employment status as a descriptive HR field
+- Helper copy states that only Active in Chasum counts toward the plan's active-staff limit; inactive staff remain on file and do not consume a seat
+- No employment-status → `is_active` mapping was added
+
 ### Changed (World Class — active-staff quota + Memberships Preview truth)
 
 - Plan staff limits count **active** staff only (`staff.is_active = true`); inactive/former rows stay for history and do not occupy a seat

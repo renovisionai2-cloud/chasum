@@ -14,6 +14,7 @@ type StaffTableClient = {
 /**
  * Count ACTIVE staff only (`staff.is_active = true`).
  * Inactive/former records stay on file and do not consume a seat.
+ * `employment_status` is not used for entitlement counting.
  */
 export async function countBusinessStaff(
   supabase: StaffTableClient,
