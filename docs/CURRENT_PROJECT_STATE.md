@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-22  
-**Updated by:** World Class — staff-status clarity + bulk reactivation tests  
+**Updated by:** World Class — trust + navigation stabilization pass 1  
 
 ---
 
@@ -51,6 +51,7 @@
 | [`docs/WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md) | Auth must not auto-create a tenant — `/onboarding/business` |
 | [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — Staging **not connected** |
 | [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging init **STOPPED** — no Staging credentials in agent environment |
+| [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA proposal — **not implemented**; PO approval required |
 
 ---
 
@@ -161,9 +162,55 @@ Shared money recognition, commerce + platform events, business operating context
 
 ---
 
+## Permanent World Class acceptance — operator journey
+
+A Chasum feature is **not complete** merely because code exists, a route exists, or tests pass.
+
+It must also be:
+
+- discoverable
+- reachable
+- understandable
+- usable
+- trustworthy
+- aligned to a real operator job
+
+Future feature acceptance should include:
+
+| Field | Meaning |
+|-------|---------|
+| FEATURE | What the operator can do |
+| EXACT NAVIGATION PATH | How a first-time owner finds it |
+| USER GOAL | The job to be done |
+| EXPECTED SCREEN | What they should see |
+| EXPECTED RESULT | Successful outcome |
+| ERROR / RECOVERY PATH | How failure is explained and recovered |
+| DISCOVERABILITY | GOOD / ACCEPTABLE / POOR / EFFECTIVELY HIDDEN |
+| PASS / FAIL | Product judgment, not “user error” |
+
+If the Product Owner cannot reasonably find a feature through the intended interface, that is a **product/IA finding** — not user error.
+
+Canonical IA proposal (not implemented): [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md).
+
+## Summer domain readiness (governance only)
+
+Every meaningful completed Chasum domain should eventually be evaluated for Summer:
+
+**UNDERSTAND → EXPLAIN → RECOMMEND → ACT → AUDIT**
+
+Do not expand Summer until the domain is complete, truthful, and reachable. This is governance, not an implementation pass. See [`docs/ai/SUMMER_PRINCIPLE.md`](./ai/SUMMER_PRINCIPLE.md).
+
+---
+
 ## Last completed work
 
 ### Most recent (2026-08-22)
+
+**World Class — trust + navigation stabilization pass 1**
+
+Tenant operational money now uses the canonical currency formatter (`formatMoneyCents` / `formatMoneyDollars`) on Hub catalog prices, Chase, CRM insights, employee performance, reception brief, gift-card redeem copy, deposit recorded summaries, customer emails, and grounded Summer/Emma price lines. SaaS `$79` / `$149` currency was **not** invented. Roles & permissions and Custom Forms carry Preview / Coming Soon notices without fake enforcement or submission capture. Founder-only HQ / Private Alpha surfaces disclose seeded operating data. Navigation was **not** changed. Occupancy formula and `staff_activity` CHECK mismatch were investigated only (no SQL). `/apply` remains email/log-only. Operator-journey and Summer domain-readiness rules are now permanent World Class acceptance.
+
+### Prior (2026-08-22)
 
 **World Class — staff-status clarity + bulk reactivation tests**
 
@@ -933,9 +980,10 @@ As of last update:
 
 **Priority order:**
 
-1. **Claude independent confirmation** of this staff-status clarity + bulk reactivation pass (Active in Chasum label, no employment-status mapping, atomic multi-row bulk reactivation, entitlement numbers unchanged, Production/data safety) before Product Owner browser check and phase close.
-2. **Do not start the next development phase** until that confirmation and PO acceptance.
+1. **Product Owner + ChatGPT review** of this Trust + Navigation Stabilization pass: IA proposal, `staff_activity` schema plan, occupancy/utilization proposal, `/apply` persistence proposal. **Do not implement the proposed navigation** until that approval.
+2. **Do not start the next development phase** until PO acceptance of the next implementation slice.
 3. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
+4. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
 4. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 6. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.

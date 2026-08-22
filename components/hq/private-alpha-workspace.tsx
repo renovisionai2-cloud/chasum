@@ -3,6 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { onboardingPct } from "@/lib/hq/private-alpha/snapshot";
+import {
+  HQ_FOUNDER_PREVIEW_NOTICE,
+  HQ_FOUNDER_PREVIEW_STATUS_LABEL,
+} from "@/lib/hq/founder-preview-truth";
 import type {
   AlphaFeedback,
   AlphaPartner,
@@ -313,6 +317,15 @@ export function PrivateAlphaWorkspace({
           </Link>
         </div>
       </PageHeader>
+
+      <div className="rounded-[var(--radius-md)] border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+        <p>
+          <strong className="font-medium">
+            {HQ_FOUNDER_PREVIEW_STATUS_LABEL}.
+          </strong>{" "}
+          {HQ_FOUNDER_PREVIEW_NOTICE}
+        </p>
+      </div>
 
       <nav
         className="flex flex-wrap gap-2 border-b border-border/60 pb-4"

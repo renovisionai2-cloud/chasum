@@ -72,6 +72,8 @@ import { catalogFormRevision } from "@/lib/forms/persisted-form-revision";
 import { businessHubProfileRevision } from "@/lib/forms/dashboard-form-revisions";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
+import { CUSTOM_FORMS_PREVIEW_NOTICE, CUSTOM_FORMS_STATUS_LABEL } from "@/lib/business/custom-forms-truth";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import { MEMBERSHIPS_PREVIEW_NOTICE, MEMBERSHIPS_STATUS_LABEL } from "@/lib/marketing/memberships-truth";
 import { FREE_PLAN_UPGRADE_CTA } from "@/lib/marketing/pricing";
 import { useActionState, useState, useTransition } from "react";
@@ -134,9 +136,6 @@ const TABS: { key: TabKey; label: string; icon: typeof Building2 }[] = [
   { key: "automation", label: "Automation", icon: Sparkles },
 ];
 
-function dollars(cents: number) {
-  return `$${(cents / 100).toFixed(2)}`;
-}
 
 function CatalogList({
   emptyTitle,
@@ -844,7 +843,7 @@ export function BusinessHub({
                 items={memberships.map((m) => ({
                   id: m.id,
                   title: m.name,
-                  subtitle: `${m.billing_interval} · ${dollars(m.price_cents)} · ${
+                  subtitle: `${m.billing_interval} · ${formatMoneyCents(m.price_cents, business.currency)} · ${
                     m.is_unlimited ? "Unlimited" : `${m.visit_limit ?? 0} visits`
                   }`,
                 }))}
@@ -913,7 +912,7 @@ export function BusinessHub({
                 items={packages.map((p) => ({
                   id: p.id,
                   title: p.name,
-                  subtitle: `${p.total_visits} visits · ${dollars(p.price_cents)}${
+                  subtitle: `${p.total_visits} visits · ${formatMoneyCents(p.price_cents, business.currency)}${
                     p.expires_after_days ? ` · expires ${p.expires_after_days}d` : ""
                   }`,
                 }))}
@@ -978,7 +977,7 @@ export function BusinessHub({
                 items={giftCards.map((g) => ({
                   id: g.id,
                   title: g.code,
-                  subtitle: `${dollars(g.balance_cents)} remaining · ${g.status}`,
+                  subtitle: `${formatMoneyCents(g.balance_cents, business.currency)} remaining · ${g.status}`,
                 }))}
                 actionLabel="Certificate"
                 onAction={(id) => setCertificateId(id)}
@@ -1187,6 +1186,15 @@ export function BusinessHub({
       ) : null}
 
       {tab === "forms" ? (
+        <div className="space-y-6">
+          <div className="rounded-[var(--radius-md)] border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+            <p>
+              <strong className="font-medium">
+                Status: {CUSTOM_FORMS_STATUS_LABEL}.
+              </strong>{" "}
+              {CUSTOM_FORMS_PREVIEW_NOTICE}
+            </p>
+          </div>
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
@@ -1195,7 +1203,7 @@ export function BusinessHub({
             <CardContent>
               <CatalogList
                 emptyTitle="No form templates"
-                emptyDescription="Consent, medical, intake, waivers — electronic signature ready."
+                emptyDescription="Preview templates only. Customer submission capture is not operational yet."
                 items={forms.map((f) => ({
                   id: f.id,
                   title: f.name,
@@ -1241,6 +1249,7 @@ export function BusinessHub({
               </form>
             </CardContent>
           </Card>
+        </div>
         </div>
       ) : null}
 

@@ -82,6 +82,7 @@ export type BusinessKnowledge = {
   bookingPolicy: string | null;
   address: string | null;
   bookingUrl: string;
+  currency: string;
   hours: Array<{
     dayOfWeek: number;
     dayLabel: string;

@@ -1,5 +1,6 @@
 import { StatCard } from "@/components/ui/stat-card";
 import type { ReceptionBrief } from "@/lib/actions/reception";
+import { formatMoneyDollars } from "@/lib/commerce/money";
 import {
   Calendar,
   Clock,
@@ -20,7 +21,7 @@ export function BusinessBrief({ brief }: { brief: ReceptionBrief }) {
       />
       <StatCard
         title="Today's revenue"
-        value={`$${brief.todayRevenue.toFixed(0)}`}
+        value={formatMoneyDollars(brief.todayRevenue, brief.currency)}
         description="Completed today"
         icon={DollarSign}
         accent="success"

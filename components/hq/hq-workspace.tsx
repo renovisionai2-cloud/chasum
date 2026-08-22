@@ -2,6 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
+import {
+  HQ_FOUNDER_PREVIEW_NOTICE,
+  HQ_FOUNDER_PREVIEW_STATUS_LABEL,
+} from "@/lib/hq/founder-preview-truth";
 import type {
   HqSnapshot,
   PipelineStage,
@@ -197,13 +201,16 @@ export function HqWorkspace({ snapshot }: { snapshot: HqSnapshot }) {
         ))}
       </nav>
 
-      <p className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
-        {snapshot.dataSources.note} Metrics source:{" "}
-        <span className="font-medium text-foreground">
-          {snapshot.dataSources.platformMetrics}
-        </span>
-        .
-      </p>
+      <div className="rounded-[var(--radius-md)] border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+        <p>
+          <strong className="font-medium">
+            {HQ_FOUNDER_PREVIEW_STATUS_LABEL}.
+          </strong>{" "}
+          {HQ_FOUNDER_PREVIEW_NOTICE} {snapshot.dataSources.note} Metrics source:{" "}
+          <span className="font-medium">{snapshot.dataSources.platformMetrics}</span>
+          .
+        </p>
+      </div>
 
       {/* —— Executive —— */}
       <Section

@@ -448,7 +448,7 @@ export async function createAppointment(
       try {
         const { recordCommercePayment, listTransactions, parsePaymentMethod } =
           await import("@/lib/commerce");
-        const { normalizeCurrency } = await import("@/lib/commerce/money");
+        const { normalizeCurrency, formatMoneyCents } = await import("@/lib/commerce/money");
         const { paymentKindForAmount } = await import(
           "@/lib/commerce/booking-financials"
         );
@@ -536,7 +536,7 @@ export async function createAppointment(
                 kind,
                 transactionId: payResult.transaction?.id ?? null,
                 source: "booking_confirm",
-                summary: `Deposit recorded — $${(paymentAmountCents / 100).toFixed(2)} by ${methodLabel}`,
+                summary: `Deposit recorded — ${formatMoneyCents(paymentAmountCents, business.currency)} by ${methodLabel}`,
               },
             });
 

@@ -115,6 +115,8 @@ export type ChaseForecastHooks = {
 export type ChaseOperationsSnapshot = {
   businessId: string;
   businessName: string;
+  /** Tenant operational currency (businesses.currency). */
+  currency: string;
   generatedAt: string;
   enabled: boolean;
   kpis: ChaseKpis;

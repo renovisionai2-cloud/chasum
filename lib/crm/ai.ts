@@ -9,6 +9,7 @@ import {
 } from "@/lib/crm/ai-knowledge";
 import { displayCustomerName } from "@/lib/crm/display";
 import { loadCrmProfile } from "@/lib/crm/service";
+import { formatMoneyDollars } from "@/lib/commerce/money";
 
 export type CrmAiQueryKind =
   | "summarize_customer"
@@ -61,7 +62,7 @@ class ChaseCrmProvider implements CrmAiProvider {
         snapshot.preferredServices.length
           ? `Recent services: ${snapshot.preferredServices.join(", ")}`
           : null,
-        `Lifetime visits ${snapshot.lifetimeVisits} · spend $${snapshot.lifetimeSpend.toFixed(0)}`,
+        `Lifetime visits ${snapshot.lifetimeVisits} · spend ${formatMoneyDollars(snapshot.lifetimeSpend, snapshot.currency)}`,
         snapshot.nextAppointment
           ? `Next visit scheduled · ${snapshot.upcomingCount} upcoming`
           : "No upcoming appointments",
@@ -101,11 +102,11 @@ class ChaseCrmProvider implements CrmAiProvider {
     if (input.kind === "top_spenders") {
       return {
         kind: input.kind,
-        summary: `High-value customers: avg lifetime spend $${analytics.retention.averageLifetimeSpend.toFixed(0)}. ${analytics.retention.vipCount} VIP profiles.`,
+        summary: `High-value customers: avg lifetime spend ${formatMoneyDollars(analytics.retention.averageLifetimeSpend, analytics.currency)}. ${analytics.retention.vipCount} VIP profiles.`,
         items: analytics.highValue.map((c) => ({
           id: c.id,
           label: c.name,
-          detail: `$${c.lifetimeSpend.toFixed(0)} · ${c.visits} visits`,
+          detail: `${formatMoneyDollars(c.lifetimeSpend, analytics.currency)} · ${c.visits} visits`,
         })),
         ready: true,
       };

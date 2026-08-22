@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (World Class — trust + navigation stabilization)
+
+- Tenant operational money uses the canonical currency-aware formatter (CAD, EUR, GBP, AUD, USD) on Hub catalog, Chase, CRM insights, employee performance, reception brief, gift-card redeem copy, deposit summaries, customer emails, and grounded Summer/Emma price lines
+- Roles & permissions and Custom Forms show Preview / Coming Soon notices; configuration is kept; enforcement and submission capture are not faked
+- Founder-only Platform Admin / Private Alpha surfaces disclose seeded operating data and are not presented as a live system of record
+- Operator-journey completeness and Summer domain readiness (UNDERSTAND → EXPLAIN → RECOMMEND → ACT → AUDIT) are now permanent World Class acceptance rules
+- Navigation structure was not changed; IA proposal is documentation-only pending Product Owner approval
+
 ### Changed (World Class — staff-status clarity)
 
 - Employee Profile labels `staff.is_active` as **Active in Chasum** and keeps Employment status as a descriptive HR field

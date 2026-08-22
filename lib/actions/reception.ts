@@ -3,6 +3,7 @@
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { fetchAvailableSlots } from "@/lib/actions/scheduling";
+import { normalizeCurrency } from "@/lib/commerce/money";
 import { createClient } from "@/lib/supabase/server";
 import { format, addDays } from "date-fns";
 
@@ -12,6 +13,7 @@ export type ReceptionBrief = {
   customersToday: number;
   openTimeSlots: number;
   pendingConfirmations: number;
+  currency: string;
 };
 
 export type NextAvailableSlot = {
@@ -120,6 +122,7 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
     customersToday,
     openTimeSlots,
     pendingConfirmations: pendingCount ?? 0,
+    currency: normalizeCurrency(business.currency),
   };
 }
 

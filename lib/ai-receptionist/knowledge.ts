@@ -1,5 +1,6 @@
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
+import { formatMoneyDollars, normalizeCurrency } from "@/lib/commerce/money";
 import { getAppUrl } from "@/lib/env";
 import type { BusinessKnowledge } from "@/lib/ai-receptionist/types";
 import { createClient } from "@/lib/supabase/server";
@@ -148,6 +149,7 @@ export const loadBusinessKnowledge = cache(async function loadBusinessKnowledge(
     bookingPolicy: business.booking_policy ?? null,
     address: formatAddress(business),
     bookingUrl: `${getAppUrl()}/book/${business.slug}`,
+    currency: normalizeCurrency(business.currency),
     hours: (hoursRes.data ?? []).map((h) => ({
       dayOfWeek: h.day_of_week as number,
       dayLabel: DAY_LABELS[h.day_of_week as number] ?? `Day ${h.day_of_week}`,
@@ -204,7 +206,7 @@ export function knowledgeToPromptBlock(knowledge: BusinessKnowledge): string {
               .map((e) => e.name)
               .join(", ")
           : "";
-      return `- ${s.name} (${s.durationMinutes} min, $${s.price.toFixed(2)}${
+      return `- ${s.name} (${s.durationMinutes} min, ${formatMoneyDollars(s.price, knowledge.currency)}${
         s.category ? `, ${s.category}` : ""
       }${s.cleanupMinutes ? `, cleanup ${s.cleanupMinutes}m` : ""})${
         s.description ? `: ${s.description}` : ""

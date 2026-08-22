@@ -646,7 +646,7 @@ export function CustomerProfileView({
             <CardTitle>Insights</CardTitle>
           </CardHeader>
           <CardContent>
-            <CustomerInsightsPanel insights={profile.insights} />
+            <CustomerInsightsPanel insights={profile.insights} currency={currency} />
           </CardContent>
         </Card>
       ) : null}

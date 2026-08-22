@@ -42,7 +42,8 @@ Status vocabulary (only):
 | Stripe SaaS checkout | Coming Next | Mock billing provider | — | Public self-serve billing not available |
 | API & webhooks | Available Today* | `/api/v1/*`, outbound webhooks | API keys; Business plan marketed | Developer API and outbound webhooks when enabled |
 | Waitlist | Available Today | Waitlist tables + Reception UI | Messaging for notify | Waitlist when enabled on the business |
-| Team invitations / RBAC login | Coming Next | Roles catalog exists; invites not enforced | — | Multi-staff login Coming Next |
+| Team invitations / RBAC login | Coming Next | Roles catalog exists; Preview / Coming Soon notice on Employee Profile; invites not enforced | Config can be prepared; enforcement is not active | Multi-staff login Coming Next |
+| Custom forms | Coming Soon | Hub templates + Preview / Coming Soon notice | Template/configuration preview only; customer submission capture is **not** operational | Custom intake forms — Coming Soon |
 | Summer (website) | Early Access | Website Concierge / Meet Summer | No OpenAI required for grounded path | Summer — Chasum’s AI Business Manager (website concierge & product guide; AI Receptionist is one capability) |
 | Summer (in-app) | Early Access | `/dashboard/ai-workforce/summer`, `lib/summer` | Optional OpenAI | AI Business Manager — reception/booking assistance grounded in configured business data |
 | Chase | Early Access | `/dashboard/workforce/chase`, `lib/chase` | Supabase data | Read-only operational insights and summaries |

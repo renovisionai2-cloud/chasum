@@ -23,6 +23,7 @@ import {
   upcomingToCards,
 } from "@/lib/summer/tools";
 import { getSummerCommerceSnapshot } from "@/lib/commerce";
+import { formatMoneyCents, formatMoneyDollars } from "@/lib/commerce/money";
 import type {
   SummerIntent,
   SummerSessionContext,
@@ -175,7 +176,7 @@ export async function handleSummerTurn(
           .slice(0, 12)
           .map(
             (s) =>
-              `• ${s.name} — ${s.durationMinutes} min · $${Number(s.price).toFixed(2)}`,
+              `• ${s.name} — ${s.durationMinutes} min · ${formatMoneyDollars(Number(s.price), knowledge.currency)}`,
           )
           .join("\n") +
         "\n\nSay a service name and I will check real availability.";
@@ -216,17 +217,17 @@ export async function handleSummerTurn(
       );
       reply = [
         `Account for ${customerSnap.displayName}:`,
-        `Outstanding balance: $${(commerce.outstandingBalanceCents / 100).toFixed(2)}`,
-        `Lifetime spend: $${(commerce.lifetimeSpendCents / 100).toFixed(2)}`,
-        `Deposits on file: $${(commerce.depositsCents / 100).toFixed(2)}`,
+        `Outstanding balance: ${formatMoneyCents(commerce.outstandingBalanceCents, knowledge.currency)}`,
+        `Lifetime spend: ${formatMoneyCents(commerce.lifetimeSpendCents, knowledge.currency)}`,
+        `Deposits on file: ${formatMoneyCents(commerce.depositsCents, knowledge.currency)}`,
         commerce.storeCreditCents > 0
-          ? `Store credit: $${(commerce.storeCreditCents / 100).toFixed(2)}`
+          ? `Store credit: ${formatMoneyCents(commerce.storeCreditCents, knowledge.currency)}`
           : null,
         commerce.openInvoiceCount
           ? `Open invoices: ${commerce.openInvoices
               .map(
                 (i) =>
-                  `${i.number} ($${(i.balanceCents / 100).toFixed(2)}${i.dueDate ? `, due ${i.dueDate}` : ""})`,
+                  `${i.number} (${formatMoneyCents(i.balanceCents, knowledge.currency)}${i.dueDate ? `, due ${i.dueDate}` : ""})`,
               )
               .join("; ")}`
           : "No open invoices.",
@@ -322,7 +323,7 @@ export async function handleSummerTurn(
           `I can book from your live catalog. Which service?\n` +
           knowledge.services
             .slice(0, 8)
-            .map((s) => `• ${s.name} ($${Number(s.price).toFixed(0)})`)
+            .map((s) => `• ${s.name} (${formatMoneyDollars(Number(s.price), knowledge.currency)})`)
             .join("\n") +
           `\n\nReply with a service name (for example: “Book ${knowledge.services[0]?.name}”).`;
       } else {

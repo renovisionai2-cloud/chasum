@@ -1,4 +1,5 @@
 import { StatCard } from "@/components/ui/stat-card";
+import { formatMoneyDollars } from "@/lib/commerce/money";
 import type { EmployeePerformance } from "@/lib/employees/types";
 import {
   CalendarCheck2,
@@ -9,8 +10,10 @@ import {
 
 export function EmployeePerformanceDashboard({
   performance,
+  currency,
 }: {
   performance: EmployeePerformance;
+  currency?: string | null;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -23,7 +26,7 @@ export function EmployeePerformanceDashboard({
       />
       <StatCard
         title="Lifetime revenue"
-        value={`$${performance.lifetimeRevenue.toFixed(0)}`}
+        value={formatMoneyDollars(performance.lifetimeRevenue, currency)}
         description="From completed services"
         icon={CircleDollarSign}
         accent="primary"

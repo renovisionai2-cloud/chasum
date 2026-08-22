@@ -4,6 +4,7 @@ import type {
   ReceptionistProviderResult,
 } from "@/lib/ai-receptionist/providers/types";
 import type { ReceptionistCitation } from "@/lib/ai-receptionist/types";
+import { formatMoneyDollars } from "@/lib/commerce/money";
 
 /**
  * Grounded rule-based provider — answers only from Chasum business data.
@@ -73,7 +74,7 @@ export class GroundedReceptionistProvider implements ReceptionistAiProvider {
         .slice(0, 12)
         .map(
           (s) =>
-            `• ${s.name} — ${s.durationMinutes} min · $${s.price.toFixed(2)}${
+            `• ${s.name} — ${s.durationMinutes} min · ${formatMoneyDollars(s.price, knowledge.currency)}${
               s.category ? ` · ${s.category}` : ""
             }`,
         )

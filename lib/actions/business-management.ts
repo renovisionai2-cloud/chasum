@@ -555,7 +555,7 @@ export async function redeemGiftCard(
   }
 
   const { recordCommercePayment } = await import("@/lib/commerce/payments");
-  const { normalizeCurrency } = await import("@/lib/commerce/money");
+  const { formatMoneyCents, normalizeCurrency } = await import("@/lib/commerce/money");
   const result = await recordCommercePayment({
     businessId: business.id,
     customerId: payerId,
@@ -573,7 +573,7 @@ export async function redeemGiftCard(
 
   revalidateBusiness();
   return {
-    success: `Redeemed $${(amount / 100).toFixed(2)}. Remaining $${(((card.balance_cents as number) - amount) / 100).toFixed(2)}.`,
+    success: `Redeemed ${formatMoneyCents(amount, business.currency)}. Remaining ${formatMoneyCents(((card.balance_cents as number) - amount), business.currency)}.`,
   };
 }
 

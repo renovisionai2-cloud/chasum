@@ -1,4 +1,5 @@
 import { StatCard } from "@/components/ui/stat-card";
+import { formatMoneyDollars } from "@/lib/commerce/money";
 import type { CrmInsights } from "@/lib/crm/types";
 import { format } from "date-fns";
 import {
@@ -10,7 +11,13 @@ import {
   Briefcase,
 } from "lucide-react";
 
-export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
+export function CustomerInsightsPanel({
+  insights,
+  currency,
+}: {
+  insights: CrmInsights;
+  currency?: string | null;
+}) {
   const decided =
     insights.completedAppointments +
     insights.cancellationCount +
@@ -35,12 +42,12 @@ export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
           title="Completed service list value"
           value={
             insights.completedAppointments > 0
-              ? `$${insights.lifetimeRevenue.toFixed(0)}`
+              ? formatMoneyDollars(insights.lifetimeRevenue, currency)
               : "Unavailable"
           }
           description={
             insights.completedAppointments > 0
-              ? `Avg $${insights.averageSpend.toFixed(0)} per completed visit (list price)`
+              ? `Avg ${formatMoneyDollars(insights.averageSpend, currency)} per completed visit (list price)`
               : "No completed visits with list prices"
           }
           icon={CircleDollarSign}

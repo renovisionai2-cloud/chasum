@@ -7,6 +7,7 @@
 import { loadCrmProfile } from "@/lib/crm/service";
 import { displayCustomerName } from "@/lib/crm/display";
 import type { CrmProfile } from "@/lib/crm/types";
+import { normalizeCurrency } from "@/lib/commerce/money";
 import { createClient } from "@/lib/supabase/server";
 
 export type SummerCrmSnapshot = {
@@ -25,6 +26,7 @@ export type SummerCrmSnapshot = {
   upcomingCount: number;
   lifetimeVisits: number;
   lifetimeSpend: number;
+  currency: string;
   /** Non-private notes only */
   allowedNotes: Array<{ body: string; noteType: string; pinned: boolean }>;
   upcomingAppointments: Array<{
@@ -36,6 +38,7 @@ export type SummerCrmSnapshot = {
 };
 
 export type ChaseCrmAnalytics = {
+  currency: string;
   overdueFollowUp: Array<{
     id: string;
     name: string;
@@ -70,6 +73,14 @@ export async function getSummerCrmSnapshot(
   const profile = await loadCrmProfile(businessId, customerId);
   if (!profile) return null;
 
+  const supabase = await createClient();
+  const { data: biz } = await supabase
+    .from("businesses")
+    .select("currency")
+    .eq("id", businessId)
+    .maybeSingle();
+  const currency = normalizeCurrency(biz?.currency as string | null);
+
   const c = profile.customer;
   const preferredServices = Array.from(
     new Set(
@@ -99,6 +110,7 @@ export async function getSummerCrmSnapshot(
     upcomingCount: profile.insights.upcomingCount,
     lifetimeVisits: profile.insights.completedAppointments,
     lifetimeSpend: profile.insights.lifetimeRevenue,
+    currency,
     allowedNotes: profile.notes
       .filter((n) => !n.isPrivate)
       .slice(0, 12)
@@ -124,7 +136,8 @@ export async function getChaseCrmAnalytics(
   const now = Date.now();
   const inactiveCutoff = now - 60 * 24 * 60 * 60 * 1000;
 
-  const [{ data: customers }, { data: appointments }] = await Promise.all([
+  const [{ data: customers }, { data: appointments }, { data: biz }] =
+    await Promise.all([
     supabase
       .from("customers")
       .select(
@@ -138,7 +151,13 @@ export async function getChaseCrmAnalytics(
       .eq("business_id", businessId)
       .neq("status", "cancelled")
       .limit(5000),
+    supabase
+      .from("businesses")
+      .select("currency")
+      .eq("id", businessId)
+      .maybeSingle(),
   ]);
+  const currency = normalizeCurrency(biz?.currency as string | null);
 
   const rows = customers ?? [];
   const appts = appointments ?? [];
@@ -237,6 +256,7 @@ export async function getChaseCrmAnalytics(
   ).length;
 
   return {
+    currency,
     overdueFollowUp: overdueFollowUp.slice(0, 12),
     highValue: highValue.slice(0, 12),
     inactive: inactive.slice(0, 12),

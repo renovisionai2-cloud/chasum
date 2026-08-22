@@ -1,7 +1,14 @@
 import Link from "next/link";
 import type { ChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
+import { formatMoneyDollars } from "@/lib/commerce/money";
 
-export function ChaseCrmPanel({ analytics }: { analytics: ChaseCrmAnalytics }) {
+export function ChaseCrmPanel({
+  analytics,
+  currency,
+}: {
+  analytics: ChaseCrmAnalytics;
+  currency?: string | null;
+}) {
   return (
     <section
       className="rounded-[var(--radius-md)] border border-border bg-muted/15 p-4"
@@ -25,7 +32,10 @@ export function ChaseCrmPanel({ analytics }: { analytics: ChaseCrmAnalytics }) {
         />
         <Metric
           label="Avg spend"
-          value={`$${analytics.retention.averageLifetimeSpend.toFixed(0)}`}
+          value={formatMoneyDollars(
+            analytics.retention.averageLifetimeSpend,
+            currency,
+          )}
         />
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
@@ -44,7 +54,7 @@ export function ChaseCrmPanel({ analytics }: { analytics: ChaseCrmAnalytics }) {
           items={analytics.highValue.map((c) => ({
             id: c.id,
             label: c.name,
-            detail: `$${c.lifetimeSpend.toFixed(0)}`,
+            detail: formatMoneyDollars(c.lifetimeSpend, currency),
           }))}
         />
         <List

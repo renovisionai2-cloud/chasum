@@ -67,6 +67,20 @@ Continue
 
 This principle does not require OpenAI, new backends, or authenticated-app rewrites in a single sprint. It **does** require that new conversation copy and AI turns respect the sequence above.
 
+## Domain readiness (permanent)
+
+Every meaningful **completed** Chasum domain should eventually be evaluated for Summer:
+
+| Beat | Operator job |
+|------|----------------|
+| **UNDERSTAND** | Summer can see the real domain state from Chasum data |
+| **EXPLAIN** | Summer can explain it in operator language |
+| **RECOMMEND** | Summer can recommend a next action grounded in that state |
+| **ACT** | Summer can take an approved, engine-backed action (never invented) |
+| **AUDIT** | The action and reasoning remain inspectable |
+
+This is **governance only**. Do not expand Summer into a domain until that domain is complete, truthful, reachable, and aligned to a real operator job. Marketing Summer, in-app Summer, and future Reception / CRM / Executive AI all inherit this rule.
+
 ## Related
 
 - [`AI_IDENTITY.md`](./AI_IDENTITY.md)

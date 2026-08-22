@@ -22,6 +22,7 @@ import type {
 } from "@/lib/chase/types";
 import { getChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
 import { getChaseCommerceMetrics } from "@/lib/commerce";
+import { normalizeCurrency } from "@/lib/commerce/money";
 import { getChaseCommunicationsMetrics } from "@/lib/communications";
 import { createClient } from "@/lib/supabase/server";
 import { addDays, format, startOfWeek, subDays } from "date-fns";
@@ -367,6 +368,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
   return {
     businessId: business.id,
     businessName: String(bizSettings?.name ?? business.name),
+    currency: normalizeCurrency(business.currency),
     generatedAt: now.toISOString(),
     enabled: true, // workspace always readable; settings gate future automation
     kpis,

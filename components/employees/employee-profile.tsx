@@ -31,6 +31,10 @@ import {
 } from "@/lib/employees/roles";
 import type { Department, EmployeeProfile } from "@/lib/employees/types";
 import { currencyCode } from "@/lib/commerce/money";
+import {
+  PERMISSIONS_PREVIEW_NOTICE,
+  PERMISSIONS_STATUS_LABEL,
+} from "@/lib/employees/permissions-truth";
 import type { ActionState, Location, Service } from "@/lib/types/booking";
 import { DAY_NAMES, STAFF_COLORS } from "@/lib/types/booking";
 import { employeeProfileFormRevision } from "@/lib/forms/dashboard-form-revisions";
@@ -211,7 +215,10 @@ export function EmployeeProfileView({
       </div>
 
       {tab === "performance" ? (
-        <EmployeePerformanceDashboard performance={employee.performance} />
+        <EmployeePerformanceDashboard
+          performance={employee.performance}
+          currency={currency}
+        />
       ) : null}
 
       {tab === "documents" ? (
@@ -636,9 +643,14 @@ export function EmployeeProfileView({
                         </label>
                       ))}
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Stored now for role-based authorization; enforced when multi-staff login ships.
-                    </p>
+                    <div className="rounded-[var(--radius-md)] border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-foreground">
+                      <p>
+                        <strong className="font-medium">
+                          Status: {PERMISSIONS_STATUS_LABEL}.
+                        </strong>{" "}
+                        {PERMISSIONS_PREVIEW_NOTICE}
+                      </p>
+                    </div>
                   </div>
                   <input type="hidden" name="first_name" value={employee.first_name ?? ""} />
                   <input type="hidden" name="last_name" value={employee.last_name ?? ""} />

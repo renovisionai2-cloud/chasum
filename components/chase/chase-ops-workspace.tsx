@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { ChaseOperationsSnapshot, ChasePriority } from "@/lib/chase/types";
+import { formatMoneyCents, formatMoneyDollars } from "@/lib/commerce/money";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -17,8 +18,12 @@ const PRIORITY_STYLES: Record<ChasePriority, string> = {
   low: "bg-muted text-muted-foreground border-border",
 };
 
-function money(n: number) {
-  return `$${n.toFixed(n >= 100 ? 0 : 2)}`;
+function money(n: number, currency?: string | null) {
+  return formatMoneyDollars(n, currency);
+}
+
+function moneyCents(cents: number, currency?: string | null) {
+  return formatMoneyCents(cents, currency);
 }
 
 function Metric({
@@ -77,7 +82,7 @@ export function ChaseOpsWorkspace({
 }: {
   snapshot: ChaseOperationsSnapshot;
 }) {
-  const { kpis } = snapshot;
+  const { kpis, currency } = snapshot;
 
   return (
     <div className="space-y-8">
@@ -118,7 +123,7 @@ export function ChaseOpsWorkspace({
           <Metric
             label="Today's revenue"
             value={
-              kpis.todayRevenue != null ? money(kpis.todayRevenue) : "Unavailable"
+              kpis.todayRevenue != null ? money(kpis.todayRevenue, currency) : "Unavailable"
             }
             hint={
               kpis.todayRevenue == null
@@ -176,7 +181,7 @@ export function ChaseOpsWorkspace({
           />
           <Metric
             label="Avg booking value"
-            value={money(kpis.averageBookingValue)}
+            value={money(kpis.averageBookingValue, currency)}
           />
           <Metric
             label="Unconfirmed"
@@ -192,47 +197,48 @@ export function ChaseOpsWorkspace({
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
             label="Gross payments collected today"
-            value={money(snapshot.commerce.revenueTodayCents / 100)}
+            value={moneyCents(snapshot.commerce.revenueTodayCents, currency)}
           />
           <Metric
             label="Gross payments collected this week"
-            value={money(snapshot.commerce.revenueWeekCents / 100)}
+            value={moneyCents(snapshot.commerce.revenueWeekCents, currency)}
           />
           <Metric
             label="Gross payments collected this month"
-            value={money(snapshot.commerce.revenueMonthCents / 100)}
+            value={moneyCents(snapshot.commerce.revenueMonthCents, currency)}
           />
           <Metric
             label="Avg transaction"
             value={
               snapshot.commerce.averageTransactionCents != null
-                ? money(snapshot.commerce.averageTransactionCents / 100)
+                ? moneyCents(snapshot.commerce.averageTransactionCents, currency)
                 : "—"
             }
           />
           <Metric
             label="Outstanding invoices"
-            value={money(snapshot.commerce.outstandingInvoicesCents / 100)}
+            value={moneyCents(snapshot.commerce.outstandingInvoicesCents, currency)}
           />
           <Metric
             label="Outstanding deposits"
-            value={money(snapshot.commerce.outstandingDepositsCents / 100)}
+            value={moneyCents(snapshot.commerce.outstandingDepositsCents, currency)}
           />
           <Metric
             label="Outstanding appointment balances"
-            value={money(
-              snapshot.commerce.outstandingAppointmentBalancesCents / 100,
+            value={moneyCents(
+              snapshot.commerce.outstandingAppointmentBalancesCents,
+              currency,
             )}
           />
           <Metric
             label="Refunds (month)"
-            value={money(snapshot.commerce.refundsTrendCents / 100)}
+            value={moneyCents(snapshot.commerce.refundsTrendCents, currency)}
           />
           <Metric
             label="Avg customer value"
             value={
               snapshot.commerce.averageCustomerValueCents != null
-                ? money(snapshot.commerce.averageCustomerValueCents / 100)
+                ? moneyCents(snapshot.commerce.averageCustomerValueCents, currency)
                 : "—"
             }
           />
@@ -429,7 +435,7 @@ export function ChaseOpsWorkspace({
             />
             <Metric
               label="Lifetime value (avg)"
-              value={money(snapshot.customers.lifetimeValueAvg)}
+              value={money(snapshot.customers.lifetimeValueAvg, currency)}
             />
           </div>
           {snapshot.customers.overdueFollowUp.length > 0 ? (
@@ -478,7 +484,7 @@ export function ChaseOpsWorkspace({
                       ) : null}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {e.completed} completed · {money(e.revenue)}
+                      {e.completed} completed · {money(e.revenue, currency)}
                       {e.averageServiceMinutes
                         ? ` · avg ${e.averageServiceMinutes}m`
                         : ""}
@@ -523,7 +529,7 @@ export function ChaseOpsWorkspace({
           <ListBlock
             title="Popular employees"
             items={snapshot.bookings.popularEmployees.map(
-              (p) => `${p.label} · ${money(p.value)}`,
+              (p) => `${p.label} · ${money(p.value, currency)}`,
             )}
           />
           <div className="rounded-[var(--radius-md)] border border-border bg-background p-3">

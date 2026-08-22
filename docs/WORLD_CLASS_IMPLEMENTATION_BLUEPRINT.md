@@ -185,6 +185,16 @@ Phase 6.2B is **PO ACCEPTED**. Phase 6.3 **discovery** is in [`WORLD_CLASS_PHASE
 5. Unavailable booking stages must visibly communicate that they are unavailable; never silent dead clicks.
 6. The current booking decision must visually dominate; the next action must be obvious.
 
+## Permanent World Class acceptance — operator journey
+
+A feature is not complete because code exists, a route exists, or tests pass. It must also be discoverable, reachable, understandable, usable, trustworthy, and aligned to a real operator job.
+
+Acceptance rows: FEATURE · EXACT NAVIGATION PATH · USER GOAL · EXPECTED SCREEN · EXPECTED RESULT · ERROR / RECOVERY PATH · DISCOVERABILITY · PASS / FAIL.
+
+If the Product Owner cannot reasonably find a feature through the intended interface, that is a product/IA finding — not user error.
+
+Navigation structure changes require PO approval of [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md). **Do not implement that proposal in this pass.**
+
 ## Chapter 9 — Business Structure Engine (planning)
 
 Expand beyond “basic setup” into:

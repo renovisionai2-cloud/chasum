@@ -1,5 +1,5 @@
 import { formatDocumentEmailMoney } from "@/lib/commerce/document-currency";
-import { currencyCode } from "@/lib/commerce/money";
+import { currencyCode, formatMoneyCentsExact } from "@/lib/commerce/money";
 import { getAppUrl } from "@/lib/env";
 import { BRAND_NAME } from "@/lib/brand/assets";
 import {
@@ -20,20 +20,7 @@ function money(
   currency?: string | null,
 ): string {
   if (cents == null) return "";
-  const amount = cents / 100;
-  if (currency) {
-    try {
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: currencyCode(currency),
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount);
-    } catch {
-      return `$${amount.toFixed(2)}`;
-    }
-  }
-  return `$${amount.toFixed(2)}`;
+  return formatMoneyCentsExact(cents, currency);
 }
 
 function escapeHtml(value: string): string {

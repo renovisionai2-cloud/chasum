@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-22 | **Trust + navigation stabilization pass 1** | pending this commit | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tenant currency formatter; permissions/forms/HQ product truth; IA proposal not implemented; no SQL; 034–036 unapplied |
 | 2026-08-22 | **Staff-status clarity + bulk reactivation tests** | `130d9f5` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Active in Chasum label; no employment-status mapping; atomic multi-row bulk reactivation tests; 034–036 unapplied |
 | 2026-08-22 | **Active-staff quota + Memberships Preview** | docs `95a305d` · test `0fc2133` · feature `b5e19ac` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Active-only staff seats; reactivation guarded; Memberships Preview/Coming Soon notice; DB 10→6 deferred; 034–036 unapplied |
 | 2026-08-22 | **Product truth + entitlement alignment** | `65af6e7` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Staff caps enforced; Business locations app-capped at 6; Inventory/Voice AI Coming Soon; Packages vs Memberships split; no DB migration; 034–036 unapplied |
