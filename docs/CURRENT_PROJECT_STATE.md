@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-22  
-**Updated by:** World Class — trust + navigation stabilization pass 1  
+**Updated by:** World Class — commercial strategy gap assessment (docs only)  
 
 ---
 
@@ -52,6 +52,7 @@
 | [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — Staging **not connected** |
 | [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging init **STOPPED** — no Staging credentials in agent environment |
 | [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA proposal — **not implemented**; PO approval required |
+| [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md) | **Commercial Strategy — Pricing & Packaging** (active track; public Pricing unchanged) |
 
 ---
 
@@ -205,6 +206,12 @@ Do not expand Summer until the domain is complete, truthful, and reachable. This
 ## Last completed work
 
 ### Most recent (2026-08-22)
+
+**World Class — commercial strategy (pricing & subscription architecture) gap assessment**
+
+Documented the Pricing & Packaging track and working CAD hypotheses (`$59` / `$149` monthly, `$590` / `$1,490` annual) as **development hypotheses, not public locks**. Public Pricing v1 (`$79` / `$149`) was not changed. No Stripe, SQL, Production, or tenant plan changes. Entitlement baseline (active staff 1/3/unlimited, locations 1/3/6/unlimited) preserved. Cost-to-serve study recorded as a prerequisite to public price lock. Canonical: [`WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md).
+
+### Prior (2026-08-22)
 
 **World Class — trust + navigation stabilization pass 1**
 
@@ -984,16 +991,17 @@ As of last update:
 
 **Priority order:**
 
-1. **Product Owner + ChatGPT review** of this Trust + Navigation Stabilization pass: IA proposal, `staff_activity` schema plan, occupancy/utilization proposal, `/apply` persistence proposal. **Do not implement the proposed navigation** until that approval.
-2. **Do not start the next development phase** until PO acceptance of the next implementation slice.
-3. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
-4. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
-5. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
-5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
-6. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
-7. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
-8. **Operation GVM Production** — remain protected.
-9. Marketing claim fixes only with **explicit PO** (locked pages).
+1. **Product Owner + ChatGPT review** of Trust + Navigation Stabilization: IA proposal, `staff_activity` schema plan, occupancy/utilization proposal, `/apply` persistence proposal. **Do not implement the proposed navigation** until that approval.
+2. **Product Owner review** of Commercial Strategy — Pricing & Packaging ([`WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md)): CAD vs unlabeled `$`, Professional `$59` vs public `$79`, annual 10× vs 20% equivalent, extra-location later. **Do not change public Pricing or open self-serve billing** until that approval.
+3. **Do not start the next development phase** until PO acceptance of the next implementation slice.
+4. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
+5. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
+6. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
+7. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
+8. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
+9. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
+10. **Operation GVM Production** — remain protected.
+11. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Phase 6.3, Stripe Elements, public online payment, or Chapter 7.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  

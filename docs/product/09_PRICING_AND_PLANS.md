@@ -1,5 +1,9 @@
 # Pricing and Plans
 
+**Superseding commercial track:** [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](../WORLD_CLASS_COMMERCIAL_STRATEGY.md) — development pricing hypotheses, versioned-offer architecture, and public-lock rules.
+
+**Public `/pricing`:** Official Pricing Page v1 remains **locked** at `$79` / `$149` until Product Owner approval. This file’s tables below are **historical product notes** and must not be treated as the live public price lock or the development hypothesis set.
+
 ## Status
 
 **Marketing copy** lives in `lib/marketing/pricing.ts` (landing, `/pricing`, signup, upgrade prompts).  
