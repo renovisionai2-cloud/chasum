@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-22  
-**Updated by:** World Class — navigation acceptance corrections  
+**Updated by:** World Class — Commercial Foundation Gate 2 (Track 1 + Track 2 authored, unapplied)  
 
 ---
 
@@ -52,6 +52,8 @@
 | [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — Staging **not connected** |
 | [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging init **STOPPED** — no Staging credentials in agent environment |
 | [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA — **implemented** (nav + command discoverability) |
+| [`docs/WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) | Commercial schema / tracks / gates — Track 1+2 authored **unapplied**; Track 3 **blocked** |
+| [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md) | Pricing hypotheses / packaging / cost-to-serve (not public Pricing) |
 
 ---
 
@@ -205,6 +207,14 @@ Do not expand Summer until the domain is complete, truthful, and reachable. This
 ## Last completed work
 
 ### Most recent (2026-08-22)
+
+**World Class — Commercial Foundation Gate 2 (Track 1 + Track 2 authored, not applied)**
+
+Product Owner approved the implementation plan with Claude’s required modifications. Track 1 persists `/apply` into `design_partner_applications` via the service client (no tenant provisioning). Track 2 authors additive `plan_offers`, `businesses.offer_id`, and `usage_events` with lifecycle/assignment triggers. **No SQL was applied.** Migrations 034–036 remain unapplied. Track 3 (`subscription_events` / `billing_invoices` RLS) is **blocked** because Production `4eecbec` still uses user-scoped billing writes on the shared database. Public Pricing, Private Alpha entitlements, GVM, HQ, and Stripe were not changed.
+
+Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
+
+### Prior (2026-08-22)
 
 **World Class — navigation acceptance corrections**
 
@@ -915,9 +925,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `4d6d2ab014121c62e172dd5788d14a546dcd71e4` |
-| **Short** | `4d6d2ab` |
-| **Subject** | Implement approved navigation IA and command discoverability. |
+| **SHA** | pending Track 2 commit on `cursor/commercial-track-1-2-7453` |
+| **Short** | pending |
+| **Subject** | Author unapplied Commercial Foundation additive schema (Track 2). |
+| **Track 1** | `7f5de0e` Persist Private Alpha /apply submissions without provisioning tenants. |
+| **Nav acceptance** | `c5aa36f78d4b3ad61311bbda8096b9cced6bf07b` |
 | **Unique Preview** | https://chasum-6cls803md-renovisionappcom.vercel.app |
 | **Prior unique Preview** | https://chasum-pom3t5aug-renovisionappcom.vercel.app — SUPERSEDED / DO NOT USE |
 | **Trust + nav (docs stamp)** | `6bdc581761b460ff3c7e0aa4531d57bb429fcb3e` |
@@ -998,9 +1010,11 @@ As of last update:
 
 **Priority order:**
 
-1. **Product Owner 4-check retest** of navigation acceptance corrections on World Class Preview. Business setup interior grouping and Command Centre Chase insights remain **DESIGN FOR NOW / BUILD LATER**.
-2. **Do not start the next development phase** until PO acceptance of this navigation correction pass.
-3. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
+1. **Claude audits the Track 1 + Track 2 diff** on `cursor/commercial-track-1-2-7453`. Do **not** apply `037` or `038`. Do **not** run `supabase db push`.
+2. **PRODUCT OWNER DECISION REQUIRED — P0 Production commercial compatibility** (`4eecbec` user-scoped billing writes vs World Class paid-upgrade guard) before Track 3 RLS.
+3. **Do not apply** 034 / 035 / 036 / 037 / 038 without explicit PO execution approval. Shared Preview/Production Supabase.
+4. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred**. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
+5. Private Alpha overlay values are **not approved**. Do not change staff/location/SMS/branding/API/RPC behavior.
 4. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
 5. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.

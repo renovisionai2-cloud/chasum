@@ -19,11 +19,12 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-1. Socialize Company Operating System docs (`docs/company/*`) as mandatory session start.
-2. Apply outstanding Supabase migrations in each environment (**001 → 022**; linked project is current through `022`).
-3. Harden Emma Phase 1 (persist conversations, CRM link paths, grounded answers QA).
-4. Identify next AI Workforce slice (Emma public/channel OR Alex automation) without redesigning UI.
-5. Keep Billing path ready for Stripe swap (provider interface already in place).
+1. **Commercial Foundation Gate 2:** Claude diff-audit Track 1 (`037`) + Track 2 (`038`). **Do not apply.** Track 3 RLS is **blocked** until the Production compatibility PO decision.
+2. Socialize Company Operating System docs (`docs/company/*`) as mandatory session start.
+3. Do **not** CLI-apply pending migrations (034–038). Shared Preview/Production Supabase. Manual scoped SQL only after PO approval.
+4. Harden Emma Phase 1 (persist conversations, CRM link paths, grounded answers QA).
+5. Identify next AI Workforce slice (Emma public/channel OR Alex automation) without redesigning UI.
+6. Stripe SaaS Billing remains later — do not swap the mock provider in this sprint.
 
 ---
 
