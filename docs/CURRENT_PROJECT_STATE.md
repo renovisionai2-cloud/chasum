@@ -850,8 +850,8 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** |  |
-| **Short** | `2a45131` |
+| **SHA** | `95a305d29e3672117a86ee312bbcfffdec739971` |
+| **Short** | `95a305d` |
 | **Subject** | Record the active-staff quota pass in World Class docs. |
 | **Active-staff quota (feature)** | `b5e19ac8c6ca46c606087c07ad7196398fdcb204` |
 | **Active-staff quota (test fix)** | `0fc2133e6d0a847d7ce38053d4fe3cdac04c16d6` |
