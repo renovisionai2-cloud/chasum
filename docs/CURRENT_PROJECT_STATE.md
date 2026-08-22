@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-22  
-**Updated by:** World Class — trust + navigation stabilization pass 1  
+**Updated by:** World Class — navigation + command discoverability  
 
 ---
 
@@ -51,7 +51,7 @@
 | [`docs/WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md) | Auth must not auto-create a tenant — `/onboarding/business` |
 | [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — Staging **not connected** |
 | [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging init **STOPPED** — no Staging credentials in agent environment |
-| [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA proposal — **not implemented**; PO approval required |
+| [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA — **implemented** (nav + command discoverability) |
 
 ---
 
@@ -190,7 +190,7 @@ Future feature acceptance should include:
 
 If the Product Owner cannot reasonably find a feature through the intended interface, that is a **product/IA finding** — not user error.
 
-Canonical IA proposal (not implemented): [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md).
+Canonical IA proposal (implemented): [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md).
 
 ## Summer domain readiness (governance only)
 
@@ -205,6 +205,12 @@ Do not expand Summer until the domain is complete, truthful, and reachable. This
 ## Last completed work
 
 ### Most recent (2026-08-22)
+
+**World Class — navigation + command discoverability**
+
+Implemented the approved navigation IA with competitor-study refinements. Desktop groups are Today / Customers / Team / Catalog / Money / Operate / AI / Business / Account / Advanced. Memberships, Gift Cards, Discounts, Locations, and Chase are discoverable on existing routes. Business is labeled **Business setup**. Hub Notifications → Booking notifications; Hub Automation → Business rules; duplicate Hub Services tab removed (`?tab=services` redirects to Catalog Services). ⌘K searches packages, memberships, gift cards, invoices, and locations (tenant-scoped) and jumps to high-value settings. Five-slot mobile bar unchanged. Memberships and Custom Forms remain Preview / Coming Soon. No SQL, no commercial/pricing changes, no Command Centre expansion.
+
+### Prior (2026-08-22)
 
 **World Class — trust + navigation stabilization pass 1**
 
@@ -984,8 +990,8 @@ As of last update:
 
 **Priority order:**
 
-1. **Product Owner + ChatGPT review** of this Trust + Navigation Stabilization pass: IA proposal, `staff_activity` schema plan, occupancy/utilization proposal, `/apply` persistence proposal. **Do not implement the proposed navigation** until that approval.
-2. **Do not start the next development phase** until PO acceptance of the next implementation slice.
+1. **Product Owner browser acceptance** of Navigation + Command Discoverability on World Class Preview. Command Centre Chase insights and AI Command consolidation remain **DESIGN FOR NOW / BUILD LATER**.
+2. **Do not start the next development phase** until PO acceptance of this navigation slice.
 3. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
 4. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
 5. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.

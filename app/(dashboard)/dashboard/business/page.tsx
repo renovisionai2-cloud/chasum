@@ -21,13 +21,18 @@ import {
   getLocations,
 } from "@/lib/actions/location";
 import { getServices } from "@/lib/actions/services";
+import {
+  parseBusinessHubTab,
+  RETIRED_BUSINESS_HUB_SERVICES_TAB,
+} from "@/lib/dashboard/business-hub-tabs";
 import { isPlaceholderBusiness } from "@/lib/onboarding/setup-progress";
 import type { Holiday } from "@/lib/types/booking";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Business",
+  title: "Business setup",
 };
 
 type PageProps = {
@@ -36,6 +41,10 @@ type PageProps = {
 
 export default async function BusinessPage({ searchParams }: PageProps) {
   const params = await searchParams;
+  if (params.tab === RETIRED_BUSINESS_HUB_SERVICES_TAB) {
+    redirect("/dashboard/services");
+  }
+  const initialTab = parseBusinessHubTab(params.tab) ?? "profile";
   const business = await getOrCreateBusiness();
   const [
     locations,
@@ -78,8 +87,8 @@ export default async function BusinessPage({ searchParams }: PageProps) {
   return (
     <div className="ds-page">
       <PageHeader
-        title="Business"
-        description="Configure your company profile, hours, booking, branding, notifications, and AI before running Calendar, CRM, and Summer."
+        title="Business setup"
+        description="Configure your company profile, hours, booking, branding, booking notifications, and AI before running Reception, Customers, and Summer."
       />
       {needsRename ? (
         <div className="mb-4 rounded-[var(--radius-md)] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
@@ -122,28 +131,7 @@ export default async function BusinessPage({ searchParams }: PageProps) {
         holidays={holidays}
         closures={closures}
         documents={documents}
-        initialTab={
-          params.tab as
-            | "profile"
-            | "hours"
-            | "booking"
-            | "branding"
-            | "notifications"
-            | "ai"
-            | "documents"
-            | "locations"
-            | "services"
-            | "categories"
-            | "rooms"
-            | "memberships"
-            | "packages"
-            | "giftcards"
-            | "taxes"
-            | "discounts"
-            | "forms"
-            | "automation"
-            | undefined
-        }
+        initialTab={initialTab}
       />
     </div>
   );

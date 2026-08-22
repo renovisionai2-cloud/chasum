@@ -1,12 +1,24 @@
 # World Class Navigation / Information Architecture Proposal
 
-**Status:** Proposal only — **not implemented**  
-**Pass:** Trust + Navigation Stabilization — Pass 1  
+**Status:** Implemented  
+**Pass:** Navigation + Command Discoverability  
 **Branch:** `cursor/world-class-portal-foundation`  
-**Authority:** Product Owner approval required before any main navigation change  
+**Authority:** Product Owner approved this proposal plus competitor-study refinements  
 **Companion:** [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md) operator-journey acceptance rule  
 
-Do **not** treat this file as permission to change `lib/dashboard/nav.ts`, sidebar, or mobile More.
+Source of truth for the live portal is `lib/dashboard/nav.ts`. This document remains the approved IA record.
+
+**Competitor-study refinements folded in:**
+
+- Memberships / Gift Cards / Discounts / Locations / Chase surfaced via existing routes (no duplicate pages)
+- Business setup (not “Business Hub”) in primary nav
+- Hub Notifications → Booking notifications; Hub Automation → Business rules
+- Duplicate Hub Services tab removed; old `?tab=services` redirects to Catalog Services
+- ⌘K expanded for Packages, Memberships, Gift Cards, Invoices, Locations plus static settings jumps
+- Five-slot mobile bar unchanged; new items live in grouped More
+- Command Centre Chase insights and AI Command consolidation remain **DESIGN FOR NOW / BUILD LATER**
+
+Do **not** add Taxes, Rooms, Categories, Custom Forms, Booking notifications, Business rules, Branding, or Documents as sidebar items.
 
 ---
 
@@ -14,57 +26,44 @@ Do **not** treat this file as permission to change `lib/dashboard/nav.ts`, sideb
 
 Source: `lib/dashboard/nav.ts`, `components/dashboard/sidebar.tsx`, `components/dashboard/mobile-bottom-nav.tsx`, `app/(dashboard)/dashboard/**/page.tsx`, Business Hub tabs, command registry.
 
-### Sidebar groups today
+### Sidebar groups (implemented)
 
 | Group | Item | Route | Sidebar | Mobile primary | Direct link | Discoverability |
 |-------|------|-------|---------|----------------|-------------|-----------------|
 | Today | Command Centre | `/dashboard` | Yes | Yes (Centre) | Yes | GOOD |
 | Today | Reception | `/dashboard/calendar` | Yes | Yes | Yes | GOOD |
-| People | Customers | `/dashboard/clients` | Yes | Yes | Yes | GOOD |
-| People | Employees | `/dashboard/employees` | Yes | More | Yes | GOOD |
+| Customers | Customers | `/dashboard/clients` | Yes | Yes | Yes | GOOD |
+| Team | Employees | `/dashboard/employees` | Yes | More | Yes | GOOD |
 | Catalog | Services | `/dashboard/services` | Yes | More | Yes | GOOD |
-| Catalog | Packages | `/dashboard/business?tab=packages` | Yes | More | Yes (deep link) | ACCEPTABLE |
+| Catalog | Packages | `/dashboard/business?tab=packages` | Yes | More | Yes | GOOD |
+| Catalog | Memberships | `/dashboard/business?tab=memberships` | Yes | More | Yes | GOOD — Preview / Coming Soon on destination |
 | Money | Payments | `/dashboard/payments` | Yes | Yes | Yes | GOOD |
-| Insights | Reports | `/dashboard/reports` | Yes | More | Yes | GOOD |
-| Insights | Automations | `/dashboard/automation` | Yes | More | Yes | ACCEPTABLE — label vs Hub Automation |
-| Intelligence | Summer | `/dashboard/ai-workforce/summer` | Yes | Flagged primary but filtered out of 5-slot bar | Yes | ACCEPTABLE on desktop; POOR on mobile (More / Ask Summer rail) |
-| Intelligence | AI Workforce | `/dashboard/ai-workforce` | Yes | More | Yes | ACCEPTABLE |
-| Settings | Business | `/dashboard/business` | Yes | More | Yes | ACCEPTABLE — 18-tab catch-all |
-| Settings | Integrations | `/dashboard/integrations` | Yes | More | Yes | GOOD |
-| Settings | Account & billing | `/dashboard/settings` | Yes | More | Yes | AMBIGUOUS vs Business Profile / Hours |
-| Settings | Communications | `/dashboard/notifications` | Yes | More | Yes | ACCEPTABLE — collisions with Hub Notifications |
+| Money | Gift Cards | `/dashboard/business?tab=giftcards` | Yes | More | Yes | GOOD |
+| Money | Discounts | `/dashboard/business?tab=discounts` | Yes | More | Yes | GOOD |
+| Operate | Reports | `/dashboard/reports` | Yes | More | Yes | GOOD |
+| Operate | Automations | `/dashboard/automation` | Yes | More | Yes | GOOD |
+| AI | Summer | `/dashboard/ai-workforce/summer` | Yes | Flagged primary but filtered out of 5-slot bar | Yes | GOOD on desktop; More / Ask Summer on mobile |
+| AI | Chase | `/dashboard/workforce/chase` | Yes | More | Yes | GOOD |
+| AI | AI Workforce | `/dashboard/ai-workforce` | Yes | More | Yes | GOOD |
+| Business | Business setup | `/dashboard/business` | Yes | More | Yes | GOOD |
+| Business | Locations | `/dashboard/business?tab=locations` | Yes | More | Yes | GOOD |
+| Business | Communications | `/dashboard/notifications` | Yes | More | Yes | GOOD |
+| Business | Integrations | `/dashboard/integrations` | Yes | More | Yes | GOOD |
+| Account | Account & billing | `/dashboard/settings` | Yes | More | Yes | GOOD |
 | Advanced | Developer | `/dashboard/developer` | Collapsed | More | Yes | ACCEPTABLE |
-| HQ (owner) | Platform Admin | `/dashboard/hq` | Owner only | More if owner | Yes | GOOD for founders |
-| HQ (owner) | Private Alpha | `/dashboard/hq/private-alpha` | Via HQ, command | No | Yes | ACCEPTABLE |
+| Founder | Platform Admin | `/dashboard/hq` | Owner only | More if owner | Yes | GOOD for founders |
 
-### Meaningful routes not in primary nav
+### Deferred / not in primary nav
 
-| Feature | Route | Parent | Sidebar | Mobile | Discoverability |
-|---------|-------|--------|---------|--------|-----------------|
-| Chase | `/dashboard/workforce/chase` (alias `/dashboard/ai-workforce/chase`) | AI Workforce / command | No | No | POOR — command + AI Workforce card |
-| AI Command | `/dashboard/ai-workforce/command` | AI Workforce | No | No | POOR |
-| Billing | `/dashboard/settings/billing` | Account & billing | No (child) | More → Account | ACCEPTABLE |
-| Invoices / receipts | `/dashboard/payments/invoices/[number]`, `.../receipts/[number]` | Payments | No | No | GOOD once in Payments |
-| Employee profile | `/dashboard/employees/[id]` | Employees | No | No | GOOD |
-| Customer profile | `/dashboard/clients/[id]` | Customers | No | No | GOOD |
-| Legacy staff | `/dashboard/staff` → employees | — | No | No | N/A (redirect) |
-| Appointments | `/dashboard/appointments` → calendar | — | No | No | N/A (redirect) |
-| Memberships | `/dashboard/business?tab=memberships` | Hub | Nav treats tab as non-Business-active | More → Business | POOR as Catalog sibling |
-| Locations | `/dashboard/business?tab=locations` | Hub | No | More → Business | POOR |
-| Taxes | `/dashboard/business?tab=taxes` | Hub | No | More → Business | POOR |
-| Discounts | `/dashboard/business?tab=discounts` | Hub | No | More → Business | POOR |
-| Gift cards | `/dashboard/business?tab=giftcards` | Hub | No | More → Business | POOR |
-| Rooms & resources | `/dashboard/business?tab=rooms` | Hub | No | More → Business | POOR |
-| Custom forms | `/dashboard/business?tab=forms` | Hub | No | More → Business | POOR + incomplete |
-| Hub Services tab | `/dashboard/business?tab=services` | Hub | Collides with Catalog Services | More → Business | POOR / duplicative |
-| Hub Automation tab | `/dashboard/business?tab=automation` | Hub | Collides with Automations | More → Business | AMBIGUOUS |
-| Hub Notifications | `/dashboard/business?tab=notifications` | Hub | Collides with Communications | More → Business | AMBIGUOUS |
-
-Mobile bottom bar is five slots: Centre, Reception, Customers, Payments, **More** (opens full sidebar). Summer is `mobilePrimary` in data but **filtered out** of the bar. Important settings are reachable only through More → full grouped sidebar. Predictable if the owner learns More; not obvious for Taxes, Locations, Memberships, Custom Forms.
+| Feature | Route | Notes |
+|---------|-------|--------|
+| AI Command | `/dashboard/ai-workforce/command` | DESIGN FOR NOW / BUILD LATER |
+| Taxes / Rooms / Categories / Custom forms / Booking notifications / Business rules | Hub tabs | Stay inside Business setup |
+| Command Centre Chase insights | `/dashboard` | DESIGN FOR NOW / BUILD LATER |
 
 ---
 
-## Business Hub tab map (18 — verified)
+## Business Hub tab map (implemented labels)
 
 | Tab | Key | Classification | Notes |
 |-----|-----|----------------|-------|
@@ -72,12 +71,12 @@ Mobile bottom bar is five slots: Centre, Reception, Customers, Payments, **More*
 | Hours | `hours` | A | Business + closures. Settings also has **location** hours — different scope; rename in IA. |
 | Booking | `booking` | A | Business-default cascade. Location scheduling stays under Settings / location. |
 | Branding | `branding` | A | Business appearance. |
-| Notifications | `notifications` | C / E | Event templates vs Communications inbox. Relabel “Booking notifications” or fold into Communications. |
-| AI | `ai` | C | Belongs with Intelligence / Summer settings, not 18-tab Hub. |
+| Notifications | `notifications` | C / E | Relabeled **Booking notifications**. Distinct from Communications. |
+| AI | `ai` | C | Remains in Business setup this slice. |
 | Documents | `documents` | A | Business files. |
-| Locations | `locations` | B | Second-level nav under Business. |
-| Services | `services` | F | Duplicate of `/dashboard/services`. Deep-link or remove as Hub destination. |
-| Categories | `categories` | C | Lives under Services. |
+| Locations | `locations` | B | Sidebar under Business; Hub tab remains the page. |
+| Services | `services` | F | **Removed.** `?tab=services` redirects to `/dashboard/services`. |
+| Categories | `categories` | C | Hub tab with link to Catalog → Services. |
 | Rooms & resources | `rooms` | B / C | Catalog or Business → Resources. Not a top-level dump. |
 | Memberships | `memberships` | B + D | Catalog item beside Packages; Preview / Coming Soon. |
 | Packages | `packages` | B | Already Catalog nav. Hub tab can remain as the page. |
@@ -85,7 +84,7 @@ Mobile bottom bar is five slots: Centre, Reception, Customers, Payments, **More*
 | Taxes | `taxes` | C | Money / Business finance. |
 | Discounts | `discounts` | C | Money / Catalog promotions. Prefer Money. |
 | Custom forms | `forms` | D | Stay in Business setup while incomplete, with Preview / Coming Soon. |
-| Automation | `automation` | F | Different object (business rules) vs `/dashboard/automation` (waitlist/recurring). Relabel; do not pretend they are one system. |
+| Automation | `automation` | F | Relabeled **Business rules**. Not merged with `/dashboard/automation`. |
 
 ---
 
@@ -107,7 +106,7 @@ Mobile bottom bar is five slots: Centre, Reception, Customers, Payments, **More*
 
 **H. Custom Forms while incomplete.** Keep in Business setup with Preview / Coming Soon. Do not promote to sidebar.
 
-**I. Hub Services tab.** Historical catch-all. Full Services page is the operator home. Hub tab is duplicative; future pass should deep-link Catalog Services or retire the tab.
+**I. Hub Services tab.** Retired. Catalog → Services is the operator home. Old `?tab=services` redirects.
 
 **J. Two Automations?** **Two related concepts, not one system.** `/dashboard/automation` = waitlist + recurring appointments. Hub Automation = business automation rules. Relabel Hub to “Business rules” (or similar) rather than merging routes.
 
@@ -119,7 +118,7 @@ Mobile bottom bar is five slots: Centre, Reception, Customers, Payments, **More*
 
 ---
 
-## Proposed future navigation (do not implement)
+## Approved navigation (implemented)
 
 Prefer relabel, group, and deep link. No new nav framework.
 
@@ -216,16 +215,12 @@ Paths 8–9 are still slightly nested; that is preferable to a 25-link sidebar. 
 
 ---
 
-## Hidden / unreachable (operator sense)
+## Hidden / remaining operator gaps
 
-Not technically 404, but **effectively hidden** for a first-time owner:
-
-- Chase (no sidebar item)
-- Memberships (Hub-only; not Catalog)
-- Locations, Taxes, Discounts, Gift cards, Rooms, Custom Forms (Hub-only)
-- Hub Automation rules vs top-level Automations
-- AI Command
-- Custom Forms completeness (looked live before this pass)
+- AI Command — DESIGN FOR NOW / BUILD LATER
+- Taxes, Rooms, Custom Forms — inside Business setup, not sidebar (intentional)
+- Custom Forms completeness (Preview / Coming Soon)
+- Command Centre Chase insights — DESIGN FOR NOW / BUILD LATER
 
 ---
 
@@ -233,7 +228,7 @@ Not technically 404, but **effectively hidden** for a first-time owner:
 
 Keep five primary slots. Do **not** add Memberships or Taxes to the bar.
 
-More must remain the complete grouped sidebar. After PO approval, Memberships / Gift cards / Locations / Chase appear in More under their groups — that is the discoverability fix, not a sixth primary icon.
+More remains the complete grouped sidebar. Memberships / Gift Cards / Locations / Chase appear in More under their groups.
 
 Ask Summer rail can stay; do not also consume a primary slot.
 
@@ -241,4 +236,6 @@ Ask Summer rail can stay; do not also consume a primary slot.
 
 ## Stop
 
-Do not implement this hierarchy until Product Owner approval.
+This IA is implemented for navigation + command discoverability.
+
+Do **not** start Command Centre expansion, AI Command consolidation, Commercial Foundation, staff_activity SQL, occupancy correction, or `/apply` persistence from this slice.

@@ -72,11 +72,17 @@ import { catalogFormRevision } from "@/lib/forms/persisted-form-revision";
 import { businessHubProfileRevision } from "@/lib/forms/dashboard-form-revisions";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CUSTOM_FORMS_PREVIEW_NOTICE, CUSTOM_FORMS_STATUS_LABEL } from "@/lib/business/custom-forms-truth";
 import { formatMoneyCents } from "@/lib/commerce/money";
+import {
+  businessHubHref,
+  parseBusinessHubTab,
+  type BusinessHubTabKey,
+} from "@/lib/dashboard/business-hub-tabs";
 import { MEMBERSHIPS_PREVIEW_NOTICE, MEMBERSHIPS_STATUS_LABEL } from "@/lib/marketing/memberships-truth";
 import { FREE_PLAN_UPGRADE_CTA } from "@/lib/marketing/pricing";
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import {
   Bell,
   Building2,
@@ -84,7 +90,6 @@ import {
   ClipboardList,
   FileText,
   Gift,
-  Layers,
   MapPin,
   Package,
   Palette,
@@ -95,36 +100,17 @@ import {
   Wallet,
 } from "lucide-react";
 
-type TabKey =
-  | "profile"
-  | "hours"
-  | "booking"
-  | "branding"
-  | "notifications"
-  | "ai"
-  | "documents"
-  | "locations"
-  | "services"
-  | "categories"
-  | "rooms"
-  | "memberships"
-  | "packages"
-  | "giftcards"
-  | "taxes"
-  | "discounts"
-  | "forms"
-  | "automation";
+type TabKey = BusinessHubTabKey;
 
 const TABS: { key: TabKey; label: string; icon: typeof Building2 }[] = [
   { key: "profile", label: "Profile", icon: Building2 },
   { key: "hours", label: "Hours", icon: CalendarClock },
   { key: "booking", label: "Booking", icon: Settings2 },
   { key: "branding", label: "Branding", icon: Palette },
-  { key: "notifications", label: "Notifications", icon: Bell },
+  { key: "notifications", label: "Booking notifications", icon: Bell },
   { key: "ai", label: "AI", icon: Sparkles },
   { key: "documents", label: "Documents", icon: FileText },
   { key: "locations", label: "Locations", icon: MapPin },
-  { key: "services", label: "Services", icon: Layers },
   { key: "categories", label: "Categories", icon: Tag },
   { key: "rooms", label: "Rooms & resources", icon: Settings2 },
   { key: "memberships", label: "Memberships", icon: Wallet },
@@ -133,7 +119,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Building2 }[] = [
   { key: "taxes", label: "Taxes", icon: Percent },
   { key: "discounts", label: "Discounts", icon: Percent },
   { key: "forms", label: "Custom forms", icon: ClipboardList },
-  { key: "automation", label: "Automation", icon: Sparkles },
+  { key: "automation", label: "Business rules", icon: Sparkles },
 ];
 
 
@@ -248,9 +234,26 @@ export function BusinessHub({
   documents: BusinessDocument[];
   initialTab?: TabKey;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabQuery = searchParams.get("tab");
   const [tab, setTab] = useState<TabKey>(() =>
-    TABS.some((item) => item.key === initialTab) ? initialTab : "profile",
+    parseBusinessHubTab(initialTab) ?? "profile",
   );
+  const urlSynced = useRef(false);
+  useEffect(() => {
+    if (!urlSynced.current) {
+      urlSynced.current = true;
+      return;
+    }
+    setTab(parseBusinessHubTab(tabQuery) ?? "profile");
+  }, [tabQuery]);
+
+  function selectTab(next: TabKey) {
+    setTab(next);
+    router.replace(businessHubHref(next), { scroll: false });
+  }
+
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
   const [certificateId, setCertificateId] = useState<string | null>(null);
@@ -336,21 +339,29 @@ export function BusinessHub({
 
   return (
     <div className="space-y-6">
-      <div className="-mx-1 flex gap-1 overflow-x-auto pb-1">
+      <div
+        className="-mx-1 flex gap-1 overflow-x-auto pb-1"
+        role="tablist"
+        aria-label="Business setup sections"
+      >
         {TABS.map((item) => {
           const Icon = item.icon;
+          const selected = tab === item.key;
           return (
             <button
               key={item.key}
               type="button"
-              onClick={() => setTab(item.key)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors ${
-                tab === item.key
+              role="tab"
+              aria-selected={selected}
+              aria-label={item.label}
+              onClick={() => selectTab(item.key)}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors ds-focus-ring ${
+                selected
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-3.5 w-3.5" aria-hidden="true" />
               {item.label}
             </button>
           );
@@ -683,34 +694,21 @@ export function BusinessHub({
         </Card>
       ) : null}
 
-      {tab === "services" ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Services</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              <strong className="font-medium text-foreground">Services</strong>{" "}
-              are individual appointment offerings — one visit, one price
-              (example: Haircut, Facial, Consultation). Duration, price,
-              buffers, online booking, and policies are managed in Services.
-              Categories, deposits, and images are extended here.
-            </p>
-            <p className="text-sm">
-              {services.length} service{services.length === 1 ? "" : "s"} configured.
-            </p>
-            <Link href="/dashboard/services">
-              <Button size="sm">Open services manager</Button>
-            </Link>
-          </CardContent>
-        </Card>
-      ) : null}
-
       {tab === "categories" ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>Categories</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Group offerings here. Manage individual services in{" "}
+                <Link
+                  href="/dashboard/services"
+                  className="font-medium text-foreground underline underline-offset-2"
+                >
+                  Catalog → Services
+                </Link>
+                .
+              </p>
             </CardHeader>
             <CardContent>
               <CatalogList

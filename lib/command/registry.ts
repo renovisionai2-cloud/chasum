@@ -21,7 +21,18 @@ export type CommandId =
   | "go-payments"
   | "go-communications"
   | "go-hq"
-  | "go-private-alpha";
+  | "go-private-alpha"
+  | "go-packages"
+  | "go-memberships"
+  | "go-gift-cards"
+  | "go-discounts"
+  | "go-locations"
+  | "go-hours"
+  | "go-booking"
+  | "go-taxes"
+  | "go-booking-notifications"
+  | "go-business-rules"
+  | "go-integrations";
 
 export type CommandDefinition = {
   id: CommandId;
@@ -98,9 +109,10 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     id: "go-settings",
-    title: "Open Settings",
+    title: "Go to Account & billing",
+    subtitle: "Plan, profile, and location hours",
     href: "/dashboard/settings",
-    keywords: ["settings", "preferences"],
+    keywords: ["settings", "preferences", "account", "billing", "plan"],
     group: "navigate",
   },
   {
@@ -113,9 +125,10 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     id: "go-business",
-    title: "Go to Business",
+    title: "Go to Business setup",
+    subtitle: "Company configuration workspace",
     href: "/dashboard/business",
-    keywords: ["business", "hours", "branding", "settings", "setup"],
+    keywords: ["business", "hours", "branding", "settings", "setup", "hub"],
     group: "navigate",
   },
   {
@@ -183,6 +196,94 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
     ],
     group: "navigate",
     ownerOnly: true,
+  },
+  {
+    id: "go-packages",
+    title: "Go to Packages",
+    subtitle: "Catalog bundles",
+    href: "/dashboard/business?tab=packages",
+    keywords: ["packages", "bundle", "catalog"],
+    group: "navigate",
+  },
+  {
+    id: "go-memberships",
+    title: "Go to Memberships",
+    subtitle: "Preview / Coming Soon",
+    href: "/dashboard/business?tab=memberships",
+    keywords: ["memberships", "members", "recurring", "catalog"],
+    group: "navigate",
+  },
+  {
+    id: "go-gift-cards",
+    title: "Go to Gift Cards",
+    subtitle: "Stored value",
+    href: "/dashboard/business?tab=giftcards",
+    keywords: ["gift cards", "gift card", "certificate", "stored value"],
+    group: "navigate",
+  },
+  {
+    id: "go-discounts",
+    title: "Go to Discounts",
+    subtitle: "Promo codes",
+    href: "/dashboard/business?tab=discounts",
+    keywords: ["discounts", "promo", "coupon", "codes"],
+    group: "navigate",
+  },
+  {
+    id: "go-locations",
+    title: "Go to Locations",
+    subtitle: "Sites and rooms",
+    href: "/dashboard/business?tab=locations",
+    keywords: ["locations", "sites", "branches", "studios"],
+    group: "navigate",
+  },
+  {
+    id: "go-hours",
+    title: "Go to Business hours",
+    subtitle: "Business setup → Hours",
+    href: "/dashboard/business?tab=hours",
+    keywords: ["hours", "opening", "schedule", "closures"],
+    group: "navigate",
+  },
+  {
+    id: "go-booking",
+    title: "Go to Booking rules",
+    subtitle: "Business setup → Booking",
+    href: "/dashboard/business?tab=booking",
+    keywords: ["booking", "rules", "policies", "interval", "cancellation"],
+    group: "navigate",
+  },
+  {
+    id: "go-taxes",
+    title: "Go to Taxes",
+    subtitle: "Business setup → Taxes",
+    href: "/dashboard/business?tab=taxes",
+    keywords: ["taxes", "tax", "gst", "hst", "vat"],
+    group: "navigate",
+  },
+  {
+    id: "go-booking-notifications",
+    title: "Go to Booking notifications",
+    subtitle: "Business setup event templates",
+    href: "/dashboard/business?tab=notifications",
+    keywords: ["booking notifications", "templates", "reminders"],
+    group: "navigate",
+  },
+  {
+    id: "go-business-rules",
+    title: "Go to Business rules",
+    subtitle: "Business setup automation rules",
+    href: "/dashboard/business?tab=automation",
+    keywords: ["business rules", "automation rules", "hub automation"],
+    group: "navigate",
+  },
+  {
+    id: "go-integrations",
+    title: "Go to Integrations",
+    subtitle: "Connected tools",
+    href: "/dashboard/integrations",
+    keywords: ["integrations", "connect", "calendar", "stripe"],
+    group: "navigate",
   },
 ];
 

@@ -23,6 +23,8 @@ vi.mock("next/navigation", () => ({
     push: vi.fn(),
     replace: vi.fn(),
   }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => "/dashboard/business",
 }));
 
 vi.mock("@/lib/actions/business-management", () => ({

@@ -57,6 +57,46 @@ describe("command palette registry (Chapter 1 foundation)", () => {
     ).toBe(true);
   });
 
+  it("exposes catalog, money, and settings jump commands", () => {
+    expect(COMMAND_REGISTRY.find((c) => c.id === "go-business")?.title).toBe(
+      "Go to Business setup",
+    );
+    expect(COMMAND_REGISTRY.find((c) => c.id === "go-settings")?.title).toBe(
+      "Go to Account & billing",
+    );
+    expect(
+      matchCommandRegistry("package").some((c) => c.id === "go-packages"),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("membership").some((c) => c.id === "go-memberships"),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("gift card").some((c) => c.id === "go-gift-cards"),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("invoice").some((c) => c.id === "go-payments"),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("locations").some((c) => c.id === "go-locations"),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("booking notifications").some(
+        (c) => c.id === "go-booking-notifications",
+      ),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("business rules").some(
+        (c) => c.id === "go-business-rules",
+      ),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("taxes").some((c) => c.id === "go-taxes"),
+    ).toBe(true);
+    expect(
+      matchCommandRegistry("integrations").some((c) => c.id === "go-integrations"),
+    ).toBe(true);
+  });
+
   it("exports the open-palette event used by the header trigger", () => {
     expect(COMMAND_PALETTE_EVENT).toBe("chasum-open-command-palette");
   });

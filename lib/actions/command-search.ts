@@ -3,6 +3,7 @@
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getLocationScope } from "@/lib/actions/location";
 import { matchCommandRegistry } from "@/lib/command/registry";
+import { invoiceWorkspacePath } from "@/lib/commerce/document-paths";
 import { withLocationFilter } from "@/lib/location/constants";
 import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -14,7 +15,12 @@ export type CommandSearchCategory =
   | "staff"
   | "services"
   | "appointments"
-  | "actions";
+  | "actions"
+  | "packages"
+  | "memberships"
+  | "gift_cards"
+  | "invoices"
+  | "locations";
 
 export type CommandSearchResult = {
   id: string;
@@ -56,7 +62,17 @@ export async function searchCommandPalette(
   const supabase = supabaseAuth;
   const q = query;
 
-  const [customersRes, staffRes, servicesRes, appointmentsRes] =
+  const [
+    customersRes,
+    staffRes,
+    servicesRes,
+    appointmentsRes,
+    packagesRes,
+    membershipsRes,
+    giftCardsRes,
+    invoicesRes,
+    locationsRes,
+  ] =
     await Promise.all([
       supabase
         .from("customers")
@@ -104,6 +120,42 @@ export async function searchCommandPalette(
         apptQuery = withLocationFilter(apptQuery, scope);
         return apptQuery;
       })(),
+      supabase
+        .from("service_packages")
+        .select("id, name, total_visits, is_active")
+        .eq("business_id", business.id)
+        .ilike("name", `%${q}%`)
+        .order("name")
+        .limit(8),
+      supabase
+        .from("memberships")
+        .select("id, name, billing_interval, is_active")
+        .eq("business_id", business.id)
+        .ilike("name", `%${q}%`)
+        .order("name")
+        .limit(8),
+      supabase
+        .from("gift_cards")
+        .select("id, code, status")
+        .eq("business_id", business.id)
+        .ilike("code", `%${q}%`)
+        .order("created_at", { ascending: false })
+        .limit(8),
+      supabase
+        .from("commerce_invoices")
+        .select("id, invoice_number, status")
+        .eq("business_id", business.id)
+        .ilike("invoice_number", `%${q}%`)
+        .order("created_at", { ascending: false })
+        .limit(8),
+      supabase
+        .from("locations")
+        .select("id, name, is_active")
+        .eq("business_id", business.id)
+        .eq("is_active", true)
+        .ilike("name", `%${q}%`)
+        .order("name")
+        .limit(8),
     ]);
 
   const needle = q.toLowerCase();
@@ -188,6 +240,62 @@ export async function searchCommandPalette(
         .filter(Boolean)
         .join(" · "),
       href: `/dashboard/calendar?date=${encodeURIComponent(a.start_time)}&appointment=${a.id}`,
+    });
+  }
+
+  for (const pkg of packagesRes.error ? [] : (packagesRes.data ?? [])) {
+    results.push({
+      id: `package-${pkg.id}`,
+      category: "packages",
+      title: pkg.name,
+      subtitle: `${pkg.total_visits} visit${pkg.total_visits === 1 ? "" : "s"}${
+        pkg.is_active ? "" : " · inactive"
+      }`,
+      href: "/dashboard/business?tab=packages",
+    });
+  }
+
+  for (const membership of membershipsRes.error
+    ? []
+    : (membershipsRes.data ?? [])) {
+    results.push({
+      id: `membership-${membership.id}`,
+      category: "memberships",
+      title: membership.name,
+      subtitle: "Preview / Coming Soon",
+      href: "/dashboard/business?tab=memberships",
+    });
+  }
+
+  for (const card of giftCardsRes.error ? [] : (giftCardsRes.data ?? [])) {
+    results.push({
+      id: `gift-card-${card.id}`,
+      category: "gift_cards",
+      title: card.code,
+      subtitle: card.status ? `Gift card · ${card.status}` : "Gift card",
+      href: "/dashboard/business?tab=giftcards",
+    });
+  }
+
+  for (const invoice of invoicesRes.error ? [] : (invoicesRes.data ?? [])) {
+    const number = String(invoice.invoice_number ?? "").trim();
+    if (!number) continue;
+    results.push({
+      id: `invoice-${invoice.id}`,
+      category: "invoices",
+      title: number,
+      subtitle: invoice.status ? `Invoice · ${invoice.status}` : "Invoice",
+      href: invoiceWorkspacePath(number),
+    });
+  }
+
+  for (const location of locationsRes.error ? [] : (locationsRes.data ?? [])) {
+    results.push({
+      id: `location-${location.id}`,
+      category: "locations",
+      title: location.name,
+      subtitle: "Location",
+      href: "/dashboard/business?tab=locations",
     });
   }
 

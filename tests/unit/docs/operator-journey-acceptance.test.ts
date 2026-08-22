@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { DASHBOARD_NAV, DASHBOARD_NAV_GROUPS } from "@/lib/dashboard/nav";
+import { QUICK_CREATE_ACTIONS } from "@/lib/dashboard/quick-create";
 
 function read(path: string): string {
   return readFileSync(join(process.cwd(), path), "utf8");
@@ -30,12 +32,25 @@ describe("Operator-journey World Class acceptance", () => {
     expect(summer).toMatch(/governance only/i);
   });
 
-  it("keeps the IA proposal unimplemented in nav.ts", () => {
+  it("implements the approved navigation IA in nav.ts", () => {
     const proposal = read("docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md");
-    expect(proposal).toMatch(/not implemented/i);
+    expect(proposal).toMatch(/\*\*Status:\*\* Implemented/);
+    expect(proposal).not.toMatch(/Proposal only — \*\*not implemented\*\*/);
     const nav = read("lib/dashboard/nav.ts");
-    expect(nav).toContain('label: "Business"');
-    expect(nav).not.toContain('label: "Business setup"');
-    expect(nav).not.toContain('href: "/dashboard/business?tab=memberships"');
+    expect(nav).toContain('label: "Business setup"');
+    expect(nav).toContain('href: "/dashboard/business?tab=memberships"');
+    expect(nav).toContain('href: "/dashboard/business?tab=giftcards"');
+    expect(nav).toContain('href: "/dashboard/workforce/chase"');
+    expect(DASHBOARD_NAV_GROUPS.map((g) => g.id)).toContain("catalog");
+    expect(DASHBOARD_NAV.some((i) => i.label === "Memberships")).toBe(true);
+    expect(DASHBOARD_NAV.some((i) => i.label === "Packages")).toBe(true);
+  });
+
+  it("keeps Quick Create on real workflows", () => {
+    expect(QUICK_CREATE_ACTIONS.map((a) => a.label)).toEqual([
+      "Book appointment",
+      "Add customer",
+      "Record payment",
+    ]);
   });
 });

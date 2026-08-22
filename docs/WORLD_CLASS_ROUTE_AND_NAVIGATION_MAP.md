@@ -28,14 +28,16 @@
 | Group | Items | Routes |
 |-------|-------|--------|
 | Today | **Command Centre**, Reception | `/dashboard`, `/dashboard/calendar` |
-| People | Customers, Employees | `/dashboard/clients`, `/dashboard/employees` |
-| Catalog | Services, Packages | `/dashboard/services`, `/dashboard/business?tab=packages` |
-| Money | Payments | `/dashboard/payments` |
-| Insights | Reports, Automations | `/dashboard/reports`, `/dashboard/automation` |
-| Intelligence | Summer (Early Access), AI Workforce | `/dashboard/ai-workforce/summer`, `/dashboard/ai-workforce` |
-| Settings | Business, Integrations, Account & billing, Communications | `/dashboard/business`, `/integrations`, `/settings`, `/notifications` |
+| Customers | Customers | `/dashboard/clients` |
+| Team | Employees | `/dashboard/employees` |
+| Catalog | Services, Packages, Memberships | `/dashboard/services`, `/dashboard/business?tab=packages`, `/dashboard/business?tab=memberships` |
+| Money | Payments, Gift Cards, Discounts | `/dashboard/payments`, `/dashboard/business?tab=giftcards`, `/dashboard/business?tab=discounts` |
+| Operate | Reports, Automations | `/dashboard/reports`, `/dashboard/automation` |
+| AI | Summer, Chase, AI Workforce | `/dashboard/ai-workforce/summer`, `/dashboard/workforce/chase`, `/dashboard/ai-workforce` |
+| Business | Business setup, Locations, Communications, Integrations | `/dashboard/business`, `/dashboard/business?tab=locations`, `/dashboard/notifications`, `/dashboard/integrations` |
+| Account | Account & billing | `/dashboard/settings` |
 | Advanced | Developer (collapsed) | `/dashboard/developer` |
-| Owner | HQ | `/dashboard/hq` (owner only) |
+| Founder | Platform Admin | `/dashboard/hq` (owner only) |
 
 **Command Centre** is a **label** on `/dashboard` — page depth is **Chapter 2**. Do not invent empty fake destinations.
 
@@ -64,10 +66,10 @@
 
 ## Command palette (real actions)
 
-- Navigate: Command Centre, Reception, Customers, Payments, Communications, Employees, Business, Reports, Services, Summer, Chase, AI Workforce  
+- Navigate: Command Centre, Reception, Customers, Payments, Communications, Employees, Business setup, Locations, Hours, Booking rules, Taxes, Booking notifications, Business rules, Integrations, Account & billing, Reports, Services, Packages, Memberships, Gift Cards, Discounts, Summer, Chase, AI Workforce  
 - Actions: Book appointment, Search Customer/Employee (directory)  
 - Owner-only filtered server-side: HQ, Private Alpha  
-- Live DB search: customers, staff, services, appointments (existing architecture)  
+- Live DB search: customers, staff, services, appointments, packages, memberships, gift cards, invoices, locations (tenant-scoped)  
 
 ---
 

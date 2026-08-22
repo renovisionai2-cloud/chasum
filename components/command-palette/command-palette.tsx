@@ -11,9 +11,14 @@ import {
   Briefcase,
   Calendar,
   FileText,
+  Gift,
+  MapPin,
+  Package,
+  Receipt,
   Search,
   UserCog,
   Users,
+  Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -32,6 +37,11 @@ const CATEGORY_LABEL: Record<CommandSearchCategory, string> = {
   staff: "Employees",
   services: "Services",
   appointments: "Appointments",
+  packages: "Packages",
+  memberships: "Memberships",
+  gift_cards: "Gift Cards",
+  invoices: "Invoices",
+  locations: "Locations",
 };
 
 const CATEGORY_ICON: Record<CommandSearchCategory, typeof Search> = {
@@ -41,6 +51,11 @@ const CATEGORY_ICON: Record<CommandSearchCategory, typeof Search> = {
   staff: UserCog,
   services: Briefcase,
   appointments: Calendar,
+  packages: Package,
+  memberships: Wallet,
+  gift_cards: Gift,
+  invoices: Receipt,
+  locations: MapPin,
 };
 
 function CommandPalettePanel({ onClose }: { onClose: () => void }) {

@@ -20,6 +20,7 @@ import type { LocationScope } from "@/lib/location/constants";
 import type { Location, SubscriptionPlan } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import {
+  Activity,
   Banknote,
   BarChart3,
   Bell,
@@ -29,9 +30,12 @@ import {
   ChevronDown,
   Code,
   Crown,
+  Gift,
   LayoutDashboard,
+  MapPin,
   Menu,
   Package,
+  Percent,
   Plug,
   Repeat,
   Settings,
@@ -39,6 +43,7 @@ import {
   Sun,
   UserCog,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -69,6 +74,11 @@ const iconMap: Record<DashboardNavIcon, typeof LayoutDashboard> = {
   code: Code,
   settings: Settings,
   crown: Crown,
+  gift: Gift,
+  percent: Percent,
+  "map-pin": MapPin,
+  wallet: Wallet,
+  activity: Activity,
 };
 
 function NavLink({

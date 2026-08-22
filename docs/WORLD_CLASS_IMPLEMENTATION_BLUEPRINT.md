@@ -193,7 +193,7 @@ Acceptance rows: FEATURE · EXACT NAVIGATION PATH · USER GOAL · EXPECTED SCREE
 
 If the Product Owner cannot reasonably find a feature through the intended interface, that is a product/IA finding — not user error.
 
-Navigation structure changes require PO approval of [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md). **Do not implement that proposal in this pass.**
+Navigation structure follows the approved [`WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md). Command Centre Chase insights and AI Command consolidation remain **DESIGN FOR NOW / BUILD LATER**.
 
 ## Chapter 9 — Business Structure Engine (planning)
 

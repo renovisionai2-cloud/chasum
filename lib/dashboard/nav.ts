@@ -1,6 +1,6 @@
 /**
- * Portal navigation IA — World Class Chapter 1 foundation.
- * Presentation labels only; routes stay compatible with existing pages.
+ * Portal navigation IA — World Class navigation + command discoverability.
+ * Presentation labels and groups; routes stay compatible with existing pages.
  */
 
 export type DashboardNavIcon =
@@ -20,7 +20,12 @@ export type DashboardNavIcon =
   | "repeat"
   | "code"
   | "settings"
-  | "crown";
+  | "crown"
+  | "gift"
+  | "percent"
+  | "map-pin"
+  | "wallet"
+  | "activity";
 
 export type DashboardNavItem = {
   href: string;
@@ -49,10 +54,18 @@ export type DashboardNavGroup = {
   defaultCollapsed?: boolean;
 };
 
+/** Hub tabs that have their own sidebar items and must not highlight Business setup. */
+export const BUSINESS_SETUP_SIBLING_TABS = [
+  "packages",
+  "memberships",
+  "giftcards",
+  "discounts",
+  "locations",
+] as const;
+
 /**
- * Group labels chosen for small service-business owners:
- * Catalog (not “Offer”), Insights (not “Grow”), Settings (not “Configure”).
- * Command Centre label maps to `/dashboard` — page depth is Chapter 2.
+ * Approved domain groups: Today / Customers / Team / Catalog / Money /
+ * Operate / AI / Business / Account / Advanced. Founder HQ stays owner-only.
  */
 export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
   {
@@ -76,8 +89,8 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
     ],
   },
   {
-    id: "people",
-    label: "People",
+    id: "customers",
+    label: "Customers",
     items: [
       {
         href: "/dashboard/clients",
@@ -85,6 +98,12 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
         icon: "users",
         mobilePrimary: true,
       },
+    ],
+  },
+  {
+    id: "team",
+    label: "Team",
+    items: [
       {
         href: "/dashboard/employees",
         label: "Employees",
@@ -107,6 +126,12 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
         icon: "package",
         tab: "packages",
       },
+      {
+        href: "/dashboard/business?tab=memberships",
+        label: "Memberships",
+        icon: "wallet",
+        tab: "memberships",
+      },
     ],
   },
   {
@@ -119,11 +144,23 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
         icon: "banknote",
         mobilePrimary: true,
       },
+      {
+        href: "/dashboard/business?tab=giftcards",
+        label: "Gift Cards",
+        icon: "gift",
+        tab: "giftcards",
+      },
+      {
+        href: "/dashboard/business?tab=discounts",
+        label: "Discounts",
+        icon: "percent",
+        tab: "discounts",
+      },
     ],
   },
   {
-    id: "insights",
-    label: "Insights",
+    id: "operate",
+    label: "Operate",
     items: [
       {
         href: "/dashboard/reports",
@@ -138,14 +175,19 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
     ],
   },
   {
-    id: "intelligence",
-    label: "Intelligence",
+    id: "ai",
+    label: "AI",
     items: [
       {
         href: "/dashboard/ai-workforce/summer",
         label: "Summer",
         icon: "sun",
         mobilePrimary: true,
+      },
+      {
+        href: "/dashboard/workforce/chase",
+        label: "Chase",
+        icon: "activity",
       },
       {
         href: "/dashboard/ai-workforce",
@@ -156,28 +198,40 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
     ],
   },
   {
-    id: "settings",
-    label: "Settings",
+    id: "business",
+    label: "Business",
     items: [
       {
         href: "/dashboard/business",
-        label: "Business",
+        label: "Business setup",
         icon: "building-2",
+      },
+      {
+        href: "/dashboard/business?tab=locations",
+        label: "Locations",
+        icon: "map-pin",
+        tab: "locations",
+      },
+      {
+        href: "/dashboard/notifications",
+        label: "Communications",
+        icon: "bell",
       },
       {
         href: "/dashboard/integrations",
         label: "Integrations",
         icon: "plug",
       },
+    ],
+  },
+  {
+    id: "account",
+    label: "Account",
+    items: [
       {
         href: "/dashboard/settings",
         label: "Account & billing",
         icon: "settings",
-      },
-      {
-        href: "/dashboard/notifications",
-        label: "Communications",
-        icon: "bell",
       },
     ],
   },
@@ -243,11 +297,25 @@ export function isNavItemActive(
     return params.get("tab") === tab;
   }
 
-  // Business root: active only when not on a Catalog-specific tab.
+  if (path === "/dashboard/workforce/chase") {
+    return (
+      pathname === "/dashboard/workforce/chase" ||
+      pathname.startsWith("/dashboard/workforce/chase/") ||
+      pathname === "/dashboard/ai-workforce/chase" ||
+      pathname.startsWith("/dashboard/ai-workforce/chase/")
+    );
+  }
+
+  // Business setup: active only when not on a sibling Catalog/Money/Locations tab.
   if (path === "/dashboard/business") {
     if (!(pathname === path || pathname.startsWith(`${path}/`))) return false;
     const t = params.get("tab");
-    if (t === "packages" || t === "memberships") return false;
+    if (
+      t &&
+      (BUSINESS_SETUP_SIBLING_TABS as readonly string[]).includes(t)
+    ) {
+      return false;
+    }
     return true;
   }
 
@@ -267,12 +335,32 @@ export function isNavItemActive(
   return pathname === path || pathname.startsWith(`${path}/`);
 }
 
+const BUSINESS_TAB_TITLES: Record<string, string> = {
+  packages: "Packages",
+  memberships: "Memberships",
+  giftcards: "Gift Cards",
+  discounts: "Discounts",
+  locations: "Locations",
+  hours: "Business hours",
+  booking: "Booking rules",
+  taxes: "Taxes",
+  notifications: "Booking notifications",
+  automation: "Business rules",
+  forms: "Custom forms",
+  branding: "Branding",
+  documents: "Documents",
+  categories: "Categories",
+  rooms: "Rooms & resources",
+  profile: "Business setup",
+};
+
 export function getPageTitle(pathname: string, search = ""): string {
   if (pathname.startsWith("/dashboard/hq/private-alpha")) {
     return "Private Alpha";
   }
   if (pathname.startsWith("/dashboard/hq")) return "Platform Admin";
   if (pathname.startsWith("/dashboard/workforce/chase")) return "Chase";
+  if (pathname.startsWith("/dashboard/ai-workforce/chase")) return "Chase";
   if (pathname.startsWith("/dashboard/ai-workforce/command")) {
     return "AI Command";
   }
@@ -283,8 +371,9 @@ export function getPageTitle(pathname: string, search = ""): string {
   const params = new URLSearchParams(
     search.startsWith("?") ? search.slice(1) : search,
   );
-  if (pathname.startsWith("/dashboard/business") && params.get("tab") === "packages") {
-    return "Packages";
+  if (pathname.startsWith("/dashboard/business")) {
+    const tab = params.get("tab");
+    if (tab && BUSINESS_TAB_TITLES[tab]) return BUSINESS_TAB_TITLES[tab];
   }
 
   for (const item of [HQ_NAV_ITEM, ...DASHBOARD_NAV]) {
