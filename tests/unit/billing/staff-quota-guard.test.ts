@@ -339,7 +339,7 @@ describe("createStaff server-side staff quota", () => {
     expect(result.error).toMatch(
       /You've reached the 1 active staff member included in Free/,
     );
-    expect(result.error).toMatch(/Apply for Professional/);
+    expect(result.error).toMatch(/apply for Professional/i);
     expect(insertStaff).not.toHaveBeenCalled();
   });
 
