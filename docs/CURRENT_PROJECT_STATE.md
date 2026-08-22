@@ -856,9 +856,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `95a305d29e3672117a86ee312bbcfffdec739971` |
-| **Short** | `95a305d` |
-| **Subject** | Record the active-staff quota pass in World Class docs. |
+| **SHA** | `130d9f5e8f3f8f189f7fe88215135364df296ed0` |
+| **Short** | `130d9f5` |
+| **Subject** | Clarify Active in Chasum and test bulk reactivation. |
+| **Staff-status clarity (feature)** | `130d9f5e8f3f8f189f7fe88215135364df296ed0` |
 | **Active-staff quota (feature)** | `b5e19ac8c6ca46c606087c07ad7196398fdcb204` |
 | **Active-staff quota (test fix)** | `0fc2133e6d0a847d7ce38053d4fe3cdac04c16d6` |
 | **Product truth + entitlements (docs)** | `4d1774d763deff1d1ff59c76a27a87cfd04f533e` |
