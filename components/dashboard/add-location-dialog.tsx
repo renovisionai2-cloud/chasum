@@ -44,11 +44,12 @@ export function AddLocationDialog({
     }
   }, [state.success, onOpenChange, router]);
 
-  const hitFreeLimit =
+  const hitPlanLimit =
     Boolean(state.error) &&
     (state.error === FREE_PLAN_LIMIT_MESSAGE ||
       state.error?.includes("Your plan allows") === true ||
-      state.error?.startsWith(FREE_PLAN_LIMIT_MESSAGE) === true);
+      state.error?.startsWith(FREE_PLAN_LIMIT_MESSAGE) === true ||
+      state.error?.includes("You've reached the") === true);
 
   return (
     <>
@@ -97,9 +98,11 @@ export function AddLocationDialog({
               <Input id="state" name="state" />
             </div>
           </div>
-          {hitFreeLimit ? (
+          {hitPlanLimit ? (
             <div className="space-y-3 rounded-[var(--radius-md)] border border-border bg-muted/30 px-3 py-3">
-              <p className="text-sm text-foreground">{FREE_PLAN_LIMIT_MESSAGE}</p>
+              <p className="text-sm text-foreground">
+                {state.error ?? FREE_PLAN_LIMIT_MESSAGE}
+              </p>
               <Button
                 type="button"
                 className="w-full"

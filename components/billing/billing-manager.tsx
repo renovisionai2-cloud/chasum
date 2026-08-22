@@ -22,6 +22,7 @@ import {
 import { formatPlanPrice, PLAN_RANK } from "@/lib/billing/catalog";
 import type { BillingSummary } from "@/lib/billing/types";
 import { APPLY_HREF } from "@/lib/marketing/alpha";
+import { FREE_PLAN_UPGRADE_CTA } from "@/lib/marketing/pricing";
 import {
   ENTERPRISE_SALES_MESSAGE,
   PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
@@ -248,9 +249,10 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
                     href={APPLY_HREF}
                     className="font-medium text-primary hover:underline"
                   >
-                    Apply for Private Alpha
+                    {FREE_PLAN_UPGRADE_CTA}
                   </a>{" "}
                   if you need a higher plan before self-serve checkout opens.
+                  Paid plans are currently approved through Private Alpha.
                 </p>
               </div>
             )}

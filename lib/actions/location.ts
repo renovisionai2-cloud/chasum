@@ -1,7 +1,12 @@
 "use server";
 
-import { FREE_PLAN_LIMIT_MESSAGE } from "@/lib/marketing/pricing";
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import {
+  evaluateLocationQuota,
+  PAID_PLANS_PRIVATE_ALPHA_NOTE,
+  planDisplayName,
+} from "@/lib/billing/plan-entitlements";
+import { FREE_PLAN_LIMIT_MESSAGE } from "@/lib/marketing/pricing";
 import {
   normalizeBookingIntervalMinutes,
   resolveBookingIntervalMinutes,
@@ -116,20 +121,34 @@ export const getLocationQuota = cache(async (): Promise<{
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
-  const [locations, planRes, canAddRes] = await Promise.all([
+  const [locations, planRes] = await Promise.all([
     getLocations(),
     supabase
       .from("subscription_plans")
       .select("*")
       .eq("plan_key", business.subscription_plan_key ?? "starter")
       .maybeSingle(),
-    supabase.rpc("can_add_location", { p_business_id: business.id }),
   ]);
 
+  const decision = evaluateLocationQuota(
+    locations.length,
+    business.subscription_plan_key,
+  );
+  const plan = planRes.data
+    ? { ...planRes.data, max_locations: decision.max }
+    : {
+        plan_key: decision.planKey,
+        name: planDisplayName(decision.planKey),
+        max_locations: decision.max,
+        description: null,
+        is_active: true,
+        created_at: "",
+      };
+
   return {
-    plan: planRes.data,
+    plan,
     currentCount: locations.length,
-    canAdd: canAddRes.data === true,
+    canAdd: decision.canAdd,
   };
 });
 
@@ -143,10 +162,26 @@ export async function createLocation(
   const name = (formData.get("name") as string)?.trim();
   if (!name) return { error: "Location name is required." };
 
+  const locations = await getLocations();
+  const decision = evaluateLocationQuota(
+    locations.length,
+    business.subscription_plan_key,
+  );
+  if (!decision.canAdd) {
+    if (decision.max != null && decision.message) {
+      return {
+        error: `${decision.message} Apply for Professional to add more sites. ${PAID_PLANS_PRIVATE_ALPHA_NOTE}`,
+      };
+    }
+    return {
+      error: FREE_PLAN_LIMIT_MESSAGE,
+    };
+  }
+
   const { data: canAdd } = await supabase.rpc("can_add_location", {
     p_business_id: business.id,
   });
-  if (!canAdd) {
+  if (!canAdd && decision.max === null) {
     const quota = await getLocationQuota();
     const max = quota.plan?.max_locations;
     if (max != null) {

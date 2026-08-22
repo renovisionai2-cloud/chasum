@@ -8,6 +8,10 @@
  */
 
 import {
+  marketingLocationLimitLabel,
+  marketingStaffLimitLabel,
+} from "@/lib/billing/plan-entitlements";
+import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
   DEMO_HREF,
@@ -133,7 +137,7 @@ export const PRICING_FEATURE_CATALOG: PricingFeatureDef[] = [
     id: "inventory",
     name: "Inventory Management",
     category: "Reporting & Operations",
-    note: "Available where applicable.",
+    note: "Coming soon.",
   },
   {
     id: "api_integrations",
@@ -253,8 +257,8 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       enterprise_security: false,
       custom_permissions: false,
       volume_pricing: false,
-      staff_limit: "1",
-      location_limit: "1",
+      staff_limit: marketingStaffLimitLabel("starter"),
+      location_limit: marketingLocationLimitLabel("starter"),
     },
   },
   {
@@ -307,8 +311,8 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       enterprise_security: false,
       custom_permissions: false,
       volume_pricing: false,
-      staff_limit: "Up to 3",
-      location_limit: "Up to 3",
+      staff_limit: marketingStaffLimitLabel("professional"),
+      location_limit: marketingLocationLimitLabel("professional"),
     },
   },
   {
@@ -348,15 +352,15 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       advanced_analytics: true,
       api_integrations: true,
       priority_support: true,
-      inventory: true,
+      inventory: "Coming soon",
       white_glove: false,
       success_manager: false,
       custom_integrations: false,
       enterprise_security: false,
       custom_permissions: false,
       volume_pricing: false,
-      staff_limit: "Unlimited",
-      location_limit: "Up to 6",
+      staff_limit: marketingStaffLimitLabel("business"),
+      location_limit: marketingLocationLimitLabel("business"),
     },
   },
   {
@@ -399,15 +403,15 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       advanced_analytics: true,
       api_integrations: true,
       priority_support: true,
-      inventory: true,
+      inventory: "Coming soon",
       white_glove: true,
       success_manager: true,
       custom_integrations: true,
       enterprise_security: true,
       custom_permissions: true,
       volume_pricing: true,
-      staff_limit: "Unlimited",
-      location_limit: "Unlimited",
+      staff_limit: marketingStaffLimitLabel("enterprise"),
+      location_limit: marketingLocationLimitLabel("enterprise"),
     },
   },
 ];
@@ -452,7 +456,7 @@ function formatCardFeature(
     return value === "1" ? "1 Location" : `${value} Locations`;
   }
   if (id === "inventory") {
-    return `${name} (available where applicable)`;
+    return `${name} · Coming soon`;
   }
   if (id === "priority_support" && plan.id === "enterprise") {
     return "SLA & Priority Support";
@@ -532,7 +536,7 @@ export function buildPricingComparisonSections(): ComparisonSection[] {
             f.id === "priority_support" ? "Priority Support / SLA" : f.name,
           note:
             f.id === "inventory"
-              ? "Available where applicable."
+              ? "Coming soon."
               : f.id === "business_messaging"
                 ? "Paid plans · Communication Center"
                 : undefined,

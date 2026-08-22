@@ -6,6 +6,7 @@ import {
   planPriceCents,
   trialDaysRemaining,
 } from "@/lib/billing/catalog";
+import { maxLocationsForPlan } from "@/lib/billing/plan-entitlements";
 import type {
   BillingInterval,
   BillingInvoice,
@@ -55,7 +56,7 @@ function mapPlan(row: Record<string, unknown>): BillingPlan {
     planKey: asPlanKey(row.plan_key),
     name: String(row.name ?? row.plan_key),
     description: (row.description as string) ?? null,
-    maxLocations: (row.max_locations as number | null) ?? null,
+    maxLocations: maxLocationsForPlan(asPlanKey(row.plan_key)),
     monthlyPriceCents: (row.monthly_price_cents as number | null) ?? null,
     yearlyPriceCents: (row.yearly_price_cents as number | null) ?? null,
     sortOrder: Number(row.sort_order ?? 0),

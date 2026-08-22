@@ -236,9 +236,7 @@ export function Pricing() {
                             <span>{row.name}</span>
                             {row.note ? (
                               <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                                {row.note.includes("Voice AI")
-                                  ? "Available where configured on paid plans."
-                                  : row.note}
+                                {row.note}
                               </span>
                             ) : null}
                           </th>

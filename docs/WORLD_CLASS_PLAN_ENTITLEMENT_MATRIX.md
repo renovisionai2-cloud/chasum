@@ -27,12 +27,12 @@
 
 | Plan | `planKey` | Staff claim | Locations claim | Catalog/DB `max_locations` |
 |------|-----------|-------------|-----------------|----------------------------|
-| Free | `starter` | 1 | 1 | 1 |
-| Professional | `professional` | Up to 3 | Up to 3 | 3 |
-| Business | `business` | Unlimited | **Up to 6** | **10** ← conflict |
+| Free | `starter` | 1 (server-enforced) | 1 | App 1 |
+| Professional | `professional` | Up to 3 (server-enforced) | Up to 3 | App 3 |
+| Business | `business` | Unlimited | **Up to 6** | App **6**; live DB seed still **10** until PO migration |
 | Enterprise | `enterprise` | Unlimited | Unlimited | null |
 
-**OWNER DECISION (locked):** Marketing / plan promise = **six** Business locations. Catalog/DB still shows **10** — do **not** silently change DB in Chapter 1; propose alignment migration separately for PO.
+**OWNER DECISION (locked):** Marketing / plan promise = **six** Business locations. Application catalog and `createLocation` now cap at **6**. Do **not** apply `UPDATE subscription_plans SET max_locations = 6 WHERE plan_key = 'business'` without PO approval.
 
 ---
 
@@ -60,7 +60,7 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 | Email confirmations | `email_reminders` | Free+ | Soft | Notifications | Delivery | Resend queue | Jobs | Config | Untested | Untested | Partial | Partial | GVM | Config-dep | Config | Low | 7 |
 | Basic CRM | `customer_management` | Free+ | Customers | `/dashboard/clients` | CRM | CRM actions | Customers | N/A | Untested | Untested | Partial | Partial | Partial | Present | — | Low | 4 |
 | Chasum branding | `chasum_branding` | Free yes | Soft | Email | Branding | `planAllowsRemoveBranding` false | Email | — | Untested | Untested | — | — | — | **Server-enforced** | — | Low | 9 |
-| Staff = 1 | `staff_limit` | 1 | Employees open | Employees | Create staff | **None** | staff table | **Missing** | Untested | Untested | Partial | **None** | — | **Marketing-only / Not enforced** | Cap + prompt | High | 8,13 |
+| Staff = 1 | `staff_limit` | 1 | Employees open | Employees | Create staff | **`evaluateStaffQuota` + `createStaff` / `ensureOwnerAsBookableStaff`** | staff table | Apply for Professional | Untested | Grandfathered | Partial | Yes | Partial | **Server-enforced** (new adds) | — | Low | 8 |
 | Locations = 1 | `location_limit` | 1 | Business | Hub | Add location | `can_add_location` | locations | Yes UI | Untested | Untested | Partial | Partial | Partial | **Fully enforced** (vs DB max) | — | Low | 9 |
 | SMS | excluded | No | Compose blocked | Clients | Dialog | `planIncludesSms` | Twilio | Upgrade copy | Untested | Untested | Partial | Partial | — | **Fully enforced** | — | Low | 7 |
 | Invoicing | excluded | No | Payments open | Commerce | Invoice UI | **None** | invoices | None | Untested | Untested | Partial | — | — | **Not enforced** | Free can use | High | 6,13 |
@@ -82,7 +82,7 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 | Invoicing | `invoicing` | Pro+ | Soft | Commerce | Invoice | **None** | Not enforced vs Free | Gate + EA depth | Med | 6,13 |
 | Basic Reporting | `basic_reporting` | Pro+ | Yes | Reports | — | **None** | Not enforced vs Free | Gate | Med | 10,13 |
 | Remove branding | `remove_branding` | Pro+ | Soft | Email | — | **Yes** | Server-enforced | Public surfaces? | Low | 9 |
-| Staff ≤ 3 | `staff_limit` | Up to 3 | Open | Employees | Create | **None** | Marketing-only | Cap + FAQ prompt | High | 8,13 |
+| Staff ≤ 3 | `staff_limit` | Up to 3 | Open | Employees | Create | **Yes** | **Server-enforced** | Cap + FAQ prompt | Low | 8 |
 | Locations ≤ 3 | `location_limit` | Up to 3 | Business | Hub | Add | **Yes** | Fully enforced | — | Low | 9 |
 
 ### Business inclusions
@@ -90,10 +90,10 @@ Columns: Feature · Exact source · Visible promise · Nav visibility · Page ac
 | Feature | Source | Promise | Nav | Page | Comp | Server | Status | Gap | Sev | Ch |
 |---------|--------|---------|-----|------|------|--------|--------|-----|-----|-----|
 | Unlimited staff | staff_limit | Unlimited | Open | Employees | — | N/A | Present directory; login Coming Next | Staff login | High | 8 |
-| Locations ≤ 6 | location_limit | Up to 6 | Business | Hub | Add | Uses **DB 10** | **Conflicting** | 6 vs 10 | High | 9,13 |
+| Locations ≤ 6 | location_limit | Up to 6 | Business | Hub | Add | App catalog **6** (DB seed still 10) | **App-enforced 6** | Pending PO DB migration | Low | 9 |
 | Advanced Analytics | `advanced_analytics` | Biz+ | Reports | Same UI | — | **None** | Marketing-only vs “basic” | Definition | Med | 10,13 |
 | API & Integrations | `api_integrations` | Biz+ / Private Alpha | Developer Advanced (hidden when gated) | `/dashboard/developer` redirects if unauthorized | Keys | **Partial** — nav + page gate via `planAllowsApiIntegrations`; key-create server enforcement remaining | Partial | Server key ACL | Med | 9,13 |
-| Inventory | `inventory` | Biz+ | Reports tab **hidden** (Coming Soon) | Placeholder code remains | Placeholder | **None** | **Hidden from UI** (Ch2 correction) | Product or delist | Crit | 10,13 |
+| Inventory | `inventory` | Coming Soon | Reports tab **hidden** | Placeholder | Placeholder | **None** | **Coming Soon** (Pricing aligned) | Do not implement this pass | Low | 10 |
 | Priority Support | `priority_support` | Biz+ | — | — | — | Process | Marketing-only | Ops | Med | 13 |
 
 ### Enterprise partnership features

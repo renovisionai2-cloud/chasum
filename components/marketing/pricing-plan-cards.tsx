@@ -23,7 +23,7 @@ function featureLabel(plan: PricingPlanConfig, id: PricingFeatureId): string {
   if (id === "location_limit" && typeof value === "string") {
     return value === "1" ? "1 Location" : `${value} Locations`;
   }
-  if (id === "inventory") return `${name} · Available where applicable`;
+  if (id === "inventory") return `${name} · Coming soon`;
   if (id === "priority_support" && plan.id === "enterprise") {
     return "SLA & Priority Support";
   }

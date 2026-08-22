@@ -72,6 +72,7 @@ import { catalogFormRevision } from "@/lib/forms/persisted-form-revision";
 import { businessHubProfileRevision } from "@/lib/forms/dashboard-form-revisions";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
+import { FREE_PLAN_UPGRADE_CTA } from "@/lib/marketing/pricing";
 import { useActionState, useState, useTransition } from "react";
 import {
   Bell,
@@ -583,6 +584,7 @@ export function BusinessHub({
               type="button"
               size="sm"
               onClick={() => setAddLocationOpen(true)}
+              disabled={!locationQuota?.canAdd}
             >
               Add Location
             </Button>
@@ -609,12 +611,13 @@ export function BusinessHub({
                   {locationQuota.currentCount} active location
                   {locationQuota.currentCount === 1 ? "" : "s"} on{" "}
                   {locationQuota.plan.name ?? "your plan"} (max{" "}
-                  {locationQuota.plan.max_locations}). Upgrade to create another
-                  site.
+                  {locationQuota.plan.max_locations}). Apply for Professional to
+                  create another site. Paid plans are currently approved through
+                  Private Alpha.
                 </p>
-                <Link href="/pricing" className="mt-2 inline-block">
+                <Link href="/apply" className="mt-2 inline-block">
                   <Button type="button" size="sm" variant="outline">
-                    View plans & upgrade
+                    {FREE_PLAN_UPGRADE_CTA}
                   </Button>
                 </Link>
               </div>

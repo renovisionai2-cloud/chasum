@@ -33,6 +33,7 @@ export type RoadmapCard = {
     | "payroll"
     | "campaigns"
     | "memberships"
+    | "packages"
     | "mobile"
     | "insights"
     | "locations"
@@ -100,6 +101,12 @@ export const ROADMAP_AVAILABLE_TODAY = {
         "Send appointment reminders by text automatically—fewer no-shows, less phone chasing, and a smoother day for your team.",
       icon: "sms",
     },
+    {
+      title: "Service Packages",
+      detail:
+        "Sell prepaid service packages your customers can book against—used in live operations today.",
+      icon: "packages",
+    },
   ] as const satisfies readonly RoadmapCard[],
 } as const;
 
@@ -139,9 +146,9 @@ export const ROADMAP_COMING_SOON = {
       icon: "campaigns",
     },
     {
-      title: "Memberships & Service Packages",
+      title: "Memberships",
       detail:
-        "Sell recurring memberships and prepaid service packages to increase customer loyalty and create predictable recurring revenue.",
+        "Sell recurring memberships to increase customer loyalty and create predictable recurring revenue.",
       icon: "memberships",
     },
     {

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createStaff } from "@/lib/actions/staff";
+import type { StaffQuotaDecision } from "@/lib/billing/plan-entitlements";
 import type { Department } from "@/lib/employees/types";
 import type { ActionState, Location, Service } from "@/lib/types/booking";
 import { STAFF_COLORS } from "@/lib/types/booking";
@@ -147,11 +148,13 @@ export function EmployeeManager({
   services,
   locations,
   departments,
+  staffQuota,
 }: {
   employees: DirectoryEmployee[];
   services: Service[];
   locations: Location[];
   departments: Department[];
+  staffQuota: StaffQuotaDecision;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -162,7 +165,11 @@ export function EmployeeManager({
         services={services}
         locations={locations}
         departments={departments}
-        onAdd={() => setOpen(true)}
+        onAdd={() => {
+          if (!staffQuota.allowed) return;
+          setOpen(true);
+        }}
+        staffQuota={staffQuota}
       />
       <Dialog
         open={open}

@@ -65,5 +65,8 @@ describe("Billing UI honesty", () => {
     expect(modal).toMatch(/Apply for Professional/);
     expect(modal).toMatch(/\/apply/);
     expect(modal).not.toMatch(/title="Upgrade to Professional"/);
+    const billing = read("components/billing/billing-manager.tsx");
+    expect(billing).toMatch(/FREE_PLAN_UPGRADE_CTA/);
+    expect(billing).not.toMatch(/>Apply for Private Alpha</);
   });
 });

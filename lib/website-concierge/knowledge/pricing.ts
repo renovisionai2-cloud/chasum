@@ -7,7 +7,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Plans",
     summary: "Free, Professional, Business, and Enterprise for every growth stage.",
     body:
-      "Free ($0) covers online booking, calendar, email reminders, basic customers, 1 staff, and 1 location. Professional ($79/mo, or $63/mo billed yearly) adds Summer — Chasum's AI Business Manager — plus SMS, business messaging, payments, gift cards, up to 3 staff and locations. Business ($149/mo, or $119/mo billed yearly) adds unlimited staff, up to 6 locations, analytics, API, priority support, and inventory where applicable. Enterprise is custom for franchises and large organizations. During Private Alpha, CTAs go through application—public self-serve billing is not open yet.",
+      "Free ($0) covers online booking, calendar, email reminders, basic customers, 1 staff, and 1 location. Professional ($79/mo, or $63/mo billed yearly) adds Summer — Chasum's AI Business Manager — plus SMS, business messaging, payments, gift cards, up to 3 staff and locations. Business ($149/mo, or $119/mo billed yearly) adds unlimited staff, up to 6 locations, analytics, API, and priority support. Inventory Management is Coming Soon. Enterprise is custom for franchises and large organizations. During Private Alpha, CTAs go through application—public self-serve billing is not open yet.",
     tags: ["pricing", "plans", "cost", "subscription", "professional", "business", "enterprise", "free"],
     followUps: ["Which plan fits me?", "What is included in Professional?"],
     relatedIds: ["pricing-compare", "pricing-alpha"],

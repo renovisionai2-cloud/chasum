@@ -7,10 +7,10 @@
 export const STATUS_PAGE = {
   eyebrow: "Status",
   headline: "Chasum System Status",
-  lede: "View the current status of Chasum services and scheduled maintenance. During Private Alpha, this page is manually reviewed and updated as needed.",
+  lede: "View the current status of Chasum services and scheduled maintenance. During Private Alpha, this page is manually reviewed and updated as needed. It is not live monitoring.",
 } as const;
 
-export const STATUS_LAST_UPDATED = "2026-07-30";
+export const STATUS_LAST_UPDATED = "2026-08-22";
 
 export type StatusLevel =
   | "Operational"

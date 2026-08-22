@@ -61,6 +61,7 @@ const ICONS: Record<RoadmapCard["icon"], LucideIcon> = {
   payroll: Wallet,
   campaigns: Megaphone,
   memberships: Layers3,
+  packages: Gift,
   mobile: Smartphone,
   insights: TrendingUp,
   locations: Store,

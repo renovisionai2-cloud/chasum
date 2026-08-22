@@ -1,7 +1,7 @@
 # Product Truth Matrix
 
 **Status:** Canonical marketing claim reference — Private Alpha  
-**Last reviewed:** 2026-07-24  
+**Last reviewed:** 2026-08-22  
 **Rule:** If a capability cannot be verified in code, do not market it as Available Today.
 
 Status vocabulary (only):
@@ -24,8 +24,8 @@ Status vocabulary (only):
 | Reception | Available Today | `/dashboard/calendar`, Day View + Booking Sheet | Owner-centric today | Front-desk workflow for the operating day |
 | CRM | Available Today | `lib/crm/*`, `/dashboard/clients` | Owner CRM access until staff login | Customer profiles, notes, and history in one place |
 | Customer timelines | Available Today | `components/crm/customer-timeline.tsx` | Depends on recorded events | Activity stays connected to the customer record |
-| Employees & staff mgmt | Available Today | `lib/employees/*`, `/dashboard/employees` | Staff login invites Coming Next | Configure employees, roles catalog, schedules |
-| Multi-location | Available Today | `lib/actions/location.ts`, plan quotas | Plan max locations | Support one or many locations per plan |
+| Employees & staff mgmt | Available Today | `lib/employees/*`, `/dashboard/employees` | Free 1 / Professional 3 / Business+ unlimited; server-enforced; existing over-limit rows grandfathered | Configure employees, roles catalog, schedules |
+| Multi-location | Available Today | `lib/actions/location.ts`, plan quotas | Free 1 / Professional 3 / Business **6** / Enterprise unlimited (app catalog; DB Business seed still 10 pending PO migration) | Support one or many locations per plan |
 | Email confirmations/reminders | Available Today* | Resend + job queue | `RESEND_API_KEY`, `EMAIL_FROM` | *When messaging is configured |
 | SMS | Early Access | Twilio provider + plan gate | `TWILIO_*`, Professional+ | SMS when enabled for the plan and provider |
 | Manual payments | Available Today | `lib/commerce/providers/manual.ts` | — | Record cash, e-transfer, offline card, store credit |
@@ -50,7 +50,10 @@ Status vocabulary (only):
 | AI marketing (Maya) | Future Vision | Roster / marketing only | — | Marketing Intelligence — Future Vision |
 | Business advisor (Leo) | Future Vision | Marketing only | — | Business Advisor — Future Vision |
 | Customer success AI (Sophia) | Future Vision | Marketing only | — | Customer Success AI — Future Vision |
-| Voice receptionist | Future Vision | Explicit FAQ/roadmap | — | Voice channel reserved—not available |
+| Voice receptionist | Coming Soon | Explicit FAQ/roadmap | — | AI Phone Calls — Coming Soon (not Business Calls & Texting) |
+| Service packages | Available Today | Hub packages + booking `package_id` | Redemption depth still evolving | Prepaid service packages |
+| Memberships | Coming Soon | Hub catalog CRUD only | No booking/recurring billing engine | Recurring memberships — Coming Soon |
+| Inventory Management | Coming Soon | Reports placeholder only | Not an operational workflow | Inventory — Coming Soon |
 | Native mobile apps | Future Vision | Roadmap only | — | Web product today |
 | Marketplace / franchise | Future Vision | Roadmap only | — | Not available |
 
@@ -72,3 +75,4 @@ Status vocabulary (only):
 1. Portal gift-card UX vs operator gift cards — keep operator Available Today; avoid portal “live gift store” claims.
 2. Depth of API plan gating vs marketing Business feature list — label API as Available Today for Business when keys exist; avoid “unlimited automation.”
 3. sales@chasum.app monitoring — prefer `/contact` walkthrough path; mailto remains fallback until ops confirms mailbox.
+4. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY.** Public plan prices remain `$79` / `$149` without USD or CAD until locked. Tenant operational currency (e.g. Chasum HQ = CAD) is separate.

@@ -1,3 +1,4 @@
+import { PLAN_LOCATION_LIMITS } from "@/lib/billing/plan-entitlements";
 import type { BillingInterval, BillingPlan, PlanKey } from "@/lib/billing/types";
 import { formatUsdFromCents } from "@/lib/owner/constants";
 
@@ -22,7 +23,7 @@ export const FALLBACK_PLANS: BillingPlan[] = [
     planKey: "starter",
     name: "Free",
     description: "Everything you need to experience Chasum.",
-    maxLocations: 1,
+    maxLocations: PLAN_LOCATION_LIMITS.starter,
     monthlyPriceCents: 0,
     yearlyPriceCents: 0,
     sortOrder: 1,
@@ -33,7 +34,7 @@ export const FALLBACK_PLANS: BillingPlan[] = [
     name: "Professional",
     description:
       "Powerful scheduling, AI assistance, and automation for professionals.",
-    maxLocations: 3,
+    maxLocations: PLAN_LOCATION_LIMITS.professional,
     monthlyPriceCents: 7900,
     yearlyPriceCents: 79000,
     sortOrder: 2,
@@ -44,7 +45,7 @@ export const FALLBACK_PLANS: BillingPlan[] = [
     name: "Business",
     description:
       "Multi-location management, advanced automation, and collaboration for growing teams.",
-    maxLocations: 10,
+    maxLocations: PLAN_LOCATION_LIMITS.business,
     monthlyPriceCents: 14900,
     yearlyPriceCents: 149000,
     sortOrder: 3,
@@ -55,7 +56,7 @@ export const FALLBACK_PLANS: BillingPlan[] = [
     name: "Enterprise",
     description:
       "Custom onboarding, advanced security, dedicated support, and tailored solutions.",
-    maxLocations: null,
+    maxLocations: PLAN_LOCATION_LIMITS.enterprise,
     monthlyPriceCents: null,
     yearlyPriceCents: null,
     sortOrder: 4,

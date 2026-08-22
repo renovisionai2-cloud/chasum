@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (World Class — product truth + entitlement alignment)
+
+- Inventory is Coming Soon on Pricing (not Available Today); Voice AI rewrite removed; Business location cap aligned to **6** in application catalog/enforcement
+- Staff limits are server-enforced (Free 1 / Professional 3 / Business and Enterprise unlimited) with grandfathering of existing over-limit rows
+- Roadmap splits Service Packages (Available Today) from Memberships (Coming Soon)
+- In-product paid-plan CTA is Apply for Professional; fabricated unused marketing components deleted
+- SaaS subscription currency left unlabeled pending Product Owner decision (not invented)
+
 ### Fixed (World Class — P1 systemic React 19 post-save form trust)
 
 - Persistent uncontrolled dashboard forms remount from a deterministic JSON revision of persisted editable values after a successful save so React 19 does not restore page-load defaults

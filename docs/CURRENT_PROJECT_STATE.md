@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-22  
-**Updated by:** World Class — P1 systemic React 19 post-save form trust fix  
+**Updated by:** World Class — product truth + entitlement alignment  
 
 ---
 
@@ -164,6 +164,12 @@ Shared money recognition, commerce + platform events, business operating context
 ## Last completed work
 
 ### Most recent (2026-08-22)
+
+**World Class — product truth + entitlement alignment**
+
+One product model across Pricing, Roadmap, billing catalog, and portal enforcement. Inventory and AI Phone Calls are Coming Soon. Packages stay Available Today; Memberships are Coming Soon. Free/Professional staff caps are enforced server-side (grandfather existing over-limit rows). Business location maximum is **6** in application entitlements (live DB `subscription_plans.business.max_locations` remains **10** until a PO-approved migration). SaaS list-price currency was **not** invented. Unused fabricated testimonials/logo-cloud/impact-counters were deleted. Status page manually reviewed date is 2026-08-22 (not live monitoring). Form-trust (4830511) was not reopened.
+
+### Prior (2026-08-22)
 
 **World Class — P1 systemic React 19 post-save form trust**
 
@@ -910,9 +916,9 @@ As of last update:
 
 **Priority order:**
 
-1. **Claude independent re-audit** of this P1 React 19 form-trust pass (no marketing/entitlement work) before Product Owner Preview testing.
-2. **PO Preview check after that audit (no SQL):** save Business Profile, Tax Rates, Employee Profile, Location Hours, and Booking/Location scheduling. Expected without a full reload: displayed values match the save, not the page-load defaults.
-3. **Do not start the Marketing/entitlement correction pass** until PO reviews locked Pricing/Roadmap contradictions and staff/location limit claims.
+1. **Claude independent re-audit** of this product-truth + entitlement pass (staff enforcement, location 6, Inventory/Voice AI truth, Packages vs Memberships, CTA, currency decision, dead-component cleanup, Production/data safety) before Product Owner acceptance.
+2. **Do not start the next development phase** until that audit and PO acceptance.
+3. **Do not apply** a Business `max_locations` 10 → 6 database migration until PO approves it. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
 4. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 4. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 5. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
