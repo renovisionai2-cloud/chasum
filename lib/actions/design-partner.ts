@@ -1,106 +1,145 @@
 "use server";
 
+import {
+  DESIGN_PARTNER_APPLICATIONS_TABLE,
+  designPartnerNotificationText,
+  parseDesignPartnerApplication,
+  toDesignPartnerApplicationRow,
+} from "@/lib/apply/design-partner-application";
 import { getEmailFromAddress, getResendApiKey } from "@/lib/env";
 import { logger } from "@/lib/observability/logger";
+import { isMissingSchemaError } from "@/lib/supabase/errors";
 
 export type DesignPartnerState = {
   ok?: boolean;
   error?: string;
 };
 
-function required(formData: FormData, key: string): string {
-  return String(formData.get(key) ?? "").trim();
+type PersistResult =
+  | { ok: true; id: string | null; tableReady: true }
+  | { ok: true; id: null; tableReady: false }
+  | { ok: false; error: string };
+
+async function persistDesignPartnerApplication(
+  row: ReturnType<typeof toDesignPartnerApplicationRow>,
+): Promise<PersistResult> {
+  try {
+    const { createServiceClient } = await import("@/lib/supabase/service");
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+      .from(DESIGN_PARTNER_APPLICATIONS_TABLE)
+      .insert(row)
+      .select("id")
+      .single();
+
+    if (error) {
+      if (isMissingSchemaError(error.message)) {
+        logger.error("design-partner", "037 unapplied — persist skipped", {
+          message: error.message,
+        });
+        return { ok: true, id: null, tableReady: false };
+      }
+      logger.error("design-partner", "persist failed", {
+        error: error.message,
+      });
+      return {
+        ok: false,
+        error: "Application could not be saved. Please try again.",
+      };
+    }
+
+    return {
+      ok: true,
+      id: data?.id ? String(data.id) : null,
+      tableReady: true,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (isMissingSchemaError(message)) {
+      logger.error("design-partner", "037 unapplied — persist skipped", {
+        message,
+      });
+      return { ok: true, id: null, tableReady: false };
+    }
+    logger.error("design-partner", "persist failed", { error: message });
+    return {
+      ok: false,
+      error: "Application could not be saved. Please try again.",
+    };
+  }
 }
 
-function optional(formData: FormData, key: string): string {
-  return String(formData.get(key) ?? "").trim();
+async function notifyDesignPartnerApplication(input: {
+  businessName: string;
+  industry: string;
+  employees: string;
+  locations: string;
+  currentSoftware: string;
+  monthlyAppointments: string;
+  painPoint: string;
+  email: string;
+  phone: string;
+  notes: string;
+}): Promise<"sent" | "skipped" | "failed"> {
+  const apiKey = getResendApiKey();
+  if (!apiKey) {
+    logger.info("design-partner", "email skipped — Resend is not configured");
+    return "skipped";
+  }
+
+  try {
+    const { Resend } = await import("resend");
+    const resend = new Resend(apiKey);
+    const submittedAt = new Date().toISOString();
+    const result = await resend.emails.send({
+      from: getEmailFromAddress(),
+      to: ["sales@chasum.app"],
+      replyTo: input.email,
+      subject: `Private Alpha application — ${input.businessName}`,
+      text: designPartnerNotificationText(input, submittedAt),
+    });
+    if (result.error) {
+      logger.error("design-partner", "email send failed", {
+        error: result.error.message,
+      });
+      return "failed";
+    }
+    logger.info("design-partner", "email sent", {
+      businessName: input.businessName,
+    });
+    return "sent";
+  } catch (error) {
+    logger.error("design-partner", "email send failed", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return "failed";
+  }
 }
 
 export async function submitDesignPartnerApplication(
   _prev: DesignPartnerState,
   formData: FormData,
 ): Promise<DesignPartnerState> {
-  const businessName = required(formData, "business_name");
-  const industry = required(formData, "industry");
-  const employees = required(formData, "employees");
-  const locations = required(formData, "locations");
-  const currentSoftware = required(formData, "current_software");
-  const painPoint = required(formData, "pain_point");
-  const monthlyAppointments = required(formData, "monthly_appointments");
-  const email = required(formData, "email");
-  const phone = optional(formData, "phone");
-  const notes = optional(formData, "notes");
-
-  if (
-    !businessName ||
-    !industry ||
-    !employees ||
-    !locations ||
-    !currentSoftware ||
-    !painPoint ||
-    !monthlyAppointments ||
-    !email
-  ) {
-    return { error: "Please complete all required fields." };
+  const parsed = parseDesignPartnerApplication(formData);
+  if (!parsed.ok) {
+    return { error: parsed.error };
   }
 
-  if (!email.includes("@")) {
-    return { error: "Please enter a valid email address." };
+  const row = toDesignPartnerApplicationRow(parsed.value);
+  const persisted = await persistDesignPartnerApplication(row);
+  if (!persisted.ok) {
+    return { error: persisted.error };
   }
-
-  const payload = {
-    businessName,
-    industry,
-    employees,
-    locations,
-    currentSoftware,
-    painPoint,
-    monthlyAppointments,
-    email,
-    phone: phone || "(not provided)",
-    notes: notes || "(none)",
-    submittedAt: new Date().toISOString(),
-  };
 
   logger.info("design-partner", "application received", {
-    businessName,
-    industry,
-    email,
+    businessName: parsed.value.businessName,
+    industry: parsed.value.industry,
+    email: parsed.value.email,
+    applicationId: persisted.id,
+    tableReady: persisted.tableReady,
   });
 
-  const apiKey = getResendApiKey();
-  if (apiKey) {
-    try {
-      const { Resend } = await import("resend");
-      const resend = new Resend(apiKey);
-      await resend.emails.send({
-        from: getEmailFromAddress(),
-        to: ["sales@chasum.app"],
-        replyTo: email,
-        subject: `Private Alpha application — ${businessName}`,
-        text: [
-          "New Chasum Private Alpha / Design Partner application",
-          "",
-          `Business: ${businessName}`,
-          `Business type: ${industry}`,
-          `Team size: ${employees}`,
-          `Locations: ${locations}`,
-          `Current software: ${currentSoftware}`,
-          `Monthly appointments: ${monthlyAppointments}`,
-          `Improve: ${painPoint}`,
-          `Email: ${email}`,
-          `Phone: ${phone || "(not provided)"}`,
-          `Notes: ${notes || "(none)"}`,
-          `Submitted: ${payload.submittedAt}`,
-        ].join("\n"),
-      });
-    } catch (error) {
-      logger.error("design-partner", "email send failed", {
-        error: error instanceof Error ? error.message : String(error),
-      });
-      // Still accept — founder can recover from logs; do not lose the lead UX.
-    }
-  }
+  await notifyDesignPartnerApplication(parsed.value);
 
   return { ok: true };
 }
