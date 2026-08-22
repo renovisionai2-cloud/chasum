@@ -122,12 +122,15 @@ describe("offer assignment by role", () => {
 
 describe("usage micro-USD", () => {
   it("does not round sub-cent AI costs to zero", () => {
-    expect(isSubCentMicros(1n)).toBe(true);
-    expect(isSubCentMicros(MICROS_PER_CENT - 1n)).toBe(true);
-    expect(usdMajorAndRemainder(1n)).toEqual({
-      dollars: 0n,
-      remainderMicros: 1n,
+    expect(isSubCentMicros(BigInt(1))).toBe(true);
+    expect(isSubCentMicros(MICROS_PER_CENT - BigInt(1))).toBe(true);
+    expect(usdMajorAndRemainder(BigInt(1))).toEqual({
+      dollars: BigInt(0),
+      remainderMicros: BigInt(1),
     });
-    expect(usdMajorAndRemainder(1n).remainderMicros === 0n).toBe(false);
+    expect(usdMajorAndRemainder(BigInt(1)).remainderMicros === BigInt(0)).toBe(
+      false,
+    );
+    expect(() => usdMajorAndRemainder(BigInt(-1))).toThrow(/negative/);
   });
 });

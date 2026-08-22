@@ -153,8 +153,16 @@ begin
     offer_changed := new.offer_id is distinct from old.offer_id;
   end if;
 
-  -- Trust service_role JWT. Anonymous callers are role `anon`, not service_role.
-  if offer_changed and auth.role() is distinct from 'service_role' then
+  -- App path: PostgREST JWT role service_role (createServiceClient).
+  -- Do NOT treat a missing uid as trusted (anon JWTs also have a null uid).
+  -- SET ROLE service_role does NOT populate auth.role(); that GUC reads the JWT.
+  -- SQL Editor has no JWT, so auth.role() is NULL and API roles fail closed.
+  -- Database owner postgres (and supabase_admin) may repair; locked-offer
+  -- and plan_key checks below still run.
+  if offer_changed
+    and auth.role() is distinct from 'service_role'
+    and current_user not in ('postgres', 'supabase_admin')
+  then
     raise exception 'offer_id may only be assigned by trusted server role';
   end if;
 
@@ -193,7 +201,7 @@ create trigger businesses_offer_assignment_guard
 
 create table if not exists public.usage_events (
   id uuid primary key default gen_random_uuid(),
-  business_id uuid not null references public.businesses (id) on delete cascade,
+  business_id uuid not null references public.businesses (id) on delete restrict,
   kind text not null check (char_length(trim(kind)) > 0),
   quantity numeric not null check (quantity >= 0),
   unit text not null check (char_length(trim(unit)) > 0),
@@ -207,7 +215,7 @@ create table if not exists public.usage_events (
 );
 
 comment on table public.usage_events is
-  'Internal append-only usage/COGS ledger. estimated_cost_micros is Chasum cost, not customer billing. 1,000,000 micros = $1.00 USD-equivalent. No tenant SELECT.';
+  'Internal append-only usage/COGS ledger. business_id ON DELETE RESTRICT so cost history is not dropped with a business row. estimated_cost_micros is Chasum cost, not customer billing. 1,000,000 micros = $1.00 USD-equivalent. No tenant SELECT.';
 
 comment on column public.usage_events.estimated_cost_micros is
   'Internal provider-cost micro-USD. Never tenant-visible. Corrections = new rows.';

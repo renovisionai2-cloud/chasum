@@ -9,8 +9,8 @@
  * - One message != one segment. Append compensating events; never UPDATE usage_events.
  */
 
-export const MICROS_PER_USD = 1_000_000n;
-export const MICROS_PER_CENT = 10_000n;
+export const MICROS_PER_USD = BigInt(1000000);
+export const MICROS_PER_CENT = BigInt(10000);
 
 export const USAGE_KINDS = [
   "summer_input_tokens",
@@ -25,7 +25,7 @@ export const USAGE_KINDS = [
 export type UsageKind = (typeof USAGE_KINDS)[number];
 
 export function isSubCentMicros(micros: bigint): boolean {
-  return micros > 0n && micros < MICROS_PER_CENT;
+  return micros > BigInt(0) && micros < MICROS_PER_CENT;
 }
 
 /** Integer conversion only. Sub-cent values stay non-zero micros. */
@@ -33,7 +33,7 @@ export function usdMajorAndRemainder(micros: bigint): {
   dollars: bigint;
   remainderMicros: bigint;
 } {
-  if (micros < 0n) {
+  if (micros < BigInt(0)) {
     throw new Error("estimated_cost_micros cannot be negative");
   }
   return {

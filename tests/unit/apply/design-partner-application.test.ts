@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   DESIGN_PARTNER_APPLICATIONS_TABLE,
+  isDesignPartnerApplicationsTableMissing,
   parseDesignPartnerApplication,
   toDesignPartnerApplicationRow,
 } from "@/lib/apply/design-partner-application";
@@ -63,7 +64,7 @@ function validForm(overrides: Record<string, string> = {}) {
 
 function mockInsertResult(result: {
   data: { id: string } | null;
-  error: { message: string } | null;
+  error: { message: string; code?: string } | null;
 }) {
   insert.mockReturnValue({
     select: () => ({
@@ -77,6 +78,49 @@ function mockInsertResult(result: {
     },
   });
 }
+
+describe("isDesignPartnerApplicationsTableMissing", () => {
+  it("allows fallback only for the missing design_partner_applications table", () => {
+    expect(
+      isDesignPartnerApplicationsTableMissing({
+        code: "42P01",
+        message: 'relation "design_partner_applications" does not exist',
+      }),
+    ).toBe(true);
+    expect(
+      isDesignPartnerApplicationsTableMissing({
+        code: "PGRST205",
+        message:
+          "Could not find the table 'public.design_partner_applications' in the schema cache",
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects missing-column, permission, and generic failures", () => {
+    expect(
+      isDesignPartnerApplicationsTableMissing({
+        code: "42703",
+        message:
+          'column "x" of relation "design_partner_applications" does not exist',
+      }),
+    ).toBe(false);
+    expect(
+      isDesignPartnerApplicationsTableMissing({
+        code: "42501",
+        message: "permission denied for table design_partner_applications",
+      }),
+    ).toBe(false);
+    expect(
+      isDesignPartnerApplicationsTableMissing(new Error("fetch failed")),
+    ).toBe(false);
+    expect(
+      isDesignPartnerApplicationsTableMissing({
+        code: "42P01",
+        message: 'relation "businesses" does not exist',
+      }),
+    ).toBe(false);
+  });
+});
 
 describe("parseDesignPartnerApplication", () => {
   it("maps actual form fields and rejects incomplete submissions", () => {
@@ -201,7 +245,10 @@ describe("submitDesignPartnerApplication", () => {
   it("falls back to email/log when 037 is unapplied so /apply is not lost", async () => {
     mockInsertResult({
       data: null,
-      error: { message: 'relation "design_partner_applications" does not exist' },
+      error: {
+        code: "42P01",
+        message: 'relation "design_partner_applications" does not exist',
+      },
     });
     const result = await submitDesignPartnerApplication({}, validForm());
     expect(result).toEqual({ ok: true });
@@ -211,6 +258,42 @@ describe("submitDesignPartnerApplication", () => {
       "037 unapplied — persist skipped",
       expect.anything(),
     );
+  });
+
+  it("does not treat a missing column as 037 unapplied", async () => {
+    mockInsertResult({
+      data: null,
+      error: {
+        code: "42703",
+        message:
+          'column "contact_name" of relation "design_partner_applications" does not exist',
+      },
+    });
+    const result = await submitDesignPartnerApplication({}, validForm());
+    expect(result.error).toMatch(/could not be saved/i);
+    expect(emailsSend).not.toHaveBeenCalled();
+  });
+
+  it("does not treat permission errors as 037 unapplied", async () => {
+    mockInsertResult({
+      data: null,
+      error: {
+        code: "42501",
+        message: "permission denied for table design_partner_applications",
+      },
+    });
+    const result = await submitDesignPartnerApplication({}, validForm());
+    expect(result.error).toMatch(/could not be saved/i);
+    expect(emailsSend).not.toHaveBeenCalled();
+  });
+
+  it("does not treat generic/network failures as 037 unapplied", async () => {
+    createServiceClient.mockImplementation(() => {
+      throw new Error("fetch failed");
+    });
+    const result = await submitDesignPartnerApplication({}, validForm());
+    expect(result.error).toMatch(/could not be saved/i);
+    expect(emailsSend).not.toHaveBeenCalled();
   });
 });
 

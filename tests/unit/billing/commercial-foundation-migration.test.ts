@@ -49,6 +49,7 @@ describe("038_commercial_foundation_additive (unapplied Track 2)", () => {
     expect(sql).toMatch(/locked offer commercial payload is immutable/);
     expect(sql).toMatch(/locked offers cannot be unlocked/);
     expect(sql).toMatch(/auth\.role\(\) is distinct from 'service_role'/);
+    expect(sql).toMatch(/current_user not in \('postgres', 'supabase_admin'\)/);
     expect(sql).not.toMatch(/auth\.uid\(\)\s+is\s+null/i);
     expect(sql).toMatch(/if tg_op = 'INSERT' then/);
     expect(sql).toMatch(/subscription_plan_key must match plan_offers\.plan_key/);
@@ -81,6 +82,12 @@ describe("038_commercial_foundation_additive (unapplied Track 2)", () => {
     expect(sql).toMatch(/num_segments/);
     expect(sql).toMatch(/NumSegments/);
     expect(sql).toMatch(/usage_events_business_occurred_idx/);
+    expect(sql).toMatch(
+      /business_id uuid not null references public\.businesses \(id\) on delete restrict/i,
+    );
+    expect(sql).not.toMatch(
+      /usage_events \([\s\S]*references public\.businesses \(id\) on delete cascade/i,
+    );
   });
 
   it("does not change Private Alpha or existing billing RLS", () => {

@@ -6,6 +6,59 @@
 export const DESIGN_PARTNER_APPLICATIONS_TABLE =
   "design_partner_applications" as const;
 
+/**
+ * True only when Postgres/PostgREST reports that the
+ * design_partner_applications TABLE is missing (037 unapplied).
+ * Does not treat missing columns, RLS, permissions, or generic failures
+ * as an unapplied migration. Shared isMissingSchemaError() is intentionally
+ * not used here — it matches any "does not exist" substring.
+ */
+export function isDesignPartnerApplicationsTableMissing(
+  error: { code?: string | null; message?: string | null } | unknown,
+): boolean {
+  const code =
+    error && typeof error === "object" && "code" in error
+      ? String((error as { code?: string | null }).code ?? "")
+      : "";
+  const message =
+    typeof error === "string"
+      ? error
+      : error && typeof error === "object" && "message" in error
+        ? String((error as { message?: string | null }).message ?? "")
+        : error instanceof Error
+          ? error.message
+          : "";
+  if (!message && !code) return false;
+
+  const m = message.toLowerCase();
+  if (/\bcolumn\b/.test(m) && m.includes("does not exist")) return false;
+  if (m.includes("permission denied")) return false;
+  if (m.includes("row-level security") || m.includes("rls policy")) {
+    return false;
+  }
+  if (m.includes("violates") && m.includes("constraint")) return false;
+
+  const table = DESIGN_PARTNER_APPLICATIONS_TABLE;
+  const namesMissingTable =
+    new RegExp(
+      `relation\\s+"(?:public\\.)?${table}"\\s+does not exist`,
+      "i",
+    ).test(message) ||
+    new RegExp(
+      `could not find the table ['"](?:public\\.)?${table}['"]`,
+      "i",
+    ).test(message) ||
+    new RegExp(
+      `could not find the relation ['"](?:public\\.)?${table}['"]`,
+      "i",
+    ).test(message);
+
+  if (code === "42P01" || code === "PGRST205") {
+    return namesMissingTable;
+  }
+  return namesMissingTable;
+}
+
 export const DESIGN_PARTNER_STATUSES = [
   "received",
   "reviewing",

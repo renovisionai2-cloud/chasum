@@ -3,12 +3,12 @@
 import {
   DESIGN_PARTNER_APPLICATIONS_TABLE,
   designPartnerNotificationText,
+  isDesignPartnerApplicationsTableMissing,
   parseDesignPartnerApplication,
   toDesignPartnerApplicationRow,
 } from "@/lib/apply/design-partner-application";
 import { getEmailFromAddress, getResendApiKey } from "@/lib/env";
 import { logger } from "@/lib/observability/logger";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
 
 export type DesignPartnerState = {
   ok?: boolean;
@@ -33,9 +33,10 @@ async function persistDesignPartnerApplication(
       .single();
 
     if (error) {
-      if (isMissingSchemaError(error.message)) {
+      if (isDesignPartnerApplicationsTableMissing(error)) {
         logger.error("design-partner", "037 unapplied — persist skipped", {
           message: error.message,
+          code: error.code,
         });
         return { ok: true, id: null, tableReady: false };
       }
@@ -55,7 +56,7 @@ async function persistDesignPartnerApplication(
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    if (isMissingSchemaError(message)) {
+    if (isDesignPartnerApplicationsTableMissing(error)) {
       logger.error("design-partner", "037 unapplied — persist skipped", {
         message,
       });

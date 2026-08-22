@@ -90,9 +90,44 @@ Assignment of `offer_id` requires `auth.role() = 'service_role'`. Do **not** tre
 
 Consistency (locked offer + matching `plan_key`) runs for **every** writer: primary owner, co-owner admin, server action, service role, future Platform Admin. Co-owners can UPDATE `businesses` under existing RLS; they still cannot create an invalid commercial pair.
 
+#### Emergency DBA repair (exceptional)
+
+Normal assignment MUST use `createServiceClient()` so PostgREST presents JWT `auth.role() = 'service_role'`. That is the only application path.
+
+**Verified SQL Editor model (this project):** dashboard SQL runs as PostgreSQL role `postgres` with **no JWT**. `auth.role()` reads the request JWT claim (same GUC used in `004` service-role policies). It is **NULL** in the SQL Editor, so API roles fail closed — including after `SET ROLE service_role`, which does **not** populate `auth.role()`. Do not use `SET ROLE service_role` as a repair procedure.
+
+The assignment trigger therefore also allows `current_user IN ('postgres', 'supabase_admin')` so an authorized administrator can repair **without disabling the trigger**. The rest of the trigger still requires:
+
+- offer row exists
+- offer `is_locked`
+- `subscription_plan_key` = `plan_offers.plan_key`
+
+Anon / authenticated / owner / co-owner remain blocked (`current_user` is `anon` or `authenticated`).
+
+Example (replace ids; run only with PO authorization):
+
+    UPDATE public.businesses b
+    SET offer_id = o.id,
+        subscription_plan_key = o.plan_key
+    FROM public.plan_offers o
+    WHERE b.id = '<business-uuid>'
+      AND o.id = '<locked-offer-uuid>'
+      AND o.is_locked = true
+      AND o.plan_key = b.subscription_plan_key;
+
+If a trigger must ever be disabled (last resort, not the preferred path):
+
+    BEGIN;
+    ALTER TABLE public.businesses DISABLE TRIGGER businesses_offer_assignment_guard;
+    -- run the same UPDATE, then immediately:
+    ALTER TABLE public.businesses ENABLE TRIGGER businesses_offer_assignment_guard;
+    COMMIT;
+
+Never leave the trigger disabled across sessions. Never DROP the function. Never add a general bypass API.
+
 ### `usage_events`
 
-Append-only internal COGS ledger. `estimated_cost_micros`: 1,000,000 = $1.00 USD-equivalent. Not customer billing.
+Append-only internal COGS ledger. `estimated_cost_micros`: 1,000,000 = $1.00 USD-equivalent. Not customer billing. `business_id` is `ON DELETE RESTRICT` so usage/COGS history is not silently removed if a business row is hard-deleted.
 
 No authenticated SELECT/INSERT/UPDATE/DELETE. No tenant-facing usage view in this gate (would leak provider cost).
 
