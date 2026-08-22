@@ -12,6 +12,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-22 | **P1 React 19 form trust** | pending this commit · feature `e66dc9f` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Persistent dashboard forms remount after save; HQ not mutated; 034–036 unapplied |
 | 2026-08-21 | **Post-save booking settings UI** | `39f3b48` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Remount uncontrolled booking forms after persisted values change; HQ not mutated; 034–036 unapplied |
 | 2026-08-21 | **Location vs business booking scope** | `7d35346` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Settings is location-only; Business Booking remains cascade; HQ not SQL-patched; 034–036 unapplied |
 | 2026-08-21 | **Booking interval sync + billing honesty** | `a2974d0` | Branch Preview alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Business cascade error checks + billing honesty kept; location-inferred business write later reversed; HQ not SQL-patched; 034–036 unapplied |

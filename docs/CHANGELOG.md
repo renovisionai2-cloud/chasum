@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (World Class — P1 systemic React 19 post-save form trust)
+
+- Persistent uncontrolled dashboard forms remount from a deterministic JSON revision of persisted editable values after a successful save so React 19 does not restore page-load defaults
+- Booking and Location Scheduling revisions no longer join fields with `|` (free-text collision)
+
 ### Fixed (World Class — post-save booking settings UI)
 
 - Business Booking and Location scheduling forms remount from persisted field values after a successful save so React 19 does not leave the original page-load defaults on screen

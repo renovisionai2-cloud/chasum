@@ -22,9 +22,10 @@ function canonical(value: FormRevisionValue): unknown {
   if (value === undefined || value === null) return null;
   if (Array.isArray(value)) return value.map((item) => canonical(item));
   if (typeof value === "object") {
+    const record = value as { readonly [key: string]: FormRevisionValue };
     const out: Record<string, unknown> = {};
-    for (const key of Object.keys(value).sort()) {
-      out[key] = canonical(value[key]);
+    for (const key of Object.keys(record).sort()) {
+      out[key] = canonical(record[key]);
     }
     return out;
   }

@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-21  
-**Updated by:** World Class — HQ audit fix pass (mock paid upgrade guard + 15-minute new-business interval)  
+**Last updated:** 2026-08-22  
+**Updated by:** World Class — P1 systemic React 19 post-save form trust fix  
 
 ---
 
@@ -163,7 +163,13 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-21)
+### Most recent (2026-08-22)
+
+**World Class — P1 systemic React 19 post-save form trust**
+
+Persistent uncontrolled dashboard forms remount from a deterministic JSON revision of persisted editable values after save, so React 19 does not restore page-load defaults. Business Profile, Tax Rates, Employee Profile, Location Hours, Staff hours, Hub catalog add forms, Notification/Branding/AI, and Customer marketing are covered. Booking and Location Scheduling keep the same remount pattern with a collision-resistant serializer. Server-action semantics, billing, entitlements, and marketing copy were not changed. HQ/Staging rows were not mutated. Production was not touched.
+
+### Prior (2026-08-21)
 
 **World Class — post-save booking settings UI**
 
@@ -832,9 +838,10 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `39f3b482124a04113d187383eb1d16d84456650e` |
-| **Short** | `39f3b48` |
-| **Subject** | Remount booking settings forms after persisted values change. |
+| **SHA** | `e66dc9f` (feature; docs stamp this commit) |
+| **Short** | pending docs commit |
+| **Subject** | Remount persistent dashboard forms after saved values change. |
+| **P1 React 19 form trust** | `e66dc9f` |
 | **Post-save booking settings UI** | `39f3b482124a04113d187383eb1d16d84456650e` |
 | **Location-scope correction** | `7d35346b53568643c8f8cbb620a939e2898ced19` |
 | **Booking interval sync + billing honesty** | `a2974d0c165c15fca20f7a215dba6e4313cef9e3` |
@@ -902,9 +909,10 @@ As of last update:
 
 **Priority order:**
 
-1. **Claude re-audit** of the post-save booking settings UI remount (React 19 stale defaultValue) before the Product Owner retests Business Booking in Preview.
-2. **PO Preview check after that audit (no SQL):** Business → Booking settings → Every 15 minutes → Save. Expected without refresh: dropdown stays on Every 15 minutes. Then Location scheduling 15 → 30 should stay 30 without refresh.
-3. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
+1. **Claude independent re-audit** of this P1 React 19 form-trust pass (no marketing/entitlement work) before Product Owner Preview testing.
+2. **PO Preview check after that audit (no SQL):** save Business Profile, Tax Rates, Employee Profile, Location Hours, and Booking/Location scheduling. Expected without a full reload: displayed values match the save, not the page-load defaults.
+3. **Do not start the Marketing/entitlement correction pass** until PO reviews locked Pricing/Roadmap contradictions and staff/location limit claims.
+4. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 4. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 5. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
 6. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
