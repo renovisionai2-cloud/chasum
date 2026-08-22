@@ -57,4 +57,36 @@ describe("Business setup hub IA", () => {
     expect(page).toMatch(/title: "Business setup"/);
     expect(page).toMatch(/title="Business setup"/);
   });
+
+  it("exposes a labeled More overflow instead of an icon-only destination", () => {
+    const hub = read("components/business/business-hub.tsx");
+    expect(hub).toMatch(/More Business setup sections/);
+    expect(hub).toMatch(/\n\s*More\n/);
+    expect(hub).toMatch(/All Business setup sections/);
+    expect(hub).toMatch(/whitespace-nowrap/);
+    expect(hub).toMatch(/scrollIntoView/);
+  });
+
+  it("keeps location Add actions consistent with quota", () => {
+    const hub = read("components/business/business-hub.tsx");
+    expect(hub).toMatch(/const canAddLocation = locationQuota\?\.canAdd === true/);
+    expect(hub).toMatch(/open=\{addLocationOpen && canAddLocation\}/);
+    expect(hub).toMatch(/\{canAddLocation \? \(/);
+  });
+
+  it("uses local autocomplete off on membership product name", () => {
+    const hub = read("components/business/business-hub.tsx");
+    expect(hub).toMatch(/id="membership_plan_name"/);
+    expect(hub).toMatch(/id="membership_plan_name"[\s\S]{0,200}autoComplete="off"/);
+    expect(hub).not.toMatch(/<form[^>]*autoComplete="off"/);
+  });
+
+  it("labels non-obvious category controls from real field semantics", () => {
+    const hub = read("components/business/business-hub.tsx");
+    expect(hub).toMatch(/htmlFor="category_name"/);
+    expect(hub).toMatch(/>Color</);
+    expect(hub).toMatch(/>Display order</);
+    expect(hub).toMatch(/htmlFor="category_icon"/);
+    expect(hub).toMatch(/htmlFor="category_sort_order"/);
+  });
 });

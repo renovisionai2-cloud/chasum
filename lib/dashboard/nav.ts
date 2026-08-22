@@ -43,6 +43,8 @@ export type DashboardNavItem = {
   ownerOnly?: boolean;
   /** Shown in Advanced group; demoted for ordinary tenants. */
   advanced?: boolean;
+  /** Restrained visible status chip (text, not color-only), e.g. Preview. */
+  badge?: string;
 };
 
 export type DashboardNavGroup = {
@@ -131,6 +133,7 @@ export const DASHBOARD_NAV_GROUPS: DashboardNavGroup[] = [
         label: "Memberships",
         icon: "wallet",
         tab: "memberships",
+        badge: "Preview",
       },
     ],
   },

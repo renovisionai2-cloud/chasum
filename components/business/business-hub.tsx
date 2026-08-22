@@ -87,6 +87,7 @@ import {
   Bell,
   Building2,
   CalendarClock,
+  ChevronDown,
   ClipboardList,
   FileText,
   Gift,
@@ -251,8 +252,44 @@ export function BusinessHub({
 
   function selectTab(next: TabKey) {
     setTab(next);
+    setMoreOpen(false);
     router.replace(businessHubHref(next), { scroll: false });
   }
+
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement | null>(null);
+  const tabButtonRefs = useRef<Partial<Record<TabKey, HTMLButtonElement | null>>>(
+    {},
+  );
+
+  useEffect(() => {
+    const el = tabButtonRefs.current[tab];
+    if (el && typeof el.scrollIntoView === "function") {
+      el.scrollIntoView({ inline: "nearest", block: "nearest" });
+    }
+  }, [tab]);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    function onPointerDown(event: MouseEvent) {
+      if (!moreRef.current?.contains(event.target as Node)) {
+        setMoreOpen(false);
+      }
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setMoreOpen(false);
+    }
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
+
+  const selectedTabLabel =
+    TABS.find((item) => item.key === tab)?.label ?? "Business setup";
+  const canAddLocation = locationQuota?.canAdd === true;
 
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
@@ -339,33 +376,82 @@ export function BusinessHub({
 
   return (
     <div className="space-y-6">
-      <div
-        className="-mx-1 flex gap-1 overflow-x-auto pb-1"
-        role="tablist"
-        aria-label="Business setup sections"
-      >
-        {TABS.map((item) => {
-          const Icon = item.icon;
-          const selected = tab === item.key;
-          return (
-            <button
-              key={item.key}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              aria-label={item.label}
-              onClick={() => selectTab(item.key)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors ds-focus-ring ${
-                selected
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+      <div className="flex items-start gap-1">
+        <div
+          className="-mx-1 flex min-w-0 flex-1 gap-1 overflow-x-auto pb-1"
+          role="tablist"
+          aria-label="Business setup sections"
+        >
+          {TABS.map((item) => {
+            const Icon = item.icon;
+            const selected = tab === item.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                role="tab"
+                ref={(el) => {
+                  tabButtonRefs.current[item.key] = el;
+                }}
+                aria-selected={selected}
+                aria-label={item.label}
+                onClick={() => selectTab(item.key)}
+                className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-medium transition-colors ds-focus-ring ${
+                  selected
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+        <div ref={moreRef} className="relative shrink-0">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 rounded-[var(--radius-sm)] bg-muted/60 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground ds-focus-ring"
+            aria-expanded={moreOpen}
+            aria-haspopup="listbox"
+            aria-label={`More Business setup sections. ${selectedTabLabel} selected.`}
+            onClick={() => setMoreOpen((open) => !open)}
+          >
+            More
+            <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+          {moreOpen ? (
+            <ul
+              role="listbox"
+              aria-label="All Business setup sections"
+              className="absolute right-0 z-30 mt-1 max-h-80 w-56 overflow-y-auto rounded-[var(--radius-md)] border border-border bg-card py-1 shadow-lg"
             >
-              <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-              {item.label}
-            </button>
-          );
-        })}
+              {TABS.map((item) => {
+                const selected = tab === item.key;
+                return (
+                  <li key={item.key} role="none">
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      className={`flex w-full px-3 py-1.5 text-left text-xs font-medium ds-focus-ring ${
+                        selected
+                          ? "bg-primary/10 text-foreground"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
+                      onClick={() => selectTab(item.key)}
+                    >
+                      {item.label}
+                      {selected ? (
+                        <span className="sr-only"> selected</span>
+                      ) : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+        </div>
       </div>
 
       {tab === "profile" ? (
@@ -591,14 +677,21 @@ export function BusinessHub({
         <Card>
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0">
             <CardTitle>Locations</CardTitle>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => setAddLocationOpen(true)}
-              disabled={!locationQuota?.canAdd}
-            >
-              Add Location
-            </Button>
+            {canAddLocation ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setAddLocationOpen(true)}
+              >
+                Add Location
+              </Button>
+            ) : (
+              <Link href="/apply">
+                <Button type="button" size="sm" variant="outline">
+                  {FREE_PLAN_UPGRADE_CTA}
+                </Button>
+              </Link>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -622,15 +715,11 @@ export function BusinessHub({
                   {locationQuota.currentCount} active location
                   {locationQuota.currentCount === 1 ? "" : "s"} on{" "}
                   {locationQuota.plan.name ?? "your plan"} (max{" "}
-                  {locationQuota.plan.max_locations}). Apply for Professional to
-                  create another site. Paid plans are currently approved through
-                  Private Alpha.
+                  {locationQuota.plan.max_locations}). Creation is unavailable
+                  until you apply for a plan that includes more sites. Paid plans
+                  are currently approved through Private Alpha. Use{" "}
+                  {FREE_PLAN_UPGRADE_CTA} above.
                 </p>
-                <Link href="/apply" className="mt-2 inline-block">
-                  <Button type="button" size="sm" variant="outline">
-                    {FREE_PLAN_UPGRADE_CTA}
-                  </Button>
-                </Link>
               </div>
             ) : null}
             <ul className="divide-y divide-border/80 rounded-[var(--radius-md)] border border-border">
@@ -662,13 +751,15 @@ export function BusinessHub({
               ))}
             </ul>
             <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => setAddLocationOpen(true)}
-              >
-                Add Location
-              </Button>
+              {canAddLocation ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setAddLocationOpen(true)}
+                >
+                  Add Location
+                </Button>
+              ) : null}
               <Link href="/dashboard/settings">
                 <Button size="sm" variant="outline">
                   Location hours & scheduling
@@ -686,8 +777,11 @@ export function BusinessHub({
               onClose={() => setEditingLocation(null)}
             />
             <AddLocationDialog
-              open={addLocationOpen}
-              onOpenChange={setAddLocationOpen}
+              open={addLocationOpen && canAddLocation}
+              onOpenChange={(open) => {
+                if (!canAddLocation) return;
+                setAddLocationOpen(open);
+              }}
               defaultTimezone={business.timezone}
             />
           </CardContent>
@@ -744,11 +838,62 @@ export function BusinessHub({
                 className="space-y-3"
                 data-form-revision="add-category"
               >
-                <Input name="name" placeholder="Category name" required />
-                <Input name="description" placeholder="Description" />
-                <Input name="icon" placeholder="Icon key (optional)" />
-                <Input name="color" type="color" defaultValue="#64748b" />
-                <Input name="sort_order" type="number" defaultValue={0} />
+                <div className="space-y-1">
+                  <Label htmlFor="category_name">Category name</Label>
+                  <Input
+                    id="category_name"
+                    name="name"
+                    autoComplete="off"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="category_description">Description</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Optional. Shown with the category in the service catalog.
+                  </p>
+                  <Input
+                    id="category_description"
+                    name="description"
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="category_icon">Icon key</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Optional short key stored on the category (example: sparkles).
+                    Leave blank if unused.
+                  </p>
+                  <Input
+                    id="category_icon"
+                    name="icon"
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="category_color">Color</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Accent color for this category in lists and filters.
+                  </p>
+                  <Input
+                    id="category_color"
+                    name="color"
+                    type="color"
+                    defaultValue="#64748b"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="category_sort_order">Display order</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Lower numbers appear first in the catalog. Default is 0.
+                  </p>
+                  <Input
+                    id="category_sort_order"
+                    name="sort_order"
+                    type="number"
+                    defaultValue={0}
+                  />
+                </div>
                 <AlertMessage error={catState.error} success={catState.success} />
                 <FormFooter pending={catPending || deleting} submitLabel="Save category" />
               </form>
@@ -869,15 +1014,65 @@ export function BusinessHub({
                 className="space-y-3"
                 data-form-revision="add-membership"
               >
-                <Input name="name" placeholder="Name" required />
-                <Textarea name="description" rows={2} placeholder="Description" />
-                <Select name="billing_interval" defaultValue="monthly">
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </Select>
-                <Input name="price" placeholder="Price" required />
-                <Input name="visit_limit" type="number" placeholder="Visit limit" />
+                <div className="space-y-1">
+                  <Label htmlFor="membership_plan_name">Membership name</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Catalog preview name for this membership product. Not a
+                    person or business identity field.
+                  </p>
+                  <Input
+                    id="membership_plan_name"
+                    name="name"
+                    autoComplete="off"
+                    required
+                    placeholder="e.g. Monthly Glow"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="membership_description">Description</Label>
+                  <Textarea
+                    id="membership_description"
+                    name="description"
+                    rows={2}
+                    autoComplete="off"
+                    placeholder="Optional catalog description"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="membership_billing_interval">
+                    Billing interval
+                  </Label>
+                  <Select
+                    id="membership_billing_interval"
+                    name="billing_interval"
+                    defaultValue="monthly"
+                  >
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="membership_price">Price</Label>
+                  <Input
+                    id="membership_price"
+                    name="price"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    placeholder="Price"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="membership_visit_limit">Visit limit</Label>
+                  <Input
+                    id="membership_visit_limit"
+                    name="visit_limit"
+                    type="number"
+                    autoComplete="off"
+                    placeholder="Visit limit"
+                  />
+                </div>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" name="is_unlimited" /> Unlimited visits
                 </label>
@@ -938,7 +1133,12 @@ export function BusinessHub({
                 className="space-y-3"
                 data-form-revision="add-package"
               >
-                <Input name="name" placeholder="Name" required />
+                <Input
+                  name="name"
+                  placeholder="Name"
+                  required
+                  autoComplete="off"
+                />
                 <Textarea name="description" rows={2} />
                 <Input name="price" placeholder="Price" required />
                 <Input name="total_visits" type="number" defaultValue={5} />

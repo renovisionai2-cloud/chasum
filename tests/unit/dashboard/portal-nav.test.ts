@@ -69,6 +69,12 @@ describe("portal navigation IA", () => {
       catalog.items.find((i) => i.label === "Memberships")?.href,
     ).toBe("/dashboard/business?tab=memberships");
     expect(
+      catalog.items.find((i) => i.label === "Memberships")?.badge,
+    ).toBe("Preview");
+    expect(
+      catalog.items.find((i) => i.label === "Packages")?.badge,
+    ).toBeUndefined();
+    expect(
       catalog.items.find((i) => i.label === "Packages")?.href,
     ).toBe("/dashboard/business?tab=packages");
   });

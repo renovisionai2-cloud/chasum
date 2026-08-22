@@ -36,7 +36,7 @@ Source: `lib/dashboard/nav.ts`, `components/dashboard/sidebar.tsx`, `components/
 | Team | Employees | `/dashboard/employees` | Yes | More | Yes | GOOD |
 | Catalog | Services | `/dashboard/services` | Yes | More | Yes | GOOD |
 | Catalog | Packages | `/dashboard/business?tab=packages` | Yes | More | Yes | GOOD |
-| Catalog | Memberships | `/dashboard/business?tab=memberships` | Yes | More | Yes | GOOD — Preview / Coming Soon on destination |
+| Catalog | Memberships | `/dashboard/business?tab=memberships` | Yes | More | Yes | GOOD — nav Preview chip + destination Preview / Coming Soon |
 | Money | Payments | `/dashboard/payments` | Yes | Yes | Yes | GOOD |
 | Money | Gift Cards | `/dashboard/business?tab=giftcards` | Yes | More | Yes | GOOD |
 | Money | Discounts | `/dashboard/business?tab=discounts` | Yes | More | Yes | GOOD |
@@ -60,6 +60,7 @@ Source: `lib/dashboard/nav.ts`, `components/dashboard/sidebar.tsx`, `components/
 | AI Command | `/dashboard/ai-workforce/command` | DESIGN FOR NOW / BUILD LATER |
 | Taxes / Rooms / Categories / Custom forms / Booking notifications / Business rules | Hub tabs | Stay inside Business setup |
 | Command Centre Chase insights | `/dashboard` | DESIGN FOR NOW / BUILD LATER |
+| Business setup interior grouping | `/dashboard/business` | DESIGN FOR NOW / BUILD LATER — tab row overflow is labeled More; do not redesign groups in this pass |
 
 ---
 

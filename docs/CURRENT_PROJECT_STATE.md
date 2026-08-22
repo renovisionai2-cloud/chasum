@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-22  
-**Updated by:** World Class — navigation + command discoverability  
+**Updated by:** World Class — navigation acceptance corrections  
 
 ---
 
@@ -205,6 +205,12 @@ Do not expand Summer until the domain is complete, truthful, and reachable. This
 ## Last completed work
 
 ### Most recent (2026-08-22)
+
+**World Class — navigation acceptance corrections**
+
+Product Owner browser findings from navigation Phase 1: Locations Add Location actions are consistent at quota (no enabled bypass; one Apply CTA); Memberships has a restrained Preview chip in desktop/More nav; Business setup overflow is a labeled More menu (clipped Memberships icon was the unlabeled control); membership Name uses autocomplete=off; Categories add form has visible labels for icon key, color, and display order. Hub interior grouping remains DESIGN FOR NOW / BUILD LATER. No SQL, no pricing/Stripe, Production unchanged.
+
+### Prior (2026-08-22)
 
 **World Class — navigation + command discoverability**
 
@@ -992,8 +998,8 @@ As of last update:
 
 **Priority order:**
 
-1. **Product Owner browser acceptance** of Navigation + Command Discoverability on World Class Preview. Command Centre Chase insights and AI Command consolidation remain **DESIGN FOR NOW / BUILD LATER**.
-2. **Do not start the next development phase** until PO acceptance of this navigation slice.
+1. **Product Owner 4-check retest** of navigation acceptance corrections on World Class Preview. Business setup interior grouping and Command Centre Chase insights remain **DESIGN FOR NOW / BUILD LATER**.
+2. **Do not start the next development phase** until PO acceptance of this navigation correction pass.
 3. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred** to a future approved migration window. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
 4. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
 5. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.

@@ -94,6 +94,9 @@ function NavLink({
 }) {
   const Icon = iconMap[item.icon];
   const isActive = isNavItemActive(pathname, search, item);
+  const accessibleName = item.badge
+    ? `${item.label}, ${item.badge}`
+    : item.label;
 
   return (
     <Link
@@ -107,10 +110,15 @@ function NavLink({
         item.href === "/dashboard/hq" && !isActive && "text-amber-200/90",
       )}
       aria-current={isActive ? "page" : undefined}
+      aria-label={accessibleName}
     >
       <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
       <span className="truncate">{item.label}</span>
-      {isActive ? (
+      {item.badge ? (
+        <span className="ml-auto shrink-0 rounded-[var(--radius-sm)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-slate-200 ring-1 ring-white/30">
+          {item.badge}
+        </span>
+      ) : isActive ? (
         <span
           className="ml-auto h-1.5 w-1.5 rounded-full bg-primary"
           aria-hidden="true"

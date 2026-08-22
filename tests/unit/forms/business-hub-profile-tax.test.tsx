@@ -218,7 +218,8 @@ describe("Business Hub catalog add-form remount", () => {
 
   it("clears the category add form after a new persisted category appears", () => {
     const { rerender } = render(emptyHub({ initialTab: "categories" }));
-    const name = screen.getByPlaceholderText("Category name") as HTMLInputElement;
+    expect(screen.getByLabelText("Category name")).toBeTruthy();
+    const name = screen.getByLabelText("Category name") as HTMLInputElement;
     fireEvent.change(name, { target: { value: "Massage" } });
     expect(name.value).toBe("Massage");
 
@@ -245,7 +246,7 @@ describe("Business Hub catalog add-form remount", () => {
 
     expect(screen.getByText("Massage")).toBeInTheDocument();
     expect(
-      (screen.getByPlaceholderText("Category name") as HTMLInputElement).value,
+      (screen.getByLabelText("Category name") as HTMLInputElement).value,
     ).toBe("");
   });
 });
