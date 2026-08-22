@@ -838,10 +838,11 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `e66dc9f` (feature; docs stamp this commit) |
-| **Short** | pending docs commit |
-| **Subject** | Remount persistent dashboard forms after saved values change. |
-| **P1 React 19 form trust** | `e66dc9f` |
+| **SHA** | `8768f1ca89887ff875c3603cdc092bf46b27c416` |
+| **Short** | `8768f1c` |
+| **Subject** | Record the React 19 form-trust pass in World Class docs. |
+| **P1 React 19 form trust (docs)** | `8768f1ca89887ff875c3603cdc092bf46b27c416` |
+| **P1 React 19 form trust (feature)** | `e66dc9f4aec1ad722bc8e5ae6f1a810b90250e95` |
 | **Post-save booking settings UI** | `39f3b482124a04113d187383eb1d16d84456650e` |
 | **Location-scope correction** | `7d35346b53568643c8f8cbb620a939e2898ced19` |
 | **Booking interval sync + billing honesty** | `a2974d0c165c15fca20f7a215dba6e4313cef9e3` |
