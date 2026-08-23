@@ -99,8 +99,9 @@ security definer
 set search_path = public, pg_temp
 as $$
 begin
+  -- PostgreSQL TG_OP is INSERT, UPDATE, DELETE, or TRUNCATE (always uppercase).
   if tg_table_name = 'business_slug_aliases' then
-    if tg_op = 'update' then
+    if tg_op = 'UPDATE' then
       perform lock_business_slug_namespace_pair(old.slug, new.slug);
       if new.slug is distinct from old.slug
          or new.business_id is distinct from old.business_id then
@@ -119,7 +120,7 @@ begin
         using errcode = '23505';
     end if;
   elsif tg_table_name = 'businesses' and new.slug is not null then
-    if tg_op = 'update' then
+    if tg_op = 'UPDATE' then
       perform lock_business_slug_namespace_pair(old.slug, new.slug);
     else
       perform lock_business_slug_namespace(new.slug);
@@ -152,7 +153,8 @@ security definer
 set search_path = public, pg_temp
 as $$
 begin
-  if tg_op = 'update'
+  -- PostgreSQL TG_OP is INSERT, UPDATE, DELETE, or TRUNCATE (always uppercase).
+  if tg_op = 'UPDATE'
      and old.slug is not null
      and new.slug is distinct from old.slug then
     perform lock_business_slug_namespace_pair(old.slug, new.slug);

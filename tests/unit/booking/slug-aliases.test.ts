@@ -208,4 +208,118 @@ describe("039_business_slug_aliases migration", () => {
     expect(sql).not.toContain("gvm-baby-world-ultrasound");
     expect(sql).not.toMatch(/insert into businesses\b/i);
   });
+
+  it("compares TG_OP to PostgreSQL uppercase operation names, never lowercase", () => {
+    const compared = [...sql.matchAll(/\btg_op\s*=\s*'([^']*)'/gi)].map(
+      (match) => match[1],
+    );
+    expect(compared.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(compared)).toEqual(new Set(["UPDATE"]));
+    for (const value of compared) {
+      expect(["INSERT", "UPDATE", "DELETE", "TRUNCATE"]).toContain(value);
+    }
+    expect(sql).not.toMatch(
+      /\btg_op\s*=\s*'(update|insert|delete|truncate)'/,
+    );
+  });
+
+  it("captures the previous businesses.slug as an alias only on UPDATE", () => {
+    expect(sql).toMatch(
+      /if tg_op = 'UPDATE'\s+and old\.slug is not null\s+and new\.slug is distinct from old\.slug then/,
+    );
+    expect(recordAliasFires(PG_TG_OP.update, "chasum-hq", "chasum-hq-test")).toBe(
+      true,
+    );
+    expect(
+      recordAliasFires("update", "chasum-hq", "chasum-hq-test"),
+    ).toBe(false);
+    expect(
+      recordAliasFires(PG_TG_OP.insert, "chasum-hq", "chasum-hq-test"),
+    ).toBe(false);
+  });
+
+  it("runs alias immutability on UPDATE of business_slug_aliases, not INSERT", () => {
+    expect(sql).toMatch(
+      /if tg_table_name = 'business_slug_aliases' then\s+if tg_op = 'UPDATE' then[\s\S]*business_slug_aliases rows are immutable/,
+    );
+    expect(
+      aliasImmutabilityFires(PG_TG_OP.update, "business_slug_aliases"),
+    ).toBe(true);
+    expect(
+      aliasImmutabilityFires(PG_TG_OP.insert, "business_slug_aliases"),
+    ).toBe(false);
+    expect(aliasImmutabilityFires("update", "business_slug_aliases")).toBe(
+      false,
+    );
+  });
+
+  it("keeps INSERT namespace locking on the else branch of the UPDATE check", () => {
+    expect(sql).toMatch(
+      /if tg_op = 'UPDATE' then\s+perform lock_business_slug_namespace_pair\(old\.slug, new\.slug\);[\s\S]*?else\s+perform lock_business_slug_namespace\(new\.slug\);/,
+    );
+    expect(
+      recordAliasFires(PG_TG_OP.insert, null, "brand-new-slug"),
+    ).toBe(false);
+  });
+
+  it("does not record an alias when an authenticated profile save leaves slug unchanged", () => {
+    expect(
+      recordAliasFires(PG_TG_OP.update, "chasum-hq-test", "chasum-hq-test"),
+    ).toBe(false);
+  });
+
+  it("reclaims a same-tenant historical slug by deleting the alias row for the new canonical slug", () => {
+    expect(sql).toMatch(
+      /delete from business_slug_aliases\s+where slug = new\.slug\s+and business_id = new\.id;/,
+    );
+    expect(
+      reclaimDeletesOwnAlias(
+        "businesses",
+        "chasum-hq",
+        { slug: "chasum-hq", businessId: "hq-1" },
+        "hq-1",
+      ),
+    ).toBe(true);
+    expect(
+      reclaimDeletesOwnAlias(
+        "businesses",
+        "chasum-hq",
+        { slug: "chasum-hq", businessId: "other" },
+        "hq-1",
+      ),
+    ).toBe(false);
+  });
 });
+
+/** PostgreSQL sets TG_OP to these exact strings — never lowercase. */
+const PG_TG_OP = {
+  insert: "INSERT",
+  update: "UPDATE",
+  delete: "DELETE",
+  truncate: "TRUNCATE",
+} as const;
+
+function recordAliasFires(
+  tgOp: string,
+  oldSlug: string | null,
+  newSlug: string,
+): boolean {
+  return tgOp === "UPDATE" && oldSlug != null && newSlug !== oldSlug;
+}
+
+function aliasImmutabilityFires(tgOp: string, table: string): boolean {
+  return table === "business_slug_aliases" && tgOp === "UPDATE";
+}
+
+function reclaimDeletesOwnAlias(
+  table: string,
+  newSlug: string,
+  existingAlias: { slug: string; businessId: string },
+  businessId: string,
+): boolean {
+  return (
+    table === "businesses" &&
+    existingAlias.slug === newSlug &&
+    existingAlias.businessId === businessId
+  );
+}
