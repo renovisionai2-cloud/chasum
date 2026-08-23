@@ -115,15 +115,35 @@ Example (replace ids; run only with PO authorization):
       AND o.is_locked = true
       AND o.plan_key = b.subscription_plan_key;
 
-If a trigger must ever be disabled (last resort, not the preferred path):
+If a trigger must ever be disabled (**last resort only**, not the preferred path):
+
+Preferred repair keeps the trigger **active** and runs the UPDATE as `postgres` / `supabase_admin`. Normal application assignment uses JWT `service_role`. Do **not** DROP the trigger or function as a shortcut.
 
     BEGIN;
     ALTER TABLE public.businesses DISABLE TRIGGER businesses_offer_assignment_guard;
     -- run the same UPDATE, then immediately:
     ALTER TABLE public.businesses ENABLE TRIGGER businesses_offer_assignment_guard;
+
+    -- REQUIRED before COMMIT: confirm the trigger is enabled again.
+    -- pg_trigger.tgenabled: 'O' = origin/local enabled, 'D' = disabled.
+    DO $$
+    DECLARE
+      enabled char;
+    BEGIN
+      SELECT t.tgenabled INTO enabled
+      FROM pg_trigger t
+      WHERE t.tgrelid = 'public.businesses'::regclass
+        AND t.tgname = 'businesses_offer_assignment_guard';
+      IF enabled IS DISTINCT FROM 'O' THEN
+        RAISE EXCEPTION
+          'businesses_offer_assignment_guard is not enabled (tgenabled=%); ROLLBACK',
+          enabled;
+      END IF;
+    END $$;
+
     COMMIT;
 
-Never leave the trigger disabled across sessions. Never DROP the function. Never add a general bypass API.
+Never leave the trigger disabled across sessions. Never DROP the trigger or function. Never add a general bypass API. If the verification block raises, ROLLBACK — do not COMMIT.
 
 ### `usage_events`
 
