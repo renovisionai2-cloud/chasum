@@ -10,7 +10,9 @@
 -- Production → Production kxcydvhswkuzepwzzinq. Shared-DB assumption SUPERSEDED.
 -- STAGING: APPLIED + VERIFIED (2026-08-23 Gate 4; 0 offer rows; 0 offer_id;
 -- 0 usage_events; HQ offer_id NULL; required triggers enabled).
--- PRODUCTION: UNAPPLIED. Apply only through a separate explicit PO approval.
+-- PRODUCTION: APPLIED + VERIFIED (2026-08-23; PO-approved manual scoped SQL;
+-- 0 offer rows; 0 offer_id; GVM offer_id NULL = 2; 0 usage_events;
+-- RLS on; 0 anon/authenticated grants; 3 required triggers enabled).
 -- Never supabase db push / migration up (034–036 remain unapplied).
 --
 -- Scope: plan_offers, businesses.offer_id, usage_events, constraints, triggers.

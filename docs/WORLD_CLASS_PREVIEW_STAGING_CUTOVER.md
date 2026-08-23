@@ -14,7 +14,7 @@ Live-verified Preview `/api/build-info`: `"env":"preview"`, `"supabaseProjectRef
 
 Preview → Staging. Production → Production. **Do not change either environment.**
 
-**Commercial migrations (2026-08-23 live):** 037 APPLIED + VERIFIED on Production and Staging. 038 **STAGING APPLIED + VERIFIED**; **PRODUCTION UNAPPLIED**. 034–036 unapplied. Track 3 blocked.
+**Commercial migrations (2026-08-23 live):** 037 APPLIED + VERIFIED on Production and Staging. 038 **APPLIED + VERIFIED** on Staging and Production — CROSS-ENVIRONMENT EXECUTION GATE CLOSED. 034–036 unapplied. Track 3 blocked. Production application code remains `4eecbec`.
 
 The **STOPPED** agent report below is **historical** (2026-08-19): this Cloud Agent could not edit Vercel. Product Owner completed the Preview-only env cutover **out of band** afterward (evidenced by 2026-08-21 Chasum HQ create on Staging via Preview onboarding). Do not rewrite that history as if the shared-DB state never existed.
 

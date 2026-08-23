@@ -1,6 +1,6 @@
 # World Class Commercial Foundation
 
-**Status:** Track 1 / Migration 037 **APPLIED + VERIFIED**. Track 2 / Migration 038 **STAGING APPLIED + VERIFIED**; **PRODUCTION UNAPPLIED**. Track 3 **BLOCKED**. Commercial Foundation as a whole is **not complete**.  
+**Status:** Track 1 / Migration 037 **APPLIED + VERIFIED**. Track 2 / Migration 038 **APPLIED + VERIFIED on Staging and Production** — **CROSS-ENVIRONMENT EXECUTION GATE CLOSED**. Track 3 **BLOCKED**. Commercial Foundation as a whole is **not complete**. Database Release Automation is **DESIGN FOR NOW / BUILD LATER**.  
 **Branch:** `cursor/commercial-track-1-2-7453`  
 **World Class HEAD at start:** `c5aa36f78d4b3ad61311bbda8096b9cced6bf07b`  
 **Production code:** `4eecbec0f0f04532ae0294132d07183b6e64f23f`  
@@ -41,7 +41,7 @@ Independent: design-partner applications (Track 1). Future: billing profile + St
 | Track | Scope | Status |
 |-------|--------|--------|
 | **1** | `design_partner_applications` + `/apply` persist | **APPLIED + VERIFIED** (`037`) |
-| **2** | `plan_offers`, `businesses.offer_id`, `usage_events`, triggers | **STAGING APPLIED + VERIFIED** (`038`); **PRODUCTION UNAPPLIED** |
+| **2** | `plan_offers`, `businesses.offer_id`, `usage_events`, triggers | **APPLIED + VERIFIED** (`038`) on Staging and Production — execution gate **CLOSED** |
 | **3** | `subscription_events` / `billing_invoices` RLS hardening | **BLOCKED / NOT IMPLEMENTED** |
 
 ### Track 1 / Migration 037 — APPLIED + VERIFIED
@@ -53,25 +53,49 @@ Independent: design-partner applications (Track 1). Future: billing profile + St
 
 ### Why Track 3 is blocked
 
-Claude inspected Production `4eecbec` and confirmed it still writes `subscription_events` / `billing_invoices` with a **user-scoped** Supabase client and lacks the World Class paid-upgrade guard. Preview no longer shares Production Supabase, so Staging-only RLS would not hit Production — but Track 3 on **Production** would still break live `4eecbec` billing writes. Track 3 requires an explicit **P0 PRODUCTION SAFETY / COMPATIBILITY DECISION**. Do not implement Track 3 in this gate.
+Claude inspected Production `4eecbec` and confirmed it still writes `subscription_events` / `billing_invoices` with a **user-scoped** Supabase client and lacks the World Class paid-upgrade guard. The environment split removed the old shared-database blocker. Preview no longer shares Production Supabase, so Staging-only RLS would not hit Production — but Track 3 on **Production** would still break live `4eecbec` billing writes. Track 3 requires an explicit **P0 PRODUCTION SAFETY / COMPATIBILITY DECISION**. **Migration 038 does not resolve Track 3.** Do not implement Track 3 in this closeout.
 
-### Track 2 / Migration 038 — STAGING GATE 4 APPLIED + VERIFIED (2026-08-23)
+### Track 2 / Migration 038 — CROSS-ENVIRONMENT EXECUTION GATE CLOSED (2026-08-23)
+
+Formal verdict:
+
+**CHASUM COMMERCIAL FOUNDATION TRACK 2 / MIGRATION 038 — STAGING: APPLIED + VERIFIED ✅ · PRODUCTION: APPLIED + VERIFIED ✅ · CROSS-ENVIRONMENT EXECUTION GATE CLOSED ✅**
+
+This does **not** mean the entire Commercial Foundation program is finished. Track 3 remains blocked. Stage 2 seed/backfill remains later.
+
+Sequence (do not rewrite):
+
+1. Staging applied and verified first  
+2. Claude Production readiness  
+3. Production Product Owner approval  
+4. Production precheck  
+5. Production execution  
+6. Production database and security verification  
+7. GVM Production smoke test  
 
 | Database | 038 | Verification |
 |----------|-----|----------------|
 | Staging `wnfahklzaxirftyskctd` | **APPLIED + VERIFIED** | MANUAL SCOPED SQL (`BEGIN` / exact reviewed file / `COMMIT`). Success, no rows returned. `plan_offers` exists, 0 rows. `businesses.offer_id` exists; 0 non-null assignments. Chasum HQ exists with `offer_id` NULL. `usage_events` exists, 0 rows. RLS on for both new tables. anon/authenticated grants = 0. Triggers enabled: `businesses_offer_assignment_guard`, `plan_offers_lifecycle_guard`, `usage_events_append_only`. No seeds, no backfill, no usage events. Preview HQ dashboard / Main / Business Setup / `/apply` loaded; no visible regression. Preview badge `ef331a9`. |
-| Production `kxcydvhswkuzepwzzinq` | **UNAPPLIED** | Not Product Owner approved. Do not apply 038 to Production in this gate. |
+| Production `kxcydvhswkuzepwzzinq` | **APPLIED + VERIFIED** | Product Owner explicitly approved Production execution. Precheck: `subscription_plan_count=4`, `subscription_plan_key_exists=1`, `business_count=4`, `gvm_business_count=2`, `existing_plan_offers=NULL`, `existing_offer_id_column=0`, `existing_usage_events=NULL`, `database_name=postgres`, `database_user=postgres`. Then `BEGIN` / exact reviewed file / `COMMIT` — Success, no rows returned. Post-check: `plan_offers` exists, count 0; `offer_id` exists, 0 non-null; GVM rows with `offer_id` NULL = 2; `usage_events` exists, count 0; `plan_offers_rls_enabled=true`; `usage_events_rls_enabled=true`; `anon_grants=0`; `authenticated_grants=0`; `enabled_required_triggers=3` (`businesses_offer_assignment_guard`, `plan_offers_lifecycle_guard`, `usage_events_append_only`). No plan offers seeded. No existing businesses assigned an offer. No `subscription_plan_key` values changed. No usage events created. No Private Alpha entitlement change. No Stripe state changed. No `subscription_events` or `billing_invoices` changes. |
 
-038 is **not** complete across all environments.
+#### Production GVM smoke test (non-destructive)
 
-Remaining Production step (separate explicit PO approval only):
+After Production 038, the following passed:
 
-1. Staging first — **done**  
-2. Verify against Preview — **done**  
-3. Claude/PO acceptance if required  
-4. Production (`kxcydvhswkuzepwzzinq`) **only** through a **separate** explicit PO approval  
+1. GVM Production dashboard loaded normally.  
+2. GVM Business Settings loaded normally.  
+3. Existing GVM business information remained intact.  
+4. Public GVM booking page loaded normally.  
+5. Services rendered normally.  
+6. Staff selection rendered normally.  
+7. Date selection rendered normally.  
+8. Available booking times rendered normally.  
 
-Never `supabase db push` / `migration up` (would apply 034–036 first).
+No Migration-038-related regression was identified.
+
+**Known existing behavior (not a Migration 038 regression):** “Any available staff” remains not fully production-ready and displays the existing message requiring a specific employee to finish booking. Do **not** change this behavior in this closeout.
+
+Never `supabase db push` / `migration up` (would apply 034–036 first). No CLI migration reconciliation has been performed.
 
 ---
 
@@ -223,8 +247,37 @@ Do **not** fix Production in this gate. Requires explicit PO authorization.
 2. Cursor authored Track 1 + Track 2 on a branch (done).  
 3. Claude audited the actual diff; Gate 3 corrections applied (done).  
 4. Track 1 / 037: PO manual scoped SQL on Production (schema verified) and Staging (Preview E2E verified) — **closed**.  
-5. Track 2 / 038 Staging Gate 4: Staging applied + Preview verified — **closed**. Production 038 remains **UNAPPLIED** pending separate PO approval.  
-6–9. Stage 2 seed/backfill remains later; Track 3 remains blocked until the Production compatibility decision.
+5. Track 2 / 038 Staging Gate 4: Staging applied + Preview verified — **closed**.  
+6. Track 2 / 038 Production: Claude Production readiness → PO approval → precheck → execution → DB/security verification → GVM smoke — **closed**. Cross-environment execution gate **CLOSED**.  
+7–9. Stage 2 seed/backfill remains later; Track 3 remains blocked until the Production compatibility decision. Migration 038 does **not** resolve Track 3.
+
+---
+
+## Database Release Automation — DESIGN FOR NOW / BUILD LATER
+
+**Classification:** DESIGN FOR NOW / BUILD LATER  
+**Do not implement in this closeout.** Recorded so it is not forgotten.
+
+Manual SQL execution, environment confirmation, screenshots, prechecks, postchecks, and smoke tests are appropriate during the current sensitive migration cleanup phase. They must **not** become Chasum’s permanent database deployment process.
+
+**Long-term goal:** a disciplined automated database release pipeline that preserves the current safety level while reducing manual Product Owner intervention.
+
+Future capability must include, at minimum:
+
+1. **Explicit environment identity verification** — Production and Staging must be impossible to confuse.  
+2. **Migration state tracking** — know exactly which migrations are applied to each environment.  
+3. **Staging-first migration execution** — Production migrations require successful Staging execution first.  
+4. **Automated dependency / preflight checks** — expected tables, columns, migration prerequisites, and environment identity.  
+5. **Transaction-safe execution where supported** — atomic rollback for migration failure.  
+6. **Automated post-migration verification** — tables, columns, constraints, triggers, RLS, grants, expected row counts, no unintended backfill.  
+7. **Application smoke-test hooks** — verify critical workflows after schema changes.  
+8. **Production approval gate** — Production remains explicitly gated.  
+9. **Migration drift detection** — detect schema / repo / environment divergence.  
+10. **Rollback / forward-recovery playbook** — document how failed releases are handled.  
+11. **Audit log** — migration, environment, commit, approver, execution time, verification result.  
+12. **Prevent unsafe sequential migration commands when gaps exist** — the current 034–036 gap means `supabase db push` and `supabase migration up` remain **prohibited** until migration history is deliberately reconciled.
+
+Canonical backlog: [`docs/company/MASTER_TASKS.md`](./company/MASTER_TASKS.md), [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md).
 
 ---
 

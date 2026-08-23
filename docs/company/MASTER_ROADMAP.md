@@ -36,6 +36,56 @@ Also foundational (earlier phases): design system, multi-tenant schema + RLS, se
 
 Ordered as strategic themes — exact sprint order lives in [`MASTER_TASKS.md`](./MASTER_TASKS.md).
 
+### Database Release Automation
+
+**Classification: DESIGN FOR NOW / BUILD LATER. Do not implement now.**
+
+Manual SQL execution, environment confirmation, screenshots, prechecks, postchecks, and smoke tests are appropriate during sensitive migration cleanup, but must not become Chasum’s permanent database deployment process.
+
+Long-term goal: a disciplined automated database release pipeline that preserves the current safety level while reducing manual Product Owner intervention.
+
+Minimum future scope:
+
+1. Explicit environment identity verification (Production and Staging must be impossible to confuse)
+2. Migration state tracking per environment
+3. Staging-first migration execution
+4. Automated dependency / preflight checks
+5. Transaction-safe execution where supported
+6. Automated post-migration verification (tables, columns, constraints, triggers, RLS, grants, expected row counts, no unintended backfill)
+7. Application smoke-test hooks
+8. Production approval gate
+9. Migration drift detection
+10. Rollback / forward-recovery playbook
+11. Audit log (migration, environment, commit, approver, execution time, verification result)
+12. Prevent unsafe sequential CLI apply (`supabase db push` / `supabase migration up`) while gaps such as 034–036 exist
+
+Canonical architecture note: [`../WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](../WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
+
+### Marketing website audit follow-up
+
+**Active workstream. Do not implement in the Track 2 closeout.** Locked pages still require explicit PO.
+
+P0:
+
+- Pricing should not imply Inventory is currently available if it remains Coming Soon
+- Clarify current vs future multi-location capability
+
+P1:
+
+- Meet Summer should more strongly communicate Summer as the AI Business Manager
+- Marketing currently undersells CRM, payments, scheduling integrity, and the connected operating model
+- The website should communicate the connected Chasum operating journey rather than reading primarily like booking software
+
+Also preserve:
+
+- sitemap P1
+- robots P2
+- structured-data follow-up
+- Private Alpha → future self-serve CTA transition
+- annual pricing “Save 20%” reconciliation before final public pricing lock
+
+Canonical: [`../WORLD_CLASS_MARKETING_PRODUCT_PARITY.md`](../WORLD_CLASS_MARKETING_PRODUCT_PARITY.md), [`../MARKETING_PRODUCT_FEATURE_AUDIT.md`](../MARKETING_PRODUCT_FEATURE_AUDIT.md).
+
 ### AI Workforce
 
 - Deepen Emma (channels, FAQs config, public widget)

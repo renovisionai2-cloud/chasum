@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-23  
-**Updated by:** World Class — Commercial Foundation Track 2 / Migration 038 Staging Gate 4 closeout  
+**Updated by:** World Class — Commercial Foundation Track 2 / Migration 038 cross-environment closeout  
 
 ---
 
@@ -53,7 +53,7 @@
 | [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging 001–033 init report (historical) |
 | [`docs/WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md) | Preview→Staging cutover — **LIVE: Preview → Staging `wnfahklzaxirftyskctd`** |
 | [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA — **implemented** (nav + command discoverability) |
-| [`docs/WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) | Commercial schema / tracks — Track 1 **037 APPLIED + VERIFIED**; Track 2 **038 STAGING APPLIED + VERIFIED / PRODUCTION UNAPPLIED**; Track 3 **blocked** |
+| [`docs/WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) | Commercial schema / tracks — Track 1 **037 APPLIED + VERIFIED**; Track 2 **038 APPLIED + VERIFIED on Staging and Production** (execution gate closed); Track 3 **blocked**; Database Release Automation **DESIGN FOR NOW / BUILD LATER** |
 | [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md) | Pricing hypotheses / packaging / cost-to-serve (not public Pricing) |
 
 ---
@@ -131,8 +131,8 @@ Shared money recognition, commerce + platform events, business operating context
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
 2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** **Phase 6.3 = NOT STARTED.** Tenant safety foundation shipped (app-only); **safe tenant onboarding gate shipped**; **Chasum HQ exists in Staging only** (`chasum-hq`, `America/Toronto`, `cad`, starter). Claude HQ audit = **CONDITIONAL PASS**; this fix pass addresses mock paid-upgrade and 15-minute new-business default. Production does **not** have Chasum HQ. No Phase 5.4 invented.
-3. Do **not** apply migrations **034–036**; do **not** apply **038 to Production** without a separate explicit PO approval; do not merge/deploy World Class to Production until chapter approval. Preview is on Staging; Production stays on Production.
-4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
+3. Do **not** apply migrations **034–036**; 037 and 038 are **APPLIED + VERIFIED** on Staging and Production. Do not merge/deploy World Class to Production until chapter approval. Preview is on Staging; Production stays on Production. Production application code remains `4eecbec`.
+4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items). Claude marketing website audit follow-up remains an **active workstream** (do not implement in this closeout).
 
 **Summer title (locked):** AI Business Manager — not Receptionist / chatbot / Emma in customer-facing copy.
 
@@ -209,9 +209,25 @@ Do not expand Summer until the domain is complete, truthful, and reachable. This
 
 ### Most recent (2026-08-23)
 
+**World Class — Commercial Foundation Track 2 / Migration 038 CROSS-ENVIRONMENT CLOSEOUT — Staging and Production APPLIED + VERIFIED**
+
+Track 2 / Migration 038 execution gate is **CLOSED**. Sequence preserved: Staging applied/verified first → Claude Production readiness → Production PO approval → Production precheck → Production execution → Production DB/security verification → GVM Production smoke test.
+
+**Staging** `wnfahklzaxirftyskctd`: APPLIED + VERIFIED (Gate 4). MANUAL SCOPED SQL (`BEGIN` / exact reviewed file / `COMMIT`). Success. `plan_offers` 0 rows; `businesses.offer_id` exists, 0 non-null; Chasum HQ `offer_id` NULL; `usage_events` 0 rows; RLS on; anon/authenticated grants 0; three required triggers enabled. Preview HQ dashboard / Main / Business Setup / `/apply` loaded; no visible 038 regression.
+
+**Production** `kxcydvhswkuzepwzzinq`: APPLIED + VERIFIED after explicit Product Owner approval. Precheck: `subscription_plan_count=4`, `subscription_plan_key_exists=1`, `business_count=4`, `gvm_business_count=2`, no existing `plan_offers` / `offer_id` column / `usage_events`. Execution: `BEGIN` / exact reviewed file / `COMMIT` — Success, no rows returned. Post-check: `plan_offers` 0; non-null `offer_id` 0; GVM `offer_id` NULL = 2; `usage_events` 0; RLS on; anon/authenticated grants 0; triggers `businesses_offer_assignment_guard`, `plan_offers_lifecycle_guard`, `usage_events_append_only` enabled. No seeds, no backfill, no plan_key changes, no usage events, no Private Alpha / Stripe / `subscription_events` / `billing_invoices` changes.
+
+**GVM Production smoke (non-destructive, passed):** dashboard; Business Settings; existing business information intact; public booking; services; staff; date; available times. Known non-038 limitation: “Any available staff” still requires a specific employee — do **not** change.
+
+Track 1 / 037 remains closed. Track 3 remains **BLOCKED** (Production app still `4eecbec` user-scoped MockBillingProvider writes). 034–036 unapplied. Database Release Automation added as **DESIGN FOR NOW / BUILD LATER**. Claude marketing website audit remains an active follow-up (not implemented). No CLI reconciliation. No Vercel env change. No Production or Preview deploy. Production application code remains `4eecbec`.
+
+Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
+
+### Prior (2026-08-23)
+
 **World Class — Commercial Foundation Track 2 / Migration 038 Staging Gate 4 APPLIED + VERIFIED**
 
-038 executed on Staging `wnfahklzaxirftyskctd` only as MANUAL SCOPED SQL (`BEGIN` / exact reviewed file / `COMMIT`). Success. Live checks: `plan_offers` exists (0 rows); `businesses.offer_id` exists (0 non-null); Chasum HQ intact with `offer_id` NULL; `usage_events` exists (0 rows); RLS on; anon/authenticated grants 0; three required triggers enabled. Preview `ef331a9` HQ dashboard, Main, Business Setup, and `/apply` loaded with no visible regression. **Production 038 remains UNAPPLIED.** Track 1 / 037 remains closed. Track 3 remains blocked. 034–036 unapplied. No seeds, backfill, usage events, env changes, or Production deploy.
+038 executed on Staging `wnfahklzaxirftyskctd` first as MANUAL SCOPED SQL (`BEGIN` / exact reviewed file / `COMMIT`). Success. Live checks: `plan_offers` exists (0 rows); `businesses.offer_id` exists (0 non-null); Chasum HQ intact with `offer_id` NULL; `usage_events` exists (0 rows); RLS on; anon/authenticated grants 0; three required triggers enabled. Preview `ef331a9` HQ dashboard, Main, Business Setup, and `/apply` loaded with no visible regression. At that gate, Production 038 was still unapplied pending separate PO approval. Track 1 / 037 remained closed. Track 3 remained blocked. 034–036 unapplied.
 
 Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
 
@@ -221,7 +237,7 @@ Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOU
 
 LIVE CONTRACT: Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. The old “Preview and Production share Supabase” statement is **SUPERSEDED** (true on 2026-08-19; cutover completed out-of-band before 2026-08-21 HQ create; live-verified 2026-08-23 Preview `/api/build-info`).
 
-037 applied on **both** databases as MANUAL SCOPED SQL (exact reviewed file). Production: schema + security verified; Production app remains `4eecbec` (not functionally tested). Staging: schema + security + Preview `/apply` E2E passed — one test row `Chasum Migration 037 Test`, `status=received`, `source=apply`. Track 2 `038` remains **UNAPPLIED**. Track 3 remains **BLOCKED**. 034–036 unapplied. No Vercel env change. No Production deploy.
+037 applied on **both** databases as MANUAL SCOPED SQL (exact reviewed file). Production: schema + security verified; Production app remains `4eecbec` (not functionally tested). Staging: schema + security + Preview `/apply` E2E passed — one test row `Chasum Migration 037 Test`, `status=received`, `source=apply`. At Track 1 closeout, Track 2 `038` was still **UNAPPLIED**. Track 3 remains **BLOCKED**. 034–036 unapplied. No Vercel env change. No Production deploy.
 
 Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
 
@@ -944,13 +960,14 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | this 038 Staging closeout commit on `cursor/commercial-track-1-2-7453` |
+| **SHA** | this 038 cross-environment closeout commit on `cursor/commercial-track-1-2-7453` |
 | **Short** | see git HEAD after push |
-| **Subject** | Record Track 2 / 038 Staging Gate 4 applied+verified; Production 038 unapplied. |
+| **Subject** | Record Track 2 / 038 Staging and Production applied+verified; Database Release Automation roadmap. |
 | **Preview (commercial)** | https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app |
-| **Preview commit** | `6ecc35f5c69934ba37398c58ff36322768d49efd` (badge `ef331a9` during 038 verification) |
+| **Preview commit** | `6ecc35f5c69934ba37398c58ff36322768d49efd` (badge `ef331a9` during Staging 038 verification) |
+| **Production application code** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` (unchanged) |
 | **Track 1** | `7f5de0e` persist `/apply`; Gate 3 `0293dbf`; cleanup `6ecc35f`; 037 applied Production + Staging |
-| **Track 2** | `c3566cc` authored; Staging 038 **APPLIED + VERIFIED**; Production 038 **UNAPPLIED** |
+| **Track 2** | `c3566cc` authored; Staging 038 **APPLIED + VERIFIED**; Production 038 **APPLIED + VERIFIED**; execution gate **CLOSED** |
 | **Nav acceptance** | `c5aa36f78d4b3ad61311bbda8096b9cced6bf07b` |
 | **Unique Preview** | https://chasum-6cls803md-renovisionappcom.vercel.app |
 | **Prior unique Preview** | https://chasum-pom3t5aug-renovisionappcom.vercel.app — SUPERSEDED / DO NOT USE |
@@ -1032,18 +1049,19 @@ As of last update:
 
 **Priority order:**
 
-1. **Track 2 / Migration 038 Production Gate 4 — separate PO approval only.** Staging is applied and Preview-verified. Do **not** apply 038 to Production `kxcydvhswkuzepwzzinq` until explicit Product Owner approval. Do **not** run `supabase db push`. No seeds, no `offer_id` backfill, no usage emitters.
-2. **PRODUCT OWNER DECISION REQUIRED — P0 Production commercial compatibility** (`4eecbec` user-scoped billing writes vs World Class paid-upgrade guard) before Track 3 RLS on Production.
-3. **Do not apply** 034 / 035 / 036 without explicit PO execution approval. Preview → Staging; Production → Production.
-4. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred**. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
-5. Private Alpha overlay values are **not approved**. Do not change staff/location/SMS/branding/API/RPC behavior.
-6. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
-5. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
-5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
-6. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
-7. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
-8. **Operation GVM Production** — remain protected.
-9. Marketing claim fixes only with **explicit PO** (locked pages).
+1. **PRODUCT OWNER DECISION REQUIRED — P0 Production commercial compatibility** (`4eecbec` user-scoped MockBillingProvider writes to `subscription_events` / `billing_invoices`, and lack of the newer paid-upgrade guard) before Track 3 RLS on Production. Track 2 / 038 does **not** resolve Track 3. The environment split removed the old shared-database blocker only.
+2. **Do not apply** 034 / 035 / 036. Never `supabase db push` / `supabase migration up` while that gap exists. Preview → Staging; Production → Production. No seeds, no `offer_id` backfill, no usage emitters.
+3. **Database Release Automation — DESIGN FOR NOW / BUILD LATER.** Manual SQL + prechecks + postchecks + smoke tests stay appropriate during sensitive cleanup; they must not become the permanent process. Do **not** implement the pipeline in this closeout. Scope: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) § Database Release Automation.
+4. **Marketing website audit follow-up — ACTIVE WORKSTREAM; do not implement in this closeout.** Preserve and execute later with explicit PO (locked pages). P0: Pricing must not imply Inventory is available if it remains Coming Soon; clarify current vs future multi-location. P1: Meet Summer should more strongly communicate Summer as the AI Business Manager; marketing undersells CRM, payments, scheduling integrity, and the connected operating model. Also: sitemap P1, robots P2, structured-data follow-up, Private Alpha → future self-serve CTA transition, annual pricing “Save 20%” reconciliation before final public pricing lock. Canonical pointers: [`WORLD_CLASS_MARKETING_PRODUCT_PARITY.md`](./WORLD_CLASS_MARKETING_PRODUCT_PARITY.md), [`MARKETING_PRODUCT_FEATURE_AUDIT.md`](./MARKETING_PRODUCT_FEATURE_AUDIT.md).
+5. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred**. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
+6. Private Alpha overlay values are **not approved**. Do not change staff/location/SMS/branding/API/RPC behavior.
+7. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
+8. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
+9. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
+10. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.
+11. Treat [`WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md`](./WORLD_CLASS_POLISH_AND_INTELLIGENCE_BACKLOG.md) as locked deliverables — do not reopen Chapter 4, Phase 5.2, or Phase 5.3 architecture for remaining polish.
+12. **Operation GVM Production** — remain protected. Known non-038 GVM limitation: “Any available staff” still requires a specific employee.
+13. Marketing claim fixes only with **explicit PO** (locked pages).
 
 Do **not** start Phase 6.3, Stripe Elements, public online payment, or Chapter 7.  
 Do **not** start Inventory product, Marketplace, native mobile, EMR, or migrations 034–036 unless explicitly requested.  
@@ -1061,6 +1079,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md), [`docs/LAUN
 - Multi-staff login / RBAC invites — Coming Next (roles catalog exists; enforcement incomplete).
 - GVM: first real client appointment + production email SMTP still open on release plan.
 - Booking Sheet “collect payment” still partially stubbed relative to full Commerce.
+- GVM “Any available staff” still requires a specific employee to finish booking — **not** a Migration 038 regression.
 
 ### Engineering debt (open)
 
@@ -1076,6 +1095,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md), [`docs/LAUN
 
 - Roadmap status labels (**Available Today / Early Access / Coming Next / Future Vision**) belong on Roadmap and truth matrix — **not** inside Pricing plan inclusions.
 - Never market unsupported SLA, unfinished automation, or staff login as included.
+- **Claude marketing website audit follow-up remains active** (do not implement without explicit PO): Inventory Coming Soon honesty; current vs future multi-location; Meet Summer as AI Business Manager; CRM / payments / scheduling integrity / connected OS; sitemap P1; robots P2; structured data; Private Alpha → future self-serve CTA; annual “Save 20%” reconciliation. See [`WORLD_CLASS_MARKETING_PRODUCT_PARITY.md`](./WORLD_CLASS_MARKETING_PRODUCT_PARITY.md).
 
 ---
 
@@ -1123,6 +1143,8 @@ From Master Roadmap — exact sprint order in [`docs/company/MASTER_TASKS.md`](.
 - **AI Workforce** — Alex and later roles; Command Center as real coordination; voice later  
 - **Inventory & Products**  
 - **Marketing Automation**  
+- **Database Release Automation** — DESIGN FOR NOW / BUILD LATER  
+- **Marketing website audit follow-up** — active workstream; not implemented in Track 2 closeout  
 - **Square** (in-person payments)  
 - **Native mobile** (reception-critical first)  
 - **Marketplace**  
