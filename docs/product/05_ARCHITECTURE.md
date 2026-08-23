@@ -31,6 +31,8 @@ auth.users
 
 Every authenticated action scopes via `getOrCreateBusiness()` → `business.id`.
 
+Public booking URLs use `businesses.slug` as the current canonical path. Historical slugs live in `business_slug_aliases` and 308-redirect to the current slug without changing `business.id`. See [`../architecture/BUSINESS_SLUG_ALIASES.md`](../architecture/BUSINESS_SLUG_ALIASES.md) and [`../TENANT_IDENTITY_SAFETY_GATE.md`](../TENANT_IDENTITY_SAFETY_GATE.md).
+
 Active dashboard scope: cookie `chasum_location_scope` (location UUID or `ALL`).
 
 Public routes scope by slug → `business.id` → optional `location_id` in RPCs.

@@ -39,7 +39,12 @@ const supabase = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-/** Live GVM tenant used in Private Alpha testing (greeting "GVM"). */
+/**
+ * Live GVM tenant used in Private Alpha testing (greeting "GVM").
+ * FUTURE: target immutable businesses.id, then assert slug/name.
+ * Do not treat slug as tenant identity. Do not run against Production
+ * as part of slug-alias work.
+ */
 const TARGET_SLUG = "gvm-baby-world-ultrasound";
 const PARTNER_EMAIL = "bobitadar@hotmail.com";
 

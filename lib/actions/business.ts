@@ -79,6 +79,10 @@ export const getOrCreateBusiness = cache(async (): Promise<Business> => {
   const user = await requireUser();
   const existing = await resolveBusinessForUser(user.id);
   if (existing) return existing;
+  // TENANT IDENTITY SAFETY GATE: this path creates a tenant only when the
+  // signed-in user has no membership and no owned business. It does not
+  // detect whether another tenant already represents the same real-world
+  // business. Do not use slug/name uniqueness as proof of a new identity.
 
   const supabase = await createClient();
 
@@ -157,6 +161,12 @@ export const getOrCreateBusiness = cache(async (): Promise<Business> => {
   return business;
 });
 
+/**
+ * Canonical slug lookup only (`businesses.slug`).
+ * Public booking entry points must use `getPublicBusinessBySlug` /
+ * `resolvePublicBookingBySlug` so historical aliases redirect or resolve
+ * to the same immutable business id.
+ */
 export async function getBusinessBySlug(slug: string): Promise<Business | null> {
   const supabase = await createClient();
 

@@ -60,8 +60,10 @@ export async function getPublicAvailableSlots(
   date: string,
   locationId?: string,
 ): Promise<string[]> {
-  const { getBusinessBySlug } = await import("@/lib/actions/business");
-  const business = await getBusinessBySlug(slug);
+  const { getPublicBusinessBySlug } = await import(
+    "@/lib/booking/slug-alias-lookup"
+  );
+  const business = await getPublicBusinessBySlug(slug);
   if (!business || !locationId) return [];
 
   const result = await previewAvailableSlots({

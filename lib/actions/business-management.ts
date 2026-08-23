@@ -114,6 +114,12 @@ export async function updateBusinessManagementProfile(
     .eq("id", business.id);
 
   if (error) {
+    if (error.code === "23505" || /duplicate key|slug/i.test(error.message)) {
+      return {
+        error:
+          "That booking URL is already in use or reserved as a historical public link. Choose a different slug.",
+      };
+    }
     if (
       error.message.includes("industry") ||
       error.message.includes("tax_number") ||

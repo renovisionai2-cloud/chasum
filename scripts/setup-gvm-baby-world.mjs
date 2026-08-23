@@ -36,6 +36,7 @@ const supabase = createClient(url, serviceKey, {
 });
 
 const TARGET_NAME = "GVM Baby World Ultrasound";
+/** Human-readable lookup only. Future runs should target businesses.id. */
 const TARGET_SLUG = "gvm-baby-world";
 const SOURCE_SLUGS = ["dardin-gvm", "gvm-baby-world"];
 

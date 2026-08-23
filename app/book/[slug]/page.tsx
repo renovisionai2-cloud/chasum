@@ -1,6 +1,10 @@
 import { PublicBookingPage } from "@/components/booking/public-booking-page";
 import { BusinessContact } from "@/components/booking/business-contact";
-import { getBusinessBySlug } from "@/lib/actions/business";
+import { resolvePublicBookingBySlug } from "@/lib/booking/slug-alias-lookup";
+import {
+  canonicalBookingUrl,
+  publicBookingPath,
+} from "@/lib/booking/slug-aliases";
 import {
   getPublicLocationBySlug,
   getPublicLocations,
@@ -11,8 +15,9 @@ import {
   isPublicBookingAllowed,
   publicBookingBlockedMessage,
 } from "@/lib/booking/access";
+import { getAppUrl } from "@/lib/env";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -21,22 +26,40 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const business = await getBusinessBySlug(slug);
-  if (!business) return { title: "Not Found" };
+  const resolution = await resolvePublicBookingBySlug(slug);
+  if (resolution.kind === "missing") return { title: "Not Found" };
+  const business = resolution.business;
   return {
     title: `Book with ${business.name}`,
     description:
       business.description?.trim() ||
       `Schedule an appointment with ${business.name} on Chasum.`,
+    alternates: {
+      canonical: canonicalBookingUrl(getAppUrl(), resolution.canonicalSlug),
+    },
   };
 }
 
 export default async function BookPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { location: locationSlug, invite } = await searchParams;
-  const business = await getBusinessBySlug(slug);
+  const resolution = await resolvePublicBookingBySlug(slug);
 
-  if (!business) notFound();
+  if (resolution.kind === "missing") notFound();
+
+  if (resolution.kind === "alias") {
+    // Next.js permanentRedirect() emits HTTP 308 (permanent). That is the
+    // App Router primitive for a retired public URL → current canonical slug.
+    // It is semantically acceptable; this code does not fake a 301.
+    permanentRedirect(
+      publicBookingPath(resolution.canonicalSlug, {
+        location: locationSlug,
+        invite,
+      }),
+    );
+  }
+
+  const business = resolution.business;
 
   if (!isPublicBookingAllowed(business, invite)) {
     return (

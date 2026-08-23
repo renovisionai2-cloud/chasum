@@ -2,7 +2,7 @@
 
 import { addMinutes, parseISO } from "date-fns";
 import { headers } from "next/headers";
-import { getBusinessBySlug } from "@/lib/actions/business";
+import { getPublicBusinessBySlug } from "@/lib/booking/slug-alias-lookup";
 import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
 import { isPublicBookingAllowed } from "@/lib/booking/access";
 import { captureBookingFailure } from "@/lib/observability/logger";
@@ -68,7 +68,7 @@ export async function getPublicSlotOptions(input: {
   const limited = await publicRateLimit("publicSlots", input.slug);
   if (limited) return [];
 
-  const business = await getBusinessBySlug(input.slug);
+  const business = await getPublicBusinessBySlug(input.slug);
   if (!business || !input.locationId) return [];
 
   const anyAvailable = !input.staffId;
@@ -138,7 +138,7 @@ export async function lookupPublicCustomer(
   const trimmed = email.trim();
   if (!trimmed || !trimmed.includes("@")) return { found: false };
 
-  const business = await getBusinessBySlug(slug);
+  const business = await getPublicBusinessBySlug(slug);
   if (!business) return { found: false };
 
   const supabase = await createClient();
@@ -191,7 +191,7 @@ export async function bookAppointment(
   const limited = await publicRateLimit("publicBooking", slug);
   if (limited) return { error: limited };
 
-  const business = await getBusinessBySlug(slug);
+  const business = await getPublicBusinessBySlug(slug);
   if (!business) return { error: "Business not found." };
 
   if (!isPublicBookingAllowed(business, inviteCode)) {
