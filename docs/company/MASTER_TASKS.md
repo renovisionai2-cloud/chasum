@@ -19,9 +19,9 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-1. **Commercial Foundation Track 1 CLOSED.** Migration 037 APPLIED + VERIFIED on Production (schema) and Staging (Preview `/apply` E2E). Track 2 `038` remains **UNAPPLIED** — Staging first, then Preview verify, then separate Production PO approval. Track 3 RLS is **blocked** until the Production `4eecbec` billing-write compatibility decision.
+1. **Commercial Foundation Track 1 CLOSED.** 037 APPLIED + VERIFIED on Production (schema) and Staging (Preview `/apply` E2E). **Track 2 / 038 Staging Gate 4 CLOSED** — Staging APPLIED + VERIFIED; **Production 038 UNAPPLIED** pending separate PO approval. Track 3 RLS is **blocked** until the Production `4eecbec` billing-write compatibility decision.
 2. Socialize Company Operating System docs (`docs/company/*`) as mandatory session start.
-3. Do **not** CLI-apply pending migrations (034–036, 038). **LIVE:** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. Manual scoped SQL only after PO approval. Never `supabase db push`.
+3. Do **not** CLI-apply pending migrations (034–036) and do **not** apply 038 to Production. **LIVE:** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. Manual scoped SQL only after PO approval. Never `supabase db push`.
 4. Harden Emma Phase 1 (persist conversations, CRM link paths, grounded answers QA).
 5. Identify next AI Workforce slice (Emma public/channel OR Alex automation) without redesigning UI.
 6. Stripe SaaS Billing remains later — do not swap the mock provider in this sprint.

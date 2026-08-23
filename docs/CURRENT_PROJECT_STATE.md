@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-23  
-**Updated by:** World Class — Commercial Foundation Track 1 / Migration 037 closeout (APPLIED + VERIFIED)  
+**Updated by:** World Class — Commercial Foundation Track 2 / Migration 038 Staging Gate 4 closeout  
 
 ---
 
@@ -53,7 +53,7 @@
 | [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging 001–033 init report (historical) |
 | [`docs/WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md) | Preview→Staging cutover — **LIVE: Preview → Staging `wnfahklzaxirftyskctd`** |
 | [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA — **implemented** (nav + command discoverability) |
-| [`docs/WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) | Commercial schema / tracks — Track 1 **037 APPLIED + VERIFIED**; Track 2 **038 UNAPPLIED**; Track 3 **blocked** |
+| [`docs/WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) | Commercial schema / tracks — Track 1 **037 APPLIED + VERIFIED**; Track 2 **038 STAGING APPLIED + VERIFIED / PRODUCTION UNAPPLIED**; Track 3 **blocked** |
 | [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md) | Pricing hypotheses / packaging / cost-to-serve (not public Pricing) |
 
 ---
@@ -131,7 +131,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
 2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** **Phase 6.3 = NOT STARTED.** Tenant safety foundation shipped (app-only); **safe tenant onboarding gate shipped**; **Chasum HQ exists in Staging only** (`chasum-hq`, `America/Toronto`, `cad`, starter). Claude HQ audit = **CONDITIONAL PASS**; this fix pass addresses mock paid-upgrade and 15-minute new-business default. Production does **not** have Chasum HQ. No Phase 5.4 invented.
-3. Do **not** apply migrations **034–036**; do not apply **038** without Staging-first Gate 4; do not merge/deploy World Class to Production until chapter approval. Preview is on Staging; Production stays on Production.
+3. Do **not** apply migrations **034–036**; do **not** apply **038 to Production** without a separate explicit PO approval; do not merge/deploy World Class to Production until chapter approval. Preview is on Staging; Production stays on Production.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
 **Summer title (locked):** AI Business Manager — not Receptionist / chatbot / Emma in customer-facing copy.
@@ -208,6 +208,14 @@ Do not expand Summer until the domain is complete, truthful, and reachable. This
 ## Last completed work
 
 ### Most recent (2026-08-23)
+
+**World Class — Commercial Foundation Track 2 / Migration 038 Staging Gate 4 APPLIED + VERIFIED**
+
+038 executed on Staging `wnfahklzaxirftyskctd` only as MANUAL SCOPED SQL (`BEGIN` / exact reviewed file / `COMMIT`). Success. Live checks: `plan_offers` exists (0 rows); `businesses.offer_id` exists (0 non-null); Chasum HQ intact with `offer_id` NULL; `usage_events` exists (0 rows); RLS on; anon/authenticated grants 0; three required triggers enabled. Preview `ef331a9` HQ dashboard, Main, Business Setup, and `/apply` loaded with no visible regression. **Production 038 remains UNAPPLIED.** Track 1 / 037 remains closed. Track 3 remains blocked. 034–036 unapplied. No seeds, backfill, usage events, env changes, or Production deploy.
+
+Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
+
+### Prior (2026-08-23)
 
 **World Class — Commercial Foundation Track 1 / Migration 037 APPLIED + VERIFIED**
 
@@ -936,13 +944,13 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | this closeout commit on `cursor/commercial-track-1-2-7453` |
+| **SHA** | this 038 Staging closeout commit on `cursor/commercial-track-1-2-7453` |
 | **Short** | see git HEAD after push |
-| **Subject** | Record Track 1 / 037 applied+verified and live Preview→Staging contract. |
+| **Subject** | Record Track 2 / 038 Staging Gate 4 applied+verified; Production 038 unapplied. |
 | **Preview (commercial)** | https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app |
-| **Preview commit** | `6ecc35f5c69934ba37398c58ff36322768d49efd` |
+| **Preview commit** | `6ecc35f5c69934ba37398c58ff36322768d49efd` (badge `ef331a9` during 038 verification) |
 | **Track 1** | `7f5de0e` persist `/apply`; Gate 3 `0293dbf`; cleanup `6ecc35f`; 037 applied Production + Staging |
-| **Track 2** | `c3566cc` authored; **038 UNAPPLIED** |
+| **Track 2** | `c3566cc` authored; Staging 038 **APPLIED + VERIFIED**; Production 038 **UNAPPLIED** |
 | **Nav acceptance** | `c5aa36f78d4b3ad61311bbda8096b9cced6bf07b` |
 | **Unique Preview** | https://chasum-6cls803md-renovisionappcom.vercel.app |
 | **Prior unique Preview** | https://chasum-pom3t5aug-renovisionappcom.vercel.app — SUPERSEDED / DO NOT USE |
@@ -1024,7 +1032,7 @@ As of last update:
 
 **Priority order:**
 
-1. **Track 2 / Migration 038 Gate 4 — Staging first.** Apply the exact reviewed `038` file as MANUAL SCOPED SQL on Staging `wnfahklzaxirftyskctd` only after explicit PO approval. Then verify on Preview `6ecc35f`. Do **not** apply 038 to Production in the same step. Do **not** run `supabase db push`.
+1. **Track 2 / Migration 038 Production Gate 4 — separate PO approval only.** Staging is applied and Preview-verified. Do **not** apply 038 to Production `kxcydvhswkuzepwzzinq` until explicit Product Owner approval. Do **not** run `supabase db push`. No seeds, no `offer_id` backfill, no usage emitters.
 2. **PRODUCT OWNER DECISION REQUIRED — P0 Production commercial compatibility** (`4eecbec` user-scoped billing writes vs World Class paid-upgrade guard) before Track 3 RLS on Production.
 3. **Do not apply** 034 / 035 / 036 without explicit PO execution approval. Preview → Staging; Production → Production.
 4. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred**. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.

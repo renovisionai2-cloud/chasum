@@ -8,9 +8,10 @@
 --
 -- LIVE ENVIRONMENT (2026-08-23): Preview → Staging wnfahklzaxirftyskctd;
 -- Production → Production kxcydvhswkuzepwzzinq. Shared-DB assumption SUPERSEDED.
--- This file is UNAPPLIED. Environment-safe sequence: (1) Staging first,
--- (2) verify against Preview, (3) Claude/PO acceptance if required,
--- (4) Production only through a separate explicit PO approval.
+-- STAGING: APPLIED + VERIFIED (2026-08-23 Gate 4; 0 offer rows; 0 offer_id;
+-- 0 usage_events; HQ offer_id NULL; required triggers enabled).
+-- PRODUCTION: UNAPPLIED. Apply only through a separate explicit PO approval.
+-- Never supabase db push / migration up (034–036 remain unapplied).
 --
 -- Scope: plan_offers, businesses.offer_id, usage_events, constraints, triggers.
 -- Out of scope: offer seeds, backfill, billing_profiles, past_due_since,

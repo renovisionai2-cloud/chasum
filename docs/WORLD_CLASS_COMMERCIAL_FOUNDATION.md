@@ -1,6 +1,6 @@
 # World Class Commercial Foundation
 
-**Status:** Track 1 / Migration 037 **APPLIED + VERIFIED**. Track 2 / Migration 038 **UNAPPLIED**. Track 3 **BLOCKED**. Commercial Foundation as a whole is **not complete**.  
+**Status:** Track 1 / Migration 037 **APPLIED + VERIFIED**. Track 2 / Migration 038 **STAGING APPLIED + VERIFIED**; **PRODUCTION UNAPPLIED**. Track 3 **BLOCKED**. Commercial Foundation as a whole is **not complete**.  
 **Branch:** `cursor/commercial-track-1-2-7453`  
 **World Class HEAD at start:** `c5aa36f78d4b3ad61311bbda8096b9cced6bf07b`  
 **Production code:** `4eecbec0f0f04532ae0294132d07183b6e64f23f`  
@@ -41,7 +41,7 @@ Independent: design-partner applications (Track 1). Future: billing profile + St
 | Track | Scope | Status |
 |-------|--------|--------|
 | **1** | `design_partner_applications` + `/apply` persist | **APPLIED + VERIFIED** (`037`) |
-| **2** | `plan_offers`, `businesses.offer_id`, `usage_events`, triggers | Authored, **UNAPPLIED** (`038`) |
+| **2** | `plan_offers`, `businesses.offer_id`, `usage_events`, triggers | **STAGING APPLIED + VERIFIED** (`038`); **PRODUCTION UNAPPLIED** |
 | **3** | `subscription_events` / `billing_invoices` RLS hardening | **BLOCKED / NOT IMPLEMENTED** |
 
 ### Track 1 / Migration 037 — APPLIED + VERIFIED
@@ -55,12 +55,19 @@ Independent: design-partner applications (Track 1). Future: billing profile + St
 
 Claude inspected Production `4eecbec` and confirmed it still writes `subscription_events` / `billing_invoices` with a **user-scoped** Supabase client and lacks the World Class paid-upgrade guard. Preview no longer shares Production Supabase, so Staging-only RLS would not hit Production — but Track 3 on **Production** would still break live `4eecbec` billing writes. Track 3 requires an explicit **P0 PRODUCTION SAFETY / COMPATIBILITY DECISION**. Do not implement Track 3 in this gate.
 
-### Track 2 / Migration 038 — environment-safe sequence (UNAPPLIED)
+### Track 2 / Migration 038 — STAGING GATE 4 APPLIED + VERIFIED (2026-08-23)
 
-Do **not** apply 038 until Product Owner Gate 4 for Track 2.
+| Database | 038 | Verification |
+|----------|-----|----------------|
+| Staging `wnfahklzaxirftyskctd` | **APPLIED + VERIFIED** | MANUAL SCOPED SQL (`BEGIN` / exact reviewed file / `COMMIT`). Success, no rows returned. `plan_offers` exists, 0 rows. `businesses.offer_id` exists; 0 non-null assignments. Chasum HQ exists with `offer_id` NULL. `usage_events` exists, 0 rows. RLS on for both new tables. anon/authenticated grants = 0. Triggers enabled: `businesses_offer_assignment_guard`, `plan_offers_lifecycle_guard`, `usage_events_append_only`. No seeds, no backfill, no usage events. Preview HQ dashboard / Main / Business Setup / `/apply` loaded; no visible regression. Preview badge `ef331a9`. |
+| Production `kxcydvhswkuzepwzzinq` | **UNAPPLIED** | Not Product Owner approved. Do not apply 038 to Production in this gate. |
 
-1. Staging first (`wnfahklzaxirftyskctd`) — MANUAL SCOPED SQL of the exact reviewed `038` file  
-2. Verify against Preview `6ecc35f`  
+038 is **not** complete across all environments.
+
+Remaining Production step (separate explicit PO approval only):
+
+1. Staging first — **done**  
+2. Verify against Preview — **done**  
 3. Claude/PO acceptance if required  
 4. Production (`kxcydvhswkuzepwzzinq`) **only** through a **separate** explicit PO approval  
 
@@ -216,7 +223,7 @@ Do **not** fix Production in this gate. Requires explicit PO authorization.
 2. Cursor authored Track 1 + Track 2 on a branch (done).  
 3. Claude audited the actual diff; Gate 3 corrections applied (done).  
 4. Track 1 / 037: PO manual scoped SQL on Production (schema verified) and Staging (Preview E2E verified) — **closed**.  
-5. Track 2 / 038: Staging first → Preview verify → Claude/PO if required → separate Production PO approval — **not started**.  
+5. Track 2 / 038 Staging Gate 4: Staging applied + Preview verified — **closed**. Production 038 remains **UNAPPLIED** pending separate PO approval.  
 6–9. Stage 2 seed/backfill remains later; Track 3 remains blocked until the Production compatibility decision.
 
 ---

@@ -14,14 +14,15 @@ const track3Blocked = readFileSync(
   "utf8",
 );
 
-describe("038_commercial_foundation_additive (unapplied Track 2)", () => {
+describe("038_commercial_foundation_additive (Track 2 Staging applied; Production unapplied)", () => {
   it("requires manual scoped SQL and leaves 034–036 and Track 3 untouched", () => {
     expect(sql).toMatch(/MANUAL SCOPED SQL EXECUTION ONLY/);
     expect(sql).toMatch(/supabase db push/);
     expect(sql).toMatch(/034/);
     expect(sql).toMatch(/035/);
     expect(sql).toMatch(/036/);
-    expect(sql).toMatch(/UNAPPLIED/);
+    expect(sql).toMatch(/STAGING: APPLIED \+ VERIFIED/);
+    expect(sql).toMatch(/PRODUCTION: UNAPPLIED/);
     expect(sql).not.toMatch(/subscription_events enable row level security/);
     expect(sql).not.toMatch(/policy.*subscription_events/i);
     expect(sql).not.toMatch(/policy.*billing_invoices/i);

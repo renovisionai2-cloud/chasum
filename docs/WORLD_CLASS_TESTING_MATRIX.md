@@ -21,6 +21,8 @@
 | Branch | `cursor/world-class-portal-foundation` |
 | Shared DB | **SUPERSEDED.** LIVE: Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq` |
 | Migrations 034–036 | Do not apply |
+| Commercial 037 | APPLIED + VERIFIED on Production and Staging |
+| Commercial 038 | STAGING APPLIED + VERIFIED; PRODUCTION UNAPPLIED |
 
 ---
 

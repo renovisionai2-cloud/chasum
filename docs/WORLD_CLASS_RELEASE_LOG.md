@@ -5,7 +5,7 @@
 **Shell Preview (Ch1 base):** https://chasum-f2djbjdae-renovisionappcom.vercel.app @ `d86e398`  
 **LIVE ENVIRONMENT:** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. Shared Preview↔Production DB is **SUPERSEDED** (see [`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md)).  
 **Migrations 034–036:** Do not apply without PO  
-**Commercial Track 1 / 037:** APPLIED + VERIFIED. **Track 2 / 038:** UNAPPLIED.  
+**Commercial Track 1 / 037:** APPLIED + VERIFIED. **Track 2 / 038:** STAGING APPLIED + VERIFIED; PRODUCTION UNAPPLIED.  
 
 ---
 
@@ -13,6 +13,7 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
+| 2026-08-23 | **Commercial Foundation Track 2 Staging Gate 4** | docs on `cursor/commercial-track-1-2-7453` | https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app @ `ef331a9` | 038 APPLIED + VERIFIED on Staging only (0 offer rows, 0 offer_id, 0 usage, HQ NULL, triggers enabled); Production 038 UNAPPLIED; 034–036 unapplied; Track 3 blocked |
 | 2026-08-23 | **Commercial Foundation Track 1 closeout** | docs on `cursor/commercial-track-1-2-7453` | https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app @ `6ecc35f` | 037 APPLIED Production (schema) + Staging (Preview `/apply` E2E: `Chasum Migration 037 Test`); Preview→Staging LIVE; 038 UNAPPLIED; 034–036 unapplied; Track 3 blocked |
 | 2026-08-22 | **Commercial Foundation Gate 2** | Track 1 + Track 2 on `cursor/commercial-track-1-2-7453` | Unique Preview pending deploy · Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 037/038 authored **unapplied** at authoring time; Track 3 RLS **blocked**; no SQL then; 034–036 unapplied |
 | 2026-08-22 | **Navigation acceptance corrections** | `c5aa36f` | Unique Preview pending deploy · Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Quota Add Location consistency; Memberships Preview chip; labeled More overflow; membership autocomplete; category labels; no SQL |
