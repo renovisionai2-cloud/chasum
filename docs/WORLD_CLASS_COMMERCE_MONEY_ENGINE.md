@@ -14,7 +14,7 @@
 **Feature 6.0B lifecycle emails:** `fd8560f`  
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.1 / 6.2A / 6.2B**  
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 6.0 / 6.1 / 6.2A / 6.2B** *(historical; **LIVE 2026-08-23:** Preview → Staging; Production → Production)*  
 **Canonical helpers:** `lib/commerce/money-contract.ts` + `lib/commerce/refundability.ts`  
 **Booking-time resolver (preserved):** `lib/commerce/booking-financials.ts` (`resolveBookingFinancials` / `computeBookingPricing`)
 

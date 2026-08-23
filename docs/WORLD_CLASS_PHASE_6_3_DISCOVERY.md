@@ -9,7 +9,7 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production:** locked — `https://chasum.vercel.app` (`4eecbec`) — **not modified**  
 **Preview:** `https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app`  
-**Database:** Preview ↔ Production share Supabase — **no schema / migration / RPC / data changes in this task**  
+**Database:** Preview ↔ Production share Supabase — **no schema / migration / RPC / data changes in this task** *(historical; **LIVE 2026-08-23:** Preview → Staging; Production → Production)*  
 **Migrations 034 / 035 / 036:** remain **unapplied**  
 **Product code changed by this task:** **NONE**  
 **DB impact from this discovery task:** **NONE**  

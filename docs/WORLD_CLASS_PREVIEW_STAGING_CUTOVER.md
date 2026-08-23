@@ -1,11 +1,29 @@
-# World Class — Preview → Staging cutover STOP
+# World Class — Preview → Staging cutover
 
 **Program:** Chasum World Class Program  
 **Task:** Connect Vercel **Preview only** to Chasum Staging  
-**Status:** **STOPPED — Vercel access not available in this agent environment**  
-**Branch:** `cursor/world-class-portal-foundation`  
+
+### LIVE CONTRACT (2026-08-23) — SUPERSEDES the STOPPED status below
+
+| Surface | Code | Database |
+|---------|------|----------|
+| **Production** | `4eecbec0f0f04532ae0294132d07183b6e64f23f` · https://chasum.vercel.app | Production Supabase `kxcydvhswkuzepwzzinq` |
+| **Preview** | `6ecc35f5c69934ba37398c58ff36322768d49efd` · https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app | Staging Supabase `wnfahklzaxirftyskctd` |
+
+Live-verified Preview `/api/build-info`: `"env":"preview"`, `"supabaseProjectRef":"wnfahklzaxirftyskctd"`, `"production":false`.
+
+Preview → Staging. Production → Production. **Do not change either environment.**
+
+**Commercial migrations (2026-08-23 live):** 037 APPLIED + VERIFIED on Production and Staging. 038 **APPLIED + VERIFIED** on Staging and Production — CROSS-ENVIRONMENT EXECUTION GATE CLOSED. 034–036 unapplied. Track 3 blocked. Production application code remains `4eecbec`.
+
+The **STOPPED** agent report below is **historical** (2026-08-19): this Cloud Agent could not edit Vercel. Product Owner completed the Preview-only env cutover **out of band** afterward (evidenced by 2026-08-21 Chasum HQ create on Staging via Preview onboarding). Do not rewrite that history as if the shared-DB state never existed.
+
+**Status (historical agent attempt):** STOPPED — Vercel access not available in this agent environment (2026-08-19)  
+**Status (live):** **COMPLETE** — Preview connected to Staging `wnfahklzaxirftyskctd`  
+**Branch at original attempt:** `cursor/world-class-portal-foundation`  
 **Production:** locked — `https://chasum.vercel.app` (`4eecbec`)  
-**Preview alias:** `https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app`  
+**World Class Preview alias (historical):** `https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app`  
+**Commercial Preview alias:** `https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app`  
 **Production Supabase:** `kxcydvhswkuzepwzzinq`  
 **Staging Supabase:** `wnfahklzaxirftyskctd`
 
@@ -15,7 +33,7 @@
 
 ---
 
-## Why stopped
+## Why the 2026-08-19 agent attempt stopped (historical)
 
 | Check | Result |
 |-------|--------|
@@ -30,14 +48,16 @@ PO authorization for Preview-only env change is recorded. Execution requires a l
 
 ---
 
-## Current vs intended contract
+## Historical vs intended contract (as of 2026-08-19 agent STOP)
+
+The “CURRENT (unchanged)” diagram below is **historical**. LIVE contract is Preview → Staging (see header).
 
 ```
-CURRENT (unchanged)
+HISTORICAL (2026-08-19, SUPERSEDED)
 Vercel Production  ──┐
 Vercel Preview     ──┴──►  Production Supabase  kxcydvhswkuzepwzzinq
 
-INTENDED (after PO completes the steps below)
+LIVE / intended (verified 2026-08-23)
 Vercel Production  ──────►  Production Supabase  kxcydvhswkuzepwzzinq
 Vercel Preview     ──────►  Staging Supabase     wnfahklzaxirftyskctd
 Local World Class  ──────►  Staging via .env.staging.local
@@ -155,8 +175,8 @@ Allowed without further PO: signup + email confirm + `/login` for **one internal
 | Production Vercel env | **Unchanged** |
 | Production Supabase | **Unchanged** |
 | Production Auth / RLS | **Unchanged** |
-| GVM Test / Chasum HQ | **Not created** |
+| GVM Test / Chasum HQ | **Chasum HQ created in Staging** (2026-08-21); GVM remains Production-only |
 | 034 / 035 / 036 | **Unapplied** |
 | RLS hardening | **Not started** |
 | Phase 6.3 / 6.4 | **Not started** |
-| Preview cutover | **Not executed** |
+| Preview cutover | **COMPLETE** (out-of-band after this 2026-08-19 STOP; live-verified 2026-08-23) |

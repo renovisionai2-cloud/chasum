@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -18,11 +18,27 @@ describe("Phase 6.0 locks", () => {
     expect(publicBooking).not.toMatch(/createPaymentIntent/);
   });
 
-  it("does not introduce a new migration or depend on 034/035/036", () => {
-    const files = readdirSync(join(root, "supabase/migrations"));
-    expect(files.some((f) => f.startsWith("037_"))).toBe(false);
-    const money = read("lib/commerce/money-contract.ts");
-    expect(money).not.toMatch(/034_optional_appointment_staff|035_booking_interval|036_booking_resources/);
+  it("does not depend on unrelated later migrations", () => {
+    const unrelatedMigrations = [
+      "034_optional_appointment_staff",
+      "035_booking_interval_allowed_values",
+      "036_booking_resources",
+      "037_design_partner_applications",
+      "038_commercial_foundation_additive",
+    ];
+    const phase60MoneyFiles = [
+      "lib/commerce/money-contract.ts",
+      "lib/commerce/dashboard.ts",
+      "lib/commerce/invoices.ts",
+      "lib/commerce/receipts.ts",
+      "lib/commerce/booking-financials.ts",
+      "lib/commerce/recognize.ts",
+      "components/commerce/payments-dashboard.tsx",
+    ];
+    const forbidden = new RegExp(unrelatedMigrations.join("|"));
+    for (const path of phase60MoneyFiles) {
+      expect(read(path), path).not.toMatch(forbidden);
+    }
   });
 
   it("documents the public named-staff price-stamp gap without modifying the RPC", () => {

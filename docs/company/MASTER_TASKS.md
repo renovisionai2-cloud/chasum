@@ -19,16 +19,22 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-1. Socialize Company Operating System docs (`docs/company/*`) as mandatory session start.
-2. Apply outstanding Supabase migrations in each environment (**001 → 022**; linked project is current through `022`).
-3. Harden Emma Phase 1 (persist conversations, CRM link paths, grounded answers QA).
-4. Identify next AI Workforce slice (Emma public/channel OR Alex automation) without redesigning UI.
-5. Keep Billing path ready for Stripe swap (provider interface already in place).
+1. **Commercial Foundation Track 1 CLOSED.** 037 APPLIED + VERIFIED on Production (schema) and Staging (Preview `/apply` E2E). **Track 2 / 038 CROSS-ENVIRONMENT EXECUTION GATE CLOSED** — Staging APPLIED + VERIFIED, then Production APPLIED + VERIFIED after PO approval, precheck, DB/security verification, and GVM smoke. Track 3 RLS remains **BLOCKED / NOT IMPLEMENTED** until the Production `4eecbec` billing-write compatibility decision. Migration 038 does **not** resolve Track 3.
+2. **Database Release Automation — DESIGN FOR NOW / BUILD LATER.** Do not implement now. Future pipeline must keep current safety (environment identity, per-env migration state, Staging-first, preflight, transaction-safe execution, post-verify, smoke hooks, Production approval gate, drift detection, rollback/forward-recovery playbook, audit log) and must prohibit `supabase db push` / `migration up` while 034–036 remain unapplied. Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](../WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
+3. **Marketing website audit follow-up — ACTIVE WORKSTREAM; do not implement in this closeout.** P0: Pricing must not imply Inventory is currently available if it remains Coming Soon; clarify current vs future multi-location. P1: Meet Summer should more strongly communicate Summer as the AI Business Manager; marketing currently undersells CRM, payments, scheduling integrity, and the connected operating model. Also preserve: sitemap P1, robots P2, structured-data follow-up, Private Alpha → future self-serve CTA transition, annual pricing “Save 20%” reconciliation before final public pricing lock. Canonical: [`WORLD_CLASS_MARKETING_PRODUCT_PARITY.md`](../WORLD_CLASS_MARKETING_PRODUCT_PARITY.md).
+4. Socialize Company Operating System docs (`docs/company/*`) as mandatory session start.
+5. Do **not** CLI-apply pending migrations (034–036). **LIVE:** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. Manual scoped SQL only after PO approval. Never `supabase db push`.
+6. Harden Emma Phase 1 (persist conversations, CRM link paths, grounded answers QA).
+7. Identify next AI Workforce slice (Emma public/channel OR Alex automation) without redesigning UI.
+8. Stripe SaaS Billing remains later — do not swap the mock provider in this sprint.
 
 ---
 
 ## High priority
 
+- [ ] **PRODUCT OWNER DECISION REQUIRED** — Production `4eecbec` commercial compatibility before Track 3 RLS
+- [ ] **Database Release Automation** — DESIGN FOR NOW / BUILD LATER (do not implement in this sprint)
+- [ ] **Marketing website audit follow-up** — active workstream; locked-page claim fixes only with explicit PO
 - [ ] Environment migrations applied for Business, Reports, AI Receptionist tables
 - [ ] Emma: production FAQ/config storage (owner-approved answers) without inventing facts
 - [ ] Emma: public booking-page assist (web channel) using same service layer

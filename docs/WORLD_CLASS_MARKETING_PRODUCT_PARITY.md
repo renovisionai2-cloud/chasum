@@ -9,6 +9,31 @@
 **Method:** Inspected every `app/(marketing)/*` route, `lib/marketing/*`, landing components, nav/footer, FAQs, plan cards, workflows, dormant constants  
 **Mode:** Document conflicts only — no marketing or product code changes  
 
+### ACTIVE FOLLOW-UP (2026-08-23) — Claude marketing website audit
+
+**Status:** Outstanding workstream. **Do not implement in the Commercial Foundation Track 2 closeout.** Locked pages still require explicit Product Owner authorization.
+
+P0:
+
+- Pricing should not imply Inventory is currently available if it remains Coming Soon.
+- Clarify current vs future multi-location capability.
+
+P1:
+
+- Meet Summer should more strongly communicate Summer as the AI Business Manager.
+- Marketing currently undersells CRM, payments, scheduling integrity, and the connected operating model.
+- The website should communicate the connected Chasum operating journey rather than reading primarily like booking software.
+
+Also preserve:
+
+- sitemap P1
+- robots P2
+- structured-data follow-up
+- Private Alpha → future self-serve CTA transition
+- annual pricing “Save 20%” reconciliation before final public pricing lock
+
+Historical Chapter 0 findings below are **not** rewritten. This header keeps the follow-up visible.  
+
 ---
 
 ## Locked owner decisions (approved with Chapter 0)
