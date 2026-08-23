@@ -184,6 +184,25 @@ describe("039_business_slug_aliases migration", () => {
     expect(sql).toContain("after update of slug on businesses");
   });
 
+  it("runs trigger writes as SECURITY DEFINER with a pinned search_path", () => {
+    expect(sql).toMatch(
+      /create or replace function enforce_business_slug_namespace\(\)[\s\S]*security definer[\s\S]*set search_path = public, pg_temp/,
+    );
+    expect(sql).toMatch(
+      /create or replace function record_business_slug_alias\(\)[\s\S]*security definer[\s\S]*set search_path = public, pg_temp/,
+    );
+    expect(sql).toContain("revoke insert, update, delete on table business_slug_aliases from anon, authenticated");
+    expect(sql).not.toMatch(
+      /grant\s+(insert|update|delete)\s+on table business_slug_aliases to (anon|authenticated)/i,
+    );
+  });
+
+  it("serializes cross-table slug claims with a per-slug xact advisory lock", () => {
+    expect(sql).toContain("pg_advisory_xact_lock");
+    expect(sql).toContain("hashtext('chasum.business_slug_namespace')");
+    expect(sql).toContain("lock_business_slug_namespace_pair");
+  });
+
   it("does not seed tenant-specific alias rows", () => {
     expect(sql).not.toContain("gvm-baby-world");
     expect(sql).not.toContain("gvm-baby-world-ultrasound");

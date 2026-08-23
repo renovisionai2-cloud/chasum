@@ -49,6 +49,9 @@ Enforced in PostgreSQL:
 - trigger: current slug cannot equal another tenant’s alias
 - slug rename automatically records the previous slug as an alias
 - alias `slug` / `business_id` cannot be updated
+- trigger functions are `SECURITY DEFINER` with `search_path = public, pg_temp` so authenticated profile saves (which always SET slug) do not need client INSERT/DELETE on aliases
+- writes to either namespace take a transaction-scoped `pg_advisory_xact_lock` hashed from the slug so concurrent `businesses.slug` and alias claims cannot both pass EXISTS checks
+- same-tenant reclaim (`foo` → `bar` → `foo`) deletes the alias row for `foo` because `foo` is canonical again — the identifier is not unreserved, it is current. That is the narrow exception to alias-row immutability.
 
 ## Staging / Production
 

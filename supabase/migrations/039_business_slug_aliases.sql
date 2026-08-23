@@ -39,20 +39,76 @@ create index if not exists business_slug_aliases_business_id_idx
 
 -- ---------------------------------------------------------------------------
 -- Cross-table uniqueness + immutability
+--
+-- Trigger functions are SECURITY DEFINER with a pinned search_path so
+-- authenticated Business Profile saves (which always include slug, even when
+-- unchanged) can fire UPDATE OF slug without the invoker needing INSERT/
+-- UPDATE/DELETE on business_slug_aliases. Direct client writes stay revoked.
+--
+-- Same-tenant reclaim (foo → bar → foo) deletes the alias row for foo because
+-- foo is canonical again. That is the narrow exception to alias-row
+-- immutability: the identifier is not unreserved; it is the current slug.
 -- ---------------------------------------------------------------------------
+
+-- Transaction-scoped per-slug lock shared by businesses.slug and alias writes.
+create or replace function lock_business_slug_namespace(p_slug text)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if p_slug is null or length(trim(p_slug)) = 0 then
+    return;
+  end if;
+  -- key1 namespaces this lock class; key2 is the slug hash so unrelated slugs
+  -- do not serialize. Xact-scoped: released at commit/rollback.
+  perform pg_advisory_xact_lock(
+    hashtext('chasum.business_slug_namespace'),
+    hashtext(p_slug)
+  );
+end;
+$$;
+
+create or replace function lock_business_slug_namespace_pair(p_left text, p_right text)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if p_left is null or p_right is null or p_left = p_right then
+    perform lock_business_slug_namespace(coalesce(p_left, p_right));
+    return;
+  end if;
+  -- Stable lock order avoids deadlock when two tenants swap/claim overlapping slugs.
+  if p_left < p_right then
+    perform lock_business_slug_namespace(p_left);
+    perform lock_business_slug_namespace(p_right);
+  else
+    perform lock_business_slug_namespace(p_right);
+    perform lock_business_slug_namespace(p_left);
+  end if;
+end;
+$$;
 
 create or replace function enforce_business_slug_namespace()
 returns trigger
 language plpgsql
+security definer
+set search_path = public, pg_temp
 as $$
 begin
   if tg_table_name = 'business_slug_aliases' then
-    if tg_op = 'update' and (
-      new.slug is distinct from old.slug
-      or new.business_id is distinct from old.business_id
-    ) then
-      raise exception 'business_slug_aliases rows are immutable'
-        using errcode = '22023';
+    if tg_op = 'update' then
+      perform lock_business_slug_namespace_pair(old.slug, new.slug);
+      if new.slug is distinct from old.slug
+         or new.business_id is distinct from old.business_id then
+        raise exception 'business_slug_aliases rows are immutable'
+          using errcode = '22023';
+      end if;
+    else
+      perform lock_business_slug_namespace(new.slug);
     end if;
 
     if exists (
@@ -63,6 +119,12 @@ begin
         using errcode = '23505';
     end if;
   elsif tg_table_name = 'businesses' and new.slug is not null then
+    if tg_op = 'update' then
+      perform lock_business_slug_namespace_pair(old.slug, new.slug);
+    else
+      perform lock_business_slug_namespace(new.slug);
+    end if;
+
     if exists (
       select 1 from business_slug_aliases a
       where a.slug = new.slug
@@ -86,11 +148,14 @@ $$;
 create or replace function record_business_slug_alias()
 returns trigger
 language plpgsql
+security definer
+set search_path = public, pg_temp
 as $$
 begin
   if tg_op = 'update'
      and old.slug is not null
      and new.slug is distinct from old.slug then
+    perform lock_business_slug_namespace_pair(old.slug, new.slug);
     begin
       insert into business_slug_aliases (business_id, slug)
       values (old.id, old.slug);
@@ -109,6 +174,11 @@ begin
   return new;
 end;
 $$;
+
+revoke all on function lock_business_slug_namespace(text) from public;
+revoke all on function lock_business_slug_namespace_pair(text, text) from public;
+revoke all on function enforce_business_slug_namespace() from public;
+revoke all on function record_business_slug_alias() from public;
 
 drop trigger if exists business_slug_aliases_enforce_namespace on business_slug_aliases;
 create trigger business_slug_aliases_enforce_namespace
@@ -141,6 +211,7 @@ create policy "Public can view business slug aliases"
 
 grant select on table business_slug_aliases to anon, authenticated;
 grant select, insert, update, delete on table business_slug_aliases to service_role;
+revoke insert, update, delete on table business_slug_aliases from anon, authenticated;
 
 -- Future deletion implication (not implemented):
 -- businesses ON DELETE RESTRICT while aliases exist, so a tenant cannot be
