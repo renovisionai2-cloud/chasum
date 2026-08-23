@@ -1,10 +1,11 @@
 # World Class Release Log
 
-**Branch:** `cursor/world-class-portal-foundation`  
+**Branch (commercial closeout):** `cursor/commercial-track-1-2-7453` @ `6ecc35f`  
 **Production baseline:** `4eecbec` · tag `phase-0-gvm-production-2026-08-04` · https://chasum.vercel.app  
 **Shell Preview (Ch1 base):** https://chasum-f2djbjdae-renovisionappcom.vercel.app @ `d86e398`  
-**Shared Supabase:** Preview ↔ Production until PO completes Preview-only Vercel env cutover — see [`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md). Staging schema exists; Preview **not connected**.  
+**LIVE ENVIRONMENT:** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. Shared Preview↔Production DB is **SUPERSEDED** (see [`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md)).  
 **Migrations 034–036:** Do not apply without PO  
+**Commercial Track 1 / 037:** APPLIED + VERIFIED. **Track 2 / 038:** UNAPPLIED.  
 
 ---
 
@@ -12,7 +13,8 @@
 
 | Date | Chapter | Commit | Preview | Notes |
 |------|---------|--------|---------|-------|
-| 2026-08-22 | **Commercial Foundation Gate 2** | Track 1 + Track 2 on `cursor/commercial-track-1-2-7453` | Unique Preview pending deploy · Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 037/038 authored **unapplied**; Track 3 RLS **blocked**; no SQL; 034–036 unapplied |
+| 2026-08-23 | **Commercial Foundation Track 1 closeout** | docs on `cursor/commercial-track-1-2-7453` | https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app @ `6ecc35f` | 037 APPLIED Production (schema) + Staging (Preview `/apply` E2E: `Chasum Migration 037 Test`); Preview→Staging LIVE; 038 UNAPPLIED; 034–036 unapplied; Track 3 blocked |
+| 2026-08-22 | **Commercial Foundation Gate 2** | Track 1 + Track 2 on `cursor/commercial-track-1-2-7453` | Unique Preview pending deploy · Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | 037/038 authored **unapplied** at authoring time; Track 3 RLS **blocked**; no SQL then; 034–036 unapplied |
 | 2026-08-22 | **Navigation acceptance corrections** | `c5aa36f` | Unique Preview pending deploy · Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Quota Add Location consistency; Memberships Preview chip; labeled More overflow; membership autocomplete; category labels; no SQL |
 | 2026-08-22 | **Navigation + command discoverability** | feature `4d6d2ab` | Unique Preview: https://chasum-6cls803md-renovisionappcom.vercel.app · Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app · Prior unique https://chasum-pom3t5aug-renovisionappcom.vercel.app SUPERSEDED / DO NOT USE | Approved IA implemented; Memberships/Gift Cards/Discounts/Locations/Chase discoverable; ⌘K expanded; no SQL; 034–036 unapplied |
 | 2026-08-22 | **Trust + navigation stabilization pass 1** | stamp `6bdc581` · feature `4608bb3` · money follow-up `41f1901` · tip `c8d7816` | Unique Preview: https://chasum-9e0o4wwo4-renovisionappcom.vercel.app · Branch alias: https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app | Tenant currency formatter; permissions/forms/HQ product truth; IA proposal not implemented; no SQL; 034–036 unapplied |

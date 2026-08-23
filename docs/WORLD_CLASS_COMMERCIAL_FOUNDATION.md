@@ -1,10 +1,21 @@
 # World Class Commercial Foundation
 
-**Status:** Gate 2 authored — Track 1 + Track 2 **UNAPPLIED**. Track 3 **BLOCKED**.  
+**Status:** Track 1 / Migration 037 **APPLIED + VERIFIED**. Track 2 / Migration 038 **UNAPPLIED**. Track 3 **BLOCKED**. Commercial Foundation as a whole is **not complete**.  
 **Branch:** `cursor/commercial-track-1-2-7453`  
 **World Class HEAD at start:** `c5aa36f78d4b3ad61311bbda8096b9cced6bf07b`  
-**Production baseline:** `4eecbec0f0f04532ae0294132d07183b6e64f23f`  
-**Shared Supabase:** Preview and Production. Do not apply SQL without explicit Product Owner execution approval.
+**Production code:** `4eecbec0f0f04532ae0294132d07183b6e64f23f`  
+**Preview code:** `6ecc35f5c69934ba37398c58ff36322768d49efd`
+
+### LIVE ENVIRONMENT CONTRACT (2026-08-23)
+
+| Surface | Code | Database |
+|---------|------|----------|
+| **Production** | `4eecbec` · https://chasum.vercel.app | Production Supabase `kxcydvhswkuzepwzzinq` |
+| **Preview** | `6ecc35f` · https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app | Staging Supabase `wnfahklzaxirftyskctd` |
+
+Preview → Staging. Production → Production. **Do not change either environment.**
+
+**SUPERSEDED:** “Preview and Production currently share Supabase.” That was true on 2026-08-19 (cutover STOPPED in-agent). Out-of-band Preview-only Vercel cutover completed before 2026-08-21 HQ creation. Live-verified 2026-08-23 Preview `/api/build-info`: `"supabaseProjectRef":"wnfahklzaxirftyskctd"`. Canonical cutover record: [`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md).
 
 Pricing hypotheses, packaging, and cost-to-serve direction live in [`WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md). This file is the **architecture / schema / implementation-state** source of truth. Do not duplicate list prices here.
 
@@ -29,13 +40,31 @@ Independent: design-partner applications (Track 1). Future: billing profile + St
 
 | Track | Scope | Status |
 |-------|--------|--------|
-| **1** | `design_partner_applications` + `/apply` persist | Authored, **UNAPPLIED** (`037`) |
+| **1** | `design_partner_applications` + `/apply` persist | **APPLIED + VERIFIED** (`037`) |
 | **2** | `plan_offers`, `businesses.offer_id`, `usage_events`, triggers | Authored, **UNAPPLIED** (`038`) |
 | **3** | `subscription_events` / `billing_invoices` RLS hardening | **BLOCKED / NOT IMPLEMENTED** |
 
+### Track 1 / Migration 037 — APPLIED + VERIFIED
+
+| Database | 037 | Verification |
+|----------|-----|----------------|
+| Production `kxcydvhswkuzepwzzinq` | **APPLIED** | Schema + security verified (table, 17 columns, RLS on, 0 policies, 0 anon/authenticated grants, service_role present). Production app is still `4eecbec` — **not application-functionally tested**. |
+| Staging `wnfahklzaxirftyskctd` | **APPLIED** | Schema + security + Preview `/apply` E2E **PASSED**. Test row `business_name` = `Chasum Migration 037 Test` persisted once; `status` = `received`; `source` = `apply`; `created_at` populated. |
+
 ### Why Track 3 is blocked
 
-Claude inspected Production `4eecbec` and confirmed it still writes `subscription_events` / `billing_invoices` with a **user-scoped** Supabase client and lacks the World Class paid-upgrade guard. Preview and Production share Supabase, so tightening those RLS policies would affect Production immediately. Track 3 requires an explicit **P0 PRODUCTION SAFETY / COMPATIBILITY DECISION**.
+Claude inspected Production `4eecbec` and confirmed it still writes `subscription_events` / `billing_invoices` with a **user-scoped** Supabase client and lacks the World Class paid-upgrade guard. Preview no longer shares Production Supabase, so Staging-only RLS would not hit Production — but Track 3 on **Production** would still break live `4eecbec` billing writes. Track 3 requires an explicit **P0 PRODUCTION SAFETY / COMPATIBILITY DECISION**. Do not implement Track 3 in this gate.
+
+### Track 2 / Migration 038 — environment-safe sequence (UNAPPLIED)
+
+Do **not** apply 038 until Product Owner Gate 4 for Track 2.
+
+1. Staging first (`wnfahklzaxirftyskctd`) — MANUAL SCOPED SQL of the exact reviewed `038` file  
+2. Verify against Preview `6ecc35f`  
+3. Claude/PO acceptance if required  
+4. Production (`kxcydvhswkuzepwzzinq`) **only** through a **separate** explicit PO approval  
+
+Never `supabase db push` / `migration up` (would apply 034–036 first).
 
 ---
 
@@ -47,7 +76,7 @@ This repository has no established Supabase CLI migration automation that can sk
 
 **MANUAL SCOPED SQL EXECUTION ONLY UNTIL 034–036 ARE RESOLVED.**
 
-Do **not** run `supabase db push`, `supabase migration up`, or any CLI that applies pending files in filename order. Those commands would attempt 034–036 first on the shared database.
+Do **not** run `supabase db push`, `supabase migration up`, or any CLI that applies pending files in filename order. Those commands would attempt 034–036 first on whichever project they target (Staging or Production).
 
 ---
 
@@ -58,7 +87,7 @@ Do **not** run `supabase db push`, `supabase migration up`, or any CLI that appl
 - No anon/authenticated INSERT or SELECT policies
 - Does not create auth users, businesses, members, subscriptions, offers, Stripe customers, or billing rows
 - Persist first; email notification after; a saved row is kept if email fails
-- If 037 is not applied yet, missing-relation errors fall back to the existing email/log path so Preview `/apply` is not lost
+- Missing-relation fallback remains in code for environments where 037 is absent; Staging Preview now persists to the table. Do not remove the fallback in this closeout.
 
 Founder review remains manual (`status` + `reviewed_at` / `reviewed_by`).
 
@@ -184,10 +213,11 @@ Do **not** fix Production in this gate. Requires explicit PO authorization.
 ## Approval gates
 
 1. PO approved this plan with Claude’s required modifications (done).  
-2. Cursor authored Track 1 + Track 2 on a branch, **did not apply** (this file).  
-3. Claude audits the actual diff.  
-4. PO explicitly approves Track 1 and/or Track 2 database execution (separate).  
-5–9. Stage 2 seed/backfill remains later; Track 3 remains blocked until the Production compatibility decision.
+2. Cursor authored Track 1 + Track 2 on a branch (done).  
+3. Claude audited the actual diff; Gate 3 corrections applied (done).  
+4. Track 1 / 037: PO manual scoped SQL on Production (schema verified) and Staging (Preview E2E verified) — **closed**.  
+5. Track 2 / 038: Staging first → Preview verify → Claude/PO if required → separate Production PO approval — **not started**.  
+6–9. Stage 2 seed/backfill remains later; Track 3 remains blocked until the Production compatibility decision.
 
 ---
 

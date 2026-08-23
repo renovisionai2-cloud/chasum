@@ -5,7 +5,8 @@
 **Branch:** `cursor/world-class-portal-foundation`  
 **Production:** locked — `https://chasum.vercel.app` (`4eecbec`)  
 **Preview:** `https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app`  
-**Current database wiring:** Preview **and** Production still use the **live Production** Supabase project  
+**Current database wiring (at discovery):** Preview **and** Production still use the **live Production** Supabase project  
+**LIVE CONTRACT (2026-08-23 SUPERSEDES):** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. This file remains the discovery record from when Staging was empty.  
 **New project (PO-created, empty):** **Chasum Staging** — Canada (Central), Healthy  
 **Staging security at creation:** Data API ON · automatically expose new tables **OFF** · automatic RLS for new public tables **ON**  
 **Chasum HQ tenant:** **NOT CREATED**  

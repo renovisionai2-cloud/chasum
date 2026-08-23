@@ -7,14 +7,15 @@ const sql = readFileSync(
   "utf8",
 );
 
-describe("037_design_partner_applications (unapplied Track 1)", () => {
+describe("037_design_partner_applications (Track 1 applied)", () => {
   it("is documented as manual scoped SQL only and does not touch 034–036", () => {
     expect(sql).toMatch(/MANUAL SCOPED SQL EXECUTION ONLY/);
     expect(sql).toMatch(/supabase db push/);
     expect(sql).toMatch(/034/);
     expect(sql).toMatch(/035/);
     expect(sql).toMatch(/036/);
-    expect(sql).toMatch(/UNAPPLIED/);
+    expect(sql).toMatch(/037 APPLIED on Production/);
+    expect(sql).toMatch(/037 APPLIED on Staging/);
     expect(sql).not.toMatch(/alter table (appointments|businesses|subscription_events|billing_invoices)/i);
   });
 

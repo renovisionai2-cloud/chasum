@@ -8,7 +8,7 @@
 **Chapter 3:** Reception / Calendar — see route block below.  
 **Chapter 4:** Booking Workspace — PO-accepted (`4da237c`).  
 **Chapter 5:** Phase 5.2 Day View + shared canvas — **PO-accepted** (`e88f22d`). Phase 5.3 Week/Month planning — **PO-accepted** (`caef495` / tip `284d726`).  
-**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** Phase 6.3 **discovery complete / implementation NOT STARTED.** Tenant safety foundation: [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md) — HQ tenant **not created**. Staging/Production split: [`WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) — Staging **not connected**.
+**Chapter 6:** Phase 6.0B **PO-accepted**. **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** Phase 6.3 **discovery complete / implementation NOT STARTED.** Tenant safety foundation: [`WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md) — HQ later created in Staging. **LIVE:** Preview → Staging; Production → Production ([`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md)).
 
 ---
 
@@ -19,7 +19,7 @@
 | Production | https://chasum.vercel.app @ `4eecbec` |
 | World Class Preview | https://chasum-q4yk6yain-renovisionappcom.vercel.app @ `20e0c89` (Chapter 2) |
 | Branch | `cursor/world-class-portal-foundation` |
-| Shared DB | Yes until Staging cutover — Staging empty **and not connected**; see environment-separation discovery |
+| Shared DB | **SUPERSEDED.** LIVE: Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq` |
 | Migrations 034–036 | Do not apply |
 
 ---

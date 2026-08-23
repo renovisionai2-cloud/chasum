@@ -6,7 +6,7 @@
 **Branch tip at discovery start:** `3807e42`  
 **Production:** locked — `https://chasum.vercel.app` (`4eecbec`)  
 **Preview:** `https://chasum-git-cursor-world-class-portal-fo-5c653e-renovisionappcom.vercel.app`  
-**Database:** Preview ↔ Production **share Supabase**  
+**Database:** Preview ↔ Production **share Supabase** *(historical header at discovery; **LIVE 2026-08-23:** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. HQ later created in Staging.)*  
 **Migrations 034 / 035 / 036:** remain **unapplied**  
 **Chasum HQ tenant creation:** **NOT PERFORMED**  
 **Phase 6.3 implementation:** **NOT STARTED**  

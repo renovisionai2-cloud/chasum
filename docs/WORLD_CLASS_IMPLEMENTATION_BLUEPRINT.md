@@ -55,7 +55,7 @@ Phase 0 GVM workflows (assigned-employee booking, exclusive tax, deposits, recei
 
 | Restriction | Policy |
 |-------------|--------|
-| Shared Supabase Preview ↔ Production | **Current** — Staging project exists but is **empty and not initialized from this agent** ([`WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md)). Preview still on Production. Do not connect Preview until PO approves cutover. |
+| Preview → Staging / Production → Production | **LIVE** (verified 2026-08-23). Preview `6ecc35f` → `wnfahklzaxirftyskctd`. Production `4eecbec` → `kxcydvhswkuzepwzzinq`. Shared-DB assumption **SUPERSEDED**. See [`WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md). |
 | Migrations **034, 035, 036** | **Do not apply** without explicit PO |
 | Production branch / alias / deploy | **Do not touch** |
 | Live GVM data | **Do not modify** |

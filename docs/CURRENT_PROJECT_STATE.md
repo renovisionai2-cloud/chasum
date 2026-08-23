@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-22  
-**Updated by:** World Class — Commercial Foundation Gate 2 (Track 1 + Track 2 authored, unapplied)  
+**Last updated:** 2026-08-23  
+**Updated by:** World Class — Commercial Foundation Track 1 / Migration 037 closeout (APPLIED + VERIFIED)  
 
 ---
 
@@ -49,10 +49,11 @@
 | [`docs/WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md`](./WORLD_CLASS_CHASUM_HQ_TENANT_DISCOVERY.md) | Chasum HQ tenant discovery — **Staging tenant created** (see Current milestone) |
 | [`docs/WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md`](./WORLD_CLASS_TENANT_SAFETY_FOUNDATION.md) | Tenant isolation + multi-business app foundation |
 | [`docs/WORLD_CLASS_SAFE_TENANT_ONBOARDING.md`](./WORLD_CLASS_SAFE_TENANT_ONBOARDING.md) | Auth must not auto-create a tenant — `/onboarding/business` |
-| [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — Staging **not connected** |
-| [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging init **STOPPED** — no Staging credentials in agent environment |
+| [`docs/WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md`](./WORLD_CLASS_ENVIRONMENT_SEPARATION_DISCOVERY.md) | Staging vs Production split — **historical**; live contract: Preview → Staging |
+| [`docs/WORLD_CLASS_STAGING_INIT_REPORT.md`](./WORLD_CLASS_STAGING_INIT_REPORT.md) | Staging 001–033 init report (historical) |
+| [`docs/WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md`](./WORLD_CLASS_PREVIEW_STAGING_CUTOVER.md) | Preview→Staging cutover — **LIVE: Preview → Staging `wnfahklzaxirftyskctd`** |
 | [`docs/WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md`](./WORLD_CLASS_NAVIGATION_IA_PROPOSAL.md) | Navigation / IA — **implemented** (nav + command discoverability) |
-| [`docs/WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) | Commercial schema / tracks / gates — Track 1+2 authored **unapplied**; Track 3 **blocked** |
+| [`docs/WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md) | Commercial schema / tracks — Track 1 **037 APPLIED + VERIFIED**; Track 2 **038 UNAPPLIED**; Track 3 **blocked** |
 | [`docs/WORLD_CLASS_COMMERCIAL_STRATEGY.md`](./WORLD_CLASS_COMMERCIAL_STRATEGY.md) | Pricing hypotheses / packaging / cost-to-serve (not public Pricing) |
 
 ---
@@ -77,7 +78,7 @@
 |-------|--------|
 | App framework | Next.js App Router (`next@16`), TypeScript |
 | UI | React 19, Tailwind CSS v4, Design System v1 (`components/ui/*`) |
-| Database | Supabase PostgreSQL + RLS (`supabase/migrations/`) |
+| Database | Supabase PostgreSQL + RLS (`supabase/migrations/`) — **LIVE:** Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq` |
 | Auth | Supabase Auth + `@supabase/ssr` (cookies); `middleware.ts` |
 | Hosting | Vercel (`vercel.json` crons) |
 | Email / SMS | Resend / Twilio (console fallback when unset) |
@@ -130,7 +131,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 1. Keep **Production** on `4eecbec` / tag `phase-0-gvm-production-2026-08-04` (https://chasum.vercel.app) — GVM assigned-employee booking, tax, deposits, receipts, emails, timezone, resend.
 2. Advance **World Class** only on `cursor/world-class-portal-foundation` via **Vercel Preview** — Chapters 0–2 approved/locked; Chapter 3 delivered; Chapter 4 Booking Workspace **PO-accepted** (`4da237c`); Chapter 5 Phase 5.0 / 5.1 complete; **Phase 5.2 PO-accepted** (`5756a45` / tip `e88f22d`); **Phase 5.3 PO-accepted** (`caef495` / tip `284d726`). **Chapter 6 Phase 6.0B PO-accepted.** **Phase 6.1 = PO ACCEPTED.** **Phase 6.2A = PO ACCEPTED.** **Phase 6.2B = PO ACCEPTED.** **Phase 6.3 = NOT STARTED.** Tenant safety foundation shipped (app-only); **safe tenant onboarding gate shipped**; **Chasum HQ exists in Staging only** (`chasum-hq`, `America/Toronto`, `cad`, starter). Claude HQ audit = **CONDITIONAL PASS**; this fix pass addresses mock paid-upgrade and 15-minute new-business default. Production does **not** have Chasum HQ. No Phase 5.4 invented.
-3. Do **not** apply migrations **034–036**; do not merge/deploy World Class to Production until chapter approval.
+3. Do **not** apply migrations **034–036**; do not apply **038** without Staging-first Gate 4; do not merge/deploy World Class to Production until chapter approval. Preview is on Staging; Production stays on Production.
 4. Marketing locks remain locked — claim fixes require PO (see parity matrix **OWNER DECISION REQUIRED** items).
 
 **Summer title (locked):** AI Business Manager — not Receptionist / chatbot / Emma in customer-facing copy.
@@ -206,7 +207,17 @@ Do not expand Summer until the domain is complete, truthful, and reachable. This
 
 ## Last completed work
 
-### Most recent (2026-08-22)
+### Most recent (2026-08-23)
+
+**World Class — Commercial Foundation Track 1 / Migration 037 APPLIED + VERIFIED**
+
+LIVE CONTRACT: Preview → Staging `wnfahklzaxirftyskctd`; Production → Production `kxcydvhswkuzepwzzinq`. The old “Preview and Production share Supabase” statement is **SUPERSEDED** (true on 2026-08-19; cutover completed out-of-band before 2026-08-21 HQ create; live-verified 2026-08-23 Preview `/api/build-info`).
+
+037 applied on **both** databases as MANUAL SCOPED SQL (exact reviewed file). Production: schema + security verified; Production app remains `4eecbec` (not functionally tested). Staging: schema + security + Preview `/apply` E2E passed — one test row `Chasum Migration 037 Test`, `status=received`, `source=apply`. Track 2 `038` remains **UNAPPLIED**. Track 3 remains **BLOCKED**. 034–036 unapplied. No Vercel env change. No Production deploy.
+
+Canonical: [`WORLD_CLASS_COMMERCIAL_FOUNDATION.md`](./WORLD_CLASS_COMMERCIAL_FOUNDATION.md).
+
+### Prior (2026-08-22)
 
 **World Class — Commercial Foundation Gate 2 (Track 1 + Track 2 authored, not applied)**
 
@@ -925,10 +936,13 @@ cursor/world-class-portal-foundation
 
 | Field | Value |
 |-------|--------|
-| **SHA** | pending Track 2 commit on `cursor/commercial-track-1-2-7453` |
-| **Short** | pending |
-| **Subject** | Author unapplied Commercial Foundation additive schema (Track 2). |
-| **Track 1** | `7f5de0e` Persist Private Alpha /apply submissions without provisioning tenants. |
+| **SHA** | this closeout commit on `cursor/commercial-track-1-2-7453` |
+| **Short** | see git HEAD after push |
+| **Subject** | Record Track 1 / 037 applied+verified and live Preview→Staging contract. |
+| **Preview (commercial)** | https://chasum-git-cursor-commercial-track-1-2-7453-renovisionappcom.vercel.app |
+| **Preview commit** | `6ecc35f5c69934ba37398c58ff36322768d49efd` |
+| **Track 1** | `7f5de0e` persist `/apply`; Gate 3 `0293dbf`; cleanup `6ecc35f`; 037 applied Production + Staging |
+| **Track 2** | `c3566cc` authored; **038 UNAPPLIED** |
 | **Nav acceptance** | `c5aa36f78d4b3ad61311bbda8096b9cced6bf07b` |
 | **Unique Preview** | https://chasum-6cls803md-renovisionappcom.vercel.app |
 | **Prior unique Preview** | https://chasum-pom3t5aug-renovisionappcom.vercel.app — SUPERSEDED / DO NOT USE |
@@ -1010,12 +1024,12 @@ As of last update:
 
 **Priority order:**
 
-1. **Claude audits the Track 1 + Track 2 diff** on `cursor/commercial-track-1-2-7453`. Do **not** apply `037` or `038`. Do **not** run `supabase db push`.
-2. **PRODUCT OWNER DECISION REQUIRED — P0 Production commercial compatibility** (`4eecbec` user-scoped billing writes vs World Class paid-upgrade guard) before Track 3 RLS.
-3. **Do not apply** 034 / 035 / 036 / 037 / 038 without explicit PO execution approval. Shared Preview/Production Supabase.
+1. **Track 2 / Migration 038 Gate 4 — Staging first.** Apply the exact reviewed `038` file as MANUAL SCOPED SQL on Staging `wnfahklzaxirftyskctd` only after explicit PO approval. Then verify on Preview `6ecc35f`. Do **not** apply 038 to Production in the same step. Do **not** run `supabase db push`.
+2. **PRODUCT OWNER DECISION REQUIRED — P0 Production commercial compatibility** (`4eecbec` user-scoped billing writes vs World Class paid-upgrade guard) before Track 3 RLS on Production.
+3. **Do not apply** 034 / 035 / 036 without explicit PO execution approval. Preview → Staging; Production → Production.
 4. **Do not apply** a Business `max_locations` 10 → 6 database migration. **DB 10 → 6 alignment is deferred**. **PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY** before labeling `$79` / `$149`.
 5. Private Alpha overlay values are **not approved**. Do not change staff/location/SMS/branding/API/RPC behavior.
-4. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
+6. **PRODUCT OWNER DECISION REQUIRED — `staff_activity` CHECK expansion** before any SQL. Application writes `activated` / `deactivated` / `note`; constraint allows `status_changed` / `note_added`.
 5. **Do not start Chapter 6 Phase 6.3.** Unique `(appointment_id)` / `(transaction_id)` and atomic invoice-number RPC remain PO/database decisions. Migrations 034 / 035 / 036 remain unapplied.
 5. Treat [`WORLD_CLASS_COMMERCE_MONEY_ENGINE.md`](./WORLD_CLASS_COMMERCE_MONEY_ENGINE.md) as SoT for customer money.
 6. Treat [`WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md`](./WORLD_CLASS_CALENDAR_BOOKING_ENGINE.md) as SoT for accepted Day / Week / Month; do not apply migrations without PO.

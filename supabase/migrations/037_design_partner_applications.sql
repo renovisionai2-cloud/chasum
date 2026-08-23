@@ -4,9 +4,12 @@
 -- DO NOT run `supabase db push`, `supabase migration up`, or any CLI that
 -- applies pending files in filename order.
 -- Migrations 034, 035, and 036 remain unapplied. A CLI apply would attempt
--- those first against the shared Preview/Production Supabase project.
--- This file is UNAPPLIED until Product Owner explicitly approves Track 1
--- database execution. Preview and Production share Supabase.
+-- those first on the target project.
+--
+-- LIVE ENVIRONMENT (2026-08-23): Preview → Staging wnfahklzaxirftyskctd;
+-- Production → Production kxcydvhswkuzepwzzinq. Shared-DB assumption SUPERSEDED.
+-- 037 APPLIED on Production (schema + security verified; Production app still 4eecbec).
+-- 037 APPLIED on Staging (schema + security + Preview /apply E2E verified).
 --
 -- Does NOT create auth users, businesses, members, subscriptions, offers,
 -- Stripe customers, or billing rows.

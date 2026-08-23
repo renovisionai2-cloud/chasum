@@ -4,9 +4,13 @@
 -- DO NOT run `supabase db push`, `supabase migration up`, or any CLI that
 -- applies pending files in filename order.
 -- Migrations 034, 035, and 036 remain unapplied. A CLI apply would attempt
--- those first against the shared Preview/Production Supabase project.
--- This file is UNAPPLIED until Product Owner explicitly approves Track 2
--- database execution. Preview and Production share Supabase.
+-- those first on the target project.
+--
+-- LIVE ENVIRONMENT (2026-08-23): Preview → Staging wnfahklzaxirftyskctd;
+-- Production → Production kxcydvhswkuzepwzzinq. Shared-DB assumption SUPERSEDED.
+-- This file is UNAPPLIED. Environment-safe sequence: (1) Staging first,
+-- (2) verify against Preview, (3) Claude/PO acceptance if required,
+-- (4) Production only through a separate explicit PO approval.
 --
 -- Scope: plan_offers, businesses.offer_id, usage_events, constraints, triggers.
 -- Out of scope: offer seeds, backfill, billing_profiles, past_due_since,

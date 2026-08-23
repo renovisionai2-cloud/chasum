@@ -9,7 +9,7 @@
 **Phase 5.2 accepted Preview tip:** `e88f22d` · lock `5756a45`  
 **Phase 5.3 feature:** `caef495` · accepted Preview tip `284d726`  
 **Production baseline:** `4eecbec` — untouched  
-**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.3**
+**Database:** Preview ↔ Production share Supabase — **no migrations in Phase 5.3** *(historical; **LIVE 2026-08-23:** Preview → Staging; Production → Production)*
 
 ---
 
