@@ -55,4 +55,15 @@ Enforced in PostgreSQL:
 
 ## Staging / Production
 
-Migration `039_business_slug_aliases.sql` must **not** be applied to Production in this incident. Staging only after review. GVM Production slug switch is a separate Product Owner data approval.
+Migration `039_business_slug_aliases.sql` must **not** be applied to Production in this incident. GVM Production slug switch is a separate Product Owner data approval.
+
+### Staging TG_OP correction (2026-08-23)
+
+Live Staging validation found that `tg_op = 'update'` never matches. PostgreSQL sets `TG_OP` to `INSERT` / `UPDATE` / `DELETE` / `TRUNCATE` (uppercase). After the trigger functions were corrected to `tg_op = 'UPDATE'`:
+
+- authenticated Business Profile save succeeded
+- a valid slug rename recorded the previous slug as an alias
+- `businesses.id` stayed stable
+- `/book/{old-slug}` redirected to `/book/{canonical}`
+
+The committed migration must keep those uppercase `TG_OP` literals. Do not apply 039 to Production in this incident.

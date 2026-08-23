@@ -4,19 +4,20 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-23  
-**Updated by:** Generic business slug aliases (code-only; not Production-applied; no GVM data switch)
+**Updated by:** Business slug aliases — Staging TG_OP reconciliation (039 Staging-only; not Production; no GVM data switch)
 
 ---
 
 ## Business slug aliases (2026-08-23)
 
-**Status:** CODE COMPLETE ON FEATURE BRANCH · MIGRATION NOT APPLIED TO PRODUCTION · NO GVM DATA CHANGES
+**Status:** 039 APPLIED ON STAGING ONLY AFTER TG_OP CORRECTION · NOT APPLIED TO PRODUCTION · NO GVM DATA CHANGES
 
 Canonical: [`docs/architecture/BUSINESS_SLUG_ALIASES.md`](./architecture/BUSINESS_SLUG_ALIASES.md)  
 Safety gate: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md)
 
 - Branch: `cursor/business-slug-aliases-7453` from `origin/main` (`ef69815`) — not World Class, not Track 3 RLS.
 - Migration `039_business_slug_aliases.sql` is the next safe identifier (037/038 are APPLIED + VERIFIED on Staging/Production; files are not in this tree).
+- Live Staging found lowercase `tg_op = 'update'` never matches PostgreSQL `TG_OP`. Repo and Staging functions now use `tg_op = 'UPDATE'`. Alias capture then passed live Staging validation.
 - Public `/book/[slug]` resolves current slug, then one-hop historical alias → 308 to canonical slug.
 - Do **not** insert GVM aliases or change Production slugs in this change.
 
