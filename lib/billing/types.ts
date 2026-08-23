@@ -93,6 +93,8 @@ export type BillingSummary = {
   plans: BillingPlan[];
   invoices: BillingInvoice[];
   events: SubscriptionEvent[];
+  /** True only when a real Stripe SaaS Billing provider is active. */
+  paidSelfServeCheckoutAvailable: boolean;
 };
 
 /** Future Stripe provider implements this. Mock provider ships in Phase 1. */

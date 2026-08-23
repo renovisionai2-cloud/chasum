@@ -3,8 +3,22 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-07-30  
-**Updated by:** Production deploy of approved marketing site to chasum.vercel.app + feature audit
+**Last updated:** 2026-08-23  
+**Updated by:** Track 3 Production compatibility patch (Preview/Staging only; not Production-approved)
+
+---
+
+## Track 3 Production compatibility patch (2026-08-23)
+
+**Status:** BUILT ON PRODUCTION-DERIVED BRANCH · PREVIEW/STAGING ONLY · NOT YET PRODUCTION APPROVED · TRACK 3 DB HARDENING STILL NOT IMPLEMENTED
+
+Canonical: [`docs/TRACK_3_PRODUCTION_COMPATIBILITY_PATCH.md`](./TRACK_3_PRODUCTION_COMPATIBILITY_PATCH.md)
+
+- Production baseline remains `4eecbec0f0f04532ae0294132d07183b6e64f23f`.
+- This branch adds a paid-upgrade guard and moves `subscription_events` inserts behind `createServiceClient()`.
+- 037 and 038 remain APPLIED + VERIFIED on Staging and Production.
+- 034–036 remain UNAPPLIED.
+- Track 3 database hardening is **not** implemented.
 
 ---
 

@@ -7,6 +7,7 @@ import {
   getBillingSummary,
 } from "@/lib/billing/subscription-service";
 import { isPlanKey } from "@/lib/billing/catalog";
+import { refusePaidPlanChange } from "@/lib/billing/paid-upgrade-guard";
 import type { ActionState } from "@/lib/types/booking";
 import type { BillingInterval, PlanKey } from "@/lib/billing/types";
 import { revalidatePath } from "next/cache";
@@ -27,17 +28,21 @@ export async function changeSubscriptionPlan(
   if (!isPlanKey(planKeyRaw)) {
     return { error: "Choose a valid plan." };
   }
-  if (planKeyRaw === "enterprise") {
-    return {
-      error: "Enterprise plans require contacting sales (sales@chasum.app).",
-    };
+
+  const provider = getBillingProvider();
+  const refused = refusePaidPlanChange({
+    providerName: provider.name,
+    planKey: planKeyRaw,
+  });
+  if (refused) {
+    return { error: refused };
   }
 
   const interval: BillingInterval =
     intervalRaw === "yearly" ? "yearly" : "monthly";
 
   try {
-    await getBillingProvider().changePlan({
+    await provider.changePlan({
       businessId: business.id,
       planKey: planKeyRaw as PlanKey,
       interval,
