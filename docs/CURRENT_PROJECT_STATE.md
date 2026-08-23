@@ -18,6 +18,7 @@ Safety gate: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GA
 - Branch: `cursor/business-slug-aliases-7453` from `origin/main` (`ef69815`) — not World Class, not Track 3 RLS.
 - Migration `039_business_slug_aliases.sql` is the next safe identifier (037/038 are APPLIED + VERIFIED on Staging/Production; files are not in this tree).
 - Live Staging found lowercase `tg_op = 'update'` never matches PostgreSQL `TG_OP`. Repo and Staging functions now use `tg_op = 'UPDATE'`. Alias capture then passed live Staging validation.
+- Chasum HQ Staging canonical slug is restored to `chasum-hq` (`724d9ecd-438d-439e-952e-2d8c4ab4486c`); `chasum-hq-test` is the historical alias. Production remains untouched.
 - Public `/book/[slug]` resolves current slug, then one-hop historical alias → 308 to canonical slug.
 - Do **not** insert GVM aliases or change Production slugs in this change.
 

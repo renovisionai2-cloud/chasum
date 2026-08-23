@@ -66,4 +66,6 @@ Live Staging validation found that `tg_op = 'update'` never matches. PostgreSQL 
 - `businesses.id` stayed stable
 - `/book/{old-slug}` redirected to `/book/{canonical}`
 
+Chasum HQ Staging was restored to canonical slug `chasum-hq` (`businesses.id` `724d9ecd-438d-439e-952e-2d8c4ab4486c`). `chasum-hq-test` remains a historical alias. `/book/chasum-hq-test` redirects to `/book/chasum-hq`. Production remains untouched.
+
 The committed migration must keep those uppercase `TG_OP` literals. Do not apply 039 to Production in this incident.
