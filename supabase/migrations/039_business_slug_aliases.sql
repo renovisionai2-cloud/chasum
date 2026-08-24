@@ -4,8 +4,16 @@
 -- Separates immutable tenant identity (businesses.id) from human-readable
 -- public URL identity (businesses.slug + historical aliases).
 --
--- DO NOT apply this migration to Production as part of the GVM identity
--- incident. Staging/Preview only after review. This file inserts NO tenant rows.
+-- This file contains generic slug-alias infrastructure only. It inserts
+-- NO tenant-specific rows.
+--
+-- Staging validation is complete (profile save, slug rename/alias capture,
+-- redirect, TG_OP correction, two-session concurrency / SQLSTATE 23505,
+-- synthetic cleanup).
+--
+-- Production application requires explicit Product Owner approval and
+-- controlled verification. Applying this migration does NOT authorize
+-- the separate GVM tenant-identity data remediation.
 --
 -- Next safe identifier is 039: docs record 037 and 038 as APPLIED + VERIFIED
 -- on Staging/Production even though those files are not in this tree.
