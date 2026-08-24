@@ -4,23 +4,27 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-24  
-**Updated by:** Business slug aliases — 039 header comment correction (Staging validated; Gate 1 Production-039 approved; no GVM data switch)
+**Updated by:** GVM duplicate-tenant identity incident closeout (Production remediated + verified)
 
 ---
 
-## Business slug aliases (2026-08-23)
+## Business slug aliases / GVM identity (2026-08-24)
 
-**Status:** STAGING VALIDATED · GATE 1 PRODUCTION-039 APPROVED · 039 NOT YET APPLIED TO PRODUCTION · GVM DATA REMEDIATION NOT APPROVED
+**Status:** PRODUCTION CLOSED — 039 APPLIED + VERIFIED · PR #18 DEPLOYED + VERIFIED · GATE 6 FORWARD EXECUTED · INCIDENT CLOSED
 
 Canonical: [`docs/architecture/BUSINESS_SLUG_ALIASES.md`](./architecture/BUSINESS_SLUG_ALIASES.md)  
 Safety gate: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md)
 
-- Branch: `cursor/business-slug-aliases-7453` from `origin/main` (`ef69815`) — not World Class, not Track 3 RLS.
-- Migration `039_business_slug_aliases.sql` is generic slug-alias infrastructure (no tenant rows). Staging validation is complete. Product Owner Gate 1 approves Production application of 039 only; that does **not** authorize the separate GVM tenant data remediation.
-- Live Staging found lowercase `tg_op = 'update'` never matches PostgreSQL `TG_OP`. Repo and Staging functions now use `tg_op = 'UPDATE'`. Alias capture then passed live Staging validation.
-- Chasum HQ Staging canonical slug is restored to `chasum-hq` (`724d9ecd-438d-439e-952e-2d8c4ab4486c`); `chasum-hq-test` is the historical alias. Production remains untouched.
-- Public `/book/[slug]` resolves current slug, then one-hop historical alias → 308 to canonical slug.
-- Do **not** insert GVM aliases or change Production slugs in this change.
+- Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Serving commit: `68e9a816a230636e693d0e10b9b8ae7f3beb1e62`.
+- Migration `039_business_slug_aliases.sql` is generic slug-alias infrastructure. It is **APPLIED + VERIFIED on Production**. PR #18 alias-aware public booking is **DEPLOYED + VERIFIED on Production**.
+- Gate 6 forward GVM identity remediation **executed successfully**. `post_forward_ok = true`. Emergency rollback package exists and was **not** executed (emergency-only). After this data switch, bare rollback to pre-alias-aware code is **not** permitted unless the controlled data rollback runs first.
+- **Authoritative GVM tenant is Tenant B** `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`. Canonical slug: `gvm-baby-world`. Public URL: `https://chasum.vercel.app/book/gvm-baby-world`.
+- Historical alias `gvm-baby-world-ultrasound` → Tenant B → 308 to `/book/gvm-baby-world` (verified in Production).
+- Operational rows (customers, appointments, commerce, staff, services, packages, locations, notifications, and all other operational records) remained on Tenant B. **No operational rows were moved.**
+- **Retired Tenant A** `079288f2-4f6f-49ca-86aa-5190ae2c83ad` slug `gvm-baby-world-retired-079288f2`; `public_booking_mode = staff_only`; `online_booking_enabled = false`. Preserved, not deleted. Its existing customer was not moved. Retired booking page is staff-managed / not publicly bookable (verified).
+- GVM duplicate-tenant identity incident: **CLOSED — PRODUCTION REMEDIATED + VERIFIED**. This incident **no longer blocks the World Class Program**.
+- Follow-up debt (separately tracked; not part of this closeout): 037/038 files missing from main/repo history; Production-mutating scripts need stronger business-id/environment assertions; duplicate-business prevention / review safeguards; onboarding duplicate detection; optional Tenant A legacy contact cleanup; broader tenant-identity hardening.
+- Live Staging TG_OP correction remains: functions use `tg_op = 'UPDATE'`. Chasum HQ Staging canonical slug remains `chasum-hq` (`724d9ecd-438d-439e-952e-2d8c4ab4486c`); `chasum-hq-test` is the historical Staging alias.
 
 ---
 
@@ -177,7 +181,19 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-07-30)
+### Most recent (2026-08-24)
+
+**GVM duplicate-tenant identity incident — CLOSED in Production**
+
+- Migration 039 APPLIED + VERIFIED on Production (`kxcydvhswkuzepwzzinq`)
+- PR #18 alias-aware booking DEPLOYED + VERIFIED; serving commit `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` at `https://chasum.vercel.app`
+- Gate 6 forward remediation executed; `post_forward_ok = true`; rollback unused
+- Tenant B `a04e1d65-eeb9-4d72-a5bf-739a9038bb91` is the permanent operational GVM tenant at `/book/gvm-baby-world`
+- Alias `gvm-baby-world-ultrasound` → Tenant B (308 verified)
+- Tenant A `079288f2-4f6f-49ca-86aa-5190ae2c83ad` retired at `/book/gvm-baby-world-retired-079288f2` (`staff_only`, not publicly bookable), not deleted
+- World Class Program is no longer blocked by this incident
+
+### Prior (2026-07-30)
 
 **Production deploy — approved marketing site → https://chasum.vercel.app**
 
@@ -271,14 +287,13 @@ Shared money recognition, commerce + platform events, business operating context
 ## Active branch
 
 ```
-cursor/phase-3-integrations
+cursor/gvm-identity-incident-closeout-7453
 ```
 
-- Tracks `origin/cursor/phase-3-integrations` (in sync as of last push).
-- Base branch for merges: **`main`**.
-- Tip of `main` (for orientation): `37778de` — *Operation Summer – Fast Pacing & Multi-Business Selection* (this feature branch is many commits ahead with marketing + product work).
+- Documentation-only closeout of the GVM duplicate-tenant identity incident.
+- Base branch for this closeout: **`main`** (Production serving `68e9a81`).
 
-**Deploy policy (recent marketing work):** Preview deploys only unless Production is explicitly requested.
+**Deploy policy:** This closeout is documentation only. It does not change Production application code.
 
 ---
 
@@ -286,22 +301,17 @@ cursor/phase-3-integrations
 
 | Field | Value |
 |-------|--------|
-| **SHA** | `805f3671405b29cece10d0a9481996c5ad774081` |
-| **Short** | `805f367` |
-| **Subject** | Lock Official Chasum Pricing Page v1 + restore approved baseline |
-| **Date** | 2026-07-30 |
+| **Production serving SHA** | `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` |
+| **Short** | `68e9a81` |
+| **Subject** | PR #18 alias-aware booking (Gate 6 data switch used this serving commit) |
+| **Date** | 2026-08-24 |
+| **Note** | Documentation closeout for the GVM identity incident lands after this SHA on `cursor/gvm-identity-incident-closeout-7453`. |
 
 ---
 
 ## Uncommitted work
 
-As of last update:
-
-| Path | Notes |
-|------|--------|
-| `docs/brand/CHASUM.pdf` | Untracked — leave out of product commits unless intentionally shipping brand assets |
-| `scripts/rebuild-brand-*.mjs` / `refine-brand-six.mjs` | Untracked brand tooling |
-| `tmp/` | Local screenshots / scratch — do not commit |
+As of this closeout: none expected for this documentation change.
 
 ---
 
@@ -309,7 +319,7 @@ As of last update:
 
 **Priority order (do not skip #1 for novelty):**
 
-1. **Operation GVM (Priority #1)** — Close remaining go-live blockers from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0: first real appointment, Resend SMTP in Supabase, production email path.
+1. **World Class Program may resume.** The GVM duplicate-tenant identity incident is closed and is not a World Class blocker. **Operation GVM (Priority #1)** continues as go-live craft: remaining items from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0 — first real appointment, Resend SMTP in Supabase, production email path. Do not reopen the closed identity incident. Follow-up identity debt stays separately tracked.
 2. **Home page (`/`)** — Next marketing chapter when directed. **Pricing, Summer Onboarding, Roadmap, and Resources (including Why Private Alpha) are locked — do not reopen** unless the product owner explicitly requests it.
 3. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
 

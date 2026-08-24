@@ -2,7 +2,7 @@
 
 Generic platform capability: **immutable tenant id** vs **human-readable public booking URL**.
 
-This is not GVM-specific. No production GVM slug rows are inserted by the migration.
+This is not GVM-specific. Migration 039 inserts **no** tenant-specific rows. The GVM Production slug switch was a **separate** Product Owner data change (Gate 6, 2026-08-24) and is now **closed**.
 
 ## Model
 
@@ -55,7 +55,24 @@ Enforced in PostgreSQL:
 
 ## Staging / Production
 
-Migration `039_business_slug_aliases.sql` must **not** be applied to Production in this incident. GVM Production slug switch is a separate Product Owner data approval.
+Migration `039_business_slug_aliases.sql` is **APPLIED + VERIFIED on Production** (`kxcydvhswkuzepwzzinq`). PR #18 alias-aware booking is **DEPLOYED + VERIFIED** at serving commit `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` (`https://chasum.vercel.app`).
+
+The committed migration must keep uppercase `TG_OP` literals (`tg_op = 'UPDATE'`).
+
+### GVM Production identity (CLOSED — 2026-08-24)
+
+Gate 6 forward remediation executed successfully (`post_forward_ok = true`). Rollback was **not** used.
+
+| Tenant | `businesses.id` | Current slug | Public booking |
+|--------|-----------------|--------------|----------------|
+| **B — operational GVM (authoritative)** | `a04e1d65-eeb9-4d72-a5bf-739a9038bb91` | `gvm-baby-world` | Canonical `https://chasum.vercel.app/book/gvm-baby-world` |
+| **A — retired shell (preserved)** | `079288f2-4f6f-49ca-86aa-5190ae2c83ad` | `gvm-baby-world-retired-079288f2` | `public_booking_mode = staff_only`, `online_booking_enabled = false`; not deleted |
+
+Historical alias: `gvm-baby-world-ultrasound` → Tenant B → 308 to `/book/gvm-baby-world` (verified). No `gvm-baby-world` alias. Operational rows stayed on Tenant B; none were moved. Tenant A’s customer was not moved.
+
+After this data switch, bare rollback to pre-alias-aware code is **not** permitted unless the controlled data rollback runs first.
+
+This incident **no longer blocks the World Class Program**.
 
 ### Staging TG_OP correction (2026-08-23)
 
@@ -66,6 +83,4 @@ Live Staging validation found that `tg_op = 'update'` never matches. PostgreSQL 
 - `businesses.id` stayed stable
 - `/book/{old-slug}` redirected to `/book/{canonical}`
 
-Chasum HQ Staging was restored to canonical slug `chasum-hq` (`businesses.id` `724d9ecd-438d-439e-952e-2d8c4ab4486c`). `chasum-hq-test` remains a historical alias. `/book/chasum-hq-test` redirects to `/book/chasum-hq`. Production remains untouched.
-
-The committed migration must keep those uppercase `TG_OP` literals. Do not apply 039 to Production in this incident.
+Chasum HQ Staging was restored to canonical slug `chasum-hq` (`businesses.id` `724d9ecd-438d-439e-952e-2d8c4ab4486c`). `chasum-hq-test` remains a historical alias. `/book/chasum-hq-test` redirects to `/book/chasum-hq`.
