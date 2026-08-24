@@ -44,3 +44,26 @@ A fuzzy identity-matching service during onboarding. That is DESIGN FOR NOW / BU
 ## Future deletion
 
 Do not delete `business_slug_aliases` rows to free a slug for another tenant. `ON DELETE RESTRICT` on `business_id` means a business row cannot be removed while aliases exist. Any future archive flow must keep historical public identifiers reserved.
+
+## GVM duplicate-tenant incident — CLOSED (2026-08-24)
+
+Production remediated + verified. This incident **no longer blocks the World Class Program**.
+
+**Authoritative operational GVM (Tenant B)**
+
+- `businesses.id`: `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`
+- Canonical slug: `gvm-baby-world`
+- Public URL: `https://chasum.vercel.app/book/gvm-baby-world`
+- Historical alias: `gvm-baby-world-ultrasound` → this `business_id` → 308 to `/book/gvm-baby-world`
+- All operational rows remained on this id. None were moved.
+
+**Retired shell (Tenant A)**
+
+- `businesses.id`: `079288f2-4f6f-49ca-86aa-5190ae2c83ad`
+- Slug: `gvm-baby-world-retired-079288f2`
+- `public_booking_mode = staff_only`; `online_booking_enabled = false`
+- Preserved; not deleted. Its existing customer was not moved.
+
+Gate 6 forward executed (`post_forward_ok = true`). Emergency data rollback exists and was **not** executed. After the data switch, do **not** restore pre-alias-aware code unless that controlled data rollback runs first.
+
+Follow-up prevention work (duplicate-business safeguards, onboarding detection, script environment assertions, optional Tenant A contact cleanup) is **separately tracked** and is not part of this closeout.
