@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (GitHub Actions CI)
+
+- Enabled live CI quality gates at `.github/workflows/ci.yml` (lint, typecheck, unit tests, build, Playwright e2e smoke)
+- Kept `docs/ci/github-actions-ci.yml` as the documented reference copy
+
 ### Changed (Marketing — Roadmap + Summer Onboarding)
 
 - Summer consultation subheading finalized; Summer Onboarding **v1** lock docs refreshed as baseline
@@ -138,7 +143,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added (Milestone 6.1 — Production Hardening)
 
 - Vitest + React Testing Library + MSW unit/integration suite; Playwright e2e smoke
-- CI quality gates template (`docs/ci/github-actions-ci.yml`) — lint, typecheck, unit tests, build, e2e must pass (copy to `.github/workflows/ci.yml` when the deploy token has `workflow` scope)
+- CI quality gates template (`docs/ci/github-actions-ci.yml`) — lint, typecheck, unit tests, build, e2e must pass; later enabled live at `.github/workflows/ci.yml`
 - Rate limiting on public booking, `/api/v1/*`, cron, Zapier discovery, health, inbound webhooks
 - Zod schemas for API appointment/customer bodies; PATCH appointments no longer mass-assigns
 - Soft schema fallbacks disabled by default (`CHASUM_ALLOW_SOFT_SCHEMA=1` opt-in only)

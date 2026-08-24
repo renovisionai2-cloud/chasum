@@ -22,7 +22,7 @@ Prioritized product + engineering work. Use GitHub issues with `[roadmap]` or `[
 | Embeddable widget | Feature | Replace Picktime embed on GVM site |
 | Email reminder tuning | Feature | 24h / 1h before appointment |
 | E2E tests (Playwright) | Engineering | Critical booking paths |
-| CI/CD (GitHub Actions) | Engineering | Lint, build, verify scripts |
+| ~~CI/CD (GitHub Actions)~~ | Engineering | ✅ `.github/workflows/ci.yml` — lint, typecheck, test, build, e2e |
 
 ## P2 — Growth features
 

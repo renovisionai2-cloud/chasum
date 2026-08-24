@@ -436,7 +436,7 @@ The items below were previously listed under Phase 4 and remain planned for late
 | Skip-navigation link | 3 |
 | Supabase Realtime for live calendar | 3 |
 | E2E test suite (Playwright) | 3 |
-| CI/CD pipeline (GitHub Actions) | 3 |
+| ~~CI/CD pipeline (GitHub Actions)~~ | 3 — ✅ `.github/workflows/ci.yml` |
 
 ---
 
