@@ -11,15 +11,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed (World Class Phase 4A — Commercial SaaS Lifecycle Honesty)
 
-**STATUS:** IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE
+**STATUS:** COMPLETE / MERGED TO MAIN (PR #29, `f6517a1`)
 
 - Signup no longer writes paid `subscription_plan_key` from `preferred_plan`; new tenants stay on Free
 - Tenant Account & billing is Private Alpha arrangement truth; mock upgrade/downgrade/cancel controls removed
 - In-product capacity CTAs request Professional / plan change via `/apply`
 - `/owner` shows product plan and Private Alpha status; can assign Free or Professional with `subscription_events` audit
 - Owner list-price metrics labeled as estimates, not collected revenue
-- Commercial SaaS Lifecycle remains **PARTIAL**; Private Alpha Gate A complete pending merge; commercial v1 paid billing / Gate B **NOT MET**
+- Commercial SaaS Lifecycle remains **PARTIAL**; Private Alpha Gate A **COMPLETE**; commercial v1 paid billing / Gate B **NOT MET**
 - Non-blocking: `/owner` assign + `subscription_events` non-atomic (TD-M11); `productPlanKeyForNewBusiness()` unused (TD-L6)
+
+### Documented (World Class Phase 4A closeout + Phase 5 preflight)
+
+- Phase 4A marked **COMPLETE / MERGED TO MAIN** (PR #29, `f6517a1`)
+- Next recommended phase: **World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization** — PREFLIGHT REQUIRED / NOT STARTED
+- Gate B remains later; Commercial SaaS Lifecycle remains **PARTIAL**
+- Tracker expanded to **18 workstreams**; Native Mobile / App Store Readiness is **DESIGN FOR NOW / BUILD LATER** (not commercial-v1 required)
+- Permanent **AI Operating-System Preservation Check** added; full AI autonomy is Mid/Late 2027+ destination, not commercial-v1 acceptance
 
 ### Added (World Class Phase 3 — Command Centre V1)
 

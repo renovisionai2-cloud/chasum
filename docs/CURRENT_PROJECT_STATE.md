@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-25
-**Updated by:** World Class Phase 4A Commercial SaaS Lifecycle Honesty — **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
+**Updated by:** World Class Phase 4A closeout (PR #29) + launch-readiness refresh + PO governance amendment (18 workstreams; native mobile DESIGN FOR NOW / BUILD LATER; AI Operating-System Preservation Check). Phase 5 **PREFLIGHT REQUIRED / NOT STARTED**.
 
 ---
 
@@ -22,7 +22,8 @@
 - **Financial truth:** Client money must represent reality (paid, refunded, outstanding, deposit, invoice, receipt, tax, balance). Mock SaaS billing must not mint paid invoices.
 - **Coming Soon honesty:** Do not market or nav-present unfinished capabilities as operational. [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md).
 - **Momentic:** Setup **COMPLETE**. Supporting regression infrastructure only — not a standalone roadmap track.
-- **Launch-criticality governance:** [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md). Planning targets are not public promises. Launch criticality does not override quality.
+- **Launch-criticality governance:** [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) — **18 workstreams**. Planning targets are not public promises. Launch criticality does not override quality. Permanent **AI Operating-System Preservation Check** sits beside launch criticality, world-class quality, and next-generation advantage.
+- **Native mobile / App Store:** **DESIGN FOR NOW / BUILD LATER** (workstream 18). Responsive web first. Not commercial-v1 required unless pilots prove mobile-web cannot support daily use. No implementation stack selected. Not forgotten.
 - **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
 
 ### ACTIVE
@@ -30,6 +31,7 @@
 - World Class Phase 1 — Navigation Foundation: **COMPLETE / MERGED TO MAIN** (PR #23, `ef88ef5`).
 - World Class Phase 2 — Staff Plan Honesty: **COMPLETE / MERGED TO MAIN** (PR #25, `dd49b32`).
 - World Class Phase 3 — Command Centre / Today experience: **COMPLETE / MERGED TO MAIN** (PR #27, `0c61a8d`).
+- World Class Phase 4A — Commercial SaaS Lifecycle Honesty: **COMPLETE / MERGED TO MAIN** (PR #29, `f6517a1`). Gate A complete. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 - Launch schedule + launch-criticality governance: **ADOPTED** — [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 - GVM operational validation remains important (first real appointment, production email path) but **is not the entire roadmap**.
 - Balanced outcomes required: **A Core Operations · B Commercial SaaS · C Intelligence · D Validation**.
@@ -46,14 +48,14 @@ Genuine current gates only (not closed incidents):
 
 ### NEXT
 
-Do **not** automatically “finish GVM.” Do **not** start Gate B in this chapter.
+Do **not** automatically “finish GVM” as a product rewrite. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this chapter.
 
-Strategic next (from the launch tracker, not the old World Class leftover backlog):
+Strategic next (from the launch tracker):
 
-1. **World Class Phase 4A:** **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE** — Commercial SaaS Lifecycle Honesty (**Gate A only**). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE and does **not** satisfy commercially launchable v1. Branch: `cursor/world-class-phase-4a-saas-honesty`. **Gate B** remains later, LEVEL 3. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
-2. **Parallel validation (not a substitute product phase):** GVM + Chasum HQ stable pilot use (Late September–October 2026) — first real appointment, production email, HQ dogfood, Production SHA verification.
+1. **World Class Phase 5 (PREFLIGHT REQUIRED / NOT STARTED):** **Production Pin and Design-Partner Pilot Stabilization** — workstreams 17 + 14 + 15. Verify Production SHA vs `main` `f6517a1`; GVM real booking+confirmation; HQ dogfood as a normal tenant. Unblocks outside Private Alpha (workstream 16). Capture mobile-web friction (workstream 18) and grounded-AI gaps without implementing either. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
+2. **Do not start Gate B.** Commercial v1 paid-provider billing remains LEVEL 3, later, Claude pre-challenge required.
 3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`.
-4. **Do not** fix DashboardTopNav tablet overflow, tenancy, booking-engine, commerce formulas, `/dashboard/hq`, or Summer architecture in the next bounded slice unless the tracker reclassifies them.
+4. **Do not** fix DashboardTopNav tablet overflow, tenancy, booking-engine, commerce formulas, `/dashboard/hq`, RBAC, Summer architecture, or native apps in the next bounded slice unless the tracker reclassifies them.
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
 
@@ -91,7 +93,7 @@ Strategic next (from the launch tracker, not the old World Class leftover backlo
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
-| [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — working planning targets, workstream status, Phase 4A recommendation, Private Alpha vs commercial-v1 billing gates |
+| [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — **18 workstreams**; Phase 5 preflight; Private Alpha vs commercial-v1 billing gates; native mobile DESIGN FOR NOW / BUILD LATER; AI OS preservation check |
 
 ---
 
@@ -285,11 +287,9 @@ Chase remains Early Access, read-oriented. Additional roster roles (Alex, Maya, 
 
 **Maturity:** trails Core Operations. Status remains **PARTIAL**. Do **not** mark complete after Phase 4A.
 
-**Private Alpha billing readiness (Gate A / Phase 4A):** implementation complete pending merge. Honesty + `/owner` design-partner plan assignment + documented manual billing. Does **not** complete this workstream.
+**Private Alpha billing readiness (Gate A / Phase 4A):** **COMPLETE** (PR #29). Honesty + `/owner` design-partner plan assignment + documented manual billing. Does **not** complete this workstream.
 
-**Commercial v1 billing readiness (Gate B):** **NOT MET**. Required later.
-
-**Commercial v1 billing readiness (Gate B):** not met. Required before classifying Chasum **COMMERCIALLY LAUNCHABLE V1**. Real payment-provider subscription billing, truthful subscription state, paid activation, and launch-scope upgrade / downgrade / cancellation / failed-payment / entitlement sync. Do **not** design or implement Gate B in this documentation chapter. Live provider / webhooks / schema / migrations / Production subscription data = LEVEL 3 + Claude pre-challenge before implementation.
+**Commercial v1 billing readiness (Gate B):** **NOT MET**. Required later. Do **not** start in this chapter. Live provider / webhooks / schema / migrations / Production subscription data = LEVEL 3 + Claude pre-challenge before implementation.
 
 Incomplete / not production-ready:
 
@@ -361,14 +361,14 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 4A Commercial SaaS Lifecycle Honesty — **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
+**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Next: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 **Intent:**
 
 1. Treat Chasum as an AI Business Operating System. Keep Core Operations, Commercial SaaS, Intelligence, and Validation in balance.
 2. Use GVM and Chasum HQ as **normal tenants** to validate the reusable product — not as product forks or control planes.
 3. Continue from **current `main` only**. Do not return to `cursor/world-class-portal-foundation` as a working baseline.
-4. Sequence later product work from [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md). Phase 4A is awaiting merge. Commercial SaaS Lifecycle remains **PARTIAL** until Gate B is also met. Do **not** start Gate B in this stamp.
+4. Sequence later product work from [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md). Phase 4A is complete. Commercial SaaS Lifecycle remains **PARTIAL** until Gate B is also met. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this stamp. Commercial v1 does **not** require full AI autonomy; preserve the AI-operated architecture now.
 
 ---
 
@@ -397,7 +397,19 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-25) — World Class Phase 3 Command Centre MERGED
+### Most recent (2026-08-25) — World Class Phase 4A Commercial SaaS Lifecycle Honesty MERGED
+
+- **PR #29** squash merge `f6517a17504667b58799a3202e43f5ec145643a1` — `feat: make Private Alpha SaaS billing truthful`
+- Signup cannot grant paid `subscription_plan_key`; new tenants begin Free / starter; `preferred_plan` remains intent only
+- Tenant mock billing lifecycle locked; plan-change UX is truthful Private Alpha request; canonical Free display
+- Product Plan separate from Private Alpha access; `/owner` plan + Private Alpha visibility; bounded starter/professional assignment after `requirePlatformOwner`
+- `subscription_events` audit; no Stripe/provider state; no `billing_invoices`; list-price metrics labeled as estimates
+- Claude independent post-audit approved; Momentic booking canary passed
+- Production and Staging tenant plans **not** mutated; no migrations
+- Commercial SaaS remains **PARTIAL**; Gate A **COMPLETE**; Gate B **NOT MET**
+- Non-blocking debt preserved: TD-M11 (plan update + event insert non-atomic); TD-L6 (unused `productPlanKeyForNewBusiness`)
+
+### Immediately prior (2026-08-25) — World Class Phase 3 Command Centre MERGED
 
 - **PR #27** squash merge `0c61a8d28f83e3347425d9a1bca41188b5f94ed1` — `feat: build World Class command centre`
 - `/dashboard` is Command Centre V1 (Today, Attention, Money, Quick Actions, Summer)
@@ -472,10 +484,10 @@ Preserved for history — **not** current branch instructions:
 ## Active branch
 
 ```
-docs/launch-readiness-plan
+main
 ```
 
-Handoff: documentation PR branched from `main` `0c61a8d28f83e3347425d9a1bca41188b5f94ed1`. After merge, `main` includes this restamp.
+Handoff: documentation restamp on `main` `f6517a17504667b58799a3202e43f5ec145643a1`. Next implementation branch must not be created in this chapter.
 
 **Obsolete as current working branch (historical only):**
 
@@ -486,6 +498,7 @@ Handoff: documentation PR branched from `main` `0c61a8d28f83e3347425d9a1bca41188
 - `cursor/world-class-navigation-integration` — merged via PR #23
 - `cursor/world-class-staff-plan-honesty` — merged via PR #25
 - `cursor/world-class-command-centre` — merged via PR #27
+- `cursor/world-class-phase-4a-saas-honesty` — merged via PR #29
 
 **Deploy policy:** This restamp is documentation only. It does not change Production or Staging application code or data.
 
@@ -495,14 +508,14 @@ Handoff: documentation PR branched from `main` `0c61a8d28f83e3347425d9a1bca41188
 
 | Field | Value |
 |-------|--------|
-| **`main` / `origin/main` SHA** | `0c61a8d28f83e3347425d9a1bca41188b5f94ed1` |
-| **Short** | `0c61a8d` |
-| **Subject** | `feat: build World Class command centre (#27)` |
+| **`main` / `origin/main` SHA** | `f6517a17504667b58799a3202e43f5ec145643a1` |
+| **Short** | `f6517a1` |
+| **Subject** | `feat: make Private Alpha SaaS billing truthful (#29)` |
 | **Date** | 2026-08-25 |
 
 ### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
 
-Do **not** infer that `main` (`0c61a8d`) has been deployed to Production.
+Do **not** infer that `main` (`f6517a1`) has been deployed to Production.
 
 | Field | Value |
 |-------|--------|
@@ -514,7 +527,7 @@ Do **not** infer that `main` (`0c61a8d`) has been deployed to Production.
 
 ## Uncommitted work
 
-None after this Phase 4A commit. Production and Staging application data are untouched.
+This launch-readiness restamp (docs only). No application code. Production and Staging application data are untouched.
 
 ---
 
@@ -558,8 +571,8 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 Locked order for this chapter:
 
 1. **Source-of-truth accuracy** — this control board + [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
-2. **Phase 4A awaiting merge.** Commercial SaaS Lifecycle Honesty (**Gate A / Private Alpha billing**) is Claude-approved. Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
-3. **Parallel validation** — GVM + Chasum HQ stable pilot (Late Sep–Oct 2026); verify Production SHA before claiming current.
+2. **Phase 5 preflight — not started.** Production Pin and Design-Partner Pilot Stabilization (workstreams 17 + 14 + 15). Capture mobile friction and AI OS gaps. Do **not** implement in this stamp.
+3. **Do not start Gate B.** Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
 4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.
 5. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
 6. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
@@ -581,7 +594,7 @@ Roadmap outcomes must stay balanced:
 
 ### Completed (company view)
 
-See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke, **World Class Phase 1 navigation foundation**, **World Class Phase 2 staff plan honesty**, **World Class Phase 3 Command Centre V1**.
+See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke, **World Class Phase 1 navigation foundation**, **World Class Phase 2 staff plan honesty**, **World Class Phase 3 Command Centre V1**, **World Class Phase 4A Commercial SaaS Lifecycle Honesty (Gate A)**.
 
 Surfaces listed as “completed” on the Master Roadmap mean the department exists — not that Commercial SaaS / RBAC / Stripe are launch-complete. Maturity lives in [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 
@@ -592,11 +605,12 @@ Surfaces listed as “completed” on the Master Roadmap mean the department exi
 | World Class Phase 1 | Grouped tenant nav + mobile nav **on main** (PR #23) |
 | World Class Phase 2 | Staff plan honesty **on main** (PR #25) |
 | World Class Phase 3 | Command Centre / Today experience **on main** (PR #27) |
-| Launch readiness | Working planning targets + launch-criticality tracker adopted |
-| Commercial SaaS | Trailing; remains **PARTIAL**. **Phase 4A** = Private Alpha billing honesty (Gate A). **Gate B** = commercial-v1 paid-provider billing — not in 4A. |
-| Summer Intelligence | Deepen toward Business Manager actions without inventing data |
-| Core Operations craft | Reception/commerce/comms reliability |
-| GVM / HQ validation | Stable pilot use Late Sep–Oct 2026 — listed separately |
+| World Class Phase 4A | Commercial SaaS Lifecycle Honesty **on main** (PR #29). Gate A **COMPLETE**. Workstream 4 stays **PARTIAL**. |
+| Commercial SaaS | Trailing; remains **PARTIAL**. **Gate B** = commercial-v1 paid-provider billing — later, not next. |
+| Next phase (preflight) | **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **NOT STARTED** |
+| GVM / HQ validation | Inside Phase 5 — Late Sep–Oct 2026 stable pilot use |
+| Summer Intelligence | Deepen toward Business Manager actions later — **not** the next phase |
+| Core Operations craft | Reception/commerce/comms reliability as targeted defects inside Phase 5, not a rewrite |
 | Track 3 | RLS/hardening when PO schedules; restore 037/038 SQL into repo |
 
 Plans: [`docs/30_DAY_PRIVATE_ALPHA_PLAN.md`](./30_DAY_PRIVATE_ALPHA_PLAN.md), [`docs/90_DAY_EXECUTION_PLAN.md`](./90_DAY_EXECUTION_PLAN.md) — treat dates/items as historical planning unless restamped.
@@ -609,12 +623,12 @@ From Master Roadmap — exact sprint order in [`docs/company/MASTER_TASKS.md`](.
 - **Inventory & Products**  
 - **Marketing Automation**  
 - **Square** (in-person payments)  
-- **Native mobile** (reception-critical first)  
+- **Native mobile** — workstream 18: **DESIGN FOR NOW / BUILD LATER**; no stack selected; not commercial-v1 required unless pilots escalate
 - **Marketplace**  
 - **Enterprise** (org hierarchy, SSO, SLA-oriented controls)  
 - **Version 2** — intentional UX/architecture leap only after V1 departments are hardened  
 
-Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.
+Do **not** start Inventory, Marketplace, native mobile implementation, or V2 redesign unless explicitly requested. Native remains **visible and planned** (workstream 18), not forgotten.
 Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/private-alpha`, `/security`, or `/status` unless the product owner explicitly requests it.
 
 ---

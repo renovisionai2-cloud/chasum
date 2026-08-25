@@ -17,18 +17,18 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ## Current chapter (2026-08-25 restamp)
 
-Post-break World Class resumption. Phase 1 navigation, Phase 2 staff plan honesty, and Phase 3 Command Centre V1 are **merged to `main`**. **Phase 4A** Commercial SaaS Lifecycle Honesty is **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Commercial SaaS Lifecycle remains **PARTIAL** after 4A unless Gate B (commercial-v1 paid billing) is also met.
+Post-break World Class resumption. Phases 1–4A are **merged to `main`**. **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (PR #29). Commercial SaaS Lifecycle remains **PARTIAL** unless Gate B (commercial-v1 paid billing) is also met. Next: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**.
 
 Roadmap outcomes must stay balanced:
 
 | Outcome | Role |
 |---------|------|
 | **A. Core Operations** | Scheduling, customers, staff, catalog, money, communications, reporting, workflows — strongest axis; Command Centre V1 is the operating home |
-| **B. Commercial SaaS** | Currently **trails** Core Operations — remains **PARTIAL**. Phase 4A Gate A (Private Alpha billing honesty) is awaiting merge. Gate B paid-provider billing is later and is required before commercially launchable v1. |
+| **B. Commercial SaaS** | Currently **trails** Core Operations — remains **PARTIAL**. Phase 4A Gate A (Private Alpha billing honesty) is **COMPLETE**. Gate B paid-provider billing is later and is required before commercially launchable v1. |
 | **C. Intelligence** | **Summer = AI Business Manager** (positioning). Implementation is still strongest in booking / availability / CRM-grounded assist + grounded Command Centre facts — deepen without over-claiming |
 | **D. Validation** | GVM Baby World and **Chasum HQ** are **normal tenants**. Working planning targets: Late Sep–Oct 2026 stable pilots. Momentic is complete regression infrastructure, not a roadmap track |
 
-**Launch governance:** [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md). Working targets (not public promises): GVM+HQ pilots Late Sep–Oct 2026; outside Private Alpha Oct–Nov 2026; commercially launchable v1 Dec 2026–Feb 2027.
+**Launch governance:** [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md) — **18 workstreams**. Working targets (not public promises): GVM+HQ pilots Late Sep–Oct 2026; outside Private Alpha Oct–Nov 2026; commercially launchable v1 Dec 2026–Feb 2027. Commercial v1 does **not** require full AI autonomy. Preserve AI-operated architecture now. Native mobile is **DESIGN FOR NOW / BUILD LATER**.
 
 **Chasum HQ** means the real normal business tenant used to operate Chasum itself — same architecture as outside customers. It is **not** `/owner` and **not** `/dashboard/hq`.
 
