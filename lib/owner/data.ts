@@ -28,6 +28,7 @@ export type OwnerBusinessRow = {
   subscription_status: SubscriptionStatus;
   trial_starts_at: string | null;
   trial_ends_at: string | null;
+  private_alpha_enabled: boolean;
   created_at: string;
   updated_at: string;
   email: string | null;
@@ -97,6 +98,7 @@ function mapBusiness(row: Record<string, unknown>): OwnerBusinessRow {
     subscription_status: asStatus(row.subscription_status),
     trial_starts_at: (row.trial_starts_at as string) ?? null,
     trial_ends_at: (row.trial_ends_at as string) ?? null,
+    private_alpha_enabled: Boolean(row.private_alpha_enabled),
     created_at: String(row.created_at ?? new Date().toISOString()),
     updated_at: String(row.updated_at ?? new Date().toISOString()),
     email: (row.email as string) ?? null,
@@ -162,7 +164,7 @@ export async function getOwnerOverviewMetrics(): Promise<OwnerOverviewMetrics> {
   const { data: businessRows, error } = await service
     .from("businesses")
     .select(
-      "id, name, slug, owner_id, subscription_plan_key, subscription_status, trial_starts_at, trial_ends_at, created_at, updated_at, email, phone",
+      "id, name, slug, owner_id, subscription_plan_key, subscription_status, trial_starts_at, trial_ends_at, private_alpha_enabled, created_at, updated_at, email, phone",
     )
     .order("created_at", { ascending: false });
 
@@ -372,7 +374,7 @@ export async function listOwnerBusinesses(): Promise<OwnerBusinessRow[]> {
   const { data, error } = await service
     .from("businesses")
     .select(
-      "id, name, slug, owner_id, subscription_plan_key, subscription_status, trial_starts_at, trial_ends_at, created_at, updated_at, email, phone",
+      "id, name, slug, owner_id, subscription_plan_key, subscription_status, trial_starts_at, trial_ends_at, private_alpha_enabled, created_at, updated_at, email, phone",
     )
     .order("created_at", { ascending: false });
 

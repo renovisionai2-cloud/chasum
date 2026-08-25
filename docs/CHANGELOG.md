@@ -9,6 +9,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (World Class Phase 4A — Commercial SaaS Lifecycle Honesty)
+
+**STATUS:** IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE
+
+- Signup no longer writes paid `subscription_plan_key` from `preferred_plan`; new tenants stay on Free
+- Tenant Account & billing is Private Alpha arrangement truth; mock upgrade/downgrade/cancel controls removed
+- In-product capacity CTAs request Professional / plan change via `/apply`
+- `/owner` shows product plan and Private Alpha status; can assign Free or Professional with `subscription_events` audit
+- Owner list-price metrics labeled as estimates, not collected revenue
+- Commercial SaaS Lifecycle remains **PARTIAL**; Private Alpha Gate A complete pending merge; commercial v1 paid billing / Gate B **NOT MET**
+- Non-blocking: `/owner` assign + `subscription_events` non-atomic (TD-M11); `productPlanKeyForNewBusiness()` unused (TD-L6)
+
 ### Added (World Class Phase 3 — Command Centre V1)
 
 - `/dashboard` is Command Centre V1: Header, Today, Attention, Money, Quick Actions, Summer (PR #27, `0c61a8d`)

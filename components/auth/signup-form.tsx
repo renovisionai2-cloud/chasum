@@ -67,7 +67,7 @@ export function SignUpForm({
       title="Create your account"
       description="Create your Chasum account for Private Alpha"
       action={signUp}
-      submitLabel={selected.cta}
+      submitLabel="Create account"
       footer={
         <>
           Already have an account? <AuthLink href="/login">Sign in</AuthLink>
@@ -75,6 +75,10 @@ export function SignUpForm({
       }
     >
       <OnboardingPlanSelect value={plan} onChange={setPlan} />
+      <p className="text-sm text-muted-foreground">
+        Every new account starts on Free. A paid plan selection is a Private
+        Alpha preference — it does not activate paid billing.
+      </p>
       <AuthField
         id="fullName"
         label="Full name"

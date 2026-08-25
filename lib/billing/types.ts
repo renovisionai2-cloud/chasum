@@ -95,6 +95,8 @@ export type BillingSummary = {
   events: SubscriptionEvent[];
   /** True only when a real Stripe SaaS Billing provider is active. */
   paidSelfServeCheckoutAvailable: boolean;
+  /** Distinct from product plan — Private Alpha feature elevation flag. */
+  privateAlphaEnabled: boolean;
 };
 
 /** Future Stripe provider implements this. Mock provider ships in Phase 1. */

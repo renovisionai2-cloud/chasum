@@ -1,6 +1,5 @@
 import { RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import { createClient } from "@/lib/supabase/server";
-import { marketingPlanIdToDbKey } from "@/lib/marketing/pricing";
 import { isPlaceholderBusiness } from "@/lib/onboarding/setup-progress";
 import type { Business } from "@/lib/types/booking";
 import { redirect } from "next/navigation";
@@ -138,22 +137,6 @@ export const getOrCreateBusiness = cache(async (): Promise<Business> => {
               RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
           })
           .in("location_id", locationIds);
-      }
-    }
-  }
-
-  const preferred = user.user_metadata?.preferred_plan as string | undefined;
-  if (preferred) {
-    const planKey = marketingPlanIdToDbKey(preferred);
-    if (business.subscription_plan_key !== planKey) {
-      const { data: updated, error: planError } = await supabase
-        .from("businesses")
-        .update({ subscription_plan_key: planKey })
-        .eq("id", business.id)
-        .select("*")
-        .single();
-      if (!planError && updated) {
-        return updated as Business;
       }
     }
   }

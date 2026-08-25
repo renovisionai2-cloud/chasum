@@ -2,6 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OwnerPageFrame } from "@/components/owner/page-frame";
+import { OwnerPlanAssignForm } from "@/components/owner/plan-assign-form";
+import {
+  privateAlphaStatusLabel,
+  publicPlanName,
+} from "@/lib/billing/private-alpha-plan";
 import { listOwnerBusinesses } from "@/lib/owner/data";
 import { Building2 } from "lucide-react";
 import { format } from "date-fns";
@@ -18,7 +23,7 @@ export default async function OwnerBusinessesPage() {
   return (
     <OwnerPageFrame
       title="Businesses"
-      description="Every tenant on the Chasum platform."
+      description="Product plan and Private Alpha status for every tenant. Assigning Professional records a design-partner plan — it is not collected revenue."
     >
       {businesses.length === 0 ? (
         <EmptyState
@@ -29,12 +34,14 @@ export default async function OwnerBusinessesPage() {
       ) : (
         <Card>
           <CardContent className="overflow-x-auto p-0">
-            <table className="w-full min-w-[40rem] text-left text-sm">
+            <table className="w-full min-w-[56rem] text-left text-sm">
               <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 font-medium">Business</th>
-                  <th className="px-4 py-3 font-medium">Plan</th>
+                  <th className="px-4 py-3 font-medium">Product plan</th>
+                  <th className="px-4 py-3 font-medium">Private Alpha</th>
                   <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Assign</th>
                   <th className="px-4 py-3 font-medium">Created</th>
                   <th className="px-4 py-3 font-medium">Booking</th>
                 </tr>
@@ -51,11 +58,20 @@ export default async function OwnerBusinessesPage() {
                         {biz.email ?? "No email"} · /{biz.slug}
                       </p>
                     </td>
-                    <td className="px-4 py-3 capitalize">
-                      {biz.subscription_plan_key ?? "starter"}
+                    <td className="px-4 py-3">
+                      {publicPlanName(biz.subscription_plan_key)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {privateAlphaStatusLabel(biz.private_alpha_enabled)}
                     </td>
                     <td className="px-4 py-3">
                       <Badge>{biz.subscription_status}</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <OwnerPlanAssignForm
+                        businessId={biz.id}
+                        currentPlanKey={biz.subscription_plan_key}
+                      />
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {format(new Date(biz.created_at), "MMM d, yyyy")}

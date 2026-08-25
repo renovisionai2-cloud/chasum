@@ -17,14 +17,14 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ## Current chapter (2026-08-25 restamp)
 
-Post-break World Class resumption. Phase 1 navigation, Phase 2 staff plan honesty, and Phase 3 Command Centre V1 are **merged to `main`**. This restamp is documentation / governance only; **Phase 4A is not started**. Commercial SaaS Lifecycle remains **PARTIAL** after 4A unless Gate B (commercial-v1 paid billing) is also met.
+Post-break World Class resumption. Phase 1 navigation, Phase 2 staff plan honesty, and Phase 3 Command Centre V1 are **merged to `main`**. **Phase 4A** Commercial SaaS Lifecycle Honesty is **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Commercial SaaS Lifecycle remains **PARTIAL** after 4A unless Gate B (commercial-v1 paid billing) is also met.
 
 Roadmap outcomes must stay balanced:
 
 | Outcome | Role |
 |---------|------|
 | **A. Core Operations** | Scheduling, customers, staff, catalog, money, communications, reporting, workflows — strongest axis; Command Centre V1 is the operating home |
-| **B. Commercial SaaS** | Currently **trails** Core Operations — remains **PARTIAL**. Recommended next product phase: **Phase 4A** lifecycle honesty (Private Alpha / design-partner billing). Gate B paid-provider billing is later and is required before commercially launchable v1. |
+| **B. Commercial SaaS** | Currently **trails** Core Operations — remains **PARTIAL**. Phase 4A Gate A (Private Alpha billing honesty) is awaiting merge. Gate B paid-provider billing is later and is required before commercially launchable v1. |
 | **C. Intelligence** | **Summer = AI Business Manager** (positioning). Implementation is still strongest in booking / availability / CRM-grounded assist + grounded Command Centre facts — deepen without over-claiming |
 | **D. Validation** | GVM Baby World and **Chasum HQ** are **normal tenants**. Working planning targets: Late Sep–Oct 2026 stable pilots. Momentic is complete regression infrastructure, not a roadmap track |
 

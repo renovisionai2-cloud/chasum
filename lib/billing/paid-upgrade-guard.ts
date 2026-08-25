@@ -1,4 +1,7 @@
+import { TENANT_SELF_SERVE_PLAN_LOCKED_MESSAGE } from "@/lib/billing/private-alpha-plan";
 import type { BillingProvider, PlanKey } from "@/lib/billing/types";
+
+export { TENANT_SELF_SERVE_PLAN_LOCKED_MESSAGE };
 
 export const PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE =
   "Paid plan upgrades are not yet available in this environment.";
@@ -26,6 +29,20 @@ export function refusePaidPlanChange(input: {
   }
   if (isPaidSelfServePlan(input.planKey) && input.providerName !== "stripe") {
     return PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE;
+  }
+  return null;
+}
+
+/**
+ * Tenant self-serve plan/lifecycle mutations stay locked until a real
+ * Stripe SaaS provider is active (Gate B). Mock must not let operators
+ * undo an admin-assigned design-partner plan.
+ */
+export function refuseTenantSelfServePlanMutation(input: {
+  providerName: BillingProvider["name"];
+}): string | null {
+  if (input.providerName !== "stripe") {
+    return TENANT_SELF_SERVE_PLAN_LOCKED_MESSAGE;
   }
   return null;
 }

@@ -3,6 +3,7 @@ import { WeekBars } from "@/components/ui/chart";
 import { StatCard } from "@/components/ui/stat-card";
 import { OwnerPageFrame } from "@/components/owner/page-frame";
 import { formatUsdFromCents } from "@/lib/owner/constants";
+import { publicPlanName } from "@/lib/billing/private-alpha-plan";
 import { getOwnerOverviewMetrics } from "@/lib/owner/data";
 import { CircleDollarSign, CreditCard, TrendingDown } from "lucide-react";
 import type { Metadata } from "next";
@@ -17,27 +18,27 @@ export default async function OwnerRevenuePage() {
   return (
     <OwnerPageFrame
       title="Revenue"
-      description="Estimated recurring revenue from configured list prices. Stripe settlement will replace estimates once billing is wired."
+      description="Estimated recurring revenue at catalog list price. This is not collected payment. Provider settlement is Gate B."
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Total MRR"
+          title="Est. MRR at list price"
           value={metrics.mrrLabel}
           icon={CircleDollarSign}
-          description="Active paid plans only"
+          description="Catalog list price, not collected revenue"
         />
         <StatCard
-          title="Total ARR"
+          title="Est. ARR at list price"
           value={metrics.arrLabel}
           icon={CircleDollarSign}
           accent="spark"
-          description="MRR × 12"
+          description="List-price MRR × 12 — not collected revenue"
         />
         <StatCard
-          title="Active subscriptions"
+          title="Assigned paid-tier"
           value={String(metrics.activeSubscriptions)}
           icon={CreditCard}
-          description="Paid active / past_due"
+          description="Professional+ product plans, not provider subscriptions"
         />
         <StatCard
           title="Churn (30d)"
@@ -60,8 +61,8 @@ export default async function OwnerRevenuePage() {
             }))}
           />
           <p className="mt-3 text-xs text-muted-foreground">
-            Values shown in USD from paid invoices (or current MRR estimate when
-            invoice history is empty).
+            Values shown in USD from paid invoices when they exist, otherwise a
+            list-price estimate. List-price estimates are not collected revenue.
           </p>
         </CardContent>
       </Card>
@@ -79,7 +80,7 @@ export default async function OwnerRevenuePage() {
             return (
               <div key={row.planKey}>
                 <div className="mb-1 flex justify-between text-sm">
-                  <span className="font-medium capitalize">{row.planKey}</span>
+                  <span className="font-medium">{publicPlanName(row.planKey)}</span>
                   <span className="tabular-nums text-muted-foreground">
                     {formatUsdFromCents(row.mrrCents)} · {share}%
                   </span>
@@ -95,7 +96,7 @@ export default async function OwnerRevenuePage() {
           })}
           {metrics.planBreakdown.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No revenue yet — paid subscriptions will appear here.
+              No list-price plan mix yet.
             </p>
           ) : null}
         </CardContent>

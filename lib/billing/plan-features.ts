@@ -62,7 +62,7 @@ export function planAllowsRemoveBranding(
 }
 
 export const SMS_PLAN_UPGRADE_MESSAGE =
-  "SMS is not included on the Free plan. Upgrade to Professional to text customers from Chasum — your plan includes email only.";
+  "SMS is not included on the Free plan. Request Professional through Private Alpha to text customers from Chasum — your plan includes email only.";
 
 export const SMS_PLAN_UPGRADE_CTA = FREE_PLAN_UPGRADE_CTA;
 export const SMS_PLAN_UPGRADE_HREF = APPLY_HREF;

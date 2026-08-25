@@ -7,7 +7,10 @@ import {
   getBillingSummary,
 } from "@/lib/billing/subscription-service";
 import { isPlanKey } from "@/lib/billing/catalog";
-import { refusePaidPlanChange } from "@/lib/billing/paid-upgrade-guard";
+import {
+  refusePaidPlanChange,
+  refuseTenantSelfServePlanMutation,
+} from "@/lib/billing/paid-upgrade-guard";
 import type { ActionState } from "@/lib/types/booking";
 import type { BillingInterval, PlanKey } from "@/lib/billing/types";
 import { revalidatePath } from "next/cache";
@@ -30,6 +33,13 @@ export async function changeSubscriptionPlan(
   }
 
   const provider = getBillingProvider();
+  const locked = refuseTenantSelfServePlanMutation({
+    providerName: provider.name,
+  });
+  if (locked) {
+    return { error: locked };
+  }
+
   const refused = refusePaidPlanChange({
     providerName: provider.name,
     planKey: planKeyRaw,
@@ -65,6 +75,12 @@ export async function cancelSubscriptionAction(
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
+  const locked = refuseTenantSelfServePlanMutation({
+    providerName: getBillingProvider().name,
+  });
+  if (locked) {
+    return { error: locked };
+  }
   const immediately = formData.get("immediately") === "true";
 
   try {
@@ -92,6 +108,12 @@ export async function cancelSubscriptionAction(
 
 export async function reactivateSubscriptionAction(): Promise<ActionState> {
   const business = await getOrCreateBusiness();
+  const locked = refuseTenantSelfServePlanMutation({
+    providerName: getBillingProvider().name,
+  });
+  if (locked) {
+    return { error: locked };
+  }
   try {
     await getBillingProvider().reactivateSubscription({
       businessId: business.id,

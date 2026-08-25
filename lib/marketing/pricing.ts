@@ -744,6 +744,6 @@ export const PRICING_CTA_HEADLINE = PRICING_FINAL_HEADLINE;
 export const PRICING_CTA_BODY = PRICING_FINAL_BODY;
 
 export const FREE_PLAN_LIMIT_MESSAGE =
-  "Your current plan has reached its location limit. Upgrade to Professional to add more sites.";
+  "Your current plan has reached its location limit. Request Professional through Private Alpha to add more sites.";
 
-export const FREE_PLAN_UPGRADE_CTA = "Upgrade to Professional";
+export const FREE_PLAN_UPGRADE_CTA = "Request Professional";

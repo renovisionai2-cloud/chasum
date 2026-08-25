@@ -5,6 +5,7 @@ import {
   ENTERPRISE_SALES_MESSAGE,
   PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
   refusePaidPlanChange,
+  TENANT_SELF_SERVE_PLAN_LOCKED_MESSAGE,
 } from "@/lib/billing/paid-upgrade-guard";
 import { MockBillingProvider } from "@/lib/billing/subscription-service";
 
@@ -312,7 +313,14 @@ describe("Track 3 production compatibility — server action + source safety", (
       planForm("professional"),
     );
     expect(result).toEqual({
-      error: PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
+      error: TENANT_SELF_SERVE_PLAN_LOCKED_MESSAGE,
+    });
+  });
+
+  it("locks tenant starter changes under mock so design-partner plans cannot be undone", async () => {
+    const result = await changeSubscriptionPlan({}, planForm("starter"));
+    expect(result).toEqual({
+      error: TENANT_SELF_SERVE_PLAN_LOCKED_MESSAGE,
     });
   });
 

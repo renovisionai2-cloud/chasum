@@ -50,6 +50,7 @@ No fixes in this document — tracking only.
 | TD-M8 | No inbound email/SMS webhooks | Delivery status incomplete |
 | TD-M9 | Legacy Emma + Summer dual reception paths | Redirects help; code still dual |
 | TD-M10 | No `supabase/config.toml` in repo | Local/CLI drift |
+| TD-M11 | `/owner` plan assign + `subscription_events` are non-atomic | **PLANNED HARDENING** (Phase 4A P2, non-blocking). UPDATE `subscription_plan_key` then INSERT event; if the event insert fails the plan change can persist without audit. Future: transactional RPC/DB transaction, or a partial-success error model. Do not add a migration solely for this. |
 
 ---
 
@@ -62,6 +63,7 @@ No fixes in this document — tracking only.
 | TD-L3 | Owner platform vs tenant product surface complexity | Fine for now |
 | TD-L4 | Apple CalDAV not implemented (ICS only) | Documented gap |
 | TD-L5 | Push / WhatsApp channel stubs | Intentional |
+| TD-L6 | `productPlanKeyForNewBusiness()` unused in app code | **P3 / cleanup.** Helper is tested; signup hole is closed by not writing `preferred_plan` to `subscription_plan_key`. Safe deferred wiring/removal. |
 
 ---
 
