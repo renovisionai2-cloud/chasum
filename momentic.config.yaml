@@ -11,6 +11,7 @@ fileFormat: v2
 browser:
   autoExpandIframes: true
   disableSecondaryCacheResolution: true
+  timezone: America/Toronto
 ai:
   useMemory: true
   failureRecovery: true
