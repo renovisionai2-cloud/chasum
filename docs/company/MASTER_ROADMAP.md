@@ -76,10 +76,11 @@ Ordered as strategic themes — exact sprint order lives in [`MASTER_TASKS.md`](
 
 ### Native Mobile Apps
 
-- **DESIGN FOR NOW / BUILD LATER** — tracker workstream 18. Deferred after world-class responsive web; **not forgotten**. Not commercial-v1 required unless pilots escalate.
-- Future first-class **Apple App Store / iOS** and **Google Play / Android** apps — not a low-quality website wrapper.
-- **No implementation stack is selected** in source of truth.
-- Push notifications
+- **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** — tracker workstream 18. Do not wait until the entire web platform is finished. Begin native development before broader public launch; begin **material** implementation only after the Native App Start Gate (core flows stable enough not to rebuild twice).
+- **ONE** reusable multi-tenant Chasum app. GVM Baby World, Chasum HQ, and future businesses are **normal tenants** — no tenant-specific mobile forks.
+- Working technical direction: **React Native + Expo**. Final stack decision: **TO BE CONFIRMED DURING NATIVE APP PREFLIGHT**.
+- Future first-class **Apple App Store / iOS** and **Google Play / Android** — not a low-quality website wrapper.
+- Native app is another operating surface for the same AI Business Operating System — not a separate mobile AI architecture.
 
 ### Marketplace
 

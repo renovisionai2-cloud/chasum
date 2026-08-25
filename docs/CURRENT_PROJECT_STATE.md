@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-25
-**Updated by:** World Class Phase 4A closeout (PR #29) + launch-readiness refresh + PO governance amendment (18 workstreams; native mobile DESIGN FOR NOW / BUILD LATER; AI Operating-System Preservation Check). Phase 5 **PREFLIGHT REQUIRED / NOT STARTED**.
+**Updated by:** Native-app strategy governance correction (follow-up to PR #30). Workstream 18 is **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Working direction: React Native + Expo (final stack at native-app preflight). Phase 5 remains **PREFLIGHT REQUIRED / NOT STARTED**.
 
 ---
 
@@ -23,7 +23,7 @@
 - **Coming Soon honesty:** Do not market or nav-present unfinished capabilities as operational. [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md).
 - **Momentic:** Setup **COMPLETE**. Supporting regression infrastructure only — not a standalone roadmap track.
 - **Launch-criticality governance:** [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) — **18 workstreams**. Planning targets are not public promises. Launch criticality does not override quality. Permanent **AI Operating-System Preservation Check** sits beside launch criticality, world-class quality, and next-generation advantage.
-- **Native mobile / App Store:** **DESIGN FOR NOW / BUILD LATER** (workstream 18). Responsive web first. Not commercial-v1 required unless pilots prove mobile-web cannot support daily use. No implementation stack selected. Not forgotten.
+- **Native mobile / App Store:** **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** (workstream 18). One reusable multi-tenant Chasum app. GVM, Chasum HQ, and future businesses are normal tenants — no mobile forks. Working technical direction: **React Native + Expo**. Final stack: **TO BE CONFIRMED DURING NATIVE APP PREFLIGHT**. Begin material implementation after the Native App Start Gate, early enough for iOS/Android testing **before broader public launch**. Not Phase 5. Commercial v1 does **not** currently require App Store / Play apps.
 - **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
 
 ### ACTIVE
@@ -52,7 +52,7 @@ Do **not** automatically “finish GVM” as a product rewrite. Do **not** start
 
 Strategic next (from the launch tracker):
 
-1. **World Class Phase 5 (PREFLIGHT REQUIRED / NOT STARTED):** **Production Pin and Design-Partner Pilot Stabilization** — workstreams 17 + 14 + 15. Verify Production SHA vs `main` `f6517a1`; GVM real booking+confirmation; HQ dogfood as a normal tenant. Unblocks outside Private Alpha (workstream 16). Capture mobile-web friction (workstream 18) and grounded-AI gaps without implementing either. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
+1. **World Class Phase 5 (PREFLIGHT REQUIRED / NOT STARTED):** **Production Pin and Design-Partner Pilot Stabilization** — workstreams 17 + 14 + 15. Verify Production SHA vs `main` `f6517a1`; GVM real booking+confirmation; HQ dogfood as a normal tenant. Unblocks outside Private Alpha (workstream 16). Capture mobile-web friction, owner/staff mobile patterns, notification needs, native-benefit workflows, Summer mobile use cases, and architecture issues that could complicate native later (workstream 18). Do **not** start native implementation. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 2. **Do not start Gate B.** Commercial v1 paid-provider billing remains LEVEL 3, later, Claude pre-challenge required.
 3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`.
 4. **Do not** fix DashboardTopNav tablet overflow, tenancy, booking-engine, commerce formulas, `/dashboard/hq`, RBAC, Summer architecture, or native apps in the next bounded slice unless the tracker reclassifies them.
@@ -93,7 +93,7 @@ Strategic next (from the launch tracker):
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
-| [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — **18 workstreams**; Phase 5 preflight; Private Alpha vs commercial-v1 billing gates; native mobile DESIGN FOR NOW / BUILD LATER; AI OS preservation check |
+| [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — **18 workstreams**; Phase 5 preflight; Private Alpha vs commercial-v1 billing gates; native mobile **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**; AI OS preservation check |
 
 ---
 
@@ -623,12 +623,12 @@ From Master Roadmap — exact sprint order in [`docs/company/MASTER_TASKS.md`](.
 - **Inventory & Products**  
 - **Marketing Automation**  
 - **Square** (in-person payments)  
-- **Native mobile** — workstream 18: **DESIGN FOR NOW / BUILD LATER**; no stack selected; not commercial-v1 required unless pilots escalate
+- **Native mobile** — workstream 18: **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**; working direction React Native + Expo; final stack at native-app preflight; one reusable multi-tenant app
 - **Marketplace**  
 - **Enterprise** (org hierarchy, SSO, SLA-oriented controls)  
 - **Version 2** — intentional UX/architecture leap only after V1 departments are hardened  
 
-Do **not** start Inventory, Marketplace, native mobile implementation, or V2 redesign unless explicitly requested. Native remains **visible and planned** (workstream 18), not forgotten.
+Do **not** start Inventory, Marketplace, native mobile **implementation**, or V2 redesign in this chapter. Native remains planned (workstream 18) for after the Native App Start Gate and **before broader public launch**.
 Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/private-alpha`, `/security`, or `/status` unless the product owner explicitly requests it.
 
 ---

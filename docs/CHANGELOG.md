@@ -26,8 +26,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Phase 4A marked **COMPLETE / MERGED TO MAIN** (PR #29, `f6517a1`)
 - Next recommended phase: **World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization** — PREFLIGHT REQUIRED / NOT STARTED
 - Gate B remains later; Commercial SaaS Lifecycle remains **PARTIAL**
-- Tracker expanded to **18 workstreams**; Native Mobile / App Store Readiness is **DESIGN FOR NOW / BUILD LATER** (not commercial-v1 required)
+- Tracker expanded to **18 workstreams**; Native Mobile / App Store Readiness later restamped as **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** (see follow-up)
 - Permanent **AI Operating-System Preservation Check** added; full AI autonomy is Mid/Late 2027+ destination, not commercial-v1 acceptance
+
+### Documented (Native-app strategy governance correction)
+
+- Workstream 18 classification corrected: **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**
+- Native App Start Gate recorded (eight core stability areas)
+- Working technical direction: React Native + Expo; final stack confirmed at native-app preflight
+- One reusable multi-tenant mobile product; GVM / HQ / future businesses are normal tenants
+- Phase 5 remains PREFLIGHT REQUIRED / NOT STARTED; no native implementation in this stamp
 
 ### Added (World Class Phase 3 — Command Centre V1)
 

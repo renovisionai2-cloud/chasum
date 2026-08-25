@@ -83,7 +83,7 @@ These Stripe / paid-lifecycle items are **Gate B** (commercial-v1 paid billing).
 - [ ] Customer portal polish (memberships/packages/gift cards beyond scaffold)
 - [ ] Square research spike (payments + in-person)
 - [ ] Enterprise: org / multi-business admin spike
-- [ ] Native mobile / App Store readiness (tracker workstream 18) — **DESIGN FOR NOW / BUILD LATER**; **NOT STARTED / PLANNED**; no implementation stack selected
+- [ ] Native mobile / App Store readiness (tracker workstream 18) — **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**; **NOT STARTED / PLANNED**; working direction React Native + Expo; final stack confirmed at native-app preflight; one reusable multi-tenant app
 - [ ] Marketplace: API partner guidelines draft
 - [ ] Booking resources (`036`) when a tenant needs concurrent room/chair truth
 - [ ] Unify `create_public_appointment` write path with Booking Engine facade
