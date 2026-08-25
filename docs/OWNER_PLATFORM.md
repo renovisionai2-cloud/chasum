@@ -51,5 +51,19 @@ values ('<auth-user-uuid>', 'you@chasum.app', 'super_admin');
 
 ## Notes
 
-- MRR/ARR are estimated from `subscription_plans.monthly_price_cents` (or marketing fallbacks) until Stripe is connected.
-- Customer dashboard UI and branding are intentionally unchanged.
+- Assigned Professional+ product plans are **not** collected subscription revenue. Overview / Subscriptions / Revenue show **estimated MRR at list price**.
+- Customer Account & billing is truthful Private Alpha copy: no self-serve checkout, cancel, or downgrade theater.
+- Customer dashboard branding is otherwise unchanged.
+
+## Private Alpha / design-partner operating path
+
+1. Business applies (`/apply`) or is invited.
+2. Chasum approves the design partner.
+3. Billing/payment is arranged **outside** self-serve Chasum billing.
+4. A platform owner assigns Free (`starter`) or Professional on `/owner/businesses`.
+5. Existing entitlements follow `subscription_plan_key` (staff seats, etc.).
+6. `private_alpha_enabled` remains a separate feature-elevation flag — it is not the product plan.
+7. Tenant billing shows the product plan, Private Alpha status, and that billing is arranged with Chasum.
+8. Further plan changes go through Chasum (`/owner`), not tenant self-serve controls.
+
+Assignable keys in Phase 4A: `starter`, `professional` only. Assignment writes `subscription_events` and never writes Stripe IDs or `billing_invoices`. Plan UPDATE and event INSERT are **not atomic** (TD-M11, planned hardening — not blocking Phase 4A).

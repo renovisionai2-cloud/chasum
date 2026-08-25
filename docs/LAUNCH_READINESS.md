@@ -3,7 +3,7 @@
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
 **Last updated:** 2026-08-25  
-**Updated by:** World Class Phase 3 closeout + launch-readiness adoption + Gate A/B billing-maturity amendment. Documentation / governance only. No product implementation. Phase 4A **not started**.
+**Updated by:** World Class Phase 4A Commercial SaaS Lifecycle Honesty — **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 These are **planning targets, not public promises.**
 
@@ -203,9 +203,9 @@ Launch requirement vs later expansion: **launch** = trusted booking + CRM + staf
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** — commercially launchable v1 cannot mint fake paid invoices or pretend self-serve billing is live. Operators need a truthful plan/subscription path. Full paid-provider lifecycle is a **later gate** than Phase 4A. |
 | Status | **PARTIAL** |
-| Private Alpha billing readiness | **NOT MET** — next bounded slice is Phase 4A |
-| Commercial v1 billing readiness | **NOT MET** — remains required before commercially launchable v1; **not** in Phase 4A |
-| Current owner / current task | Engineering / Founder — mock provider + `refusePaidPlanChange`; `/dashboard/settings/billing`; `/owner` subscription oversight. Recommended next product slice: **Phase 4A** only. |
+| Private Alpha billing readiness | **Gate A implementation complete pending merge** |
+| Commercial v1 billing readiness | **NOT MET** — Gate B required later; **not** in Phase 4A |
+| Current owner / current task | Engineering / Founder — Phase 4A on `cursor/world-class-phase-4a-saas-honesty` (Claude approved, awaiting merge). Gate B (live provider billing) remains later. |
 | Blocking issue | No live payment-provider billing; paid self-serve conversion gated; upgrade / downgrade / cancellation / dunning immature. Phase 4A removes theater; it does not ship provider billing. |
 | Acceptance condition | **Do not use a single acceptance for this workstream.** See Gate A vs Gate B below. This workstream stays **PARTIAL** after Phase 4A unless Gate B is also met. |
 | Target completion window | Gate A: before selected outside Private Alpha. Gate B: before December 2026–February 2027 commercially launchable v1 (or the commercial-v1 date slips). |
@@ -217,9 +217,15 @@ Launch requirement vs later expansion: **launch** = trusted booking + CRM + staf
 
 #### Gate A — Private Alpha / design-partner billing
 
-**Phase 4A — Commercial SaaS Lifecycle Honesty** (recommended next bounded phase; **not started**).
+**WORLD CLASS PHASE 4A — COMMERCIAL SAAS LIFECYCLE HONESTY**
+
+**STATUS:** IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE
 
 Purpose: truthful Commercial SaaS behavior for controlled Private Alpha **without** pretending full self-serve billing exists.
+
+**Operating path:** apply or invite → approve off-platform → `/owner` assigns Free or Professional → entitlements follow `subscription_plan_key` → tenant billing shows arrangement truth. `private_alpha_enabled` stays a separate flag. See [`OWNER_PLATFORM.md`](./OWNER_PLATFORM.md).
+
+Non-blocking debt: `/owner` plan UPDATE and `subscription_events` INSERT are not atomic ([`TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) TD-M11, PLANNED HARDENING). `productPlanKeyForNewBusiness()` is tested but unused in app code (TD-L6, P3 / cleanup).
 
 Bounded acceptance (closes **Phase 4A only**):
 
@@ -236,6 +242,8 @@ If no provider, migration, webhook, or Production billing-data changes are requi
 Phase 4A **does not** mark the entire Commercial SaaS Lifecycle DONE.
 
 #### Gate B — Commercial v1 paid billing
+
+**STATUS:** REQUIRED LATER / **NOT MET**
 
 Required before Chasum may be classified **COMMERCIALLY LAUNCHABLE V1**.
 
@@ -481,20 +489,13 @@ No unsupported schedule promise: Late Sep–Oct pilots are the near gate; Dec–
 
 ---
 
-## Recommended next major phase (not started)
+## Recommended next major phase
 
-**Do not implement in this documentation chapter.**
+Phase 4A is **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Do **not** start Gate B in this chapter.
 
 | Field | Value |
 |-------|--------|
-| Proposed phase name | **World Class Phase 4A — Commercial SaaS Lifecycle Honesty** |
-| Launch classification | **LAUNCH REQUIRED** for Private Alpha / design-partner billing truth. This is **Gate A only**. |
-| Why now | Tracker workstream 4 is the largest product gap that can make Private Alpha unsafe (fake paid invoices / pretend self-serve). Phase 2 already shipped staff-quota honesty; this continues Commercial SaaS truth without reopening money-engine, tenancy, or Command Centre. GVM/HQ pilot stabilization (workstreams 14–15) must run **in parallel as validation**, not as a substitute product phase. |
-| Exact launch dependency | Operators and platform admins must see plan/subscription state **truthfully**; paid self-serve is explicitly not live; mock mode cannot mint paid invoices or fake provider state. |
-| Acceptance condition | Gate A only: (1) paid-upgrade UX cannot falsely claim a paid plan; (2) current plan state is truthful; (3) `/owner` can view and, where architecture safely allows, assign/manage approved design-partner plan state; (4) manual/design-partner billing path is documented and usable; (5) entitlements stay consistent with assigned plan; (6) no fake Stripe/provider state; (7) no commerce-ledger formula changes; (8) Claude post-implementation review before commit approval. Completing this **does not** mark workstream 4 DONE and **does not** satisfy commercially launchable v1. |
-| Likely risk level | **LEVEL 2** if no provider, migration, webhook, or Production billing-data changes. **LEVEL 3** (Claude **pre-challenge required**) if live provider billing / webhooks / schema / migrations / Production subscription data enter scope — that work is **Gate B**, not Phase 4A. |
-| Claude pre-challenge | **NOT required** for bounded Phase 4A honesty/`/owner` assignment with no Stripe/providers/migrations. **Required** before Gate B implementation. |
-| Must remain out of scope | Live payment-provider subscription billing; webhooks; billing schema/migrations; Production subscription data; tenancy rewrite; booking-engine; commerce invoice/refund/deposit formulas; Reports rewrite; `/dashboard/hq` disposition; DashboardTopNav overflow; Summer architecture rewrite; RBAC enforcement; GVM Production mutations without PO; public launch marketing. |
-| Effect on Dec–Feb target | **Protects** Private Alpha integrity. **Does not** complete commercially launchable v1 billing (Gate B still required). Pilot workstreams 14–16 still required in parallel. |
+| Phase 4A | **World Class Phase 4A — Commercial SaaS Lifecycle Honesty** — Gate A only. Claude post-audit **APPROVED**. Awaiting merge. Does **not** mark Commercial SaaS Lifecycle DONE. |
+| Next product work after merge | **Gate B later** — commercial-v1 paid-provider billing. **LEVEL 3**. Claude **pre-challenge required** before implementation. **NOT STARTED**. |
 
-Three-axis: launch-critical for Alpha honesty (Axis 1); quality = Stripe-like financial honesty, not a billing theme park (Axis 2); next-gen advantage is a connected OS that can later bill truthfully — not a Fresha clone (Axis 3).
+Three-axis for Gate B later: launch-critical for commercial v1 (Axis 1); quality = Stripe-like financial honesty, not a billing theme park (Axis 2); next-gen advantage is a connected OS that can bill truthfully — not a Fresha clone (Axis 3).

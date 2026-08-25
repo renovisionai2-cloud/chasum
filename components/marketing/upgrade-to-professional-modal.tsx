@@ -24,8 +24,8 @@ export function UpgradeToProfessionalModal({
     <Dialog
       open={open}
       onClose={onClose}
-      title="Upgrade to Professional"
-      description="Unlock more capacity as you grow."
+      title="Need more capacity?"
+      description="Request Professional through Private Alpha. Chasum confirms plan changes with you."
     >
       <div className="space-y-5">
         <p className="text-sm leading-relaxed text-foreground">

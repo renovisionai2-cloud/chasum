@@ -15,7 +15,7 @@ export default async function BillingSettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Billing"
-        description="Your Chasum plan, trial, invoices, and subscription controls."
+        description="Your Chasum product plan and Private Alpha billing arrangement."
       >
         <Link
           href="/dashboard/settings"

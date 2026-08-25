@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-25
-**Updated by:** World Class Phase 3 closeout + launch-readiness adoption + Gate A/B billing-maturity amendment. Documentation / governance only. No product implementation. Phase 4A **not started**.
+**Updated by:** World Class Phase 4A Commercial SaaS Lifecycle Honesty — **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 ---
 
@@ -46,11 +46,11 @@ Genuine current gates only (not closed incidents):
 
 ### NEXT
 
-Do **not** automatically “finish GVM.” Do **not** start Phase 4 / Phase 4A implementation in this documentation chapter.
+Do **not** automatically “finish GVM.” Do **not** start Gate B in this chapter.
 
 Strategic next (from the launch tracker, not the old World Class leftover backlog):
 
-1. **World Class Phase 4A (recommended, not started):** **Commercial SaaS Lifecycle Honesty** — **Gate A only** (Private Alpha / design-partner billing truth). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE and does **not** satisfy commercially launchable v1. LEVEL 2 if no provider/migration/webhook/Production billing-data changes. **Gate B** (real paid-provider subscription lifecycle) remains later, LEVEL 3, Claude pre-challenge before implementation. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
+1. **World Class Phase 4A:** **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE** — Commercial SaaS Lifecycle Honesty (**Gate A only**). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE and does **not** satisfy commercially launchable v1. Branch: `cursor/world-class-phase-4a-saas-honesty`. **Gate B** remains later, LEVEL 3. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 2. **Parallel validation (not a substitute product phase):** GVM + Chasum HQ stable pilot use (Late September–October 2026) — first real appointment, production email, HQ dogfood, Production SHA verification.
 3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`.
 4. **Do not** fix DashboardTopNav tablet overflow, tenancy, booking-engine, commerce formulas, `/dashboard/hq`, or Summer architecture in the next bounded slice unless the tracker reclassifies them.
@@ -285,7 +285,9 @@ Chase remains Early Access, read-oriented. Additional roster roles (Alex, Maya, 
 
 **Maturity:** trails Core Operations. Status remains **PARTIAL**. Do **not** mark complete after Phase 4A.
 
-**Private Alpha billing readiness (Gate A / Phase 4A):** not met; recommended next bounded product slice. Honesty + `/owner` design-partner plan assignment + documented manual billing. Does **not** complete this workstream.
+**Private Alpha billing readiness (Gate A / Phase 4A):** implementation complete pending merge. Honesty + `/owner` design-partner plan assignment + documented manual billing. Does **not** complete this workstream.
+
+**Commercial v1 billing readiness (Gate B):** **NOT MET**. Required later.
 
 **Commercial v1 billing readiness (Gate B):** not met. Required before classifying Chasum **COMMERCIALLY LAUNCHABLE V1**. Real payment-provider subscription billing, truthful subscription state, paid activation, and launch-scope upgrade / downgrade / cancellation / failed-payment / entitlement sync. Do **not** design or implement Gate B in this documentation chapter. Live provider / webhooks / schema / migrations / Production subscription data = LEVEL 3 + Claude pre-challenge before implementation.
 
@@ -359,14 +361,14 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 3 Command Centre V1 **COMPLETE** — launch-readiness plan adopted (documentation). Phase 4A **not started**.
+**Working name:** World Class Phase 4A Commercial SaaS Lifecycle Honesty — **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 **Intent:**
 
 1. Treat Chasum as an AI Business Operating System. Keep Core Operations, Commercial SaaS, Intelligence, and Validation in balance.
 2. Use GVM and Chasum HQ as **normal tenants** to validate the reusable product — not as product forks or control planes.
 3. Continue from **current `main` only**. Do not return to `cursor/world-class-portal-foundation` as a working baseline.
-4. Sequence the next product slice from [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) (recommended: **Phase 4A** Commercial SaaS Lifecycle Honesty — Gate A only). Do **not** implement Phase 4A in this stamp. Commercial SaaS Lifecycle remains **PARTIAL** until Gate B is also met.
+4. Sequence later product work from [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md). Phase 4A is awaiting merge. Commercial SaaS Lifecycle remains **PARTIAL** until Gate B is also met. Do **not** start Gate B in this stamp.
 
 ---
 
@@ -512,7 +514,7 @@ Do **not** infer that `main` (`0c61a8d`) has been deployed to Production.
 
 ## Uncommitted work
 
-None after this documentation commit. Docs-only launch-readiness plan (Phase 3 closeout + [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) + Gate A/B billing distinction). No application code. Production and Staging application data are untouched.
+None after this Phase 4A commit. Production and Staging application data are untouched.
 
 ---
 
@@ -529,7 +531,8 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - `create_public_appointment` vs Booking Engine write-path debt
 - Booking resources migration `036` / feature flag pending
 - Mock SaaS billing (`TD-C6`); paid self-serve Coming Soon
-- Employee roles not fully enforced (`TD-H6`)
+- `/owner` plan assign + `subscription_events` non-atomic (**TD-M11**, planned hardening)
+- `productPlanKeyForNewBusiness()` unused in app code (**TD-L6**, P3 cleanup)
 - Booking Sheet “collect payment” still partially stubbed
 - `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved)
 - **World Class Phase 1 follow-up (do not solve here):** Business location cap helper 6 vs catalog/fallback 10; dashboard React hydration #418; mobile visible label “Centre”
@@ -555,7 +558,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 Locked order for this chapter:
 
 1. **Source-of-truth accuracy** — this control board + [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
-2. **Do not start Phase 4A implementation in this stamp.** Recommended next product slice: Commercial SaaS Lifecycle Honesty (**Gate A / Private Alpha billing**). Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
+2. **Phase 4A awaiting merge.** Commercial SaaS Lifecycle Honesty (**Gate A / Private Alpha billing**) is Claude-approved. Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
 3. **Parallel validation** — GVM + Chasum HQ stable pilot (Late Sep–Oct 2026); verify Production SHA before claiming current.
 4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.
 5. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.

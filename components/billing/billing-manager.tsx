@@ -9,30 +9,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { AlertMessage } from "@/components/ui/form-feedback";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
+import { getInvoiceDownload } from "@/lib/actions/billing";
 import {
-  cancelSubscriptionAction,
-  changeSubscriptionPlan,
-  getInvoiceDownload,
-  reactivateSubscriptionAction,
-} from "@/lib/actions/billing";
-import { formatPlanPrice, PLAN_RANK } from "@/lib/billing/catalog";
+  PRIVATE_ALPHA_BILLING_ARRANGEMENT,
+  PRIVATE_ALPHA_PLAN_REQUEST_CTA,
+  PRIVATE_ALPHA_PLAN_REQUEST_HREF,
+  privateAlphaStatusLabel,
+} from "@/lib/billing/private-alpha-plan";
 import type { BillingSummary } from "@/lib/billing/types";
 import { APPLY_HREF, CTA_APPLY_LABEL } from "@/lib/marketing/alpha";
-import {
-  ENTERPRISE_SALES_MESSAGE,
-  PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE,
-} from "@/lib/billing/paid-upgrade-guard";
 import { formatUsdFromCents } from "@/lib/owner/constants";
-import type { ActionState } from "@/lib/types/booking";
-import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { Download, Receipt } from "lucide-react";
 import { format } from "date-fns";
-import { useActionState, useState, useTransition } from "react";
+import Link from "next/link";
+import { useTransition } from "react";
 
 function statusLabel(status: string) {
   return status.replace(/_/g, " ");
@@ -40,30 +32,9 @@ function statusLabel(status: string) {
 
 export function BillingManager({ summary }: { summary: BillingSummary }) {
   const { toast } = useToast();
-  const { subscription, plans, invoices, events } = summary;
-  const [interval, setInterval] = useState(subscription.billingInterval);
-  const [changeState, changeAction, changePending] = useActionState(
-    changeSubscriptionPlan,
-    {} as ActionState,
-  );
-  const [cancelState, cancelAction, cancelPending] = useActionState(
-    cancelSubscriptionAction,
-    {} as ActionState,
-  );
-  const [reactivatePending, startReactivate] = useTransition();
+  const { subscription, invoices, events } = summary;
   const [downloadPending, startDownload] = useTransition();
-
-  useFormAction(changeState);
-  useFormAction(cancelState);
-
-  const upgradePlans = plans.filter(
-    (plan) => PLAN_RANK[plan.planKey] > PLAN_RANK[subscription.planKey],
-  );
-  const downgradePlans = plans.filter(
-    (plan) =>
-      PLAN_RANK[plan.planKey] < PLAN_RANK[subscription.planKey] &&
-      plan.planKey !== "enterprise",
-  );
+  const selfServeLocked = !summary.paidSelfServeCheckoutAvailable;
 
   function downloadInvoice(invoiceId: string) {
     startDownload(async () => {
@@ -97,11 +68,12 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
         <CardHeader>
           <CardTitle>Current plan</CardTitle>
           <CardDescription>
-            Manage your Chasum subscription. Stripe checkout will plug into this
-            same flow later — no live Stripe credentials required for Phase 1.
+            {selfServeLocked
+              ? PRIVATE_ALPHA_BILLING_ARRANGEMENT
+              : "Your Chasum product plan and billing arrangement."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-2xl font-semibold tracking-tight">
               {subscription.planName}
@@ -109,250 +81,77 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
             <Badge className="capitalize">
               {statusLabel(subscription.status)}
             </Badge>
-            {subscription.cancelAtPeriodEnd ? (
-              <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                Cancels at period end
+            {summary.privateAlphaEnabled ? (
+              <Badge className="bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200">
+                Private Alpha
               </Badge>
             ) : null}
           </div>
 
-          <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+          <dl className="grid gap-3 sm:grid-cols-2 text-sm">
             <div>
-              <dt className="text-muted-foreground">Billing</dt>
-              <dd className="font-medium capitalize">
-                {subscription.billingInterval}
-              </dd>
+              <dt className="text-muted-foreground">Product plan</dt>
+              <dd className="font-medium">{subscription.planName}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Trial status</dt>
+              <dt className="text-muted-foreground">Private Alpha access</dt>
               <dd className="font-medium">
-                {subscription.status === "trialing"
-                  ? "On trial"
-                  : subscription.trialEndsAt
-                    ? "Trial ended"
-                    : "Not on trial"}
+                {privateAlphaStatusLabel(summary.privateAlphaEnabled)}
               </dd>
             </div>
-            <div>
-              <dt className="text-muted-foreground">Trial days remaining</dt>
+            <div className="sm:col-span-2">
+              <dt className="text-muted-foreground">Billing arrangement</dt>
               <dd className="font-medium">
-                {subscription.trialDaysRemaining === null
-                  ? "—"
-                  : `${subscription.trialDaysRemaining} day${subscription.trialDaysRemaining === 1 ? "" : "s"}`}
+                {selfServeLocked
+                  ? "Arranged with Chasum — not self-serve"
+                  : "Self-serve subscription"}
               </dd>
             </div>
-            <div>
-              <dt className="text-muted-foreground">Renewal date</dt>
-              <dd className="font-medium">
-                {subscription.currentPeriodEnd
-                  ? format(
-                      new Date(subscription.currentPeriodEnd),
-                      "MMM d, yyyy",
-                    )
-                  : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Period start</dt>
-              <dd className="font-medium">
-                {subscription.currentPeriodStart
-                  ? format(
-                      new Date(subscription.currentPeriodStart),
-                      "MMM d, yyyy",
-                    )
-                  : "—"}
-              </dd>
-            </div>
+            {subscription.currentPeriodEnd ? (
+              <div>
+                <dt className="text-muted-foreground">Current period end</dt>
+                <dd className="font-medium">
+                  {format(
+                    new Date(subscription.currentPeriodEnd),
+                    "MMM d, yyyy",
+                  )}
+                </dd>
+              </div>
+            ) : null}
           </dl>
-        </CardContent>
-      </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Upgrade</CardTitle>
-            <CardDescription>
-              {summary.paidSelfServeCheckoutAvailable
-                ? "Move to a higher plan. Enterprise requires Contact Sales."
-                : PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {summary.paidSelfServeCheckoutAvailable ? (
-            <form action={changeAction} className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor="upgrade_interval">Billing interval</Label>
-                <Select
-                  id="upgrade_interval"
-                  name="billing_interval"
-                  value={interval}
-                  onChange={(e) =>
-                    setInterval(e.target.value === "yearly" ? "yearly" : "monthly")
-                  }
-                >
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="upgrade_plan">Plan</Label>
-                <Select id="upgrade_plan" name="plan_key" required defaultValue="">
-                  <option value="" disabled>
-                    Select plan…
-                  </option>
-                  {upgradePlans.map((plan) => (
-                    <option key={plan.planKey} value={plan.planKey}>
-                      {plan.name} · {formatPlanPrice(plan, interval)}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <AlertMessage error={changeState.error} success={changeState.success} />
-              <Button
-                type="submit"
-                disabled={changePending || upgradePlans.length === 0}
-              >
-                {changePending ? "Updating…" : "Upgrade"}
-              </Button>
-              {upgradePlans.length === 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  You are already on the highest self-serve plan.
-                </p>
-              ) : null}
-            </form>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {ENTERPRISE_SALES_MESSAGE}
-                </p>
-                <Button type="button" variant="outline" disabled>
-                  Upgrade unavailable
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  <a
-                    href={APPLY_HREF}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {CTA_APPLY_LABEL}
-                  </a>{" "}
-                  if you need a paid plan before self-serve checkout opens.
-                  Paid plans are currently approved through Private Alpha.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Downgrade</CardTitle>
-            <CardDescription>
-              Move to a lower plan. Takes effect immediately in Phase 1 mock billing.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form action={changeAction} className="space-y-3">
-              <input type="hidden" name="billing_interval" value={interval} />
-              <div className="space-y-2">
-                <Label htmlFor="downgrade_plan">Plan</Label>
-                <Select
-                  id="downgrade_plan"
-                  name="plan_key"
-                  required
-                  defaultValue=""
-                >
-                  <option value="" disabled>
-                    Select plan…
-                  </option>
-                  {downgradePlans.map((plan) => (
-                    <option key={plan.planKey} value={plan.planKey}>
-                      {plan.name} · {formatPlanPrice(plan, interval)}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-              <Button
-                type="submit"
-                variant="outline"
-                disabled={changePending || downgradePlans.length === 0}
-              >
-                {changePending ? "Updating…" : "Downgrade"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Cancel subscription</CardTitle>
-          <CardDescription>
-            Schedule cancellation at period end, or cancel immediately.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {subscription.status === "canceled" ? (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                This subscription is canceled
-                {subscription.canceledAt
-                  ? ` as of ${format(new Date(subscription.canceledAt), "MMM d, yyyy")}`
-                  : ""}
-                .
+          {selfServeLocked ? (
+            <div className="rounded-[var(--radius-md)] border border-border bg-muted/30 px-4 py-3 space-y-3">
+              <p className="text-sm text-foreground">
+                Need a different plan? Request it through Private Alpha. Chasum
+                confirms the arrangement with you — there is no checkout on this
+                page.
               </p>
-              <Button
-                type="button"
-                disabled={reactivatePending}
-                onClick={() =>
-                  startReactivate(async () => {
-                    const result = await reactivateSubscriptionAction();
-                    if (result.error) toast(result.error, "error");
-                    else toast(result.success ?? "Reactivated.", "success");
-                  })
-                }
-              >
-                {reactivatePending ? "Reactivating…" : "Reactivate"}
-              </Button>
+              <Link href={PRIVATE_ALPHA_PLAN_REQUEST_HREF}>
+                <Button type="button">{PRIVATE_ALPHA_PLAN_REQUEST_CTA}</Button>
+              </Link>
             </div>
           ) : (
-            <form action={cancelAction} className="flex flex-wrap gap-2">
-              <Button
-                type="submit"
-                name="immediately"
-                value="false"
-                variant="outline"
-                disabled={cancelPending || subscription.cancelAtPeriodEnd}
-              >
-                Cancel at period end
-              </Button>
-              <Button
-                type="submit"
-                name="immediately"
-                value="true"
-                variant="destructive"
-                disabled={cancelPending}
-              >
-                Cancel immediately
-              </Button>
-              <AlertMessage error={cancelState.error} success={cancelState.success} />
-            </form>
+            <p className="text-sm text-muted-foreground">
+              Self-serve plan changes use your billing provider.
+            </p>
           )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Billing history</CardTitle>
+          <CardTitle>Plan history</CardTitle>
           <CardDescription>
-            Plan changes and payment events for this business.
+            Recorded product-plan changes for this business.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {events.length === 0 ? (
             <EmptyState
               variant="inline"
-              title="No billing history yet"
-              description="Upgrades, downgrades, and cancellations will appear here."
+              title="No plan changes yet"
+              description="Approved plan assignments will appear here."
             />
           ) : (
             <ul className="divide-y divide-border">
@@ -379,7 +178,8 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
         <CardHeader>
           <CardTitle>Invoices</CardTitle>
           <CardDescription>
-            Download invoices. Stripe-hosted PDF links will appear when Stripe is connected.
+            Invoices appear when a payment is actually recorded. Assigned
+            Private Alpha plans do not create invoices.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -388,7 +188,7 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
               variant="inline"
               glyph={Receipt}
               title="No invoices yet"
-              description="Invoices appear when real billing records a payment. Mock billing does not create paid invoices."
+              description="Chasum does not generate invoices for mock or manually assigned plans."
             />
           ) : (
             <ul className="divide-y divide-border">
@@ -421,6 +221,18 @@ export function BillingManager({ summary }: { summary: BillingSummary }) {
           )}
         </CardContent>
       </Card>
+
+      {selfServeLocked ? (
+        <p className="text-xs text-muted-foreground">
+          <Link
+            href={APPLY_HREF}
+            className="font-medium text-primary hover:underline"
+          >
+            {CTA_APPLY_LABEL}
+          </Link>{" "}
+          if you are not yet a design partner.
+        </p>
+      ) : null}
     </div>
   );
 }

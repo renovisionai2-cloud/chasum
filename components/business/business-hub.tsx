@@ -593,7 +593,7 @@ export function BusinessHub({
                   } (${locationQuota.currentCount} in use). ${
                     locationQuota.canAdd
                       ? "You can add another location."
-                      : "Upgrade to add more sites."
+                      : "Request a plan change to add more sites."
                   }`}
             </p>
             {!locationQuota?.canAdd &&
@@ -606,12 +606,12 @@ export function BusinessHub({
                   {locationQuota.currentCount} active location
                   {locationQuota.currentCount === 1 ? "" : "s"} on{" "}
                   {locationQuota.plan.name ?? "your plan"} (max{" "}
-                  {locationQuota.plan.max_locations}). Upgrade to create another
-                  site.
+                  {locationQuota.plan.max_locations}). Request a plan change to
+                  create another site.
                 </p>
-                <Link href="/pricing" className="mt-2 inline-block">
+                <Link href="/apply" className="mt-2 inline-block">
                   <Button type="button" size="sm" variant="outline">
-                    View plans & upgrade
+                    Request a plan change
                   </Button>
                 </Link>
               </div>

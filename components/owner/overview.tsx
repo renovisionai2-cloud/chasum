@@ -7,6 +7,7 @@ import {
   OwnerPageFrame,
 } from "@/components/owner/page-frame";
 import type { OwnerOverviewMetrics } from "@/lib/owner/data";
+import { publicPlanName } from "@/lib/billing/private-alpha-plan";
 import { formatUsdFromCents } from "@/lib/owner/constants";
 import { format } from "date-fns";
 import {
@@ -73,29 +74,29 @@ export function OwnerOverview({ metrics }: { metrics: OwnerOverviewMetrics }) {
           description="Currently on a free trial"
         />
         <StatCard
-          title="Paid Businesses"
+          title="Paid-tier plans"
           value={String(metrics.paidBusinesses)}
           icon={CreditCard}
           href="/owner/subscriptions"
-          description="Paying list-price plans"
+          description="Assigned Professional+ keys — not collected revenue"
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          title="Monthly Recurring Revenue"
+          title="Est. MRR at list price"
           value={metrics.mrrLabel}
           icon={CircleDollarSign}
           href="/owner/revenue"
-          description="Estimated from list prices"
+          description="Catalog list price, not collected revenue"
         />
         <StatCard
-          title="Annual Recurring Revenue"
+          title="Est. ARR at list price"
           value={metrics.arrLabel}
           icon={CircleDollarSign}
           accent="spark"
           href="/owner/revenue"
-          description="MRR × 12"
+          description="List-price MRR × 12 — not collected revenue"
         />
         <StatCard
           title="New Signups (7d)"
@@ -119,7 +120,7 @@ export function OwnerOverview({ metrics }: { metrics: OwnerOverviewMetrics }) {
           value={String(metrics.activeSubscriptions)}
           icon={CreditCard}
           href="/owner/subscriptions"
-          description="Paid active / past_due seats"
+          description="Assigned paid-tier product plans"
         />
         <StatCard
           title="Trial Accounts"
@@ -167,7 +168,8 @@ export function OwnerOverview({ metrics }: { metrics: OwnerOverviewMetrics }) {
                     <div className="min-w-0">
                       <p className="truncate font-medium">{biz.name}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        /{biz.slug} · {biz.subscription_plan_key ?? "starter"} ·{" "}
+                        /{biz.slug} · {publicPlanName(biz.subscription_plan_key)}
+                        {biz.private_alpha_enabled ? " · Private Alpha" : ""} ·{" "}
                         {format(new Date(biz.created_at), "MMM d, yyyy")}
                       </p>
                     </div>
@@ -245,14 +247,14 @@ export function OwnerOverview({ metrics }: { metrics: OwnerOverviewMetrics }) {
                   <tr className="border-b border-border">
                     <th className="pb-2 font-medium">Plan</th>
                     <th className="pb-2 font-medium">Businesses</th>
-                    <th className="pb-2 font-medium">Est. MRR</th>
+                    <th className="pb-2 font-medium">Est. list-price MRR</th>
                   </tr>
                 </thead>
                 <tbody>
                   {metrics.planBreakdown.map((row) => (
                     <tr key={row.planKey} className="border-b border-border/60">
-                      <td className="py-2.5 font-medium capitalize">
-                        {row.planKey}
+                      <td className="py-2.5 font-medium">
+                        {publicPlanName(row.planKey)}
                       </td>
                       <td className="py-2.5 tabular-nums">{row.count}</td>
                       <td className="py-2.5 tabular-nums">

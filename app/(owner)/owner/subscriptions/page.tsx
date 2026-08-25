@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { StatCard } from "@/components/ui/stat-card";
 import { OwnerPageFrame } from "@/components/owner/page-frame";
 import { formatUsdFromCents } from "@/lib/owner/constants";
+import { publicPlanName } from "@/lib/billing/private-alpha-plan";
 import { getOwnerOverviewMetrics } from "@/lib/owner/data";
 import { CreditCard } from "lucide-react";
 import type { Metadata } from "next";
@@ -17,14 +18,14 @@ export default async function OwnerSubscriptionsPage() {
   return (
     <OwnerPageFrame
       title="Subscriptions"
-      description="Plan distribution and estimated recurring revenue by plan."
+      description="Plan mix and estimated recurring revenue at catalog list price. These figures are not collected payment."
     >
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
-          title="Paid"
+          title="Assigned paid-tier"
           value={String(metrics.paidBusinesses)}
           icon={CreditCard}
-          description="List-price paying businesses"
+          description="Professional+ product plans — not collected revenue"
         />
         <StatCard
           title="Trials"
@@ -34,11 +35,11 @@ export default async function OwnerSubscriptionsPage() {
           description="Free trial tenants"
         />
         <StatCard
-          title="Est. MRR"
+          title="Est. MRR at list price"
           value={metrics.mrrLabel}
           icon={CreditCard}
           accent="success"
-          description="From active paid plans"
+          description="Catalog list price, not collected revenue"
         />
       </div>
 
@@ -60,10 +61,10 @@ export default async function OwnerSubscriptionsPage() {
                   key={row.planKey}
                   className="flex items-center justify-between gap-3 py-3 text-sm"
                 >
-                  <span className="font-medium capitalize">{row.planKey}</span>
+                  <span className="font-medium">{publicPlanName(row.planKey)}</span>
                   <span className="text-muted-foreground">
                     {row.count} businesses · {formatUsdFromCents(row.mrrCents)}{" "}
-                    MRR
+                    list-price MRR
                   </span>
                 </li>
               ))}

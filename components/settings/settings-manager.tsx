@@ -548,7 +548,7 @@ export function SettingsManager({
           <CardHeader>
             <CardTitle>Billing</CardTitle>
             <CardDescription>
-              Current plan, trials, invoices, upgrades, and cancellations.
+              Current product plan and Private Alpha billing arrangement.
             </CardDescription>
           </CardHeader>
           <CardContent>
