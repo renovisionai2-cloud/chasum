@@ -2,9 +2,18 @@
 
 Deployment and cutover plan for replacing Picktime with Chasum for **GVM Baby World Ultrasound** (`/book/gvm-baby-world`).
 
+**Current status (2026-08-24 restamp):** This file is the **GVM validation / cutover checklist**, not the product roadmap. Current NEXT lives in [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
+
+- GVM is a **normal tenant / design partner** used to validate the reusable product.
+- Duplicate-tenant **identity incident is CLOSED**. Do not list it as a World Class blocker. Tenant Identity Safety Gate remains permanent.
+- Production app is live at `https://chasum.vercel.app`. Authoritative GVM tenant: `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`, slug `gvm-baby-world`.
+- Unchecked boxes below are **historical go-live steps**. Many infrastructure items predate later Production work (including migrations beyond 022 and slug aliases). Do **not** treat “apply 001 → 022” as current instruction.
+- **Remaining validation still called out (does not automatically dominate the backlog):** first real client appointment; Resend SMTP / production email path; smoke/cutover sign-off as actually still open.
+- Production deployed SHA: **VERIFY BEFORE CLAIMING CURRENT**. Last documented serving SHA in the identity closeout was `68e9a81`. Current `main` is later (`be2cf6e` at restamp).
+
 **Rule:** Prefer empty states over invented data. Do not redesign branding during go-live.
 
-Companion docs: [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md), [`ROADMAP.md`](./ROADMAP.md).
+Companion docs: [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md), [`ROADMAP.md`](./ROADMAP.md), [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
 
 ---
 
@@ -182,7 +191,7 @@ Documented for later — **not** required for GVM launch:
 - Deep analytics / conversion reports
 - Automated Picktime historical import
 - Supabase Realtime calendar updates
-- Playwright E2E + CI pipeline
+- Playwright E2E + CI pipeline *(Momentic Preview/Staging booking smoke is already operational — supporting regression, not a go-live blocker)*
 
 ---
 

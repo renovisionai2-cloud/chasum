@@ -4,41 +4,56 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-24  
-**Updated by:** GVM duplicate-tenant identity incident closeout (Production remediated + verified)
+**Updated by:** Source-of-truth realignment (post-break PO restamp). Documentation only. No product implementation.
 
 ---
 
-## Business slug aliases / GVM identity (2026-08-24)
+## Control board (start here)
 
-**Status:** PRODUCTION CLOSED — 039 APPLIED + VERIFIED · PR #18 DEPLOYED + VERIFIED · GATE 6 FORWARD EXECUTED · INCIDENT CLOSED
+### LOCKED / APPROVED
 
-Canonical: [`docs/architecture/BUSINESS_SLUG_ALIASES.md`](./architecture/BUSINESS_SLUG_ALIASES.md)  
-Safety gate: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md)
+- **Vision:** Chasum is a world-class **AI Business Operating System** for service businesses — not merely a booking platform.
+- **Architecture:** One reusable multi-tenant SaaS. Business → Location → Resources remains the structural direction. No tenant-specific product forks.
+- **Chasum HQ:** A **real normal business tenant** used to operate Chasum itself. Same architecture as outside customers. **Not** the SaaS control plane. **Not** `/dashboard/hq`.
+- **Platform Admin / Control Centre:** Separate control plane for tenants, subscriptions, trials, plans, billing/account health, support access, usage, entitlements, and platform operations. Current direction: **`/owner`**.
+- **World Class grouped tenant nav:** PO-approved and **protected**. Implemented on `origin/cursor/world-class-portal-foundation`. **Not merged to main.** Main still ships the older flat dashboard nav. Do not merge in a documentation task.
+- **Environment isolation:** Preview → Staging Supabase `wnfahklzaxirftyskctd`. Production → Production Supabase `kxcydvhswkuzepwzzinq`. Production app: `https://chasum.vercel.app`. Production changes require explicit PO approval.
+- **Tenant Identity Safety Gate:** Permanent. Canonical: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md).
+- **Financial truth:** Client money must represent reality (paid, refunded, outstanding, deposit, invoice, receipt, tax, balance). Mock SaaS billing must not mint paid invoices.
+- **Coming Soon honesty:** Do not market or nav-present unfinished capabilities as operational. [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md).
+- **Momentic:** Setup **COMPLETE**. Supporting regression infrastructure only — not a standalone roadmap track.
+- **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
 
-- Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Serving commit: `68e9a816a230636e693d0e10b9b8ae7f3beb1e62`.
-- Migration `039_business_slug_aliases.sql` is generic slug-alias infrastructure. It is **APPLIED + VERIFIED on Production**. PR #18 alias-aware public booking is **DEPLOYED + VERIFIED on Production**.
-- Gate 6 forward GVM identity remediation **executed successfully**. `post_forward_ok = true`. Emergency rollback package exists and was **not** executed (emergency-only). After this data switch, bare rollback to pre-alias-aware code is **not** permitted unless the controlled data rollback runs first.
-- **Authoritative GVM tenant is Tenant B** `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`. Canonical slug: `gvm-baby-world`. Public URL: `https://chasum.vercel.app/book/gvm-baby-world`.
-- Historical alias `gvm-baby-world-ultrasound` → Tenant B → 308 to `/book/gvm-baby-world` (verified in Production).
-- Operational rows (customers, appointments, commerce, staff, services, packages, locations, notifications, and all other operational records) remained on Tenant B. **No operational rows were moved.**
-- **Retired Tenant A** `079288f2-4f6f-49ca-86aa-5190ae2c83ad` slug `gvm-baby-world-retired-079288f2`; `public_booking_mode = staff_only`; `online_booking_enabled = false`. Preserved, not deleted. Its existing customer was not moved. Retired booking page is staff-managed / not publicly bookable (verified).
-- GVM duplicate-tenant identity incident: **CLOSED — PRODUCTION REMEDIATED + VERIFIED**. This incident **no longer blocks the World Class Program**.
-- Follow-up debt (separately tracked; not part of this closeout): 037/038 files missing from main/repo history; Production-mutating scripts need stronger business-id/environment assertions; duplicate-business prevention / review safeguards; onboarding duplicate detection; optional Tenant A legacy contact cleanup; broader tenant-identity hardening.
-- Live Staging TG_OP correction remains: functions use `tg_op = 'UPDATE'`. Chasum HQ Staging canonical slug remains `chasum-hq` (`724d9ecd-438d-439e-952e-2d8c4ab4486c`); `chasum-hq-test` is the historical Staging alias.
+### ACTIVE
 
----
+- Post-break World Class roadmap resumption.
+- Source-of-truth realignment: **this restamp** (documentation only; commit pending PO review).
+- GVM operational validation remains important (first real appointment, production email path) but **is not the entire roadmap**.
+- Balanced outcomes required: **A Core Operations · B Commercial SaaS · C Intelligence · D Validation**.
 
-## Track 3 Production compatibility patch (2026-08-23)
+### BLOCKED / GATED
 
-**Status:** BUILT ON PRODUCTION-DERIVED BRANCH · PREVIEW/STAGING ONLY · NOT YET PRODUCTION APPROVED · TRACK 3 DB HARDENING STILL NOT IMPLEMENTED
+Genuine current gates only (not closed incidents):
 
-Canonical: [`docs/TRACK_3_PRODUCTION_COMPATIBILITY_PATCH.md`](./TRACK_3_PRODUCTION_COMPATIBILITY_PATCH.md)
+- **World Class nav merge** gated on Claude independent pre-challenge + Minimum Necessary Diff vs current main. Not started.
+- **`/dashboard/hq` disposition** gated on a later explicit PO decision (move into `/owner`, relabel, or retire). No new product work on that surface until then.
+- **Track 3 database / RLS hardening** not implemented. Migrations **034–036 UNAPPLIED**. **037/038 APPLIED** on Staging and Production but **executable SQL missing from repo history**.
+- **Paid self-serve SaaS conversion** gated on a real Stripe Billing provider (mock provider must refuse paid upgrades).
+- **Production deploys** gated on explicit PO approval. **Do not infer that `main` is what Production is serving.**
+- Booking **resources** (`036`) unapplied; feature flag off.
 
-- Production baseline remains `4eecbec0f0f04532ae0294132d07183b6e64f23f`.
-- This branch adds a paid-upgrade guard and moves `subscription_events` inserts behind `createServiceClient()`.
-- 037 and 038 remain APPLIED + VERIFIED on Staging and Production.
-- 034–036 remain UNAPPLIED.
-- Track 3 database hardening is **not** implemented.
+### NEXT
+
+Do **not** automatically “finish GVM.” Strategic next:
+
+1. **Claude independent pre-challenge** of integrating approved World Class work into current `main`.
+2. **Reconcile** `origin/cursor/world-class-portal-foundation` against current `main` with **Minimum Necessary Diff**. Do not merge in this documentation chapter.
+3. **Resume reusable product development** while protecting GVM operational trust.
+4. **Rebalance subsequent work** across Commercial SaaS + Summer Intelligence + Core Operations.
+
+**GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
+
+**Marketing (when directed):** Home page (`/`). Pricing, Meet Summer, Roadmap, Resources, Why Private Alpha, and Security remain locked.
 
 ---
 
@@ -47,17 +62,19 @@ Canonical: [`docs/TRACK_3_PRODUCTION_COMPATIBILITY_PATCH.md`](./TRACK_3_PRODUCTI
 1. Start here at the beginning of every implementation session.
 2. Follow linked docs for depth — do not invent product claims outside [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md).
 3. When values conflict, [`docs/company/CHASUM_BIBLE.md`](./company/CHASUM_BIBLE.md) wins.
-4. When priorities conflict for the current chapter, [`COMPANY_MEMORY.md`](../COMPANY_MEMORY.md) wins.
-5. After a milestone ships: update **Last completed work**, **Latest commit**, **Uncommitted work**, **Current milestone**, **Next recommended task**, and the date above.
+4. When **current-chapter priorities** conflict, **this control board** wins over older “Operation GVM is the entire roadmap” language in companion files.
+5. After a milestone ships: update **Last completed work**, **Latest commit**, **Uncommitted work**, **Current milestone**, **NEXT**, and the date above.
 
 ### Companion entry points
 
 | Doc | Role |
 |-----|------|
-| [`COMPANY_MEMORY.md`](../COMPANY_MEMORY.md) | Current-chapter priorities (Operation GVM #1) |
+| [`COMPANY_MEMORY.md`](../COMPANY_MEMORY.md) | Current-chapter priorities (balanced OS outcomes; GVM = validation partner) |
 | [`docs/company/CHASUM_BIBLE.md`](./company/CHASUM_BIBLE.md) | Company constitution |
 | [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md) | Completed vs future strategic milestones |
 | [`docs/company/MASTER_TASKS.md`](./company/MASTER_TASKS.md) | Active engineering backlog |
+| [`docs/HQ_ARCHITECTURE.md`](./HQ_ARCHITECTURE.md) | **HISTORICAL / LEGACY naming** for `/dashboard/hq` — not Chasum HQ the tenant |
+| [`docs/OWNER_PLATFORM.md`](./OWNER_PLATFORM.md) | Platform Admin / Control Centre (`/owner`) |
 | [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md) | What may be claimed publicly |
 | [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md) | **Pricing page lock** — Official v1 approved baseline |
 | [`docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md) | **Summer Onboarding lock** — Meet Summer guided discovery v1 |
@@ -75,13 +92,97 @@ Canonical: [`docs/TRACK_3_PRODUCTION_COMPATIBILITY_PATCH.md`](./TRACK_3_PRODUCTI
 
 ## Product in one paragraph
 
-**Chasum** is an **AI Business Operating System** for appointment-based service businesses — not “just booking software.” Scheduling is the foundation; the product is the operating layer: reception calendar, CRM, employees, locations, commerce, communications, reports, and an AI workforce that shares one business brain.
+**Chasum** is a world-class **AI Business Operating System** for appointment-based service businesses — not “just booking software.” Scheduling is the foundation; the product is the operating layer: reception calendar, CRM, employees, locations, commerce, communications, reports, Commercial SaaS lifecycle, and an AI workforce that shares one business brain.
 
 **Current go-to-market posture:** Private Alpha — invite-only design partners. Primary CTA is **Apply for Private Alpha** (`/apply`). Public self-serve billing is **not** open. First customers are expected to be **small and growing service businesses**.
 
-**Founding design partner #1:** GVM Baby World Ultrasound — **Operation GVM** remains locked Priority #1.
+**Validation tenants (normal businesses, not forks):**
 
-**Package / release:** `v0.2.0` (Next.js **16.2.10**, React 19). Next product release target: **v0.3.0 — GVM Go-Live** ([`docs/product/15_RELEASE_PLAN.md`](./product/15_RELEASE_PLAN.md)).
+- **GVM Baby World** — Founding Design Partner #001. Validates the reusable product in production. Authoritative tenant id `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`, slug `gvm-baby-world`.
+- **Chasum HQ** — Normal tenant used to dogfood Chasum by operating Chasum itself. Staging canonical slug `chasum-hq` (`724d9ecd-438d-439e-952e-2d8c4ab4486c`). Must not receive privileged shortcuts.
+
+**Package / release:** `v0.2.0` (Next.js **16.2.10**, React 19). Next product release target remains documented as **v0.3.0** in [`docs/product/15_RELEASE_PLAN.md`](./product/15_RELEASE_PLAN.md); that file’s “first appointment / SMTP” items are **GVM validation**, not automatic product-roadmap domination.
+
+---
+
+## Naming: Chasum HQ vs Platform Admin vs `/dashboard/hq`
+
+| Name | Meaning (authoritative) |
+|------|-------------------------|
+| **Chasum HQ** | A **normal tenant** (a real business inside Chasum) used to operate Chasum itself. Same multi-tenant architecture as GVM or any future customer. |
+| **Platform Admin / Control Centre** | SaaS operator control plane. Current direction: **`/owner`**. Tenants, subscriptions, trials, plans, billing/account health, support, usage, entitlements, platform operations. |
+| **`/dashboard/hq`** | **LEGACY / FOUNDER-ONLY SURFACE — NAMING/DISPOSITION TO BE RESOLVED.** Existing code/docs that call this “Chasum HQ” are **stale naming**. Do **not** describe `/dashboard/hq` as Chasum HQ product architecture. Do **not** redesign, delete, or expand it until a later PO decision: move into `/owner`, relabel, or retire. |
+
+---
+
+## World Class tenant navigation
+
+**Status:** PO-APPROVED and PROTECTED. **Not on `main`.**
+
+Approved groups:
+
+```
+TODAY          Command Centre, Reception
+CUSTOMERS      Customers
+TEAM           Employees
+CATALOG        Services, Packages, Memberships
+MONEY          Payments, Gift Cards, Discounts
+OPERATE        Reports, Automations
+AI             Summer, Chase, AI Workforce
+BUSINESS       Business setup, Locations, Communications, Integrations
+ACCOUNT        Account & billing
+```
+
+Platform Admin remains separate (`/owner`).
+
+| Reality | Location |
+|---------|----------|
+| Approved implementation | `origin/cursor/world-class-portal-foundation` (`lib/dashboard/nav.ts`, grouped sidebar) |
+| Current `main` | Older flat `DASHBOARD_NAV` in `lib/constants.ts` (Overview, Reception, CRM, Payments, …) |
+
+Do **not** merge the World Class branch in a documentation task. Next product step for this work is Claude pre-challenge + Minimum Necessary Diff against current `main`.
+
+---
+
+## Momentic
+
+**Status:** COMPLETE — supporting regression infrastructure only.
+
+| Item | Detail |
+|------|--------|
+| PR #20 | Safe Momentic baseline — merged |
+| PR #21 | First real Preview/Staging booking smoke — merged (`web/chasum-test-studio-booking-smoke.test.yaml`) |
+| Synthetic Staging tenant | **Chasum Test Studio** (Staging only; never Production) |
+| Role | Regression canary for booking/availability paths |
+| Not | A standalone roadmap track or a blocker of normal Chasum development |
+
+---
+
+## Summer / Intelligence
+
+**Canonical positioning:** Summer = **AI Business Manager** (operating intelligence layer). Do not reposition strategy as “AI Receptionist only.” AI Receptionist is one capability inside the role.
+
+**Implementation truth (do not over-claim):** Summer is currently strongest in booking, availability, CRM-grounded interactions, configured business knowledge, limited commerce awareness, and appointment actions (create / reschedule / cancel via the Booking Engine). It has **not** reached full AI Business Operating Manager depth (proactive recommendations and actions across the OS). Record that gap as roadmap work.
+
+Chase remains Early Access, read-oriented. Additional roster roles (Alex, Maya, Leo, Sophia) are Coming Next / Future Vision.
+
+---
+
+## Commercial SaaS
+
+**Maturity:** trails Core Operations. Do **not** mark complete.
+
+Incomplete / not production-ready:
+
+- Paid self-service subscription conversion
+- Stripe-backed SaaS billing lifecycle
+- Upgrade / downgrade / cancellation maturity
+- Failed-payment / dunning recovery
+- Mature plan entitlement enforcement
+- Multi-staff permissions / RBAC
+- Account lifecycle and usage / account-health depth
+
+What exists: signup/auth, per-owner tenant bootstrap, plan keys, `private_alpha_enabled` feature elevation, location caps, mock billing provider, paid-upgrade guard (refuses paid plans unless Stripe provider), `/dashboard/settings/billing`, `/owner` oversight surfaces.
 
 ---
 
@@ -101,7 +202,7 @@ Canonical: [`docs/TRACK_3_PRODUCTION_COMPATIBILITY_PATCH.md`](./TRACK_3_PRODUCTI
 | Payments | Commerce ledger **manual-first**; Stripe SaaS checkout Coming Next |
 | Jobs | `background_jobs` + cron → `/api/cron/process-jobs` |
 | Observability | Sentry (`instrumentation.ts`) |
-| Tests | Vitest, Playwright, verify scripts under `scripts/` |
+| Tests | Vitest, Playwright, Momentic (Preview/Staging regression), verify scripts under `scripts/` |
 
 Backend pattern: **Server Actions + Route Handlers** — no separate API server. Env contract: `.env.example`, `lib/env.ts`.
 
@@ -111,23 +212,24 @@ Backend pattern: **Server Actions + Route Handlers** — no separate API server.
 |---------|----------|--------|
 | Marketing site | Prospects / applicants | `app/(marketing)/*` — `/`, `/pricing`, `/platform`, `/product-tour`, `/industries`, `/meet-summer`, `/private-alpha`, `/apply`, `/roadmap`, … |
 | Auth | Anyone | `app/(auth)/*`, `app/auth/callback` |
-| Tenant product | Business owners | `/dashboard/*` |
+| Tenant product | Business owners (including GVM and Chasum HQ tenants) | `/dashboard/*` |
 | Public booking / portal | End customers | `/book/[slug]`, `/portal/[token]` |
-| Owner platform | Chasum super-admins | `/owner/*` |
-| Internal HQ | Founders | `/dashboard/hq`, `/dashboard/hq/private-alpha` |
+| Platform Admin / Control Centre | Chasum platform operators | `/owner/*` |
+| Legacy founder-only surface | Founders / platform owners | `/dashboard/hq`, `/dashboard/hq/private-alpha` — **not** “Chasum HQ”; disposition unresolved |
 
 ### Key `lib/` domains
 
-`booking-engine`, `commerce`, `crm`, `employees`, `communications`, `billing`, `reports`, `integrations`, `summer`, `chase`, `website-concierge`, `ai-workforce`, `ai-receptionist`, `marketing`, `hq`, `owner`, `os`, `business`, `supabase`, …
+`booking-engine`, `commerce`, `crm`, `employees`, `communications`, `billing`, `reports`, `integrations`, `summer`, `chase`, `website-concierge`, `ai-workforce`, `ai-receptionist`, `marketing`, `hq` (legacy founder surface), `owner`, `os`, `business`, `supabase`, …
 
 ### AI systems (truth over theater)
 
 | System | Role | Status posture |
 |--------|------|----------------|
+| **Summer (strategic)** | AI Business Manager | Positioning locked; implementation not yet full OS depth |
 | **Summer (marketing)** | Website concierge / Meet Summer | Grounded Knowledge Engine |
-| **Summer (in-app)** | Reception / booking assist | Early Access |
+| **Summer (in-app)** | Strongest as booking / availability / CRM-grounded assist | Early Access |
 | **Chase** | Read-only ops insights | Early Access |
-| **Emma (AI Receptionist)** | Grounded receptionist Phase 1 | Shipped foundation; deepen next |
+| **Emma** | Legacy alias for Summer reception path | Dual path still exists (debt) |
 | Additional AI roles (Alex, etc.) | Roadmap | Coming Next / Future Vision |
 
 Canonical claim language: [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md). Summer Principle: [`docs/ai/SUMMER_PRINCIPLE.md`](./ai/SUMMER_PRINCIPLE.md).
@@ -140,15 +242,14 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** Private Alpha — World-class marketing site + Operation GVM hardening  
+**Working name:** Post-break World Class resumption — source-of-truth realigned
 
 **Intent:**
 
-1. Keep **Operation GVM** as the product truth source (reliability, commerce, reception craft).
-2. Present an honest, premium public site that converts small service businesses into Private Alpha applicants — without mixing Roadmap status language into Pricing inclusions.
-3. Stay on branch `cursor/phase-3-integrations` until a coherent release slice is ready to merge to `main`.
-
-**Release name (company backlog):** Company OS + AI Receptionist foundation — see [`docs/company/MASTER_TASKS.md`](./company/MASTER_TASKS.md).
+1. Treat Chasum as an AI Business Operating System. Keep Core Operations, Commercial SaaS, Intelligence, and Validation in balance.
+2. Use GVM and Chasum HQ as **normal tenants** to validate the reusable product — not as product forks or control planes.
+3. Integrate approved World Class work into `main` only after Claude pre-challenge and Minimum Necessary Diff (not this documentation chapter).
+4. Stay on **`main`** as the handoff branch. Do not treat `cursor/phase-3-integrations` or the closed identity-incident branch as the active working branch.
 
 ---
 
@@ -171,183 +272,120 @@ Shared money recognition, commerce + platform events, business operating context
 
 **Resources is complete and locked** — Why Private Alpha, Security, and System Status. Full lock rules: [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md), [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md), [`docs/marketing/SECURITY_V1_LOCK.md`](./marketing/SECURITY_V1_LOCK.md).
 
-**✅ Why Private Alpha — COMPLETE** · Status: **Locked** · Visual SoT: https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha
-
-**✅ Security — COMPLETE** · Status: **Locked** · Visual SoT: https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security
-
 **Next marketing surface:** Home page (`/`) when directed — Pricing, Summer Onboarding, Roadmap, and Resources are locked.
 
 ---
 
 ## Last completed work
 
-### Most recent (2026-08-24)
+### Most recent (2026-08-24) — source-of-truth realignment
 
-**GVM duplicate-tenant identity incident — CLOSED in Production**
+PO-reviewed strategic audit against `main` `be2cf6e1fbbaeb606eab33b4e2eac799ff459338`. Documentation restamp only (this file + companion status docs). No app, database, merge, or Production change.
+
+### Immediately prior (2026-08-24) — Momentic regression (merged to main)
+
+- **PR #20** — safe Momentic baseline (`231045a` / merge `8275686`)
+- **PR #21** — Chasum Test Studio booking smoke (`be2cf6e`)
+- Synthetic Staging tenant **Chasum Test Studio**; Preview must use Staging
+
+### Immediately prior (2026-08-24) — GVM identity incident CLOSED in Production
 
 - Migration 039 APPLIED + VERIFIED on Production (`kxcydvhswkuzepwzzinq`)
-- PR #18 alias-aware booking DEPLOYED + VERIFIED; serving commit `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` at `https://chasum.vercel.app`
+- PR #18 alias-aware booking DEPLOYED + VERIFIED; last **documented** Production serving commit `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` at `https://chasum.vercel.app`
 - Gate 6 forward remediation executed; `post_forward_ok = true`; rollback unused
 - Tenant B `a04e1d65-eeb9-4d72-a5bf-739a9038bb91` is the permanent operational GVM tenant at `/book/gvm-baby-world`
 - Alias `gvm-baby-world-ultrasound` → Tenant B (308 verified)
 - Tenant A `079288f2-4f6f-49ca-86aa-5190ae2c83ad` retired at `/book/gvm-baby-world-retired-079288f2` (`staff_only`, not publicly bookable), not deleted
 - World Class Program is no longer blocked by this incident
+- Follow-up debt (not this closeout): 037/038 files missing from repo history; Production-mutating scripts need stronger business-id/environment assertions; onboarding duplicate detection; optional Tenant A legacy contact cleanup
 
-### Prior (2026-07-30)
+Historical detail: [`docs/architecture/BUSINESS_SLUG_ALIASES.md`](./architecture/BUSINESS_SLUG_ALIASES.md).
 
-**Production deploy — approved marketing site → https://chasum.vercel.app**
+### Prior on main (selected)
 
-- Branch `cursor/phase-3-integrations` @ `1d368a8` → deployment `dpl_H6JLmkWoKqbRuKu58baBEYXKzyeo`
-- No Supabase migrations in deploy delta; GVM DB not reset
-- Marketing HTTP smoke: all approved public pages 200
-- Authenticated GVM portal smoke: pending operator login (auth gate verified)
-- Audit: [`docs/MARKETING_PRODUCT_FEATURE_AUDIT.md`](./MARKETING_PRODUCT_FEATURE_AUDIT.md)
+- Generic public booking slug aliases (`7f0f1cb`) — reusable infrastructure, not a GVM fork
+- Production billing compatibility patch (`ef69815`) — paid-upgrade guard + service-role `subscription_events` writes. **On `main`.** Track 3 DB hardening still not implemented. Whether later `main` commits are on Production: **VERIFY BEFORE CLAIMING CURRENT**.
+- PR #19 documentation closeout of the identity incident (`91ae760`)
 
-### Immediately prior (same day)
+### Historical marketing / GVM chapter (2026-07-30 and earlier)
 
-**✅ Security v1 — COMPLETE and locked**
+Preserved for history — **not** current branch instructions:
 
-- Final hero headline: “Security Designed Around Your Business” (supporting copy unchanged)
-- Lock doc: `SECURITY_V1_LOCK.md`
-- Allowed only: bugs, a11y, mobile responsiveness, performance, minor wording
-
-### Immediately prior (same day)
-
-**✅ Why Private Alpha v1 — COMPLETE and locked**
-
-- Product-owner approved; production-ready
-- Visual SoT: https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha (commit `10a9e53`)
-- Lock docs: `WHY_PRIVATE_ALPHA_V1_LOCK.md` + Resources lock updated
-- Allowed only: bugs, a11y, responsive, performance, minor wording
-
-### Immediately prior (same day)
-
-**Why Private Alpha — final messaging + visual polish (pre-lock)**
-
-- Partnership storytelling, premium journey, tightened spacing, CTA frame
-- Left unlocked until product-owner approval
-
-### Immediately prior (same day)
-
-**Resources v1 — Security & Status locked; Private Alpha initially shipped**
-
-- Why Private Alpha / Security / Status premium experiences
-- Security + Status locked earlier; Private Alpha finalized later
-
-### Immediately prior (same day)
-
-**Roadmap v1 — finalized, approved, and locked**
-
-- Renamed section to **Available in Chasum Today**; Pricing-aligned (Business Calls & Texting, SMS Reminders moved from Coming Soon)
-- Replaced Business Text Messaging with **AI Workflow Automation**
-- Business-outcome card copy pass; lock docs + agent rule
-
-### Immediately prior (same day)
-
-**Roadmap — ground-up redesign (business owners)**
-
-- Replaced timeline / phase language with Available Today → Coming Soon → Future Vision + Built With Our Customers
-- Apple-inspired feature cards; no Now/Next/Later, no developer release notes
-
-### Immediately prior (same day)
-
-**Summer Onboarding v1 — finalized & locked**
-
-- Final consultation subheading: “I'd like to understand your business so I can personalize Chasum for you.”
-- Lock docs refreshed for full Meet Summer onboarding experience
-
-### Immediately prior (same chapter)
-
-| Commit | Work |
-|--------|------|
-| `83fbaed` | Finalized Pricing page (Official Pricing Page v1 baseline) |
-| Summer / AI Manager | Summer positioned as AI Business Manager across marketing |
-| `8dfce34` / later | Summer Onboarding lock + consultation copy refinements |
-
-### Immediately prior (same chapter)
-
-| Commit | Work |
-|--------|------|
-| `83fbaed` | Finalized Pricing page with shared plan data (approved Official v1 baseline) |
-| `7df9749` | Post-baseline polish — **superseded / rolled back** to match approved Preview |
-| `c4d1d5e` | Pricing small-business-first copy |
-| `c637984` / `cc40e78` | Pricing Final Customer Clarity Cleanup |
-| `97c2904` | Pricing Customer-Facing Accuracy Cleanup |
-| `c983ead` | World-Class Pricing Experience |
-| Earlier on branch | Industries, Signature Experience, Platform / Product Tour / Meet Summer, homepage living interface |
-
-### Product chapter (documented in CHANGELOG, not always tip-of-branch)
-
-- Operation GVM — Commerce Engine Finalization (migrations `030`/`031`, gift certificates, arrival workflow)
-- Premium Experience Sprints 1–2 (Design System v1 + craftsmanship)
-- OS Kernel foundation sprint
+- Production marketing deploy from then-branch `cursor/phase-3-integrations` @ `1d368a8`
+- Locked marketing pages (Pricing, Summer Onboarding, Roadmap, Resources, Why Private Alpha, Security)
+- Operation GVM Commerce Engine Finalization (migrations `030`/`031`)
+- Premium Experience Sprints + OS Kernel foundation
 
 ---
 
 ## Active branch
 
 ```
-cursor/gvm-identity-incident-closeout-7453
+main
 ```
 
-- Documentation-only closeout of the GVM duplicate-tenant identity incident.
-- Base branch for this closeout: **`main`** (Production serving `68e9a81`).
+Handoff SHA (local / `origin/main` at restamp): `be2cf6e1fbbaeb606eab33b4e2eac799ff459338`
 
-**Deploy policy:** This closeout is documentation only. It does not change Production application code.
+**Obsolete as current working branch (historical only):**
+
+- `cursor/gvm-identity-incident-closeout-7453` — merged (PR #19)
+- `cursor/phase-3-integrations` — do not stay here for new work
+- `cursor/production-billing-compatibility-7453` — merged onto `main` (`ef69815`)
+- `cursor/world-class-portal-foundation` — **unmerged**; approved World Class nav lives here
+
+**Deploy policy:** This restamp is documentation only. It does not change Production or Staging application code or data.
 
 ---
 
-## Latest commit
+## Latest commit (repository `main`)
 
 | Field | Value |
 |-------|--------|
-| **Production serving SHA** | `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` |
-| **Short** | `68e9a81` |
-| **Subject** | PR #18 alias-aware booking (Gate 6 data switch used this serving commit) |
+| **`main` / `origin/main` SHA** | `be2cf6e1fbbaeb606eab33b4e2eac799ff459338` |
+| **Short** | `be2cf6e` |
+| **Subject** | `test: add Momentic booking smoke coverage (#21)` |
 | **Date** | 2026-08-24 |
-| **Note** | Documentation closeout for the GVM identity incident lands after this SHA on `cursor/gvm-identity-incident-closeout-7453`. |
+
+### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
+
+Do **not** infer that `main` (`be2cf6e`) has been deployed to Production.
+
+| Field | Value |
+|-------|--------|
+| **Last documented Production serving SHA** | `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` (`68e9a81`) |
+| **Context** | Identity-incident closeout recorded this as the PR #18 serving commit on `https://chasum.vercel.app` |
+| **This restamp** | Did **not** re-verify Production. Treat Production SHA as **unverified relative to current `main`**. |
 
 ---
 
 ## Uncommitted work
 
-As of this closeout: none expected for this documentation change.
+Documentation restamp in progress on `main` (this chapter). Do not commit until PO review of the source-of-truth diff.
 
 ---
 
-## Next recommended task
+## Known issues / technical debt (keep visible)
 
-**Priority order (do not skip #1 for novelty):**
+Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot — **do not solve in this restamp:**
 
-1. **World Class Program may resume.** The GVM duplicate-tenant identity incident is closed and is not a World Class blocker. **Operation GVM (Priority #1)** continues as go-live craft: remaining items from [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) and [`docs/product/04_BACKLOG.md`](./product/04_BACKLOG.md) P0 — first real appointment, Resend SMTP in Supabase, production email path. Do not reopen the closed identity incident. Follow-up identity debt stays separately tracked.
-2. **Home page (`/`)** — Next marketing chapter when directed. **Pricing, Summer Onboarding, Roadmap, and Resources (including Why Private Alpha) are locked — do not reopen** unless the product owner explicitly requests it.
-3. **Engineering hardening (from MASTER_TASKS)** — migrations verified per env; Emma FAQ/config storage; staff login enforcement; Stripe provider behind existing billing interface when ready.
+- Migrations **034–036 UNAPPLIED**
+- Migrations **037/038 APPLIED** on Staging and Production; **executable SQL missing from repo history**
+- Remaining Track 3 / RLS hardening not implemented
+- Dual communications stacks
+- Dual Emma / Summer legacy path
+- Dual Chase routes (`/dashboard/workforce/chase` and `/dashboard/ai-workforce/chase`)
+- `create_public_appointment` vs Booking Engine write-path debt
+- Booking resources migration `036` / feature flag pending
+- Mock SaaS billing (`TD-C6`); paid self-serve Coming Soon
+- Employee roles not fully enforced (`TD-H6`)
+- Booking Sheet “collect payment” still partially stubbed
+- `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved)
 
-Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.  
-Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/private-alpha`, `/security`, or `/status` unless the product owner explicitly requests it.
+### Product / validation (not automatic NEXT)
 
----
-
-## Known issues
-
-Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md), [`docs/LAUNCH_RISK_REGISTER.md`](./LAUNCH_RISK_REGISTER.md), and product audits. Snapshot:
-
-### Product / go-live
-
-- Public self-serve SaaS checkout not live (mock billing provider) — Private Alpha is intentional.
-- Multi-staff login / RBAC invites — Coming Next (roles catalog exists; enforcement incomplete).
-- GVM: first real client appointment + production email SMTP still open on release plan.
-- Booking Sheet “collect payment” still partially stubbed relative to full Commerce.
-
-### Engineering debt (open)
-
-- Dual communications stacks (`lib/communications/*` vs orchestrator).
-- Mock SaaS billing (`TD-C6`).
-- Employee roles not fully enforced (`TD-H6`).
-- Portal / ICS tokens not hashed like API keys.
-- Next.js `middleware.ts` → `proxy` deprecation warning.
-- Soft-empty reports for unbuilt modules can look like “$0” instead of “unavailable.”
-- Legacy Emma + Summer dual reception paths still coexist.
+- Commercial SaaS lifecycle incomplete (see Commercial SaaS section)
+- GVM: first real client appointment + production email SMTP still listed on go-live / release plan
+- Public self-serve SaaS checkout not live — Private Alpha is intentional
 
 ### Marketing discipline
 
@@ -360,38 +398,43 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md), [`docs/LAUN
 
 Locked order for this chapter:
 
-1. **Operation GVM** — reliability, synchronization, commerce truth, reception craft for the live design partner.
-2. **Honest Private Alpha GTM** — Apply / Demo CTAs; pricing that small businesses understand; Product Truth Matrix compliance.
-3. **OS-quality foundation** — one business brain; truth over theater; extend Design System v1 (no drive-by redesigns).
-4. **AI depth without theater** — deepen Summer / Chase / Emma only with grounded context; no invented availability or prices.
-5. **Charge-with-integrity path** — Stripe and self-serve only when operationally ready (see 30/90-day plans).
+1. **Source-of-truth accuracy** — this control board; do not implement from stale NEXT fields.
+2. **World Class nav integration (after Claude pre-challenge)** — approved IA onto `main` with Minimum Necessary Diff.
+3. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance.
+4. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
+5. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
+6. **Honest Private Alpha GTM** — locked marketing pages; Product Truth Matrix; Coming Soon stays honest.
+7. **Charge-with-integrity path** — Stripe and self-serve only when operationally ready.
 
 ---
 
 ## Development roadmap
 
+Roadmap outcomes must stay balanced:
+
+| Outcome | Meaning |
+|---------|---------|
+| **A. Core Operations** | Scheduling, customers, staff, catalog, money, communications, reporting, workflows |
+| **B. Commercial SaaS** | Signup, provisioning, onboarding, plans, entitlements, subscriptions, billing, lifecycle, permissions, support/recovery |
+| **C. Intelligence** | Summer as AI Business Manager, Chase, AI Workforce — grounded in authoritative Chasum data |
+| **D. Validation** | GVM, Chasum HQ tenant, future design partners, Preview/Staging regression (Momentic), human workflow trust |
+
 ### Completed (company view)
 
-See full table in [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights:
+See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke.
 
-- Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM  
-- Calendar & Booking Engine, Business Management, Reports  
-- AI Receptionist Phase 1 (Emma)  
-- OS Kernel foundation  
-- Phase 3 Integrations (calendars, email/SMS, jobs, developer API surface) — engineering history in [`docs/ROADMAP.md`](./ROADMAP.md)  
-- World-class marketing site chapter (homepage → Meet Summer → Platform → Product Tour → Industries → Pricing)
-
-### Near-term (v0.3.0 / Private Alpha)
+### Near-term (do not treat as “GVM only”)
 
 | Theme | Outcome |
 |-------|---------|
-| GVM Go-Live | Real appointments week; Picktime cutover path; production email |
-| Stripe (when ready) | Live provider behind existing billing interface |
-| Staff login | Invite + RBAC enforcement |
-| Emma deepen | FAQ/config storage; public booking assist channel |
-| Messaging | Resend/Twilio verified in staging/production |
+| World Class nav | Merge approved grouped IA after pre-challenge |
+| Commercial SaaS | Stripe-backed lifecycle; entitlements; RBAC — currently trailing |
+| Summer Intelligence | Deepen toward Business Manager actions without inventing data |
+| Core Operations craft | Reception/commerce/comms reliability |
+| GVM validation | First real appointment + production email — listed separately |
+| Track 3 | RLS/hardening when PO schedules; restore 037/038 SQL into repo |
 
-Plans: [`docs/30_DAY_PRIVATE_ALPHA_PLAN.md`](./30_DAY_PRIVATE_ALPHA_PLAN.md), [`docs/90_DAY_EXECUTION_PLAN.md`](./90_DAY_EXECUTION_PLAN.md).
+Plans: [`docs/30_DAY_PRIVATE_ALPHA_PLAN.md`](./30_DAY_PRIVATE_ALPHA_PLAN.md), [`docs/90_DAY_EXECUTION_PLAN.md`](./90_DAY_EXECUTION_PLAN.md) — treat dates/items as historical planning unless restamped.
 
 ### Medium / future themes
 
@@ -406,6 +449,9 @@ From Master Roadmap — exact sprint order in [`docs/company/MASTER_TASKS.md`](.
 - **Enterprise** (org hierarchy, SSO, SLA-oriented controls)  
 - **Version 2** — intentional UX/architecture leap only after V1 departments are hardened  
 
+Do **not** start Inventory, Marketplace, native mobile, or V2 redesign unless explicitly requested.
+Do **not** redesign or polish `/pricing`, `/meet-summer`, `/roadmap`, `/private-alpha`, `/security`, or `/status` unless the product owner explicitly requests it.
+
 ---
 
 ## Milestone update checklist
@@ -415,10 +461,9 @@ When a milestone completes, update this file:
 - [ ] **Last updated** date  
 - [ ] **Last completed work** (what + commit SHAs)  
 - [ ] **Active branch** / sync status  
-- [ ] **Latest commit**  
-- [ ] **Uncommitted work** (`git status`)  
-- [ ] **Current milestone** name/intent if changed  
-- [ ] **Next recommended task**  
+- [ ] **Latest commit** (`main` vs Production SHA called out separately)
+- [ ] **Uncommitted work** (`git status`)
+- [ ] **Control board** LOCKED / ACTIVE / BLOCKED / NEXT
 - [ ] **Known issues** / **Priorities** if the chapter shifted  
 - [ ] Cross-link `docs/CHANGELOG.md` entry when product behavior shipped  
 - [ ] Commit this file with the milestone (or immediately after)

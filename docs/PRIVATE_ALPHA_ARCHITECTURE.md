@@ -1,9 +1,11 @@
 # Private Alpha Management Platform
 
+**CURRENT NAMING (2026-08-24 PO ruling):** This page lives under **`/dashboard/hq`**, which is a **legacy founder-only surface**. It is **not** “Chasum HQ” (Chasum HQ is a normal tenant). Do not expand `/dashboard/hq/*` until PO disposition. Control-plane direction: [`OWNER_PLATFORM.md`](./OWNER_PLATFORM.md). Handoff: [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
+
 **Surface:** `/dashboard/hq/private-alpha`  
 **Audience:** Founder / platform owners only (`requirePlatformOwner`)  
 **Milestone:** 7 — Internal company operations  
-**Not** customer-facing.
+**Not** customer-facing. **Not** the Chasum HQ tenant.
 
 ---
 
@@ -29,13 +31,13 @@ Operate the Private Alpha professionally for the four Founding Design Partners:
 | Snapshot | `lib/hq/private-alpha/snapshot.ts` |
 | Types | `lib/hq/private-alpha/types.ts` |
 | Seed | `lib/hq/private-alpha/seed.ts` |
-| Parent HQ | `/dashboard/hq` |
+| Parent (legacy founder surface) | `/dashboard/hq` |
 
 ---
 
 ## Auth
 
-Same gate as Chasum HQ: `requirePlatformOwner()` via `PLATFORM_OWNER_EMAILS` or `platform_admins`. Non-owners redirect to `/dashboard`.
+Same gate as `/dashboard/hq` (legacy founder surface): `requirePlatformOwner()` via `PLATFORM_OWNER_EMAILS` or `platform_admins`. Non-owners redirect to `/dashboard`. Not the Chasum HQ tenant.
 
 ---
 

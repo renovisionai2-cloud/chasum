@@ -1,7 +1,11 @@
 # Owner Platform
 
+**CURRENT ROLE (2026-08-24 PO ruling):** `/owner` is the **Platform Admin / Control Centre** direction — the SaaS operator control plane (tenants, subscriptions, trials, plans, billing/account health, support access, usage, entitlements, platform operations).
+
+**Chasum HQ** is a **normal tenant**, not this surface. **`/dashboard/hq`** is a legacy founder-only surface and must not become (or be described as) Chasum HQ. Handoff: [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
+
 Secure dashboard for **Chasum platform owners** (super administrators) only.  
-Customer businesses continue to use `/dashboard` and cannot access `/owner`.
+Customer businesses — including the Chasum HQ tenant and GVM — continue to use `/dashboard` and cannot access `/owner`.
 
 ## Access
 

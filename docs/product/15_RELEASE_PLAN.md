@@ -1,5 +1,7 @@
 # Release Plan
 
+**Current NEXT (2026-08-24):** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md). v0.3.0 “GVM Go-Live” items below remain **validation** (SMTP, first real appointment) — they do not automatically dominate the product roadmap. Identity incident is closed. Production SHA: verify before claiming current.
+
 ## Current release
 
 **v0.2.0** — Phase 3 (integrations) + Phase 4 (scheduling engine)
