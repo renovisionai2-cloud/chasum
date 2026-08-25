@@ -17,7 +17,7 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ## Current chapter (2026-08-24 restamp)
 
-Post-break World Class resumption. Source-of-truth realignment is the documentation gate before product implementation.
+Post-break World Class resumption. Phase 1 navigation foundation is **merged to main**. This restamp is documentation only; Phase 2 is not started.
 
 Roadmap outcomes must stay balanced:
 
@@ -34,7 +34,7 @@ Roadmap outcomes must stay balanced:
 
 **`/dashboard/hq`** is a legacy founder-only surface. Naming/disposition unresolved. Do not expand it.
 
-**World Class grouped nav** is PO-approved and lives on `origin/cursor/world-class-portal-foundation`; it is **not** on `main`. Next: Claude pre-challenge + Minimum Necessary Diff. Do not merge from a documentation session.
+**World Class grouped nav** is PO-approved and **on `main`** (Phase 1, PR #23). `origin/cursor/world-class-portal-foundation` is **reference-only** — not a working baseline and not a merge target. Next: World Class Phase 2 **Staff Plan Honesty** (LEVEL 2, not started) — Free 1 / Professional 3 / Business and Enterprise unlimited **active** staff; inactive rows do not consume seats; UI term **Active in Chasum** is distinct from Employment status and RBAC. Reason: Commercial SaaS plan truth.
 
 **GVM duplicate-tenant identity incident is CLOSED.** Tenant Identity Safety Gate remains permanent. Remaining GVM go-live items (first real appointment, production email) are **validation**, not automatic Priority #1 domination of the backlog.
 

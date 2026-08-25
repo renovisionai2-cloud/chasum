@@ -2,7 +2,7 @@
 
 Prioritized product + engineering work. Use GitHub issues with `[roadmap]` or `[backlog]` labels.
 
-**Current NEXT (2026-08-24):** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md) — do **not** treat the P0 table below as automatic product-roadmap domination. Remaining GVM items (first real appointment, Resend SMTP) are **validation**, still important, listed separately from World Class nav integration and Commercial SaaS / Summer rebalancing.
+**Current NEXT (2026-08-24):** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md) — World Class Phase 1 nav is on `main`. Remaining GVM items (first real appointment, Resend SMTP) are **validation**, still important, listed separately from World Class Phase 2 (staff plan honesty) and Commercial SaaS / Summer rebalancing.
 
 ## P0 — GVM Baby World go-live
 

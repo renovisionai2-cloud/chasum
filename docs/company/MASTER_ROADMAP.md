@@ -31,6 +31,7 @@ Also foundational (earlier phases): design system, multi-tenant schema + RLS, se
 | Milestone | Notes |
 |-----------|--------|
 | **OS Kernel (Foundation Sprint)** | Shared revenue recognition, commerce + platform event buses, business operating context, locale/datetime helpers, responsive DS polish — see `COMPANY_MEMORY.md` + `docs/product/22_OS_KERNEL.md` |
+| **World Class Phase 1 — Navigation Foundation** | Grouped tenant nav + mobile nav on `main` (PR #23). Old World Class branch is reference-only. |
 
 ---
 

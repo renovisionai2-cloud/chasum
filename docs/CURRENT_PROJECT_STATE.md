@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-24  
-**Updated by:** Source-of-truth realignment (post-break PO restamp). Documentation only. No product implementation.
+**Updated by:** World Class Phase 1 stamp + Phase 2 preflight. Documentation only. No product implementation.
 
 ---
 
@@ -16,7 +16,7 @@
 - **Architecture:** One reusable multi-tenant SaaS. Business → Location → Resources remains the structural direction. No tenant-specific product forks.
 - **Chasum HQ:** A **real normal business tenant** used to operate Chasum itself. Same architecture as outside customers. **Not** the SaaS control plane. **Not** `/dashboard/hq`.
 - **Platform Admin / Control Centre:** Separate control plane for tenants, subscriptions, trials, plans, billing/account health, support access, usage, entitlements, and platform operations. Current direction: **`/owner`**.
-- **World Class grouped tenant nav:** PO-approved and **protected**. Implemented on `origin/cursor/world-class-portal-foundation`. **Not merged to main.** Main still ships the older flat dashboard nav. Do not merge in a documentation task.
+- **World Class grouped tenant nav:** PO-approved, **protected**, and **on `main`**. Phase 1 (PR #23) shipped grouped desktop navigation + mobile bottom navigation via Minimum Necessary Diff. `origin/cursor/world-class-portal-foundation` is **reference-only** — not a merge target and not a working baseline.
 - **Environment isolation:** Preview → Staging Supabase `wnfahklzaxirftyskctd`. Production → Production Supabase `kxcydvhswkuzepwzzinq`. Production app: `https://chasum.vercel.app`. Production changes require explicit PO approval.
 - **Tenant Identity Safety Gate:** Permanent. Canonical: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md).
 - **Financial truth:** Client money must represent reality (paid, refunded, outstanding, deposit, invoice, receipt, tax, balance). Mock SaaS billing must not mint paid invoices.
@@ -26,8 +26,8 @@
 
 ### ACTIVE
 
-- Post-break World Class roadmap resumption.
-- Source-of-truth realignment: **this restamp** (documentation only; commit pending PO review).
+- World Class Phase 1 — Navigation Foundation: **COMPLETE / MERGED TO MAIN** (PR #23, `ef88ef5`).
+- Phase 2 preflight (this restamp): next slice identified; **not started**.
 - GVM operational validation remains important (first real appointment, production email path) but **is not the entire roadmap**.
 - Balanced outcomes required: **A Core Operations · B Commercial SaaS · C Intelligence · D Validation**.
 
@@ -35,7 +35,6 @@
 
 Genuine current gates only (not closed incidents):
 
-- **World Class nav merge** gated on Claude independent pre-challenge + Minimum Necessary Diff vs current main. Not started.
 - **`/dashboard/hq` disposition** gated on a later explicit PO decision (move into `/owner`, relabel, or retire). No new product work on that surface until then.
 - **Track 3 database / RLS hardening** not implemented. Migrations **034–036 UNAPPLIED**. **037/038 APPLIED** on Staging and Production but **executable SQL missing from repo history**.
 - **Paid self-serve SaaS conversion** gated on a real Stripe Billing provider (mock provider must refuse paid upgrades).
@@ -46,10 +45,10 @@ Genuine current gates only (not closed incidents):
 
 Do **not** automatically “finish GVM.” Strategic next:
 
-1. **Claude independent pre-challenge** of integrating approved World Class work into current `main`.
-2. **Reconcile** `origin/cursor/world-class-portal-foundation` against current `main` with **Minimum Necessary Diff**. Do not merge in this documentation chapter.
+1. **World Class Phase 2 (selected, LEVEL 2, not started):** **Staff Plan Honesty** — Commercial SaaS plan truth. Free 1 / Professional 3 / Business and Enterprise unlimited active staff. Continue from current `main` only.
+2. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Inspect it only as a reference for previously approved ideas.
 3. **Resume reusable product development** while protecting GVM operational trust.
-4. **Rebalance subsequent work** across Commercial SaaS + Summer Intelligence + Core Operations.
+4. **Rebalance subsequent work** across Commercial SaaS + Summer Intelligence + Core Operations. Do **not** start Phase 2 money-engine, tenancy, or `/dashboard/hq` work in the staff-quota slice.
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
 
@@ -117,9 +116,22 @@ Do **not** automatically “finish GVM.” Strategic next:
 
 ## World Class tenant navigation
 
-**Status:** PO-APPROVED and PROTECTED. **Not on `main`.**
+**Status:** WORLD CLASS PHASE 1 — NAVIGATION FOUNDATION
+**STATUS: COMPLETE / MERGED TO MAIN** (PR #23, squash `ef88ef57be040678d886d0a9b4d99c679d801128`)
 
-Approved groups:
+Grouped tenant navigation and mobile navigation are now on `main`.
+
+Preview/Staging acceptance passed:
+
+- Authenticated desktop walkthrough passed
+- Mobile 390×844 walkthrough passed
+- Required route walk passed
+- Momentic booking smoke passed (no customer / appointment / commerce / notification mutation)
+- Production was **not** changed by Phase 1
+
+The old World Class branch `origin/cursor/world-class-portal-foundation` (`c5aa36f`) is now **reference-only**, not a merge target and not a working baseline. Continue from current `main` only.
+
+Approved groups (now shipping):
 
 ```
 TODAY          Command Centre, Reception
@@ -133,14 +145,54 @@ BUSINESS       Business setup, Locations, Communications, Integrations
 ACCOUNT        Account & billing
 ```
 
-Platform Admin remains separate (`/owner`).
+Platform Admin remains separate (`/owner`). `/dashboard/hq` remains founder-only, labeled **HQ**.
 
 | Reality | Location |
 |---------|----------|
-| Approved implementation | `origin/cursor/world-class-portal-foundation` (`lib/dashboard/nav.ts`, grouped sidebar) |
-| Current `main` | Older flat `DASHBOARD_NAV` in `lib/constants.ts` (Overview, Reception, CRM, Payments, …) |
+| Shipping implementation | `main` — `lib/dashboard/nav.ts`, grouped sidebar, `components/dashboard/mobile-bottom-nav.tsx` |
+| Historical reference | `origin/cursor/world-class-portal-foundation` — remaining World Class work is **not** wholesale-mergeable |
 
-Do **not** merge the World Class branch in a documentation task. Next product step for this work is Claude pre-challenge + Minimum Necessary Diff against current `main`.
+Phase 1 follow-up debt (do **not** solve in a docs stamp):
+
+- Business location limit: entitlement helper = 6 vs existing fallback/catalog = 10
+- Staff quota enforcement not yet wired (`StaffQuotaNotice` unmounted) — **selected Phase 2**
+- `/dashboard/hq` naming/disposition unresolved
+- Dashboard React hydration warning #418
+- Mobile visible label “Centre” accepted for this phase
+
+---
+
+## World Class Phase 2 — Staff Plan Honesty
+
+**Status:** SELECTED. **LEVEL 2.** Implementation **NOT STARTED**.
+
+**Why this slice:** Commercial SaaS plan truth. Operators must not be able to create or reactivate more active staff than the plan includes. This is reusable product honesty, not GVM-only architecture and not a decorative redesign.
+
+**OBJECTIVE:** Make active-staff plan limits true across creation / reactivation / Add myself workflows, and clearly distinguish **Active in Chasum** from Employment status.
+
+Locked active-staff maxima (`staff.is_active = true`):
+
+| Plan | Active staff |
+|------|----------------|
+| Free | maximum **1** |
+| Professional | maximum **3** |
+| Business | **unlimited** |
+| Enterprise | **unlimited**, unless a later explicit plan decision changes this |
+
+Inactive staff may remain stored on the business and **do not** consume an active seat.
+
+**Active in Chasum** is the canonical UI term for `is_active`. It is **not** employment status, login access, roles/RBAC, or payroll state.
+
+Explicitly excluded from Phase 2:
+
+- RBAC, staff login/invites
+- Stripe, billing write architecture
+- tenancy, booking-engine, booking-sheet, migrations
+- location-limit 6-vs-10 decision
+- `/dashboard/hq` disposition
+- Production changes
+- Command Centre rewrite
+- money-engine work
 
 ---
 
@@ -242,14 +294,14 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** Post-break World Class resumption — source-of-truth realigned
+**Working name:** World Class Phase 2 preflight — staff plan honesty (not started)
 
 **Intent:**
 
 1. Treat Chasum as an AI Business Operating System. Keep Core Operations, Commercial SaaS, Intelligence, and Validation in balance.
 2. Use GVM and Chasum HQ as **normal tenants** to validate the reusable product — not as product forks or control planes.
-3. Integrate approved World Class work into `main` only after Claude pre-challenge and Minimum Necessary Diff (not this documentation chapter).
-4. Stay on **`main`** as the handoff branch. Do not treat `cursor/phase-3-integrations` or the closed identity-incident branch as the active working branch.
+3. Continue World Class from **current `main` only**. Do not return to `cursor/world-class-portal-foundation` as a working baseline.
+4. Next product slice (Phase 2, not this documentation chapter): wire already-on-main staff quota helpers. Do not port the World Class money engine, tenancy resolver, or booking-sheet rewrite.
 
 ---
 
@@ -278,9 +330,21 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-24) — source-of-truth realignment
+### Most recent (2026-08-24) — World Class Phase 1 Navigation Foundation MERGED
 
-PO-reviewed strategic audit against `main` `be2cf6e1fbbaeb606eab33b4e2eac799ff459338`. Documentation restamp only (this file + companion status docs). No app, database, merge, or Production change.
+- **PR #23** squash merge `ef88ef57be040678d886d0a9b4d99c679d801128` — `feat: integrate World Class navigation foundation`
+- Grouped desktop tenant navigation + mobile bottom navigation now on `main`
+- Shared nav model: `lib/dashboard/nav.ts`
+- Current-main tenant resolution preserved (`app/(dashboard)/layout.tsx` unchanged)
+- `/owner` remains separate; `/dashboard/hq` current founder-only behavior preserved (label **HQ**)
+- Entitlement helper modules added (`lib/billing/plan-entitlements.ts`, `lib/billing/staff-quota.ts`) **without** mutation enforcement
+- Selective integration only — World Class branch was **not** merged wholesale
+- Preview/Staging acceptance: desktop, mobile 390×844, route walk, Momentic smoke PASS; no booking/customer/payment/notification mutation
+- Production not changed by Phase 1
+
+### Immediately prior (2026-08-24) — source-of-truth realignment
+
+PO-reviewed strategic audit against then-`main` `be2cf6e1fbbaeb606eab33b4e2eac799ff459338`. Documentation restamp only (PR #22, `06f0534`). No app, database, or Production change.
 
 ### Immediately prior (2026-08-24) — Momentic regression (merged to main)
 
@@ -324,14 +388,15 @@ Preserved for history — **not** current branch instructions:
 main
 ```
 
-Handoff SHA (local / `origin/main` at restamp): `be2cf6e1fbbaeb606eab33b4e2eac799ff459338`
+Handoff SHA (local / `origin/main` at this stamp): `ef88ef57be040678d886d0a9b4d99c679d801128`
 
 **Obsolete as current working branch (historical only):**
 
 - `cursor/gvm-identity-incident-closeout-7453` — merged (PR #19)
 - `cursor/phase-3-integrations` — do not stay here for new work
 - `cursor/production-billing-compatibility-7453` — merged onto `main` (`ef69815`)
-- `cursor/world-class-portal-foundation` — **unmerged**; approved World Class nav lives here
+- `cursor/world-class-portal-foundation` — **reference-only**; remaining World Class work must be reimplemented or selectively ported onto current `main`. **Not a merge target.**
+- `cursor/world-class-navigation-integration` — merged via PR #23
 
 **Deploy policy:** This restamp is documentation only. It does not change Production or Staging application code or data.
 
@@ -341,14 +406,14 @@ Handoff SHA (local / `origin/main` at restamp): `be2cf6e1fbbaeb606eab33b4e2eac79
 
 | Field | Value |
 |-------|--------|
-| **`main` / `origin/main` SHA** | `be2cf6e1fbbaeb606eab33b4e2eac799ff459338` |
-| **Short** | `be2cf6e` |
-| **Subject** | `test: add Momentic booking smoke coverage (#21)` |
+| **`main` / `origin/main` SHA** | `ef88ef57be040678d886d0a9b4d99c679d801128` |
+| **Short** | `ef88ef5` |
+| **Subject** | `feat: integrate World Class navigation foundation (#23)` |
 | **Date** | 2026-08-24 |
 
 ### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
 
-Do **not** infer that `main` (`be2cf6e`) has been deployed to Production.
+Do **not** infer that `main` (`ef88ef5`) has been deployed to Production.
 
 | Field | Value |
 |-------|--------|
@@ -360,7 +425,7 @@ Do **not** infer that `main` (`be2cf6e`) has been deployed to Production.
 
 ## Uncommitted work
 
-Documentation restamp in progress on `main` (this chapter). Do not commit until PO review of the source-of-truth diff.
+Documentation stamp for World Class Phase 1 complete + Phase 2 preflight (this chapter). Do not commit until PO review of the source-of-truth diff. No app code in this restamp.
 
 ---
 
@@ -380,6 +445,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - Employee roles not fully enforced (`TD-H6`)
 - Booking Sheet “collect payment” still partially stubbed
 - `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved)
+- **World Class Phase 1 follow-up (do not solve here):** Business location cap helper 6 vs catalog/fallback 10; staff quota mutation enforcement not wired; dashboard React hydration #418; mobile visible label “Centre”
 
 ### Product / validation (not automatic NEXT)
 
@@ -399,7 +465,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 Locked order for this chapter:
 
 1. **Source-of-truth accuracy** — this control board; do not implement from stale NEXT fields.
-2. **World Class nav integration (after Claude pre-challenge)** — approved IA onto `main` with Minimum Necessary Diff.
+2. **World Class Phase 2 — staff plan honesty** (selected; not started) — wire active-staff quota on current `main`.
 3. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance.
 4. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
 5. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
@@ -421,13 +487,14 @@ Roadmap outcomes must stay balanced:
 
 ### Completed (company view)
 
-See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke.
+See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke, **World Class Phase 1 navigation foundation**.
 
 ### Near-term (do not treat as “GVM only”)
 
 | Theme | Outcome |
 |-------|---------|
-| World Class nav | Merge approved grouped IA after pre-challenge |
+| World Class Phase 1 | Grouped tenant nav + mobile nav **on main** (PR #23) |
+| World Class Phase 2 | Staff plan honesty (quota wiring) — selected, not started |
 | Commercial SaaS | Stripe-backed lifecycle; entitlements; RBAC — currently trailing |
 | Summer Intelligence | Deepen toward Business Manager actions without inventing data |
 | Core Operations craft | Reception/commerce/comms reliability |
