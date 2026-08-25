@@ -2,6 +2,7 @@
 
 import { getOrCreateBusiness, requireUser } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
+import { staffQuotaError, staffQuotaForBusiness } from "@/lib/billing/staff-quota";
 import {
   composeDisplayName,
   permissionsForRole,
@@ -48,6 +49,10 @@ export async function ensureOwnerAsBookableStaff(): Promise<ActionState> {
   });
 
   const locationId = await getActiveLocationId();
+  const quota = await staffQuotaForBusiness(supabase, business);
+  if (!quota.allowed) {
+    return { error: staffQuotaError(quota) };
+  }
 
   const { error } = await supabase.from("staff").insert({
     business_id: business.id,

@@ -1,12 +1,14 @@
 "use client";
 
 import { AddMyselfAsProviderButton } from "@/components/employees/add-myself-button";
+import { StaffQuotaNotice } from "@/components/employees/staff-quota-notice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { bulkUpdateEmployeeStatus } from "@/lib/actions/employees";
+import type { StaffQuotaDecision } from "@/lib/billing/plan-entitlements";
 import {
   EMPLOYMENT_STATUS_LABELS,
   ROLE_DEFINITIONS,
@@ -60,12 +62,14 @@ export function EmployeeDirectory({
   locations,
   departments,
   onAdd,
+  staffQuota,
 }: {
   employees: DirectoryEmployee[];
   services: Service[];
   locations: Location[];
   departments: Department[];
   onAdd: () => void;
+  staffQuota: StaffQuotaDecision;
 }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -179,6 +183,7 @@ export function EmployeeDirectory({
 
   return (
     <div className="space-y-6">
+      <StaffQuotaNotice quota={staffQuota} />
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <div className="relative sm:col-span-2 xl:col-span-1">
@@ -268,7 +273,17 @@ export function EmployeeDirectory({
             <option value="role">Role</option>
             <option value="status">Status</option>
           </Select>
-          <Button type="button" onClick={onAdd}>
+          <Button
+            type="button"
+            onClick={onAdd}
+            disabled={!staffQuota.allowed}
+            aria-disabled={!staffQuota.allowed}
+            title={
+              staffQuota.allowed
+                ? undefined
+                : (staffQuota.message ?? "Active staff limit reached")
+            }
+          >
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add employee
           </Button>
@@ -322,11 +337,21 @@ export function EmployeeDirectory({
         >
           {employees.length === 0 ? (
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Button type="button" onClick={onAdd}>
+              <Button
+                type="button"
+                onClick={onAdd}
+                disabled={!staffQuota.allowed}
+                aria-disabled={!staffQuota.allowed}
+                title={
+                  staffQuota.allowed
+                    ? undefined
+                    : (staffQuota.message ?? "Active staff limit reached")
+                }
+              >
                 <Plus className="h-4 w-4" />
                 Add employee
               </Button>
-              <AddMyselfAsProviderButton />
+              <AddMyselfAsProviderButton disabled={!staffQuota.allowed} />
             </div>
           ) : null}
         </EmptyState>
