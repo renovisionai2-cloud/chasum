@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-25
-**Updated by:** World Class Phase 2 closeout + Phase 3 Command Centre preflight. Documentation only. No product implementation.
+**Updated by:** World Class Phase 3 closeout + launch-readiness adoption + Gate A/B billing-maturity amendment. Documentation / governance only. No product implementation. Phase 4A **not started**.
 
 ---
 
@@ -22,13 +22,15 @@
 - **Financial truth:** Client money must represent reality (paid, refunded, outstanding, deposit, invoice, receipt, tax, balance). Mock SaaS billing must not mint paid invoices.
 - **Coming Soon honesty:** Do not market or nav-present unfinished capabilities as operational. [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md).
 - **Momentic:** Setup **COMPLETE**. Supporting regression infrastructure only — not a standalone roadmap track.
+- **Launch-criticality governance:** [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md). Planning targets are not public promises. Launch criticality does not override quality.
 - **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
 
 ### ACTIVE
 
 - World Class Phase 1 — Navigation Foundation: **COMPLETE / MERGED TO MAIN** (PR #23, `ef88ef5`).
 - World Class Phase 2 — Staff Plan Honesty: **COMPLETE / MERGED TO MAIN** (PR #25, `dd49b32`).
-- World Class Phase 3 — Command Centre / Today experience: **PREFLIGHT APPROVED. Implementation NOT STARTED.**
+- World Class Phase 3 — Command Centre / Today experience: **COMPLETE / MERGED TO MAIN** (PR #27, `0c61a8d`).
+- Launch schedule + launch-criticality governance: **ADOPTED** — [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 - GVM operational validation remains important (first real appointment, production email path) but **is not the entire roadmap**.
 - Balanced outcomes required: **A Core Operations · B Commercial SaaS · C Intelligence · D Validation**.
 
@@ -44,12 +46,14 @@ Genuine current gates only (not closed incidents):
 
 ### NEXT
 
-Do **not** automatically “finish GVM.” Strategic next:
+Do **not** automatically “finish GVM.” Do **not** start Phase 4 / Phase 4A implementation in this documentation chapter.
 
-1. **World Class Phase 3 (preflight approved, LEVEL 2, implementation not started):** **Command Centre / Today experience** — turn `/dashboard` into trusted operating intelligence + fast action. Continue from current `main` only. Claude pre-challenge is **not** required for the bounded V1. Claude **post-implementation review is required** before commit approval.
-2. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Inspect it only as a reference for previously approved Command Centre ideas.
-3. **Resume reusable product development** while protecting GVM operational trust.
-4. **Rebalance subsequent work** across Commercial SaaS + Summer Intelligence + Core Operations. Do **not** start money-engine, tenancy, Reports redesign, or `/dashboard/hq` work in the Command Centre slice.
+Strategic next (from the launch tracker, not the old World Class leftover backlog):
+
+1. **World Class Phase 4A (recommended, not started):** **Commercial SaaS Lifecycle Honesty** — **Gate A only** (Private Alpha / design-partner billing truth). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE and does **not** satisfy commercially launchable v1. LEVEL 2 if no provider/migration/webhook/Production billing-data changes. **Gate B** (real paid-provider subscription lifecycle) remains later, LEVEL 3, Claude pre-challenge before implementation. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
+2. **Parallel validation (not a substitute product phase):** GVM + Chasum HQ stable pilot use (Late September–October 2026) — first real appointment, production email, HQ dogfood, Production SHA verification.
+3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`.
+4. **Do not** fix DashboardTopNav tablet overflow, tenancy, booking-engine, commerce formulas, `/dashboard/hq`, or Summer architecture in the next bounded slice unless the tracker reclassifies them.
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
 
@@ -87,6 +91,7 @@ Do **not** automatically “finish GVM.” Strategic next:
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
+| [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — working planning targets, workstream status, Phase 4A recommendation, Private Alpha vs commercial-v1 billing gates |
 
 ---
 
@@ -190,7 +195,7 @@ Validation accepted:
 - Claude independent post-audit approved
 - Production was **not** changed by Phase 2
 
-Phase 2 follow-up debt (do **not** solve in Phase 3):
+Phase 2 follow-up debt (do **not** solve in this stamp):
 
 - Staff quota TOCTOU / concurrency race (two simultaneous activations could theoretically consume the last seat) — important follow-up, not blocking for Private Alpha
 - Raw database-error passthrough on some staff action failures
@@ -203,57 +208,52 @@ Phase 2 follow-up debt (do **not** solve in Phase 3):
 
 ## World Class Phase 3 — Command Centre / Today experience
 
-**STATUS: PREFLIGHT APPROVED. IMPLEMENTATION NOT STARTED.**
+**STATUS: COMPLETE / MERGED TO MAIN** (PR #27, squash `0c61a8d28f83e3347425d9a1bca41188b5f94ed1`)
 
-**RISK:** LEVEL 2
-**Claude pre-challenge:** NOT REQUIRED for the bounded V1.
-**Claude post-implementation review:** REQUIRED before commit approval.
-**Production:** protected. This stamp does not change Production or Staging application code or data.
+**OBJECTIVE (accepted):** `/dashboard` is the Command Centre V1 — trusted operating home, not a decorative dashboard and not a Reports duplicate.
 
-**OBJECTIVE:** Make `/dashboard` (nav: Command Centre) the operational home of Chasum — trusted operating intelligence + fast action — not a decorative dashboard redesign and not a Reports duplicate.
+Accepted outcome:
 
-It must answer:
+- Header, Today, Attention, Money, Quick Actions, Summer
+- Trusted Today: appointments today, next appointment, active schedule (`isActiveBooking`; cancelled / no-show excluded from the working list)
+- Grounded Attention: pending confirmations, cancellations today, outstanding invoices/deposits, setup gaps
+- Money from `lib/commerce/dashboard.ts` → `getCommerceDashboardSnapshot()`; UI **Gross payments collected today** (not appointment-recognized revenue); outstanding invoices and deposits shown as separate snapshot fields
+- Business-local Today via `lib/business/datetime.ts`
+- Appointment metrics respect `getLocationScope()`; commerce money is business-wide and labeled honestly
+- Quick Actions use existing routes; setup checklist preserved when incomplete
+- Summer facts grounded in the same snapshot only (no fabricated recommendations, no Sophia/Leo/Maya/Alex theater)
+- Mobile (~390) and desktop Command Centre verified; Phase 1 navigation intact
+- Claude independent post-audit: **APPROVED**
+- Momentic booking canary PASS (no customer / appointment / payment creation)
+- No financial formula changes, no migrations, no tenancy changes
+- Production untouched during development/validation
 
-1. What is happening today?
-2. What needs attention?
-3. What money needs attention?
-4. What should I do next?
+**Money truth (still locked):** Do not combine Gross payments collected with appointment-recognized revenue. Do not redefine invoice, refund, or deposit math.
 
-Unused capacity remains a Reception Morning Brief question in V1 (link there; do not invent a second utilization engine).
+**Business timezone (still locked):** Command Centre “today” remains the business-local day.
 
-Approved V1 sections:
+Phase 3 follow-up (do **not** solve in the launch-governance stamp):
 
-| Section | Contents |
-|---------|----------|
-| **TODAY** | Appointments today; next appointment; today’s schedule access |
-| **ATTENTION** | Pending confirmations; cancellations today; outstanding balances / deposits; setup gaps where relevant |
-| **MONEY** | Gross payments collected today; outstanding invoices / deposits from authoritative commerce data |
-| **QUICK ACTIONS** | New appointment; new customer; Payments / outstanding; setup actions where incomplete |
-| **SUMMER** | Grounded operational facts only |
+- Pre-existing **DashboardTopNav** horizontal overflow at approximately **768–1024px** (at 820px: viewport 820, `document.scrollWidth` 844). Command Centre `.ds-page` right edge 820; Today’s schedule CardHeader 819. Same 844px min-width on `/dashboard/employees` and `/dashboard/payments`. Classification: **PRE-EXISTING SHELL**. **IMPORTANT BUT POST-LAUNCH SAFE**. Current launch risk **GREEN**. Reassess only if pilot testing proves it materially blocks a key tablet workflow.
+- Staff quota TOCTOU, location 6-vs-10, `/dashboard/hq` disposition remain earlier-phase debt.
 
-**Money truth (locked):** Command Centre money must use `lib/commerce/dashboard.ts` → `getCommerceDashboardSnapshot()`. Cash must be labeled honestly, including **Gross payments collected**. Do **not** combine or equate this with appointment-recognized revenue. Do **not** redefine invoice, refund, or deposit math; do **not** change commerce ledger formulas or Reports money logic; do **not** create a mixed revenue/cash aggregate. If implementation requires that: **STOP — FINANCIAL SCOPE EXPANSION** (LEVEL 3 / Claude pre-challenge).
+---
 
-**Business timezone (locked):** Command Centre “today” means the business-local day via existing `lib/business/datetime.ts` helpers. Do **not** use server-local midnight for new Command Centre day calculations. Do **not** rewrite Reports/date architecture in this phase.
+## Working launch schedule (planning targets, not public promises)
 
-**Multi-location (locked):** Respect existing `getLocationScope`. Appointment metrics may be all locations or the selected/current location. Commerce money remains business-wide if that is what the Payments snapshot provides. The UI must make that distinction understandable. Do not fabricate location-specific money.
+Canonical tracker: [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 
-**Summer (locked):** Summer remains AI Business Manager. V1 may surface grounded facts from already-loaded authoritative data only (appointments today, next appointment, pending confirmations, outstanding count, setup gaps). Do **not** implement fabricated recommendations, unsupported outreach, utilization guesses, Sophia/Leo/Maya/Alex theater, new AI architecture, or autonomous financial actions.
+1. GVM + Chasum HQ stable pilot use — **Late September–October 2026**
+2. Selected outside Private Alpha — **October–November 2026**
+3. Commercially launchable Chasum v1 — **December 2026–February 2027**
+4. Broader public launch — **February–April 2027**
+5. Fuller world-class AI Business Operating System vision — **Mid/Late 2027 onward**
 
-**Recommended implementation branch (create only when implementation starts):** `cursor/world-class-command-centre`
+**Governing rule:** Build what Chasum needs to launch trustworthily first. Launch criticality does not override quality. We defer unnecessary breadth; we do not defer reliability, trust, financial truth, security, usability, workflow quality, responsive quality on key workflows, architectural correctness, tenant isolation, or professional polish required for customer confidence.
 
-Explicitly excluded from Phase 3:
+**LAUNCH REQUIRED** is not “valuable / World Class / competitive.” It needs a specific safety, commercial, operational, legal/security, customer-trust, platform reliability, or product-positioning reason that prevents launch.
 
-- tenant-resolution rewrite, `lib/tenancy/*`
-- booking-engine / booking-sheet rewrite
-- Stripe SaaS lifecycle, RBAC, migrations
-- `/dashboard/hq` disposition
-- location-limit 6-vs-10
-- staff quota TOCTOU fix
-- Morning Brief rewrite, Chase rewrite
-- old World Class wholesale merge
-- deep Reports redesign
-- full Summer architecture rewrite
-- payroll/inventory placeholders
+Commercial v1 target health at this stamp: **AMBER** (see tracker).
 
 ---
 
@@ -283,14 +283,18 @@ Chase remains Early Access, read-oriented. Additional roster roles (Alex, Maya, 
 
 ## Commercial SaaS
 
-**Maturity:** trails Core Operations. Do **not** mark complete.
+**Maturity:** trails Core Operations. Status remains **PARTIAL**. Do **not** mark complete after Phase 4A.
+
+**Private Alpha billing readiness (Gate A / Phase 4A):** not met; recommended next bounded product slice. Honesty + `/owner` design-partner plan assignment + documented manual billing. Does **not** complete this workstream.
+
+**Commercial v1 billing readiness (Gate B):** not met. Required before classifying Chasum **COMMERCIALLY LAUNCHABLE V1**. Real payment-provider subscription billing, truthful subscription state, paid activation, and launch-scope upgrade / downgrade / cancellation / failed-payment / entitlement sync. Do **not** design or implement Gate B in this documentation chapter. Live provider / webhooks / schema / migrations / Production subscription data = LEVEL 3 + Claude pre-challenge before implementation.
 
 Incomplete / not production-ready:
 
-- Paid self-service subscription conversion
-- Stripe-backed SaaS billing lifecycle
-- Upgrade / downgrade / cancellation maturity
-- Failed-payment / dunning recovery
+- Paid self-service subscription conversion (Gate B)
+- Payment-provider SaaS billing lifecycle (Gate B)
+- Upgrade / downgrade / cancellation maturity (Gate B)
+- Failed-payment / dunning recovery (Gate B)
 - Remaining plan entitlement enforcement (location 6-vs-10 mismatch; other entitlements)
 - Multi-staff permissions / RBAC
 - Account lifecycle and usage / account-health depth
@@ -355,14 +359,14 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 3 preflight approved — Command Centre / Today experience (implementation not started)
+**Working name:** World Class Phase 3 Command Centre V1 **COMPLETE** — launch-readiness plan adopted (documentation). Phase 4A **not started**.
 
 **Intent:**
 
 1. Treat Chasum as an AI Business Operating System. Keep Core Operations, Commercial SaaS, Intelligence, and Validation in balance.
 2. Use GVM and Chasum HQ as **normal tenants** to validate the reusable product — not as product forks or control planes.
-3. Continue World Class from **current `main` only**. Do not return to `cursor/world-class-portal-foundation` as a working baseline.
-4. Next product slice (Phase 3, not this documentation chapter): reimplement Command Centre V1 against current-main overview + existing commerce/appointment reads. Do not port the World Class money-engine, tenancy resolver, or Reports rewrite.
+3. Continue from **current `main` only**. Do not return to `cursor/world-class-portal-foundation` as a working baseline.
+4. Sequence the next product slice from [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) (recommended: **Phase 4A** Commercial SaaS Lifecycle Honesty — Gate A only). Do **not** implement Phase 4A in this stamp. Commercial SaaS Lifecycle remains **PARTIAL** until Gate B is also met.
 
 ---
 
@@ -391,7 +395,17 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-25) — World Class Phase 2 Staff Plan Honesty MERGED
+### Most recent (2026-08-25) — World Class Phase 3 Command Centre MERGED
+
+- **PR #27** squash merge `0c61a8d28f83e3347425d9a1bca41188b5f94ed1` — `feat: build World Class command centre`
+- `/dashboard` is Command Centre V1 (Today, Attention, Money, Quick Actions, Summer)
+- Authoritative money: `getCommerceDashboardSnapshot()`; **Gross payments collected today**
+- Business-local Today; location-scoped appointments; business-wide money labeled honestly
+- Grounded Summer facts only; setup path preserved
+- Claude post-audit approved; Momentic booking canary passed
+- Production not changed by Phase 3 development/validation
+
+### Immediately prior (2026-08-25) — World Class Phase 2 Staff Plan Honesty MERGED
 
 - **PR #25** squash merge `dd49b324a080b3ca41e003e6cacb747b32479d61` — `feat: enforce active staff plan limits`
 - Server-side active-staff quota on create / reactivate / bulk activate / Add myself / `ensureOwnerAsBookableStaff`
@@ -456,10 +470,10 @@ Preserved for history — **not** current branch instructions:
 ## Active branch
 
 ```
-main
+docs/launch-readiness-plan
 ```
 
-Handoff SHA (local / `origin/main` at this stamp): `dd49b324a080b3ca41e003e6cacb747b32479d61`
+Handoff: documentation PR branched from `main` `0c61a8d28f83e3347425d9a1bca41188b5f94ed1`. After merge, `main` includes this restamp.
 
 **Obsolete as current working branch (historical only):**
 
@@ -469,6 +483,7 @@ Handoff SHA (local / `origin/main` at this stamp): `dd49b324a080b3ca41e003e6cacb
 - `cursor/world-class-portal-foundation` — **reference-only**; remaining World Class work must be reimplemented or selectively ported onto current `main`. **Not a merge target.**
 - `cursor/world-class-navigation-integration` — merged via PR #23
 - `cursor/world-class-staff-plan-honesty` — merged via PR #25
+- `cursor/world-class-command-centre` — merged via PR #27
 
 **Deploy policy:** This restamp is documentation only. It does not change Production or Staging application code or data.
 
@@ -478,14 +493,14 @@ Handoff SHA (local / `origin/main` at this stamp): `dd49b324a080b3ca41e003e6cacb
 
 | Field | Value |
 |-------|--------|
-| **`main` / `origin/main` SHA** | `dd49b324a080b3ca41e003e6cacb747b32479d61` |
-| **Short** | `dd49b32` |
-| **Subject** | `feat: enforce active staff plan limits (#25)` |
+| **`main` / `origin/main` SHA** | `0c61a8d28f83e3347425d9a1bca41188b5f94ed1` |
+| **Short** | `0c61a8d` |
+| **Subject** | `feat: build World Class command centre (#27)` |
 | **Date** | 2026-08-25 |
 
 ### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
 
-Do **not** infer that `main` (`dd49b32`) has been deployed to Production.
+Do **not** infer that `main` (`0c61a8d`) has been deployed to Production.
 
 | Field | Value |
 |-------|--------|
@@ -497,7 +512,7 @@ Do **not** infer that `main` (`dd49b32`) has been deployed to Production.
 
 ## Uncommitted work
 
-None intended after this documentation PR. App code is unchanged. Production and Staging application data are untouched.
+None after this documentation commit. Docs-only launch-readiness plan (Phase 3 closeout + [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) + Gate A/B billing distinction). No application code. Production and Staging application data are untouched.
 
 ---
 
@@ -519,6 +534,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved)
 - **World Class Phase 1 follow-up (do not solve here):** Business location cap helper 6 vs catalog/fallback 10; dashboard React hydration #418; mobile visible label “Centre”
 - **World Class Phase 2 follow-up (do not solve here):** staff quota TOCTOU race; raw DB-error passthrough; bulk Activate not proactively quota-disabled; directory “booking status” terminology; Add Myself empty-state-only
+- **World Class Phase 3 follow-up (do not solve here):** pre-existing DashboardTopNav overflow ~768–1024px — IMPORTANT BUT POST-LAUNCH SAFE; launch risk GREEN
 - Paid upgrades still route through Private Alpha `/apply`
 
 ### Product / validation (not automatic NEXT)
@@ -538,13 +554,14 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 
 Locked order for this chapter:
 
-1. **Source-of-truth accuracy** — this control board; do not implement from stale NEXT fields.
-2. **World Class Phase 3 — Command Centre / Today experience** (preflight approved; implementation not started) — trusted operating home on current `main`.
-3. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance.
-4. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
-5. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
-6. **Honest Private Alpha GTM** — locked marketing pages; Product Truth Matrix; Coming Soon stays honest.
-7. **Charge-with-integrity path** — Stripe and self-serve only when operationally ready.
+1. **Source-of-truth accuracy** — this control board + [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
+2. **Do not start Phase 4A implementation in this stamp.** Recommended next product slice: Commercial SaaS Lifecycle Honesty (**Gate A / Private Alpha billing**). Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
+3. **Parallel validation** — GVM + Chasum HQ stable pilot (Late Sep–Oct 2026); verify Production SHA before claiming current.
+4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.
+5. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
+6. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
+7. **Honest Private Alpha GTM** — locked marketing pages; Product Truth Matrix; Coming Soon stays honest.
+8. **Charge-with-integrity path** — Stripe and self-serve only when operationally ready.
 
 ---
 
@@ -561,7 +578,9 @@ Roadmap outcomes must stay balanced:
 
 ### Completed (company view)
 
-See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke, **World Class Phase 1 navigation foundation**, **World Class Phase 2 staff plan honesty**.
+See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke, **World Class Phase 1 navigation foundation**, **World Class Phase 2 staff plan honesty**, **World Class Phase 3 Command Centre V1**.
+
+Surfaces listed as “completed” on the Master Roadmap mean the department exists — not that Commercial SaaS / RBAC / Stripe are launch-complete. Maturity lives in [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 
 ### Near-term (do not treat as “GVM only”)
 
@@ -569,11 +588,12 @@ See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights:
 |-------|---------|
 | World Class Phase 1 | Grouped tenant nav + mobile nav **on main** (PR #23) |
 | World Class Phase 2 | Staff plan honesty **on main** (PR #25) |
-| World Class Phase 3 | Command Centre / Today experience — preflight approved, implementation not started |
-| Commercial SaaS | Stripe-backed lifecycle; entitlements; RBAC — currently trailing |
+| World Class Phase 3 | Command Centre / Today experience **on main** (PR #27) |
+| Launch readiness | Working planning targets + launch-criticality tracker adopted |
+| Commercial SaaS | Trailing; remains **PARTIAL**. **Phase 4A** = Private Alpha billing honesty (Gate A). **Gate B** = commercial-v1 paid-provider billing — not in 4A. |
 | Summer Intelligence | Deepen toward Business Manager actions without inventing data |
 | Core Operations craft | Reception/commerce/comms reliability |
-| GVM validation | First real appointment + production email — listed separately |
+| GVM / HQ validation | Stable pilot use Late Sep–Oct 2026 — listed separately |
 | Track 3 | RLS/hardening when PO schedules; restore 037/038 SQL into repo |
 
 Plans: [`docs/30_DAY_PRIVATE_ALPHA_PLAN.md`](./30_DAY_PRIVATE_ALPHA_PLAN.md), [`docs/90_DAY_EXECUTION_PLAN.md`](./90_DAY_EXECUTION_PLAN.md) — treat dates/items as historical planning unless restamped.

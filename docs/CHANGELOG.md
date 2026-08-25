@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (World Class Phase 3 — Command Centre V1)
+
+- `/dashboard` is Command Centre V1: Header, Today, Attention, Money, Quick Actions, Summer (PR #27, `0c61a8d`)
+- Business-local Today; next appointment; active schedule; grounded attention; setup path preserved
+- Money: `getCommerceDashboardSnapshot()`; **Gross payments collected today** ≠ appointment-recognized revenue
+- Location-scoped appointments; business-wide commerce labeled honestly; grounded Summer facts only
+
 ### Added (World Class Phase 1 — Navigation Foundation)
 
 - Grouped tenant dashboard navigation and mobile bottom navigation merged to `main` (PR #23, `ef88ef5`)
@@ -21,11 +28,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Free = 1 / Professional = 3 / Business and Enterprise unlimited **active** staff (`is_active = true`); inactive staff do not consume seats
 - Canonical UI: **Active in Chasum** ≠ Employment status / login / RBAC / payroll
 
-### Documented (World Class Phase 3 Command Centre preflight — not implemented)
+### Documented (World Class Phase 3 closeout + launch readiness)
 
-- Selected next slice: **Command Centre / Today experience** (LEVEL 2). Implementation has not started.
-- Money: `getCommerceDashboardSnapshot()`; Gross payments collected ≠ appointment-recognized revenue
-- Today = business-local day; Summer facts grounded only; Claude post-implementation review required
+- Phase 3 Command Centre marked complete on `main`
+- Working planning targets and launch-criticality tracker: `docs/LAUNCH_READINESS.md`
+- Commercial SaaS remains **PARTIAL**; Phase 4A (Private Alpha billing honesty) is distinct from Gate B (commercial-v1 paid billing)
+- Pre-existing DashboardTopNav ~768–1024px overflow recorded as IMPORTANT BUT POST-LAUNCH SAFE (GREEN)
+
+### Documented (World Class Phase 3 Command Centre preflight — superseded)
+
+- Preflight selected Command Centre / Today experience. **Implemented and merged in PR #27.**
 
 ### Changed (Marketing — Roadmap + Summer Onboarding)
 

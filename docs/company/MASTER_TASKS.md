@@ -11,10 +11,10 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current release
 
-**Working name:** World Class AI Business Operating System — post-break resumption
-**Branch focus:** `main` (`dd49b32` at this stamp)
+**Working name:** World Class AI Business Operating System — launch-readiness chapter
+**Branch focus:** `main` (`0c61a8d` at this stamp)
 
-**Release intent:** Continue World Class from current `main` only. Phase 1 grouped navigation is merged (PR #23). Phase 2 staff plan honesty is merged (PR #25). Next product slice is Command Centre / Today experience — **preflight approved, implementation not started**. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
+**Release intent:** Continue from current `main` only. Phases 1–3 are merged (PRs #23 / #25 / #27). Sequence the next product slice from [`../LAUNCH_READINESS.md`](../LAUNCH_READINESS.md). Recommended **Phase 4A:** **Commercial SaaS Lifecycle Honesty** (Gate A / Private Alpha billing) — **not started**. Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 
@@ -22,12 +22,12 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-World Class Phase 1 and Phase 2 are merged. Then, in order:
+World Class Phases 1–3 are merged. Then, in order:
 
-1. **World Class Phase 3 (preflight approved, LEVEL 2, implementation not started):** Command Centre / Today experience — trusted operating home on `/dashboard`. Use existing `getCommerceDashboardSnapshot()` for money (Gross payments collected ≠ appointment-recognized revenue). Business-local day via `lib/business/datetime.ts`. Grounded Summer facts only. Claude post-implementation review required before commit approval. Exclude Stripe, tenancy, booking-engine, migrations, Reports redesign, Morning Brief/Chase rewrites, location 6-vs-10, `/dashboard/hq`, staff quota TOCTOU.
-2. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Reference only.
-3. **Resume reusable product development** while protecting GVM operational trust.
-4. **Rebalance** subsequent implementation across Commercial SaaS + Summer Intelligence + Core Operations. Money-engine / tenancy / `/dashboard/hq` remain separate tracks.
+1. **Do not start Phase 4A in this documentation stamp.** Recommended next product slice from the launch tracker: **Phase 4A Commercial SaaS Lifecycle Honesty** (Gate A; LEVEL 2 if no provider/migration/webhook/Production billing-data changes). Completing 4A does **not** mark Commercial SaaS DONE. Gate B (live paid-provider lifecycle) is LEVEL 3 and requires Claude pre-challenge before implementation.
+2. **Parallel validation:** GVM + Chasum HQ stable pilot (Late Sep–Oct 2026).
+3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Reference only.
+4. **Do not** fix DashboardTopNav overflow, tenancy, booking-engine, commerce formulas, or `/dashboard/hq` unless the tracker reclassifies them.
 
 Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a booking-path canary — not as a sprint theme.
 
@@ -39,10 +39,14 @@ Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a bookin
 
 - [x] Claude pre-challenge + Minimum Necessary Diff: approved World Class grouped nav onto `main` (PR #23)
 - [x] World Class Phase 2: staff plan honesty (active-staff quota wiring) — merged PR #25
-- [ ] World Class Phase 3: Command Centre / Today experience — **preflight approved, implementation not started**
+- [x] World Class Phase 3: Command Centre / Today experience — merged PR #27
+- [ ] World Class Phase 4A: Commercial SaaS Lifecycle Honesty (Gate A / Private Alpha billing) — **recommended, not started**; does **not** mark Commercial SaaS DONE (see [`../LAUNCH_READINESS.md`](../LAUNCH_READINESS.md))
+- [ ] Commercial v1 paid billing (Gate B) — later; LEVEL 3; Claude pre-challenge before implementation
 - [ ] Later PO decision on `/dashboard/hq` disposition (move to `/owner`, relabel, or retire) — **no expansion until then**
 
 ### Commercial SaaS (currently trailing Core Operations)
+
+These Stripe / paid-lifecycle items are **Gate B** (commercial-v1 paid billing). They are **not** Phase 4A and do **not** become DONE when Private Alpha billing honesty ships.
 
 - [ ] Stripe live provider behind existing billing interface (paid self-serve conversion)
 - [ ] SaaS billing lifecycle maturity (upgrade / downgrade / cancellation)

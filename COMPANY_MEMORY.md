@@ -15,18 +15,20 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ---
 
-## Current chapter (2026-08-24 restamp)
+## Current chapter (2026-08-25 restamp)
 
-Post-break World Class resumption. Phase 1 navigation foundation is **merged to main**. This restamp is documentation only; Phase 2 is not started.
+Post-break World Class resumption. Phase 1 navigation, Phase 2 staff plan honesty, and Phase 3 Command Centre V1 are **merged to `main`**. This restamp is documentation / governance only; **Phase 4A is not started**. Commercial SaaS Lifecycle remains **PARTIAL** after 4A unless Gate B (commercial-v1 paid billing) is also met.
 
 Roadmap outcomes must stay balanced:
 
 | Outcome | Role |
 |---------|------|
-| **A. Core Operations** | Scheduling, customers, staff, catalog, money, communications, reporting, workflows |
-| **B. Commercial SaaS** | Currently **trails** Core Operations — paid self-serve, Stripe lifecycle, dunning, entitlements, RBAC, account health |
-| **C. Intelligence** | **Summer = AI Business Manager** (positioning). Implementation is still strongest in booking / availability / CRM-grounded assist — deepen without over-claiming |
-| **D. Validation** | GVM Baby World and **Chasum HQ** are **normal tenants**. GVM is a design partner, not the product strategy. Momentic is complete regression infrastructure, not a roadmap track |
+| **A. Core Operations** | Scheduling, customers, staff, catalog, money, communications, reporting, workflows — strongest axis; Command Centre V1 is the operating home |
+| **B. Commercial SaaS** | Currently **trails** Core Operations — remains **PARTIAL**. Recommended next product phase: **Phase 4A** lifecycle honesty (Private Alpha / design-partner billing). Gate B paid-provider billing is later and is required before commercially launchable v1. |
+| **C. Intelligence** | **Summer = AI Business Manager** (positioning). Implementation is still strongest in booking / availability / CRM-grounded assist + grounded Command Centre facts — deepen without over-claiming |
+| **D. Validation** | GVM Baby World and **Chasum HQ** are **normal tenants**. Working planning targets: Late Sep–Oct 2026 stable pilots. Momentic is complete regression infrastructure, not a roadmap track |
+
+**Launch governance:** [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md). Working targets (not public promises): GVM+HQ pilots Late Sep–Oct 2026; outside Private Alpha Oct–Nov 2026; commercially launchable v1 Dec 2026–Feb 2027.
 
 **Chasum HQ** means the real normal business tenant used to operate Chasum itself — same architecture as outside customers. It is **not** `/owner` and **not** `/dashboard/hq`.
 
@@ -34,9 +36,9 @@ Roadmap outcomes must stay balanced:
 
 **`/dashboard/hq`** is a legacy founder-only surface. Naming/disposition unresolved. Do not expand it.
 
-**World Class grouped nav** is PO-approved and **on `main`** (Phase 1, PR #23). `origin/cursor/world-class-portal-foundation` is **reference-only** — not a working baseline and not a merge target. Next: World Class Phase 2 **Staff Plan Honesty** (LEVEL 2, not started) — Free 1 / Professional 3 / Business and Enterprise unlimited **active** staff; inactive rows do not consume seats; UI term **Active in Chasum** is distinct from Employment status and RBAC. Reason: Commercial SaaS plan truth.
+**World Class grouped nav** is PO-approved and **on `main`** (Phase 1, PR #23). `origin/cursor/world-class-portal-foundation` is **reference-only**.
 
-**GVM duplicate-tenant identity incident is CLOSED.** Tenant Identity Safety Gate remains permanent. Remaining GVM go-live items (first real appointment, production email) are **validation**, not automatic Priority #1 domination of the backlog.
+**GVM duplicate-tenant identity incident is CLOSED.** Tenant Identity Safety Gate remains permanent. Remaining GVM go-live items (first real appointment, production email) are **validation**, not automatic domination of the backlog.
 
 ---
 
@@ -91,7 +93,7 @@ Roadmap outcomes must stay balanced:
 | Design System v1 before more features | Experience quality compounds; competitors win on features, we win on craft |
 | Chasum HQ = normal tenant | Dogfood the reusable product; control plane stays `/owner` |
 | `/dashboard/hq` = legacy surface | Avoid expanding a misnamed founder console until PO disposition |
-| World Class grouped nav approved, unmerged | Protect IA; integrate via pre-challenge + minimum diff |
+| World Class grouped nav on `main` | Protect IA; Phase 1 shipped via pre-challenge + minimum diff (PR #23) |
 | GVM identity incident closed | Process gate remains; incident is not a World Class blocker |
 | Commercial SaaS trails Core Operations | Do not mark billing lifecycle / RBAC / dunning complete |
 | Summer = Business Manager; implementation lags | Keep strategy; document the gap honestly |
