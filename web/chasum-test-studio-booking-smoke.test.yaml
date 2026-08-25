@@ -1,0 +1,38 @@
+fileType: momentic/test/v2
+id: chasum-test-studio-booking-smoke
+name: Chasum Test Studio public booking smoke
+steps:
+  - navigate:
+      url: /book/chasum-test-studio
+  - checkPageContains: Chasum Test Studio
+  - click: Momentic Test Service
+  - checkPageContains: Momentic Test Staff
+  - click:
+      on: the named staff card Momentic Test Staff
+      comment: Do not click Any available staff.
+  - javascript:
+      code: |
+        let d = moment().add(1, "day");
+        while (d.isoWeekday() > 5) {
+          d.add(1, "day");
+        }
+        setVariable("FUTURE_WEEKDAY", d.format("ddd"));
+        setVariable("FUTURE_DAY", d.format("D"));
+        setVariable("FUTURE_MONTH", d.format("MMM"));
+      comment: Pick a future weekday so the date never expires.
+  - click: the date chip for {{ env.FUTURE_WEEKDAY }} {{ env.FUTURE_DAY }} {{ env.FUTURE_MONTH }}
+  - click: Continue to times
+  - checkPageContains:
+      text: Select a time
+      timeout: 15000
+  - checkPageContains:
+      text: times available
+      timeout: 30000
+  - click: the Choose a time dropdown
+  - click: the first available time slot such as 9:00 AM
+  - click:
+      on: the Continue button under the time picker
+      comment: Do not click Review booking, Confirm, Book, or Pay.
+  - checkPageContains:
+      text: Your information
+      comment: Stop here. Do not enter customer details or submit a booking.
