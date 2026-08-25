@@ -9,6 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (World Class Phase 1 — Navigation Foundation)
+
+- Grouped tenant dashboard navigation and mobile bottom navigation merged to `main` (PR #23, `ef88ef5`)
+- Shared nav model: `lib/dashboard/nav.ts`; HQ remains founder-only labeled “HQ”; `/owner` stays outside tenant nav
+- Plan/staff entitlement helpers added without mutation enforcement (Phase 2 follow-up)
+
+### Documented (World Class Phase 2 preflight — not implemented)
+
+- Selected next slice: **Staff Plan Honesty** (LEVEL 2). Implementation has not started.
+- Locked: Free 1 / Professional 3 / Business and Enterprise unlimited **active** staff (`is_active = true`); inactive staff do not consume seats; **Active in Chasum** ≠ Employment status / login / RBAC / payroll.
+
 ### Changed (Marketing — Roadmap + Summer Onboarding)
 
 - Summer consultation subheading finalized; Summer Onboarding **v1** lock docs refreshed as baseline

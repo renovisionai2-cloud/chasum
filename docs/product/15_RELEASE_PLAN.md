@@ -1,6 +1,6 @@
 # Release Plan
 
-**Current NEXT (2026-08-24):** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md). v0.3.0 “GVM Go-Live” items below remain **validation** (SMTP, first real appointment) — they do not automatically dominate the product roadmap. Identity incident is closed. Production SHA: verify before claiming current.
+**Current NEXT (2026-08-24):** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md). World Class Phase 1 nav is on `main`. v0.3.0 “GVM Go-Live” items below remain **validation** (SMTP, first real appointment) — they do not automatically dominate the product roadmap. Identity incident is closed. Production SHA: verify before claiming current.
 
 ## Current release
 
