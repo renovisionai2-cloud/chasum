@@ -12,9 +12,9 @@ Update this file at the start of every sprint. It is the working queue — not a
 ## Current release
 
 **Working name:** World Class AI Business Operating System — launch-readiness chapter
-**Branch focus:** `cursor/world-class-phase-4a-saas-honesty` (Phase 4A awaiting merge; base `64c7b1e`)
+**Branch focus:** `main` (`f6517a1`)
 
-**Release intent:** Continue from current `main` only. Phases 1–3 are merged (PRs #23 / #25 / #27). **Phase 4A** Commercial SaaS Lifecycle Honesty is **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE** (Gate A / Private Alpha billing). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
+**Release intent:** Continue from current `main` only. Phases 1–4A are merged (PRs #23 / #25 / #27 / #29). **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (Gate A). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Next: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 
@@ -22,10 +22,10 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-World Class Phases 1–3 are merged. Then, in order:
+World Class Phases 1–4A are merged. Then, in order:
 
-1. **Phase 4A awaiting merge.** Commercial SaaS Lifecycle Honesty (Gate A) is Claude-approved. Completing 4A does **not** mark Commercial SaaS DONE. Do **not** start Gate B. Gate B (live paid-provider lifecycle) is LEVEL 3 and requires Claude pre-challenge before implementation.
-2. **Parallel validation:** GVM + Chasum HQ stable pilot (Late Sep–Oct 2026).
+1. **Phase 5 preflight — not started.** Production Pin and Design-Partner Pilot Stabilization (workstreams 17 + 14 + 15). Do **not** implement in this stamp. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps.
+2. Gate B (live paid-provider lifecycle) remains later: LEVEL 3 and requires Claude pre-challenge before implementation.
 3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Reference only.
 4. **Do not** fix DashboardTopNav overflow, tenancy, booking-engine, commerce formulas, or `/dashboard/hq` unless the tracker reclassifies them.
 
@@ -40,7 +40,8 @@ Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a bookin
 - [x] Claude pre-challenge + Minimum Necessary Diff: approved World Class grouped nav onto `main` (PR #23)
 - [x] World Class Phase 2: staff plan honesty (active-staff quota wiring) — merged PR #25
 - [x] World Class Phase 3: Command Centre / Today experience — merged PR #27
-- [x] World Class Phase 4A: Commercial SaaS Lifecycle Honesty (Gate A / Private Alpha billing) — **IMPLEMENTED / CLAUDE APPROVED / AWAITING MERGE**; does **not** mark Commercial SaaS DONE (see [`../LAUNCH_READINESS.md`](../LAUNCH_READINESS.md))
+- [x] World Class Phase 4A: Commercial SaaS Lifecycle Honesty (Gate A / Private Alpha billing) — **COMPLETE / MERGED TO MAIN** (PR #29); does **not** mark Commercial SaaS DONE (see [`../LAUNCH_READINESS.md`](../LAUNCH_READINESS.md))
+- [ ] World Class Phase 5: Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**
 - [ ] Commercial v1 paid billing (Gate B) — later; LEVEL 3; Claude pre-challenge before implementation
 - [ ] Later PO decision on `/dashboard/hq` disposition (move to `/owner`, relabel, or retire) — **no expansion until then**
 
@@ -82,7 +83,7 @@ These Stripe / paid-lifecycle items are **Gate B** (commercial-v1 paid billing).
 - [ ] Customer portal polish (memberships/packages/gift cards beyond scaffold)
 - [ ] Square research spike (payments + in-person)
 - [ ] Enterprise: org / multi-business admin spike
-- [ ] Native mobile: choose stack + reception MVP scope
+- [ ] Native mobile / App Store readiness (tracker workstream 18) — **DESIGN FOR NOW / BUILD LATER**; **NOT STARTED / PLANNED**; no implementation stack selected
 - [ ] Marketplace: API partner guidelines draft
 - [ ] Booking resources (`036`) when a tenant needs concurrent room/chair truth
 - [ ] Unify `create_public_appointment` write path with Booking Engine facade

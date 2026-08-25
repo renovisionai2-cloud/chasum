@@ -34,6 +34,7 @@ Also foundational (earlier phases): design system, multi-tenant schema + RLS, se
 | **World Class Phase 1 — Navigation Foundation** | Grouped tenant nav + mobile nav on `main` (PR #23). Old World Class branch is reference-only. |
 | **World Class Phase 2 — Staff Plan Honesty** | Active-staff plan limits on `main` (PR #25). |
 | **World Class Phase 3 — Command Centre V1** | `/dashboard` Command Centre on `main` (PR #27). |
+| **World Class Phase 4A — Commercial SaaS Lifecycle Honesty** | Private Alpha billing honesty / Gate A on `main` (PR #29). Commercial SaaS Lifecycle remains **PARTIAL**. Gate B not met. |
 
 ---
 
@@ -75,7 +76,9 @@ Ordered as strategic themes — exact sprint order lives in [`MASTER_TASKS.md`](
 
 ### Native Mobile Apps
 
-- iOS / Android for owners and staff (reception-critical workflows first)
+- **DESIGN FOR NOW / BUILD LATER** — tracker workstream 18. Deferred after world-class responsive web; **not forgotten**. Not commercial-v1 required unless pilots escalate.
+- Future first-class **Apple App Store / iOS** and **Google Play / Android** apps — not a low-quality website wrapper.
+- **No implementation stack is selected** in source of truth.
 - Push notifications
 
 ### Marketplace
