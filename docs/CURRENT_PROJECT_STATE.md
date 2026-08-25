@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-24  
-**Updated by:** World Class Phase 1 stamp + Phase 2 preflight. Documentation only. No product implementation.
+**Last updated:** 2026-08-25
+**Updated by:** World Class Phase 2 closeout + Phase 3 Command Centre preflight. Documentation only. No product implementation.
 
 ---
 
@@ -27,7 +27,8 @@
 ### ACTIVE
 
 - World Class Phase 1 — Navigation Foundation: **COMPLETE / MERGED TO MAIN** (PR #23, `ef88ef5`).
-- Phase 2 preflight (this restamp): next slice identified; **not started**.
+- World Class Phase 2 — Staff Plan Honesty: **COMPLETE / MERGED TO MAIN** (PR #25, `dd49b32`).
+- World Class Phase 3 — Command Centre / Today experience: **PREFLIGHT APPROVED. Implementation NOT STARTED.**
 - GVM operational validation remains important (first real appointment, production email path) but **is not the entire roadmap**.
 - Balanced outcomes required: **A Core Operations · B Commercial SaaS · C Intelligence · D Validation**.
 
@@ -45,10 +46,10 @@ Genuine current gates only (not closed incidents):
 
 Do **not** automatically “finish GVM.” Strategic next:
 
-1. **World Class Phase 2 (selected, LEVEL 2, not started):** **Staff Plan Honesty** — Commercial SaaS plan truth. Free 1 / Professional 3 / Business and Enterprise unlimited active staff. Continue from current `main` only.
-2. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Inspect it only as a reference for previously approved ideas.
+1. **World Class Phase 3 (preflight approved, LEVEL 2, implementation not started):** **Command Centre / Today experience** — turn `/dashboard` into trusted operating intelligence + fast action. Continue from current `main` only. Claude pre-challenge is **not** required for the bounded V1. Claude **post-implementation review is required** before commit approval.
+2. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Inspect it only as a reference for previously approved Command Centre ideas.
 3. **Resume reusable product development** while protecting GVM operational trust.
-4. **Rebalance subsequent work** across Commercial SaaS + Summer Intelligence + Core Operations. Do **not** start Phase 2 money-engine, tenancy, or `/dashboard/hq` work in the staff-quota slice.
+4. **Rebalance subsequent work** across Commercial SaaS + Summer Intelligence + Core Operations. Do **not** start money-engine, tenancy, Reports redesign, or `/dashboard/hq` work in the Command Centre slice.
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
 
@@ -155,7 +156,6 @@ Platform Admin remains separate (`/owner`). `/dashboard/hq` remains founder-only
 Phase 1 follow-up debt (do **not** solve in a docs stamp):
 
 - Business location limit: entitlement helper = 6 vs existing fallback/catalog = 10
-- Staff quota enforcement not yet wired (`StaffQuotaNotice` unmounted) — **selected Phase 2**
 - `/dashboard/hq` naming/disposition unresolved
 - Dashboard React hydration warning #418
 - Mobile visible label “Centre” accepted for this phase
@@ -164,13 +164,11 @@ Phase 1 follow-up debt (do **not** solve in a docs stamp):
 
 ## World Class Phase 2 — Staff Plan Honesty
 
-**Status:** SELECTED. **LEVEL 2.** Implementation **NOT STARTED**.
+**STATUS: COMPLETE / MERGED TO MAIN** (PR #25, squash `dd49b324a080b3ca41e003e6cacb747b32479d61`)
 
-**Why this slice:** Commercial SaaS plan truth. Operators must not be able to create or reactivate more active staff than the plan includes. This is reusable product honesty, not GVM-only architecture and not a decorative redesign.
+**Why this slice:** Commercial SaaS plan truth. Operators cannot create or reactivate more active staff than the plan includes. Reusable product honesty, not GVM-only architecture and not a decorative redesign.
 
-**OBJECTIVE:** Make active-staff plan limits true across creation / reactivation / Add myself workflows, and clearly distinguish **Active in Chasum** from Employment status.
-
-Locked active-staff maxima (`staff.is_active = true`):
+Accepted product truth (`staff.is_active = true`):
 
 | Plan | Active staff |
 |------|----------------|
@@ -179,20 +177,83 @@ Locked active-staff maxima (`staff.is_active = true`):
 | Business | **unlimited** |
 | Enterprise | **unlimited**, unless a later explicit plan decision changes this |
 
-Inactive staff may remain stored on the business and **do not** consume an active seat.
+Inactive staff remain stored on the business and **do not** consume an active seat.
 
 **Active in Chasum** is the canonical UI term for `is_active`. It is **not** employment status, login access, roles/RBAC, or payroll state.
 
-Explicitly excluded from Phase 2:
+Server-side enforcement is authoritative (`staffQuotaForBusiness` / `assertCanActivateStaff` / `staffQuotaError`). UI gating (`StaffQuotaNotice`, Add employee / Add myself disabled at cap) is supportive only.
 
-- RBAC, staff login/invites
-- Stripe, billing write architecture
-- tenancy, booking-engine, booking-sheet, migrations
-- location-limit 6-vs-10 decision
+Validation accepted:
+
+- Preview/Staging workflow acceptance passed
+- Momentic booking smoke passed (no customer / appointment / commerce / notification mutation)
+- Claude independent post-audit approved
+- Production was **not** changed by Phase 2
+
+Phase 2 follow-up debt (do **not** solve in Phase 3):
+
+- Staff quota TOCTOU / concurrency race (two simultaneous activations could theoretically consume the last seat) — important follow-up, not blocking for Private Alpha
+- Raw database-error passthrough on some staff action failures
+- Bulk Activate is not proactively quota-disabled in the UI
+- Directory filter still says “booking status” for `is_active`
+- Add Myself remains empty-state-only
+- Disabled-control explanation relies partly on title tooltip
+
+---
+
+## World Class Phase 3 — Command Centre / Today experience
+
+**STATUS: PREFLIGHT APPROVED. IMPLEMENTATION NOT STARTED.**
+
+**RISK:** LEVEL 2
+**Claude pre-challenge:** NOT REQUIRED for the bounded V1.
+**Claude post-implementation review:** REQUIRED before commit approval.
+**Production:** protected. This stamp does not change Production or Staging application code or data.
+
+**OBJECTIVE:** Make `/dashboard` (nav: Command Centre) the operational home of Chasum — trusted operating intelligence + fast action — not a decorative dashboard redesign and not a Reports duplicate.
+
+It must answer:
+
+1. What is happening today?
+2. What needs attention?
+3. What money needs attention?
+4. What should I do next?
+
+Unused capacity remains a Reception Morning Brief question in V1 (link there; do not invent a second utilization engine).
+
+Approved V1 sections:
+
+| Section | Contents |
+|---------|----------|
+| **TODAY** | Appointments today; next appointment; today’s schedule access |
+| **ATTENTION** | Pending confirmations; cancellations today; outstanding balances / deposits; setup gaps where relevant |
+| **MONEY** | Gross payments collected today; outstanding invoices / deposits from authoritative commerce data |
+| **QUICK ACTIONS** | New appointment; new customer; Payments / outstanding; setup actions where incomplete |
+| **SUMMER** | Grounded operational facts only |
+
+**Money truth (locked):** Command Centre money must use `lib/commerce/dashboard.ts` → `getCommerceDashboardSnapshot()`. Cash must be labeled honestly, including **Gross payments collected**. Do **not** combine or equate this with appointment-recognized revenue. Do **not** redefine invoice, refund, or deposit math; do **not** change commerce ledger formulas or Reports money logic; do **not** create a mixed revenue/cash aggregate. If implementation requires that: **STOP — FINANCIAL SCOPE EXPANSION** (LEVEL 3 / Claude pre-challenge).
+
+**Business timezone (locked):** Command Centre “today” means the business-local day via existing `lib/business/datetime.ts` helpers. Do **not** use server-local midnight for new Command Centre day calculations. Do **not** rewrite Reports/date architecture in this phase.
+
+**Multi-location (locked):** Respect existing `getLocationScope`. Appointment metrics may be all locations or the selected/current location. Commerce money remains business-wide if that is what the Payments snapshot provides. The UI must make that distinction understandable. Do not fabricate location-specific money.
+
+**Summer (locked):** Summer remains AI Business Manager. V1 may surface grounded facts from already-loaded authoritative data only (appointments today, next appointment, pending confirmations, outstanding count, setup gaps). Do **not** implement fabricated recommendations, unsupported outreach, utilization guesses, Sophia/Leo/Maya/Alex theater, new AI architecture, or autonomous financial actions.
+
+**Recommended implementation branch (create only when implementation starts):** `cursor/world-class-command-centre`
+
+Explicitly excluded from Phase 3:
+
+- tenant-resolution rewrite, `lib/tenancy/*`
+- booking-engine / booking-sheet rewrite
+- Stripe SaaS lifecycle, RBAC, migrations
 - `/dashboard/hq` disposition
-- Production changes
-- Command Centre rewrite
-- money-engine work
+- location-limit 6-vs-10
+- staff quota TOCTOU fix
+- Morning Brief rewrite, Chase rewrite
+- old World Class wholesale merge
+- deep Reports redesign
+- full Summer architecture rewrite
+- payroll/inventory placeholders
 
 ---
 
@@ -230,11 +291,11 @@ Incomplete / not production-ready:
 - Stripe-backed SaaS billing lifecycle
 - Upgrade / downgrade / cancellation maturity
 - Failed-payment / dunning recovery
-- Mature plan entitlement enforcement
+- Remaining plan entitlement enforcement (location 6-vs-10 mismatch; other entitlements)
 - Multi-staff permissions / RBAC
 - Account lifecycle and usage / account-health depth
 
-What exists: signup/auth, per-owner tenant bootstrap, plan keys, `private_alpha_enabled` feature elevation, location caps, mock billing provider, paid-upgrade guard (refuses paid plans unless Stripe provider), `/dashboard/settings/billing`, `/owner` oversight surfaces.
+What exists: signup/auth, per-owner tenant bootstrap, plan keys, `private_alpha_enabled` feature elevation, **active-staff quota enforcement** (Phase 2), location caps, mock billing provider, paid-upgrade guard (refuses paid plans unless Stripe provider), `/dashboard/settings/billing`, `/owner` oversight surfaces.
 
 ---
 
@@ -294,14 +355,14 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 2 preflight — staff plan honesty (not started)
+**Working name:** World Class Phase 3 preflight approved — Command Centre / Today experience (implementation not started)
 
 **Intent:**
 
 1. Treat Chasum as an AI Business Operating System. Keep Core Operations, Commercial SaaS, Intelligence, and Validation in balance.
 2. Use GVM and Chasum HQ as **normal tenants** to validate the reusable product — not as product forks or control planes.
 3. Continue World Class from **current `main` only**. Do not return to `cursor/world-class-portal-foundation` as a working baseline.
-4. Next product slice (Phase 2, not this documentation chapter): wire already-on-main staff quota helpers. Do not port the World Class money engine, tenancy resolver, or booking-sheet rewrite.
+4. Next product slice (Phase 3, not this documentation chapter): reimplement Command Centre V1 against current-main overview + existing commerce/appointment reads. Do not port the World Class money-engine, tenancy resolver, or Reports rewrite.
 
 ---
 
@@ -330,7 +391,17 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-24) — World Class Phase 1 Navigation Foundation MERGED
+### Most recent (2026-08-25) — World Class Phase 2 Staff Plan Honesty MERGED
+
+- **PR #25** squash merge `dd49b324a080b3ca41e003e6cacb747b32479d61` — `feat: enforce active staff plan limits`
+- Server-side active-staff quota on create / reactivate / bulk activate / Add myself / `ensureOwnerAsBookableStaff`
+- Canonical helpers: `lib/billing/plan-entitlements.ts`, `lib/billing/staff-quota.ts`
+- Employees UI: `StaffQuotaNotice`, gated Add employee / Add myself, **Active in Chasum** distinct from Employment status
+- 24 focused quota tests + 58 focused/regression tests passed; Preview acceptance and Momentic booking smoke passed
+- Claude independent post-audit approved
+- Production not changed by Phase 2
+
+### Immediately prior (2026-08-24) — World Class Phase 1 Navigation Foundation MERGED
 
 - **PR #23** squash merge `ef88ef57be040678d886d0a9b4d99c679d801128` — `feat: integrate World Class navigation foundation`
 - Grouped desktop tenant navigation + mobile bottom navigation now on `main`
@@ -388,7 +459,7 @@ Preserved for history — **not** current branch instructions:
 main
 ```
 
-Handoff SHA (local / `origin/main` at this stamp): `ef88ef57be040678d886d0a9b4d99c679d801128`
+Handoff SHA (local / `origin/main` at this stamp): `dd49b324a080b3ca41e003e6cacb747b32479d61`
 
 **Obsolete as current working branch (historical only):**
 
@@ -397,6 +468,7 @@ Handoff SHA (local / `origin/main` at this stamp): `ef88ef57be040678d886d0a9b4d9
 - `cursor/production-billing-compatibility-7453` — merged onto `main` (`ef69815`)
 - `cursor/world-class-portal-foundation` — **reference-only**; remaining World Class work must be reimplemented or selectively ported onto current `main`. **Not a merge target.**
 - `cursor/world-class-navigation-integration` — merged via PR #23
+- `cursor/world-class-staff-plan-honesty` — merged via PR #25
 
 **Deploy policy:** This restamp is documentation only. It does not change Production or Staging application code or data.
 
@@ -406,14 +478,14 @@ Handoff SHA (local / `origin/main` at this stamp): `ef88ef57be040678d886d0a9b4d9
 
 | Field | Value |
 |-------|--------|
-| **`main` / `origin/main` SHA** | `ef88ef57be040678d886d0a9b4d99c679d801128` |
-| **Short** | `ef88ef5` |
-| **Subject** | `feat: integrate World Class navigation foundation (#23)` |
-| **Date** | 2026-08-24 |
+| **`main` / `origin/main` SHA** | `dd49b324a080b3ca41e003e6cacb747b32479d61` |
+| **Short** | `dd49b32` |
+| **Subject** | `feat: enforce active staff plan limits (#25)` |
+| **Date** | 2026-08-25 |
 
 ### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
 
-Do **not** infer that `main` (`ef88ef5`) has been deployed to Production.
+Do **not** infer that `main` (`dd49b32`) has been deployed to Production.
 
 | Field | Value |
 |-------|--------|
@@ -425,7 +497,7 @@ Do **not** infer that `main` (`ef88ef5`) has been deployed to Production.
 
 ## Uncommitted work
 
-Documentation stamp for World Class Phase 1 complete + Phase 2 preflight (this chapter). Do not commit until PO review of the source-of-truth diff. No app code in this restamp.
+None intended after this documentation PR. App code is unchanged. Production and Staging application data are untouched.
 
 ---
 
@@ -445,7 +517,9 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - Employee roles not fully enforced (`TD-H6`)
 - Booking Sheet “collect payment” still partially stubbed
 - `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved)
-- **World Class Phase 1 follow-up (do not solve here):** Business location cap helper 6 vs catalog/fallback 10; staff quota mutation enforcement not wired; dashboard React hydration #418; mobile visible label “Centre”
+- **World Class Phase 1 follow-up (do not solve here):** Business location cap helper 6 vs catalog/fallback 10; dashboard React hydration #418; mobile visible label “Centre”
+- **World Class Phase 2 follow-up (do not solve here):** staff quota TOCTOU race; raw DB-error passthrough; bulk Activate not proactively quota-disabled; directory “booking status” terminology; Add Myself empty-state-only
+- Paid upgrades still route through Private Alpha `/apply`
 
 ### Product / validation (not automatic NEXT)
 
@@ -465,7 +539,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 Locked order for this chapter:
 
 1. **Source-of-truth accuracy** — this control board; do not implement from stale NEXT fields.
-2. **World Class Phase 2 — staff plan honesty** (selected; not started) — wire active-staff quota on current `main`.
+2. **World Class Phase 3 — Command Centre / Today experience** (preflight approved; implementation not started) — trusted operating home on current `main`.
 3. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance.
 4. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
 5. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
@@ -487,14 +561,15 @@ Roadmap outcomes must stay balanced:
 
 ### Completed (company view)
 
-See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke, **World Class Phase 1 navigation foundation**.
+See [`docs/company/MASTER_ROADMAP.md`](./company/MASTER_ROADMAP.md). Highlights: Auth, Owner Platform, Billing UI, Communication Center, Employees, CRM, Calendar & Booking Engine, Business Management, Reports, AI Receptionist Phase 1, OS Kernel, Phase 3 Integrations, world-class marketing chapter, GVM identity closeout, Momentic baseline + smoke, **World Class Phase 1 navigation foundation**, **World Class Phase 2 staff plan honesty**.
 
 ### Near-term (do not treat as “GVM only”)
 
 | Theme | Outcome |
 |-------|---------|
 | World Class Phase 1 | Grouped tenant nav + mobile nav **on main** (PR #23) |
-| World Class Phase 2 | Staff plan honesty (quota wiring) — selected, not started |
+| World Class Phase 2 | Staff plan honesty **on main** (PR #25) |
+| World Class Phase 3 | Command Centre / Today experience — preflight approved, implementation not started |
 | Commercial SaaS | Stripe-backed lifecycle; entitlements; RBAC — currently trailing |
 | Summer Intelligence | Deepen toward Business Manager actions without inventing data |
 | Core Operations craft | Reception/commerce/comms reliability |

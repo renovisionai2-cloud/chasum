@@ -15,10 +15,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Shared nav model: `lib/dashboard/nav.ts`; HQ remains founder-only labeled “HQ”; `/owner` stays outside tenant nav
 - Plan/staff entitlement helpers added without mutation enforcement (Phase 2 follow-up)
 
-### Documented (World Class Phase 2 preflight — not implemented)
+### Added (World Class Phase 2 — Staff Plan Honesty)
 
-- Selected next slice: **Staff Plan Honesty** (LEVEL 2). Implementation has not started.
-- Locked: Free 1 / Professional 3 / Business and Enterprise unlimited **active** staff (`is_active = true`); inactive staff do not consume seats; **Active in Chasum** ≠ Employment status / login / RBAC / payroll.
+- Active-staff plan limits enforced server-side and gated in Employees UI (PR #25, `dd49b32`)
+- Free = 1 / Professional = 3 / Business and Enterprise unlimited **active** staff (`is_active = true`); inactive staff do not consume seats
+- Canonical UI: **Active in Chasum** ≠ Employment status / login / RBAC / payroll
+
+### Documented (World Class Phase 3 Command Centre preflight — not implemented)
+
+- Selected next slice: **Command Centre / Today experience** (LEVEL 2). Implementation has not started.
+- Money: `getCommerceDashboardSnapshot()`; Gross payments collected ≠ appointment-recognized revenue
+- Today = business-local day; Summer facts grounded only; Claude post-implementation review required
 
 ### Changed (Marketing — Roadmap + Summer Onboarding)
 
