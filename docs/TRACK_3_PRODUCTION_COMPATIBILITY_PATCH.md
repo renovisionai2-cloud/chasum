@@ -1,13 +1,23 @@
 # Track 3 Production Compatibility Patch
 
-**Status:** BUILT ON PRODUCTION-DERIVED BRANCH · PREVIEW/STAGING ONLY · NOT YET PRODUCTION APPROVED · TRACK 3 DB HARDENING STILL NOT IMPLEMENTED  
-**Branch:** `cursor/production-billing-compatibility-7453`  
-**Production baseline:** `4eecbec0f0f04532ae0294132d07183b6e64f23f` · https://chasum.vercel.app  
+**Current status (2026-08-24 restamp):** Application code for this compatibility patch **is on `main`** (`ef69815` — paid-upgrade guard + `subscription_events` inserts via `createServiceClient()`). The original working branch `cursor/production-billing-compatibility-7453` is **merged**. This is **not** World Class nav work and is **not** Track 3 database hardening.
+
+**Still true:**
+
+- Track 3 **DB / RLS hardening is NOT implemented**.
+- Migrations **034–036 remain UNAPPLIED**.
+- Migrations **037 / 038 remain APPLIED + VERIFIED** on Staging and Production; **executable SQL is missing from repo history**.
+- Do **not** apply 034–036 without PO approval.
+
+**Production:** Do **not** infer that current `main` (`be2cf6e` at restamp) is deployed to Production. **PRODUCTION DEPLOYED SHA — VERIFY BEFORE CLAIMING CURRENT.** Last documented Production serving SHA in the identity closeout was `68e9a816a230636e693d0e10b9b8ae7f3beb1e62`. This restamp did not re-verify Production.
+
+**Historical context below** describes why the patch was built (Production `4eecbec` P0s). Treat branch/Preview-only language in that narrative as **historical**, not current handoff.
+
 **Production Supabase:** `kxcydvhswkuzepwzzinq`  
 **Preview / Staging Supabase:** `wnfahklzaxirftyskctd`  
 **LIVE CONTRACT:** Preview → Staging; Production → Production  
 
-This patch is **not** World Class branch work and is **not** Track 3 database hardening.
+Canonical handoff: [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
 
 ---
 
@@ -30,7 +40,7 @@ Production `4eecbec` had two P0 problems:
 
 ## Explicitly not in this patch
 
-- Track 3 RLS hardening / Migration 039
+- Track 3 RLS hardening (historical note: this patch’s “Migration 039” meant planned Track 3 RLS — **not** the later applied `039_business_slug_aliases.sql` identity/alias migration)
 - SQL execution; Production or Staging database changes
 - Migrations 034, 035, 036 (remain **UNAPPLIED**)
 - Migrations 037 / 038 executable SQL (remain **APPLIED + VERIFIED** on Staging and Production; not modified here)
@@ -52,7 +62,7 @@ Production `4eecbec` had two P0 problems:
 | 037 | APPLIED + VERIFIED on Staging and Production |
 | 038 | APPLIED + VERIFIED on Staging and Production |
 
-Track 3 DB hardening remains **blocked** until this compatibility patch is verified on Preview/Staging and then approved for Production application code.
+Track 3 DB / RLS hardening remains **unimplemented**. The application compatibility patch is already on `main`. Hardening is a separate PO-scheduled item — not waiting on this historical branch. Do not apply 034–036. Do not confuse Track 3 RLS with applied slug-alias migration `039_business_slug_aliases.sql`.
 
 ---
 
@@ -71,4 +81,8 @@ F. GVM-equivalent booking workflow remains intact (assigned staff, services, dat
 
 ## Recommended next action
 
-Product Owner verifies Preview against Staging `wnfahklzaxirftyskctd`. After Preview acceptance, a **separate** Production application cutover decision is required before Track 3 RLS / Migration 039. Do not apply 034–036. Do not deploy this branch to Production until explicitly approved.
+**Superseded as product NEXT.** Follow [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md): World Class pre-challenge, then balanced reusable development. Track 3 RLS/hardening is gated engineering debt, not the default next product task.
+
+Do not apply 034–036. Production deploys still require explicit PO approval. **PRODUCTION DEPLOYED SHA — VERIFY BEFORE CLAIMING CURRENT.**
+
+Historical (do not follow): “deploy this branch to Production after Preview acceptance.” The compatibility patch is already on `main`; later `main` commits (Momentic, docs) are not claimed as Production.

@@ -3,6 +3,7 @@
 **Status:** Living founder memory — read before every implementation session  
 **Authority:** Operational priorities for the current chapter of Chasum  
 **Constitution:** When values conflict, [`docs/company/CHASUM_BIBLE.md`](docs/company/CHASUM_BIBLE.md) wins.
+**Handoff:** Current LOCKED / ACTIVE / BLOCKED / NEXT live in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md). That control board wins over older “GVM is the entire roadmap” language below.
 
 ---
 
@@ -10,32 +11,44 @@
 
 Build the world’s best **AI Business Operating System** for appointment-based service businesses.
 
-Chasum is not booking software. Appointments are foundational; the product is the operating layer: calendar, CRM, employees, billing, reports, communications, and AI workforce sharing one business brain.
+Chasum is not booking software. Appointments are foundational; the product is the operating layer: calendar, CRM, employees, billing, reports, communications, Commercial SaaS lifecycle, and AI workforce sharing one business brain.
 
 ---
 
-## Current priority (locked)
+## Current chapter (2026-08-24 restamp)
 
-**Operation GVM remains Priority #1.**
+Post-break World Class resumption. Source-of-truth realignment is the documentation gate before product implementation.
 
-Continue refining the platform from real validation with **GVM Baby World** (Founding Design Partner #001).
+Roadmap outcomes must stay balanced:
 
-- Do not build random features.
-- Do not introduce feature creep.
-- Prefer reliability, synchronization, and OS-quality craft over new modules.
+| Outcome | Role |
+|---------|------|
+| **A. Core Operations** | Scheduling, customers, staff, catalog, money, communications, reporting, workflows |
+| **B. Commercial SaaS** | Currently **trails** Core Operations — paid self-serve, Stripe lifecycle, dunning, entitlements, RBAC, account health |
+| **C. Intelligence** | **Summer = AI Business Manager** (positioning). Implementation is still strongest in booking / availability / CRM-grounded assist — deepen without over-claiming |
+| **D. Validation** | GVM Baby World and **Chasum HQ** are **normal tenants**. GVM is a design partner, not the product strategy. Momentic is complete regression infrastructure, not a roadmap track |
 
-Recent GVM sprints: deployment readiness, partner bug fixes, business validation (payments, billing, reports, packages, currency, gift certificates).
+**Chasum HQ** means the real normal business tenant used to operate Chasum itself — same architecture as outside customers. It is **not** `/owner` and **not** `/dashboard/hq`.
+
+**`/owner`** is the Platform Admin / Control Centre direction.
+
+**`/dashboard/hq`** is a legacy founder-only surface. Naming/disposition unresolved. Do not expand it.
+
+**World Class grouped nav** is PO-approved and lives on `origin/cursor/world-class-portal-foundation`; it is **not** on `main`. Next: Claude pre-challenge + Minimum Necessary Diff. Do not merge from a documentation session.
+
+**GVM duplicate-tenant identity incident is CLOSED.** Tenant Identity Safety Gate remains permanent. Remaining GVM go-live items (first real appointment, production email) are **validation**, not automatic Priority #1 domination of the backlog.
 
 ---
 
 ## Operating system principles
 
 1. **One Business Brain** — Customer, Appointment, Employee, Location, Service, Package, Payment, Invoice, Gift Card, and Report share one data model and one source of truth for money and time.
-2. **Truth over theater** — No invented availability, prices, or AI facts. Empty states beat fake readiness.
+2. **Truth over theater** — No invented availability, prices, or AI facts. Empty states beat fake readiness. Coming Soon stays Coming Soon.
 3. **AI-ready, not AI-theater** — Prepare event layers and business memory before shipping new AI capabilities. Summer and Chase consume grounded context only.
 4. **Global-ready foundation** — Currency, language, timezone, and locale helpers exist before translations.
 5. **Beautiful on every device** — Reception and owner workflows must work on phone, tablet, and desktop.
 6. **Extend, don’t redesign** — Preserve the design system unless a deliberate redesign is requested.
+7. **No tenant forks** — GVM-specific and HQ-specific needs become configuration where possible.
 
 ---
 
@@ -59,8 +72,10 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 
 - Read Next.js docs under `node_modules/next/dist/docs/` before new App Router patterns.
 - Multi-tenant: every business-owned row carries `business_id`; respect location scope.
+- Preview uses Staging; Production uses Production.
 - Soft-fail when optional migrations are missing.
 - Surgical diffs — no drive-by refactors of unrelated modules.
+- Level 3 (tenancy, auth/RLS, billing, booking architecture, navigation architecture, migrations, tenant identity, Production data): Claude independent pre-challenge before Cursor implementation.
 - **Extend, don’t redesign** — Premium Experience polish uses Design System v1; no parallel UI languages.
 
 ---
@@ -73,9 +88,18 @@ Recent GVM sprints: deployment readiness, partner bug fixes, business validation
 | Commerce events mirror booking events | Future Summer/Chase need one event vocabulary without building AI yet |
 | BusinessOperatingContext facade | One memory shape for AI; no new AI features |
 | Locale/datetime helpers without i18n catalogs | Global-ready architecture; translate later |
-| Operation GVM still #1 | Design partner truth > roadmap novelty |
 | Design System v1 before more features | Experience quality compounds; competitors win on features, we win on craft |
+| Chasum HQ = normal tenant | Dogfood the reusable product; control plane stays `/owner` |
+| `/dashboard/hq` = legacy surface | Avoid expanding a misnamed founder console until PO disposition |
+| World Class grouped nav approved, unmerged | Protect IA; integrate via pre-challenge + minimum diff |
+| GVM identity incident closed | Process gate remains; incident is not a World Class blocker |
+| Commercial SaaS trails Core Operations | Do not mark billing lifecycle / RBAC / dunning complete |
+| Summer = Business Manager; implementation lags | Keep strategy; document the gap honestly |
+
+### Historical (superseded as current instruction)
+
+**Former lock:** “Operation GVM remains Priority #1” as the entire chapter. **Now:** GVM remains a critical validation tenant; it must not consume the whole roadmap. See [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md) NEXT.
 
 ---
 
-*Last updated: Operation GVM — Commerce Engine Finalization.*
+*Last updated: 2026-08-24 — source-of-truth realignment (documentation only).*

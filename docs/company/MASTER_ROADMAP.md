@@ -3,6 +3,8 @@
 **Status:** Official company roadmap  
 **Parent:** [`CHASUM_BIBLE.md`](./CHASUM_BIBLE.md)  
 **Active backlog:** [`MASTER_TASKS.md`](./MASTER_TASKS.md)  
+**Handoff / current NEXT:** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md) — that control board is current. Themes below are durable; they are **not** an instruction to deepen Emma first or treat GVM as the entire strategy.
+
 **Detailed history:** [`../ROADMAP.md`](../ROADMAP.md), [`../CHANGELOG.md`](../CHANGELOG.md)
 
 This is the durable map of what Chasum has completed and what comes next. Update this file when a major department or platform milestone ships or is re-sequenced.

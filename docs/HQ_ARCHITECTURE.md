@@ -1,14 +1,21 @@
-# Chasum HQ Architecture
+# `/dashboard/hq` architecture (legacy founder-only surface)
+
+**CURRENT NAMING (2026-08-24 PO ruling):** **Chasum HQ** is a **normal business tenant** used to operate Chasum itself. It is **not** this surface.
+
+**This document** describes **`/dashboard/hq`**, which is a **LEGACY / FOUNDER-ONLY SURFACE — NAMING/DISPOSITION TO BE RESOLVED.** Do not describe `/dashboard/hq` as Chasum HQ product architecture. Do **not** redesign, delete, or expand it until a later PO decision (move into `/owner`, relabel, or retire).
+
+Platform Admin / Control Centre direction: [`OWNER_PLATFORM.md`](./OWNER_PLATFORM.md) (`/owner`).
+Handoff: [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
 
 **Surface:** `/dashboard/hq`  
 **Audience:** Founder / platform owners only (`requirePlatformOwner`)  
-**Not** customer-facing.
+**Not** customer-facing. **Not** the Chasum HQ tenant.
 
 ---
 
-## Purpose
+## Purpose (historical — this surface)
 
-Chasum HQ is the internal operating system for running the company: pipeline, partner health, product readiness, roadmap, and launch percentages — in one premium CEO view.
+This founder-only view was built as an internal operating console: pipeline, partner health, product readiness, roadmap, and launch percentages — in one premium CEO view. That product intent, if retained, belongs under **Platform Admin (`/owner`)** or a relabeled surface — **not** under the name Chasum HQ.
 
 ---
 
@@ -29,8 +36,8 @@ Chasum HQ is the internal operating system for running the company: pipeline, pa
 
 1. User must be signed in (dashboard layout).  
 2. `getHqSnapshot()` calls `requirePlatformOwner()` — env `PLATFORM_OWNER_EMAILS` or `platform_admins`.  
-3. Non-owners redirect away from HQ (same as `/owner`).  
-4. Sidebar shows **HQ** only when `showHq` is true.
+3. Non-owners redirect away from `/dashboard/hq` (same gate family as `/owner`).
+4. Sidebar shows an **HQ** label only when `showHq` is true (legacy label; not the Chasum HQ tenant).
 
 ---
 
