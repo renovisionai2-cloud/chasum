@@ -58,7 +58,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     id: "go-calendar",
-    title: "Go to Calendar",
+    title: "Go to Reception",
     subtitle: "Day View Control Center",
     href: "/dashboard/calendar?view=day",
     keywords: ["calendar", "day", "reception", "schedule"],
@@ -66,7 +66,7 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     id: "go-crm",
-    title: "Go to CRM",
+    title: "Go to Customers",
     href: "/dashboard/clients",
     keywords: ["crm", "clients", "customers"],
     group: "navigate",
@@ -94,23 +94,23 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
   },
   {
     id: "go-settings",
-    title: "Open Settings",
+    title: "Account & billing",
     href: "/dashboard/settings",
-    keywords: ["settings", "preferences"],
+    keywords: ["settings", "preferences", "account", "billing"],
     group: "navigate",
   },
   {
     id: "go-overview",
-    title: "Go to Overview",
+    title: "Go to Command Centre",
     href: "/dashboard",
-    keywords: ["overview", "home", "dashboard"],
+    keywords: ["overview", "home", "dashboard", "command", "centre", "center"],
     group: "navigate",
   },
   {
     id: "go-business",
-    title: "Go to Business",
+    title: "Go to Business setup",
     href: "/dashboard/business",
-    keywords: ["business", "hours", "branding"],
+    keywords: ["business", "hours", "branding", "setup"],
     group: "navigate",
   },
   {
