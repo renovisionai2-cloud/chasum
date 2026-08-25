@@ -88,29 +88,27 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function DashboardSkeleton() {
   return (
-    <div className="ds-page" aria-busy="true" aria-label="Loading dashboard">
-      <Skeleton className="h-40 w-full rounded-[var(--radius-lg)] sm:h-48" />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-36" />
-        ))}
+    <div className="ds-page" aria-busy="true" aria-label="Loading Command Centre">
+      <Skeleton className="h-28 w-full rounded-[var(--radius-lg)] sm:h-32" />
+      <div className="grid gap-4 lg:grid-cols-5">
+        <Skeleton className="h-48 lg:col-span-2" />
+        <Skeleton className="h-48 lg:col-span-3" />
       </div>
       <div className="grid gap-6 xl:grid-cols-5">
-        <Skeleton className="h-72 xl:col-span-3" />
+        <Skeleton className="h-64 xl:col-span-3" />
         <div className="space-y-3 xl:col-span-2">
           <Skeleton className="h-8 w-40" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
-          <Skeleton className="h-24" />
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
+          <Skeleton className="h-20" />
         </div>
       </div>
-      <Skeleton className="h-56 w-full" />
-      <div className="flex items-center gap-2 opacity-70">
-        <Logo size="sm" href={null} showText={false} />
-        <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-spark/20 text-spark">
-          <Spark className="h-3 w-3" size={12} animate />
-        </span>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <Skeleton className="h-36" />
+        <Skeleton className="h-36" />
+        <Skeleton className="h-36 sm:col-span-2 xl:col-span-1" />
       </div>
+      <Skeleton className="h-40 w-full" />
     </div>
   );
 }
