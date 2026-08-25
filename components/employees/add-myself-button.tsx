@@ -7,7 +7,11 @@ import { UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-export function AddMyselfAsProviderButton() {
+export function AddMyselfAsProviderButton({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) {
   const [pending, start] = useTransition();
   const { toast } = useToast();
   const router = useRouter();
@@ -17,8 +21,15 @@ export function AddMyselfAsProviderButton() {
       type="button"
       variant="outline"
       size="sm"
-      disabled={pending}
+      disabled={pending || disabled}
+      aria-disabled={pending || disabled}
+      title={
+        disabled
+          ? "The active staff allowance is full. Deactivate another staff member first."
+          : undefined
+      }
       onClick={() => {
+        if (disabled) return;
         start(async () => {
           const result = await ensureOwnerAsBookableStaff();
           if (result.error) toast(result.error, "error");

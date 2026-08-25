@@ -5,6 +5,11 @@ import {
   getActiveLocationId,
   getLocationScope,
 } from "@/lib/actions/location";
+import {
+  assertCanActivateStaff,
+  staffQuotaError,
+  staffQuotaForBusiness,
+} from "@/lib/billing/staff-quota";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   composeDisplayName,
@@ -14,6 +19,13 @@ import { withLocationFilter } from "@/lib/location/constants";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
+import { cache } from "react";
+
+export const getStaffQuota = cache(async () => {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  return staffQuotaForBusiness(supabase, business);
+});
 
 export async function getStaff() {
   const business = await getOrCreateBusiness();
@@ -22,7 +34,7 @@ export async function getStaff() {
 
   // Load business-wide, then filter by primary location OR staff_locations.
   // Strict .eq(location_id) hid multi-location employees from booking dropdowns.
-  let query = supabase
+  const query = supabase
     .from("staff")
     .select(
       "*, staff_services(service_id), staff_locations(location_id), location:locations!staff_location_id_fkey(id, name)",
@@ -33,7 +45,7 @@ export async function getStaff() {
   const { data, error } = await query;
 
   if (error) {
-    let fallback = supabase
+    const fallback = supabase
       .from("staff")
       .select("*, staff_services(service_id), staff_locations(location_id)")
       .eq("business_id", business.id)
@@ -202,6 +214,10 @@ export async function createStaff(
   if (typeof locationResult === "object") return locationResult;
 
   const supabase = await createClient();
+  const quota = await staffQuotaForBusiness(supabase, business);
+  if (!quota.allowed) {
+    return { error: staffQuotaError(quota) };
+  }
 
   const firstName = (formData.get("first_name") as string)?.trim() || null;
   const lastName = (formData.get("last_name") as string)?.trim() || null;
@@ -249,6 +265,7 @@ export async function createStaff(
       hire_date: hireDate,
       role_key: "employee",
       employment_status: "active",
+      is_active: true,
       permissions: permissionsForRole("employee"),
       accept_online_bookings: true,
       accept_new_clients: true,
@@ -278,6 +295,7 @@ export async function createStaff(
           photo_url: photoUrl,
           biography,
           qualifications,
+          is_active: true,
         })
         .select("id")
         .single();
@@ -341,6 +359,11 @@ export async function updateStaff(
   const supabase = await createClient();
   const id = formData.get("id") as string;
   const serviceIds = formData.getAll("service_ids") as string[];
+  const nextActive = formData.get("is_active") === "true";
+  if (nextActive) {
+    const blocked = await assertCanActivateStaff(supabase, business, [id]);
+    if (blocked) return blocked;
+  }
 
   const { error } = await supabase
     .from("staff")

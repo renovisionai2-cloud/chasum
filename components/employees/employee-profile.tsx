@@ -19,6 +19,8 @@ import {
   updateEmployeeProfile,
 } from "@/lib/actions/employees";
 import {
+  ACTIVE_IN_CHASUM_HELP,
+  ACTIVE_IN_CHASUM_LABEL,
   EMPLOYMENT_STATUS_LABELS,
   PAY_TYPE_LABELS,
   PERMISSION_LABELS,
@@ -487,15 +489,22 @@ export function EmployeeProfileView({
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="is_active">Status</Label>
+                      <Label htmlFor="is_active">{ACTIVE_IN_CHASUM_LABEL}</Label>
                       <Select
                         id="is_active"
                         name="is_active"
                         defaultValue={employee.is_active ? "true" : "false"}
+                        aria-describedby="is_active_help"
                       >
                         <option value="true">Active</option>
                         <option value="false">Inactive</option>
                       </Select>
+                      <p
+                        id="is_active_help"
+                        className="text-xs text-muted-foreground"
+                      >
+                        {ACTIVE_IN_CHASUM_HELP}
+                      </p>
                     </div>
                   </div>
 

@@ -246,6 +246,16 @@ export const EMPLOYMENT_STATUS_LABELS: Record<EmploymentStatus, string> = {
   contractor: "Contractor",
 };
 
+/**
+ * Operational seat control for `staff.is_active`.
+ * Distinct from Employment status, which is a descriptive HR field and does
+ * not control plan entitlement seats, login, RBAC, or payroll.
+ */
+export const ACTIVE_IN_CHASUM_LABEL = "Active in Chasum";
+
+export const ACTIVE_IN_CHASUM_HELP =
+  "Controls whether this staff member is active in Chasum and counts toward the business's active staff allowance. Inactive staff remain on file and do not consume an active seat.";
+
 export const PAY_TYPE_LABELS: Record<PayType, string> = {
   hourly: "Hourly",
   salary: "Salary",
