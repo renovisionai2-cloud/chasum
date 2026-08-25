@@ -47,3 +47,6 @@ supabase/.temp/
 # local brand export scratch
 .tmp-brand/
 .tmp-brand-*/
+
+# Momentic runtime artifacts
+test-results/
