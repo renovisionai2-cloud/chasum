@@ -28,7 +28,7 @@ Roadmap outcomes must stay balanced:
 | **C. Intelligence** | **Summer = AI Business Manager** (positioning). Implementation is still strongest in booking / availability / CRM-grounded assist + grounded Command Centre facts — deepen without over-claiming |
 | **D. Validation** | GVM Baby World and **Chasum HQ** are **normal tenants**. Working planning targets: Late Sep–Oct 2026 stable pilots. Momentic is complete regression infrastructure, not a roadmap track |
 
-**Launch governance:** [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md) — **18 workstreams**. Working targets (not public promises): GVM+HQ pilots Late Sep–Oct 2026; outside Private Alpha Oct–Nov 2026; commercially launchable v1 Dec 2026–Feb 2027. Commercial v1 does **not** require full AI autonomy. Preserve AI-operated architecture now. Native mobile is **DESIGN FOR NOW / BUILD LATER**.
+**Launch governance:** [`docs/LAUNCH_READINESS.md`](docs/LAUNCH_READINESS.md) — **18 workstreams**. Working targets (not public promises): GVM+HQ pilots Late Sep–Oct 2026; outside Private Alpha Oct–Nov 2026; commercially launchable v1 Dec 2026–Feb 2027. Commercial v1 does **not** require full AI autonomy. Preserve AI-operated architecture now. Native mobile is **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** (working direction: React Native + Expo; final stack at native-app preflight). One reusable multi-tenant app — GVM and Chasum HQ are normal tenants, not forks.
 
 **Chasum HQ** means the real normal business tenant used to operate Chasum itself — same architecture as outside customers. It is **not** `/owner` and **not** `/dashboard/hq`.
 

@@ -3,7 +3,7 @@
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
 **Last updated:** 2026-08-25  
-**Updated by:** World Class Phase 4A closeout (PR #29) + launch-readiness refresh + PO governance amendment (workstream 18 native mobile; AI Operating-System Preservation Check). Phase 4A **COMPLETE / MERGED TO MAIN**. Next phase **PREFLIGHT REQUIRED / NOT STARTED**. Tracker: **18 workstreams**.
+**Updated by:** Native-app strategy governance correction (follow-up to PR #30). Workstream 18 is **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Phase 5 remains **PREFLIGHT REQUIRED / NOT STARTED**. Tracker: **18 workstreams**.
 
 These are **planning targets, not public promises.**
 
@@ -58,6 +58,7 @@ Before approving or starting any major phase, feature, redesign, audit, architec
 | **LAUNCH REQUIRED** | Must be completed before commercially launchable Chasum v1. Document: why Chasum cannot safely or commercially launch without it; acceptance condition; owner/current task; blocking issue; target window; launch risk GREEN / AMBER / RED; whether delay threatens December 2026–February 2027. |
 | **IMPORTANT BUT POST-LAUNCH SAFE** | Valuable, but commercial launch can proceed safely without it. |
 | **DESIGN FOR NOW / BUILD LATER** | Architecture and current decisions must account for it now; implementation must not delay launch. |
+| **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** | Design and architecture now. Begin material implementation after named core flows are stable enough not to rebuild twice, and early enough for meaningful testing before broader public launch. Do **not** wait until the entire web platform is finished. |
 | **BACKLOG** | Useful future work with no current launch dependency. |
 | **DEFER / DO NOT BUILD NOW** | Interesting, but not currently worth development time. |
 
@@ -492,15 +493,57 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 
 | Field | Value |
 |-------|--------|
-| Launch classification | **DESIGN FOR NOW / BUILD LATER** — not commercial-v1 required at present. Reassess from GVM, Chasum HQ, selected outside Private Alpha, and real owner/staff mobile behavior. Escalate if browser/mobile-web limitations materially prevent daily use. |
+| Launch classification | **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** — do **not** wait until the entire web platform is finished. Begin native Chasum app development **before broader public launch**. Begin **material** native implementation only after the core operating flows are stable enough that Chasum is not rebuilding them twice. Immediate Phase 5 launch risk remains **GREEN**. |
 | Status | **NOT STARTED / PLANNED** |
-| Current owner / current task | Founder / Engineering — keep architecture compatible with a future first-class native path. **Do not** implement native apps in Phase 5. **No implementation stack is selected.** |
-| Blocking issue | None for commercial v1 while key responsive-web workflows remain genuinely usable. Native was deferred after prioritizing a world-class responsive web product — deferred, **not forgotten**. |
-| Acceptance condition (current stage) | **Not** “publish an app.” Architecture and launch-critical workflows must preserve a clean path to first-class native iOS and Android applications **without rebuilding the business operating model.** Current decisions should remain compatible with future native needs: authentication/session handling; multi-tenant identity; staff permissions/RBAC; business/location/resource model; appointments; customers; payments; communications; push notifications; deep links; device notifications; camera/file workflows where relevant; Summer/AI interaction; future voice interaction; approval/action flows; operational alerts. |
-| Target completion window | After commercial v1 unless pilots escalate. App Store / Play distribution is a later milestone, not Phase 5. |
-| Launch risk | **GREEN** |
-| Threatens Dec 2026–Feb 2027? | **NO** at present, provided key responsive-web workflows remain genuinely usable |
-| Notes | Future apps must support **Apple App Store / iOS** and **Google Play / Android**. They must **not** be a low-quality website wrapper. Future direction (not now): push, biometric auth, deep links, fast appointment/customer actions, camera/document capture, call/text workflows, operational alerts, Summer mobile interaction, later voice/AI operational interaction. Do **not** select React Native, Expo, Swift/Kotlin, or another stack in this tracker until a locked source-of-truth decision exists. Product Truth Matrix: Native mobile apps = Future Vision. |
+| Current owner / current task | Founder / Engineering — preserve architecture for one reusable multi-tenant native surface. **Do not** implement native apps in Phase 5. Capture mobile-web evidence during Phase 5. |
+| Blocking issue | Core operating flows are not yet at the Native App Start Gate. Phase 5 (Production pin + GVM/HQ pilots) is the nearer launch-required work. |
+| Acceptance condition (current stage) | Architecture and launch-critical workflows preserve a clean path to a first-class native iOS/Android app **without rebuilding the business operating model.** The native app is another operating surface for the **same** Chasum AI Business Operating System — not a separate mobile AI architecture. |
+| Target completion window | Material native implementation after the Native App Start Gate, early enough for meaningful iOS/Android testing **before broader public launch** (planning target #4, Feb–Apr 2027). Not Phase 5. Commercial v1 (Dec 2026–Feb 2027) does **not** currently require App Store / Play apps. |
+| Launch risk | **GREEN** (immediate / Phase 5). Broader public launch is at risk if native work never starts after core stability. |
+| Threatens Dec 2026–Feb 2027? | **NO** at present for commercially launchable v1, provided key responsive-web workflows remain genuinely usable |
+| Notes | **Working technical direction:** React Native + Expo. **Final stack decision:** TO BE CONFIRMED DURING NATIVE APP PREFLIGHT — not irrevocably locked. Product Truth Matrix: Native mobile apps = Future Vision until a native preflight ships. |
+
+#### Native App Start Gate
+
+Material native implementation may begin when these eight core areas are **sufficiently stable**:
+
+1. Booking / Calendar
+2. Customers / CRM
+3. Payments / Refunds
+4. Invoices / Receipts
+5. Employees / Locations
+6. Communications
+7. Permissions / Authentication
+8. Summer
+
+**Sufficiently stable** means: authoritative domain model established; primary workflows accepted; major data contracts are not undergoing active redesign; tenancy boundaries are clear; Preview / Staging / Production separation is safe; mobile can reuse Chasum’s operating truth instead of duplicating it. This does **not** require every feature to be permanently complete.
+
+#### Working technical direction vs final stack
+
+| Field | Value |
+|-------|--------|
+| Working technical direction | **React Native + Expo** |
+| Final stack decision | **TO BE CONFIRMED DURING NATIVE APP PREFLIGHT** |
+
+Do **not** treat the working direction as an irrevocable lock.
+
+#### One reusable multi-tenant mobile product
+
+Chasum has **ONE** reusable multi-tenant mobile product.
+
+The mobile app must use the same authoritative tenant identity, business / location / resources, staff, permissions, entitlements, customers, appointments, commerce, communications, Summer context, and operating truth as the web product.
+
+Tenant differences come from data, configuration, branding, permissions, plans, and entitlements — **not** separate product forks.
+
+Do **not** create a GVM-specific Chasum app, a Chasum HQ-specific app, or separate apps per customer/business. GVM Baby World, Chasum HQ, and future businesses remain **normal tenants** of the same app/product.
+
+The native app is another operating surface for the same AI Business Operating System (Observe → Understand → Recommend → Act with approval → Automate safely → Operate proactively) across the connected chain (Customer → Booking → Appointment → Staff → Payment → Invoice → Communication → Follow-up → Reporting → Summer intelligence → Business action).
+
+#### App Store direction
+
+Future distribution: **Apple App Store / iOS** and **Google Play / Android**. First-class native — **not** a low-quality website wrapper.
+
+Future direction (not this PR, not Phase 5): push notifications, biometric authentication, deep links, appointment/customer quick actions, camera/document workflows, call/text workflows, operational alerts, Summer mobile interaction, later voice / AI operational interaction.
 
 ---
 
@@ -554,7 +597,7 @@ Do **not** implement in this documentation chapter. Do **not** start Gate B, RBA
 | Acceptance condition | (1) Production SHA is verified and documented, and includes World Class Phases 1–4A capabilities told to pilots **or** a conscious pin is recorded; (2) GVM completes a real booking with customer confirmation on the authoritative tenant; (3) Chasum HQ tenant can run Command Centre + Reception + at least one service/staff as a normal business; (4) no P0 tenant-isolation or money-truth failure; (5) no Stripe/provider, RBAC, Summer architecture, `/owner` expansion, native apps, or migrations in this phase. Pilot validation must exercise the connected operating chain (not merely deployment health) and **capture** mobile friction and grounded-AI workflow gaps without expanding either. |
 | Likely risk level | **LEVEL 2** for PO-gated Production pin, env/email verification, and targeted defect fixes with no schema/tenancy/provider change. **LEVEL 3** (Claude pre-challenge required) if migrations 034–036, Production data mutations, identity-schema work, or billing-provider work enter. |
 | Claude pre-challenge | **NOT required** for bounded operational pin + real-use validation + targeted defects. **Required** before any LEVEL 3 expansion. |
-| Must remain out of scope | Gate B / Stripe / Checkout / webhooks; RBAC / staff login; Summer architecture rewrite; native iOS/Android apps; `/owner` expansion; `/dashboard/hq` disposition; DashboardTopNav overflow; tenancy rewrite; commerce-ledger formulas; applying 034–036; public launch marketing; selecting a native implementation stack. |
+| Must remain out of scope | Gate B / Stripe / Checkout / webhooks; RBAC / staff login; Summer architecture rewrite; native iOS/Android **implementation**; `/owner` expansion; `/dashboard/hq` disposition; DashboardTopNav overflow; tenancy rewrite; commerce-ledger formulas; applying 034–036; public launch marketing; treating React Native + Expo as an irrevocable stack lock. |
 | Effect on Late Sep–Oct pilots | **Protects** the target. Direct acceptance of this phase. |
 | Effect on Oct–Nov Private Alpha | **Protects** the target. Outside Private Alpha stays blocked until this phase’s acceptance is met. |
 | Effect on Dec–Feb commercial v1 | **Protects** by proving the connected operating chain in live tenants. Does **not** complete Gate B. Does **not** ship native apps. Does **not** complete full AI autonomy. |
@@ -567,7 +610,7 @@ Four-axis: launch-critical because live workflow + Production truth are prerequi
 
 Keep bounded. Maximum three:
 
-1. **GVM + HQ real-use testing** inside this phase’s validation loop — observe booking, Reception, Command Centre, staff, customer records, money, communications, Summer where currently grounded, and phone/responsive workflows. Capture mobile friction that could influence native-app timing (workstream 18). Capture AI workflow gaps that affect the future Business OS direction. Do **not** expand Summer or build native apps.
+1. **GVM + HQ real-use testing** inside this phase’s validation loop — observe booking, Reception, Command Centre, staff, customer records, money, communications, Summer where currently grounded, and phone/responsive workflows. Capture: real mobile-web friction; owner/staff mobile usage patterns; notification needs; workflows that materially benefit from native behavior; Summer mobile use cases; architecture issues that could complicate native implementation later. Do **not** expand Summer or start native implementation.
 2. **Momentic Preview/Staging booking canary** after any targeted product defect fix — not a substitute for a real GVM appointment.
 3. **Manual launch operations** — `/apply` pipeline, `/owner` plan assignment on disposable/synthetic Staging only when PO-approved, incident notes. Do **not** mutate Chasum HQ or GVM plans as a “check.”
 
@@ -579,4 +622,4 @@ Keep bounded. Maximum three:
 | Launch-critical RBAC | **Later** while GTM remains owner-operated and staff login stays Coming Next. Becomes LAUNCH REQUIRED if team login is sold. |
 | `/owner` expansion | **Later.** Controlled Private Alpha bar is met after 4A. |
 | Summer OS-manager depth | **Later.** Launch bar is grounded assist; over-building now risks fake AI. Capture gaps in Phase 5; do not expand. |
-| Native iOS / Android apps (workstream 18) | **Later.** DESIGN FOR NOW / BUILD LATER. Not launch-required for commercial v1. No stack selected. Capture mobile-web friction in Phase 5; do not build apps. |
+| Native iOS / Android apps (workstream 18) | **After the Native App Start Gate, before broader public launch.** Classification: **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Working direction: React Native + Expo; final stack confirmed at native-app preflight. One reusable multi-tenant app. Not Phase 5 implementation. |
