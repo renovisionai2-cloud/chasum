@@ -12,9 +12,9 @@ Update this file at the start of every sprint. It is the working queue — not a
 ## Current release
 
 **Working name:** World Class AI Business Operating System — post-break resumption
-**Branch focus:** `main` (`ef88ef5` at this stamp)
+**Branch focus:** `main` (`dd49b32` at this stamp)
 
-**Release intent:** Continue World Class from current `main` only. Phase 1 grouped navigation is merged. Next product slice is staff plan honesty (quota wiring) — not started. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
+**Release intent:** Continue World Class from current `main` only. Phase 1 grouped navigation is merged (PR #23). Phase 2 staff plan honesty is merged (PR #25). Next product slice is Command Centre / Today experience — **preflight approved, implementation not started**. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 
@@ -22,9 +22,9 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-World Class Phase 1 is merged. Then, in order:
+World Class Phase 1 and Phase 2 are merged. Then, in order:
 
-1. **World Class Phase 2 (not started, LEVEL 2):** Staff Plan Honesty — Free 1 / Professional 3 / Business and Enterprise unlimited active staff (`is_active = true`). Inactive staff do not consume seats. Canonical UI: **Active in Chasum** (not Employment status, login, RBAC, or payroll). Wire already-on-main quota helpers; mount `StaffQuotaNotice`. Exclude Stripe, tenancy, booking-engine, migrations, location 6-vs-10, `/dashboard/hq`, Command Centre, money-engine.
+1. **World Class Phase 3 (preflight approved, LEVEL 2, implementation not started):** Command Centre / Today experience — trusted operating home on `/dashboard`. Use existing `getCommerceDashboardSnapshot()` for money (Gross payments collected ≠ appointment-recognized revenue). Business-local day via `lib/business/datetime.ts`. Grounded Summer facts only. Claude post-implementation review required before commit approval. Exclude Stripe, tenancy, booking-engine, migrations, Reports redesign, Morning Brief/Chase rewrites, location 6-vs-10, `/dashboard/hq`, staff quota TOCTOU.
 2. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Reference only.
 3. **Resume reusable product development** while protecting GVM operational trust.
 4. **Rebalance** subsequent implementation across Commercial SaaS + Summer Intelligence + Core Operations. Money-engine / tenancy / `/dashboard/hq` remain separate tracks.
@@ -38,7 +38,8 @@ Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a bookin
 ### Platform / World Class
 
 - [x] Claude pre-challenge + Minimum Necessary Diff: approved World Class grouped nav onto `main` (PR #23)
-- [ ] World Class Phase 2: staff plan honesty (active-staff quota wiring) — **not started**
+- [x] World Class Phase 2: staff plan honesty (active-staff quota wiring) — merged PR #25
+- [ ] World Class Phase 3: Command Centre / Today experience — **preflight approved, implementation not started**
 - [ ] Later PO decision on `/dashboard/hq` disposition (move to `/owner`, relabel, or retire) — **no expansion until then**
 
 ### Commercial SaaS (currently trailing Core Operations)
