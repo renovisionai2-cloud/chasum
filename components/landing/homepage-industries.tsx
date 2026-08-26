@@ -76,7 +76,7 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   },
   {
     name: "Education",
-    blurb: "Designed for instructors who need scheduling.",
+    blurb: "Designed for instructors managing schedules, communication and learners.",
     icon: GraduationCap,
   },
 ];
