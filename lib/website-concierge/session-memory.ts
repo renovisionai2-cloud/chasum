@@ -207,6 +207,15 @@ const BUSINESS_PATTERNS: Array<{ type: BusinessType; pattern: RegExp }> = [
     type: "ultrasound",
     pattern: /\b(ultrasound|sonograph|baby\s*world|gender\s*reveal)\b/i,
   },
+  {
+    type: "law_firm",
+    pattern: /\b(law\s*firm|attorney|lawyers?|legal\s*practice)\b/i,
+  },
+  {
+    type: "automotive",
+    pattern:
+      /\b(auto(\s*motive|\s*repair|\s*body|\s*shop)?|collision\s*repair|tire\s*shop|car\s*repair)\b/i,
+  },
   { type: "barbershop", pattern: /\b(barbershop|barber)\b/i },
   { type: "salon", pattern: /\b(salon|hair\s*stylist|beauty\s*salon)\b/i },
   { type: "spa", pattern: /\b(spa|med\s*spa|esthetician)\b/i },

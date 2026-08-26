@@ -48,6 +48,8 @@ export type BusinessType =
   | "veterinary"
   | "pet_grooming"
   | "barbershop"
+  | "law_firm"
+  | "automotive"
   | "other"
   | "unknown";
 

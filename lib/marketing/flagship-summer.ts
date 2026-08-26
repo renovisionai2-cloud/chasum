@@ -130,8 +130,16 @@ export function fsBusinessNounPhrase(label: string): string {
   if (/home|hvac|plumb|electr|clean|lawn|pest|handyman|field/i.test(lower)) {
     return "home service business";
   }
-  if (/legal|law|attorney/i.test(lower)) return "practice";
-  if (/photo|creative/i.test(lower)) return "creative business";
+  if (/\blaw\b|attorney|legal/i.test(lower)) return "law firm";
+  if (/photo|creative|video/i.test(lower)) {
+    if (/photo booth/i.test(lower)) return "photo booth business";
+    if (/video/i.test(lower)) return "studio";
+    return "studio";
+  }
+  if (/account/i.test(lower)) return "accounting business";
+  if (/insurance/i.test(lower)) return "insurance business";
+  if (/real estate/i.test(lower)) return "real estate business";
+  if (/consult/i.test(lower)) return "consulting business";
   if (/pet|groom|vet/i.test(lower)) return "pet service business";
 
   return lower;
@@ -155,6 +163,29 @@ export function fsConsultationHeading(labels: string[] | null | undefined): stri
   return "Let's Learn About Your Businesses";
 }
 
+/**
+ * Natural noun for “I'll tailor Chasum around how your ___ operates.”
+ * Avoids awkward raw-label insertion (e.g. “your Law Firm”).
+ */
+export function fsOperatingNoun(label: string, categoryId?: string): string {
+  const trimmed = label.trim();
+  if (!trimmed || /^other\b/i.test(trimmed) || categoryId === "other") {
+    return "business";
+  }
+  if (categoryId === "healthcare") {
+    const noun = fsBusinessNounPhrase(trimmed);
+    if (noun === "ultrasound clinic" || noun === "dental practice") return noun;
+    return "practice";
+  }
+  if (categoryId === "automotive") return "automotive business";
+  if (categoryId === "home") return "service business";
+  if (categoryId === "professional") {
+    if (/\blaw\b|attorney|legal/i.test(trimmed)) return "law firm";
+    return fsBusinessNounPhrase(trimmed);
+  }
+  return fsBusinessNounPhrase(trimmed);
+}
+
 export function fsBuildMultiAck(labels: string[]): string {
   const clean = labels.map((l) => l.trim()).filter(Boolean);
   if (clean.length === 0) return "";
@@ -171,18 +202,15 @@ export function fsBuildMultiAck(labels: string[]): string {
 }
 
 export function fsBuildMultiPrompt(selections: FsSelectedBusiness[]): string {
-  const labels = selections.map((s) => s.label);
-  if (labels.length === 0) return "";
-  if (labels.length === 1) {
-    return `Great! I'll tailor Chasum specifically for your ${fsBusinessNounPhrase(labels[0]!)}.`;
+  const nouns = selections.map((s) => fsOperatingNoun(s.label, s.categoryId));
+  if (nouns.length === 0) return "";
+  if (nouns.length === 1) {
+    return `Great — I'll tailor Chasum around how your ${nouns[0]} operates.`;
   }
-  if (labels.length === 2) {
-    return `Great! I'll tailor Chasum specifically for your ${fsBusinessNounPhrase(labels[0]!)} and your ${fsBusinessNounPhrase(labels[1]!)}.`;
+  if (nouns.length === 2) {
+    return `Great — I'll tailor Chasum around how your ${nouns[0]} and your ${nouns[1]} operate.`;
   }
-  const nouns = labels.map((l) => fsBusinessNounPhrase(l));
-  const last = nouns[nouns.length - 1];
-  const rest = nouns.slice(0, -1).join(", ");
-  return `Great! I'll tailor Chasum specifically for your ${rest}, and your ${last}.`;
+  return "Great — I'll tailor Chasum around how these businesses operate.";
 }
 
 export function fsAckBusinessLine(label: string): string {

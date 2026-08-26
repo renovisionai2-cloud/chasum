@@ -31,9 +31,13 @@ export function selectNextDiscoveryField(
     if (challenges) return challenges;
   }
 
+  const hasSelectedBusiness =
+    profile.businessType !== "unknown" ||
+    (profile.businessTypes?.length ?? 0) > 0;
+
   // If business type known but challenges unknown, surface challenges early
   if (
-    profile.businessType !== "unknown" &&
+    hasSelectedBusiness &&
     !isFieldKnown("challenges", profile)
   ) {
     const challenges = candidates.find((c) => c.id === "challenges");
@@ -47,7 +51,9 @@ export function shouldOfferRecommendations(
   profile: DiscoveryProfileView,
 ): boolean {
   if (profile.recommendationsMade.length > 0) return false;
-  const hasType = profile.businessType !== "unknown";
+  const hasType =
+    profile.businessType !== "unknown" ||
+    (profile.businessTypes?.length ?? 0) > 0;
   const hasSignal =
     profile.challenges.length > 0 ||
     !!profile.currentSoftware ||

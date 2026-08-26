@@ -126,7 +126,7 @@ export function buildBusinessProfileSummary(
 export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
   const cues: ThinkingCue[] = [];
 
-  if (memory.businessType === "unknown") {
+  if (memory.businessType === "unknown" && memory.businessTypes.length === 0) {
     cues.push({
       id: "understand-business",
       label: "Understanding your business…",
@@ -162,7 +162,7 @@ export function buildThinkingCues(memory: SessionMemory): ThinkingCue[] {
   if (
     memory.discoveryPhase === "recommending" ||
     memory.recommendationsMade.length > 0 ||
-    (memory.businessType !== "unknown" &&
+    ((memory.businessType !== "unknown" || memory.businessTypes.length > 0) &&
       (memory.challenges.length > 0 || !!memory.currentSoftware))
   ) {
     cues.push({

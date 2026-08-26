@@ -13,16 +13,15 @@ export const DISCOVERY_FIELDS: DiscoveryField[] = [
   {
     id: "business_type",
     priority: 100,
-    why: "Different businesses run on different rhythms — an ultrasound clinic is not a salon.",
+    why: "Different businesses run on different operating rhythms.",
     helps: "Knowing your type lets me speak your language instead of generic software talk.",
-    willDo: "I'll use it to load the right industry patterns before I recommend anything.",
-    question:
-      "What kind of appointment-based business do you run?",
+    willDo: "I'll use it to load relevant patterns before I recommend anything.",
+    question: "What kind of business do you run?",
     suggestions: [
-      "Ultrasound studio",
-      "Salon",
-      "Spa",
-      "Clinic",
+      "Healthcare",
+      "Professional services",
+      "Automotive",
+      "Home services",
       "Something else",
     ],
   },
@@ -117,7 +116,10 @@ export function isFieldKnown(
 ): boolean {
   switch (id) {
     case "business_type":
-      return profile.businessType !== "unknown";
+      return (
+        profile.businessType !== "unknown" ||
+        (profile.businessTypes?.length ?? 0) > 0
+      );
     case "employee_count":
       return !!profile.employeeCount;
     case "location_count":

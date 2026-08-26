@@ -45,6 +45,8 @@ export type DiscoveryField = {
 /** Read-only view used for branching (avoids circular imports with SessionMemory). */
 export type DiscoveryProfileView = {
   businessType: string;
+  /** Display labels from Meet Summer (and concierge) multi-select. */
+  businessTypes: string[];
   visitorName: string | null;
   employeeCount: string | null;
   locationCount: string | null;

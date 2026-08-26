@@ -312,10 +312,18 @@ export function useConciergeConversation() {
       const businessTypes = (options?.businessTypes ?? store.memory.businessTypes)
         .map((l) => l.trim())
         .filter(Boolean);
-      const inferred = inferBusinessTypeFromText(content);
+      const inferred =
+        inferBusinessTypeFromText(businessTypes.join(" ")) ??
+        (businessTypes[0]
+          ? inferBusinessTypeFromText(businessTypes[0])
+          : null) ??
+        inferBusinessTypeFromText(content);
       const memory = recordPageVisit(createEmptySessionMemory(), pageId);
       memory.businessTypes = businessTypes;
       memory.businessType = inferred ?? "unknown";
+      if (businessTypes.length > 0) {
+        memory.discoveryAskedIds = ["business_type"];
+      }
       const greeting: ConciergeMessage = {
         id: createId(),
         role: "assistant",

@@ -26,6 +26,7 @@ import type { SessionMemory } from "@/lib/website-concierge/types";
 export function toDiscoveryProfile(memory: SessionMemory): DiscoveryProfileView {
   return {
     businessType: memory.businessType,
+    businessTypes: memory.businessTypes,
     visitorName: memory.visitorName,
     employeeCount: memory.employeeCount,
     locationCount: memory.locationCount,
@@ -252,14 +253,18 @@ export function runDiscoveryEngine(input: {
 function acknowledge(memory: SessionMemory): string | null {
   const bits: string[] = [];
   if (memory.visitorName) bits.push(`Thanks, ${memory.visitorName}.`);
-  if (memory.businessType !== "unknown" && memory.challenges.length) {
+  const selected =
+    memory.businessTypes.length > 0
+      ? memory.businessTypes.join(" · ")
+      : memory.businessType !== "unknown"
+        ? memory.businessType.replace(/_/g, " ")
+        : null;
+  if (selected && memory.challenges.length) {
     bits.push(
-      `Got it — a ${memory.businessType.replace(/_/g, " ")} dealing with ${memory.challenges[0]}.`,
+      `Got it — ${selected} dealing with ${memory.challenges[0]}.`,
     );
-  } else if (memory.businessType !== "unknown") {
-    bits.push(
-      `Got it — ${memory.businessType.replace(/_/g, " ")}.`,
-    );
+  } else if (selected) {
+    bits.push(`Got it — ${selected}.`);
   } else if (memory.currentSoftware) {
     bits.push(`Noted — you're on ${memory.currentSoftware}.`);
   } else if (memory.employeeCount) {

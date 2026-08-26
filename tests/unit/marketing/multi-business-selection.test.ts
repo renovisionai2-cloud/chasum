@@ -31,8 +31,10 @@ describe("multi-business selection helpers", () => {
       },
     ];
     const prompt = fsBuildMultiPrompt(selections);
-    expect(prompt).toMatch(/Great! I'll tailor Chasum specifically for your/i);
-    expect(prompt.toLowerCase()).toContain("clinic");
+    expect(prompt).toMatch(/I'll tailor Chasum around how your/i);
+    expect(prompt.toLowerCase()).toContain("practice");
+    expect(prompt.toLowerCase()).toContain("ultrasound clinic");
+    expect(prompt).not.toMatch(/ultrasound clinic is not a salon/i);
   });
 
   it("builds a spa confirmation in Summer's voice", () => {
@@ -45,7 +47,7 @@ describe("multi-business selection helpers", () => {
       },
     ]);
     expect(prompt).toBe(
-      "Great! I'll tailor Chasum specifically for your spa.",
+      "Great — I'll tailor Chasum around how your spa operates.",
     );
   });
 
@@ -56,7 +58,7 @@ describe("multi-business selection helpers", () => {
       businessType: "salon" as const,
     };
     const fields = buildUnderstandingFields(memory, { showPending: true });
-    const business = fields.find((f) => f.id === "business");
+    const business = fields.find((f) => f.id === "industry");
     expect(business?.discovered).toBe(true);
     expect(business?.value).toBe("Hair Salon · Medical Spa");
   });
