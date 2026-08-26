@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (Public booking write-path convergence — branch only)
+
+**STATUS:** ON `cursor/phase-5-booking-path-convergence` — **NOT Production**. Production pin remains `476af17`.
+
+- Dual public booking write path identified: any-staff used Booking Engine `createBooking()`; named-staff used legacy `create_public_appointment` RPC (text `status` into `appointment_status`)
+- Named-staff public booking now uses the same Booking Engine `createBooking()` path, passing the selected employee id
+- Legacy RPC is no longer called from public booking
+- No migration required; 034–036 remain unapplied; 037/038 unchanged
+- Do not claim Production is fixed until this branch is deliberately deployed and manually verified
+
 ### Changed (World Class Phase 4A — Commercial SaaS Lifecycle Honesty)
 
 **STATUS:** COMPLETE / MERGED TO MAIN (PR #29, `f6517a1`)

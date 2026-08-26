@@ -2,6 +2,7 @@
 
 import { addMinutes, parseISO } from "date-fns";
 import { headers } from "next/headers";
+import { publicBookingStaffIdForEngine } from "@/lib/booking/public-write-path";
 import { getPublicBusinessBySlug } from "@/lib/booking/slug-alias-lookup";
 import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
 import { isPublicBookingAllowed } from "@/lib/booking/access";
@@ -258,14 +259,15 @@ export async function bookAppointment(
     if (!staffMember) return { error: "Provider not available." };
   }
 
+  if (!locationId) {
+    return { error: "Location is required to book." };
+  }
+
   const start = parseISO(startTime);
   const end = addMinutes(start, service.duration_minutes);
 
   // Any-available: require at least one eligible employee free at this start.
   if (anyStaff) {
-    if (!locationId) {
-      return { error: "Location is required to book." };
-    }
     const { data: linked } = await supabase
       .from("staff_services")
       .select("staff_id, staff!inner(id, name, is_active, location_id)")
@@ -345,14 +347,22 @@ export async function bookAppointment(
     if (blocked) {
       return { error: blocked };
     }
+  }
 
-    const { createBooking } = await import("@/lib/booking-engine");
-    const result = await createBooking({
-      channel: "public",
+  const engineStaffId = publicBookingStaffIdForEngine({
+    anyStaff,
+    selectedStaffId: staffId,
+  });
+
+  const { createBooking, publicCreateIntent } = await import(
+    "@/lib/booking-engine"
+  );
+  const result = await createBooking(
+    publicCreateIntent({
       businessId: business.id,
-      locationId: locationId!,
+      locationId,
       serviceId,
-      staffId: null,
+      staffId: engineStaffId,
       customerId: customerId as string,
       requestedStart: start.toISOString(),
       notes,
@@ -360,48 +370,21 @@ export async function bookAppointment(
       priceCents: publicFinancials.subtotalCents,
       taxCents: publicFinancials.taxCents,
       depositCents: publicFinancials.depositRequiredCents,
-    });
-    if (result.phase !== "success" || !result.data?.appointmentId) {
-      await captureBookingFailure(
-        new Error(result.error ?? "unassigned public booking failed"),
-        { slug, channel: "public" },
-      );
-      const msg = result.error ?? "";
-      return {
-        error: msg.includes("Time slot")
-          ? "This time slot is no longer available."
-          : msg || "Could not complete booking. Please try another time.",
-      };
-    }
-    appointmentId = result.data.appointmentId;
-  } else {
-    const { data, error: appointmentError } = await supabase.rpc(
-      "create_public_appointment",
-      {
-        p_business_id: business.id,
-        p_service_id: serviceId,
-        p_staff_id: staffId,
-        p_customer_id: customerId,
-        p_start_time: start.toISOString(),
-        p_end_time: end.toISOString(),
-        p_notes: notes,
-        p_location_id: locationId,
-        p_status: appointmentStatus,
-      },
+    }),
+  );
+  if (result.phase !== "success" || !result.data?.appointmentId) {
+    await captureBookingFailure(
+      new Error(result.error ?? "public booking failed"),
+      { slug, channel: "public" },
     );
-
-    if (appointmentError) {
-      await captureBookingFailure(appointmentError, {
-        slug,
-        channel: "public",
-      });
-      const message = appointmentError.message.includes("Time slot")
+    const msg = result.error ?? "";
+    return {
+      error: msg.includes("Time slot")
         ? "This time slot is no longer available."
-        : appointmentError.message;
-      return { error: message };
-    }
-    appointmentId = data as string;
+        : msg || "Could not complete booking. Please try another time.",
+    };
   }
+  appointmentId = result.data.appointmentId;
 
   let emailQueued = false;
   let notifications: PublicBookingState["notifications"];

@@ -484,10 +484,12 @@ Preserved for history — **not** current branch instructions:
 ## Active branch
 
 ```
-main
+cursor/phase-5-booking-path-convergence
 ```
 
-Handoff: documentation restamp on `main` `f6517a17504667b58799a3202e43f5ec145643a1`. Next implementation branch must not be created in this chapter.
+Level 3 public booking write-path convergence (named-staff → Booking Engine). Base / Production pin remains `476af17`. **Not merged. Not Production.**
+
+Handoff: documentation restamp on `main` `f6517a17504667b58799a3202e43f5ec145643a1` is stale versus actual `main`/`Production` `476af17`. This recovery branch does not restamp the Production pin.
 
 **Obsolete as current working branch (historical only):**
 
