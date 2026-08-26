@@ -237,11 +237,15 @@ export function ConnectedOperatingSystemAnimation({
 
       {nodes.map((node) => {
         const Icon = node.icon;
+        const isCommunication = node.label === "Communication";
         return (
           <div
             key={node.label}
             className={cn(
-              "fd-connect-node cos-signature-node absolute flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center overflow-visible rounded-2xl border border-border/70 bg-card/90 shadow-sm backdrop-blur-sm sm:h-16 sm:w-16",
+              "fd-connect-node cos-signature-node absolute flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-card/90 shadow-sm backdrop-blur-sm",
+              isCommunication
+                ? "h-14 w-[5rem] px-1.5 sm:h-16 sm:w-[6.25rem] sm:px-2.5"
+                : "h-14 w-14 sm:h-16 sm:w-16",
               liveLitNode === node.index && "cos-signature-node--lit",
             )}
             style={{
@@ -254,7 +258,14 @@ export function ConnectedOperatingSystemAnimation({
               className="h-4 w-4 text-primary sm:h-5 sm:w-5"
               strokeWidth={1.75}
             />
-            <span className="mt-0.5 max-w-[4.6rem] whitespace-nowrap text-center text-[8px] font-medium leading-none text-muted-foreground sm:max-w-none sm:text-[10px]">
+            <span
+              className={cn(
+                "mt-0.5 text-center font-medium leading-none text-muted-foreground",
+                isCommunication
+                  ? "whitespace-nowrap text-[8px] sm:text-[10px]"
+                  : "max-w-[3.5rem] truncate text-[9px] sm:text-[10px]",
+              )}
+            >
               {node.label}
             </span>
           </div>
@@ -263,7 +274,7 @@ export function ConnectedOperatingSystemAnimation({
 
       <div
         className={cn(
-          "fd-connect-core cos-signature-core absolute left-1/2 top-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-primary/30 bg-card shadow-[0_0_48px_-6px_hsl(var(--primary)/0.65)] sm:h-28 sm:w-28",
+          "fd-connect-core cos-signature-core absolute left-1/2 top-1/2 flex h-24 w-24 items-center justify-center rounded-full border border-primary/30 bg-card shadow-[0_0_48px_-6px_hsl(var(--primary)/0.65)] sm:h-28 sm:w-28",
           liveCoreReceiving && "cos-signature-core--receiving",
         )}
       >
