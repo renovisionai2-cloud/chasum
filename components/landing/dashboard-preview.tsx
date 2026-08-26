@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-/** Older-generation mock IA — default for Platform / Product Tour previews. */
+/** Older-generation mock IA — default for Product Tour; Platform opts into NAV_CURRENT. */
 const NAV_LEGACY = [
   { label: "Overview", icon: LayoutDashboard },
   { label: "Reception", icon: Calendar },
@@ -36,7 +36,7 @@ const NAV_LEGACY = [
   { label: "AI Workforce", icon: Sparkles },
 ] as const;
 
-/** Current-main tenant nav subset — homepage marketing mock only. */
+/** Current-main tenant nav subset — homepage and Platform marketing mocks. */
 const NAV_CURRENT = [
   { label: "Command Centre", icon: LayoutDashboard },
   { label: "Reception", icon: Calendar },
@@ -61,8 +61,8 @@ type DashboardPreviewProps = {
   /** Enable live micro-demos inside panes. Defaults to true when not compact. */
   live?: boolean;
   /**
-   * Homepage uses current-main tenant IA. Other marketing pages keep the
-   * legacy mock labels unless they opt in.
+   * Current-main tenant IA. Homepage and Platform opt in; Product Tour keeps
+   * the default legacy mock labels.
    */
   navIa?: "legacy" | "current";
   /**
@@ -244,12 +244,20 @@ export function DashboardPreview({
               />
             ) : null}
             {variant === "reception" ? <ReceptionPane live={isLive} /> : null}
-            {variant === "crm" ? <CrmPane live={isLive} /> : null}
+            {variant === "crm" ? (
+              <CrmPane live={isLive} currentIa={navIa === "current"} />
+            ) : null}
             {variant === "communication" ? (
-              <CommunicationPane live={isLive} />
+              <CommunicationPane live={isLive} currentIa={navIa === "current"} />
             ) : null}
             {variant === "reports" ? <ReportsPane live={isLive} /> : null}
-            {variant === "billing" ? <BillingPane live={isLive} /> : null}
+            {variant === "billing" ? (
+              navIa === "current" ? (
+                <PaymentsPane live={isLive} />
+              ) : (
+                <BillingPane live={isLive} />
+              )
+            ) : null}
             {variant === "summer" ? <SummerPane live={isLive} /> : null}
             {variant === "employees" ? <EmployeesPane live={isLive} /> : null}
             {variant === "business" ? <BusinessPane live={isLive} /> : null}
@@ -448,7 +456,13 @@ function ReceptionPane({ live }: { live: boolean }) {
   );
 }
 
-function CrmPane({ live }: { live: boolean }) {
+function CrmPane({
+  live,
+  currentIa = false,
+}: {
+  live: boolean;
+  currentIa?: boolean;
+}) {
   const tick = useTick(live, 2400);
   const events = [
     "Appointment confirmed · Today 9:00",
@@ -461,7 +475,9 @@ function CrmPane({ live }: { live: boolean }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold">CRM · Customer profile</p>
+      <p className="text-sm font-semibold">
+        {currentIa ? "Customers · Profile" : "CRM · Customer profile"}
+      </p>
       <div className="grid gap-3 md:grid-cols-[0.72fr_1.28fr]">
         <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
@@ -503,7 +519,13 @@ function CrmPane({ live }: { live: boolean }) {
   );
 }
 
-function CommunicationPane({ live }: { live: boolean }) {
+function CommunicationPane({
+  live,
+  currentIa = false,
+}: {
+  live: boolean;
+  currentIa?: boolean;
+}) {
   const tick = useTick(live, 2800);
   const replies = [
     "You're confirmed for 9:00 AM. We'll see you then.",
@@ -514,7 +536,9 @@ function CommunicationPane({ live }: { live: boolean }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold">Communication Center</p>
+        <p className="text-sm font-semibold">
+          {currentIa ? "Communications" : "Communication Center"}
+        </p>
         <span className="rounded-full bg-success/10 px-2 py-1 text-[10px] font-medium text-success">
           {tick % 2 === 0 ? "All caught up" : "1 new"}
         </span>
@@ -616,6 +640,43 @@ function ReportsPane({ live }: { live: boolean }) {
             />
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PaymentsPane({ live }: { live: boolean }) {
+  const tick = useTick(live, 2800);
+  const rows = [
+    ["Alex Rivera", "Card · completed visit", "$180"],
+    ["Jordan Lee", "Deposit · tomorrow 9:00", "$50"],
+    ["Sam Patel", "Balance recorded", "$95"],
+  ] as const;
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm font-semibold">Payments · Recorded activity</p>
+      <div className="rounded-[var(--radius-md)] border border-border/80 bg-background p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Recent payments
+        </p>
+        <ul className="mt-3 space-y-2">
+          {rows.map(([name, detail, amount], index) => (
+            <li
+              key={name}
+              className={cn(
+                "flex items-center justify-between gap-3 rounded-[var(--radius-sm)] px-2 py-2 text-xs",
+                index === tick % 3 ? "bg-primary/5" : "bg-muted/50",
+              )}
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium">{name}</p>
+                <p className="text-[10px] text-muted-foreground">{detail}</p>
+              </div>
+              <span className="shrink-0 tabular-nums font-medium">{amount}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

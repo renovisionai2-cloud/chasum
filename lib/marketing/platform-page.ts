@@ -28,37 +28,39 @@ export const PLATFORM_STORY = {
   ] as const,
   close: CHASUM_SUPPORTING_LINE,
   bridgeToShowcase:
-    "Explore each department below—and notice how they stay connected.",
+    "Explore each area below—and notice how they stay connected.",
 } as const;
 
 export const PLATFORM_SHOWCASE = {
   eyebrow: "Inside the operating system",
-  headline: "See how every department is designed around one Business Brain",
-  lede: "Choose a department to preview how Chasum coordinates the day. The surfaces are illustrative—the architecture is one shared intelligence.",
+  headline: "See how every part of your business works from one Business Brain.",
+  lede: "Choose an area to see how Chasum keeps the business connected.",
   bridgeToConclusion:
     "As context is shared, recommendations, alerts and insights can appear where work already happens—without a separate AI layer to manage.",
 } as const;
 
 /** Subtle embedded intelligence — capability signals, never promotional banners. */
-export const PLATFORM_DEPARTMENT_SIGNALS: Record<string, string> = {
-  dashboard:
+export const PLATFORM_AREA_SIGNALS: Record<string, string> = {
+  "command-centre":
     "Surfaces what needs attention before the day gets busy.",
-  summer:
-    "Answers from real hours, services and availability—never invented slots.",
-  crm: "Brings history forward so the next conversation starts with context.",
-  calendar:
+  reception:
     "Keeps openings, staff and rooms aligned in one shared schedule.",
+  customers:
+    "Brings history forward so the next conversation starts with context.",
   employees:
     "Connects roles and capacity to the same day the business is running.",
-  business:
-    "Holds the rules every other department reads from.",
+  payments:
+    "Records deposits and payments beside the same customer and service context.",
   reports:
     "Turns shared activity into clear observations—not disconnected spreadsheets.",
-  communication:
+  communications:
     "Keeps follow-ups tied to the customer and the appointment.",
-  billing:
-    "Records commerce beside the same customer and service context.",
+  summer:
+    "Answers from real hours, services and availability—never invented slots.",
 };
+
+/** @deprecated Use PLATFORM_AREA_SIGNALS. Kept as an alias for existing imports. */
+export const PLATFORM_DEPARTMENT_SIGNALS = PLATFORM_AREA_SIGNALS;
 
 export const PLATFORM_CONCLUSION = {
   eyebrow: "The operating system",

@@ -2,8 +2,9 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
+  PLATFORM_AREA_SIGNALS,
   PLATFORM_CONCLUSION,
-  PLATFORM_DEPARTMENT_SIGNALS,
+  PLATFORM_SHOWCASE,
   PLATFORM_STORY,
 } from "@/lib/marketing/platform-page";
 import {
@@ -20,10 +21,19 @@ describe("Platform page Final Polish", () => {
     expect(PLATFORM_STORY.bridgeToShowcase.length).toBeGreaterThan(20);
   });
 
-  it("embeds calm intelligence signals across departments", () => {
-    expect(Object.keys(PLATFORM_DEPARTMENT_SIGNALS).length).toBeGreaterThanOrEqual(8);
-    expect(PLATFORM_DEPARTMENT_SIGNALS.dashboard).toMatch(/attention/i);
-    expect(PLATFORM_DEPARTMENT_SIGNALS.summer).toMatch(/never invented/i);
+  it("embeds calm intelligence signals across current business areas", () => {
+    expect(Object.keys(PLATFORM_AREA_SIGNALS)).toEqual([
+      "command-centre",
+      "reception",
+      "customers",
+      "employees",
+      "payments",
+      "reports",
+      "communications",
+      "summer",
+    ]);
+    expect(PLATFORM_AREA_SIGNALS["command-centre"]).toMatch(/attention/i);
+    expect(PLATFORM_AREA_SIGNALS.summer).toMatch(/never invented/i);
   });
 
   it("closes with one OS message and explore / Summer / alpha CTAs", () => {
@@ -57,5 +67,33 @@ describe("Platform page Final Polish", () => {
     expect(tour).toContain("DashboardShowcase");
     expect(tour).not.toContain('mode="platform"');
     expect(tour).toContain("ProductTourConclusion");
+  });
+
+  it("uses current-generation selector, mock IA, and chrome on Platform only", () => {
+    const showcase = readFileSync(
+      path.join(process.cwd(), "components/landing/dashboard-showcase.tsx"),
+      "utf8",
+    );
+    expect(showcase).toContain('label: "Command Centre"');
+    expect(showcase).toContain('label: "Reception"');
+    expect(showcase).toContain('label: "Customers"');
+    expect(showcase).toContain('label: "Employees"');
+    expect(showcase).toContain('label: "Payments"');
+    expect(showcase).toContain('label: "Reports"');
+    expect(showcase).toContain('label: "Communications"');
+    expect(showcase).toContain('label: "Summer"');
+    expect(showcase).toContain('navIa={isPlatform ? "current" : "legacy"}');
+    expect(showcase).toContain('Chasum · Business Dashboard');
+    expect(showcase).toContain("Illustrative demo data · not a live tenant");
+
+    expect(PLATFORM_SHOWCASE.headline).toMatch(/every part of your business/i);
+    expect(PLATFORM_SHOWCASE.lede).toMatch(/Choose an area/i);
+
+    const tourShowcaseStart = showcase.indexOf("const SHOWCASE_TABS");
+    const platformShowcaseStart = showcase.indexOf("const PLATFORM_SHOWCASE_TABS");
+    const tourBlock = showcase.slice(tourShowcaseStart, platformShowcaseStart);
+    expect(tourBlock).toContain('label: "Dashboard"');
+    expect(tourBlock).toContain('label: "CRM"');
+    expect(tourBlock).toContain('label: "Billing"');
   });
 });
