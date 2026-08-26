@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-/** Older-generation mock IA — default for Product Tour; Platform opts into NAV_CURRENT. */
+/** Older-generation mock IA — unused by current marketing pages unless opted in. */
 const NAV_LEGACY = [
   { label: "Overview", icon: LayoutDashboard },
   { label: "Reception", icon: Calendar },
@@ -61,8 +61,7 @@ type DashboardPreviewProps = {
   /** Enable live micro-demos inside panes. Defaults to true when not compact. */
   live?: boolean;
   /**
-   * Current-main tenant IA. Homepage and Platform opt in; Product Tour keeps
-   * the default legacy mock labels.
+   * Current-main tenant IA. Homepage, Platform, and Product Tour opt in.
    */
   navIa?: "legacy" | "current";
   /**

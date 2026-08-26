@@ -82,21 +82,13 @@ describe("Platform page Final Polish", () => {
     expect(showcase).toContain('label: "Reports"');
     expect(showcase).toContain('label: "Communications"');
     expect(showcase).toContain('label: "Summer"');
-    expect(showcase).toContain('navIa={isPlatform ? "current" : "legacy"}');
+    expect(showcase).toContain('navIa="current"');
     expect(showcase).toContain("Chasum · ${active.label}");
     expect(showcase).not.toContain('isPlatform ? "Chasum · Business Dashboard"');
     expect(showcase).toContain("Illustrative demo data · not a live tenant");
 
     expect(PLATFORM_SHOWCASE.headline).toMatch(/every part of your business/i);
     expect(PLATFORM_SHOWCASE.lede).toMatch(/Choose an area/i);
-
-    const tourShowcaseStart = showcase.indexOf("const SHOWCASE_TABS");
-    const platformShowcaseStart = showcase.indexOf("const PLATFORM_SHOWCASE_TABS");
-    const tourBlock = showcase.slice(tourShowcaseStart, platformShowcaseStart);
-    expect(tourBlock).toContain('label: "Dashboard"');
-    expect(tourBlock).toContain('label: "CRM"');
-    expect(tourBlock).toContain('label: "Billing"');
-    expect(tourBlock).toContain('name: "Business Dashboard"');
   });
 
   it("composes hero capabilities as a compact two-column list", () => {

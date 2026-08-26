@@ -12,7 +12,7 @@ export function CustomerJourney() {
   return (
     <section
       id="how-it-works"
-      className="pt-journey marketing-section-contain scroll-mt-24 px-6 py-24 md:py-36"
+      className="pt-journey marketing-section-contain scroll-mt-24 px-6 py-16 md:py-24"
       aria-labelledby="journey-heading"
     >
       <div className="mx-auto max-w-[1400px]">
@@ -35,7 +35,7 @@ export function CustomerJourney() {
               <span className="pt-journey-pulse" />
             </div>
 
-            <ol className="pt-journey-grid grid gap-4 lg:grid-cols-7 lg:gap-3">
+            <ol className="pt-journey-grid">
               {PRODUCT_TOUR_JOURNEY.map((item, index) => (
                 <li key={item.step} className="pt-journey-card">
                   <div className="pt-journey-card-inner">

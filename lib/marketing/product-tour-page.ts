@@ -21,7 +21,7 @@ export const PRODUCT_TOUR_INTRO = {
   headline: "One customer journey. One connected record.",
   lede: "Chasum is an AI Business Operating System—not a standalone booking tool. This tour follows one connected journey, from booking to payment and reporting, on the same business record.",
   bridgeToShowcase:
-    "Next, step into each department and see why it matters before you see how it works.",
+    "Next, explore each area and see why it matters—then how it stays connected.",
 } as const;
 
 /**
@@ -32,10 +32,10 @@ export const PRODUCT_TOUR_JOURNEY = [
     step: "1",
     title: "Appointment requested",
     why: "Demand should never get lost between channels.",
-    detail: "Online booking or reception begins the visit in one place.",
+    detail: "Online booking or reception starts the visit in one place.",
     moment: {
       kind: "Observation" as TourAiKind,
-      text: "The request is recognized as the start of one shared customer record.",
+      text: "The request begins one shared customer record.",
     },
   },
   {
@@ -51,28 +51,28 @@ export const PRODUCT_TOUR_JOURNEY = [
   {
     step: "3",
     title: "Customer record updated",
-    why: "Context missing at the front desk slows every visit.",
-    detail: "CRM history stays connected to the appointment.",
+    why: "Missing context at the front desk slows every visit.",
+    detail: "Customer history stays connected to the appointment.",
     moment: {
       kind: "Insight" as TourAiKind,
-      text: "Prior visits and notes travel with the booking automatically.",
+      text: "Prior visits and notes travel with the booking.",
     },
   },
   {
     step: "4",
-    title: "Confirmation and reminder sent",
+    title: "Confirmation and reminder",
     why: "Silence after booking is how no-shows begin.",
     detail: "Configured email or SMS keeps the customer informed.",
     moment: {
       kind: "Recommendation" as TourAiKind,
-      text: "Follow-ups stay tied to the appointment and the customer profile.",
+      text: "Follow-ups stay tied to the visit and the customer profile.",
     },
   },
   {
     step: "5",
     title: "Service completed",
     why: "The day needs a clear record of what actually happened.",
-    detail: "The appointment progresses through the business’s chosen workflow.",
+    detail: "The appointment moves through the business’s chosen workflow.",
     moment: {
       kind: "Observation" as TourAiKind,
       text: "Completion updates the same operating memory used everywhere else.",
@@ -83,17 +83,17 @@ export const PRODUCT_TOUR_JOURNEY = [
     title: "Payment recorded",
     why: "Money and service history should never live in separate silos.",
     detail:
-      "Deposits, balances and supported commerce events enter the ledger beside the visit.",
+      "Deposits, balances and supported commerce events sit beside the visit.",
     moment: {
       kind: "Insight" as TourAiKind,
-      text: "Payment context remains available on the customer and appointment.",
+      text: "Payment context remains on the customer and the appointment.",
     },
   },
   {
     step: "7",
     title: "Reports updated",
     why: "Owners need truth about the day—not another export ritual.",
-    detail: "Operational and financial reporting reflects recorded activity.",
+    detail: "Reporting reflects recorded activity across the same journey.",
     moment: {
       kind: "Recommendation" as TourAiKind,
       text: "Patterns surface from shared activity, not a disconnected spreadsheet.",
@@ -104,19 +104,19 @@ export const PRODUCT_TOUR_JOURNEY = [
 export const PRODUCT_TOUR_SHOWCASE = {
   eyebrow: "Inside the tour",
   headline: "Why each capability matters",
-  lede: "Choose a department. Start with why it exists—then see how Chasum brings it into one operating system.",
+  lede: "Choose an area. Start with why it exists—then see how Chasum brings it into one operating system.",
 } as const;
 
-/** WHY + quiet AI moment for each tour department stop. */
+/** WHY + quiet AI moment for each current-generation operating area. */
 export const PRODUCT_TOUR_STOPS: Record<
   string,
   { why: string; moment: { kind: TourAiKind; text: string } }
 > = {
-  dashboard: {
+  "command-centre": {
     why: "A busy day needs one place that shows what deserves attention first.",
     moment: {
       kind: "Insight",
-      text: "Operational signals gather here from every connected department.",
+      text: "Operational signals gather here from every connected area.",
     },
   },
   summer: {
@@ -126,14 +126,14 @@ export const PRODUCT_TOUR_STOPS: Record<
       text: "Summer, your AI Business Manager, answers from real hours, services and openings—then escalates to humans when needed.",
     },
   },
-  crm: {
+  customers: {
     why: "Every conversation is better when history arrives before the greeting.",
     moment: {
       kind: "Observation",
       text: "Notes, visits and payments stay on one timeline with the appointment.",
     },
   },
-  calendar: {
+  reception: {
     why: "Time is the business—openings must be real, shared and staff-aware.",
     moment: {
       kind: "Suggestion",
@@ -147,13 +147,6 @@ export const PRODUCT_TOUR_STOPS: Record<
       text: "Roles and assignments feed the same day the calendar is running.",
     },
   },
-  business: {
-    why: "Rules only help when every department reads the same configuration.",
-    moment: {
-      kind: "Observation",
-      text: "Locations, services and policies become shared operating context.",
-    },
-  },
   reports: {
     why: "Decisions improve when performance is visible without rebuilding spreadsheets.",
     moment: {
@@ -161,14 +154,14 @@ export const PRODUCT_TOUR_STOPS: Record<
       text: "KPIs reflect the same recorded activity the business already ran.",
     },
   },
-  communication: {
+  communications: {
     why: "Follow-ups fail when messages leave the customer record behind.",
     moment: {
       kind: "Suggestion",
       text: "Email and SMS actions stay attached to the person and the visit.",
     },
   },
-  billing: {
+  payments: {
     why: "Commerce should sit beside the work that created it—not in another system.",
     moment: {
       kind: "Insight",

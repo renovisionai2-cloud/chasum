@@ -3,7 +3,6 @@
 import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { Reveal } from "@/components/landing/reveal";
 import { Button } from "@/components/ui/button";
-import { PLATFORM_MODULES } from "@/lib/marketing/homepage";
 import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
@@ -21,14 +20,11 @@ import {
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
-  BriefcaseBusiness,
-  Building2,
   CalendarDays,
   Check,
   CreditCard,
   LayoutDashboard,
   MessageSquareText,
-  Sparkles,
   Sun,
   UserCog,
   Users,
@@ -36,118 +32,7 @@ import {
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 
-const SHOWCASE_TABS = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    name: "Business Dashboard",
-    preview: "overview" as const,
-    icon: LayoutDashboard,
-    benefit: "See what needs attention before the day gets busy.",
-    explanation:
-      "Appointments, revenue, customers, and operational signals come together in one calm command center.",
-    benefits: [
-      "Operating snapshot",
-      "Today and weekly activity",
-      "Fast access to every department",
-    ],
-    cta: CTA_APPLY_LABEL,
-    ctaHref: APPLY_HREF,
-  },
-  {
-    id: "summer",
-    label: "Summer",
-    name: "Summer — AI Business Manager",
-    preview: "summer" as const,
-    icon: Sparkles,
-    benefit:
-      "Grounded answers from real business data — never invented availability.",
-    explanation:
-      "Summer is Chasum's AI Business Manager: discovery, onboarding, daily operations, staff guidance, and growth. AI Receptionist work—calls, booking, and inquiries—is one capability within that role.",
-    benefits: [
-      "Grounded business answers",
-      "Real availability only",
-      "Human escalation",
-    ],
-    cta: CTA_MEET_SUMMER_LABEL,
-    ctaHref: MEET_SUMMER_HREF,
-  },
-  {
-    id: "crm",
-    label: "CRM",
-    preview: "crm" as const,
-    icon: Users,
-    benefits: [
-      "Complete customer timeline",
-      "Notes and documents",
-      "Booking and payment context",
-    ],
-  },
-  {
-    id: "calendar",
-    label: "Calendar",
-    preview: "reception" as const,
-    icon: CalendarDays,
-    benefits: [
-      "Staff-aware availability",
-      "Day, week, and resource views",
-      "Waitlist and booking controls",
-    ],
-  },
-  {
-    id: "employees",
-    label: "Employees",
-    preview: "employees" as const,
-    icon: BriefcaseBusiness,
-    benefits: [
-      "Roles and departments",
-      "Location assignments",
-      "Performance context",
-    ],
-  },
-  {
-    id: "business",
-    label: "Business",
-    preview: "business" as const,
-    icon: Building2,
-    benefits: [
-      "Locations and resources",
-      "Services and commerce",
-      "Rules and forms",
-    ],
-  },
-  {
-    id: "reports",
-    label: "Reports",
-    preview: "reports" as const,
-    icon: BarChart3,
-    benefits: ["Executive KPIs", "Revenue breakdowns", "Exports and schedules"],
-  },
-  {
-    id: "communication",
-    label: "Communication",
-    preview: "communication" as const,
-    icon: MessageSquareText,
-    benefits: [
-      "Unified conversation view",
-      "Email and SMS actions",
-      "Follow-up reminders",
-    ],
-  },
-  {
-    id: "billing",
-    label: "Billing",
-    preview: "billing" as const,
-    icon: CreditCard,
-    benefits: [
-      "Plan and trial visibility",
-      "Invoice history",
-      "Payment-ready architecture",
-    ],
-  },
-] as const;
-
-/** Current-generation Platform selector — Product Tour keeps SHOWCASE_TABS. */
+/** Current-generation operating areas — Platform and Product Tour. */
 const PLATFORM_SHOWCASE_TABS = [
   {
     id: "command-centre",
@@ -272,11 +157,19 @@ const PLATFORM_SHOWCASE_TABS = [
   },
 ] as const;
 
-type TourTabId = (typeof SHOWCASE_TABS)[number]["id"];
-type PlatformTabId = (typeof PLATFORM_SHOWCASE_TABS)[number]["id"];
+type AreaTabId = (typeof PLATFORM_SHOWCASE_TABS)[number]["id"];
 const TOUR_STORAGE_KEY = "chasum-marketing-tour-department";
 const PLATFORM_STORAGE_KEY = "chasum-marketing-platform-area";
 const STORAGE_EVENT = "chasum-tour-change";
+
+const TOUR_TAB_ALIASES: Record<string, AreaTabId> = {
+  dashboard: "command-centre",
+  calendar: "reception",
+  crm: "customers",
+  billing: "payments",
+  communication: "communications",
+  business: "command-centre",
+};
 
 function field(obj: object | undefined, key: string): string | undefined {
   if (!obj || !(key in obj)) return undefined;
@@ -284,11 +177,7 @@ function field(obj: object | undefined, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-function isTourTabId(value: string | null): value is TourTabId {
-  return SHOWCASE_TABS.some((tab) => tab.id === value);
-}
-
-function isPlatformTabId(value: string | null): value is PlatformTabId {
+function isAreaTabId(value: string | null): value is AreaTabId {
   return PLATFORM_SHOWCASE_TABS.some((tab) => tab.id === value);
 }
 
@@ -301,29 +190,31 @@ function subscribeToTour(onStoreChange: () => void) {
   };
 }
 
-function getTourSnapshot(): TourTabId {
+function getTourSnapshot(): AreaTabId {
   const saved = window.localStorage.getItem(TOUR_STORAGE_KEY);
-  return isTourTabId(saved) ? saved : "dashboard";
+  if (isAreaTabId(saved)) return saved;
+  const mapped = saved ? TOUR_TAB_ALIASES[saved] : undefined;
+  return mapped ?? "command-centre";
 }
 
-function getPlatformSnapshot(): PlatformTabId {
+function getPlatformSnapshot(): AreaTabId {
   const saved = window.localStorage.getItem(PLATFORM_STORAGE_KEY);
-  return isPlatformTabId(saved) ? saved : "command-centre";
+  return isAreaTabId(saved) ? saved : "command-centre";
 }
 
-function selectTourTab(tab: TourTabId) {
+function selectTourTab(tab: AreaTabId) {
   window.localStorage.setItem(TOUR_STORAGE_KEY, tab);
   window.dispatchEvent(new Event(STORAGE_EVENT));
 }
 
-function selectPlatformTab(tab: PlatformTabId) {
+function selectPlatformTab(tab: AreaTabId) {
   window.localStorage.setItem(PLATFORM_STORAGE_KEY, tab);
   window.dispatchEvent(new Event(STORAGE_EVENT));
 }
 
 /**
  * Product surfaces showcase — shared by Platform and Product Tour.
- * Platform mode strengthens the one-operating-system story without layout changes.
+ * Platform mode is locked; Product Tour uses the same current-generation IA.
  */
 export function DashboardShowcase({
   mode = "tour",
@@ -335,21 +226,18 @@ export function DashboardShowcase({
   const tourTab = useSyncExternalStore(
     subscribeToTour,
     getTourSnapshot,
-    () => "dashboard" as const,
+    () => "command-centre" as const,
   );
   const platformTab = useSyncExternalStore(
     subscribeToTour,
     getPlatformSnapshot,
     () => "command-centre" as const,
   );
-  const tabs = isPlatform ? PLATFORM_SHOWCASE_TABS : SHOWCASE_TABS;
+  const tabs = PLATFORM_SHOWCASE_TABS;
   const selectedTab = isPlatform ? platformTab : tourTab;
   const active =
     tabs.find((item) => item.id === selectedTab) ?? tabs[0];
-  const moduleCopy =
-    isPlatform || active.id === "dashboard"
-      ? active
-      : PLATFORM_MODULES.find((module) => module.id === active.id);
+  const moduleCopy = active;
   const Icon = active.icon;
   const ctaHref = field(active, "ctaHref") ?? field(moduleCopy, "ctaHref") ?? APPLY_HREF;
   const ctaLabel = field(active, "cta") ?? field(moduleCopy, "cta") ?? CTA_APPLY_LABEL;
@@ -361,7 +249,7 @@ export function DashboardShowcase({
       id="showcase"
       className={cn(
         "marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 overflow-hidden px-4 sm:px-6",
-        isPlatform ? "pt-14 pb-20 md:pt-20 md:pb-28" : "py-24 md:py-36",
+        isPlatform ? "pt-14 pb-20 md:pt-20 md:pb-28" : "pt-14 pb-16 md:pt-16 md:pb-20",
       )}
       aria-labelledby="showcase-heading"
     >
@@ -389,14 +277,14 @@ export function DashboardShowcase({
         <Reveal delayMs={80}>
           <div
             className={cn(
-              "grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)]",
-              isPlatform ? "mt-10 md:mt-12" : "mt-14",
+              "grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)] mt-10 md:mt-12",
             )}
           >
+            <div className="min-w-0">
             <div
               className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               role="tablist"
-              aria-label={isPlatform ? "Business areas" : "Departments"}
+              aria-label={isPlatform ? "Business areas" : "Operating areas"}
             >
               {tabs.map((item) => (
                 <button
@@ -407,9 +295,9 @@ export function DashboardShowcase({
                   aria-controls="tour-panel"
                   aria-selected={selectedTab === item.id}
                   onClick={() => {
-                    if (isPlatform && isPlatformTabId(item.id)) {
+                    if (isPlatform && isAreaTabId(item.id)) {
                       selectPlatformTab(item.id);
-                    } else if (isTourTabId(item.id)) {
+                    } else if (isAreaTabId(item.id)) {
                       selectTourTab(item.id);
                     }
                   }}
@@ -435,6 +323,12 @@ export function DashboardShowcase({
                 </button>
               ))}
             </div>
+            {isTour ? (
+              <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+                Your last selected area is remembered.
+              </p>
+            ) : null}
+            </div>
 
             <div
               id="tour-panel"
@@ -448,7 +342,9 @@ export function DashboardShowcase({
                     <div className="mb-2 flex items-center gap-2">
                       <Icon className="h-4 w-4 text-primary" />
                       <p className="text-sm font-medium text-primary">
-                        {field(moduleCopy, "name") ?? active.label}
+                        {isTour
+                          ? active.label
+                          : (field(moduleCopy, "name") ?? active.label)}
                       </p>
                     </div>
                     {isTour && tourStop ? (
@@ -501,19 +397,15 @@ export function DashboardShowcase({
                   <DashboardPreview
                     variant={active.preview}
                     live={false}
-                    navIa={isPlatform ? "current" : "legacy"}
-                    chromeLabel={
-                      isPlatform ? `Chasum · ${active.label}` : undefined
-                    }
+                    navIa="current"
+                    chromeLabel={`Chasum · ${active.label}`}
                     className="min-h-[400px] border-0 shadow-none md:min-h-[560px] xl:min-h-[620px]"
                   />
                 </div>
 
                 <div className="mt-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                   <p className="text-xs text-muted-foreground">
-                    {isPlatform
-                      ? "Illustrative demo data · not a live tenant"
-                      : "Your selected department is remembered for your next visit."}
+                    Illustrative demo data · not a live tenant
                   </p>
                   <Link href={ctaHref}>
                     <Button className="marketing-cta-button rounded-full px-6">

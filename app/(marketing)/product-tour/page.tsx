@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Product Tour — verified journey + interactive department previews.
+ * Product Tour — connected journey + current-generation operating-area previews.
  */
 export default function ProductTourPage() {
   return (
