@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Why Private Alpha",
   description:
-    "Build the future of business management with Chasum. Design Partners get early access, personal onboarding, and a real voice in what we build next.",
+    "Build the AI Business Operating System with Chasum. Design Partners get early access, personal onboarding, and a real voice in what we build next.",
 };
 
 export default function WhyPrivateAlphaPage() {

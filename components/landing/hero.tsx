@@ -7,6 +7,11 @@ import {
   CTA_START_WITH_SUMMER_LABEL,
   MEET_SUMMER_HREF,
 } from "@/lib/marketing/alpha";
+import {
+  CHASUM_NOT_SCHEDULER,
+  CHASUM_OS_PRIMARY,
+  CHASUM_SUMMER_PRIMARY,
+} from "@/lib/marketing/os-positioning";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -39,16 +44,12 @@ export function Hero() {
             </span>
           </h1>
 
-          <div className="fd-hero-enter fd-hero-enter-delay-2 mt-6 max-w-lg space-y-5 text-base leading-relaxed text-muted-foreground sm:mt-7 md:text-lg md:leading-[1.65]">
+          <div className="fd-hero-enter fd-hero-enter-delay-2 mt-6 max-w-lg space-y-4 text-base leading-relaxed text-muted-foreground sm:mt-7 md:text-lg md:leading-[1.65]">
             <p className="font-medium text-foreground/85">
-              Businesses don&apos;t need more software. They need software that
-              understands how the business works.
+              {CHASUM_NOT_SCHEDULER}
             </p>
-            <p>
-              Chasum connects scheduling, customers, communication, payments,
-              reporting and AI in one intelligent operating system built for
-              service businesses.
-            </p>
+            <p>{CHASUM_OS_PRIMARY}</p>
+            <p>{CHASUM_SUMMER_PRIMARY}</p>
           </div>
 
           <div className="fd-hero-enter fd-hero-enter-delay-3 mt-9 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-5">

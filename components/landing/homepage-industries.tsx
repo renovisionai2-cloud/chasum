@@ -32,13 +32,13 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   {
     name: "Healthcare",
     blurb:
-      "Designed for healthcare and wellness practices that need scheduling and follow-up.",
+      "Designed for healthcare and wellness practices that need one connected platform for appointments, follow-up and operations.",
     icon: HeartPulse,
   },
   {
     name: "Legal Services",
     blurb:
-      "Designed for legal practices managing consultations, clients and scheduling.",
+      "Designed for legal practices managing consultations, clients and operations on one platform.",
     icon: Scale,
   },
   {
@@ -65,7 +65,7 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   },
   {
     name: "Professional Services",
-    blurb: "Designed for advisors and consultants who live by appointments.",
+    blurb: "Designed for advisors and consultants who need one connected platform—not only a calendar.",
     icon: BriefcaseBusiness,
   },
   {
@@ -80,7 +80,7 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   },
   {
     name: "Education",
-    blurb: "Designed for instructors who need scheduling and communication.",
+    blurb: "Designed for instructors who need scheduling, communication and connected operations.",
     icon: GraduationCap,
   },
 ];
@@ -105,9 +105,10 @@ export function HomepageIndustries() {
               Every service business works differently.
             </h2>
             <p className="marketing-lede">
-              Chasum provides a connected operating foundation that can be
+              Chasum provides one connected operating system that can be
               configured around the people, services, locations and workflows
-              that make each business unique.
+              that make each business unique. One Chasum platform. Different
+              configuration by industry.
             </p>
           </div>
         </Reveal>

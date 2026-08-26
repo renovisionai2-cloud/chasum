@@ -7,11 +7,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Industries",
   description:
-    "Chasum provides a connected operating foundation that can be configured around how each service business actually works.",
+    "One Chasum platform for service businesses—an AI Business Operating System configured around how healthcare, beauty, fitness, home services, automotive, legal, and other operators actually work.",
   openGraph: {
-    title: "Chasum for Service Businesses",
+    title: "Chasum for Service Businesses | AI Business Operating System",
     description:
-      "Explore how Chasum supports healthcare, beauty, fitness, home services, automotive, legal services, and more.",
+      "One platform. Different configuration by industry. Chasum is the AI Business Operating System for service businesses.",
     images: [{ url: BRAND_ASSETS.ogImage, width: 1200, height: 630, alt: BRAND_NAME }],
   },
 };

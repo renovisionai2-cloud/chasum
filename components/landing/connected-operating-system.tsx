@@ -3,6 +3,7 @@
 import { DashboardPreview } from "@/components/landing/dashboard-preview";
 import { Reveal } from "@/components/landing/reveal";
 import { PLATFORM_HREF } from "@/lib/marketing/alpha";
+import { CHASUM_SUPPORTING_LINE } from "@/lib/marketing/os-positioning";
 import {
   BarChart3,
   CalendarDays,
@@ -78,8 +79,12 @@ export function ConnectedOperatingSystem() {
               Everything works together.
             </h2>
             <p className="marketing-lede">
-              The work your team already does—connected through one operating
-              system.
+              Scheduling, customers, staff, payments, communications,
+              reporting, automation, and AI share one connected business
+              context.
+            </p>
+            <p className="mt-3 text-base font-semibold tracking-tight text-foreground md:text-lg">
+              {CHASUM_SUPPORTING_LINE}
             </p>
           </div>
         </Reveal>

@@ -5,6 +5,11 @@
 
 export { DEMO_HREF } from "@/lib/marketing/alpha";
 import { APPLY_HREF, CTA_APPLY_LABEL, MEET_SUMMER_HREF } from "@/lib/marketing/alpha";
+import {
+  CHASUM_NOT_SCHEDULER,
+  CHASUM_OS_PRIMARY,
+  CHASUM_SUMMER_PRIMARY,
+} from "@/lib/marketing/os-positioning";
 
 export const TRUSTED_STATS = [
   { label: "Departments", value: 9, suffix: "+", hint: "Real product modules" },
@@ -334,7 +339,7 @@ export const INDUSTRIES = [
   {
     name: "Medical Clinics",
     intro:
-      "Designed for healthcare and wellness practices that run on appointments and follow-up.",
+      "Designed for healthcare and wellness practices that need one connected platform for appointments, follow-up and daily operations.",
     solution:
       "Keep appointments, patient communication and automated reminders connected—with staff coordination, CRM and everyday business operations in one place.",
     types: [
@@ -359,7 +364,7 @@ export const INDUSTRIES = [
     intro:
       "Designed for legal practices that need clear consultations, client follow-up and day-to-day operations.",
     solution:
-      "Schedule consultations, manage appointments and keep client communication, CRM, billing and team coordination connected.",
+      "Keep consultations, appointments, client communication, CRM, billing and team coordination on one platform.",
     types: [
       "Family Law",
       "Criminal Defence",
@@ -462,9 +467,9 @@ export const INDUSTRIES = [
   {
     name: "Professional Services",
     intro:
-      "Designed for advisors and consultants who live by appointments and relationships.",
+      "Designed for advisors and consultants who need one connected platform for clients, consultations and operations.",
     solution:
-      "Present a polished booking experience while keeping CRM, client communication, payments and reporting connected.",
+      "Keep consultations, CRM, client communication, payments and reporting on one platform—configured around how advisors actually work.",
     types: [
       "Accountants",
       "Financial Advisors",
@@ -481,7 +486,7 @@ export const INDUSTRIES = [
     intro:
       "Designed for photography studios, videographers and creative teams.",
     solution:
-      "Book sessions from real availability, keep client communication and deposits connected, and see the work reflected in reporting.",
+      "Connect sessions, client communication, deposits and reporting on one platform—configured around how studios actually work.",
     types: [
       "Photography Studios",
       "Videographers",
@@ -719,7 +724,7 @@ export const COMPARISON_ROWS: {
 export const FAQ_ITEMS = [
   {
     q: "What Is Chasum?",
-    a: "Chasum is the AI Business Operating System for service businesses—one platform that connects scheduling, customers, teams, communication, payments and reporting, with AI assistance designed to work alongside your team.",
+    a: `${CHASUM_NOT_SCHEDULER} ${CHASUM_OS_PRIMARY} ${CHASUM_SUMMER_PRIMARY}`,
   },
   {
     q: "Is Chasum Just Another Booking Page?",
@@ -727,7 +732,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Who is Summer?",
-    a: "Summer is Chasum's AI Business Manager. She helps you discover Chasum, get your business running, answer customer questions, automate everyday work, support your team, and help your business grow.",
+    a: "Summer is Chasum's AI Business Manager. With Summer, Chasum helps you understand what is happening across your business, what needs attention, and what to do next. Receptionist work is one capability within that role—not her identity. Full autonomous operation is Future Vision, not available today.",
   },
   {
     q: "Does Summer only answer phone calls?",

@@ -3,14 +3,16 @@
  * Engines reused: Discovery, Knowledge, Session Memory, Provider Registry.
  */
 
+import { CHASUM_CATEGORY_SHORT } from "@/lib/marketing/os-positioning";
+
 export const FS_HERO = {
   brand: "Meet Summer",
   headline: "The Intelligence Behind Every Business Decision.",
+  positioning: CHASUM_CATEGORY_SHORT,
   micro: [
+    "Your AI Business Manager.",
     "Summer doesn't replace people.",
-    "She understands businesses.",
-    "She learns.",
-    "She recommends.",
+    "She observes. She understands. She recommends.",
     "She remembers.",
   ],
   cta: "Begin the Experience",
@@ -426,12 +428,30 @@ export const FS_INTELLIGENCE = [
 ] as const;
 
 export const FS_ROADMAP = [
-  { label: "Today", detail: "AI Website Concierge" },
-  { label: "Next", detail: "AI Reception" },
-  { label: "Next", detail: "CRM Intelligence" },
-  { label: "Next", detail: "Marketing Intelligence" },
-  { label: "Next", detail: "Executive AI" },
-  { label: "Future", detail: "AI Business Operating System" },
+  {
+    label: "Today · Early Access",
+    detail: "Observe — see what is happening across the business",
+  },
+  {
+    label: "Today · Early Access",
+    detail: "Understand — grounded in real hours, services, and records",
+  },
+  {
+    label: "Today · Early Access",
+    detail: "Recommend — what needs attention and what to do next",
+  },
+  {
+    label: "Coming Next",
+    detail: "Act with approval — Summer proposes, you decide",
+  },
+  {
+    label: "Future Vision",
+    detail: "Automate safely — with human control",
+  },
+  {
+    label: "Future Vision",
+    detail: "Operate proactively — across the AI Business Operating System",
+  },
 ] as const;
 
 export const FS_ALPHA = {

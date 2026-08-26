@@ -21,11 +21,11 @@ export const SUMMER_ROLE_SHORT = "AI Business Manager" as const;
 
 /** Supporting message for Meet Summer / intro sections */
 export const SUMMER_SUPPORTING_MESSAGE =
-  "Meet Summer, the AI Business Manager behind Chasum. She helps businesses discover Chasum, get set up, answer customer questions, manage appointments, support staff, automate repetitive work, and grow every day." as const;
+  "With Summer, your AI Business Manager, Chasum helps you understand what is happening across your business, what needs attention, and what to do next." as const;
 
 /** Shorter supporting line when space is tight */
 export const SUMMER_SUPPORTING_MESSAGE_SHORT =
-  "Meet Summer, the AI Business Manager behind Chasum. She helps you discover, launch, operate, support customers, and grow—from one AI-powered experience." as const;
+  "Meet Summer, the AI Business Manager behind Chasum—the intelligence across an AI Business Operating System." as const;
 
 /** Plan / feature list label (overall inclusion of Summer) */
 export const SUMMER_FEATURE_LABEL = "Summer — AI Business Manager" as const;
@@ -36,7 +36,7 @@ export const SUMMER_RECEPTION_CAPABILITY = "AI Receptionist" as const;
 export const SUMMER_FAQ = {
   whoIsSummer: {
     q: "Who is Summer?",
-    a: "Summer is Chasum's AI Business Manager. She helps you discover Chasum, get your business running, answer customer questions, automate everyday work, support your team, and help your business grow.",
+    a: "Summer is Chasum's AI Business Manager. With Summer, Chasum helps you understand what is happening across your business, what needs attention, and what to do next. Receptionist work is one capability within that role—not her identity. Full autonomous operation is Future Vision, not available today.",
   },
   onlyPhoneCalls: {
     q: "Does Summer only answer phone calls?",

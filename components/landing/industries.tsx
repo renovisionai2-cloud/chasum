@@ -68,8 +68,8 @@ export function Industries() {
             </h1>
             <p className="marketing-lede">
               Service businesses share the need to understand their day—but
-              workflows are not identical. Chasum is shaped with real operators
-              so each business can configure around how it works.
+              workflows are not identical. One Chasum platform. Different
+              configuration and workflows by industry.
             </p>
           </div>
         </Reveal>

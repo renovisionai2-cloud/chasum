@@ -1,4 +1,9 @@
 import type { KnowledgeEntry } from "@/lib/website-concierge/knowledge/types";
+import {
+  CHASUM_NOT_SCHEDULER,
+  CHASUM_OS_PRIMARY,
+  CHASUM_SUMMER_PRIMARY,
+} from "@/lib/marketing/os-positioning";
 
 export const COMPANY_KNOWLEDGE: KnowledgeEntry[] = [
   {
@@ -6,9 +11,9 @@ export const COMPANY_KNOWLEDGE: KnowledgeEntry[] = [
     category: "company",
     title: "Chasum Mission",
     summary:
-      "Run your business. Understand it better. One intelligent platform for service businesses—with AI working alongside your team.",
+      "Chasum is an AI Business Operating System for service businesses—not another appointment scheduler.",
     body:
-      "Chasum’s mission is to give appointment-based service businesses one operating system for scheduling, clients, staff, money, and AI — so owners stop stitching together booking pages, spreadsheets, and chat tools.",
+      `${CHASUM_NOT_SCHEDULER} ${CHASUM_OS_PRIMARY} ${CHASUM_SUMMER_PRIMARY}`,
     tags: ["mission", "chasum", "purpose", "why"],
     followUps: ["What is the AI Business Operating System?", "How is this different from booking software?"],
     relatedIds: ["company-vision", "company-why"],
@@ -17,7 +22,7 @@ export const COMPANY_KNOWLEDGE: KnowledgeEntry[] = [
     id: "company-vision",
     category: "company",
     title: "Vision",
-    summary: "The world’s best AI Business Operating System for appointment businesses.",
+    summary: "The world’s best AI Business Operating System for service businesses.",
     body:
       "The long-term vision is Chasum as the world’s best AI Business Operating System for ultrasound studios, salons, spas, clinics, and similar operators — understanding the business, not only storing its data.",
     tags: ["vision", "future", "ambition"],
@@ -28,9 +33,9 @@ export const COMPANY_KNOWLEDGE: KnowledgeEntry[] = [
     id: "company-bos",
     category: "company",
     title: "AI Business Operating System",
-    summary: "One brain across scheduling, CRM, money, and AI roles.",
+    summary: "One brain across scheduling, customers, staff, payments, communications, reporting, automation, and AI.",
     body:
-      "An AI Business Operating System unifies operations (booking, CRM, calendar, payments, reports) with a shared Business Brain and role-specific AI. Screens answer business questions; AI assistants share memory with different permissions.",
+      "An AI Business Operating System unifies scheduling, customers, staff, payments, communications, reporting, automation, and AI with a shared Business Brain. Individual capabilities are labelled Available Today, Early Access, Coming Next, or Future Vision—Chasum does not claim full autonomous AI operation today.",
     tags: ["operating system", "bos", "business brain", "ai os"],
     followUps: ["How do decision-driven screens work?", "Tell me about Summer and Chase"],
     relatedIds: ["feature-ai", "company-why"],

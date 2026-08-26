@@ -7,7 +7,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Apply for Private Alpha",
   description:
-    "Tell us how your business works. We review every Private Alpha application personally.",
+    "Apply to help shape Chasum—the AI Business Operating System for service businesses. We review every Private Alpha application personally.",
 };
 
 export default function ApplyPage() {
@@ -15,7 +15,7 @@ export default function ApplyPage() {
     <MarketingDocPage
       eyebrow="Design partners"
       title="Tell us how your business works."
-      description="We review every application personally. Share the workflows you want to improve, the tools you use today and what a successful partnership with Chasum would look like."
+      description="We review every application personally. Share how you want one connected operating system—not another disconnected scheduler—to fit the workflows you run today."
     >
       <p className="text-sm text-muted-foreground">
         Prefer context first? Read{" "}

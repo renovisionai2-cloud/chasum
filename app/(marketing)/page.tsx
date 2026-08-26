@@ -16,11 +16,11 @@ export const metadata: Metadata = {
     absolute: "Chasum | AI Business Operating System for Service Businesses",
   },
   description:
-    "Businesses don’t need more software. They need software that understands how the business works. Chasum is the AI Business Operating System for service businesses.",
+    "Chasum is not another appointment scheduler. Chasum is an AI Business Operating System for service businesses—with Summer, your AI Business Manager.",
   openGraph: {
     title: "Chasum | AI Business Operating System for Service Businesses",
     description:
-      "Your business already works. Now it can understand itself—scheduling, customers, communication, payments, reporting and AI in one operating system.",
+      "Chasum is not another appointment scheduler. Chasum is an AI Business Operating System for service businesses—one connected platform, with Summer as your AI Business Manager.",
     images: [
       {
         url: BRAND_ASSETS.ogImage,

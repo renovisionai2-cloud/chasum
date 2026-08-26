@@ -63,6 +63,7 @@ export function FlagshipHero({
           {FS_HERO.brand}
         </p>
         <h1 className="fs-hero-headline fs-hero-seq-headline">{FS_HERO.headline}</h1>
+        <p className="fs-hero-cta-hint fs-hero-seq-sub mt-4">{FS_HERO.positioning}</p>
 
         <ul className="fs-hero-micro fs-hero-seq-sub">
           {FS_HERO.micro.map((line) => (

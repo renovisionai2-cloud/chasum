@@ -10,20 +10,23 @@ import {
   MEET_SUMMER_HREF,
   PRODUCT_TOUR_HREF,
 } from "@/lib/marketing/alpha";
+import { CHASUM_SUPPORTING_LINE } from "@/lib/marketing/os-positioning";
 
 export const PLATFORM_STORY = {
   eyebrow: "Platform",
   headline: "One intelligent operating system.",
-  lede: "Scheduling, customers, communication, payments, reporting and AI share one Business Brain—so every department works from the same understanding.",
+  lede: "Chasum is an AI Business Operating System for service businesses. Scheduling, customers, staff, payments, communications, reporting, automation, and AI share one Business Brain—so every department works from the same connected context.",
   layers: [
     "Scheduling.",
     "Customers.",
-    "Communication.",
+    "Staff.",
     "Payments.",
+    "Communications.",
     "Reporting.",
+    "Automation.",
     "AI.",
   ] as const,
-  close: "One platform. One memory. One intelligence.",
+  close: CHASUM_SUPPORTING_LINE,
   bridgeToShowcase:
     "Explore each department below—and notice how they stay connected.",
 } as const;

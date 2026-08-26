@@ -8,11 +8,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Product Tour",
   description:
-    "Follow one connected customer journey through Chasum—from booking to payment and reporting—and see why each capability matters.",
+    "Tour Chasum as an AI Business Operating System—one connected customer journey from booking to payment and reporting, not a standalone scheduler.",
   openGraph: {
-    title: "Chasum Product Tour",
+    title: "Chasum Product Tour | AI Business Operating System",
     description:
-      "One customer journey. One connected record. Explore how Chasum works as one operating system.",
+      "One customer journey. One connected record. See how Chasum works as an AI Business Operating System for service businesses.",
     images: [
       { url: BRAND_ASSETS.ogImage, width: 1200, height: 630, alt: BRAND_NAME },
     ],

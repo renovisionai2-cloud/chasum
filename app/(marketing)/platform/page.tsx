@@ -8,11 +8,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Platform",
   description:
-    "Explore how Chasum connects scheduling, customers, communication, payments, reporting and AI in one intelligent operating system for service businesses.",
+    "The AI Business Operating System for Service Businesses. See how scheduling, customers, staff, payments, communications, reporting, automation, and AI share one Business Brain.",
   openGraph: {
-    title: "Chasum Platform",
+    title: "Chasum Platform | AI Business Operating System",
     description:
-      "One intelligent operating system—every department shares one Business Brain.",
+      "One intelligent operating system—scheduling, customers, staff, payments, communications, reporting, automation, and AI share one Business Brain.",
     images: [{ url: BRAND_ASSETS.ogImage, width: 1200, height: 630, alt: BRAND_NAME }],
   },
 };

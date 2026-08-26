@@ -7,9 +7,9 @@ export function FlagshipRoadmap() {
   return (
     <section className="fs-scene" aria-labelledby="fs-roadmap-title">
       <Reveal>
-        <p className="fs-scene-kicker">Roadmap</p>
+        <p className="fs-scene-kicker">Today · Early Access · Future</p>
         <h2 id="fs-roadmap-title" className="fs-scene-title">
-          Toward the complete system.
+          Observe. Understand. Recommend. Then grow.
         </h2>
       </Reveal>
 

@@ -5,11 +5,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Meet Summer | Your AI Business Manager",
   description:
-    "Meet Summer, the AI Business Manager behind Chasum. She helps businesses discover Chasum, get set up, answer customers, manage appointments, support staff, and grow every day.",
+    "Meet Summer, your AI Business Manager. With Summer, Chasum helps you understand what is happening across your business, what needs attention, and what to do next.",
   openGraph: {
     title: "Meet Summer | Your AI Business Manager",
     description:
-      "Summer is Chasum’s AI Business Manager — discovery, onboarding, operations, customer support, and growth in one AI-powered experience.",
+      "Summer is Chasum’s AI Business Manager across an AI Business Operating System for service businesses—not a chatbot, and not only a receptionist.",
     images: [
       {
         url: BRAND_ASSETS.ogImage,

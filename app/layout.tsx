@@ -27,14 +27,16 @@ export const metadata: Metadata = {
     template: `%s | ${BRAND_NAME}`,
   },
   description:
-    "The AI-powered Business Operating System for service businesses. Scheduling, clients, locations, and intelligent automation in one platform.",
+    "The AI Business Operating System for Service Businesses. Scheduling, customers, staff, payments, communications, reporting, and AI in one connected platform.",
   keywords: [
     "Chasum",
     "AI Business Operating System",
+    "AI Business Operating System for Service Businesses",
     "AI Business Manager",
     "Summer",
     "service business software",
     "scheduling",
+    "appointment scheduling",
     "CRM",
     "AI receptionist",
   ],
@@ -64,7 +66,7 @@ export const metadata: Metadata = {
     siteName: BRAND_NAME,
     title: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
     description:
-      "Scheduling, clients, locations, and intelligent automation in one platform.",
+      "The AI Business Operating System for Service Businesses. Scheduling, customers, staff, and intelligence in one connected platform.",
     images: [
       {
         url: BRAND_ASSETS.ogImage,
@@ -78,7 +80,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
     description:
-      "Scheduling, clients, locations, and intelligent automation in one platform.",
+      "The AI Business Operating System for Service Businesses. Scheduling, customers, staff, and intelligence in one connected platform.",
     images: [BRAND_ASSETS.ogImage],
   },
   robots: {

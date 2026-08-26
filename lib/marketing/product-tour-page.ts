@@ -19,7 +19,7 @@ export type TourAiKind =
 export const PRODUCT_TOUR_INTRO = {
   eyebrow: "Product Tour",
   headline: "One customer journey. One connected record.",
-  lede: "From booking to payment and reporting, each step updates the same business—not another disconnected tool.",
+  lede: "Chasum is an AI Business Operating System—not a standalone booking tool. This tour follows one connected journey, from booking to payment and reporting, on the same business record.",
   bridgeToShowcase:
     "Next, step into each department and see why it matters before you see how it works.",
 } as const;
@@ -180,7 +180,7 @@ export const PRODUCT_TOUR_STOPS: Record<
 export const PRODUCT_TOUR_CONCLUSION = {
   eyebrow: "Ready when you are",
   headline: "This is the operating system your business has been missing.",
-  body: "One journey. One memory. One intelligence coordinating the day—so you spend less time stitching tools together and more time running the business.",
+  body: "One journey on an AI Business Operating System. One memory. One intelligence coordinating the day—so you spend less time stitching tools together and more time running the business.",
   desire: "I want this operating system running my business.",
   primaryCta: {
     label: CTA_APPLY_LABEL,

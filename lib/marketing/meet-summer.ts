@@ -21,28 +21,19 @@ export const MEET_SUMMER_CH1 = {
 export const MEET_SUMMER_CH7 = {
   eyebrow: "Chapter 07",
   title: "The AI Business Operating System",
-  lede: "Summer is the face of Chasum — one AI Business Manager across discovery, onboarding, operations, and growth.",
+  lede: "Summer is Chasum’s AI Business Manager across one connected platform—not a chatbot, and not only a receptionist. Receptionist work is one capability within that role.",
   phases: [
     {
-      phase: "Today",
-      items: [
-        "AI Business Manager",
-        "Website Concierge",
-        "AI Receptionist capability",
-      ],
+      phase: "Today · Early Access",
+      items: ["Observe", "Understand", "Recommend"],
     },
     {
-      phase: "Next",
-      items: [
-        "CRM Intelligence",
-        "Marketing Intelligence",
-        "Billing Intelligence",
-        "Reporting Intelligence",
-      ],
+      phase: "Coming Next",
+      items: ["Act with approval"],
     },
     {
-      phase: "Future",
-      items: ["Complete AI Business Operating System"],
+      phase: "Future Vision",
+      items: ["Automate safely", "Operate proactively"],
     },
   ],
 } as const;

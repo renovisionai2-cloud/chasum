@@ -6,6 +6,7 @@ import {
   CTA_START_WITH_SUMMER_LABEL,
   MEET_SUMMER_HREF,
 } from "@/lib/marketing/alpha";
+import { CHASUM_SUMMER_PRIMARY } from "@/lib/marketing/os-positioning";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -40,12 +41,11 @@ export function SummerIntro() {
               Meet Summer, the AI Business Manager behind Chasum.
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-muted-foreground md:text-xl">
-              She helps businesses discover Chasum, get set up, answer customer
-              questions, manage appointments, support staff, automate repetitive
-              work, and grow every day.
+              {CHASUM_SUMMER_PRIMARY}
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
-              Early Access · grounded in verified product information
+              Early Access · observe, understand, and recommend today—not full
+              autonomy.
             </p>
             <div className="mt-8 flex justify-center lg:justify-start">
               <Link href={MEET_SUMMER_HREF} className="group inline-flex">
