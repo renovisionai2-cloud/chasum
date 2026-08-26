@@ -15,12 +15,27 @@ export const INDUSTRIES_HERO = {
 export const INDUSTRY_GROWING_STATEMENT =
   "As the business grows, the same operating model can support more people, more locations, richer reporting, and deeper automation—without switching platforms.";
 
+/** Aligned with locked Meet Summer: surface + recommend, human control, no autonomy. */
 export const INDUSTRY_SUMMER_LINE =
-  "Summer, your AI Business Manager, can observe and recommend from the same operating context—without inventing availability or running the business on her own.";
+  "Summer, your AI Business Manager, uses the same operating context to surface what needs attention and recommend what to do next—while you remain in control.";
 
-/** Allowed public capability chips — current-generation names, Available Today / Early Access only. */
+/** Approved Homepage Private Alpha headline — passed into Industries only. */
+export const INDUSTRIES_ALPHA_HEADLINE =
+  "Help shape the future of how service businesses operate.";
+
+/** Display at most this many representative-type chips until the visitor expands. */
+export const INDUSTRY_TYPES_PREVIEW = 8;
+
+/**
+ * Public capability chips. Scheduling may use an industry-native label
+ * for the same underlying scheduling capability — not a new product feature.
+ */
 export const INDUSTRY_CAPABILITY_CATALOG = [
   "Appointment Scheduling",
+  "Consultation Scheduling",
+  "Session Scheduling",
+  "Job Scheduling",
+  "Service Scheduling",
   "Customer Records",
   "Employees",
   "Payments",
@@ -53,7 +68,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
     intro:
       "Designed for healthcare and wellness practices that run visits, providers, and follow-up in the same day.",
     distinction:
-      "Care businesses move people through visits with provider context, rooms, and follow-up—not a generic open slot.",
+      "Clinical and wellness practices coordinate visits across providers, rooms, customer context, and follow-up—not a generic open slot.",
     solution:
       "Chasum keeps the visit, customer history, provider schedule, and configured reminders on one record. Notes travel with the booking. Clinical records stay in the systems clinics already use.",
     types: [
@@ -68,7 +83,6 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "Mental Health & Psychology Practices",
       "Dental Clinics",
       "Optometry Clinics",
-      "Veterinary Clinics",
     ],
     modules: [
       "Appointment Scheduling",
@@ -101,7 +115,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "General Practice",
     ],
     modules: [
-      "Appointment Scheduling",
+      "Consultation Scheduling",
       "Customer Records",
       "Communications",
       "Payments",
@@ -167,7 +181,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "Martial Arts Schools",
     ],
     modules: [
-      "Appointment Scheduling",
+      "Session Scheduling",
       "Employees",
       "Customer Records",
       "Payments",
@@ -196,7 +210,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "Flooring",
     ],
     modules: [
-      "Appointment Scheduling",
+      "Job Scheduling",
       "Customer Records",
       "Employees",
       "Communications",
@@ -227,7 +241,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "Inspection & Safety Centres",
     ],
     modules: [
-      "Appointment Scheduling",
+      "Service Scheduling",
       "Customer Records",
       "Employees",
       "Communications",
@@ -252,7 +266,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "Business Advisors",
     ],
     modules: [
-      "Appointment Scheduling",
+      "Consultation Scheduling",
       "Customer Records",
       "Communications",
       "Payments",
@@ -275,7 +289,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "Content Creators",
     ],
     modules: [
-      "Appointment Scheduling",
+      "Session Scheduling",
       "Customer Records",
       "Payments",
       "Communications",
@@ -320,7 +334,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
       "Janitorial Services",
     ],
     modules: [
-      "Appointment Scheduling",
+      "Job Scheduling",
       "Customer Records",
       "Employees",
       "Communications",

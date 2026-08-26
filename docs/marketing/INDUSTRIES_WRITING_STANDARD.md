@@ -50,9 +50,20 @@ Education remains a homepage tile only. Do **not** add an Industries deep-dive u
 
 ## Capability chips (public)
 
-Use current-generation names. Choose the most relevant chips per industry — not every capability on every card.
+Use current-generation marketing names. Choose the most relevant chips per industry — not every capability on every card.
 
-- Appointment Scheduling
+Scheduling chips may use an industry-native label for the **same underlying scheduling capability**. Do not invent dispatch, routing, or job-management product features. Do not rename dashboard navigation.
+
+Allowed scheduling labels:
+
+- Appointment Scheduling — Medical Clinics, Salons, Spas, Pet Services
+- Consultation Scheduling — Legal Services, Professional Services
+- Session Scheduling — Gyms, Photography & Creative
+- Job Scheduling — Home & Field Services, Cleaning
+- Service Scheduling — Automotive Services
+
+Other chips:
+
 - Customer Records
 - Employees
 - Payments
@@ -63,6 +74,14 @@ Use current-generation names. Choose the most relevant chips per industry — no
 - Memberships
 
 Avoid on Industries chips: CRM, Billing, Dashboard, AI Workforce, Communication (singular), Team Coordination.
+
+---
+
+## Representative types
+
+Keep the full source taxonomy in `INDUSTRIES[].types`. The display layer may show the first 8 chips with a quiet `+ N more` control. Do **not** delete valid supported types from the source model to shorten a card.
+
+Veterinary Clinics belongs under **Pet Services**, not as a Medical Clinics subtype. Meet Summer may still offer dual discovery paths; that is not Industries representative-type duplication.
 
 ---
 

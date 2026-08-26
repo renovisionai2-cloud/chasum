@@ -734,6 +734,28 @@ body {
   color: var(--foreground);
 }
 
+.industries-types-more {
+  border-radius: 9999px;
+  border: 1px dashed color-mix(in srgb, var(--border) 80%, transparent);
+  background: transparent;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.industries-types-more:hover {
+  border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+  color: var(--foreground);
+}
+
+.industries-types-more:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
 .fd-footer-divider {
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--border) 70%, transparent);
 }
@@ -1936,6 +1958,8 @@ body {
   .pt-journey-step:hover .pt-journey-node,
   .industries-selector-item,
   .industries-selector-item:hover,
+  .industries-types-more,
+  .industries-types-more:hover,
   .marketing-product-frame,
   .marketing-product-frame:hover,
   .marketing-faq-panel,

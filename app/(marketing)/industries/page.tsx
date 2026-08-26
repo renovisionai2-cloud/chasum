@@ -2,6 +2,7 @@ import { Industries } from "@/components/landing/industries";
 import { PageFade } from "@/components/landing/page-fade";
 import { PrivateAlphaInvite } from "@/components/landing/private-alpha-invite";
 import { BRAND_ASSETS, BRAND_NAME } from "@/lib/brand/assets";
+import { INDUSTRIES_ALPHA_HEADLINE } from "@/lib/marketing/industries-page";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export default function IndustriesPage() {
   return (
     <PageFade>
       <Industries />
-      <PrivateAlphaInvite />
+      <PrivateAlphaInvite headline={INDUSTRIES_ALPHA_HEADLINE} />
     </PageFade>
   );
 }

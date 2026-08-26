@@ -6,6 +6,7 @@ import {
   INDUSTRIES_HERO,
   INDUSTRY_GROWING_STATEMENT,
   INDUSTRY_SUMMER_LINE,
+  INDUSTRY_TYPES_PREVIEW,
 } from "@/lib/marketing/industries-page";
 import { getIndustryImage } from "@/lib/marketing/industryImages";
 import { cn } from "@/lib/utils";
@@ -46,16 +47,25 @@ const INDUSTRY_ICONS: Record<string, LucideIcon> = {
  */
 export function Industries() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [typesExpanded, setTypesExpanded] = useState(false);
   const last = INDUSTRIES.length - 1;
   const current = INDUSTRIES[activeIndex] ?? INDUSTRIES[0];
   const Icon = current
     ? (INDUSTRY_ICONS[current.name] ?? BriefcaseBusiness)
     : BriefcaseBusiness;
   const visual = current ? getIndustryImage(current.name) : undefined;
+  const hiddenTypeCount = current
+    ? Math.max(0, current.types.length - INDUSTRY_TYPES_PREVIEW)
+    : 0;
+  const visibleTypes =
+    current && (typesExpanded || hiddenTypeCount === 0)
+      ? current.types
+      : (current?.types.slice(0, INDUSTRY_TYPES_PREVIEW) ?? []);
 
   function select(index: number) {
     const next = Math.min(last, Math.max(0, index));
     setActiveIndex(next);
+    setTypesExpanded(false);
     document
       .getElementById(`industries-tab-${slug(INDUSTRIES[next]!.name)}`)
       ?.focus();
@@ -220,8 +230,11 @@ export function Industries() {
                     ? "Representative practice areas"
                     : "Representative business types"}
                 </p>
-                <ul className="mt-3 flex flex-wrap gap-1.5">
-                  {current.types.map((type) => (
+                <ul
+                  id={`industries-types-${slug(current.name)}`}
+                  className="mt-3 flex flex-wrap gap-1.5"
+                >
+                  {visibleTypes.map((type) => (
                     <li
                       key={type}
                       className="rounded-full border border-border/50 bg-muted/30 px-3 py-1 text-xs font-medium text-muted-foreground"
@@ -229,6 +242,21 @@ export function Industries() {
                       {type}
                     </li>
                   ))}
+                  {hiddenTypeCount > 0 ? (
+                    <li>
+                      <button
+                        type="button"
+                        className="industries-types-more"
+                        aria-expanded={typesExpanded}
+                        aria-controls={`industries-types-${slug(current.name)}`}
+                        onClick={() => setTypesExpanded((open) => !open)}
+                      >
+                        {typesExpanded
+                          ? "Show fewer"
+                          : `+ ${hiddenTypeCount} more`}
+                      </button>
+                    </li>
+                  ) : null}
                 </ul>
               </div>
 
