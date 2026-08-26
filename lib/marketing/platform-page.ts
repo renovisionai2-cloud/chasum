@@ -15,7 +15,7 @@ import { CHASUM_SUPPORTING_LINE } from "@/lib/marketing/os-positioning";
 export const PLATFORM_STORY = {
   eyebrow: "Platform",
   headline: "One intelligent operating system.",
-  lede: "Chasum is an AI Business Operating System for service businesses. Scheduling, customers, staff, payments, communications, reporting, automation, and AI share one Business Brain—so every department works from the same connected context.",
+  lede: "Chasum is an AI Business Operating System for service businesses. Scheduling, customers, staff, payments, communications, reporting, automation, and AI are built to share one Business Brain—one connected context across the business.",
   layers: [
     "Scheduling.",
     "Customers.",
@@ -33,10 +33,10 @@ export const PLATFORM_STORY = {
 
 export const PLATFORM_SHOWCASE = {
   eyebrow: "Inside the operating system",
-  headline: "See how every department shares one Business Brain",
-  lede: "Choose a department to preview how Chasum coordinates the day. The surfaces are illustrative—the intelligence is shared.",
+  headline: "See how every department is designed around one Business Brain",
+  lede: "Choose a department to preview how Chasum coordinates the day. The surfaces are illustrative—the architecture is one shared intelligence.",
   bridgeToConclusion:
-    "When context is shared, recommendations, alerts and insights appear where work already happens—without a separate AI layer to manage.",
+    "As context is shared, recommendations, alerts and insights can appear where work already happens—without a separate AI layer to manage.",
 } as const;
 
 /** Subtle embedded intelligence — capability signals, never promotional banners. */
@@ -63,7 +63,7 @@ export const PLATFORM_DEPARTMENT_SIGNALS: Record<string, string> = {
 export const PLATFORM_CONCLUSION = {
   eyebrow: "The operating system",
   headline: "One platform for the entire business.",
-  body: "Instead of managing multiple disconnected systems, Chasum becomes the single operating system that understands and coordinates the entire business—one platform, one memory, one intelligence.",
+  body: "Instead of managing multiple disconnected systems, Chasum is the AI Business Operating System built to understand and coordinate the business—one platform, one memory, one intelligence.",
   pillars: [
     "One platform",
     "One memory",

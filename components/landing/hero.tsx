@@ -8,9 +8,8 @@ import {
   MEET_SUMMER_HREF,
 } from "@/lib/marketing/alpha";
 import {
-  CHASUM_NOT_SCHEDULER,
-  CHASUM_OS_PRIMARY,
-  CHASUM_SUMMER_PRIMARY,
+  CHASUM_OS_HERO,
+  CHASUM_SUMMER_HERO,
 } from "@/lib/marketing/os-positioning";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -45,11 +44,8 @@ export function Hero() {
           </h1>
 
           <div className="fd-hero-enter fd-hero-enter-delay-2 mt-6 max-w-lg space-y-4 text-base leading-relaxed text-muted-foreground sm:mt-7 md:text-lg md:leading-[1.65]">
-            <p className="font-medium text-foreground/85">
-              {CHASUM_NOT_SCHEDULER}
-            </p>
-            <p>{CHASUM_OS_PRIMARY}</p>
-            <p>{CHASUM_SUMMER_PRIMARY}</p>
+            <p className="font-medium text-foreground/85">{CHASUM_OS_HERO}</p>
+            <p>{CHASUM_SUMMER_HERO}</p>
           </div>
 
           <div className="fd-hero-enter fd-hero-enter-delay-3 mt-9 flex flex-col items-stretch gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-5">

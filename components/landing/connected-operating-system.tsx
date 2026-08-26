@@ -80,8 +80,8 @@ export function ConnectedOperatingSystem() {
             </h2>
             <p className="marketing-lede">
               Scheduling, customers, staff, payments, communications,
-              reporting, automation, and AI share one connected business
-              context.
+              reporting, automation, and AI are built to share one connected
+              business context.
             </p>
             <p className="mt-3 text-base font-semibold tracking-tight text-foreground md:text-lg">
               {CHASUM_SUPPORTING_LINE}

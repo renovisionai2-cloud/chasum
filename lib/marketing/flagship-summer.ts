@@ -11,9 +11,9 @@ export const FS_HERO = {
   positioning: CHASUM_CATEGORY_SHORT,
   micro: [
     "Your AI Business Manager.",
-    "Summer doesn't replace people.",
-    "She observes. She understands. She recommends.",
-    "She remembers.",
+    "Today · Early Access — Observe. Understand. Recommend.",
+    "Coming Next — Act with approval.",
+    "Future Vision — Automate safely. Operate proactively.",
   ],
   cta: "Begin the Experience",
   ctaHint:

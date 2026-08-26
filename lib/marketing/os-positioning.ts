@@ -12,6 +12,13 @@ export const CHASUM_OS_PRIMARY =
 export const CHASUM_SUMMER_PRIMARY =
   "With Summer, your AI Business Manager, Chasum helps you understand what is happening across your business, what needs attention, and what to do next.";
 
+/** Tighter homepage hero body — fuller three-part copy lives in FAQ / Platform. */
+export const CHASUM_OS_HERO =
+  "Chasum is not another appointment scheduler. It’s an AI Business Operating System for service businesses—connecting scheduling, customers, staff, payments, communications, reporting, automation, and intelligence in one platform.";
+
+export const CHASUM_SUMMER_HERO =
+  "With Summer, your AI Business Manager, understand what’s happening, what needs attention, and what to do next.";
+
 export const CHASUM_CATEGORY_SHORT =
   "The AI Business Operating System for Service Businesses";
 
