@@ -75,7 +75,7 @@ export async function submitDesignPartnerApplication(
       const resend = new Resend(apiKey);
       await resend.emails.send({
         from: getEmailFromAddress(),
-        to: ["sales@chasum.app"],
+        to: ["sales@chasumai.com"],
         replyTo: email,
         subject: `Private Alpha application — ${businessName}`,
         text: [

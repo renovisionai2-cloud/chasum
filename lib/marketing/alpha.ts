@@ -41,7 +41,7 @@ export const CTA_DEMO_LABEL = "Schedule a Demo";
 export const DEMO_HREF = `${CONTACT_HREF}#walkthrough`;
 
 export const DEMO_MAILTO_FALLBACK =
-  "mailto:sales@chasum.app?subject=Chasum%20Private%20Alpha%20Walkthrough";
+  "mailto:sales@chasumai.com?subject=Chasum%20Private%20Alpha%20Walkthrough";
 
 export const CTA_LOGIN_LABEL = "Log in";
 

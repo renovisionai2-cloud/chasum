@@ -118,7 +118,7 @@ Do not turn on self-serve paid until Stripe Billing is live end-to-end.
 | Self-serve PLG | Premature — monetization mock |
 | Founder-led sales | Ready — demo + GVM/design partner script |
 | Sales collateral | Thin — no one-pager of honest capabilities |
-| Demo CTA | `mailto:sales@chasum.app` — workable for alpha |
+| Demo CTA | `mailto:sales@chasumai.com` — workable for alpha |
 | Pipeline / CRM for leads | Not productized |
 
 **Next month sales model:** Founder closes 1–3 design partners. No SDRs. No paid ads until legal + billing + claim hygiene.

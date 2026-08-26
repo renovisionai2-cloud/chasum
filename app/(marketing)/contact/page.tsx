@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 };
 
 const SUPPORT_MAILTO =
-  "mailto:sales@chasum.app?subject=Chasum%20Design%20Partner%20Support";
+  "mailto:sales@chasumai.com?subject=Chasum%20Design%20Partner%20Support";
 const SECURITY_MAILTO =
-  "mailto:sales@chasum.app?subject=Chasum%20Security%20Concern";
+  "mailto:sales@chasumai.com?subject=Chasum%20Security%20Concern";
 
 export default function ContactPage() {
   return (
@@ -53,7 +53,7 @@ export default function ContactPage() {
             </Button>
           </a>
           <p className="mt-3 text-xs text-muted-foreground">
-            Opens email to sales@chasum.app. Prefer applying first?{" "}
+            Opens email to sales@chasumai.com. Prefer applying first?{" "}
             <Link href={APPLY_HREF} className="text-primary hover:underline">
               Apply for Private Alpha
             </Link>

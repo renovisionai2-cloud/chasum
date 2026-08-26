@@ -26,7 +26,7 @@ export default function PrivacyPage() {
           <Link href={CONTACT_HREF} className="text-primary hover:underline">
             Contact
           </Link>{" "}
-          or sales@chasum.app.
+          or sales@chasumai.com.
         </p>
       </section>
       <section className="space-y-3">
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
         <h2 className="text-xl font-semibold">Retention and your rights</h2>
         <p className="text-muted-foreground">
           Design partners may request export or deletion of their tenant data by
-          contacting sales@chasum.app. We retain operational logs as needed for
+          contacting sales@chasumai.com. We retain operational logs as needed for
           security and debugging.
         </p>
       </section>

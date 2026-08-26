@@ -90,10 +90,10 @@ export function Footer() {
             </Link>
             {" · "}
             <a
-              href="mailto:sales@chasum.app"
+              href="mailto:sales@chasumai.com"
               className="hover:text-foreground"
             >
-              sales@chasum.app
+              sales@chasumai.com
             </a>
           </p>
         </div>

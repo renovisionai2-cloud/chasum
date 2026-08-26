@@ -82,5 +82,5 @@ export const STATUS_ISSUES = {
 
 export const STATUS_SUPPORT = {
   title: "Support",
-  body: "For an issue affecting your business, contact support or email sales@chasum.app.",
+  body: "For an issue affecting your business, contact support or email sales@chasumai.com.",
 } as const;

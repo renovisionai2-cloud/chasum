@@ -7,7 +7,7 @@ export const PAID_PLAN_UPGRADE_UNAVAILABLE_MESSAGE =
   "Paid plan upgrades are not yet available in this environment.";
 
 export const ENTERPRISE_SALES_MESSAGE =
-  "Enterprise plans require contacting sales (sales@chasum.app).";
+  "Enterprise plans require contacting sales (sales@chasumai.com).";
 
 /** Self-serve paid catalog keys. Enterprise is sales-led, not checkout. */
 export function isPaidSelfServePlan(

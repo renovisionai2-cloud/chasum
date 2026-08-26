@@ -71,4 +71,4 @@ Status vocabulary (only):
 
 1. Portal gift-card UX vs operator gift cards — keep operator Available Today; avoid portal “live gift store” claims.
 2. Depth of API plan gating vs marketing Business feature list — label API as Available Today for Business when keys exist; avoid “unlimited automation.”
-3. sales@chasum.app monitoring — prefer `/contact` walkthrough path; mailto remains fallback until ops confirms mailbox.
+3. sales@chasumai.com is the authoritative sales/contact mailbox; prefer `/contact` walkthrough path; mailto remains fallback.
