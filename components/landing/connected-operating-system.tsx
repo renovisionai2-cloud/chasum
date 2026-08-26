@@ -107,9 +107,13 @@ export function ConnectedOperatingSystem() {
               <div className="fd-product-frame h-full overflow-hidden rounded-2xl border border-border/55 bg-card/90">
                 <DashboardPreview
                   variant="overview"
+                  navIa="current"
                   className="min-h-[280px] border-0 shadow-none md:min-h-[400px] lg:min-h-[440px]"
                 />
               </div>
+              <p className="mt-3 text-center text-[11px] leading-relaxed tracking-wide text-muted-foreground">
+                Illustrative demo data · not a live tenant
+              </p>
             </div>
           </Reveal>
 

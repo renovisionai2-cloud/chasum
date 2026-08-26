@@ -10,7 +10,11 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 /** Calm Private Alpha closing — Front Door. */
-export function PrivateAlphaInvite() {
+export function PrivateAlphaInvite({
+  headline = "Help shape the future of business intelligence.",
+}: {
+  headline?: string;
+}) {
   return (
     <section
       id="private-alpha"
@@ -22,7 +26,7 @@ export function PrivateAlphaInvite() {
           <div className="mx-auto max-w-2xl text-center">
             <p className="marketing-eyebrow">Private Alpha</p>
             <h2 id="alpha-invite-heading" className="marketing-h2-xl">
-              Help shape the future of business intelligence.
+              {headline}
             </h2>
             <p className="marketing-lede">
               We&apos;re growing Chasum with a limited number of service

@@ -84,6 +84,7 @@ export function Hero() {
               animated
               live
               hero
+              navIa="current"
               className="min-h-[280px] border-0 shadow-none sm:min-h-[340px] lg:min-h-[400px]"
             />
           </div>

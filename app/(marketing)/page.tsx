@@ -62,7 +62,7 @@ export default function HomePage() {
           <TrustSection />
         </AmbientSection>
         <AmbientSection variant="soft">
-          <PrivateAlphaInvite />
+          <PrivateAlphaInvite headline="Help shape the future of how service businesses operate." />
         </AmbientSection>
       </div>
     </PageFade>

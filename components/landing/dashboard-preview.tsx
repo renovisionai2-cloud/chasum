@@ -8,6 +8,7 @@ import {
 } from "@/lib/marketing/demo";
 import { cn } from "@/lib/utils";
 import {
+  Banknote,
   BarChart3,
   Bell,
   Building2,
@@ -16,12 +17,14 @@ import {
   LayoutDashboard,
   MessageSquareText,
   Sparkles,
+  Sun,
   UserCog,
   Users,
 } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-const NAV = [
+/** Older-generation mock IA — default for Platform / Product Tour previews. */
+const NAV_LEGACY = [
   { label: "Overview", icon: LayoutDashboard },
   { label: "Reception", icon: Calendar },
   { label: "CRM", icon: Users },
@@ -31,6 +34,18 @@ const NAV = [
   { label: "Communication", icon: MessageSquareText },
   { label: "Billing", icon: CreditCard },
   { label: "AI Workforce", icon: Sparkles },
+] as const;
+
+/** Current-main tenant nav subset — homepage marketing mock only. */
+const NAV_CURRENT = [
+  { label: "Command Centre", icon: LayoutDashboard },
+  { label: "Reception", icon: Calendar },
+  { label: "Customers", icon: Users },
+  { label: "Employees", icon: UserCog },
+  { label: "Payments", icon: Banknote },
+  { label: "Reports", icon: BarChart3 },
+  { label: "Communications", icon: Bell },
+  { label: "Summer", icon: Sun },
 ] as const;
 
 const WEEK_BASE = [6, 9, 7, 11, 10, 5, 2];
@@ -45,6 +60,11 @@ type DashboardPreviewProps = {
   hero?: boolean;
   /** Enable live micro-demos inside panes. Defaults to true when not compact. */
   live?: boolean;
+  /**
+   * Homepage uses current-main tenant IA. Other marketing pages keep the
+   * legacy mock labels unless they opt in.
+   */
+  navIa?: "legacy" | "current";
 };
 
 function subscribeReducedMotion(onChange: () => void) {
@@ -80,8 +100,10 @@ export function DashboardPreview({
   animated = false,
   hero = false,
   live,
+  navIa = "legacy",
 }: DashboardPreviewProps) {
   const isLive = live ?? !compact;
+  const nav = navIa === "current" ? NAV_CURRENT : NAV_LEGACY;
 
   return (
     <div
@@ -130,7 +152,13 @@ export function DashboardPreview({
         <aside
           className={cn(
             "hidden shrink-0 border-r border-border/70 sm:block",
-            hero ? "w-52 bg-muted/30 p-4" : "w-44 bg-muted/20 p-3",
+            hero
+              ? navIa === "current"
+                ? "w-56 bg-muted/30 p-4"
+                : "w-52 bg-muted/30 p-4"
+              : navIa === "current"
+                ? "w-52 bg-muted/20 p-3"
+                : "w-44 bg-muted/20 p-3",
           )}
         >
           <p
@@ -142,19 +170,25 @@ export function DashboardPreview({
             Chasum
           </p>
           <ul className="space-y-1.5">
-            {NAV.map((item) => {
+            {nav.map((item) => {
               const Icon = item.icon;
               const active =
-                (variant === "overview" && item.label === "Overview") ||
+                (variant === "overview" &&
+                  (item.label === "Overview" ||
+                    item.label === "Command Centre")) ||
                 (variant === "reception" && item.label === "Reception") ||
-                (variant === "crm" && item.label === "CRM") ||
+                (variant === "crm" &&
+                  (item.label === "CRM" || item.label === "Customers")) ||
                 (variant === "reports" && item.label === "Reports") ||
                 (variant === "employees" && item.label === "Employees") ||
                 (variant === "business" && item.label === "Business") ||
                 (variant === "communication" &&
-                  item.label === "Communication") ||
-                (variant === "billing" && item.label === "Billing") ||
-                (variant === "summer" && item.label === "AI Workforce");
+                  (item.label === "Communication" ||
+                    item.label === "Communications")) ||
+                (variant === "billing" &&
+                  (item.label === "Billing" || item.label === "Payments")) ||
+                (variant === "summer" &&
+                  (item.label === "AI Workforce" || item.label === "Summer"));
               return (
                 <li
                   key={item.label}
@@ -173,7 +207,13 @@ export function DashboardPreview({
                     strokeWidth={1.75}
                     aria-hidden
                   />
-                  <span className="truncate">{item.label}</span>
+                  <span
+                    className={
+                      navIa === "current" ? "whitespace-nowrap" : "truncate"
+                    }
+                  >
+                    {item.label}
+                  </span>
                 </li>
               );
             })}
@@ -189,7 +229,12 @@ export function DashboardPreview({
         >
           <div className="marketing-pane-fade">
             {variant === "overview" ? (
-              <OverviewPane compact={compact} live={isLive} hero={hero} />
+              <OverviewPane
+                compact={compact}
+                live={isLive}
+                hero={hero}
+                customersLabel={navIa === "current" ? "Customers" : "Clients"}
+              />
             ) : null}
             {variant === "reception" ? <ReceptionPane live={isLive} /> : null}
             {variant === "crm" ? <CrmPane live={isLive} /> : null}
@@ -212,10 +257,12 @@ function OverviewPane({
   compact,
   live,
   hero = false,
+  customersLabel = "Clients",
 }: {
   compact?: boolean;
   live: boolean;
   hero?: boolean;
+  customersLabel?: string;
 }) {
   const tick = useTick(live, 2200);
   const revenue = 1.6 + (tick % 5) * 0.12;
@@ -264,7 +311,7 @@ function OverviewPane({
             hint: "Completed today",
           },
           { title: "This Week", value: "54", hint: "Active bookings" },
-          { title: "Clients", value: "286", hint: "+18 this month" },
+          { title: customersLabel, value: "286", hint: "+18 this month" },
         ].map((stat) => (
           <div
             key={stat.title}

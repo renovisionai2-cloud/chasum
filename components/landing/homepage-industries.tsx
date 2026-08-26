@@ -31,14 +31,12 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
 }> = [
   {
     name: "Healthcare",
-    blurb:
-      "Designed for healthcare and wellness practices that need one connected platform for appointments, follow-up and operations.",
+    blurb: "Designed for clinics and wellness practices.",
     icon: HeartPulse,
   },
   {
     name: "Legal Services",
-    blurb:
-      "Designed for legal practices managing consultations, clients and operations on one platform.",
+    blurb: "Designed for legal practices managing clients.",
     icon: Scale,
   },
   {
@@ -48,39 +46,37 @@ export const HOMEPAGE_INDUSTRY_TILES: ReadonlyArray<{
   },
   {
     name: "Fitness & Wellness",
-    blurb: "Designed for gyms, trainers and studio-based fitness businesses.",
+    blurb: "Designed for gyms, trainers and studio businesses.",
     icon: Dumbbell,
   },
   {
     name: "Home & Construction Services",
-    blurb:
-      "Designed for contractors coordinating schedules, crews and customers.",
+    blurb: "Designed for contractors coordinating crews.",
     icon: Hammer,
   },
   {
     name: "Automotive Services",
-    blurb:
-      "Designed for modern automotive service businesses and service departments.",
+    blurb: "Designed for modern auto shops and service departments.",
     icon: Car,
   },
   {
     name: "Professional Services",
-    blurb: "Designed for advisors and consultants who need one connected platform—not only a calendar.",
+    blurb: "Designed for advisors and consultants—not only a calendar.",
     icon: BriefcaseBusiness,
   },
   {
     name: "Photography & Creative",
-    blurb: "Designed for studios and creators managing sessions and clients.",
+    blurb: "Designed for studios managing sessions and clients.",
     icon: Camera,
   },
   {
     name: "Pet Services",
-    blurb: "Designed for grooming, daycare, boarding and veterinary teams.",
+    blurb: "Designed for grooming, daycare and veterinary teams.",
     icon: PawPrint,
   },
   {
     name: "Education",
-    blurb: "Designed for instructors who need scheduling, communication and connected operations.",
+    blurb: "Designed for instructors who need scheduling.",
     icon: GraduationCap,
   },
 ];
@@ -107,8 +103,8 @@ export function HomepageIndustries() {
             <p className="marketing-lede">
               Chasum provides one connected operating system that can be
               configured around the people, services, locations and workflows
-              that make each business unique. One Chasum platform. Different
-              configuration by industry.
+              that make each business unique. One Chasum platform. Configured
+              differently for every industry.
             </p>
           </div>
         </Reveal>
