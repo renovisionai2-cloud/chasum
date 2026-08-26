@@ -241,7 +241,7 @@ export function ConnectedOperatingSystemAnimation({
           <div
             key={node.label}
             className={cn(
-              "fd-connect-node cos-signature-node absolute flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-2xl border border-border/70 bg-card/90 shadow-sm backdrop-blur-sm sm:h-16 sm:w-16",
+              "fd-connect-node cos-signature-node absolute flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center overflow-visible rounded-2xl border border-border/70 bg-card/90 shadow-sm backdrop-blur-sm sm:h-16 sm:w-16",
               liveLitNode === node.index && "cos-signature-node--lit",
             )}
             style={{
@@ -254,7 +254,7 @@ export function ConnectedOperatingSystemAnimation({
               className="h-4 w-4 text-primary sm:h-5 sm:w-5"
               strokeWidth={1.75}
             />
-            <span className="mt-0.5 max-w-[3.5rem] truncate text-[9px] font-medium text-muted-foreground sm:text-[10px]">
+            <span className="mt-0.5 max-w-[4.6rem] whitespace-nowrap text-center text-[8px] font-medium leading-none text-muted-foreground sm:max-w-none sm:text-[10px]">
               {node.label}
             </span>
           </div>
