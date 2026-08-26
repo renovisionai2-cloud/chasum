@@ -621,6 +621,119 @@ body {
   animation: industry-detail-fade 280ms ease-out both;
 }
 
+.industries-page {
+  overflow-x: clip;
+}
+
+.industries-layout {
+  min-width: 0;
+}
+
+@media (max-width: 1023px) {
+  .industries-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.industries-layout > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.industries-selector {
+  display: flex;
+  gap: 0.4rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 0.25rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.industries-selector::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .industries-selector {
+    flex-direction: column;
+    overflow: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+.industries-selector-item {
+  display: flex;
+  min-height: 2.75rem;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 1rem;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 0.55rem 0.85rem;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+  .industries-selector-item {
+    width: 100%;
+    flex: none;
+  }
+}
+
+.industries-selector-item-active {
+  border-color: color-mix(in srgb, var(--primary) 28%, transparent);
+  background: var(--card);
+}
+
+.industries-selector-item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.industries-selector-icon {
+  display: flex;
+  height: 1.75rem;
+  width: 1.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.55rem;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+
+.industries-selector-item-active .industries-selector-icon {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.industries-selector-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--muted-foreground);
+  white-space: normal;
+  text-wrap: balance;
+}
+
+.industries-selector-item-active .industries-selector-label {
+  color: var(--foreground);
+}
+
 .fd-footer-divider {
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--border) 70%, transparent);
 }
@@ -1821,6 +1934,8 @@ body {
   .pt-journey-step:hover,
   .pt-journey-node,
   .pt-journey-step:hover .pt-journey-node,
+  .industries-selector-item,
+  .industries-selector-item:hover,
   .marketing-product-frame,
   .marketing-product-frame:hover,
   .marketing-faq-panel,

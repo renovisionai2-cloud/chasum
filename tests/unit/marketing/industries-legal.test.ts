@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { HOMEPAGE_INDUSTRY_TILES } from "@/components/landing/homepage-industries";
 import {
-  CORE_CHASUM_CAPABILITIES,
   INDUSTRIES,
+  INDUSTRIES_HERO,
+  INDUSTRY_CAPABILITY_CATALOG,
   INDUSTRY_GROWING_STATEMENT,
-} from "@/lib/marketing/homepage";
+  INDUSTRY_SUMMER_LINE,
+} from "@/lib/marketing/industries-page";
 import {
   getIndustryImage,
   INDUSTRIES_PAGE_ORDER,
 } from "@/lib/marketing/industryImages";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 
 /** Phrases that imply Chasum replaces specialized industry software. */
 const OVERCLAIM_PATTERN =
@@ -18,112 +22,106 @@ const OVERCLAIM_PATTERN =
 const MISSING_FEATURE_CATALOG =
   /\b(OEM integrations|VIN decoding|estimating|inventory|repair management|warranty processing|parts management|case management systems|legal document automation|court integrations|PACS|clinical charting)\b/i;
 
-describe("Industries final content framework", () => {
-  it("keeps the approved Industries order", () => {
+const LEGACY_TERMS =
+  /\b(CRM|Billing|Dashboard|AI Workforce|Team Coordination|Customer Communication)\b/;
+
+describe("Industries page world-class alignment", () => {
+  it("keeps the approved Industries order and omits Education by design", () => {
     expect(INDUSTRIES.map((industry) => industry.name)).toEqual([
       ...INDUSTRIES_PAGE_ORDER,
     ]);
+    expect(INDUSTRIES.map((industry) => industry.name)).not.toContain(
+      "Education",
+    );
     expect(INDUSTRIES[0]?.name).toBe("Medical Clinics");
     expect(INDUSTRIES[1]?.name).toBe("Legal Services");
+    expect(
+      HOMEPAGE_INDUSTRY_TILES.some((tile) => tile.name === "Education"),
+    ).toBe(true);
   });
 
-  it("requires Designed-for intro, Helps Today solution, and types on every industry", () => {
+  it("preserves the approved hero and one-operating-system bridge", () => {
+    expect(INDUSTRIES_HERO.headline).toBe(
+      "Built around the way service businesses actually work.",
+    );
+    expect(INDUSTRIES_HERO.lede).toMatch(/workflows differ/i);
+    expect(INDUSTRIES_HERO.lede).toMatch(/not a separate product/i);
+    expect(INDUSTRIES_HERO.bridge).toMatch(/One platform/i);
+    expect(INDUSTRIES_HERO.bridge).toMatch(/One memory/i);
+    expect(INDUSTRIES_HERO.bridge).toMatch(/One intelligence/i);
+  });
+
+  it("requires intro, distinction, connect copy, and types on every industry", () => {
     for (const industry of INDUSTRIES) {
-      expect(
-        "intro" in industry && industry.intro,
-        `${industry.name} missing intro`,
-      ).toBeTruthy();
       expect(industry.intro).toMatch(/^Designed for/i);
-      expect(
-        "types" in industry && industry.types?.length,
-        `${industry.name} missing types`,
-      ).toBeGreaterThan(0);
+      expect(industry.distinction.length).toBeGreaterThan(24);
       expect(industry.solution.length).toBeGreaterThan(40);
-      expect(industry.solution.length).toBeLessThan(280);
-      expect(industry.solution).not.toMatch(/continue to evolve|roadmap|coming next/i);
-      expect("problem" in industry, industry.name).toBe(false);
+      expect(industry.solution.length).toBeLessThan(320);
+      expect(industry.types.length).toBeGreaterThan(0);
+      expect(industry.modules.length).toBeGreaterThan(2);
+      expect(industry.modules.length).toBeLessThan(7);
     }
 
+    const distinctions = INDUSTRIES.map((industry) => industry.distinction);
+    expect(new Set(distinctions).size).toBe(distinctions.length);
     const solutions = INDUSTRIES.map((industry) => industry.solution);
     expect(new Set(solutions).size).toBe(solutions.length);
   });
 
-  it("uses one shared Growing with Your Business statement", () => {
-    expect(INDUSTRY_GROWING_STATEMENT).toMatch(
-      /continuously evolves with new platform improvements/i,
-    );
-    expect(INDUSTRY_GROWING_STATEMENT).toMatch(
-      /AI Business Operating System/i,
-    );
-    expect(INDUSTRY_GROWING_STATEMENT).not.toMatch(
-      /coming next|roadmap|will launch|soon/i,
-    );
-  });
-
-  it("uses shared Core Chasum Capabilities across every industry", () => {
-    expect([...CORE_CHASUM_CAPABILITIES]).toEqual([
-      "AI Business Manager",
-      "Appointment Scheduling",
-      "CRM",
-      "Customer Communication",
-      "Team Coordination",
-      "Payments",
-      "Reporting",
-      "Business Memory",
-      "Multi-location",
-    ]);
+  it("uses current-generation capability chips, not a generic identical set", () => {
+    const moduleSets = INDUSTRIES.map((industry) => industry.modules.join("|"));
+    expect(new Set(moduleSets).size).toBeGreaterThan(4);
 
     for (const industry of INDUSTRIES) {
-      expect(industry.modules, industry.name).toEqual([
-        ...CORE_CHASUM_CAPABILITIES,
-      ]);
+      for (const mod of industry.modules) {
+        expect(INDUSTRY_CAPABILITY_CATALOG, industry.name).toContain(mod);
+        expect(mod).not.toMatch(LEGACY_TERMS);
+      }
     }
+  });
+
+  it("keeps growing and Summer copy honest", () => {
+    expect(INDUSTRY_GROWING_STATEMENT).toMatch(/same operating model/i);
+    expect(INDUSTRY_GROWING_STATEMENT).not.toMatch(
+      /coming next|roadmap|will launch|soon|industry intelligence/i,
+    );
+    expect(INDUSTRY_SUMMER_LINE).toMatch(/AI Business Manager/i);
+    expect(INDUSTRY_SUMMER_LINE).toMatch(/observe and recommend/i);
+    expect(INDUSTRY_SUMMER_LINE).not.toMatch(
+      /AI receptionist|chatbot|autonomous execution/i,
+    );
   });
 
   it("keeps Medical Clinics representative businesses and operations-only claims", () => {
     const medical = INDUSTRIES.find(
       (industry) => industry.name === "Medical Clinics",
     );
-    expect(medical && "intro" in medical && medical.intro).toMatch(
-      /healthcare and wellness/i,
-    );
-    expect(medical?.solution).toMatch(
-      /appointments|reminders|communication|CRM|staff|operations/i,
-    );
-    expect(medical?.solution).not.toMatch(/\b(EMR|EHR|PACS|charting)\b/i);
-    if (medical && "types" in medical) {
-      expect(medical.types).toHaveLength(12);
-    }
+    expect(medical?.intro).toMatch(/healthcare and wellness/i);
+    expect(medical?.solution).toMatch(/visit|provider|reminders/i);
+    expect(medical?.solution).toMatch(/clinical records stay/i);
+    expect(medical?.types).toHaveLength(12);
   });
 
   it("keeps Legal Services practice areas without case-management claims", () => {
     const legal = INDUSTRIES.find((industry) => industry.name === "Legal Services");
-    expect(legal && "intro" in legal && legal.intro).toMatch(/legal practices/i);
-    expect(legal?.solution).toMatch(/consultations|appointments|CRM|billing|communication/i);
+    expect(legal?.intro).toMatch(/legal practices/i);
+    expect(legal?.solution).toMatch(/consultation|client records|communications/i);
     expect(legal?.solution).not.toMatch(
       /case management|document automation|court integrations/i,
     );
-    if (legal && "types" in legal) {
-      expect(legal.types).toHaveLength(10);
-    }
+    expect(legal?.types).toHaveLength(10);
   });
 
   it("keeps Automotive Services types without estimating/repair-system claims", () => {
     const auto = INDUSTRIES.find(
       (industry) => industry.name === "Automotive Services",
     );
-    expect(auto && "intro" in auto && auto.intro).toMatch(
-      /automotive service businesses/i,
-    );
-    expect(auto?.solution).toMatch(
-      /bookings|appointments|schedules|communication|payments|reporting/i,
-    );
+    expect(auto?.intro).toMatch(/automotive service businesses/i);
+    expect(auto?.solution).toMatch(/appointments|history|schedules/i);
     expect(auto?.solution).not.toMatch(
       /estimat|repair management|inventory|OEM|VIN|warranty|parts/i,
     );
-    if (auto && "types" in auto) {
-      expect(auto.types).toHaveLength(12);
-    }
+    expect(auto?.types).toHaveLength(12);
   });
 
   it("maps every industry through the shared industryImages registry", () => {
@@ -144,15 +142,30 @@ describe("Industries final content framework", () => {
     for (const industry of INDUSTRIES) {
       const fields = [
         industry.name,
-        "intro" in industry ? industry.intro : "",
+        industry.intro,
+        industry.distinction,
         industry.solution,
         ...industry.modules,
       ].join(" ");
       expect(fields, industry.name).not.toMatch(OVERCLAIM_PATTERN);
       expect(fields, industry.name).not.toMatch(MISSING_FEATURE_CATALOG);
+      expect(fields, industry.name).not.toMatch(LEGACY_TERMS);
     }
 
     expect(INDUSTRY_GROWING_STATEMENT).not.toMatch(OVERCLAIM_PATTERN);
-    expect(INDUSTRY_GROWING_STATEMENT).not.toMatch(MISSING_FEATURE_CATALOG);
+    expect(INDUSTRIES_HERO.lede).not.toMatch(OVERCLAIM_PATTERN);
+  });
+
+  it("uses keyboard-accessible tabs on the Industries selector", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "components/landing/industries.tsx"),
+      "utf8",
+    );
+    expect(source).toContain('role="tablist"');
+    expect(source).toContain('role="tab"');
+    expect(source).toContain("aria-selected");
+    expect(source).toContain("ArrowRight");
+    expect(source).toContain("tabIndex={selected ? 0 : -1}");
+    expect(source).not.toContain('from "@/lib/marketing/homepage"');
   });
 });

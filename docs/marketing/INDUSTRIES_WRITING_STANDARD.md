@@ -1,9 +1,8 @@
 # Industries Writing Standard
 
 **Status:** Permanent writing standard — Final Wording Pass  
-**Canonical content:** `lib/marketing/homepage.ts` → `INDUSTRIES`  
-**Shared capability chips:** `CORE_CHASUM_CAPABILITIES`  
-**Shared growing statement:** `INDUSTRY_GROWING_STATEMENT`  
+**Canonical content:** `lib/marketing/industries-page.ts` → `INDUSTRIES`  
+**Shared growing statement:** `INDUSTRY_GROWING_STATEMENT` (page-level, not repeated on every card)  
 **Homepage tiles:** `components/landing/homepage-industries.tsx` → `HOMEPAGE_INDUSTRY_TILES`  
 **Visual system:** [INDUSTRIES_VISUAL_SYSTEM.md](./INDUSTRIES_VISUAL_SYSTEM.md)  
 **Capability truth:** [PRODUCT_TRUTH_MATRIX.md](./PRODUCT_TRUTH_MATRIX.md)
@@ -34,27 +33,36 @@ Within the first few seconds, every industry answers:
 
 | Question | Field / UI |
 | --- | --- |
-| Is my business one of these? | `intro` (**Designed for**) + `types` |
-| What can Chasum help me with today? | `solution` (**How Chasum helps today**) + `modules` (**Core Chasum Capabilities**) |
-| How does Chasum continue to grow with my business? | Shared `INDUSTRY_GROWING_STATEMENT` (**Growing with your business**) |
+| Who is this for? | `intro` |
+| What makes this operating model different? | `distinction` |
+| How does Chasum help connect it today? | `solution` |
+| Proof | `types` (secondary) + `modules` (relevant chips only) |
+
+Growing with your business is a **shared page-level** statement (`INDUSTRY_GROWING_STATEMENT`), not a repeated card paragraph.
 
 Do **not** put lists of missing features on the Industries page. Keep those constraints in this doc and the Product Truth Matrix for writers—not in visitor-facing copy.
 
 Do **not** turn Growing into a roadmap or future feature list.
 
+Education remains a homepage tile only. Do **not** add an Industries deep-dive unless the product owner explicitly requests it.
+
 ---
 
-## Core Chasum Capabilities (public chips)
+## Capability chips (public)
 
-- AI Business Manager
+Use current-generation names. Choose the most relevant chips per industry — not every capability on every card.
+
 - Appointment Scheduling
-- CRM
-- Customer Communication
-- Team Coordination
+- Customer Records
+- Employees
 - Payments
+- Communications
 - Reporting
-- Business Memory
 - Multi-location
+- Packages
+- Memberships
+
+Avoid on Industries chips: CRM, Billing, Dashboard, AI Workforce, Communication (singular), Team Coordination.
 
 ---
 
@@ -94,7 +102,7 @@ Avoid on the Industries page:
 
 ## Adding a future industry
 
-1. Add an `INDUSTRIES` entry with `intro`, `solution`, `types`, `modules: [...CORE_CHASUM_CAPABILITIES]`, and `status`.
+1. Add an `INDUSTRIES` entry in `lib/marketing/industries-page.ts` with `intro`, `distinction`, `solution`, `types`, relevant `modules`, and `status`.
 2. Do not add a custom growing statement — the shared constant is required.
 3. Add photography via `lib/marketing/industryImages.ts`.
 4. Update unit tests in `tests/unit/marketing/industries-legal.test.ts`.

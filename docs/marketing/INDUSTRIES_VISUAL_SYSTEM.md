@@ -18,7 +18,7 @@ Visual source of truth for industry order and shared photography.
 10. Pet Services  
 11. Cleaning  
 
-Canonical array: `lib/marketing/homepage.ts` → `INDUSTRIES`.  
+Canonical array: `lib/marketing/industries-page.ts` → `INDUSTRIES`.  
 Order constant: `lib/marketing/industryImages.ts` → `INDUSTRIES_PAGE_ORDER`.
 
 Education remains a homepage category tile (maps to the shared Education asset).
@@ -84,7 +84,7 @@ Do **not** hotlink remote stock URLs.
 
 - Meaningful `alt` on Industries detail heroes
 - Decorative homepage tile photos use `alt=""` (title + blurb convey meaning)
-- Keyboard listbox / option interaction unchanged
+- Keyboard tablist / tab interaction
 - `prefers-reduced-motion` disables fade / hover scale
 
 ## Deferred Version 2

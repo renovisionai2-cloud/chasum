@@ -3,8 +3,10 @@
 import { Reveal } from "@/components/landing/reveal";
 import {
   INDUSTRIES,
+  INDUSTRIES_HERO,
   INDUSTRY_GROWING_STATEMENT,
-} from "@/lib/marketing/homepage";
+  INDUSTRY_SUMMER_LINE,
+} from "@/lib/marketing/industries-page";
 import { getIndustryImage } from "@/lib/marketing/industryImages";
 import { cn } from "@/lib/utils";
 import {
@@ -22,7 +24,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 
 const INDUSTRY_ICONS: Record<string, LucideIcon> = {
   "Medical Clinics": Stethoscope,
@@ -40,127 +42,130 @@ const INDUSTRY_ICONS: Record<string, LucideIcon> = {
 };
 
 /**
- * Industries — workflows shaped with real operators.
+ * Industries — one operating system, different business rhythm.
  */
 export function Industries() {
-  const [active, setActive] = useState<string>(INDUSTRIES[0]?.name ?? "");
-  const current =
-    INDUSTRIES.find((industry) => industry.name === active) ?? INDUSTRIES[0];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const last = INDUSTRIES.length - 1;
+  const current = INDUSTRIES[activeIndex] ?? INDUSTRIES[0];
   const Icon = current
     ? (INDUSTRY_ICONS[current.name] ?? BriefcaseBusiness)
     : BriefcaseBusiness;
   const visual = current ? getIndustryImage(current.name) : undefined;
+
+  function select(index: number) {
+    const next = Math.min(last, Math.max(0, index));
+    setActiveIndex(next);
+    document
+      .getElementById(`industries-tab-${slug(INDUSTRIES[next]!.name)}`)
+      ?.focus();
+  }
+
+  function onSelectorKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      select(activeIndex + 1);
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      select(activeIndex - 1);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      select(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      select(last);
+    }
+  }
 
   if (!current) return null;
 
   return (
     <section
       id="industries"
-      className="marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-24 md:py-36"
+      className="industries-page marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-16 md:py-24"
       aria-labelledby="industries-heading"
     >
       <div className="mx-auto max-w-[1400px]">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow">Industries</p>
+            <p className="marketing-eyebrow">{INDUSTRIES_HERO.eyebrow}</p>
             <h1 id="industries-heading" className="marketing-h2-xl">
-              Built around the way service businesses actually work.
+              {INDUSTRIES_HERO.headline}
             </h1>
-            <p className="marketing-lede">
-              Service businesses share the need to understand their day—but
-              workflows are not identical. One Chasum platform. Different
-              configuration and workflows by industry.
+            <p className="marketing-lede">{INDUSTRIES_HERO.lede}</p>
+            <p className="industries-os-bridge mx-auto mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
+              {INDUSTRIES_HERO.bridge}
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
+        <div className="industries-layout mt-12 grid gap-6 lg:mt-14 lg:grid-cols-[minmax(0,16.5rem)_minmax(0,1fr)] lg:items-start lg:gap-8 xl:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
           <Reveal>
-            <ul
-              className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              role="listbox"
+            <div
+              role="tablist"
               aria-label="Industries"
+              className="industries-selector"
+              onKeyDown={onSelectorKeyDown}
             >
-              {INDUSTRIES.map((industry) => {
+              {INDUSTRIES.map((industry, index) => {
                 const ItemIcon =
                   INDUSTRY_ICONS[industry.name] ?? BriefcaseBusiness;
-                const selected = industry.name === active;
+                const selected = index === activeIndex;
+                const tabId = `industries-tab-${slug(industry.name)}`;
                 return (
-                  <li key={industry.name} className="shrink-0" role="none">
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={selected}
-                      onClick={() => setActive(industry.name)}
-                      className={cn(
-                        "flex min-h-12 w-full items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all duration-250",
-                        selected
-                          ? "border-primary/25 bg-card shadow-md shadow-foreground/[0.04]"
-                          : "border-transparent hover:bg-card/70",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "flex h-9 w-9 items-center justify-center rounded-xl",
-                          selected
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-primary/10 text-primary",
-                        )}
-                      >
-                        <ItemIcon className="h-4 w-4" aria-hidden />
-                      </span>
-                      <span
-                        className={cn(
-                          "text-sm font-semibold",
-                          selected ? "text-foreground" : "text-muted-foreground",
-                        )}
-                      >
-                        {industry.name}
-                      </span>
-                    </button>
-                  </li>
+                  <button
+                    key={industry.name}
+                    type="button"
+                    role="tab"
+                    id={tabId}
+                    aria-selected={selected}
+                    aria-controls="industries-panel"
+                    tabIndex={selected ? 0 : -1}
+                    onClick={() => select(index)}
+                    className={cn(
+                      "industries-selector-item",
+                      selected && "industries-selector-item-active",
+                    )}
+                  >
+                    <span className="industries-selector-icon" aria-hidden>
+                      <ItemIcon className="h-4 w-4" />
+                    </span>
+                    <span className="industries-selector-label">
+                      {industry.name}
+                    </span>
+                  </button>
                 );
               })}
-            </ul>
+            </div>
           </Reveal>
 
           <Reveal delayMs={80}>
             <article
-              className="marketing-elevate-lg rounded-[1.75rem] border border-border/60 bg-card p-8 md:p-10 lg:p-12"
-              aria-live="polite"
+              id="industries-panel"
+              role="tabpanel"
+              aria-labelledby={`industries-tab-${slug(current.name)}`}
+              className="industries-card marketing-elevate-lg rounded-[1.75rem] border border-border/60 bg-card p-6 md:p-8 lg:p-10"
             >
-              <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(220px,44%)] md:items-start">
+              <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(200px,40%)] md:items-start md:gap-8">
                 <div className="min-w-0">
-                  <span className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <Icon className="h-6 w-6" aria-hidden />
+                  <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Icon className="h-5 w-5" aria-hidden />
                   </span>
-                  <h3
+                  <h2
                     key={`title-${current.name}`}
-                    className="industry-detail-fade text-3xl font-semibold tracking-tight md:text-4xl"
+                    className="industry-detail-fade text-2xl font-semibold tracking-tight md:text-3xl lg:text-4xl"
                   >
                     {current.name}
-                  </h3>
-                  {"status" in current && current.status ? (
-                    <p
-                      key={`status-${current.name}`}
-                      className="industry-detail-fade mt-2 text-xs font-medium text-muted-foreground"
-                    >
-                      {current.status}
-                    </p>
-                  ) : null}
-                  {"intro" in current && current.intro ? (
-                    <>
-                      <p className="industry-detail-fade mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                        Designed for
-                      </p>
-                      <p
-                        key={`intro-${current.name}`}
-                        className="industry-detail-fade mt-3 max-w-xl text-base leading-relaxed text-foreground/85 md:text-lg"
-                      >
-                        {current.intro}
-                      </p>
-                    </>
-                  ) : null}
+                  </h2>
+                  <p className="industry-detail-fade mt-1.5 text-xs font-medium text-muted-foreground">
+                    {current.status}
+                  </p>
+                  <p
+                    key={`intro-${current.name}`}
+                    className="industry-detail-fade mt-4 max-w-xl text-base leading-relaxed text-foreground md:text-lg"
+                  >
+                    {current.intro}
+                  </p>
                 </div>
 
                 {visual ? (
@@ -171,14 +176,14 @@ export function Industries() {
                       alt={visual.alt}
                       width={visual.heroWidth}
                       height={visual.heroHeight}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 45vw, 420px"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 380px"
                       className="industry-detail-fade h-full w-full object-cover"
                       style={
                         visual.objectPosition
                           ? { objectPosition: visual.objectPosition }
                           : undefined
                       }
-                      priority={current.name === INDUSTRIES[0].name}
+                      priority={activeIndex === 0}
                     />
                   </div>
                 ) : null}
@@ -186,61 +191,59 @@ export function Industries() {
 
               <div
                 key={`body-${current.name}`}
-                className="industry-detail-fade mt-10 grid gap-8 md:grid-cols-2"
+                className="industry-detail-fade mt-8 grid gap-6 md:mt-9 md:grid-cols-2 md:gap-8"
               >
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    How Chasum helps today
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/80">
+                    What makes this business different
                   </p>
-                  <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
-                    {current.solution}
+                  <p className="mt-2.5 text-base leading-relaxed text-foreground/90">
+                    {current.distinction}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Growing with your business
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/80">
+                    How Chasum helps connect it
                   </p>
-                  <p className="mt-3 text-base leading-relaxed text-foreground/85 md:text-lg">
-                    {INDUSTRY_GROWING_STATEMENT}
+                  <p className="mt-2.5 text-base leading-relaxed text-foreground/90">
+                    {current.solution}
                   </p>
                 </div>
               </div>
 
-              {"types" in current && current.types?.length ? (
-                <div
-                  key={`types-${current.name}`}
-                  className="industry-detail-fade mt-10 border-t border-border/60 pt-8"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    {current.name === "Legal Services"
-                      ? "Representative practice areas"
-                      : "Representative business types"}
-                  </p>
-                  <ul className="mt-4 flex flex-wrap gap-2">
-                    {current.types.map((type) => (
-                      <li
-                        key={type}
-                        className="rounded-full border border-border/60 bg-card px-3.5 py-1.5 text-sm font-medium text-foreground/90"
-                      >
-                        {type}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
+              <div
+                key={`types-${current.name}`}
+                className="industry-detail-fade mt-8 border-t border-border/50 pt-6"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  {current.name === "Legal Services"
+                    ? "Representative practice areas"
+                    : "Representative business types"}
+                </p>
+                <ul className="mt-3 flex flex-wrap gap-1.5">
+                  {current.types.map((type) => (
+                    <li
+                      key={type}
+                      className="rounded-full border border-border/50 bg-muted/30 px-3 py-1 text-xs font-medium text-muted-foreground"
+                    >
+                      {type}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <div
                 key={`modules-${current.name}`}
-                className="industry-detail-fade mt-10 border-t border-border/60 pt-8"
+                className="industry-detail-fade mt-6"
               >
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  Core Chasum Capabilities
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                  Most relevant capabilities
                 </p>
-                <ul className="mt-4 flex flex-wrap gap-2">
+                <ul className="mt-3 flex flex-wrap gap-1.5">
                   {current.modules.map((mod) => (
                     <li
                       key={mod}
-                      className="rounded-full bg-muted px-3.5 py-1.5 text-sm font-medium text-foreground"
+                      className="rounded-full border border-border/40 bg-background/80 px-2.5 py-1 text-[11px] font-medium text-muted-foreground"
                     >
                       {mod}
                     </li>
@@ -250,7 +253,25 @@ export function Industries() {
             </article>
           </Reveal>
         </div>
+
+        <Reveal delayMs={120}>
+          <div className="industries-growth mx-auto mt-12 max-w-2xl text-center md:mt-14">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              Growing with your business
+            </p>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
+              {INDUSTRY_GROWING_STATEMENT}
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {INDUSTRY_SUMMER_LINE}
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
+}
+
+function slug(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
