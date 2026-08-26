@@ -9,6 +9,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Product Tour PO lock)
+
+**PRODUCT TOUR — PO LOCKED** (2026-08-26). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → Product Tour (`/product-tour`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `7bb5e3fba54fe8dc36ae1e94a29196030802dcee`
+- Preview URL: https://chasum-nh8vmcsd8-renovisionappcom.vercel.app
+- Claude: APPROVED
+- PO: APPROVED
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED
+- Lock file: `docs/marketing/PRODUCT_TOUR_V1_LOCK.md`
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Changed (World Class Phase 4A — Commercial SaaS Lifecycle Honesty)
 
 **STATUS:** COMPLETE / MERGED TO MAIN (PR #29, `f6517a1`)
