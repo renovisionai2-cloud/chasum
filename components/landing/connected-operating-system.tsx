@@ -108,6 +108,7 @@ export function ConnectedOperatingSystem() {
                 <DashboardPreview
                   variant="overview"
                   navIa="current"
+                  chromeLabel="Chasum · Business Dashboard"
                   className="min-h-[280px] border-0 shadow-none md:min-h-[400px] lg:min-h-[440px]"
                 />
               </div>

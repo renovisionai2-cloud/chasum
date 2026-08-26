@@ -85,6 +85,7 @@ export function Hero() {
               live
               hero
               navIa="current"
+              chromeLabel="Chasum · Business Dashboard"
               className="min-h-[280px] border-0 shadow-none sm:min-h-[340px] lg:min-h-[400px]"
             />
           </div>

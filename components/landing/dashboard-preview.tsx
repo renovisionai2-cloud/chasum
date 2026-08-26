@@ -65,6 +65,11 @@ type DashboardPreviewProps = {
    * legacy mock labels unless they opt in.
    */
   navIa?: "legacy" | "current";
+  /**
+   * Optional address-bar chrome. Homepage uses a non-URL label so visitors
+   * cannot mistake illustrative copy for a live application domain.
+   */
+  chromeLabel?: string;
 };
 
 function subscribeReducedMotion(onChange: () => void) {
@@ -101,9 +106,11 @@ export function DashboardPreview({
   hero = false,
   live,
   navIa = "legacy",
+  chromeLabel,
 }: DashboardPreviewProps) {
   const isLive = live ?? !compact;
   const nav = navIa === "current" ? NAV_CURRENT : NAV_LEGACY;
+  const chrome = chromeLabel ?? marketingDemoPath(variant);
 
   return (
     <div
@@ -135,7 +142,7 @@ export function DashboardPreview({
             hero ? "text-[11px] tracking-wide" : "text-xs",
           )}
         >
-          {marketingDemoPath(variant)}
+          {chrome}
         </span>
       </div>
 
