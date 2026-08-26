@@ -32,7 +32,14 @@ export {
   buildRecommendationQuery,
   formatRecommendationsMessage,
   playbookForBusinessType,
+  playbookForProfile,
 } from "@/lib/website-concierge/discovery/recommendations";
+
+export {
+  contextualizeDiscoveryField,
+  resolveDiscoveryVocab,
+  resolveVocabFamily,
+} from "@/lib/website-concierge/discovery/business-vocabulary";
 
 export {
   applyDiscoveryExtraction,

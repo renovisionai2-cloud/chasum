@@ -55,7 +55,7 @@ export function buildConciergePrompt(input: {
       ? `Current software: ${memory.currentSoftware}.`
       : null,
     memory.monthlyVolume
-      ? `Monthly appointment volume: ${memory.monthlyVolume}.`
+      ? `Monthly activity volume: ${memory.monthlyVolume}.`
       : null,
     memory.challenges.length
       ? `Challenges / pain points: ${memory.challenges.join(", ")}.`

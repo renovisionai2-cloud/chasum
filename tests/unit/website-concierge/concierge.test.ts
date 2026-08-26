@@ -74,8 +74,21 @@ describe("business discovery engine", () => {
       memory: {
         ...createEmptySessionMemory(),
         businessType: "ultrasound",
+        employeeCount: "2–5",
+        locationCount: "One location",
+        currentSoftware: "Picktime",
+        monthlyVolume: "50–200",
+        goals: ["fewer no-shows"],
         discoveryPhase: "discovering",
-        discoveryAskedIds: ["business_type", "challenges"],
+        discoveryAskedIds: [
+          "business_type",
+          "challenges",
+          "employee_count",
+          "location_count",
+          "current_software",
+          "monthly_volume",
+          "goals",
+        ],
       },
     });
     expect(result?.offerTour).toBe(true);

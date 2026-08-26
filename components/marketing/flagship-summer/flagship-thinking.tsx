@@ -27,7 +27,7 @@ export function FlagshipThinking({
 }) {
   const cues = buildThinkingCues(memory);
   const midConversation =
-    memory.businessType !== "unknown" &&
+    (memory.businessType !== "unknown" || memory.businessTypes.length > 0) &&
     (memory.challenges.length > 0 ||
       memory.goals.length > 0 ||
       !!memory.employeeCount ||

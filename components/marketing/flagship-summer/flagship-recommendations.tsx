@@ -1,11 +1,8 @@
 "use client";
 
 import { Reveal } from "@/components/landing/reveal";
-import {
-  FS_DEFAULT_RECS,
-  FS_RECOMMENDATION_COPY,
-  FS_RECS_INTRO,
-} from "@/lib/marketing/flagship-summer";
+import { presentFlagshipRecommendation } from "@/lib/marketing/meet-summer-intelligence";
+import { FS_RECS_INTRO } from "@/lib/marketing/flagship-summer";
 import type { SessionMemory } from "@/lib/website-concierge/types";
 import { cn } from "@/lib/utils";
 
@@ -14,26 +11,14 @@ export function FlagshipRecommendations({
 }: {
   memory: SessionMemory;
 }) {
-  const ids =
-    memory.recommendationsMade.length > 0
-      ? memory.recommendationsMade.slice(0, 4)
-      : memory.businessType !== "unknown" && memory.challenges.length > 0
-        ? [...FS_DEFAULT_RECS]
-        : [];
+  const ids = memory.recommendationsMade.slice(0, 4);
 
   if (!ids.length) return null;
 
-  const cards = ids.map((id) => {
-    const copy = FS_RECOMMENDATION_COPY[id] ?? {
-      title: id
-        .split(/[-_]/)
-        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-        .join(" "),
-      why: "Grounded in what you shared about how your business runs.",
-      tone: "blue" as const,
-    };
-    return { id, ...copy };
-  });
+  const cards = ids.map((id) => ({
+    id,
+    ...presentFlagshipRecommendation(id, memory),
+  }));
 
   return (
     <section className="fs-scene" aria-labelledby="fs-recs-title">

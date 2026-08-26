@@ -1,3 +1,4 @@
+import { contextualizeDiscoveryField, resolveDiscoveryVocab } from "@/lib/website-concierge/discovery/business-vocabulary";
 import {
   extractDiscoveryFacts,
   looksLikeProductQuestion,
@@ -132,6 +133,7 @@ export function runDiscoveryEngine(input: {
   ) {
     const ack = acknowledge(memory);
     const software = memory.currentSoftware ?? "your current tool";
+    const vocab = resolveDiscoveryVocab(memory);
     const result: DiscoveryTurnResult = {
       message: formatDiscoveryAsk(
         {
@@ -142,12 +144,7 @@ export function runDiscoveryEngine(input: {
         },
         { understand: ack },
       ),
-      suggestions: [
-        "Fewer no-shows",
-        "Less admin time",
-        "Better reporting",
-        "Online booking",
-      ],
+      suggestions: vocab.softwareImproveSuggestions,
       askedFieldId: "current_software",
       pendingFollowUpId: "software_improvement",
       discoveryPhase: "discovering",
@@ -212,15 +209,16 @@ export function runDiscoveryEngine(input: {
   // Continue discovery — Summer Principle: Understand → Explain → Ask
   const next = selectNextDiscoveryField(toDiscoveryProfile(memory));
   if (next) {
+    const field = contextualizeDiscoveryField(next, memory);
     const ack = acknowledge(memory);
-    memory = markAsked(memory, next.id, {
+    memory = markAsked(memory, field.id, {
       discoveryPhase: "discovering",
       pendingFollowUpId: null,
     });
     return {
       result: {
-        message: formatDiscoveryAsk(next, { understand: ack }),
-        suggestions: next.suggestions ?? [
+        message: formatDiscoveryAsk(field, { understand: ack }),
+        suggestions: field.suggestions ?? [
           "Tell me more",
           "Skip for now",
           "What can Chasum do?",

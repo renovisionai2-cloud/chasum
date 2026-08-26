@@ -58,7 +58,11 @@ export function shouldOfferRecommendations(
     profile.challenges.length > 0 ||
     !!profile.currentSoftware ||
     profile.goals.length > 0;
-  return hasType && hasSignal;
+  if (!hasType || !hasSignal) return false;
+  // Observe → Understand → Recommend: finish core discovery before pitching.
+  const next = selectNextDiscoveryField(profile);
+  if (next && next.priority >= 55) return false;
+  return true;
 }
 
 export function shouldOfferTour(profile: DiscoveryProfileView): boolean {

@@ -97,6 +97,11 @@ function extractSoftware(text: string): string | null {
     { name: "Booksy", pattern: /\bbooksy\b/i },
     { name: "Jane", pattern: /\bjane\b/i },
     { name: "Calendly", pattern: /\bcalendly\b/i },
+    { name: "Practice management software", pattern: /\bpractice\s*management\b/i },
+    { name: "Shop management software", pattern: /\bshop\s*management\b/i },
+    { name: "Field service software", pattern: /\bfield\s*service\b/i },
+    { name: "Industry software", pattern: /\bindustry\s*software\b/i },
+    { name: "Email / calendar", pattern: /\bemail\s*\/\s*calendar\b/i },
     { name: "Spreadsheets", pattern: /\b(spreadsheet|excel|google\s*sheets)\b/i },
     { name: "Nothing yet", pattern: /\b(nothing|no\s*software|pen\s*and\s*paper|phone\s*only)\b/i },
   ];
@@ -115,7 +120,9 @@ function extractMonthlyVolume(text: string): string | null {
   if (/\b(50\s*[-–to]+\s*200|50-200)\b/i.test(text)) return "50–200";
   if (/\b(200\s*[-–to]+\s*500|200-500)\b/i.test(text)) return "200–500";
   if (/\b(500\+|more\s*than\s*500|hundreds)\b/i.test(text)) return "500+";
-  const n = text.match(/\b(\d{2,4})\s*(appointments|bookings|visits)\s*(a|per)?\s*month\b/i);
+  const n = text.match(
+    /\b(\d{2,4})\s*(appointments|bookings|visits|inquiries|consultations|matters|jobs|sessions)\s*(a|per)?\s*month\b/i,
+  );
   if (n?.[1]) {
     const v = Number(n[1]);
     if (v < 50) return "Under 50";
@@ -129,10 +136,16 @@ function extractMonthlyVolume(text: string): string | null {
 function extractChallenges(text: string): string[] {
   const found: string[] = [];
   if (/\b(no[- ]?shows?|cancellations?)\b/i.test(text)) found.push("no-shows");
-  if (/\b(front\s*desk|reception|phone\s*calls|admin)\b/i.test(text)) {
+  if (/\b(admin overload|too much admin|admin work)\b/i.test(text)) {
+    found.push("admin overload");
+  } else if (/\b(front\s*desk|reception|phone\s*calls)\b/i.test(text)) {
     found.push("front-desk overload");
   }
-  if (/\b(rebook|retention|follow[- ]?ups?)\b/i.test(text)) found.push("rebooking");
+  if (/\b(rebook|retention)\b/i.test(text)) {
+    found.push("rebooking");
+  } else if (/\b(client follow-up|follow[- ]?ups?)\b/i.test(text)) {
+    found.push("follow-up");
+  }
   if (/\b(report|analytics|visibility|numbers)\b/i.test(text)) found.push("reporting");
   if (/\b(staff\s*schedul|who\s*works|utilization)\b/i.test(text)) {
     found.push("staff scheduling");
@@ -140,6 +153,13 @@ function extractChallenges(text: string): string[] {
   if (/\b(double[- ]?book|availability|calendar\s*chaos)\b/i.test(text)) {
     found.push("scheduling reliability");
   }
+  if (/\b(billing|collections|invoic)/i.test(text)) {
+    found.push("billing / collections");
+  }
+  if (/\b(intake)\b/i.test(text)) found.push("intake");
+  if (/\b(estimates?)\b/i.test(text)) found.push("estimates and follow-up");
+  if (/\b(customer updates?)\b/i.test(text)) found.push("customer updates");
+  if (/\b(dispatch)\b/i.test(text)) found.push("dispatch and scheduling");
   return found;
 }
 
@@ -148,14 +168,26 @@ function extractGoals(text: string): string[] {
   if (/\b(fewer\s*no[- ]?shows|reduce\s*no[- ]?shows)\b/i.test(text)) {
     found.push("fewer no-shows");
   }
-  if (/\b(less\s*admin|save\s*time|automate)\b/i.test(text)) {
+  if (/\b(less\s*admin|save\s*time|automate|reduce admin)\b/i.test(text)) {
     found.push("less admin time");
   }
-  if (/\b(more\s*bookings?|grow\s*revenue|fill\s*the\s*(book|calendar))\b/i.test(text)) {
+  if (/\b(improve client intake|client intake)\b/i.test(text)) {
+    found.push("improve client intake");
+  }
+  if (/\b(more\s*clients?|more\s*consultations?)\b/i.test(text)) {
+    found.push("more clients");
+  } else if (/\b(more\s*jobs?)\b/i.test(text)) {
+    found.push("more jobs");
+  } else if (/\b(more\s*customers?)\b/i.test(text)) {
+    found.push("more customers");
+  } else if (/\b(more\s*bookings?|grow\s*revenue|fill\s*the\s*(book|calendar))\b/i.test(text)) {
     found.push("more bookings");
   }
   if (/\b(clearer\s*report|better\s*insight|understand\s*numbers)\b/i.test(text)) {
     found.push("clearer reporting");
+  }
+  if (/\b(improve follow-up|faster follow-up|faster customer updates)\b/i.test(text)) {
+    found.push("improve follow-up");
   }
   return found;
 }

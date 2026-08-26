@@ -1,3 +1,4 @@
+import { resolveVocabFamily } from "@/lib/website-concierge/discovery/business-vocabulary";
 import type { KnowledgeEntry } from "@/lib/website-concierge/knowledge/types";
 import type { DiscoveryProfileView } from "@/lib/website-concierge/discovery/types";
 
@@ -164,47 +165,219 @@ const INDUSTRY_PLAYBOOKS: Record<
       query: "deposits",
     },
   ],
+  legal: [
+    {
+      topicId: "crm",
+      title: "CRM & client intake",
+      why: "Intake, matter context, and follow-up should live in one place — not across inboxes and spreadsheets.",
+      query: "CRM follow-up intake",
+    },
+    {
+      topicId: "reporting",
+      title: "Executive Reports",
+      why: "Firm owners usually want a clear picture of activity and revenue without assembling it by hand.",
+      query: "revenue reporting analytics",
+    },
+    {
+      topicId: "communications",
+      title: "Client communications",
+      why: "Routine client questions shouldn't scatter across inboxes and pull the team off billable work.",
+      query: "communications follow-up",
+    },
+    {
+      topicId: "ai-reception",
+      title: "Coverage for routine inquiries",
+      why: "When intake and follow-up pile up, covering the repetitive questions is usually the first time win.",
+      query: "AI Reception",
+    },
+  ],
+  professional: [
+    {
+      topicId: "crm",
+      title: "CRM Intelligence",
+      why: "Client context and follow-up should sit together so work doesn't live in inboxes.",
+      query: "CRM follow-up",
+    },
+    {
+      topicId: "reporting",
+      title: "Executive Reports",
+      why: "A clear view of activity and revenue beats assembling numbers by hand.",
+      query: "revenue reporting analytics",
+    },
+    {
+      topicId: "communications",
+      title: "Client communications",
+      why: "Keep routine client updates from scattering across tools.",
+      query: "communications follow-up",
+    },
+    {
+      topicId: "ai-reception",
+      title: "Coverage for routine inquiries",
+      why: "Repetitive client questions are usually the first place to recover time.",
+      query: "AI Reception",
+    },
+  ],
+  automotive: [
+    {
+      topicId: "crm",
+      title: "CRM & follow-up",
+      why: "Estimates and customer updates stick when history sits next to the job — not in a text thread.",
+      query: "CRM follow-up",
+    },
+    {
+      topicId: "reporting",
+      title: "Executive Reports",
+      why: "Shop owners need a clear view of volume and revenue without hunting across tools.",
+      query: "revenue reporting analytics",
+    },
+    {
+      topicId: "communications",
+      title: "Customer updates",
+      why: "Keeping customers informed on jobs is usually higher leverage than adding another calendar.",
+      query: "communications follow-up",
+    },
+    {
+      topicId: "ai-reception",
+      title: "Coverage for routine inquiries",
+      why: "Status questions and new-job intake shouldn't stall the floor.",
+      query: "AI Reception",
+    },
+  ],
+  home: [
+    {
+      topicId: "crm",
+      title: "CRM & follow-up",
+      why: "Leads, jobs, and follow-up should share one memory so estimates don't go cold.",
+      query: "CRM follow-up",
+    },
+    {
+      topicId: "reporting",
+      title: "Executive Reports",
+      why: "A clear view of jobs and revenue beats assembling the week by hand.",
+      query: "revenue reporting analytics",
+    },
+    {
+      topicId: "communications",
+      title: "Customer communications",
+      why: "Updates and follow-up should travel with the job — not live in a personal inbox.",
+      query: "communications follow-up",
+    },
+    {
+      topicId: "ai-reception",
+      title: "Coverage for routine inquiries",
+      why: "New-job questions and status checks are usually the first time win.",
+      query: "AI Reception",
+    },
+  ],
+  neutral: [
+    {
+      topicId: "crm",
+      title: "CRM Intelligence",
+      why: "Customer context should sit in one place so follow-up doesn't depend on whoever last checked email.",
+      query: "CRM follow-up",
+    },
+    {
+      topicId: "reporting",
+      title: "Executive Reports",
+      why: "A clear view of what is changing beats assembling numbers by hand.",
+      query: "revenue reporting analytics",
+    },
+    {
+      topicId: "communications",
+      title: "Communications",
+      why: "Routine customer updates shouldn't scatter across inboxes and tools.",
+      query: "communications follow-up",
+    },
+    {
+      topicId: "ai-reception",
+      title: "Coverage for routine inquiries",
+      why: "Repetitive questions are usually the first place to recover time — without assuming another industry's workflow.",
+      query: "AI Reception",
+    },
+  ],
 };
 
 const CHALLENGE_QUERIES: Record<string, string> = {
   "no-shows": "deposits reminders no-shows",
   "front-desk overload": "AI Reception",
+  "admin overload": "AI Reception CRM",
   rebooking: "CRM retention rebooking",
+  "follow-up": "CRM follow-up",
+  "client follow-up": "CRM follow-up",
   reporting: "revenue reporting analytics",
   "staff scheduling": "staff scheduling calendar",
   "scheduling reliability": "calendar booking",
+  "billing / collections": "payments reporting billing",
+  intake: "CRM intake follow-up",
+  "estimates and follow-up": "CRM estimates follow-up",
+  "customer updates": "communications follow-up",
+  "customer communication": "communications follow-up",
+  "dispatch and scheduling": "calendar dispatch",
+  "scheduling jobs": "calendar jobs",
 };
 
-export function playbookForBusinessType(businessType: string) {
-  const key = businessType.toLowerCase();
-  if (key.includes("ultrasound") || key.includes("elective")) {
-    return INDUSTRY_PLAYBOOKS.ultrasound;
+type Playbook = (typeof INDUSTRY_PLAYBOOKS)[string];
+
+export function playbookForProfile(
+  profile: Pick<DiscoveryProfileView, "businessType" | "businessTypes">,
+): Playbook {
+  const family = resolveVocabFamily(profile);
+  const blob = [
+    profile.businessType,
+    ...(profile.businessTypes ?? []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (family === "neutral") {
+    return INDUSTRY_PLAYBOOKS.neutral;
   }
-  if (key.includes("salon") || key.includes("barber") || key.includes("beauty")) {
-    return INDUSTRY_PLAYBOOKS.salon;
-  }
-  if (key.includes("spa") || key.includes("wellness") || key.includes("massage")) {
-    return INDUSTRY_PLAYBOOKS.spa;
-  }
-  if (key.includes("clinic") || key.includes("medical") || key.includes("dental")) {
+  if (family === "healthcare") {
+    if (blob.includes("ultrasound") || blob.includes("elective")) {
+      return INDUSTRY_PLAYBOOKS.ultrasound;
+    }
     return INDUSTRY_PLAYBOOKS.clinic;
   }
+  if (family === "appointment") {
+    if (blob.includes("salon") || blob.includes("barber") || blob.includes("beauty")) {
+      return INDUSTRY_PLAYBOOKS.salon;
+    }
+    if (blob.includes("spa") || blob.includes("wellness") || blob.includes("massage")) {
+      return INDUSTRY_PLAYBOOKS.spa;
+    }
+    return INDUSTRY_PLAYBOOKS.default;
+  }
+  if (family === "legal") return INDUSTRY_PLAYBOOKS.legal;
+  if (family === "professional") return INDUSTRY_PLAYBOOKS.professional;
+  if (family === "automotive") return INDUSTRY_PLAYBOOKS.automotive;
+  if (family === "home") return INDUSTRY_PLAYBOOKS.home;
   return INDUSTRY_PLAYBOOKS.default;
+}
+
+export function playbookForBusinessType(
+  businessType: string,
+  businessTypes: string[] = [],
+) {
+  return playbookForProfile({ businessType, businessTypes });
 }
 
 export function buildRecommendationQuery(
   profile: DiscoveryProfileView,
 ): string {
   const parts: string[] = [];
-  if (profile.businessType !== "unknown") parts.push(profile.businessType);
+  if (profile.businessTypes.length) {
+    parts.push(...profile.businessTypes);
+  } else if (profile.businessType !== "unknown") {
+    parts.push(profile.businessType);
+  }
   for (const c of profile.challenges) {
-    parts.push(CHALLENGE_QUERIES[c] ?? c);
+    parts.push(CHALLENGE_QUERIES[c.toLowerCase()] ?? c);
   }
   for (const g of profile.goals) parts.push(g);
   if (profile.currentSoftware) {
     parts.push(profile.currentSoftware, "competitive migration");
   }
-  const playbook = playbookForBusinessType(profile.businessType);
+  const playbook = playbookForProfile(profile);
   parts.push(...playbook.slice(0, 3).map((p) => p.query));
   return parts.join(" ");
 }
@@ -214,7 +387,7 @@ export function buildPersonalizedRecommendations(
   articles: KnowledgeEntry[],
   limit = 4,
 ): PersonalizedRecommendation[] {
-  const playbook = playbookForBusinessType(profile.businessType);
+  const playbook = playbookForProfile(profile);
   const already = new Set(profile.recommendationsMade);
   const recs: PersonalizedRecommendation[] = [];
 
@@ -242,7 +415,7 @@ export function buildPersonalizedRecommendations(
     if (recs.length >= limit) break;
     const topicId = `challenge-${challenge}`;
     if (already.has(topicId) || recs.some((r) => r.topicId === topicId)) continue;
-    const q = CHALLENGE_QUERIES[challenge] ?? challenge;
+    const q = CHALLENGE_QUERIES[challenge.toLowerCase()] ?? challenge;
     const matched = articles.filter((a) =>
       q.split(/\s+/).some((w) =>
         a.title.toLowerCase().includes(w) || a.tags.includes(w),
@@ -273,20 +446,28 @@ function personalizeWhy(base: string, profile: DiscoveryProfileView): string {
   return bits.join(" ");
 }
 
+function operatingPhrase(profile: DiscoveryProfileView): string {
+  if (profile.businessTypes.length === 1) {
+    return `your ${profile.businessTypes[0]!.toLowerCase()}`;
+  }
+  if (profile.businessTypes.length > 1) {
+    return "these businesses";
+  }
+  if (profile.businessType !== "unknown") {
+    return `your ${profile.businessType.replace(/_/g, " ")}`;
+  }
+  return "your business";
+}
+
 export function formatRecommendationsMessage(
   profile: DiscoveryProfileView,
   recs: PersonalizedRecommendation[],
 ): string {
   const name = profile.visitorName ? `${profile.visitorName}, ` : "";
-  const biz =
-    profile.businessType !== "unknown"
-      ? ` as a ${profile.businessType.replace(/_/g, " ")}`
-      : "";
-
   const lines = recs.map((r, i) => `${i + 1}. **${r.title}** — ${r.why}`);
 
   return [
-    `${name}Thank you. I now have a good understanding of how your business operates${biz}.`,
+    `${name}Thank you. I now have a good understanding of how ${operatingPhrase(profile)} operates.`,
     "I already see several opportunities where Chasum can reduce manual work and improve your daily operations.",
     "",
     "Here's where I'd start:",

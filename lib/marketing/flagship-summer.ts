@@ -548,6 +548,16 @@ export const FS_RECOMMENDATION_COPY: Record<
     why: "To match demand to who is on the floor.",
     tone: "teal",
   },
+  communications: {
+    title: "Client communications",
+    why: "So routine updates don't scatter across inboxes and tools.",
+    tone: "blue",
+  },
+  packages: {
+    title: "Packages",
+    why: "To turn repeat visits into a simpler offer.",
+    tone: "purple",
+  },
 };
 
 export const FS_DEFAULT_RECS = [
