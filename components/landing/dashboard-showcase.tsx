@@ -359,7 +359,10 @@ export function DashboardShowcase({
   return (
     <section
       id="showcase"
-      className="marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 overflow-hidden px-4 py-24 sm:px-6 md:py-36"
+      className={cn(
+        "marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 overflow-hidden px-4 sm:px-6",
+        isPlatform ? "pt-14 pb-20 md:pt-20 md:pb-28" : "py-24 md:py-36",
+      )}
       aria-labelledby="showcase-heading"
     >
       <div className="mx-auto max-w-[1480px]">
@@ -384,7 +387,12 @@ export function DashboardShowcase({
         </Reveal>
 
         <Reveal delayMs={80}>
-          <div className="mt-14 grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)]">
+          <div
+            className={cn(
+              "grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)]",
+              isPlatform ? "mt-10 md:mt-12" : "mt-14",
+            )}
+          >
             <div
               className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               role="tablist"
@@ -408,7 +416,9 @@ export function DashboardShowcase({
                   className={cn(
                     "group flex min-h-12 shrink-0 items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-medium whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                     selectedTab === item.id
-                      ? "border-primary/30 bg-card text-foreground shadow-md shadow-foreground/[0.04]"
+                      ? isPlatform
+                        ? "border-primary/40 bg-background text-foreground"
+                        : "border-primary/30 bg-card text-foreground shadow-md shadow-foreground/[0.04]"
                       : "border-transparent bg-transparent text-muted-foreground hover:bg-card/70 hover:text-foreground",
                   )}
                 >
@@ -473,7 +483,12 @@ export function DashboardShowcase({
                     {active.benefits.map((benefit) => (
                       <li
                         key={benefit}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-card/80 px-3 py-1.5 text-xs text-muted-foreground"
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs",
+                          isPlatform
+                            ? "border-border/70 bg-background text-foreground/70"
+                            : "border-border/60 bg-card/80 text-muted-foreground",
+                        )}
                       >
                         <Check className="h-3 w-3 text-primary" />
                         {benefit}
@@ -488,7 +503,7 @@ export function DashboardShowcase({
                     live={false}
                     navIa={isPlatform ? "current" : "legacy"}
                     chromeLabel={
-                      isPlatform ? "Chasum · Business Dashboard" : undefined
+                      isPlatform ? `Chasum · ${active.label}` : undefined
                     }
                     className="min-h-[400px] border-0 shadow-none md:min-h-[560px] xl:min-h-[620px]"
                   />
@@ -513,7 +528,7 @@ export function DashboardShowcase({
 
         {isPlatform ? (
           <Reveal delayMs={120}>
-            <p className="mx-auto mt-16 max-w-2xl text-center text-base leading-relaxed text-muted-foreground md:text-lg">
+            <p className="mx-auto mt-12 max-w-2xl text-center text-base leading-relaxed text-muted-foreground md:mt-14 md:text-lg">
               {PLATFORM_SHOWCASE.bridgeToConclusion}
             </p>
           </Reveal>
