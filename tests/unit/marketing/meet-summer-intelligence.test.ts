@@ -5,6 +5,7 @@ import {
   buildUnderstandingFields,
 } from "@/lib/marketing/meet-summer-intelligence";
 import { createEmptySessionMemory } from "@/lib/website-concierge/session-memory";
+import { FS_INTELLIGENCE } from "@/lib/marketing/flagship-summer";
 import { getPageGreeting } from "@/lib/website-concierge/page-awareness";
 
 describe("Meet Summer intelligence presentation", () => {
@@ -86,5 +87,14 @@ describe("Meet Summer intelligence presentation", () => {
     expect(rich.some((c) => /industry benchmarks/i.test(c.label))).toBe(true);
     expect(rich.some((c) => /opportunities/i.test(c.label))).toBe(true);
     expect(rich.some((c) => /recommendations/i.test(c.label))).toBe(true);
+  });
+
+  it("keeps aftercare intelligence copy cross-industry", () => {
+    const first = FS_INTELLIGENCE[0];
+    expect(first?.traditional).toBe("Traditional software stores records.");
+    expect(first?.summer).toBe("Summer understands context.");
+    expect(FS_INTELLIGENCE.map((row) => `${row.traditional} ${row.summer}`).join(" ")).not.toMatch(
+      /\bappointments?\b/i,
+    );
   });
 });

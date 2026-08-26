@@ -438,8 +438,8 @@ export const FS_REASONING_STEPS = [
 
 export const FS_INTELLIGENCE = [
   {
-    traditional: "Traditional software stores appointments.",
-    summer: "Summer understands businesses.",
+    traditional: "Traditional software stores records.",
+    summer: "Summer understands context.",
   },
   {
     traditional: "Traditional software creates reports.",
