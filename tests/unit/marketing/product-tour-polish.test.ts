@@ -106,9 +106,22 @@ describe("Product Tour Final Polish", () => {
     );
     expect(journey).toContain("pt-journey-pulse");
     expect(journey).toContain("PRODUCT_TOUR_INTRO.headline");
+    expect(journey).toContain('role="tablist"');
+    expect(journey).toContain("aria-selected");
+    expect(journey).toContain('role="tabpanel"');
+    expect(journey).toContain("ArrowRight");
+    expect(journey).toContain("tabIndex={selected ? 0 : -1}");
+    expect(journey).not.toContain("pt-journey-grid");
+    expect(journey).not.toContain("pt-journey-card");
+    expect(journey).toContain("py-14 md:py-20");
+    expect(PRODUCT_TOUR_CONCLUSION.headline).toBe(
+      "This is the operating system your business has been missing.",
+    );
+    expect(PRODUCT_TOUR_SHOWCASE.headline).toBe("Why each capability matters");
 
     const css = readFileSync(path.join(process.cwd(), "app/globals.css"), "utf8");
     expect(css).toContain("@keyframes pt-journey-flow");
+    expect(css).toContain("pt-journey-focus");
     expect(css).toMatch(
       /prefers-reduced-motion:\s*reduce[\s\S]*\.pt-journey-pulse/,
     );
@@ -132,5 +145,14 @@ describe("Product Tour Final Polish", () => {
     expect(showcase).toContain("Your last selected area is remembered.");
     expect(showcase).not.toContain("Your selected department is remembered");
     expect(showcase).not.toContain("aria-label={isPlatform ? \"Business areas\" : \"Departments\"}");
+    expect(showcase).toContain(
+      'isPlatform ? "pt-14 pb-20 md:pt-20 md:pb-28" : "pt-8 pb-14 md:pt-10 md:pb-16"',
+    );
+    expect(showcase).toContain(
+      'isPlatform ? "mt-10 md:mt-12" : "mt-8 md:mt-9"',
+    );
+    expect(showcase).toContain("{active.label}");
+    expect(showcase).toContain("tourStop.why");
+    expect(showcase).toContain("text-[11px] text-muted-foreground");
   });
 });

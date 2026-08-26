@@ -249,7 +249,7 @@ export function DashboardShowcase({
       id="showcase"
       className={cn(
         "marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 overflow-hidden px-4 sm:px-6",
-        isPlatform ? "pt-14 pb-20 md:pt-20 md:pb-28" : "pt-14 pb-16 md:pt-16 md:pb-20",
+        isPlatform ? "pt-14 pb-20 md:pt-20 md:pb-28" : "pt-8 pb-14 md:pt-10 md:pb-16",
       )}
       aria-labelledby="showcase-heading"
     >
@@ -266,7 +266,13 @@ export function DashboardShowcase({
                 ? PLATFORM_SHOWCASE.headline
                 : PRODUCT_TOUR_SHOWCASE.headline}
             </h2>
-            <p className="marketing-lede">
+            <p
+              className={
+                isPlatform
+                  ? "marketing-lede"
+                  : "mx-auto mt-3 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground md:text-lg"
+              }
+            >
               {isPlatform
                 ? PLATFORM_SHOWCASE.lede
                 : PRODUCT_TOUR_SHOWCASE.lede}
@@ -277,7 +283,8 @@ export function DashboardShowcase({
         <Reveal delayMs={80}>
           <div
             className={cn(
-              "grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)] mt-10 md:mt-12",
+              "grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)]",
+              isPlatform ? "mt-10 md:mt-12" : "mt-8 md:mt-9",
             )}
           >
             <div className="min-w-0">
@@ -337,45 +344,61 @@ export function DashboardShowcase({
               className="min-w-0"
             >
               <div key={active.id} className="marketing-tour-transition">
-                <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                  <div className="max-w-xl">
-                    <div className="mb-2 flex items-center gap-2">
-                      <Icon className="h-4 w-4 text-primary" />
-                      <p className="text-sm font-medium text-primary">
-                        {isTour
-                          ? active.label
-                          : (field(moduleCopy, "name") ?? active.label)}
-                      </p>
-                    </div>
-                    {isTour && tourStop ? (
-                      <p className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                        {tourStop.why}
-                      </p>
+                <div
+                  className={cn(
+                    "mb-4 flex flex-col gap-3",
+                    isPlatform &&
+                      "mb-5 gap-4 sm:flex-row sm:items-end sm:justify-between",
+                  )}
+                >
+                  <div className={isTour ? "max-w-2xl" : "max-w-xl"}>
+                    {isTour ? (
+                      <>
+                        <div className="mb-1.5 flex items-center gap-2">
+                          <Icon className="h-5 w-5 text-primary" />
+                          <h3 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                            {active.label}
+                          </h3>
+                        </div>
+                        {tourStop ? (
+                          <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
+                            {tourStop.why}
+                          </p>
+                        ) : null}
+                        {tourStop ? (
+                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                            <span className="font-medium text-primary/90">
+                              {tourStop.moment.kind}.
+                            </span>{" "}
+                            {tourStop.moment.text}
+                          </p>
+                        ) : null}
+                      </>
                     ) : (
-                      <p className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-                        {field(moduleCopy, "benefit")}
-                      </p>
+                      <>
+                        <div className="mb-2 flex items-center gap-2">
+                          <Icon className="h-4 w-4 text-primary" />
+                          <p className="text-sm font-medium text-primary">
+                            {field(moduleCopy, "name") ?? active.label}
+                          </p>
+                        </div>
+                        <p className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                          {field(moduleCopy, "benefit")}
+                        </p>
+                        {signal ? (
+                          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                            {signal}
+                          </p>
+                        ) : null}
+                      </>
                     )}
-                    {isTour && field(moduleCopy, "benefit") ? (
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {field(moduleCopy, "benefit")}
-                      </p>
-                    ) : null}
-                    {isTour && tourStop ? (
-                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                        <span className="font-medium text-primary/90">
-                          {tourStop.moment.kind}.
-                        </span>{" "}
-                        {tourStop.moment.text}
-                      </p>
-                    ) : null}
-                    {isPlatform && signal ? (
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {signal}
-                      </p>
-                    ) : null}
                   </div>
-                  <ul className="flex flex-wrap gap-2">
+                  <ul
+                    className={cn(
+                      "flex flex-wrap gap-2",
+                      isTour && "max-w-xl",
+                    )}
+                  >
                     {active.benefits.map((benefit) => (
                       <li
                         key={benefit}
@@ -383,7 +406,7 @@ export function DashboardShowcase({
                           "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs",
                           isPlatform
                             ? "border-border/70 bg-background text-foreground/70"
-                            : "border-border/60 bg-card/80 text-muted-foreground",
+                            : "border-border/50 bg-muted/40 px-2.5 py-1 text-[11px] text-muted-foreground",
                         )}
                       >
                         <Check className="h-3 w-3 text-primary" />
