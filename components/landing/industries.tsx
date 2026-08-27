@@ -92,7 +92,7 @@ export function Industries() {
   return (
     <section
       id="industries"
-      className="industries-page marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 py-16 md:py-24"
+      className="industries-page marketing-section-contain marketing-surface-tint marketing-hairline-y scroll-mt-24 px-6 pt-16 pb-8 md:pt-24 md:pb-10"
       aria-labelledby="industries-heading"
     >
       <div className="mx-auto max-w-[1400px]">
@@ -243,7 +243,7 @@ export function Industries() {
                     </li>
                   ))}
                   {hiddenTypeCount > 0 ? (
-                    <li>
+                    <li className="industries-types-more-item">
                       <button
                         type="button"
                         className="industries-types-more"

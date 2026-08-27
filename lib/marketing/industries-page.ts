@@ -99,7 +99,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
     intro:
       "Designed for legal practices that run consultations, intake, and client follow-up.",
     distinction:
-      "Legal work starts with consultations and continues as intake, follow-up, and payment context—not a chair-by-chair book.",
+      "Legal work starts with consultations and continues through intake, follow-up, and ongoing client context—not isolated appointments.",
     solution:
       "Chasum connects consultation times, client records, communications, and recorded payments on one record. Practice-management and filing systems stay where they belong.",
     types: [
@@ -195,7 +195,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
     intro:
       "Designed for contractors and field teams coordinating clients, crews, and the day's work.",
     distinction:
-      "The work moves between sites. Scheduling, customer updates, and who is assigned matter more than a front-desk chair book.",
+      "The work moves between sites. Scheduling, customer updates, and who is assigned all need to stay connected across the day.",
     solution:
       "Chasum turns inquiries into scheduled visits and jobs, with customer communication and staff assignment on one record. Quoting and route-planning tools stay separate.",
     types: [
@@ -279,7 +279,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
     intro:
       "Designed for photography studios, videographers, and creative teams.",
     distinction:
-      "Sessions, deposits, and delivery follow-up define the relationship—not a walk-in chair.",
+      "Sessions involve preparation, deposits, delivery, and follow-up—not simply reserving a time.",
     solution:
       "Chasum connects session times, client communication, deposits, and the customer record. Reporting reflects recorded activity—not a separate studio-management product.",
     types: [
@@ -303,7 +303,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
     distinction:
       "Recurring visits and animal-plus-owner context drive the day—reminders and history matter as much as the next slot.",
     solution:
-      "Chasum keeps recurring visits, customer care, reminders, and recorded payments on one record. Veterinary clinics still need their clinical systems; Chasum runs the operating day.",
+      "Chasum keeps recurring visits, customer care, reminders, and recorded payments on one record. Veterinary clinics still need their clinical systems; Chasum keeps the operating day connected.",
     types: [
       "Veterinary Clinics",
       "Pet Grooming",
@@ -324,7 +324,7 @@ export const INDUSTRIES: readonly IndustryPageEntry[] = [
     intro:
       "Designed for commercial, office, residential, and janitorial cleaning teams.",
     distinction:
-      "Routes, recurring stops, and last-minute changes matter more than a single studio calendar.",
+      "Recurring locations, assigned teams, and last-minute schedule changes need more context than a basic calendar entry.",
     solution:
       "Chasum organizes recurring visits and schedule changes with customer communication, staff assignment, and reporting on the same record. Route-planning tools stay separate.",
     types: [

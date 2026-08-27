@@ -206,6 +206,8 @@ describe("Industries page world-class alignment", () => {
     expect(byName["Pet Services"]).toMatch(
       /Veterinary clinics still need their clinical systems/i,
     );
+    expect(byName["Pet Services"]).toMatch(/keeps the operating day connected/i);
+    expect(byName["Pet Services"]).not.toMatch(/runs the operating day/i);
     expect(byName.Cleaning).toMatch(/Route-planning tools stay separate/i);
   });
 
@@ -275,5 +277,28 @@ describe("Industries page world-class alignment", () => {
     expect(source).toContain("ArrowRight");
     expect(source).toContain("tabIndex={selected ? 0 : -1}");
     expect(source).not.toContain('from "@/lib/marketing/homepage"');
+    expect(source).toContain("industries-types-more-item");
+    expect(source).toContain("aria-expanded={typesExpanded}");
+    expect(source).toContain("aria-controls={`industries-types-${slug(current.name)}`}");
+  });
+
+  it("uses industry-native distinction copy without cross-industry chair metaphors", () => {
+    const byName = Object.fromEntries(
+      INDUSTRIES.map((industry) => [industry.name, industry.distinction]),
+    );
+    expect(byName["Legal Services"]).toMatch(/not isolated appointments/i);
+    expect(byName["Home & Field Services"]).toMatch(
+      /stay connected across the day/i,
+    );
+    expect(byName["Photography & Creative"]).toMatch(
+      /not simply reserving a time/i,
+    );
+    expect(byName.Cleaning).toMatch(/more context than a basic calendar entry/i);
+
+    for (const industry of INDUSTRIES) {
+      expect(industry.distinction, industry.name).not.toMatch(
+        /chair-by-chair|front-desk chair book|walk-in chair|studio calendar/i,
+      );
+    }
   });
 });

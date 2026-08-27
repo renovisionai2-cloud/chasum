@@ -625,6 +625,17 @@ body {
   overflow-x: clip;
 }
 
+/* Industries-only: keep growth → Private Alpha as one continuous close. */
+.industries-page + #private-alpha {
+  padding-top: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .industries-page + #private-alpha {
+    padding-top: 3.5rem;
+  }
+}
+
 .industries-layout {
   min-width: 0;
 }
@@ -734,16 +745,25 @@ body {
   color: var(--foreground);
 }
 
+.industries-types-more-item {
+  display: flex;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+  align-items: center;
+}
+
 .industries-types-more {
   border-radius: 9999px;
-  border: 1px dashed color-mix(in srgb, var(--border) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
   background: transparent;
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25;
   color: var(--muted-foreground);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .industries-types-more:hover {
