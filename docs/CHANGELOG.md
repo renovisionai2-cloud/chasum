@@ -9,6 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Pricing PO lock)
+
+**PRICING — PO LOCKED** (2026-08-27). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → Pricing (`/pricing`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`
+- Implementation parent: `82c4ea0f960fa6806a3b44bac059f05118594295`
+- Claude: APPROVED — PRICING READY FOR PO LOCK
+- PO: APPROVED
+- Canonical lock: [`docs/marketing/PRICING_V1_LOCK.md`](./marketing/PRICING_V1_LOCK.md)
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED; Industries — LOCKED; Roadmap — LOCKED; Pricing — LOCKED
+- Official Pricing Page v1 (2026-07-30, `83fbaed`) is superseded; do not restore
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Changed (Marketing — Pricing commercial-truth correction)
 
 **PRICING — commercial-truth correction** (2026-08-27). Visual foundation preserved. Not merged. Not in Production.

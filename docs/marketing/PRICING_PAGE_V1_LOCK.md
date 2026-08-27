@@ -1,11 +1,13 @@
 # Official Chasum Pricing Page v1 — LOCK
 
+> **SUPERSEDED — 2026-08-27.** This 2026-07-30 Official Pricing Page v1 lock is historical. Current Pricing PO lock: [`PRICING_V1_LOCK.md`](./PRICING_V1_LOCK.md) at SHA `f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`. Do **not** restore this Preview as the current commercial-truth baseline.
+
 | Field | Value |
 |-------|--------|
-| **STATUS** | ✅ APPROVED |
+| **STATUS** | Historical / superseded by 2026-08-27 Pricing PO lock |
 | **PAGE** | Pricing (`/pricing`) |
 | **VERSION** | Official Chasum Pricing Page v1 |
-| **STATE** | **Locked** |
+| **STATE** | **Superseded** |
 | **Approved** | 2026-07-30 |
 | **Approved by** | Product Owner |
 
