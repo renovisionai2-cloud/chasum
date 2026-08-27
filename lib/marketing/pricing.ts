@@ -628,47 +628,47 @@ export type PricingFaqItem = { q: string; a: string };
 export const PRICING_FAQ_ITEMS: PricingFaqItem[] = [
   {
     q: "Can I use Chasum for free?",
-    a: "Chasum has a Free plan—online booking, calendar, email confirmations and reminders, basic customer management, one staff member, and one location, with Chasum branding. Access is currently through Private Alpha; public self-serve signup and billing are not open yet.",
+    a: "Chasum has a Free plan, and access is currently available through Private Alpha. It includes online booking, calendar, email confirmations and reminders, basic customer management, one staff member, one location, and Chasum branding.",
   },
   {
     q: "Does the Free plan include SMS reminders?",
-    a: "No. SMS reminders are included starting with Professional when messaging is configured for your business.",
+    a: "SMS reminders are available starting with Professional when messaging is configured for your business.",
   },
   {
     q: "Which plans include Customer Communications?",
-    a: "Customer Communications is included on Professional, Business, and Enterprise: configured email, SMS reminders, and communication history/activity. Free does not include SMS. Logged call activity, when present, is history—not hosted phone service through Chasum. AI phone and voice calling are not available yet.",
+    a: "Customer Communications includes email, SMS reminders, and communication history on eligible paid plans. Chasum does not currently provide hosted phone or AI voice calling.",
   },
   {
     q: "Can I change plans later?",
-    a: "Yes. During Private Alpha we confirm the right plan with you during onboarding. As you grow, you can move up when you need more staff, locations, or communication tools. Self-serve paid billing is not open yet.",
+    a: "Yes. During Private Alpha, we help confirm the right plan during onboarding. You can move up as your business needs more staff, locations, or communication tools.",
   },
   {
     q: "Is Summer included in every plan?",
-    a: "Summer — Chasum's AI Business Manager — starts with Professional and is included in Business and Enterprise. Free focuses on core scheduling and email communication. Helping with customer questions and appointment requests is one of her capabilities—not her only role.",
+    a: "Summer, Chasum's AI Business Manager, is included with Professional, Business, and Enterprise. Free focuses on core scheduling and email communication.",
   },
   {
     q: "Who is Summer?",
-    a: "Summer is Chasum's AI Business Manager. She helps you understand what is happening across the business, what needs attention, and what to do next. She can also offer product guidance and help with customer questions using your business context. She is assistive today—observe, understand, recommend—while you remain in control.",
+    a: "Summer is Chasum's AI Business Manager. She helps you understand what's happening across your business, what needs attention, and what to do next. She can also offer product guidance and help with customer questions using your business context.",
   },
   {
     q: "Does Summer only answer phone calls?",
-    a: "No. Helping with customer questions and appointment requests is only one capability (grounded chat and messaging where configured). Voice calling is not available yet. Summer is Chasum's AI Business Manager, not a phone-answering product.",
+    a: "No. Summer can help with customer questions and appointment requests through supported chat and messaging. Voice calling is not available yet, and her role extends beyond customer communication to business guidance and intelligence.",
   },
   {
     q: "Can Summer teach me how to use Chasum?",
-    a: "Yes. Summer can guide new users through setup, explain features, and answer “How do I…” questions using your business context. That is product guidance—not a separate staff-training product.",
+    a: "Yes. Summer can guide you through setup, explain features, and answer how-to questions using your business context.",
   },
   {
     q: "What happens when I reach my staff or location limit?",
-    a: "You’ll see a clear upgrade prompt. Professional supports up to 3 staff and 3 locations; Business supports unlimited staff and up to 6 locations; Enterprise can extend locations further. Plan changes during Private Alpha are arranged with Chasum.",
+    a: "If you reach your plan limit, Chasum will prompt you to upgrade. Professional supports up to 3 staff and 3 locations; Business supports unlimited staff and up to 6 locations. Enterprise can support larger or custom requirements.",
   },
   {
     q: "Is Chasum available now?",
-    a: "Chasum is in Private Alpha. Access is limited, onboarding is guided, and public self-serve billing is not open yet. Apply to join or schedule a demo.",
+    a: "Chasum is currently in Private Alpha. Access is limited, onboarding is guided, and public self-serve billing is not open yet.",
   },
   {
     q: "Do you offer custom plans for franchises or large organizations?",
-    a: "Yes. Enterprise is for organizations with custom commercial requirements—including franchises and chains—covering custom onboarding, dedicated support, security review, custom integrations, and volume pricing. Franchise Management software is a future direction, not a current product. Contact sales to discuss your setup.",
+    a: "Yes. Enterprise is designed for larger organizations, franchises, and custom requirements, with tailored onboarding, support, security review, integrations, and volume pricing.",
   },
 ];
 

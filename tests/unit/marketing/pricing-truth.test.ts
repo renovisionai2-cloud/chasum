@@ -117,9 +117,10 @@ describe("Pricing commercial truth", () => {
     expect(faq).not.toMatch(/AI Receptionist/);
     expect(faq).not.toMatch(/automate everyday work/i);
     expect(faq).not.toMatch(/Answering calls and appointment requests/);
-    expect(faq).toMatch(/Helping with customer questions and appointment requests/);
-    expect(faq).toMatch(/observe, understand, recommend/i);
-    expect(faq).toMatch(/Access is currently through Private Alpha/);
+    expect(faq).toMatch(/help with customer questions and appointment requests/i);
+    expect(faq).toMatch(/AI Business Manager/);
+    expect(faq).toMatch(/Voice calling is not available yet/i);
+    expect(faq).toMatch(/access is currently available through Private Alpha/i);
   });
 
   it("connects the journey without automatic checkout or SMS-always claims", () => {
