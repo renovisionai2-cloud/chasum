@@ -1,5 +1,5 @@
 ---
-description: Roadmap four-stage product-truth model — do not restore v1, do not edit locked pages
+description: Roadmap PO lock — do not restore v1, do not polish without PO request, do not edit locked pages
 globs:
   - lib/marketing/roadmap.ts
   - components/landing/roadmap-experience.tsx
@@ -7,11 +7,18 @@ globs:
 alwaysApply: false
 ---
 
-# Roadmap — current-generation product truth
+# Roadmap — PO LOCKED
 
-**STATUS:** Four-stage model approved; visual lock pending PO review  
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-27  
+**SHA:** `f6ffee11b04ef423c9ae912e2386d3e427f41fad`  
+**Preview:** https://chasum-gm2bnzx3x-renovisionappcom.vercel.app/roadmap  
+**Claude:** APPROVED  
+**PO:** APPROVED  
 **Route:** `/roadmap`  
 **Canonical doc:** `docs/marketing/ROADMAP_V1_LOCK.md`
+
+Not in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
 
 ## Do not restore Roadmap v1
 
@@ -29,12 +36,16 @@ Use:
 3. Coming Next
 4. Future Direction
 
-Promote items by changing `status` on `ROADMAP_ITEMS` only.
-
-## Do not change from Roadmap work
-
-Homepage, Platform, Meet Summer, Product Tour, Industries, Pricing, application runtime, Production.
+Promote items by changing `status` on `ROADMAP_ITEMS` only when the product owner explicitly directs.
 
 ## Honesty
 
 Private Alpha is not public GA. Native is Coming Next, not “actively building.” Inventory, payroll, marketing campaigns, AI phone, and franchise remain Future Direction. Summer is assistive—not autonomous.
+
+## Allowed changes only
+
+Bug fixes, broken responsive layouts, accessibility, or product-owner-directed claim updates. No additional visual polish without an explicit PO request.
+
+## Do not change from Roadmap work
+
+Homepage, Platform, Meet Summer, Product Tour, Industries, Pricing, application runtime, Production.

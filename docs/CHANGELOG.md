@@ -9,6 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Roadmap PO lock)
+
+**ROADMAP — PO LOCKED** (2026-08-27). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → Roadmap (`/roadmap`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `f6ffee11b04ef423c9ae912e2386d3e427f41fad`
+- Preview URL: https://chasum-gm2bnzx3x-renovisionappcom.vercel.app/roadmap
+- Claude: APPROVED
+- PO: APPROVED
+- Canonical lock: [`docs/marketing/ROADMAP_V1_LOCK.md`](./marketing/ROADMAP_V1_LOCK.md)
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED; Industries — LOCKED; Roadmap — LOCKED
+- Pricing conflicts remain tracked for the next audit; Pricing was not edited
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Changed (Marketing — Roadmap copy micro-polish)
 
 **ROADMAP — copy micro-polish before Claude** (2026-08-27). Visual hierarchy unchanged. Not merged. Not in Production.
