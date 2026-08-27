@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-26  
-**Updated by:** Product Tour PO lock stamp (documentation only). Application SHA `7bb5e3fba54fe8dc36ae1e94a29196030802dcee` on `cursor/marketing-os-positioning`. **Not in Production.** Prior 2026-08-25 native-app governance restamp remains in force for Phase 5 / workstream 18.
+**Updated by:** Industries PO lock stamp (documentation only). Application SHA `d6209db7dfa0bb532408142b0a05a2f22774a95f` on `cursor/marketing-os-positioning`. **Not in Production.** Prior Product Tour PO lock (`7bb5e3f`) and 2026-08-25 native-app governance restamp remain in force.
 
 ---
 
@@ -25,7 +25,7 @@
 - **Launch-criticality governance:** [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) — **18 workstreams**. Planning targets are not public promises. Launch criticality does not override quality. Permanent **AI Operating-System Preservation Check** sits beside launch criticality, world-class quality, and next-generation advantage.
 - **Native mobile / App Store:** **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** (workstream 18). One reusable multi-tenant Chasum app. GVM, Chasum HQ, and future businesses are normal tenants — no mobile forks. Working technical direction: **React Native + Expo**. Final stack: **TO BE CONFIRMED DURING NATIVE APP PREFLIGHT**. Begin material implementation after the Native App Start Gate, early enough for iOS/Android testing **before broader public launch**. Not Phase 5. Commercial v1 does **not** currently require App Store / Play apps.
 - **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
-- **Marketing website PO review (2026-08-26, branch only — not Production):** Homepage — **LOCKED**; Platform — **LOCKED**; Meet Summer — **LOCKED**; Product Tour — **LOCKED**. Product Tour PO lock SHA `7bb5e3fba54fe8dc36ae1e94a29196030802dcee`. Preview https://chasum-nh8vmcsd8-renovisionappcom.vercel.app. Full lock: [`docs/marketing/PRODUCT_TOUR_V1_LOCK.md`](./marketing/PRODUCT_TOUR_V1_LOCK.md).
+- **Marketing website PO review (2026-08-26, branch only — not Production):** Homepage — **LOCKED**; Platform — **LOCKED**; Meet Summer — **LOCKED**; Product Tour — **LOCKED**; Industries — **LOCKED**. Industries PO lock SHA `d6209db7dfa0bb532408142b0a05a2f22774a95f`. Preview https://chasum-day6aj97i-renovisionappcom.vercel.app. Full lock: [`docs/marketing/INDUSTRIES_V1_LOCK.md`](./marketing/INDUSTRIES_V1_LOCK.md). Product Tour remains locked at `7bb5e3fba54fe8dc36ae1e94a29196030802dcee`.
 
 ### ACTIVE
 
@@ -60,7 +60,7 @@ Strategic next (from the launch tracker):
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
 
-**Marketing (when directed):** Homepage, Platform, Meet Summer, and Product Tour are **PO LOCKED** on `cursor/marketing-os-positioning` (2026-08-26) — **not in Production**. Pricing, Roadmap, Resources, Why Private Alpha, and Security remain previously locked. See **Approved marketing pages (locks)** below.
+**Marketing (when directed):** Homepage, Platform, Meet Summer, Product Tour, and Industries are **PO LOCKED** on `cursor/marketing-os-positioning` (2026-08-26) — **not in Production**. Pricing, Roadmap, Resources, Why Private Alpha, and Security remain previously locked. See **Approved marketing pages (locks)** below.
 
 ---
 
@@ -90,6 +90,7 @@ Strategic next (from the launch tracker):
 | [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md) | **Why Private Alpha lock** — v1 approved baseline |
 | [`docs/marketing/SECURITY_V1_LOCK.md`](./marketing/SECURITY_V1_LOCK.md) | **Security lock** — v1 approved baseline |
 | [`docs/marketing/PRODUCT_TOUR_V1_LOCK.md`](./marketing/PRODUCT_TOUR_V1_LOCK.md) | **Product Tour PO lock** — 2026-08-26 SHA `7bb5e3f` (branch; not Production) |
+| [`docs/marketing/INDUSTRIES_V1_LOCK.md`](./marketing/INDUSTRIES_V1_LOCK.md) | **Industries PO lock** — 2026-08-26 SHA `d6209db` (branch; not Production) |
 | [`docs/MARKETING_PRODUCT_FEATURE_AUDIT.md`](./MARKETING_PRODUCT_FEATURE_AUDIT.md) | Marketing ↔ product feature audit (post GVM URL deploy) |
 | [`docs/marketing/HOMEPAGE_MASTER_SPECIFICATION.md`](./marketing/HOMEPAGE_MASTER_SPECIFICATION.md) | Home page (`/`) canonical front-door spec |
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
@@ -388,6 +389,7 @@ Shared money recognition, commerce + platform events, business operating context
 | **Platform** (`/platform`) | Marketing OS positioning · 2026-08-26 | ✅ **APPROVED / LOCKED** | **Locked** | Branch `cursor/marketing-os-positioning` @ `fe65db7f3c934644aec6158f257f2921079c93b7` — **not Production** |
 | **Meet Summer** (`/meet-summer` rendered) | Marketing OS positioning · 2026-08-26 | ✅ **APPROVED / LOCKED** | **Locked** | Branch `cursor/marketing-os-positioning` @ `3949b9941a60d284ca02b0358c41e9e8890b66bd` — **not Production** |
 | **Product Tour** (`/product-tour`) | Product Tour PO lock · 2026-08-26 | ✅ **APPROVED / LOCKED** | **Locked** | https://chasum-nh8vmcsd8-renovisionappcom.vercel.app @ `7bb5e3fba54fe8dc36ae1e94a29196030802dcee` — **not Production** |
+| **Industries** (`/industries`) | Industries PO lock · 2026-08-26 | ✅ **APPROVED / LOCKED** | **Locked** | https://chasum-day6aj97i-renovisionappcom.vercel.app @ `d6209db7dfa0bb532408142b0a05a2f22774a95f` — **not Production** |
 
 **Pricing is complete.** Design at the Pricing Preview URL is the approved baseline (implementation commit `83fbaed`). Do **not** revisit Pricing for redesign or visual polish unless the product owner explicitly requests it. Full lock rules: [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md).
 
@@ -405,6 +407,16 @@ Shared money recognition, commerce + platform events, business operating context
 | Platform (`/platform`) | **LOCKED** | `fe65db7f3c934644aec6158f257f2921079c93b7` | `cursor/marketing-os-positioning` | 2026-08-26 | — | APPROVED |
 | Meet Summer (`/meet-summer`) | **LOCKED** | `3949b9941a60d284ca02b0358c41e9e8890b66bd` | `cursor/marketing-os-positioning` | 2026-08-26 | — | APPROVED |
 | Product Tour (`/product-tour`) | **LOCKED** | `7bb5e3fba54fe8dc36ae1e94a29196030802dcee` | https://chasum-nh8vmcsd8-renovisionappcom.vercel.app | 2026-08-26 | APPROVED | APPROVED |
+| Industries (`/industries`) | **LOCKED** | `d6209db7dfa0bb532408142b0a05a2f22774a95f` | https://chasum-day6aj97i-renovisionappcom.vercel.app | 2026-08-26 | APPROVED | APPROVED |
+
+**INDUSTRIES — PO LOCKED**  
+Date: 2026-08-26  
+SHA: `d6209db7dfa0bb532408142b0a05a2f22774a95f`  
+Preview URL: https://chasum-day6aj97i-renovisionappcom.vercel.app  
+Claude: APPROVED  
+PO: APPROVED  
+
+Full Industries lock rules: [`docs/marketing/INDUSTRIES_V1_LOCK.md`](./marketing/INDUSTRIES_V1_LOCK.md).
 
 **PRODUCT TOUR — PO LOCKED**  
 Date: 2026-08-26  
@@ -415,15 +427,29 @@ PO: APPROVED
 
 Full Product Tour lock rules: [`docs/marketing/PRODUCT_TOUR_V1_LOCK.md`](./marketing/PRODUCT_TOUR_V1_LOCK.md).
 
-These four surfaces are **not** in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+These five surfaces are **not** in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
 
-**Next marketing surface:** when directed. Homepage, Platform, Meet Summer, and Product Tour are locked on this branch. Pricing, Summer Onboarding, Roadmap, and Resources remain previously locked.
+**Next marketing surface:** when directed. Homepage, Platform, Meet Summer, Product Tour, and Industries are locked on this branch. Pricing, Summer Onboarding, Roadmap, and Resources remain previously locked.
 
 ---
 
 ## Last completed work
 
-### Most recent (2026-08-26) — Product Tour PO lock stamped (documentation only)
+### Most recent (2026-08-26) — Industries PO lock stamped (documentation only)
+
+- **INDUSTRIES — PO LOCKED**
+- Date: 2026-08-26
+- Surface: Marketing Website → Industries (`/industries`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `d6209db7dfa0bb532408142b0a05a2f22774a95f`
+- Preview URL: https://chasum-day6aj97i-renovisionappcom.vercel.app
+- Claude: APPROVED — INDUSTRIES READY FOR PO LOCK
+- PO: APPROVED
+- Marketing review state: Homepage — **LOCKED**; Platform — **LOCKED**; Meet Summer — **LOCKED**; Product Tour — **LOCKED**; Industries — **LOCKED**
+- Canonical lock: [`docs/marketing/INDUSTRIES_V1_LOCK.md`](./marketing/INDUSTRIES_V1_LOCK.md)
+- **Not merged. Not in Production.** `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+
+### Immediately prior (2026-08-26) — Product Tour PO lock stamped (documentation only)
 
 - **PRODUCT TOUR — PO LOCKED**
 - Date: 2026-08-26
@@ -527,7 +553,7 @@ Preserved for history — **not** current branch instructions:
 cursor/marketing-os-positioning
 ```
 
-Marketing OS positioning and the Product Tour PO lock live on this branch at application SHA `7bb5e3fba54fe8dc36ae1e94a29196030802dcee`. **Not merged to `main`.** **Not in Production.**
+Marketing OS positioning, the Product Tour PO lock (`7bb5e3fba54fe8dc36ae1e94a29196030802dcee`), and the Industries PO lock (`d6209db7dfa0bb532408142b0a05a2f22774a95f`) live on this branch. **Not merged to `main`.** **Not in Production.**
 
 World Class Phases 1–4A remain merged to `main`. Phase 5 remains PREFLIGHT REQUIRED / NOT STARTED. Do **not** merge or rebase `origin/cursor/world-class-portal-foundation`.
 
@@ -555,7 +581,7 @@ World Class Phases 1–4A remain merged to `main`. Phase 5 remains PREFLIGHT REQ
 | **Subject** | `docs: restore pre-launch native app strategy (#31)` |
 | **Date** | 2026-08-26 |
 
-Product Tour PO lock application SHA `7bb5e3fba54fe8dc36ae1e94a29196030802dcee` is on `cursor/marketing-os-positioning` only. It is **not** on `main`.
+Industries PO lock application SHA `d6209db7dfa0bb532408142b0a05a2f22774a95f` and Product Tour PO lock application SHA `7bb5e3fba54fe8dc36ae1e94a29196030802dcee` are on `cursor/marketing-os-positioning` only. They are **not** on `main`.
 
 ### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
 
@@ -571,7 +597,7 @@ Do **not** infer that `main` (`476af17`) has been deployed to Production. This s
 
 ## Uncommitted work
 
-None expected after this documentation stamp. Application/runtime files are unchanged by the Product Tour PO lock stamp.
+None expected after this documentation stamp. Application/runtime files are unchanged by the Industries PO lock stamp.
 
 ---
 
@@ -620,7 +646,7 @@ Locked order for this chapter:
 4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.
 5. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
 6. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
-7. **Honest Private Alpha GTM** — locked marketing pages (Homepage, Platform, Meet Summer, Product Tour on branch; Pricing / Roadmap / Resources historically); Product Truth Matrix; Coming Soon stays honest.
+7. **Honest Private Alpha GTM** — locked marketing pages (Homepage, Platform, Meet Summer, Product Tour, Industries on branch; Pricing / Roadmap / Resources historically); Product Truth Matrix; Coming Soon stays honest.
 8. **Charge-with-integrity path** — Stripe and self-serve only when operationally ready.
 
 ---
