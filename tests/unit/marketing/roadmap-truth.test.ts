@@ -199,6 +199,17 @@ describe("Roadmap current-generation product truth", () => {
     );
     expect(experience).toContain("roadmapItemsByStatus");
     expect(experience).toContain("ROADMAP_STATUS_ORDER");
+    expect(experience).toContain("PRIVATE_ALPHA_ANCHOR_IDS");
+    expect(experience).toContain('"online-booking"');
+    expect(experience).toContain('"calendar-scheduling"');
+    expect(experience).toContain('"command-centre"');
+    expect(experience).toContain('"summer"');
+    expect(experience).toContain("The operating day");
+    expect(experience).toContain("Connected around it");
+    expect(experience).toContain("roadmap-focus-band");
+    expect(experience).toContain('density="focus"');
+    expect(experience).toContain('density="future"');
+    expect(experience).toContain('density="next"');
     expect(data).toContain("type RoadmapStatus");
     expect(data).toContain("future_direction → coming_next → in_development → private_alpha");
 

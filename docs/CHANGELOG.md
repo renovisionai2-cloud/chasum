@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Marketing — Roadmap visual hierarchy)
+
+**ROADMAP — final visual hierarchy pass** (2026-08-27). Product truth unchanged. Not merged. Not in Production.
+
+- Available in Private Alpha: 12 capabilities retained; 4 operating-day anchors + 8 supporting cards
+- In Development: two-theme focus band (no fake cards)
+- Coming Next: three lighter near-term cards
+- Future Direction: quieter compact grid
+- Locked surfaces and Pricing untouched
+
 ### Changed (Marketing — Roadmap current-generation product truth)
 
 **ROADMAP — four-stage product-truth implementation** (2026-08-27). Not merged. Not in Production. Pending PO visual review.

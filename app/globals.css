@@ -4530,3 +4530,7 @@ body {
 .roadmap-page {
   overflow-x: clip;
 }
+
+.roadmap-focus-band {
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--foreground) 4%, transparent);
+}
