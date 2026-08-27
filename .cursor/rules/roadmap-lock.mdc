@@ -1,5 +1,5 @@
 ---
-description: Roadmap v1 is product-owner locked — no redesign or polish
+description: Roadmap four-stage product-truth model — do not restore v1, do not edit locked pages
 globs:
   - lib/marketing/roadmap.ts
   - components/landing/roadmap-experience.tsx
@@ -7,25 +7,34 @@ globs:
 alwaysApply: false
 ---
 
-# Roadmap Lock — Roadmap v1
+# Roadmap — current-generation product truth
 
-**STATUS:** ✅ APPROVED  
-**VERSION:** Roadmap v1  
-**STATE:** Locked  
+**STATUS:** Four-stage model approved; visual lock pending PO review  
 **Route:** `/roadmap`  
-**Source of truth (visual):** https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap  
 **Canonical doc:** `docs/marketing/ROADMAP_V1_LOCK.md`
 
-## Do not change without explicit product-owner request
+## Do not restore Roadmap v1
 
-Hero, Available in Chasum Today, Coming Soon, Future Vision, Built With Our Customers, card copy, layout, spacing, typography, icons, colors, animations, or responsive behavior.
+Never restore:
 
-## Consistency
+- Available in Chasum Today
+- Coming Soon
+- Future Vision
+- “Building the Future of Business Management”
 
-Keep Available Today aligned with approved Pricing (e.g. Business Calls & Texting, SMS Reminders). Do not move priced-today capabilities into Coming Soon.
+Use:
 
-## Allowed only
+1. Available in Private Alpha
+2. In Development
+3. Coming Next
+4. Future Direction
 
-Bug fixes · broken responsive layouts · accessibility fixes · product-owner-requested updates · Pricing/Product Truth claim alignment when directed.
+Promote items by changing `status` on `ROADMAP_ITEMS` only.
 
-Do **not** redesign or polish `/roadmap`.
+## Do not change from Roadmap work
+
+Homepage, Platform, Meet Summer, Product Tour, Industries, Pricing, application runtime, Production.
+
+## Honesty
+
+Private Alpha is not public GA. Native is Coming Next, not “actively building.” Inventory, payroll, marketing campaigns, AI phone, and franchise remain Future Direction. Summer is assistive—not autonomous.

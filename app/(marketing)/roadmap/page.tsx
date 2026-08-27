@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Roadmap",
   description:
-    "See what Chasum offers business owners today, what’s coming next, and where we’re taking the AI Business Operating System.",
+    "See what is available in Private Alpha, what we're strengthening now, what comes next, and the longer-term direction of the AI Business Operating System.",
 };
 
 export default function RoadmapPage() {

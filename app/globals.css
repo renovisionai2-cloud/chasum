@@ -4525,3 +4525,8 @@ body {
     transition: none !important;
   }
 }
+
+/* Roadmap — page-level overflow containment (scoped) */
+.roadmap-page {
+  overflow-x: clip;
+}

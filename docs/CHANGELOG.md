@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Marketing — Roadmap current-generation product truth)
+
+**ROADMAP — four-stage product-truth implementation** (2026-08-27). Not merged. Not in Production. Pending PO visual review.
+
+- Surface: Marketing Website → Roadmap (`/roadmap`)
+- Branch: `cursor/marketing-os-positioning`
+- Hero: “Building the AI operating system for service businesses.”
+- Stages: Available in Private Alpha / In Development / Coming Next / Future Direction
+- Living typed `status` on `ROADMAP_ITEMS` (`lib/marketing/roadmap.ts`)
+- Pricing untouched; Inventory / Online Payments / Memberships conflicts preserved for the Pricing audit
+- Locked surfaces untouched: Homepage, Platform, Meet Summer, Product Tour, Industries
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Locked (Marketing — Industries PO lock)
 
 **INDUSTRIES — PO LOCKED** (2026-08-26). Documentation only. Not merged. Not in Production.

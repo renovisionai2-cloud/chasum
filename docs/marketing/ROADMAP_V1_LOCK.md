@@ -1,25 +1,35 @@
-# Roadmap v1 — LOCK
+# Roadmap — current-generation product truth
 
 | Field | Value |
 |-------|--------|
-| **STATUS** | ✅ APPROVED |
+| **STATUS** | Current-generation implementation · **pending PO visual review** |
 | **PAGE** | Roadmap (`/roadmap`) |
-| **VERSION** | Roadmap **v1** |
-| **STATE** | **Locked** |
-| **Approved** | 2026-07-30 |
-| **Approved by** | Product Owner |
+| **VERSION** | Four-stage product-truth model |
+| **STATE** | Not visually locked. Do not treat as Production. |
+| **Stage model approved** | 2026-08-27 |
+| **Approved by** | Product Owner (stage model and product-truth map) |
+| **Branch** | `cursor/marketing-os-positioning` |
+
+Roadmap **v1** (Available in Chasum Today / Coming Soon / Future Vision) is **superseded**. Do not restore that three-stage model.
+
+This file is **not** a visual lock. Visual lock happens only after PO rendered review.
 
 ---
 
-## Visual source of truth
+## Public stage model
 
-Treat this Preview URL as the permanent visual reference for Roadmap v1:
+1. **Available in Private Alpha** — usable with design partners today; still improving. Not public GA.
+2. **In Development** — work materially underway now.
+3. **Coming Next** — approved near-term after current stability work. No public dates.
+4. **Future Direction** — longer-term expansion. Direction, not a delivery promise.
 
-**https://chasum-rgp49w1xg-renovisionappcom.vercel.app/roadmap**
+Promote items by changing `status` on `ROADMAP_ITEMS` in `lib/marketing/roadmap.ts`:
 
-Implementation baseline commit for that Preview: **`a372028`** (*Polish and lock Roadmap v1 for Pricing consistency*).
+`future_direction` → `coming_next` → `in_development` → `private_alpha`
 
-Implementation sources:
+---
+
+## Implementation sources
 
 - `lib/marketing/roadmap.ts`
 - `components/landing/roadmap-experience.tsx`
@@ -27,35 +37,28 @@ Implementation sources:
 
 ---
 
-## What is locked
+## Consistency
 
-The public Roadmap experience — hero, **Available in Chasum Today**, **Coming Soon**, **Future Vision**, **Built With Our Customers**, card copy, layout, spacing, typography, icons, colors, animations, and responsive behavior — is the **approved baseline**.
+Follow current product truth. Do **not** silently reproduce stale Pricing claims (Inventory as a built product; “Online Payments” as broadly available card collection). Pricing is audited separately.
 
-Do **not** redesign or polish unless the product owner explicitly requests it, or product changes require claim updates (especially to stay aligned with Pricing).
+Memberships & Packages remain Available in Private Alpha to stay consistent with locked Industries.
 
-### Consistency rule
-
-Roadmap **Available in Chasum Today** must stay consistent with approved Pricing inclusions. Features included on Professional (and above) such as **Business Calls & Texting** and **SMS Reminders** belong in Available Today—not Coming Soon.
-
-**AI Phone Calls** (Voice AI) remains Coming Soon / Future direction and must not be confused with Business Calls & Texting.
+AI Phone Calls must not be confused with Customer Communications.
 
 ---
 
-## Allowed changes only
+## Allowed changes only (after PO visual lock)
 
-1. Bug fixes  
-2. Broken responsive layouts  
-3. Accessibility fixes  
-4. Product changes **explicitly requested by the product owner**  
-5. Claim updates required to stay aligned with Pricing / Product Truth when the product owner directs  
+Until PO visually locks this generation, product-truth and responsive fixes requested by the PO are allowed on `/roadmap` only.
 
-**No additional visual polish** without an explicit product-owner request.
+After lock, allow only:
 
----
+1. Bug fixes
+2. Broken responsive layouts
+3. Accessibility fixes
+4. Product changes **explicitly requested by the product owner**
+5. Claim updates required to stay aligned with Product Truth when the product owner directs
 
-## Related
-
-- Pricing locked: [`PRICING_PAGE_V1_LOCK.md`](./PRICING_PAGE_V1_LOCK.md)
-- Summer Onboarding locked: [`SUMMER_ONBOARDING_V1_LOCK.md`](./SUMMER_ONBOARDING_V1_LOCK.md)
+Do **not** edit locked Homepage, Platform, Meet Summer, Product Tour, Industries, or Pricing as part of Roadmap work.
 
 Agent rule: `.cursor/rules/roadmap-lock.mdc`
