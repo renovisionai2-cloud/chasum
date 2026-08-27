@@ -85,7 +85,7 @@ export const ROADMAP_STAGES: Record<RoadmapStatus, RoadmapStage> = {
     title: "Available in Private Alpha",
     navLabel: "Private Alpha",
     subtitle:
-      "Usable with design partners today, while we continue improving and hardening the operating system.",
+      "Usable with design partners today, while we continue refining and expanding the operating system.",
   },
   in_development: {
     id: "in-development",
@@ -99,7 +99,7 @@ export const ROADMAP_STAGES: Record<RoadmapStatus, RoadmapStage> = {
     title: "Coming Next",
     navLabel: "Coming Next",
     subtitle:
-      "Approved near-term capabilities after the current work to stabilize the operating system.",
+      "Approved near-term capabilities that follow our current work strengthening Chasum's core experience.",
   },
   future_direction: {
     id: "future-direction",
@@ -163,7 +163,7 @@ export const ROADMAP_ITEMS: readonly RoadmapItem[] = [
       "Record payments and deposits, and keep invoices and receipts connected to the same operating day.",
     icon: "payments",
     qualification:
-      "Manual-first and Early Access today. Online card collection is still deepening.",
+      "Manual-first and Early Access today. Broader online card collection is still in development.",
   },
   {
     id: "gift-certificates",

@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Marketing — Roadmap copy micro-polish)
+
+**ROADMAP — copy micro-polish before Claude** (2026-08-27). Visual hierarchy unchanged. Not merged. Not in Production.
+
+- Private Alpha subtitle: refining and expanding (not “hardening”)
+- Coming Next subtitle: strengthening core experience (not “stabilize”)
+- Payments qualification: broader online card collection still in development
+
 ### Changed (Marketing — Roadmap visual hierarchy)
 
 **ROADMAP — final visual hierarchy pass** (2026-08-27). Product truth unchanged. Not merged. Not in Production.

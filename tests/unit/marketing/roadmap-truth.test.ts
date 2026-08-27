@@ -63,9 +63,11 @@ describe("Roadmap current-generation product truth", () => {
     expect(PUBLIC_COPY).not.toMatch(
       /Late September|October 2026|December 2026|February 2027|Mid\/Late 2027/i,
     );
-    expect(ROADMAP_CLOSING.paragraphs.join(" ")).not.toMatch(
-      /just getting started/i,
-    );
+    expect(PUBLIC_COPY).not.toMatch(/just getting started/i);
+    expect(PUBLIC_COPY).not.toMatch(/\bhardening\b/i);
+    expect(PUBLIC_COPY).not.toMatch(/stabilize the operating system/i);
+    expect(ROADMAP_STAGES.private_alpha.subtitle).toMatch(/refining and expanding/i);
+    expect(ROADMAP_STAGES.coming_next.subtitle).toMatch(/strengthening Chasum/i);
   });
 
   it("keeps a controlled Private Alpha grid and living status on every item", () => {
@@ -129,6 +131,8 @@ describe("Roadmap current-generation product truth", () => {
     expect(payments?.description).toMatch(/invoices and receipts/i);
     expect(payments?.qualification).toMatch(/manual-first/i);
     expect(payments?.qualification).toMatch(/card collection/i);
+    expect(payments?.qualification).toMatch(/still in development/i);
+    expect(payments?.qualification).not.toMatch(/still deepening/i);
 
     const communications = ROADMAP_ITEMS.find(
       (item) => item.id === "customer-communications",
