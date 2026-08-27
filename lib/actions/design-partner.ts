@@ -1,6 +1,7 @@
 "use server";
 
 import { getEmailFromAddress, getResendApiKey } from "@/lib/env";
+import { isApplyPlanIntentId } from "@/lib/marketing/pricing";
 import { logger } from "@/lib/observability/logger";
 
 export type DesignPartnerState = {
@@ -16,6 +17,10 @@ function optional(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
 }
 
+/**
+ * Private Alpha lead capture only.
+ * Must never mutate billed product plan, billing state, provider state, or entitlements.
+ */
 export async function submitDesignPartnerApplication(
   _prev: DesignPartnerState,
   formData: FormData,
@@ -26,7 +31,13 @@ export async function submitDesignPartnerApplication(
   const locations = required(formData, "locations");
   const currentSoftware = required(formData, "current_software");
   const painPoint = required(formData, "pain_point");
-  const monthlyAppointments = required(formData, "monthly_appointments");
+  const monthlyActivity =
+    required(formData, "monthly_activity") ||
+    required(formData, "monthly_appointments");
+  const preferredPlanRaw = optional(formData, "preferred_plan");
+  const preferredPlan = isApplyPlanIntentId(preferredPlanRaw)
+    ? preferredPlanRaw
+    : "";
   const email = required(formData, "email");
   const phone = optional(formData, "phone");
   const notes = optional(formData, "notes");
@@ -38,7 +49,7 @@ export async function submitDesignPartnerApplication(
     !locations ||
     !currentSoftware ||
     !painPoint ||
-    !monthlyAppointments ||
+    !monthlyActivity ||
     !email
   ) {
     return { error: "Please complete all required fields." };
@@ -55,7 +66,8 @@ export async function submitDesignPartnerApplication(
     locations,
     currentSoftware,
     painPoint,
-    monthlyAppointments,
+    monthlyActivity,
+    preferredPlan: preferredPlan || "(not provided)",
     email,
     phone: phone || "(not provided)",
     notes: notes || "(none)",
@@ -65,6 +77,7 @@ export async function submitDesignPartnerApplication(
   logger.info("design-partner", "application received", {
     businessName,
     industry,
+    preferredPlan: payload.preferredPlan,
     email,
   });
 
@@ -83,10 +96,11 @@ export async function submitDesignPartnerApplication(
           "",
           `Business: ${businessName}`,
           `Business type: ${industry}`,
+          `Interested plan: ${payload.preferredPlan}`,
           `Team size: ${employees}`,
           `Locations: ${locations}`,
           `Current software: ${currentSoftware}`,
-          `Monthly appointments: ${monthlyAppointments}`,
+          `Monthly customer activity: ${monthlyActivity}`,
           `Improve: ${painPoint}`,
           `Email: ${email}`,
           `Phone: ${phone || "(not provided)"}`,

@@ -2,9 +2,15 @@
  * Canonical Pricing configuration — cards, comparison, and billing toggle
  * share this single source of truth.
  *
- * Private Alpha: paid CTAs route to apply / demo — not public self-serve checkout.
- * Product Truth: market only capabilities verified in docs/marketing/PRODUCT_TRUTH_MATRIX.md
- * (or clearly framed as Private Alpha partnership services for Enterprise).
+ * Private Alpha: plan CTAs route to /apply?plan=… as acquisition intent —
+ * not public self-serve checkout, and never as subscription_plan_key.
+ *
+ * Deferred commercial debt (do not fix in this Pricing pass):
+ * - Business location runtime/catalog/DB still 10 vs canonical marketing 6
+ * - Memberships & Packages exist in product; no Pricing plan boundary yet
+ * - Invoicing has no runtime plan gate
+ * - SaaS subscription currency not locked (keep bare $)
+ * - Self-serve billing remains closed
  */
 
 import {
@@ -40,7 +46,6 @@ export type PricingFeatureId =
   | "advanced_analytics"
   | "api_integrations"
   | "priority_support"
-  | "inventory"
   | "white_glove"
   | "success_manager"
   | "custom_integrations"
@@ -82,9 +87,9 @@ export const PRICING_FEATURE_CATALOG: PricingFeatureDef[] = [
   },
   {
     id: "business_messaging",
-    name: "Business Calls & Texting",
+    name: "Customer Communications",
     category: "Communication",
-    note: "Communication Center for SMS and call activity on paid plans. Voice AI calling is not available yet.",
+    note: "Email, SMS reminders, and communication activity. SMS requires eligible plan and provider configuration. Not hosted calling or AI phone service.",
   },
   {
     id: "customer_management",
@@ -95,10 +100,26 @@ export const PRICING_FEATURE_CATALOG: PricingFeatureDef[] = [
     id: "summer",
     name: "Summer — AI Business Manager",
     category: "Communication",
+    note: "Assistive Early Access. Observe, understand, and recommend. Human remains in control.",
   },
-  { id: "payments", name: "Online Payments", category: "Payments" },
-  { id: "gift_cards", name: "Gift Cards", category: "Payments" },
-  { id: "invoicing", name: "Invoicing", category: "Payments" },
+  {
+    id: "payments",
+    name: "Payments & Financials",
+    category: "Payments",
+    note: "Manual-first and Early Access. Broader online card collection is still in development.",
+  },
+  {
+    id: "gift_cards",
+    name: "Gift Certificates",
+    category: "Payments",
+    note: "Operator create and redeem. Not a public storefront yet.",
+  },
+  {
+    id: "invoicing",
+    name: "Invoicing",
+    category: "Payments",
+    note: "Early Access. Operator invoices connected to the operating day.",
+  },
   {
     id: "staff_limit",
     name: "Staff Members",
@@ -126,19 +147,15 @@ export const PRICING_FEATURE_CATALOG: PricingFeatureDef[] = [
   },
   {
     id: "advanced_analytics",
-    name: "Advanced Analytics",
+    name: "Reporting & Insights",
     category: "Reporting & Operations",
-  },
-  {
-    id: "inventory",
-    name: "Inventory Management",
-    category: "Reporting & Operations",
-    note: "Available where applicable.",
+    note: "Reporting from recorded activity. Not a separate analytics product.",
   },
   {
     id: "api_integrations",
     name: "API & Integrations",
     category: "Reporting & Operations",
+    note: "Developer API and webhooks when enabled.",
   },
   {
     id: "priority_support",
@@ -169,6 +186,7 @@ export const PRICING_FEATURE_CATALOG: PricingFeatureDef[] = [
     id: "custom_permissions",
     name: "Custom Permissions",
     category: "Support & Enterprise",
+    note: "Not included today. Deeper team login and permissions are Coming Next.",
   },
   {
     id: "volume_pricing",
@@ -184,8 +202,11 @@ export type PricingPlanConfig = {
   bestFor: string;
   /** Display price string for monthly billing */
   monthlyPrice: string;
-  /** Monthly-equivalent when billed yearly (20% savings), or null for custom */
-  yearlyPrice: string | null;
+  /**
+   * Annual total (monthly × 10; 10 months paid for 12 months of service).
+   * Null for custom Enterprise pricing.
+   */
+  yearlyTotal: string | null;
   priceSuffix?: string;
   billingLabel?: string;
   badge?: string;
@@ -205,9 +226,13 @@ export type PricingPlanConfig = {
 };
 
 /**
- * Yearly = 20% off monthly list (shown as monthly equivalent).
- * Professional $79 → $63 · Business $149 → $119
+ * Annual billing: pay for 10 months, receive 12 months of service.
+ * Professional $79 × 10 = $790/year · Business $149 × 10 = $1,490/year
+ * Do not display 20% off or monthly-equivalent yearly headlines.
  */
+export const PRICING_ANNUAL_NOTE = "12 months of service · pay for 10";
+export const PRICING_ANNUAL_BADGE = "Save 2 months";
+
 export const PRICING_PLANS: PricingPlanConfig[] = [
   {
     id: "free",
@@ -215,9 +240,9 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
     name: "Free",
     bestFor: "Solo businesses getting started.",
     monthlyPrice: "$0",
-    yearlyPrice: "$0",
-    ctaLabel: "Start Free",
-    ctaHref: APPLY_HREF,
+    yearlyTotal: "$0",
+    ctaLabel: "Apply for Free",
+    ctaHref: `${APPLY_HREF}?plan=free`,
     highlighted: false,
     cardFeatures: [
       "online_booking",
@@ -246,7 +271,6 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       advanced_analytics: false,
       api_integrations: false,
       priority_support: false,
-      inventory: false,
       white_glove: false,
       success_manager: false,
       custom_integrations: false,
@@ -262,14 +286,14 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
     planKey: "professional",
     name: "Professional",
     bestFor:
-      "Growing businesses that want automation and better customer communication.",
+      "Growing businesses that want Summer and stronger customer communication.",
     monthlyPrice: "$79",
-    yearlyPrice: "$63",
+    yearlyTotal: "$790",
     priceSuffix: "/month",
     badge: "Most Popular",
     highlighted: true,
-    ctaLabel: "Start Professional",
-    ctaHref: APPLY_HREF,
+    ctaLabel: "Apply for Professional",
+    ctaHref: `${APPLY_HREF}?plan=professional`,
     inheritedPlan: "free",
     spotlightFeatureId: "summer",
     cardFeatures: [
@@ -300,7 +324,6 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       advanced_analytics: false,
       api_integrations: false,
       priority_support: false,
-      inventory: false,
       white_glove: false,
       success_manager: false,
       custom_integrations: false,
@@ -317,11 +340,11 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
     name: "Business",
     bestFor: "Multi-staff businesses managing multiple locations.",
     monthlyPrice: "$149",
-    yearlyPrice: "$119",
+    yearlyTotal: "$1,490",
     priceSuffix: "/month",
     highlighted: false,
-    ctaLabel: "Choose Business",
-    ctaHref: APPLY_HREF,
+    ctaLabel: "Apply for Business",
+    ctaHref: `${APPLY_HREF}?plan=business`,
     inheritedPlan: "professional",
     cardFeatures: [
       "staff_limit",
@@ -329,7 +352,6 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       "advanced_analytics",
       "api_integrations",
       "priority_support",
-      "inventory",
     ],
     features: {
       online_booking: true,
@@ -348,7 +370,6 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       advanced_analytics: true,
       api_integrations: true,
       priority_support: true,
-      inventory: true,
       white_glove: false,
       success_manager: false,
       custom_integrations: false,
@@ -364,9 +385,9 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
     planKey: "enterprise",
     name: "Enterprise",
     bestFor:
-      "Franchises, chains, and organizations with custom requirements.",
+      "Franchises, chains, and organizations with custom commercial requirements.",
     monthlyPrice: "Custom",
-    yearlyPrice: null,
+    yearlyTotal: null,
     highlighted: false,
     ctaLabel: "Contact Sales",
     ctaHref: DEMO_HREF,
@@ -379,7 +400,6 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       "custom_integrations",
       "priority_support",
       "enterprise_security",
-      "custom_permissions",
       "volume_pricing",
     ],
     features: {
@@ -399,12 +419,11 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
       advanced_analytics: true,
       api_integrations: true,
       priority_support: true,
-      inventory: true,
       white_glove: true,
       success_manager: true,
       custom_integrations: true,
       enterprise_security: true,
-      custom_permissions: true,
+      custom_permissions: false,
       volume_pricing: true,
       staff_limit: "Unlimited",
       location_limit: "Unlimited",
@@ -451,11 +470,20 @@ function formatCardFeature(
   if (id === "location_limit" && typeof value === "string") {
     return value === "1" ? "1 Location" : `${value} Locations`;
   }
-  if (id === "inventory") {
-    return `${name} (available where applicable)`;
-  }
   if (id === "priority_support" && plan.id === "enterprise") {
     return "SLA & Priority Support";
+  }
+  if (id === "payments") {
+    return `${name} · Manual-first / Early Access`;
+  }
+  if (id === "gift_cards") {
+    return `${name} · Operator create & redeem`;
+  }
+  if (id === "business_messaging") {
+    return `${name} · Email, SMS, activity`;
+  }
+  if (id === "invoicing") {
+    return `${name} · Early Access`;
   }
   return name;
 }
@@ -530,12 +558,7 @@ export function buildPricingComparisonSections(): ComparisonSection[] {
           id: f.id,
           name:
             f.id === "priority_support" ? "Priority Support / SLA" : f.name,
-          note:
-            f.id === "inventory"
-              ? "Available where applicable."
-              : f.id === "business_messaging"
-                ? "Paid plans · Communication Center"
-                : undefined,
+          note: f.note,
           free: byId.free.features[f.id] ?? false,
           professional: byId.professional.features[f.id] ?? false,
           business: byId.business.features[f.id] ?? false,
@@ -557,17 +580,17 @@ export const PRICING_HEADLINE =
   "Simple pricing. Powerful tools for every stage of growth.";
 
 export const PRICING_SUBHEADING =
-  "Start free, upgrade when you need more, and give your business one connected platform for bookings, communication, payments, customers, and operations.";
+  "A Free plan is available through Private Alpha. Upgrade when you need more, and run scheduling, customers, communications, payments, and operations in one connected operating system.";
 
 export const PRICING_NOTE = FOUNDER_PRICING_NOTE;
 
 export const PRICING_WORKFLOW_EYEBROW = "Built to work together";
 
 export const PRICING_WORKFLOW_HEADLINE =
-  "From first booking to repeat customer. Automatically.";
+  "From first booking to repeat customer—connected.";
 
 export const PRICING_WORKFLOW_BODY =
-  "Every appointment can trigger the next action, helping your business stay organized without constant manual work.";
+  "Each step stays connected in one operating system, so the day is easier to see and run without switching between disconnected tools.";
 
 export const PRICING_WORKFLOW_FOOTNOTE =
   "Everything works together, so you can focus on running your business instead of managing software.";
@@ -591,12 +614,12 @@ export const PRICING_ALPHA_CTA = "Join the Private Alpha";
 export const PRICING_ALPHA_HREF = PRIVATE_ALPHA_HREF;
 
 export const PRICING_FINAL_HEADLINE =
-  "Ready to run your business with less manual work?";
+  "Ready to explore Chasum in Private Alpha?";
 
 export const PRICING_FINAL_BODY =
-  "Start free today or join the Private Alpha to explore Chasum with our team.";
+  "Apply for Private Alpha to review how Chasum could fit the way your business already works.";
 
-export const PRICING_FINAL_PRIMARY_CTA = "Start Free";
+export const PRICING_FINAL_PRIMARY_CTA = CTA_APPLY_LABEL;
 
 export const PRICING_FINAL_SECONDARY_CTA = CTA_APPLY_LABEL;
 
@@ -605,39 +628,39 @@ export type PricingFaqItem = { q: string; a: string };
 export const PRICING_FAQ_ITEMS: PricingFaqItem[] = [
   {
     q: "Can I use Chasum for free?",
-    a: "Yes. The Free plan includes online booking, calendar, email confirmations and reminders, basic customer management, one staff member, and one location—with Chasum branding.",
+    a: "Chasum has a Free plan—online booking, calendar, email confirmations and reminders, basic customer management, one staff member, and one location, with Chasum branding. Access is currently through Private Alpha; public self-serve signup and billing are not open yet.",
   },
   {
     q: "Does the Free plan include SMS reminders?",
     a: "No. SMS reminders are included starting with Professional when messaging is configured for your business.",
   },
   {
-    q: "Which plans include Business Calls & Texting?",
-    a: "Business Calls & Texting is included on Professional, Business, and Enterprise through Chasum’s Communication Center (SMS and call activity). Free does not include it. Voice AI calling is not available yet.",
+    q: "Which plans include Customer Communications?",
+    a: "Customer Communications is included on Professional, Business, and Enterprise: configured email, SMS reminders, and communication history/activity. Free does not include SMS. Logged call activity, when present, is history—not hosted phone service through Chasum. AI phone and voice calling are not available yet.",
   },
   {
     q: "Can I change plans later?",
-    a: "Yes. During Private Alpha we confirm the right plan with you during onboarding. As you grow, you can move up when you need more staff, locations, or communication tools.",
+    a: "Yes. During Private Alpha we confirm the right plan with you during onboarding. As you grow, you can move up when you need more staff, locations, or communication tools. Self-serve paid billing is not open yet.",
   },
   {
     q: "Is Summer included in every plan?",
-    a: "Summer — Chasum's AI Business Manager — starts with Professional and is included in Business and Enterprise. Free focuses on core scheduling and email communication. Answering calls and appointment requests is one of her capabilities—not her only role.",
+    a: "Summer — Chasum's AI Business Manager — starts with Professional and is included in Business and Enterprise. Free focuses on core scheduling and email communication. Helping with customer questions and appointment requests is one of her capabilities—not her only role.",
   },
   {
     q: "Who is Summer?",
-    a: "Summer is Chasum's AI Business Manager. She helps you discover Chasum, get your business running, answer customer questions, automate everyday work, support your team, and help your business grow.",
+    a: "Summer is Chasum's AI Business Manager. She helps you understand what is happening across the business, what needs attention, and what to do next. She can also offer product guidance and help with customer questions using your business context. She is assistive today—observe, understand, recommend—while you remain in control.",
   },
   {
     q: "Does Summer only answer phone calls?",
-    a: "No. Handling customer questions and appointment requests is only one of Summer's AI Receptionist capabilities (grounded chat and messaging where configured; voice calling is not available yet). She also assists with onboarding, scheduling, customer communication, product guidance, automation, staff training, and business growth.",
+    a: "No. Helping with customer questions and appointment requests is only one capability (grounded chat and messaging where configured). Voice calling is not available yet. Summer is Chasum's AI Business Manager, not a phone-answering product.",
   },
   {
     q: "Can Summer teach me how to use Chasum?",
-    a: "Yes. Summer guides new users through setup, explains features, answers “How do I…” questions, and helps teams learn the platform.",
+    a: "Yes. Summer can guide new users through setup, explain features, and answer “How do I…” questions using your business context. That is product guidance—not a separate staff-training product.",
   },
   {
     q: "What happens when I reach my staff or location limit?",
-    a: "You’ll see a clear upgrade prompt. Professional supports up to 3 staff and 3 locations; Business supports unlimited staff and up to 6 locations; Enterprise can extend locations further.",
+    a: "You’ll see a clear upgrade prompt. Professional supports up to 3 staff and 3 locations; Business supports unlimited staff and up to 6 locations; Enterprise can extend locations further. Plan changes during Private Alpha are arranged with Chasum.",
   },
   {
     q: "Is Chasum available now?",
@@ -645,7 +668,7 @@ export const PRICING_FAQ_ITEMS: PricingFaqItem[] = [
   },
   {
     q: "Do you offer custom plans for franchises or large organizations?",
-    a: "Yes. Enterprise covers custom onboarding, dedicated support, security review, custom integrations, and volume pricing. Contact sales to discuss your setup.",
+    a: "Yes. Enterprise is for organizations with custom commercial requirements—including franchises and chains—covering custom onboarding, dedicated support, security review, custom integrations, and volume pricing. Franchise Management software is a future direction, not a current product. Contact sales to discuss your setup.",
   },
 ];
 
@@ -656,19 +679,21 @@ export const PRICING_WORKFLOW_STEPS = [
   },
   {
     title: "Summer Answers",
-    detail: "Your AI Business Manager handles questions and appointment requests.",
+    detail:
+      "Your AI Business Manager can help with questions and appointment requests.",
   },
   {
     title: "Calendar Updates",
     detail: "Keeps schedules organized.",
   },
   {
-    title: "Payment Collected",
-    detail: "Accept payments securely.",
+    title: "Payment Recorded",
+    detail: "Keep payments, deposits, invoices and receipts connected.",
   },
   {
     title: "Confirmation Sent",
-    detail: "Email and SMS communication automatically.",
+    detail:
+      "Keep customers informed with configured email and SMS communication.",
   },
   {
     title: "Customer Returns",
@@ -685,11 +710,12 @@ export function getPlanPrice(
   if (plan.contactSales || plan.monthlyPrice === "Custom") {
     return { price: "Custom" };
   }
-  if (period === "yearly" && plan.yearlyPrice) {
+  if (period === "yearly" && plan.yearlyTotal) {
     return {
-      price: plan.yearlyPrice,
-      suffix: plan.priceSuffix ?? "/month",
-      note: "billed yearly",
+      price: plan.yearlyTotal,
+      suffix: " / year",
+      note:
+        plan.yearlyTotal === "$0" ? undefined : PRICING_ANNUAL_NOTE,
     };
   }
   return {
@@ -728,6 +754,45 @@ export function resolveInitialPlan(
   const raw = Array.isArray(planParam) ? planParam[0] : planParam;
   if (raw && isMarketingPlanId(raw)) return raw;
   return "free";
+}
+
+export const APPLY_PLAN_INTENT_IDS = [
+  "free",
+  "professional",
+  "business",
+] as const;
+
+export type ApplyPlanIntentId = (typeof APPLY_PLAN_INTENT_IDS)[number];
+
+export function isApplyPlanIntentId(
+  value: string | null | undefined,
+): value is ApplyPlanIntentId {
+  return (
+    value === "free" || value === "professional" || value === "business"
+  );
+}
+
+/** Acquisition-intent URL only. Never writes subscription or billing state. */
+export function applyHrefForPlan(id: MarketingPlanId): string {
+  if (id === "enterprise") return DEMO_HREF;
+  return `${APPLY_HREF}?plan=${id}`;
+}
+
+export function resolveApplyPlanIntent(
+  planParam: string | string[] | undefined,
+): ApplyPlanIntentId | null {
+  const raw = Array.isArray(planParam) ? planParam[0] : planParam;
+  if (raw && isApplyPlanIntentId(raw)) return raw;
+  return null;
+}
+
+/** Optional future Industries context. Does not create tenants. */
+export function resolveApplyIndustryIntent(
+  industryParam: string | string[] | undefined,
+): string | null {
+  const raw = Array.isArray(industryParam) ? industryParam[0] : industryParam;
+  const value = raw?.trim() ?? "";
+  return value.length > 0 ? value : null;
 }
 
 /** @deprecated Legacy exports kept for import compatibility during transition */

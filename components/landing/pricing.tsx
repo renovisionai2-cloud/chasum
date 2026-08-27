@@ -4,11 +4,7 @@ import { Reveal } from "@/components/landing/reveal";
 import { PricingWorkflow } from "@/components/landing/pricing-workflow";
 import { PricingBillingToggle } from "@/components/marketing/pricing-billing-toggle";
 import { PricingPlanCards } from "@/components/marketing/pricing-plan-cards";
-import { Button } from "@/components/ui/button";
-import {
-  APPLY_HREF,
-  CTA_APPLY_LABEL,
-} from "@/lib/marketing/alpha";
+import { APPLY_HREF } from "@/lib/marketing/alpha";
 import {
   PRICING_ALPHA_BODY,
   PRICING_ALPHA_CTA,
@@ -200,7 +196,12 @@ export function Pricing() {
           </Reveal>
 
           <Reveal delayMs={80}>
-            <div className="marketing-elevate mt-12 overflow-x-auto rounded-[1.35rem] border border-border/70 bg-card md:mt-14">
+            <div
+              className="marketing-elevate mt-12 overflow-x-auto rounded-[1.35rem] border border-border/70 bg-card md:mt-14"
+              role="region"
+              aria-label="Plan comparison. Table may scroll horizontally on smaller screens."
+              tabIndex={0}
+            >
               <table className="w-full min-w-[720px] text-left text-sm">
                 <thead className="sticky top-0 z-[1] border-b border-border bg-muted/50 text-xs text-muted-foreground backdrop-blur">
                   <tr>
@@ -236,9 +237,7 @@ export function Pricing() {
                             <span>{row.name}</span>
                             {row.note ? (
                               <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                                {row.note.includes("Voice AI")
-                                  ? "Available where configured on paid plans."
-                                  : row.note}
+                                {row.note}
                               </span>
                             ) : null}
                           </th>
@@ -278,11 +277,12 @@ export function Pricing() {
             </h2>
             <p className="marketing-lede mx-auto">{PRICING_ALPHA_BODY}</p>
             <div className="mt-10">
-              <Link href={PRICING_ALPHA_HREF}>
-                <Button size="lg" className="h-12 rounded-full px-8">
-                  {PRICING_ALPHA_CTA}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+              <Link
+                href={PRICING_ALPHA_HREF}
+                className="marketing-cta-button marketing-focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90"
+              >
+                {PRICING_ALPHA_CTA}
+                <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
             </div>
           </Reveal>
@@ -304,24 +304,13 @@ export function Pricing() {
             <p className="marketing-lede">{PRICING_FINAL_BODY}</p>
           </Reveal>
           <Reveal delayMs={80}>
-            <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
-              <Link href={APPLY_HREF} className="sm:w-auto">
-                <Button
-                  size="lg"
-                  className="h-12 w-full rounded-full px-8 sm:w-auto"
-                >
-                  {PRICING_FINAL_PRIMARY_CTA}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href={APPLY_HREF} className="sm:w-auto">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="h-12 w-full rounded-full px-8 sm:w-auto"
-                >
-                  {CTA_APPLY_LABEL}
-                </Button>
+            <div className="mt-10 flex justify-center">
+              <Link
+                href={APPLY_HREF}
+                className="marketing-cta-button marketing-focus-ring inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90 sm:w-auto"
+              >
+                {PRICING_FINAL_PRIMARY_CTA}
+                <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
             </div>
           </Reveal>

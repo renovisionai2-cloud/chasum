@@ -74,12 +74,19 @@ describe("primary CTA destinations", () => {
 
   it("routes pricing plan CTAs to apply or walkthrough paths", () => {
     for (const plan of MARKETING_PLANS) {
-      expect(plan.href === APPLY_HREF || plan.href.startsWith("/contact")).toBe(
-        true,
-      );
+      expect(
+        plan.href.startsWith(APPLY_HREF) || plan.href.startsWith("/contact"),
+      ).toBe(true);
       expect(plan.cta.toLowerCase()).not.toContain("request early access");
+      expect(plan.cta.toLowerCase()).not.toContain("start free");
+      expect(plan.cta.toLowerCase()).not.toContain("start professional");
+      expect(plan.cta.toLowerCase()).not.toContain("choose business");
       if (plan.id === "enterprise") {
         expect(plan.cta.toLowerCase()).toMatch(/contact sales|schedule a demo/);
+        expect(plan.href).toBe(DEMO_HREF);
+      } else {
+        expect(plan.href).toBe(`${APPLY_HREF}?plan=${plan.id}`);
+        expect(plan.cta.toLowerCase()).toMatch(/^apply for /);
       }
     }
   });

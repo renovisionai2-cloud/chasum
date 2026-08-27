@@ -1,6 +1,10 @@
 import { DesignPartnerForm } from "@/components/landing/design-partner-form";
 import { MarketingDocPage } from "@/components/landing/marketing-doc-page";
 import { PRIVATE_ALPHA_HREF } from "@/lib/marketing/alpha";
+import {
+  resolveApplyIndustryIntent,
+  resolveApplyPlanIntent,
+} from "@/lib/marketing/pricing";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -10,7 +14,21 @@ export const metadata: Metadata = {
     "Apply to help shape Chasum—the AI Business Operating System for service businesses. We review every Private Alpha application personally.",
 };
 
-export default function ApplyPage() {
+type ApplyPageProps = {
+  searchParams: Promise<{
+    plan?: string;
+    industry?: string;
+    business_type?: string;
+  }>;
+};
+
+export default async function ApplyPage({ searchParams }: ApplyPageProps) {
+  const params = await searchParams;
+  const initialPlan = resolveApplyPlanIntent(params.plan);
+  const initialIndustry =
+    resolveApplyIndustryIntent(params.industry) ??
+    resolveApplyIndustryIntent(params.business_type);
+
   return (
     <MarketingDocPage
       eyebrow="Design partners"
@@ -23,7 +41,13 @@ export default function ApplyPage() {
           Why Private Alpha?
         </Link>
       </p>
-      <DesignPartnerForm />
+      <DesignPartnerForm
+        initialPlan={initialPlan}
+        initialIndustry={initialIndustry}
+        activityLabel="Approximate monthly customer activity"
+        activityPlaceholder="Appointments, jobs, sessions, visits…"
+        painPlaceholder="Scheduling, customers, team, payments, communications, reporting…"
+      />
     </MarketingDocPage>
   );
 }

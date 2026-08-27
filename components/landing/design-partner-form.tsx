@@ -10,6 +10,10 @@ import {
 } from "@/lib/actions/design-partner";
 import { PRIVATE_ALPHA_HREF, PRIVACY_HREF } from "@/lib/marketing/alpha";
 import { FS_BUSINESS_CATEGORIES } from "@/lib/marketing/flagship-summer";
+import {
+  getPricingPlan,
+  type ApplyPlanIntentId,
+} from "@/lib/marketing/pricing";
 import Link from "next/link";
 import { useActionState, useId } from "react";
 
@@ -18,12 +22,37 @@ const initial: DesignPartnerState = {};
 const fieldClass =
   "mt-1.5 w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none ring-primary/30 focus:ring-2";
 
-export function DesignPartnerForm() {
+const knownIndustryLabels = new Set(
+  FS_BUSINESS_CATEGORIES.flatMap((category) =>
+    category.industries.map((industry) => industry.label),
+  ),
+);
+
+export function DesignPartnerForm({
+  initialPlan = null,
+  initialIndustry = null,
+  activityLabel = "Approximate monthly appointments",
+  activityPlaceholder = "Approx. volume",
+  painPlaceholder = "Scheduling, CRM, front desk, payments, reporting…",
+}: {
+  initialPlan?: ApplyPlanIntentId | null;
+  initialIndustry?: string | null;
+  activityLabel?: string;
+  activityPlaceholder?: string;
+  painPlaceholder?: string;
+}) {
   const [state, action, pending] = useActionState(
     submitDesignPartnerApplication,
     initial,
   );
   const errorSummaryId = useId();
+  const industryDefault =
+    initialIndustry && knownIndustryLabels.has(initialIndustry)
+      ? initialIndustry
+      : "";
+  const interestedPlanName = initialPlan
+    ? getPricingPlan(initialPlan).name
+    : null;
 
   if (state.ok) {
     return (
@@ -61,6 +90,18 @@ export function DesignPartnerForm() {
         </div>
       ) : null}
 
+      {initialPlan ? (
+        <p className="rounded-xl border border-border/70 bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          Interested plan:{" "}
+          <span className="font-medium text-foreground">
+            {interestedPlanName}
+          </span>
+        </p>
+      ) : null}
+      {initialPlan ? (
+        <input type="hidden" name="preferred_plan" value={initialPlan} />
+      ) : null}
+
       <div>
         <Label htmlFor="business_name">Business name</Label>
         <Input
@@ -79,7 +120,7 @@ export function DesignPartnerForm() {
           name="industry"
           required
           className={fieldClass}
-          defaultValue=""
+          defaultValue={industryDefault}
         >
           <option value="" disabled>
             Select a business type
@@ -134,14 +175,12 @@ export function DesignPartnerForm() {
           />
         </div>
         <div>
-          <Label htmlFor="monthly_appointments">
-            Approximate monthly appointments
-          </Label>
+          <Label htmlFor="monthly_activity">{activityLabel}</Label>
           <Input
-            id="monthly_appointments"
-            name="monthly_appointments"
+            id="monthly_activity"
+            name="monthly_activity"
             required
-            placeholder="Approx. volume"
+            placeholder={activityPlaceholder}
             className={fieldClass}
           />
         </div>
@@ -157,7 +196,7 @@ export function DesignPartnerForm() {
           required
           rows={3}
           className={fieldClass}
-          placeholder="Scheduling, CRM, front desk, payments, reporting…"
+          placeholder={painPlaceholder}
         />
       </div>
 

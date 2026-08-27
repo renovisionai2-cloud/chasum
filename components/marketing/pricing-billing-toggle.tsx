@@ -1,7 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { BillingPeriod } from "@/lib/marketing/pricing";
+import {
+  PRICING_ANNUAL_BADGE,
+  type BillingPeriod,
+} from "@/lib/marketing/pricing";
 
 export function PricingBillingToggle({
   value,
@@ -32,6 +35,7 @@ export function PricingBillingToggle({
       <button
         type="button"
         aria-pressed={value === "yearly"}
+        aria-label="Yearly billing, save 2 months"
         onClick={() => onChange("yearly")}
         className={cn(
           "marketing-focus-ring inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors",
@@ -49,7 +53,7 @@ export function PricingBillingToggle({
               : "bg-primary/10 text-primary",
           )}
         >
-          Save 20%
+          {PRICING_ANNUAL_BADGE}
         </span>
       </button>
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   PRICING_FEATURE_CATALOG,
   PRICING_PLANS,
@@ -23,7 +22,10 @@ function featureLabel(plan: PricingPlanConfig, id: PricingFeatureId): string {
   if (id === "location_limit" && typeof value === "string") {
     return value === "1" ? "1 Location" : `${value} Locations`;
   }
-  if (id === "inventory") return `${name} · Available where applicable`;
+  if (id === "payments") return `${name} · Manual-first / Early Access`;
+  if (id === "gift_cards") return `${name} · Operator create & redeem`;
+  if (id === "business_messaging") return `${name} · Email, SMS, activity`;
+  if (id === "invoicing") return `${name} · Early Access`;
   if (id === "priority_support" && plan.id === "enterprise") {
     return "SLA & Priority Support";
   }
@@ -135,13 +137,16 @@ function PlanCard({
         ) : null}
       </div>
 
-      <Link href={plan.ctaHref} className="mt-8 block">
-        <Button
-          variant={plan.highlighted ? "primary" : "outline"}
-          className="marketing-cta-button h-11 w-full rounded-full"
-        >
-          {plan.ctaLabel}
-        </Button>
+      <Link
+        href={plan.ctaHref}
+        className={cn(
+          "marketing-cta-button marketing-focus-ring mt-8 inline-flex h-11 w-full items-center justify-center rounded-full text-sm font-medium",
+          plan.highlighted
+            ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90"
+            : "border border-border bg-card/60 text-foreground hover:bg-muted",
+        )}
+      >
+        {plan.ctaLabel}
       </Link>
     </article>
   );

@@ -9,6 +9,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed (Marketing — Pricing commercial-truth correction)
+
+**PRICING — commercial-truth correction** (2026-08-27). Visual foundation preserved. Not merged. Not in Production.
+
+- Annual billing: pay 10 / receive 12; “Save 2 months”; Professional $790/year; Business $1,490/year
+- Plan CTAs: Apply for Free / Professional / Business; Contact Sales
+- Selected plan carried to `/apply?plan=` as acquisition intent only
+- Payments & Financials, Gift Certificates, Customer Communications, Inventory removed as a current inclusion
+- Memberships & Packages remain unassigned to a Pricing tier
+- Canonical Business location display remains 6; DB/catalog 10 debt untouched
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Locked (Marketing — Roadmap PO lock)
 
 **ROADMAP — PO LOCKED** (2026-08-27). Documentation only. Not merged. Not in Production.
