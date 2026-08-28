@@ -26,6 +26,9 @@ export type ApplyFieldId = (typeof APPLY_FIELD_ORDER)[number];
 
 export type ApplyFieldErrors = Partial<Record<ApplyFieldId, string>>;
 
+export const APPLY_DELIVERY_ERROR =
+  "We couldn’t send your application right now. Please try again. If the problem continues, contact sales@chasumai.com.";
+
 export type DesignPartnerSubmission = {
   businessName: string;
   industry: string;

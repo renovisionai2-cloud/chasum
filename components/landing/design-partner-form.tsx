@@ -93,6 +93,18 @@ export function DesignPartnerForm({
     initialIndustry && isKnownApplyIndustry(initialIndustry)
       ? initialIndustry
       : "";
+  const [draft, setDraft] = useState({
+    business_name: "",
+    industry: industryDefault,
+    employees: "",
+    locations: "",
+    current_software: "",
+    monthly_activity: "",
+    pain_point: "",
+    email: "",
+    phone: "",
+    notes: "",
+  });
   const interestedPlanName = initialPlan
     ? getPricingPlan(initialPlan).name
     : null;
@@ -103,6 +115,15 @@ export function DesignPartnerForm({
     pendingFocusRef.current = null;
     document.getElementById(fieldId)?.focus();
   }, [fieldErrors]);
+
+  useEffect(() => {
+    if (!state.error || state.ok) return;
+    document.getElementById(errorSummaryId)?.focus();
+  }, [state.error, state.ok, errorSummaryId]);
+
+  function updateDraft(name: string, value: string) {
+    setDraft((current) => ({ ...current, [name]: value }));
+  }
 
   function describedBy(fieldId: ApplyFieldId, extraId?: string) {
     const errorId = fieldErrors[fieldId] ? `${fieldId}-error` : undefined;
@@ -156,6 +177,7 @@ export function DesignPartnerForm({
     <form
       action={action}
       onSubmit={handleSubmit}
+      onReset={(event) => event.preventDefault()}
       className="space-y-5"
       noValidate={inlineValidation}
     >
@@ -163,7 +185,8 @@ export function DesignPartnerForm({
         <div
           id={errorSummaryId}
           role="alert"
-          className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          tabIndex={-1}
+          className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {state.error}
         </div>
@@ -196,6 +219,8 @@ export function DesignPartnerForm({
           required
           className={fieldClass}
           autoComplete="organization"
+          value={draft.business_name}
+          onChange={(event) => updateDraft("business_name", event.target.value)}
           aria-invalid={fieldErrors.business_name ? true : undefined}
           aria-describedby={describedBy("business_name")}
         />
@@ -212,7 +237,8 @@ export function DesignPartnerForm({
           name="industry"
           required
           className={selectClass}
-          defaultValue={industryDefault}
+          value={draft.industry}
+          onChange={(event) => updateDraft("industry", event.target.value)}
           aria-invalid={fieldErrors.industry ? true : undefined}
           aria-describedby={describedBy("industry")}
         >
@@ -244,6 +270,8 @@ export function DesignPartnerForm({
             required
             placeholder="e.g. 1–5, 6–20"
             className={fieldClass}
+            value={draft.employees}
+            onChange={(event) => updateDraft("employees", event.target.value)}
             aria-invalid={fieldErrors.employees ? true : undefined}
             aria-describedby={describedBy("employees")}
           />
@@ -261,6 +289,8 @@ export function DesignPartnerForm({
             placeholder="e.g. 1, 2–5"
             className={fieldClass}
             inputMode="numeric"
+            value={draft.locations}
+            onChange={(event) => updateDraft("locations", event.target.value)}
             aria-invalid={fieldErrors.locations ? true : undefined}
             aria-describedby={describedBy("locations")}
           />
@@ -280,6 +310,10 @@ export function DesignPartnerForm({
             required
             placeholder="Picktime, Fresha, Square…"
             className={fieldClass}
+            value={draft.current_software}
+            onChange={(event) =>
+              updateDraft("current_software", event.target.value)
+            }
             aria-invalid={fieldErrors.current_software ? true : undefined}
             aria-describedby={describedBy("current_software")}
           />
@@ -299,6 +333,10 @@ export function DesignPartnerForm({
             required
             placeholder={activityPlaceholder}
             className={fieldClass}
+            value={draft.monthly_activity}
+            onChange={(event) =>
+              updateDraft("monthly_activity", event.target.value)
+            }
             aria-invalid={fieldErrors.monthly_activity ? true : undefined}
             aria-describedby={describedBy("monthly_activity")}
           />
@@ -321,6 +359,8 @@ export function DesignPartnerForm({
           rows={3}
           className={fieldClass}
           placeholder={painPlaceholder}
+          value={draft.pain_point}
+          onChange={(event) => updateDraft("pain_point", event.target.value)}
           aria-invalid={fieldErrors.pain_point ? true : undefined}
           aria-describedby={describedBy("pain_point")}
         />
@@ -340,6 +380,8 @@ export function DesignPartnerForm({
             required
             className={fieldClass}
             autoComplete="email"
+            value={draft.email}
+            onChange={(event) => updateDraft("email", event.target.value)}
             aria-invalid={fieldErrors.email ? true : undefined}
             aria-describedby={describedBy("email", emailHintId)}
           />
@@ -366,6 +408,8 @@ export function DesignPartnerForm({
             className={fieldClass}
             autoComplete="tel"
             placeholder="Any format is fine"
+            value={draft.phone}
+            onChange={(event) => updateDraft("phone", event.target.value)}
           />
         </div>
       </div>
@@ -375,7 +419,14 @@ export function DesignPartnerForm({
           Anything else we should know?{" "}
           <span className="font-normal text-muted-foreground">· optional</span>
         </Label>
-        <Textarea id="notes" name="notes" rows={3} className={fieldClass} />
+        <Textarea
+          id="notes"
+          name="notes"
+          rows={3}
+          className={fieldClass}
+          value={draft.notes}
+          onChange={(event) => updateDraft("notes", event.target.value)}
+        />
       </div>
 
       <Button

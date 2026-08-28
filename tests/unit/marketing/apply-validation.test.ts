@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { submitDesignPartnerApplication } from "@/lib/actions/design-partner";
 import {
+  APPLY_DELIVERY_ERROR,
   APPLY_INDUSTRY_LABELS,
   firstInvalidApplyField,
   readDesignPartnerSubmission,
@@ -136,12 +137,13 @@ describe("design-partner server action", () => {
     expect(state.error).toBe("Please complete all required fields.");
   });
 
-  it("accepts a valid known industry", async () => {
+  it("accepts a valid known industry then fails closed without Resend", async () => {
     const state = await submitDesignPartnerApplication(
       {},
       filledForm({ industry: "Hair Salon" }),
     );
-    expect(state).toEqual({ ok: true });
+    expect(state.ok).toBeUndefined();
+    expect(state.error).toBe(APPLY_DELIVERY_ERROR);
   });
 
   it("round-trips professional preferred_plan without billing mutation", async () => {
@@ -149,7 +151,8 @@ describe("design-partner server action", () => {
       {},
       filledForm({ preferred_plan: "professional" }),
     );
-    expect(state).toEqual({ ok: true });
+    expect(state.ok).toBeUndefined();
+    expect(state.error).toBe(APPLY_DELIVERY_ERROR);
     const parsed = readDesignPartnerSubmission(
       filledForm({ preferred_plan: "professional" }),
     );
@@ -165,10 +168,11 @@ describe("design-partner server action", () => {
       {},
       filledForm({ preferred_plan: "business" }),
     );
-    expect(state).toEqual({ ok: true });
+    expect(state.ok).toBeUndefined();
+    expect(state.error).toBe(APPLY_DELIVERY_ERROR);
   });
 
-  it("discards enterprise preferred_plan before acceptance", async () => {
+  it("discards enterprise preferred_plan before delivery is attempted", async () => {
     const parsed = readDesignPartnerSubmission(
       filledForm({ preferred_plan: "enterprise" }),
     );
@@ -177,7 +181,8 @@ describe("design-partner server action", () => {
       {},
       filledForm({ preferred_plan: "enterprise" }),
     );
-    expect(state).toEqual({ ok: true });
+    expect(state.ok).toBeUndefined();
+    expect(state.error).toBe(APPLY_DELIVERY_ERROR);
   });
 
   it("returns an error for a missing required field", async () => {
@@ -203,6 +208,8 @@ describe("design-partner server action", () => {
     );
     expect(source).toContain("preferred_plan");
     expect(source).toContain("Interested plan");
+    expect(source).toContain("APPLY_DELIVERY_ERROR");
+    expect(source).not.toMatch(/Still accept/);
     expect(source).not.toMatch(/subscription_plan_key/);
     expect(source).not.toMatch(/@\/lib\/billing/);
     expect(source).not.toMatch(/changePlan|assignPlan|stripe/i);
