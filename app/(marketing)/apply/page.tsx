@@ -47,6 +47,9 @@ export default async function ApplyPage({ searchParams }: ApplyPageProps) {
         activityLabel="Approximate monthly customer activity"
         activityPlaceholder="Appointments, jobs, sessions, visits…"
         painPlaceholder="Scheduling, customers, team, payments, communications, reporting…"
+        inlineValidation
+        showRequiredMarkers
+        successNote="Submitting an application does not create an account or guarantee acceptance."
       />
     </MarketingDocPage>
   );

@@ -156,5 +156,11 @@ describe("Apply plan acquisition intent", () => {
     expect(source).not.toMatch(/subscription_plan_key/);
     expect(source).not.toMatch(/@\/lib\/billing/);
     expect(source).not.toMatch(/changePlan|assignPlan|stripe/i);
+    const parser = readFileSync(
+      path.join(process.cwd(), "lib/marketing/apply-validation.ts"),
+      "utf8",
+    );
+    expect(parser).toContain('readTrimmed(formData, "preferred_plan")');
+    expect(parser).toContain("isApplyPlanIntentId");
   });
 });

@@ -9,24 +9,58 @@ import {
   type DesignPartnerState,
 } from "@/lib/actions/design-partner";
 import { PRIVATE_ALPHA_HREF, PRIVACY_HREF } from "@/lib/marketing/alpha";
+import {
+  firstInvalidApplyField,
+  isKnownApplyIndustry,
+  readDesignPartnerSubmission,
+  validateDesignPartnerSubmission,
+  type ApplyFieldErrors,
+  type ApplyFieldId,
+} from "@/lib/marketing/apply-validation";
 import { FS_BUSINESS_CATEGORIES } from "@/lib/marketing/flagship-summer";
 import {
   getPricingPlan,
   type ApplyPlanIntentId,
 } from "@/lib/marketing/pricing";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useActionState, useId } from "react";
+import {
+  useActionState,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 
 const initial: DesignPartnerState = {};
 
 const fieldClass =
   "mt-1.5 w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none ring-primary/30 focus:ring-2";
 
-const knownIndustryLabels = new Set(
-  FS_BUSINESS_CATEGORIES.flatMap((category) =>
-    category.industries.map((industry) => industry.label),
-  ),
+const selectClass = cn(
+  fieldClass,
+  "aria-[invalid=true]:border-destructive/60 aria-[invalid=true]:focus:ring-destructive/40",
 );
+
+function RequiredMark({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <span className="font-normal text-muted-foreground" aria-hidden="true">
+      {" "}
+      *
+    </span>
+  );
+}
+
+function FieldError({ id, message }: { id: string; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={`${id}-error`} className="mt-1.5 break-words text-sm leading-snug text-destructive">
+      {message}
+    </p>
+  );
+}
 
 export function DesignPartnerForm({
   initialPlan = null,
@@ -34,25 +68,60 @@ export function DesignPartnerForm({
   activityLabel = "Approximate monthly appointments",
   activityPlaceholder = "Approx. volume",
   painPlaceholder = "Scheduling, CRM, front desk, payments, reporting…",
+  inlineValidation = false,
+  showRequiredMarkers = false,
+  successNote = null,
 }: {
   initialPlan?: ApplyPlanIntentId | null;
   initialIndustry?: string | null;
   activityLabel?: string;
   activityPlaceholder?: string;
   painPlaceholder?: string;
+  inlineValidation?: boolean;
+  showRequiredMarkers?: boolean;
+  successNote?: string | null;
 }) {
   const [state, action, pending] = useActionState(
     submitDesignPartnerApplication,
     initial,
   );
+  const [fieldErrors, setFieldErrors] = useState<ApplyFieldErrors>({});
+  const pendingFocusRef = useRef<ApplyFieldId | null>(null);
   const errorSummaryId = useId();
+  const emailHintId = useId();
   const industryDefault =
-    initialIndustry && knownIndustryLabels.has(initialIndustry)
+    initialIndustry && isKnownApplyIndustry(initialIndustry)
       ? initialIndustry
       : "";
   const interestedPlanName = initialPlan
     ? getPricingPlan(initialPlan).name
     : null;
+
+  useEffect(() => {
+    const fieldId = pendingFocusRef.current;
+    if (!fieldId) return;
+    pendingFocusRef.current = null;
+    document.getElementById(fieldId)?.focus();
+  }, [fieldErrors]);
+
+  function describedBy(fieldId: ApplyFieldId, extraId?: string) {
+    const errorId = fieldErrors[fieldId] ? `${fieldId}-error` : undefined;
+    const joined = [errorId, extraId].filter(Boolean).join(" ");
+    return joined || undefined;
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!inlineValidation) return;
+    const data = readDesignPartnerSubmission(new FormData(event.currentTarget));
+    const result = validateDesignPartnerSubmission(data);
+    if (!result.ok) {
+      event.preventDefault();
+      pendingFocusRef.current = firstInvalidApplyField(result.errors);
+      setFieldErrors(result.errors);
+      return;
+    }
+    setFieldErrors({});
+  }
 
   if (state.ok) {
     return (
@@ -74,12 +143,22 @@ export function DesignPartnerForm({
           </Link>
           .
         </p>
+        {successNote ? (
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            {successNote}
+          </p>
+        ) : null}
       </div>
     );
   }
 
   return (
-    <form action={action} className="space-y-5" noValidate={false}>
+    <form
+      action={action}
+      onSubmit={handleSubmit}
+      className="space-y-5"
+      noValidate={inlineValidation}
+    >
       {state.error ? (
         <div
           id={errorSummaryId}
@@ -102,27 +181,42 @@ export function DesignPartnerForm({
         <input type="hidden" name="preferred_plan" value={initialPlan} />
       ) : null}
 
+      {showRequiredMarkers ? (
+        <p className="text-xs text-muted-foreground">* Required</p>
+      ) : null}
+
       <div>
-        <Label htmlFor="business_name">Business name</Label>
+        <Label htmlFor="business_name">
+          Business name
+          <RequiredMark show={showRequiredMarkers} />
+        </Label>
         <Input
           id="business_name"
           name="business_name"
           required
           className={fieldClass}
           autoComplete="organization"
+          aria-invalid={fieldErrors.business_name ? true : undefined}
+          aria-describedby={describedBy("business_name")}
         />
+        <FieldError id="business_name" message={fieldErrors.business_name} />
       </div>
 
       <div>
-        <Label htmlFor="industry">Business type</Label>
+        <Label htmlFor="industry">
+          Business type
+          <RequiredMark show={showRequiredMarkers} />
+        </Label>
         <select
           id="industry"
           name="industry"
           required
-          className={fieldClass}
+          className={selectClass}
           defaultValue={industryDefault}
+          aria-invalid={fieldErrors.industry ? true : undefined}
+          aria-describedby={describedBy("industry")}
         >
-          <option value="" disabled>
+          <option value="" disabled={!inlineValidation}>
             Select a business type
           </option>
           {FS_BUSINESS_CATEGORIES.map((category) => (
@@ -135,21 +229,31 @@ export function DesignPartnerForm({
             </optgroup>
           ))}
         </select>
+        <FieldError id="industry" message={fieldErrors.industry} />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="employees">Team size</Label>
+        <div className="min-w-0">
+          <Label htmlFor="employees">
+            Team size
+            <RequiredMark show={showRequiredMarkers} />
+          </Label>
           <Input
             id="employees"
             name="employees"
             required
             placeholder="e.g. 1–5, 6–20"
             className={fieldClass}
+            aria-invalid={fieldErrors.employees ? true : undefined}
+            aria-describedby={describedBy("employees")}
           />
+          <FieldError id="employees" message={fieldErrors.employees} />
         </div>
-        <div>
-          <Label htmlFor="locations">Number of locations</Label>
+        <div className="min-w-0">
+          <Label htmlFor="locations">
+            Number of locations
+            <RequiredMark show={showRequiredMarkers} />
+          </Label>
           <Input
             id="locations"
             name="locations"
@@ -157,14 +261,18 @@ export function DesignPartnerForm({
             placeholder="e.g. 1, 2–5"
             className={fieldClass}
             inputMode="numeric"
+            aria-invalid={fieldErrors.locations ? true : undefined}
+            aria-describedby={describedBy("locations")}
           />
+          <FieldError id="locations" message={fieldErrors.locations} />
         </div>
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
+        <div className="min-w-0">
           <Label htmlFor="current_software">
             Current scheduling or business software
+            <RequiredMark show={showRequiredMarkers} />
           </Label>
           <Input
             id="current_software"
@@ -172,16 +280,31 @@ export function DesignPartnerForm({
             required
             placeholder="Picktime, Fresha, Square…"
             className={fieldClass}
+            aria-invalid={fieldErrors.current_software ? true : undefined}
+            aria-describedby={describedBy("current_software")}
+          />
+          <FieldError
+            id="current_software"
+            message={fieldErrors.current_software}
           />
         </div>
-        <div>
-          <Label htmlFor="monthly_activity">{activityLabel}</Label>
+        <div className="min-w-0">
+          <Label htmlFor="monthly_activity">
+            {activityLabel}
+            <RequiredMark show={showRequiredMarkers} />
+          </Label>
           <Input
             id="monthly_activity"
             name="monthly_activity"
             required
             placeholder={activityPlaceholder}
             className={fieldClass}
+            aria-invalid={fieldErrors.monthly_activity ? true : undefined}
+            aria-describedby={describedBy("monthly_activity")}
+          />
+          <FieldError
+            id="monthly_activity"
+            message={fieldErrors.monthly_activity}
           />
         </div>
       </div>
@@ -189,6 +312,7 @@ export function DesignPartnerForm({
       <div>
         <Label htmlFor="pain_point">
           What would you most like to improve?
+          <RequiredMark show={showRequiredMarkers} />
         </Label>
         <Textarea
           id="pain_point"
@@ -197,12 +321,18 @@ export function DesignPartnerForm({
           rows={3}
           className={fieldClass}
           placeholder={painPlaceholder}
+          aria-invalid={fieldErrors.pain_point ? true : undefined}
+          aria-describedby={describedBy("pain_point")}
         />
+        <FieldError id="pain_point" message={fieldErrors.pain_point} />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <Label htmlFor="email">Work email</Label>
+        <div className="min-w-0">
+          <Label htmlFor="email">
+            Work email
+            <RequiredMark show={showRequiredMarkers} />
+          </Label>
           <Input
             id="email"
             name="email"
@@ -210,8 +340,11 @@ export function DesignPartnerForm({
             required
             className={fieldClass}
             autoComplete="email"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={describedBy("email", emailHintId)}
           />
-          <p className="mt-1.5 text-xs text-muted-foreground">
+          <FieldError id="email" message={fieldErrors.email} />
+          <p id={emailHintId} className="mt-1.5 text-xs text-muted-foreground">
             Used only to follow up on your application. See our{" "}
             <Link href={PRIVACY_HREF} className="underline underline-offset-2">
               Privacy Policy
@@ -219,7 +352,7 @@ export function DesignPartnerForm({
             .
           </p>
         </div>
-        <div>
+        <div className="min-w-0">
           <Label htmlFor="phone">
             Phone number{" "}
             <span className="font-normal text-muted-foreground">

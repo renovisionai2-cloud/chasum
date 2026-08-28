@@ -1,7 +1,11 @@
 "use server";
 
 import { getEmailFromAddress, getResendApiKey } from "@/lib/env";
-import { isApplyPlanIntentId } from "@/lib/marketing/pricing";
+import {
+  readDesignPartnerSubmission,
+  serverErrorFromApplyErrors,
+  validateDesignPartnerSubmission,
+} from "@/lib/marketing/apply-validation";
 import { logger } from "@/lib/observability/logger";
 
 export type DesignPartnerState = {
@@ -9,55 +13,35 @@ export type DesignPartnerState = {
   error?: string;
 };
 
-function required(formData: FormData, key: string): string {
-  return String(formData.get(key) ?? "").trim();
-}
-
-function optional(formData: FormData, key: string): string {
-  return String(formData.get(key) ?? "").trim();
-}
-
 /**
  * Private Alpha lead capture only.
+ * Form field `preferred_plan` is acquisition intent for the lead email only.
  * Must never mutate billed product plan, billing state, provider state, or entitlements.
  */
 export async function submitDesignPartnerApplication(
   _prev: DesignPartnerState,
   formData: FormData,
 ): Promise<DesignPartnerState> {
-  const businessName = required(formData, "business_name");
-  const industry = required(formData, "industry");
-  const employees = required(formData, "employees");
-  const locations = required(formData, "locations");
-  const currentSoftware = required(formData, "current_software");
-  const painPoint = required(formData, "pain_point");
-  const monthlyActivity =
-    required(formData, "monthly_activity") ||
-    required(formData, "monthly_appointments");
-  const preferredPlanRaw = optional(formData, "preferred_plan");
-  const preferredPlan = isApplyPlanIntentId(preferredPlanRaw)
-    ? preferredPlanRaw
-    : "";
-  const email = required(formData, "email");
-  const phone = optional(formData, "phone");
-  const notes = optional(formData, "notes");
+  const data = readDesignPartnerSubmission(formData);
+  const result = validateDesignPartnerSubmission(data);
 
-  if (
-    !businessName ||
-    !industry ||
-    !employees ||
-    !locations ||
-    !currentSoftware ||
-    !painPoint ||
-    !monthlyActivity ||
-    !email
-  ) {
-    return { error: "Please complete all required fields." };
+  if (!result.ok) {
+    return { error: serverErrorFromApplyErrors(data, result.errors) };
   }
 
-  if (!email.includes("@")) {
-    return { error: "Please enter a valid email address." };
-  }
+  const {
+    businessName,
+    industry,
+    employees,
+    locations,
+    currentSoftware,
+    painPoint,
+    monthlyActivity,
+    preferredPlan,
+    email,
+    phone,
+    notes,
+  } = data;
 
   const payload = {
     businessName,
