@@ -1,7 +1,6 @@
 "use client";
 
 import { Reveal } from "@/components/landing/reveal";
-import { Button } from "@/components/ui/button";
 import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
@@ -343,23 +342,18 @@ export function PrivateAlphaExperience() {
               {PRIVATE_ALPHA_CLOSING.lede}
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link href={APPLY_HREF}>
-                <Button
-                  size="lg"
-                  className="marketing-cta-button h-12 rounded-full px-8"
-                >
-                  {CTA_APPLY_LABEL}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+              <Link
+                href={APPLY_HREF}
+                className="marketing-cta-button marketing-focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-medium text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90"
+              >
+                {CTA_APPLY_LABEL}
+                <ArrowRight className="h-4 w-4" aria-hidden />
               </Link>
-              <Link href={DEMO_HREF}>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="marketing-cta-button h-12 rounded-full px-8"
-                >
-                  {CTA_DEMO_LABEL}
-                </Button>
+              <Link
+                href={DEMO_HREF}
+                className="marketing-cta-button marketing-focus-ring inline-flex h-12 items-center justify-center gap-2 rounded-full border border-border bg-card/60 px-8 text-base font-medium text-foreground hover:bg-muted"
+              >
+                {CTA_DEMO_LABEL}
               </Link>
             </div>
           </div>

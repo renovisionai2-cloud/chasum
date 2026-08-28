@@ -6,18 +6,18 @@
 
 export const PRIVATE_ALPHA_PAGE = {
   eyebrow: "Private Alpha",
-  headline: "Build the Future of Business Management With Us",
+  headline: "Help Shape the AI Operating System for Service Businesses.",
   paragraphs: [
-    "Every great platform starts with a small group of businesses that believe there's a better way.",
+    "Every great platform starts with a small group of service businesses that believe there's a better way.",
     "Our Design Partners don't just use Chasum—they help shape it through real feedback, real businesses, and real experiences.",
-    "Together, we're building software that solves real business problems instead of adding unnecessary complexity.",
+    "Together, we're building an AI Business Operating System around the workflows you already run.",
   ],
 } as const;
 
 export const PRIVATE_ALPHA_STARTING_SMALL = {
   title: "Why We're Starting Small",
   paragraphs: [
-    "We're intentionally welcoming a limited number of businesses into Chasum.",
+    "We're intentionally welcoming a limited number of service businesses into Chasum.",
     "This allows us to work closely with every Design Partner, understand real workflows, and build features that make a meaningful difference.",
     "Instead of rushing to launch hundreds of features, we're focused on building the right features—one improvement at a time.",
   ],
@@ -36,11 +36,11 @@ export const PRIVATE_ALPHA_BENEFITS = {
     },
     {
       title: "Direct Product Influence",
-      detail: "Your feedback helps decide what we build next.",
+      detail: "Your feedback helps shape our priorities.",
       icon: "influence" as const,
     },
     {
-      title: "Priority Support",
+      title: "Direct Team Support",
       detail:
         "Work directly with our team during onboarding and beyond.",
       icon: "support" as const,
@@ -48,17 +48,17 @@ export const PRIVATE_ALPHA_BENEFITS = {
     {
       title: "Personal Onboarding",
       detail:
-        "We'll help configure Chasum around your business—not the other way around.",
+        "We'll help set up the current product around how your business already operates.",
       icon: "onboarding" as const,
     },
     {
       title: "Help Shape Summer",
       detail:
-        "Your real-world experience helps make Summer a smarter AI Business Manager.",
+        "Your real-world experience helps improve workflows, product behavior, and how useful Summer is as an AI Business Manager.",
       icon: "summer" as const,
     },
     {
-      title: "Founder Access",
+      title: "Direct Access to the Chasum Team",
       detail:
         "Share ideas directly with the people building Chasum.",
       icon: "founder" as const,
@@ -80,17 +80,19 @@ export const PRIVATE_ALPHA_STEPS = {
       step: 2,
       title: "Meet Our Team",
       detail:
-        "We'll learn about your goals, workflows, and challenges.",
+        "We'll review your application and talk through your goals, workflows, and challenges.",
     },
     {
       step: 3,
       title: "Personal Setup",
-      detail: "We'll help configure Chasum around your business.",
+      detail:
+        "After you're accepted, we'll help set up Chasum around your business.",
     },
     {
       step: 4,
       title: "Use Chasum",
-      detail: "Begin using Chasum in your real daily operations.",
+      detail:
+        "Accepted partners begin using Chasum in real daily operations.",
     },
     {
       step: 5,
@@ -102,7 +104,7 @@ export const PRIVATE_ALPHA_STEPS = {
       step: 6,
       title: "Watch Chasum Improve",
       detail:
-        "See your feedback influence the product as it develops.",
+        "See your feedback inform ongoing improvements to the product.",
     },
   ],
 } as const;
@@ -110,26 +112,30 @@ export const PRIVATE_ALPHA_STEPS = {
 export const PRIVATE_ALPHA_AUDIENCE = {
   title: "Who We're Looking For",
   subtitle:
-    "Industry experience and a desire to improve matter more than company size.",
+    "Real service businesses using Chasum in daily operations matter more than company size.",
   cards: [
     {
       title: "Simplify operations",
-      detail: "Businesses that want clearer workflows and less daily friction.",
+      detail:
+        "Service businesses that want clearer daily workflows across scheduling, customers, staff, payments, communications, and reporting.",
       icon: "simplify" as const,
     },
     {
       title: "Thoughtful feedback",
-      detail: "Owners who enjoy sharing what works—and what still gets in the way.",
+      detail:
+        "Owners and operators willing to use Chasum in real work and tell us what helps—and what still gets in the way.",
       icon: "feedback" as const,
     },
     {
       title: "Technology that saves time",
-      detail: "Teams that believe software should create hours back, not more busywork.",
+      detail:
+        "Teams coordinating appointments, jobs, sessions, or visits who need software that reduces busywork, not more of it.",
       icon: "time" as const,
     },
     {
       title: "Shape the future",
-      detail: "Partners who want to help build the next chapter of Chasum.",
+      detail:
+        "Partners who want their real operational experience to help shape Chasum's next chapter.",
       icon: "future" as const,
     },
   ],
@@ -146,5 +152,5 @@ export const PRIVATE_ALPHA_COMMITMENT = {
 
 export const PRIVATE_ALPHA_CLOSING = {
   title: "We're Not Looking for Thousands of Businesses.\nWe're Looking for the Right Businesses.",
-  lede: "If you're excited about helping shape the future of business management, we'd love to hear from you.",
+  lede: "If you're excited about helping shape the AI Business Operating System for service businesses, we'd love to hear from you.",
 } as const;
