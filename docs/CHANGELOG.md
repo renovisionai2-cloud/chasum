@@ -9,6 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Why Private Alpha PO lock)
+
+**WHY PRIVATE ALPHA — PO LOCKED** (2026-08-27). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → Why Private Alpha (`/private-alpha`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `0afaf3829e00063407eabb9a2d955403527ff754`
+- Implementation parent: `cc1fe6bd0756f903953e3656c7bd09ca1ee998e6`
+- Claude: APPROVED — WHY PRIVATE ALPHA READY FOR PO LOCK
+- PO: APPROVED
+- Canonical lock: [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md)
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED; Industries — LOCKED; Roadmap — LOCKED; Pricing — LOCKED; Why Private Alpha — LOCKED
+- July 2026 Why Private Alpha v1 (`10a9e53`) is superseded; do not restore
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Locked (Marketing — Pricing PO lock)
 
 **PRICING — PO LOCKED** (2026-08-27). Documentation only. Not merged. Not in Production.

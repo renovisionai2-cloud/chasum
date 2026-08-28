@@ -1,5 +1,5 @@
 ---
-description: Resources v1 locked — Why Private Alpha, Security, Status
+description: Resources lock — Why Private Alpha 2026-08-27 PO lock; Security and Status remain July 2026 v1
 globs:
   - lib/marketing/resources-*.ts
   - components/landing/private-alpha-experience.tsx
@@ -11,25 +11,35 @@ globs:
 alwaysApply: false
 ---
 
-# Resources Lock — Resources v1
+# Resources lock
 
-**STATUS:** ✅ APPROVED  
-**VERSION:** Resources v1  
-**STATE:** Locked  
-**Routes:** `/private-alpha`, `/security`, `/status`  
+## Why Private Alpha — PO LOCKED (2026-08-27)
 
-**Why Private Alpha visual SoT:** https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha  
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-27  
+**SHA:** `0afaf3829e00063407eabb9a2d955403527ff754`  
+**Claude:** APPROVED — WHY PRIVATE ALPHA READY FOR PO LOCK  
+**PO:** APPROVED  
+**Route:** `/private-alpha`  
+**Canonical doc:** `docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`
+
+Not in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+
+Do **not** restore July 2026 Why Private Alpha v1 (`10a9e53` / https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha) or the headline “Build the Future of Business Management With Us”.
+
+Headline: Help Shape the AI Operating System for Service Businesses.  
+Summer = AI Business Manager. Direct Team Support is program support — not Pricing Business Priority Support.
+
+## Security and Status — Resources v1 (2026-07-30)
+
 **Security visual SoT:** https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security  
 **Status visual SoT:** https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status  
+**Canonical docs:** `docs/marketing/RESOURCES_V1_LOCK.md`, `docs/marketing/SECURITY_V1_LOCK.md`
 
-**Canonical docs:** `docs/marketing/RESOURCES_V1_LOCK.md`, `docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`, `docs/marketing/SECURITY_V1_LOCK.md`
+## Allowed changes only
 
-## Do not change without explicit product-owner request
+Bug fixes, accessibility, broken responsive layouts, or product-owner-directed claim updates. Manual status updates in `resources-status.ts`. No additional visual polish without an explicit PO request.
 
-Hero, messaging, Design Partner benefits, How Private Alpha Works, Who We're Looking For, Our Commitment, Final CTA, Security cards, Status badges/layout, typography, colors, spacing, animations, or responsive design language.
+## Do not change from Why Private Alpha / Resources work
 
-## Allowed only
-
-Bug fixes · accessibility improvements · responsive/mobile improvements · performance improvements · minor wording corrections · manual status updates in `resources-status.ts`.
-
-Do **not** redesign or restructure Resources pages.
+Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, application runtime, Production.

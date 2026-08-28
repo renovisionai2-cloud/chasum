@@ -15,7 +15,7 @@
 
 | Route | Status | State | Visual source of truth |
 |-------|--------|-------|------------------------|
-| `/private-alpha` | ✅ APPROVED · COMPLETE | **Locked** | https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha |
+| `/private-alpha` | ✅ **APPROVED / LOCKED** · Why Private Alpha PO lock · 2026-08-27 | **Locked** | Branch `cursor/marketing-os-positioning` @ `0afaf3829e00063407eabb9a2d955403527ff754` — **not Production**. Canonical: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md). July 2026 Preview `10a9e53` is **superseded**. |
 | `/security` | ✅ APPROVED · COMPLETE | **Locked** | https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security |
 | `/status` | ✅ APPROVED | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status |
 
@@ -40,9 +40,7 @@ Security detail lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)
 
 ## What is locked
 
-The full Resources experience — Why Private Alpha, Security, and System Status — including hero copy, sections, cards, journey, status badges, layout, spacing, typography, icons, colors, animations, and responsive behavior.
-
-Do **not** redesign or polish unless the product owner explicitly requests it, or status facts require an honest update.
+The Resources umbrella remains locked for **Security** and **System Status** at the 2026-07-30 baselines. **Why Private Alpha** is locked at the 2026-08-27 current-generation PO lock (`0afaf3829e00063407eabb9a2d955403527ff754`). Do **not** restore the July 2026 Why Private Alpha Preview as the current product-truth baseline. Full Why Private Alpha lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md).
 
 ### Page questions (do not dilute)
 
@@ -70,7 +68,7 @@ Do **not** redesign or polish unless the product owner explicitly requests it, o
 ## Related
 
 - Why Private Alpha: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)
-- Pricing: [`PRICING_PAGE_V1_LOCK.md`](./PRICING_PAGE_V1_LOCK.md)
+- Pricing: [`PRICING_V1_LOCK.md`](./PRICING_V1_LOCK.md) (current). Historical July Pricing: [`PRICING_PAGE_V1_LOCK.md`](./PRICING_PAGE_V1_LOCK.md).
 - Summer Onboarding: [`SUMMER_ONBOARDING_V1_LOCK.md`](./SUMMER_ONBOARDING_V1_LOCK.md)
 - Roadmap: [`ROADMAP_V1_LOCK.md`](./ROADMAP_V1_LOCK.md)
 

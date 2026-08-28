@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-27  
-**Updated by:** Pricing PO lock stamped on `cursor/marketing-os-positioning`. **Not in Production.** Homepage / Platform / Meet Summer / Product Tour / Industries / Roadmap / Pricing are PO locked. Prior Roadmap PO lock (`f6ffee1`), Industries PO lock (`d6209db`), and 2026-08-25 native-app governance restamp remain in force.
+**Updated by:** Why Private Alpha PO lock stamped on `cursor/marketing-os-positioning`. **Not in Production.** Homepage / Platform / Meet Summer / Product Tour / Industries / Roadmap / Pricing / Why Private Alpha are PO locked. Prior Pricing PO lock (`f44fea2`), Roadmap PO lock (`f6ffee1`), Industries PO lock (`d6209db`), and 2026-08-25 native-app governance restamp remain in force.
 
 ---
 
@@ -25,7 +25,7 @@
 - **Launch-criticality governance:** [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) — **18 workstreams**. Planning targets are not public promises. Launch criticality does not override quality. Permanent **AI Operating-System Preservation Check** sits beside launch criticality, world-class quality, and next-generation advantage.
 - **Native mobile / App Store:** **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** (workstream 18). One reusable multi-tenant Chasum app. GVM, Chasum HQ, and future businesses are normal tenants — no mobile forks. Working technical direction: **React Native + Expo**. Final stack: **TO BE CONFIRMED DURING NATIVE APP PREFLIGHT**. Begin material implementation after the Native App Start Gate, early enough for iOS/Android testing **before broader public launch**. Not Phase 5. Commercial v1 does **not** currently require App Store / Play apps.
 - **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
-- **Marketing website PO review (branch only — not Production):** Homepage — **LOCKED**; Platform — **LOCKED**; Meet Summer — **LOCKED**; Product Tour — **LOCKED**; Industries — **LOCKED**; Roadmap — **LOCKED**; Pricing — **LOCKED**. Pricing PO lock SHA `f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`. Full lock: [`docs/marketing/PRICING_V1_LOCK.md`](./marketing/PRICING_V1_LOCK.md). Roadmap remains locked at `f6ffee11b04ef423c9ae912e2386d3e427f41fad`. Industries remains locked at `d6209db7dfa0bb532408142b0a05a2f22774a95f`. Product Tour remains locked at `7bb5e3fba54fe8dc36ae1e94a29196030802dcee`. Do not restore Official Pricing Page v1 (`83fbaed`) or Roadmap v1.
+- **Marketing website PO review (branch only — not Production):** Homepage — **LOCKED**; Platform — **LOCKED**; Meet Summer — **LOCKED**; Product Tour — **LOCKED**; Industries — **LOCKED**; Roadmap — **LOCKED**; Pricing — **LOCKED**; Why Private Alpha — **LOCKED**. Why Private Alpha PO lock SHA `0afaf3829e00063407eabb9a2d955403527ff754`. Full lock: [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md). Pricing remains locked at `f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`. Roadmap remains locked at `f6ffee11b04ef423c9ae912e2386d3e427f41fad`. Industries remains locked at `d6209db7dfa0bb532408142b0a05a2f22774a95f`. Product Tour remains locked at `7bb5e3fba54fe8dc36ae1e94a29196030802dcee`. Do not restore Official Pricing Page v1 (`83fbaed`), Roadmap v1, or July 2026 Why Private Alpha v1 (`10a9e53`).
 
 ### ACTIVE
 
@@ -60,7 +60,7 @@ Strategic next (from the launch tracker):
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
 
-**Marketing (when directed):** Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, and Pricing are **PO LOCKED** on `cursor/marketing-os-positioning` — **not in Production**. Resources, Why Private Alpha, and Security remain previously locked. See **Approved marketing pages (locks)** below.
+**Marketing (when directed):** Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, and Why Private Alpha are **PO LOCKED** on `cursor/marketing-os-positioning` — **not in Production**. Security and Status remain previously locked. See **Approved marketing pages (locks)** below.
 
 ---
 
@@ -87,8 +87,8 @@ Strategic next (from the launch tracker):
 | [`docs/marketing/PRICING_PAGE_V1_LOCK.md`](./marketing/PRICING_PAGE_V1_LOCK.md) | **Historical** Official Pricing Page v1 (2026-07-30) — superseded; do not restore |
 | [`docs/marketing/SUMMER_ONBOARDING_V1_LOCK.md`](./marketing/SUMMER_ONBOARDING_V1_LOCK.md) | **Summer Onboarding lock** — Meet Summer guided discovery v1 |
 | [`docs/marketing/ROADMAP_V1_LOCK.md`](./marketing/ROADMAP_V1_LOCK.md) | **Roadmap PO lock** — 2026-08-27 SHA `f6ffee1` (branch; not Production) |
-| [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md) | **Resources lock** — Why Private Alpha, Security, Status v1 |
-| [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md) | **Why Private Alpha lock** — v1 approved baseline |
+| [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md) | **Resources lock** — Security and Status v1; Why Private Alpha points to 2026-08-27 PO lock |
+| [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md) | **Why Private Alpha PO lock** — 2026-08-27 SHA `0afaf38` (branch; not Production) |
 | [`docs/marketing/SECURITY_V1_LOCK.md`](./marketing/SECURITY_V1_LOCK.md) | **Security lock** — v1 approved baseline |
 | [`docs/marketing/PRODUCT_TOUR_V1_LOCK.md`](./marketing/PRODUCT_TOUR_V1_LOCK.md) | **Product Tour PO lock** — 2026-08-26 SHA `7bb5e3f` (branch; not Production) |
 | [`docs/marketing/INDUSTRIES_V1_LOCK.md`](./marketing/INDUSTRIES_V1_LOCK.md) | **Industries PO lock** — 2026-08-26 SHA `d6209db` (branch; not Production) |
@@ -384,7 +384,7 @@ Shared money recognition, commerce + platform events, business operating context
 | **Summer Onboarding** (`/meet-summer` guided) | Summer Onboarding **v1** | ✅ **APPROVED** | **Locked** | https://chasum-7o8esta4x-renovisionappcom.vercel.app/meet-summer |
 | **Roadmap** (`/roadmap`) | Roadmap PO lock · 2026-08-27 | ✅ **APPROVED / LOCKED** | **Locked** | https://chasum-gm2bnzx3x-renovisionappcom.vercel.app/roadmap @ `f6ffee11b04ef423c9ae912e2386d3e427f41fad` — **not Production** |
 | **Resources** (`/status`) | Resources **v1** | ✅ **APPROVED** | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status |
-| **Why Private Alpha** (`/private-alpha`) | Why Private Alpha **v1** | ✅ **APPROVED · COMPLETE** | **Locked** | https://chasum-3lygrcwi7-renovisionappcom.vercel.app/private-alpha |
+| **Why Private Alpha** (`/private-alpha`) | Why Private Alpha PO lock · 2026-08-27 | ✅ **APPROVED / LOCKED** | **Locked** | Branch `cursor/marketing-os-positioning` @ `0afaf3829e00063407eabb9a2d955403527ff754` — **not Production** |
 | **Security** (`/security`) | Security **v1** | ✅ **APPROVED · COMPLETE** | **Locked** | https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security |
 | **Homepage** (`/`) | Marketing OS positioning · 2026-08-26 | ✅ **APPROVED / LOCKED** | **Locked** | Branch `cursor/marketing-os-positioning` @ `6f5a31e1a822ff8c0e0cf177a451bb2821019c52` — **not Production** |
 | **Platform** (`/platform`) | Marketing OS positioning · 2026-08-26 | ✅ **APPROVED / LOCKED** | **Locked** | Branch `cursor/marketing-os-positioning` @ `fe65db7f3c934644aec6158f257f2921079c93b7` — **not Production** |
@@ -398,7 +398,9 @@ Shared money recognition, commerce + platform events, business operating context
 
 **Roadmap is complete and locked** as the current-generation four-stage product-truth baseline for `/roadmap` (2026-08-27). Roadmap **v1** (Available in Chasum Today / Coming Soon / Future Vision) is **superseded** and must not be restored. Do **not** redesign or polish unless the product owner explicitly requests it. This lock is **not** in Production. Full lock rules: [`docs/marketing/ROADMAP_V1_LOCK.md`](./marketing/ROADMAP_V1_LOCK.md).
 
-**Resources is complete and locked** — Why Private Alpha, Security, and System Status. Full lock rules: [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md), [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md), [`docs/marketing/SECURITY_V1_LOCK.md`](./marketing/SECURITY_V1_LOCK.md).
+**Why Private Alpha is complete and locked** as the current-generation Design Partner program baseline for `/private-alpha` (2026-08-27). Why Private Alpha **v1** (2026-07-30, `10a9e53`) is **superseded** and must not be restored. Do **not** redesign or polish unless the product owner explicitly requests it. This lock is **not** in Production. Full lock rules: [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md).
+
+**Resources is complete and locked** for Security and System Status at the 2026-07-30 baselines. Why Private Alpha is governed by the 2026-08-27 PO lock above. Full umbrella: [`docs/marketing/RESOURCES_V1_LOCK.md`](./marketing/RESOURCES_V1_LOCK.md), [`docs/marketing/SECURITY_V1_LOCK.md`](./marketing/SECURITY_V1_LOCK.md).
 
 ### Marketing OS positioning — 2026-08-26 PO review (branch; not Production)
 
@@ -411,6 +413,15 @@ Shared money recognition, commerce + platform events, business operating context
 | Industries (`/industries`) | **LOCKED** | `d6209db7dfa0bb532408142b0a05a2f22774a95f` | https://chasum-day6aj97i-renovisionappcom.vercel.app | 2026-08-26 | APPROVED | APPROVED |
 | Roadmap (`/roadmap`) | **LOCKED** | `f6ffee11b04ef423c9ae912e2386d3e427f41fad` | https://chasum-gm2bnzx3x-renovisionappcom.vercel.app/roadmap | 2026-08-27 | APPROVED | APPROVED |
 | Pricing (`/pricing`) | **LOCKED** | `f44fea23e80e14abddd0cf2279b8e199cbc4fb6d` | `cursor/marketing-os-positioning` | 2026-08-27 | APPROVED | APPROVED |
+| Why Private Alpha (`/private-alpha`) | **LOCKED** | `0afaf3829e00063407eabb9a2d955403527ff754` | `cursor/marketing-os-positioning` | 2026-08-27 | APPROVED | APPROVED |
+
+**WHY PRIVATE ALPHA — PO LOCKED**  
+Date: 2026-08-27  
+SHA: `0afaf3829e00063407eabb9a2d955403527ff754`  
+Claude: APPROVED — WHY PRIVATE ALPHA READY FOR PO LOCK  
+PO: APPROVED  
+
+Full Why Private Alpha lock rules: [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md).
 
 **PRICING — PO LOCKED**  
 Date: 2026-08-27  
@@ -447,15 +458,30 @@ PO: APPROVED
 
 Full Product Tour lock rules: [`docs/marketing/PRODUCT_TOUR_V1_LOCK.md`](./marketing/PRODUCT_TOUR_V1_LOCK.md).
 
-These seven surfaces are **not** in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+These eight surfaces are **not** in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
 
-**Next marketing surface:** Not assigned in this stamp. Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, and Pricing are locked on this branch. Summer Onboarding and Resources remain previously locked. Do **not** restore Official Pricing Page v1.
+**Next marketing surface:** Apply page product-truth audit. Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, and Why Private Alpha are locked on this branch. Summer Onboarding, Security, and Status remain previously locked. Do **not** restore Official Pricing Page v1 or July 2026 Why Private Alpha v1.
 
 ---
 
 ## Last completed work
 
-### Most recent (2026-08-27) — Pricing PO lock stamped (documentation only)
+### Most recent (2026-08-27) — Why Private Alpha PO lock stamped (documentation only)
+
+- **WHY PRIVATE ALPHA — PO LOCKED**
+- Date: 2026-08-27
+- Surface: Marketing Website → Why Private Alpha (`/private-alpha`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `0afaf3829e00063407eabb9a2d955403527ff754`
+- Implementation parent: `cc1fe6bd0756f903953e3656c7bd09ca1ee998e6`
+- Claude: APPROVED — WHY PRIVATE ALPHA READY FOR PO LOCK
+- PO: APPROVED
+- Marketing review state: Homepage — **LOCKED**; Platform — **LOCKED**; Meet Summer — **LOCKED**; Product Tour — **LOCKED**; Industries — **LOCKED**; Roadmap — **LOCKED**; Pricing — **LOCKED**; Why Private Alpha — **LOCKED**
+- Canonical lock: [`docs/marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md`](./marketing/WHY_PRIVATE_ALPHA_V1_LOCK.md)
+- July 2026 Why Private Alpha v1 (`10a9e53`) is superseded; do not restore
+- **Not merged. Not in Production.** `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+
+### Immediately prior (2026-08-27) — Pricing PO lock stamped (documentation only)
 
 - **PRICING — PO LOCKED**
 - Date: 2026-08-27
@@ -602,7 +628,7 @@ Preserved for history — **not** current branch instructions:
 cursor/marketing-os-positioning
 ```
 
-Marketing OS positioning, the Product Tour PO lock (`7bb5e3fba54fe8dc36ae1e94a29196030802dcee`), the Industries PO lock (`d6209db7dfa0bb532408142b0a05a2f22774a95f`), the Roadmap PO lock (`f6ffee11b04ef423c9ae912e2386d3e427f41fad`), and the Pricing PO lock (`f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`) live on this branch. **Not merged to `main`.** **Not in Production.**
+Marketing OS positioning, the Product Tour PO lock (`7bb5e3fba54fe8dc36ae1e94a29196030802dcee`), the Industries PO lock (`d6209db7dfa0bb532408142b0a05a2f22774a95f`), the Roadmap PO lock (`f6ffee11b04ef423c9ae912e2386d3e427f41fad`), the Pricing PO lock (`f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`), and the Why Private Alpha PO lock (`0afaf3829e00063407eabb9a2d955403527ff754`) live on this branch. **Not merged to `main`.** **Not in Production.**
 
 World Class Phases 1–4A remain merged to `main`. Phase 5 remains PREFLIGHT REQUIRED / NOT STARTED. Do **not** merge or rebase `origin/cursor/world-class-portal-foundation`.
 
@@ -630,7 +656,7 @@ World Class Phases 1–4A remain merged to `main`. Phase 5 remains PREFLIGHT REQ
 | **Subject** | `docs: restore pre-launch native app strategy (#31)` |
 | **Date** | 2026-08-26 |
 
-Pricing PO lock application SHA `f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`, Roadmap PO lock application SHA `f6ffee11b04ef423c9ae912e2386d3e427f41fad`, Industries PO lock application SHA `d6209db7dfa0bb532408142b0a05a2f22774a95f`, and Product Tour PO lock application SHA `7bb5e3fba54fe8dc36ae1e94a29196030802dcee` are on `cursor/marketing-os-positioning` only. They are **not** on `main`.
+Why Private Alpha PO lock application SHA `0afaf3829e00063407eabb9a2d955403527ff754`, Pricing PO lock application SHA `f44fea23e80e14abddd0cf2279b8e199cbc4fb6d`, Roadmap PO lock application SHA `f6ffee11b04ef423c9ae912e2386d3e427f41fad`, Industries PO lock application SHA `d6209db7dfa0bb532408142b0a05a2f22774a95f`, and Product Tour PO lock application SHA `7bb5e3fba54fe8dc36ae1e94a29196030802dcee` are on `cursor/marketing-os-positioning` only. They are **not** on `main`.
 
 ### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
 
@@ -646,7 +672,7 @@ Do **not** infer that `main` (`476af17`) has been deployed to Production. This s
 
 ## Uncommitted work
 
-None expected after this documentation stamp. Application/runtime files are unchanged by the Pricing PO lock stamp.
+None expected after this documentation stamp. Application/runtime files are unchanged by the Why Private Alpha PO lock stamp.
 
 ---
 
@@ -681,6 +707,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 ### Marketing discipline
 
 - Roadmap status labels (**Available in Private Alpha / In Development / Coming Next / Future Direction**) belong on Roadmap — **not** inside Pricing plan inclusions. **Pricing deferred debt (do not fix from this lock):** Business 6-vs-10 runtime/catalog/DB; SaaS subscription currency unlocked (bare `$`); Memberships & Packages plan entitlement undecided; Invoicing runtime plan enforcement; public self-serve billing closed; Meet Summer embedded Apply-form vocabulary; unused `PRICING_FINAL_SECONDARY_CTA`.
+- **Why Private Alpha deferred debt (do not fix from this lock):** shared Schedule a Demo → `/contact#walkthrough` (no self-serve calendar); optional Apply source tracking; Meet Summer embedded Apply-form vocabulary; mixed-generation copy on already-locked pages; Ask Summer 390 overlap unconfirmed; internal benefit icon key `founder`.
 - Never market unsupported SLA, unfinished automation, or staff login as included.
 
 ---
@@ -695,7 +722,7 @@ Locked order for this chapter:
 4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.
 5. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
 6. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
-7. **Honest Private Alpha GTM** — locked marketing pages (Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing on branch; Resources historically). Product Truth Matrix.
+7. **Honest Private Alpha GTM** — locked marketing pages (Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha on branch; Security / Status historically). Next: Apply page product-truth audit. Product Truth Matrix.
 8. **Charge-with-integrity path** — Stripe and self-serve only when operationally ready.
 
 ---
