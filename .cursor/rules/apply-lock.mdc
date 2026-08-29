@@ -1,0 +1,39 @@
+---
+description: Apply PO lock — lead capture only, fail-closed Resend delivery, do not polish without PO request, do not edit locked pages
+globs:
+  - app/(marketing)/apply/**
+  - components/landing/design-partner-form.tsx
+  - lib/actions/design-partner.ts
+  - lib/marketing/apply-validation.ts
+alwaysApply: false
+---
+
+# Apply — PO LOCKED
+
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-29  
+**SHA:** `c5a39b2d97b4eb59c50f353a7e3be8806085cac0`  
+**Claude:** APPROVED — APPLY READY FOR PO LOCK  
+**PO:** APPROVED  
+**Route:** `/apply`  
+**Canonical doc:** `docs/marketing/APPLY_V1_LOCK.md`
+
+Not in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+
+Apply is Private Alpha / Design Partner **lead capture only**. It must not create an account, tenant, subscription, trial, Stripe customer, billing state, entitlement, or onboarding state.
+
+Success UI is allowed only after Resend accepts the send with a message id. Missing `RESEND_API_KEY`, provider throw, provider rejection, missing message id, and unexpected delivery failure must fail closed. Do **not** reintroduce false success.
+
+Recipient: `sales@chasumai.com`. Applicant email is Reply-To. Business Type remains required. Plan query values are acquisition intent only — never `subscription_plan_key`.
+
+Apply-specific required markers, inline validation, and success clarification must stay scoped to Apply. Do not change locked Meet Summer rendered copy/layout.
+
+Preview requires `RESEND_API_KEY` for truthful delivery testing. Never print or commit the secret value.
+
+## Allowed changes only
+
+Bug fixes, broken responsive layouts, accessibility, or product-owner-directed claim/delivery updates. No additional visual polish without an explicit PO request.
+
+## Do not change from Apply work
+
+Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, application runtime outside Apply lead capture, Production.

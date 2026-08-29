@@ -9,6 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Apply PO lock)
+
+**APPLY — PO LOCKED** (2026-08-29). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → Apply (`/apply`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `c5a39b2d97b4eb59c50f353a7e3be8806085cac0`
+- Why Private Alpha lock documentation parent: `b1b9d0a02bf69e6ed5464a2b54148ad6916044e2`
+- Claude: APPROVED — APPLY READY FOR PO LOCK
+- PO: APPROVED
+- Canonical lock: [`docs/marketing/APPLY_V1_LOCK.md`](./marketing/APPLY_V1_LOCK.md)
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED; Industries — LOCKED; Roadmap — LOCKED; Pricing — LOCKED; Why Private Alpha — LOCKED; Apply — LOCKED
+- False-success Preview result is not current truth; success requires verified Resend acceptance
+- Preview requires `RESEND_API_KEY` for truthful delivery testing (secret not documented)
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Locked (Marketing — Why Private Alpha PO lock)
 
 **WHY PRIVATE ALPHA — PO LOCKED** (2026-08-27). Documentation only. Not merged. Not in Production.
