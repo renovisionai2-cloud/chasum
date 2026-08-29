@@ -9,6 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Contact PO lock)
+
+**CONTACT — PO LOCKED** (2026-08-29). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → Contact (`/contact`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `29b70486c3e7f3509616015359d609151ebfa53e`
+- Apply lock documentation parent: `3b3dbdf4af47b23f5af92036930424e487cc19d0`
+- Claude: APPROVED — CONTACT READY FOR PO LOCK
+- PO: APPROVED
+- Visual: CONTACT VISUAL REVIEW — PASS
+- Canonical lock: [`docs/marketing/CONTACT_V1_LOCK.md`](./marketing/CONTACT_V1_LOCK.md)
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED; Industries — LOCKED; Roadmap — LOCKED; Pricing — LOCKED; Why Private Alpha — LOCKED; Apply — LOCKED; Contact — LOCKED
+- Routing / link page only; Contact-local CTA **Request a Walkthrough** (mailto); shared `CTA_DEMO_LABEL` protected
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Locked (Marketing — Apply PO lock)
 
 **APPLY — PO LOCKED** (2026-08-29). Documentation only. Not merged. Not in Production.

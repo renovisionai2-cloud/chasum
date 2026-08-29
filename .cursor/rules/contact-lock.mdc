@@ -1,0 +1,33 @@
+---
+description: Contact PO lock — routing/link page only, Request a Walkthrough mailto, do not polish without PO request, do not edit locked pages
+globs:
+  - app/(marketing)/contact/**
+alwaysApply: false
+---
+
+# Contact — PO LOCKED
+
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-29  
+**SHA:** `29b70486c3e7f3509616015359d609151ebfa53e`  
+**Claude:** APPROVED — CONTACT READY FOR PO LOCK  
+**PO:** APPROVED  
+**Visual:** CONTACT VISUAL REVIEW — PASS  
+**Route:** `/contact`  
+**Canonical doc:** `docs/marketing/CONTACT_V1_LOCK.md`
+
+Not in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+
+Contact is a **routing / link page only**. Do not add a Contact form, server action, Resend send, CRM, DB capture, calendar scheduler, or false-success UI without a deliberate future product decision.
+
+Contact-local walkthrough CTA is **Request a Walkthrough** → `mailto:sales@chasumai.com?subject=Chasum%20Private%20Alpha%20Walkthrough`. Do not change Contact back to “Schedule a Demo” unless real scheduling is deliberately introduced. Do not modify shared `CTA_DEMO_LABEL`.
+
+Inbox remains `sales@chasumai.com`. Support on Contact is current-alpha routing, not Pricing Business Priority Support. Card CTAs must stay one interactive element (Link or `<a>` styled as a button — never nested).
+
+## Allowed changes only
+
+Bug fixes, broken responsive layouts, accessibility, or product-owner-directed claim/routing updates. No additional visual polish without an explicit PO request.
+
+## Do not change from Contact work
+
+Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, application runtime, Production.

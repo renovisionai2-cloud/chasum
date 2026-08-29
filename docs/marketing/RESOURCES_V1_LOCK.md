@@ -69,6 +69,7 @@ The Resources umbrella remains locked for **Security** and **System Status** at 
 
 - Why Private Alpha: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)
 - Apply: [`APPLY_V1_LOCK.md`](./APPLY_V1_LOCK.md)
+- Contact: [`CONTACT_V1_LOCK.md`](./CONTACT_V1_LOCK.md)
 - Pricing: [`PRICING_V1_LOCK.md`](./PRICING_V1_LOCK.md) (current). Historical July Pricing: [`PRICING_PAGE_V1_LOCK.md`](./PRICING_PAGE_V1_LOCK.md).
 - Summer Onboarding: [`SUMMER_ONBOARDING_V1_LOCK.md`](./SUMMER_ONBOARDING_V1_LOCK.md)
 - Roadmap: [`ROADMAP_V1_LOCK.md`](./ROADMAP_V1_LOCK.md)

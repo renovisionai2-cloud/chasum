@@ -329,7 +329,7 @@ Future edits to Apply are permitted **only** for:
 
 **No additional visual polish** without an explicit product-owner request.
 
-Do **not** edit locked Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, or Why Private Alpha as part of Apply work.
+Do **not** edit locked Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, or Contact as part of Apply work.
 
 Agent rule: `.cursor/rules/apply-lock.mdc`
 
@@ -337,7 +337,8 @@ Agent rule: `.cursor/rules/apply-lock.mdc`
 
 ## Related
 
-- Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, and Why Private Alpha rendered surfaces from the same marketing OS chapter are also **LOCKED** (see [`docs/CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md)). Those locks are **not** in Production.
+- Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, and Contact rendered surfaces from the same marketing OS chapter are also **LOCKED** (see [`docs/CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md)). Those locks are **not** in Production.
+- Contact: [`CONTACT_V1_LOCK.md`](./CONTACT_V1_LOCK.md)
 - Why Private Alpha: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)
 - Pricing: [`PRICING_V1_LOCK.md`](./PRICING_V1_LOCK.md)
 - Product truth: [`PRODUCT_TRUTH_MATRIX.md`](./PRODUCT_TRUTH_MATRIX.md)
