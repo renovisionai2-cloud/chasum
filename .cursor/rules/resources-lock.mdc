@@ -1,5 +1,5 @@
 ---
-description: Resources lock — Why Private Alpha 2026-08-27 PO lock; Security 2026-08-30 PO lock; Status remains July 2026 v1
+description: Resources lock — Why Private Alpha 2026-08-27 PO lock; Security 2026-08-30 PO lock; Status 2026-08-30 PO lock
 globs:
   - lib/marketing/resources-*.ts
   - components/landing/private-alpha-experience.tsx
@@ -43,14 +43,22 @@ Summer = AI Business Manager. Direct Team Support is program support — not Pri
 
 July 2026 Security v1 (`4013db0` / https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security) is **superseded**. Do **not** restore Stripe/Twilio as unqualified current infrastructure or Automatic Backups.
 
-## Status — Resources v1 (2026-07-30)
+## Status — PO LOCKED (2026-08-30)
 
-**Status visual SoT:** https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status  
-**Canonical docs:** `docs/marketing/RESOURCES_V1_LOCK.md`
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-30  
+**SHA:** `c855324caa0a973326018ab703254d4f8305fc0e`  
+**Claude:** APPROVED — STATUS READY FOR PO LOCK  
+**PO:** APPROVED  
+**Visual:** STATUS PO VISUAL REVIEW — PASS  
+**Route:** `/status`  
+**Canonical doc:** `docs/marketing/STATUS_V1_LOCK.md`
+
+July 2026 Status (https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status; Last updated 2026-07-30; Public booking Operational) is **superseded**. Public booking is Limited. Status is static / manually reviewed — not live monitoring.
 
 ## Allowed changes only
 
-Bug fixes, accessibility, broken responsive layouts, or product-owner-directed claim updates. Manual status updates in `resources-status.ts`. No additional visual polish without an explicit PO request.
+Bug fixes, accessibility, broken responsive layouts, or product-owner-directed claim updates. Genuine manual Status truth updates in `resources-status.ts` after reviewing rows/issues/maintenance. No additional visual polish without an explicit PO request.
 
 ## Do not change from Why Private Alpha / Resources work
 

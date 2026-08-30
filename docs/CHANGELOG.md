@@ -9,6 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Status PO lock)
+
+**STATUS — PO LOCKED** (2026-08-30). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → System Status (`/status`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `c855324caa0a973326018ab703254d4f8305fc0e`
+- Security lock documentation parent: `bd61abd6f46e8db2621dcd7ed9a861849f558546`
+- Claude: APPROVED — STATUS READY FOR PO LOCK
+- PO: APPROVED
+- Visual: STATUS PO VISUAL REVIEW — PASS
+- Canonical lock: [`docs/marketing/STATUS_V1_LOCK.md`](./marketing/STATUS_V1_LOCK.md)
+- July 2026 Resources Status is superseded; do not restore Public booking Operational or empty Known Issues
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED; Industries — LOCKED; Roadmap — LOCKED; Pricing — LOCKED; Why Private Alpha — LOCKED; Apply — LOCKED; Contact — LOCKED; Security — LOCKED; Status — LOCKED
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Locked (Marketing — Security PO lock)
 
 **SECURITY — PO LOCKED** (2026-08-30). Documentation only. Not merged. Not in Production.

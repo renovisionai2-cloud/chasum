@@ -249,7 +249,7 @@ Future edits to Security are permitted **only** for:
 
 **No additional visual polish** without an explicit product-owner request.
 
-Do **not** edit locked Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, or Contact as part of Security work.
+Do **not** edit locked Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, Contact, or Status as part of Security work.
 
 Agent rule: `.cursor/rules/security-lock.mdc`
 
@@ -257,7 +257,8 @@ Agent rule: `.cursor/rules/security-lock.mdc`
 
 ## Related
 
-- Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, and Contact rendered surfaces from the same marketing OS chapter are also **LOCKED** (see [`docs/CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md)). Those locks are **not** in Production.
+- Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, Contact, and Status rendered surfaces from the same marketing OS chapter are also **LOCKED** (see [`docs/CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md)). Those locks are **not** in Production.
+- Status: [`STATUS_V1_LOCK.md`](./STATUS_V1_LOCK.md)
 - Contact: [`CONTACT_V1_LOCK.md`](./CONTACT_V1_LOCK.md)
-- Resources umbrella / Status: [`RESOURCES_V1_LOCK.md`](./RESOURCES_V1_LOCK.md)
+- Resources umbrella: [`RESOURCES_V1_LOCK.md`](./RESOURCES_V1_LOCK.md)
 - Product truth: [`PRODUCT_TRUTH_MATRIX.md`](./PRODUCT_TRUTH_MATRIX.md)

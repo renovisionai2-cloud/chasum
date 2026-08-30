@@ -1,0 +1,41 @@
+---
+description: Status PO lock — current-generation 2026-08-30 manual operations truth; do not restore July Operational booking; do not polish without PO request
+globs:
+  - app/(marketing)/status/**
+  - components/landing/status-experience.tsx
+  - lib/marketing/resources-status.ts
+alwaysApply: false
+---
+
+# Status — PO LOCKED
+
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-30  
+**SHA:** `c855324caa0a973326018ab703254d4f8305fc0e`  
+**Claude:** APPROVED — STATUS READY FOR PO LOCK  
+**PO:** APPROVED  
+**Visual:** STATUS PO VISUAL REVIEW — PASS  
+**Route:** `/status`  
+**Canonical doc:** `docs/marketing/STATUS_V1_LOCK.md`
+
+Not in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+
+July 2026 Resources Status (https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status; Last updated 2026-07-30; Public booking Operational; empty Known Issues) is **superseded**.
+
+Static / manually reviewed during Private Alpha. Not live monitoring, SLA, uptime %, Statuspage.io, Better Uptime, or PagerDuty.
+
+Stamp: Last manually reviewed: 2026-08-30. Operational = no known service interruption as of the last manual review.
+
+Rows: Application and dashboard Operational; Public booking Limited; Database and authentication Operational; Customer email delivery / SMS delivery / Customer payment integrations Configuration Required.
+
+Known Issue: specific-staff public booking confirmation may fail; no appointment created; a fix is in progress. Do not expose RPC/migration/SHA internals. Do not list optional/unassigned staff or unverified cron `next_retry_at`.
+
+CTA: Contact Support → `/contact#support`. One Link. sales@chasumai.com.
+
+## Allowed changes only
+
+Bug fixes, broken responsive layouts, accessibility, PO-directed claim updates, or genuine manual Status truth updates after reviewing rows/issues/maintenance (never bump the date cosmetically). No additional visual polish without an explicit PO request.
+
+## Do not change from Status work
+
+Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, Contact, Security, booking implementation, application runtime, Production.

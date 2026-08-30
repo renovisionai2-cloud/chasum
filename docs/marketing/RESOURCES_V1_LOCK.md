@@ -17,10 +17,11 @@
 |-------|--------|-------|------------------------|
 | `/private-alpha` | ✅ **APPROVED / LOCKED** · Why Private Alpha PO lock · 2026-08-27 | **Locked** | Branch `cursor/marketing-os-positioning` @ `0afaf3829e00063407eabb9a2d955403527ff754` — **not Production**. Canonical: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md). July 2026 Preview `10a9e53` is **superseded**. |
 | `/security` | ✅ **APPROVED / LOCKED** · Security PO lock · 2026-08-30 | **Locked** | Branch `cursor/marketing-os-positioning` @ `8a4be655edd74c5cd7875d68acf93b476ac553fe` — **not Production**. Canonical: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md). July 2026 Preview `4013db0` is **superseded**. |
-| `/status` | ✅ APPROVED | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status |
+| `/status` | ✅ **APPROVED / LOCKED** · Status PO lock · 2026-08-30 | **Locked** | Branch `cursor/marketing-os-positioning` @ `c855324caa0a973326018ab703254d4f8305fc0e` — **not Production**. Canonical: [`STATUS_V1_LOCK.md`](./STATUS_V1_LOCK.md). July 2026 Preview is **superseded**. |
 
 Why Private Alpha detail lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)  
-Security detail lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)
+Security detail lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)  
+Status detail lock: [`STATUS_V1_LOCK.md`](./STATUS_V1_LOCK.md)
 
 ---
 
@@ -40,7 +41,7 @@ Security detail lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)
 
 ## What is locked
 
-The Resources umbrella remains locked for **System Status** at the 2026-07-30 baseline. **Security** is locked at the 2026-08-30 current-generation PO lock (`8a4be655edd74c5cd7875d68acf93b476ac553fe`). **Why Private Alpha** is locked at the 2026-08-27 current-generation PO lock (`0afaf3829e00063407eabb9a2d955403527ff754`). Do **not** restore the July 2026 Security Preview (`4013db0`) or Why Private Alpha Preview as the current product-truth baseline. Full Security lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md). Full Why Private Alpha lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md).
+**Status** is locked at the 2026-08-30 current-generation PO lock (`c855324caa0a973326018ab703254d4f8305fc0e`). The July 2026 Status Preview is **superseded**. **Security** is locked at the 2026-08-30 current-generation PO lock (`8a4be655edd74c5cd7875d68acf93b476ac553fe`). **Why Private Alpha** is locked at the 2026-08-27 current-generation PO lock (`0afaf3829e00063407eabb9a2d955403527ff754`). Do **not** restore the July 2026 Status, Security, or Why Private Alpha Previews as current product-truth. Full Status lock: [`STATUS_V1_LOCK.md`](./STATUS_V1_LOCK.md). Full Security lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md). Full Why Private Alpha lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md).
 
 ### Page questions (do not dilute)
 
@@ -59,7 +60,7 @@ The Resources umbrella remains locked for **System Status** at the 2026-07-30 ba
 3. Responsive / mobile improvements  
 4. Performance improvements  
 5. Minor wording corrections  
-6. Manual status updates (`lib/marketing/resources-status.ts`) when services change  
+6. Genuine manual Status truth updates (`lib/marketing/resources-status.ts`) after reviewing rows, Known Issues, and planned maintenance — see [`STATUS_V1_LOCK.md`](./STATUS_V1_LOCK.md)
 
 **No redesigns or visual polish** without an explicit product-owner request.
 
@@ -67,7 +68,9 @@ The Resources umbrella remains locked for **System Status** at the 2026-07-30 ba
 
 ## Related
 
+- Status: [`STATUS_V1_LOCK.md`](./STATUS_V1_LOCK.md)
 - Why Private Alpha: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)
+- Security: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)
 - Apply: [`APPLY_V1_LOCK.md`](./APPLY_V1_LOCK.md)
 - Contact: [`CONTACT_V1_LOCK.md`](./CONTACT_V1_LOCK.md)
 - Pricing: [`PRICING_V1_LOCK.md`](./PRICING_V1_LOCK.md) (current). Historical July Pricing: [`PRICING_PAGE_V1_LOCK.md`](./PRICING_PAGE_V1_LOCK.md).
