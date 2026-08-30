@@ -1,7 +1,6 @@
 "use client";
 
 import { Reveal } from "@/components/landing/reveal";
-import { Button } from "@/components/ui/button";
 import { CONTACT_HREF } from "@/lib/marketing/alpha";
 import {
   STATUS_ISSUES,
@@ -37,7 +36,7 @@ function StatusBadge({ status }: { status: StatusLevel }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide",
+        "inline-flex shrink-0 items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide",
         statusBadgeClass(status),
       )}
     >
@@ -45,6 +44,9 @@ function StatusBadge({ status }: { status: StatusLevel }) {
     </span>
   );
 }
+
+const statusCtaClassName =
+  "marketing-cta-button inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background h-12 min-h-12 px-8 text-base touch-manipulation rounded-full bg-primary text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90 active:scale-[0.98]";
 
 export function StatusExperience() {
   return (
@@ -72,7 +74,7 @@ export function StatusExperience() {
           </Reveal>
           <Reveal delayMs={60}>
             <p className="mt-8 text-sm text-muted-foreground">
-              Last updated:{" "}
+              Last manually reviewed:{" "}
               <time dateTime={STATUS_LAST_UPDATED} className="font-medium text-foreground">
                 {STATUS_LAST_UPDATED}
               </time>
@@ -193,13 +195,11 @@ export function StatusExperience() {
           </Reveal>
           <Reveal delayMs={60}>
             <div className="mt-8">
-              <Link href={`${CONTACT_HREF}#support`}>
-                <Button
-                  size="lg"
-                  className="marketing-cta-button h-12 rounded-full px-8"
-                >
-                  Contact Support
-                </Button>
+              <Link
+                href={`${CONTACT_HREF}#support`}
+                className={statusCtaClassName}
+              >
+                Contact Support
               </Link>
             </div>
           </Reveal>

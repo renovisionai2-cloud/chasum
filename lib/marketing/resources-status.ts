@@ -1,7 +1,12 @@
 /**
  * System Status — Private Alpha manually reviewed status.
- * STATUS: APPROVED · VERSION: Resources v1 · STATE: Locked
- * See docs/marketing/RESOURCES_V1_LOCK.md
+ *
+ * Manual-review policy (internal; not a public promise):
+ * - Review when a listed service changes, or a known Production defect appears or clears.
+ * - Review after Production deploys affecting listed services.
+ * - Target at least weekly review while active Private Alpha pilots are live.
+ * - Never bump the displayed review date without reviewing the rows and known issues.
+ * - Remain manual during Private Alpha unless a future approved architecture replaces it.
  */
 
 export const STATUS_PAGE = {
@@ -10,7 +15,7 @@ export const STATUS_PAGE = {
   lede: "View the current status of Chasum services and scheduled maintenance. During Private Alpha, this page is manually reviewed and updated as needed.",
 } as const;
 
-export const STATUS_LAST_UPDATED = "2026-07-30";
+export const STATUS_LAST_UPDATED = "2026-08-30";
 
 export type StatusLevel =
   | "Operational"
@@ -25,22 +30,22 @@ export const STATUS_SERVICES: readonly {
   note?: string;
 }[] = [
   { name: "Application and dashboard", status: "Operational" },
-  { name: "Public booking", status: "Operational" },
+  { name: "Public booking", status: "Limited" },
   { name: "Database and authentication", status: "Operational" },
   {
-    name: "Email delivery",
+    name: "Customer email delivery",
     status: "Configuration Required",
-    note: "Depends on messaging setup for each business.",
+    note: "Customer email delivery depends on platform email configuration and each business’s messaging settings.",
   },
   {
     name: "SMS delivery",
     status: "Configuration Required",
-    note: "Depends on messaging setup for each business.",
+    note: "SMS delivery depends on business messaging configuration and plan eligibility.",
   },
   {
-    name: "Payment integrations",
+    name: "Customer payment integrations",
     status: "Configuration Required",
-    note: "Depends on payment setup for each business.",
+    note: "Customer payment collection depends on the business’s payment setup.",
   },
 ] as const;
 
@@ -50,7 +55,7 @@ export const STATUS_LEGEND: readonly {
 }[] = [
   {
     status: "Operational",
-    meaning: "Working as expected for design partners.",
+    meaning: "No known service interruption as of the last manual review.",
   },
   {
     status: "Configuration Required",
@@ -77,7 +82,7 @@ export const STATUS_MAINTENANCE = {
 
 export const STATUS_ISSUES = {
   title: "Known Issues",
-  body: "No active platform-wide issues are listed at this time. If something affects your business, contact support.",
+  body: "Public bookings that require selecting a specific staff member may fail during confirmation, and no appointment is created in that case. A fix is in progress.",
 } as const;
 
 export const STATUS_SUPPORT = {
