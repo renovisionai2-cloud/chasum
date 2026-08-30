@@ -1,0 +1,37 @@
+---
+description: Security PO lock — current-generation 2026-08-30 claim truth; do not restore July copy; do not polish without PO request
+globs:
+  - app/(marketing)/security/**
+  - components/landing/security-experience.tsx
+  - lib/marketing/resources-security.ts
+alwaysApply: false
+---
+
+# Security — PO LOCKED
+
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-30  
+**SHA:** `8a4be655edd74c5cd7875d68acf93b476ac553fe`  
+**Claude:** APPROVED — SECURITY READY FOR PO LOCK  
+**PO:** APPROVED  
+**Visual:** SECURITY PO VISUAL REVIEW — PASS  
+**Route:** `/security`  
+**Canonical doc:** `docs/marketing/SECURITY_V1_LOCK.md`
+
+Not in Production. `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`.
+
+July 2026 Security v1 (`4013db0` / https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security) is **superseded**. Do **not** restore Stripe/Twilio as unqualified current infrastructure, Automatic Backups, “all communication is encrypted using HTTPS,” or nested Security CTA buttons.
+
+Cards: Supabase-powered authentication; non-absolute workspace/access-control wording; HTTPS to Chasum; generic cloud-provider categories (no Stripe/Twilio/Sentry list); Managed Data Infrastructure with **no** backup/PITR/RPO/RTO claim; modest continuous-improvement commitment.
+
+Preserve Private Alpha Transparency bullets and the enterprise-program note. No certification/compliance claims.
+
+CTAs: View System Status → `/status`; Contact Support → `/contact#support`. One Link per CTA.
+
+## Allowed changes only
+
+Bug fixes, broken responsive layouts, accessibility, or product-owner-directed claim updates. No additional visual polish without an explicit PO request.
+
+## Do not change from Security work
+
+Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, Contact, Status, application runtime, Production.

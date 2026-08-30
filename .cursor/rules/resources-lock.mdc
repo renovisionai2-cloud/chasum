@@ -1,5 +1,5 @@
 ---
-description: Resources lock — Why Private Alpha 2026-08-27 PO lock; Security and Status remain July 2026 v1
+description: Resources lock — Why Private Alpha 2026-08-27 PO lock; Security 2026-08-30 PO lock; Status remains July 2026 v1
 globs:
   - lib/marketing/resources-*.ts
   - components/landing/private-alpha-experience.tsx
@@ -30,11 +30,23 @@ Do **not** restore July 2026 Why Private Alpha v1 (`10a9e53` / https://chasum-3l
 Headline: Help Shape the AI Operating System for Service Businesses.  
 Summer = AI Business Manager. Direct Team Support is program support — not Pricing Business Priority Support.
 
-## Security and Status — Resources v1 (2026-07-30)
+## Security — PO LOCKED (2026-08-30)
 
-**Security visual SoT:** https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security  
+**STATUS:** ✅ APPROVED / LOCKED  
+**Date:** 2026-08-30  
+**SHA:** `8a4be655edd74c5cd7875d68acf93b476ac553fe`  
+**Claude:** APPROVED — SECURITY READY FOR PO LOCK  
+**PO:** APPROVED  
+**Visual:** SECURITY PO VISUAL REVIEW — PASS  
+**Route:** `/security`  
+**Canonical doc:** `docs/marketing/SECURITY_V1_LOCK.md`
+
+July 2026 Security v1 (`4013db0` / https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security) is **superseded**. Do **not** restore Stripe/Twilio as unqualified current infrastructure or Automatic Backups.
+
+## Status — Resources v1 (2026-07-30)
+
 **Status visual SoT:** https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status  
-**Canonical docs:** `docs/marketing/RESOURCES_V1_LOCK.md`, `docs/marketing/SECURITY_V1_LOCK.md`
+**Canonical docs:** `docs/marketing/RESOURCES_V1_LOCK.md`
 
 ## Allowed changes only
 

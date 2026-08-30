@@ -189,5 +189,5 @@ Agent rule: `.cursor/rules/resources-lock.mdc`
 ## Related
 
 - Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, and Pricing rendered surfaces from the same marketing OS chapter are also **LOCKED** (see [`docs/CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md)). Those locks are **not** in Production.
-- Resources Security / Status remain on their July 2026 locks: [`RESOURCES_V1_LOCK.md`](./RESOURCES_V1_LOCK.md), [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md).
+- Security is locked at the 2026-08-30 current-generation PO lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md). Status remains on the July 2026 Resources lock: [`RESOURCES_V1_LOCK.md`](./RESOURCES_V1_LOCK.md).
 - Product truth: [`PRODUCT_TRUTH_MATRIX.md`](./PRODUCT_TRUTH_MATRIX.md).

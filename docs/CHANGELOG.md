@@ -9,6 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Locked (Marketing — Security PO lock)
+
+**SECURITY — PO LOCKED** (2026-08-30). Documentation only. Not merged. Not in Production.
+
+- Surface: Marketing Website → Security (`/security`)
+- Branch: `cursor/marketing-os-positioning`
+- SHA: `8a4be655edd74c5cd7875d68acf93b476ac553fe`
+- Contact lock documentation parent: `902087b22568eab5817568ef78e0caa1191d57fc`
+- Claude: APPROVED — SECURITY READY FOR PO LOCK
+- PO: APPROVED
+- Visual: SECURITY PO VISUAL REVIEW — PASS
+- Canonical lock: [`docs/marketing/SECURITY_V1_LOCK.md`](./marketing/SECURITY_V1_LOCK.md)
+- July 2026 Security v1 (`4013db0`) is superseded; do not restore Stripe/Twilio as current infrastructure or Automatic Backups
+- Marketing review state: Homepage — LOCKED; Platform — LOCKED; Meet Summer — LOCKED; Product Tour — LOCKED; Industries — LOCKED; Roadmap — LOCKED; Pricing — LOCKED; Why Private Alpha — LOCKED; Apply — LOCKED; Contact — LOCKED; Security — LOCKED
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
 ### Locked (Marketing — Contact PO lock)
 
 **CONTACT — PO LOCKED** (2026-08-29). Documentation only. Not merged. Not in Production.

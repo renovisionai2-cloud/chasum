@@ -16,7 +16,7 @@
 | Route | Status | State | Visual source of truth |
 |-------|--------|-------|------------------------|
 | `/private-alpha` | ✅ **APPROVED / LOCKED** · Why Private Alpha PO lock · 2026-08-27 | **Locked** | Branch `cursor/marketing-os-positioning` @ `0afaf3829e00063407eabb9a2d955403527ff754` — **not Production**. Canonical: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md). July 2026 Preview `10a9e53` is **superseded**. |
-| `/security` | ✅ APPROVED · COMPLETE | **Locked** | https://chasum-6vr9wmadu-renovisionappcom.vercel.app/security |
+| `/security` | ✅ **APPROVED / LOCKED** · Security PO lock · 2026-08-30 | **Locked** | Branch `cursor/marketing-os-positioning` @ `8a4be655edd74c5cd7875d68acf93b476ac553fe` — **not Production**. Canonical: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md). July 2026 Preview `4013db0` is **superseded**. |
 | `/status` | ✅ APPROVED | **Locked** | https://chasum-2qwiq9hxp-renovisionappcom.vercel.app/status |
 
 Why Private Alpha detail lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)  
@@ -40,7 +40,7 @@ Security detail lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)
 
 ## What is locked
 
-The Resources umbrella remains locked for **Security** and **System Status** at the 2026-07-30 baselines. **Why Private Alpha** is locked at the 2026-08-27 current-generation PO lock (`0afaf3829e00063407eabb9a2d955403527ff754`). Do **not** restore the July 2026 Why Private Alpha Preview as the current product-truth baseline. Full Why Private Alpha lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md).
+The Resources umbrella remains locked for **System Status** at the 2026-07-30 baseline. **Security** is locked at the 2026-08-30 current-generation PO lock (`8a4be655edd74c5cd7875d68acf93b476ac553fe`). **Why Private Alpha** is locked at the 2026-08-27 current-generation PO lock (`0afaf3829e00063407eabb9a2d955403527ff754`). Do **not** restore the July 2026 Security Preview (`4013db0`) or Why Private Alpha Preview as the current product-truth baseline. Full Security lock: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md). Full Why Private Alpha lock: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md).
 
 ### Page questions (do not dilute)
 

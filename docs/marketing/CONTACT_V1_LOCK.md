@@ -270,7 +270,7 @@ Future edits to Contact are permitted **only** for:
 
 **No additional visual polish** without an explicit product-owner request.
 
-Do **not** edit locked Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, or Apply as part of Contact work.
+Do **not** edit locked Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, or Security as part of Contact work.
 
 Agent rule: `.cursor/rules/contact-lock.mdc`
 
@@ -278,7 +278,8 @@ Agent rule: `.cursor/rules/contact-lock.mdc`
 
 ## Related
 
-- Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, and Apply rendered surfaces from the same marketing OS chapter are also **LOCKED** (see [`docs/CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md)). Those locks are **not** in Production.
+- Homepage, Platform, Meet Summer, Product Tour, Industries, Roadmap, Pricing, Why Private Alpha, Apply, and Security rendered surfaces from the same marketing OS chapter are also **LOCKED** (see [`docs/CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md)). Those locks are **not** in Production.
+- Security: [`SECURITY_V1_LOCK.md`](./SECURITY_V1_LOCK.md)
 - Apply: [`APPLY_V1_LOCK.md`](./APPLY_V1_LOCK.md)
 - Why Private Alpha: [`WHY_PRIVATE_ALPHA_V1_LOCK.md`](./WHY_PRIVATE_ALPHA_V1_LOCK.md)
 - Pricing: [`PRICING_V1_LOCK.md`](./PRICING_V1_LOCK.md)
