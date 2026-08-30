@@ -14,30 +14,30 @@ export const SECURITY_CARDS = [
   {
     title: "Secure Authentication",
     detail:
-      "Your account is protected using modern authentication and encrypted sessions.",
+      "Accounts use Supabase-powered authentication with secure sign-in and session handling.",
     icon: "auth" as const,
   },
   {
     title: "Protected Business Data",
-    detail: "Every business has its own secure workspace.",
+    detail:
+      "Business data is organized within its own workspace, with access controls designed to keep it separate from other businesses.",
     icon: "workspace" as const,
   },
   {
     title: "Encrypted Connections",
-    detail: "All communication is encrypted using HTTPS.",
+    detail: "Connections to Chasum use HTTPS.",
     icon: "encrypt" as const,
   },
   {
     title: "Trusted Infrastructure",
     detail:
-      "Built on trusted cloud providers including Supabase, Stripe, Twilio, and Resend.",
+      "Chasum uses established cloud providers for hosting, authentication, data storage, and communications.",
     icon: "cloud" as const,
   },
   {
-    title: "Automatic Backups",
-    detail:
-      "Business data is backed up using managed cloud infrastructure.",
-    icon: "backup" as const,
+    title: "Managed Data Infrastructure",
+    detail: "Business data is stored using managed cloud infrastructure.",
+    icon: "data" as const,
   },
   {
     title: "Continuous Security Improvements",

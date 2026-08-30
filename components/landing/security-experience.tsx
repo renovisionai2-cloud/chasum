@@ -1,7 +1,6 @@
 "use client";
 
 import { Reveal } from "@/components/landing/reveal";
-import { Button } from "@/components/ui/button";
 import {
   CONTACT_HREF,
   STATUS_HREF,
@@ -12,26 +11,60 @@ import {
   SECURITY_SUPPORT,
   SECURITY_TRANSPARENCY,
 } from "@/lib/marketing/resources-security";
+import { cn } from "@/lib/utils";
 import {
   ArrowRight,
   Cloud,
+  Database,
   Lock,
   RefreshCw,
   ShieldCheck,
   Building2,
-  HardDrive,
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 const ICONS: Record<(typeof SECURITY_CARDS)[number]["icon"], LucideIcon> = {
   auth: Lock,
   workspace: Building2,
   encrypt: ShieldCheck,
   cloud: Cloud,
-  backup: HardDrive,
+  data: Database,
   improve: RefreshCw,
 };
+
+const securityCtaBaseClassName =
+  "marketing-cta-button inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background h-12 min-h-12 px-8 text-base touch-manipulation rounded-full";
+
+const securityCtaVariantClassName = {
+  primary:
+    "bg-primary text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90 active:scale-[0.98]",
+  outline:
+    "border border-border bg-card/60 hover:bg-muted text-foreground shadow-xs active:scale-[0.98]",
+} as const;
+
+function SecurityCtaLink({
+  href,
+  children,
+  variant,
+}: {
+  href: string;
+  children: ReactNode;
+  variant: "primary" | "outline";
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        securityCtaBaseClassName,
+        securityCtaVariantClassName[variant],
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export function SecurityExperience() {
   return (
@@ -142,24 +175,13 @@ export function SecurityExperience() {
           </Reveal>
           <Reveal delayMs={80}>
             <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link href={STATUS_HREF}>
-                <Button
-                  size="lg"
-                  className="marketing-cta-button h-12 rounded-full px-8"
-                >
-                  View System Status
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href={`${CONTACT_HREF}#support`}>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="marketing-cta-button h-12 rounded-full px-8"
-                >
-                  Contact Support
-                </Button>
-              </Link>
+              <SecurityCtaLink href={STATUS_HREF} variant="primary">
+                View System Status
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </SecurityCtaLink>
+              <SecurityCtaLink href={`${CONTACT_HREF}#support`} variant="outline">
+                Contact Support
+              </SecurityCtaLink>
             </div>
           </Reveal>
         </div>
