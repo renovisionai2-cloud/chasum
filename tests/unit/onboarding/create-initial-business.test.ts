@@ -90,6 +90,44 @@ describe("createInitialBusinessAction", () => {
     expect(update).toHaveBeenCalled();
   });
 
+  it("rejects an empty business name without creating", async () => {
+    getBusiness.mockResolvedValue(null);
+    const result = await createInitialBusinessAction(
+      {},
+      form({ businessName: "" }),
+    );
+    expect(result.error).toMatch(/name/i);
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("rejects an invalid selected timezone without creating", async () => {
+    getBusiness.mockResolvedValue(null);
+    const result = await createInitialBusinessAction(
+      {},
+      form({
+        businessName: "Northshore Clinic",
+        timezone: "Not/AZone",
+        currency: "cad",
+      }),
+    );
+    expect(result.error).toMatch(/timezone/i);
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("rejects an invalid currency without creating", async () => {
+    getBusiness.mockResolvedValue(null);
+    const result = await createInitialBusinessAction(
+      {},
+      form({
+        businessName: "Northshore Clinic",
+        timezone: "America/Toronto",
+        currency: "not-a-currency",
+      }),
+    );
+    expect(result.error).toMatch(/currency/i);
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
   it("does not rename an existing authorized tenant returned by the RPC", async () => {
     getBusiness.mockResolvedValue(null);
     rpc.mockResolvedValue({
@@ -104,7 +142,11 @@ describe("createInitialBusinessAction", () => {
     await expect(
       createInitialBusinessAction(
         {},
-        form({ businessName: "Some Other Name" }),
+        form({
+          businessName: "Some Other Name",
+          timezone: "America/Toronto",
+          currency: "cad",
+        }),
       ),
     ).rejects.toThrow("REDIRECT:/dashboard");
     expect(update).not.toHaveBeenCalled();

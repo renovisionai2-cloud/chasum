@@ -9,7 +9,7 @@ import {
   type TimezoneOption,
   TIMEZONE_OPTIONS,
 } from "@/lib/constants/timezones";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 
 type TimezoneSelectProps = {
   id?: string;
@@ -48,7 +48,32 @@ export function TimezoneSelect({
     [query, catalog],
   );
 
-  const selectValue = value !== undefined ? value : undefined;
+  const filteredWithSelection = useMemo(() => {
+    if (current && !filtered.some((tz) => tz.value === current)) {
+      const selected =
+        catalog.find((tz) => tz.value === current) ?? {
+          value: current,
+          label: current,
+        };
+      return [selected, ...filtered];
+    }
+    return filtered;
+  }, [catalog, current, filtered]);
+
+  const selectProps =
+    value !== undefined
+      ? {
+          value,
+          onChange: (e: ChangeEvent<HTMLSelectElement>) =>
+            onChange?.(e.target.value),
+        }
+      : {
+          defaultValue: defaultValue ?? "",
+          onChange: onChange
+            ? (e: ChangeEvent<HTMLSelectElement>) =>
+                onChange(e.target.value)
+            : undefined,
+        };
 
   return (
     <div className="space-y-2">
@@ -61,22 +86,22 @@ export function TimezoneSelect({
         disabled={disabled}
         aria-label="Search timezones"
         autoComplete="off"
+        required={false}
+        form="chasum-timezone-filter"
       />
       <Select
         id={id}
         name={name}
         required={required}
         disabled={disabled}
-        value={selectValue}
-        defaultValue={value === undefined ? defaultValue : undefined}
-        onChange={(e) => onChange?.(e.target.value)}
+        {...selectProps}
       >
-        {filtered.length === 0 ? (
-          <option value={current || ""} disabled>
+        {filteredWithSelection.length === 0 ? (
+          <option value="" disabled>
             No matches — clear search
           </option>
         ) : (
-          filtered.map((tz) => (
+          filteredWithSelection.map((tz) => (
             <option key={tz.value} value={tz.value}>
               {tz.label}
             </option>

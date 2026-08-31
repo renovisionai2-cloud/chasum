@@ -1,5 +1,5 @@
 import { TIMEZONES } from "@/lib/constants/timezones";
-import { BUSINESS_CURRENCIES, normalizeCurrency } from "@/lib/commerce/money";
+import { BUSINESS_CURRENCIES } from "@/lib/commerce/money";
 
 const TIMEZONE_SET = new Set(TIMEZONES);
 const CURRENCY_SET = new Set(
@@ -20,7 +20,7 @@ export function validateOnboardingTimezone(
 export function validateOnboardingCurrency(
   value: string | null | undefined,
 ): string | null {
-  const currency = normalizeCurrency(value);
-  if (!CURRENCY_SET.has(currency)) return null;
+  const currency = String(value ?? "").trim().toLowerCase();
+  if (!currency || !CURRENCY_SET.has(currency)) return null;
   return currency;
 }

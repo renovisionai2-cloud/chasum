@@ -2,8 +2,6 @@
 
 import { getBusiness, requireUser } from "@/lib/actions/business";
 import {
-  DEFAULT_ONBOARDING_CURRENCY,
-  DEFAULT_ONBOARDING_TIMEZONE,
   validateOnboardingCurrency,
   validateOnboardingTimezone,
 } from "@/lib/onboarding/business-locale";
@@ -45,12 +43,19 @@ export async function createInitialBusinessAction(
     return { error: parsed.error };
   }
 
-  const timezone =
-    validateOnboardingTimezone(String(formData.get("timezone") ?? "")) ??
-    DEFAULT_ONBOARDING_TIMEZONE;
-  const currency =
-    validateOnboardingCurrency(String(formData.get("currency") ?? "")) ??
-    DEFAULT_ONBOARDING_CURRENCY;
+  const timezone = validateOnboardingTimezone(
+    String(formData.get("timezone") ?? ""),
+  );
+  if (!timezone) {
+    return { error: "Choose a valid timezone." };
+  }
+
+  const currency = validateOnboardingCurrency(
+    String(formData.get("currency") ?? ""),
+  );
+  if (!currency) {
+    return { error: "Choose a valid currency." };
+  }
 
   const supabase = await createClient();
   const preferredSlug = preferredSlugForBusinessName(parsed.name, user.id);
