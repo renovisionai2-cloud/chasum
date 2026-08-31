@@ -1,5 +1,6 @@
 "use server";
 
+import { getBusiness } from "@/lib/actions/business";
 import {
   getAppUrl,
   getAppUrlFromRequestHeaders,
@@ -7,7 +8,9 @@ import {
   getPasswordResetRedirectUrl,
   getSupabaseEnv,
 } from "@/lib/env";
+import { isPlatformOwner } from "@/lib/owner/auth";
 import { createClient } from "@/lib/supabase/server";
+import { resolveLoginRedirect } from "@/lib/tenancy/post-auth-destination";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -67,7 +70,15 @@ export async function signUp(
     };
   }
 
-  redirect("/dashboard");
+  const user = data.user;
+  const existing = user ? await getBusiness() : null;
+  const isAdmin = user ? await isPlatformOwner(user) : false;
+  redirect(
+    resolveLoginRedirect(null, {
+      hasAccessibleBusiness: Boolean(existing),
+      isPlatformAdmin: isAdmin,
+    }),
+  );
 }
 
 export async function signIn(
@@ -96,8 +107,17 @@ export async function signIn(
     return { error: error.message };
   }
 
-  const redirectTo = formData.get("redirect") as string;
-  redirect(redirectTo || "/dashboard");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const existing = user ? await getBusiness() : null;
+  const isAdmin = user ? await isPlatformOwner(user) : false;
+  redirect(
+    resolveLoginRedirect(formData.get("redirect") as string | null, {
+      hasAccessibleBusiness: Boolean(existing),
+      isPlatformAdmin: isAdmin,
+    }),
+  );
 }
 
 export async function resetPassword(

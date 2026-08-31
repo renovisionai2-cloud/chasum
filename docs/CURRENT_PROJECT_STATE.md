@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-30  
-**Updated by:** Status PO lock stamped on `cursor/marketing-os-positioning`. **Not in Production.** Homepage / Platform / Meet Summer / Product Tour / Industries / Roadmap / Pricing / Why Private Alpha / Apply / Contact / Security / Status are PO locked. July 2026 Status/Resources Status state is superseded. Prior Security PO lock (`8a4be65`), Contact PO lock (`29b7048`), Apply PO lock (`c5a39b2`), Why Private Alpha PO lock (`0afaf38`), Pricing PO lock (`f44fea2`), Roadmap PO lock (`f6ffee1`), Industries PO lock (`d6209db`), and 2026-08-25 native-app governance restamp remain in force.
+**Last updated:** 2026-08-31  
+**Updated by:** Safe Tenant Onboarding Gate restored on `cursor/marketing-os-positioning` (explicit `/onboarding/business`; Platform Admin zero-business → `/owner`; Login redirect sanitization). **Not in Production.** Homepage / Platform / Meet Summer / Product Tour / Industries / Roadmap / Pricing / Why Private Alpha / Apply / Contact / Security / Status remain PO locked. Login is **not** PO locked. July 2026 Status/Resources Status state is superseded. Prior Security PO lock (`8a4be65`), Contact PO lock (`29b7048`), Apply PO lock (`c5a39b2`), Why Private Alpha PO lock (`0afaf38`), Pricing PO lock (`f44fea2`), Roadmap PO lock (`f6ffee1`), Industries PO lock (`d6209db`), and 2026-08-25 native-app governance restamp remain in force.
 
 ---
 
@@ -18,7 +18,7 @@
 - **Platform Admin / Control Centre:** Separate control plane for tenants, subscriptions, trials, plans, billing/account health, support access, usage, entitlements, and platform operations. Current direction: **`/owner`**.
 - **World Class grouped tenant nav:** PO-approved, **protected**, and **on `main`**. Phase 1 (PR #23) shipped grouped desktop navigation + mobile bottom navigation via Minimum Necessary Diff. `origin/cursor/world-class-portal-foundation` is **reference-only** — not a merge target and not a working baseline.
 - **Environment isolation:** Preview → Staging Supabase `wnfahklzaxirftyskctd`. Production → Production Supabase `kxcydvhswkuzepwzzinq`. Production app: `https://chasum.vercel.app`. Production changes require explicit PO approval.
-- **Tenant Identity Safety Gate:** Permanent. Canonical: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md).
+- **Tenant Identity Safety Gate:** Permanent. Canonical: [`docs/TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md). **Restored on this branch (2026-08-31):** authentication and dashboard navigation do not create tenants. Normal zero-business → `/onboarding/business`. Platform Admin zero-business → `/owner`. Existing business → `/dashboard`. Tenant creation is explicit onboarding submit only. `/dashboard/hq` is not the Platform Admin default and is not the Chasum HQ tenant.
 - **Financial truth:** Client money must represent reality (paid, refunded, outstanding, deposit, invoice, receipt, tax, balance). Mock SaaS billing must not mint paid invoices.
 - **Coming Soon honesty:** Do not market or nav-present unfinished capabilities as operational. [`docs/marketing/PRODUCT_TRUTH_MATRIX.md`](./marketing/PRODUCT_TRUTH_MATRIX.md).
 - **Momentic:** Setup **COMPLETE**. Supporting regression infrastructure only — not a standalone roadmap track.
@@ -36,6 +36,7 @@
 - Launch schedule + launch-criticality governance: **ADOPTED** — [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
 - GVM operational validation remains important (first real appointment, production email path) but **is not the entire roadmap**.
 - Balanced outcomes required: **A Core Operations · B Commercial SaaS · C Intelligence · D Validation**.
+- **Safe Tenant Onboarding Gate:** restored on `cursor/marketing-os-positioning` (not Production). Login is not PO locked.
 
 ### BLOCKED / GATED
 
@@ -518,7 +519,18 @@ These twelve surfaces are **not** in Production. `origin/main` remains `476af17b
 
 ## Last completed work
 
-### Most recent (2026-08-30) — Status PO lock stamped (documentation only)
+### Most recent (2026-08-31) — Safe Tenant Onboarding Gate restored (branch only)
+
+- PO approved restoring explicit zero-business onboarding and `/owner` as the zero-business Platform Admin destination.
+- Silent `getOrCreateBusiness` / dashboard-layout tenant creation removed. `ensure_business_for_owner` is called only from `createInitialBusinessAction`.
+- Routes: existing business → `/dashboard`; normal zero-business → `/onboarding/business`; Platform Admin zero-business → `/owner`.
+- Login `signIn` sanitizes redirects with `sanitizeAuthNextPath` then applies the onboarding gate.
+- `/signup` may still create an Auth user; it no longer silently creates a tenant. Public signup vs Private Alpha Apply remains deferred P2.
+- Recovery-session edge case (User A session visible after User B OTP failure) was **not** changed — deferred Level 3.
+- Login is **not** PO locked. Twelve marketing surfaces remain locked. **Not in Production.**
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
+### 2026-08-30 — Status PO lock stamped (documentation only)
 
 - **STATUS — PO LOCKED**
 - Date: 2026-08-30
@@ -788,7 +800,7 @@ Do **not** infer that `main` (`476af17`) has been deployed to Production. This s
 
 ## Uncommitted work
 
-None expected after this documentation stamp. Application/runtime files are unchanged by the Status PO lock stamp.
+None expected after the Safe Tenant Onboarding Gate commit on this branch.
 
 ---
 
@@ -808,7 +820,9 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - `/owner` plan assign + `subscription_events` non-atomic (**TD-M11**, planned hardening)
 - `productPlanKeyForNewBusiness()` unused in app code (**TD-L6**, P3 cleanup)
 - Booking Sheet “collect payment” still partially stubbed
-- `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved)
+- `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved). Zero-business Platform Admins go to `/owner`, not `/dashboard/hq`.
+- Public `/signup` vs Private Alpha Apply acquisition (deferred P2 product-truth). Auth users no longer get a silent tenant.
+- Recovery-session leftover: User A dashboard remains if User B recovery callback fails (deferred Level 3 session hardening)
 - **World Class Phase 1 follow-up (do not solve here):** Business location cap helper 6 vs catalog/fallback 10; dashboard React hydration #418; mobile visible label “Centre”
 - **World Class Phase 2 follow-up (do not solve here):** staff quota TOCTOU race; raw DB-error passthrough; bulk Activate not proactively quota-disabled; directory “booking status” terminology; Add Myself empty-state-only
 - **World Class Phase 3 follow-up (do not solve here):** pre-existing DashboardTopNav overflow ~768–1024px — IMPORTANT BUT POST-LAUNCH SAFE; launch risk GREEN

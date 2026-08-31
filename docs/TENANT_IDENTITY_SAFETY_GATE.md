@@ -35,7 +35,10 @@ Slug and display name are **not** identity.
 - `businesses.id` remains the tenant key for customers, appointments, commerce, staff, services, locations, memberships, and notifications.
 - Public booking URLs resolve `businesses.slug` first, then a one-hop `business_slug_aliases` lookup to that same `business_id`.
 - Historical slugs cannot be hijacked by another tenant (unique alias slug + cross-table exclusion).
-- `getOrCreateBusiness()` / `ensure_business_for_owner` still create a tenant only when the signed-in user has no membership and no owned row. They do **not** detect same-real-world-business duplicates across users.
+- `getBusiness()` / `getOrCreateBusiness()` are **retrieval-only**. They never insert. Zero-business dashboard access redirects instead of creating a tenant.
+- Explicit first-tenant creation is only `createInitialBusinessAction()` on `/onboarding/business` (name, timezone, currency), which calls `ensure_business_for_owner` after re-checking that the user has no accessible business. Signup plan intent is **not** written to `subscription_plan_key`.
+- Routing (PO 2026-08-31): existing business → `/dashboard`; normal zero-business → `/onboarding/business`; Platform Admin zero-business → `/owner`. `/dashboard/hq` is **not** the Platform Admin default and is **not** the Chasum HQ tenant.
+- These helpers still do **not** detect same-real-world-business duplicates across users.
 
 ## What is deliberately not built here
 

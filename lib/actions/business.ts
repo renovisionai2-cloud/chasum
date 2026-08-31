@@ -1,17 +1,9 @@
-import { RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import { createClient } from "@/lib/supabase/server";
-import { isPlaceholderBusiness } from "@/lib/onboarding/setup-progress";
+import { isPlatformOwner } from "@/lib/owner/auth";
+import { resolvePostAuthDestination } from "@/lib/tenancy/post-auth-destination";
 import type { Business } from "@/lib/types/booking";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 48);
-}
 
 export const requireUser = cache(async () => {
   const supabase = await createClient();
@@ -29,6 +21,7 @@ export const requireUser = cache(async () => {
 /**
  * Resolve the active business for the signed-in user.
  * Order: Private Alpha co-owner membership → any owner/admin membership → primary owner_id.
+ * Retrieval only — never inserts.
  */
 async function resolveBusinessForUser(
   userId: string,
@@ -73,75 +66,25 @@ export const getBusiness = cache(async (): Promise<Business | null> => {
   return resolveBusinessForUser(user.id);
 });
 
-/** Deduped per request — layout + pages often call this many times. */
+/**
+ * Require an already-authorized tenant for dashboard product work.
+ * Retrieval only — does not create a business as a side effect.
+ * Zero-business users are sent to explicit onboarding (or /owner for
+ * Platform Admins). Historical name kept so existing loaders keep using
+ * the canonical resolver.
+ */
 export const getOrCreateBusiness = cache(async (): Promise<Business> => {
   const user = await requireUser();
   const existing = await resolveBusinessForUser(user.id);
   if (existing) return existing;
-  // TENANT IDENTITY SAFETY GATE: this path creates a tenant only when the
-  // signed-in user has no membership and no owned business. It does not
-  // detect whether another tenant already represents the same real-world
-  // business. Do not use slug/name uniqueness as proof of a new identity.
 
-  const supabase = await createClient();
-
-  const baseName =
-    (user.user_metadata?.full_name as string | undefined)?.trim() ||
-    (user.user_metadata?.name as string | undefined)?.trim() ||
-    "My Business";
-  const emailPrefix = user.email?.split("@")[0] ?? "business";
-  // Prefer a human slug from the display name; avoid long opaque email local-parts.
-  const fromName = slugify(baseName);
-  const fromEmail = slugify(emailPrefix);
-  const preferredSlug =
-    fromName && fromName !== "my-business" && fromName.length >= 3
-      ? fromName
-      : fromEmail && !/\d{8,}/.test(fromEmail) && fromEmail.length <= 32
-        ? fromEmail
-        : `biz-${user.id.replace(/-/g, "").slice(0, 8)}`;
-
-  const { data, error } = await supabase.rpc("ensure_business_for_owner", {
-    p_name: baseName,
-    p_preferred_slug: preferredSlug,
-  });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  let business = data as Business;
-
-  // Recommend 15 only for brand-new placeholder tenants. Never rewrite a named
-  // existing business (including live GVM) if this path is hit unexpectedly.
-  if (isPlaceholderBusiness(business)) {
-    const { data: seeded, error: intervalError } = await supabase
-      .from("businesses")
-      .update({
-        appointment_interval_minutes: RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
-      })
-      .eq("id", business.id)
-      .select("*")
-      .single();
-    if (!intervalError && seeded) {
-      business = seeded as Business;
-      const { data: locs } = await supabase
-        .from("locations")
-        .select("id")
-        .eq("business_id", business.id);
-      const locationIds = (locs ?? []).map((row) => row.id);
-      if (locationIds.length > 0) {
-        await supabase
-          .from("location_settings")
-          .update({
-            appointment_interval_minutes:
-              RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES,
-          })
-          .in("location_id", locationIds);
-      }
-    }
-  }
-
-  return business;
+  const isAdmin = await isPlatformOwner(user);
+  redirect(
+    resolvePostAuthDestination({
+      hasAccessibleBusiness: false,
+      isPlatformAdmin: isAdmin,
+    }),
+  );
 });
 
 /**

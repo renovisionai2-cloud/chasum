@@ -88,6 +88,11 @@ describe("auth redirect URL helpers", () => {
     expect(sanitizeAuthNextPath("/reset-password")).toBe("/reset-password");
     expect(sanitizeAuthNextPath("https://evil.example")).toBe("/dashboard");
     expect(sanitizeAuthNextPath("//evil.example")).toBe("/dashboard");
+    expect(sanitizeAuthNextPath("javascript:alert(1)")).toBe("/dashboard");
+    expect(sanitizeAuthNextPath("data:text/html,hi")).toBe("/dashboard");
+    expect(sanitizeAuthNextPath("/dashboard/customers?x=1")).toBe(
+      "/dashboard/customers?x=1",
+    );
   });
 });
 

@@ -1,5 +1,6 @@
 import { getSupabaseEnv, sanitizeAuthNextPath } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { resolveAuthenticatedDestination } from "@/lib/tenancy/resolve-authenticated-destination";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
@@ -26,7 +27,8 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const destination = await resolveAuthenticatedDestination(supabase, next);
+      return NextResponse.redirect(`${origin}${destination}`);
     }
   } else if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({
@@ -35,7 +37,8 @@ export async function GET(request: Request) {
     });
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const destination = await resolveAuthenticatedDestination(supabase, next);
+      return NextResponse.redirect(`${origin}${destination}`);
     }
   }
 

@@ -9,6 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added (Safe Tenant Onboarding Gate — branch only)
+
+PO restored the explicit Safe Tenant Onboarding Gate on `cursor/marketing-os-positioning`. **Not in Production. Login is not PO locked.**
+
+- Normal zero-business authenticated users go to `/onboarding/business` and create a tenant only by submitting name, timezone, and currency.
+- Platform Admin zero-business identities go to `/owner`. `/dashboard/hq` is not the Platform Admin default and is not the Chasum HQ tenant.
+- Dashboard navigation and `getOrCreateBusiness()` no longer call `ensure_business_for_owner`. Existing-business users still reach `/dashboard`.
+- Login post-auth redirects are sanitized with `sanitizeAuthNextPath` (rejects absolute, protocol-relative, and non-path schemes).
+- `/signup` may still create an Auth identity; it no longer silently creates a tenant. Public signup vs Private Alpha Apply remains deferred product-truth debt.
+- Recovery-session edge case (User A remains visible after a failed User B recovery callback) was not changed.
+
 ### Locked (Marketing — Status PO lock)
 
 **STATUS — PO LOCKED** (2026-08-30). Documentation only. Not merged. Not in Production.
