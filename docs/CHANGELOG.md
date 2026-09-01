@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (Auth recovery-error session hardening — branch only)
+
+Failed password recovery no longer falls through to an unrelated already-signed-in dashboard. **Not in Production. Login / Forgot Password are not PO locked.**
+
+- `/auth/callback` and `/auth/confirm` send failed recovery (`type=recovery`, `next=/reset-password`, or `error_code=otp_expired`) to `/auth/recovery-error` instead of `/login?error=auth_callback_failed`.
+- `/auth/recovery-error` is reachable while another account is signed in. Middleware does not treat it as a guest-only route.
+- `/forgot-password` remains reachable while signed in so “Request a new reset link” is not swallowed by the dashboard redirect.
+- Successful recovery still routes to `/reset-password`. User A’s unrelated session is preserved on failure. Raw Supabase codes are not shown.
+- Safe Tenant Onboarding Gate, `/owner`, GVM, and Chasum HQ routing are unchanged.
+
 ### Added (Safe Tenant Onboarding Gate — branch only)
 
 PO restored the explicit Safe Tenant Onboarding Gate on `cursor/marketing-os-positioning`. **Not in Production. Login is not PO locked.**

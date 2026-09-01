@@ -23,10 +23,12 @@ Current feature inventory as of **v0.2.0** (Phase 4 scheduling engine complete).
 | Reset password | `/reset-password` |
 | OAuth callback | `/auth/callback` |
 | Email confirmation | `/auth/callback` (token_hash + verifyOtp) |
+| Recovery failure | `/auth/recovery-error` |
 
 - Session managed via Supabase Auth + `@supabase/ssr`
 - Email confirmation uses SSR token-hash links to `/auth/callback` (not implicit `#access_token` redirects)
 - OAuth and other code-based flows still use `exchangeCodeForSession()` on `/auth/callback`
+- Failed password recovery shows `/auth/recovery-error` instead of falling through to an unrelated signed-in dashboard
 - Protected routes redirect unauthenticated users to `/login`
 - Graceful handling when Supabase env vars are missing
 

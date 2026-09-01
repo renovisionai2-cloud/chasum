@@ -4,7 +4,7 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-08-31  
-**Updated by:** Safe Tenant Onboarding Gate restored on `cursor/marketing-os-positioning` (explicit `/onboarding/business`; Platform Admin zero-business → `/owner`; Login redirect sanitization). **Not in Production.** Homepage / Platform / Meet Summer / Product Tour / Industries / Roadmap / Pricing / Why Private Alpha / Apply / Contact / Security / Status remain PO locked. Login is **not** PO locked. July 2026 Status/Resources Status state is superseded. Prior Security PO lock (`8a4be65`), Contact PO lock (`29b7048`), Apply PO lock (`c5a39b2`), Why Private Alpha PO lock (`0afaf38`), Pricing PO lock (`f44fea2`), Roadmap PO lock (`f6ffee1`), Industries PO lock (`d6209db`), and 2026-08-25 native-app governance restamp remain in force.
+**Updated by:** Auth recovery-error session hardening on `cursor/marketing-os-positioning` (failed password recovery no longer falls through to an unrelated signed-in dashboard). **Not in Production.** Safe Tenant Onboarding Gate unchanged. Homepage / Platform / Meet Summer / Product Tour / Industries / Roadmap / Pricing / Why Private Alpha / Apply / Contact / Security / Status remain PO locked. Login / Forgot Password are **not** PO locked. July 2026 Status/Resources Status state is superseded. Prior Security PO lock (`8a4be65`), Contact PO lock (`29b7048`), Apply PO lock (`c5a39b2`), Why Private Alpha PO lock (`0afaf38`), Pricing PO lock (`f44fea2`), Roadmap PO lock (`f6ffee1`), Industries PO lock (`d6209db`), and 2026-08-25 native-app governance restamp remain in force.
 
 ---
 
@@ -37,6 +37,7 @@
 - GVM operational validation remains important (first real appointment, production email path) but **is not the entire roadmap**.
 - Balanced outcomes required: **A Core Operations · B Commercial SaaS · C Intelligence · D Validation**.
 - **Safe Tenant Onboarding Gate:** restored on `cursor/marketing-os-positioning` (not Production). Login is not PO locked.
+- **Auth recovery-error session hardening:** failed password recovery routes to `/auth/recovery-error` instead of an unrelated signed-in dashboard (not Production). Login / Forgot Password are not PO locked.
 
 ### BLOCKED / GATED
 
@@ -338,7 +339,7 @@ Backend pattern: **Server Actions + Route Handlers** — no separate API server.
 | Surface | Audience | Paths |
 |---------|----------|--------|
 | Marketing site | Prospects / applicants | `app/(marketing)/*` — `/`, `/pricing`, `/platform`, `/product-tour`, `/industries`, `/meet-summer`, `/private-alpha`, `/apply`, `/roadmap`, … |
-| Auth | Anyone | `app/(auth)/*`, `app/auth/callback` |
+| Auth | Anyone | `app/(auth)/*`, `app/auth/callback`, `app/auth/recovery-error` |
 | Tenant product | Business owners (including GVM and Chasum HQ tenants) | `/dashboard/*` |
 | Public booking / portal | End customers | `/book/[slug]`, `/portal/[token]` |
 | Platform Admin / Control Centre | Chasum platform operators | `/owner/*` |
@@ -519,7 +520,15 @@ These twelve surfaces are **not** in Production. `origin/main` remains `476af17b
 
 ## Last completed work
 
-### Most recent (2026-08-31) — Safe Tenant Onboarding Gate restored (branch only)
+### Most recent (2026-08-31) — Auth recovery-error session hardening (branch only)
+
+- Failed password recovery no longer redirects to `/login` (middleware would send an already-signed-in unrelated session to `/dashboard`).
+- Dedicated `/auth/recovery-error` shows a Chasum-branded expired-link message, “Request a new reset link” → `/forgot-password`, and optional “Return to sign in”.
+- Successful recovery still routes to `/reset-password`. User A’s unrelated session is preserved on recovery failure; identities are not switched.
+- Safe Tenant Onboarding Gate, `/owner`, GVM, and Chasum HQ routing are unchanged. Login / Forgot Password are **not** PO locked. **Not in Production.**
+- `origin/main` remains `476af17bfd06113281df0b5c33f995ccb26f5fff`
+
+### 2026-08-31 — Safe Tenant Onboarding Gate restored (branch only)
 
 - PO approved restoring explicit zero-business onboarding and `/owner` as the zero-business Platform Admin destination.
 - Silent `getOrCreateBusiness` / dashboard-layout tenant creation removed. `ensure_business_for_owner` is called only from `createInitialBusinessAction`.
@@ -800,7 +809,7 @@ Do **not** infer that `main` (`476af17`) has been deployed to Production. This s
 
 ## Uncommitted work
 
-None expected after the Safe Tenant Onboarding Gate commit on this branch.
+None expected after the auth recovery-error session hardening commit on this branch.
 
 ---
 
@@ -822,7 +831,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - Booking Sheet “collect payment” still partially stubbed
 - `/dashboard/hq` legacy naming vs Chasum HQ tenant (disposition unresolved). Zero-business Platform Admins go to `/owner`, not `/dashboard/hq`.
 - Public `/signup` vs Private Alpha Apply acquisition (deferred P2 product-truth). Auth users no longer get a silent tenant.
-- Recovery-session leftover: User A dashboard remains if User B recovery callback fails (deferred Level 3 session hardening)
+- Auth recovery-error session hardening is on this branch only — **not in Production** until an explicit deploy. Production can still show User A’s dashboard after a failed User B recovery until then.
 - **World Class Phase 1 follow-up (do not solve here):** Business location cap helper 6 vs catalog/fallback 10; dashboard React hydration #418; mobile visible label “Centre”
 - **World Class Phase 2 follow-up (do not solve here):** staff quota TOCTOU race; raw DB-error passthrough; bulk Activate not proactively quota-disabled; directory “booking status” terminology; Add Myself empty-state-only
 - **World Class Phase 3 follow-up (do not solve here):** pre-existing DashboardTopNav overflow ~768–1024px — IMPORTANT BUT POST-LAUNCH SAFE; launch risk GREEN

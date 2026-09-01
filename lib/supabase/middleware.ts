@@ -1,3 +1,4 @@
+import { isGuestOnlyAuthPath } from "@/lib/auth/recovery";
 import { getPlatformOwnerEmails, getSupabaseEnv } from "@/lib/env";
 import { userHasAccessibleBusiness } from "@/lib/tenancy/accessible-business";
 import {
@@ -26,10 +27,7 @@ function redirectWithCookies(
 export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const isGuestOnlyAuthRoute =
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/signup") ||
-    pathname.startsWith("/forgot-password");
+  const isGuestOnlyAuthRoute = isGuestOnlyAuthPath(pathname);
 
   const isResetPasswordRoute = pathname.startsWith("/reset-password");
   const isDashboardRoute = pathname.startsWith("/dashboard");

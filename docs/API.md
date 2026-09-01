@@ -50,8 +50,9 @@ Read functions return typed data or throw on Supabase errors.
 
 | Route | Method | Description |
 |-------|--------|-------------|
-| `/auth/callback` | GET | Auth callback: exchanges OAuth `code` via `exchangeCodeForSession()`, or email/password links via `verifyOtp()` using `token_hash` + `type` |
-| `/auth/confirm` | GET | Legacy email confirmation handler (prefer `/auth/callback`) |
+| `/auth/callback` | GET | Auth callback: exchanges OAuth `code` via `exchangeCodeForSession()`, or email/password links via `verifyOtp()` using `token_hash` + `type`. Failed password recovery redirects to `/auth/recovery-error` (not `/login`). Successful recovery still uses `next=/reset-password`. |
+| `/auth/confirm` | GET | Legacy email confirmation handler (prefer `/auth/callback`). Failed recovery uses the same `/auth/recovery-error` destination. |
+| `/auth/recovery-error` | GET | Dedicated password-recovery failure page. Reachable while another account is signed in. Does not expose raw Supabase error codes. |
 
 #### Email confirmation (SSR)
 

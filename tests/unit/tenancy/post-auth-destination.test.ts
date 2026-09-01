@@ -67,6 +67,12 @@ describe("post-auth destination", () => {
         requestedPath: "/reset-password",
       }),
     ).toBe("/reset-password");
+    expect(
+      resolvePostAuthDestination({
+        hasAccessibleBusiness: true,
+        requestedPath: "/reset-password",
+      }),
+    ).toBe("/reset-password");
   });
 
   it("sends Platform Admin zero-business identities to /owner, not /dashboard/hq", () => {

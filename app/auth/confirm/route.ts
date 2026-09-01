@@ -1,3 +1,7 @@
+import {
+  AUTH_CONFIRM_FAILURE_LOGIN_PATH,
+  resolveAuthCallbackFailurePath,
+} from "@/lib/auth/recovery";
 import { sanitizeAuthNextPath } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { resolveAuthenticatedDestination } from "@/lib/tenancy/resolve-authenticated-destination";
@@ -9,6 +13,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
+  const errorCode = searchParams.get("error_code");
   const next = sanitizeAuthNextPath(
     searchParams.get("next") ??
       (type === "recovery" ? "/reset-password" : "/dashboard"),
@@ -27,5 +32,12 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  redirect("/login?error=auth_confirm_failed");
+  redirect(
+    resolveAuthCallbackFailurePath({
+      type,
+      next,
+      errorCode,
+      fallbackPath: AUTH_CONFIRM_FAILURE_LOGIN_PATH,
+    }),
+  );
 }

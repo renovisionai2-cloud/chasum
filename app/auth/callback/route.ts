@@ -1,3 +1,7 @@
+import {
+  AUTH_CALLBACK_FAILURE_LOGIN_PATH,
+  resolveAuthCallbackFailurePath,
+} from "@/lib/auth/recovery";
 import { getSupabaseEnv, sanitizeAuthNextPath } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { resolveAuthenticatedDestination } from "@/lib/tenancy/resolve-authenticated-destination";
@@ -16,6 +20,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
+  const errorCode = searchParams.get("error_code");
   const next = sanitizeAuthNextPath(
     searchParams.get("next") ??
       (type === "recovery" ? "/reset-password" : "/dashboard"),
@@ -42,5 +47,12 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
+  const failurePath = resolveAuthCallbackFailurePath({
+    type,
+    next,
+    errorCode,
+    fallbackPath: AUTH_CALLBACK_FAILURE_LOGIN_PATH,
+  });
+
+  return NextResponse.redirect(`${origin}${failurePath}`);
 }
