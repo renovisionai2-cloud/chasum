@@ -3,8 +3,8 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-25
-**Updated by:** Native-app strategy governance correction (follow-up to PR #30). Workstream 18 is **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Working direction: React Native + Expo (final stack at native-app preflight). Phase 5 remains **PREFLIGHT REQUIRED / NOT STARTED**.
+**Last updated:** 2026-09-03
+**Updated by:** Option C public booking persistence — `book_public_appointment` SECURITY DEFINER RPC on `cursor/phase-5-booking-path-convergence`. Migration **NOT APPLIED**. Production **UNCHANGED**.
 
 ---
 
@@ -397,7 +397,18 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-25) — World Class Phase 4A Commercial SaaS Lifecycle Honesty MERGED
+### Most recent (2026-09-03) — Public booking Option C (candidate only)
+
+- Candidate branch `cursor/phase-5-booking-path-convergence` implements additive `040_book_public_appointment.sql` + explicit `createBooking` persistence strategy
+- Public named-staff booking calls `book_public_appointment` (SECURITY DEFINER); session/RLS insert remains the default for dashboard, duplicate, and authenticated Summer
+- Appointments RLS / policies / grants **unchanged**; no anon INSERT policy; no service-role inside `createBooking`
+- Customer upsert + appointment insert are one RPC transaction
+- Legacy `create_public_appointment` retained, not used at runtime
+- Optional staff still gated (034 unapplied / flag off)
+- **Migration NOT APPLIED. Implementation NOT DEPLOYED. Production UNCHANGED.**
+- Next: Claude post-implementation review, then Staging apply + Preview verify
+
+### Immediately prior (2026-08-25) — World Class Phase 4A Commercial SaaS Lifecycle Honesty MERGED
 
 - **PR #29** squash merge `f6517a17504667b58799a3202e43f5ec145643a1` — `feat: make Private Alpha SaaS billing truthful`
 - Signup cannot grant paid `subscription_plan_key`; new tenants begin Free / starter; `preferred_plan` remains intent only
@@ -487,7 +498,7 @@ Preserved for history — **not** current branch instructions:
 cursor/phase-5-booking-path-convergence
 ```
 
-Level 3 public booking write-path convergence (named-staff → Booking Engine). Base / Production pin remains `476af17`. **Not merged. Not Production.**
+Level 3 public booking Option C: named-staff public persistence uses Booking Engine `createBooking` with an explicit `public_rpc` strategy that calls additive SECURITY DEFINER `book_public_appointment`. Direct anon `appointments` INSERT remains RLS denied. Base / Production pin remains `476af17`. **Not merged. Not Production. Migration 040 NOT APPLIED.**
 
 Handoff: documentation restamp on `main` `f6517a17504667b58799a3202e43f5ec145643a1` is stale versus actual `main`/`Production` `476af17`. This recovery branch does not restamp the Production pin.
 
@@ -529,7 +540,7 @@ Do **not** infer that `main` (`f6517a1`) has been deployed to Production.
 
 ## Uncommitted work
 
-This launch-readiness restamp (docs only). No application code. Production and Staging application data are untouched.
+None expected after the Option C commit on `cursor/phase-5-booking-path-convergence`. Production and Staging databases are untouched. Migration 040 exists in the repo only.
 
 ---
 
@@ -543,7 +554,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - Dual communications stacks
 - Dual Emma / Summer legacy path
 - Dual Chase routes (`/dashboard/workforce/chase` and `/dashboard/ai-workforce/chase`)
-- `create_public_appointment` vs Booking Engine write-path debt
+- `create_public_appointment` retained as legacy rollback only; active public writer is `book_public_appointment` (040 **NOT APPLIED**)
 - Booking resources migration `036` / feature flag pending
 - Mock SaaS billing (`TD-C6`); paid self-serve Coming Soon
 - `/owner` plan assign + `subscription_events` non-atomic (**TD-M11**, planned hardening)

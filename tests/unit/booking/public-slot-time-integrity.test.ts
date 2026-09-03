@@ -59,4 +59,12 @@ describe("public booking 12:10 time-integrity diagnostic", () => {
       10,
     );
   });
+
+  it("preserves 12:30 selected ISO minutes through server parse", () => {
+    const twelveThirty = "2026-08-28T16:30:00.000Z";
+    const server = inspectPublicBookingStartTime(twelveThirty);
+    expect(server.iso).toBe(twelveThirty);
+    expect(server.utcMinutes).toBe(30);
+    expect(formatTime(parseISO(twelveThirty))).toMatch(/:30/);
+  });
 });

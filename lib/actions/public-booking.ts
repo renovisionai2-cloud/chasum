@@ -263,6 +263,16 @@ export async function bookAppointment(
     return { error: "Location is required to book." };
   }
 
+  if (anyStaff) {
+    const { assertNamedStaffRequired } = await import(
+      "@/lib/booking/optional-staff"
+    );
+    const blocked = assertNamedStaffRequired(null, "public");
+    if (blocked) {
+      return { error: blocked };
+    }
+  }
+
   const start = parseISO(startTime);
   const end = addMinutes(start, service.duration_minutes);
 
@@ -319,57 +329,32 @@ export async function bookAppointment(
     }
   }
 
-  const { data: customerId, error: customerError } = await supabase.rpc(
-    "upsert_booking_customer",
-    {
-      p_business_id: business.id,
-      p_name: customerName,
-      p_email: customerEmail,
-      p_phone: customerPhone,
-    },
-  );
-
-  if (customerError || !customerId) {
-    await captureBookingFailure(
-      customerError ?? new Error("customer upsert failed"),
-      { slug, channel: "public" },
-    );
-    return { error: customerError?.message ?? "Failed to save customer details." };
-  }
-
   let appointmentId: string | null = null;
-
-  if (anyStaff) {
-    const { assertNamedStaffRequired } = await import(
-      "@/lib/booking/optional-staff"
-    );
-    const blocked = assertNamedStaffRequired(null, "public");
-    if (blocked) {
-      return { error: blocked };
-    }
-  }
 
   const engineStaffId = publicBookingStaffIdForEngine({
     anyStaff,
     selectedStaffId: staffId,
   });
 
-  const { createBooking, publicCreateIntent } = await import(
-    "@/lib/booking-engine"
-  );
+  const { createBooking, publicCreateIntent, publicBookingPersistence } =
+    await import("@/lib/booking-engine");
   const result = await createBooking(
     publicCreateIntent({
       businessId: business.id,
       locationId,
       serviceId,
       staffId: engineStaffId,
-      customerId: customerId as string,
       requestedStart: start.toISOString(),
       notes,
       requestedStatus: appointmentStatus,
       priceCents: publicFinancials.subtotalCents,
       taxCents: publicFinancials.taxCents,
       depositCents: publicFinancials.depositRequiredCents,
+    }),
+    publicBookingPersistence({
+      customerName,
+      customerEmail,
+      customerPhone,
     }),
   );
   if (result.phase !== "success" || !result.data?.appointmentId) {
@@ -379,7 +364,7 @@ export async function bookAppointment(
     );
     const msg = result.error ?? "";
     return {
-      error: msg.includes("Time slot")
+      error: /time slot/i.test(msg)
         ? "This time slot is no longer available."
         : msg || "Could not complete booking. Please try another time.",
     };

@@ -61,6 +61,16 @@ export {
   updateBooking,
 } from "@/lib/booking-engine/mutations";
 
+export type {
+  BookingPersistenceStrategy,
+  PublicRpcBookingPersistence,
+  SessionBookingPersistence,
+} from "@/lib/booking-engine/persistence";
+export {
+  isPublicRpcPersistence,
+  sessionBookingPersistence,
+} from "@/lib/booking-engine/persistence";
+
 export {
   queryAppointmentsInRange,
   queryUtilizationProjection,

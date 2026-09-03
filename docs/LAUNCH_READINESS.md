@@ -170,7 +170,7 @@ Owner defaults to **Founder / PO** for sequencing and **Engineering** for implem
 | Launch classification | **LAUNCH REQUIRED** — Chasum cannot commercially launch if booking, appointment lifecycle, customers, staff, locations, catalog, communications, and day-to-day workflow trust fail for a real service business. |
 | Status | **PARTIAL** |
 | Current owner / current task | Engineering — operate and harden existing Reception, CRM, Employees, Locations, Services, Communications, Command Centre. No new department rewrite scheduled. |
-| Blocking issue | Remaining craft: Booking Sheet collect-payment stub; dual communications stacks; public named-staff write path converged onto Booking Engine on `cursor/phase-5-booking-path-convergence` (**not Production**); resources migration `036` unapplied (flag off). |
+| Blocking issue | Remaining craft: Booking Sheet collect-payment stub; dual communications stacks; public named-staff Option C (`book_public_appointment` SECURITY DEFINER) implemented on `cursor/phase-5-booking-path-convergence` — **migration NOT APPLIED, not Production**; resources migration `036` unapplied (flag off). |
 | Acceptance condition | A 1-location / 1–few-staff business can create customers, book/reschedule/cancel, run today’s schedule from Command Centre + Reception, collect/record money honestly, and communicate confirmations without dead ends or fabricated data. |
 | Target completion window | Late September–October 2026 (pilot-grade); hold through Dec 2026–Feb 2027 commercial v1 |
 | Launch risk | **GREEN** |

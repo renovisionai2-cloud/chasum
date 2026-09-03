@@ -3,6 +3,7 @@ import { parseISO } from "date-fns";
 /**
  * Public booking always writes through the Booking Engine.
  * Named staff keep the selected employee id; any-staff stay unassigned (null).
+ * Persistence uses book_public_appointment via an explicit public_rpc strategy.
  * The legacy create_public_appointment RPC is not used on this path.
  */
 export function publicBookingStaffIdForEngine(input: {

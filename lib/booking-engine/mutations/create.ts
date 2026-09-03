@@ -2,26 +2,62 @@ import {
   resolveRequestedStatus,
   validateBooking,
 } from "@/lib/booking-engine/availability";
-import { findRoomConflicts } from "@/lib/booking-engine/conflicts";
+import {
+  findRoomConflicts,
+  mapRpcErrorToConflict,
+} from "@/lib/booking-engine/conflicts";
 import { logAppointmentChange } from "@/lib/booking-engine/conflicts";
 import {
   createBookingEvent,
   emitBookingEvent,
 } from "@/lib/booking-engine/events";
+import {
+  isPublicRpcPersistence,
+  sessionBookingPersistence,
+  type BookingPersistenceStrategy,
+} from "@/lib/booking-engine/persistence";
 import type {
   BookingIntent,
   MutationResult,
 } from "@/lib/booking-engine/types";
 import { createClient } from "@/lib/supabase/server";
 
+type AppointmentWriterClient = Awaited<ReturnType<typeof createClient>>;
+
+/**
+ * Privilege-neutral create. Persistence is explicit — never inferred from
+ * intent.channel. Default writer is the session/RLS-protected insert.
+ */
 export async function createBooking(
   intent: BookingIntent,
+  persistence: BookingPersistenceStrategy = sessionBookingPersistence(),
 ): Promise<MutationResult<{ appointmentId: string }>> {
   const pending: MutationResult<{ appointmentId: string }> = {
     phase: "pending",
   };
 
-  if (!intent.customerId) {
+  if (isPublicRpcPersistence(persistence)) {
+    if (!intent.staffId) {
+      const { unassignedStaffBlockedMessage } = await import(
+        "@/lib/booking/optional-staff"
+      );
+      return {
+        phase: "rollback",
+        error:
+          unassignedStaffBlockedMessage(intent.channel) ??
+          "Please select an employee to complete this booking.",
+      };
+    }
+    if (
+      !persistence.customerName.trim() ||
+      !persistence.customerEmail.includes("@")
+    ) {
+      return {
+        phase: "rollback",
+        error: "Customer is required to create a booking.",
+      };
+    }
+  } else if (!intent.customerId) {
     return {
       phase: "rollback",
       error: "Customer is required to create a booking.",
@@ -57,6 +93,15 @@ export async function createBooking(
     validation.context,
     intent.requestedStatus,
   );
+
+  if (isPublicRpcPersistence(persistence)) {
+    if (status !== "pending" && status !== "confirmed") {
+      return {
+        phase: "rollback",
+        error: "Public booking status must be pending or confirmed.",
+      };
+    }
+  }
 
   const supabase = await createClient();
 
@@ -135,28 +180,142 @@ export async function createBooking(
           .join("\n")
       : (intent.notes ?? null);
 
+  const persist = isPublicRpcPersistence(persistence)
+    ? await persistViaPublicRpc(supabase, {
+        intent,
+        persistence,
+        endTime: validation.endTime,
+        status,
+        notes,
+        stampedPriceCents,
+        taxCents,
+        depositCents,
+      })
+    : await persistViaSessionInsert(supabase, {
+        intent,
+        endTime: validation.endTime,
+        status,
+        notes,
+        stampedPriceCents,
+        taxCents,
+        depositCents,
+        paymentStatus,
+      });
+
+  if (persist.error && persist.conflict) {
+    return {
+      phase: "conflict",
+      conflicts: [persist.conflict],
+      error: persist.conflict.message,
+    };
+  }
+
+  // Nullable staff_id may not be available yet — never expose schema/migration wording.
+  if (
+    persist.error &&
+    !intent.staffId &&
+    (persist.error.message.includes("staff_id") ||
+      persist.error.message.toLowerCase().includes("null value"))
+  ) {
+    const { unassignedStaffBlockedMessage } = await import(
+      "@/lib/booking/optional-staff"
+    );
+    return {
+      phase: "rollback",
+      error:
+        unassignedStaffBlockedMessage(intent.channel) ??
+        "Please select an employee to complete this booking.",
+    };
+  }
+
+  if (persist.error || !persist.id) {
+    return {
+      phase: "rollback",
+      error: persist.error?.message ?? "Failed to create appointment.",
+    };
+  }
+
+  const event = await emitBookingEvent(
+    createBookingEvent({
+      type: "appointment.created",
+      businessId: intent.businessId,
+      appointmentId: persist.id,
+      channel: intent.channel,
+      payload: { status, pendingWas: pending.phase },
+    }),
+  );
+
+  if (
+    !isPublicRpcPersistence(persistence) &&
+    intent.resourceIds &&
+    intent.resourceIds.length > 0
+  ) {
+    await supabase.from("appointment_resources").insert(
+      intent.resourceIds.map((resourceId) => ({
+        appointment_id: persist.id,
+        resource_id: resourceId,
+      })),
+    );
+  }
+
+  await logAppointmentChange({
+    businessId: intent.businessId,
+    appointmentId: persist.id,
+    action: "create",
+    afterState: {
+      start_time: intent.requestedStart,
+      end_time: validation.endTime,
+      status,
+      channel: intent.channel,
+    },
+  });
+
+  return {
+    phase: "success",
+    data: { appointmentId: persist.id },
+    events: [event],
+  };
+}
+
+async function persistViaSessionInsert(
+  supabase: AppointmentWriterClient,
+  input: {
+    intent: BookingIntent;
+    endTime: string;
+    status: string;
+    notes: string | null;
+    stampedPriceCents: number;
+    taxCents: number;
+    depositCents: number;
+    paymentStatus: string;
+  },
+): Promise<{
+  id: string | null;
+  error: { message: string } | null;
+  conflict?: never;
+}> {
   const insertBase = {
-    business_id: intent.businessId,
-    location_id: intent.locationId,
-    service_id: intent.serviceId,
-    staff_id: intent.staffId || null,
-    customer_id: intent.customerId!,
-    start_time: intent.requestedStart,
-    end_time: validation.endTime,
-    notes,
-    status,
-    room_id: intent.roomId ?? null,
+    business_id: input.intent.businessId,
+    location_id: input.intent.locationId,
+    service_id: input.intent.serviceId,
+    staff_id: input.intent.staffId || null,
+    customer_id: input.intent.customerId!,
+    start_time: input.intent.requestedStart,
+    end_time: input.endTime,
+    notes: input.notes,
+    status: input.status,
+    room_id: input.intent.roomId ?? null,
   };
 
   let { data, error } = await supabase
     .from("appointments")
     .insert({
       ...insertBase,
-      price_cents: stampedPriceCents || null,
-      tax_cents: taxCents,
-      deposit_cents: depositCents || 0,
+      price_cents: input.stampedPriceCents || null,
+      tax_cents: input.taxCents,
+      deposit_cents: input.depositCents || 0,
       amount_paid_cents: 0,
-      payment_status: paymentStatus,
+      payment_status: input.paymentStatus,
     })
     .select("id")
     .single();
@@ -175,7 +334,7 @@ export async function createBooking(
         ...insertBase,
         ...(error.message.includes("tax_cents")
           ? {}
-          : { tax_cents: taxCents }),
+          : { tax_cents: input.taxCents }),
       })
       .select("id")
       .single();
@@ -183,65 +342,68 @@ export async function createBooking(
     error = fallback.error;
   }
 
-  // Nullable staff_id may not be available yet — never expose schema/migration wording.
-  if (
-    error &&
-    !intent.staffId &&
-    (error.message.includes("staff_id") ||
-      error.message.toLowerCase().includes("null value"))
-  ) {
-    const { unassignedStaffBlockedMessage } = await import(
-      "@/lib/booking/optional-staff"
-    );
-    return {
-      phase: "rollback",
-      error:
-        unassignedStaffBlockedMessage(intent.channel) ??
-        "Please select an employee to complete this booking.",
-    };
-  }
+  return {
+    id: data?.id ?? null,
+    error: error ? { message: error.message } : null,
+  };
+}
 
-  if (error || !data?.id) {
-    return {
-      phase: "rollback",
-      error: error?.message ?? "Failed to create appointment.",
-    };
-  }
-
-  const event = await emitBookingEvent(
-    createBookingEvent({
-      type: "appointment.created",
-      businessId: intent.businessId,
-      appointmentId: data.id,
-      channel: intent.channel,
-      payload: { status, pendingWas: pending.phase },
-    }),
-  );
-
-  if (intent.resourceIds && intent.resourceIds.length > 0) {
-    await supabase.from("appointment_resources").insert(
-      intent.resourceIds.map((resourceId) => ({
-        appointment_id: data.id,
-        resource_id: resourceId,
-      })),
-    );
-  }
-
-  await logAppointmentChange({
-    businessId: intent.businessId,
-    appointmentId: data.id,
-    action: "create",
-    afterState: {
-      start_time: intent.requestedStart,
-      end_time: validation.endTime,
-      status,
-      channel: intent.channel,
-    },
+async function persistViaPublicRpc(
+  supabase: AppointmentWriterClient,
+  input: {
+    intent: BookingIntent;
+    persistence: Extract<BookingPersistenceStrategy, { kind: "public_rpc" }>;
+    endTime: string;
+    status: "pending" | "confirmed";
+    notes: string | null;
+    stampedPriceCents: number;
+    taxCents: number;
+    depositCents: number;
+  },
+): Promise<{
+  id: string | null;
+  error: { message: string } | null;
+  conflict?: ReturnType<typeof mapRpcErrorToConflict>;
+}> {
+  const { data, error } = await supabase.rpc("book_public_appointment", {
+    p_business_id: input.intent.businessId,
+    p_location_id: input.intent.locationId,
+    p_service_id: input.intent.serviceId,
+    p_staff_id: input.intent.staffId,
+    p_customer_name: input.persistence.customerName,
+    p_customer_email: input.persistence.customerEmail,
+    p_customer_phone: input.persistence.customerPhone,
+    p_start_time: input.intent.requestedStart,
+    p_end_time: input.endTime,
+    p_status: input.status,
+    p_price_cents: input.stampedPriceCents || 0,
+    p_tax_cents: input.taxCents,
+    p_deposit_cents: input.depositCents || 0,
+    p_notes: input.notes,
   });
 
-  return {
-    phase: "success",
-    data: { appointmentId: data.id },
-    events: [event],
-  };
+  if (error) {
+    const conflict = mapRpcErrorToConflict(error.message);
+    const slotOrBusy =
+      conflict.code === "DOUBLE_BOOKING" ||
+      conflict.code === "STAFF_BUSY" ||
+      conflict.code === "VACATION" ||
+      conflict.code === "LUNCH_BREAK" ||
+      conflict.code === "SERVICE_BLACKOUT" ||
+      conflict.code === "BUSINESS_CLOSURE" ||
+      conflict.code === "OUTSIDE_EMPLOYEE_HOURS" ||
+      conflict.code === "OUTSIDE_BUSINESS_HOURS" ||
+      conflict.code === "MIN_NOTICE" ||
+      conflict.code === "MAX_BOOKING_WINDOW" ||
+      conflict.code === "MAX_APPOINTMENTS" ||
+      conflict.code === "RESOURCE_BUSY";
+    return {
+      id: null,
+      error: { message: error.message },
+      conflict: slotOrBusy ? conflict : undefined,
+    };
+  }
+
+  const id = typeof data === "string" ? data : null;
+  return { id, error: id ? null : { message: "Failed to create appointment." } };
 }

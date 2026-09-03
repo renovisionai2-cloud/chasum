@@ -233,6 +233,10 @@ describe("public booking write-path convergence", () => {
     expect(PUBLIC_BOOKING_SOURCE).not.toContain(
       'rpc("create_public_appointment"',
     );
+    expect(PUBLIC_BOOKING_SOURCE).not.toContain("upsert_booking_customer");
+    expect(PUBLIC_BOOKING_SOURCE).toContain("publicBookingPersistence");
+    expect(PUBLIC_BOOKING_SOURCE).not.toContain('formData.get("business_id")');
+    expect(PUBLIC_BOOKING_SOURCE).toContain("getPublicBusinessBySlug");
   });
 
   it("routes named staff through Booking Engine with the selected staff id", () => {
@@ -259,25 +263,35 @@ describe("public booking write-path convergence", () => {
     expect(resolveRequestedStatus(ctx, "confirmed")).toBe("confirmed");
   });
 
-  it("creates a named-staff public booking via createBooking, not RPC", async () => {
+  it("creates a named-staff public booking via createBooking with an explicit public RPC strategy", async () => {
     const result = await bookAppointment({}, bookingForm());
 
     expect(result.error).toBeUndefined();
     expect(result.appointmentId).toBe("appt-1");
-    expect(rpcCalls.map((call) => call.name)).toEqual([
-      "upsert_booking_customer",
-    ]);
+    expect(rpcCalls).toEqual([]);
     expect(createBooking).toHaveBeenCalledTimes(1);
 
     const intent = createBooking.mock.calls[0]?.[0] as BookingIntent;
+    const persistence = createBooking.mock.calls[0]?.[1] as {
+      kind: string;
+      customerName: string;
+      customerEmail: string;
+      customerPhone: string | null;
+    };
     expect(intent.channel).toBe("public");
     expect(intent.staffId).toBe("staff-1");
-    expect(intent.customerId).toBe("cust-1");
+    expect(intent.customerId).toBeUndefined();
     expect(intent.requestedStatus).toBe("confirmed");
     expect(intent.requestedStart).toBe("2026-08-28T16:10:00.000Z");
     expect(intent.priceCents).toBe(20000);
     expect(intent.taxCents).toBe(0);
     expect(intent.depositCents).toBe(0);
+    expect(persistence).toEqual({
+      kind: "public_rpc",
+      customerName: "Test Customer",
+      customerEmail: "guest@example.com",
+      customerPhone: null,
+    });
   });
 
   it("creates a request-approval named-staff booking as pending", async () => {
@@ -294,7 +308,7 @@ describe("public booking write-path convergence", () => {
     expect(handleAppointmentEvent).toHaveBeenCalledWith("appt-1", "created");
   });
 
-  it("preserves customer identity on the engine intent", async () => {
+  it("passes customer identity on the public persistence strategy, not a pre-upserted id", async () => {
     await bookAppointment(
       {},
       bookingForm({
@@ -303,14 +317,17 @@ describe("public booking write-path convergence", () => {
       }),
     );
 
-    const upsert = rpcCalls.find((call) => call.name === "upsert_booking_customer");
-    expect(upsert?.args).toMatchObject({
-      p_business_id: "biz-gvm",
-      p_name: "Jordan Lee",
-      p_email: "jordan@example.com",
-    });
+    expect(rpcCalls.find((call) => call.name === "upsert_booking_customer")).toBeUndefined();
     const intent = createBooking.mock.calls[0]?.[0] as BookingIntent;
-    expect(intent.customerId).toBe("cust-1");
+    const persistence = createBooking.mock.calls[0]?.[1] as {
+      kind: string;
+      customerName: string;
+      customerEmail: string;
+    };
+    expect(intent.customerId).toBeUndefined();
+    expect(persistence.kind).toBe("public_rpc");
+    expect(persistence.customerName).toBe("Jordan Lee");
+    expect(persistence.customerEmail).toBe("jordan@example.com");
   });
 
   it("fires the same post-success notification workflow as any-staff", async () => {
@@ -338,9 +355,29 @@ describe("public booking write-path convergence", () => {
 
     expect(result.error).toMatch(/choose a team member/i);
     expect(createBooking).not.toHaveBeenCalled();
-    expect(rpcCalls.map((call) => call.name)).toEqual([
-      "upsert_booking_customer",
-    ]);
+    expect(rpcCalls).toEqual([]);
+    expect(handleAppointmentEvent).not.toHaveBeenCalled();
+    expect(deliverBookingNotifications).not.toHaveBeenCalled();
+  });
+
+  it("does not notify when named-staff persistence fails", async () => {
+    createBooking.mockResolvedValue({
+      phase: "rollback",
+      error: "Time slot no longer available",
+    });
+
+    const result = await bookAppointment({}, bookingForm());
+
+    expect(result.error).toMatch(/time slot/i);
+    expect(handleAppointmentEvent).not.toHaveBeenCalled();
+    expect(deliverBookingNotifications).not.toHaveBeenCalled();
+  });
+
+  it("preserves a 12:30 selected start through createBooking", async () => {
+    const start = "2026-08-28T16:30:00.000Z";
+    await bookAppointment({}, bookingForm({ start_time: start }));
+    const intent = createBooking.mock.calls[0]?.[0] as BookingIntent;
+    expect(intent.requestedStart).toBe(start);
   });
 
   it("rate-limits public booking instead of silently creating duplicates", async () => {

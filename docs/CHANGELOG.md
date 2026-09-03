@@ -9,6 +9,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed (Public booking Option C — SECURITY DEFINER persistence — branch only)
+
+**STATUS:** ON `cursor/phase-5-booking-path-convergence` — **NOT Production**. Production pin remains `476af17`. Migration `040_book_public_appointment.sql` is **NOT APPLIED**. Implementation is **NOT DEPLOYED**.
+
+- Direct anon `appointments` INSERT remains RLS denied (owner-only policy unchanged)
+- Public named-staff booking persists through a new narrow SECURITY DEFINER RPC `book_public_appointment`, invoked only via an explicit `public_rpc` persistence strategy
+- `createBooking` stays privilege-neutral: `channel: "public"` alone does not bypass RLS
+- Customer upsert + appointment insert are one database transaction (no compensating customer delete)
+- Enum-safe status: only `pending` / `confirmed` into `appointment_status` (legacy `v_status text` defect not reproduced)
+- Legacy `create_public_appointment` retained for rollback and is not the active runtime path
+- Optional / any-staff remains gated while 034 is unapplied
+- API and future unauthenticated Summer/SMS/voice are not wired to this RPC
+- Appointments RLS / FORCE RLS / table GRANT changes remain Level 3
+
 ### Fixed (Public booking write-path convergence — branch only)
 
 **STATUS:** ON `cursor/phase-5-booking-path-convergence` — **NOT Production**. Production pin remains `476af17`.
@@ -16,7 +30,6 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Dual public booking write path identified: any-staff used Booking Engine `createBooking()`; named-staff used legacy `create_public_appointment` RPC (text `status` into `appointment_status`)
 - Named-staff public booking now uses the same Booking Engine `createBooking()` path, passing the selected employee id
 - Legacy RPC is no longer called from public booking
-- No migration required; 034–036 remain unapplied; 037/038 unchanged
 - Do not claim Production is fixed until this branch is deliberately deployed and manually verified
 
 ### Changed (World Class Phase 4A — Commercial SaaS Lifecycle Honesty)
