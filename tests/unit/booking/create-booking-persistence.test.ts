@@ -219,6 +219,7 @@ describe("createBooking persistence strategy seam", () => {
       p_start_time: "2026-08-28T16:30:00.000Z",
       p_end_time: "2026-08-28T17:00:00.000Z",
       p_status: "confirmed",
+      // 040-compatible payload. 041 ignores these and stamps catalog amounts.
       p_price_cents: 20000,
       p_tax_cents: 0,
       p_deposit_cents: 0,

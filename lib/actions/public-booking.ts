@@ -236,6 +236,9 @@ export async function bookAppointment(
   const { resolveBookingFinancials } = await import(
     "@/lib/commerce/booking-financials"
   );
+  // Preview only (confirmation summary / intent payload). Persisted
+  // price/tax/deposit are stamped by book_public_appointment from catalog
+  // data after 041 — this client must not be treated as financial authority.
   const publicFinancials = resolveBookingFinancials({
     catalogPriceCents: Math.round(Number(service.price) * 100),
     serviceTaxRateBps: service.tax_rate_bps ?? null,

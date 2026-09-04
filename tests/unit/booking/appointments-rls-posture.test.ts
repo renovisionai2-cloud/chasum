@@ -71,21 +71,26 @@ describe("appointments RLS schema posture", () => {
     }
   });
 
-  it("keeps 040 additive: no appointments RLS, FORCE RLS, or table grant changes", () => {
-    const sql = stripSqlComments(
-      readMigration("040_book_public_appointment.sql"),
-    ).toLowerCase();
+  it("keeps 040 and 041 additive: no appointments RLS, FORCE RLS, or table grant changes", () => {
+    for (const name of [
+      "040_book_public_appointment.sql",
+      "041_book_public_appointment_server_financials.sql",
+    ]) {
+      const sql = stripSqlComments(readMigration(name)).toLowerCase();
 
-    expect(sql).not.toContain("alter table appointments");
-    expect(sql).not.toContain("create policy");
-    expect(sql).not.toContain("alter policy");
-    expect(sql).not.toContain("drop policy");
-    expect(sql).not.toContain("disable row level security");
-    expect(sql).not.toContain("force row level security");
-    expect(sql).not.toMatch(/grant\s+[\s\S]*on table appointments/);
-    expect(sql).not.toMatch(/revoke\s+[\s\S]*on table appointments/);
-    expect(sql).not.toContain("alter default privileges");
-    expect(sql).not.toContain("drop function if exists create_public_appointment");
+      expect(sql).not.toContain("alter table appointments");
+      expect(sql).not.toContain("create policy");
+      expect(sql).not.toContain("alter policy");
+      expect(sql).not.toContain("drop policy");
+      expect(sql).not.toContain("disable row level security");
+      expect(sql).not.toContain("force row level security");
+      expect(sql).not.toMatch(/grant\s+[\s\S]*on table appointments/);
+      expect(sql).not.toMatch(/revoke\s+[\s\S]*on table appointments/);
+      expect(sql).not.toContain("alter default privileges");
+      expect(sql).not.toContain(
+        "drop function if exists create_public_appointment",
+      );
+    }
   });
 
   it("requires a compatible SECURITY DEFINER writer if appointments FORCE RLS is introduced", () => {
@@ -102,7 +107,9 @@ describe("appointments RLS schema posture", () => {
       return;
     }
 
-    const rpc = readMigration("040_book_public_appointment.sql").toLowerCase();
+    const rpc = readMigration(
+      "041_book_public_appointment_server_financials.sql",
+    ).toLowerCase();
     expect(rpc).toContain("security definer");
     expect(rpc).toContain("book_public_appointment");
     expect(rpc).toContain("set search_path = public");

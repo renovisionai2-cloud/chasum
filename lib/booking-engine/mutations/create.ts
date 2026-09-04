@@ -187,6 +187,8 @@ export async function createBooking(
         endTime: validation.endTime,
         status,
         notes,
+        // Preview/compat payload only. After 041 the RPC ignores these and
+        // stamps catalog financials from services + tax_rates.
         stampedPriceCents,
         taxCents,
         depositCents,
@@ -376,6 +378,8 @@ async function persistViaPublicRpc(
     p_start_time: input.intent.requestedStart,
     p_end_time: input.endTime,
     p_status: input.status,
+    // Kept for 040 PostgREST compatibility while 041 is unapplied.
+    // 041 ignores these and persists server-authoritative catalog amounts.
     p_price_cents: input.stampedPriceCents || 0,
     p_tax_cents: input.taxCents,
     p_deposit_cents: input.depositCents || 0,
