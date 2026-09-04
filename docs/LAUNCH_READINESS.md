@@ -2,8 +2,8 @@
 
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
-**Last updated:** 2026-08-25  
-**Updated by:** Native-app strategy governance correction (follow-up to PR #30). Workstream 18 is **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Phase 5 remains **PREFLIGHT REQUIRED / NOT STARTED**. Tracker: **18 workstreams**.
+**Last updated:** 2026-09-04
+**Updated by:** Phase 5 living-docs restamp. Public named-staff booking **STAGING-VERIFIED** on `cursor/phase-5-booking-path-convergence` `fd31b4f`. Migrations 040+041 **APPLIED Staging only**. Production/main `476af17` **UNCHANGED**. Tracker: **18 workstreams**.
 
 These are **planning targets, not public promises.**
 
@@ -170,7 +170,7 @@ Owner defaults to **Founder / PO** for sequencing and **Engineering** for implem
 | Launch classification | **LAUNCH REQUIRED** — Chasum cannot commercially launch if booking, appointment lifecycle, customers, staff, locations, catalog, communications, and day-to-day workflow trust fail for a real service business. |
 | Status | **PARTIAL** |
 | Current owner / current task | Engineering — operate and harden existing Reception, CRM, Employees, Locations, Services, Communications, Command Centre. No new department rewrite scheduled. |
-| Blocking issue | Remaining craft: Booking Sheet collect-payment stub; dual communications stacks; public named-staff Option C (`book_public_appointment` SECURITY DEFINER) implemented on `cursor/phase-5-booking-path-convergence` — **migration NOT APPLIED, not Production**; resources migration `036` unapplied (flag off). |
+| Blocking issue | Remaining craft: Booking Sheet collect-payment stub; dual communications stacks; resources migration `036` unapplied (flag off). Public named-staff Option C (`book_public_appointment`) is **STAGING-VERIFIED** on `fd31b4f` (040+041 applied Staging; P2-1 passed). **Not Production.** Production 040→041 sequencing remains a cutover task. Do **not** list accepted Staging booking work as unresolved. |
 | Acceptance condition | A 1-location / 1–few-staff business can create customers, book/reschedule/cancel, run today’s schedule from Command Centre + Reception, collect/record money honestly, and communicate confirmations without dead ends or fabricated data. |
 | Target completion window | Late September–October 2026 (pilot-grade); hold through Dec 2026–Feb 2027 commercial v1 |
 | Launch risk | **GREEN** |
@@ -479,8 +479,8 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** — do not sell a product Production is not actually serving. |
 | Status | **PARTIAL** |
-| Current owner / current task | Founder / Engineering — Production deploys remain PO-gated. Last documented Production serving SHA `68e9a81` (identity closeout). Current `main` is `f6517a1` (PR #29 / Phase 4A). **VERIFY BEFORE CLAIMING CURRENT.** Primary work of the recommended next phase. |
-| Blocking issue | `main` ≠ documented Production; World Class Phases 1–4A may not be on Production yet. |
+| Current owner / current task | Founder / Engineering — Production deploys remain PO-gated. Production/`main` pin `476af17`. Phase 5 candidate `fd31b4f` is **STAGING-VERIFIED, not Production-deployed**. 040/041 Production apply remains a cutover task. |
+| Blocking issue | Phase 5 public booking is not on Production; 040/041 not Production-applied. Do not treat Staging-accepted booking work as unresolved. |
 | Acceptance condition | Production SHA is known, documented, and includes the capabilities we tell pilots they have (nav, staff honesty, Command Centre, Gate A billing truth); Preview→Staging still isolated; no silent Production deploys. |
 | Target completion window | Before GVM/HQ stable pilot claims; again before commercial v1 |
 | Launch risk | **AMBER** |
@@ -583,9 +583,37 @@ Did **not** complete: Gate B, RBAC, Summer OS-manager depth, Production pin, GVM
 
 **WORLD CLASS PHASE 5 — PRODUCTION PIN AND DESIGN-PARTNER PILOT STABILIZATION**
 
-**STATUS:** PREFLIGHT REQUIRED / NOT STARTED
+**STATUS:** IN PROGRESS — public named-staff booking **STAGING-VERIFIED**; Production pin/cutover **NOT APPROVED**
 
-Do **not** implement in this documentation chapter. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps here.
+Public named-staff booking on Staging is **LOCKED**. Do **not** implement 034–036, Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps to “finish” this path. Do **not** reopen accepted Staging booking work.
+
+#### Phase 5 public named-staff booking — Staging scorecard
+
+| Item | Staging | Production |
+|------|---------|------------|
+| Named-staff public booking | **PASS** | Not approved |
+| Financial authority (041 / P2-1) | **PASS** | 040/041 not applied |
+| Customer confirmation email | **PASS** | Cutover: confirm GVM notification settings |
+| Business new-booking email | **PASS** | Cutover: confirm GVM notification settings |
+| Booking source **Public Booking** | **PASS** | Not deployed |
+| Exactly-once webhook / in-app | **PASS** | Not deployed |
+| Cross-tenant isolation | **PASS** | Not re-proven on Production |
+| Overlap protection | **PASS** | Not re-proven on Production |
+| Any-staff | Intentionally **NOT** enabled (034 unapplied) | Keep gated; do not apply 034–036 |
+
+#### Production cutover constraints (governed plan — not an authorization)
+
+1. Read-only Production proof of `background_jobs.next_retry_at`
+2. Read-only Production confirmation of GVM notification settings
+3. Authorized Production database sequence: **040 → 041**
+4. Then deploy compatible Phase 5 app candidate (`fd31b4f` lineage)
+5. Do **not** apply 034–036
+6. Controlled Production smoke test
+7. Only then declare Production acceptance
+
+**NON-BLOCKING HARDENING / BACKLOG** (not Staging blockers): communications bridge ready-latch; webhook/in-app persistence idempotency; processor `bookingSource` coverage; manual resend / API / recurring source labels; Summer vs Summer AI; staff / Reception / Calendar copy; unchecked `bookingSource` cast.
+
+Do **not** implement a new booking redesign in this documentation chapter.
 
 | Field | Value |
 |-------|--------|
@@ -594,7 +622,7 @@ Do **not** implement in this documentation chapter. Do **not** start Gate B, RBA
 | Tracker workstreams | **17** Production Release / Launch Hardening (primary pin); **14** GVM Baby World Pilot Stability; **15** Chasum HQ Pilot Stabilization. Unblocks **16** Selected Outside Private Alpha. Observes **12** responsive-web use and **18** native timing evidence; observes Summer grounded use without expanding it. |
 | Why now | Highest probability of delaying Oct–Nov Private Alpha. Architecture candidates (RBAC, `/owner` expansion, Summer, Gate B, native apps) would proceed on an unvalidated Production product. Production serving truth + GVM real workflow + HQ dogfooding currently pose a more immediate threat to Late Sep–Oct pilots and Oct–Nov outside Private Alpha than those alternatives. |
 | Exact launch dependency | Chasum cannot safely invite an outside design partner, or claim Late Sep–Oct stable pilot use, while Production serving SHA is unverified relative to `main`, GVM has not completed a real booking+confirmation path, and HQ is not dogfooded as a normal tenant. |
-| Acceptance condition | (1) Production SHA is verified and documented, and includes World Class Phases 1–4A capabilities told to pilots **or** a conscious pin is recorded; (2) GVM completes a real booking with customer confirmation on the authoritative tenant; (3) Chasum HQ tenant can run Command Centre + Reception + at least one service/staff as a normal business; (4) no P0 tenant-isolation or money-truth failure; (5) no Stripe/provider, RBAC, Summer architecture, `/owner` expansion, native apps, or migrations in this phase. Pilot validation must exercise the connected operating chain (not merely deployment health) and **capture** mobile friction and grounded-AI workflow gaps without expanding either. |
+| Acceptance condition | Staging public named-staff booking is already **LOCKED**. Remaining Production acceptance: (1) Production SHA is verified and includes World Class Phases 1–4A **or** a conscious pin is recorded; (2) after authorized **040→041** then this app, GVM completes a real booking with customer confirmation; (3) Chasum HQ tenant can run Command Centre + Reception + at least one service/staff as a normal business; (4) no P0 tenant-isolation or money-truth failure; (5) no Stripe/provider, RBAC, Summer architecture, `/owner` expansion, native apps, or **034–036**. 040/041 Production apply is a **governed cutover**, not a reopen of Staging work. |
 | Likely risk level | **LEVEL 2** for PO-gated Production pin, env/email verification, and targeted defect fixes with no schema/tenancy/provider change. **LEVEL 3** (Claude pre-challenge required) if migrations 034–036, Production data mutations, identity-schema work, or billing-provider work enter. |
 | Claude pre-challenge | **NOT required** for bounded operational pin + real-use validation + targeted defects. **Required** before any LEVEL 3 expansion. |
 | Must remain out of scope | Gate B / Stripe / Checkout / webhooks; RBAC / staff login; Summer architecture rewrite; native iOS/Android **implementation**; `/owner` expansion; `/dashboard/hq` disposition; DashboardTopNav overflow; tenancy rewrite; commerce-ledger formulas; applying 034–036; public launch marketing; treating React Native + Expo as an irrevocable stack lock. |

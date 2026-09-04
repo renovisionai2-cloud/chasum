@@ -9,12 +9,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### Fixed (Public booking Option C — SECURITY DEFINER persistence — branch only)
+### Documented (Phase 5 living-docs restamp — STAGING-VERIFIED, not Production)
 
-**STATUS:** ON `cursor/phase-5-booking-path-convergence` — **NOT Production**. Production pin remains `476af17`. Migration `040_book_public_appointment.sql` is **NOT APPLIED**. Implementation is **NOT DEPLOYED**.
+**STATUS:** ON `cursor/phase-5-booking-path-convergence` @ `fd31b4f`. **STAGING-VERIFIED. NOT PRODUCTION-DEPLOYED.** Production/main pin remains `476af17`.
+
+- Named-staff public booking converged onto `createBooking` + `public_rpc`
+- Migration **040 APPLIED Staging** (SECURITY DEFINER writer; RLS unchanged; anon table INSERT blocked)
+- Duplicate public orchestration removed; one webhook job; one in-app notification
+- Customer confirmation and business new-booking emails send once (tenant notification flags / `notification_email` behavior verified)
+- Business email **Booking source: Public Booking** (no longer incorrectly **Reception**)
+- Migration **041 APPLIED Staging**; P2-1 financial-integrity **RUNTIME-VERIFIED** (caller commercial amounts ignored)
+- Any-staff remains intentionally gated; **034–036 unapplied**
+- Production **untouched** (no 040/041 Production apply, no merge, no Production deploy)
+
+### Fixed (Public booking Option C — SECURITY DEFINER persistence — STAGING-VERIFIED)
+
+**STATUS:** ON `cursor/phase-5-booking-path-convergence` — **STAGING-VERIFIED. NOT Production.** Production pin remains `476af17`. Migration `040_book_public_appointment.sql` is **APPLIED Staging; NOT APPLIED Production**.
 
 - Direct anon `appointments` INSERT remains RLS denied (owner-only policy unchanged)
-- Public named-staff booking persists through a new narrow SECURITY DEFINER RPC `book_public_appointment`, invoked only via an explicit `public_rpc` persistence strategy
+- Public named-staff booking persists through a narrow SECURITY DEFINER RPC `book_public_appointment`, invoked only via an explicit `public_rpc` persistence strategy
 - `createBooking` stays privilege-neutral: `channel: "public"` alone does not bypass RLS
 - Customer upsert + appointment insert are one database transaction (no compensating customer delete)
 - Enum-safe status: only `pending` / `confirmed` into `appointment_status` (legacy `v_status text` defect not reproduced)
@@ -23,9 +36,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - API and future unauthenticated Summer/SMS/voice are not wired to this RPC
 - Appointments RLS / FORCE RLS / table GRANT changes remain Level 3
 
-### Fixed (Public booking write-path convergence — branch only)
+### Fixed (Public booking write-path convergence — STAGING-VERIFIED)
 
-**STATUS:** ON `cursor/phase-5-booking-path-convergence` — **NOT Production**. Production pin remains `476af17`.
+**STATUS:** ON `cursor/phase-5-booking-path-convergence` — **STAGING-VERIFIED. NOT Production.** Production pin remains `476af17`.
 
 - Dual public booking write path identified: any-staff used Booking Engine `createBooking()`; named-staff used legacy `create_public_appointment` RPC (text `status` into `appointment_status`)
 - Named-staff public booking now uses the same Booking Engine `createBooking()` path, passing the selected employee id
@@ -47,7 +60,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Documented (World Class Phase 4A closeout + Phase 5 preflight)
 
 - Phase 4A marked **COMPLETE / MERGED TO MAIN** (PR #29, `f6517a1`)
-- Next recommended phase: **World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization** — PREFLIGHT REQUIRED / NOT STARTED
+- Next recommended phase after 4A: **World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization**. Public named-staff booking on that candidate is now **STAGING-VERIFIED** (`fd31b4f`); Production cutover is **not** approved. Historical “PREFLIGHT / NOT STARTED” language below is superseded for the Staging booking path only.
 - Gate B remains later; Commercial SaaS Lifecycle remains **PARTIAL**
 - Tracker expanded to **18 workstreams**; Native Mobile / App Store Readiness later restamped as **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** (see follow-up)
 - Permanent **AI Operating-System Preservation Check** added; full AI autonomy is Mid/Late 2027+ destination, not commercial-v1 acceptance
@@ -58,7 +71,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Native App Start Gate recorded (eight core stability areas)
 - Working technical direction: React Native + Expo; final stack confirmed at native-app preflight
 - One reusable multi-tenant mobile product; GVM / HQ / future businesses are normal tenants
-- Phase 5 remains PREFLIGHT REQUIRED / NOT STARTED; no native implementation in this stamp
+- Phase 5 public named-staff booking is **STAGING-VERIFIED**; no native implementation in this stamp
 
 ### Added (World Class Phase 3 — Command Centre V1)
 

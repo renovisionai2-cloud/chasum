@@ -31,11 +31,18 @@ Run in order in the Supabase SQL Editor or via `supabase db push`:
 | `028_commerce_platform.sql` | Client commerce: invoices, ledger, receipts, refunds, audit, appointment payment status |
 | `029_communications_platform.sql` | Quiet hours, marketing prefs, notification priority/archive, job retry backoff, communications audit |
 | `039_business_slug_aliases.sql` | Canonical slug + historical alias registry for public booking URLs |
-| `040_book_public_appointment.sql` | Additive `book_public_appointment` SECURITY DEFINER RPC for public named-staff persistence. **NOT APPLIED** to Staging or Production yet. |
+| `040_book_public_appointment.sql` | Additive `book_public_appointment` SECURITY DEFINER RPC for public named-staff persistence. **Repo: present. Staging: APPLIED. Production: NOT APPLIED / not approved as part of this Phase 5 release state.** |
+| `041_book_public_appointment_server_financials.sql` | Server-authoritative public booking financials (`CREATE OR REPLACE` of the 040 signature). Caller `p_price_cents` / `p_tax_cents` / `p_deposit_cents` are non-authoritative; persisted price/tax/deposit come from `services` + `tax_rates`. **Repo: present. Staging: APPLIED. Runtime verification: PASSED. Production: NOT APPLIED.** |
 
 **Current requirement:** every environment must be at migration **026** before relying on the Availability Engine (lunch/closures/blackouts/cleanup enforced in SQL).
 
-Migrations **034–036 remain UNAPPLIED**. Optional/unassigned staff stays gated. `040` is additive and is safe while those remain unapplied (`p_staff_id` is required). Do not apply `040` until Claude post-implementation review.
+Migrations **034–036 remain UNAPPLIED** on Staging and Production.
+
+- **034** — optional/unassigned staff. **Not required** for named-staff Phase 5. Any-staff / null `p_staff_id` remains **intentionally gated**.
+- **035** — booking interval allowed values. Unapplied. Outside this Phase 5 release.
+- **036** — booking resources. Unapplied; feature flag off. Outside this Phase 5 release.
+
+`040` / `041` are additive and remain safe while 034–036 stay unapplied (`p_staff_id` is required). Do **not** apply 034–036 to “simplify” Phase 5. Do **not** apply 040/041 to Production from this documentation stamp.
 
 ---
 
@@ -256,9 +263,11 @@ Validates business, service, staff, and customer belong to the same tenant. Chec
 
 All three are granted to `anon` and `authenticated`.
 
-### `book_public_appointment(...)` (Migration 040 — **NOT APPLIED**)
+### `book_public_appointment(...)` (Migrations 040 + 041)
 
 Narrow SECURITY DEFINER writer for unauthenticated public named-staff booking.
+
+**Apply state:** **Staging APPLIED** (`wnfahklzaxirftyskctd`) — 040 then 041. **041 runtime-verified on Staging (P2-1 CLOSED ON STAGING).** **Production NOT APPLIED** (`kxcydvhswkuzepwzzinq`). Not Production-approved as part of this Phase 5 release state.
 
 - Revalidates business, location, service, staff (active, accepts online booking, offers the service), and customer tenant membership in the database
 - Upserts the customer via `upsert_booking_customer` then inserts the appointment in the same transaction
@@ -267,6 +276,7 @@ Narrow SECURITY DEFINER writer for unauthenticated public named-staff booking.
 - Requires `p_staff_id` (any-staff / optional staff remains gated while 034 is unapplied)
 - `REVOKE ALL ... FROM PUBLIC`; `GRANT EXECUTE` to `anon` and `authenticated` only
 - Does **not** grant table privileges, alter appointments RLS, FORCE RLS, or default privileges
+- **041:** same PostgREST signature as 040. Caller `p_price_cents` / `p_tax_cents` / `p_deposit_cents` are accepted and **ignored**. Persisted commercial truth is derived from trusted `services` (price, deposit, tax_rate_bps) and `tax_rates`
 
 Public browser clients must not supply `business_id`. The public server action resolves the tenant from the booking slug (`getPublicBusinessBySlug`) and passes `business.id`.
 
@@ -296,13 +306,13 @@ Authenticated business owners have full CRUD on their tenant data via `is_busine
 | `holidays` | SELECT (all) |
 | `availability` | SELECT (all) |
 | `customers` | **RPC only** (migration 003) |
-| `appointments` | **Direct writes remain RLS denied.** Public booking persists through the narrow SECURITY DEFINER RPC `book_public_appointment` (040, not yet applied). Legacy `create_public_appointment` remains for rollback only. Owner dashboard writes continue through `is_business_owner(business_id)`. |
+| `appointments` | **Direct writes remain RLS denied.** Public booking persists through the narrow SECURITY DEFINER RPC `book_public_appointment` (**040+041 APPLIED Staging; not Production**). Legacy `create_public_appointment` remains for rollback only. Owner dashboard writes continue through `is_business_owner(business_id)`. |
 
 ### Appointments RLS is Level 3
 
 Changes to `appointments` RLS, policies, FORCE RLS, or table-level GRANT/REVOKE are **Level 3**. Do not add an anon INSERT policy, disable RLS, or FORCE RLS without a compatible SECURITY DEFINER / BYPASSRLS path and an explicit PO + Claude review.
 
-CI asserts this posture from migration SQL (`tests/unit/booking/appointments-rls-posture.test.ts`). That check does not query a live database. Staging/Production runtime verification remains required before claiming a live gate.
+CI asserts this posture from migration SQL (`tests/unit/booking/appointments-rls-posture.test.ts`). That check does not query a live database. Staging runtime verification of 040/041 RLS posture is **PASSED**. Production apply remains a future governed cutover.
 
 ### Known Gap
 
