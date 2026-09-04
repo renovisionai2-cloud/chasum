@@ -366,7 +366,7 @@ describe("public booking orchestration fires exactly once", () => {
     expect(handleAppointmentEvent).toHaveBeenCalledWith(
       "appt-orch-1",
       "confirmed",
-      expect.objectContaining({}),
+      expect.objectContaining({ bookingChannel: "public" }),
     );
     expect(enqueueWebhookJob).toHaveBeenCalledTimes(1);
     expect(enqueueWebhookJob).toHaveBeenCalledWith(
@@ -375,7 +375,9 @@ describe("public booking orchestration fires exactly once", () => {
       expect.objectContaining({ appointmentId: "appt-orch-1" }),
     );
     expect(deliverBookingNotifications).toHaveBeenCalledTimes(1);
-    expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-orch-1");
+    expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-orch-1", {
+      bookingChannel: "public",
+    });
   });
 
   it("T2 persist failure: zero orchestrator, webhook, and notification delivery", async () => {
@@ -405,7 +407,7 @@ describe("public booking orchestration fires exactly once", () => {
     expect(handleAppointmentEvent).toHaveBeenCalledWith(
       "appt-orch-1",
       "created",
-      expect.objectContaining({}),
+      expect.objectContaining({ bookingChannel: "public" }),
     );
     expect(enqueueWebhookJob).toHaveBeenCalledTimes(1);
     expect(enqueueWebhookJob).toHaveBeenCalledWith(
@@ -439,7 +441,7 @@ describe("public booking orchestration fires exactly once", () => {
     expect(handleAppointmentEvent).toHaveBeenCalledWith(
       "appt-session-1",
       "confirmed",
-      expect.objectContaining({}),
+      expect.objectContaining({ bookingChannel: "staff" }),
     );
     expect(enqueueWebhookJob).toHaveBeenCalledTimes(1);
     expect(enqueueWebhookJob).toHaveBeenCalledWith(

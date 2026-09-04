@@ -239,6 +239,7 @@ describe("public booking write-path convergence", () => {
     expect(PUBLIC_BOOKING_SOURCE).toContain("getPublicBusinessBySlug");
     expect(PUBLIC_BOOKING_SOURCE).not.toContain("handleAppointmentEvent");
     expect(PUBLIC_BOOKING_SOURCE).toContain("deliverBookingNotifications");
+    expect(PUBLIC_BOOKING_SOURCE).toContain('bookingChannel: "public"');
   });
 
   it("routes named staff through Booking Engine with the selected staff id", () => {
@@ -309,7 +310,9 @@ describe("public booking write-path convergence", () => {
     expect(intent.requestedStatus).toBe("pending");
     expect(handleAppointmentEvent).not.toHaveBeenCalled();
     expect(deliverBookingNotifications).toHaveBeenCalledTimes(1);
-    expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-1");
+    expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-1", {
+      bookingChannel: "public",
+    });
   });
 
   it("passes customer identity on the public persistence strategy, not a pre-upserted id", async () => {
@@ -339,7 +342,9 @@ describe("public booking write-path convergence", () => {
 
     expect(handleAppointmentEvent).not.toHaveBeenCalled();
     expect(deliverBookingNotifications).toHaveBeenCalledTimes(1);
-    expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-1");
+    expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-1", {
+      bookingChannel: "public",
+    });
   });
 
   it("does not invent financials — passes catalog-resolved cents into createBooking", async () => {

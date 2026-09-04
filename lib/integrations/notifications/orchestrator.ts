@@ -12,6 +12,7 @@ import {
   deleteAppointmentFromCalendars,
 } from "@/lib/integrations/calendar/sync";
 import { planIncludesSms } from "@/lib/billing/plan-features";
+import type { BookingChannel } from "@/lib/booking-engine/types";
 import { getResendApiKey, getTwilioConfig } from "@/lib/env";
 import { logger } from "@/lib/observability/logger";
 import type { NotificationType } from "@/lib/types/integrations";
@@ -73,7 +74,7 @@ function resolveBusinessNotifyEmail(settings: {
 export async function handleAppointmentEvent(
   appointmentId: string,
   event: AppointmentEvent,
-  options?: { previousStartTime?: string },
+  options?: { previousStartTime?: string; bookingChannel?: BookingChannel },
 ) {
   const supabase = createServiceClient();
 
@@ -178,7 +179,7 @@ export async function handleAppointmentEvent(
         templateKey: "appointment.business",
         recipient: businessTo,
         action: titleMap[event],
-        bookingSource: "reception",
+        bookingSource: options?.bookingChannel ?? "staff",
         idempotencyKey: `${appointmentId}:appointment.business:${businessTo}:${event}`,
       });
     } else if (ownerEnabled && !businessTo && event !== "updated") {

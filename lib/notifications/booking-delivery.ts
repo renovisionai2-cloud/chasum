@@ -486,10 +486,17 @@ async function sendChannelEmail(input: {
  */
 export async function deliverBookingNotifications(
   appointmentId: string,
+  options?: { bookingChannel?: AppointmentNotifyContext["bookingChannel"] },
 ): Promise<BookingNotificationReport> {
   const emailConfigured = Boolean(getResendApiKey());
   const smsConfigured = Boolean(getTwilioConfig());
-  const ctx = await loadAppointmentNotifyContext(appointmentId);
+  const loaded = await loadAppointmentNotifyContext(appointmentId);
+  const ctx = loaded
+    ? {
+        ...loaded,
+        bookingChannel: options?.bookingChannel ?? loaded.bookingChannel,
+      }
+    : null;
 
   if (!ctx) {
     return {

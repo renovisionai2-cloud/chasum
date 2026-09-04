@@ -3,6 +3,8 @@
  * All outbound email/SMS/notifications flow through this module.
  */
 
+import type { BookingChannel } from "@/lib/booking-engine/types";
+
 export type CommChannel = "email" | "sms" | "in_app";
 
 export type DeliveryStatus =
@@ -108,6 +110,11 @@ export type AppointmentTemplateContext = {
   receiptNumber?: string | null;
   previousStartTime?: string | null;
   customMessage?: string | null;
+  /**
+   * Booking Engine channel that created the appointment.
+   * Drives the business-email "Booking source" row.
+   */
+  bookingChannel?: BookingChannel | null;
   branding?: BrandingContext;
 };
 

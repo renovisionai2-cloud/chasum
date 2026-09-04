@@ -57,6 +57,7 @@ export function registerCommunicationsBookingBridge(): void {
 
     await handleAppointmentEvent(event.appointmentId, mapped, {
       previousStartTime,
+      bookingChannel: event.channel,
     });
   });
 }

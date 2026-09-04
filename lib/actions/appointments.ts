@@ -609,7 +609,9 @@ export async function createAppointment(
       const { deliverBookingNotifications } = await import(
         "@/lib/notifications/booking-delivery"
       );
-      const report = await deliverBookingNotifications(appointmentId);
+      const report = await deliverBookingNotifications(appointmentId, {
+        bookingChannel: "staff",
+      });
       action.notifications = report.items;
     } catch (err) {
       // Booking stays confirmed — notification failure is partial success.

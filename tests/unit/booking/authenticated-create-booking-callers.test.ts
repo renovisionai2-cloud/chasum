@@ -53,6 +53,7 @@ describe("authenticated createBooking callers stay on the session writer", () =>
     expect(src).not.toContain("handleAppointmentEvent");
     expect(src).not.toContain("notifications/orchestrator");
     expect(src).toContain("deliverBookingNotifications");
+    expect(src).toContain('bookingChannel: "public"');
   });
 
   it("keeps dashboard create on one createBooking pass plus deliverBookingNotifications", () => {
@@ -61,6 +62,7 @@ describe("authenticated createBooking callers stay on the session writer", () =>
     expect(src).not.toContain("notifications/orchestrator");
     expect(src).toContain("await createBooking({");
     expect(src).toContain("deliverBookingNotifications");
+    expect(src).toContain('bookingChannel: "staff"');
     expect(src.match(/deliverBookingNotifications\(/g)?.length).toBe(1);
   });
 });

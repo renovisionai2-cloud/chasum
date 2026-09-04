@@ -378,7 +378,9 @@ export async function bookAppointment(
       const { deliverBookingNotifications } = await import(
         "@/lib/notifications/booking-delivery"
       );
-      const report = await deliverBookingNotifications(appointmentId);
+      const report = await deliverBookingNotifications(appointmentId, {
+        bookingChannel: "public",
+      });
       notifications = report.items;
       emailQueued = report.items.some(
         (i) => i.channel === "customer_email" && i.status === "sent",

@@ -7,6 +7,7 @@ import {
   formatAppointmentEmailWhen,
   resolveAppointmentEmailTimezone,
 } from "@/lib/communications/appointment-datetime";
+import { bookingSourceLabel } from "@/lib/communications/booking-source";
 import type {
   AppointmentTemplateContext,
   BrandingContext,
@@ -382,7 +383,7 @@ function appointmentDetailsBusiness(ctx: AppointmentTemplateContext): string {
     detailRow("Employee", escapeHtml(ctx.staffName)),
     detailRow("Date and time", dateTimeBlock(ctx)),
     location ? detailRow("Location", escapeHtml(location)) : "",
-    detailRow("Booking source", "Reception"),
+    detailRow("Booking source", escapeHtml(bookingSourceLabel(ctx.bookingChannel))),
   ]
     .filter(Boolean)
     .join("");
