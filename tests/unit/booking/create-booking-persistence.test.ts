@@ -10,6 +10,11 @@ let rpcResult: { data: string | null; error: { message: string } | null } = {
   error: null,
 };
 
+const { emitBookingEvent, createBookingEvent } = vi.hoisted(() => ({
+  emitBookingEvent: vi.fn(async (event: unknown) => event),
+  createBookingEvent: vi.fn((event: unknown) => event),
+}));
+
 const validateBooking = vi.fn();
 
 vi.mock("@/lib/booking-engine/availability", async (importOriginal) => {
@@ -32,8 +37,8 @@ vi.mock("@/lib/booking-engine/conflicts", async (importOriginal) => {
 });
 
 vi.mock("@/lib/booking-engine/events", () => ({
-  createBookingEvent: (event: unknown) => event,
-  emitBookingEvent: async (event: unknown) => event,
+  createBookingEvent: (event: unknown) => createBookingEvent(event),
+  emitBookingEvent: (event: unknown) => emitBookingEvent(event),
   onBookingEvent: () => () => undefined,
 }));
 
@@ -149,6 +154,8 @@ describe("createBooking persistence strategy seam", () => {
     rpcCalls.length = 0;
     appointmentInserts.length = 0;
     rpcResult = { data: "appt-public", error: null };
+    emitBookingEvent.mockClear();
+    createBookingEvent.mockClear();
     validateBooking.mockReset();
     validateBooking.mockResolvedValue({
       ok: true,
@@ -173,6 +180,11 @@ describe("createBooking persistence strategy seam", () => {
     expect(row.end_time).toBe("2026-08-28T17:00:00.000Z");
     expect(row.status).toBe("confirmed");
     expect(row.price_cents).toBe(20000);
+    expect(emitBookingEvent).toHaveBeenCalledTimes(1);
+    expect(emitBookingEvent.mock.calls[0]?.[0]).toMatchObject({
+      type: "appointment.created",
+      appointmentId: "appt-session",
+    });
   });
 
   it("does not treat an explicit session strategy as privileged even for public channel", async () => {
@@ -211,6 +223,11 @@ describe("createBooking persistence strategy seam", () => {
       p_tax_cents: 0,
       p_deposit_cents: 0,
     });
+    expect(emitBookingEvent).toHaveBeenCalledTimes(1);
+    expect(emitBookingEvent.mock.calls[0]?.[0]).toMatchObject({
+      type: "appointment.created",
+      appointmentId: "appt-public",
+    });
   });
 
   it("passes pending through the public RPC without rewriting it to another lifecycle state", async () => {
@@ -248,6 +265,7 @@ describe("createBooking persistence strategy seam", () => {
     expect(result.phase).toBe("conflict");
     expect(result.error).toMatch(/time slot/i);
     expect(result.conflicts?.[0]?.code).toBe("STAFF_BUSY");
+    expect(emitBookingEvent).not.toHaveBeenCalled();
   });
 
   it("keeps dashboard/staff channel on the session writer", async () => {
@@ -259,5 +277,49 @@ describe("createBooking persistence strategy seam", () => {
     expect(result.data?.appointmentId).toBe("appt-session");
     expect(rpcCalls).toEqual([]);
     expect(appointmentInserts).toHaveLength(1);
+  });
+
+  it("emits appointment.created exactly once for session and public_rpc success, and never on persist failure", async () => {
+    const session = await createBooking(namedStaffIntent());
+    expect(session.phase).toBe("success");
+    expect(emitBookingEvent).toHaveBeenCalledTimes(1);
+    expect(createBookingEvent).toHaveBeenCalledTimes(1);
+    expect(createBookingEvent.mock.calls[0]?.[0]).toMatchObject({
+      type: "appointment.created",
+    });
+
+    emitBookingEvent.mockClear();
+    createBookingEvent.mockClear();
+
+    const publicRpc = await createBooking(
+      namedStaffIntent({ customerId: undefined }),
+      publicBookingPersistence({
+        customerName: "Jordan Lee",
+        customerEmail: "jordan@example.com",
+        customerPhone: null,
+      }),
+    );
+    expect(publicRpc.phase).toBe("success");
+    expect(emitBookingEvent).toHaveBeenCalledTimes(1);
+    expect(emitBookingEvent.mock.calls[0]?.[0]).toMatchObject({
+      type: "appointment.created",
+      appointmentId: "appt-public",
+    });
+
+    emitBookingEvent.mockClear();
+    rpcResult = {
+      data: null,
+      error: { message: "Time slot no longer available" },
+    };
+    const failed = await createBooking(
+      namedStaffIntent({ customerId: undefined }),
+      publicBookingPersistence({
+        customerName: "Jordan Lee",
+        customerEmail: "jordan@example.com",
+        customerPhone: null,
+      }),
+    );
+    expect(failed.phase).toBe("conflict");
+    expect(emitBookingEvent).not.toHaveBeenCalled();
   });
 });

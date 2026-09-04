@@ -374,13 +374,6 @@ export async function bookAppointment(
   let emailQueued = false;
   let notifications: PublicBookingState["notifications"];
   if (appointmentId) {
-    const { handleAppointmentEvent } = await import(
-      "@/lib/integrations/notifications/orchestrator"
-    );
-    await handleAppointmentEvent(
-      appointmentId,
-      appointmentStatus === "pending" ? "created" : "confirmed",
-    );
     try {
       const { deliverBookingNotifications } = await import(
         "@/lib/notifications/booking-delivery"

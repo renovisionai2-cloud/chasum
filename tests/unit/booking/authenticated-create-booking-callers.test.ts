@@ -47,4 +47,20 @@ describe("authenticated createBooking callers stay on the session writer", () =>
     expect(src).toContain("isPublicRpcPersistence");
     expect(src).toContain('rpc("book_public_appointment"');
   });
+
+  it("does not let the public action call handleAppointmentEvent directly", () => {
+    const src = source("lib/actions/public-booking.ts");
+    expect(src).not.toContain("handleAppointmentEvent");
+    expect(src).not.toContain("notifications/orchestrator");
+    expect(src).toContain("deliverBookingNotifications");
+  });
+
+  it("keeps dashboard create on one createBooking pass plus deliverBookingNotifications", () => {
+    const src = source("lib/actions/appointments.ts");
+    expect(src).not.toContain("handleAppointmentEvent");
+    expect(src).not.toContain("notifications/orchestrator");
+    expect(src).toContain("await createBooking({");
+    expect(src).toContain("deliverBookingNotifications");
+    expect(src.match(/deliverBookingNotifications\(/g)?.length).toBe(1);
+  });
 });

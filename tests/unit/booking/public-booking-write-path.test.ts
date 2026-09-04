@@ -237,6 +237,8 @@ describe("public booking write-path convergence", () => {
     expect(PUBLIC_BOOKING_SOURCE).toContain("publicBookingPersistence");
     expect(PUBLIC_BOOKING_SOURCE).not.toContain('formData.get("business_id")');
     expect(PUBLIC_BOOKING_SOURCE).toContain("getPublicBusinessBySlug");
+    expect(PUBLIC_BOOKING_SOURCE).not.toContain("handleAppointmentEvent");
+    expect(PUBLIC_BOOKING_SOURCE).toContain("deliverBookingNotifications");
   });
 
   it("routes named staff through Booking Engine with the selected staff id", () => {
@@ -305,7 +307,9 @@ describe("public booking write-path convergence", () => {
     expect(result.error).toBeUndefined();
     const intent = createBooking.mock.calls[0]?.[0] as BookingIntent;
     expect(intent.requestedStatus).toBe("pending");
-    expect(handleAppointmentEvent).toHaveBeenCalledWith("appt-1", "created");
+    expect(handleAppointmentEvent).not.toHaveBeenCalled();
+    expect(deliverBookingNotifications).toHaveBeenCalledTimes(1);
+    expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-1");
   });
 
   it("passes customer identity on the public persistence strategy, not a pre-upserted id", async () => {
@@ -330,11 +334,10 @@ describe("public booking write-path convergence", () => {
     expect(persistence.customerEmail).toBe("jordan@example.com");
   });
 
-  it("fires the same post-success notification workflow as any-staff", async () => {
+  it("delivers booking notifications once after success without a second orchestrator pass", async () => {
     await bookAppointment({}, bookingForm());
 
-    expect(handleAppointmentEvent).toHaveBeenCalledTimes(1);
-    expect(handleAppointmentEvent).toHaveBeenCalledWith("appt-1", "confirmed");
+    expect(handleAppointmentEvent).not.toHaveBeenCalled();
     expect(deliverBookingNotifications).toHaveBeenCalledTimes(1);
     expect(deliverBookingNotifications).toHaveBeenCalledWith("appt-1");
   });
