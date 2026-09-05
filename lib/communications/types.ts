@@ -130,6 +130,12 @@ export type SendResult = {
   messageId?: string;
   error?: string;
   provider?: string;
+  deliveryState?: "accepted" | "rejected" | "unknown" | "not_attempted";
+  retrySafe?: boolean;
+  reconciliationRequired?: boolean;
+  duplicateSuppressed?: boolean;
+  /** Durable send record ID; distinct from a domain-event occurrence ID. */
+  intentId?: string;
 };
 
 export type CommunicationsPreferences = {

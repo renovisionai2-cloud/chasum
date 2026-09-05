@@ -9,6 +9,10 @@ import type { QueueNotificationInput } from "@/lib/communications/types";
 import { enqueueJob } from "@/lib/integrations/jobs/queue";
 import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createServiceClient } from "@/lib/supabase/service";
+import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
+import { sendIntentKey } from "@/lib/communications/send-intent";
+import { SAFE_RETRY_PREFIX } from "@/lib/integrations/jobs/claim";
+import { logger } from "@/lib/observability/logger";
 
 export type QueueResult = {
   ok: boolean;
@@ -238,6 +242,9 @@ export async function retryNotification(
   businessId: string,
   jobId: string,
 ): Promise<{ ok: boolean; error?: string }> {
+  if (!workerReliabilityEnabled()) {
+    return { ok: false, error: "Notification retries are held pending worker reliability approval." };
+  }
   const supabase = createServiceClient();
   const { data: job, error } = await supabase
     .from("background_jobs")
@@ -250,7 +257,32 @@ export async function retryNotification(
     return { ok: false, error: error?.message ?? "Job not found." };
   }
 
-  const { error: upd } = await supabase
+  if (job.status !== "failed" ||
+      typeof job.error_message !== "string" || !job.error_message.startsWith(SAFE_RETRY_PREFIX) ||
+      !Number.isInteger(job.attempts) || !Number.isInteger(job.max_attempts) ||
+      job.attempts < 0 || job.attempts >= job.max_attempts ||
+      job.cancelled_at != null) {
+    return { ok: false, error: "This job is terminal, owned, exhausted, or has no confirmed safe retry evidence." };
+  }
+  const channel = job.job_type === "email" || job.job_type === "sms"
+    ? job.job_type : job.job_type === "reminder" ? job.payload?.channel : null;
+  const templateKey = job.job_type === "reminder" ? "appointment.reminder" : job.payload?.templateKey;
+  const intentId = job.payload?.sendIntentId;
+  if ((channel !== "email" && channel !== "sms") ||
+      job.payload?.sendIntentProtocol !== "durable-v1" ||
+      typeof templateKey !== "string" || typeof intentId !== "string") {
+    return { ok: false, error: "Legacy or unsupported work requires delivery reconciliation before retry." };
+  }
+  const { data: intent, error: intentError } = await supabase.from("communication_send_intents")
+    .select("id,state")
+    .eq("business_id", businessId)
+    .eq("intent_key", sendIntentKey(intentId, channel, templateKey))
+    .maybeSingle();
+  if (intentError || intent?.state !== "rejected") {
+    return { ok: false, error: "Delivery is accepted, uncertain, or lacks durable confirmed-rejection evidence." };
+  }
+
+  const { data: updated, error: upd } = await supabase
     .from("background_jobs")
     .update({
       status: "pending",
@@ -260,9 +292,20 @@ export async function retryNotification(
       completed_at: null,
       cancelled_at: null,
     })
-    .eq("id", jobId);
+    .eq("id", jobId)
+    .eq("business_id", businessId)
+    .eq("status", "failed")
+    .eq("attempts", job.attempts)
+    .eq("max_attempts", job.max_attempts)
+    .eq("error_message", job.error_message)
+    .eq("payload", JSON.stringify(job.payload))
+    .is("cancelled_at", null)
+    .select("id");
 
   if (upd) return { ok: false, error: upd.message };
+  if (updated?.length !== 1 || updated[0].id !== jobId) {
+    return { ok: false, error: "Job changed during retry approval; no retry was queued." };
+  }
 
   await writeCommsAudit({
     businessId,
@@ -270,7 +313,7 @@ export async function retryNotification(
     entityType: "background_job",
     entityId: jobId,
     summary: `Retry queued for job ${jobId}`,
-  });
+  }).catch(() => logger.error("worker", "manual_retry_audit_unconfirmed", { businessId, jobId }));
 
   return { ok: true };
 }

@@ -1,20 +1,21 @@
 /**
- * Booking notification delivery — Preview-safe synchronous confirmation send.
+ * Booking notification delivery — synchronous provider truth and queue reconciliation.
  *
- * Do not leave channels in Pending after this request ends. Enqueued jobs are
- * best-effort audit records; confirmation email/SMS results come from an
- * awaited provider call in the same Server Action.
+ * Provider acceptance and queue finalization are separate results. Enabled
+ * delivery shares a durable send occurrence with the asynchronously queued twin.
  */
 
 import { planIncludesSms } from "@/lib/billing/plan-features";
 import { sendEmail, sendSMS } from "@/lib/communications/delivery";
-import type { AppointmentTemplateContext } from "@/lib/communications/types";
+import type { AppointmentTemplateContext, SendResult } from "@/lib/communications/types";
+import { initialBookingIntentId, newSendIntentId } from "@/lib/communications/intent-identity";
+import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
+import { inspectSendIntent, inspectUnresolvedSendIntent } from "@/lib/communications/send-intent";
 import {
   getEmailFromAddress,
   getResendApiKey,
   getTwilioConfig,
 } from "@/lib/env";
-import { enqueueEmailJob, enqueueSmsJob } from "@/lib/integrations/jobs/queue";
 import {
   formatNotificationStatus,
   type BookingNotificationChannel,
@@ -35,6 +36,10 @@ export type BookingNotificationItem = {
   providerMessageId?: string | null;
   canRetry?: boolean;
   jobId?: string | null;
+  deliveryState?: SendResult["deliveryState"];
+  reconciliationRequired?: boolean;
+  duplicateSuppressed?: boolean;
+  intentId?: string;
 };
 
 export type BookingNotificationReport = {
@@ -62,13 +67,6 @@ export function getNotificationProviderConfigStatus() {
   };
 }
 
-function maskEmail(email: string | null | undefined): string | null {
-  if (!email) return null;
-  const [user, domain] = email.split("@");
-  if (!user || !domain) return "***";
-  return `${user.slice(0, 1)}***@${domain}`;
-}
-
 type AppointmentNotifyContext = AppointmentTemplateContext & {
   customerId: string | null;
   businessEmail: string | null;
@@ -85,9 +83,10 @@ type AppointmentNotifyContext = AppointmentTemplateContext & {
 /** Shared appointment email context (financials + branding inputs). */
 export async function loadAppointmentNotifyContext(
   appointmentId: string,
+  expectedBusinessId?: string,
 ): Promise<AppointmentNotifyContext | null> {
   const supabase = createServiceClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("appointments")
     .select(
       `
@@ -106,10 +105,11 @@ export async function loadAppointmentNotifyContext(
       location:locations(name, timezone)
     `,
     )
-    .eq("id", appointmentId)
-    .single();
+    .eq("id", appointmentId);
+  if (expectedBusinessId) query = query.eq("business_id", expectedBusinessId);
+  const { data, error } = await query.single();
 
-  if (error || !data) {
+  if (error || !data || (expectedBusinessId && data.business_id !== expectedBusinessId)) {
     logger.warn("notifications", "appointment_context_missing", {
       appointmentId,
       error: error?.message,
@@ -287,66 +287,7 @@ function resolveBusinessRecipient(ctx: AppointmentNotifyContext): string | null 
   return ctx.notificationEmail || ctx.businessEmail || null;
 }
 
-async function alreadySent(
-  appointmentId: string,
-  templateKey: string,
-  recipient: string,
-): Promise<{ messageId: string | null } | null> {
-  const supabase = createServiceClient();
-  const { data } = await supabase
-    .from("notification_logs")
-    .select("provider_message_id, status")
-    .eq("appointment_id", appointmentId)
-    .eq("template_key", templateKey)
-    .eq("recipient", recipient)
-    .eq("status", "sent")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (!data) return null;
-  return { messageId: (data.provider_message_id as string | null) ?? null };
-}
-
-async function markRelatedJobs(
-  appointmentId: string,
-  templateKey: string,
-  outcome: "completed" | "failed",
-  errorMessage?: string | null,
-) {
-  const supabase = createServiceClient();
-  const { data: jobs } = await supabase
-    .from("background_jobs")
-    .select("id, payload, status")
-    .in("job_type", ["email", "sms"])
-    .in("status", ["pending", "processing"])
-    .order("created_at", { ascending: false })
-    .limit(100);
-
-  const matches = (jobs ?? []).filter((job) => {
-    const payload = job.payload as {
-      appointmentId?: string;
-      templateKey?: string;
-    };
-    return (
-      payload.appointmentId === appointmentId &&
-      payload.templateKey === templateKey
-    );
-  });
-
-  for (const job of matches) {
-    await supabase
-      .from("background_jobs")
-      .update({
-        status: outcome,
-        completed_at: new Date().toISOString(),
-        error_message: errorMessage ?? null,
-        next_retry_at: null,
-      })
-      .eq("id", job.id);
-  }
-}
-
-async function sendChannelEmail(input: {
+type InlineSendInput = {
   channel: BookingNotificationChannel;
   label: string;
   ctx: AppointmentNotifyContext;
@@ -354,131 +295,235 @@ async function sendChannelEmail(input: {
   templateKey: string;
   skipPreferenceCheck?: boolean;
   action?: string;
-  /** When true, send even if a prior successful log exists (human resend). */
   forceResend?: boolean;
-}): Promise<BookingNotificationItem> {
-  const appointmentId = input.ctx.appointmentId as string;
-  if (!input.forceResend) {
-    const prior = await alreadySent(
-      appointmentId,
-      input.templateKey,
-      input.to,
-    );
-    if (prior) {
-      return {
-        channel: input.channel,
-        status: "sent",
-        label: input.label,
-        providerMessageId: prior.messageId,
-        canRetry: true,
-        detail: "Already accepted by email provider.",
-      };
-    }
-  }
+  sendIntentId?: string;
+};
 
-  logger.info("notifications", "provider_send_start", {
-    appointmentId,
-    channel: input.channel,
+async function alreadySent(input: InlineSendInput, channel: "email" | "sms") {
+  const { data, error } = await createServiceClient()
+    .from("notification_logs")
+    .select("provider_message_id")
+    .eq("business_id", input.ctx.businessId)
+    .eq("channel", channel)
+    .eq("appointment_id", input.ctx.appointmentId!)
+    .eq("template_key", input.templateKey)
+    .eq("recipient", input.to)
+    .eq("status", "sent")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(`Delivery evidence lookup failed: ${error.message}`);
+  return data ? { messageId: data.provider_message_id as string | undefined } : null;
+}
+
+/** Only this tenant/channel/occurrence's pending twin can be reconciled inline. */
+async function markRelatedJobs(
+  input: InlineSendInput,
+  channel: "email" | "sms",
+  sendIntentId: string,
+  outcome: "completed" | "failed",
+  errorMessage?: string,
+): Promise<{ reconciliationRequired: boolean }> {
+  // An explicit resend creates its own intent, not another attempt of old jobs.
+  if (input.forceResend) return { reconciliationRequired: false };
+  const reliable = workerReliabilityEnabled();
+  const supabase = createServiceClient();
+  const payloadMatch = {
+    appointmentId: input.ctx.appointmentId,
     templateKey: input.templateKey,
-    recipient: maskEmail(input.to),
-    provider: "resend",
-    fromHost: getNotificationProviderConfigStatus().emailFromHost,
-  });
-
+    ...(reliable ? { sendIntentId } : {}),
+  };
   try {
-    const result = await sendEmail({
+    const { data: jobs, error } = await supabase.from("background_jobs")
+      .select("id, payload, status")
+      .eq("business_id", input.ctx.businessId)
+      .eq("job_type", channel)
+      .contains("payload", payloadMatch);
+    if (error) throw new Error(`Queue twin lookup failed: ${error.message}`);
+    const matches = (jobs ?? []).filter((job) => {
+      const p = job.payload as Record<string, unknown>;
+      // Old customer jobs omitted recipient; only the same loaded tenant's
+      // customer address can supply that old implicit destination.
+      const recipient = p.recipient ??
+        (channel === "sms" ? input.ctx.customerPhone :
+          input.templateKey === "appointment.confirmation" ? input.ctx.customerEmail : null);
+      return recipient === input.to;
+    });
+    if (!matches.length) throw new Error("No matching queue twin was found");
+    let unsettled = false;
+    for (const job of matches) {
+      if (job.status === outcome) continue;
+      // Never finalize or fail a processing job owned by a worker, or revive a
+      // terminal job. Its durable delivery intent prevents another provider call.
+      if (job.status !== "pending") { unsettled = true; continue; }
+      const { data: updated, error: updateError } = await supabase.from("background_jobs")
+        .update({
+          status: outcome,
+          completed_at: new Date().toISOString(),
+          error_message: errorMessage ?? null,
+          // Before 029 the disabled-worker compatibility path must not request
+          // missing columns. The enabled worker requires the governed migration.
+          ...(reliable ? { next_retry_at: null } : {}),
+        })
+        .eq("id", job.id)
+        .eq("business_id", input.ctx.businessId)
+        .eq("job_type", channel)
+        .eq("status", "pending")
+        .contains("payload", { ...payloadMatch, ...((job.payload as Record<string, unknown>).recipient != null
+          ? { recipient: input.to } : {}) })
+        .select("id");
+      if (updateError) throw new Error(`Queue twin update failed: ${updateError.message}`);
+      if (updated?.length !== 1) throw new Error("Queue twin ownership changed during reconciliation");
+    }
+    if (unsettled) throw new Error("Queue twin is processing or has another terminal disposition");
+    return { reconciliationRequired: false };
+  } catch (error) {
+    logger.error("notifications", "queue_reconciliation_required", {
       businessId: input.ctx.businessId,
-      to: input.to,
-      templateKey: input.templateKey,
-      context: {
-        ...input.ctx,
-        customMessage: input.action,
-      },
-      customerId: input.ctx.customerId,
-      appointmentId,
-      skipPreferenceCheck: input.skipPreferenceCheck,
+      appointmentId: input.ctx.appointmentId,
+      channel,
+      sendIntentId,
+      outcome,
+      error: error instanceof Error ? error.message : "Queue reconciliation failed",
     });
-
-    if (result.skipped) {
-      await markRelatedJobs(
-        appointmentId,
-        input.templateKey,
-        "failed",
-        result.error ?? "Skipped by preferences.",
-      );
-      return {
-        channel: input.channel,
-        status: "skipped",
-        label: input.label,
-        detail: result.error ?? "Skipped by notification preferences.",
-        canRetry: true,
-      };
-    }
-
-    if (!result.ok) {
-      await markRelatedJobs(
-        appointmentId,
-        input.templateKey,
-        "failed",
-        result.error ?? "Email send failed.",
-      );
-      logger.warn("notifications", "provider_send_failed", {
-        appointmentId,
-        channel: input.channel,
-        error: result.error,
-        recipient: maskEmail(input.to),
-      });
-      return {
-        channel: input.channel,
-        status: "failed",
-        label: input.label,
-        detail: result.error ?? "Email could not be sent.",
-        canRetry: true,
-      };
-    }
-
-    await markRelatedJobs(
-      appointmentId,
-      input.templateKey,
-      "completed",
-    );
-    logger.info("notifications", "provider_send_accepted", {
-      appointmentId,
-      channel: input.channel,
-      providerMessageId: result.messageId,
-      recipient: maskEmail(input.to),
-    });
-    return {
-      channel: input.channel,
-      status: "sent",
-      label: input.label,
-      providerMessageId: result.messageId ?? null,
-      canRetry: true,
-      detail: result.messageId
-        ? "Accepted by email provider."
-        : "Accepted by email provider (no message id).",
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Email send failed.";
-    await markRelatedJobs(
-      appointmentId,
-      input.templateKey,
-      "failed",
-      message,
-    );
-    logger.error("notifications", "provider_send_exception", {
-      appointmentId,
-      channel: input.channel,
-      error: message,
-    });
-    return {
-      channel: input.channel,
-      status: "failed",
-      label: input.label,
-      detail: message,
-      canRetry: true,
-    };
+    return { reconciliationRequired: true };
   }
+}
+
+async function acceptedInlineResult(
+  input: InlineSendInput, channel: "email" | "sms", sendIntentId: string, result: SendResult,
+): Promise<BookingNotificationItem> {
+  const base = { channel: input.channel, label: input.label };
+    // This is deliberately outside the provider try/catch. Bookkeeping cannot
+    // turn an accepted message into a failed-send retry prompt.
+    const queue = await markRelatedJobs(input, channel, sendIntentId, "completed");
+    const reconciliationRequired = Boolean(result.reconciliationRequired || queue.reconciliationRequired);
+    logger.info("notifications", "provider_send_accepted", {
+      businessId: input.ctx.businessId, appointmentId: input.ctx.appointmentId,
+      channel, sendIntentId, providerMessageId: result.messageId,
+      reconciliationRequired, duplicateSuppressed: Boolean(result.duplicateSuppressed),
+    });
+    return { ...base, status: "sent", providerMessageId: result.messageId,
+      deliveryState: "accepted", reconciliationRequired,
+      duplicateSuppressed: result.duplicateSuppressed, intentId: result.intentId,
+      canRetry: !reconciliationRequired,
+      detail: reconciliationRequired ? "Accepted by provider; queue reconciliation requires review. Do not resend."
+        : "Accepted by provider." };
+}
+
+async function sendInlineChannel(input: InlineSendInput, channel: "email" | "sms"): Promise<BookingNotificationItem> {
+  const reliable = workerReliabilityEnabled();
+  const sendIntentId = input.sendIntentId ?? (input.forceResend
+    ? newSendIntentId() : initialBookingIntentId(input.ctx.appointmentId!));
+  const base = { channel: input.channel, label: input.label };
+  let result: SendResult;
+  if (reliable && input.forceResend) {
+    const unresolved = await inspectUnresolvedSendIntent({ businessId: input.ctx.businessId,
+      channel, templateKey: input.templateKey, to: input.to,
+      entityType: "appointment", entityId: input.ctx.appointmentId! });
+    if (unresolved) return { ...base, status: "failed", deliveryState: unresolved.deliveryState,
+      reconciliationRequired: true, canRetry: false, intentId: unresolved.intentId,
+      detail: "An earlier send is in progress or uncertain. Reconcile before requesting another send." };
+  }
+  // Established durable truth precedes mutable queue/log/protocol evidence.
+  // Failed reconciliation must never turn already accepted delivery into failure.
+  if (reliable) {
+    const recorded = await inspectSendIntent({
+      businessId: input.ctx.businessId, channel, templateKey: input.templateKey,
+      to: input.to, reliability: { intentId: sendIntentId, source: "inline", entityType: "appointment", entityId: input.ctx.appointmentId! },
+    });
+    if (recorded?.success) return acceptedInlineResult(input, channel, sendIntentId,
+      { ...recorded, ok: true });
+    if (recorded) return { ...base, status: "failed", deliveryState: recorded.deliveryState,
+      reconciliationRequired: true, canRetry: false, intentId: recorded.intentId,
+      detail: "Delivery outcome requires reconciliation. No new send attempted." };
+  }
+  if (reliable && !input.forceResend) {
+    try {
+      const { data: twins, error } = await createServiceClient().from("background_jobs")
+        .select("payload")
+        .eq("business_id", input.ctx.businessId)
+        .eq("job_type", channel)
+        .contains("payload", { appointmentId: input.ctx.appointmentId, templateKey: input.templateKey });
+      if (error) throw new Error("Queue protocol evidence unavailable");
+      if ((twins ?? []).some((job) => {
+        const p = job.payload as Record<string, unknown>;
+        const recipient = p.recipient ?? (channel === "sms" ? input.ctx.customerPhone :
+          input.templateKey === "appointment.confirmation" ? input.ctx.customerEmail : null);
+        return recipient === input.to && p.sendIntentProtocol !== "durable-v1";
+      })) throw new Error("Legacy send occurrence requires reconciliation before delivery");
+      // A pre-activation inline send may have succeeded even when enqueueing
+      // failed. A legacy sent log is evidence to HOLD, never evidence to create
+      // a new send or silently adopt historical delivery into the ledger.
+      const previousDelivery = await alreadySent(input, channel);
+      if (previousDelivery) throw new Error("Prior provider acceptance has no matching accepted durable intent");
+    } catch (error) {
+      logger.error("notifications", "inline_protocol_reconciliation_required", {
+        businessId: input.ctx.businessId, appointmentId: input.ctx.appointmentId,
+        channel, sendIntentId, error: error instanceof Error ? error.message : "Protocol check failed",
+      });
+      return { ...base, status: "failed", deliveryState: "not_attempted",
+        reconciliationRequired: true, canRetry: false,
+        detail: "Earlier delivery evidence requires review. No new send attempted." };
+    }
+  }
+  // Legacy pre-migration inline operation still checks every evidence query.
+  // Enabled operation uses the durable occurrence guard, never an all-time log
+  // match that could suppress a distinct reschedule or manual resend.
+  if (!reliable && !input.forceResend) {
+    try {
+      const prior = await alreadySent(input, channel);
+      if (prior) {
+        const queue = await markRelatedJobs(input, channel, sendIntentId, "completed");
+        return { ...base, status: "sent", providerMessageId: prior.messageId,
+          deliveryState: "accepted", duplicateSuppressed: true, ...queue,
+          canRetry: !queue.reconciliationRequired,
+          detail: "Already accepted by provider." };
+      }
+    } catch (error) {
+      logger.error("notifications", "delivery_evidence_unavailable", {
+        businessId: input.ctx.businessId, appointmentId: input.ctx.appointmentId, channel,
+        error: error instanceof Error ? error.message : "Evidence lookup failed",
+      });
+      return { ...base, status: "failed", deliveryState: "not_attempted",
+        reconciliationRequired: true, canRetry: false,
+        detail: "Delivery evidence is unavailable. No send attempted; review required." };
+    }
+  }
+  try {
+    const args = {
+      businessId: input.ctx.businessId, to: input.to, templateKey: input.templateKey,
+      context: { ...input.ctx, customMessage: input.action },
+      customerId: input.ctx.customerId, appointmentId: input.ctx.appointmentId,
+      skipPreferenceCheck: input.skipPreferenceCheck,
+      ...(reliable ? { reliability: { intentId: sendIntentId, source: "inline" as const, entityType: "appointment" as const, entityId: input.ctx.appointmentId! } } : {}),
+    };
+    result = channel === "email" ? await sendEmail(args) : await sendSMS(args);
+  } catch (error) {
+    // An exception alone cannot prove the provider rejected the request.
+    logger.error("notifications", "provider_outcome_unknown", {
+      businessId: input.ctx.businessId, appointmentId: input.ctx.appointmentId,
+      channel, sendIntentId, error: error instanceof Error ? error.message : "Send interrupted",
+    });
+    return { ...base, status: "failed", deliveryState: "unknown",
+      reconciliationRequired: true, canRetry: false,
+      detail: "Delivery outcome is uncertain. Review required before another send." };
+  }
+  if (result.ok) return acceptedInlineResult(input, channel, sendIntentId, result);
+  const unknown = result.deliveryState === "unknown" || Boolean(result.reconciliationRequired);
+  const retrySafe = reliable ? result.retrySafe === true : !unknown;
+  const queue = unknown ? { reconciliationRequired: true }
+    : await markRelatedJobs(input, channel, sendIntentId, "failed", result.error);
+  return { ...base, status: result.skipped ? "skipped" : "failed",
+    deliveryState: result.deliveryState ?? (result.skipped ? "not_attempted" : "rejected"),
+    reconciliationRequired: Boolean(queue.reconciliationRequired || unknown),
+    intentId: result.intentId, canRetry: retrySafe && !unknown && !queue.reconciliationRequired,
+    detail: unknown ? "Delivery outcome requires reconciliation. Do not resend."
+      : result.error ?? "Provider did not accept the message." };
+}
+
+async function sendChannelEmail(input: InlineSendInput): Promise<BookingNotificationItem> {
+  return sendInlineChannel(input, "email");
 }
 
 /**
@@ -599,49 +644,10 @@ export async function deliverBookingNotifications(
       detail: "SMS notifications are not configured for this business.",
     });
   } else {
-    try {
-      const result = await sendSMS({
-        businessId: ctx.businessId,
-        to: ctx.customerPhone,
-        templateKey: "appointment.confirmation",
-        context: ctx,
-        customerId: ctx.customerId,
-        appointmentId,
-      });
-      if (result.ok) {
-        await markRelatedJobs(appointmentId, "appointment.confirmation", "completed");
-        items.push({
-          channel: "customer_sms",
-          status: "sent",
-          label: "Customer SMS",
-          providerMessageId: result.messageId ?? null,
-        });
-      } else if (result.skipped) {
-        items.push({
-          channel: "customer_sms",
-          status: "skipped",
-          label: "Customer SMS",
-          detail: result.error,
-          canRetry: true,
-        });
-      } else {
-        items.push({
-          channel: "customer_sms",
-          status: "failed",
-          label: "Customer SMS",
-          detail: result.error ?? "SMS could not be sent.",
-          canRetry: true,
-        });
-      }
-    } catch (err) {
-      items.push({
-        channel: "customer_sms",
-        status: "failed",
-        label: "Customer SMS",
-        detail: err instanceof Error ? err.message : "SMS could not be sent.",
-        canRetry: true,
-      });
-    }
+    items.push(await sendInlineChannel({
+      channel: "customer_sms", label: "Customer SMS", ctx,
+      to: ctx.customerPhone.trim(), templateKey: "appointment.confirmation",
+    }, "sms"));
   }
 
   // Business email
@@ -759,12 +765,13 @@ export async function buildBookingNotificationReport(
 }
 
 export async function retryBookingNotification(input: {
+  businessId: string;
   appointmentId: string;
   channel: BookingNotificationItem["channel"];
 }): Promise<BookingNotificationReport> {
   const emailConfigured = Boolean(getResendApiKey());
   const smsConfigured = Boolean(getTwilioConfig());
-  const ctx = await loadAppointmentNotifyContext(input.appointmentId);
+  const ctx = await loadAppointmentNotifyContext(input.appointmentId, input.businessId);
   if (!ctx) throw new Error("Appointment not found.");
 
   const smsPlanIncluded = planIncludesSms({
@@ -823,11 +830,14 @@ export async function retryBookingNotification(input: {
     if (!smsPlanIncluded || !smsConfigured) {
       throw new Error("Not configured");
     }
+    if (!ctx.smsEnabled) throw new Error("SMS is disabled for this business.");
     if (!ctx.customerPhone?.trim()) {
       throw new Error("Customer has no mobile number.");
     }
-    // Fall back to full delivery path for SMS channel.
-    return deliverBookingNotifications(input.appointmentId);
+    items.push(await sendInlineChannel({
+      channel: "customer_sms", label: "Customer SMS", ctx,
+      to: ctx.customerPhone.trim(), templateKey: "appointment.confirmation", forceResend: true,
+    }, "sms"));
   } else {
     throw new Error("Unknown notification channel.");
   }
@@ -1079,6 +1089,32 @@ export async function loadAppointmentCommunicationStatus(
       detail: `Recipient ${ctx.customerPhone}`,
       canRetry: true,
     });
+  }
+
+  if (workerReliabilityEnabled()) {
+    const targets: Record<BookingNotificationChannel, { channel: "email" | "sms"; templateKey: string; to?: string | null }> = {
+      customer_email: { channel: "email", templateKey: "appointment.confirmation", to: ctx.customerEmail },
+      customer_sms: { channel: "sms", templateKey: "appointment.confirmation", to: ctx.customerPhone?.trim() },
+      business_email: { channel: "email", templateKey: "appointment.business", to: businessTo },
+      staff_email: { channel: "email", templateKey: "appointment.staff", to: ctx.staffEmail },
+      payment_receipt: { channel: "email", templateKey: "commerce.receipt", to: ctx.customerEmail },
+    };
+    await Promise.all(items.map(async (item) => {
+      const target = targets[item.channel];
+      if (item.channel === "payment_receipt" && item.status === "pending") {
+        item.canRetry = false; item.reconciliationRequired = true; item.deliveryState = "unknown";
+      }
+      if (!target.to || (item.channel === "payment_receipt" && !receiptRow)) return;
+      const unresolved = await inspectUnresolvedSendIntent({ businessId: ctx.businessId,
+        channel: target.channel, templateKey: target.templateKey, to: target.to,
+        entityType: item.channel === "payment_receipt" ? "receipt" : "appointment",
+        entityId: item.channel === "payment_receipt" ? receiptRow!.id : appointmentId });
+      if (unresolved) {
+        item.canRetry = false; item.reconciliationRequired = true;
+        item.deliveryState = unresolved.deliveryState;
+        item.detail = "An earlier send is in progress or uncertain. Reconcile before requesting another send.";
+      }
+    }));
   }
 
   return {

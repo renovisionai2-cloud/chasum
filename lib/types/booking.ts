@@ -531,6 +531,8 @@ export type BookingNotificationStatusItem = {
   label: string;
   detail?: string | null;
   canRetry?: boolean;
+  deliveryState?: "accepted" | "rejected" | "unknown" | "not_attempted";
+  reconciliationRequired?: boolean;
 };
 
 export type ActionState = {

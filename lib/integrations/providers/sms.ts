@@ -1,5 +1,6 @@
 import { getTwilioConfig, isProductionRuntime } from "@/lib/env";
 import type { SmsPayload, SmsProvider, SmsResult } from "./types";
+import { confirmedProviderRejection } from "./outcome";
 
 class TwilioSmsProvider implements SmsProvider {
   readonly name = "twilio";
@@ -7,7 +8,7 @@ class TwilioSmsProvider implements SmsProvider {
   async send(payload: SmsPayload): Promise<SmsResult> {
     const config = getTwilioConfig();
     if (!config) {
-      return { success: false, error: "Twilio is not configured." };
+      return { success: false, error: "Twilio is not configured.", retrySafe: true };
     }
 
     const auth = Buffer.from(`${config.accountSid}:${config.authToken}`).toString(
@@ -20,31 +21,36 @@ class TwilioSmsProvider implements SmsProvider {
       Body: payload.body,
     });
 
-    const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${config.accountSid}/Messages.json`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${auth}`,
-          "Content-Type": "application/x-www-form-urlencoded",
+    let res: Response;
+    let data: { sid?: string; message?: string; error_message?: string };
+    try {
+      res = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${config.accountSid}/Messages.json`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: body.toString(),
         },
-        body: body.toString(),
-      },
-    );
-
-    const data = (await res.json()) as {
-      sid?: string;
-      message?: string;
-      error_message?: string;
-    };
+      );
+      data = await res.json();
+    } catch {
+      return { success: false, retrySafe: false, error: "SMS provider acceptance is unknown; reconciliation required." };
+    }
     if (!res.ok) {
       return {
         success: false,
+        retrySafe: confirmedProviderRejection(res.status),
         error:
           data.message ??
           data.error_message ??
           "Failed to send SMS. Check Twilio credentials and the destination phone number.",
       };
+    }
+    if (!data.sid) {
+      return { success: false, retrySafe: false, error: "SMS provider returned no acceptance identifier; reconciliation required." };
     }
     return { success: true, messageId: data.sid };
   }
@@ -63,9 +69,10 @@ class ConsoleSmsProvider implements SmsProvider {
 class DisabledSmsProvider implements SmsProvider {
   readonly name = "disabled";
 
-  async send(_payload: SmsPayload): Promise<SmsResult> {
+  async send(): Promise<SmsResult> {
     return {
       success: false,
+      retrySafe: true,
       error:
         "SMS is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER, then enable SMS in Business → Notifications.",
       skipped: true,

@@ -7,6 +7,7 @@ import {
   validateEmailFromAddress,
 } from "@/lib/communications/email-from";
 import type { EmailProvider, EmailPayload, EmailResult } from "./types";
+import { confirmedProviderRejection } from "./outcome";
 
 class ResendEmailProvider implements EmailProvider {
   readonly name = "resend";
@@ -16,6 +17,7 @@ class ResendEmailProvider implements EmailProvider {
     if (!apiKey) {
       return {
         success: false,
+        retrySafe: true,
         error:
           "Email delivery is not configured yet. Set up email in Communications before sending messages to customers.",
       };
@@ -25,7 +27,7 @@ class ResendEmailProvider implements EmailProvider {
     const from = payload.from?.trim() || resolved.from;
     const configError = validateEmailFromAddress(from);
     if (configError) {
-      return { success: false, error: configError };
+      return { success: false, error: configError, retrySafe: true };
     }
 
     const body: Record<string, unknown> = {
@@ -46,20 +48,22 @@ class ResendEmailProvider implements EmailProvider {
       }));
     }
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = (await res.json()) as {
-      id?: string;
-      message?: string;
-      name?: string;
-    };
+    let res: Response;
+    let data: { id?: string; message?: string; name?: string };
+    try {
+      res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+          ...(payload.idempotencyKey ? { "Idempotency-Key": payload.idempotencyKey } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+      data = await res.json();
+    } catch {
+      return { success: false, retrySafe: false, error: "Email provider acceptance is unknown; reconciliation required." };
+    }
     if (!res.ok) {
       let detail = data.message ?? data.name ?? "Failed to send email.";
       if (
@@ -73,8 +77,12 @@ class ResendEmailProvider implements EmailProvider {
       }
       return {
         success: false,
+        retrySafe: confirmedProviderRejection(res.status),
         error: detail,
       };
+    }
+    if (!data.id) {
+      return { success: false, retrySafe: false, error: "Email provider returned no acceptance identifier; reconciliation required." };
     }
     return { success: true, messageId: data.id };
   }
@@ -103,9 +111,10 @@ class ConsoleEmailProvider implements EmailProvider {
 class DisabledEmailProvider implements EmailProvider {
   readonly name = "disabled";
 
-  async send(_payload: EmailPayload): Promise<EmailResult> {
+  async send(): Promise<EmailResult> {
     return {
       success: false,
+      retrySafe: true,
       error:
         "Email delivery is not configured yet. Set up email in Communications before sending messages to customers.",
     };

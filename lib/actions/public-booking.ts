@@ -412,6 +412,7 @@ export async function bookAppointment(
     await handleAppointmentEvent(
       appointmentId,
       appointmentStatus === "pending" ? "created" : "confirmed",
+      { sendIntentId: (await import("@/lib/communications/intent-identity")).initialBookingIntentId(appointmentId) },
     );
     try {
       const { deliverBookingNotifications } = await import(

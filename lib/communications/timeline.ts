@@ -1,5 +1,5 @@
-import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createServiceClient } from "@/lib/supabase/service";
+import { logger } from "@/lib/observability/logger";
 
 /** Mirror outbound communications into CRM timeline (communication_history). */
 export async function appendCrmTimeline(input: {
@@ -14,8 +14,8 @@ export async function appendCrmTimeline(input: {
   provider?: string | null;
   providerMessageId?: string | null;
   metadata?: Record<string, unknown>;
-}): Promise<void> {
-  if (!input.customerId) return;
+}): Promise<boolean> {
+  if (!input.customerId) return true;
 
   try {
     const supabase = createServiceClient();
@@ -35,11 +35,11 @@ export async function appendCrmTimeline(input: {
       provider_message_id: input.providerMessageId ?? null,
       metadata: input.metadata ?? {},
     });
-    if (error && !isSoftSchemaFallbackAllowed(error.message)) {
-      console.warn("[comms.timeline]", error.message);
-    }
+    if (error) logger.warn("worker_reliability", "timeline_write_failed", { businessId: input.businessId });
+    return !error;
   } catch {
-    // Never block delivery on timeline write
+    logger.warn("worker_reliability", "timeline_write_unconfirmed", { businessId: input.businessId });
+    return false;
   }
 }
 
@@ -53,7 +53,7 @@ export async function writeCommsAudit(input: {
   entityType?: string;
   entityId?: string;
   metadata?: Record<string, unknown>;
-}): Promise<void> {
+}): Promise<boolean> {
   try {
     const supabase = createServiceClient();
     const { error } = await supabase.from("communications_audit_log").insert({
@@ -67,10 +67,10 @@ export async function writeCommsAudit(input: {
       summary: input.summary,
       metadata: input.metadata ?? {},
     });
-    if (error && !isSoftSchemaFallbackAllowed(error.message)) {
-      console.warn("[comms.audit]", error.message);
-    }
+    if (error) logger.warn("worker_reliability", "audit_write_failed", { businessId: input.businessId, action: input.action });
+    return !error;
   } catch {
-    // ignore
+    logger.warn("worker_reliability", "audit_write_unconfirmed", { businessId: input.businessId, action: input.action });
+    return false;
   }
 }

@@ -1,8 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendEmail = vi.fn();
 const listTransactions = vi.fn();
 const writeCommerceAudit = vi.fn();
+
+vi.mock("@/lib/communications/send-intent", () => ({
+  inspectSendIntent: vi.fn(async () => null), inspectUnresolvedSendIntent: vi.fn(async () => null),
+}));
 
 vi.mock("@/lib/communications/delivery", () => ({
   sendEmail: (...args: unknown[]) => sendEmail(...args),
@@ -21,6 +25,8 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 import { createClient } from "@/lib/supabase/server";
+import { originalReceiptIntentId } from "@/lib/communications/intent-identity";
+afterEach(() => vi.unstubAllEnvs());
 import {
   buildReceiptEmailContext,
   retryPaymentReceiptForAppointment,
@@ -428,6 +434,7 @@ describe("sendPaymentReceiptNow transaction binding", () => {
   });
 
   it("sends commerce.receipt with linked appointment service and totals", async () => {
+    vi.stubEnv("CHASUM_WORKER_RELIABILITY_ENABLED", "true");
     const status = { current: "failed" };
     mockBoundReceiptClient({
       receipt: receiptFor("tx-a", "failed"),
@@ -454,6 +461,9 @@ describe("sendPaymentReceiptNow transaction binding", () => {
       context: Record<string, unknown>;
       appointmentId: string;
     };
+    expect(sendEmail.mock.calls[0]?.[0].reliability).toEqual({
+      intentId: originalReceiptIntentId("r-tx-a"), source: "inline", entityType: "receipt", entityId: "r-tx-a",
+    });
     expect(payload.templateKey).toBe("commerce.receipt");
     expect(payload.appointmentId).toBe("appt-220");
     expect(payload.context.serviceName).toBe(
@@ -476,6 +486,7 @@ describe("retryPaymentReceiptForAppointment", () => {
   });
 
   it("retries only the appointment-scoped transaction and does not create payments", async () => {
+    vi.stubEnv("CHASUM_WORKER_RELIABILITY_ENABLED", "true");
     listTransactions.mockResolvedValue([
       {
         id: "tx-a",
@@ -497,8 +508,8 @@ describe("retryPaymentReceiptForAppointment", () => {
       },
     ]);
 
-    const status = { current: "failed" };
-    const existing = receiptFor("tx-a", "failed");
+    const status = { current: "sent" };
+    const existing = receiptFor("tx-a", "sent");
     mockBoundReceiptClient({
       receipt: existing,
       tx: txA,
@@ -638,6 +649,8 @@ describe("retryPaymentReceiptForAppointment", () => {
     });
 
     expect(result.status).toBe("sent");
+    expect(sendEmail.mock.calls[0]?.[0].reliability.intentId).not.toBe(originalReceiptIntentId("r-tx-a"));
+    expect(sendEmail.mock.calls[0]?.[0].reliability.intentId).toMatch(/^[0-9a-f-]{36}$/);
     expect(result.transactionId).toBe("tx-a");
     expect(result.receiptId).toBe("r-tx-a");
     expect(listTransactions).toHaveBeenCalledWith({

@@ -13,12 +13,16 @@ export type EmailPayload = {
   from?: string;
   replyTo?: string;
   attachments?: EmailAttachment[];
+  /** Durable send-attempt key supplied by the communications intent guard. */
+  idempotencyKey?: string;
 };
 
 export type EmailResult = {
   success: boolean;
   messageId?: string;
   error?: string;
+  /** Explicitly confirmed no-acceptance; absence means acceptance is uncertain. */
+  retrySafe?: boolean;
 };
 
 export interface EmailProvider {
@@ -37,6 +41,7 @@ export type SmsResult = {
   error?: string;
   /** True when the channel is intentionally disabled (e.g. no Twilio in production). */
   skipped?: boolean;
+  retrySafe?: boolean;
 };
 
 export interface SmsProvider {

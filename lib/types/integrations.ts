@@ -151,6 +151,10 @@ export type BackgroundJob = {
   payload: Record<string, unknown>;
   status: JobStatus;
   scheduled_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  next_retry_at: string | null;
+  cancelled_at: string | null;
   attempts: number;
   max_attempts: number;
   error_message: string | null;

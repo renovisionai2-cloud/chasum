@@ -5,6 +5,7 @@
 
 import { onBookingEvent } from "@/lib/booking-engine/events/emit";
 import type { BookingDomainEventType } from "@/lib/booking-engine/types";
+import { initialBookingIntentId } from "@/lib/communications/intent-identity";
 
 let registered = false;
 
@@ -57,6 +58,9 @@ export function registerCommunicationsBookingBridge(): void {
 
     await handleAppointmentEvent(event.appointmentId, mapped, {
       previousStartTime,
+      sendIntentId: event.type === "appointment.created"
+        ? initialBookingIntentId(event.appointmentId)
+        : undefined,
     });
   });
 }

@@ -1,4 +1,13 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+
+function queryResult(data: unknown) {
+  const result = { data, error: null };
+  const chain: Record<string, unknown> = {};
+  for (const method of ["select", "eq", "in", "contains", "order", "limit"]) chain[method] = () => chain;
+  chain.maybeSingle = async () => result;
+  chain.then = (resolve: (value: unknown) => unknown) => Promise.resolve(result).then(resolve);
+  return chain;
+}
 
 vi.mock("@/lib/communications/delivery", () => ({
   sendEmail: vi.fn(),
@@ -78,34 +87,12 @@ function mockAppointmentClient() {
     }
     if (table === "notification_logs") {
       return {
-        select: () => ({
-          eq: () => ({
-            eq: () => ({
-              eq: () => ({
-                eq: () => ({
-                  order: () => ({
-                    limit: () => ({
-                      maybeSingle: async () => ({ data: null }),
-                    }),
-                  }),
-                }),
-              }),
-            }),
-          }),
-        }),
+        select: () => queryResult(null),
       };
     }
     if (table === "background_jobs") {
       return {
-        select: () => ({
-          in: () => ({
-            in: () => ({
-              order: () => ({
-                limit: async () => ({ data: [] }),
-              }),
-            }),
-          }),
-        }),
+        select: () => queryResult([]),
         update: () => ({
           eq: async () => ({ error: null }),
         }),
@@ -126,8 +113,11 @@ function mockAppointmentClient() {
 describe("deliverBookingNotifications", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("CHASUM_WORKER_RELIABILITY_ENABLED", "false");
     mockAppointmentClient();
   });
+
+  afterEach(() => vi.unstubAllEnvs());
 
   it("returns Sent for customer and business email when Resend accepts", async () => {
     vi.mocked(sendEmail)
@@ -158,7 +148,7 @@ describe("deliverBookingNotifications", () => {
     expect(sendEmail).toHaveBeenCalledTimes(2);
   });
 
-  it("returns Failed with retry when provider rejects", async () => {
+  it("returns Failed and requires review when a rejected send has no queue twin", async () => {
     vi.mocked(sendEmail).mockResolvedValue({
       ok: false,
       error: "Domain not verified",
@@ -168,7 +158,8 @@ describe("deliverBookingNotifications", () => {
     const report = await deliverBookingNotifications("appt-1");
     const customer = report.items.find((i) => i.channel === "customer_email");
     expect(customer?.status).toBe("failed");
-    expect(customer?.canRetry).toBe(true);
+    expect(customer?.canRetry).toBe(false);
+    expect(customer?.reconciliationRequired).toBe(true);
     expect(customer?.detail).toMatch(/Domain not verified/);
     expect(report.items.every((i) => i.status !== "pending")).toBe(true);
   });

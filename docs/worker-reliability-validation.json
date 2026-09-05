@@ -1,0 +1,326 @@
+{
+  "baseline": "476af17bfd06113281df0b5c33f995ccb26f5fff",
+  "branch": "codex/production-worker-reliability-hotfix",
+  "migration": {
+    "path": "supabase/migrations/20260905024239_communication_send_intents.sql",
+    "applied": false,
+    "sha256": "51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf"
+  },
+  "full_lint_final": {
+    "errors": 30,
+    "warnings": 9,
+    "baseline_errors": 30,
+    "baseline_warnings": 13
+  },
+  "raw_evidence_directory": "/private/tmp/chasum-worker-hotfix-evidence",
+  "raw_evidence_requires_preservation": true,
+  "local_postgresql_stopped": true,
+  "production_or_staging_accessed": false,
+  "receipts": {
+    "all-tests": {
+      "command": [
+        "npm",
+        "test",
+        "--",
+        "--reporter=verbose"
+      ],
+      "cwd": "/private/tmp/chasum-worker-reliability-hotfix",
+      "exit": 1,
+      "seconds": 6.129,
+      "finished_at_utc": "2026-09-05T02:59:42.898190+00:00",
+      "environment": "credential-free whitelist; local PG opt-in only for all-tests"
+    },
+    "hotfix-test-counts": {
+      "hotfix_test_counts_in_full_suite": {
+        "tests/integration/worker-claim-postgres.test.ts": 5,
+        "tests/unit/commerce/payment-receipt-retry.test.ts": 9,
+        "tests/unit/commerce/receipt-reliability.test.ts": 9,
+        "tests/unit/communications/delivery-reliability.test.ts": 10,
+        "tests/unit/communications/provider-outcomes.test.ts": 15,
+        "tests/unit/communications/send-intent-schema.test.ts": 6,
+        "tests/unit/communications/send-intent.test.ts": 19,
+        "tests/unit/communications/waitlist-intent-reliability.test.ts": 7,
+        "tests/unit/communications/worker-reliability.test.ts": 57,
+        "tests/unit/notifications/business-resend-deposit.test.ts": 2,
+        "tests/unit/notifications/inline-delivery.test.ts": 2,
+        "tests/unit/notifications/inline-reliability.test.ts": 19,
+        "tests/unit/notifications/producer-identity.test.ts": 8
+      },
+      "passed": 168,
+      "test_files": 13,
+      "full_suite": {
+        "passed": 518,
+        "failed": 1,
+        "total": 519
+      },
+      "baseline_failure": "tests/unit/marketing/multi-business-selection.test.ts:60"
+    },
+    "baseline-marketing": {
+      "command": [
+        "/opt/homebrew/bin/node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit/marketing/multi-business-selection.test.ts"
+      ],
+      "cwd": "/private/tmp/chasum-worker-baseline-validation",
+      "baseline_commit": "476af17bfd06113281df0b5c33f995ccb26f5fff",
+      "baseline_tree": "08eb08f21f81e0513c5710c515b90ff172e057a2",
+      "archive_sha256": "3b8c3e48d539f704cb817f3065efc4a73dd00523e4fcf6d2e6d3057081a9fcd2",
+      "verified_source_blobs": {
+        "tests/unit/marketing/multi-business-selection.test.ts": {
+          "git_blob": "fa539953223e7adae2261ce3a32c6c7307d9ef4f",
+          "matches_exact_baseline": true
+        },
+        "lib/marketing/flagship-summer.ts": {
+          "git_blob": "21dedc698e7161be2731e227dafa2a12c5bbe050",
+          "matches_exact_baseline": true
+        },
+        "lib/marketing/meet-summer-intelligence.ts": {
+          "git_blob": "0e682a200e9080fc4bee25cb81946e4a92c62707",
+          "matches_exact_baseline": true
+        },
+        "lib/website-concierge/session-memory.ts": {
+          "git_blob": "6213d80a48742d4e8e08f6d5007c33753ee13956",
+          "matches_exact_baseline": true
+        }
+      },
+      "node_modules_symlink": "/Users/darshan/chasum/node_modules",
+      "exit_code": 1,
+      "duration_seconds": 0.769,
+      "finished_at_utc": "2026-09-05T02:53:31.066527+00:00",
+      "environment": {
+        "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        "CI": "1",
+        "NEXT_TELEMETRY_DISABLED": "1",
+        "TMPDIR": "/private/tmp"
+      },
+      "tracked_runtime_env_files": [],
+      "source_and_hotfix_modified": false
+    },
+    "baseline-lint": {
+      "command": [
+        "/opt/homebrew/bin/npm",
+        "run",
+        "lint"
+      ],
+      "cwd": "/private/tmp/chasum-worker-baseline-validation",
+      "baseline_commit": "476af17bfd06113281df0b5c33f995ccb26f5fff",
+      "exit_code": 1,
+      "duration_seconds": 7.437,
+      "finished_at_utc": "2026-09-05T02:53:51.412774+00:00",
+      "environment": {
+        "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        "CI": "1",
+        "NEXT_TELEMETRY_DISABLED": "1",
+        "TMPDIR": "/private/tmp"
+      },
+      "problem_count": 43,
+      "error_count": 30,
+      "warning_count": 13,
+      "source_and_hotfix_modified": false
+    },
+    "changed-lint": {
+      "command": [
+        "npx",
+        "eslint",
+        "--max-warnings=0",
+        "lib/actions/notification-retry.ts",
+        "lib/actions/public-booking.ts",
+        "lib/commerce/receipts.ts",
+        "lib/communications/delivery.ts",
+        "lib/communications/events/booking-bridge.ts",
+        "lib/communications/intent-identity.ts",
+        "lib/communications/queue.ts",
+        "lib/communications/reliability-config.ts",
+        "lib/communications/send-intent.ts",
+        "lib/communications/timeline.ts",
+        "lib/communications/types.ts",
+        "lib/integrations/automation/waitlist.ts",
+        "lib/integrations/jobs/claim.ts",
+        "lib/integrations/jobs/processor.ts",
+        "lib/integrations/jobs/queue.ts",
+        "lib/integrations/notifications/orchestrator.ts",
+        "lib/integrations/providers/email.ts",
+        "lib/integrations/providers/outcome.ts",
+        "lib/integrations/providers/sms.ts",
+        "lib/integrations/providers/types.ts",
+        "lib/notifications/booking-delivery.ts",
+        "lib/types/booking.ts",
+        "lib/types/integrations.ts",
+        "tests/integration/worker-claim-postgres.test.ts",
+        "tests/unit/commerce/payment-receipt-retry.test.ts",
+        "tests/unit/commerce/receipt-reliability.test.ts",
+        "tests/unit/communications/delivery-reliability.test.ts",
+        "tests/unit/communications/provider-outcomes.test.ts",
+        "tests/unit/communications/send-intent-schema.test.ts",
+        "tests/unit/communications/send-intent.test.ts",
+        "tests/unit/communications/waitlist-intent-reliability.test.ts",
+        "tests/unit/communications/worker-reliability.test.ts",
+        "tests/unit/notifications/business-resend-deposit.test.ts",
+        "tests/unit/notifications/inline-delivery.test.ts",
+        "tests/unit/notifications/inline-reliability.test.ts",
+        "tests/unit/notifications/producer-identity.test.ts"
+      ],
+      "cwd": "/private/tmp/chasum-worker-reliability-hotfix",
+      "exit": 0,
+      "seconds": 1.406,
+      "finished_at_utc": "2026-09-05T02:59:45.632825+00:00",
+      "environment": "credential-free whitelist; local PG opt-in only for all-tests"
+    },
+    "typecheck": {
+      "command": [
+        "npx",
+        "tsc",
+        "--noEmit"
+      ],
+      "cwd": "/private/tmp/chasum-worker-reliability-hotfix",
+      "exit": 0,
+      "seconds": 4.128,
+      "finished_at_utc": "2026-09-05T02:58:53.839688+00:00",
+      "environment": "credential-free whitelist; local PG opt-in only for all-tests"
+    },
+    "build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--",
+        "--webpack"
+      ],
+      "cwd": "/private/tmp/chasum-worker-reliability-hotfix",
+      "exit": 0,
+      "seconds": 24.587,
+      "finished_at_utc": "2026-09-05T03:00:09.927855+00:00",
+      "environment": "credential-free whitelist; local PG opt-in only for all-tests"
+    },
+    "lint-final": {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "cwd": "/private/tmp/chasum-worker-reliability-hotfix",
+      "exit": 1,
+      "seconds": 7.296,
+      "finished_at_utc": "2026-09-05T03:00:49.429935+00:00",
+      "environment": "credential-free whitelist; local PG opt-in only for all-tests"
+    }
+  },
+  "raw_receipts_sha256": [
+    {
+      "file": "all-tests.json",
+      "sha256": "b697576e41a28db744f394f76e24c47187ab02da5bb1be12b82af3fc8fd0252d",
+      "bytes": 311
+    },
+    {
+      "file": "all-tests.stderr",
+      "sha256": "8e03b6162d9637eb303cc9915017cd2cac3e9ab552f41d6ba446a95b31c7a4b4",
+      "bytes": 15058
+    },
+    {
+      "file": "all-tests.stdout",
+      "sha256": "91ecf612995285a23f520e63d864be66205525afe86fdc00c1f3f946a90eb0f7",
+      "bytes": 104435
+    },
+    {
+      "file": "baseline-lint.json",
+      "sha256": "c13a0bec6d754f4c73dee353fdebb08ab95e367b975fc10a9105d1f3e947e1ef",
+      "bytes": 575
+    },
+    {
+      "file": "baseline-lint.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "baseline-lint.stdout",
+      "sha256": "099428f9de40a04f42342628c124f79b3be47913e583ed5d8e2c289641f5fcec",
+      "bytes": 40558
+    },
+    {
+      "file": "baseline-marketing.json",
+      "sha256": "65636eccf592f595f8de38e9a15e85d52f8d5ef807de578a78f880478d300ecb",
+      "bytes": 1508
+    },
+    {
+      "file": "baseline-marketing.stderr",
+      "sha256": "d9872a5d3c329e47994d2d9de20e2415484e4d9e03ae597e123526880ae6d3ca",
+      "bytes": 1443
+    },
+    {
+      "file": "baseline-marketing.stdout",
+      "sha256": "f876dc3e7b22a07e5a65760ef4b70d2de0cd510a02aea19e9c82544328113927",
+      "bytes": 934
+    },
+    {
+      "file": "baseline.txt",
+      "sha256": "b75e8b1a3a4cd6cd23aa20d3b1955debe8c581212bf3ce2eef3f774f491c73ec",
+      "bytes": 41
+    },
+    {
+      "file": "build-final.json",
+      "sha256": "4ff0783b1e9c1ae95216a95786f9894153b4dfaad113a9a2325120312fa61a82",
+      "bytes": 315
+    },
+    {
+      "file": "build-final.stderr",
+      "sha256": "83abe235e3d058a43131c0b09fa938f7932614eb8f3d41c08a671ec04a6f0854",
+      "bytes": 145
+    },
+    {
+      "file": "build-final.stdout",
+      "sha256": "490ce1e2d1723da923d630cd9d858cf7775cd50047dc7bfd100f466a7a900f23",
+      "bytes": 2633
+    },
+    {
+      "file": "changed-lint.json",
+      "sha256": "fdbef21f64ac8471db53d55125deea8eacbe53f377c9655ea5df08d179a0701d",
+      "bytes": 2006
+    },
+    {
+      "file": "changed-lint.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "changed-lint.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "hotfix-test-counts.json",
+      "sha256": "ce113c7b50c52deb4bce2a9edc457cc3be698da1a50cc6cbc566ec6883f7e3c9",
+      "bytes": 1053
+    },
+    {
+      "file": "lint-final.json",
+      "sha256": "33d901bfea72fe94a232703fd5e816edc9bea07b86b94ff67a76385b83d573b1",
+      "bytes": 286
+    },
+    {
+      "file": "lint-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "lint-final.stdout",
+      "sha256": "686925ad83798a7534842b404399b7c1964376c887ae4c1e81002a43566f7ece",
+      "bytes": 39866
+    },
+    {
+      "file": "typecheck.json",
+      "sha256": "8a8b164bd39f657d0be4f74019d3c55bccbdc51650c235ff07999efe484134d1",
+      "bytes": 290
+    },
+    {
+      "file": "typecheck.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "file": "typecheck.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

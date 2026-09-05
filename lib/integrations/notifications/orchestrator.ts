@@ -15,6 +15,7 @@ import { planIncludesSms } from "@/lib/billing/plan-features";
 import { getResendApiKey, getTwilioConfig } from "@/lib/env";
 import { logger } from "@/lib/observability/logger";
 import type { NotificationType } from "@/lib/types/integrations";
+import { initialBookingIntentId, newSendIntentId } from "@/lib/communications/intent-identity";
 
 type AppointmentEvent =
   | "created"
@@ -73,7 +74,7 @@ function resolveBusinessNotifyEmail(settings: {
 export async function handleAppointmentEvent(
   appointmentId: string,
   event: AppointmentEvent,
-  options?: { previousStartTime?: string },
+  options?: { previousStartTime?: string; sendIntentId?: string },
 ) {
   const supabase = createServiceClient();
 
@@ -93,6 +94,10 @@ export async function handleAppointmentEvent(
   if (!appointment) return;
 
   const businessId = appointment.business_id;
+  // Later confirmations/reschedules are distinct event occurrences. The initial
+  // creation bridge explicitly passes the same occurrence used by inline delivery.
+  const sendIntentId = options?.sendIntentId ??
+    (event === "created" ? initialBookingIntentId(appointmentId) : newSendIntentId());
   const settings = await getBusinessNotificationSettings(businessId);
   const service = unwrapRelation(appointment.service) as { name: string } | null;
   const customer = unwrapRelation(appointment.customer) as {
@@ -151,6 +156,8 @@ export async function handleAppointmentEvent(
       await enqueueEmailJob(businessId, {
         appointmentId,
         templateKey,
+        recipient: customer.email.trim(),
+        sendIntentId,
         previousStartTime: options?.previousStartTime,
         idempotencyKey: `${appointmentId}:${templateKey}:customer:${event}`,
       });
@@ -165,7 +172,8 @@ export async function handleAppointmentEvent(
       await enqueueEmailJob(businessId, {
         appointmentId,
         templateKey: "appointment.staff",
-        recipient: staff.email,
+        recipient: staff.email.trim(),
+        sendIntentId,
         action: titleMap[event].toLowerCase(),
         idempotencyKey: `${appointmentId}:appointment.staff:${staff.email}:${event}`,
       });
@@ -177,6 +185,7 @@ export async function handleAppointmentEvent(
         appointmentId,
         templateKey: "appointment.business",
         recipient: businessTo,
+        sendIntentId,
         action: titleMap[event],
         bookingSource: "reception",
         idempotencyKey: `${appointmentId}:appointment.business:${businessTo}:${event}`,
@@ -203,6 +212,8 @@ export async function handleAppointmentEvent(
       await enqueueSmsJob(businessId, {
         appointmentId,
         templateKey: smsKey,
+        recipient: customer.phone.trim(),
+        sendIntentId,
         idempotencyKey: `${appointmentId}:${smsKey}:sms:${event}`,
       });
     }

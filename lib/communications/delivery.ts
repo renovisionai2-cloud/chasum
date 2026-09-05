@@ -23,15 +23,31 @@ import type {
   AppointmentTemplateContext,
   SendResult,
 } from "@/lib/communications/types";
-import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createServiceClient } from "@/lib/supabase/service";
+import { logger } from "@/lib/observability/logger";
+import { inspectSendIntent, runDurableSend, type DurableSendResult, type ProviderOutcome, type SendReliabilityContext } from "@/lib/communications/send-intent";
+
+function withDeliveryEntity(input: {
+  reliability?: SendReliabilityContext;
+  templateKey: string;
+  appointmentId?: string | null;
+  context: AppointmentTemplateContext;
+}): SendReliabilityContext | undefined {
+  if (!input.reliability || input.reliability.entityType || input.reliability.entityId) return input.reliability;
+  const receiptId = (input.context as AppointmentTemplateContext & { receiptId?: string }).receiptId;
+  if (input.templateKey === "commerce.receipt" && receiptId) {
+    return { ...input.reliability, entityType: "receipt", entityId: receiptId };
+  }
+  if (input.appointmentId) return { ...input.reliability, entityType: "appointment", entityId: input.appointmentId };
+  return input.reliability;
+}
 
 async function logDelivery(input: {
   businessId: string;
   channel: "email" | "sms";
   recipient: string;
   templateKey: string;
-  status: "sent" | "failed" | "skipped" | "delivered";
+  status: "pending" | "sent" | "failed" | "skipped" | "delivered";
   appointmentId?: string | null;
   customerId?: string | null;
   jobId?: string | null;
@@ -39,7 +55,9 @@ async function logDelivery(input: {
   provider?: string;
   providerMessageId?: string;
   errorMessage?: string;
-}) {
+  metadata?: Record<string, unknown>;
+  include029Fields?: boolean;
+}): Promise<boolean> {
   const supabase = createServiceClient();
   const row: Record<string, unknown> = {
     business_id: input.businessId,
@@ -50,30 +68,32 @@ async function logDelivery(input: {
     status: input.status === "delivered" ? "sent" : input.status,
     provider: input.provider ?? null,
     provider_message_id: input.providerMessageId ?? null,
+    provider_response: input.metadata ?? null,
     error_message: input.errorMessage ?? null,
     sent_at:
       input.status === "sent" || input.status === "delivered"
         ? new Date().toISOString()
         : null,
   };
-  if (input.customerId) row.customer_id = input.customerId;
-  if (input.jobId) row.job_id = input.jobId;
-  if (input.attempt) row.attempt = input.attempt;
+  // The compatibility path must persist sent evidence even before 029 exists.
+  // Reliable worker/inline execution is separately gated on verified 029.
+  if (input.include029Fields) {
+    if (input.customerId) row.customer_id = input.customerId;
+    if (input.jobId) row.job_id = input.jobId;
+    if (input.attempt) row.attempt = input.attempt;
+  }
 
-  const { error } = await supabase.from("notification_logs").insert(row);
-  if (error && !isSoftSchemaFallbackAllowed(error.message)) {
-    // Retry minimal columns
-    await supabase.from("notification_logs").insert({
-      business_id: input.businessId,
-      appointment_id: input.appointmentId ?? null,
-      channel: input.channel,
-      recipient: input.recipient,
-      template_key: input.templateKey,
-      status: input.status === "delivered" ? "sent" : input.status,
-      provider_message_id: input.providerMessageId ?? null,
-      error_message: input.errorMessage ?? null,
-      sent_at: row.sent_at,
+  try {
+    const { error } = await supabase.from("notification_logs").insert(row);
+    if (error) logger.error("worker_reliability", "delivery_log_write_failed", {
+      businessId: input.businessId, jobId: input.jobId,
     });
+    return !error;
+  } catch {
+    logger.error("worker_reliability", "delivery_log_write_unconfirmed", {
+      businessId: input.businessId, jobId: input.jobId,
+    });
+    return false;
   }
 }
 
@@ -90,7 +110,13 @@ export async function sendEmail(input: {
     contentType?: string;
   }>;
   skipPreferenceCheck?: boolean;
+  reliability?: SendReliabilityContext;
 }): Promise<SendResult> {
+  input.reliability = withDeliveryEntity(input);
+  if (input.reliability) {
+    const existing = await inspectSendIntent({ ...input, channel: "email", reliability: input.reliability });
+    if (existing) return finishDelivery(input, "email", { key: input.templateKey, text: "" }, existing);
+  }
   const audience =
     input.templateKey === "appointment.business" ||
     input.templateKey === "appointment.staff" ||
@@ -198,7 +224,7 @@ export async function sendEmail(input: {
       tenant?.businessName || input.context.businessName || "Chasum",
       resolveEmailFromAddress().from,
     );
-  const result = await providerSendEmail({
+  const send = (idempotencyKey?: string) => providerSendEmail({
     to: input.to,
     subject: template.subject ?? input.context.businessName,
     html: template.html ?? `<p>${template.text}</p>`,
@@ -206,52 +232,10 @@ export async function sendEmail(input: {
     from: fromHeader,
     replyTo: tenant?.replyToAddress ?? undefined,
     attachments: input.attachments,
+    idempotencyKey,
   });
-
-  await logDelivery({
-    businessId: input.businessId,
-    channel: "email",
-    recipient: input.to,
-    templateKey: template.key,
-    status: result.success ? "sent" : "failed",
-    appointmentId: input.appointmentId,
-    customerId: input.customerId,
-    provider: result.provider,
-    providerMessageId: result.messageId,
-    errorMessage: result.error,
-  });
-
-  await appendCrmTimeline({
-    businessId: input.businessId,
-    customerId: input.customerId,
-    appointmentId: input.appointmentId,
-    channel: "email",
-    status: result.success ? "sent" : "failed",
-    subject: template.subject,
-    body: template.text,
-    recipient: input.to,
-    provider: result.provider,
-    providerMessageId: result.messageId,
-    metadata: { templateKey: template.key },
-  });
-
-  await writeCommsAudit({
-    businessId: input.businessId,
-    action: result.success ? "email.sent" : "email.failed",
-    channel: "email",
-    templateKey: template.key,
-    recipient: input.to,
-    summary: result.success
-      ? `Email sent: ${template.key}`
-      : `Email failed: ${result.error ?? "unknown"}`,
-  });
-
-  return {
-    ok: result.success,
-    messageId: result.messageId,
-    error: result.error,
-    provider: result.provider,
-  };
+  const result = await invokeProvider(input, "email", send);
+  return finishDelivery(input, "email", template, result);
 }
 
 export async function sendSMS(input: {
@@ -262,7 +246,13 @@ export async function sendSMS(input: {
   customerId?: string | null;
   appointmentId?: string | null;
   skipPreferenceCheck?: boolean;
+  reliability?: SendReliabilityContext;
 }): Promise<SendResult> {
+  input.reliability = withDeliveryEntity(input);
+  if (input.reliability) {
+    const existing = await inspectSendIntent({ ...input, channel: "sms", reliability: input.reliability });
+    if (existing) return finishDelivery(input, "sms", { key: input.templateKey, text: "" }, existing);
+  }
   if (!input.skipPreferenceCheck) {
     const prefs = await loadBusinessCommPreferences(input.businessId, true);
     const customerPrefs = input.customerId
@@ -294,81 +284,87 @@ export async function sendSMS(input: {
   }
 
   const template = renderSmsTemplate(input.templateKey, input.context);
-  const result = await providerSendSms({
+  const result = await invokeProvider(input, "sms", () => providerSendSms({
     to: input.to,
     body: template.text,
-  });
+  }));
+  return finishDelivery(input, "sms", template, result);
+}
 
-  if (result.skipped) {
-    await logDelivery({
-      businessId: input.businessId,
-      channel: "sms",
-      recipient: input.to,
-      templateKey: template.key,
-      status: "skipped",
-      appointmentId: input.appointmentId,
-      customerId: input.customerId,
-      provider: result.provider,
-      errorMessage: result.error,
-    });
-    await writeCommsAudit({
-      businessId: input.businessId,
-      action: "sms.skipped",
-      channel: "sms",
-      templateKey: template.key,
-      recipient: input.to,
-      summary: result.error ?? "SMS skipped",
-    });
-    return {
-      ok: false,
-      skipped: true,
-      error: result.error ?? "SMS skipped — not delivered.",
-      provider: result.provider,
-    };
+type DeliveryInput = {
+  businessId: string;
+  to: string;
+  templateKey: string;
+  appointmentId?: string | null;
+  customerId?: string | null;
+  reliability?: SendReliabilityContext;
+};
+
+async function invokeProvider(
+  input: DeliveryInput,
+  channel: "email" | "sms",
+  send: (key?: string) => Promise<ProviderOutcome>,
+): Promise<DurableSendResult> {
+  if (input.reliability) return runDurableSend({ ...input, channel, reliability: input.reliability }, send);
+  // Compatibility path while the worker is held, and unrelated direct callers.
+  try {
+    const result = await send();
+    return { ...result, deliveryState: result.success ? "accepted" : result.retrySafe || result.skipped ? "rejected" : "unknown",
+      reconciliationRequired: !result.success && !result.retrySafe && !result.skipped,
+      duplicateSuppressed: false, providerCalled: true };
+  } catch {
+    return { success: false, provider: "unresolved", error: "Provider acceptance is unknown; reconciliation required.",
+      retrySafe: false, deliveryState: "unknown", reconciliationRequired: true,
+      duplicateSuppressed: false, providerCalled: true };
   }
+}
 
-  await logDelivery({
-    businessId: input.businessId,
-    channel: "sms",
-    recipient: input.to,
-    templateKey: template.key,
-    status: result.success ? "sent" : "failed",
-    appointmentId: input.appointmentId,
-    customerId: input.customerId,
-    provider: result.provider,
-    providerMessageId: result.messageId,
-    errorMessage: result.error,
+async function finishDelivery(
+  input: DeliveryInput,
+  channel: "email" | "sms",
+  template: { key: string; text: string; subject?: string },
+  result: DurableSendResult,
+): Promise<SendResult> {
+  let reconciliationRequired = result.reconciliationRequired;
+  // Existing acceptance is authoritative. Replays do not create duplicate logs.
+  if (result.providerCalled) {
+    const status = result.success ? "sent" : result.skipped ? "skipped" : result.deliveryState === "unknown" ? "pending" : "failed";
+    const metadata = {
+      templateKey: template.key, sendIntentId: result.intentId,
+      deliveryState: result.deliveryState, providerCalled: result.providerCalled,
+      jobId: input.reliability?.jobId, jobAttempt: input.reliability?.attempt,
+    };
+    try {
+      const logged = await logDelivery({ businessId: input.businessId, channel, recipient: input.to,
+        templateKey: template.key, status, appointmentId: input.appointmentId,
+        customerId: input.customerId, jobId: input.reliability?.jobId,
+        attempt: input.reliability?.attempt, provider: result.provider,
+        providerMessageId: result.messageId, errorMessage: result.error, metadata,
+        include029Fields: Boolean(input.reliability) });
+      if (!logged) reconciliationRequired = true;
+      const timeline = await appendCrmTimeline({ businessId: input.businessId,
+        customerId: input.customerId, appointmentId: input.appointmentId, channel, status,
+        subject: template.subject, body: template.text, recipient: input.to,
+        provider: result.provider, providerMessageId: result.messageId, metadata });
+      if (timeline === false) reconciliationRequired = true;
+      const audited = await writeCommsAudit({ businessId: input.businessId,
+        action: `${channel}.${result.success ? "sent" : result.skipped ? "skipped" : result.deliveryState === "unknown" ? "acceptance_unknown" : "failed"}`,
+        channel, templateKey: template.key, recipient: input.to,
+        entityType: input.reliability?.jobId ? "background_job" : "send_intent",
+        entityId: input.reliability?.jobId ?? result.intentId,
+        summary: result.success ? `Provider accepted ${template.key}` : `Delivery outcome: ${result.deliveryState}`,
+        metadata });
+      if (audited === false) reconciliationRequired = true;
+    } catch {
+      // Provider outcome must survive every post-send bookkeeping failure.
+      reconciliationRequired = true;
+    }
+  }
+  if (reconciliationRequired) logger.error("worker_reliability", "delivery_reconciliation_required", {
+    businessId: input.businessId, jobId: input.reliability?.jobId, intentId: result.intentId,
+    deliveryState: result.deliveryState, providerCalled: result.providerCalled,
   });
-
-  await appendCrmTimeline({
-    businessId: input.businessId,
-    customerId: input.customerId,
-    appointmentId: input.appointmentId,
-    channel: "sms",
-    status: result.success ? "sent" : "failed",
-    body: template.text,
-    recipient: input.to,
-    provider: result.provider,
-    providerMessageId: result.messageId,
-    metadata: { templateKey: template.key },
-  });
-
-  await writeCommsAudit({
-    businessId: input.businessId,
-    action: result.success ? "sms.sent" : "sms.failed",
-    channel: "sms",
-    templateKey: template.key,
-    recipient: input.to,
-    summary: result.success
-      ? `SMS sent: ${template.key}`
-      : `SMS failed: ${result.error ?? "unknown"}`,
-  });
-
-  return {
-    ok: result.success,
-    messageId: result.messageId,
-    error: result.error,
-    provider: result.provider,
-    skipped: result.skipped,
-  };
+  return { ok: result.success, messageId: result.messageId, error: result.error, skipped: result.skipped,
+    provider: result.provider, deliveryState: result.deliveryState, retrySafe: result.retrySafe,
+    reconciliationRequired, duplicateSuppressed: result.duplicateSuppressed, intentId: result.intentId };
 }
