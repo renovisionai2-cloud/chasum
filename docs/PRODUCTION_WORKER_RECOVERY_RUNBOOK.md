@@ -1,0 +1,287 @@
+# Production worker recovery runbook
+
+**Status:** Canonical Production rollout sequence after independent high-risk audit  
+**Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
+**Last updated:** 2026-09-07  
+**This file does not authorize Production execution.** It records the required gates. A later consequential Production authorization is still required before any step below is performed.
+
+Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to apply, deploy, enable flags, invoke the worker, restore Cron, or remove the Production hold.
+
+---
+
+## Immutable targets
+
+| Item | Value |
+|------|--------|
+| Production Supabase | `kxcydvhswkuzepwzzinq` |
+| Staging Supabase | `wnfahklzaxirftyskctd` |
+| Production app pin / `main` | `476af17bfd06113281df0b5c33f995ccb26f5fff` |
+| Audited hotfix HEAD | `358047676b5161bd684074d6999bc6677cff155d` |
+| Branch | `codex/production-worker-reliability-hotfix` |
+| Repository | `renovisionai2-cloud/chasum` |
+| Claude audit | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. NO P0. NO P1. NO code correction required. |
+| Ledger migration | `supabase/migrations/20260905024239_communication_send_intents.sql` |
+| Migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` |
+| Reliability flag | `CHASUM_WORKER_RELIABILITY_ENABLED` |
+| Worker Cron | `/api/cron/process-jobs` |
+| Staging isolated application runtime | **PASS** (synthetic jobs, stubbed providers; existing 20 pending Staging jobs unchanged) |
+
+If the target environment is not Production `kxcydvhswkuzepwzzinq`, **STOP**.
+
+---
+
+## Locked exclusions
+
+Do **not**:
+
+- bulk-apply pending repository migrations
+- apply 034 / 035 / 036
+- `ALTER ROLE` / change `service_role.rolbypassrls`
+- add a V3 service-role RLS policy on `communication_send_intents`
+- `ALTER DEFAULT PRIVILEGES`
+- globally enable the Staging worker over the existing 20 pending Staging jobs
+- call `processPendingJobs` during isolated synthetic proof
+- send customer/business communications during recovery
+- process webhook jobs for external dispatch during initial worker recovery
+- begin GVM technician testing until this recovery closes
+- treat deployment success, SQL COMMIT, or flag enablement as completion
+
+Webhook delivery-idempotency remains **DESIGN FOR NOW / BUILD LATER**. Do not redesign webhook dispatch in this recovery.
+
+---
+
+## A. Production maintenance state
+
+Before any Production rollout step, all of the following must remain true:
+
+- whole-project Production hold **ON** (`Chasum Production Recovery Hold`)
+- Production Cron `/api/cron/process-jobs` **DISABLED**
+- worker **stopped** / not invoked
+- no customer or business communications sent
+- exact Production project ref is `kxcydvhswkuzepwzzinq`
+- work being rolled out is audited hotfix `358047676b5161bd684074d6999bc6677cff155d`
+
+This maintenance state stays in force through gates 1–5, isolated proof, legacy/webhook disposition, deployed E2E, and the manual canary. Cron restore and hold removal are later, separately governed steps.
+
+---
+
+## B. Production ledger migration
+
+Apply **only** `20260905024239_communication_send_intents.sql` after confirming SHA256
+`51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf`.
+
+Immediately verify in SQL:
+
+- `public.communication_send_intents` exists
+- expected columns and unique `(business_id, intent_key)`
+- RLS enabled
+- FORCE RLS enabled
+- zero policies
+- `service_role` SELECT / INSERT / UPDATE
+- `service_role` **no DELETE**
+- PUBLIC / `anon` / `authenticated` **none**
+
+### Required Gate 1 — PostgREST schema visibility
+
+SQL COMMIT is not enough. Positively verify that PostgREST / the Data API sees `communication_send_intents` and required columns using the **service-role server path**.
+
+Do not assume automatic schema-cache reload succeeded.
+
+If Data API visibility fails: **HOLD**. Do not enable the reliability flag. Do not deploy as if the ledger were usable.
+
+---
+
+## C. Flag-off hotfix deployment
+
+Deploy **exactly** `358047676b5161bd684074d6999bc6677cff155d` with:
+
+```
+CHASUM_WORKER_RELIABILITY_ENABLED=false
+```
+
+Cron remains **DISABLED**. Do not invoke the worker.
+
+### Required Gate 2 — Hosted flag-off boot
+
+After deployment, verify:
+
+- exact deployed revision is the audited SHA
+- hosted application boots
+- health / route sanity check passes
+- worker endpoint remains held / inert
+- no background queue processing
+- no communications sent
+
+Deployment success alone is **not** sufficient.
+
+---
+
+## D. Pre-flag-on Production check
+
+### Required Gate 3
+
+Read-only verify **all** of:
+
+- `service_role.rolbypassrls = TRUE` (known Production state; do **not** `ALTER ROLE`)
+- `communication_send_intents` FORCE RLS **ON**
+- zero policies
+- `service_role` grants exactly SELECT / INSERT / UPDATE
+- `service_role` has **no DELETE**
+- PUBLIC / `anon` / `authenticated` none
+- every serving app instance / revision is on audited hotfix `358047676b5161bd684074d6999bc6677cff155d`
+- no rolling mixed-version fleet remains
+
+If any mismatch: **HOLD**. Do not enable the flag. Do not create V3 RLS policies.
+
+---
+
+## E. Controlled flag enablement
+
+Only after Gate 3 passes, enable:
+
+```
+CHASUM_WORKER_RELIABILITY_ENABLED=true
+```
+
+Cron remains **DISABLED**. Do **not** invoke `processPendingJobs`.
+
+---
+
+## F. Isolated Production synthetic proof
+
+### Required Gate 4
+
+Use the **same safety design** as the accepted Staging isolated harness
+(`scripts/run-staging-isolated-worker-runtime.mjs` +
+`tests/integration/staging-isolated-worker-runtime.test.ts`):
+
+- uniquely marked synthetic rows only
+- provider credentials absent or stubbed
+- no real email / SMS / webhook provider
+- `claimBackgroundJob` on an explicit synthetic job id
+- `processClaimedJob` only
+- **NEVER** `processPendingJobs`
+- before/after fingerprint of the real Production queue
+- synthetic cleanup only
+- zero mutation of pre-existing jobs
+- zero real communication
+
+Do not invent a looser Production test.
+
+If the real Production queue fingerprint changes unexpectedly: **HOLD**.
+
+---
+
+## G. Legacy protocol + webhook disposition
+
+### Required Gate 5
+
+Before any normal worker processing or Cron restore, classify **all** existing eligible Production jobs.
+
+### Legacy transactional jobs
+
+Any pending email / SMS / reminder job created before durable-v1 may lack:
+
+```
+payload.sendIntentProtocol = "durable-v1"
+```
+
+The enabled worker holds those jobs for reconciliation (`legacy_send_intent_missing`). They must **not** be allowed to create an uncontrolled failure burst.
+
+Before normal processing, record exact live counts and choose a governed disposition:
+
+- safely cancel / reconcile known stale or duplicate jobs, **or**
+- another evidence-backed disposition
+
+Do not silently process them. Do not bulk-stamp old payloads to bypass the protocol marker.
+
+### Webhook jobs
+
+Webhook external delivery is **not** protected by `communication_send_intents`.
+
+Claim atomicity was verified on Staging. External webhook delivery idempotency is **not certified**.
+
+Initial worker recovery must **keep webhook jobs held from external dispatch**. Preferred bounded treatment: exclude / hold webhook jobs during initial recovery. Do not redesign webhook delivery in this slice.
+
+---
+
+## H. Deployed end-to-end proof
+
+Before Cron restore, run one bounded proof on a governed deployed target:
+
+booking → background job → worker → send-intent → provider / test endpoint
+
+Use a controlled test identity / inbox. No customer PII.
+
+Prove:
+
+- correct job protocol (`durable-v1`)
+- exactly one transactional send
+- accepted ledger state
+- job finalization
+- duplicate suppression
+
+Momentic: run the bounded booking regression if the connector is restored. Momentic unavailability alone is not a blocker.
+
+---
+
+## I. Manual canary before Cron
+
+Recommended controlled recovery step, not an authorization:
+
+After legacy / webhook gating is in place, run **one** bounded manual canary worker batch. Verify every claimed job and result. Do **not** process webhook jobs in this initial canary.
+
+---
+
+## J. Cron restore
+
+Only after gates 1–5, isolated Production proof, legacy/webhook disposition, deployed E2E, and the manual canary pass, **consider** enabling Production Cron `/api/cron/process-jobs`.
+
+Cron restoration is a **separate governed decision**. Passing earlier gates does not self-approve Cron.
+
+---
+
+## K. Production hold removal
+
+Whole-project Production hold is removed **LAST**, and only after:
+
+- ledger verified (SQL + Gate 1 Data API)
+- hotfix hosted and verified (Gate 2)
+- reliability flag verified (Gate 3 then controlled enablement)
+- isolated Production proof clean (Gate 4)
+- legacy pending jobs dispositioned (Gate 5)
+- webhooks safely held / gated (Gate 5)
+- deployed E2E passes
+- canary passes
+- Cron runs clean
+- internal smoke / regression passes
+
+GVM technician validation starts **only after this recovery closes**.
+
+---
+
+## SMS `skipPreferenceCheck` invariant
+
+Direct-context SMS may set `payload.skipPreferenceCheck` **only** for a server-governed communication where bypassing customer opt-out / preferences is explicitly valid under the approved communication policy.
+
+Normal appointment / customer SMS **must** continue to respect preferences.
+
+Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The isolated Staging harness used the flag only on synthetic marked jobs with stubbed providers.
+
+---
+
+## Current recovery posture (not complete)
+
+| Control | State |
+|---------|--------|
+| Production hold | **ON** |
+| Production Cron | **DISABLED** |
+| Production worker | **NOT RUNNING** |
+| Production communications | **NOT AUTHORIZED** |
+| Ledger on Production | **NOT APPLIED** |
+| Hotfix on Production | **NOT DEPLOYED** |
+| Reliability flag on Production | **not enabled** |
+| Gates 1–5 | **not started** |
+| GVM technician testing | **DEFERRED** |
+
+The next consequential action is a **separate Production authorization** to begin step B (ledger migration) against `kxcydvhswkuzepwzzinq`. This runbook does not grant that authorization.

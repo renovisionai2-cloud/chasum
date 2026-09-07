@@ -3,9 +3,11 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-07  
-**Updated by:** Isolated Staging application runtime validation (Cursor). Ledger/history remain committed. Isolated synthetic worker runtime against live Staging is **verified with stubbed providers**. Production worker recovery is **not** complete.
+**Updated by:** Pre-Production runbook lock (Cursor). Claude audit **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. Isolated Staging application runtime remains **PASS**. Production worker recovery is **not** complete.
 
-This file records governed Production recovery and the next worker-reliability gate. It does **not** authorize Production deploys, Cron enablement, worker invocation, or GVM technician testing.
+This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
+
+Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRODUCTION_WORKER_RECOVERY_RUNBOOK.md).
 
 ---
 
@@ -16,6 +18,8 @@ This file records governed Production recovery and the next worker-reliability g
 | Production Supabase | `kxcydvhswkuzepwzzinq` |
 | Staging Supabase | `wnfahklzaxirftyskctd` |
 | Production app pin / `main` | `476af17bfd06113281df0b5c33f995ccb26f5fff` |
+| Audited hotfix HEAD | `358047676b5161bd684074d6999bc6677cff155d` (`codex/production-worker-reliability-hotfix`) |
+| Claude independent audit | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. **NO P0. NO P1. NO code correction required.** |
 | Production 029 + ACL V2 | **COMMITTED AND VERIFIED** (approval `CHASUM-PO-20260905-PROD029-579-ACL-V2`) |
 | Frozen recovery | 579 rows preserved; 11 completed; 568 cancelled; **no delete** |
 | Production whole-project hold | **ON** (`Chasum Production Recovery Hold`, `rule_chasum_production_recovery_hold_PqG80Y`) |
@@ -26,40 +30,65 @@ This file records governed Production recovery and the next worker-reliability g
 | Production default table ACLs | Broad table DML for `anon` / `authenticated` / `service_role` owned by both `postgres` and `supabase_admin` is **known Production state, not new drift**. ACL V2 only normalized object privileges on `public.communications_audit_log`. Do **not** `ALTER DEFAULT PRIVILEGES` in this recovery. |
 | Staging `communication_send_intents` schema | **COMMITTED** on Staging `wnfahklzaxirftyskctd` (table exists; owner `postgres`; unique `(business_id, intent_key)`; FORCE RLS; zero policies; `service_role` SELECT/INSERT/UPDATE; no DELETE; PUBLIC/anon/authenticated none) |
 | Staging migration history | **RECONCILED** to governed version `20260905024239`. Generated `20260907190922` absent from applied history. |
-| Staging live unique/CAS probe | **PASS** on synthetic rows only: same `intent_key` allowed across two businesses; duplicate within one business rejected; first claim UPDATE won; second pending-predicate UPDATE returned zero rows; completed job not reclaimable; synthetic rows deleted after. Existing Staging queue left at **20 pending / 0 processing**. |
-| Staging isolated application runtime | **PASS** against live `wnfahklzaxirftyskctd` using actual `claimBackgroundJob` / `processJob` / `runDurableSend` / `finalizeClaimedJob` / `markRelatedJobs` on synthetic rows only. Providers stubbed. `processPendingJobs` was **not** invoked. Existing queue fingerprint unchanged. |
+| Staging live unique/CAS probe | **PASS** on synthetic rows only. Existing Staging queue left at **20 pending / 0 processing**. |
+| Staging isolated application runtime | **PASS** against live `wnfahklzaxirftyskctd` using actual `claimBackgroundJob` / `processJob` / `runDurableSend` / `finalizeClaimedJob` / `markRelatedJobs` on synthetic rows only. Providers stubbed. `processPendingJobs` was **not** invoked. Existing queue fingerprint unchanged (pending sha256 `6918f1a71fd105fd8d5620b2ee9c7b59383465aa5e2a1a0be50e5b8dc37aeb36`). |
 | Migrations 034 / 035 / 036 | **UNAPPLIED** (locked) |
 | Phase 5 public named-staff booking | **STAGING-VERIFIED** on `cursor/phase-5-booking-path-convergence`; Production cutover **NOT AUTHORIZED** |
-| Hotfix branch | `codex/production-worker-reliability-hotfix` (implementation `448969aa2dc1c12aab7b16ae9e672b7b70bf8882` parented on Production pin `476af17`) |
+| Hotfix branch | `codex/production-worker-reliability-hotfix` (implementation `448969aa2dc1c12aab7b16ae9e672b7b70bf8882` parented on Production pin `476af17`; isolated-runtime lock `3580476`) |
 | Send-intent migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` (`supabase/migrations/20260905024239_communication_send_intents.sql`) |
+| Production `communication_send_intents` | **NOT APPLIED** |
+| Production hotfix deploy | **NOT DEPLOYED** |
 
-`docs/CURRENT_PROJECT_STATE.md` (stamp 2026-09-04 / Phase 5) is **stale** relative to completed Production 029. Do not treat that file as the recovery ledger until a later governed restamp.
+`docs/CURRENT_PROJECT_STATE.md` (stamp 2026-08-25 / Phase 5) is **stale** relative to completed Production 029 and this worker-recovery chapter. Do not treat that file as the recovery ledger. Companion pointers to this file and the runbook were added for findability only; the control board was not restamped.
+
+---
+
+## SMS `skipPreferenceCheck` invariant
+
+Any future Production direct-context SMS producer may set `payload.skipPreferenceCheck` **only** for a server-governed communication where bypassing customer opt-out / preferences is explicitly valid under the approved communication policy.
+
+Normal appointment / customer SMS **must** continue to respect preferences.
+
+Do **not** imply that arbitrary direct-context SMS may bypass consent. The isolated Staging harness used the flag only on uniquely marked synthetic jobs with stubbed providers.
+
+---
+
+## Webhook bounded treatment
+
+- Job **claim atomicity** verified on Staging (one winner; stub dispatch only).
+- External webhook delivery idempotency is **NOT certified**. Webhooks are **not** covered by `communication_send_intents`.
+- Initial Production worker recovery must **hold webhook jobs from external dispatch**. Preferred treatment: exclude / hold webhook jobs during the first worker recovery.
+- Proper webhook delivery-idempotency remains **DESIGN FOR NOW / BUILD LATER**. Do not redesign webhook dispatch in this recovery.
 
 ---
 
 ## NEW / CHANGED (this slice)
 
-- Isolated Staging application harness (`scripts/run-staging-isolated-worker-runtime.mjs` + gated `tests/integration/staging-isolated-worker-runtime.test.ts`) exercised live Staging data structures with stubbed email/SMS/webhook providers. `CHASUM_WORKER_RELIABILITY_ENABLED=true` existed **only in that local harness process**. Global Staging worker/Cron remain off. Production was not targeted.
-- Existing unmarked Staging queue fingerprint (20 pending / 28 total unmarked jobs) was identical before and after: pending sha256 `6918f1a71fd105fd8d5620b2ee9c7b59383465aa5e2a1a0be50e5b8dc37aeb36`. Synthetic jobs/intents cleaned to zero residue. No real provider credentials were present in the harness process.
-- Email: stub accept once; duplicate same-business intent suppressed (still one provider call); claim race one winner; confirmed reject then governed retry (two stub calls); timeout/unknown held with `reconciliation_required` and no auto-retry; accepted-then-finalization-fence failure left processing + accepted intent without a second send.
-- SMS: stub accept + duplicate suppression (one provider call). Direct-context jobs now honor `payload.skipPreferenceCheck` the same way email already did.
-- Webhook: claim CAS one winner and stub `dispatchWebhooks` once. **External webhook delivery still lacks the email/SMS durable send-intent ledger and is not certified.**
-- Local tests this slice: focused reliability **174 passed / 6 skipped** (5 opt-in local PG claim + 1 gated Staging harness without env). TypeScript PASS. Changed-file ESLint PASS. `next build --webpack` PASS.
-- Preview/Staging app deploy: **not done**. Local harness against live Staging already proved the worker/send path; a flag-off Preview boot would not add queue-safety evidence for this slice.
-- Momentic MCP remains unavailable (`user-momentic` discovery error). Booking smoke not run. Production browser targets were not used.
+- Claude audit of immutable hotfix `358047676b5161bd684074d6999bc6677cff155d`: **B**, no P0, no P1, no code correction.
+- Canonical Production rollout sequence locked in [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRODUCTION_WORKER_RECOVERY_RUNBOOK.md).
+- Required gates recorded: (1) PostgREST / Data API ledger visibility after SQL COMMIT; (2) hosted flag-off boot of the exact audited revision; (3) pre-flag-on RLS/grant/fleet check; (4) isolated Production synthetic proof using the Staging harness safety design; (5) legacy durable-v1 protocol disposition plus webhook hold before any normal processing / Cron restore.
+- This documentation slice did not apply, deploy, enable, invoke, or communicate.
 
 ---
 
-## UNRESOLVED
+## UNRESOLVED / remaining controlled-rollout gates
 
-- Booking → appointment → job → worker → send-intent end-to-end on a deployed hotfix revision: **not done**.
-- Momentic Staging booking regression: **not run** (connector unavailable; deferred infrastructure).
-- Preview/Staging deploy with `CHASUM_WORKER_RELIABILITY_ENABLED=false` boot proof: **not done** (optional for this slice; not a substitute for the isolated harness).
-- Opt-in local PostgreSQL claim rehearsal: **not re-run** this slice (requires dedicated socket DB with `communication_send_intents` absent).
-- Production apply of the send-intent migration: **forbidden until a separate Production authorization gate**.
-- Production deploy of the hotfix / flag enablement / Cron restore: **forbidden**.
-- Production worker recovery: **not complete**.
-- Webhook **dispatch** idempotency beyond atomic job claim: **not certified**.
+None of the following has started. None is authorized by this file.
+
+1. **Gate 1** — Apply send-intent ledger to Production `kxcydvhswkuzepwzzinq` only, then prove PostgREST visibility.
+2. **Gate 2** — Deploy audited hotfix with `CHASUM_WORKER_RELIABILITY_ENABLED=false`; prove hosted boot, held worker, no queue processing, no communications.
+3. **Gate 3** — Read-only pre-flag-on RLS / grants / mixed-fleet check. Do not `ALTER ROLE`. Do not add V3 policies.
+4. Controlled flag enablement (`true`); Cron remains disabled; do not call `processPendingJobs`.
+5. **Gate 4** — Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
+6. **Gate 5** — Classify legacy pending email/SMS/reminder jobs missing `sendIntentProtocol = durable-v1`; choose a governed disposition; keep webhooks held from external dispatch.
+7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII).
+8. Bounded manual canary (no webhook jobs) before Cron.
+9. Separate decision to restore Production Cron.
+10. Production hold removal **last**.
+11. GVM technician validation **only after recovery closes**.
+12. Momentic booking regression: deferred if the connector remains unavailable; not a sole blocker.
+
+Production worker recovery: **not complete**.
 
 ---
 
@@ -67,20 +96,21 @@ This file records governed Production recovery and the next worker-reliability g
 
 - Do not reopen Phase 5 accepted Staging booking work.
 - Do not apply 034/035/036.
-- Do not remove the Production hold or enable Production Cron from this slice.
+- Do not remove the Production hold or enable Production Cron from this documentation slice.
 - Do not invoke the Production worker or send Production communications.
 - Do not invoke the Staging worker against the existing 20 pending jobs.
 - Do not infer provider acceptance from timeouts; `sending`/`unknown` intents are not auto-reclaimed.
+- Do not silently process legacy jobs that lack `durable-v1`.
+- Do not dispatch webhooks during initial Production worker recovery.
 - GVM technician testing remains **deferred**. Do not mark GVM testing active.
 
 ---
 
 ## Next governed gate (not an authorization)
 
-1. Independent high-risk Production readiness audit of this hotfix, including the isolated Staging application-runtime evidence and the committed harness seams (`processClaimedJob`, exported `markRelatedJobs`, SMS direct-context `skipPreferenceCheck`, gated Staging runner).
-2. Bounded booking → communication proof on a non-Production deploy if that audit requires UI/E2E. Momentic `web/chasum-test-studio-booking-smoke.test.yaml` may be used only against a non-Production base URL and must not submit customer PII unless a governed test inbox exists.
-3. Separate consequential Production authorization: hold remains; apply ledger to Production; deploy flag-off; verify; enable flag; isolated synthetic test; only then consider Cron.
-4. Do not process the existing 20 pending Staging jobs. Do not globally enable the Staging worker.
+Separate consequential **Production authorization** to begin runbook step B: apply only `20260905024239_communication_send_intents.sql` to Production `kxcydvhswkuzepwzzinq`, then Gate 1 PostgREST visibility.
+
+Until that authorization exists: hold ON, Cron DISABLED, worker stopped, no communications, hotfix not deployed, flag not enabled.
 
 ---
 

@@ -94,6 +94,8 @@ Strategic next (from the launch tracker):
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
 | [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — **18 workstreams**; Phase 5 preflight; Private Alpha vs commercial-v1 billing gates; native mobile **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**; AI OS preservation check |
+| [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md) | **Production recovery facts** — worker reliability, hold/Cron/worker posture, audited hotfix HEAD. Not a restamp of this control board. |
+| [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRODUCTION_WORKER_RECOVERY_RUNBOOK.md) | **Canonical Production worker-recovery rollout gates**. Does not authorize Production execution. |
 
 ---
 

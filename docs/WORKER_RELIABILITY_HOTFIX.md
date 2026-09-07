@@ -12,7 +12,9 @@ New email, SMS and reminder jobs receive an occurrence UUID. The enqueue path st
 
 The enabled inline booking path also checks legacy queue/sent evidence before attempting an occurrence that lacks authoritative durable evidence. Queue work accumulated while held, including work created between the historical repair and flag activation, needs a separately governed disposition. Deploy and activation must drain already admitted requests and maintain consistent flag state across producers, inline delivery and workers; a rolling mixture of legacy and guarded sends is not a proved safe activation strategy. If reverting the flag after guarded sends begin, keep the relevant inline/resend ingress held as well as the worker until the rollback decision addresses legacy bypass.
 
-The future approved sequence is:
+The future approved sequence is recorded as the original prepared-release contract. **Production execution sequence after audit is canonical in [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRODUCTION_WORKER_RECOVERY_RUNBOOK.md).** This file does not authorize Production work. Production 029 + ACL V2 is already COMMITTED AND VERIFIED; do not re-open that repair.
+
+The original prepared sequence was:
 
 1. Retain verified worker/resend holds and drain already admitted requests.
 2. Complete the separately approved, unchanged 029 plus historical-queue repair and its independent SQL/PostgREST verification.
