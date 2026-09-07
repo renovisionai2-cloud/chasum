@@ -17,6 +17,7 @@ import {
   RECONCILIATION_REQUIRED_PREFIX,
   SAFE_RETRY_PREFIX,
   WORKER_CLAIM_PREFIX,
+  type ClaimedBackgroundJob,
   type JobFinalization,
 } from "@/lib/integrations/jobs/claim";
 import { generateSingleEventIcs } from "@/lib/integrations/calendar/apple";
@@ -346,6 +347,7 @@ async function processSmsJob(job: BackgroundJob, payload = job.payload) {
       templateKey,
       context: ctx,
       customerId: ctx.customerId,
+      skipPreferenceCheck: Boolean(payload.skipPreferenceCheck),
       reliability,
     });
     requireDeliveryOutcome(result, job);
@@ -439,6 +441,65 @@ export async function processJob(job: BackgroundJob): Promise<void> {
   }
 }
 
+/**
+ * Execute one already-claimed job and fence its finalization.
+ * Callers must claim a specific row; this never scans the pending queue.
+ */
+export async function processClaimedJob(
+  client: ReturnType<typeof createServiceClient>,
+  job: ClaimedBackgroundJob,
+): Promise<boolean> {
+  if (!workerReliabilityEnabled()) throw new Error("Background worker is held: reliability is not enabled.");
+  let succeeded = false;
+  let finalization: JobFinalization;
+  try {
+    await processJob(job);
+    succeeded = true;
+    finalization = {
+      status: "completed",
+      completed_at: new Date().toISOString(),
+      error_message: null,
+      next_retry_at: null,
+    };
+  } catch (err) {
+    const permanent = isPermanentDeliverySkip(err);
+    const transactionalSend = job.job_type === "email" || job.job_type === "sms" || job.job_type === "reminder";
+    // This hotfix governs transactional delivery. Other integrations retain
+    // their existing bounded retry contract; their side-effect idempotency
+    // requires separate work and is not certified by the send-intent guard.
+    const retrySafe = err instanceof SafeJobRetry;
+    const retry = (transactionalSend ? retrySafe : !permanent) && job.attempts < job.max_attempts;
+    const reason = err instanceof SafeJobRetry || err instanceof JobReconciliationRequired
+      ? err.message
+      : permanent ? "delivery_skipped_before_provider" : "execution_outcome_unconfirmed";
+    const marker = retrySafe
+      ? SAFE_RETRY_PREFIX
+      : permanent ? "delivery_skipped:" : RECONCILIATION_REQUIRED_PREFIX;
+    const retryAt = new Date(Date.now() + computeBackoffMs(job.attempts));
+    finalization = {
+      status: retry ? "pending" : "failed",
+      error_message: transactionalSend ? `${marker}${reason}` : err instanceof Error ? err.message : "Job failed",
+      completed_at: retry ? null : new Date().toISOString(),
+      next_retry_at: retry ? retryAt.toISOString() : null,
+      scheduled_at: retry ? retryAt.toISOString() : job.scheduled_at,
+    };
+    logger.warn("worker", retry ? "job_retry_scheduled" : "job_held_or_failed", {
+      jobId: job.id,
+      businessId: job.business_id,
+      attempt: job.attempts,
+      intentId: job.payload.sendIntentId ?? null,
+      reason,
+      retrySafe: transactionalSend ? retrySafe : null,
+      retryPolicy: transactionalSend ? "confirmed_delivery_rejection_only" : "baseline_noncommunication",
+      maxAttempts: job.max_attempts,
+    });
+  }
+  // Deliberately outside the execution catch. A failed completion write must
+  // not get converted into a pending retry after the provider accepted.
+  await finalizeClaimedJob(client, job, finalization);
+  return succeeded;
+}
+
 export async function processPendingJobs(limit = 25): Promise<number> {
   // Default-off also keeps deployment before 029/new intent schema inert.
   if (!workerReliabilityEnabled()) throw new Error("Background worker is held: reliability is not enabled.");
@@ -463,54 +524,7 @@ export async function processPendingJobs(limit = 25): Promise<number> {
   for (const candidate of jobs) {
     const job = await claimBackgroundJob(supabase, candidate as BackgroundJob);
     if (!job) continue;
-    let succeeded = false;
-    let finalization: JobFinalization;
-    try {
-      await processJob(job);
-      succeeded = true;
-      finalization = {
-        status: "completed",
-        completed_at: new Date().toISOString(),
-        error_message: null,
-        next_retry_at: null,
-      };
-    } catch (err) {
-      const permanent = isPermanentDeliverySkip(err);
-      const transactionalSend = job.job_type === "email" || job.job_type === "sms" || job.job_type === "reminder";
-      // This hotfix governs transactional delivery. Other integrations retain
-      // their existing bounded retry contract; their side-effect idempotency
-      // requires separate work and is not certified by the send-intent guard.
-      const retrySafe = err instanceof SafeJobRetry;
-      const retry = (transactionalSend ? retrySafe : !permanent) && job.attempts < job.max_attempts;
-      const reason = err instanceof SafeJobRetry || err instanceof JobReconciliationRequired
-        ? err.message
-        : permanent ? "delivery_skipped_before_provider" : "execution_outcome_unconfirmed";
-      const marker = retrySafe
-        ? SAFE_RETRY_PREFIX
-        : permanent ? "delivery_skipped:" : RECONCILIATION_REQUIRED_PREFIX;
-      const retryAt = new Date(Date.now() + computeBackoffMs(job.attempts));
-      finalization = {
-        status: retry ? "pending" : "failed",
-        error_message: transactionalSend ? `${marker}${reason}` : err instanceof Error ? err.message : "Job failed",
-        completed_at: retry ? null : new Date().toISOString(),
-        next_retry_at: retry ? retryAt.toISOString() : null,
-        scheduled_at: retry ? retryAt.toISOString() : job.scheduled_at,
-      };
-      logger.warn("worker", retry ? "job_retry_scheduled" : "job_held_or_failed", {
-        jobId: job.id,
-        businessId: job.business_id,
-        attempt: job.attempts,
-        intentId: job.payload.sendIntentId ?? null,
-        reason,
-        retrySafe: transactionalSend ? retrySafe : null,
-        retryPolicy: transactionalSend ? "confirmed_delivery_rejection_only" : "baseline_noncommunication",
-        maxAttempts: job.max_attempts,
-      });
-    }
-    // Deliberately outside the execution catch. A failed completion write must
-    // not get converted into a pending retry after the provider accepted.
-    await finalizeClaimedJob(supabase, job, finalization);
-    if (succeeded) processed += 1;
+    if (await processClaimedJob(supabase, job)) processed += 1;
   }
 
   return processed;

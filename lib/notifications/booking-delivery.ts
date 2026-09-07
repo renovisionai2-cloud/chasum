@@ -317,7 +317,7 @@ async function alreadySent(input: InlineSendInput, channel: "email" | "sms") {
 }
 
 /** Only this tenant/channel/occurrence's pending twin can be reconciled inline. */
-async function markRelatedJobs(
+export async function markRelatedJobs(
   input: InlineSendInput,
   channel: "email" | "sms",
   sendIntentId: string,

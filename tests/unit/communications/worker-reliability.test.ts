@@ -39,7 +39,7 @@ vi.mock("@/lib/integrations/automation/waitlist", () => ({ notifyWaitlistForSlot
 vi.mock("@/lib/communications/timeline", () => ({ writeCommsAudit: vi.fn().mockResolvedValue(undefined) }));
 vi.mock("@/lib/integrations/jobs/queue", () => ({ enqueueJob: vi.fn() }));
 
-import { processJob, processPendingJobs } from "@/lib/integrations/jobs/processor";
+import { processClaimedJob, processJob, processPendingJobs } from "@/lib/integrations/jobs/processor";
 import { claimBackgroundJob, finalizeClaimedJob } from "@/lib/integrations/jobs/claim";
 import { retryNotification } from "@/lib/communications/queue";
 import { runDurableSend, sendIntentKey } from "@/lib/communications/send-intent";
@@ -261,6 +261,7 @@ describe("atomic worker ownership", () => {
     vi.stubEnv("CHASUM_WORKER_RELIABILITY_ENABLED", "false");
     await expect(processPendingJobs()).rejects.toThrow("held");
     await expect(processJob(fixture())).rejects.toThrow("held");
+    await expect(processClaimedJob(runtime.db!.client as never, fixture() as never)).rejects.toThrow("held");
     expect(runtime.db!.candidateSnapshots).toHaveLength(0);
     expect(runtime.email).not.toHaveBeenCalled();
   });
@@ -268,6 +269,17 @@ describe("atomic worker ownership", () => {
   it("does not allow direct execution without an acquired claim", async () => {
     await expect(processJob(fixture())).rejects.toThrow("atomically claimed");
     expect(runtime.email).not.toHaveBeenCalled();
+  });
+
+  it("processClaimedJob executes one claimed job without scanning other pending rows", async () => {
+    const other = fixture({ id: "10000000-0000-4000-8000-000000000002" });
+    runtime.db = new FakeDatabase([fixture(), other]);
+    const claim = await claimBackgroundJob(runtime.db.client as never, copy(runtime.db.jobs[0]));
+    expect(await processClaimedJob(runtime.db.client as never, claim!)).toBe(true);
+    expect(runtime.email).toHaveBeenCalledTimes(1);
+    expect(runtime.db.jobs[0]).toMatchObject({ status: "completed", attempts: 1 });
+    expect(runtime.db.jobs[1]).toMatchObject({ status: "pending", attempts: 0, started_at: null });
+    expect(runtime.db.candidateSnapshots).toHaveLength(0);
   });
 
   it("fails an unsupported job type without sending email, SMS, or webhooks", async () => {
