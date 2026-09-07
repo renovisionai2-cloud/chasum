@@ -136,10 +136,18 @@ Read-only verify **all** of:
 - `service_role` grants exactly SELECT / INSERT / UPDATE
 - `service_role` has **no DELETE**
 - PUBLIC / `anon` / `authenticated` none
-- every serving app instance / revision is on audited hotfix `358047676b5161bd684074d6999bc6677cff155d`
+- every **active** Production alias, custom domain, project Production target, and Cron host is the identical-tree carrier of audited hotfix `358047676b5161bd684074d6999bc6677cff155d` (currently `35cc40c` / `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z`)
 - no rolling mixed-version fleet remains
+- historical immutable Vercel deployment URLs are **not** active fleet unless an alias, scheduler, or custom domain still selects them
 
-If any mismatch: **HOLD**. Do not enable the flag. Do not create V3 RLS policies.
+If any **active** alias/scheduler/custom domain mismatch: **HOLD**. Do not enable the flag. Do not create V3 RLS policies.
+
+### Production deploy / alias controls
+
+- No ad-hoc no-git CLI Production deploys.
+- A Production deploy must record immutable commit SHA **and** tree SHA, with tree-equivalence to the audited code, before `vercel deploy --prod`.
+- After every Production deployment, re-check all active Production aliases, custom domains, project Production target, and Cron host.
+- Gate 3A (2026-09-07): reassigned `chasum-git-main-renovisionappcom.vercel.app` from pre-hotfix `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` (`476af17`) to carrier `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z`. Old deployment was not deleted.
 
 ---
 

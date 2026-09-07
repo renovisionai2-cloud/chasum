@@ -3,7 +3,7 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-07  
-**Updated by:** Gate 2 identical-tree deployment carrier (Cursor). Claude audit **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. Isolated Staging application runtime remains **PASS**. Production worker recovery is **not** complete.
+**Updated by:** Gate 3A stale Production alias reconciliation (Cursor). Claude audit **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. Isolated Staging application runtime remains **PASS**. Production worker recovery is **not** complete. Gate 3 is **PASS**. Reliability flag remains **ABSENT / fail-closed**.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -42,7 +42,8 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Hotfix branch | `codex/production-worker-reliability-hotfix` (implementation `448969aa2dc1c12aab7b16ae9e672b7b70bf8882` parented on Production pin `476af17`; isolated-runtime lock `3580476`) |
 | Send-intent migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` (`supabase/migrations/20260905024239_communication_send_intents.sql`) |
 | Production `communication_send_intents` | **COMMITTED AND DATA-API VERIFIED** (Gate 1) |
-| Production hotfix deploy | **NOT READY** as of carrier creation. Serving remains `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` / `476af17`. First CLI attempt of audited SHA blocked (`TEAM_ACCESS_REQUIRED`). |
+| Production hotfix deploy | **READY** carrier `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z` (`chasum-9ohmcm142-renovisionappcom.vercel.app`), SHA `35cc40c`. Tree equals audited `3580476`. |
+| Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → carrier. Gate 3A reassigned `git-main` off pre-hotfix `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` / `476af17`. |
 
 `docs/CURRENT_PROJECT_STATE.md` (stamp 2026-08-25 / Phase 5) is **stale** relative to completed Production 029 and this worker-recovery chapter. Do not treat that file as the recovery ledger. Companion pointers to this file and the runbook were added for findability only; the control board was not restamped.
 
@@ -69,9 +70,9 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 ## NEW / CHANGED (this slice)
 
-- Gate 2 identity carrier: empty commit `35cc40c49fdffb67adfe43227c16acf99db83936` parented on audited `358047676b5161bd684074d6999bc6677cff155d`. Tree hashes equal `5b72b1bacee8ba28760ed11c4cfd9d7d2c7a932e`. `git diff --exit-code` is empty. **No code/content change.** Do not treat the carrier as a new functional revision. Claude audit **B** still applies to that identical tree.
-- Do **not** amend, rewrite, or force-push audited `3580476`.
-- Repository-local git identity for future Chasum commits: `renovisionai2-cloud <renovisionai2@gmail.com>` (GitHub-mapped). Do not use `darshan@mac.home`.
+- Gate 3A: `vercel alias set dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z chasum-git-main-renovisionappcom.vercel.app`. No code redeploy. Old deployment `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` was **not** deleted.
+- **Production deploy control:** no ad-hoc no-git CLI Production deploys. A Production deploy must have immutable SHA + tree proof before `vercel deploy --prod`. After every Production deployment, check all **active** Production aliases, custom domains, project Production target, and Cron host. Historical immutable deployment URLs are **not** active fleet unless an alias, scheduler target, or custom domain selects them.
+- Deployment carrier `35cc40c` remains metadata-only; tree equals audited `3580476`. Do not treat it as a new functional revision.
 
 ---
 
@@ -80,9 +81,9 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 Gate 1 is complete. Remaining items below are not authorized by this documentation slice.
 
 1. **Gate 1** — **PASS** (PostgREST / Data API visibility of `communication_send_intents` verified).
-2. **Gate 2** — Deploy **identical-tree carrier** `35cc40c49fdffb67adfe43227c16acf99db83936` (tree equals audited `3580476`) with `CHASUM_WORKER_RELIABILITY_ENABLED` absent/false; prove hosted boot, held worker, no queue processing, no communications. First CLI deploy of `3580476` itself was blocked (`TEAM_ACCESS_REQUIRED`).
-3. **Gate 3** — Read-only pre-flag-on RLS / grants / mixed-fleet check. Do not `ALTER ROLE`. Do not add V3 policies.
-4. Controlled flag enablement (`true`); Cron remains disabled; do not call `processPendingJobs`.
+2. **Gate 2** — **PASS** (identical-tree carrier deployed, flag-off, hosted boot, held worker).
+3. **Gate 3** — **PASS** after Gate 3A alias reconciliation. Do not `ALTER ROLE`. Do not add V3 policies.
+4. Controlled flag enablement (`true`); Cron remains disabled; do not call `processPendingJobs`. **Not started.**
 5. **Gate 4** — Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
 6. **Gate 5** — Classify legacy pending email/SMS/reminder jobs missing `sendIntentProtocol = durable-v1`; choose a governed disposition; keep webhooks held from external dispatch.
 7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII).
@@ -100,6 +101,7 @@ Production worker recovery: **not complete**.
 
 - Do not reopen Phase 5 accepted Staging booking work.
 - Do not apply 034/035/036.
+- Do not perform ad-hoc no-git CLI Production deploys.
 - Do not remove the Production hold or enable Production Cron from this documentation slice.
 - Do not invoke the Production worker or send Production communications.
 - Do not invoke the Staging worker against the existing 20 pending jobs.
@@ -112,7 +114,7 @@ Production worker recovery: **not complete**.
 
 ## Next governed gate (not an authorization)
 
-**Gate 2 retry** of identical-tree carrier `35cc40c49fdffb67adfe43227c16acf99db83936` to Production, flag-off. Hold ON, Cron DISABLED, worker stopped, no communications, flag not enabled. Do not start Gate 3 until Gate 2 PASSes.
+Controlled **flag enablement** of `CHASUM_WORKER_RELIABILITY_ENABLED=true` only. Hold ON, Cron DISABLED, worker not invoked, no communications, no Gate 4 until ChatGPT starts that already-approved step.
 
 ---
 
