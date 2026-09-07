@@ -16,8 +16,12 @@ Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`
 | Production Supabase | `kxcydvhswkuzepwzzinq` |
 | Staging Supabase | `wnfahklzaxirftyskctd` |
 | Production app pin / `main` | `476af17bfd06113281df0b5c33f995ccb26f5fff` |
-| Audited hotfix HEAD | `358047676b5161bd684074d6999bc6677cff155d` |
-| Branch | `codex/production-worker-reliability-hotfix` |
+| Audited hotfix **code** SHA | `358047676b5161bd684074d6999bc6677cff155d` |
+| Audited hotfix **tree** | `5b72b1bacee8ba28760ed11c4cfd9d7d2c7a932e` |
+| Deployment carrier SHA | `35cc40c49fdffb67adfe43227c16acf99db83936` |
+| Deployment carrier branch | `deploy/worker-reliability-3580476` |
+| Deployment carrier invariant | carrier tree **==** audited code tree; empty metadata-only commit; **not** a new functional revision; Claude audit remains applicable |
+| Branch (code/docs) | `codex/production-worker-reliability-hotfix` |
 | Repository | `renovisionai2-cloud/chasum` |
 | Claude audit | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. NO P0. NO P1. NO code correction required. |
 | Ledger migration | `supabase/migrations/20260905024239_communication_send_intents.sql` |
@@ -59,7 +63,7 @@ Before any Production rollout step, all of the following must remain true:
 - worker **stopped** / not invoked
 - no customer or business communications sent
 - exact Production project ref is `kxcydvhswkuzepwzzinq`
-- work being rolled out is audited hotfix `358047676b5161bd684074d6999bc6677cff155d`
+- work being rolled out is audited hotfix **code** `358047676b5161bd684074d6999bc6677cff155d` (Production deploy identity may be identical-tree carrier `35cc40c49fdffb67adfe43227c16acf99db83936`; tree must match)
 
 This maintenance state stays in force through gates 1–5, isolated proof, legacy/webhook disposition, deployed E2E, and the manual canary. Cron restore and hold removal are later, separately governed steps.
 
@@ -93,7 +97,11 @@ If Data API visibility fails: **HOLD**. Do not enable the reliability flag. Do n
 
 ## C. Flag-off hotfix deployment
 
-Deploy **exactly** `358047676b5161bd684074d6999bc6677cff155d` with:
+Deploy the **identical-tree deployment carrier** `35cc40c49fdffb67adfe43227c16acf99db83936` whose tree is exactly `358047676b5161bd684074d6999bc6677cff155d^{tree}` (`5b72b1bacee8ba28760ed11c4cfd9d7d2c7a932e`).
+
+The carrier exists only so Vercel can associate a GitHub-mapped commit author (`renovisionai2-cloud <renovisionai2@gmail.com>`). It contains **no file changes**. Do not treat it as a new functional revision. Do not amend or rewrite audited `3580476`.
+
+First CLI deploy of `3580476` itself (`dpl_J6hgB4YPQH9CWAp8zTrxvnneCJB7`) was blocked (`TEAM_ACCESS_REQUIRED`) because `Darshan <darshan@mac.home>` does not map to a GitHub/Vercel identity.
 
 ```
 CHASUM_WORKER_RELIABILITY_ENABLED=false
@@ -105,7 +113,7 @@ Cron remains **DISABLED**. Do not invoke the worker.
 
 After deployment, verify:
 
-- exact deployed revision is the audited SHA
+- deployed git revision is the carrier SHA, **and** carrier tree equals audited `3580476` tree
 - hosted application boots
 - health / route sanity check passes
 - worker endpoint remains held / inert
