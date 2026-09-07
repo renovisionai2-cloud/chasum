@@ -222,6 +222,41 @@ describe("atomic worker ownership", () => {
     expect(runtime.db!.jobs[0]).toMatchObject({ status: "completed", attempts: 1, next_retry_at: null });
   });
 
+  it("forces two workers racing the same webhook job to dispatch once", async () => {
+    runtime.db = new FakeDatabase([fixture({ job_type: "webhook", payload: { event: "appointment.created", data: {} } })]);
+    runtime.db.readBarrierCount = 2;
+    const results = await Promise.all([processPendingJobs(), processPendingJobs()]);
+    expect(results.sort()).toEqual([0, 1]);
+    expect(runtime.webhook).toHaveBeenCalledTimes(1);
+    expect(runtime.email).not.toHaveBeenCalled();
+    expect(runtime.db.jobs[0]).toMatchObject({ status: "completed", attempts: 1 });
+  });
+
+  it("does not claim or send historically completed or cancelled recovery jobs", async () => {
+    const completed = Array.from({ length: 11 }, (_, i) => fixture({
+      id: `10000000-0000-4000-8000-${String(i + 1).padStart(12, "0")}`,
+      status: "completed",
+      completed_at: "2026-09-06T00:36:50.707Z",
+      payload: { ...fixture().payload, templateKey: "appointment.confirmation" },
+    }));
+    const cancelled = fixture({
+      id: "10000000-0000-4000-8000-000000000099",
+      status: "cancelled",
+      cancelled_at: "2026-09-06T00:36:50.707Z",
+    });
+    runtime.db = new FakeDatabase([...completed, cancelled]);
+    expect(await processPendingJobs()).toBe(0);
+    expect(runtime.email).not.toHaveBeenCalled();
+    expect(runtime.sms).not.toHaveBeenCalled();
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    for (const row of completed) {
+      expect(await claimBackgroundJob(runtime.db.client as never, row)).toBeNull();
+    }
+    expect(await claimBackgroundJob(runtime.db.client as never, cancelled)).toBeNull();
+    expect(runtime.db.jobs.every((job) => job.status === "completed" || job.status === "cancelled")).toBe(true);
+    expect(runtime.db.updates).toHaveLength(0);
+  });
+
   it("blocks processing before the reliability gate and never touches storage", async () => {
     vi.stubEnv("CHASUM_WORKER_RELIABILITY_ENABLED", "false");
     await expect(processPendingJobs()).rejects.toThrow("held");
