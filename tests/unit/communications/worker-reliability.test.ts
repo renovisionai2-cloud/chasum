@@ -270,6 +270,41 @@ describe("atomic worker ownership", () => {
     expect(runtime.email).not.toHaveBeenCalled();
   });
 
+  it("fails an unsupported job type without sending email, SMS, or webhooks", async () => {
+    runtime.db = new FakeDatabase([fixture({ job_type: "not_a_real_job_type" as BackgroundJob["job_type"] })]);
+    expect(await processPendingJobs()).toBe(0);
+    expect(runtime.email).not.toHaveBeenCalled();
+    expect(runtime.sms).not.toHaveBeenCalled();
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expect(runtime.db.jobs[0]).toMatchObject({
+      status: "pending", attempts: 1, completed_at: null,
+    });
+    expect(runtime.db.jobs[0].error_message).toMatch(/Unknown job type/);
+    runtime.db.jobs[0].attempts = 2;
+    runtime.db.jobs[0].scheduled_at = "2026-01-01T00:00:00Z";
+    runtime.db.jobs[0].next_retry_at = null;
+    expect(await processPendingJobs()).toBe(0);
+    expect(runtime.db.jobs[0]).toMatchObject({ status: "failed", attempts: 3, next_retry_at: null });
+    expect(runtime.email).not.toHaveBeenCalled();
+  });
+
+  it("fails a malformed email job without contacting a provider", async () => {
+    runtime.db = new FakeDatabase([fixture({
+      payload: {
+        sendIntentId: INTENT,
+        sendIntentProtocol: "durable-v1",
+        templateKey: "custom",
+      },
+    })]);
+    expect(await processPendingJobs()).toBe(0);
+    expect(runtime.email).not.toHaveBeenCalled();
+    expect(runtime.sms).not.toHaveBeenCalled();
+    expect(runtime.db.jobs[0]).toMatchObject({
+      status: "failed", attempts: 1, next_retry_at: null,
+    });
+    expect(runtime.db.jobs[0].error_message).toBe("reconciliation_required:execution_outcome_unconfirmed");
+  });
+
   it("propagates a claim DB failure without provider execution", async () => {
     runtime.db!.failClaim = true;
     await expect(processPendingJobs()).rejects.toThrow("claim could not be confirmed");
