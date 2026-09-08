@@ -2,7 +2,8 @@
 
 **Status:** Canonical Production rollout sequence after independent high-risk audit  
 **Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
-**Last updated:** 2026-09-07  
+**Last updated:** 2026-09-08  
+**Updated by:** Docs-only reconciliation onto `codex/appointment-api-tenant-integrity-fix`. Functional SHA remains `918e9cae`. Claude tenant-integrity audit **B**. Producer-path `location_id` **PASS** on Preview/Staging. Worker/send-intent/test-inbox half still **HOLD** until the bounded Production deploy + canary. Production `dpl_HUvurr39` still serving `47c24ac` until that deploy. Cron **DISABLED**. Hold **ON**.  
 **This file does not authorize Production execution.** It records the required gates. A later consequential Production authorization is still required before any step below is performed.
 
 Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to apply, deploy, enable flags, invoke the worker, restore Cron, or remove the Production hold.
@@ -23,14 +24,17 @@ Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`
 | Deployment carrier invariant | carrier tree **==** audited code tree; empty metadata-only commit; **not** a new functional revision; Claude audit remains applicable |
 | Branch (code/docs) | `codex/production-worker-reliability-hotfix` |
 | Repository | `renovisionai2-cloud/chasum` |
-| Claude audit | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. NO P0. NO P1. NO code correction required. |
+| Claude audit (hotfix tree `3580476`) | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. NO P0. NO P1. NO code correction required. |
+| Claude webhook-hold delta audit (`47c24ac`) | **B — APPROVED WITH BOUNDED DEPLOYMENT CONDITIONS**. NO P0. NO P1. NO code correction required. Live Staging `job_type=neq.webhook` PostgREST condition **PASS**. |
+| Claude tenant-integrity audit (`918e9cae`) | **B — APPROVED WITH BOUNDED DEPLOYMENT CONDITIONS**. NO P0. NO P1. NO code correction required. Tree `cb151c93d1bac597eb991fbc3a1061f7483b13c2`. Docs-only reconciliation; functional files byte-identical to audited SHA. |
 | Ledger migration | `supabase/migrations/20260905024239_communication_send_intents.sql` |
 | Migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` |
 | Reliability flag | `CHASUM_WORKER_RELIABILITY_ENABLED` |
 | Webhook dispatch gate | `CHASUM_WORKER_WEBHOOKS_ENABLED` (server-only; default OFF; exact `"true"` enables) |
 | Worker Cron | `/api/cron/process-jobs` |
 | Staging isolated application runtime | **PASS** (synthetic jobs, stubbed providers; existing 20 pending Staging jobs unchanged) |
-| Gate 5 webhook-hold Staging proof | **PASS** (synthetic marked rows; `processPendingJobs` not invoked; existing 20 pending unchanged) |
+| Gate 5 webhook-hold Staging proof | **PASS** (live PostgREST `job_type=neq.webhook` on enum with pending/due/or/order/limit; synthetic marked rows; `processPendingJobs` not invoked; existing 20 pending fingerprint unchanged; residue 0) |
+| Gate 5 webhook-hold functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (tree `461198bd0b261ab38f39260d1f413dfa4f196f24`). Delta audit **B**. Live Staging condition **PASS**. Production deploy **READY** `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. |
 
 If the target environment is not Production `kxcydvhswkuzepwzzinq`, **STOP**.
 
@@ -150,6 +154,7 @@ If any **active** alias/scheduler/custom domain mismatch: **HOLD**. Do not enabl
 - A Production deploy must record immutable commit SHA **and** tree SHA, with tree-equivalence to the audited code, before `vercel deploy --prod`.
 - After every Production deployment, re-check all active Production aliases, custom domains, project Production target, and Cron host.
 - Gate 3A (2026-09-07): reassigned `chasum-git-main-renovisionappcom.vercel.app` from pre-hotfix `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` (`476af17`) to carrier `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z`. Old deployment was not deleted.
+- Gate 5 deploy (2026-09-08): `vercel deploy --prod --yes --force` of detached worktree `47c24ac` → `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. git-main was then reassigned with `vercel alias set dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb chasum-git-main-renovisionappcom.vercel.app`. Prior Ready `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` was not deleted.
 
 ---
 
@@ -219,7 +224,7 @@ Claim atomicity was verified on Staging and Gate 4. External webhook delivery id
 
 Live Production webhook backlog at Gate 5: pending **0**, processing **0**, failed **0**, completed **0**, cancelled **152**, due pending **0**.
 
-Bounded hold (implemented, **not Production-deployed**):
+Bounded hold (**Production-deployed** as `47c24ac` / `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`; webhook flag **ABSENT**):
 
 ```
 CHASUM_WORKER_WEBHOOKS_ENABLED
@@ -227,7 +232,17 @@ CHASUM_WORKER_WEBHOOKS_ENABLED
 
 Absent / not exactly `"true"`: `selectPendingJobCandidates` / `processPendingJobs` exclude `job_type=webhook` **before claim**. Status, attempts, and `started_at` stay unchanged. Direct `claimBackgroundJob` on an explicit row remains available for isolated tests.
 
-This Gate 5 code change is a **new functional revision** after Claude audit **B**. It **requires a bounded independent delta audit before Production deployment**. Do not claim the original audit covers this delta. Do not enable the webhook gate by default.
+**Standing rule:** `CHASUM_WORKER_WEBHOOKS_ENABLED` must remain **absent/false** through:
+
+- Production delta deployment of `47c24ac`
+- alias verification
+- transactional E2E
+- canary
+- **initial Cron restore**
+
+Turning webhooks on later requires a **separate governed decision**. Do not enable the webhook gate by default.
+
+Claude webhook-hold delta audit = **B**. Live Staging PostgREST proof of `.neq("job_type","webhook")` on the enum column with existing pending/due/or/order/limit composition = **PASS** (2026-09-08; existing 20 pending fingerprint unchanged; synthetic residue 0; no real providers). Production deploy of `47c24ac` is **READY** (`dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`). Worker was **not** invoked. Webhook delivery idempotency remains unsolved.
 
 ---
 
@@ -248,6 +263,10 @@ Prove:
 - duplicate suppression
 
 Momentic: run the bounded booking regression if the connector is restored. Momentic unavailability alone is not a blocker.
+
+**2026-09-08 status: producer half PASS on Staging/Preview (`918e9cae` / `dpl_FnRsuu8WpGfPNxzp8iJj7BCkTjDo`); worker/send half HOLD.** Hosted `POST /api/v1/appointments` on that Preview persists `location_id` and enqueues one pending `durable-v1` customer email plus a held webhook sibling. No worker invocation, no provider send, `communication_send_intents` stayed 0. Production serving `47c24ac` / `dpl_HUvurr39` was **not** redeployed and still has the old producer defect. Do not Production-deploy `918e9cae` from this slice. Do not SQL-bypass. Do not add a debug endpoint. Do not enable scheduled Cron.
+
+**Resend env:** `RESEND_API_KEY` id `9hF77dAtfP8TcG7S` is Production-only after the 2026-09-08 cutover. Preview is provider-disabled. Supabase Auth SMTP was already configured and was not changed. Historical Resend keys were not revoked. Serving Production still uses its baked legacy key until a later Production deploy.
 
 ---
 
@@ -305,10 +324,35 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Production worker | **NOT RUNNING** |
 | Production communications | **NOT AUTHORIZED** |
 | Ledger on Production | **APPLIED** (Gate 1) |
-| Hotfix on Production | **DEPLOYED** identical-tree carrier `35cc40c` / `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` |
+| Hotfix on Production | **DEPLOYED** webhook-hold SHA `47c24ac` / tree `461198bd` / `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb` (`chasum-l0wyqu6yw-renovisionappcom.vercel.app`). Prior `35cc40c` / `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` has **no active alias**. |
 | Reliability flag on Production | **true** |
+| Webhook gate on Production | **ABSENT** (must remain absent/false through E2E, canary, initial Cron restore) |
 | Gates 1–4 | **PASS** |
-| Gate 5 | **PASS (code + Staging); Production deploy blocked pending delta audit** |
+| Gate 5 | **PASS (code + live Staging PostgREST proof + Production deploy + fleet reconciled)** |
 | GVM technician testing | **DEFERRED** |
+| Deployed transactional E2E | **Producer half PASS (Staging/Preview only); worker half HOLD** — see below |
+| Appointment tenant-integrity tree `918e9cae` | **VALIDATED ON STAGING/PREVIEW ONLY.** Not deployed to Production. |
 
-The next consequential action is a **bounded independent delta audit** of the Gate 5 webhook-hold revision, then a separately governed Production deploy of that audited SHA. This runbook does not grant that authorization.
+---
+
+## Staging/Preview tenant-integrity validation of `918e9cae` (evidence, not authorization)
+
+Pinned tree `918e9cae` / `cb151c93` (branch `codex/appointment-api-tenant-integrity-fix`) was deployed to **Preview only** as `dpl_FnRsuu8WpGfPNxzp8iJj7BCkTjDo` (`chasum-lebw8it2b-renovisionappcom.vercel.app`, `target=preview`, `readyState=READY`, `meta.gitCommitSha` `918e9cae8bc069f96b84e4c1eb8bd8d63641bd74`) and exercised against Staging Supabase `wnfahklzaxirftyskctd`.
+
+| Control | Observed on Preview |
+|---------|---------------------|
+| Supabase project | `wnfahklzaxirftyskctd` (Staging); Production ref `kxcydvhswkuzepwzzinq` absent |
+| `RESEND_API_KEY` | **ABSENT from Preview** — Production-only cutover intact; Preview cannot send |
+| `CHASUM_WORKER_RELIABILITY_ENABLED` | **true** (proven at runtime by `sendIntentProtocol: "durable-v1"` on an enqueued job) |
+| `CHASUM_WORKER_WEBHOOKS_ENABLED` | **ABSENT** — webhook jobs enqueued and stayed `pending` |
+| `CRON_SECRET` / Twilio / Stripe | absent from Preview |
+| Worker | **NOT INVOKED**; `processPendingJobs` not called |
+| `communication_send_intents` | **0** throughout — no provider send attempted |
+
+Proven behaviours: `location_id` persisted on create; single-active-location fallback; multi-location ambiguity rejected `400`; zero-active-location rejected `400`; all four cross-tenant references rejected `400` on both POST and PATCH with the row unchanged; cancellation idempotent across repeated PATCH and DELETE (exactly one occurrence, `0` duplicate jobs); foreign-tenant and unknown ids `404`; concurrent DELETE resolved `200 + 409`; retained foreign-reference DELETE **fails closed** `409 Appointment requires data reconciliation` with the appointment left uncancelled and `0` jobs. No foreign-tenant name or email appeared in any response body.
+
+Non-regression: the **28** pre-existing Staging jobs (**20 pending** / **8 completed**) fingerprint `9ec3013affc24300cd5ff312c9436ed04987dab2ba8f500c45747fc363413cef` was **identical** before fixtures and after cleanup; appointment↔reference `business_id` mismatch counts stayed **0**; synthetic marker residue **0**. The existing Staging pending jobs were **not** processed.
+
+**Scope limit.** This is a Staging/Preview producer-path proof only. It does **not** authorize a Production deploy of `918e9cae`, Cron restoration, hold removal, worker invocation, webhook dispatch, or GVM testing.
+
+Claude tenant-integrity audit **B** authorizes the bounded Production deploy of this functional SHA plus one controlled synthetic canary. Do **not** enable scheduled Cron until N2 monitoring is live. Hold ON. Webhook gate absent/false. Do not apply 034/035/036 until N4. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
