@@ -2,8 +2,8 @@
 
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
-**Last updated:** 2026-09-07  
-**Updated by:** Gate 5 legacy + webhook disposition (Cursor). Gate 4 remains **PASS**. Gate 5 implementation is on this branch and **requires a bounded independent delta audit before Production deployment**. Original Claude audit **B** covers audited tree `3580476` / carrier `35cc40c` only and does **not** automatically cover this webhook-hold delta. Production worker recovery is **not** complete. Cron remains **DISABLED**. Hold remains **ON**.
+**Last updated:** 2026-09-08  
+**Updated by:** Live Staging webhook-hold PostgREST condition (Cursor). Gate 4 remains **PASS**. Claude webhook-hold **delta** audit = **B**. Live Staging `job_type=neq.webhook` PostgREST proof = **PASS**. Existing 20 pending Staging fingerprint unchanged. Synthetic residue **0**. No real providers. Production deploy of `47c24ac` **not performed**. Cron remains **DISABLED**. Hold remains **ON**. `CHASUM_WORKER_WEBHOOKS_ENABLED` remains absent/false. GVM testing remains **deferred**.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -24,7 +24,8 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Deployment carrier parent | `358047676b5161bd684074d6999bc6677cff155d` |
 | Deployment carrier tree | `5b72b1bacee8ba28760ed11c4cfd9d7d2c7a932e` (**identical** to audited code tree; empty metadata-only commit; **not** a new functional revision) |
 | Carrier reason | Vercel `TEAM_ACCESS_REQUIRED` identity compatibility only. First CLI deploy `dpl_J6hgB4YPQH9CWAp8zTrxvnneCJB7` was blocked because git author `Darshan <darshan@mac.home>` has no GitHub/Vercel mapping. Carrier author is GitHub-mapped `renovisionai2-cloud <renovisionai2@gmail.com>`. Claude audit remains applicable to the identical tree. |
-| Claude independent audit | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. **NO P0. NO P1. NO code correction required.** |
+| Claude independent audit (hotfix tree `3580476`) | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. **NO P0. NO P1. NO code correction required.** |
+| Claude webhook-hold delta audit (`47c24ac`) | **B — APPROVED WITH BOUNDED DEPLOYMENT CONDITIONS**. **NO P0. NO P1. NO code correction required.** Outstanding pre-deploy condition (live Staging `job_type=neq.webhook` PostgREST proof) is **PASS**. |
 | Production 029 + ACL V2 | **COMMITTED AND VERIFIED** (approval `CHASUM-PO-20260905-PROD029-579-ACL-V2`) |
 | Frozen recovery | 579 rows preserved; 11 completed; 568 cancelled; **no delete** |
 | Production whole-project hold | **ON** (`Chasum Production Recovery Hold`, `rule_chasum_production_recovery_hold_PqG80Y`) |
@@ -49,8 +50,9 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Gate 5 classification (live Production) | **579** total; pending **0**; processing **0**; failed **0**; completed **11**; cancelled **568**. Ledger **0**. |
 | Gate 5 legacy transactional disposition | **NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.** Pending email/SMS/reminder = **0**. Historical cancelled/completed rows were **not** mutated and were **not** bulk-stamped. |
 | Gate 5 webhook backlog | pending **0**; processing **0**; failed **0**; completed **0**; cancelled **152**; due pending **0**. Other: `waitlist_notify` cancelled **64**. No `calendar_sync` / `recurring` rows. |
-| `CHASUM_WORKER_WEBHOOKS_ENABLED` | Server-only. Exact `"true"` enables. Absent/false holds webhook jobs **out of** `processPendingJobs` candidate selection (no claim, attempts/status unchanged). Direct `claimBackgroundJob` on an explicit row remains available for tests. **Not deployed to Production yet.** Webhook delivery idempotency remains **NOT solved**. |
-| Gate 5 functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (`codex/production-worker-reliability-hotfix`). Tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. **Requires bounded independent delta audit before Production deployment.** Do not treat Claude audit **B** as covering this delta. Do not rewrite audited `3580476`. |
+| `CHASUM_WORKER_WEBHOOKS_ENABLED` | Server-only. Exact `"true"` enables. Absent/false holds webhook jobs **out of** `processPendingJobs` candidate selection (no claim, attempts/status unchanged). Direct `claimBackgroundJob` on an explicit row remains available for tests. **Must remain absent/false** through Production delta deployment, alias verification, transactional E2E, canary, and **initial Cron restore**. Turning webhooks on later is a **separate governed decision**. **Not deployed to Production yet.** Webhook delivery idempotency remains **NOT solved**. |
+| Gate 5 functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (`codex/production-worker-reliability-hotfix`). Tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. Docs restamp ancestor `fcb6799983375c8e42e0822f2c993e5fc923e8d4`. **Delta audit B + live Staging PostgREST proof PASS.** Production deploy of this SHA is still **not performed**. Do not rewrite audited `3580476`. |
+| Live Staging `job_type=neq.webhook` PostgREST proof | **PASS** (2026-09-08). Target `wnfahklzaxirftyskctd`. Harness `scripts/run-staging-webhook-hold-runtime.mjs`. `CHASUM_WORKER_WEBHOOKS_ENABLED=false`. Providers stripped. `processPendingJobs` **not** invoked. Existing pending count **20** (12 reminder / 8 webhook). Independent fingerprint sha256 `6cee9ce8b54aed43283ae284e901ade24a9b0cd86a7eae2c800c0c33b7b58492` / idSha256 `21b4c321ff64dfe54e66c20e323f653448fda905bb73301cb5e2b9e552cb7491` unchanged pre/post. Synthetic residue **0**. |
 | `SUPABASE_PROJECT_ID` in Production Vercel env | Contains Staging ref `wnfahklzaxirftyskctd`. **Unused** by `createServiceClient` / repo (zero references). Severity **P3**. Recommend **POST-RECOVERY CLEANUP**. Do not change Production env in Gate 5. |
 
 `docs/CURRENT_PROJECT_STATE.md` (stamp 2026-08-25 / Phase 5) is **stale** relative to completed Production 029 and this worker-recovery chapter. Do not treat that file as the recovery ledger. Companion pointers to this file and the runbook were added for findability only; the control board was not restamped.
@@ -74,15 +76,18 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 - Gate 5 implements server-only `CHASUM_WORKER_WEBHOOKS_ENABLED` (default OFF). `processPendingJobs` / `selectPendingJobCandidates` exclude `job_type=webhook` unless the value is exactly `"true"`. Held webhook rows stay pending; attempts and `started_at` are unchanged.
 - Direct `claimBackgroundJob` on an explicit synthetic row remains available for isolated tests and does **not** enable the normal queue scan.
 - Proper webhook delivery-idempotency remains **DESIGN FOR NOW / BUILD LATER**. Do not redesign webhook dispatch in this recovery.
-- Do **not** deploy this Gate 5 delta to Production until a bounded independent audit passes.
+- Live Staging PostgREST composition of `status=pending` + `scheduled_at` due + `next_retry_at` `.or(...)` + `.neq("job_type","webhook")` + `.order(...)` + `.limit(...)` is **PASS**. No enum/filter error. Synthetic webhook excluded; synthetic durable-v1 email included and processed on the isolated path only.
+- `CHASUM_WORKER_WEBHOOKS_ENABLED` must remain absent/false through Production delta deployment, alias verification, transactional E2E, canary, and initial Cron restore. Turning webhooks on later requires a separate governed decision.
+- Production deploy of `47c24ac` is **not** performed by the live Staging proof.
 
 ---
 
 ## NEW / CHANGED (this slice)
 
 - Gate 5 live Production classification: pending **0** / processing **0**. Disposition: **NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.** Historical 579 rows not mutated.
-- Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`. Staging synthetic proof: existing 20 pending jobs unchanged; `processPendingJobs` was **not** invoked against Staging.
-- This is a **new functional code change after Claude's audit**. It requires a **bounded independent delta audit** before Production deployment.
+- Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`.
+- Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**. Existing 20 pending Staging fingerprint unchanged. Synthetic residue **0**. No real providers.
+- Production deployment of delta `47c24ac` **still not performed**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.
 - `SUPABASE_PROJECT_ID` Production env mismatch classified **P3** unused/stale. Not changed.
 
 ---
@@ -96,7 +101,7 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 3. **Gate 3** — **PASS** after Gate 3A alias reconciliation. Do not `ALTER ROLE`. Do not add V3 policies.
 4. Controlled flag enablement (`true`) — **PASS**. Cron remains disabled; do not call `processPendingJobs`.
 5. **Gate 4** — **PASS**. Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
-6. **Gate 5** — **PASS (code + Staging).** Live Production legacy pending backlog = 0. Webhook hold implemented, not Production-deployed. **Bounded independent delta audit required** before Production deploy of this revision.
+6. **Gate 5** — **PASS (code + live Staging PostgREST proof).** Live Production legacy pending backlog = 0. Claude delta audit **B**. Webhook hold implemented, **not Production-deployed**. Next step is a separately governed Production deploy of `47c24ac` with hold ON, Cron DISABLED, and `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false.
 7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII).
 8. Bounded manual canary (no webhook jobs) before Cron.
 9. Separate decision to restore Production Cron.
@@ -120,14 +125,14 @@ Production worker recovery: **not complete**.
 - Do not silently process legacy jobs that lack `durable-v1`.
 - Do not dispatch webhooks during initial Production worker recovery.
 - Do not set Production `CHASUM_WORKER_WEBHOOKS_ENABLED=true` in this recovery slice.
-- Do not deploy the Gate 5 webhook-hold delta to Production until a bounded independent audit passes.
+- Do not deploy the Gate 5 webhook-hold delta to Production from this Staging-proof slice. A later governed Production deploy of `47c24ac` may proceed with hold ON, Cron DISABLED, and `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false.
 - GVM technician testing remains **deferred**. Do not mark GVM testing active.
 
 ---
 
 ## Next governed gate (not an authorization)
 
-Bounded **independent delta audit** of the Gate 5 webhook-hold revision, then a separately governed Production deploy of that audited SHA (still hold ON, Cron DISABLED, `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false). Do not start deployed booking E2E or GVM testing in that deploy step unless ChatGPT explicitly opens it.
+Separately governed **Production deploy** of webhook-hold SHA `47c24acb22db8d8da7cef9971357e1d26f87cffa` (still hold ON, Cron DISABLED, `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false through alias verification, transactional E2E, canary, and initial Cron restore). Do not start GVM testing in that deploy step unless ChatGPT explicitly opens it.
 
 ---
 

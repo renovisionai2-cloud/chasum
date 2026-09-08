@@ -2,7 +2,7 @@
 
 **Status:** Canonical Production rollout sequence after independent high-risk audit  
 **Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
-**Last updated:** 2026-09-07  
+**Last updated:** 2026-09-08  
 **This file does not authorize Production execution.** It records the required gates. A later consequential Production authorization is still required before any step below is performed.
 
 Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to apply, deploy, enable flags, invoke the worker, restore Cron, or remove the Production hold.
@@ -23,15 +23,16 @@ Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`
 | Deployment carrier invariant | carrier tree **==** audited code tree; empty metadata-only commit; **not** a new functional revision; Claude audit remains applicable |
 | Branch (code/docs) | `codex/production-worker-reliability-hotfix` |
 | Repository | `renovisionai2-cloud/chasum` |
-| Claude audit | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. NO P0. NO P1. NO code correction required. |
+| Claude audit (hotfix tree `3580476`) | **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. NO P0. NO P1. NO code correction required. |
+| Claude webhook-hold delta audit (`47c24ac`) | **B — APPROVED WITH BOUNDED DEPLOYMENT CONDITIONS**. NO P0. NO P1. NO code correction required. Live Staging `job_type=neq.webhook` PostgREST condition **PASS**. |
 | Ledger migration | `supabase/migrations/20260905024239_communication_send_intents.sql` |
 | Migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` |
 | Reliability flag | `CHASUM_WORKER_RELIABILITY_ENABLED` |
 | Webhook dispatch gate | `CHASUM_WORKER_WEBHOOKS_ENABLED` (server-only; default OFF; exact `"true"` enables) |
 | Worker Cron | `/api/cron/process-jobs` |
 | Staging isolated application runtime | **PASS** (synthetic jobs, stubbed providers; existing 20 pending Staging jobs unchanged) |
-| Gate 5 webhook-hold Staging proof | **PASS** (synthetic marked rows; `processPendingJobs` not invoked; existing 20 pending unchanged) |
-| Gate 5 webhook-hold functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (new functional revision; **not** covered by Claude audit **B**; delta audit required before Production deploy) |
+| Gate 5 webhook-hold Staging proof | **PASS** (live PostgREST `job_type=neq.webhook` on enum with pending/due/or/order/limit; synthetic marked rows; `processPendingJobs` not invoked; existing 20 pending fingerprint unchanged; residue 0) |
+| Gate 5 webhook-hold functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (tree `461198bd0b261ab38f39260d1f413dfa4f196f24`). Delta audit **B**. Live Staging condition **PASS**. Production deploy **not performed**. |
 
 If the target environment is not Production `kxcydvhswkuzepwzzinq`, **STOP**.
 
@@ -228,7 +229,17 @@ CHASUM_WORKER_WEBHOOKS_ENABLED
 
 Absent / not exactly `"true"`: `selectPendingJobCandidates` / `processPendingJobs` exclude `job_type=webhook` **before claim**. Status, attempts, and `started_at` stay unchanged. Direct `claimBackgroundJob` on an explicit row remains available for isolated tests.
 
-This Gate 5 code change is a **new functional revision** after Claude audit **B**. It **requires a bounded independent delta audit before Production deployment**. Do not claim the original audit covers this delta. Do not enable the webhook gate by default.
+**Standing rule:** `CHASUM_WORKER_WEBHOOKS_ENABLED` must remain **absent/false** through:
+
+- Production delta deployment of `47c24ac`
+- alias verification
+- transactional E2E
+- canary
+- **initial Cron restore**
+
+Turning webhooks on later requires a **separate governed decision**. Do not enable the webhook gate by default.
+
+Claude webhook-hold delta audit = **B**. Live Staging PostgREST proof of `.neq("job_type","webhook")` on the enum column with existing pending/due/or/order/limit composition = **PASS** (2026-09-08; existing 20 pending fingerprint unchanged; synthetic residue 0; no real providers). Production deploy of `47c24ac` is still **not performed**.
 
 ---
 
@@ -309,7 +320,7 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Hotfix on Production | **DEPLOYED** identical-tree carrier `35cc40c` / `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` |
 | Reliability flag on Production | **true** |
 | Gates 1–4 | **PASS** |
-| Gate 5 | **PASS (code + Staging); Production deploy blocked pending delta audit** |
+| Gate 5 | **PASS (code + live Staging PostgREST proof); Production deploy of `47c24ac` not performed** |
 | GVM technician testing | **DEFERRED** |
 
-The next consequential action is a **bounded independent delta audit** of the Gate 5 webhook-hold revision, then a separately governed Production deploy of that audited SHA. This runbook does not grant that authorization.
+The next consequential action is a **separately governed Production deploy** of webhook-hold SHA `47c24acb22db8d8da7cef9971357e1d26f87cffa` with hold ON, Cron DISABLED, and `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false. This runbook does not grant that authorization.
