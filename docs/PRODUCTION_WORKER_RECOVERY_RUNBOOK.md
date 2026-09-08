@@ -3,7 +3,7 @@
 **Status:** Canonical Production rollout sequence after independent high-risk audit  
 **Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
 **Last updated:** 2026-09-08  
-**Updated by:** Deployed transactional E2E attempt — **HOLD (H)**. No test event. No `processPendingJobs`. No Cron. Hold remains **ON**. Canary **not** started.  
+**Updated by:** Hosted E2E + one-job canary preflight — **HOLD (B)** location_id producer defect. No test event. No worker. Cron remains **DISABLED**. Hold remains **ON**.  
 **This file does not authorize Production execution.** It records the required gates. A later consequential Production authorization is still required before any step below is performed.
 
 Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to apply, deploy, enable flags, invoke the worker, restore Cron, or remove the Production hold.
@@ -263,7 +263,7 @@ Prove:
 
 Momentic: run the bounded booking regression if the connector is restored. Momentic unavailability alone is not a blocker.
 
-**2026-09-08 status: HOLD (H).** Safe EMAIL path and synthetic tenant were identified. No Production test event was created. Local operator tooling cannot materialize Production Sensitive `RESEND_API_KEY` for the explicit `claimBackgroundJob` → `processClaimedJob` runner. Hosted email is configured. Do not use `/api/cron/process-jobs` / `processPendingJobs`. Do not add a debug process endpoint. Do not start canary until this E2E **PASS**es.
+**2026-09-08 status: HOLD (B).** Live Production requires `appointments.location_id`. Deployed `POST /api/v1/appointments` does not persist it. That is the only hosted enqueue-without-inline-send path. `vercel crons run /api/cron/process-jobs` exists and the schedule can stay disabled, but it was **not** invoked because no safe test event was created. Do not SQL-bypass. Do not add a debug endpoint. Do not enable scheduled Cron.
 
 ---
 
@@ -327,6 +327,6 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Gates 1–4 | **PASS** |
 | Gate 5 | **PASS (code + live Staging PostgREST proof + Production deploy + fleet reconciled)** |
 | GVM technician testing | **DEFERRED** |
-| Deployed transactional E2E | **HOLD (H)** — no event created; provider secret not available to local explicit-id runner |
+| Deployed transactional E2E | **HOLD (B)** — `POST /api/v1/appointments` omits required `location_id`; no event created |
 
-The next consequential action is to **retry the bounded deployed transactional E2E** after the provider-credential blocker is resolved. Do **not** start canary. Hold ON. Cron DISABLED. Webhook gate absent/false. No webhook jobs. This runbook does not grant that authorization.
+The next consequential action is a **producer-path fix or an already-existing hosted enqueue-without-inline path**, then retry hosted E2E + one-job canary. Do **not** enable scheduled Cron. Hold ON. Webhook gate absent/false. This runbook does not grant that authorization.

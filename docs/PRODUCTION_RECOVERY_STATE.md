@@ -3,7 +3,7 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-08  
-**Updated by:** Deployed transactional E2E attempt (Cursor). Verdict **H — OTHER SAFETY HOLD**. No test event created. No worker invocation. No provider send. Functional SHA `47c24ac` / tree `461198bd` remains **READY** on Production as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger unchanged (579 / ledger 0). Cron **DISABLED**. Hold **ON**. GVM **deferred**. Canary is **not** next.
+**Updated by:** Hosted E2E + one-job canary preflight (Cursor). Verdict **B — PRODUCER PATH UNSAFE / LOCATION DEFECT — KEEP HOLD**. No test event created. No worker invocation. No provider send. Functional SHA `47c24ac` / `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb` unchanged. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger unchanged (579 / ledger 0). Cron **DISABLED**. Hold **ON**. GVM **deferred**. Cron restoration is **not** next.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -53,7 +53,7 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Gate 5 webhook backlog | pending **0**; processing **0**; failed **0**; completed **0**; cancelled **152**; due pending **0**. Other: `waitlist_notify` cancelled **64**. No `calendar_sync` / `recurring` rows. |
 | `CHASUM_WORKER_WEBHOOKS_ENABLED` | Server-only. Exact `"true"` enables. **ABSENT** on Production, Preview, and Development after this deploy. Absent/false holds webhook jobs **out of** `processPendingJobs` candidate selection. **Must remain absent/false** through alias verification, transactional E2E, canary, and **initial Cron restore**. Turning webhooks on later is a **separate governed decision**. Webhook delivery idempotency remains **NOT solved**. |
 | Gate 5 functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (`codex/production-worker-reliability-hotfix`). Tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. **Deployed to Production** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. Docs-only HEAD `7b08e16` was **not** deployed as a functional revision. Do not rewrite audited `3580476`. |
-| Deployed transactional E2E | **HOLD (H)**. 2026-09-08. Safe EMAIL path selected: hosted `POST /api/v1/appointments` on synthetic tenant `dac7c837-2f8e-40b5-99d4-b46c0081a13a` (“My Business” / P4 shell), operator plus-address inbox class only. **No event created.** Blocker: local runner cannot materialize Production Sensitive `RESEND_API_KEY` (`vercel env run` empty; `vercel env pull` non-secret sentinel for all Sensitive keys). Hosted `/api/health` reports `email: configured`. The only hosted worker entry is `/api/cron/process-jobs` → `processPendingJobs` (forbidden). No existing single-job hosted process route. Creating a pending Production email without a process path was refused. `processPendingJobs` not called. Webhook jobs not processed. Historical `idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe` unchanged. Ledger **0**. Webhook cancelled **152**. |
+| Deployed transactional E2E | **HOLD (B)**. 2026-09-08 hosted canary preflight. Live Production `appointments.location_id` is **required** (OpenAPI required; 0 null rows). Deployed `POST /api/v1/appointments` (`47c24ac`) inserts without `location_id` and Zod strips extras. That is the only hosted producer that enqueues `durable-v1` email **without** inline Resend. Dashboard/public paths set `location_id` but call `deliverBookingNotifications` (inline send). Direct SQL bypass refused. **No event created.** Worker not invoked. `vercel crons run` exists but was not used. Historical `idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe` unchanged. Ledger **0**. Webhook cancelled **152**. |
 | Live Staging `job_type=neq.webhook` PostgREST proof | **PASS** (2026-09-08). Target `wnfahklzaxirftyskctd`. Harness `scripts/run-staging-webhook-hold-runtime.mjs`. `CHASUM_WORKER_WEBHOOKS_ENABLED=false`. Providers stripped. `processPendingJobs` **not** invoked. Existing pending count **20** (12 reminder / 8 webhook). Independent fingerprint sha256 `6cee9ce8b54aed43283ae284e901ade24a9b0cd86a7eae2c800c0c33b7b58492` / idSha256 `21b4c321ff64dfe54e66c20e323f653448fda905bb73301cb5e2b9e552cb7491` unchanged pre/post. Synthetic residue **0**. |
 | `SUPABASE_PROJECT_ID` in Production Vercel env | Contains Staging ref `wnfahklzaxirftyskctd`. **Unused** by `createServiceClient` / repo (zero references). Severity **P3**. Recommend **POST-RECOVERY CLEANUP**. Do not change Production env in Gate 5. |
 
@@ -90,7 +90,7 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 - Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`.
 - Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**.
 - Production deploy of `47c24ac` **READY** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. Active fleet reconciled including git-main. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger fingerprint unchanged (`idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`). Webhook cancelled rows remain **152**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.
-- Deployed transactional E2E **HOLD (H)**. No test appointment/customer/job created. No provider send. Canary not started.
+- Deployed transactional E2E **HOLD (B)**. Producer-path location_id defect on `POST /api/v1/appointments`. No test appointment/customer/job created. No provider send. Canary not started. Cron not enabled.
 - `SUPABASE_PROJECT_ID` Production env mismatch classified **P3** unused/stale. Not changed.
 
 ---
@@ -105,8 +105,8 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 4. Controlled flag enablement (`true`) — **PASS**. Cron remains disabled; do not call `processPendingJobs`.
 5. **Gate 4** — **PASS**. Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
 6. **Gate 5** — **PASS (code + live Staging proof + Production deploy).** Live Production legacy pending backlog = 0. Claude delta audit **B**. Webhook-hold tree `47c24ac` / `461198bd` is hosted on Production with webhook flag **ABSENT**, reliability **true**, hold ON, Cron DISABLED. Worker not invoked.
-7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII). **HOLD (H).** Retry only when Production provider credentials can be used on the explicit `claimBackgroundJob` → `processClaimedJob` path without `processPendingJobs`, a new debug endpoint, hold removal, or Cron enablement.
-8. Bounded manual canary (no webhook jobs) before Cron. **Not started.** Requires E2E **PASS**.
+7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII). **HOLD (B).** Hosted one-job canary cannot start until an existing deployed producer can insert a synthetic appointment with `location_id` **and** leave exactly one eligible pending `durable-v1` email (no inline send, no SQL bypass, no debug endpoint).
+8. Bounded manual canary (no webhook jobs) before Cron. **Not started.** Blocked by producer-path hold.
 9. Separate decision to restore Production Cron.
 10. Production hold removal **last**.
 11. GVM technician validation **only after recovery closes**.
@@ -135,7 +135,7 @@ Production worker recovery: **not complete**.
 
 ## Next governed gate (not an authorization)
 
-Retry the **bounded deployed transactional E2E** after the provider-credential blocker is resolved. Do **not** start the manual canary. Hold remains ON. Cron remains DISABLED. `CHASUM_WORKER_WEBHOOKS_ENABLED` remains absent/false. Do not call `processPendingJobs`. Do not process webhook jobs. Do not start GVM testing unless ChatGPT explicitly opens it.
+Retry the **hosted E2E + one-job canary** only after a safe existing producer path can create one pending `durable-v1` email without the `location_id` insert defect and without inline Resend. Do **not** start monitored Cron restoration. Hold remains ON. Cron remains DISABLED. `CHASUM_WORKER_WEBHOOKS_ENABLED` remains absent/false. Do not call `processPendingJobs` against an empty or mixed queue. Do not process webhook jobs. Do not start GVM testing unless ChatGPT explicitly opens it.
 
 ---
 
