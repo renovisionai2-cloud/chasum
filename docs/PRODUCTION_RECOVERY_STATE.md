@@ -3,7 +3,7 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-07  
-**Updated by:** Gate 3A stale Production alias reconciliation (Cursor). Claude audit **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. Isolated Staging application runtime remains **PASS**. Production worker recovery is **not** complete. Gate 3 is **PASS**. Reliability flag remains **ABSENT / fail-closed**.
+**Updated by:** Gate 4 isolated Production synthetic proof (Cursor). Claude audit **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. Isolated Staging application runtime remains **PASS**. Production Gate 4 is **PASS**. Production worker recovery is **not** complete. Reliability flag is **true** (hosted + local execution path). Cron remains **DISABLED**. Hold remains **ON**.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -42,8 +42,10 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Hotfix branch | `codex/production-worker-reliability-hotfix` (implementation `448969aa2dc1c12aab7b16ae9e672b7b70bf8882` parented on Production pin `476af17`; isolated-runtime lock `3580476`) |
 | Send-intent migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` (`supabase/migrations/20260905024239_communication_send_intents.sql`) |
 | Production `communication_send_intents` | **COMMITTED AND DATA-API VERIFIED** (Gate 1) |
-| Production hotfix deploy | **READY** carrier `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z` (`chasum-9ohmcm142-renovisionappcom.vercel.app`), SHA `35cc40c`. Tree equals audited `3580476`. |
-| Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → carrier. Gate 3A reassigned `git-main` off pre-hotfix `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` / `476af17`. |
+| Production hotfix deploy | **READY** identical-tree flag-on carrier `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` (`chasum-j6btoq0er-renovisionappcom.vercel.app`), SHA `35cc40c`. Tree equals audited `3580476`. Prior flag-off Ready revision `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z` is historical only (no active alias). |
+| Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP`. |
+| `CHASUM_WORKER_RELIABILITY_ENABLED` | **true** (Production only). Preview/Development remain absent. |
+| Gate 4 isolated Production synthetic | **PASS**. Marker `chasum-isolated-production-runtime-20260908`. Providers stubbed. `processClaimedJob` only. `processPendingJobs` never called. Pre/post 579-job id fingerprint `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`. Queue fingerprint sha256 `91fb161600101e1bef4d1f150ebc9698898a6f0a9526ba27ecae856b6a53ffe0`. Zero synthetic residue. Flag execution path proven because `processClaimedJob` requires `workerReliabilityEnabled()`. Webhook claim-only; external dispatch **not** certified. |
 
 `docs/CURRENT_PROJECT_STATE.md` (stamp 2026-08-25 / Phase 5) is **stale** relative to completed Production 029 and this worker-recovery chapter. Do not treat that file as the recovery ledger. Companion pointers to this file and the runbook were added for findability only; the control board was not restamped.
 
@@ -70,9 +72,12 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 ## NEW / CHANGED (this slice)
 
-- Gate 3A: `vercel alias set dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z chasum-git-main-renovisionappcom.vercel.app`. No code redeploy. Old deployment `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` was **not** deleted.
-- **Production deploy control:** no ad-hoc no-git CLI Production deploys. A Production deploy must have immutable SHA + tree proof before `vercel deploy --prod`. After every Production deployment, check all **active** Production aliases, custom domains, project Production target, and Cron host. Historical immutable deployment URLs are **not** active fleet unless an alias, scheduler target, or custom domain selects them.
-- Deployment carrier `35cc40c` remains metadata-only; tree equals audited `3580476`. Do not treat it as a new functional revision.
+- Gate 4: isolated Production synthetic proof **PASS** using the accepted Staging harness safety model (temporary local runner; no hosted debug route; no application-code change). Marker `chasum-isolated-production-runtime-20260908`. Recipients `chasum-production-gate4@example.com` / `+15555550199`. Providers stubbed. `RESEND_API_KEY` / Twilio absent in the harness process.
+- Service-role **cannot DELETE** `communication_send_intents` (known ACL). Synthetic ledger rows were removed after assertions via tightly scoped postgres SQL (`template_key = chasum.isolated.production.runtime` only). Pre-existing ledger count remained / returned to **0**.
+- Pre/post Production queue: **579** total; pending **0**; processing **0**; failed **0**; completed **11**; cancelled **568**. idSha256 unchanged. Zero synthetic jobs left.
+- Flag execution-path proven: `processClaimedJob` ran successfully and would have thrown if `CHASUM_WORKER_RELIABILITY_ENABLED` were not `"true"`. Hosted Cron/worker still **not** invoked.
+- Webhook: concurrent claim atomicity only, stub `dispatchWebhooks`. External webhook delivery idempotency remains **NOT certified**.
+- Cron still **DISABLED**. Hold still **ON**. GVM technician testing still **DEFERRED**.
 
 ---
 
@@ -83,8 +88,8 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 1. **Gate 1** — **PASS** (PostgREST / Data API visibility of `communication_send_intents` verified).
 2. **Gate 2** — **PASS** (identical-tree carrier deployed, flag-off, hosted boot, held worker).
 3. **Gate 3** — **PASS** after Gate 3A alias reconciliation. Do not `ALTER ROLE`. Do not add V3 policies.
-4. Controlled flag enablement (`true`); Cron remains disabled; do not call `processPendingJobs`. **Not started.**
-5. **Gate 4** — Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
+4. Controlled flag enablement (`true`) — **PASS**. Cron remains disabled; do not call `processPendingJobs`.
+5. **Gate 4** — **PASS**. Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
 6. **Gate 5** — Classify legacy pending email/SMS/reminder jobs missing `sendIntentProtocol = durable-v1`; choose a governed disposition; keep webhooks held from external dispatch.
 7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII).
 8. Bounded manual canary (no webhook jobs) before Cron.
@@ -114,7 +119,7 @@ Production worker recovery: **not complete**.
 
 ## Next governed gate (not an authorization)
 
-Controlled **flag enablement** of `CHASUM_WORKER_RELIABILITY_ENABLED=true` only. Hold ON, Cron DISABLED, worker not invoked, no communications, no Gate 4 until ChatGPT starts that already-approved step.
+**Gate 5** — legacy protocol + webhook disposition. Hold ON, Cron DISABLED, do not call `processPendingJobs`, do not dispatch webhooks, do not start GVM testing, do not mark Production worker recovery complete.
 
 ---
 
@@ -125,7 +130,8 @@ Controlled **flag enablement** of `CHASUM_WORKER_RELIABILITY_ENABLED=true` only.
 | `/private/tmp/chasum-prod-029-v2-run.sh` | Production 029+ACL V2 apply wrapper (already used / committed) |
 | `/private/tmp/chasum-production-029-repair-acl-v2/` | Locked V2 package |
 | `/private/tmp/chasum-staging-send-intents-apply.sh` | Staging-only ledger apply wrapper (SQL already applied; do not re-run) |
-| `/private/tmp/chasum-worker-reliability-hotfix/` | Git worktree for `codex/production-worker-reliability-hotfix` |
+| `/private/tmp/chasum-prod-hotfix-3580476/` | Git worktree for identical-tree carrier `35cc40c` |
+| `/private/tmp/chasum-gate4-production-isolated/` | Temporary local Gate 4 runner / summary (not committed; no secrets) |
 | `/private/tmp/chasum-staging-history-recon/` | Migration-history repair probes |
 | `/private/tmp/chasum-staging-worker-runtime/` | Prior slice’s local/Staging SQL validation receipts (no secrets committed) |
 | `/private/tmp/chasum-isolated-staging-runtime-summary.json` | Isolated application-runtime scenario summary (no PII; no secrets) |
