@@ -32,7 +32,7 @@ Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`
 | Worker Cron | `/api/cron/process-jobs` |
 | Staging isolated application runtime | **PASS** (synthetic jobs, stubbed providers; existing 20 pending Staging jobs unchanged) |
 | Gate 5 webhook-hold Staging proof | **PASS** (live PostgREST `job_type=neq.webhook` on enum with pending/due/or/order/limit; synthetic marked rows; `processPendingJobs` not invoked; existing 20 pending fingerprint unchanged; residue 0) |
-| Gate 5 webhook-hold functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (tree `461198bd0b261ab38f39260d1f413dfa4f196f24`). Delta audit **B**. Live Staging condition **PASS**. Production deploy **not performed**. |
+| Gate 5 webhook-hold functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (tree `461198bd0b261ab38f39260d1f413dfa4f196f24`). Delta audit **B**. Live Staging condition **PASS**. Production deploy **READY** `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. |
 
 If the target environment is not Production `kxcydvhswkuzepwzzinq`, **STOP**.
 
@@ -152,6 +152,7 @@ If any **active** alias/scheduler/custom domain mismatch: **HOLD**. Do not enabl
 - A Production deploy must record immutable commit SHA **and** tree SHA, with tree-equivalence to the audited code, before `vercel deploy --prod`.
 - After every Production deployment, re-check all active Production aliases, custom domains, project Production target, and Cron host.
 - Gate 3A (2026-09-07): reassigned `chasum-git-main-renovisionappcom.vercel.app` from pre-hotfix `dpl_HrPeWj7AC3HGpwK6fEesbFys7M1Y` (`476af17`) to carrier `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z`. Old deployment was not deleted.
+- Gate 5 deploy (2026-09-08): `vercel deploy --prod --yes --force` of detached worktree `47c24ac` → `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. git-main was then reassigned with `vercel alias set dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb chasum-git-main-renovisionappcom.vercel.app`. Prior Ready `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` was not deleted.
 
 ---
 
@@ -221,7 +222,7 @@ Claim atomicity was verified on Staging and Gate 4. External webhook delivery id
 
 Live Production webhook backlog at Gate 5: pending **0**, processing **0**, failed **0**, completed **0**, cancelled **152**, due pending **0**.
 
-Bounded hold (implemented, **not Production-deployed**):
+Bounded hold (**Production-deployed** as `47c24ac` / `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`; webhook flag **ABSENT**):
 
 ```
 CHASUM_WORKER_WEBHOOKS_ENABLED
@@ -239,7 +240,7 @@ Absent / not exactly `"true"`: `selectPendingJobCandidates` / `processPendingJob
 
 Turning webhooks on later requires a **separate governed decision**. Do not enable the webhook gate by default.
 
-Claude webhook-hold delta audit = **B**. Live Staging PostgREST proof of `.neq("job_type","webhook")` on the enum column with existing pending/due/or/order/limit composition = **PASS** (2026-09-08; existing 20 pending fingerprint unchanged; synthetic residue 0; no real providers). Production deploy of `47c24ac` is still **not performed**.
+Claude webhook-hold delta audit = **B**. Live Staging PostgREST proof of `.neq("job_type","webhook")` on the enum column with existing pending/due/or/order/limit composition = **PASS** (2026-09-08; existing 20 pending fingerprint unchanged; synthetic residue 0; no real providers). Production deploy of `47c24ac` is **READY** (`dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`). Worker was **not** invoked. Webhook delivery idempotency remains unsolved.
 
 ---
 
@@ -317,10 +318,11 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Production worker | **NOT RUNNING** |
 | Production communications | **NOT AUTHORIZED** |
 | Ledger on Production | **APPLIED** (Gate 1) |
-| Hotfix on Production | **DEPLOYED** identical-tree carrier `35cc40c` / `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` |
+| Hotfix on Production | **DEPLOYED** webhook-hold SHA `47c24ac` / tree `461198bd` / `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb` (`chasum-l0wyqu6yw-renovisionappcom.vercel.app`). Prior `35cc40c` / `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` has **no active alias**. |
 | Reliability flag on Production | **true** |
+| Webhook gate on Production | **ABSENT** (must remain absent/false through E2E, canary, initial Cron restore) |
 | Gates 1–4 | **PASS** |
-| Gate 5 | **PASS (code + live Staging PostgREST proof); Production deploy of `47c24ac` not performed** |
+| Gate 5 | **PASS (code + live Staging PostgREST proof + Production deploy + fleet reconciled)** |
 | GVM technician testing | **DEFERRED** |
 
-The next consequential action is a **separately governed Production deploy** of webhook-hold SHA `47c24acb22db8d8da7cef9971357e1d26f87cffa` with hold ON, Cron DISABLED, and `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false. This runbook does not grant that authorization.
+The next consequential action is the **bounded deployed transactional E2E** (booking → job → worker → send-intent → controlled provider/test endpoint) with hold ON, Cron DISABLED, webhook gate absent/false, and no webhook jobs. This runbook does not grant that authorization.

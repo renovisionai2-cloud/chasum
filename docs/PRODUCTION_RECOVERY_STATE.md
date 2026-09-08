@@ -3,7 +3,7 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-08  
-**Updated by:** Live Staging webhook-hold PostgREST condition (Cursor). Gate 4 remains **PASS**. Claude webhook-hold **delta** audit = **B**. Live Staging `job_type=neq.webhook` PostgREST proof = **PASS**. Existing 20 pending Staging fingerprint unchanged. Synthetic residue **0**. No real providers. Production deploy of `47c24ac` **not performed**. Cron remains **DISABLED**. Hold remains **ON**. `CHASUM_WORKER_WEBHOOKS_ENABLED` remains absent/false. GVM testing remains **deferred**.
+**Updated by:** Gate 5 webhook-hold Production deploy (Cursor). Claude webhook-hold **delta** audit = **B**. Live Staging PostgREST proof = **PASS**. Functional SHA `47c24ac` / tree `461198bd` is **READY** on Production as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier required. Reliability flag **true**. Webhook flag **ABSENT**. Active fleet reconciled. Queue/ledger unchanged. Cron **DISABLED**. Hold **ON**. Worker **not invoked**. GVM **deferred**. Deployed transactional E2E is **NEXT**.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -43,15 +43,16 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Hotfix branch | `codex/production-worker-reliability-hotfix` (implementation `448969aa2dc1c12aab7b16ae9e672b7b70bf8882` parented on Production pin `476af17`; isolated-runtime lock `3580476`) |
 | Send-intent migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` (`supabase/migrations/20260905024239_communication_send_intents.sql`) |
 | Production `communication_send_intents` | **COMMITTED AND DATA-API VERIFIED** (Gate 1) |
-| Production hotfix deploy | **READY** identical-tree flag-on carrier `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` (`chasum-j6btoq0er-renovisionappcom.vercel.app`), SHA `35cc40c`. Tree equals audited `3580476`. Prior flag-off Ready revision `dpl_BhgnhWnrTvuPsgs7kLwz2VGwU44z` is historical only (no active alias). |
-| Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP`. |
+| Production hotfix deploy (historical `3580476` tree) | Previous Ready carrier `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` (`chasum-j6btoq0er-renovisionappcom.vercel.app`), SHA `35cc40c`, tree `5b72b1ba`. **Superseded.** No active Production alias remains on that tree. |
+| Gate 5 webhook-hold Production deploy | **READY** `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb` (`chasum-l0wyqu6yw-renovisionappcom.vercel.app`). gitCommitSha `47c24acb22db8d8da7cef9971357e1d26f87cffa`. Functional tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. Author `renovisionai2-cloud <renovisionai2@gmail.com>`. Source `cli`. **No metadata-only carrier** (GitHub login mapped; no `TEAM_ACCESS_REQUIRED`). Rolling release **none**. |
+| Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. Cron host `chasum-l0wyqu6yw-renovisionappcom.vercel.app`. git-main was reassigned with the Gate 3A minimum alias procedure. |
 | `CHASUM_WORKER_RELIABILITY_ENABLED` | **true** (Production only). Preview/Development remain absent. |
 | Gate 4 isolated Production synthetic | **PASS**. Marker `chasum-isolated-production-runtime-20260908`. Providers stubbed. `processClaimedJob` only. `processPendingJobs` never called. Pre/post 579-job id fingerprint `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`. Queue fingerprint sha256 `91fb161600101e1bef4d1f150ebc9698898a6f0a9526ba27ecae856b6a53ffe0`. Zero synthetic residue. Flag execution path proven because `processClaimedJob` requires `workerReliabilityEnabled()`. Webhook claim-only; external dispatch **not** certified. |
 | Gate 5 classification (live Production) | **579** total; pending **0**; processing **0**; failed **0**; completed **11**; cancelled **568**. Ledger **0**. |
 | Gate 5 legacy transactional disposition | **NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.** Pending email/SMS/reminder = **0**. Historical cancelled/completed rows were **not** mutated and were **not** bulk-stamped. |
 | Gate 5 webhook backlog | pending **0**; processing **0**; failed **0**; completed **0**; cancelled **152**; due pending **0**. Other: `waitlist_notify` cancelled **64**. No `calendar_sync` / `recurring` rows. |
-| `CHASUM_WORKER_WEBHOOKS_ENABLED` | Server-only. Exact `"true"` enables. Absent/false holds webhook jobs **out of** `processPendingJobs` candidate selection (no claim, attempts/status unchanged). Direct `claimBackgroundJob` on an explicit row remains available for tests. **Must remain absent/false** through Production delta deployment, alias verification, transactional E2E, canary, and **initial Cron restore**. Turning webhooks on later is a **separate governed decision**. **Not deployed to Production yet.** Webhook delivery idempotency remains **NOT solved**. |
-| Gate 5 functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (`codex/production-worker-reliability-hotfix`). Tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. Docs restamp ancestor `fcb6799983375c8e42e0822f2c993e5fc923e8d4`. **Delta audit B + live Staging PostgREST proof PASS.** Production deploy of this SHA is still **not performed**. Do not rewrite audited `3580476`. |
+| `CHASUM_WORKER_WEBHOOKS_ENABLED` | Server-only. Exact `"true"` enables. **ABSENT** on Production, Preview, and Development after this deploy. Absent/false holds webhook jobs **out of** `processPendingJobs` candidate selection. **Must remain absent/false** through alias verification, transactional E2E, canary, and **initial Cron restore**. Turning webhooks on later is a **separate governed decision**. Webhook delivery idempotency remains **NOT solved**. |
+| Gate 5 functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (`codex/production-worker-reliability-hotfix`). Tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. **Deployed to Production** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. Docs-only HEAD `7b08e16` was **not** deployed as a functional revision. Do not rewrite audited `3580476`. |
 | Live Staging `job_type=neq.webhook` PostgREST proof | **PASS** (2026-09-08). Target `wnfahklzaxirftyskctd`. Harness `scripts/run-staging-webhook-hold-runtime.mjs`. `CHASUM_WORKER_WEBHOOKS_ENABLED=false`. Providers stripped. `processPendingJobs` **not** invoked. Existing pending count **20** (12 reminder / 8 webhook). Independent fingerprint sha256 `6cee9ce8b54aed43283ae284e901ade24a9b0cd86a7eae2c800c0c33b7b58492` / idSha256 `21b4c321ff64dfe54e66c20e323f653448fda905bb73301cb5e2b9e552cb7491` unchanged pre/post. Synthetic residue **0**. |
 | `SUPABASE_PROJECT_ID` in Production Vercel env | Contains Staging ref `wnfahklzaxirftyskctd`. **Unused** by `createServiceClient` / repo (zero references). Severity **P3**. Recommend **POST-RECOVERY CLEANUP**. Do not change Production env in Gate 5. |
 
@@ -77,8 +78,8 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 - Direct `claimBackgroundJob` on an explicit synthetic row remains available for isolated tests and does **not** enable the normal queue scan.
 - Proper webhook delivery-idempotency remains **DESIGN FOR NOW / BUILD LATER**. Do not redesign webhook dispatch in this recovery.
 - Live Staging PostgREST composition of `status=pending` + `scheduled_at` due + `next_retry_at` `.or(...)` + `.neq("job_type","webhook")` + `.order(...)` + `.limit(...)` is **PASS**. No enum/filter error. Synthetic webhook excluded; synthetic durable-v1 email included and processed on the isolated path only.
-- `CHASUM_WORKER_WEBHOOKS_ENABLED` must remain absent/false through Production delta deployment, alias verification, transactional E2E, canary, and initial Cron restore. Turning webhooks on later requires a separate governed decision.
-- Production deploy of `47c24ac` is **not** performed by the live Staging proof.
+- `CHASUM_WORKER_WEBHOOKS_ENABLED` must remain absent/false through alias verification, transactional E2E, canary, and initial Cron restore. Turning webhooks on later requires a separate governed decision.
+- Production deploy of `47c24ac` is **READY** (`dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`). Worker was **not** invoked. Webhook delivery idempotency remains unsolved.
 
 ---
 
@@ -86,8 +87,8 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 - Gate 5 live Production classification: pending **0** / processing **0**. Disposition: **NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.** Historical 579 rows not mutated.
 - Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`.
-- Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**. Existing 20 pending Staging fingerprint unchanged. Synthetic residue **0**. No real providers.
-- Production deployment of delta `47c24ac` **still not performed**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.
+- Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**.
+- Production deploy of `47c24ac` **READY** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. Active fleet reconciled including git-main. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger fingerprint unchanged (`idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`; status/attempts sha256 `5de8b0830441b029d139fe73ed89a345c7b6e575947b12fca2e1f39f558bf61c`). Webhook cancelled rows remain **152**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.
 - `SUPABASE_PROJECT_ID` Production env mismatch classified **P3** unused/stale. Not changed.
 
 ---
@@ -101,8 +102,8 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 3. **Gate 3** — **PASS** after Gate 3A alias reconciliation. Do not `ALTER ROLE`. Do not add V3 policies.
 4. Controlled flag enablement (`true`) — **PASS**. Cron remains disabled; do not call `processPendingJobs`.
 5. **Gate 4** — **PASS**. Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
-6. **Gate 5** — **PASS (code + live Staging PostgREST proof).** Live Production legacy pending backlog = 0. Claude delta audit **B**. Webhook hold implemented, **not Production-deployed**. Next step is a separately governed Production deploy of `47c24ac` with hold ON, Cron DISABLED, and `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false.
-7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII).
+6. **Gate 5** — **PASS (code + live Staging proof + Production deploy).** Live Production legacy pending backlog = 0. Claude delta audit **B**. Webhook-hold tree `47c24ac` / `461198bd` is hosted on Production with webhook flag **ABSENT**, reliability **true**, hold ON, Cron DISABLED. Worker not invoked.
+7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII). **NEXT.**
 8. Bounded manual canary (no webhook jobs) before Cron.
 9. Separate decision to restore Production Cron.
 10. Production hold removal **last**.
@@ -124,15 +125,15 @@ Production worker recovery: **not complete**.
 - Do not infer provider acceptance from timeouts; `sending`/`unknown` intents are not auto-reclaimed.
 - Do not silently process legacy jobs that lack `durable-v1`.
 - Do not dispatch webhooks during initial Production worker recovery.
-- Do not set Production `CHASUM_WORKER_WEBHOOKS_ENABLED=true` in this recovery slice.
-- Do not deploy the Gate 5 webhook-hold delta to Production from this Staging-proof slice. A later governed Production deploy of `47c24ac` may proceed with hold ON, Cron DISABLED, and `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false.
+- Do not set Production `CHASUM_WORKER_WEBHOOKS_ENABLED=true` in this recovery slice. Keep it absent/false through E2E, canary, and initial Cron restore.
+- Do not invoke `processPendingJobs` / the normal Production worker from this deploy slice. Deployed transactional E2E is a later governed step.
 - GVM technician testing remains **deferred**. Do not mark GVM testing active.
 
 ---
 
 ## Next governed gate (not an authorization)
 
-Separately governed **Production deploy** of webhook-hold SHA `47c24acb22db8d8da7cef9971357e1d26f87cffa` (still hold ON, Cron DISABLED, `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false through alias verification, transactional E2E, canary, and initial Cron restore). Do not start GVM testing in that deploy step unless ChatGPT explicitly opens it.
+Bounded **deployed transactional E2E** on Production-hosted `47c24ac` / `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`: booking → job → worker → send-intent → controlled provider/test endpoint. Hold remains ON. Cron remains DISABLED. `CHASUM_WORKER_WEBHOOKS_ENABLED` remains absent/false. Do not process webhook jobs. Do not start GVM testing unless ChatGPT explicitly opens it.
 
 ---
 
@@ -143,7 +144,7 @@ Separately governed **Production deploy** of webhook-hold SHA `47c24acb22db8d8da
 | `/private/tmp/chasum-prod-029-v2-run.sh` | Production 029+ACL V2 apply wrapper (already used / committed) |
 | `/private/tmp/chasum-production-029-repair-acl-v2/` | Locked V2 package |
 | `/private/tmp/chasum-staging-send-intents-apply.sh` | Staging-only ledger apply wrapper (SQL already applied; do not re-run) |
-| `/private/tmp/chasum-prod-hotfix-3580476/` | Git worktree for identical-tree carrier `35cc40c` |
+| `/private/tmp/chasum-prod-hotfix-47c24ac/` | Detached worktree pinned to functional SHA `47c24ac` used for this Production deploy |
 | `/private/tmp/chasum-gate4-production-isolated/` | Temporary local Gate 4 runner / summary (not committed; no secrets) |
 | `/private/tmp/chasum-staging-history-recon/` | Migration-history repair probes |
 | `/private/tmp/chasum-staging-worker-runtime/` | Prior slice’s local/Staging SQL validation receipts (no secrets committed) |
