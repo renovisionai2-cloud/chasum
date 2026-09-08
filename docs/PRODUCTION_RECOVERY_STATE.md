@@ -3,7 +3,7 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-07  
-**Updated by:** Gate 4 isolated Production synthetic proof (Cursor). Claude audit **B — APPROVED WITH BOUNDED PRE-PRODUCTION CONDITIONS**. Isolated Staging application runtime remains **PASS**. Production Gate 4 is **PASS**. Production worker recovery is **not** complete. Reliability flag is **true** (hosted + local execution path). Cron remains **DISABLED**. Hold remains **ON**.
+**Updated by:** Gate 5 legacy + webhook disposition (Cursor). Gate 4 remains **PASS**. Gate 5 implementation is on this branch and **requires a bounded independent delta audit before Production deployment**. Original Claude audit **B** covers audited tree `3580476` / carrier `35cc40c` only and does **not** automatically cover this webhook-hold delta. Production worker recovery is **not** complete. Cron remains **DISABLED**. Hold remains **ON**.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -46,6 +46,12 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP`. |
 | `CHASUM_WORKER_RELIABILITY_ENABLED` | **true** (Production only). Preview/Development remain absent. |
 | Gate 4 isolated Production synthetic | **PASS**. Marker `chasum-isolated-production-runtime-20260908`. Providers stubbed. `processClaimedJob` only. `processPendingJobs` never called. Pre/post 579-job id fingerprint `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`. Queue fingerprint sha256 `91fb161600101e1bef4d1f150ebc9698898a6f0a9526ba27ecae856b6a53ffe0`. Zero synthetic residue. Flag execution path proven because `processClaimedJob` requires `workerReliabilityEnabled()`. Webhook claim-only; external dispatch **not** certified. |
+| Gate 5 classification (live Production) | **579** total; pending **0**; processing **0**; failed **0**; completed **11**; cancelled **568**. Ledger **0**. |
+| Gate 5 legacy transactional disposition | **NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.** Pending email/SMS/reminder = **0**. Historical cancelled/completed rows were **not** mutated and were **not** bulk-stamped. |
+| Gate 5 webhook backlog | pending **0**; processing **0**; failed **0**; completed **0**; cancelled **152**; due pending **0**. Other: `waitlist_notify` cancelled **64**. No `calendar_sync` / `recurring` rows. |
+| `CHASUM_WORKER_WEBHOOKS_ENABLED` | Server-only. Exact `"true"` enables. Absent/false holds webhook jobs **out of** `processPendingJobs` candidate selection (no claim, attempts/status unchanged). Direct `claimBackgroundJob` on an explicit row remains available for tests. **Not deployed to Production yet.** Webhook delivery idempotency remains **NOT solved**. |
+| Gate 5 functional SHA | Recorded after commit on `codex/production-worker-reliability-hotfix`. **Requires bounded independent delta audit before Production deployment.** Do not treat Claude audit **B** as covering this delta. |
+| `SUPABASE_PROJECT_ID` in Production Vercel env | Contains Staging ref `wnfahklzaxirftyskctd`. **Unused** by `createServiceClient` / repo (zero references). Severity **P3**. Recommend **POST-RECOVERY CLEANUP**. Do not change Production env in Gate 5. |
 
 `docs/CURRENT_PROJECT_STATE.md` (stamp 2026-08-25 / Phase 5) is **stale** relative to completed Production 029 and this worker-recovery chapter. Do not treat that file as the recovery ledger. Companion pointers to this file and the runbook were added for findability only; the control board was not restamped.
 
@@ -63,21 +69,21 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 ## Webhook bounded treatment
 
-- Job **claim atomicity** verified on Staging (one winner; stub dispatch only).
+- Job **claim atomicity** verified on Staging and in Gate 4 (one winner; stub dispatch only).
 - External webhook delivery idempotency is **NOT certified**. Webhooks are **not** covered by `communication_send_intents`.
-- Initial Production worker recovery must **hold webhook jobs from external dispatch**. Preferred treatment: exclude / hold webhook jobs during the first worker recovery.
+- Gate 5 implements server-only `CHASUM_WORKER_WEBHOOKS_ENABLED` (default OFF). `processPendingJobs` / `selectPendingJobCandidates` exclude `job_type=webhook` unless the value is exactly `"true"`. Held webhook rows stay pending; attempts and `started_at` are unchanged.
+- Direct `claimBackgroundJob` on an explicit synthetic row remains available for isolated tests and does **not** enable the normal queue scan.
 - Proper webhook delivery-idempotency remains **DESIGN FOR NOW / BUILD LATER**. Do not redesign webhook dispatch in this recovery.
+- Do **not** deploy this Gate 5 delta to Production until a bounded independent audit passes.
 
 ---
 
 ## NEW / CHANGED (this slice)
 
-- Gate 4: isolated Production synthetic proof **PASS** using the accepted Staging harness safety model (temporary local runner; no hosted debug route; no application-code change). Marker `chasum-isolated-production-runtime-20260908`. Recipients `chasum-production-gate4@example.com` / `+15555550199`. Providers stubbed. `RESEND_API_KEY` / Twilio absent in the harness process.
-- Service-role **cannot DELETE** `communication_send_intents` (known ACL). Synthetic ledger rows were removed after assertions via tightly scoped postgres SQL (`template_key = chasum.isolated.production.runtime` only). Pre-existing ledger count remained / returned to **0**.
-- Pre/post Production queue: **579** total; pending **0**; processing **0**; failed **0**; completed **11**; cancelled **568**. idSha256 unchanged. Zero synthetic jobs left.
-- Flag execution-path proven: `processClaimedJob` ran successfully and would have thrown if `CHASUM_WORKER_RELIABILITY_ENABLED` were not `"true"`. Hosted Cron/worker still **not** invoked.
-- Webhook: concurrent claim atomicity only, stub `dispatchWebhooks`. External webhook delivery idempotency remains **NOT certified**.
-- Cron still **DISABLED**. Hold still **ON**. GVM technician testing still **DEFERRED**.
+- Gate 5 live Production classification: pending **0** / processing **0**. Disposition: **NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.** Historical 579 rows not mutated.
+- Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`. Staging synthetic proof: existing 20 pending jobs unchanged; `processPendingJobs` was **not** invoked against Staging.
+- This is a **new functional code change after Claude's audit**. It requires a **bounded independent delta audit** before Production deployment.
+- `SUPABASE_PROJECT_ID` Production env mismatch classified **P3** unused/stale. Not changed.
 
 ---
 
@@ -90,7 +96,7 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 3. **Gate 3** — **PASS** after Gate 3A alias reconciliation. Do not `ALTER ROLE`. Do not add V3 policies.
 4. Controlled flag enablement (`true`) — **PASS**. Cron remains disabled; do not call `processPendingJobs`.
 5. **Gate 4** — **PASS**. Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
-6. **Gate 5** — Classify legacy pending email/SMS/reminder jobs missing `sendIntentProtocol = durable-v1`; choose a governed disposition; keep webhooks held from external dispatch.
+6. **Gate 5** — **PASS (code + Staging).** Live Production legacy pending backlog = 0. Webhook hold implemented, not Production-deployed. **Bounded independent delta audit required** before Production deploy of this revision.
 7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII).
 8. Bounded manual canary (no webhook jobs) before Cron.
 9. Separate decision to restore Production Cron.
@@ -113,13 +119,15 @@ Production worker recovery: **not complete**.
 - Do not infer provider acceptance from timeouts; `sending`/`unknown` intents are not auto-reclaimed.
 - Do not silently process legacy jobs that lack `durable-v1`.
 - Do not dispatch webhooks during initial Production worker recovery.
+- Do not set Production `CHASUM_WORKER_WEBHOOKS_ENABLED=true` in this recovery slice.
+- Do not deploy the Gate 5 webhook-hold delta to Production until a bounded independent audit passes.
 - GVM technician testing remains **deferred**. Do not mark GVM testing active.
 
 ---
 
 ## Next governed gate (not an authorization)
 
-**Gate 5** — legacy protocol + webhook disposition. Hold ON, Cron DISABLED, do not call `processPendingJobs`, do not dispatch webhooks, do not start GVM testing, do not mark Production worker recovery complete.
+Bounded **independent delta audit** of the Gate 5 webhook-hold revision, then a separately governed Production deploy of that audited SHA (still hold ON, Cron DISABLED, `CHASUM_WORKER_WEBHOOKS_ENABLED` absent/false). Do not start deployed booking E2E or GVM testing in that deploy step unless ChatGPT explicitly opens it.
 
 ---
 

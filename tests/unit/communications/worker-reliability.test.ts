@@ -154,6 +154,10 @@ class Query implements PromiseLike<Response> {
       : row[column] === expected);
     return this;
   }
+  neq(column: string, expected: unknown) {
+    this.filters.push((row) => row[column] !== expected);
+    return this;
+  }
   is(column: string, expected: unknown) { this.filters.push((row) => row[column] == expected); return this; }
   lte(column: string, expected: string) {
     this.filters.push((row) => Date.parse(String(row[column])) <= Date.parse(expected)); return this;
@@ -223,6 +227,7 @@ describe("atomic worker ownership", () => {
   });
 
   it("forces two workers racing the same webhook job to dispatch once", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "true");
     runtime.db = new FakeDatabase([fixture({ job_type: "webhook", payload: { event: "appointment.created", data: {} } })]);
     runtime.db.readBarrierCount = 2;
     const results = await Promise.all([processPendingJobs(), processPendingJobs()]);
@@ -379,6 +384,7 @@ describe("worker delivery failure boundaries", () => {
     ["recurring", "recurring"], ["waitlist_notify", "waitlist"],
   ] as const)("preserves baseline bounded retries for noncommunication %s errors", async (jobType, handler) => {
     runtime.db!.jobs[0].job_type = jobType;
+    if (jobType === "webhook") vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "true");
     if (jobType === "waitlist_notify") runtime.db!.jobs[0].payload.appointmentId = APPOINTMENT;
     runtime[handler].mockRejectedValue(new Error("Synthetic integration failure"));
     const before = Date.now();
@@ -653,3 +659,136 @@ describe("manual queue retry safeguards", () => {
     expect(runtime.db!.jobs[0].status).toBe("failed");
   });
 });
+
+describe("bounded webhook hold for initial recovery", () => {
+  const webhookJob = () => fixture({
+    id: "10000000-0000-4000-8000-000000000080",
+    job_type: "webhook",
+    payload: { event: "appointment.created", data: { marker: "synthetic" } },
+    attempts: 0,
+    started_at: null,
+  });
+
+  function expectWebhookUntouched(row: BackgroundJob) {
+    expect(row).toMatchObject({
+      status: "pending",
+      attempts: 0,
+      started_at: null,
+      job_type: "webhook",
+    });
+  }
+
+  it("does not claim a pending webhook when the webhook gate is absent", async () => {
+    runtime.db = new FakeDatabase([webhookJob()]);
+    expect(process.env.CHASUM_WORKER_WEBHOOKS_ENABLED).toBeUndefined();
+    expect(await processPendingJobs()).toBe(0);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expectWebhookUntouched(runtime.db.jobs[0]);
+    expect(runtime.db.updates).toHaveLength(0);
+  });
+
+  it("does not claim a pending webhook when the webhook gate is false", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "false");
+    runtime.db = new FakeDatabase([webhookJob()]);
+    expect(await processPendingJobs()).toBe(0);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expectWebhookUntouched(runtime.db.jobs[0]);
+    expect(runtime.db.updates).toHaveLength(0);
+  });
+
+  it("restores atomic webhook claim/dispatch when the webhook gate is true", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "true");
+    runtime.db = new FakeDatabase([webhookJob()]);
+    expect(await processPendingJobs()).toBe(1);
+    expect(runtime.webhook).toHaveBeenCalledTimes(1);
+    expect(runtime.db.jobs[0]).toMatchObject({ status: "completed", attempts: 1 });
+  });
+
+  it("does not let the webhook gate affect email pending jobs", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "false");
+    runtime.db = new FakeDatabase([fixture()]);
+    expect(await processPendingJobs()).toBe(1);
+    expect(runtime.email).toHaveBeenCalledTimes(1);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expect(runtime.db.jobs[0].status).toBe("completed");
+  });
+
+  it("does not let the webhook gate affect SMS pending jobs", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "false");
+    runtime.db = new FakeDatabase([fixture({ job_type: "sms" })]);
+    expect(await processPendingJobs()).toBe(1);
+    expect(runtime.sms).toHaveBeenCalledTimes(1);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expect(runtime.db.jobs[0].status).toBe("completed");
+  });
+
+  it("does not let the webhook gate affect reminder pending jobs", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "false");
+    runtime.db = new FakeDatabase([fixture({
+      job_type: "reminder",
+      payload: {
+        appointmentId: APPOINTMENT,
+        channel: "email",
+        sendIntentId: INTENT,
+        sendIntentProtocol: "durable-v1",
+        recipient: "frozen@example.invalid",
+      },
+    })]);
+    runtime.loadContext.mockResolvedValue({
+      businessId: BUSINESS, appointmentId: APPOINTMENT, businessName: "Synthetic business",
+      customerName: "Synthetic customer", customerId: CUSTOMER, customerEmail: "current@example.invalid",
+      staffName: "Synthetic staff", serviceName: "Synthetic service", startTime: "2026-01-01T00:00:00Z",
+    });
+    runtime.db.tables.customers = [{ id: CUSTOMER, business_id: BUSINESS }];
+    expect(await processPendingJobs()).toBe(1);
+    expect(runtime.email).toHaveBeenCalledTimes(1);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expect(runtime.db.jobs[0].status).toBe("completed");
+  });
+
+  it("processes a transactional job in a mixed queue while leaving the webhook untouched", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "false");
+    const email = fixture();
+    const hook = webhookJob();
+    runtime.db = new FakeDatabase([hook, email]);
+    expect(await processPendingJobs()).toBe(1);
+    expect(runtime.email).toHaveBeenCalledTimes(1);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    const liveHook = runtime.db.jobs.find((job) => job.job_type === "webhook")!;
+    const liveEmail = runtime.db.jobs.find((job) => job.job_type === "email")!;
+    expectWebhookUntouched(liveHook);
+    expect(liveEmail.status).toBe("completed");
+  });
+
+  it("keeps explicit claimBackgroundJob available without turning normal webhook processing on", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "false");
+    runtime.db = new FakeDatabase([webhookJob()]);
+    expect(await processPendingJobs()).toBe(0);
+    expectWebhookUntouched(runtime.db.jobs[0]);
+    const claimed = await claimBackgroundJob(runtime.db.client as never, copy(runtime.db.jobs[0]));
+    expect(claimed).not.toBeNull();
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expect(await processPendingJobs()).toBe(0);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expect(runtime.db.jobs[0].status).toBe("processing");
+  });
+
+  it("does not claim another tenant webhook while processing a different tenant email", async () => {
+    vi.stubEnv("CHASUM_WORKER_WEBHOOKS_ENABLED", "false");
+    const email = fixture();
+    const otherHook = webhookJob();
+    otherHook.business_id = OTHER_BUSINESS;
+    runtime.db = new FakeDatabase([otherHook, email]);
+    expect(await processPendingJobs()).toBe(1);
+    expect(runtime.email).toHaveBeenCalledTimes(1);
+    expect(runtime.webhook).not.toHaveBeenCalled();
+    expect(runtime.db.jobs.find((job) => job.job_type === "webhook")).toMatchObject({
+      business_id: OTHER_BUSINESS,
+      status: "pending",
+      attempts: 0,
+      started_at: null,
+    });
+    expect(runtime.db.jobs.find((job) => job.job_type === "email")?.business_id).toBe(BUSINESS);
+  });
+});
+

@@ -9,7 +9,7 @@ import { PermanentDeliverySkip, isPermanentDeliverySkip } from "@/lib/communicat
 import type { AppointmentTemplateContext } from "@/lib/communications";
 import type { SendResult } from "@/lib/communications/types";
 import type { SendReliabilityContext } from "@/lib/communications/send-intent";
-import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
+import { workerReliabilityEnabled, workerWebhooksEnabled } from "@/lib/communications/reliability-config";
 import { logger } from "@/lib/observability/logger";
 import {
   claimBackgroundJob,
@@ -500,14 +500,13 @@ export async function processClaimedJob(
   return succeeded;
 }
 
-export async function processPendingJobs(limit = 25): Promise<number> {
-  // Default-off also keeps deployment before 029/new intent schema inert.
-  if (!workerReliabilityEnabled()) throw new Error("Background worker is held: reliability is not enabled.");
-  const supabase = createServiceClient();
-  const now = new Date();
+export async function selectPendingJobCandidates(
+  client: ReturnType<typeof createServiceClient>,
+  limit = 25,
+  now = new Date(),
+): Promise<BackgroundJob[]> {
   const nowIso = now.toISOString();
-
-  const { data: jobs, error } = await supabase
+  let query = client
     .from("background_jobs")
     .select("*")
     .eq("status", "pending")
@@ -515,14 +514,25 @@ export async function processPendingJobs(limit = 25): Promise<number> {
     .or(`next_retry_at.is.null,next_retry_at.lte.${nowIso}`)
     .order("scheduled_at")
     .limit(limit);
-
+  if (!workerWebhooksEnabled()) {
+    query = query.neq("job_type", "webhook");
+  }
+  const { data, error } = await query;
   if (error) throw new Error(error.message);
-  if (!jobs?.length) return 0;
+  return (data ?? []) as BackgroundJob[];
+}
+
+export async function processPendingJobs(limit = 25): Promise<number> {
+  // Default-off also keeps deployment before 029/new intent schema inert.
+  if (!workerReliabilityEnabled()) throw new Error("Background worker is held: reliability is not enabled.");
+  const supabase = createServiceClient();
+  const jobs = await selectPendingJobCandidates(supabase, limit);
+  if (!jobs.length) return 0;
 
   let processed = 0;
 
   for (const candidate of jobs) {
-    const job = await claimBackgroundJob(supabase, candidate as BackgroundJob);
+    const job = await claimBackgroundJob(supabase, candidate);
     if (!job) continue;
     if (await processClaimedJob(supabase, job)) processed += 1;
   }

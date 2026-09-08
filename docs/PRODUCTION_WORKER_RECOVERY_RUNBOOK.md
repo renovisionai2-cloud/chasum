@@ -27,8 +27,10 @@ Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`
 | Ledger migration | `supabase/migrations/20260905024239_communication_send_intents.sql` |
 | Migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` |
 | Reliability flag | `CHASUM_WORKER_RELIABILITY_ENABLED` |
+| Webhook dispatch gate | `CHASUM_WORKER_WEBHOOKS_ENABLED` (server-only; default OFF; exact `"true"` enables) |
 | Worker Cron | `/api/cron/process-jobs` |
 | Staging isolated application runtime | **PASS** (synthetic jobs, stubbed providers; existing 20 pending Staging jobs unchanged) |
+| Gate 5 webhook-hold Staging proof | **PASS** (synthetic marked rows; `processPendingJobs` not invoked; existing 20 pending unchanged) |
 
 If the target environment is not Production `kxcydvhswkuzepwzzinq`, **STOP**.
 
@@ -196,28 +198,36 @@ Before any normal worker processing or Cron restore, classify **all** existing e
 
 ### Legacy transactional jobs
 
-Any pending email / SMS / reminder job created before durable-v1 may lack:
+Live Production classification at Gate 5 (`2026-09-08T00:27:51Z`):
 
-```
-payload.sendIntentProtocol = "durable-v1"
-```
+- pending email / SMS / reminder = **0**
+- pending missing `sendIntentProtocol = durable-v1` = **0**
 
-The enabled worker holds those jobs for reconciliation (`legacy_send_intent_missing`). They must **not** be allowed to create an uncontrolled failure burst.
+Governed disposition:
 
-Before normal processing, record exact live counts and choose a governed disposition:
+**NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.**
 
-- safely cancel / reconcile known stale or duplicate jobs, **or**
-- another evidence-backed disposition
+Do not mutate the 579 historical rows. Do not bulk-stamp old payloads.
 
-Do not silently process them. Do not bulk-stamp old payloads to bypass the protocol marker.
+If pending legacy transactional work appears later, hold those jobs for reconciliation (`legacy_send_intent_missing`). Do not silently process them.
 
 ### Webhook jobs
 
 Webhook external delivery is **not** protected by `communication_send_intents`.
 
-Claim atomicity was verified on Staging. External webhook delivery idempotency is **not certified**.
+Claim atomicity was verified on Staging and Gate 4. External webhook delivery idempotency is **not certified**.
 
-Initial worker recovery must **keep webhook jobs held from external dispatch**. Preferred bounded treatment: exclude / hold webhook jobs during initial recovery. Do not redesign webhook delivery in this slice.
+Live Production webhook backlog at Gate 5: pending **0**, processing **0**, failed **0**, completed **0**, cancelled **152**, due pending **0**.
+
+Bounded hold (implemented, **not Production-deployed**):
+
+```
+CHASUM_WORKER_WEBHOOKS_ENABLED
+```
+
+Absent / not exactly `"true"`: `selectPendingJobCandidates` / `processPendingJobs` exclude `job_type=webhook` **before claim**. Status, attempts, and `started_at` stay unchanged. Direct `claimBackgroundJob` on an explicit row remains available for isolated tests.
+
+This Gate 5 code change is a **new functional revision** after Claude audit **B**. It **requires a bounded independent delta audit before Production deployment**. Do not claim the original audit covers this delta. Do not enable the webhook gate by default.
 
 ---
 
@@ -294,10 +304,11 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Production Cron | **DISABLED** |
 | Production worker | **NOT RUNNING** |
 | Production communications | **NOT AUTHORIZED** |
-| Ledger on Production | **NOT APPLIED** |
-| Hotfix on Production | **NOT DEPLOYED** |
-| Reliability flag on Production | **not enabled** |
-| Gates 1–5 | **not started** |
+| Ledger on Production | **APPLIED** (Gate 1) |
+| Hotfix on Production | **DEPLOYED** identical-tree carrier `35cc40c` / `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` |
+| Reliability flag on Production | **true** |
+| Gates 1–4 | **PASS** |
+| Gate 5 | **PASS (code + Staging); Production deploy blocked pending delta audit** |
 | GVM technician testing | **DEFERRED** |
 
-The next consequential action is a **separate Production authorization** to begin step B (ledger migration) against `kxcydvhswkuzepwzzinq`. This runbook does not grant that authorization.
+The next consequential action is a **bounded independent delta audit** of the Gate 5 webhook-hold revision, then a separately governed Production deploy of that audited SHA. This runbook does not grant that authorization.
