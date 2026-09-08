@@ -3,7 +3,7 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-08  
-**Updated by:** Docs-only reconciliation of hosted-Staging + Resend-isolation + process-governance facts onto `codex/appointment-api-tenant-integrity-fix`. Functional code remains SHA `918e9cae`. Claude tenant-integrity audit **B — APPROVED WITH BOUNDED DEPLOYMENT CONDITIONS** (NO P0, NO P1). Production serving `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb` is still `47c24ac` until the separately recorded Production deploy in this slice. Reliability **true**. Webhook flag **ABSENT**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.
+**Updated by:** Production deploy of docs-reconciled HEAD `b5b77be` (functional files byte-identical to `918e9cae`) as `dpl_C2s6ktqdLR5WJgMmAYxzD7bRGmfm`. Hosted synthetic canary producer **PASS**; one-shot worker **ran**; Resend **rejected** (`provider_confirmed_not_accepted`). Historical 579 fingerprint unchanged. Cron **DISABLED**. Hold **ON**. GVM **deferred**. Recovery **not complete**.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -45,8 +45,9 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Send-intent migration SHA256 | `51bcf061763dd972be3ef7b6696a59de9230c75be4cebbc22971cca541efddbf` (`supabase/migrations/20260905024239_communication_send_intents.sql`) |
 | Production `communication_send_intents` | **COMMITTED AND DATA-API VERIFIED** (Gate 1) |
 | Production hotfix deploy (historical `3580476` tree) | Previous Ready carrier `dpl_J2LZfLWvvDF9MtCFN1WwnuH7j6pP` (`chasum-j6btoq0er-renovisionappcom.vercel.app`), SHA `35cc40c`, tree `5b72b1ba`. **Superseded.** No active Production alias remains on that tree. |
-| Gate 5 webhook-hold Production deploy | **READY** `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb` (`chasum-l0wyqu6yw-renovisionappcom.vercel.app`). gitCommitSha `47c24acb22db8d8da7cef9971357e1d26f87cffa`. Functional tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. Author `renovisionai2-cloud <renovisionai2@gmail.com>`. Source `cli`. **No metadata-only carrier** (GitHub login mapped; no `TEAM_ACCESS_REQUIRED`). Rolling release **none**. |
-| Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. Cron host `chasum-l0wyqu6yw-renovisionappcom.vercel.app`. git-main was reassigned with the Gate 3A minimum alias procedure. |
+| Gate 5 webhook-hold Production deploy | Historical Ready `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb` (`47c24ac` / tree `461198bd`). **Superseded.** Immutable URL retained. |
+| Tenant-integrity Production deploy | **READY** `dpl_C2s6ktqdLR5WJgMmAYxzD7bRGmfm` (`chasum-of7tq8y6p-renovisionappcom.vercel.app`). gitCommitSha `b5b77be8626630cfeaabaf22962a2a1aa3010f8c` (docs-only parent of audited `918e9cae8bc069f96b84e4c1eb8bd8d63641bd74`; non-doc identity proven). Author `renovisionai2-cloud`. Source `cli`. Dedicated Production-only `RESEND_API_KEY` (`9hF77dAtfP8TcG7S`) is active on this deployment (`/api/health` email configured). |
+| Active Production aliases | `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` all → `dpl_C2s6ktqdLR5WJgMmAYxzD7bRGmfm`. `targets.production` same. git-main reassigned with the Gate 3A minimum alias procedure. Prior `dpl_HUvurr39` not deleted. |
 | `CHASUM_WORKER_RELIABILITY_ENABLED` | **true** on Production (`2lM2039GMKY8NK9g`) **and** a separate Preview-only row (`gDiNy9xDroUE41A8`). Development remains absent. |
 | Gate 4 isolated Production synthetic | **PASS**. Marker `chasum-isolated-production-runtime-20260908`. Providers stubbed. `processClaimedJob` only. `processPendingJobs` never called. Pre/post 579-job id fingerprint `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`. Queue fingerprint sha256 `91fb161600101e1bef4d1f150ebc9698898a6f0a9526ba27ecae856b6a53ffe0`. Zero synthetic residue. Flag execution path proven because `processClaimedJob` requires `workerReliabilityEnabled()`. Webhook claim-only; external dispatch **not** certified. |
 | Gate 5 classification (live Production) | **579** total; pending **0**; processing **0**; failed **0**; completed **11**; cancelled **568**. Ledger **0**. |
@@ -54,7 +55,7 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Gate 5 webhook backlog | pending **0**; processing **0**; failed **0**; completed **0**; cancelled **152**; due pending **0**. Other: `waitlist_notify` cancelled **64**. No `calendar_sync` / `recurring` rows. |
 | `CHASUM_WORKER_WEBHOOKS_ENABLED` | Server-only. Exact `"true"` enables. **ABSENT** on Production, Preview, and Development after this deploy. Absent/false holds webhook jobs **out of** `processPendingJobs` candidate selection. **Must remain absent/false** through alias verification, transactional E2E, canary, and **initial Cron restore**. Turning webhooks on later is a **separate governed decision**. Webhook delivery idempotency remains **NOT solved**. |
 | Gate 5 functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (`codex/production-worker-reliability-hotfix`). Tree `461198bd0b261ab38f39260d1f413dfa4f196f24`. **Deployed to Production** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. Docs-only HEAD `7b08e16` was **not** deployed as a functional revision. Do not rewrite audited `3580476`. |
-| Deployed transactional E2E | **Producer half PASS on Staging/Preview (`918e9cae`); worker/send half HOLD.** Production `47c24ac` still cannot persist `location_id` on `POST /api/v1/appointments`. Tree `918e9cae` on Preview `dpl_FnRsuu8WpGfPNxzp8iJj7BCkTjDo` **does**. Do **not** Production-deploy `918e9cae` from this slice. |
+| Deployed transactional E2E | **Producer PASS on Production `dpl_C2s6ktqd…`.** Marker `chasum-prod-tenant-integrity-e2e-20260908` on non-GVM shell `prod-auth-1783798949223351000`. Hosted POST 201 persisted `location_id`; one durable-v1 email + held webhook; no SMS/reminder. N3 no-partial-fanout **PASS**. One-shot hosted Cron route invoked via `POST /v1/projects/…/crons/run` (schedule remained **DISABLED**). Worker claimed the email (`attempts=1`). Resend **rejected** (`provider_confirmed_not_accepted`); send-intent state **rejected**; job left `pending` retry_safe (max 3). No inbox message. No second invocation. Historical 579 fingerprint unchanged. |
 | Live Staging `job_type=neq.webhook` PostgREST proof | **PASS** (2026-09-08). Target `wnfahklzaxirftyskctd`. Harness `scripts/run-staging-webhook-hold-runtime.mjs`. `CHASUM_WORKER_WEBHOOKS_ENABLED=false`. Providers stripped. `processPendingJobs` **not** invoked. Existing pending count **20** (12 reminder / 8 webhook). Independent fingerprint sha256 `6cee9ce8b54aed43283ae284e901ade24a9b0cd86a7eae2c800c0c33b7b58492` / idSha256 `21b4c321ff64dfe54e66c20e323f653448fda905bb73301cb5e2b9e552cb7491` unchanged pre/post. Synthetic residue **0**. |
 | `SUPABASE_PROJECT_ID` in Production Vercel env | Contains Staging ref `wnfahklzaxirftyskctd`. **Unused** by `createServiceClient` / repo (zero references). Severity **P3**. Recommend **POST-RECOVERY CLEANUP**. Do not change Production env in Gate 5. |
 
@@ -114,10 +115,10 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 3. **Gate 3** — **PASS** after Gate 3A alias reconciliation. Do not `ALTER ROLE`. Do not add V3 policies.
 4. Controlled flag enablement (`true`) — **PASS**. Cron remains disabled; do not call `processPendingJobs`.
 5. **Gate 4** — **PASS**. Isolated Production synthetic proof (marked rows, stubbed providers, `processClaimedJob` only, real-queue fingerprint unchanged).
-6. **Gate 5** — **PASS (code + live Staging proof + Production deploy).** Live Production legacy pending backlog = 0. Claude delta audit **B**. Webhook-hold tree `47c24ac` / `461198bd` is hosted on Production with webhook flag **ABSENT**, reliability **true**, hold ON, Cron DISABLED. Worker not invoked.
-7. Deployed booking → job → worker → send-intent → test-inbox E2E on a governed target (no customer PII). **Producer half PASS on Staging/Preview; worker half still HOLD.** The blocking condition is cleared: tree `918e9cae` on Preview `dpl_FnRsuu8WpGfPNxzp8iJj7BCkTjDo` inserts a synthetic appointment **with** `location_id` and leaves exactly **one** eligible pending `durable-v1` email, with no inline send, no SQL bypass and no debug endpoint. Remaining hold is the **worker/send-intent/test-inbox half**, which is not authorized here: no worker was invoked, `communication_send_intents` stayed **0**, and this proof is Staging-only — it does **not** transfer to Production and does **not** authorize a Production deploy of `918e9cae`.
-8. Bounded manual canary (no webhook jobs) before Cron. **Not started.** Blocked by producer-path hold.
-9. Separate decision to restore Production Cron.
+6. **Gate 5** — **PASS (code + live Staging proof + Production deploy of webhook-hold, then tenant-integrity SHA).** Live Production legacy 579 fingerprint unchanged. Webhook flag **ABSENT**. Reliability **true**. Hold ON. Cron DISABLED.
+7. Deployed booking → job → worker → send-intent → test-inbox E2E. **Producer + N3 PASS on Production. Worker ran once. Provider/inbox FAIL.** Resend confirmed rejection; ledger `rejected`; no `provider_message_id`. Synthetic email job remains eligible `pending` retry_safe — **do not enable Cron** until that row is dispositioned.
+8. Bounded manual canary (no webhook jobs) before Cron. **Executed once.** Webhook sibling remained pending/held (`attempts=0`). Provider exactly-once **FAIL**.
+9. Separate decision to restore Production Cron. **BLOCKED** until (a) N2 monitoring/alerting is live, (b) no eligible pending transactional job remains, (c) provider exactly-once is re-proven.
 10. Production hold removal **last**.
 11. GVM technician validation **only after recovery closes**.
 12. Momentic booking regression: deferred if the connector remains unavailable; not a sole blocker.
@@ -132,20 +133,20 @@ Production worker recovery: **not complete**.
 - Do not apply 034/035/036.
 - Do not perform ad-hoc no-git CLI Production deploys.
 - Do not remove the Production hold or enable Production Cron from this documentation slice.
-- Do not invoke the Production worker or send Production communications.
+- Do not invoke the Production worker again from this slice. One governed one-shot already ran. Do not enable the Cron schedule.
 - Do not invoke the Staging worker against the existing 20 pending jobs.
 - Do not infer provider acceptance from timeouts; `sending`/`unknown` intents are not auto-reclaimed.
 - Do not silently process legacy jobs that lack `durable-v1`.
 - Do not dispatch webhooks during initial Production worker recovery.
 - Do not set Production `CHASUM_WORKER_WEBHOOKS_ENABLED=true` in this recovery slice. Keep it absent/false through E2E, canary, and initial Cron restore.
-- Do not invoke `processPendingJobs` / the normal Production worker from this slice. Do not add a hosted single-job debug endpoint to bypass this hold.
+- Do not invoke `processPendingJobs` / `vercel crons run` / `POST …/crons/run` again until the synthetic retry is dispositioned and a new governed canary is authorized. Do not add a hosted single-job debug endpoint.
 - GVM technician testing remains **deferred**. Do not mark GVM testing active.
 
 ---
 
 ## Next governed gate (not an authorization)
 
-Claude tenant-integrity audit **B** authorizes a **bounded Production deploy** of functional SHA `918e9cae` (docs-only HEAD on this branch) with hold ON, Cron DISABLED, webhook flag OFF, then one controlled synthetic hosted worker canary. Cron restoration remains **blocked** until Claude condition **N2** (monitoring for `handleAppointmentEvent` exceptions and `appointment_reconciliation_required`) is live. Migration 034/035/036 remain **blocked** by Claude condition **N4** (null-staff-safe `schedulingChanged` / `hasReferences`). GVM remains deferred. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
+Do **not** restore Cron. Diagnose the Resend confirmed rejection of the dedicated Production runtime key **without creating or revoking keys**. Disposition the synthetic eligible retry. Make Claude **N2** live using existing Vercel Runtime Logs (query `appointment_reconciliation_required` and appointment-route 5xx / `handleAppointmentEvent` exceptions); do not add a new observability vendor. **N4 hard gate:** before 034/035/036, `schedulingChanged` and DELETE `hasReferences` in `app/api/v1/appointments/[id]/route.ts` must be null-staff-safe for intentional unassigned appointments. GVM remains deferred. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
 
 ---
 
