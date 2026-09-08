@@ -100,10 +100,31 @@ timestamp equivalence or preserve its fractional precision.
 A concurrent appointment edit returns 409; reload before retrying. Failed validation
 or a lost update race creates no notification/event. Existing response envelopes
 remain `{ "data": ... }` for success and `{ "error": ... }` for errors.
+Repeating `status: "cancelled"` on an already-cancelled appointment still applies
+valid supplied edits, but emits no additional cancellation event.
 
 #### `DELETE /api/v1/appointments/:id`
 
-Soft-cancel (sets status to `cancelled`). Triggers cancellation flow.
+Soft-cancel an owned appointment. The API loads it by ID and authenticated business,
+then validates its retained customer/service/staff/location ownership before mutation.
+Historical inactive same-business references are allowed. Missing or foreign retained
+references return the same generic 409 reconciliation error, with no status change,
+notification event, or enqueue. Cancellation never resolves a replacement location.
+
+Foreign and nonexistent appointments both return 404. Database read/validation/update
+errors return a safe 503. A changed appointment snapshot or zero-row update returns
+409 without an event. Only a returned successfully cancelled owned row triggers the
+cancellation flow. An already-cancelled, tenant-consistent owned row returns the same
+200 cancelled response without another mutation or event.
+
+Notification loading independently binds the appointment and every referenced
+identity to the caller's business before any side effect. Calendar push uses that
+validated snapshot, and calendar cancellation scopes related connections by business.
+
+Cancellation and notification enqueue are separate operations: an enqueue failure
+after the status mutation requires delivery reconciliation. Repeating cancellation
+does not automatically retry partially completed fanout. See
+[appointment tenant-integrity contract](./APPOINTMENT_TENANT_INTEGRITY.md).
 
 ---
 

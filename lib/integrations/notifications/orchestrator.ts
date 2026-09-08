@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { unwrapRelation } from "@/lib/supabase/relations";
+import { loadAppointmentNotificationContext } from "@/lib/integrations/notifications/appointment-context";
 import {
   enqueueEmailJob,
   enqueueSmsJob,
@@ -74,24 +74,13 @@ function resolveBusinessNotifyEmail(settings: {
 export async function handleAppointmentEvent(
   appointmentId: string,
   event: AppointmentEvent,
-  options?: { previousStartTime?: string; sendIntentId?: string },
+  options: { businessId: string; previousStartTime?: string; sendIntentId?: string },
 ) {
   const supabase = createServiceClient();
 
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select(
-      `
-      id, business_id, staff_id, start_time, end_time, status,
-      service:services(name),
-      staff:staff(name, email),
-      customer:customers(name, email, phone)
-    `,
-    )
-    .eq("id", appointmentId)
-    .single();
-
-  if (!appointment) return;
+  const context = await loadAppointmentNotificationContext(supabase, appointmentId, options.businessId);
+  if (!context) return;
+  const { appointment, customer, service, staff } = context;
 
   const businessId = appointment.business_id;
   // Later confirmations/reschedules are distinct event occurrences. The initial
@@ -99,17 +88,6 @@ export async function handleAppointmentEvent(
   const sendIntentId = options?.sendIntentId ??
     (event === "created" ? initialBookingIntentId(appointmentId) : newSendIntentId());
   const settings = await getBusinessNotificationSettings(businessId);
-  const service = unwrapRelation(appointment.service) as { name: string } | null;
-  const customer = unwrapRelation(appointment.customer) as {
-    name: string;
-    email: string | null;
-    phone: string | null;
-  } | null;
-  const staff = unwrapRelation(appointment.staff) as {
-    name: string;
-    email: string | null;
-  } | null;
-
   const customerName = customer?.name ?? "Customer";
   const serviceName = service?.name ?? "Appointment";
   const staffName = staff?.name ?? "To be assigned";
@@ -261,8 +239,8 @@ export async function handleAppointmentEvent(
   }
 
   if (event === "cancelled") {
-    await deleteAppointmentFromCalendars(appointmentId);
+    await deleteAppointmentFromCalendars(appointment.id, businessId);
   } else {
-    await pushAppointmentToCalendars(appointmentId);
+    await pushAppointmentToCalendars(context, settings?.name ?? "Business");
   }
 }

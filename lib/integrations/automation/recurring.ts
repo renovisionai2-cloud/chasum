@@ -115,7 +115,7 @@ export async function generateRecurringOccurrences(ruleId: string) {
 
   if (error || !appointment) return;
 
-  await handleAppointmentEvent(appointment.id, "created");
+  await handleAppointmentEvent(appointment.id, "created", { businessId: rule.business_id });
 }
 
 export async function scheduleRecurringJob(ruleId: string, businessId: string) {

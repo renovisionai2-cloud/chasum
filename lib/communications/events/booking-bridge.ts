@@ -57,6 +57,7 @@ export function registerCommunicationsBookingBridge(): void {
           : undefined;
 
     await handleAppointmentEvent(event.appointmentId, mapped, {
+      businessId: event.businessId,
       previousStartTime,
       sendIntentId: event.type === "appointment.created"
         ? initialBookingIntentId(event.appointmentId)

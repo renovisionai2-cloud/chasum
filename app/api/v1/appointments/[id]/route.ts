@@ -10,7 +10,7 @@ import {
   formatZodError,
   patchAppointmentBodySchema,
 } from "@/lib/validation/schemas";
-import { captureBookingFailure } from "@/lib/observability/logger";
+import { captureBookingFailure, logger } from "@/lib/observability/logger";
 import { validateAppointmentReferences } from "@/lib/api/appointment-references";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -129,11 +129,14 @@ export async function PATCH(
     return apiError(error ? "Unable to update appointment" : "Appointment changed; reload and retry", error ? 400 : 409);
   }
 
+  // PATCH can also cancel: repeating that state must not create another cancellation occurrence.
+  if (current.status === "cancelled" && body.status === "cancelled") return apiSuccess(data);
+
   const { handleAppointmentEvent } = await import(
     "@/lib/integrations/notifications/orchestrator"
   );
   const event = body.status === "cancelled" ? "cancelled" : "updated";
-  await handleAppointmentEvent(id, event);
+  await handleAppointmentEvent(id, event, { businessId: auth.businessId });
 
   return apiSuccess(data);
 }
@@ -148,18 +151,52 @@ export async function DELETE(
   const { id } = await context.params;
   const supabase = createServiceClient();
 
-  const { error } = await supabase
+  const { data: current, error: readError } = await supabase
+    .from("appointments")
+    .select("id,location_id,customer_id,service_id,staff_id,status,updated_at")
+    .eq("id", id)
+    .eq("business_id", auth.businessId)
+    .maybeSingle();
+  if (readError) return apiError("Unable to read appointment", 503);
+  if (!current) return apiNotFound();
+
+  // Retained references must be explicit: cancellation must never resolve a new location.
+  const hasReferences = [current.location_id, current.customer_id, current.service_id, current.staff_id]
+    .every((value) => typeof value === "string" && value.length > 0);
+  const validated = hasReferences ? await validateAppointmentReferences({
+    client: supabase,
+    businessId: auth.businessId,
+    references: current,
+    requireActive: { location: false, service: false, staff: false },
+  }) : null;
+  if (!validated?.ok) {
+    if (validated?.status === 503) return apiError("Unable to validate appointment", 503);
+    logger.warn("booking", "appointment_reconciliation_required", {
+      businessId: auth.businessId, appointmentId: current.id,
+    });
+    return apiError("Appointment requires data reconciliation", 409);
+  }
+  if (current.status === "cancelled") {
+    return apiSuccess({ id: current.id, status: "cancelled" });
+  }
+
+  const { data, error } = await supabase
     .from("appointments")
     .update({ status: "cancelled" })
     .eq("id", id)
-    .eq("business_id", auth.businessId);
+    .eq("business_id", auth.businessId)
+    .eq("updated_at", current.updated_at)
+    .neq("status", "cancelled")
+    .select("id")
+    .maybeSingle();
 
-  if (error) return apiNotFound();
+  if (error) return apiError("Unable to cancel appointment", 503);
+  if (!data) return apiError("Appointment changed; reload and retry", 409);
 
   const { handleAppointmentEvent } = await import(
     "@/lib/integrations/notifications/orchestrator"
   );
-  await handleAppointmentEvent(id, "cancelled");
+  await handleAppointmentEvent(data.id, "cancelled", { businessId: auth.businessId });
 
-  return apiSuccess({ id, status: "cancelled" });
+  return apiSuccess({ id: data.id, status: "cancelled" });
 }

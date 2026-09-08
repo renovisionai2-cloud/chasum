@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
   const { handleAppointmentEvent } = await import(
     "@/lib/integrations/notifications/orchestrator"
   );
-  await handleAppointmentEvent(data.id, "created");
+  await handleAppointmentEvent(data.id, "created", { businessId: auth.businessId });
 
   return apiSuccess(data, 201);
 }

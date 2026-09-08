@@ -1,4 +1,6 @@
+// @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
 
 const bridge = vi.hoisted(() => ({ callback: undefined as ((event: unknown) => Promise<void>) | undefined }));
 vi.mock("@/lib/booking-engine/events/emit", () => ({ onBookingEvent: (callback: (event: unknown) => Promise<void>) => { bridge.callback = callback; } }));
@@ -25,10 +27,18 @@ beforeEach(() => {
       if (insert) return { data: insert, error: null };
       if (table === "appointments") return { data: {
         id: "appointment-a", business_id: "business-a", status: "confirmed",
+        location_id: "location-a", customer_id: "customer-a", staff_id: "staff-a", service_id: "service-a",
         start_time: "2026-08-01T10:00:00Z", end_time: "2026-08-01T10:30:00Z",
         service: { name: "Fixture Service" }, staff: { name: "Fixture Staff", email: " staff@example.invalid " },
         customer: { name: "Fixture Customer", email: " customer@example.invalid ", phone: " +15555550100 " },
       }, error: null };
+      const related: Record<string, Row> = {
+        locations: { id: "location-a", name: "Fixture Location" },
+        customers: { id: "customer-a", name: "Fixture Customer", email: " customer@example.invalid ", phone: " +15555550100 " },
+        staff: { id: "staff-a", name: "Fixture Staff", email: " staff@example.invalid " },
+        services: { id: "service-a", name: "Fixture Service" },
+      };
+      if (related[table]) return { data: related[table], error: null };
       if (table === "businesses") return { data: {
         name: "Fixture Business", email: "owner@example.invalid", notification_email: "override@example.invalid",
         email_notifications_enabled: true, sms_notifications_enabled: true,
@@ -39,7 +49,7 @@ beforeEach(() => {
     const query = {
       select: () => query, eq: () => query,
       insert: (row: Row) => { insert = row; if (table === "background_jobs") inserted.push(row); return query; },
-      single: async () => result(), then: (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve),
+      single: async () => result(), maybeSingle: async () => result(), then: (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve),
     };
     return query;
   } } as never);
@@ -50,7 +60,7 @@ const payload = (job: Row) => job.payload as Row;
 
 describe("producer occurrence identity", () => {
   it("shares initial booking occurrence while channel/templates distinguish all four sends", async () => {
-    await handleAppointmentEvent("appointment-a", "created");
+    await handleAppointmentEvent("appointment-a", "created", { businessId: "business-a" });
     const jobs = communicationJobs(); expect(jobs).toHaveLength(4);
     const id = initialBookingIntentId("appointment-a");
     expect(jobs.every((job) => payload(job).sendIntentId === id)).toBe(true);
@@ -64,22 +74,22 @@ describe("producer occurrence identity", () => {
 
   it("initial confirmed event bridge keeps the inline initial occurrence", async () => {
     registerCommunicationsBookingBridge();
-    await bridge.callback!({ type: "appointment.created", appointmentId: "appointment-a", payload: { status: "confirmed" } });
+    await bridge.callback!({ type: "appointment.created", businessId: "business-a", appointmentId: "appointment-a", payload: { status: "confirmed" } });
     expect(communicationJobs().every((job) => payload(job).sendIntentId === initialBookingIntentId("appointment-a"))).toBe(true);
   });
 
   it("an explicit initial confirmed option matches inline but a later confirmation is distinct", async () => {
     const initial = initialBookingIntentId("appointment-a");
-    await handleAppointmentEvent("appointment-a", "confirmed", { sendIntentId: initial });
-    await handleAppointmentEvent("appointment-a", "confirmed");
+    await handleAppointmentEvent("appointment-a", "confirmed", { businessId: "business-a", sendIntentId: initial });
+    await handleAppointmentEvent("appointment-a", "confirmed", { businessId: "business-a" });
     const jobs = communicationJobs();
     expect(payload(jobs[0]).sendIntentId).toBe(initial);
     expect(payload(jobs[4]).sendIntentId).not.toBe(initial);
   });
 
   it("two reschedule occurrences do not reuse the old weak event-name key", async () => {
-    await handleAppointmentEvent("appointment-a", "rescheduled", { previousStartTime: "2026-07-01T10:00:00Z" });
-    await handleAppointmentEvent("appointment-a", "rescheduled", { previousStartTime: "2026-07-02T10:00:00Z" });
+    await handleAppointmentEvent("appointment-a", "rescheduled", { businessId: "business-a", previousStartTime: "2026-07-01T10:00:00Z" });
+    await handleAppointmentEvent("appointment-a", "rescheduled", { businessId: "business-a", previousStartTime: "2026-07-02T10:00:00Z" });
     const jobs = communicationJobs();
     expect(payload(jobs[0]).idempotencyKey).toBe(payload(jobs[4]).idempotencyKey);
     expect(payload(jobs[0]).sendIntentId).not.toBe(payload(jobs[4]).sendIntentId);

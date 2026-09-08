@@ -7,16 +7,19 @@ import { server } from "../../msw/server";
 
 vi.mock("server-only", () => ({}));
 const event = vi.hoisted(() => vi.fn());
+const warn = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/integrations/notifications/orchestrator", () => ({ handleAppointmentEvent: event }));
-vi.mock("@/lib/observability/logger", () => ({ captureBookingFailure: vi.fn() }));
+vi.mock("@/lib/observability/logger", () => ({ captureBookingFailure: vi.fn(), logger: { warn } }));
 vi.mock("@/lib/api/guard", () => ({
   requireApiAuth: async () => ({ businessId: A, scopes: ["write"], keyId: "test-key" }),
   isApiAuth: () => true,
 }));
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: () => client }));
 import { POST, GET as LIST } from "@/app/api/v1/appointments/route";
-import { PATCH, GET } from "@/app/api/v1/appointments/[id]/route";
+import { PATCH, GET, DELETE } from "@/app/api/v1/appointments/[id]/route";
 import { createAppointmentBodySchema, patchAppointmentBodySchema } from "@/lib/validation/schemas";
+// Resolve the mocked module before concurrent dynamic imports in the route.
+import "@/lib/integrations/notifications/orchestrator";
 
 const url = "https://appointment-api.test";
 const client = createClient(url, "unit-test-only", { auth: { persistSession: false, autoRefreshToken: false } });
@@ -32,12 +35,15 @@ let reads: URL[];
 let referenceFailure: string | undefined;
 let slotError: string | undefined;
 let insertError: boolean;
+let updateError: boolean;
 let race: boolean;
+let beforeUpdate: (() => void) | undefined;
 
 function matches(row: Row, params: URLSearchParams) {
   return [...params].every(([key, value]) => {
     if (["select", "limit", "order"].includes(key) || key.includes(".")) return true;
     if (value.startsWith("eq.")) return String(row[key]).toLowerCase() === value.slice(3).toLowerCase();
+    if (value.startsWith("neq.")) return String(row[key]).toLowerCase() !== value.slice(4).toLowerCase();
     return true;
   });
 }
@@ -57,13 +63,14 @@ function req(body: unknown, method = "POST") {
 }
 function patch(body: unknown, id = AP) { return PATCH(req(body, "PATCH"), { params: Promise.resolve({ id }) }); }
 function get(id = AP) { return GET(new NextRequest("https://local.test/api/v1/appointments"), { params: Promise.resolve({ id }) }); }
+function cancel(id = AP) { return DELETE(new NextRequest(`https://local.test/api/v1/appointments/${id}`, { method: "DELETE" }), { params: Promise.resolve({ id }) }); }
 function noSideEffects() { expect(writes).toEqual([]); expect(event).not.toHaveBeenCalled(); }
 function foreign(table: string) { return tables[table].find((r) => r.business_id === B)!.id; }
 
 beforeEach(() => {
   writes = []; rpcCalls = []; reads = [];
-  referenceFailure = undefined; slotError = undefined; insertError = false; race = false;
-  event.mockReset();
+  referenceFailure = undefined; slotError = undefined; insertError = false; updateError = false; race = false;
+  event.mockReset(); warn.mockReset(); beforeUpdate = undefined;
   tables = {
     locations: [{ id: L, business_id: A, is_active: true }],
     customers: [{ id: C, business_id: A, name: "Own Customer", email: "own@example.invalid" }, { id: uuid(8), business_id: A, name: "Replacement" }],
@@ -94,7 +101,9 @@ beforeEach(() => {
       return HttpResponse.json(row, { status: 201 });
     }
     if (request.method === "PATCH") {
+      if (updateError) return HttpResponse.json({ message: "private database update failure" }, { status: 500 });
       const body = await request.json() as Row;
+      beforeUpdate?.();
       const rows = race ? [] : tables[table].filter((r) => matches(r, u.searchParams));
       rows.forEach((r) => { Object.assign(r, body); writes.push({ ...r }); });
       return HttpResponse.json(rows);
@@ -111,7 +120,7 @@ describe("POST tenant integrity", () => {
     expect((await response.json()).data).toMatchObject({ ...requestBody, business_id: A });
     expect(writes[0]).not.toHaveProperty("internal");
     expect(rpcCalls[0]).toMatchObject({ p_business_id: A, p_location_id: L, p_service_id: S, p_staff_id: T });
-    expect(event).toHaveBeenCalledExactlyOnceWith(uuid(50), "created");
+    expect(event).toHaveBeenCalledExactlyOnceWith(uuid(50), "created", { businessId: A });
     expect(reads.filter((u) => !u.pathname.endsWith("appointments")).every((u) => u.searchParams.get("business_id") === `eq.${A}`)).toBe(true);
   });
   it.each([["customer_id", "customers"], ["location_id", "locations"], ["service_id", "services"], ["staff_id", "staff"]])("rejects foreign and unknown %s identically", async (field, table) => {
@@ -163,7 +172,7 @@ describe("PATCH tenant integrity", () => {
   it("allows same-business customer reassignment", async () => {
     expect((await patch({ customer_id: uuid(8) })).status).toBe(200);
     expect(tables.appointments[0].customer_id).toBe(uuid(8));
-    expect(rpcCalls).toEqual([]); expect(event).toHaveBeenCalledExactlyOnceWith(AP, "updated");
+    expect(rpcCalls).toEqual([]); expect(event).toHaveBeenCalledExactlyOnceWith(AP, "updated", { businessId: A });
   });
   it.each([["customer_id", "customers"], ["location_id", "locations"], ["service_id", "services"], ["staff_id", "staff"]])("rejects foreign %s and preserves the original without events", async (field, table) => {
     const before = structuredClone(tables.appointments);
@@ -194,7 +203,18 @@ describe("PATCH tenant integrity", () => {
     tables.locations[0].is_active = false; tables.services[0].is_active = false; tables.staff[0].is_active = false;
     tables.appointments[0].start_time = "2025-01-01T14:00:00Z";
     expect((await patch({ notes: "history", status: "cancelled" })).status).toBe(200);
-    expect(rpcCalls).toEqual([]); expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled");
+    expect(rpcCalls).toEqual([]); expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
+  });
+  it("does not emit another cancellation occurrence on repeated PATCH cancellation", async () => {
+    expect((await patch({ status: "cancelled" })).status).toBe(200);
+    expect((await patch({ status: "cancelled", notes: "retained note edit" })).status).toBe(200);
+    expect(tables.appointments[0].notes).toBe("retained note edit");
+    expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
+  });
+  it("does not emit another cancellation when PATCH follows DELETE", async () => {
+    expect((await cancel()).status).toBe(200);
+    expect((await patch({ status: "cancelled" })).status).toBe(200);
+    expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
   });
   it("recognizes equivalent UUID representations as unchanged", async () => {
     tables.services[0].is_active = false;
@@ -229,6 +249,118 @@ describe("PATCH tenant integrity", () => {
   it("rejects mass assignment and empty bodies", async () => {
     expect((await patch({ business_id: B })).status).toBe(400);
     expect((await patch({})).status).toBe(400); noSideEffects();
+  });
+});
+
+describe("DELETE tenant integrity", () => {
+  it("cancels an owned appointment before emitting exactly one event", async () => {
+    event.mockImplementation(() => {
+      expect(tables.appointments[0].status).toBe("cancelled");
+      expect(writes).toHaveLength(1);
+    });
+    const response = await cancel();
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: { id: AP, status: "cancelled" } });
+    expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
+  });
+  it.each(["pending", "cancelled"])("rejects a foreign %s appointment identically to an unknown ID without any event", async (status) => {
+    const foreignId = uuid(90);
+    tables.appointments.push({ ...tables.appointments[0], id: foreignId, business_id: B, status });
+    const before = structuredClone(tables.appointments);
+    const foreignResponse = await cancel(foreignId);
+    const unknownResponse = await cancel(uuid(999));
+    expect(foreignResponse.status).toBe(404); expect(unknownResponse.status).toBe(404);
+    expect(await foreignResponse.json()).toEqual(await unknownResponse.json());
+    expect(tables.appointments).toEqual(before); noSideEffects();
+  });
+  it("rejects a nonexistent appointment without an event", async () => {
+    expect((await cancel(uuid(999))).status).toBe(404); noSideEffects();
+  });
+  it("fails closed on a database update error without exposing details or emitting", async () => {
+    updateError = true;
+    const before = structuredClone(tables.appointments);
+    const response = await cancel();
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({ error: "Unable to cancel appointment" });
+    expect(tables.appointments).toEqual(before); noSideEffects();
+  });
+  it("rejects zero affected rows when the owned appointment was not cancelled", async () => {
+    race = true;
+    const before = structuredClone(tables.appointments);
+    expect((await cancel()).status).toBe(409);
+    expect(tables.appointments).toEqual(before); noSideEffects();
+  });
+  it("returns idempotent success on repeat cancellation without a second mutation or event", async () => {
+    const first = await cancel();
+    const second = await cancel();
+    expect(first.status).toBe(200); expect(second.status).toBe(200);
+    expect(await second.json()).toEqual(await first.json());
+    expect(writes).toHaveLength(1);
+    expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
+  });
+  it("surfaces a post-mutation event failure without automatically resending on retry", async () => {
+    event.mockRejectedValueOnce(new Error("synthetic enqueue failure"));
+    await expect(cancel()).rejects.toThrow("synthetic enqueue failure");
+    expect(tables.appointments[0].status).toBe("cancelled");
+    expect((await cancel()).status).toBe(200);
+    expect(writes).toHaveLength(1);
+    expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
+  });
+  it("returns success without mutating or emitting for an already-cancelled owned appointment", async () => {
+    tables.appointments[0].status = "cancelled";
+    expect((await cancel()).status).toBe(200); noSideEffects();
+  });
+  it("fails closed when it cannot verify an already-cancelled owned row", async () => {
+    tables.appointments[0].status = "cancelled";
+    referenceFailure = "appointments";
+    expect((await cancel()).status).toBe(503); noSideEffects();
+  });
+  it("allows only one event when two cancellation requests race", async () => {
+    const responses = await Promise.all([cancel(), cancel()]);
+    expect(responses.map((r) => r.status).sort()).toEqual([200, 409]);
+    expect(writes).toHaveLength(1);
+    expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
+  });
+  it.each([["customer_id", "customers"], ["service_id", "services"], ["staff_id", "staff"], ["location_id", "locations"]])("rejects retained foreign and missing %s identically before mutation", async (field, table) => {
+    tables.appointments[0][field] = foreign(table);
+    const before = structuredClone(tables.appointments);
+    const foreignResponse = await cancel();
+    expect(foreignResponse.status).toBe(409);
+    expect(tables.appointments).toEqual(before);
+    tables.appointments[0][field] = uuid(999);
+    const absentResponse = await cancel();
+    expect(absentResponse.status).toBe(409);
+    expect(await foreignResponse.json()).toEqual(await absentResponse.json());
+    expect(warn).toHaveBeenCalledWith("booking", "appointment_reconciliation_required", { businessId: A, appointmentId: AP });
+    expect(JSON.stringify(warn.mock.calls)).not.toContain("FOREIGN PII"); noSideEffects();
+  });
+  it.each(["customer_id", "service_id", "staff_id", "location_id"])("rejects an unexpectedly null retained %s without inventing a fallback", async (field) => {
+    tables.appointments[0][field] = null;
+    expect((await cancel()).status).toBe(409); noSideEffects();
+  });
+  it("allows cancellation with inactive same-business historical catalog records", async () => {
+    tables.locations[0].is_active = false; tables.staff[0].is_active = false; tables.services[0].is_active = false;
+    tables.appointments[0].start_time = "2025-01-01T00:00:00Z";
+    expect((await cancel()).status).toBe(200);
+    expect(event).toHaveBeenCalledExactlyOnceWith(AP, "cancelled", { businessId: A });
+    expect(rpcCalls).toEqual([]);
+  });
+  it("does not acknowledge a corrupted already-cancelled row as reconciled", async () => {
+    tables.appointments[0].status = "cancelled";
+    tables.appointments[0].customer_id = foreign("customers");
+    expect((await cancel()).status).toBe(409); noSideEffects();
+  });
+  it("fails closed on reference lookup errors before mutation", async () => {
+    referenceFailure = "customers";
+    expect((await cancel()).status).toBe(503); noSideEffects();
+  });
+  it("does not cancel an appointment edited after its references were validated", async () => {
+    beforeUpdate = () => {
+      tables.appointments[0].customer_id = foreign("customers");
+      tables.appointments[0].updated_at = "2026-09-08T00:00:00.123457+00:00";
+    };
+    expect((await cancel()).status).toBe(409);
+    expect(tables.appointments[0].status).toBe("pending"); noSideEffects();
   });
 });
 
