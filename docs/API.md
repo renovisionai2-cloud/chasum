@@ -295,9 +295,15 @@ See [DATABASE.md](./DATABASE.md) for RPC implementation details.
 
 ---
 
-## Future API (Phase 3+)
+## REST API
 
-Planned additions not yet implemented:
+Appointment REST endpoints and their location/tenant-reference contract are documented
+in [REST_API.md](./REST_API.md). They use API-key business scope rather than dashboard
+location cookies. Dashboard and public booking retain their existing write paths.
+
+## Historical API roadmap (Phase 3+)
+
+Historical planning list; consult REST_API.md for the implemented API-key endpoints:
 
 - REST API with API keys for third-party integrations
 - Stripe webhook route handlers

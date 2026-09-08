@@ -46,6 +46,7 @@ Create an appointment.
 **Body:**
 ```json
 {
+  "location_id": "uuid",
   "service_id": "uuid",
   "staff_id": "uuid",
   "customer_id": "uuid",
@@ -56,15 +57,49 @@ Create an appointment.
 }
 ```
 
-Triggers confirmation emails, calendar sync, and webhooks.
+`location_id` is an active location belonging to the API key's business. For legacy
+requests that omit it, the API uses a location only when that business has exactly
+one active location. Zero active locations or multiple active locations return 400;
+`is_default` does not resolve an ambiguous API request.
+
+`customer_id`, `service_id`, and `staff_id` must belong to the API key's business.
+Customers are shared across that business's locations. Service and staff must be
+active; the existing scheduling RPC checks staff/service assignment and location
+eligibility. The same validated location is used for slot validation and insertion.
+Unknown and foreign IDs return the same safe 400 error. Reference lookup failures
+return 503 without database details. Invalid references create no appointment or
+notification/job. `business_id` is always taken from the API key; unknown POST
+fields are stripped, while `location_id` is explicitly retained and UUID-validated.
+
+After successful insertion, triggers the existing notification/calendar/webhook
+orchestration. This API does not run the background worker.
 
 #### `GET /api/v1/appointments/:id`
 
-Get a single appointment with relations.
+Get a single appointment with relations. Both detail and list responses scope the
+embedded customer/service/staff objects to the API key's business. A historical
+invalid foreign relation is returned as `null`, never as foreign contact data.
 
 #### `PATCH /api/v1/appointments/:id`
 
-Update appointment fields. Triggers notifications on status change.
+Update allowed appointment fields, including optional `location_id`, `customer_id`,
+`service_id`, and `staff_id`. Unknown fields, including `business_id`, are rejected.
+The API reads the owned appointment and validates the complete resulting reference
+set before updating. Omitted location keeps the existing location; PATCH never
+resolves a new location by fallback.
+
+Actual location/service/staff/start/end changes, and reactivation from cancelled,
+revalidate the resulting schedule through `validate_appointment_slot` with the
+appointment excluded and the validated location supplied. Historical notes/status
+edits may retain inactive same-business references; scheduling changes require
+active location/service/staff. Customer reassignment must remain in the business.
+Timestamp strings that differ from the stored representation also revalidate,
+including equivalent offsets: JavaScript parsing cannot safely establish PostgreSQL
+timestamp equivalence or preserve its fractional precision.
+
+A concurrent appointment edit returns 409; reload before retrying. Failed validation
+or a lost update race creates no notification/event. Existing response envelopes
+remain `{ "data": ... }` for success and `{ "error": ... }` for errors.
 
 #### `DELETE /api/v1/appointments/:id`
 

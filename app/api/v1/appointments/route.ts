@@ -7,6 +7,7 @@ import {
   formatZodError,
 } from "@/lib/validation/schemas";
 import { captureBookingFailure } from "@/lib/observability/logger";
+import { validateAppointmentReferences } from "@/lib/api/appointment-references";
 
 export async function GET(request: NextRequest) {
   const auth = await requireApiAuth(request, "read");
@@ -22,6 +23,9 @@ export async function GET(request: NextRequest) {
       "id, start_time, end_time, status, notes, service:services(id, name), staff:staff(id, name), customer:customers(id, name, email)",
     )
     .eq("business_id", auth.businessId)
+    .eq("customer.business_id", auth.businessId)
+    .eq("service.business_id", auth.businessId)
+    .eq("staff.business_id", auth.businessId)
     .order("start_time");
 
   if (start) query = query.gte("start_time", start);
@@ -51,10 +55,19 @@ export async function POST(request: NextRequest) {
   const body = parsed.data;
   const supabase = createServiceClient();
 
+  const validated = await validateAppointmentReferences({
+    client: supabase,
+    businessId: auth.businessId,
+    references: body,
+  });
+  if (!validated.ok) return apiError(validated.error, validated.status);
+  const references = validated.references;
+
   const validation = await supabase.rpc("validate_appointment_slot", {
     p_business_id: auth.businessId,
-    p_service_id: body.service_id,
-    p_staff_id: body.staff_id,
+    p_location_id: references.location_id,
+    p_service_id: references.service_id,
+    p_staff_id: references.staff_id,
     p_start_time: body.start_time,
     p_end_time: body.end_time,
   });
@@ -71,9 +84,7 @@ export async function POST(request: NextRequest) {
     .from("appointments")
     .insert({
       business_id: auth.businessId,
-      service_id: body.service_id,
-      staff_id: body.staff_id,
-      customer_id: body.customer_id,
+      ...references,
       start_time: body.start_time,
       end_time: body.end_time,
       status: body.status ?? "pending",
