@@ -31,6 +31,7 @@ Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`
 | Worker Cron | `/api/cron/process-jobs` |
 | Staging isolated application runtime | **PASS** (synthetic jobs, stubbed providers; existing 20 pending Staging jobs unchanged) |
 | Gate 5 webhook-hold Staging proof | **PASS** (synthetic marked rows; `processPendingJobs` not invoked; existing 20 pending unchanged) |
+| Gate 5 webhook-hold functional SHA | `47c24acb22db8d8da7cef9971357e1d26f87cffa` (new functional revision; **not** covered by Claude audit **B**; delta audit required before Production deploy) |
 
 If the target environment is not Production `kxcydvhswkuzepwzzinq`, **STOP**.
 
