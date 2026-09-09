@@ -23,11 +23,15 @@ Package B is combined schema + application compatibility:
 File: `supabase/migrations/20260909140000_communication_consent_compatibility.sql`
 
 ```
+BEGIN;
 ALTER TABLE public.customers
   ADD COLUMN IF NOT EXISTS marketing_consent boolean NOT NULL DEFAULT false;
 ALTER TABLE public.customers
   ADD COLUMN IF NOT EXISTS marketing_consent_at timestamptz;
+COMMIT;
 ```
+
+`NOTIFY pgrst` is documented **after** COMMIT, not inside the transaction.
 
 Not 027. Does not fill 026–033. No membership, note types, document categories,
 policies, grants, ACL, or backfill beyond `DEFAULT false`.
@@ -48,10 +52,20 @@ Staging already has these columns (historical 027 effects). Staging schema was
   rate-limited **warn** (no error/Sentry spam). Genuine DB errors keep
   transactional email/SMS available, marketing false, error + capture.
   Both primary and compatibility reads are scoped by `id` + `business_id`.
-- `lib/actions/crm.ts`: `CUSTOMER_MEMBERSHIP_WRITES_ENABLED = false` (default
-  OFF). `membership_id` omitted from create/update. Missing-column fallback
-  strips **only** the named missing column(s). Consent fields are not stripped
-  because membership is absent.
+- `lib/actions/crm.ts` / `lib/crm/customer-payload.ts`: membership writes gated
+  OFF. Create sets `marketing_consent_at` only when consent is granted.
+  Updates read the current row scoped by `id` + authenticated `business_id`,
+  then apply transitions: false→true stamps now; true→false clears; true→true
+  and false→false preserve exactly (no rotation on unrelated profile edits).
+- Business/staff appointment emails: orchestrator enqueue sets
+  `skipPreferenceCheck: true` for `appointment.business` / `appointment.staff`.
+  The worker appointment path now forwards that flag into `sendEmail`.
+  Customer `appointment.confirmation` / reminder / cancellation / reschedule
+  still honor customer preferences.
+- Marketing hard gate: `sendEmail` / `sendSMS` deny any `marketing.*` template
+  unless business marketing is enabled AND customer consent is true, **even
+  when `skipPreferenceCheck=true`**. Missing customer fails closed.
+- Missing-column CRM fallback still strips **only** the named missing column(s).
 
 ## Membership
 
@@ -118,3 +132,6 @@ schema remain untouched.
 6. Synthetic verification
 
 Do not apply 027 wholesale. Do not apply 034 / 035 / 036.
+
+Package A remains separate. Claude N2 monitoring remains not live.
+Production is **not** marked repaired.

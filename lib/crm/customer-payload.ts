@@ -41,7 +41,10 @@ export function stripMissingCustomerWriteColumns<
   return next;
 }
 
-export function parseCustomerPayload(formData: FormData) {
+export function parseCustomerPayload(
+  formData: FormData,
+  options?: { consentTimestampMode?: "create" | "defer" },
+) {
   const firstName = (formData.get("first_name") as string)?.trim() || null;
   const lastName = (formData.get("last_name") as string)?.trim() || null;
   const preferredName = (formData.get("preferred_name") as string)?.trim() || null;
@@ -90,12 +93,17 @@ export function parseCustomerPayload(formData: FormData) {
     anniversary_date: (formData.get("anniversary_date") as string)?.trim() || null,
     loyalty_status: (formData.get("loyalty_status") as string)?.trim() || "standard",
     marketing_consent: marketingConsent,
-    marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
     referral_source: (formData.get("referral_source") as string)?.trim() || null,
     notes: (formData.get("notes") as string)?.trim() || null,
     tags,
     last_activity_at: new Date().toISOString(),
   };
+
+  if ((options?.consentTimestampMode ?? "create") === "create") {
+    payload.marketing_consent_at = marketingConsent
+      ? new Date().toISOString()
+      : null;
+  }
 
   if (CUSTOMER_MEMBERSHIP_WRITES_ENABLED) {
     payload.membership_id =
@@ -103,4 +111,18 @@ export function parseCustomerPayload(formData: FormData) {
   }
 
   return payload;
+}
+
+/** Transition-only timestamp for CRM updates. Never rotates an existing grant. */
+export function consentTimestampForUpdate(input: {
+  nextConsent: boolean;
+  existingConsent: boolean;
+  existingAt: string | null;
+  now?: string;
+}): string | null {
+  if (input.nextConsent && !input.existingConsent) {
+    return input.now ?? new Date().toISOString();
+  }
+  if (!input.nextConsent) return null;
+  return input.existingAt;
 }

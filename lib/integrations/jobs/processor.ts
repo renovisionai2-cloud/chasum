@@ -291,6 +291,7 @@ async function processEmailJob(job: BackgroundJob, payload = job.payload) {
     },
     customerId: ctx.customerId,
     appointmentId,
+    skipPreferenceCheck: Boolean(payload.skipPreferenceCheck),
     reliability,
     attachments:
       templateKey === "appointment.confirmation" ||
@@ -380,6 +381,7 @@ async function processSmsJob(job: BackgroundJob, payload = job.payload) {
     },
     customerId: ctx.customerId,
     appointmentId,
+    skipPreferenceCheck: Boolean(payload.skipPreferenceCheck),
     reliability,
   });
 

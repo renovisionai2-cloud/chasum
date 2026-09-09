@@ -22,11 +22,16 @@
 -- Staging already satisfies this schema from historical 027 effects; do not
 -- re-apply merely to claim migration success.
 
+begin;
+
 alter table public.customers
   add column if not exists marketing_consent boolean not null default false;
 
 alter table public.customers
   add column if not exists marketing_consent_at timestamptz;
 
--- Required after Production COMMIT, before the new application is relied upon:
+commit;
+
+-- Required AFTER Production COMMIT, before the new application is relied upon.
+-- Do NOT place NOTIFY inside the schema transaction.
 -- NOTIFY pgrst, 'reload schema';

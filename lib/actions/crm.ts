@@ -3,6 +3,7 @@
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { runCrmAiQuery } from "@/lib/crm/ai";
 import {
+  consentTimestampForUpdate,
   parseCustomerPayload,
   stripMissingCustomerWriteColumns,
 } from "@/lib/crm/customer-payload";
@@ -172,9 +173,32 @@ export async function updateCrmCustomer(
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "Customer id is required." };
 
-  const payload = parseCustomerPayload(formData);
+  const payload = parseCustomerPayload(formData, {
+    consentTimestampMode: "defer",
+  });
   if (!payload.name) return { error: "Customer name is required." };
   if (!payload.email) return { error: "Email is required." };
+
+  const { data: existing, error: existingError } = await supabase
+    .from("customers")
+    .select("id, marketing_consent, marketing_consent_at")
+    .eq("id", id)
+    .eq("business_id", business.id)
+    .maybeSingle();
+
+    if (existingError) {
+      if (!isMissingSchemaError(existingError.message)) {
+        return { error: existingError.message };
+      }
+    } else if (!existing) {
+      return { error: "Customer not found." };
+    } else {
+      payload.marketing_consent_at = consentTimestampForUpdate({
+        nextConsent: Boolean(payload.marketing_consent),
+        existingConsent: Boolean(existing.marketing_consent),
+        existingAt: (existing.marketing_consent_at as string | null) ?? null,
+      });
+    }
 
   const { error } = await supabase
     .from("customers")

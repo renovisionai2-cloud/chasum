@@ -27,6 +27,28 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { logger } from "@/lib/observability/logger";
 import { inspectSendIntent, runDurableSend, type DurableSendResult, type ProviderOutcome, type SendReliabilityContext } from "@/lib/communications/send-intent";
 
+function isMarketingTemplate(templateKey: string): boolean {
+  return templateKey.startsWith("marketing.");
+}
+
+/** Marketing consent cannot be bypassed by skipPreferenceCheck. Missing customer fails closed. */
+async function marketingConsentDenied(input: {
+  businessId: string;
+  templateKey: string;
+  customerId?: string | null;
+}): Promise<boolean> {
+  if (!isMarketingTemplate(input.templateKey)) return false;
+  const business = await loadBusinessCommPreferences(input.businessId, true);
+  if (!business.marketingEmailEnabled) return true;
+  if (!input.customerId) return true;
+  const customer = await loadCustomerCommPreferences(
+    input.businessId,
+    input.customerId,
+    true,
+  );
+  return customer.marketing !== true;
+}
+
 function withDeliveryEntity(input: {
   reliability?: SendReliabilityContext;
   templateKey: string;
@@ -134,6 +156,20 @@ export async function sendEmail(input: {
     "@/lib/communications/email-from"
   );
   const tenant = await loadTenantEmailBranding(input.businessId, audience);
+
+  if (await marketingConsentDenied(input)) {
+    await logDelivery({
+      businessId: input.businessId,
+      channel: "email",
+      recipient: input.to,
+      templateKey: input.templateKey,
+      status: "skipped",
+      appointmentId: input.appointmentId,
+      customerId: input.customerId,
+      errorMessage: "Marketing disabled by consent.",
+    });
+    return { ok: false, skipped: true, error: "Marketing disabled by consent." };
+  }
 
   if (!input.skipPreferenceCheck) {
     const prefs = await loadBusinessCommPreferences(input.businessId, true);
@@ -252,6 +288,19 @@ export async function sendSMS(input: {
   if (input.reliability) {
     const existing = await inspectSendIntent({ ...input, channel: "sms", reliability: input.reliability });
     if (existing) return finishDelivery(input, "sms", { key: input.templateKey, text: "" }, existing);
+  }
+  if (await marketingConsentDenied(input)) {
+    await logDelivery({
+      businessId: input.businessId,
+      channel: "sms",
+      recipient: input.to,
+      templateKey: input.templateKey,
+      status: "skipped",
+      appointmentId: input.appointmentId,
+      customerId: input.customerId,
+      errorMessage: "Marketing disabled by consent.",
+    });
+    return { ok: false, skipped: true, error: "Marketing disabled by consent." };
   }
   if (!input.skipPreferenceCheck) {
     const prefs = await loadBusinessCommPreferences(input.businessId, true);

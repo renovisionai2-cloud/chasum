@@ -153,6 +153,7 @@ export async function handleAppointmentEvent(
         recipient: staff.email.trim(),
         sendIntentId,
         action: titleMap[event].toLowerCase(),
+        skipPreferenceCheck: true,
         idempotencyKey: `${appointmentId}:appointment.staff:${staff.email}:${event}`,
       });
     }
@@ -166,6 +167,7 @@ export async function handleAppointmentEvent(
         sendIntentId,
         action: titleMap[event],
         bookingSource: "reception",
+        skipPreferenceCheck: true,
         idempotencyKey: `${appointmentId}:appointment.business:${businessTo}:${event}`,
       });
     } else if (ownerEnabled && !businessTo && event !== "updated") {

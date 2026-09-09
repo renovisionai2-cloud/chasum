@@ -70,6 +70,10 @@ describe("producer occurrence identity", () => {
     ]);
     expect(jobs.every((job) => payload(job).sendIntentProtocol === "durable-v1")).toBe(true);
     expect(new Set(jobs.map((job) => job.id)).size).toBe(4);
+    const emails = jobs.filter((job) => job.job_type === "email");
+    expect(payload(emails.find((job) => payload(job).templateKey === "appointment.confirmation")!).skipPreferenceCheck).toBeFalsy();
+    expect(payload(emails.find((job) => payload(job).templateKey === "appointment.staff")!).skipPreferenceCheck).toBe(true);
+    expect(payload(emails.find((job) => payload(job).templateKey === "appointment.business")!).skipPreferenceCheck).toBe(true);
   });
 
   it("initial confirmed event bridge keeps the inline initial occurrence", async () => {
