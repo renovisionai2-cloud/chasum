@@ -2,8 +2,8 @@
 
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
-**Last updated:** 2026-09-08  
-**Updated by:** Correct dardin.gvm Production Resend runtime cutover. Serving `dpl_HUvY9TtHdfzJTVHvGxJ6JFdJMLWF` / SHA `bb1dbe6` (functional files byte-identical to `918e9cae`). One governed retry of synthetic email `0f557d3e-…` **accepted**. Historical 579 id fingerprint unchanged. Cron **DISABLED**. Hold **ON**. N2 **not live**. `customers.marketing_consent` warning still occurs. Recovery **not complete**.
+**Last updated:** 2026-09-09  
+**Updated by:** Package B Staging/code communication-consent compatibility on `cursor/package-b-communication-consent`. Production serving SHA remains `bb1dbe6` / `dpl_HUvY9Tt…`. Cron **DISABLED**. Hold **ON**. N2 **not live**. Production still lacks `customers.marketing_consent`. Recovery **not complete**. Production Package B rollout **not authorized**.
 
 This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
 
@@ -88,7 +88,7 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 ## NEW / CHANGED (this slice)
 
-- Gate 5 live Production classification: pending **0** / processing **0**. Disposition: **NO ELIGIBLE LEGACY-PROTOCOL TRANSACTIONAL BACKLOG EXISTS.** Historical 579 rows not mutated.
+- Package B communication consent **Staging/code** on `cursor/package-b-communication-consent`: purpose-specific migration file only (not 027); preference-loader compatibility; CRM membership writes gated OFF. Staging schema already matched and was **not** mutated. Production schema/app **unchanged**. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md).
 - Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`.
 - Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**.
 - Production deploy of `47c24ac` **READY** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. Active fleet reconciled including git-main. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger fingerprint unchanged (`idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`). Webhook cancelled rows remain **152**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.
@@ -118,7 +118,7 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 6. **Gate 5** — **PASS (code + live Staging proof + Production deploy of webhook-hold, then tenant-integrity SHA).** Live Production legacy 579 fingerprint unchanged. Webhook flag **ABSENT**. Reliability **true**. Hold ON. Cron DISABLED.
 7. Deployed booking → job → worker → send-intent → test-inbox E2E. **PASS after correct-account Resend cutover.** Producer + N3 already PASS. First provider attempt rejected (wrong Resend account). Governed retry on `dpl_HUvY9Tt…` accepted exactly once. Eligible pending transactional retry is now **empty**.
 8. Bounded manual canary (no webhook jobs) before Cron. **PASS.** Webhook sibling remains pending/held (`attempts=0`). Provider exactly-once **PASS** on the governed retry.
-9. Separate decision to restore Production Cron. **BLOCKED** until (a) N2 monitoring/alerting is live, (b) `customers.marketing_consent` schema warning is investigated (do not fix as a surprise migration), (c) no new eligible pending transactional jobs appear.
+9. Separate decision to restore Production Cron. **BLOCKED** until (a) N2 monitoring/alerting is live, (b) Package B **Production** schema+app rollout is separately authorized (Staging implementation is on `cursor/package-b-communication-consent`; Production still lacks the columns until that rollout), (c) no new eligible pending transactional jobs appear.
 10. Production hold removal **last**.
 11. GVM technician validation **only after recovery closes**.
 12. Momentic booking regression: deferred if the connector remains unavailable; not a sole blocker.
@@ -146,7 +146,7 @@ Production worker recovery: **not complete**.
 
 ## Next governed gate (not an authorization)
 
-Do **not** restore Cron. Correct Resend Production runtime credential rotation is **complete** (dardin.gvm / `chasumai.com`; env object `9hF77dAtfP8TcG7S` Production-only; baked into `dpl_HUvY9Tt…`). Make Claude **N2** live using existing Vercel Runtime Logs (query `appointment_reconciliation_required` and appointment-route 5xx / `handleAppointmentEvent` exceptions); do not add a new observability vendor. Recorded remaining schema warning: `customers.marketing_consent` does not exist (fail-loud; send still accepted). **N4 hard gate:** before 034/035/036, `schedulingChanged` and DELETE `hasReferences` in `app/api/v1/appointments/[id]/route.ts` must be null-staff-safe for intentional unassigned appointments. GVM remains deferred. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
+Do **not** restore Cron. Package B (communication consent compatibility) is implemented on Staging/code branch `cursor/package-b-communication-consent` — see [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). **No Production schema or application deploy of Package B is authorized yet.** Future Production sequence: schema transaction → COMMIT → `NOTIFY pgrst, 'reload schema'` → verify columns → deploy application → synthetic verification. Make Claude **N2** live using existing Vercel Runtime Logs. **N4 hard gate:** before 034/035/036, `schedulingChanged` and DELETE `hasReferences` in `app/api/v1/appointments/[id]/route.ts` must be null-staff-safe. GVM remains deferred. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
 
 ---
 

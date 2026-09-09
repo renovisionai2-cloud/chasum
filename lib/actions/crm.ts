@@ -5,6 +5,7 @@ import { runCrmAiQuery } from "@/lib/crm/ai";
 import { loadCrmProfile, touchCustomerActivity } from "@/lib/crm/service";
 import { displayCustomerName } from "@/lib/crm/display";
 import type { CrmProfile } from "@/lib/crm/types";
+import { isMissingSchemaError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, Customer, Location, Staff } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -32,7 +33,36 @@ function composeName(first?: string | null, last?: string | null, fallback?: str
   return composed || fallback?.trim() || "";
 }
 
-function parseCustomerPayload(formData: FormData) {
+/** Membership writes stay gated until the composite-FK design ships. Default OFF. */
+const CUSTOMER_MEMBERSHIP_WRITES_ENABLED = false;
+
+const CUSTOMER_OPTIONAL_WRITE_COLUMNS = [
+  "marketing_consent_at",
+  "marketing_consent",
+  "membership_id",
+] as const;
+
+function messageNamesColumn(message: string, column: string): boolean {
+  const escaped = column.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?:^|[^a-z0-9_])${escaped}(?:[^a-z0-9_]|$)`, "i").test(
+    message,
+  );
+}
+
+export function stripMissingCustomerWriteColumns<T extends Record<string, unknown>>(
+  payload: T,
+  errorMessage: string,
+): T {
+  const next = { ...payload };
+  for (const column of CUSTOMER_OPTIONAL_WRITE_COLUMNS) {
+    if (messageNamesColumn(errorMessage, column) && column in next) {
+      delete next[column];
+    }
+  }
+  return next;
+}
+
+export function parseCustomerPayload(formData: FormData) {
   const firstName = (formData.get("first_name") as string)?.trim() || null;
   const lastName = (formData.get("last_name") as string)?.trim() || null;
   const preferredName = (formData.get("preferred_name") as string)?.trim() || null;
@@ -52,9 +82,8 @@ function parseCustomerPayload(formData: FormData) {
   const marketingConsent =
     formData.get("marketing_consent") === "on" ||
     formData.get("marketing_consent") === "true";
-  const membershipId = (formData.get("membership_id") as string)?.trim() || null;
 
-  return {
+  const payload: Record<string, unknown> = {
     name,
     first_name: firstName,
     last_name: lastName,
@@ -77,7 +106,6 @@ function parseCustomerPayload(formData: FormData) {
     assigned_staff_id: (formData.get("assigned_staff_id") as string)?.trim() || null,
     preferred_location_id:
       (formData.get("preferred_location_id") as string)?.trim() || null,
-    membership_id: membershipId,
     is_vip: isVip,
     anniversary_date: (formData.get("anniversary_date") as string)?.trim() || null,
     loyalty_status: (formData.get("loyalty_status") as string)?.trim() || "standard",
@@ -88,6 +116,13 @@ function parseCustomerPayload(formData: FormData) {
     tags,
     last_activity_at: new Date().toISOString(),
   };
+
+  if (CUSTOMER_MEMBERSHIP_WRITES_ENABLED) {
+    payload.membership_id =
+      (formData.get("membership_id") as string)?.trim() || null;
+  }
+
+  return payload;
 }
 
 export type CrmDirectoryCustomer = Customer & {
@@ -155,7 +190,7 @@ export async function createCrmCustomer(
   }
   // Schema requires email (unique per business). Phone-only walk-ins get a stable placeholder.
   if (!payload.email && payload.phone) {
-    const digits = payload.phone.replace(/\D/g, "") || "unknown";
+    const digits = String(payload.phone).replace(/\D/g, "") || "unknown";
     payload.email = `phone.${digits}@chasum.local`;
   }
   if (!payload.email) return { error: "Email is required." };
@@ -173,37 +208,29 @@ export async function createCrmCustomer(
     if (error.code === "23505") {
       return { error: "A customer with this email already exists." };
     }
-    if (
-      error.message.includes("marketing_consent") ||
-      error.message.includes("membership_id")
-    ) {
-      const {
-        marketing_consent: _mc,
-        marketing_consent_at: _mca,
-        membership_id: _mid,
-        ...legacyPayload
-      } = payload;
-      void _mc;
-      void _mca;
-      void _mid;
-      const retry = await supabase
-        .from("customers")
-        .insert({
-          business_id: business.id,
-          ...legacyPayload,
-        })
-        .select("id")
-        .single();
-      if (retry.error) {
-        if (retry.error.code === "23505") {
-          return { error: "A customer with this email already exists." };
+    if (isMissingSchemaError(error.message)) {
+      const legacyPayload = stripMissingCustomerWriteColumns(
+        payload,
+        error.message,
+      );
+      const stripped = Object.keys(legacyPayload).length !== Object.keys(payload).length;
+      if (stripped) {
+        const retry = await supabase
+          .from("customers")
+          .insert({
+            business_id: business.id,
+            ...legacyPayload,
+          })
+          .select("id")
+          .single();
+        if (retry.error) {
+          if (retry.error.code === "23505") {
+            return { error: "A customer with this email already exists." };
+          }
+        } else {
+          revalidateCrm(retry.data.id);
+          return { success: "Client added." };
         }
-      } else {
-        revalidateCrm(retry.data.id);
-        return {
-          success:
-            "Client added. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
-        };
       }
     }
     // Pre-migration soft fallback
@@ -249,30 +276,22 @@ export async function updateCrmCustomer(
     .eq("business_id", business.id);
 
   if (error) {
-    if (
-      error.message.includes("marketing_consent") ||
-      error.message.includes("membership_id")
-    ) {
-      const {
-        marketing_consent: _mc,
-        marketing_consent_at: _mca,
-        membership_id: _mid,
-        ...legacyPayload
-      } = payload;
-      void _mc;
-      void _mca;
-      void _mid;
-      const retry = await supabase
-        .from("customers")
-        .update(legacyPayload)
-        .eq("id", id)
-        .eq("business_id", business.id);
-      if (!retry.error) {
-        revalidateCrm(id);
-        return {
-          success:
-            "Customer profile saved. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
-        };
+    if (isMissingSchemaError(error.message)) {
+      const legacyPayload = stripMissingCustomerWriteColumns(
+        payload,
+        error.message,
+      );
+      const stripped = Object.keys(legacyPayload).length !== Object.keys(payload).length;
+      if (stripped) {
+        const retry = await supabase
+          .from("customers")
+          .update(legacyPayload)
+          .eq("id", id)
+          .eq("business_id", business.id);
+        if (!retry.error) {
+          revalidateCrm(id);
+          return { success: "Customer profile saved." };
+        }
       }
     }
     return {

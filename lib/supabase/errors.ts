@@ -10,8 +10,18 @@ export function isMissingSchemaError(message: string | null | undefined): boolea
     m.includes("schema cache") ||
     m.includes("does not exist") ||
     m.includes("could not find the table") ||
-    m.includes("could not find the relation")
+    m.includes("could not find the relation") ||
+    (m.includes("could not find the") && m.includes("column"))
   );
+}
+
+/** True when PostgREST/Postgres failed because `customers.marketing_consent` is absent. */
+export function isMarketingConsentColumnMissing(
+  message: string | null | undefined,
+): boolean {
+  if (!message || !isMissingSchemaError(message)) return false;
+  const m = message.toLowerCase();
+  return m.includes("marketing_consent") && !m.includes("marketing_consent_at");
 }
 
 /**
