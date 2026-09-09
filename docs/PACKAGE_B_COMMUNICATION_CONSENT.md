@@ -1,6 +1,6 @@
 # Package B — Communication consent compatibility
 
-**Status:** Staging / code implementation **validated**. Branch **published**. Targeted producer/worker/delivery evidence recorded. **Authenticated hosted CRM action was not run.** **Production rollout is NOT authorized.**  
+**Status:** Staging / code implementation **validated**. Branch **published**. Bounded consent-revocation preservation added. **Authenticated hosted CRM action remains blocked (no Staging login session).** **Production rollout is NOT authorized.**  
 **Branch:** `cursor/package-b-communication-consent`  
 **Does not** mark Production repaired. Does **not** restore Cron. Does **not** deploy Production.
 
@@ -52,11 +52,14 @@ Staging already has these columns (historical 027 effects). Staging schema was
   rate-limited **warn** (no error/Sentry spam). Genuine DB errors keep
   transactional email/SMS available, marketing false, error + capture.
   Both primary and compatibility reads are scoped by `id` + `business_id`.
-- `lib/actions/crm.ts` / `lib/crm/customer-payload.ts`: membership writes gated
-  OFF. Create sets `marketing_consent_at` only when consent is granted.
-  Updates read the current row scoped by `id` + authenticated `business_id`,
-  then apply transitions: false→true stamps now; true→false clears; true→true
-  and false→false preserve exactly (no rotation on unrelated profile edits).
+- `lib/actions/crm.ts` / `lib/crm/customer-payload.ts` / `components/crm/customer-profile.tsx`:
+  membership writes gated OFF. Create sets `marketing_consent_at` only when consent
+  is granted. Updates distinguish **omit / grant / revoke** via
+  `marketing_consent_intent` (Overview omits both consent columns; Marketing tab
+  sends `intent=edit` plus a checkbox). Conditional UPDATE requires form-snapshot
+  `expected_updated_at` + `id` + authenticated `business_id` and a returned row.
+  Stale writes conflict; missing/foreign customers are not-found. Explicit
+  grant/revoke still use sequential timestamp transitions. No extra SQL object.
 - Business/staff appointment emails: orchestrator enqueue sets
   `skipPreferenceCheck: true` for `appointment.business` / `appointment.staff`.
   The worker appointment path now forwards that flag into `sendEmail`.
@@ -167,6 +170,25 @@ That CLI file-upload Preview is historical. Provenance for publication is the gi
   covering id, business_id, job_type, status, attempts, scheduled_at, next_retry_at,
   cancelled_at, started_at, completed_at. Both identical after scoped cleanup.
   Synthetic residue 0. Worker not invoked globally. No provider send.
+
+## Consent revocation preservation (2026-09-09)
+
+Claude’s prior fix-delta verdict **A — FIX DELTA APPROVED; HOSTED CRM ACCEPTANCE STILL REQUIRED** is preserved for sequential timestamps, audience separation, marketing hard gate, two-column SQL, and published source. Program Lead classified stale-form consent restoration as a bounded **P2** before Production rollout (Claude had labeled it P3).
+
+Contract:
+- Overview/profile save omits `marketing_consent` and `marketing_consent_at`.
+- Marketing tab sends `marketing_consent_intent=edit`. Checked checkbox = grant; omitted checkbox = revoke. `formData.has("marketing_consent")` is not used as the presence signal.
+- Updates require exact form-snapshot `expected_updated_at` (Staging trigger already exists on `customers`; microsecond `timestamptz` eq returns 0 rows when stale).
+- Conditional write is `.eq(id).eq(business_id).eq(updated_at)` plus `.select("id")`; zero rows → conflict, not success.
+- Missing-schema retry keeps the version predicate and cannot convert a failed consent write into a claimed grant/revoke.
+- Form `key={id:updated_at}` remounts so a refresh cannot pair a new version with stale checkbox state.
+
+Evidence:
+- **LOCAL/MOCK PASS:** `tests/unit/actions/crm-consent.test.ts` (31 passed), including stale two-tab restore, concurrent grant timestamp, zero-row, foreign customer, and compatibility-guard cases.
+- **LIVE STAGING DB PASS (trigger only):** synthetic probe showed `updated_at` changes on UPDATE; stale `updated_at` eq returns 0 rows; exact string eq updates; residue 0. Not an authenticated CRM action.
+- **AUTHENTICATED HOSTED ACTION:** **NOT RUN / BLOCKED.** No reusable Staging CRM session. Browser tabs remain Production 403 / blank. Login page will be the Git-linked Preview `/login` after this correction deploys. No account creation, impersonation, password reset, or credential request.
+
+No additional schema object. Worker, orchestrator, marketing delivery guard, and the two-column SQL file were not modified.
 
 ## Future Production sequence (not authorized)
 

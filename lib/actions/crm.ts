@@ -3,14 +3,18 @@
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { runCrmAiQuery } from "@/lib/crm/ai";
 import {
+  CUSTOMER_CONSENT_UNAVAILABLE,
+  CUSTOMER_PROFILE_CONFLICT,
   consentTimestampForUpdate,
+  parseConsentWriteIntent,
   parseCustomerPayload,
+  parseExpectedCustomerVersion,
   stripMissingCustomerWriteColumns,
 } from "@/lib/crm/customer-payload";
 import { loadCrmProfile, touchCustomerActivity } from "@/lib/crm/service";
 import { displayCustomerName } from "@/lib/crm/display";
 import type { CrmProfile } from "@/lib/crm/types";
-import { isMissingSchemaError } from "@/lib/supabase/errors";
+import { isMarketingConsentColumnMissing, isMissingSchemaError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, Customer, Location, Staff } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -173,6 +177,12 @@ export async function updateCrmCustomer(
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "Customer id is required." };
 
+  const consentIntent = parseConsentWriteIntent(formData);
+  if (consentIntent.kind === "invalid") return { error: consentIntent.error };
+
+  const expectedVersion = parseExpectedCustomerVersion(formData);
+  if (!expectedVersion.ok) return { error: expectedVersion.error };
+
   const payload = parseCustomerPayload(formData, {
     consentTimestampMode: "defer",
   });
@@ -186,42 +196,67 @@ export async function updateCrmCustomer(
     .eq("business_id", business.id)
     .maybeSingle();
 
-    if (existingError) {
-      if (!isMissingSchemaError(existingError.message)) {
-        return { error: existingError.message };
-      }
-    } else if (!existing) {
-      return { error: "Customer not found." };
-    } else {
-      payload.marketing_consent_at = consentTimestampForUpdate({
-        nextConsent: Boolean(payload.marketing_consent),
-        existingConsent: Boolean(existing.marketing_consent),
-        existingAt: (existing.marketing_consent_at as string | null) ?? null,
-      });
+  if (existingError) {
+    if (
+      isMarketingConsentColumnMissing(existingError.message) &&
+      (consentIntent.kind === "grant" || consentIntent.kind === "revoke")
+    ) {
+      return { error: CUSTOMER_CONSENT_UNAVAILABLE };
     }
+    if (!isMissingSchemaError(existingError.message)) {
+      return { error: existingError.message };
+    }
+  } else if (!existing) {
+    return { error: "Customer not found." };
+  } else if (consentIntent.kind === "grant" || consentIntent.kind === "revoke") {
+    const nextConsent = consentIntent.kind === "grant";
+    payload.marketing_consent = nextConsent;
+    payload.marketing_consent_at = consentTimestampForUpdate({
+      nextConsent,
+      existingConsent: Boolean(existing.marketing_consent),
+      existingAt: (existing.marketing_consent_at as string | null) ?? null,
+    });
+  }
 
-  const { error } = await supabase
-    .from("customers")
-    .update(payload)
-    .eq("id", id)
-    .eq("business_id", business.id);
+  const applyUpdate = async (body: Record<string, unknown>) =>
+    supabase
+      .from("customers")
+      .update(body)
+      .eq("id", id)
+      .eq("business_id", business.id)
+      .eq("updated_at", expectedVersion.updatedAt)
+      .select("id")
+      .maybeSingle();
+
+  const { data, error } = await applyUpdate(payload);
 
   if (error) {
     if (isMissingSchemaError(error.message)) {
+      const consentRequested =
+        consentIntent.kind === "grant" || consentIntent.kind === "revoke";
+      if (consentRequested && isMarketingConsentColumnMissing(error.message)) {
+        return { error: CUSTOMER_CONSENT_UNAVAILABLE };
+      }
       const legacyPayload = stripMissingCustomerWriteColumns(
         payload,
         error.message,
       );
-      const stripped = Object.keys(legacyPayload).length !== Object.keys(payload).length;
+      const strippedConsent =
+        Object.prototype.hasOwnProperty.call(payload, "marketing_consent") &&
+        !Object.prototype.hasOwnProperty.call(legacyPayload, "marketing_consent");
+      if (consentRequested && strippedConsent) {
+        return { error: CUSTOMER_CONSENT_UNAVAILABLE };
+      }
+      const stripped =
+        Object.keys(legacyPayload).length !== Object.keys(payload).length;
       if (stripped) {
-        const retry = await supabase
-          .from("customers")
-          .update(legacyPayload)
-          .eq("id", id)
-          .eq("business_id", business.id);
-        if (!retry.error) {
+        const retry = await applyUpdate(legacyPayload);
+        if (!retry.error && retry.data) {
           revalidateCrm(id);
           return { success: "Customer profile saved." };
+        }
+        if (!retry.error && !retry.data) {
+          return { error: CUSTOMER_PROFILE_CONFLICT };
         }
       }
     }
@@ -233,6 +268,8 @@ export async function updateCrmCustomer(
           : error.message,
     };
   }
+
+  if (!data) return { error: CUSTOMER_PROFILE_CONFLICT };
 
   revalidateCrm(id);
   return { success: "Customer profile saved." };
