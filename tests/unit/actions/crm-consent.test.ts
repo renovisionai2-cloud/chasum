@@ -15,6 +15,7 @@ const {
   existingCustomer,
   updateError,
   updateErrorOnce,
+  selectError,
   updateReturnsRow,
 } = vi.hoisted(() => ({
   getOrCreateBusiness: vi.fn(),
@@ -33,6 +34,7 @@ const {
   },
   updateError: { current: null as { message: string } | null },
   updateErrorOnce: { current: null as { message: string } | null },
+  selectError: { current: null as { message: string } | null },
   updateReturnsRow: { current: true },
 }));
 
@@ -64,6 +66,9 @@ vi.mock("@/lib/supabase/server", () => ({
             },
             maybeSingle: async () => {
               selectFilters.push({ ...filters });
+              if (selectError.current) {
+                return { data: null, error: selectError.current };
+              }
               return { data: existingCustomer.current, error: null };
             },
           };
@@ -170,6 +175,7 @@ describe("CRM customer consent writes", () => {
     selectFilters.length = 0;
     updateError.current = null;
     updateErrorOnce.current = null;
+    selectError.current = null;
     updateReturnsRow.current = true;
     existingCustomer.current = {
       id: "cust-1",
@@ -328,6 +334,7 @@ describe("consent intent and stale-form contract", () => {
     selectFilters.length = 0;
     updateError.current = null;
     updateErrorOnce.current = null;
+    selectError.current = null;
     updateReturnsRow.current = true;
     existingCustomer.current = {
       id: "cust-1",
@@ -562,28 +569,94 @@ describe("consent intent and stale-form contract", () => {
     const consent = await updateCrmCustomer({}, consentSave("edit", "true"));
     expect(consent).toEqual({ error: CUSTOMER_CONSENT_UNAVAILABLE });
     expect(existingCustomer.current?.marketing_consent).toBe(true);
+    expect(updatedRows).toHaveLength(1);
+  });
 
-    updateError.current = null;
-    updateErrorOnce.current = {
+  it("P3-a: explicit grant/revoke fail closed when SELECT is missing either consent column", async () => {
+    for (const [intent, consent] of [
+      ["edit", "true"],
+      ["edit", undefined],
+      ["grant", undefined],
+      ["revoke", undefined],
+    ] as const) {
+      for (const message of [
+        "column customers.marketing_consent does not exist",
+        "column customers.marketing_consent_at does not exist",
+      ]) {
+        updatedRows.length = 0;
+        selectError.current = { message };
+        const result = await updateCrmCustomer(
+          {},
+          consentSave(intent, consent),
+        );
+        expect(result).toEqual({ error: CUSTOMER_CONSENT_UNAVAILABLE });
+        expect(updatedRows).toHaveLength(0);
+        expect(existingCustomer.current?.marketing_consent).toBe(true);
+      }
+    }
+  });
+
+  it("P3-a: explicit grant/revoke fail closed when UPDATE is missing either consent column", async () => {
+    for (const [intent, consent] of [
+      ["edit", "true"],
+      ["revoke", undefined],
+    ] as const) {
+      for (const message of [
+        "column customers.marketing_consent does not exist",
+        "column customers.marketing_consent_at does not exist",
+      ]) {
+        updatedRows.length = 0;
+        updateFilters.length = 0;
+        updateError.current = { message };
+        existingCustomer.current = {
+          id: "cust-1",
+          marketing_consent: true,
+          marketing_consent_at: ORIGINAL_GRANT,
+          updated_at: VERSION_A,
+        };
+        const result = await updateCrmCustomer(
+          {},
+          consentSave(intent, consent),
+        );
+        expect(result).toEqual({ error: CUSTOMER_CONSENT_UNAVAILABLE });
+        expect(result).not.toHaveProperty("success");
+        expect(updatedRows).toHaveLength(1);
+        expect(updateFilters).toHaveLength(1);
+        expect(existingCustomer.current.marketing_consent).toBe(true);
+        expect(existingCustomer.current.marketing_consent_at).toBe(ORIGINAL_GRANT);
+      }
+    }
+  });
+
+  it("P3-a: genuine SELECT/UPDATE errors remain failures for explicit consent", async () => {
+    selectError.current = { message: "connection refused" };
+    const readFail = await updateCrmCustomer({}, consentSave("grant"));
+    expect(readFail).toEqual({ error: "connection refused" });
+    expect(updatedRows).toHaveLength(0);
+
+    selectError.current = null;
+    updateError.current = { message: "write unavailable" };
+    const writeFail = await updateCrmCustomer({}, consentSave("revoke"));
+    expect(writeFail).toEqual({ error: "write unavailable" });
+    expect(writeFail).not.toHaveProperty("success");
+  });
+
+  it("profile-only edit still proceeds when SELECT reports a missing consent column", async () => {
+    selectError.current = {
       message: "column customers.marketing_consent_at does not exist",
     };
-    updatedRows.length = 0;
-    updateFilters.length = 0;
-    existingCustomer.current = {
-      id: "cust-1",
-      marketing_consent: false,
-      marketing_consent_at: null,
-      updated_at: VERSION_B,
-    };
-    const staleRetry = await updateCrmCustomer(
+    const result = await updateCrmCustomer(
       {},
-      consentSave("edit", "true", { expected_updated_at: VERSION_A }),
+      profileSave({ name: "Pat Updated" }),
     );
-    expect(staleRetry).toEqual({ error: CUSTOMER_PROFILE_CONFLICT });
-    expect(updateFilters.every((filters) => filters.updated_at === VERSION_A)).toBe(
-      true,
-    );
-    expect(existingCustomer.current.marketing_consent).toBe(false);
+    expect(result).toEqual({ success: "Customer profile saved." });
+    expect(updatedRows[0]).not.toHaveProperty("marketing_consent");
+    expect(updatedRows[0]).not.toHaveProperty("marketing_consent_at");
+    expect(updateFilters[0]).toEqual({
+      id: "cust-1",
+      business_id: "biz-1",
+      updated_at: VERSION_A,
+    });
   });
 
   it("rejects contradictory consent input without writing", async () => {

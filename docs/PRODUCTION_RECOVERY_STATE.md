@@ -88,7 +88,7 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 ## NEW / CHANGED (this slice)
 
-- Package B communication consent **Staging/code** on published `cursor/package-b-communication-consent`. Bounded consent-revocation preservation added after Claude fix-delta **A**. Authenticated hosted CRM action **still blocked**. Production schema/app **unchanged**. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md).
+- Package B communication consent **Staging/code** on published `cursor/package-b-communication-consent`. Claude **A** on `fd8beb5e` (stale-form correction). P3-a consent-error guard is a follow-up. Authenticated hosted CRM action **still blocked**. Production schema/app **unchanged**. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md).
 - Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`.
 - Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**.
 - Production deploy of `47c24ac` **READY** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. Active fleet reconciled including git-main. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger fingerprint unchanged (`idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`). Webhook cancelled rows remain **152**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.

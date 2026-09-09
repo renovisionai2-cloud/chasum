@@ -14,7 +14,7 @@ import {
 import { loadCrmProfile, touchCustomerActivity } from "@/lib/crm/service";
 import { displayCustomerName } from "@/lib/crm/display";
 import type { CrmProfile } from "@/lib/crm/types";
-import { isMarketingConsentColumnMissing, isMissingSchemaError } from "@/lib/supabase/errors";
+import { isMissingSchemaError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, Customer, Location, Staff } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -183,6 +183,9 @@ export async function updateCrmCustomer(
   const expectedVersion = parseExpectedCustomerVersion(formData);
   if (!expectedVersion.ok) return { error: expectedVersion.error };
 
+  const consentRequested =
+    consentIntent.kind === "grant" || consentIntent.kind === "revoke";
+
   const payload = parseCustomerPayload(formData, {
     consentTimestampMode: "defer",
   });
@@ -197,18 +200,19 @@ export async function updateCrmCustomer(
     .maybeSingle();
 
   if (existingError) {
-    if (
-      isMarketingConsentColumnMissing(existingError.message) &&
-      (consentIntent.kind === "grant" || consentIntent.kind === "revoke")
-    ) {
-      return { error: CUSTOMER_CONSENT_UNAVAILABLE };
+    if (consentRequested) {
+      return {
+        error: isMissingSchemaError(existingError.message)
+          ? CUSTOMER_CONSENT_UNAVAILABLE
+          : existingError.message,
+      };
     }
     if (!isMissingSchemaError(existingError.message)) {
       return { error: existingError.message };
     }
   } else if (!existing) {
     return { error: "Customer not found." };
-  } else if (consentIntent.kind === "grant" || consentIntent.kind === "revoke") {
+  } else if (consentRequested) {
     const nextConsent = consentIntent.kind === "grant";
     payload.marketing_consent = nextConsent;
     payload.marketing_consent_at = consentTimestampForUpdate({
@@ -231,20 +235,33 @@ export async function updateCrmCustomer(
   const { data, error } = await applyUpdate(payload);
 
   if (error) {
+    if (consentRequested) {
+      return {
+        error: isMissingSchemaError(error.message)
+          ? CUSTOMER_CONSENT_UNAVAILABLE
+          : error.message.includes("crm_status") ||
+              error.message.includes("first_name")
+            ? "Could not save CRM profile. Apply migration 018_crm_department if needed."
+            : error.message,
+      };
+    }
     if (isMissingSchemaError(error.message)) {
-      const consentRequested =
-        consentIntent.kind === "grant" || consentIntent.kind === "revoke";
-      if (consentRequested && isMarketingConsentColumnMissing(error.message)) {
-        return { error: CUSTOMER_CONSENT_UNAVAILABLE };
-      }
       const legacyPayload = stripMissingCustomerWriteColumns(
         payload,
         error.message,
       );
-      const strippedConsent =
-        Object.prototype.hasOwnProperty.call(payload, "marketing_consent") &&
-        !Object.prototype.hasOwnProperty.call(legacyPayload, "marketing_consent");
-      if (consentRequested && strippedConsent) {
+      const droppedConsent =
+        (Object.prototype.hasOwnProperty.call(payload, "marketing_consent") &&
+          !Object.prototype.hasOwnProperty.call(
+            legacyPayload,
+            "marketing_consent",
+          )) ||
+        (Object.prototype.hasOwnProperty.call(payload, "marketing_consent_at") &&
+          !Object.prototype.hasOwnProperty.call(
+            legacyPayload,
+            "marketing_consent_at",
+          ));
+      if (droppedConsent) {
         return { error: CUSTOMER_CONSENT_UNAVAILABLE };
       }
       const stripped =

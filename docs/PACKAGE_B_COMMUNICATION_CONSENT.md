@@ -1,6 +1,6 @@
 # Package B — Communication consent compatibility
 
-**Status:** Staging / code implementation **validated**. Branch **published**. Bounded consent-revocation preservation added. **Authenticated hosted CRM action remains blocked (no Staging login session).** **Production rollout is NOT authorized.**  
+**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard added. **Authenticated hosted CRM action remains blocked.** **Production rollout is NOT authorized.**  
 **Branch:** `cursor/package-b-communication-consent`  
 **Does not** mark Production repaired. Does **not** restore Cron. Does **not** deploy Production.
 
@@ -189,6 +189,16 @@ Evidence:
 - **AUTHENTICATED HOSTED ACTION:** **NOT RUN / BLOCKED.** No reusable Staging CRM session. Browser tabs remain Production 403 / blank. Login page will be the Git-linked Preview `/login` after this correction deploys. No account creation, impersonation, password reset, or credential request.
 
 No additional schema object. Worker, orchestrator, marketing delivery guard, and the two-column SQL file were not modified.
+
+## P3-a consent error guard (2026-09-09)
+
+Claude’s `fd8beb5e` verdict **A — CORRECTION APPROVED; AUTHENTICATED HOSTED CRM ACCEPTANCE STILL REQUIRED** remains the approval for the stale-form correction. It does not automatically cover this follow-up commit.
+
+Abnormal-schema defense only (not reproduced by dropping Staging columns): if `marketing_consent` exists but `marketing_consent_at` is absent, a required consent SELECT could fail and the action previously fell through, saved other fields, and returned success without applying grant/revoke.
+
+Invariant: an explicit grant/revoke must not report success if the required consent read or write failed, or if either consent field would be dropped by compatibility fallback. Profile-only Overview saves may still omit both consent columns.
+
+**LOCAL/MOCK PASS:** `tests/unit/actions/crm-consent.test.ts` now **35 passed**, including SELECT/UPDATE missing `marketing_consent` and `marketing_consent_at` for grant and revoke.
 
 ## Future Production sequence (not authorized)
 
