@@ -55,12 +55,11 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
+import { createCrmCustomer, updateCrmCustomer } from "@/lib/actions/crm";
 import {
-  createCrmCustomer,
   parseCustomerPayload,
   stripMissingCustomerWriteColumns,
-  updateCrmCustomer,
-} from "@/lib/actions/crm";
+} from "@/lib/crm/customer-payload";
 
 function form(entries: Record<string, string>): FormData {
   const data = new FormData();
