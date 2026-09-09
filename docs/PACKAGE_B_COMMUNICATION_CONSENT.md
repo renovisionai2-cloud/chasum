@@ -103,11 +103,11 @@ Not implemented here. Gate remains OFF.
 Preview deploy identity is recorded below. Production application and Production
 schema remain untouched.
 
-## Preview-only deploy (2026-09-09)
+## Preview-only deploy (bounded fixes, 2026-09-09)
 
-- Branch HEAD `c6c6abad3d81a00b512106989776f7d1871633c4`
-- Preview `dpl_5AjSrE9TBdRLBBvtQZ7m44iQc8WZ`
-  (`chasum-r25dg1ynx-renovisionappcom.vercel.app`), `target=preview`,
+- Functional SHA `77e40b61ec7239d563f072fab1cc7425590cd78b`
+- Preview `dpl_7MxfwRvg8iRqLdX9wCudfZ3AK962`
+  (`chasum-67o7easd4-renovisionappcom.vercel.app`), `target=preview`,
   `readyState=READY`. No Production alias. Not promoted.
 - `/api/build-info`: `env=preview`, `production=false`
 - `/api/health`: `email=missing`, `cronSecret=missing`, `sms=optional_missing`,
@@ -115,12 +115,16 @@ schema remain untouched.
 - Preview env names: `NEXT_PUBLIC_SUPABASE_URL` bound to **Preview, staging**;
   `RESEND_API_KEY`, `CRON_SECRET`, `CHASUM_WORKER_WEBHOOKS_ENABLED`,
   `TWILIO_ACCOUNT_SID`, `STRIPE_SECRET_KEY` **absent**. Reliability flag present.
-- Hosted `POST /api/v1/appointments` on `chasum-test-studio` returned **201**,
-  persisted Staging `business_id` / `location_id`, enqueued pending
-  `appointment.confirmation` (`durable-v1`, attempts=0) plus business email,
-  reminders, and a held webhook. **Zero** `marketing.*` jobs. Worker **not**
-  invoked. Studio `communication_send_intents` **0**. Synthetic appointment,
-  customer, jobs, and API key removed. Job idSha256 restored.
+- Staging live revalidation (service-scoped `id`+`business_id` reads/writes using
+  `consentTimestampForUpdate`): original `marketing_consent_at` preserved on
+  unrelated update; false clears timestamp; true stamps a new value. Synthetic
+  `preferred=sms` suppresses customer email; marketing remains denied. Residue 0.
+  Job idSha256 `c73fe449e797467f824143eac6b71406e5ed2d2b784dcac9e2556e948aa07dbe`
+  unchanged. Worker not invoked.
+
+Prior Preview `dpl_5AjSrE9TBdRLBBvtQZ7m44iQc8WZ` hosted a Package B
+`POST /api/v1/appointments` **201** with pending confirmation (no marketing
+jobs, residue cleaned). It is not Production.
 
 ## Future Production sequence (not authorized)
 
