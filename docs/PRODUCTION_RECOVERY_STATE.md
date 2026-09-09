@@ -88,7 +88,7 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 ## NEW / CHANGED (this slice)
 
-- Package B communication consent **Staging/code** on `cursor/package-b-communication-consent`: purpose-specific migration file only (not 027); preference-loader compatibility; CRM membership writes gated OFF. Staging schema already matched and was **not** mutated. Production schema/app **unchanged**. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md).
+- Package B communication consent **Staging/code** on `cursor/package-b-communication-consent` HEAD `c6c6aba`. Purpose-specific migration file only (not 027). Staging schema already matched and was **not** mutated. Preview-only deploy `dpl_5AjSrE9TBdRLBBvtQZ7m44iQc8WZ` (`target=preview`, READY). Production schema/app **unchanged**. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md).
 - Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`.
 - Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**.
 - Production deploy of `47c24ac` **READY** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. Active fleet reconciled including git-main. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger fingerprint unchanged (`idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`). Webhook cancelled rows remain **152**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.

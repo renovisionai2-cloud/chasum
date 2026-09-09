@@ -86,9 +86,27 @@ Not implemented here. Gate remains OFF.
   touched files. One pre-existing unrelated marketing-site unit test remains
   red on HEAD (`multi-business-selection`).
 
-Preview deploy identity is recorded in the recovery ledger after the
-Preview-only Vercel deploy. Production application and Production schema remain
-untouched.
+Preview deploy identity is recorded below. Production application and Production
+schema remain untouched.
+
+## Preview-only deploy (2026-09-09)
+
+- Branch HEAD `c6c6abad3d81a00b512106989776f7d1871633c4`
+- Preview `dpl_5AjSrE9TBdRLBBvtQZ7m44iQc8WZ`
+  (`chasum-r25dg1ynx-renovisionappcom.vercel.app`), `target=preview`,
+  `readyState=READY`. No Production alias. Not promoted.
+- `/api/build-info`: `env=preview`, `production=false`
+- `/api/health`: `email=missing`, `cronSecret=missing`, `sms=optional_missing`,
+  `stripe=optional_missing` (Preview cannot send)
+- Preview env names: `NEXT_PUBLIC_SUPABASE_URL` bound to **Preview, staging**;
+  `RESEND_API_KEY`, `CRON_SECRET`, `CHASUM_WORKER_WEBHOOKS_ENABLED`,
+  `TWILIO_ACCOUNT_SID`, `STRIPE_SECRET_KEY` **absent**. Reliability flag present.
+- Hosted `POST /api/v1/appointments` on `chasum-test-studio` returned **201**,
+  persisted Staging `business_id` / `location_id`, enqueued pending
+  `appointment.confirmation` (`durable-v1`, attempts=0) plus business email,
+  reminders, and a held webhook. **Zero** `marketing.*` jobs. Worker **not**
+  invoked. Studio `communication_send_intents` **0**. Synthetic appointment,
+  customer, jobs, and API key removed. Job idSha256 restored.
 
 ## Future Production sequence (not authorized)
 
