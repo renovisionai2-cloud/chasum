@@ -53,8 +53,8 @@ vi.mock("@/lib/supabase/service", () => ({
   createServiceClient: () => ({ from: () => ({ insert: async () => ({ error: null }) }) }),
 }));
 
-import { sendEmail } from "@/lib/communications/delivery";
-import { providerSendEmail } from "@/lib/communications/providers";
+import { sendEmail, sendSMS } from "@/lib/communications/delivery";
+import { providerSendEmail, providerSendSms } from "@/lib/communications/providers";
 import type { CommunicationsPreferences } from "@/lib/communications/types";
 
 const businessOn: CommunicationsPreferences = {
@@ -214,5 +214,58 @@ describe("delivery preference and marketing gates", () => {
     });
     expect(result.ok).toBe(true);
     expect(providerSendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("blocks marketing.* SMS even when skipPreferenceCheck=true and consent is false", async () => {
+    loadCustomer.mockResolvedValue({
+      ...smsPreferredCustomer(),
+      marketing: false,
+      sms: true,
+    });
+    const result = await sendSMS({
+      businessId: "biz",
+      to: "+15555550100",
+      templateKey: "marketing.campaign",
+      context,
+      customerId: "cust-1",
+      skipPreferenceCheck: true,
+    });
+    expect(result).toMatchObject({
+      ok: false,
+      skipped: true,
+      error: "Marketing disabled by consent.",
+    });
+    expect(providerSendSms).not.toHaveBeenCalled();
+  });
+
+  it("blocks marketing.* SMS when skipPreferenceCheck=true and customer is missing", async () => {
+    const result = await sendSMS({
+      businessId: "biz",
+      to: "+15555550100",
+      templateKey: "marketing.campaign",
+      context,
+      skipPreferenceCheck: true,
+    });
+    expect(result).toMatchObject({ ok: false, skipped: true });
+    expect(providerSendSms).not.toHaveBeenCalled();
+  });
+
+  it("blocks marketing.* SMS when business marketing is disabled", async () => {
+    loadBusiness.mockResolvedValue({ ...businessOn, marketingEmailEnabled: false });
+    loadCustomer.mockResolvedValue({
+      ...smsPreferredCustomer(),
+      marketing: true,
+      sms: true,
+    });
+    const result = await sendSMS({
+      businessId: "biz",
+      to: "+15555550100",
+      templateKey: "marketing.campaign",
+      context,
+      customerId: "cust-1",
+      skipPreferenceCheck: true,
+    });
+    expect(result).toMatchObject({ ok: false, skipped: true });
+    expect(providerSendSms).not.toHaveBeenCalled();
   });
 });

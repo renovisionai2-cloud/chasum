@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const payloads: Record<string, unknown>[] = [];
+let ownerNotificationsEnabled = true;
+let staffNotificationsEnabled = true;
 
 vi.mock("@/lib/integrations/jobs/queue", () => ({
   enqueueEmailJob: async (_biz: string, payload: Record<string, unknown>) => {
@@ -34,6 +36,8 @@ import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchest
 beforeEach(() => {
   vi.clearAllMocks();
   payloads.length = 0;
+  ownerNotificationsEnabled = true;
+  staffNotificationsEnabled = true;
   vi.mocked(createServiceClient).mockReturnValue({
     from: (table: string) => {
       const related: Record<string, Record<string, unknown>> = {
@@ -77,8 +81,8 @@ beforeEach(() => {
               notification_email: "override@example.invalid",
               email_notifications_enabled: true,
               sms_notifications_enabled: false,
-              owner_notifications_enabled: true,
-              staff_notifications_enabled: true,
+              owner_notifications_enabled: ownerNotificationsEnabled,
+              staff_notifications_enabled: staffNotificationsEnabled,
               private_alpha_enabled: true,
             },
             error: null,
@@ -113,5 +117,21 @@ describe("appointment audience preference enqueue", () => {
     expect(byTemplate["appointment.business"]?.recipient).toBe(
       "override@example.invalid",
     );
+  });
+
+  it("does not enqueue business or staff email when those notification settings are disabled", async () => {
+    ownerNotificationsEnabled = false;
+    staffNotificationsEnabled = false;
+    await handleAppointmentEvent("appointment-a", "created", {
+      businessId: "business-a",
+    });
+    const templates = payloads.map((p) => String(p.templateKey));
+    expect(templates).toContain("appointment.confirmation");
+    expect(templates).not.toContain("appointment.business");
+    expect(templates).not.toContain("appointment.staff");
+    expect(
+      payloads.find((p) => p.templateKey === "appointment.confirmation")
+        ?.skipPreferenceCheck,
+    ).toBeFalsy();
   });
 });

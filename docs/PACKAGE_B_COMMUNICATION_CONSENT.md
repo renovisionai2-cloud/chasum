@@ -1,6 +1,6 @@
 # Package B — Communication consent compatibility
 
-**Status:** Staging / code implementation **validated**. **Production rollout is NOT authorized.**  
+**Status:** Staging / code implementation **validated**. Branch **published**. Targeted producer/worker/delivery evidence recorded. **Authenticated hosted CRM action was not run.** **Production rollout is NOT authorized.**  
 **Branch:** `cursor/package-b-communication-consent`  
 **Does not** mark Production repaired. Does **not** restore Cron. Does **not** deploy Production.
 
@@ -122,9 +122,51 @@ schema remain untouched.
   Job idSha256 `c73fe449e797467f824143eac6b71406e5ed2d2b784dcac9e2556e948aa07dbe`
   unchanged. Worker not invoked.
 
-Prior Preview `dpl_5AjSrE9TBdRLBBvtQZ7m44iQc8WZ` hosted a Package B
-`POST /api/v1/appointments` **201** with pending confirmation (no marketing
-jobs, residue cleaned). It is not Production.
+That CLI file-upload Preview is historical. Provenance for publication is the git-linked Preview in the next section.
+
+## Published revision + targeted validation (2026-09-09)
+
+- Branch `cursor/package-b-communication-consent` published to `https://github.com/renovisionai2-cloud/chasum.git` (normal push, upstream set). No force push. Not merged to `main`.
+- **Functional SHA** remains `77e40b61ec7239d563f072fab1cc7425590cd78b` (tree `5bbb9338dce20d47952496dde503278532fc3318`).
+- Git-linked Preview created by that push: `dpl_4Pa3V1FfC9Kc5pqBzh4GzBS6Z1kg`
+  (`chasum-4lbhm2h4z-renovisionappcom.vercel.app`), source `git`,
+  `gitSource.sha` / `/api/build-info.commit` = `13854aa84251451b5eb8f9bb45213d493fa4a888`
+  (`ref=cursor/package-b-communication-consent`, `env=preview`, `production=false`).
+  Non-doc functional diff `77e40b61` → `13854aa` is empty (docs only). No Production alias.
+- `/api/health` on that Preview: `email=missing`, `cronSecret=missing`,
+  `sms=optional_missing`, `stripe=optional_missing`. Preview env names:
+  `NEXT_PUBLIC_SUPABASE_URL` on Preview/staging; `CHASUM_WORKER_RELIABILITY_ENABLED` present;
+  `RESEND_API_KEY`, `CRON_SECRET`, `CHASUM_WORKER_WEBHOOKS_ENABLED`, Twilio SID, Stripe secret **absent**.
+- **AUTHENTICATED HOSTED ACTION:** **NOT RUN / BLOCKED.** No existing authorized Staging CRM
+  session was available (Staging env has no test login; browser tabs were Production 403 only).
+  Consent-timestamp transitions remain **LOCAL/MOCK PASS** (`updateCrmCustomer` unit tests) and
+  **LIVE STAGING DB PASS** (helper `consentTimestampForUpdate` + scoped service-role writes).
+  Those are **not** hosted `updateCrmCustomer` evidence.
+- **HOSTED PRODUCER** on `dpl_4Pa3V1Ff…` against Staging `wnfahklzaxirftyskctd`
+  (`chasum-test-studio`, preferred=sms synthetic customer): `POST /api/v1/appointments` **201**.
+  Jobs: confirmation email (`skipPreferenceCheck` absent/false); business email
+  (`skipPreferenceCheck=true`); future email+SMS reminders (no skip flag); webhook
+  `appointment.created` (no skip flag). No staff email (studio `staff_notifications_enabled=false`
+  and staff email empty). No customer SMS job (studio `sms_notifications_enabled=false`).
+  No `marketing.*` jobs. `membership_id` remained null. Webhook left pending; global queue
+  was not processed.
+- **ISOLATED RUNTIME WITH PROVIDER STUBS PASS** (`claimBackgroundJob` → `processClaimedJob`
+  on tracked IDs only; providers stubbed; `processPendingJobs` not called):
+  preferred=sms confirmation email → no email provider call, `delivery_skipped`;
+  business email → one stub provider call, completed; inserted staff email with
+  `skipPreferenceCheck=true` → one stub call; inserted confirmation SMS without skip →
+  no SMS provider call (business SMS disabled). Live `sendEmail`/`sendSMS` `marketing.*`
+  with `skipPreferenceCheck=true` → zero provider calls (consent false / missing customer /
+  studio marketing off).
+- **LOCAL/MOCK PASS** (newly run): marketing SMS skipPreferenceCheck cases; disabled
+  owner/staff notification settings do not enqueue business/staff jobs.
+- Pre-existing Staging queue: **28** rows (**20 pending / 8 completed**).
+  idSha256 `c73fe449e797467f824143eac6b71406e5ed2d2b784dcac9e2556e948aa07dbe`
+  (row membership). Full-state hash
+  `9f668c55a88d9320a10d329c972f422cb39cddc04e0b2a50ef88e72b0367e62a`
+  covering id, business_id, job_type, status, attempts, scheduled_at, next_retry_at,
+  cancelled_at, started_at, completed_at. Both identical after scoped cleanup.
+  Synthetic residue 0. Worker not invoked globally. No provider send.
 
 ## Future Production sequence (not authorized)
 
