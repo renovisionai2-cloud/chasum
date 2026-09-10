@@ -1,15 +1,22 @@
 # Package B — Communication consent compatibility
 
-**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard is in functional SHA `55905a4`. **Authenticated hosted CRM A–H PASSED** 2026-09-10 on Preview `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5`. Independent Claude verdict **A — FINAL PACKAGE B PRE-PRODUCTION TECHNICAL GATES APPROVED** for `55905a4`. Package B **PRE-PRODUCTION TECHNICAL GATES are COMPLETE**. PO-authorized Production two-column schema **COMPLETE**. PostgREST visibility **PASS**. Package B Production application deploy **COMPLETE** (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH`). Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**.  
+**Status:** Package B Production schema + app **COMPLETE** and **accepted**. Functional SHA `55905a4`. Production deploy `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Staging A–H **PASSED**. Independent Claude pre-production verdict **A**. Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT** — **DESIGN FOR NOW / BUILD LATER**, **non-blocking** for Package B completion. No Production test tenant created. Overall Production recovery **not** complete. Hold **ON**. Cron **DISABLED**. Webhooks **OFF**. N2 still open. Package A separate. 034/035/036 blocked. Do not apply 027 wholesale.  
 **Branch:** `cursor/package-b-communication-consent`  
 **Does not** mark overall Production recovery complete. Does **not** restore Cron. Does **not** remove the Production hold.
 
 ## Purpose
 
-Production `customers` currently lacks `marketing_consent` / `marketing_consent_at`.
-The preference loader SELECT of those columns fails as a whole, so
-`preferred_communication_method` is dropped and a fail-loud schema error is
-logged on every send. Transactional mail still proceeds; marketing fails closed.
+Before the 2026-09-10 Package B Production rollout, Production `customers`
+lacked `marketing_consent` / `marketing_consent_at`.
+The preference loader SELECT of those columns failed as a whole, so
+`preferred_communication_method` was dropped and a fail-loud schema error was
+logged on every send. Transactional mail still proceeded; marketing failed closed.
+
+Production now has both columns (schema **COMPLETE**, PostgREST **PASS**).
+Existing Production rows read `marketing_consent=false` (consent not granted /
+unknown historically, not explicit historical refusal) and `marketing_consent_at`
+null. Application compatibility for an absent-column environment remains in
+the Package B bytes.
 
 Package B is combined schema + application compatibility:
 
@@ -234,7 +241,7 @@ Both matched the established prior fingerprints. Worker, Cron, webhook delivery,
 
 Cleanup: 2 marked synthetic fixtures removed. Zero residue. GVM Baby World and Chasum HQ untouched.
 
-**Remaining Production boundary:** Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT** (GVM forbidden; no HQ; do not use `prod-auth-…` / “My Business”). Hosted CRM UI under the whole-project hold was **not** used and the hold was **not** weakened. Overall Production recovery is **not** complete. Hold **ON**. Cron **DISABLED**. Package A, N2, and migrations 034/035/036 remain separate. Do not apply 027 wholesale.
+**Remaining Production boundary:** Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT** (GVM forbidden; no HQ; do not use `prod-auth-…` / “My Business”). Program Lead classified this gap **DESIGN FOR NOW / BUILD LATER**; it does **not** block Package B completion. No permanent Production test tenant was created. Hosted CRM UI under the whole-project hold was **not** used and the hold was **not** weakened. Overall Production recovery is **not** complete. Hold **ON**. Cron **DISABLED**. Webhooks **OFF / absent**. N2 still open. Package A, N2, and migrations 034/035/036 remain separate. Do not apply 027 wholesale.
 
 ## Independent Claude final audit (2026-09-10)
 
@@ -250,7 +257,7 @@ Cleanup: 2 marked synthetic fixtures removed. Zero residue. GVM Baby World and C
 | Focused CRM consent tests | **35/35 passed** |
 | Hosted A–H | **PASSED** on `55905a4` |
 | Pre-production technical gates | **COMPLETE** |
-| Production rollout | Claude verdict does **not** itself authorize rollout. PO authorized 2026-09-10. Dashboard SQL Editor resume: schema **COMPLETE**, PostgREST **PASS**, app deploy **COMPLETE**. Mutating synthetic **NOT RUN**. |
+| Production rollout | Claude verdict does **not** itself authorize rollout. PO authorized 2026-09-10. Dashboard SQL Editor resume: schema **COMPLETE**, PostgREST **PASS**, app deploy **COMPLETE**. Mutating synthetic **NOT RUN** and **non-blocking** (DESIGN FOR NOW / BUILD LATER). |
 
 Hold **ON**. Cron **DISABLED**. Package A and N2 remain separate. 034/035/036 remain blocked. Do not apply 027 wholesale.
 
@@ -267,7 +274,7 @@ Operator method for this Package B slice only: authenticated Supabase Dashboard 
 | PostgREST | **PASS** — both columns selectable; OpenAPI recognizes both; no `42703`; no `membership_id` |
 | Application | **COMPLETE** `dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / source SHA `57b2fce` (docs-only successor of functional `55905a4` / tree `9f1e916…`; non-doc diff empty). Aliases: `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, `chasum-git-main-renovisionappcom.vercel.app` |
 | Queue | Unchanged 581 / idSha256 `480f98cf458af85045a874fdafa560fa4e505567fb6b318d7a052c4a41105bbb`; pending webhook `1060a548-…` attempts 0; canary email completed attempts 2 |
-| Mutation-based Production synthetic | **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT** |
+| Mutation-based Production synthetic | **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**. **DESIGN FOR NOW / BUILD LATER**; does **not** block Package B completion. No Production test tenant created. |
 | Hold / Cron / webhooks | **ON** / **DISABLED** / **ABSENT**. No provider send. No worker invoke. |
 
 Do not apply 027 wholesale. Do not apply 034 / 035 / 036.

@@ -2,8 +2,8 @@
 
 **Status:** Canonical Production rollout sequence after independent high-risk audit  
 **Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
-**Last updated:** 2026-09-08  
-**Updated by:** Correct dardin.gvm Resend cutover. Serving `dpl_HUvY9TtHdfzJTVHvGxJ6JFdJMLWF` / SHA `bb1dbe6` (functional = `918e9cae`). Synthetic retry **accepted**. Cron **DISABLED**. Hold **ON**. N2 not live. N4 blocks 034.  
+**Last updated:** 2026-09-10  
+**Updated by:** Package B Production schema + app **COMPLETE** (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / functional `55905a4`). Prior serving `dpl_HUvY9Tt…` superseded. Cron **DISABLED**. Hold **ON**. N2 not live. N4 blocks 034.  
 **This file does not authorize Production execution.** It records the required gates. A later consequential Production authorization is still required before any step below is performed.
 
 Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to apply, deploy, enable flags, invoke the worker, restore Cron, or remove the Production hold.
@@ -324,17 +324,17 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Production worker | **NOT RUNNING** (governed retry completed 2026-09-09T01:20:57Z; do not repeat) |
 | Production communications | **NOT AUTHORIZED** beyond the completed synthetic canary |
 | Ledger on Production | **APPLIED** (Gate 1). One synthetic **accepted** send-intent retained as evidence. |
-| Tenant-integrity on Production | **DEPLOYED** docs-reconciled SHA `bb1dbe6` / audited functional `918e9cae` / `dpl_HUvY9TtHdfzJTVHvGxJ6JFdJMLWF`. Prior `dpl_C2s6ktqd` has **no active alias**. |
+| Tenant-integrity on Production | Historical deploy `dpl_HUvY9TtHdfzJTVHvGxJ6JFdJMLWF` / `bb1dbe6` / `918e9cae` **superseded as serving** by Package B `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Immutable URL retained. |
 | Reliability flag on Production | **true** |
 | Webhook gate on Production | **ABSENT** (must remain absent/false through E2E, canary, initial Cron restore) |
 | Gates 1–4 | **PASS** |
 | Gate 5 | **PASS (code + live Staging PostgREST proof + Production deploy + fleet reconciled)** |
 | GVM technician testing | **DEFERRED** |
 | Deployed transactional E2E | **PASS** after correct-account Resend cutover (job completed, intent accepted, webhook held) |
-| Appointment tenant-integrity tree `918e9cae` | **DEPLOYED TO PRODUCTION** as docs-reconciled HEAD `bb1dbe6` / `dpl_HUvY9Tt…`. Functional files byte-identical. |
+| Appointment tenant-integrity tree `918e9cae` | **Was deployed** as docs-reconciled HEAD `bb1dbe6` / `dpl_HUvY9Tt…`. Serving now Package B `dpl_HLeaPWS…` (descendant; non-doc Package B delta on that lineage). |
 | Claude N2 monitoring | **NOT LIVE.** Signals exist in Vercel Runtime Logs. No Sentry DSN. No alert destination configured. |
 | Claude N4 (034) | **HARD GATE.** `schedulingChanged` / DELETE `hasReferences` must be null-staff-safe before 034/035/036. Not implemented in this slice. |
-| Package B communication consent | **PRODUCTION SCHEMA + APP COMPLETE** 2026-09-10 (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / functional `55905a4` / source `57b2fce`). Dashboard SQL Editor: `postgres` / PG 17.6. Two columns present; PostgREST **PASS**; queue fingerprint unchanged. Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**. Hold **ON**. Cron **DISABLED**. Package A and N2 remain separate. 034/035/036 blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). |
+| Package B communication consent | **PRODUCTION SCHEMA + APP COMPLETE** and accepted 2026-09-10 (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / functional `55905a4`). Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**; **DESIGN FOR NOW / BUILD LATER** (does **not** block Package B). No Production test tenant created. Hold **ON**. Cron **DISABLED**. Webhooks **OFF**. N2 still open. Package A separate. 034/035/036 blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). |
 
 ---
 
@@ -360,7 +360,7 @@ Non-regression: the **28** pre-existing Staging jobs (**20 pending** / **8 compl
 
 ## Production tenant-integrity canary (2026-09-08)
 
-Serving `dpl_HUvY9TtHdfzJTVHvGxJ6JFdJMLWF` after in-place Production-only `RESEND_API_KEY` rotation to the dardin.gvm sending key **Chasum Production Runtime 2026-09-08 Correct** (verified domain `chasumai.com`; env object `9hF77dAtfP8TcG7S` unchanged). Marker `chasum-prod-tenant-integrity-e2e-20260908`. One additional `POST /v1/projects/…/crons/run` at 2026-09-09T01:20:51Z; schedule remained **DISABLED**. Hosted GET `/api/cron/process-jobs` HTTP 200, `processed: 1`. Email job `0f557d3e-7716-4ff8-9e48-8f0bb26192f3` **completed**, attempts 2, `completed_at` set. Send-intent `16eeb227-51ed-4578-a2c8-37034af39863` **accepted**, attempt 2, source worker, provider resend, `provider_message_id` `28797784-a1e5-4bcd-b567-958f0ac38d15`. Webhook `1060a548-…` still pending attempts 0. Historical 579 id fingerprint unchanged. No SMS. No duplicate synthetic email job. `customers.marketing_consent` fail-loud warning **still occurred** and was **not** fixed.
+Serving `dpl_HUvY9TtHdfzJTVHvGxJ6JFdJMLWF` after in-place Production-only `RESEND_API_KEY` rotation to the dardin.gvm sending key **Chasum Production Runtime 2026-09-08 Correct** (verified domain `chasumai.com`; env object `9hF77dAtfP8TcG7S` unchanged). Marker `chasum-prod-tenant-integrity-e2e-20260908`. One additional `POST /v1/projects/…/crons/run` at 2026-09-09T01:20:51Z; schedule remained **DISABLED**. Hosted GET `/api/cron/process-jobs` HTTP 200, `processed: 1`. Email job `0f557d3e-7716-4ff8-9e48-8f0bb26192f3` **completed**, attempts 2, `completed_at` set. Send-intent `16eeb227-51ed-4578-a2c8-37034af39863` **accepted**, attempt 2, source worker, provider resend, `provider_message_id` `28797784-a1e5-4bcd-b567-958f0ac38d15`. Webhook `1060a548-…` still pending attempts 0. Historical 579 id fingerprint unchanged. No SMS. No duplicate synthetic email job. At that time `customers.marketing_consent` fail-loud warning **still occurred** and was **not** fixed. **Historical:** that column absence was later addressed by the 2026-09-10 Package B Production schema + app rollout (`dpl_HLeaPWS…`).
 
 **N2:** Prefer existing Vercel Runtime Logs. Query/filter: `appointment_reconciliation_required`; production appointment-route 5xx; nested JSON `scope=worker` / `scope=notifications`. Destination: not configured. Test method: `vercel logs <deployment> --query 'appointment_reconciliation_required'` / `--level error`. Live: **no**. Do not add a new vendor. Optional existing `SENTRY_DSN` remains unset (`/api/health` sentry optional_missing). Cron restoration is **NOT approved**.
 
