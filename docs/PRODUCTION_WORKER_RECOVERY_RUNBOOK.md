@@ -334,7 +334,7 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Appointment tenant-integrity tree `918e9cae` | **DEPLOYED TO PRODUCTION** as docs-reconciled HEAD `bb1dbe6` / `dpl_HUvY9Tt…`. Functional files byte-identical. |
 | Claude N2 monitoring | **NOT LIVE.** Signals exist in Vercel Runtime Logs. No Sentry DSN. No alert destination configured. |
 | Claude N4 (034) | **HARD GATE.** `schedulingChanged` / DELETE `hasReferences` must be null-staff-safe before 034/035/036. Not implemented in this slice. |
-| Package B communication consent | **PRE-PRODUCTION TECHNICAL GATES COMPLETE**. PO authorized bounded Production rollout 2026-09-10. Execution **STOPPED** at SQL identity (no session-mode postgres access). Production schema/app **unchanged** (`dpl_HUvY9Tt…` / `bb1dbe6`; consent columns still absent). Hold **ON**. Cron **DISABLED**. Package A and N2 remain separate. 034/035/036 blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). |
+| Package B communication consent | **PRODUCTION SCHEMA + APP COMPLETE** 2026-09-10 (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / functional `55905a4` / source `57b2fce`). Dashboard SQL Editor: `postgres` / PG 17.6. Two columns present; PostgREST **PASS**; queue fingerprint unchanged. Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**. Hold **ON**. Cron **DISABLED**. Package A and N2 remain separate. 034/035/036 blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). |
 
 ---
 

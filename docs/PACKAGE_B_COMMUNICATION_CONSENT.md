@@ -1,8 +1,8 @@
 # Package B — Communication consent compatibility
 
-**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard is in functional SHA `55905a4`. **Authenticated hosted CRM A–H PASSED** 2026-09-10 on Preview `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5`. Independent Claude verdict **A — FINAL PACKAGE B PRE-PRODUCTION TECHNICAL GATES APPROVED** for `55905a4`. Package B **PRE-PRODUCTION TECHNICAL GATES are COMPLETE**. PO authorized bounded Production rollout 2026-09-10; execution **STOPPED** at SQL identity. **Production schema/app unchanged.**  
+**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard is in functional SHA `55905a4`. **Authenticated hosted CRM A–H PASSED** 2026-09-10 on Preview `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5`. Independent Claude verdict **A — FINAL PACKAGE B PRE-PRODUCTION TECHNICAL GATES APPROVED** for `55905a4`. Package B **PRE-PRODUCTION TECHNICAL GATES are COMPLETE**. PO-authorized Production two-column schema **COMPLETE**. PostgREST visibility **PASS**. Package B Production application deploy **COMPLETE** (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH`). Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**.  
 **Branch:** `cursor/package-b-communication-consent`  
-**Does not** mark Production repaired. Does **not** restore Cron. Does **not** deploy Production.
+**Does not** mark overall Production recovery complete. Does **not** restore Cron. Does **not** remove the Production hold.
 
 ## Purpose
 
@@ -234,7 +234,7 @@ Both matched the established prior fingerprints. Worker, Cron, webhook delivery,
 
 Cleanup: 2 marked synthetic fixtures removed. Zero residue. GVM Baby World and Chasum HQ untouched.
 
-**Remaining Production boundary:** Package B **PRE-PRODUCTION TECHNICAL GATES are COMPLETE**. Product Owner authorized the bounded Production rollout on 2026-09-10. Execution **STOPPED** at the opening SQL identity gate: this operator environment had no usable session-mode postgres connection (Management API 401; no `DATABASE_URL`/`PGPASSWORD`; no TTY). **No ALTER. No NOTIFY. No application deploy.** Production still lacks both consent columns. Hold **ON**. Cron **DISABLED**. Package A, N2, and migrations 034/035/036 remain separate. Do not apply 027 wholesale.
+**Remaining Production boundary:** Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT** (GVM forbidden; no HQ; do not use `prod-auth-…` / “My Business”). Hosted CRM UI under the whole-project hold was **not** used and the hold was **not** weakened. Overall Production recovery is **not** complete. Hold **ON**. Cron **DISABLED**. Package A, N2, and migrations 034/035/036 remain separate. Do not apply 027 wholesale.
 
 ## Independent Claude final audit (2026-09-10)
 
@@ -250,18 +250,25 @@ Cleanup: 2 marked synthetic fixtures removed. Zero residue. GVM Baby World and C
 | Focused CRM consent tests | **35/35 passed** |
 | Hosted A–H | **PASSED** on `55905a4` |
 | Pre-production technical gates | **COMPLETE** |
-| Production rollout | Claude verdict does **not** itself authorize rollout. PO authorized 2026-09-10; execution **STOPPED** at SQL identity (Production unchanged) |
+| Production rollout | Claude verdict does **not** itself authorize rollout. PO authorized 2026-09-10. Dashboard SQL Editor resume: schema **COMPLETE**, PostgREST **PASS**, app deploy **COMPLETE**. Mutating synthetic **NOT RUN**. |
 
 Hold **ON**. Cron **DISABLED**. Package A and N2 remain separate. 034/035/036 remain blocked. Do not apply 027 wholesale.
 
-## Future Production sequence (not authorized)
+## Production rollout (2026-09-10)
 
-1. Schema transaction of this file only
-2. COMMIT
-3. `NOTIFY pgrst, 'reload schema';`
-4. Verify PostgREST sees the columns
-5. Deploy this application
-6. Synthetic verification
+Operator method for this Package B slice only: authenticated Supabase Dashboard SQL Editor as `postgres` on project `kxcydvhswkuzepwzzinq`. This does **not** change the session-mode psql requirement for 029 or other session-oriented packages.
+
+| Control | Result |
+|---------|--------|
+| SQL identity | `current_database=postgres`, `current_user=postgres`, `session_user=postgres`, `server_version=17.6` |
+| `customers_updated_at` | `BEFORE UPDATE ON public.customers FOR EACH ROW EXECUTE FUNCTION set_updated_at()` — unchanged |
+| Two-column schema | **COMPLETE** (`marketing_consent` boolean NOT NULL default false; `marketing_consent_at` timestamptz nullable) |
+| Existing rows | 26 unchanged; `marketing_consent=false` means consent **not granted / unknown historically**, not explicit historical refusal; all `marketing_consent_at` null; `true_count=0` |
+| PostgREST | **PASS** — both columns selectable; OpenAPI recognizes both; no `42703`; no `membership_id` |
+| Application | **COMPLETE** `dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / source SHA `57b2fce` (docs-only successor of functional `55905a4` / tree `9f1e916…`; non-doc diff empty). Aliases: `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, `chasum-git-main-renovisionappcom.vercel.app` |
+| Queue | Unchanged 581 / idSha256 `480f98cf458af85045a874fdafa560fa4e505567fb6b318d7a052c4a41105bbb`; pending webhook `1060a548-…` attempts 0; canary email completed attempts 2 |
+| Mutation-based Production synthetic | **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT** |
+| Hold / Cron / webhooks | **ON** / **DISABLED** / **ABSENT**. No provider send. No worker invoke. |
 
 Do not apply 027 wholesale. Do not apply 034 / 035 / 036.
 
