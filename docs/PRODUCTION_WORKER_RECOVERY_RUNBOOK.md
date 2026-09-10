@@ -3,7 +3,7 @@
 **Status:** Canonical Production rollout sequence after independent high-risk audit  
 **Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
 **Last updated:** 2026-09-10  
-**Updated by:** Package B Production schema + app **COMPLETE** (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / functional `55905a4`). Prior serving `dpl_HUvY9Tt…` superseded. Cron **DISABLED**. Hold **ON**. N2 not live. N4 blocks 034.  
+**Updated by:** Claude N2 operational monitoring **LIVE** 2026-09-10 (existing Vercel Runtime Logs; no new vendor; no Sentry). Serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Cron **DISABLED**. Hold **ON**. N4 blocks 034. This file does **not** restore Cron.  
 **This file does not authorize Production execution.** It records the required gates. A later consequential Production authorization is still required before any step below is performed.
 
 Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to apply, deploy, enable flags, invoke the worker, restore Cron, or remove the Production hold.
@@ -332,9 +332,9 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | GVM technician testing | **DEFERRED** |
 | Deployed transactional E2E | **PASS** after correct-account Resend cutover (job completed, intent accepted, webhook held) |
 | Appointment tenant-integrity tree `918e9cae` | **Was deployed** as docs-reconciled HEAD `bb1dbe6` / `dpl_HUvY9Tt…`. Serving now Package B `dpl_HLeaPWS…` (descendant; non-doc Package B delta on that lineage). |
-| Claude N2 monitoring | **NOT LIVE.** Signals exist in Vercel Runtime Logs. No Sentry DSN. No alert destination configured. |
+| Claude N2 monitoring | **LIVE** 2026-09-10 as operational procedure on existing Vercel Runtime Logs. No Sentry. No new vendor. No alert destination. Named owner: Darshan / Product Owner; backup: Chasum HQ operations. Cron remains **DISABLED**. |
 | Claude N4 (034) | **HARD GATE.** `schedulingChanged` / DELETE `hasReferences` must be null-staff-safe before 034/035/036. Not implemented in this slice. |
-| Package B communication consent | **PRODUCTION SCHEMA + APP COMPLETE** and accepted 2026-09-10 (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / functional `55905a4`). Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**; **DESIGN FOR NOW / BUILD LATER** (does **not** block Package B). No Production test tenant created. Hold **ON**. Cron **DISABLED**. Webhooks **OFF**. N2 still open. Package A separate. 034/035/036 blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). |
+| Package B communication consent | **PRODUCTION SCHEMA + APP COMPLETE** and accepted 2026-09-10 (`dpl_HLeaPWS86vixmStimVkfmqtvR8CH` / functional `55905a4`). Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**; **DESIGN FOR NOW / BUILD LATER** (does **not** block Package B). No Production test tenant created. Hold **ON**. Cron **DISABLED**. Webhooks **OFF**. N2 **LIVE**. Package A separate. 034/035/036 blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). |
 
 ---
 
@@ -362,6 +362,36 @@ Non-regression: the **28** pre-existing Staging jobs (**20 pending** / **8 compl
 
 Serving `dpl_HUvY9TtHdfzJTVHvGxJ6JFdJMLWF` after in-place Production-only `RESEND_API_KEY` rotation to the dardin.gvm sending key **Chasum Production Runtime 2026-09-08 Correct** (verified domain `chasumai.com`; env object `9hF77dAtfP8TcG7S` unchanged). Marker `chasum-prod-tenant-integrity-e2e-20260908`. One additional `POST /v1/projects/…/crons/run` at 2026-09-09T01:20:51Z; schedule remained **DISABLED**. Hosted GET `/api/cron/process-jobs` HTTP 200, `processed: 1`. Email job `0f557d3e-7716-4ff8-9e48-8f0bb26192f3` **completed**, attempts 2, `completed_at` set. Send-intent `16eeb227-51ed-4578-a2c8-37034af39863` **accepted**, attempt 2, source worker, provider resend, `provider_message_id` `28797784-a1e5-4bcd-b567-958f0ac38d15`. Webhook `1060a548-…` still pending attempts 0. Historical 579 id fingerprint unchanged. No SMS. No duplicate synthetic email job. At that time `customers.marketing_consent` fail-loud warning **still occurred** and was **not** fixed. **Historical:** that column absence was later addressed by the 2026-09-10 Package B Production schema + app rollout (`dpl_HLeaPWS…`).
 
-**N2:** Prefer existing Vercel Runtime Logs. Query/filter: `appointment_reconciliation_required`; production appointment-route 5xx; nested JSON `scope=worker` / `scope=notifications`. Destination: not configured. Test method: `vercel logs <deployment> --query 'appointment_reconciliation_required'` / `--level error`. Live: **no**. Do not add a new vendor. Optional existing `SENTRY_DSN` remains unset (`/api/health` sentry optional_missing). Cron restoration is **NOT approved**.
+**N2 (LIVE 2026-09-10):** Operational monitoring on existing Vercel Runtime Logs. No new vendor. No Sentry. No alert destination. No Vercel setting change. Cron restoration is **NOT approved** by this stamp.
+
+Approved signals only (do not expand in this gate):
+
+1. `appointment_reconciliation_required`
+2. Production appointment-route HTTP 5xx
+3. error-level Runtime Logs where nested JSON `scope=worker`
+4. error-level Runtime Logs where nested JSON `scope=notifications`
+
+`scope=worker_reliability` remains **IMPORTANT BUT POST-LAUNCH SAFE** and is **not** part of this N2 gate.
+
+Proven method (Vercel CLI 59.1.4) against current serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH` and `--environment production`:
+
+```
+vercel logs dpl_HLeaPWS86vixmStimVkfmqtvR8CH --query 'appointment_reconciliation_required' --json --since 24h
+vercel logs dpl_HLeaPWS86vixmStimVkfmqtvR8CH --level error --json --since 24h
+vercel logs --environment production --project chasum --level error --json --since 24h
+vercel logs --environment production --project chasum --status-code 5xx --json --since 24h
+vercel logs --environment production --project chasum --status-code 5xx --query '/api/v1/appointments' --json --since 24h
+vercel logs dpl_HLeaPWS86vixmStimVkfmqtvR8CH --query 'scope=worker' --json --since 24h
+vercel logs dpl_HLeaPWS86vixmStimVkfmqtvR8CH --query 'scope=notifications' --json --since 24h
+vercel logs dpl_HLeaPWS86vixmStimVkfmqtvR8CH --follow --json
+```
+
+Operator notes: prefer `--since 24h` for `--level error` and `--status-code 5xx` (`--since 7d` can 504). Do **not** use `--query 'scope":"worker"'` (does not filter). Nested JSON is inspected on `--follow` runtime stream and on `--query 'scope=worker'` / `'scope=notifications'`. While the Production hold is ON, the current serving deployment may return `No logs found`; that is a trustworthy empty if the CLI still resolves the deployment.
+
+**Primary owner:** Darshan / Chasum Product Owner. **Backup:** Chasum HQ operations team.
+
+Cadence while recovery remains active: immediately before Cron restore; immediately after the first controlled Cron run; 30 minutes after that first run; then hourly until recovery closes or Cron is returned to DISABLED.
+
+Escalation: if any governed N2 signal appears, do **not** continue recovery automatically; keep/return Cron to **DISABLED**; keep Production hold **ON**; do **not** invoke additional worker processing; capture the exact log evidence; return to ChatGPT / Program Lead for classification.
 
 Do **not** enable scheduled Cron. Hold ON. Webhook gate absent/false. Do not apply 034/035/036 until N4. Do not revoke historical Resend keys. Do not create another Resend key. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
