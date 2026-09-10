@@ -334,7 +334,7 @@ Do **not** treat arbitrary direct-context SMS as licensed to bypass consent. The
 | Appointment tenant-integrity tree `918e9cae` | **DEPLOYED TO PRODUCTION** as docs-reconciled HEAD `bb1dbe6` / `dpl_HUvY9Tt…`. Functional files byte-identical. |
 | Claude N2 monitoring | **NOT LIVE.** Signals exist in Vercel Runtime Logs. No Sentry DSN. No alert destination configured. |
 | Claude N4 (034) | **HARD GATE.** `schedulingChanged` / DELETE `hasReferences` must be null-staff-safe before 034/035/036. Not implemented in this slice. |
-| Package B communication consent | **STAGING/CODE PUBLISHED** on `cursor/package-b-communication-consent`. Claude **A** on `fd8beb5e` (stale-form). P3-a consent-error guard follow-up. Authenticated hosted CRM action **not run**. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). Production schema/app rollout **not authorized**. |
+| Package B communication consent | **STAGING/CODE PUBLISHED** on `cursor/package-b-communication-consent` (`55905a4` / Preview `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5`). Claude **A** on `fd8beb5e` (stale-form; does not auto-cover `55905a4`). Authenticated hosted CRM A–H **PASSED** 2026-09-10. Independent Claude review of `55905a4` **still required**. Production schema/app rollout **not authorized**. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md). |
 
 ---
 

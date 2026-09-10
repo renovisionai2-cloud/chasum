@@ -1,6 +1,6 @@
 # Package B — Communication consent compatibility
 
-**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard added. **Authenticated hosted CRM action remains blocked.** **Production rollout is NOT authorized.**  
+**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard is in functional SHA `55905a4`. **Authenticated hosted CRM A–H PASSED** 2026-09-10 on Preview `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5`. Final independent Claude review of `55905a4` **still required**. **Production rollout is NOT authorized.**  
 **Branch:** `cursor/package-b-communication-consent`  
 **Does not** mark Production repaired. Does **not** restore Cron. Does **not** deploy Production.
 
@@ -140,11 +140,10 @@ That CLI file-upload Preview is historical. Provenance for publication is the gi
   `sms=optional_missing`, `stripe=optional_missing`. Preview env names:
   `NEXT_PUBLIC_SUPABASE_URL` on Preview/staging; `CHASUM_WORKER_RELIABILITY_ENABLED` present;
   `RESEND_API_KEY`, `CRON_SECRET`, `CHASUM_WORKER_WEBHOOKS_ENABLED`, Twilio SID, Stripe secret **absent**.
-- **AUTHENTICATED HOSTED ACTION:** **NOT RUN / BLOCKED.** No existing authorized Staging CRM
-  session was available (Staging env has no test login; browser tabs were Production 403 only).
-  Consent-timestamp transitions remain **LOCAL/MOCK PASS** (`updateCrmCustomer` unit tests) and
+- **AUTHENTICATED HOSTED ACTION (as of this 2026-09-09 publish):** **NOT RUN / BLOCKED** at that date. Superseded by **PASSED** evidence in [Authenticated hosted CRM A–H (2026-09-10)](#authenticated-hosted-crm-a-h-2026-09-10).
+  Consent-timestamp transitions also remain **LOCAL/MOCK PASS** (`updateCrmCustomer` unit tests) and
   **LIVE STAGING DB PASS** (helper `consentTimestampForUpdate` + scoped service-role writes).
-  Those are **not** hosted `updateCrmCustomer` evidence.
+  Those helper writes are **not** hosted `updateCrmCustomer` evidence.
 - **HOSTED PRODUCER** on `dpl_4Pa3V1Ff…` against Staging `wnfahklzaxirftyskctd`
   (`chasum-test-studio`, preferred=sms synthetic customer): `POST /api/v1/appointments` **201**.
   Jobs: confirmation email (`skipPreferenceCheck` absent/false); business email
@@ -186,19 +185,56 @@ Contract:
 Evidence:
 - **LOCAL/MOCK PASS:** `tests/unit/actions/crm-consent.test.ts` (31 passed), including stale two-tab restore, concurrent grant timestamp, zero-row, foreign customer, and compatibility-guard cases.
 - **LIVE STAGING DB PASS (trigger only):** synthetic probe showed `updated_at` changes on UPDATE; stale `updated_at` eq returns 0 rows; exact string eq updates; residue 0. Not an authenticated CRM action.
-- **AUTHENTICATED HOSTED ACTION:** **NOT RUN / BLOCKED.** No reusable Staging CRM session. Browser tabs remain Production 403 / blank. Login page will be the Git-linked Preview `/login` after this correction deploys. No account creation, impersonation, password reset, or credential request.
+- **AUTHENTICATED HOSTED ACTION (as of this 2026-09-09 correction):** **NOT RUN / BLOCKED** at that date. Superseded by **PASSED** evidence in [Authenticated hosted CRM A–H (2026-09-10)](#authenticated-hosted-crm-a-h-2026-09-10).
 
 No additional schema object. Worker, orchestrator, marketing delivery guard, and the two-column SQL file were not modified.
 
 ## P3-a consent error guard (2026-09-09)
 
-Claude’s `fd8beb5e` verdict **A — CORRECTION APPROVED; AUTHENTICATED HOSTED CRM ACCEPTANCE STILL REQUIRED** remains the approval for the stale-form correction. It does not automatically cover this follow-up commit.
+Claude’s `fd8beb5e` verdict **A — CORRECTION APPROVED; AUTHENTICATED HOSTED CRM ACCEPTANCE STILL REQUIRED** remains the approval for the stale-form correction only. It does **not** automatically cover functional SHA `55905a44364d261a96a87fc5a1e0cbed9c168ab0` (P3-a guard). Hosted CRM A–H for `55905a4` is now **PASSED** (below). Independent Claude review of `55905a4` is **still required**.
 
 Abnormal-schema defense only (not reproduced by dropping Staging columns): if `marketing_consent` exists but `marketing_consent_at` is absent, a required consent SELECT could fail and the action previously fell through, saved other fields, and returned success without applying grant/revoke.
 
 Invariant: an explicit grant/revoke must not report success if the required consent read or write failed, or if either consent field would be dropped by compatibility fallback. Profile-only Overview saves may still omit both consent columns.
 
 **LOCAL/MOCK PASS:** `tests/unit/actions/crm-consent.test.ts` now **35 passed**, including SELECT/UPDATE missing `marketing_consent` and `marketing_consent_at` for grant and revoke.
+
+## Authenticated hosted CRM A-H (2026-09-10)
+
+**Verdict:** **PASSED.** Real hosted CRM UI / server-action path on Git-linked Preview against Staging. Not a service-role substitute. Does **not** authorize Production rollout. Does **not** constitute Claude approval of `55905a4`.
+
+| Control | Value |
+|---------|--------|
+| Functional SHA | `55905a44364d261a96a87fc5a1e0cbed9c168ab0` |
+| Preview | `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5` (`https://chasum-782b6ieif-renovisionappcom.vercel.app`), `target=preview`, `production=false` |
+| Staging Supabase | `wnfahklzaxirftyskctd` |
+| Tenant | Chasum Test Studio `73c78c46-4b97-4880-82a1-901eff429c47` (`chasum-test-studio`) |
+| Production | `kxcydvhswkuzepwzzinq` unused |
+
+Cases (hosted `updateCrmCustomer` forms only):
+
+| Case | Result |
+|------|--------|
+| A Intentional Marketing grant | **PASS** — `marketing_consent=true`, T1 recorded |
+| B Unrelated Overview save | **PASS** — consent true, `marketing_consent_at` exactly T1 |
+| C Save after refresh/remount | **PASS** — succeeded; T1 preserved; no stale-version conflict |
+| D Deliberate revoke | **PASS** — `marketing_consent=false`, `marketing_consent_at=null` |
+| E Regrant | **PASS** — consent true, new T2, T2 ≠ T1 |
+| F Stale Overview after newer revoke | **PASS** — conflict/rejection; consent remained false/null |
+| G Stale checked Marketing after newer revoke | **PASS** — conflict/rejection; revocation remained false/null |
+| H Foreign-tenant synthetic update | **PASS** — safe rejection equivalent to “Customer not found.”; neither tenant row mutated |
+
+Queue before writes and after scoped cleanup (canonical sorted-ID comma join / full-state `|` fields `\n` rows):
+
+- 28 rows, 20 pending / 8 completed
+- idSha256 `c73fe449e797467f824143eac6b71406e5ed2d2b784dcac9e2556e948aa07dbe`
+- stateSha256 `9f668c55a88d9320a10d329c972f422cb39cddc04e0b2a50ef88e72b0367e62a`
+
+Both matched the established prior fingerprints. Worker, Cron, webhook delivery, provider email/SMS, and booking flow were **not** invoked.
+
+Cleanup: 2 marked synthetic fixtures removed. Zero residue. GVM Baby World and Chasum HQ untouched.
+
+**Remaining gate:** independent Claude review of `55905a4` P3-a. Package B Production schema/app rollout remains **not authorized**. Hold **ON**. Cron **DISABLED**. Package A, N2, and migrations 034/035/036 remain separate. Do not apply 027 wholesale.
 
 ## Future Production sequence (not authorized)
 
