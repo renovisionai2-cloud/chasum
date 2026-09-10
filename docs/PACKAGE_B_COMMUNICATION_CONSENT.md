@@ -1,6 +1,6 @@
 # Package B — Communication consent compatibility
 
-**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard is in functional SHA `55905a4`. **Authenticated hosted CRM A–H PASSED** 2026-09-10 on Preview `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5`. Final independent Claude review of `55905a4` **still required**. **Production rollout is NOT authorized.**  
+**Status:** Staging / code implementation **validated**. Branch **published**. Consent-revocation preservation (`fd8beb5e`) **Claude-approved**. P3-a consent error guard is in functional SHA `55905a4`. **Authenticated hosted CRM A–H PASSED** 2026-09-10 on Preview `dpl_e5RZDyCHvU44tjo2pJFD84c6NCd5`. Independent Claude verdict **A — FINAL PACKAGE B PRE-PRODUCTION TECHNICAL GATES APPROVED** for `55905a4`. Package B **PRE-PRODUCTION TECHNICAL GATES are COMPLETE**. **This does not authorize or record completion of Production rollout.**  
 **Branch:** `cursor/package-b-communication-consent`  
 **Does not** mark Production repaired. Does **not** restore Cron. Does **not** deploy Production.
 
@@ -191,7 +191,7 @@ No additional schema object. Worker, orchestrator, marketing delivery guard, and
 
 ## P3-a consent error guard (2026-09-09)
 
-Claude’s `fd8beb5e` verdict **A — CORRECTION APPROVED; AUTHENTICATED HOSTED CRM ACCEPTANCE STILL REQUIRED** remains the approval for the stale-form correction only. It does **not** automatically cover functional SHA `55905a44364d261a96a87fc5a1e0cbed9c168ab0` (P3-a guard). Hosted CRM A–H for `55905a4` is now **PASSED** (below). Independent Claude review of `55905a4` is **still required**.
+Claude’s `fd8beb5e` verdict **A — CORRECTION APPROVED; AUTHENTICATED HOSTED CRM ACCEPTANCE STILL REQUIRED** remains the approval for the stale-form correction. Independent Claude then audited `fd8beb5e` → functional SHA `55905a44364d261a96a87fc5a1e0cbed9c168ab0` (tree `9f1e916dcdd505e9a959a3795bfcf627973b2662`) and returned **A — FINAL PACKAGE B PRE-PRODUCTION TECHNICAL GATES APPROVED**. No P0/P1/P2 and no new P3. The P3-a asymmetric-schema silent-success defect is **fixed**. Focused CRM consent tests **35/35 passed**. Hosted A–H **PASSED** on `55905a4` (below).
 
 Abnormal-schema defense only (not reproduced by dropping Staging columns): if `marketing_consent` exists but `marketing_consent_at` is absent, a required consent SELECT could fail and the action previously fell through, saved other fields, and returned success without applying grant/revoke.
 
@@ -201,7 +201,7 @@ Invariant: an explicit grant/revoke must not report success if the required cons
 
 ## Authenticated hosted CRM A-H (2026-09-10)
 
-**Verdict:** **PASSED.** Real hosted CRM UI / server-action path on Git-linked Preview against Staging. Not a service-role substitute. Does **not** authorize Production rollout. Does **not** constitute Claude approval of `55905a4`.
+**Verdict:** **PASSED.** Real hosted CRM UI / server-action path on Git-linked Preview against Staging. Not a service-role substitute. Does **not** authorize Production rollout. Independent Claude approval of `55905a4` is recorded separately below.
 
 | Control | Value |
 |---------|--------|
@@ -234,7 +234,25 @@ Both matched the established prior fingerprints. Worker, Cron, webhook delivery,
 
 Cleanup: 2 marked synthetic fixtures removed. Zero residue. GVM Baby World and Chasum HQ untouched.
 
-**Remaining gate:** independent Claude review of `55905a4` P3-a. Package B Production schema/app rollout remains **not authorized**. Hold **ON**. Cron **DISABLED**. Package A, N2, and migrations 034/035/036 remain separate. Do not apply 027 wholesale.
+**Remaining Production boundary:** Package B **PRE-PRODUCTION TECHNICAL GATES are COMPLETE**. Package B Production schema/app rollout remains **not authorized** and is **not recorded as complete**. Hold **ON**. Cron **DISABLED**. Package A, N2, and migrations 034/035/036 remain separate. Do not apply 027 wholesale.
+
+## Independent Claude final audit (2026-09-10)
+
+**Verdict:** **A — FINAL PACKAGE B PRE-PRODUCTION TECHNICAL GATES APPROVED**
+
+| Control | Value |
+|---------|--------|
+| Audited functional SHA | `55905a44364d261a96a87fc5a1e0cbed9c168ab0` |
+| Functional tree | `9f1e916dcdd505e9a959a3795bfcf627973b2662` |
+| Audit span | `fd8beb5e` → `55905a4` |
+| Defects | No P0/P1/P2; no new P3 |
+| P3-a | Asymmetric-schema silent-success defect **fixed** |
+| Focused CRM consent tests | **35/35 passed** |
+| Hosted A–H | **PASSED** on `55905a4` |
+| Pre-production technical gates | **COMPLETE** |
+| Production rollout | **Not authorized** and **not recorded as complete** by this verdict |
+
+Hold **ON**. Cron **DISABLED**. Package A and N2 remain separate. 034/035/036 remain blocked. Do not apply 027 wholesale.
 
 ## Future Production sequence (not authorized)
 
