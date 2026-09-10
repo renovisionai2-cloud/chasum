@@ -3,9 +3,9 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-10  
-**Updated by:** Claude N2 operational monitoring **LIVE** 2026-09-10 using existing Vercel Runtime Logs (no new vendor, no Sentry, no Vercel setting change). Package B remains **COMPLETE**. Cron **DISABLED**. Hold **ON**. Webhooks **ABSENT**. Recovery **not complete**.
+**Updated by:** Initial Production Cron restore **PASSED** 2026-09-10. Cron `/api/cron/process-jobs` **ENABLED** (`*/5 * * * *`) on serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Hold **ON**. Webhooks **ABSENT**. N2 **LIVE**. Package B **COMPLETE**. Recovery **not complete**. Hold removal is a later separate decision.
 
-This file records governed Production recovery facts. It does **not** authorize Production deploys, Cron enablement, worker invocation, flag enablement, hold removal, or GVM technician testing.
+This file records governed Production recovery facts. It does **not** authorize hold removal, webhook enablement, Package A, 034/035/036, or GVM technician testing. The 2026-09-10 initial Cron restore is recorded below as complete.
 
 Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRODUCTION_WORKER_RECOVERY_RUNBOOK.md).
 
@@ -30,8 +30,8 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 | Production 029 + ACL V2 | **COMMITTED AND VERIFIED** (approval `CHASUM-PO-20260905-PROD029-579-ACL-V2`) |
 | Frozen recovery | 579 rows preserved; 11 completed; 568 cancelled; **no delete** |
 | Production whole-project hold | **ON** (`Chasum Production Recovery Hold`, `rule_chasum_production_recovery_hold_PqG80Y`) |
-| Production Cron `/api/cron/process-jobs` | **DISABLED** |
-| Worker invocation | **NOT authorized** |
+| Production Cron `/api/cron/process-jobs` | **ENABLED** 2026-09-10 (`*/5 * * * *`; host `chasum-1qit0oy3i-renovisionappcom.vercel.app` / `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`). Initial restore: scheduled GET 200s, `processed: 0`. |
+| Worker invocation | **Manual invoke NOT authorized.** Scheduler-driven `/api/cron/process-jobs` is **ENABLED**. |
 | Communications send | **NOT authorized** |
 | `service_role.rolbypassrls` | **TRUE**. Do not `ALTER ROLE`. Do not add a V3 service-role RLS policy. |
 | Production default table ACLs | Broad table DML for `anon` / `authenticated` / `service_role` owned by both `postgres` and `supabase_admin` is **known Production state, not new drift**. ACL V2 only normalized object privileges on `public.communications_audit_log`. Do **not** `ALTER DEFAULT PRIVILEGES` in this recovery. |
@@ -88,8 +88,9 @@ Do **not** imply that arbitrary direct-context SMS may bypass consent. The isola
 
 ## NEW / CHANGED (this slice)
 
-- Package B communication consent **Production schema + app COMPLETE** 2026-09-10 and **accepted as complete**. Functional SHA `55905a44364d261a96a87fc5a1e0cbed9c168ab0` (tree `9f1e916dcdd505e9a959a3795bfcf627973b2662`). Serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**; Program Lead classified this **DESIGN FOR NOW / BUILD LATER** (does **not** block Package B). No permanent Production test tenant was created. Hold **ON**. Cron **DISABLED**. Webhooks **ABSENT**. Package A remains separate. 034/035/036 remain blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md).
-- Claude **N2 operational monitoring LIVE** 2026-09-10. Method: existing Vercel Runtime Logs / Vercel CLI `vercel logs` (59.1.4). No new vendor. No Sentry (`SENTRY_DSN` name count 0). No alert destination. No Vercel configuration change. Named owner: Darshan / Product Owner; backup: Chasum HQ operations. Gate 9c recapture **PASS** (581 / idSha256 `480f98cf458af85045a874fdafa560fa4e505567fb6b318d7a052c4a41105bbb`; pending webhook `1060a548-…` attempts 0 only; 0 processing; 0 failed; 0 eligible pending transactional). Cron remains **DISABLED**. This does **not** restore Cron. See [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRODUCTION_WORKER_RECOVERY_RUNBOOK.md).
+- Package B communication consent **Production schema + app COMPLETE** 2026-09-10 and **accepted as complete**. Functional SHA `55905a44364d261a96a87fc5a1e0cbed9c168ab0` (tree `9f1e916dcdd505e9a959a3795bfcf627973b2662`). Serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Mutation-based Production synthetic **NOT RUN — NO SAFE PRE-EXISTING PRODUCTION TEST TENANT**; Program Lead classified this **DESIGN FOR NOW / BUILD LATER** (does **not** block Package B). No permanent Production test tenant was created. Hold **ON**. Webhooks **ABSENT**. Package A remains separate. 034/035/036 remain blocked. Do not apply 027 wholesale. See [`docs/PACKAGE_B_COMMUNICATION_CONSENT.md`](./PACKAGE_B_COMMUNICATION_CONSENT.md).
+- Claude **N2 operational monitoring LIVE** 2026-09-10. Method: existing Vercel Runtime Logs / Vercel CLI `vercel logs` (59.1.4). No new vendor. No Sentry. Named owner: Darshan / Product Owner; backup: Chasum HQ operations.
+- **Initial Production Cron restore PASSED** 2026-09-10 (PO-authorized). Enablement: `PATCH /v1/projects/prj_nUq0i5faNZTNYfQHSsLukYTW8ugm/crons` `{"enabled":true}` only; schedule unchanged `*/5 * * * *`; no `crons run`; no manual `processPendingJobs`. First scheduled execution 2026-09-10T19:55:37.499Z GET `/api/cron/process-jobs` HTTP 200 `processed:0` latencyMs 690 on `dpl_HLeaPWS…`. Observation through 20:25:36Z: seven consecutive 200s, all `processed:0`. Additional scheduled 200 at 20:30:37Z during docs recapture also `processed:0`. Queue recapture 2026-09-10T20:36:24Z idSha256 `480f98cf458af85045a874fdafa560fa4e505567fb6b318d7a052c4a41105bbb` unchanged. Held webhook `1060a548-…` attempts 0 / started_at null. Send-intent still only canary `16eeb227-…` accepted. N2 governed signals: none. Hold remained **ON** (public 403). Webhooks remained **ABSENT**. Cron **left ENABLED**. Recovery **not complete**. Hold removal **not** authorized.
 - Implemented `workerWebhooksEnabled()` / `CHASUM_WORKER_WEBHOOKS_ENABLED` default-off filter before claim in `selectPendingJobCandidates`.
 - Claude webhook-hold delta audit **B**. Live Staging `job_type=neq.webhook` PostgREST proof **PASS**.
 - Production deploy of `47c24ac` **READY** as `dpl_HUvurr39Dxwt8iqDwTA6u9G9A7Rb`. No carrier. Active fleet reconciled including git-main. Reliability **true**. Webhook flag **ABSENT**. Queue/ledger fingerprint unchanged (`idSha256` `6dd23c8d499af1e43a97bf760ef5e99abfef3f05e15c322d5a7ec737ac428bfe`). Webhook cancelled rows remain **152**. Cron **DISABLED**. Hold **ON**. GVM **deferred**.
@@ -119,8 +120,8 @@ Gate 1 is complete. Remaining items below are not authorized by this documentati
 6. **Gate 5** — **PASS (code + live Staging proof + Production deploy of webhook-hold, then tenant-integrity SHA).** Live Production legacy 579 fingerprint unchanged. Webhook flag **ABSENT**. Reliability **true**. Hold ON. Cron DISABLED.
 7. Deployed booking → job → worker → send-intent → test-inbox E2E. **PASS after correct-account Resend cutover.** Producer + N3 already PASS. First provider attempt rejected (wrong Resend account). Governed retry on `dpl_HUvY9Tt…` accepted exactly once. Eligible pending transactional retry is now **empty**.
 8. Bounded manual canary (no webhook jobs) before Cron. **PASS.** Webhook sibling remains pending/held (`attempts=0`). Provider exactly-once **PASS** on the governed retry.
-9. Separate decision to restore Production Cron. Gate 9(a) N2 operational monitoring is **LIVE**. Gate 9(b) Package B is **COMPLETE**. Gate 9(c) recapture 2026-09-10 **PASS** (must be re-verified immediately before any later Cron authorization). Cron remains **DISABLED** until a **separate** restore decision. Webhook gate must remain absent/false through initial Cron restore. This documentation slice does **not** restore Cron.
-10. Production hold removal **last**.
+9. Separate decision to restore Production Cron. **PASS (initial restore 2026-09-10).** Cron **ENABLED** `*/5 * * * *`. Gate 9(a) N2 **LIVE**. Gate 9(b) Package B **COMPLETE**. Gate 9(c) pre/post/observation recaptures **PASS** (fingerprint unchanged). Webhook gate remains absent/false. Hold remains **ON**. This does **not** remove the hold and does **not** enable webhooks.
+10. Production hold removal **last** (still **not** authorized).
 11. GVM technician validation **only after recovery closes**.
 12. Momentic booking regression: deferred if the connector remains unavailable; not a sole blocker.
 
@@ -133,21 +134,21 @@ Production worker recovery: **not complete**.
 - Do not reopen Phase 5 accepted Staging booking work.
 - Do not apply 034/035/036.
 - Do not perform ad-hoc no-git CLI Production deploys.
-- Do not remove the Production hold or enable Production Cron from this documentation slice.
-- Do not invoke the Production worker again from this slice. The governed retry already completed. Do not enable the Cron schedule.
+- Do not remove the Production hold. Initial Cron restore is complete; hold removal is a later governed decision.
+- Do not disable the restored Production Cron unless a governed N2 / queue / webhook-claim hard stop requires it.
+- Do not invoke `processPendingJobs` / `vercel crons run` / `POST …/crons/run` manually. Worker traffic must remain scheduler-driven through `/api/cron/process-jobs`.
+- Do not set Production `CHASUM_WORKER_WEBHOOKS_ENABLED=true`. Keep it absent/false. Do not claim or cancel pending webhook `1060a548-7518-4e8f-8741-302400d55d4c`.
 - Do not invoke the Staging worker against the existing 20 pending jobs.
 - Do not infer provider acceptance from timeouts; `sending`/`unknown` intents are not auto-reclaimed.
 - Do not silently process legacy jobs that lack `durable-v1`.
-- Do not dispatch webhooks during initial Production worker recovery.
-- Do not set Production `CHASUM_WORKER_WEBHOOKS_ENABLED=true` in this recovery slice. Keep it absent/false through E2E, canary, and initial Cron restore.
-- Do not invoke `processPendingJobs` / `vercel crons run` / `POST …/crons/run` again unless a new governed canary is authorized. Do not add a hosted single-job debug endpoint.
+- Do not dispatch webhooks. Webhook delivery idempotency remains unsolved.
 - GVM technician testing remains **deferred**. Do not mark GVM testing active.
 
 ---
 
 ## Next governed gate (not an authorization)
 
-Do **not** restore Cron. Package B is **COMPLETE** and accepted. Claude **N2** is **LIVE** as an operational procedure on existing Vercel Runtime Logs (no new vendor, no Sentry). Gate 9c currently **PASS** and must be re-verified immediately before any Cron-restore authorization. Webhook gate remains absent/false. Hold remains **ON**. **N4 hard gate:** before 034/035/036, `schedulingChanged` and DELETE `hasReferences` in `app/api/v1/appointments/[id]/route.ts` must be null-staff-safe. GVM remains deferred. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
+Initial Production Cron restore is **complete**. Cron remains **ENABLED**. Do **not** remove the Production hold. Do **not** enable webhooks. Continue documented N2 human cadence. Package B remains **COMPLETE**. **N4 hard gate:** before 034/035/036, `schedulingChanged` and DELETE `hasReferences` in `app/api/v1/appointments/[id]/route.ts` must be null-staff-safe. GVM remains deferred. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
 
 ---
 
