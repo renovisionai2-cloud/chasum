@@ -3,7 +3,7 @@
 **Status:** Canonical Production rollout sequence after independent high-risk audit  
 **Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
 **Last updated:** 2026-09-10  
-**Updated by:** Initial Production Cron restore **PASSED** 2026-09-10. Cron `/api/cron/process-jobs` **ENABLED** `*/5 * * * *` on `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Hold **ON**. Webhooks **ABSENT**. N2 **LIVE**. N4 blocks 034. Hold removal is a later decision. This file does **not** authorize hold removal or webhook enablement.  
+**Updated by:** Initial Production Cron restore observation **CLOSED** 2026-09-10 via bounded historical Runtime Logs. Cron `/api/cron/process-jobs` **ENABLED** `*/5 * * * *` on `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Hold **ON**. Webhooks **ABSENT**. N2 **LIVE**. N4 blocks 034. Hold removal is a later decision. This file does **not** authorize hold removal or webhook enablement.  
 **This file does not authorize hold removal or webhook enablement.** It records completed gates and remaining recovery work.
 
 Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to enable webhooks or remove the Production hold.
@@ -280,7 +280,7 @@ After legacy / webhook gating is in place, run **one** bounded manual canary wor
 
 ## J. Cron restore
 
-**PASS (initial restore 2026-09-10).** Production Cron `/api/cron/process-jobs` is **ENABLED** `*/5 * * * *` on serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. First scheduled run and ~30-minute observation: seven GET 200s, `processed:0`, plus a further scheduled 200 at 20:30:37Z during recapture. Queue fingerprint unchanged. Held webhook not claimed. N2 governed signals none. Cron was left **ENABLED**. Hold remains **ON**. Webhooks remain **ABSENT**. This does **not** authorize hold removal or webhook enablement. Disable Cron only on a governed hard stop.
+**PASS (initial restore 2026-09-10; 30-minute observation CLOSED).** Production Cron `/api/cron/process-jobs` is **ENABLED** `*/5 * * * *` on serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. First scheduled run 2026-09-10T19:55:37Z GET HTTP 200 `processed:0`. Observation window 19:55:37Z–20:25:37Z: seven GET 200s via bounded historical logs. `--follow` 5-minute query limit is not a Cron failure. Queue fingerprint unchanged. Held webhook not claimed. N2 governed signals none. Cron was left **ENABLED**. Hold remains **ON**. Webhooks remain **ABSENT**. This does **not** authorize hold removal or webhook enablement. Disable Cron only on a governed hard stop.
 
 ---
 
@@ -384,7 +384,7 @@ vercel logs dpl_HLeaPWS86vixmStimVkfmqtvR8CH --query 'scope=notifications' --jso
 vercel logs dpl_HLeaPWS86vixmStimVkfmqtvR8CH --follow --json
 ```
 
-Operator notes: prefer `--since 24h` for `--level error` and `--status-code 5xx` (`--since 7d` can 504). Do **not** use `--query 'scope":"worker"'` (does not filter). Nested JSON is inspected on `--follow` runtime stream and on `--query 'scope=worker'` / `'scope=notifications'`. While the Production hold is ON, the current serving deployment may return `No logs found`; that is a trustworthy empty if the CLI still resolves the deployment.
+Operator notes: prefer bounded historical queries (`--since` / `--until` ISO, or `--since 24h`) for Cron-restore proof. Do **not** use long-lived `--follow` as primary evidence: Vercel Runtime Logs `--follow` hits a **5-minute query duration limit** and can return zero rows even when scheduled Cron ticks succeeded. Nested JSON is inspected on `--query 'scope=worker'` / `'scope=notifications'`. Do **not** use `--query 'scope":"worker"'` (does not filter). Prefer `--since 24h` for `--level error` and `--status-code 5xx` (`--since 7d` can 504). While the Production hold is ON, a trustworthy empty is `Fetching logs...` / zero JSON rows if the CLI still resolves the deployment.
 
 **Primary owner:** Darshan / Chasum Product Owner. **Backup:** Chasum HQ operations team.
 
@@ -396,6 +396,12 @@ Escalation: if any governed N2 signal appears, do **not** continue recovery auto
 
 PO-authorized. Enablement used only `PATCH /v1/projects/prj_nUq0i5faNZTNYfQHSsLukYTW8ugm/crons` body `{"enabled":true}`. Schedule remained `*/5 * * * *`. Host remained `chasum-1qit0oy3i-renovisionappcom.vercel.app`. No second Cron. No `vercel crons run`. No manual `processPendingJobs`.
 
+**30-minute observation COMPLETE** via bounded historical Runtime Logs (`--since 2026-09-10T19:55:00Z --until 2026-09-10T20:26:00Z --query '/api/cron/process-jobs'`). A later `--follow` session hit Vercel’s 5-minute query duration limit and captured no rows; that is a Runtime Log limitation, not a Cron failure. Primary proof is the bounded historical query, not `--follow`.
+
+First scheduled run: **2026-09-10T19:55:37.499Z** GET `/api/cron/process-jobs` HTTP **200** `processed: 0`.
+
+Observation-window ticks (all on `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`; no error-level Cron logs):
+
 | Tick (UTC) | Route | HTTP | processed | latencyMs |
 |------------|-------|------|-----------|-----------|
 | 2026-09-10T19:55:37.499Z | GET `/api/cron/process-jobs` | 200 | 0 | 690 |
@@ -405,8 +411,7 @@ PO-authorized. Enablement used only `PATCH /v1/projects/prj_nUq0i5faNZTNYfQHSsLu
 | 2026-09-10T20:15:36.419Z | GET `/api/cron/process-jobs` | 200 | 0 | 208 |
 | 2026-09-10T20:20:36.511Z | GET `/api/cron/process-jobs` | 200 | 0 | 326 |
 | 2026-09-10T20:25:36.659Z | GET `/api/cron/process-jobs` | 200 | 0 | 525 |
-| 2026-09-10T20:30:37.570Z | GET `/api/cron/process-jobs` | 200 | 0 | 466 |
 
-Queue before/after: 581 / 568 cancelled / 12 completed / 1 pending webhook `1060a548-7518-4e8f-8741-302400d55d4c` attempts 0 / started_at null. idSha256 `480f98cf458af85045a874fdafa560fa4e505567fb6b318d7a052c4a41105bbb` unchanged. Send-intent still only canary `16eeb227-51ed-4578-a2c8-37034af39863` accepted. N2 governed signals: none. Hold ON (public 403). Webhooks ABSENT. Cron **left ENABLED**.
+Fresh queue recapture 2026-09-10T20:43:42Z: 581 / 568 cancelled / 12 completed / 1 pending webhook `1060a548-7518-4e8f-8741-302400d55d4c` attempts 0 / started_at null. idSha256 `480f98cf458af85045a874fdafa560fa4e505567fb6b318d7a052c4a41105bbb` unchanged vs pre-enable baseline. Send-intent still only canary `16eeb227-51ed-4578-a2c8-37034af39863` accepted. N2 governed signals (window + 24h): none. Hold ON (public 403). Webhooks ABSENT. Cron **left ENABLED**. Overall recovery **not** complete. Hold removal remains separately governed.
 
 Do **not** remove the Production hold. Webhook gate absent/false. Do not apply 034/035/036 until N4. Do not revoke historical Resend keys. Do not create another Resend key. Governance: **VERIFY CURRENT STATE BEFORE CHANGING STATE.** **NO DUPLICATE INFRASTRUCTURE OR CREDENTIAL CREATION FOR TOOLING PROBLEMS.**
