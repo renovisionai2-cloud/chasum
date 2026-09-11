@@ -2,8 +2,8 @@
 
 **Status:** Canonical Production rollout sequence after independent high-risk audit  
 **Authority:** This file plus [`docs/PRODUCTION_RECOVERY_STATE.md`](./PRODUCTION_RECOVERY_STATE.md)  
-**Last updated:** 2026-09-10  
-**Updated by:** Initial Production Cron restore observation **CLOSED** 2026-09-10 via bounded historical Runtime Logs. Cron `/api/cron/process-jobs` **ENABLED** `*/5 * * * *` on `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Hold **ON**. Webhooks **ABSENT**. N2 **LIVE**. N4 blocks 034. Hold removal is a later decision. This file does **not** authorize hold removal or webhook enablement.  
+**Last updated:** 2026-09-11  
+**Updated by:** Phase 5 / 041 cutover partial-state pointer. 041 retained; 040 never executed; first `6bf2aa0` app deploy rolled back; serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`; Cron **ENABLED**; hold **ON**; webhooks **ABSENT**. See [`docs/PHASE5_041_PRODUCTION_CUTOVER.md`](./PHASE5_041_PRODUCTION_CUTOVER.md). This file does **not** authorize hold removal or webhook enablement.  
 **This file does not authorize hold removal or webhook enablement.** It records completed gates and remaining recovery work.
 
 Code/contract for the hotfix itself remains [`docs/WORKER_RELIABILITY_HOTFIX.md`](./WORKER_RELIABILITY_HOTFIX.md). Do not treat that contract, this runbook, or chat history as permission to enable webhooks or remove the Production hold.
