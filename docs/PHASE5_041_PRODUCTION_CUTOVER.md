@@ -1,8 +1,8 @@
 # Phase 5 / 041 Production cutover — source of truth
 
 **Approval:** `CHASUM-PO-20260911-PROD-PHASE5-041-DIRECT-CUTOVER`  
-**Status:** Partial Production fact. Migration 041 is committed. Application/timezone cutover is a later step in the same approval.  
-**Last updated:** 2026-09-11 (second-attempt pre-deploy recapture)  
+**Status:** Partial Production fact. Migration 041 is committed and retained. Two application-deploy attempts of `6bf2aa0` were rolled back. Application/timezone cutover remains pending.  
+**Last updated:** 2026-09-11 (second-attempt deploy + Cron-alignment rollback)  
 **Do not edit** `supabase/migrations/041_book_public_appointment_server_financials.sql`.
 
 This file records governed facts so they do not live only in chat. It does **not** authorize hold removal, webhook enablement, Cron disablement, 040, or 034/035/036.
@@ -73,13 +73,53 @@ Captured 2026-09-11 after the rollback and before creating a second Production a
 
 ---
 
-## Still pending at the start of the second attempt
+## Second application-deploy attempt (rolled back — Cron did not auto-align)
 
-- Second Production application deployment of SHA `6bf2aa0` (this docs commit is **not** that deployment).
-- 3/3 alias reconciliation onto the new deployment.
-- Immutable-host `/api/health` and `/api/build-info`.
-- Two scheduled Cron ticks on the new deployment.
+Executed 2026-09-11 under the same approval. Artifact was a clean `git archive` of exact SHA `6bf2aa068dcb6c7f196e06afa54d95dc8b75b880` plus minimum `.vercel/project.json` only. This docs commit was **not** deployed.
+
+| Fact | Value |
+|------|--------|
+| Archive deploy started | 2026-09-11T21:54:09Z |
+| New deployment | `dpl_7VR1peGzMg3gA2PYxXZ8Ag1AEbV8` |
+| Immutable URL | `https://chasum-lg11i5hf2-renovisionappcom.vercel.app` |
+| READY / target | READY / `production` |
+| Provenance | CLI `--meta gitCommitSha=6bf2aa068dcb6c7f196e06afa54d95dc8b75b880` |
+| Immediate auto-alias | Only `chasum-renovisionappcom.vercel.app` moved. `chasum.vercel.app` and git-main remained on `dpl_HLeaP…` (`autoAssignCustomDomains` was **false**). |
+| Alias reconciliation | `vercel alias set` of both remaining Production aliases onto `chasum-lg11i5hf2-renovisionappcom.vercel.app` at 21:58:35Z–21:58:37Z. Re-read **3/3 MATCH** new deployment. `staging.chasumai.com` not modified. |
+| Canonical-alias 403 | **Expected hold denial.** `https://chasum.vercel.app/api/health` and `/api/build-info` HTTP 403, `server: Vercel`, `x-vercel-mitigated: deny`. Firewall still Enabled; custom rule **Chasum Production Recovery Hold** `rule_chasum_production_recovery_hold_PqG80Y` Deny/Enabled. |
+| Immutable-host `/api/health` | **PASS** via existing `vercel curl` Deployment Protection automation (no new credential). HTTP 200 `ok=true` `production=true` `supabase=true` `serviceRole=true` `email=configured` `cronSecret=configured` `softSchemaFallbacks=disabled`. Optional SMS/Stripe/Sentry `optional_missing` (not failures). |
+| Immutable-host `/api/build-info` | **PASS** HTTP 200 `env=production` `production=true`. `commit`/`ref` null on the archive deploy (SHA recorded in Vercel deployment meta instead). |
+| Cron after alias 3/3 | **DID NOT AUTO-ALIGN.** `enabled=true`, `disabledAt=null`, schedule `*/5 * * * *`, path `/api/cron/process-jobs`, but `deploymentId` remained `dpl_HLeaPWS86vixmStimVkfmqtvR8CH` and host remained `chasum-1qit0oy3i-renovisionappcom.vercel.app`. `targets.production` also remained `dpl_HLeaP…`. |
+| Promote probe | `vercel promote dpl_7VR1…` returned **409** “already the current production deployment” while `GET /v9/projects/…` still showed `targets.production` + Cron on `dpl_HLeaP…`. No Cron PATCH was performed. |
+| Scheduled ticks on new host | **NOT RUN / NOT ACCEPTABLE.** Cron never targeted the new deployment. No manual `crons run`. |
+| Application cutover | **FAIL** at Step 5. Timezone / trigger / fingerprint steps **not executed**. |
+| Approved rollback | `vercel rollback dpl_HLeaPWS86vixmStimVkfmqtvR8CH` 2026-09-11T22:04:04Z–22:04:07Z. |
+
+### Restored safe state after second-attempt rollback
+
+Captured 2026-09-11T22:04:25Z.
+
+- Serving `dpl_HLeaPWS86vixmStimVkfmqtvR8CH` (`chasum-1qit0oy3i-renovisionappcom.vercel.app`).
+- Production aliases **3/3** inspect to that deployment.
+- `targets.production` = `dpl_HLeaP…`.
+- Cron **ENABLED**, `disabledAt` null, `deploymentId` = `dpl_HLeaP…`, host `chasum-1qit0oy3i-renovisionappcom.vercel.app`, schedule `*/5 * * * *`, path `/api/cron/process-jobs`.
+- `autoAssignCustomDomains` now **true** (restored by the rollback).
+- Hold **ON** (same recovery-hold rule). Canonical `/api/health` HTTP 403 `x-vercel-mitigated: deny`.
+- Webhook flag **absent**. Reliability env **present**.
+- 041 OPTIONS discovery still **PASS**. 040 never executed.
+- Held webhook `1060a548-7518-4e8f-8741-302400d55d4c`: pending, attempts=0, started_at null.
+- Queue: 581 rows; processing 0; failed 0; only pending row is the held webhook.
+- GVM business timezone still **America/Toronto**. Main/Burlington location timezone still **America/New_York**.
+- N2 `--level error` 24h on restored serving deploy: empty. No `appointment_reconciliation_required`.
+- `staging.chasumai.com` remained a separate Staging-target deployment.
+
+---
+
+## Still pending after the second-attempt rollback
+
+- A later Production application deployment of SHA `6bf2aa0` that also auto-aligns Cron/`targets.production` (do **not** PATCH Cron).
+- Two scheduled Cron ticks on that intended new deployment.
 - GVM location timezone `America/New_York` → `America/Toronto`.
 - Cursor smoke (Path A: immutable Production URL). Final observation.
 
-Hold remains **ON**. Cron remains **ENABLED**. Webhooks remain **OFF**.
+Hold remains **ON**. Cron remains **ENABLED**. Webhooks remain **OFF**. 041 remains **retained**. This file’s later docs-only commit must **not** be deployed.
