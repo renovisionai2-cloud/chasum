@@ -1,10 +1,13 @@
 "use client";
 
+import { overlapsOperationalDay } from "@/lib/calendar/operational-time";
+import { formatBusinessTime, formatBusinessDate } from "@/lib/locale";
+import { calendarDateInTimezone } from "@/lib/business/datetime";
+import { formatCalendarDateParam } from "@/lib/calendar/date-param";
+
 import { StatusBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
-  formatTime,
-  isSameDay,
   parseISO,
 } from "@/lib/calendar/utils";
 import type {
@@ -16,6 +19,7 @@ import { format, startOfWeek, addDays } from "date-fns";
 import { Calendar } from "lucide-react";
 
 type BaseProps = {
+  timezone?: string;
   date: Date;
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
@@ -24,6 +28,7 @@ type BaseProps = {
 
 export function AgendaView({
   date,
+  timezone = "America/Toronto",
   appointments,
   onSelectAppointment,
 }: BaseProps) {
@@ -31,8 +36,8 @@ export function AgendaView({
   const end = addDays(start, 14);
   const items = appointments
     .filter((a) => {
-      const t = parseISO(a.start_time).getTime();
-      return t >= start.getTime() && t < end.getTime() && a.status !== "cancelled";
+      const t = calendarDateInTimezone(a.start_time, timezone);
+      return t >= formatCalendarDateParam(start) && t < formatCalendarDateParam(end) && a.status !== "cancelled";
     })
     .sort(
       (a, b) =>
@@ -62,8 +67,8 @@ export function AgendaView({
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">
-                  {format(parseISO(appt.start_time), "EEE, MMM d")} ·{" "}
-                  {formatTime(parseISO(appt.start_time))}
+                  {formatBusinessDate(appt.start_time, { timezone }, { weekday: "short", month: "short", day: "numeric" })} ·{" "}
+                  {formatBusinessTime(appt.start_time, { timezone })}
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
                   {appt.customer.name} · {appt.service.name}
@@ -82,11 +87,12 @@ export function AgendaView({
 
 export function TimelineView({
   date,
+  timezone = "America/Toronto",
   appointments,
   onSelectAppointment,
 }: BaseProps) {
   const dayItems = appointments
-    .filter((a) => isSameDay(parseISO(a.start_time), date) && a.status !== "cancelled")
+    .filter((a) => overlapsOperationalDay(a.start_time, a.end_time, date, timezone) && a.status !== "cancelled")
     .sort(
       (a, b) =>
         parseISO(a.start_time).getTime() - parseISO(b.start_time).getTime(),
@@ -110,8 +116,8 @@ export function TimelineView({
                 onClick={() => onSelectAppointment(appt)}
               >
                 <p className="text-sm font-medium">
-                  {formatTime(parseISO(appt.start_time))} –{" "}
-                  {formatTime(parseISO(appt.end_time))}
+                  {formatBusinessTime(appt.start_time, { timezone })} –{" "}
+                  {formatBusinessTime(appt.end_time, { timezone })}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {appt.customer.name} · {appt.service.name} ·{" "}
@@ -128,6 +134,7 @@ export function TimelineView({
 
 export function ResourceView({
   date,
+  timezone = "America/Toronto",
   appointments,
   staff,
   onSelectAppointment,
@@ -161,7 +168,7 @@ export function ResourceView({
         }));
 
   const dayAppts = appointments.filter(
-    (a) => isSameDay(parseISO(a.start_time), date) && a.status !== "cancelled",
+    (a) => overlapsOperationalDay(a.start_time, a.end_time, date, timezone) && a.status !== "cancelled",
   );
 
   return (
@@ -200,7 +207,7 @@ export function ResourceView({
                         onClick={() => onSelectAppointment(appt)}
                       >
                         <p className="font-medium">
-                          {formatTime(parseISO(appt.start_time))}{" "}
+                          {formatBusinessTime(appt.start_time, { timezone })}{" "}
                           {appt.customer.name}
                         </p>
                         <p className="truncate text-muted-foreground">

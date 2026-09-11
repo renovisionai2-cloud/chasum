@@ -288,6 +288,9 @@ async function processEmailJob(job: BackgroundJob, payload = job.payload) {
       ...ctx,
       previousStartTime,
       customMessage: action,
+      bookingChannel:
+        (payload.bookingSource as AppointmentTemplateContext["bookingChannel"]) ??
+        ctx.bookingChannel,
     },
     customerId: ctx.customerId,
     appointmentId,

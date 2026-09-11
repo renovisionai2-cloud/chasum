@@ -129,6 +129,7 @@ export default async function BookPage({ params, searchParams }: PageProps) {
 
   return (
     <PublicBookingPage
+      initialNow={new Date().toISOString()}
       business={business}
       locations={locations}
       initialLocationId={locationId}

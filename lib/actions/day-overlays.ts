@@ -1,5 +1,6 @@
 "use server";
 
+import { addCalendarDays } from "@/lib/business/datetime";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { createClient } from "@/lib/supabase/server";
@@ -24,14 +25,13 @@ function timeToMinutes(value: string | null | undefined): number | null {
 
 /** Schedule overlays for Day View columns — lunch, hours, vacation. */
 export async function getStaffDayOverlays(
-  dateIso: string,
+  dateValue: string,
 ): Promise<StaffDayOverlay[]> {
   const business = await getOrCreateBusiness();
   const locationId = await getActiveLocationId();
   const supabase = await createClient();
-  const date = new Date(dateIso);
-  const dow = date.getDay();
-  const dateStr = date.toISOString().slice(0, 10);
+  const dateStr = addCalendarDays(dateValue, 0);
+  const dow = new Date(`${dateStr}T12:00:00Z`).getUTCDay();
 
   const [{ data: staff }, { data: hours }, { data: vacations }, { data: segments }] =
     await Promise.all([

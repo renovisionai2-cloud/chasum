@@ -1,3 +1,5 @@
+import { addCalendarDays, calendarDateInTimezone } from "@/lib/business/datetime";
+
 /**
  * Parse calendar ?date= search params safely.
  *
@@ -34,4 +36,25 @@ export function formatCalendarDateParam(date: Date): string {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
+}
+
+/** Resolve a URL/default day in the operational timezone before RSC serialization. */
+export function resolveCalendarDateValue(
+  raw: string | null | undefined,
+  timezone: string,
+  now: Date = new Date(),
+): string {
+  const fallback = calendarDateInTimezone(now, timezone);
+  const value = raw?.trim();
+  if (!value) return fallback;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    try {
+      return addCalendarDays(value, 0);
+    } catch {
+      return fallback;
+    }
+  }
+  // Only explicit instants are accepted as the legacy URL format.
+  if (!/T.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(value)) return fallback;
+  return calendarDateInTimezone(value, timezone) || fallback;
 }

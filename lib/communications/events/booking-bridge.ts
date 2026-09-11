@@ -62,6 +62,7 @@ export function registerCommunicationsBookingBridge(): void {
       sendIntentId: event.type === "appointment.created"
         ? initialBookingIntentId(event.appointmentId)
         : undefined,
+      bookingChannel: event.channel,
     });
   });
 }

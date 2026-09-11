@@ -1,3 +1,4 @@
+import type { BookingChannel } from "@/lib/booking-engine/types";
 import { createServiceClient } from "@/lib/supabase/service";
 import { loadAppointmentNotificationContext } from "@/lib/integrations/notifications/appointment-context";
 import {
@@ -74,7 +75,7 @@ function resolveBusinessNotifyEmail(settings: {
 export async function handleAppointmentEvent(
   appointmentId: string,
   event: AppointmentEvent,
-  options: { businessId: string; previousStartTime?: string; sendIntentId?: string },
+  options: { businessId: string; previousStartTime?: string; sendIntentId?: string; bookingChannel?: BookingChannel },
 ) {
   const supabase = createServiceClient();
 
@@ -166,7 +167,7 @@ export async function handleAppointmentEvent(
         recipient: businessTo,
         sendIntentId,
         action: titleMap[event],
-        bookingSource: "reception",
+        bookingSource: options.bookingChannel ?? "staff",
         skipPreferenceCheck: true,
         idempotencyKey: `${appointmentId}:appointment.business:${businessTo}:${event}`,
       });

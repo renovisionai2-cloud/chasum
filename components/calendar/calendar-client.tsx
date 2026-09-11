@@ -60,13 +60,16 @@ import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
 import {
   formatCalendarDateParam,
+  parseCalendarDateParam,
 } from "@/lib/calendar/date-param";
+import { calendarDateInTimezone } from "@/lib/business/datetime";
+import { operationalSlot } from "@/lib/calendar/operational-time";
+import { formatBusinessDate, formatBusinessTime, getBusinessTimezone } from "@/lib/locale";
 import { parseISO } from "@/lib/calendar/utils";
 import {
   endOfDay,
   endOfMonth,
   endOfWeek,
-  format,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -157,8 +160,10 @@ export function CalendarClient({
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const operationalTimezone = getBusinessTimezone({ timezone });
+  const timeLabel = (instant: Date) => `${formatBusinessDate(instant, { timezone: operationalTimezone }, { month: "short", day: "numeric" })} · ${formatBusinessTime(instant, { timezone: operationalTimezone })}`;
   const [view, setView] = useState<CalendarView>(initialView);
-  const [date, setDate] = useState(new Date(initialDate));
+  const [date, setDate] = useState(() => parseCalendarDateParam(initialDate));
   const [colorMode, setColorMode] = useState<CalendarColorMode>("service");
   const urlAppointment = useMemo(
     () =>
@@ -205,7 +210,7 @@ export function CalendarClient({
       switch (detail.action) {
         case "new-customer":
           setSelectedAppointment(null);
-          setDefaultSlot(date);
+          setDefaultSlot(operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined);
           setDefaultStaffId(undefined);
           setForceQuickAddCustomer(true);
           setDrawerOpen(false);
@@ -234,7 +239,7 @@ export function CalendarClient({
     }
     window.addEventListener(RECEPTION_ACTION_EVENT, onAction);
     return () => window.removeEventListener(RECEPTION_ACTION_EVENT, onAction);
-  }, []);
+  }, [date, operationalTimezone]);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -253,7 +258,7 @@ export function CalendarClient({
     setDefaultSlot(
       draft?.startIso
         ? parseISO(draft.startIso)
-        : slot,
+        : slot ?? operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined,
     );
     setDefaultStaffId(
       draft?.staffId !== undefined && draft?.staffId !== null
@@ -270,7 +275,7 @@ export function CalendarClient({
   function openNewCustomer() {
     setSelectedAppointment(null);
     setBookingDraft(null);
-    setDefaultSlot(date);
+    setDefaultSlot(operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined);
     setDefaultStaffId(undefined);
     setForceQuickAddCustomer(true);
     setDrawerOpen(false);
@@ -334,7 +339,11 @@ export function CalendarClient({
       );
     });
 
-    const dateStr = format(newStart, "yyyy-MM-dd");
+    // Availability RPC interprets p_date in the appointment location's zone,
+    // even when the combined grid is shown in the business zone.
+    const slotTimezone = getBusinessTimezone({ timezone: operationalTimezone,
+      locationTimezone: locations.find(l => l.id === appointment.location_id)?.timezone });
+    const dateStr = calendarDateInTimezone(newStart, slotTimezone);
     if (!nextStaffId) {
       const result = await rescheduleAppointment(
         appointment.id,
@@ -346,7 +355,7 @@ export function CalendarClient({
         return;
       }
       toast(
-        `Rescheduled · ${appointment.customer.name} · ${format(newStart, "MMM d · h:mm a")}`,
+        `Rescheduled · ${appointment.customer.name} · ${timeLabel(newStart)}`,
         "success",
       );
       refresh();
@@ -362,14 +371,7 @@ export function CalendarClient({
     );
 
     const targetMs = newStart.getTime();
-    const match =
-      slots.find((slot) => parseISO(slot).getTime() === targetMs) ??
-      slots.reduce<string | null>((best, slot) => {
-        if (!best) return slot;
-        const diff = Math.abs(parseISO(slot).getTime() - targetMs);
-        const bestDiff = Math.abs(parseISO(best).getTime() - targetMs);
-        return diff < bestDiff ? slot : best;
-      }, null);
+    const match = slots.find((slot) => parseISO(slot).getTime() === targetMs);
 
     if (!match) {
       toast("No available slot at that time.", "error");
@@ -387,7 +389,7 @@ export function CalendarClient({
       return;
     }
     toast(
-      `Rescheduled · ${appointment.customer.name} · ${format(parseISO(match), "MMM d · h:mm a")}`,
+      `Rescheduled · ${appointment.customer.name} · ${timeLabel(parseISO(match))}`,
       "success",
     );
     refresh();
@@ -482,6 +484,7 @@ export function CalendarClient({
   const calendarBody = (
     <div className="space-y-4">
       <CalendarToolbar
+        timezone={timezone ?? undefined}
         view={view}
         date={date}
         colorMode={colorMode}
@@ -522,12 +525,14 @@ export function CalendarClient({
       {effectiveView === "day" && (
         isNarrow ? (
           <DayAgendaList
+            timezone={operationalTimezone}
             date={date}
             appointments={appointments}
             onSelectAppointment={openDrawer}
           />
         ) : (
           <DayControlCenter
+            timezone={operationalTimezone}
             date={date}
             appointments={appointments}
             staff={staff}
@@ -543,6 +548,7 @@ export function CalendarClient({
       )}
       {effectiveView === "week" && (
         <WeekView
+          timezone={operationalTimezone}
           date={date}
           appointments={appointments}
           onSelectAppointment={openEdit}
@@ -555,18 +561,19 @@ export function CalendarClient({
       )}
       {effectiveView === "month" && (
         <MonthView
+          timezone={operationalTimezone}
           date={date}
           appointments={appointments}
           onSelectAppointment={openEdit}
           onSelectDay={(day) => {
-            setView("day");
-            setDate(day);
+            router.push(`/dashboard/calendar?view=day&date=${formatCalendarDateParam(day)}`);
           }}
           colorMode={colorMode}
         />
       )}
       {effectiveView === "agenda" && (
         <AgendaView
+          timezone={operationalTimezone}
           date={date}
           appointments={appointments}
           onSelectAppointment={openEdit}
@@ -574,6 +581,7 @@ export function CalendarClient({
       )}
       {effectiveView === "timeline" && (
         <TimelineView
+          timezone={operationalTimezone}
           date={date}
           appointments={appointments}
           onSelectAppointment={openEdit}
@@ -581,6 +589,7 @@ export function CalendarClient({
       )}
       {(effectiveView === "employees" || effectiveView === "resource") && (
         <ResourceView
+          timezone={operationalTimezone}
           date={date}
           appointments={appointments}
           staff={staff}
@@ -591,6 +600,7 @@ export function CalendarClient({
       )}
       {effectiveView === "locations" && (
         <ResourceView
+          timezone={operationalTimezone}
           date={date}
           appointments={appointments}
           staff={staff}
@@ -679,6 +689,7 @@ export function CalendarClient({
 
       {drawerOpen && selectedAppointment ? (
         <AppointmentDrawer
+          timezone={operationalTimezone}
           open={drawerOpen}
           appointment={selectedAppointment}
           locations={locations}

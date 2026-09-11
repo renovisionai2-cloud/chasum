@@ -8,12 +8,16 @@ import {
   formatMonthYear,
   formatWeekRange,
 } from "@/lib/calendar/utils";
+import { calendarDateInTimezone } from "@/lib/business/datetime";
+import { getBusinessTimezone } from "@/lib/locale";
+import { parseCalendarDateParam } from "@/lib/calendar/date-param";
 import type { CalendarView } from "@/lib/types/booking";
 import type { CalendarColorMode } from "@/components/calendar/appointment-block";
 import { ChevronLeft, ChevronRight, Plus, Undo2, UserPlus } from "lucide-react";
 import { addDays, addMonths, addWeeks, format, parse } from "date-fns";
 
 type CalendarToolbarProps = {
+  timezone?: string;
   view: CalendarView;
   date: Date;
   colorMode: CalendarColorMode;
@@ -65,6 +69,7 @@ function navigate(view: CalendarView, date: Date, direction: "prev" | "next"): D
 
 export function CalendarToolbar({
   view,
+  timezone,
   date,
   colorMode,
   onViewChange,
@@ -90,7 +95,7 @@ export function CalendarToolbar({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onDateChange(new Date())}
+          onClick={() => onDateChange(parseCalendarDateParam(calendarDateInTimezone(new Date(), getBusinessTimezone({ timezone }))))}
         >
           Today
         </Button>

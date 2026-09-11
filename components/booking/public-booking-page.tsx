@@ -20,7 +20,12 @@ import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
   PUBLIC_ANY_STAFF_UNAVAILABLE_MESSAGE,
 } from "@/lib/booking/optional-staff";
-import { formatTime, parseISO } from "@/lib/calendar/utils";
+import {
+  businessDateChips,
+  calendarDateInTimezone,
+  formatCalendarDay,
+} from "@/lib/business/datetime";
+import { getBusinessTimezone, formatBusinessDate, formatBusinessTime } from "@/lib/locale";
 import type {
   Business,
   Location,
@@ -29,12 +34,12 @@ import type {
   StaffWithServices,
 } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
-import { addDays, format } from "date-fns";
 import { Check, ChevronLeft, Clock, Users } from "lucide-react";
 import { useActionState, useEffect, useMemo, useState, useTransition } from "react";
 
 type BookingPageProps = {
   business: Business;
+  initialNow: string;
   locations: Location[];
   initialLocationId?: string;
   services: Service[];
@@ -64,11 +69,12 @@ const STEP_ORDER: Step[] = [
 /**
  * Public multi-step booking UI.
  * Slots still come from previewAvailableSlots (public channel).
- * Staff/Reception create+edit use BookingSheet; public write path remains
- * bookAppointment RPC until a dedicated public Booking Sheet shell lands.
+ * Staff/Reception create+edit use BookingSheet. Public writes go through
+ * bookAppointment → Booking Engine createBooking (named and any-staff).
  */
 export function PublicBookingPage({
   business,
+  initialNow,
   locations,
   initialLocationId,
   services,
@@ -96,9 +102,9 @@ export function PublicBookingPage({
     null,
   );
   const [anyStaff, setAnyStaff] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    format(new Date(), "yyyy-MM-dd"),
-  );
+  const timezone = getBusinessTimezone({ timezone: business.timezone, locationTimezone: selectedLocation?.timezone });
+  const [selectedDate, setSelectedDate] = useState(() => calendarDateInTimezone(initialNow, timezone));
+  const dateChips = businessDateChips(initialNow, timezone);
   const [selectedSlot, setSelectedSlot] = useState<PublicSlotOption | null>(null);
   const [slotOptions, setSlotOptions] = useState<PublicSlotOption[]>([]);
   const [loadingSlots, startSlotLoad] = useTransition();
@@ -214,16 +220,6 @@ export function PublicBookingPage({
     );
   }
 
-  const dateChips = Array.from({ length: 14 }, (_, i) => {
-    const d = addDays(new Date(), i);
-    return {
-      value: format(d, "yyyy-MM-dd"),
-      label: format(d, "EEE"),
-      day: format(d, "d"),
-      month: format(d, "MMM"),
-    };
-  });
-
   const resolvedStaffName = anyStaff
     ? "Any available staff"
     : (selectedStaff?.name ?? selectedSlot?.staffName ?? "—");
@@ -300,6 +296,7 @@ export function PublicBookingPage({
                   type="button"
                   onClick={() => {
                     setSelectedLocation(location);
+                    setSelectedDate(calendarDateInTimezone(initialNow, getBusinessTimezone({ timezone: business.timezone, locationTimezone: location.timezone })));
                     setSelectedService(null);
                     setSelectedStaff(null);
                     setAnyStaff(false);
@@ -492,7 +489,7 @@ export function PublicBookingPage({
                 id="booking_date"
                 label="Or pick another date"
                 value={selectedDate}
-                min={format(new Date(), "yyyy-MM-dd")}
+                min={dateChips[0].value}
                 onChange={(next) => {
                   setSelectedDate(next);
                   setSelectedSlot(null);
@@ -516,7 +513,7 @@ export function PublicBookingPage({
             <BackButton onClick={() => setStep("date")} />
             <h2 className="text-lg font-semibold">Select a time</h2>
             <p className="text-sm text-muted-foreground">
-              {format(parseISO(`${selectedDate}T12:00:00`), "EEEE, MMMM d")} ·{" "}
+              {formatCalendarDay(selectedDate, { weekday: "long", month: "long", day: "numeric" })} ·{" "}
               {resolvedStaffName}
             </p>
             {anyStaff && !OPTIONAL_STAFF_PERSISTENCE_ENABLED ? (
@@ -528,6 +525,7 @@ export function PublicBookingPage({
               </p>
             ) : null}
             <AvailableTimeSelector
+              timezone={timezone}
               slots={slotOptions.map((option) => ({ start: option.start }))}
               selectedStart={selectedSlot?.start ?? null}
               onSelect={(start) => {
@@ -638,8 +636,8 @@ export function PublicBookingPage({
                   </p>
                 ) : null}
                 <p className="text-muted-foreground">
-                  {format(parseISO(selectedSlot.start), "EEEE, MMM d")} at{" "}
-                  {formatTime(parseISO(selectedSlot.start))}
+                  {formatBusinessDate(selectedSlot.start, { timezone }, { weekday: "long", month: "short", day: "numeric" })} at{" "}
+                  {formatBusinessTime(selectedSlot.start, { timezone })}
                 </p>
                 {selectedLocation && (
                   <p className="text-muted-foreground">{selectedLocation.name}</p>

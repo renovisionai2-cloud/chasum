@@ -5,8 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Logo } from "@/components/brand/logo";
 import { buildSimpleIcsEvent } from "@/lib/calendar/ics";
 import type { Business, PublicBookingSummary } from "@/lib/types/booking";
-import { formatTime, parseISO } from "@/lib/calendar/utils";
-import { format } from "date-fns";
+import { parseISO } from "@/lib/calendar/utils";
+import { formatBusinessDate, formatBusinessTime } from "@/lib/locale";
 import { CalendarPlus, Check, Download } from "lucide-react";
 
 type BookingConfirmationProps = {
@@ -69,6 +69,7 @@ export function BookingConfirmation({
   onBookAnother,
 }: BookingConfirmationProps) {
   const when = parseISO(summary.startTime);
+  const locale = { timezone: summary.timezone ?? business.timezone };
 
   return (
     <div className="min-h-screen bg-background">
@@ -147,7 +148,7 @@ export function BookingConfirmation({
             <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">When</span>
               <span className="text-right font-medium">
-                {format(when, "EEEE, MMM d")} at {formatTime(when)}
+                {formatBusinessDate(when, locale, { weekday: "long", month: "short", day: "numeric" })} at {formatBusinessTime(when, locale)}
               </span>
             </div>
             <div className="flex justify-between gap-4">

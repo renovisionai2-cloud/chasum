@@ -560,6 +560,7 @@ export type ActionState = {
 };
 
 export type PublicBookingSummary = {
+  timezone?: string | null;
   serviceName: string;
   staffName: string;
   /** True when the guest chose Any available staff (no named employee yet). */

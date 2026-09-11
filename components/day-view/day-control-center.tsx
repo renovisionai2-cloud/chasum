@@ -1,5 +1,8 @@
 "use client";
 
+import { isOperationalDay, overlapsOperationalDay } from "@/lib/calendar/operational-time";
+import { formatBusinessTime } from "@/lib/locale";
+
 import {
   CurrentTimeIndicator,
   TimeSlotDropZone,
@@ -15,7 +18,6 @@ import {
   assignOverlapLayout,
   formatTime,
   getHourSlots,
-  isSameDay,
   parseISO,
 } from "@/lib/calendar/utils";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
@@ -28,6 +30,7 @@ import { format } from "date-fns";
 import { useMemo } from "react";
 
 type DayControlCenterProps = {
+  timezone?: string;
   date: Date;
   appointments: AppointmentWithRelations[];
   staff: StaffWithServices[];
@@ -82,6 +85,7 @@ function StaffColumn({
   member,
   overlay,
   date,
+  timezone = "America/Toronto",
   appointments,
   hours,
   showNow,
@@ -94,6 +98,7 @@ function StaffColumn({
 }: {
   member: StaffWithServices;
   overlay?: StaffDayOverlay;
+  timezone?: string;
   date: Date;
   appointments: AppointmentWithRelations[];
   hours: number[];
@@ -110,7 +115,7 @@ function StaffColumn({
       (member.id === "__unassigned__"
         ? !a.staff_id
         : a.staff_id === member.id) &&
-      isSameDay(parseISO(a.start_time), date) &&
+      overlapsOperationalDay(a.start_time, a.end_time, date, timezone) &&
       a.status !== "cancelled",
   );
   const layout = assignOverlapLayout(dayAppts);
@@ -185,6 +190,7 @@ function StaffColumn({
 
         {hours.map((hour) => (
           <TimeSlotDropZone
+            timezone={timezone}
             key={`${member.id}-${hour}`}
             date={date}
             hour={hour}
@@ -204,8 +210,10 @@ function StaffColumn({
             const pack = layout.get(appt.id);
             return (
               <DayAppointmentCard
+                timezone={timezone}
                 key={appt.id}
                 appointment={appt}
+                day={date}
                 onSelect={onSelectAppointment}
                 onResize={onResize}
                 colorMode={colorMode}
@@ -217,7 +225,7 @@ function StaffColumn({
           })}
         </div>
 
-        <CurrentTimeIndicator show={showNow} autoScroll={false} />
+        <CurrentTimeIndicator timezone={timezone} show={showNow} autoScroll={false} />
       </div>
     </div>
   );
@@ -229,6 +237,7 @@ function StaffColumn({
  */
 export function DayControlCenter({
   date,
+  timezone = "America/Toronto",
   appointments,
   staff,
   overlays = [],
@@ -250,10 +259,10 @@ export function DayControlCenter({
     return map;
   }, [overlays]);
 
-  const showNow = isSameDay(date, new Date());
+  const showNow = isOperationalDay(new Date(), date, timezone);
   const dayCount = appointments.filter(
     (a) =>
-      isSameDay(parseISO(a.start_time), date) && a.status !== "cancelled",
+      overlapsOperationalDay(a.start_time, a.end_time, date, timezone) && a.status !== "cancelled",
   ).length;
 
   if (activeStaff.length === 0) {
@@ -317,6 +326,7 @@ export function DayControlCenter({
 
         <div className="flex min-w-0 flex-1 overflow-x-auto">
           <StaffColumn
+            timezone={timezone}
             key="__unassigned__"
             member={
               {
@@ -342,6 +352,7 @@ export function DayControlCenter({
           />
           {activeStaff.map((member) => (
             <StaffColumn
+              timezone={timezone}
               key={member.id}
               member={member}
               overlay={overlayByStaff.get(member.id)}
@@ -366,9 +377,11 @@ export function DayControlCenter({
 /** Mobile agenda list for narrow viewports */
 export function DayAgendaList({
   date,
+  timezone = "America/Toronto",
   appointments,
   onSelectAppointment,
 }: {
+  timezone?: string;
   date: Date;
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
@@ -376,7 +389,7 @@ export function DayAgendaList({
   const items = appointments
     .filter(
       (a) =>
-        isSameDay(parseISO(a.start_time), date) && a.status !== "cancelled",
+        overlapsOperationalDay(a.start_time, a.end_time, date, timezone) && a.status !== "cancelled",
     )
     .sort(
       (a, b) =>
@@ -407,7 +420,7 @@ export function DayAgendaList({
             />
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-medium">
-                {formatTime(parseISO(appt.start_time))} · {appt.customer.name}
+                {formatBusinessTime(appt.start_time, { timezone })} · {appt.customer.name}
               </span>
               <span className="block truncate text-xs text-muted-foreground">
                 {appt.service.name}
