@@ -1,6 +1,6 @@
 import {
   getResendApiKey,
-  isProductionRuntime,
+  requiresHostedSafetyGuards,
 } from "@/lib/env";
 import {
   resolveEmailFromAddress,
@@ -127,7 +127,7 @@ export function getEmailProvider(): EmailProvider {
   if (!emailProvider) {
     if (getResendApiKey()) {
       emailProvider = new ResendEmailProvider();
-    } else if (isProductionRuntime()) {
+    } else if (requiresHostedSafetyGuards()) {
       emailProvider = new DisabledEmailProvider();
     } else {
       emailProvider = new ConsoleEmailProvider();

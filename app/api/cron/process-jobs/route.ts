@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCronSecret, isProductionRuntime } from "@/lib/env";
+import { getCronSecret, requiresHostedSafetyGuards } from "@/lib/env";
 import { processPendingJobs } from "@/lib/integrations/jobs/processor";
 import { logger } from "@/lib/observability/logger";
 import {
@@ -13,10 +13,10 @@ function authorize(request: Request): NextResponse | null {
   const secret = getCronSecret();
   const authHeader = request.headers.get("authorization");
 
-  if (isProductionRuntime()) {
+  if (requiresHostedSafetyGuards()) {
     if (!secret) {
       return NextResponse.json(
-        { error: "CRON_SECRET is not configured for production." },
+        { error: "CRON_SECRET is not configured for this runtime." },
         { status: 503 },
       );
     }

@@ -1,4 +1,4 @@
-import { getTwilioConfig, isProductionRuntime } from "@/lib/env";
+import { getTwilioConfig, requiresHostedSafetyGuards } from "@/lib/env";
 import type { SmsPayload, SmsProvider, SmsResult } from "./types";
 import { confirmedProviderRejection } from "./outcome";
 
@@ -86,7 +86,7 @@ export function getSmsProvider(): SmsProvider {
   if (!smsProvider) {
     if (getTwilioConfig()) {
       smsProvider = new TwilioSmsProvider();
-    } else if (isProductionRuntime()) {
+    } else if (requiresHostedSafetyGuards()) {
       smsProvider = new DisabledSmsProvider();
     } else {
       smsProvider = new ConsoleSmsProvider();

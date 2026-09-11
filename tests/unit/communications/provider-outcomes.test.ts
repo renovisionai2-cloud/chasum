@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-vi.mock("@/lib/env", () => ({ getResendApiKey: () => "synthetic-test-key", getTwilioConfig: () => ({ accountSid: "synthetic", authToken: "synthetic", phoneNumber: "+15555550100" }), isProductionRuntime: () => true }));
+vi.mock("@/lib/env", () => ({ getResendApiKey: () => "synthetic-test-key", getTwilioConfig: () => ({ accountSid: "synthetic", authToken: "synthetic", phoneNumber: "+15555550100" }), requiresHostedSafetyGuards: () => true }));
 vi.mock("@/lib/communications/email-from", () => ({ resolveEmailFromAddress: () => ({ from: "sender@example.invalid" }), validateEmailFromAddress: () => null }));
 import { sendEmail, resetEmailProvider } from "@/lib/integrations/providers/email";
 import { sendSms, resetSmsProvider } from "@/lib/integrations/providers/sms";
