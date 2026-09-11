@@ -3,7 +3,7 @@
 **Status:** Canonical recovery facts that must not live only in chat  
 **Authority:** Repository `/docs` plus hashed local operator packages under `/private/tmp`  
 **Last updated:** 2026-09-11  
-**Updated by:** Phase 5 / 041 Production cutover (`CHASUM-PO-20260911-PROD-PHASE5-041-DIRECT-CUTOVER`). 041 **applied and retained**. 040 **never executed**. Second `6bf2aa0` app deploy `dpl_7VR1peGzMg3gA2PYxXZ8Ag1AEbV8` **rolled back** because Cron did not auto-align. Serving restored to `dpl_HLeaPWS86vixmStimVkfmqtvR8CH`. Hold **ON**. Cron **ENABLED**. Webhooks **ABSENT**. Timezone cutover **not executed**. See [`docs/PHASE5_041_PRODUCTION_CUTOVER.md`](./PHASE5_041_PRODUCTION_CUTOVER.md). Recovery **not complete**. Hold removal is a later separate decision.
+**Updated by:** Phase 5 cutover mutation phase COMPLETE 2026-09-11 under `CHASUM-PO-20260911-PROD-PHASE5-041-DIRECT-CUTOVER`. Existing `dpl_7VR1peGzMg3gA2PYxXZ8Ag1AEbV8` / SHA `6bf2aa0` promoted; true Production target, 3/3 aliases and Cron aligned; two scheduled ticks PASS. GVM Main timezone now America/Toronto; appointment instants unchanged. 041 retained; 040 never executed. Hold ON, Cron ENABLED, webhooks OFF. Cursor smoke and final observation PENDING. See [cutover ledger](./PHASE5_041_PRODUCTION_CUTOVER.md).
 
 This file records governed Production recovery facts. It does **not** authorize hold removal, webhook enablement, Package A, 034/035/036, or GVM technician testing. The 2026-09-10 initial Cron restore is recorded below as complete.
 
@@ -11,7 +11,11 @@ Canonical rollout sequence: [`docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md`](./PRO
 
 ---
 
-## KNOWN / APPROVED
+## Current cutover status — 2026-09-11 23:37 UTC
+
+The successful promotion/timezone record in [PHASE5_041_PRODUCTION_CUTOVER.md](./PHASE5_041_PRODUCTION_CUTOVER.md#final-existing-deployment-promotion-and-timezone-correction--2026-09-11) supersedes older serving-deployment and pending-cutover entries below. Historical recovery records remain intact. Production serves `dpl_7VR1peGzMg3gA2PYxXZ8Ag1AEbV8`; `main` was not merged. Hold removal remains separately gated.
+
+## KNOWN / APPROVED (historical recovery record)
 
 | Fact | Value |
 |------|--------|
