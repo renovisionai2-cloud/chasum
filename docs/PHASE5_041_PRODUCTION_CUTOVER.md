@@ -1,5 +1,20 @@
 # Phase 5 / 041 Production cutover — source of truth
 
+## Recurring Cron timeout — local hardening, 2026-09-12
+
+**LAUNCH REQUIRED / BUILD NOW. Production recovery and passive acceptance remain OPEN.**
+
+The initial 00:30 UTC Gateway Timeout classification as an isolated transient is superseded by additional candidate Cron HTTP 500 Gateway Timeouts at 02:15, 02:30, 03:00, 05:00, 11:00, 12:00 and 13:00 UTC on September 12. The previously healthy seven-tick historical window remains valid evidence only for its bounded period. The timeout origin is a hypothesis, not vendor-attributed proof. No durable claim, attempt increase, ledger advancement or data-integrity damage was observed; 581 jobs and one accepted intent retained their selected-field fingerprints. The held webhook remained pending/attempts=0/started_at=NULL.
+
+Local implementation now bounds **only read-only candidate selection** to two attempts with the same eligibility timestamp and webhook setting. SDK retries are disabled for that query. Each attempt has a 5s AbortSignal/deadline, with a single 250ms delay before retry. Allowlisted transport/gateway errors may retry; schema/auth/constraint and unclassified failures fail loud. Stage/attempt/recovery telemetry contains no raw upstream message, payload, headers or credentials. Claims, providers, send intents and finalization are outside the retry boundary. See [implementation and validation](./WORKER_CANDIDATE_SELECTION_RETRY.md).
+
+Production still serves functional SHA `6bf2aa068dcb6c7f196e06afa54d95dc8b75b880`, deployment `dpl_7VR1peGzMg3gA2PYxXZ8Ag1AEbV8`. This local fix is NOT deployed. Hold ON, Cron ENABLED, reliability true, webhooks OFF, 041 retained; 040 and 034/035/036 not executed. Canonical GVM timezone Toronto/Toronto. Public canonical GVM smoke accepted B/PASS; authenticated dashboard/Reception/Package B/financial smoke remains deferred because no safe existing canonical session was available. Hold removal is NOT authorized.
+
+Next gates: focused independent audit → governed Preview validation → separate Production approval → fresh passive acceptance. No Production mutation occurred during implementation. Historical records below/above remain preserved.
+
+---
+
+
 **Approval:** `CHASUM-PO-20260911-PROD-PHASE5-041-DIRECT-CUTOVER`  
 **Status:** CUTOVER MUTATION PHASE COMPLETE — READY FOR CURSOR SMOKE. Existing candidate promoted; two scheduled ticks passed; GVM Main timezone corrected. Hold ON, Cron ENABLED, webhooks OFF. Browser smoke and final passive observation remain pending.
 **Last updated:** 2026-09-11 (successful existing-deployment promotion and timezone verification at 23:37 UTC)

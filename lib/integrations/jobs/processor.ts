@@ -1,3 +1,4 @@
+import { readCandidatesWithRetry } from "./candidate-selection";
 import { createServiceClient } from "@/lib/supabase/service";
 import { unwrapRelation } from "@/lib/supabase/relations";
 import {
@@ -511,20 +512,21 @@ export async function selectPendingJobCandidates(
   now = new Date(),
 ): Promise<BackgroundJob[]> {
   const nowIso = now.toISOString();
-  let query = client
-    .from("background_jobs")
-    .select("*")
-    .eq("status", "pending")
-    .lte("scheduled_at", nowIso)
-    .or(`next_retry_at.is.null,next_retry_at.lte.${nowIso}`)
-    .order("scheduled_at")
-    .limit(limit);
-  if (!workerWebhooksEnabled()) {
-    query = query.neq("job_type", "webhook");
-  }
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
-  return (data ?? []) as BackgroundJob[];
+  const includeWebhooks = workerWebhooksEnabled();
+  return readCandidatesWithRetry(async (signal) => {
+    let query = client
+      .from("background_jobs")
+      .select("*")
+      .eq("status", "pending")
+      .lte("scheduled_at", nowIso)
+      .or(`next_retry_at.is.null,next_retry_at.lte.${nowIso}`)
+      .order("scheduled_at")
+      .limit(limit);
+    if (!includeWebhooks) query = query.neq("job_type", "webhook");
+    // Disable SDK GET retries: the application owns the exact two-attempt budget.
+    const { data, error, status } = await query.retry(false).abortSignal(signal);
+    return { data: (data ?? []) as BackgroundJob[], error, status };
+  });
 }
 
 export async function processPendingJobs(limit = 25): Promise<number> {

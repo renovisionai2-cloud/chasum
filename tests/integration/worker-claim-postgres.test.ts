@@ -47,6 +47,8 @@ class Query {
   changes?: Record<string, unknown>;
   max = 50;
   constructor(private adapter: Adapter) {}
+  retry(enabled: boolean) { void enabled; return this; }
+  abortSignal(signal: AbortSignal) { void signal; return this; }
   select() { return this; }
   update(changes: Record<string, unknown>) { this.changes = changes; return this; }
   eq(key: string, value: unknown) { this.filters.push(`${column(key)}=${quote(value)}`); return this; }

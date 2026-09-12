@@ -146,6 +146,8 @@ class Query implements PromiseLike<Response> {
   orderColumn: string | null = null;
   limitCount: number | null = null;
   constructor(readonly db: FakeDatabase, readonly table: string) {}
+  retry(enabled: boolean) { void enabled; return this; }
+  abortSignal(signal: AbortSignal) { void signal; return this; }
   select(columns: string) { void columns; return this; }
   update(patch: Row) { this.patch = patch; return this; }
   eq(column: string, expected: unknown) {
