@@ -1,151 +1,151 @@
-# Package A — blocked by the approved target's cleanup behavior
+# Package A — bounded existing-appointment interval correction
 
-**D — FAIL — DESIGN/IMPLEMENTATION DEFECT. PRODUCTION APPLY NOT AUTHORIZED.**
+**C — HOLD — MORE EVIDENCE NEEDED. PRODUCTION APPLY NOT AUTHORIZED.**
 
-Prepared on `codex/package-a-availability-realign`, exact base
-`dbbe4502365858d4194f197b9ac22afe8d259c14` (parent
-`19d86a265fd6eecbc2da4b66c5ad508a0b93f6b5`). No application code or migration
-was changed. The accepted worker, identity, timezone, Package B, and Phase 5
-gates remain closed. This package is not an instruction to apply migration 026.
+Local correction, regression and rollback validation pass. The attempted shared
+Staging apply was rejected by automatic approval review. A subsequent read-only
+capture confirms all four Staging functions and metadata remain unchanged.
+Hosted mutation workflows remain gated; no alternate apply route was attempted.
 
-## Decision and reproducible blocker
+## History preserved
 
-The approved repository 026 is copied verbatim into the forward artifact.
-Its `availability_block_reason` compares an existing appointment's **raw** end
-time to the proposed block start (`026_availability_engine.sql:49`).
-`get_available_slots` and `validate_appointment_slot` extend the **proposed**
-appointment's block end with cleanup; they do not reserve the existing
-appointment's cleanup interval.
+Worktree: `/private/tmp/chasum-package-a-availability-realign`.
+Branch: `codex/package-a-availability-realign`.
+Prior blocked-package commit: `0e4c0536f021a44d52dc151220de42265b03ce78`.
+Recovery base: `dbbe4502365858d4194f197b9ac22afe8d259c14`.
 
-Actual PostgreSQL reproduction, synthetic tenant, Toronto timezone, five-minute
-slot interval, 30-minute service, cleanup=5, zero buffers:
+Before this correction, the unchanged suite was rerun: 26 passed, two failed.
+Existing 10:00–10:30 with cleanup=5 incorrectly offered and validated 10:30.
+The original evidence is retained in `PACKAGE_A_026_FAILED_EVIDENCE.json` and the
+prior commit. Historical `supabase/migrations/026_availability_engine.sql` is
+unchanged. It remains evidence of the defective original target.
 
-- Existing appointment: 10:00–10:30.
-- Offered 10:30–11:00: **yes**, but required result is **no**.
-- Validator accepts 10:30–11:00: **yes**, but required result is rejection.
-- Cleanup=0 control: adjacent 10:30 is offered, correctly.
-- Known-good 10:35 is offered; candidate cleanup correctly blocks 09:30 before
-  the existing appointment. This confirms direction-dependent enforcement.
+## Exact correction
 
-This is a **P1 target-design defect**, not a transcription defect. The exact
-live Staging target also has it. No target function was improved or replaced to
-make the tests pass. Do not apply this package unchanged to clear exposure.
-The fixture agrees with application timing: `lib/actions/public-booking.ts:280`
-computes end from service duration; `lib/booking-engine/types.ts:114` explicitly
-leaves cleanup/buffers to RPC candidate expansion.
-Control-tower approval of a narrowly corrected target is needed before further
-implementation, independent review, or hosted mutation tests. Raw overlap GiST
-protection cannot enforce a cleanup-only gap.
+Only the same-staff appointment branch of `availability_block_reason` changes.
+Existing service/staff metadata is LEFT JOINed by ID and business ID. Missing or
+foreign-tenant metadata does not remove the appointment from collision checks.
+COALESCE falls back to zero for absent buffer/cleanup metadata.
 
-## Artifacts and boundaries
+The existing blocked interval becomes:
 
-- `sql/recovery/A_production_availability_engine_realign.sql`: one transaction
-  around the entire unchanged repository 026 artifact: four definitions, three
-  grants, two comments. PostgREST NOTIFY follows COMMIT.
-- `sql/recovery/A_production_availability_engine_rollback.sql`: fresh Production
-  definitions for the three original functions; explicitly restores owner,
-  configuration, original effective EXECUTE ACL and null comments; drops only
-  the exact captured target classifier signature with RESTRICT; reload after
-  COMMIT. No CASCADE. A later rollback also requires an independent caller and
-  dependency check: catalog dependencies alone do not detect every application
-  or PL/pgSQL caller.
-- `tests/fixtures/package-a/production-functions.json`: exact fresh read-only
-  function/metadata capture, containing no customer row data or credentials.
-- `tests/fixtures/package-a/schema-and-008.sql`: disposable local fixture built
-  from captured column types, three exact helper bodies, three exact old bodies,
-  and selected real CHECK/GiST constraints. This is **not** a complete Production
-  schema, RLS, FK, trigger, or PostgREST replica.
-- `tests/integration/package-a-availability-postgres.test.ts`: opt-in actual
-  PostgreSQL transition, rollback, failure injection and behavioral assertions.
-  The two cleanup assertions deliberately remain failing acceptance requirements.
-- `tests/unit/booking-engine/package-a-contract.test.ts`: exact artifact and
-  rollback-scope assertions; these are static, not runtime proofs.
-- `docs/recovery/PACKAGE_A_AVAILABILITY_EVIDENCE.json`: bounded non-sensitive
-  capture summaries, target fingerprints, dependency references and test results.
+- start minus greatest(service before-buffer, staff before-buffer);
+- end plus greatest(service after-buffer, staff after-buffer), plus service cleanup.
 
-Forward grants/comments exactly match 026, including anon/authenticated EXECUTE
-for the new classifier, slot listing and validator. There are no table grants,
-RLS changes, role changes, 041 edits, or 034–036/040 execution. Existing defaults
-and pre-existing ACLs are not redesigned. Rollback restores captured PUBLIC
-EXECUTE, not a newly invented restriction. ACL array ordering may differ; the
-effective ACL entry set is exactly restored.
+Overlap remains half-open: existing blocked start < proposed blocked end AND
+existing blocked end > proposed blocked start. Minute intervals use PostgreSQL
+`make_interval`, matching the existing proposed-interval convention.
+See [PostgreSQL datetime functions](https://www.postgresql.org/docs/17/functions-datetime.html).
 
-## Fresh read-only evidence
+Business, location and staff predicates, cancelled exclusion, exclude-appointment
+and allow_double_booking behavior remain unchanged. The other three functions,
+signatures, grants and comments remain the approved 026 text. No index, table,
+policy, new function or other schema object is added to the target.
 
-Production `kxcydvhswkuzepwzzinq`: three old functions, classifier absent; owners
-postgres; fresh definitions captured. The complete referenced inventory covers
-20 tables and 107 qualified table/column pairs with no missing columns. Helper
-signatures and live definitions for resolve_location_id, is_location_holiday,
-is_staff_on_vacation were captured. Closure and segment literals are present in
-live CHECK definitions. The live raw same-staff GiST constraint was reproduced.
+The public application computes appointment end from service duration at
+`lib/actions/public-booking.ts:280`; cleanup/buffers are RPC block expansion,
+not an extra persisted duration (`lib/booking-engine/types.ts:114`).
 
-P-A5: zero pending/processing recurring jobs. Queue remains 581: 12 completed,
-568 cancelled, one pending webhook. Held webhook
-`1060a548-7518-4e8f-8741-302400d55d4c` remains pending, attempts=0, started_at=NULL.
-Hold ON, Cron ENABLED, webhooks OFF are retained from the governing accepted
-control-plane evidence; this task did not reopen worker observation or change
-those controls. Any future apply audit must reconcile Cron remaining enabled.
+## Artifacts
 
-GVM: 14 active services, 11 with cleanup=5; all 14 are associated with canonical
-Main directly or via service_locations. No active service notice/horizon
-overrides, service/staff caps, populated staff lunch rows, business/staff
-closures, or service blackouts. Canonical business/location both Toronto. No
-GVM data changed. PO confirmation of intended cleanup remains an exposure gate.
+- `sql/recovery/A_production_availability_engine_realign.sql`: corrected four-function
+  recovery target, one transaction, existing grants/comments, NOTIFY after COMMIT.
+- `sql/recovery/A_production_availability_engine_rollback.sql`: unchanged rollback
+  to the captured Production 008 functions and effective metadata; classifier DROP
+  uses its exact identity and RESTRICT. Caller/dependency recheck required before use.
+- `sql/recovery/A_staging_availability_engine_pre_correction_rollback.sql`: separate
+  rollback restoring the four freshly captured Staging 026 definitions/comments.
+  Verify captured ownership/ACL first; the intended forward does not alter them.
+- `tests/fixtures/package-a/staging-pre-correction-functions.json`: fresh Staging
+  capture including definitions, owner, ACL, comments and timestamp.
+- `tests/integration/package-a-availability-postgres.test.ts`: actual local PostgreSQL.
+- `tests/unit/booking-engine/package-a-contract.test.ts`: bounds changes to the
+  classifier appointment branch and preserves other target text and rollback scope.
+- `PACKAGE_A_AVAILABILITY_EVIDENCE.json`: current results and artifact hashes.
+- `PACKAGE_A_026_FAILED_EVIDENCE.json`: preserved first-package failure evidence.
 
-Staging `wnfahklzaxirftyskctd`: all four live function bodies exactly equal repo
-026; identities and body fingerprints recorded. No permanent Staging downgrade,
-function replacement, or synthetic data mutation was performed.
+The original Production capture and disposable schema fixture are unchanged.
+The fixture contains types/helpers and selected real constraints, not a full
+Production RLS/FK/trigger replica. No customer row data or credentials are stored.
 
-## Validation
+## Local results
 
-Actual local PostgreSQL 17.11 transition 008 → A → rollback008 passed. All four target
-bodies matched. The three original definitions, owners, configs/comments and
-effective ACLs were restored, with the new classifier absent. Injected exception
-before COMMIT preserved the original function set. Target was reinstalled only
-locally for behavior tests. NOTIFY was executed locally but no PostgREST server
-was present: hosted cache visibility remains untested.
+PostgreSQL 17.11, socket-only disposable database `package_a`.
+Final combined suite: **43 passed / 0 failed**, four files.
+Both original failing assertions are retained and now pass.
 
-Combined tests: **26 passed / 2 failed**, four test files. Local Package A suite:
-19 passed / 2 failed (including transition). Contract tests: 2 passed. Existing
-booking-engine tests: 5 passed. Failures are the required cleanup listing and
-validation cases; no unrelated baseline failure was encountered.
+New proof covers separate existing-service before/after buffers, staff greatest
+rather than sum, combined after-buffer+cleanup, exact legal boundaries, cancelled
+appointments, double-booking classifier behavior, missing metadata, foreign-tenant
+service metadata, expanded-interval exclusion, and business/location/staff scope.
+The 10:35 known-good slot passes authoritative validation; earlier service-buffer
+conflicts are rejected by that validator.
 
-Passing local behavior: cleanup0, known-good slot, candidate cleanup before an
-appointment, lunch, split location hours, business closure, staff closure,
-service blackout, staff/service caps, notice, horizon, duration override,
-service_locations, exclude-appointment, GiST, Auckland session timezone, and
-Toronto winter UTC offset after a DST boundary. The DST test is not exhaustive
-ambiguous/nonexistent-local-time coverage.
+All prior behavior still passes: cleanup0, candidate cleanup, lunch, segments,
+closures, blackout, caps, notice, horizon, duration override, service_locations,
+exclude semantics, raw GiST overlap, Auckland session timezone and Toronto winter
+UTC offset. DST coverage is bounded, not exhaustive fold/gap testing.
 
-TypeScript and changed-file ESLint pass. Build and unrelated full-platform suite
-not run: no application source, dependency or build configuration changed.
-Hosted public/operator/API POST/PATCH tests were **not run**, because the
-mandatory target cleanup acceptance tests fail. No Staging residue exists from
-this task. Hosted provider suppression and unrelated-tenant fingerprints were
-therefore not needed and are not claimed as proven.
+008 → corrected A → exact008 rollback passes. Injected failure preserves the
+original set. After rollback the classifier is absent and original definitions,
+owners, configuration, comments and effective ACL entry sets match. ACL array
+order is not semantic. A final query confirms all four local bodies match the
+corrected artifact. Local synthetic business and appointment counts are zero.
 
-## Reproduction (local only)
+TypeScript, changed-scope ESLint and diff checks pass. Build is not required:
+no application/build source changed. Unrelated full-platform tests were not run.
 
-Use a fresh disposable PostgreSQL 17 cluster at
-`/private/tmp/chasum-package-a-pg/data`, Unix socket
-`/private/tmp/chasum-package-a-pg/socket`, port 55483, database `package_a`, local
-role postgres. Disable TCP listening. Never substitute a hosted URL. Load the
-fixture only into this disposable database, then the prepared forward artifact.
-The integration suite checks database, local socket and data-directory identity.
+## Staging and hosted gate
+
+Fresh read-only capture of `wnfahklzaxirftyskctd` matched historical 026 4/4 before
+any attempted apply. No additional worktree rule prohibited the requested bounded
+correction beyond the user's explicit gate.
+
+The Supabase DDL tool was then invoked for this exact four-function target on
+Staging only, with the operation name
+`package_a_existing_appointment_interval_correction`. Automatic approval review
+rejected shared-Staging DDL and migration recording because it did not recognize
+sufficiently specific authorization. No successful apply was reported. Read-only
+post-check: 4/4 definitions, signatures, owners, ACLs and comments unchanged.
+
+No local-validation failure caused this stop. It is an approval boundary. The
+technical operator must obtain explicit approval for the exact shared-Staging
+DDL mechanism, including migration-history recording if that tool is selected.
+Do not retry through another route to bypass the rejection.
+
+No hosted public/operator/API create/PATCH workflow or synthetic hosted write was
+run. Those must follow corrected-target apply and exact post-state verification.
+Use only synthetic tenant data, suppress provider sends, preserve before/after
+unrelated-tenant fingerprints, and clean all residue. The local suite does not
+substitute for those hosted acceptance gates. No PostgREST cache visibility is
+claimed from local SQL NOTIFY alone.
+
+## GVM and Production boundaries
+
+User-established current GVM facts retained without new Production SQL:
+14 active services, 11 cleanup=5, one service before-buffer=5, zero positive
+service after-buffers, active staff buffers zero, Toronto/Toronto. Configured
+rules must be respected; PO confirmation of operational cleanup intent remains
+separate. No GVM/HQ data changed.
+
+No Production connection/query/write, migration, function replacement, booking,
+provider send, Cron/hold/webhook change, deployment, push or main merge occurred.
+No 034–036, 040 or 041 changes. Accepted worker/Phase 5/identity/timezone gates
+remain closed. This work does not authorize Production apply or hold removal.
+
+## Reproduction and next gate
+
+Start the existing isolated PostgreSQL fixture using local Unix socket
+`/private/tmp/chasum-package-a-pg/socket`, port 55483, database `package_a`,
+data directory `/private/tmp/chasum-package-a-pg/data`, with no TCP listener.
+On a fresh cluster load the existing schema-and-008 fixture, then corrected A.
 
     CHASUM_RUN_PACKAGE_A_PG=1 ./node_modules/.bin/vitest run tests/integration/package-a-availability-postgres.test.ts tests/unit/booking-engine
 
-Expected current outcome: two cleanup failures. All synthetic DML runs inside
-transactions that roll back, including disconnected error cases. Post-test local
-counts confirmed zero synthetic businesses and zero appointments. No provider or
-hosted-client code is invoked. A local node_modules symlink reuses installed
-dependencies; it is not part of the package.
+The test guards local identity and rolls back synthetic DML. Do not substitute
+a hosted host or credentials. The local server is stopped after validation.
 
-## Remaining governed action
-
-Keep the prepared artifacts local and blocked. Obtain a bounded design decision
-for existing-appointment cleanup enforcement, then update the approved target
-under that new authority and rerun both failing tests, transition/rollback and
-safe hosted workflows. This is not a request to reopen unrelated recovery work.
-Independent reviewers may inspect this package as a defect report, but it is
-not ready for a successful as-built approval or Production apply.
+Next: explicit shared-Staging apply authorization recognized by approval review,
+then corrected-target verification and the required hosted synthetic workflows.
+Until those pass, verdict remains C; the local correction can be independently
+reviewed but is not a completed as-built acceptance package.

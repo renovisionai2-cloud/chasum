@@ -64,6 +64,58 @@ describe.skipIf(!enabled)("Package A actual PostgreSQL availability", () => {
   it("zero cleanup permits an adjacent slot", () => {
     expect(probe("UPDATE services SET cleanup_minutes=0;", offered("10:30"))).toBe("t");
   });
+  const oldService = "10000000-0000-4000-8000-000000000006";
+  const separateService = `INSERT INTO services(id,business_id,location_id,is_active,duration_minutes,cleanup_minutes) VALUES('${oldService}','${b}','${l}',true,30,0); UPDATE appointments SET service_id='${oldService}'; UPDATE services SET cleanup_minutes=0;`;
+  const reason = (start: string, end: string, allow = false) => `availability_block_reason('${b}','${l}','${st}','${s}',${at(start)},${at(end)},NULL,${allow})`;
+  it("existing service before-buffer blocks earlier candidate and preserves exact boundary", () => {
+    const changes = separateService + `UPDATE appointments SET start_time=${at('10:30')},end_time=${at('11:00')}; UPDATE services SET buffer_before_minutes=5 WHERE id='${oldService}';`;
+    expect(probe(changes, offered("10:00"))).toBe("f");
+    expect(probe(changes, offered("09:55"))).toBe("t");
+    expect(() => sql(`BEGIN; ${seed} ${changes} SELECT validate_appointment_slot('${b}','${s}','${st}',${at('10:00')},${at('10:30')},NULL,'${l}'); ROLLBACK;`)).toThrow(/Time slot not available/);
+  });
+  it("existing service after-buffer blocks adjacency but allows 10:35", () => {
+    const changes = separateService + `UPDATE services SET buffer_after_minutes=5 WHERE id='${oldService}';`;
+    expect(probe(changes, offered("10:30"))).toBe("f");
+    expect(probe(changes, offered("10:35"))).toBe("t");
+  });
+  it("existing staff before-buffer uses greatest, not sum", () => {
+    const changes = separateService + `UPDATE services SET buffer_before_minutes=5 WHERE id='${oldService}'; UPDATE staff SET buffer_before_minutes=10;`;
+    expect(probe(changes, `${reason('09:45','09:55')} IS NOT NULL`)).toBe("t");
+    expect(probe(changes, `${reason('09:20','09:50')} IS NULL`)).toBe("t");
+  });
+  it("existing staff after-buffer uses greatest, not sum", () => {
+    const changes = separateService + `UPDATE services SET buffer_after_minutes=5 WHERE id='${oldService}'; UPDATE staff SET buffer_after_minutes=10;`;
+    expect(probe(changes, offered("10:35"))).toBe("f");
+    expect(probe(changes, offered("10:40"))).toBe("t");
+  });
+  it("existing after-buffer plus cleanup adds both intervals", () => {
+    const changes = separateService + `UPDATE services SET buffer_after_minutes=5,cleanup_minutes=5 WHERE id='${oldService}';`;
+    expect(probe(changes, offered("10:35"))).toBe("f");
+    expect(probe(changes, offered("10:40"))).toBe("t");
+  });
+  it("cancelled appointments reserve neither cleanup nor buffers", () => {
+    expect(probe("UPDATE appointments SET status='cancelled'; UPDATE services SET buffer_before_minutes=5,buffer_after_minutes=5;", offered("10:30"))).toBe("t");
+  });
+  it("allow_double_booking preserves classifier bypass only", () => {
+    expect(probe("UPDATE businesses SET allow_double_booking=true;", offered("10:00"))).toBe("t");
+  });
+  it.each(["services", "staff"])("missing %s metadata never hides raw appointment overlap", table => {
+    expect(probe(`DELETE FROM ${table};`, `${reason('10:00','10:30')} IS NOT NULL`)).toBe("t");
+  });
+  it("foreign-tenant service metadata is not used for expansion", () => {
+    const changes = separateService + `UPDATE services SET business_id='10000000-0000-4000-8000-000000000099',buffer_after_minutes=60 WHERE id='${oldService}';`;
+    expect(probe(changes, `${reason('10:30','11:00')} IS NULL`)).toBe("t");
+    expect(probe(changes, `${reason('10:00','10:30')} IS NOT NULL`)).toBe("t");
+  });
+  it("exclude removes the existing expanded cleanup interval", () => {
+    expect(probe("", offered("10:30", `'${ap}'`))).toBe("t");
+  });
+  it("known-good 10:35 passes authoritative validation", () => {
+    expect(() => sql(`BEGIN; ${seed} SELECT validate_appointment_slot('${b}','${s}','${st}',${at('10:35')},${at('11:05')},NULL,'${l}'); ROLLBACK;`)).not.toThrow();
+  });
+  it.each(["business_id", "location_id", "staff_id"])("different appointment %s does not block this scope", column => {
+    expect(probe(`UPDATE appointments SET ${column}='10000000-0000-4000-8000-000000000099';`, `${reason('10:00','10:30')} IS NULL`)).toBe("t");
+  });
   it("known-good 10:35 remains offered", () => { expect(probe("", offered("10:35"))).toBe("t"); });
   it("candidate cleanup blocks a slot immediately before an existing booking", () => { expect(probe("", offered("09:30"))).toBe("f"); });
   it("staff lunch blocks noon", () => { expect(probe("UPDATE staff_working_hours SET lunch_start_time='12:00',lunch_end_time='13:00';", offered("12:00"))).toBe("f"); });

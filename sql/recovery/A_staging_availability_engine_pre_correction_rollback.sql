@@ -1,33 +1,15 @@
--- Corrected Package A: existing appointment buffers/cleanup are reserved symmetrically.
--- Historical migration 026 remains unchanged.
--- PREPARED ONLY. PRODUCTION APPLY NOT AUTHORIZED. See Package A recovery report.
+-- STAGING ONLY: restore captured pre-correction 026; not the Production 008 rollback.
+
+-- Forward retains existing ownership and ACL; verify those against the capture before rollback.
+
 BEGIN;
 
--- Chasum Phase 5.1 — Availability Engine
--- Enriches get_available_slots / validate_appointment_slot / slot_is_blocked
--- with Business + Services + Employees constraints (lunch, split shifts,
--- closures, blackouts, cleanup, notice, caps, double-booking policy).
--- Signature of get_available_slots / validate_appointment_slot unchanged.
-
--- ---------------------------------------------------------------------------
--- Extended block reason (returns null when open, else a human/UI message)
--- ---------------------------------------------------------------------------
-
-create or replace function availability_block_reason(
-  p_business_id uuid,
-  p_location_id uuid,
-  p_staff_id uuid,
-  p_service_id uuid,
-  p_block_start timestamptz,
-  p_block_end timestamptz,
-  p_exclude_appointment_id uuid default null,
-  p_allow_double_booking boolean default false
-)
-returns text
-language plpgsql
-stable
-set search_path = public
-as $$
+CREATE OR REPLACE FUNCTION public.availability_block_reason(p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_service_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid DEFAULT NULL::uuid, p_allow_double_booking boolean DEFAULT false)
+ RETURNS text
+ LANGUAGE plpgsql
+ STABLE
+ SET search_path TO 'public'
+AS $function$
 begin
   -- Availability blocks
   if exists (
@@ -46,27 +28,12 @@ begin
   if not coalesce(p_allow_double_booking, false) then
     if exists (
       select 1 from appointments ap
-      left join services existing_service
-        on existing_service.id = ap.service_id
-        and existing_service.business_id = ap.business_id
-      left join staff existing_staff
-        on existing_staff.id = ap.staff_id
-        and existing_staff.business_id = ap.business_id
       where ap.business_id = p_business_id
         and ap.location_id = p_location_id
         and ap.staff_id = p_staff_id
         and ap.status not in ('cancelled')
-        and ap.start_time - make_interval(mins => greatest(
-          coalesce(existing_service.buffer_before_minutes, 0),
-          coalesce(existing_staff.buffer_before_minutes, 0)
-        )) < p_block_end
-        and ap.end_time
-          + make_interval(mins => greatest(
-            coalesce(existing_service.buffer_after_minutes, 0),
-            coalesce(existing_staff.buffer_after_minutes, 0)
-          ))
-          + make_interval(mins => coalesce(existing_service.cleanup_minutes, 0))
-          > p_block_start
+        and ap.start_time < p_block_end
+        and ap.end_time > p_block_start
         and (p_exclude_appointment_id is null or ap.id <> p_exclude_appointment_id)
     ) then
       return 'Time slot overlaps an existing appointment';
@@ -127,52 +94,16 @@ begin
 
   return null;
 end;
-$$;
+$function$;
 
--- Keep slot_is_blocked as boolean wrapper (backward compatible + double-book flag)
-create or replace function slot_is_blocked(
-  p_business_id uuid,
-  p_location_id uuid,
-  p_staff_id uuid,
-  p_block_start timestamptz,
-  p_block_end timestamptz,
-  p_exclude_appointment_id uuid default null
-)
-returns boolean
-language sql
-stable
-set search_path = public
-as $$
-  select availability_block_reason(
-    p_business_id,
-    p_location_id,
-    p_staff_id,
-    null,
-    p_block_start,
-    p_block_end,
-    p_exclude_appointment_id,
-    false
-  ) is not null;
-$$;
+COMMENT ON FUNCTION public.availability_block_reason(p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_service_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid, p_allow_double_booking boolean) IS 'Phase 5.1 conflict classifier for closures, blackouts, busy, and external calendars.';
 
--- ---------------------------------------------------------------------------
--- get_available_slots — production availability algorithm
--- ---------------------------------------------------------------------------
-
-create or replace function get_available_slots(
-  p_business_id uuid,
-  p_service_id uuid,
-  p_staff_id uuid,
-  p_date date,
-  p_exclude_appointment_id uuid default null,
-  p_location_id uuid default null
-)
-returns setof timestamptz
-language plpgsql
-stable
-security definer
-set search_path = public
-as $$
+CREATE OR REPLACE FUNCTION public.get_available_slots(p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_date date, p_exclude_appointment_id uuid DEFAULT NULL::uuid, p_location_id uuid DEFAULT NULL::uuid)
+ RETURNS SETOF timestamp with time zone
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
 declare
   v_location_id uuid;
   v_tz text;
@@ -640,27 +571,36 @@ begin
     v_slot := v_slot + make_interval(mins => v_interval);
   end loop;
 end;
-$$;
+$function$;
 
--- ---------------------------------------------------------------------------
--- validate_appointment_slot — richer messages via availability_block_reason
--- ---------------------------------------------------------------------------
+COMMENT ON FUNCTION public.get_available_slots(p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_date date, p_exclude_appointment_id uuid, p_location_id uuid) IS 'Phase 5.1 Availability Engine — authoritative slot starts for all channels.';
 
-create or replace function validate_appointment_slot(
-  p_business_id uuid,
-  p_service_id uuid,
-  p_staff_id uuid,
-  p_start_time timestamptz,
-  p_end_time timestamptz,
-  p_exclude_appointment_id uuid default null,
-  p_location_id uuid default null
-)
-returns void
-language plpgsql
-stable
-security definer
-set search_path = public
-as $$
+CREATE OR REPLACE FUNCTION public.slot_is_blocked(p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid DEFAULT NULL::uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE
+ SET search_path TO 'public'
+AS $function$
+  select availability_block_reason(
+    p_business_id,
+    p_location_id,
+    p_staff_id,
+    null,
+    p_block_start,
+    p_block_end,
+    p_exclude_appointment_id,
+    false
+  ) is not null;
+$function$;
+
+COMMENT ON FUNCTION public.slot_is_blocked(p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid) IS NULL;
+
+CREATE OR REPLACE FUNCTION public.validate_appointment_slot(p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_start_time timestamp with time zone, p_end_time timestamp with time zone, p_exclude_appointment_id uuid DEFAULT NULL::uuid, p_location_id uuid DEFAULT NULL::uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
 declare
   v_location_id uuid;
   v_tz text;
@@ -824,18 +764,9 @@ begin
     raise exception '%', v_reason;
   end if;
 end;
-$$;
+$function$;
 
-grant execute on function availability_block_reason(uuid, uuid, uuid, uuid, timestamptz, timestamptz, uuid, boolean)
-  to anon, authenticated;
-grant execute on function get_available_slots(uuid, uuid, uuid, date, uuid, uuid) to anon, authenticated;
-grant execute on function validate_appointment_slot(uuid, uuid, uuid, timestamptz, timestamptz, uuid, uuid)
-  to anon, authenticated;
-
-comment on function get_available_slots is
-  'Phase 5.1 Availability Engine — authoritative slot starts for all channels.';
-comment on function availability_block_reason is
-  'Phase 5.1 conflict classifier for closures, blackouts, busy, and external calendars.';
+COMMENT ON FUNCTION public.validate_appointment_slot(p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_start_time timestamp with time zone, p_end_time timestamp with time zone, p_exclude_appointment_id uuid, p_location_id uuid) IS NULL;
 
 COMMIT;
 
