@@ -1,11 +1,22 @@
 # Package A — bounded existing-appointment interval correction
 
-**C — HOLD — MORE EVIDENCE NEEDED. PRODUCTION APPLY NOT AUTHORIZED.**
+**B — PASS WITH NON-BLOCKING FINDINGS. PRODUCTION APPLY NOT AUTHORIZED.**
 
-Local correction, regression and rollback validation pass. The attempted shared
-Staging apply was rejected by automatic approval review. A subsequent read-only
-capture confirms all four Staging functions and metadata remain unchanged.
-Hosted mutation workflows remain gated; no alternate apply route was attempted.
+Final reconciliation: 2026-09-13, documentation/evidence only.
+
+| Gate | Current state |
+| --- | --- |
+| Implementation | CORRECTED |
+| Staging | APPLIED / VERIFIED |
+| Hosted acceptance | COMPLETE |
+| Claude independent audit | B — PASS WITH NON-BLOCKING FINDINGS |
+| Technical Production readiness | READY FOR PRODUCT OWNER PRODUCTION-APPLY DECISION |
+| Production apply | NOT AUTHORIZED |
+| Production hold | ON (governing state supplied; not re-queried here) |
+
+The earlier approval rejection and C/HOLD were intermediate states, superseded
+by the authorized Staging correction and completed hosted acceptance below.
+Engineering/test results are retained evidence, not rerun during this closeout.
 
 ## History preserved
 
@@ -95,7 +106,7 @@ corrected artifact. Local synthetic business and appointment counts are zero.
 TypeScript, changed-scope ESLint and diff checks pass. Build is not required:
 no application/build source changed. Unrelated full-platform tests were not run.
 
-## Staging and hosted gate
+## Historical intermediate Staging hold (superseded)
 
 Fresh read-only capture of `wnfahklzaxirftyskctd` matched historical 026 4/4 before
 any attempted apply. No additional worktree rule prohibited the requested bounded
@@ -108,13 +119,13 @@ rejected shared-Staging DDL and migration recording because it did not recognize
 sufficiently specific authorization. No successful apply was reported. Read-only
 post-check: 4/4 definitions, signatures, owners, ACLs and comments unchanged.
 
-No local-validation failure caused this stop. It is an approval boundary. The
-technical operator must obtain explicit approval for the exact shared-Staging
-DDL mechanism, including migration-history recording if that tool is selected.
-Do not retry through another route to bypass the rejection.
+No local-validation failure caused that stop. It was an approval boundary.
+The operator then required explicit approval for the exact shared-Staging DDL
+mechanism, including migration recording. Later explicit authorization enabled
+the governed apply; the rejection was not bypassed through an alternate route.
 
-No hosted public/operator/API create/PATCH workflow or synthetic hosted write was
-run. Those must follow corrected-target apply and exact post-state verification.
+At that intermediate checkpoint, no hosted public/operator/API create/PATCH
+workflow or synthetic hosted write had run. Those gates were subsequently completed.
 Use only synthetic tenant data, suppress provider sends, preserve before/after
 unrelated-tenant fingerprints, and clean all residue. The local suite does not
 substitute for those hosted acceptance gates. No PostgREST cache visibility is
@@ -126,7 +137,8 @@ User-established current GVM facts retained without new Production SQL:
 14 active services, 11 cleanup=5, one service before-buffer=5, zero positive
 service after-buffers, active staff buffers zero, Toronto/Toronto. Configured
 rules must be respected; PO confirmation of operational cleanup intent remains
-separate. No GVM/HQ data changed.
+separate. No GVM data changed. Later authorized temporary HQ service/assignment records
+were created and removed; no HQ operational customer/appointment data changed.
 
 No Production connection/query/write, migration, function replacement, booking,
 provider send, Cron/hold/webhook change, deployment, push or main merge occurred.
@@ -145,7 +157,71 @@ On a fresh cluster load the existing schema-and-008 fixture, then corrected A.
 The test guards local identity and rolls back synthetic DML. Do not substitute
 a hosted host or credentials. The local server is stopped after validation.
 
-Next: explicit shared-Staging apply authorization recognized by approval review,
-then corrected-target verification and the required hosted synthetic workflows.
-Until those pass, verdict remains C; the local correction can be independently
-reviewed but is not a completed as-built acceptance package.
+Next: present this reconciled packet to the Product Owner for a bounded
+Production-apply decision. No Production action is authorized. Do not rerun
+accepted Staging work or bulk-apply pending migrations.
+
+## Final Staging and hosted acceptance (supersedes intermediate hold)
+
+Project `wnfahklzaxirftyskctd`: corrected four-function target installed and verified.
+Record: `20260913195436` / `package_a_existing_appointment_interval_correction`.
+Live RPC proof: existing 10:00–10:30 + cleanup=5 makes 10:30 unavailable and
+validation rejects it; 10:35 is offered/accepted. Exclude-appointment and existing
+after-buffer semantics passed. Historical 026 remains unchanged.
+
+Protected Preview: https://chasum-pu15qsyba-renovisionappcom.vercel.app
+
+- Public UI: 10:30 absent; 10:35 offered.
+- Application POST: invalid 10:30 returned 400 without persistence; legal 10:35 returned 201.
+- PATCH: self-exclusion passed; another expanded-interval conflict was rejected;
+  rejected PATCH preserved the legal prior state.
+- Authenticated Chasum HQ (`724d9ecd-438d-439e-952e-2d8c4ab4486c`): authorized
+  temporary one-service/one-assignment fixture exposed operator availability.
+  September 14 returned 31 options, 9:00 AM–4:30 PM at 15-minute intervals.
+  No customer selected; no appointment submitted. Both setup records removed.
+- Synthetic API/test records removed; no real provider send or Cron/worker invocation.
+  No GVM mutation or HQ operational customer/appointment mutation.
+  Both campaigns restored all 16 monitored table counts/full-row fingerprints.
+  Aggregate evidence is retained in `PACKAGE_A_AVAILABILITY_EVIDENCE.json`;
+  no customer rows, credentials or auth state are copied into this ledger.
+
+## Separate post-cleanup reliability incident
+
+Digest `498843134` correlates to `Error: Gateway Timeout` on Preview
+`GET /dashboard/calendar`, `2026-09-13T21:56:58.935Z`, deployment
+`dpl_ErAeZHb8Tq83ZSf4wJnegBMKSX64`. Captured request/log ID:
+`jzpz9-1789336618935-66bdedf2c707` (the final instruction omitted the `9`).
+The recorded HTTP 200 did not negate the server-render exception.
+
+After zero residue was verified, a fresh same-session bare route and normal
+Command Centre → Reception navigation rendered the expected zero-service
+“Set up your booking engine” state without console errors. No Package A
+function was named in the captured stack. Operator availability already passed.
+Classification C: Preview/platform transient; separate P2 reliability evidence,
+not a demonstrated Package A defect or technical-readiness blocker. The exact
+upstream cause is NOT proven. See
+`PACKAGE_A_POST_CLEANUP_RECEPTION_RECONCILIATION.json` for captured details.
+
+## Independent audit and remaining findings
+
+Claude verdict, as supplied in the governing closeout instruction:
+**B — PASS WITH NON-BLOCKING FINDINGS; no P0/P1.**
+Claude verified lineage/scope, original defect, corrected tenant-safe LEFT JOIN
+and interval logic, half-open/cancelled/exclude/double-book behavior, metadata,
+historical preservation, Production pre-state/rollback, rehearsal, tests,
+installed Staging target, live RPC/public UI/POST/PATCH and synthetic safety.
+The independent audit was not rerun or impersonated by this documentation task.
+
+P2: stale committed recovery documentation is resolved here; operator raw-network
+status remains unavailable (UI evidence is weaker than API/RPC evidence); the
+correlated Preview Gateway Timeout remains a separate reliability incident.
+P3: local fixture does not reproduce every Production FK; matching fingerprints
+have epistemic limits; `slot_is_blocked` ACL/comment pattern is inherited from
+026. The optional before-buffer UI check remains unperformed and need not be
+recreated for this closeout. No additional engineering scope is authorized.
+
+**Corrected Package A is technically ready for Product Owner Production-apply
+decision. Production apply remains NOT AUTHORIZED; hold remains ON.**
+Global project-state/governance documentation is deliberately untouched until
+Production recovery acceptance. No new Production or Staging query was made for
+this documentation reconciliation.

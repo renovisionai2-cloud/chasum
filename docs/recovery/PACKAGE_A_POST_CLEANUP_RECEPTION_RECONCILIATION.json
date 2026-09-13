@@ -1,0 +1,33 @@
+{
+  "classification": "C — PREVIEW / PLATFORM TRANSIENT",
+  "severity": "P2",
+  "digest": "498843134",
+  "timestamp": "2026-09-13T21:56:58.935Z",
+  "request_log_id": "jzpz9-1789336618935-66bdedf2c707",
+  "request_log_id_note": "Captured CLI evidence includes jzpz9; final instruction transcribed jzpz without the 9. Captured value preserved.",
+  "route": "GET /dashboard/calendar",
+  "deployment": "dpl_ErAeZHb8Tq83ZSf4wJnegBMKSX64",
+  "environment": "preview",
+  "exception": "Error: Gateway Timeout",
+  "response_status": 200,
+  "stack": [
+    "at s (.next/server/chunks/ssr/[root-of-the-server]__0yol42j._.js:1:4093)",
+    "at async z (.next/server/chunks/ssr/[root-of-the-server]__0ltokwg._.js:1:9300)"
+  ],
+  "upstream_cause": "NOT PROVEN",
+  "fixture_residue": 0,
+  "hq_active_services": 0,
+  "hq_staff_assignments": 0,
+  "hq_appointments": 0,
+  "fresh_same_session_bare_route": "PASS — expected zero-service setup gate",
+  "normal_command_centre_to_reception": "PASS — expected zero-service setup gate",
+  "fresh_console_errors": 0,
+  "package_a_function_named_in_stack": false,
+  "package_a_causality": "Not demonstrated",
+  "operator_availability_previously_passed": true,
+  "hosted_acceptance": "COMPLETE",
+  "deleted_fixture_in_url_or_rendered_document": false,
+  "browser_storage_inspection": "Unavailable through supported evaluator; no auth/storage cleared",
+  "production_authorized": false,
+  "evidence_source": "Previously captured exact-Preview CLI logs and browser reconciliation; no new runtime investigation"
+}
