@@ -2,7 +2,7 @@
 
 > Current-state override (2026-09-14): the implementation below is part of accepted Production `dbbe450`; recovery is CLOSED. Older unapplied/held/pre-release statements describe their historical validation stage. See [canonical closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md). This document grants no execution authority.
 
-This change is based on Production/main `476af17bfd06113281df0b5c33f995ccb26f5fff`. The new migration, `supabase/migrations/20260905024239_communication_send_intents.sql`, is prepared only and must not be applied by running the repository's pending migrations in bulk. Production 029 repair remains pending; the historical queue remains governed by the locked 579-row repair package. This document does not assert a live infrastructure state or authorize any worker invocation.
+This change is based on Production/main `476af17bfd06113281df0b5c33f995ccb26f5fff`. At the preparation stage documented below, `supabase/migrations/20260905024239_communication_send_intents.sql` was prepared only and Production 029 repair remained pending; the historical queue was governed by the locked 579-row repair package. The 029 + ACL V2 repair was subsequently committed/verified during governed recovery. See the [canonical recovery closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) and [migration-history drift record](./DATABASE.md#production-migration-history--catalog-drift). Accepted live effects do not establish an ordinary numerical 029 history row. Never bulk-apply pending repository migrations. This document does not assert a live infrastructure state or authorize any worker invocation.
 
 ## Activation and compatibility
 

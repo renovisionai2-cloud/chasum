@@ -8,7 +8,7 @@ Deployment and cutover plan for replacing Picktime with Chasum for **GVM Baby Wo
 - Duplicate-tenant **identity incident is CLOSED**. Do not list it as a World Class blocker. Tenant Identity Safety Gate remains permanent.
 - Production app is live at `https://chasum.vercel.app`. Authoritative GVM tenant: `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`, slug `gvm-baby-world`.
 - Unchecked boxes below are **historical go-live steps**. Many infrastructure items predate later Production work (including migrations beyond 022 and slug aliases). Do **not** treat “apply 001 → 022” as current instruction.
-- **Remaining validation still called out (does not automatically dominate the backlog):** first real client appointment; Resend SMTP / production email path; smoke/cutover sign-off as actually still open.
+- **Remaining validation still called out (does not automatically dominate the backlog):** first legitimate client booking with customer confirmation email AND business new-booking email, each once; separate operational cutover sign-off as actually still open.
 - Accepted Production: `dbbe4502365858d4194f197b9ac22afe8d259c14`, deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` (2026-09-14 recovery closeout).
 
 **Rule:** Prefer empty states over invented data. Do not redesign branding during go-live.

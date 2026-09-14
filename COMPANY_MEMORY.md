@@ -17,9 +17,18 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ## Current chapter (2026-09-14 restamp)
 
-Production recovery CLOSED (2026-09-14). Accepted Production `dbbe450` / `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`; recovery hold OFF, Cron enabled, webhooks OFF. Canonical main `476af17` is its ancestor; reconciliation is in progress for review. First legitimate GVM booking + dual-email validation and HQ dogfood remain. Outside Private Alpha not started.
+Production recovery CLOSED (2026-09-14). Accepted Production `dbbe450` / `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`; recovery hold OFF, Cron enabled, webhooks OFF. PR #32 is the reconciliation vehicle from baseline main `476af17`, an ancestor of accepted Production. This is historical base identity, not a permanent current-main pin; merge/release status must be read from GitHub. First legitimate GVM booking + dual-email validation and HQ dogfood remain. Outside Private Alpha not started.
 
 Post-break World Class resumption. Phases 1–4A are **merged to `main`**. **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (PR #29). Commercial SaaS Lifecycle remains **PARTIAL** unless Gate B (commercial-v1 paid billing) is also met. Current: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**.
+
+Post-reconciliation operating queue (not a claim that PR #32 has merged):
+
+1. Phase 5 operational validation: first legitimate GVM booking, customer confirmation email and business new-booking email.
+2. Chasum HQ dogfood as a normal tenant.
+3. Outside Private Alpha readiness.
+4. Balanced Core Operations / Commercial SaaS / Intelligence / Validation work.
+5. Gate B sequencing only when explicitly approved.
+6. Summer horizontal intelligence progression when scoped.
 
 Roadmap outcomes must stay balanced:
 

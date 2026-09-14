@@ -33,7 +33,7 @@ See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_2
 
 Production pin/recovery acceptance is complete. GVM public/authenticated stabilization is substantially validated. First legitimate GVM booking plus customer confirmation and business new-booking email remain operational validation. Chasum HQ dogfood continues as a normal tenant; `/owner` is Platform Admin. Outside Private Alpha has not started. Commercial SaaS Gate B is NOT MET.
 
-Canonical reconciliation is in progress on `codex/post-recovery-source-of-truth-reconciliation`, based on main `476af17bfd06113281df0b5c33f995ccb26f5fff`. Main is an ancestor of serving Production; Production is an ancestor of Package A `a855e7733a0687de580c8fa3f861b389a476c926`. Exact history is preserved on `recovery/production-serving-20260914` and `recovery/package-a-availability-20260914`. This PR selectively ports accepted final state; it does not merge those branches or deploy their contents.
+PR #32 is the reconciliation vehicle from baseline main `476af17bfd06113281df0b5c33f995ccb26f5fff`, an ancestor of accepted serving Production. Production is an ancestor of Package A `a855e7733a0687de580c8fa3f861b389a476c926`. Exact history is preserved on `recovery/production-serving-20260914` and `recovery/package-a-availability-20260914`. These are historical base/preservation identities, not a future merge SHA or permanent current-main pin. PR #32 selectively reconciles final state; its merge is a separate release decision because main is Vercel's Production branch.
 
 ## Control board (start here)
 
@@ -77,12 +77,16 @@ Genuine current gates only (not closed incidents):
 
 Do **not** automatically “finish GVM” as a product rewrite. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this chapter.
 
-Strategic next (from the launch tracker):
+Post-reconciliation operational NEXT (PR #32 merge is not asserted here):
 
-1. **Complete canonical source-of-truth reconciliation**, then resume balanced product development. Phase 5 is **IN PROGRESS**: first legitimate GVM booking + dual-email operational validation, continued HQ dogfood, and outside Private Alpha readiness. Capture mobile and Summer evidence without expanding scope. See [launch tracker](./LAUNCH_READINESS.md).
-2. **Do not start Gate B.** Commercial v1 paid-provider billing remains LEVEL 3, later, Claude pre-challenge required.
-3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`.
-4. **Do not** fix DashboardTopNav tablet overflow, tenancy, booking-engine, commerce formulas, `/dashboard/hq`, RBAC, Summer architecture, or native apps in the next bounded slice unless the tracker reclassifies them.
+1. Phase 5 operational validation: first legitimate GVM booking, customer confirmation email and business new-booking email.
+2. Chasum HQ dogfood as a normal tenant.
+3. Outside Private Alpha readiness.
+4. Balanced Core Operations / Commercial SaaS / Intelligence / Validation work.
+5. Gate B sequencing only when explicitly approved.
+6. Summer horizontal intelligence progression when scoped.
+
+No roadmap expansion is authorized by this documentation.
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first legitimate appointment + customer/business email operational validation. Identity incident is closed; follow-up identity debt stays separately tracked.
 
@@ -426,7 +430,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-09-14) — Production recovery CLOSED
 
-Accepted serving `dbbe450`, worker reliability, Package A, GVM timing correction and final public exposure 3/3 PASS. Hold OFF, Cron enabled, webhooks OFF. Exact history preserved remotely; current PR reconciles final implementation/docs for review without release. First legitimate booking + dual-email operational validation remains. [Closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
+Accepted serving `dbbe450`, worker reliability, Package A, GVM timing correction and final public exposure 3/3 PASS. Hold OFF, Cron enabled, webhooks OFF. Exact history preserved remotely; PR #32 records the final implementation/docs reconciliation; its merge/release status is separate. First legitimate booking + dual-email operational validation remains. [Closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
 
 ### Historical (2026-08-25) — World Class Phase 4A Commercial SaaS Lifecycle Honesty MERGED
 
@@ -512,9 +516,9 @@ Preserved for history — **not** current branch instructions:
 
 ---
 
-## Active branch
+## Repository workflow / reconciliation provenance
 
-`codex/post-recovery-source-of-truth-reconciliation` from main `476af17bfd06113281df0b5c33f995ccb26f5fff`. Review-only PR; no main merge or Production release.
+PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline main `476af17bfd06113281df0b5c33f995ccb26f5fff`. For subsequent approved work, branch from the then-current canonical main; do not treat the reconciliation branch as the standing product-development branch. No merge is claimed here.
 
 **Obsolete as current working branch (historical only):**
 
@@ -533,11 +537,11 @@ Preserved for history — **not** current branch instructions:
 
 ## Latest repository / deployment state
 
-Main remains `476af17bfd06113281df0b5c33f995ccb26f5fff`. Accepted serving Production is `dbbe4502365858d4194f197b9ac22afe8d259c14` on `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`. They are not interchangeable. The reconciliation commit is identified by this PR, not a self-referential SHA.
+PR #32 baseline main was `476af17bfd06113281df0b5c33f995ccb26f5fff`. Accepted recovery serving Production is `dbbe4502365858d4194f197b9ac22afe8d259c14` on `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`. Current main/merge identity must be obtained from Git, not inferred from that historical baseline. No future merge SHA is prescribed.
 
-## Uncommitted work
+## Worktree status
 
-The reconciliation PR contains reviewed final runtime ports, accepted Package A artifacts, regression tests and current documentation. No Production mutation.
+Uncommitted work is session-specific: inspect `git status`. PR #32 is the historical reconciliation vehicle for accepted runtime, Package A artifacts, tests and documentation, not a permanent uncommitted task.
 
 ---
 
@@ -580,7 +584,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 
 Locked order for this chapter:
 
-1. **Source-of-truth accuracy** — this control board + [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
+1. **Phase 5 operational validation** — first legitimate GVM booking with customer confirmation and business new-booking email; maintain source-of-truth accuracy as milestones complete.
 2. **Phase 5 — IN PROGRESS.** Production recovery closed; legitimate GVM booking + dual-email validation and HQ dogfood remain. Capture mobile friction and AI OS gaps.
 3. **Do not start Gate B.** Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
 4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.

@@ -14,9 +14,9 @@ Update this file at the start of every sprint. It is the working queue — not a
 ## Current release
 
 **Working name:** World Class AI Business Operating System — launch-readiness chapter
-**Branch focus:** `codex/post-recovery-source-of-truth-reconciliation` from main `476af17`; accepted Production `dbbe450`.
+**Branch workflow:** Use the then-current canonical main for subsequent approved work. PR #32 is the reconciliation vehicle based on historical main `476af17`; accepted recovery Production is `dbbe450`. This does not assert PR #32 has merged.
 
-**Release intent:** Recovery CLOSED. Reconcile accepted final state on a main-based review branch; no merge or Production release in this task. Phases 1–4A are merged (PRs #23 / #25 / #27 / #29). **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (Gate A). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Current: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
+**Release intent:** Recovery CLOSED. Follow the post-reconciliation queue below. PR #32 merge remains a separate consequential release decision while under review. Phases 1–4A are merged (PRs #23 / #25 / #27 / #29). **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (Gate A). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Current: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 
@@ -24,17 +24,16 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-Recovery is CLOSED; Phase 5 is IN PROGRESS. Current queue:
+Recovery is CLOSED; Phase 5 is IN PROGRESS. Post-reconciliation queue:
 
-1. Complete canonical source-of-truth reconciliation for review.
-2. Resume balanced product development across Core Operations, Commercial SaaS, Intelligence and Validation.
-3. First legitimate GVM booking + dual-email operational validation.
-4. Chasum HQ dogfood as a normal tenant.
-5. Outside Private Alpha readiness (not started).
-6. Commercial SaaS Gate B sequencing when approved; Gate B NOT MET.
-7. Summer horizontal intelligence progression when scoped/approved.
+1. Phase 5 operational validation: first legitimate GVM booking, customer confirmation email and business new-booking email.
+2. Chasum HQ dogfood as a normal tenant.
+3. Outside Private Alpha readiness.
+4. Balanced Core Operations / Commercial SaaS / Intelligence / Validation work.
+5. Gate B sequencing only when explicitly approved.
+6. Summer horizontal intelligence progression when scoped.
 
-This reconciliation does not authorize any of those implementation expansions.
+This documentation does not authorize implementation expansion or assert a PR merge.
 
 Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a booking-path canary — not as a sprint theme.
 
