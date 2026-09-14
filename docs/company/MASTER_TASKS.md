@@ -14,9 +14,9 @@ Update this file at the start of every sprint. It is the working queue — not a
 ## Current release
 
 **Working name:** World Class AI Business Operating System — launch-readiness chapter
-**Branch workflow:** Use the then-current canonical main for subsequent approved work. PR #32 is the reconciliation vehicle based on historical main `476af17`; accepted recovery Production is `dbbe450`. This does not assert PR #32 has merged.
+**Branch workflow:** PR #32 merged as `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; Production release accepted and source of truth restored. Branch subsequent approved work from then-current main.
 
-**Release intent:** Recovery CLOSED. Follow the post-reconciliation queue below. PR #32 merge remains a separate consequential release decision while under review. Phases 1–4A are merged (PRs #23 / #25 / #27 / #29). **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (Gate A). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Current: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
+**Release intent:** Recovery CLOSED; Phase 5 IN PROGRESS. Phases 1–4A merged; Gate A complete, Commercial SaaS Lifecycle PARTIAL and Gate B NOT MET. GVM and HQ remain normal validation tenants. No recovery reopening absent new contradictory runtime evidence.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 
@@ -24,16 +24,14 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-Recovery is CLOSED; Phase 5 is IN PROGRESS. Post-reconciliation queue:
+1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
+3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 
-1. Phase 5 operational validation: first legitimate GVM booking, customer confirmation email and business new-booking email.
-2. Chasum HQ dogfood as a normal tenant.
-3. Outside Private Alpha readiness.
-4. Balanced Core Operations / Commercial SaaS / Intelligence / Validation work.
-5. Gate B sequencing only when explicitly approved.
-6. Summer horizontal intelligence progression when scoped.
+Core Operations launch-required defect work continues throughout. GVM and HQ are validation tenants, not product forks; neither may dominate the roadmap.
 
-This documentation does not authorize implementation expansion or assert a PR merge.
+This documentation does not authorize implementation expansion.
 
 Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a booking-path canary — not as a sprint theme.
 
@@ -48,7 +46,7 @@ Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a bookin
 - [x] World Class Phase 3: Command Centre / Today experience — merged PR #27
 - [x] World Class Phase 4A: Commercial SaaS Lifecycle Honesty (Gate A / Private Alpha billing) — **COMPLETE / MERGED TO MAIN** (PR #29); does **not** mark Commercial SaaS DONE (see [`../LAUNCH_READINESS.md`](../LAUNCH_READINESS.md))
 - [ ] World Class Phase 5: Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**
-- [ ] Commercial v1 paid billing (Gate B) — later; LEVEL 3; Claude pre-challenge before implementation
+- [ ] Commercial v1 paid billing (Gate B) — explicit post-Phase-5 chapter after Outside Private Alpha readiness; LEVEL 3; Claude pre-challenge before implementation
 - [ ] Later PO decision on `/dashboard/hq` disposition (move to `/owner`, relabel, or retire) — **no expansion until then**
 
 ### Commercial SaaS (currently trailing Core Operations)
@@ -59,18 +57,24 @@ These Stripe / paid-lifecycle items are **Gate B** (commercial-v1 paid billing).
 - [ ] SaaS billing lifecycle maturity (upgrade / downgrade / cancellation)
 - [ ] Failed-payment / dunning recovery
 - [ ] Mature plan entitlement enforcement
-- [ ] Staff roles / permissions enforcement for multi-staff login (RBAC)
+- [ ] Before commercial-v1 team claims, decide minimum staff login, invitations, roles, permissions and owner/admin boundaries. If paid plans promise team access, practical RBAC is LAUNCH REQUIRED; otherwise product/marketing must explicitly describe owner-operated v1.
 - [ ] Account lifecycle and usage / account-health depth
+
+### Outside Private Alpha readiness
+
+- [ ] Production error visibility and trace/correlation sufficient to investigate failures without a blind Gateway Timeout campaign; separately evaluate Sentry / OTel or equivalent before broader Outside Private Alpha.
+- [ ] Governed switching/import/migration as a product capability: map customers, staff, services and future appointments; additional entities as justified. Summer-assisted migration/onboarding remains a strategic opportunity.
+- [ ] Tenant onboarding and identity safety acceptance.
 
 ### Intelligence
 
-- [ ] Deepen Summer toward AI Business Manager actions on authoritative data (do not claim this is already done; current strength is booking / availability / CRM-grounded assist)
+- [ ] Summer Business Manager horizontal v1 — explicit major chapter after Gate B; authoritative cross-domain understanding, explanation, recommendation, permissioned action and audit (not already delivered).
 - [ ] Keep Chase read-oriented; do not invent KPIs
 
 ### Core Operations / validation (do not let these dominate the whole backlog)
 
 - [ ] Reception + CRM communication: real Twilio/Resend paths verified in staging/production
-- [ ] GVM validation remaining: first real appointment + production email SMTP — see [`../GVM_GO_LIVE.md`](../GVM_GO_LIVE.md) (not automatic product NEXT #1)
+- [ ] GVM validation remaining: legitimate booking observation + customer and business emails, each exactly once — see [`../GVM_GO_LIVE.md`](../GVM_GO_LIVE.md) (not automatic product NEXT #1)
 - [ ] Reports: scheduled email delivery worker (CRUD exists; send pipeline next)
 
 ### Engineering gates (visible; not this sprint’s product story unless PO schedules)

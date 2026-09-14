@@ -2,14 +2,14 @@
 
 Deployment and cutover plan for replacing Picktime with Chasum for **GVM Baby World Ultrasound** (`/book/gvm-baby-world`).
 
-**Current status (2026-08-24 restamp):** This file is the **GVM validation / cutover checklist**, not the product roadmap. Current NEXT lives in [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
+**Current status (2026-09-14 post-release restamp):** This file is the **GVM validation / cutover checklist**, not the product roadmap. Current NEXT lives in [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).
 
 - GVM is a **normal tenant / design partner** used to validate the reusable product.
 - Duplicate-tenant **identity incident is CLOSED**. Do not list it as a World Class blocker. Tenant Identity Safety Gate remains permanent.
 - Production app is live at `https://chasum.vercel.app`. Authoritative GVM tenant: `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`, slug `gvm-baby-world`.
 - Unchecked boxes below are **historical go-live steps**. Many infrastructure items predate later Production work (including migrations beyond 022 and slug aliases). Do **not** treat “apply 001 → 022” as current instruction.
 - **Remaining validation still called out (does not automatically dominate the backlog):** first legitimate client booking with customer confirmation email AND business new-booking email, each once; separate operational cutover sign-off as actually still open.
-- Accepted Production: `dbbe4502365858d4194f197b9ac22afe8d259c14`, deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` (2026-09-14 recovery closeout).
+- Accepted 2026-09-14 Production release: `8df29d298c196a2431c86a8cea4af1e5bfec09fd`, deployment `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`; PR #32 merged. Read future serving identity from the current release record.
 
 **Rule:** Prefer empty states over invented data. Do not redesign branding during go-live.
 
@@ -21,7 +21,7 @@ Companion docs: [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md), [`ROADMA
 
 Production recovery CLOSED. Public booking is technically exposed and accepted: 3/3 bounded public renders PASS. Hold OFF; Cron enabled; worker webhooks OFF. Package A accepted. GVM business/location America/Toronto; CAD; Early Gender 30 minutes + 5 cleanup.
 
-First legitimate customer booking remains operational validation. Standing booking notification rule: **customer confirmation email AND business new-booking email**, each once. Technical recovery acceptance does not replace this first-real-booking observation.
+Observe the first legitimate customer booking only; do not manufacture one for this restamp. HQ dogfood proceeds in parallel without waiting for a GVM customer. First legitimate customer booking remains operational validation. Standing booking notification rule: **customer confirmation email AND business new-booking email**, each once. Technical recovery acceptance does not replace this first-real-booking observation.
 
 No Picktime shutdown, GVM website booking-link change, Google Business change, or declaration that Chasum is the sole intake system occurred. Those are separate operational decisions. See [closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
 

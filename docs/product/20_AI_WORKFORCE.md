@@ -1,6 +1,6 @@
 # AI Workforce
 
-**Status:** Strategic vision (long-term)  
+**Status:** Historical named-agent concept reference; current strategy is Summer Business Manager horizontal v1
 **Audience:** Product, founders, partners — not an engineering spec  
 **Related:** [08_AI_WORKFORCE.md](./08_AI_WORKFORCE.md) (earlier agent sketch), [19_AI_PRINCIPLES.md](./19_AI_PRINCIPLES.md)
 
@@ -61,9 +61,9 @@ Over time, a proactive AI Workforce — that recommends, explains, and improves 
 
 ---
 
-# Initial AI Employees
+# Historical named-agent concepts
 
-The first wave of the AI Workforce is six named employees. Each can ship in stages (assist → automate → collaborate) while sharing the same principles and data foundation.
+The six named roles below preserve earlier concept history, not the current execution order or paid-plan promise. The [Bible §7](../company/CHASUM_BIBLE.md#7-ai-philosophy) and [Master Roadmap](../company/MASTER_ROADMAP.md) govern: Summer is the canonical Business Manager / intelligence layer; any specialized workers share its operating truth.
 
 ---
 

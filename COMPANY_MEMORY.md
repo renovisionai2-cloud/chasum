@@ -17,25 +17,25 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ## Current chapter (2026-09-14 restamp)
 
-Production recovery CLOSED (2026-09-14). Accepted Production `dbbe450` / `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`; recovery hold OFF, Cron enabled, webhooks OFF. PR #32 is the reconciliation vehicle from baseline main `476af17`, an ancestor of accepted Production. This is historical base identity, not a permanent current-main pin; merge/release status must be read from GitHub. First legitimate GVM booking + dual-email validation and HQ dogfood remain. Outside Private Alpha not started.
+PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
 
-Post-break World Class resumption. Phases 1–4A are **merged to `main`**. **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (PR #29). Commercial SaaS Lifecycle remains **PARTIAL** unless Gate B (commercial-v1 paid billing) is also met. Current: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**.
+Recovery **CLOSED**; hold OFF, Cron enabled, webhooks OFF. Phase 5 **IN PROGRESS**; Gate A complete, Gate B NOT MET; Outside Private Alpha not started. Do not reopen recovery absent new contradictory runtime evidence.
 
-Post-reconciliation operating queue (not a claim that PR #32 has merged):
+Post-release locked execution queue:
 
-1. Phase 5 operational validation: first legitimate GVM booking, customer confirmation email and business new-booking email.
-2. Chasum HQ dogfood as a normal tenant.
-3. Outside Private Alpha readiness.
-4. Balanced Core Operations / Commercial SaaS / Intelligence / Validation work.
-5. Gate B sequencing only when explicitly approved.
-6. Summer horizontal intelligence progression when scoped.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
+3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+
+Core Operations launch-required defect work continues throughout. GVM and HQ are validation tenants, not product forks; neither may dominate the roadmap.
 
 Roadmap outcomes must stay balanced:
 
 | Outcome | Role |
 |---------|------|
 | **A. Core Operations** | Scheduling, customers, staff, catalog, money, communications, reporting, workflows — strongest axis; Command Centre V1 is the operating home |
-| **B. Commercial SaaS** | Currently **trails** Core Operations — remains **PARTIAL**. Phase 4A Gate A (Private Alpha billing honesty) is **COMPLETE**. Gate B paid-provider billing is later and is required before commercially launchable v1. |
+| **B. Commercial SaaS** | Currently **trails** Core Operations — remains **PARTIAL**. Phase 4A Gate A (Private Alpha billing honesty) is **COMPLETE**. Gate B is the explicit commercial chapter after Outside Private Alpha readiness and is required before commercially launchable v1. |
 | **C. Intelligence** | **Summer = AI Business Manager** (positioning). Implementation is still strongest in booking / availability / CRM-grounded assist + grounded Command Centre facts — deepen without over-claiming |
 | **D. Validation** | GVM Baby World and **Chasum HQ** are **normal tenants**. Working planning targets: Late Sep–Oct 2026 stable pilots. Momentic is complete regression infrastructure, not a roadmap track |
 
@@ -119,4 +119,4 @@ Darshan = Founder / CEO / Product Owner. ChatGPT = control tower / Product & Dev
 
 ---
 
-*Last updated: 2026-09-14 — post-recovery canonical reconciliation.*
+*Last updated: 2026-09-14 — post-release source-of-truth and locked roadmap restamp.*

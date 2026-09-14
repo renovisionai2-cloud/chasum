@@ -4,11 +4,11 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-09-14
-**Updated by:** Codex — post-recovery source-of-truth reconciliation. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
+**Updated by:** Codex — post-release source-of-truth restamp. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
 
 ---
 
-## Accepted recovery closeout — 2026-09-14
+## Accepted post-release state — 2026-09-14
 
 **PRODUCTION RECOVERY = CLOSED. Phase 5 = IN PROGRESS, not complete.**
 This restamp records accepted recovery evidence; it does not rerun Production validation.
@@ -16,8 +16,8 @@ See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_2
 
 | Item | Accepted state |
 | --- | --- |
-| Production deployment | `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` |
-| Serving SHA | `dbbe4502365858d4194f197b9ac22afe8d259c14` |
+| Production deployment | `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn` |
+| Canonical main / Production Git SHA | `8df29d298c196a2431c86a8cea4af1e5bfec09fd` |
 | Production Supabase | `kxcydvhswkuzepwzzinq` |
 | Recovery hold | OFF |
 | Cron | ENABLED; `*/5 * * * *`; `/api/cron/process-jobs` |
@@ -33,7 +33,11 @@ See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_2
 
 Production pin/recovery acceptance is complete. GVM public/authenticated stabilization is substantially validated. First legitimate GVM booking plus customer confirmation and business new-booking email remain operational validation. Chasum HQ dogfood continues as a normal tenant; `/owner` is Platform Admin. Outside Private Alpha has not started. Commercial SaaS Gate B is NOT MET.
 
-PR #32 is the reconciliation vehicle from baseline main `476af17bfd06113281df0b5c33f995ccb26f5fff`, an ancestor of accepted serving Production. Production is an ancestor of Package A `a855e7733a0687de580c8fa3f861b389a476c926`. Exact history is preserved on `recovery/production-serving-20260914` and `recovery/package-a-availability-20260914`. These are historical base/preservation identities, not a future merge SHA or permanent current-main pin. PR #32 selectively reconciles final state; its merge is a separate release decision because main is Vercel's Production branch.
+PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
+
+All three Production aliases — `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`, and `chasum-git-main-renovisionappcom.vercel.app` — align to that deployment. The git-main alias is intentionally protected: unauthenticated HTTP 302 → Vercel SSO is expected security behavior, not an application failure. Staging remains isolated and unchanged. This acceptance is the supplied Product Owner/control-tower closeout; no fresh protected-alias application pass is claimed. Recovery remains CLOSED unless new contradictory runtime evidence appears.
+
+Historical recovery refs preserve exact evidence; they are not current execution instructions. Canonical source of truth is main + canonical /docs.
 
 ## Control board (start here)
 
@@ -77,16 +81,14 @@ Genuine current gates only (not closed incidents):
 
 Do **not** automatically “finish GVM” as a product rewrite. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this chapter.
 
-Post-reconciliation operational NEXT (PR #32 merge is not asserted here):
+1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
+3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 
-1. Phase 5 operational validation: first legitimate GVM booking, customer confirmation email and business new-booking email.
-2. Chasum HQ dogfood as a normal tenant.
-3. Outside Private Alpha readiness.
-4. Balanced Core Operations / Commercial SaaS / Intelligence / Validation work.
-5. Gate B sequencing only when explicitly approved.
-6. Summer horizontal intelligence progression when scoped.
+Core Operations launch-required defect work continues throughout. GVM and HQ are validation tenants, not product forks; neither may dominate the roadmap.
 
-No roadmap expansion is authorized by this documentation.
+This documentation does not authorize implementation or Production changes.
 
 **GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first legitimate appointment + customer/business email operational validation. Identity incident is closed; follow-up identity debt stays separately tracked.
 
@@ -320,7 +322,7 @@ Chase remains Early Access, read-oriented. Additional roster roles (Alex, Maya, 
 
 **Private Alpha billing readiness (Gate A / Phase 4A):** **COMPLETE** (PR #29). Honesty + `/owner` design-partner plan assignment + documented manual billing. Does **not** complete this workstream.
 
-**Commercial v1 billing readiness (Gate B):** **NOT MET**. Required later. Do **not** start in this chapter. Live provider / webhooks / schema / migrations / Production subscription data = LEVEL 3 + Claude pre-challenge before implementation.
+**Commercial v1 billing readiness (Gate B):** **NOT MET**. Explicit priority after Outside Private Alpha readiness. Do **not** start in this chapter. Live provider / webhooks / schema / migrations / Production subscription data = LEVEL 3 + Claude pre-challenge before implementation.
 
 Incomplete / not production-ready:
 
@@ -399,7 +401,7 @@ Shared money recognition, commerce + platform events, business operating context
 1. Treat Chasum as an AI Business Operating System. Keep Core Operations, Commercial SaaS, Intelligence, and Validation in balance.
 2. Use GVM and Chasum HQ as **normal tenants** to validate the reusable product — not as product forks or control planes.
 3. Continue from **current `main` only**. Do not return to `cursor/world-class-portal-foundation` as a working baseline.
-4. Sequence later product work from [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md). Phase 4A is complete. Commercial SaaS Lifecycle remains **PARTIAL** until Gate B is also met. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this stamp. Commercial v1 does **not** require full AI autonomy; preserve the AI-operated architecture now.
+4. Sequence the locked post-Phase-5 product chapters from [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md). Phase 4A is complete. Commercial SaaS Lifecycle remains **PARTIAL** until Gate B is also met. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this stamp. Commercial v1 does **not** require full AI autonomy; preserve the AI-operated architecture now.
 
 ---
 
@@ -428,9 +430,11 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-09-14) — Production recovery CLOSED
+### Most recent (2026-09-14) — PR #32 release accepted
 
-Accepted serving `dbbe450`, worker reliability, Package A, GVM timing correction and final public exposure 3/3 PASS. Hold OFF, Cron enabled, webhooks OFF. Exact history preserved remotely; PR #32 records the final implementation/docs reconciliation; its merge/release status is separate. First legitimate booking + dual-email operational validation remains. [Closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
+PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
+
+All three Production aliases aligned; protected git-main SSO behavior accepted. Recovery CLOSED; Phase 5 IN PROGRESS. GVM dual-email observation and HQ dogfood proceed in parallel. See [closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
 
 ### Historical (2026-08-25) — World Class Phase 4A Commercial SaaS Lifecycle Honesty MERGED
 
@@ -502,7 +506,7 @@ Historical detail: [`docs/architecture/BUSINESS_SLUG_ALIASES.md`](./architecture
 ### Prior on main (selected)
 
 - Generic public booking slug aliases (`7f0f1cb`) — reusable infrastructure, not a GVM fork
-- Production billing compatibility patch (`ef69815`) — paid-upgrade guard + service-role `subscription_events` writes. **On `main`.** Track 3 DB hardening still not implemented. Accepted serving `dbbe450` includes this ancestry; see the September 14 closeout.
+- Production billing compatibility patch (`ef69815`) — paid-upgrade guard + service-role `subscription_events` writes. **On `main`.** Track 3 DB hardening still not implemented. Historical recovery serving `dbbe450` includes this ancestry; see the September 14 closeout.
 - PR #19 documentation closeout of the identity incident (`91ae760`)
 
 ### Historical marketing / GVM chapter (2026-07-30 and earlier)
@@ -518,7 +522,7 @@ Preserved for history — **not** current branch instructions:
 
 ## Repository workflow / reconciliation provenance
 
-PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline main `476af17bfd06113281df0b5c33f995ccb26f5fff`. For subsequent approved work, branch from the then-current canonical main; do not treat the reconciliation branch as the standing product-development branch. No merge is claimed here.
+PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline main `476af17bfd06113281df0b5c33f995ccb26f5fff`. For subsequent approved work, branch from the then-current canonical main; do not treat the reconciliation branch as the standing product-development branch. PR #32 merged as `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; the audited tree equality passed.
 
 **Obsolete as current working branch (historical only):**
 
@@ -537,7 +541,9 @@ PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline m
 
 ## Latest repository / deployment state
 
-PR #32 baseline main was `476af17bfd06113281df0b5c33f995ccb26f5fff`. Accepted recovery serving Production is `dbbe4502365858d4194f197b9ac22afe8d259c14` on `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`. Current main/merge identity must be obtained from Git, not inferred from that historical baseline. No future merge SHA is prescribed.
+PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
+
+Prior recovery deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` / `dbbe450` is historical evidence. No Production change is authorized by this documentation PR.
 
 ## Worktree status
 
@@ -582,16 +588,14 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 
 ## Current priorities
 
-Locked order for this chapter:
+Locked post-release order:
 
-1. **Phase 5 operational validation** — first legitimate GVM booking with customer confirmation and business new-booking email; maintain source-of-truth accuracy as milestones complete.
-2. **Phase 5 — IN PROGRESS.** Production recovery closed; legitimate GVM booking + dual-email validation and HQ dogfood remain. Capture mobile friction and AI OS gaps.
-3. **Do not start Gate B.** Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
-4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.
-5. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
-6. **Chasum HQ dogfood** — operate Chasum through the **normal HQ tenant**, not through `/dashboard/hq`.
-7. **Honest Private Alpha GTM** — locked marketing pages; Product Truth Matrix; Coming Soon stays honest.
-8. **Charge-with-integrity path** — Stripe and self-serve only when operationally ready.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
+3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+
+Core Operations launch-required defect work continues throughout. GVM and HQ are validation tenants, not product forks; neither may dominate the roadmap.
 
 ---
 
@@ -620,10 +624,10 @@ Surfaces listed as “completed” on the Master Roadmap mean the department exi
 | World Class Phase 2 | Staff plan honesty **on main** (PR #25) |
 | World Class Phase 3 | Command Centre / Today experience **on main** (PR #27) |
 | World Class Phase 4A | Commercial SaaS Lifecycle Honesty **on main** (PR #29). Gate A **COMPLETE**. Workstream 4 stays **PARTIAL**. |
-| Commercial SaaS | Trailing; remains **PARTIAL**. **Gate B** = commercial-v1 paid-provider billing — later, not next. |
+| Commercial SaaS | Trailing; remains **PARTIAL**. **Gate B** = explicit commercial-v1 paid-provider chapter after Outside Private Alpha readiness. |
 | Current phase | **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS** |
 | GVM / HQ validation | Inside Phase 5 — Late Sep–Oct 2026 stable pilot use |
-| Summer Intelligence | Deepen toward Business Manager actions later — **not** the next phase |
+| Summer Intelligence | Summer Business Manager horizontal v1 — explicit chapter after Gate B; no implementation in this restamp |
 | Core Operations craft | Reception/commerce/comms reliability as targeted defects inside Phase 5, not a rewrite |
 | Track 3 | RLS/hardening when PO schedules; restore 037/038 SQL into repo |
 

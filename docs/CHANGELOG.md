@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-14 — post-release canonical closeout and locked priorities
+
+PR #32 merged as `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; canonical main restored and Production release accepted on `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. All three Production aliases aligned. Protected git-main SSO interception is accepted expected Vercel protection, not a claimed application smoke pass. Recovery remains CLOSED; Phase 5 IN PROGRESS.
+
+PO locked the five priorities: this restamp → GVM + HQ validation in parallel → Outside Private Alpha readiness → Commercial SaaS Gate B → Summer Business Manager horizontal v1. Observability, switching/import capability and the commercial-v1 team/RBAC decision are explicit readiness work. Bible §7 amended minimally to establish Summer as canonical intelligence; recorded in the [decision log](./product/14_DECISION_LOG.md). Native eight-domain start gate, React Native + Expo working direction, 18 workstreams and planning windows preserved. Documentation only; no runtime or environment change.
+
+
 ### 2026-09-14 — post-recovery canonical reconciliation (review only)
 
 Production recovery CLOSED on serving `dbbe450`; worker reliability, Package A and final 3/3 public exposure accepted. Exact recovery refs preserved without rewriting; accepted final runtime and regression contracts selectively ported onto main `476af17` for review. No merge or Production release. Current-state, launch, task, GVM and agent-governance docs restamped; Phase 5 IN PROGRESS, Gate B NOT MET. [Closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) records evidence and remaining legitimate-booking dual-email validation.
