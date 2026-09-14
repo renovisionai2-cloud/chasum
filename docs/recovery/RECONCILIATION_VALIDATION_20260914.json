@@ -43,8 +43,10 @@
   "runtimeIntegration": "Exact accepted final-state ports only; no new behavior.",
   "testOnlyPathAdjustments": [
     "040 moved byte-for-byte to tests/fixtures/recovery/040_book_public_appointment.sql",
-    "Three static test files resolve archived 040 fixture outside migrations."
+    "Three static test files resolve archived 040 fixture outside migrations.",
+    "Removed inherited trailing blank line at end of worker-reliability.test.ts; assertions unchanged."
   ],
   "packageAIntegrationTests": "Preserved opt-in local fixture test; not executed (no SQL authorized).",
-  "productionAcceptance": "Previously accepted evidence only, not re-executed for reconciliation."
+  "productionAcceptance": "Previously accepted evidence only, not re-executed for reconciliation.",
+  "diffCheck": "PASS after removing inherited Markdown trailing whitespace and test EOF blank line"
 }
