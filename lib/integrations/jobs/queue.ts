@@ -1,5 +1,7 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import type { JobType } from "@/lib/types/integrations";
+import { newSendIntentId, scheduledReminderIntentId } from "@/lib/communications/intent-identity";
+import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
 
 export async function enqueueJob(
   jobType: JobType,
@@ -11,13 +13,23 @@ export async function enqueueJob(
   },
 ) {
   const supabase = createServiceClient();
+  const jobId = newSendIntentId();
+  const durablePayload = { ...payload };
+  if (["email", "sms", "reminder"].includes(jobType)) {
+    durablePayload.sendIntentId = payload.sendIntentId ?? jobId;
+    // Identity alone does not prove an earlier inline send used the ledger.
+    // Work created while the feature is disabled stays held for reconciliation.
+    delete durablePayload.sendIntentProtocol;
+    if (workerReliabilityEnabled()) durablePayload.sendIntentProtocol = "durable-v1";
+  }
 
   const { data, error } = await supabase
     .from("background_jobs")
     .insert({
+      id: jobId,
       business_id: options?.businessId ?? null,
       job_type: jobType,
-      payload,
+      payload: durablePayload,
       scheduled_at: (options?.scheduledAt ?? new Date()).toISOString(),
       max_attempts: options?.maxAttempts ?? 3,
     })
@@ -64,14 +76,15 @@ export async function enqueueReminderJobs(
   appointmentId: string,
   reminderAt: Date,
 ) {
+  const sendIntentId = scheduledReminderIntentId(appointmentId, reminderAt);
   await enqueueJob(
     "reminder",
-    { appointmentId, channel: "email" },
+    { appointmentId, channel: "email", sendIntentId },
     { businessId, scheduledAt: reminderAt },
   );
   await enqueueJob(
     "reminder",
-    { appointmentId, channel: "sms" },
+    { appointmentId, channel: "sms", sendIntentId },
     { businessId, scheduledAt: reminderAt },
   );
 }

@@ -34,6 +34,7 @@ import {
   LOYALTY_STATUS_LABELS,
   type CrmProfile,
 } from "@/lib/crm/types";
+import { crmCustomerFormSnapshotKey } from "@/lib/crm/customer-payload";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import type {
   ActionState,
@@ -518,8 +519,17 @@ export function CustomerProfileView({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={formAction} className="space-y-5">
+            <form
+              key={crmCustomerFormSnapshotKey(customer)}
+              action={formAction}
+              className="space-y-5"
+            >
               <input type="hidden" name="id" value={customer.id} />
+              <input
+                type="hidden"
+                name="expected_updated_at"
+                defaultValue={customer.updated_at}
+              />
 
               {tab === "overview" ? (
                 <>
@@ -717,11 +727,6 @@ export function CustomerProfileView({
                   />
                   <input
                     type="hidden"
-                    name="marketing_consent"
-                    value={customer.marketing_consent ? "true" : "false"}
-                  />
-                  <input
-                    type="hidden"
                     name="tags"
                     value={(customer.tags ?? []).join(", ")}
                   />
@@ -818,9 +823,11 @@ export function CustomerProfileView({
                       VIP customer
                     </label>
                     <label className="flex items-center gap-2 self-end pb-2 text-sm">
+                      <input type="hidden" name="marketing_consent_intent" value="edit" />
                       <input
                         type="checkbox"
                         name="marketing_consent"
+                        value="true"
                         defaultChecked={Boolean(customer.marketing_consent)}
                       />
                       Marketing consent

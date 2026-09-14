@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
 vi.mock("@/lib/communications/delivery", () => ({
   sendEmail: vi.fn(),
@@ -38,6 +38,7 @@ describe("retryBookingNotification business email deposit status", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("CHASUM_WORKER_RELIABILITY_ENABLED", "false");
     inserts.length = 0;
 
     const appointment = {
@@ -205,8 +206,11 @@ describe("retryBookingNotification business email deposit status", () => {
     });
   });
 
+  afterEach(() => vi.unstubAllEnvs());
+
   it("resent business notification uses shared depositDueNowCents ($0 when paid)", async () => {
     const report = await retryBookingNotification({
+      businessId: "biz-1",
       appointmentId: "appt-1",
       channel: "business_email",
     });
@@ -224,6 +228,7 @@ describe("retryBookingNotification business email deposit status", () => {
 
   it("does not create appointment, payment, receipt, transaction, or invoice on resend", async () => {
     await retryBookingNotification({
+      businessId: "biz-1",
       appointmentId: "appt-1",
       channel: "business_email",
     });

@@ -2,9 +2,72 @@ import type {
   CommunicationsPreferences,
   CustomerCommPreferences,
 } from "@/lib/communications/types";
-import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
+import { logger } from "@/lib/observability/logger";
+import { captureMessage } from "@/lib/observability/sentry";
+import {
+  isMarketingConsentColumnMissing,
+  isSoftSchemaFallbackAllowed,
+  logQueryError,
+} from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+
+const CUSTOMER_PREFS_FULL =
+  "id, preferred_communication_method, marketing_consent, email, phone";
+const CUSTOMER_PREFS_COMPAT =
+  "id, preferred_communication_method, email, phone";
+
+const COMPAT_WARN_SCOPE = "comms.customer.prefs";
+const COMPAT_WARN_MESSAGE =
+  "marketing_consent column missing; using compatibility read";
+const COMPAT_WARN_INTERVAL_MS = 60_000;
+let lastCompatWarnAt = 0;
+
+function warnMarketingConsentCompat(detail: string): void {
+  const now = Date.now();
+  if (now - lastCompatWarnAt < COMPAT_WARN_INTERVAL_MS) return;
+  lastCompatWarnAt = now;
+  logger.warn(COMPAT_WARN_SCOPE, COMPAT_WARN_MESSAGE, { message: detail });
+}
+
+/** Test-only: reset the compatibility-warning rate limit. */
+export function resetMarketingConsentCompatWarnForTests(): void {
+  lastCompatWarnAt = 0;
+}
+
+type CustomerPrefRow = {
+  id?: string;
+  preferred_communication_method?: string | null;
+  marketing_consent?: boolean | null;
+  email?: string | null;
+  phone?: string | null;
+};
+
+export function deriveCustomerChannelPreferences(
+  row: CustomerPrefRow | null | undefined,
+  options: { customerId: string; marketing: boolean },
+): CustomerCommPreferences {
+  const preferred = (row?.preferred_communication_method as string | null) ?? null;
+  const hasEmail = Boolean(String(row?.email ?? "").trim());
+  const hasPhone = Boolean(String(row?.phone ?? "").trim());
+  return {
+    customerId: options.customerId,
+    preferredMethod: preferred,
+    email: hasEmail && preferred !== "sms" && preferred !== "call",
+    sms: hasPhone && preferred !== "email" && preferred !== "call",
+    marketing: options.marketing,
+  };
+}
+
+function transactionalUnavailablePrefs(customerId: string): CustomerCommPreferences {
+  return {
+    customerId,
+    email: true,
+    sms: true,
+    marketing: false,
+    preferredMethod: null,
+  };
+}
 
 function parseTimeToMinutes(value: string | null | undefined): number | null {
   if (!value) return null;
@@ -110,36 +173,50 @@ export async function loadCustomerCommPreferences(
     ? createServiceClient()
     : await createClient();
 
-  const { data, error } = await supabase
-    .from("customers")
-    .select(
-      "id, preferred_communication_method, marketing_consent, email, phone",
-    )
-    .eq("id", customerId)
-    .eq("business_id", businessId)
-    .maybeSingle();
+  const readCustomer = (select: string) =>
+    supabase
+      .from("customers")
+      .select(select)
+      .eq("id", customerId)
+      .eq("business_id", businessId)
+      .maybeSingle();
 
-  if (error) {
-    if (!isSoftSchemaFallbackAllowed(error.message)) {
-      logQueryError("comms.customer.prefs", error.message);
-    }
-    return {
+  const { data, error } = await readCustomer(CUSTOMER_PREFS_FULL);
+
+  if (!error) {
+    if (!data) return transactionalUnavailablePrefs(customerId);
+    return deriveCustomerChannelPreferences(data as CustomerPrefRow, {
       customerId,
-      email: true,
-      sms: true,
-      marketing: false,
-      preferredMethod: null,
-    };
+      marketing: Boolean((data as CustomerPrefRow).marketing_consent),
+    });
   }
 
-  const preferred = (data?.preferred_communication_method as string) ?? null;
-  return {
-    customerId,
-    email: preferred !== "sms" && preferred !== "call",
-    sms: preferred !== "email",
-    marketing: Boolean(data?.marketing_consent),
-    preferredMethod: preferred,
-  };
+  if (isMarketingConsentColumnMissing(error.message)) {
+    warnMarketingConsentCompat(error.message);
+    const fallback = await readCustomer(CUSTOMER_PREFS_COMPAT);
+    if (fallback.error) {
+      logQueryError(COMPAT_WARN_SCOPE, fallback.error.message);
+      captureMessage(
+        `[${COMPAT_WARN_SCOPE}] preference compatibility read failed`,
+        "error",
+        { message: fallback.error.message },
+      );
+      return transactionalUnavailablePrefs(customerId);
+    }
+    if (!fallback.data) return transactionalUnavailablePrefs(customerId);
+    return deriveCustomerChannelPreferences(fallback.data as CustomerPrefRow, {
+      customerId,
+      marketing: false,
+    });
+  }
+
+  if (!isSoftSchemaFallbackAllowed(error.message)) {
+    logQueryError(COMPAT_WARN_SCOPE, error.message);
+    captureMessage(`[${COMPAT_WARN_SCOPE}] preference read failed`, "error", {
+      message: error.message,
+    });
+  }
+  return transactionalUnavailablePrefs(customerId);
 }
 
 export function channelAllowed(input: {
@@ -150,9 +227,9 @@ export function channelAllowed(input: {
 }): boolean {
   if (input.channel === "email" && !input.business.emailEnabled) return false;
   if (input.channel === "sms" && !input.business.smsEnabled) return false;
-  if (input.marketing && !input.business.marketingEmailEnabled) return false;
-  if (input.marketing && input.customer && !input.customer.marketing) {
-    return false;
+  if (input.marketing) {
+    if (!input.business.marketingEmailEnabled) return false;
+    if (!input.customer?.marketing) return false;
   }
   if (input.customer) {
     if (input.channel === "email" && !input.customer.email) return false;

@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-14 — post-recovery canonical reconciliation (review only)
+
+Production recovery CLOSED on serving `dbbe450`; worker reliability, Package A and final 3/3 public exposure accepted. Exact recovery refs preserved without rewriting; accepted final runtime and regression contracts selectively ported onto main `476af17` for review. No merge or Production release. Current-state, launch, task, GVM and agent-governance docs restamped; Phase 5 IN PROGRESS, Gate B NOT MET. [Closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) records evidence and remaining legitimate-booking dual-email validation.
+
+040 is historical fixture-only; 041/ledger/consent and Package A artifacts retained, not executed. Historical 026 unchanged. No pricing, auth-recovery, roadmap-window or Production configuration change.
+
+
 ### Changed (World Class Phase 4A — Commercial SaaS Lifecycle Honesty)
 
 **STATUS:** COMPLETE / MERGED TO MAIN (PR #29, `f6517a1`)

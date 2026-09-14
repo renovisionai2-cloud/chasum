@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-14",
+  "baseline": "476af17bfd06113281df0b5c33f995ccb26f5fff",
+  "runtimeSource": "dbbe4502365858d4194f197b9ac22afe8d259c14",
+  "packageASource": "a855e7733a0687de580c8fa3f861b389a476c926",
+  "runtimeFiles": 69,
+  "runtimeByteParity": true,
+  "unitTests": {
+    "command": "npm test -- tests/unit",
+    "passed": 892,
+    "failed": 1,
+    "filesPassed": 93,
+    "filesFailed": 1,
+    "baselineFailure": "tests/unit/marketing/multi-business-selection.test.ts:60 expected business.discovered true, got undefined; independently reproduced against main (3 pass / 1 fail)"
+  },
+  "lint": {
+    "command": "npm run lint",
+    "errors": 30,
+    "warnings": 8,
+    "baselineErrors": 30,
+    "baselineWarnings": 13,
+    "newErrors": 0,
+    "comparison": "same file, rule, message first line and offending source line",
+    "changedFileBaselineError": "components/day-view/appointment-drawer.tsx react-hooks/set-state-in-effect; same pre-existing setFinancialActivity(null) effect"
+  },
+  "build": {
+    "command": "npm run build",
+    "result": "PASS",
+    "environmentLimitations": [
+      "Initial external node_modules symlink rejected by Turbopack; replaced with local copy of identical dependencies.",
+      "Sandbox Google Fonts fetch failed; authorized local build with public font network access passed."
+    ],
+    "warnings": [
+      "Next.js middleware convention deprecated; unchanged baseline."
+    ]
+  },
+  "typecheck": {
+    "command": "npm run typecheck",
+    "result": "PASS"
+  },
+  "databaseExecution": "NONE",
+  "liveCampaignExecution": "NONE",
+  "runtimeIntegration": "Exact accepted final-state ports only; no new behavior.",
+  "testOnlyPathAdjustments": [
+    "040 moved byte-for-byte to tests/fixtures/recovery/040_book_public_appointment.sql",
+    "Three static test files resolve archived 040 fixture outside migrations.",
+    "Removed inherited trailing blank line at end of worker-reliability.test.ts; assertions unchanged."
+  ],
+  "packageAIntegrationTests": "Preserved opt-in local fixture test; not executed (no SQL authorized).",
+  "productionAcceptance": "Previously accepted evidence only, not re-executed for reconciliation.",
+  "diffCheck": "PASS after removing inherited Markdown trailing whitespace and test EOF blank line"
+}

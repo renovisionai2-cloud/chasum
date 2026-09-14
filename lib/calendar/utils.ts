@@ -21,7 +21,8 @@ import {
 import type { BusinessHours } from "@/lib/types/booking";
 
 export const CALENDAR_START_HOUR = 7;
-export const CALENDAR_END_HOUR = 21;
+// Exclusive end: preserve the existing 7:00 through 21:00 hour rows.
+export const CALENDAR_END_HOUR = 22;
 /** @deprecated Prefer business/location appointment_interval_minutes. */
 export const SLOT_INTERVAL_MINUTES = DEFAULT_BOOKING_INTERVAL_MINUTES;
 
@@ -67,7 +68,7 @@ export function getMonthDays(date: Date): Date[] {
 
 export function getHourSlots(): number[] {
   const slots: number[] = [];
-  for (let hour = CALENDAR_START_HOUR; hour <= CALENDAR_END_HOUR; hour++) {
+  for (let hour = CALENDAR_START_HOUR; hour < CALENDAR_END_HOUR; hour++) {
     slots.push(hour);
   }
   return slots;

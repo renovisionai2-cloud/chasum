@@ -13,6 +13,11 @@ describe("schema soft fallbacks", () => {
   it("detects missing schema messages", () => {
     expect(isMissingSchemaError('relation "payments" does not exist')).toBe(true);
     expect(isMissingSchemaError("unique violation")).toBe(false);
+    expect(
+      isMissingSchemaError(
+        "Could not find the 'marketing_consent' column of 'customers' in the schema cache",
+      ),
+    ).toBe(true);
   });
 
   it("disables soft fallbacks by default", () => {

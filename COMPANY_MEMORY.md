@@ -15,9 +15,20 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ---
 
-## Current chapter (2026-08-25 restamp)
+## Current chapter (2026-09-14 restamp)
 
-Post-break World Class resumption. Phases 1–4A are **merged to `main`**. **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (PR #29). Commercial SaaS Lifecycle remains **PARTIAL** unless Gate B (commercial-v1 paid billing) is also met. Next: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**.
+Production recovery CLOSED (2026-09-14). Accepted Production `dbbe450` / `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`; recovery hold OFF, Cron enabled, webhooks OFF. PR #32 is the reconciliation vehicle from baseline main `476af17`, an ancestor of accepted Production. This is historical base identity, not a permanent current-main pin; merge/release status must be read from GitHub. First legitimate GVM booking + dual-email validation and HQ dogfood remain. Outside Private Alpha not started.
+
+Post-break World Class resumption. Phases 1–4A are **merged to `main`**. **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (PR #29). Commercial SaaS Lifecycle remains **PARTIAL** unless Gate B (commercial-v1 paid billing) is also met. Current: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**.
+
+Post-reconciliation operating queue (not a claim that PR #32 has merged):
+
+1. Phase 5 operational validation: first legitimate GVM booking, customer confirmation email and business new-booking email.
+2. Chasum HQ dogfood as a normal tenant.
+3. Outside Private Alpha readiness.
+4. Balanced Core Operations / Commercial SaaS / Intelligence / Validation work.
+5. Gate B sequencing only when explicitly approved.
+6. Summer horizontal intelligence progression when scoped.
 
 Roadmap outcomes must stay balanced:
 
@@ -70,6 +81,10 @@ Roadmap outcomes must stay balanced:
 
 ---
 
+## Agent operating model
+
+Darshan = Founder / CEO / Product Owner. ChatGPT = control tower / Product & Development Program Lead. Codex = DEFAULT primary implementation engineer. Cursor = situational engineer when local/auth/device environment offers a real advantage. Claude = independent auditor for higher-risk work. Momentic = browser/workflow regression. One primary implementer per task.
+
 ## Engineering reminders
 
 - Read Next.js docs under `node_modules/next/dist/docs/` before new App Router patterns.
@@ -77,7 +92,7 @@ Roadmap outcomes must stay balanced:
 - Preview uses Staging; Production uses Production.
 - Soft-fail when optional migrations are missing.
 - Surgical diffs — no drive-by refactors of unrelated modules.
-- Level 3 (tenancy, auth/RLS, billing, booking architecture, navigation architecture, migrations, tenant identity, Production data): Claude independent pre-challenge before Cursor implementation.
+- Level 3 (tenancy, auth/RLS, billing, booking architecture, navigation architecture, migrations, tenant identity, Production data): Claude independent pre-challenge before primary-engineer implementation.
 - **Extend, don’t redesign** — Premium Experience polish uses Design System v1; no parallel UI languages.
 
 ---
@@ -104,4 +119,4 @@ Roadmap outcomes must stay balanced:
 
 ---
 
-*Last updated: 2026-08-24 — source-of-truth realignment (documentation only).*
+*Last updated: 2026-09-14 — post-recovery canonical reconciliation.*

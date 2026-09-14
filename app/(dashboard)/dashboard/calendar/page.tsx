@@ -5,12 +5,18 @@ import { getAppointments, getDashboardStats } from "@/lib/actions/appointments";
 import { listTaxRates } from "@/lib/actions/business-management";
 import { getCustomers } from "@/lib/actions/customers";
 import { getStaffDayOverlays } from "@/lib/actions/day-overlays";
-import { getLocations, getBookingIntervalMinutes } from "@/lib/actions/location";
+import { getLocations, getLocationScope, getBookingIntervalMinutes } from "@/lib/actions/location";
 import { getMorningBrief } from "@/lib/actions/morning-brief";
 import { getWaitlistEntries } from "@/lib/actions/notifications";
 import { getServices } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
-import { parseCalendarDateParam } from "@/lib/calendar/date-param";
+import { calendarDayStart, addCalendarDays } from "@/lib/business/datetime";
+import { getBusinessTimezone, formatBusinessDate } from "@/lib/locale";
+import {
+  parseCalendarDateParam,
+  formatCalendarDateParam,
+  resolveCalendarDateValue,
+} from "@/lib/calendar/date-param";
 import { buildDashboardInsights } from "@/lib/dashboard/insights";
 import type { CalendarView } from "@/lib/types/booking";
 import type { Metadata } from "next";
@@ -19,7 +25,6 @@ import {
   endOfDay,
   endOfMonth,
   endOfWeek,
-  format,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -68,15 +73,21 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   const view = (params.view as CalendarView) ?? "day";
   // Accept YYYY-MM-DD or full ISO from client navigation — never concat T12
   // onto an ISO string (Invalid Date → toISOString crash).
-  const date = parseCalendarDateParam(params.date);
-  const range = getRange(view, date);
+  const [locations, scope] = await Promise.all([getLocations(), getLocationScope()]);
+  const selectedLocation = scope.mode === "single" ? locations.find((l) => l.id === scope.locationId) : null;
+  const timezone = getBusinessTimezone({ timezone: business.timezone, locationTimezone: selectedLocation?.timezone });
+  const dateValue = resolveCalendarDateValue(params.date, timezone);
+  const date = parseCalendarDateParam(dateValue);
+  const civilRange = getRange(view, date);
+  const start = calendarDayStart(formatCalendarDateParam(civilRange.start), timezone);
+  const nextDay = calendarDayStart(addCalendarDays(formatCalendarDateParam(civilRange.end), 1), timezone);
+  const range = { start, end: new Date(nextDay.getTime() - 1) };
 
   const [
     appointments,
     services,
     staff,
     customers,
-    locations,
     brief,
     stats,
     waitlist,
@@ -88,11 +99,10 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     getServices(),
     getStaff(),
     getCustomers(),
-    getLocations(),
     getMorningBrief(),
     getDashboardStats(),
     getWaitlistEntries(),
-    getStaffDayOverlays(range.start.toISOString()),
+    getStaffDayOverlays(dateValue),
     listTaxRates(),
     getBookingIntervalMinutes(),
   ]);
@@ -106,7 +116,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     pendingConfirmations: stats.pendingConfirmations,
     upcomingCount: stats.upcoming.length,
     customerCount: stats.customerCount,
-    weekdayName: format(new Date(), "EEEE"),
+    weekdayName: formatBusinessDate(new Date(), { timezone }, { weekday: "long" }),
   });
 
   return (
@@ -116,6 +126,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         description="Day View Control Center — multi-employee floor, Morning Brief, and quick actions."
       />
       <ReceptionWorkspace
+        key={`${timezone}:${dateValue}:${view}`}
         brief={brief}
         insights={insights}
         appointments={appointments}
@@ -124,14 +135,14 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         customers={customers}
         locations={locations}
         waitlist={waitlist}
-        initialDate={range.start.toISOString()}
+        initialDate={dateValue}
         initialView={view}
         dayOverlays={dayOverlays}
         openBookOnLoad={params.book === "1"}
         focusAppointmentId={params.appointment ?? null}
         currency={business.currency ?? "usd"}
         taxRates={taxRates.filter((t) => t.is_active)}
-        timezone={business.timezone}
+        timezone={timezone}
         appointmentIntervalMinutes={appointmentIntervalMinutes}
       />
     </div>

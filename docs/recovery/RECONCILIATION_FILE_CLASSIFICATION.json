@@ -1,0 +1,683 @@
+{
+  "base": "476af17bfd06113281df0b5c33f995ccb26f5fff",
+  "acceptedRuntime": "dbbe4502365858d4194f197b9ac22afe8d259c14",
+  "categories": {
+    "A": "approved required implementation or regression contract",
+    "B": "approved evidence/docs only",
+    "C": "historical/superseded or replaced current-state documentation",
+    "D": "unrelated",
+    "E": "conflict"
+  },
+  "files": [
+    {
+      "path": "app/(dashboard)/dashboard/calendar/page.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "app/(owner)/owner/settings/page.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "app/api/cron/process-jobs/route.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "app/api/v1/appointments/[id]/route.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "app/api/v1/appointments/route.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "app/book/[slug]/page.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/booking/booking-confirmation.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/booking/public-booking-page.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/calendar/appointment-block.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/calendar/calendar-client.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/calendar/calendar-toolbar.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/calendar/calendar-views-extended.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/calendar/calendar-views.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/crm/customer-profile.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/day-view/appointment-card.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/day-view/appointment-drawer.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/day-view/day-control-center.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "components/scheduling/available-time-selector.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "docs/API.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/APPOINTMENT_TENANT_INTEGRITY.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/CURRENT_PROJECT_STATE.md",
+      "classification": "C",
+      "decision": "preserved on recovery ref; not imported into active reconciliation"
+    },
+    {
+      "path": "docs/PACKAGE_B_COMMUNICATION_CONSENT.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/PHASE5_041_PRODUCTION_CUTOVER.md",
+      "classification": "C",
+      "decision": "preserved on recovery ref; not imported into active reconciliation"
+    },
+    {
+      "path": "docs/PHASE5_BUSINESS_DATE_CORRECTION.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/PHASE5_RECOVERY_TIMEZONE_INTEGRATION.md",
+      "classification": "C",
+      "decision": "preserved on recovery ref; not imported into active reconciliation"
+    },
+    {
+      "path": "docs/PRODUCTION_RECOVERY_STATE.md",
+      "classification": "C",
+      "decision": "preserved on recovery ref; not imported into active reconciliation"
+    },
+    {
+      "path": "docs/PRODUCTION_WORKER_RECOVERY_RUNBOOK.md",
+      "classification": "C",
+      "decision": "preserved on recovery ref; not imported into active reconciliation"
+    },
+    {
+      "path": "docs/REST_API.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/VERCEL_RUNTIME_SAFETY_SEPARATION.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/WORKER_CANDIDATE_SELECTION_RETRY.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/WORKER_RELIABILITY_CLAUDE_HANDOFF.md",
+      "classification": "C",
+      "decision": "preserved on recovery ref; not imported into active reconciliation"
+    },
+    {
+      "path": "docs/WORKER_RELIABILITY_HOTFIX.md",
+      "classification": "B",
+      "decision": "preserve technical documentation with current-status banner"
+    },
+    {
+      "path": "docs/worker-reliability-validation.json",
+      "classification": "C",
+      "decision": "preserved on recovery ref; not imported into active reconciliation"
+    },
+    {
+      "path": "lib/actions/appointments.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/actions/crm.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/actions/day-overlays.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/actions/notification-retry.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/actions/public-booking.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/api/appointment-references.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking-engine/adapters/public.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking-engine/index.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking-engine/mutations/create.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking-engine/mutations/index.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking-engine/persistence.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking-engine/queries/range.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking/public-write-path.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/booking/time-groups.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/business/datetime.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/calendar/date-param.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/calendar/operational-time.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/calendar/status-colors.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/calendar/utils.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/commerce/receipts.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/booking-source.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/delivery.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/events/booking-bridge.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/intent-identity.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/preferences.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/queue.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/reliability-config.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/send-intent.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/templates/index.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/timeline.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/communications/types.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/crm/customer-payload.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/env.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/automation/recurring.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/automation/waitlist.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/calendar/sync.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/jobs/candidate-selection.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/jobs/claim.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/jobs/processor.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/jobs/queue.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/notifications/appointment-context.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/notifications/orchestrator.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/providers/email.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/providers/outcome.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/providers/sms.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/integrations/providers/types.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/notifications/booking-delivery.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/supabase/errors.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/types/booking.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/types/integrations.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "lib/validation/schemas.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "scripts/run-staging-isolated-worker-runtime.mjs",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "scripts/run-staging-package-b-targeted-validation.mjs",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "scripts/run-staging-webhook-hold-runtime.mjs",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "supabase/migrations/040_book_public_appointment.sql",
+      "classification": "C",
+      "decision": "historical fixture only; never a Production migration"
+    },
+    {
+      "path": "supabase/migrations/041_book_public_appointment_server_financials.sql",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "supabase/migrations/20260905024239_communication_send_intents.sql",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "supabase/migrations/20260909140000_communication_consent_compatibility.sql",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/integration/staging-isolated-worker-runtime.test.ts",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "tests/integration/staging-package-b-isolated-worker.test.ts",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "tests/integration/staging-package-b-live.test.ts",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "tests/integration/staging-webhook-hold-runtime.test.ts",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "tests/integration/worker-claim-postgres.test.ts",
+      "classification": "B",
+      "decision": "preserve on exact recovery ref; no live campaign imported or executed"
+    },
+    {
+      "path": "tests/unit/actions/crm-consent.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/api/appointment-tenant-integrity.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/appointments-rls-posture.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/authenticated-create-booking-callers.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/book-public-appointment-financial-integrity.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/book-public-appointment-rpc.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/create-booking-persistence.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/public-booking-orchestration-once.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/public-booking-write-path.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/public-business-date.test.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/public-recovery-integration.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/booking/public-slot-time-integrity.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/calendar/business-date-correctness.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/calendar/operational-calendar.test.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/calendar/range-query.test.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/calendar/reception-date.test.tsx",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/commerce/payment-receipt-retry.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/commerce/receipt-reliability.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/booking-source-label.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/candidate-selection.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/customer-preferences-compat.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/delivery-preference-gates.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/delivery-reliability.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/provider-outcomes.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/send-intent-schema.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/send-intent.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/waitlist-intent-reliability.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/communications/worker-reliability.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/env/runtime-routes.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/env/runtime-safety.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/integrations/calendar-appointment-integrity.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/notifications/appointment-audience-preference.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/notifications/appointment-tenant-integrity.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/notifications/business-resend-deposit.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/notifications/inline-delivery.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/notifications/inline-reliability.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/notifications/producer-identity.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    },
+    {
+      "path": "tests/unit/supabase/errors.test.ts",
+      "classification": "A",
+      "decision": "port exact accepted final state"
+    }
+  ]
+}

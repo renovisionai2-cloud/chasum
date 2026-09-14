@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { groupSlotsByTimeOfDay } from "@/lib/booking/time-groups";
+import { formatBusinessTime } from "@/lib/locale";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -27,6 +28,7 @@ export type AvailableTimeSelectorHandle = {
 };
 
 type AvailableTimeSelectorProps = {
+  timezone?: string;
   slots: AvailableTimeOption[];
   selectedStart: string | null;
   onSelect: (start: string) => void;
@@ -51,6 +53,7 @@ export const AvailableTimeSelector = forwardRef<
 >(function AvailableTimeSelector(
   {
     slots,
+    timezone,
     selectedStart,
     onSelect,
     loading = false,
@@ -86,8 +89,8 @@ export const AvailableTimeSelector = forwardRef<
   }, [forceExpanded, selectedInvalid]);
 
   const groups = useMemo(
-    () => groupSlotsByTimeOfDay(slots, (s) => s.start),
-    [slots],
+    () => groupSlotsByTimeOfDay(slots, (s) => s.start, timezone),
+    [slots, timezone],
   );
 
   useEffect(() => {
@@ -103,8 +106,9 @@ export const AvailableTimeSelector = forwardRef<
     window.setTimeout(() => triggerRef.current?.focus(), 0);
   }
 
+  const clock = (start: string) => timezone ? formatBusinessTime(start, { timezone }) : formatTime(parseISO(start));
   const selectedLabel = selectedStart
-    ? formatTime(parseISO(selectedStart))
+    ? clock(selectedStart)
     : null;
 
   return (
@@ -246,7 +250,7 @@ export const AvailableTimeSelector = forwardRef<
                                 : "border-border bg-background",
                             )}
                           >
-                            {slot.label ?? formatTime(parseISO(slot.start))}
+                            {slot.label ?? clock(slot.start)}
                             {selected ? (
                               <span className="sr-only"> (selected)</span>
                             ) : null}

@@ -1,5 +1,8 @@
 "use client";
 
+import { operationalPosition, operationalSlot, resizeOperationalEnd } from "@/lib/calendar/operational-time";
+import { formatBusinessTime } from "@/lib/locale";
+
 import {
   CALENDAR_END_HOUR,
   CALENDAR_START_HOUR,
@@ -19,6 +22,8 @@ import { useEffect, useRef, useState } from "react";
 export type CalendarColorMode = "service" | "staff";
 
 type AppointmentBlockProps = {
+  timezone?: string;
+  day?: Date;
   appointment: AppointmentWithRelations;
   onSelect: (appointment: AppointmentWithRelations) => void;
   onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
@@ -31,6 +36,8 @@ type AppointmentBlockProps = {
 
 export function AppointmentBlock({
   appointment,
+  timezone,
+  day,
   onSelect,
   onResize,
   colorMode = "service",
@@ -39,9 +46,10 @@ export function AppointmentBlock({
   column = 0,
   columns = 1,
 }: AppointmentBlockProps) {
+  const [invalidResize, setInvalidResize] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [previewHeight, setPreviewHeight] = useState<number | null>(null);
-  const { top, height } = getAppointmentPosition(
+  const { top, height } = timezone && day ? operationalPosition(appointment.start_time, appointment.end_time, day, timezone) : getAppointmentPosition(
     appointment.start_time,
     appointment.end_time,
   );
@@ -52,8 +60,8 @@ export function AppointmentBlock({
 
   const widthPct = 100 / columns;
   const leftPct = column * widthPct;
-  const startLabel = formatTime(parseISO(appointment.start_time));
-  const endLabel = formatTime(parseISO(appointment.end_time));
+  const startLabel = timezone ? formatBusinessTime(appointment.start_time, { timezone }) : formatTime(parseISO(appointment.start_time));
+  const endLabel = timezone ? formatBusinessTime(appointment.end_time, { timezone }) : formatTime(parseISO(appointment.end_time));
 
   function handleDragStart(e: React.DragEvent) {
     setDragging(true);
@@ -90,14 +98,12 @@ export function AppointmentBlock({
       const deltaPx = ev.clientY - startY;
       const deltaMinutes =
         Math.round(((deltaPx / columnHeight) * totalMinutes) / 5) * 5;
-      const next = addMinutes(originalEnd, deltaMinutes);
+      const next = timezone ? resizeOperationalEnd(originalEnd, deltaMinutes, timezone) : addMinutes(originalEnd, deltaMinutes);
       const minEnd = addMinutes(startEnd, 5);
-      if (next.getTime() >= minEnd.getTime()) {
-        const nextHeight =
-          ((next.getTime() - parseISO(appointment.start_time).getTime()) /
-            60000 /
-            totalMinutes) *
-          100;
+      if (next && next.getTime() >= minEnd.getTime()) {
+        const nextHeight = timezone && day
+          ? operationalPosition(appointment.start_time, next.toISOString(), day, timezone).height
+          : ((next.getTime() - startEnd.getTime()) / 60000 / totalMinutes) * 100;
         setPreviewHeight(Math.max(nextHeight, 3));
       }
     }
@@ -109,9 +115,10 @@ export function AppointmentBlock({
       const deltaPx = ev.clientY - startY;
       const deltaMinutes =
         Math.round(((deltaPx / columnHeight) * totalMinutes) / 5) * 5;
-      const next = addMinutes(originalEnd, deltaMinutes);
+      const next = timezone ? resizeOperationalEnd(originalEnd, deltaMinutes, timezone) : addMinutes(originalEnd, deltaMinutes);
       const minEnd = addMinutes(startEnd, 5);
-      if (next.getTime() >= minEnd.getTime() && deltaMinutes !== 0) {
+      setInvalidResize(!next);
+      if (next && next.getTime() >= minEnd.getTime() && deltaMinutes !== 0) {
         onResize?.(appointment, next);
       }
     }
@@ -119,6 +126,8 @@ export function AppointmentBlock({
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
   }
+
+  if (timezone && day && height <= 0) return null;
 
   return (
     <button
@@ -163,6 +172,7 @@ export function AppointmentBlock({
           </p>
         </>
       )}
+      {invalidResize && <span role="status">Unavailable or ambiguous local end time.</span>}
       {onResize && !compact && appointment.status !== "cancelled" && (
         <span
           role="separator"
@@ -181,8 +191,10 @@ export function AppointmentBlock({
 export function CurrentTimeIndicator({
   show,
   autoScroll = true,
+  timezone,
 }: {
   show: boolean;
+  timezone?: string;
   /** When false, skip scrollIntoView (multi-column day grids). */
   autoScroll?: boolean;
 }) {
@@ -200,6 +212,7 @@ export function CurrentTimeIndicator({
       const next = getCurrentTimePosition(
         CALENDAR_START_HOUR,
         CALENDAR_END_HOUR,
+        timezone,
       );
       setPosition((prev) => (prev === next ? prev : next));
     }
@@ -207,7 +220,7 @@ export function CurrentTimeIndicator({
     update();
     const interval = setInterval(update, 30000);
     return () => clearInterval(interval);
-  }, [show]);
+  }, [show, timezone]);
 
   useEffect(() => {
     if (
@@ -245,6 +258,7 @@ export function CurrentTimeIndicator({
 }
 
 type DropZoneProps = {
+  timezone?: string;
   date: Date;
   hour: number;
   /** Business/location booking start-time interval (minutes). */
@@ -256,12 +270,20 @@ type DropZoneProps = {
 
 export function TimeSlotDropZone({
   date,
+  timezone,
   hour,
   intervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
   onDrop,
   onClick,
   className,
 }: DropZoneProps) {
+  const [invalidTime, setInvalidTime] = useState(false);
+  function slotAt(minutes: number) {
+    if (timezone) return operationalSlot(date, hour * 60 + minutes, timezone);
+    const slot = new Date(date);
+    slot.setHours(hour, minutes, 0, 0);
+    return slot;
+  }
   const [hoverMinutes, setHoverMinutes] = useState<number | null>(null);
 
   function minutesFromEvent(e: React.DragEvent | React.MouseEvent): number {
@@ -287,9 +309,9 @@ export function TimeSlotDropZone({
     const appointmentId = e.dataTransfer.getData("appointmentId");
     if (!appointmentId) return;
 
-    const slot = new Date(date);
-    slot.setHours(hour, minutes, 0, 0);
-    onDrop(slot, appointmentId);
+    const slot = slotAt(minutes);
+    setInvalidTime(!slot);
+    if (slot) onDrop(slot, appointmentId);
   }
 
   const ghostTop =
@@ -311,11 +333,12 @@ export function TimeSlotDropZone({
       onDrop={handleDrop}
       onClick={(e) => {
         const minutes = minutesFromEvent(e);
-        const slot = new Date(date);
-        slot.setHours(hour, minutes, 0, 0);
-        onClick(slot);
+        const slot = slotAt(minutes);
+        setInvalidTime(!slot);
+        if (slot) onClick(slot);
       }}
     >
+      {invalidTime && <span role="status">Unavailable or ambiguous local time. Choose another time.</span>}
       {ghostTop != null && (
         <span
           className="pointer-events-none absolute inset-x-1 rounded-sm border border-dashed border-primary/50 bg-primary/10"

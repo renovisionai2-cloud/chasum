@@ -1,12 +1,38 @@
 # Chasum Database
 
+## Accepted Production recovery state — 2026-09-14
+
+Recovery CLOSED; [canonical closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md). 029 communications repair and send-intent ledger accepted. Package A four-function correction accepted under purpose record `20260913232447_package_a_existing_appointment_interval_correction`; historical 026 unchanged. 041 is the accepted public-booking financial authority, unchanged. 040 was not executed on Production and is retained only as a regression fixture outside migrations. 034/035/036 remain locked/unapplied. Presence of a column such as next_retry_at does not establish that 034 ran. Historical 037/038 attribution does not replace catalog proof.
+
+No SQL execution, RLS/ACL change or migration replay is authorized by this reconciliation. Existing migration comments saying NOT APPLIED refer to their implementation dates, not current Production status.
+
+
 PostgreSQL via **Supabase** with Row Level Security (RLS) on every table. All tenant data is scoped by `business_id`.
 
 ---
 
+## Production migration-history / catalog drift
+
+**Repository migration files are NOT proof of per-environment migration history.** Production has known history/catalog drift from manually governed recovery operations. The following is ChatGPT's supplied read-only Production history review, recorded for PR #32 corrections; Codex did not query either environment for this correction.
+
+| Environment / object | Observed history or catalog evidence |
+| --- | --- |
+| Production ordinary history | 001–025 present; historical attribution beyond these is incomplete. |
+| Production send-intent ledger | History version `20260907212026`, name `20260905024239_communication_send_intents`; accepted ledger live. |
+| Repository ledger artifact | `20260905024239_communication_send_intents.sql`; its filename version differs from Production history. |
+| Staging ledger history | Version `20260905024239`, name `communication_send_intents`. |
+| Production Package A | Version `20260913232447`, name `package_a_existing_appointment_interval_correction`. |
+| Production consent compatibility | Marketing-consent columns live/accepted; ordinary matching artifact history row not observed. |
+| Production 041 | Accepted function behavior/state live; ordinary matching history row not observed. |
+
+Live/catalog effects, historical attribution and recorded migration versions are distinct evidence. Missing ordinary history rows do not mean accepted objects are absent and do not authorize reapplication.
+
+**`supabase db push`, bulk numerical replay, and “apply every missing local migration” are prohibited.** Before proposing future SQL, compare all three: repository inventory, target-environment migration history, and live catalog/function state. Resolve discrepancies explicitly under a separately governed database task. This documentation authorizes NO history repair, SQL, or change to either environment. 034/035/036 remain locked/unapplied; 040 remains unexecuted on Production; 041 remains accepted and unchanged.
+
+
 ## Migrations
 
-Run in order in the Supabase SQL Editor or via `supabase db push`:
+Historical migration inventory only. **Do not bulk-apply or numerically replay these files.** Live catalog state and separately approved targets govern each environment.
 
 | File | Description |
 |------|-------------|
