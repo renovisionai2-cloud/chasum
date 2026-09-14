@@ -2,7 +2,9 @@
 
 ## Post-recovery tracked debt — 2026-09-14
 
-Recovery is CLOSED. Tracking only; no implementation authorized here.
+Recovery is CLOSED. Tracking only; no implementation authorized here. Only new contradictory runtime evidence may reopen a Production incident; do not reopen either historical timeout investigation.
+
+**Outside Private Alpha readiness:** meaningful Production error visibility and trace/correlation are required before broader Outside Private Alpha. Separately evaluate Sentry / OTel or equivalent (TD-H7); historical Gateway Timeout attribution difficulty makes this an explicit readiness gate.
 
 | Severity | Item | Next decision |
 | --- | --- | --- |
@@ -48,7 +50,7 @@ No fixes in this document — tracking only.
 | TD-H4 | Service-role client used broadly | Correct for jobs; high blast radius without audits |
 | TD-H5 | Portal / ICS tokens not hashed | Unlike API keys |
 | TD-H6 | Employee roles not enforced | Catalog exists; owner-always permissions |
-| TD-H7 | No Sentry/OTel | Blind production |
+| TD-H7 | Production observability readiness | Existing instrumentation alone is not acceptance: evaluate Sentry / OTel or equivalent and prove error visibility + trace/correlation before broader Outside Private Alpha. |
 | TD-H8 | Middleware deprecation | `middleware.ts` vs Next “proxy” convention warning |
 
 ---

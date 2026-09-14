@@ -6,7 +6,15 @@
 
 This is the canonical restamp of accepted recovery reports and control-tower closure, not a fresh Production investigation. This reconciliation executes no SQL, browser campaign, provider send or worker call. Read-only Vercel mapping/alias checks support safe non-main Git publication only.
 
-## Accepted state
+## Post-release addendum — 2026-09-14
+
+PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
+
+All three Production aliases align to the new deployment. Unauthenticated git-main alias 302 → Vercel SSO is intentionally protected behavior, accepted by the supplied Product Owner/control-tower closeout; it is not a fresh application-render pass. Primary application health and non-submit GVM flow passed in the release checks. Staging unchanged. Recovery CLOSED; hold OFF; Cron enabled; webhooks OFF. No new Production inspection occurs in this documentation task.
+
+Canonical source of truth is main + canonical /docs. Preservation refs below are historical evidence, not current execution instructions.
+
+## Historical accepted recovery state — before PR #32 release
 
 - Production deployment: `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`.
 - Serving commit: `dbbe4502365858d4194f197b9ac22afe8d259c14`; parent `19d86a265fd6eecbc2da4b66c5ad508a0b93f6b5`.
@@ -33,14 +41,14 @@ Named-staff Early Gender availability loaded for September 15 (139 slots, 09:00�
 
 ## Canonical history
 
-Main `476af17bfd06113281df0b5c33f995ccb26f5fff` is an ancestor of Production; Production is an ancestor of Package A. Preserve exact objects without rewriting:
+Historical pre-reconciliation main `476af17bfd06113281df0b5c33f995ccb26f5fff` is an ancestor of historical recovery Production; that recovery commit is an ancestor of Package A. Preserve exact objects without rewriting:
 
 - `recovery/production-serving-20260914` → `dbbe4502365858d4194f197b9ac22afe8d259c14`.
 - `recovery/package-a-availability-20260914` → `a855e7733a0687de580c8fa3f861b389a476c926`.
 - Corrected Package A technical state: `d524d1d1a90536258208bbec4559aa827b3759a0`.
 - `0e4c0536f021a44d52dc151220de42265b03ce78` is HISTORICAL FAILED / SUPERSEDED evidence, never the active target.
 
-The reconciliation branch starts from main and selectively ports final runtime, not ancestry. [File classification](./RECONCILIATION_FILE_CLASSIFICATION.json) accounts for every main-to-Production changed path. No unrelated marketing/auth-recovery branch is merged. Historical live-test runners and operational runbooks remain available on the exact preservation refs; they are not current execution instructions.
+PR #32 started from that historical main and selectively ported final runtime, not ancestry; it is now merged. [File classification](./RECONCILIATION_FILE_CLASSIFICATION.json) accounts for every main-to-Production changed path. No unrelated marketing/auth-recovery branch is merged. Historical live-test runners and operational runbooks remain available on the exact preservation refs; they are not current execution instructions.
 
 ## Schema artifacts, not execution authority
 

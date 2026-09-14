@@ -3,7 +3,7 @@
 **Status:** Official company roadmap  
 **Parent:** [`CHASUM_BIBLE.md`](./CHASUM_BIBLE.md)  
 **Active backlog:** [`MASTER_TASKS.md`](./MASTER_TASKS.md)  
-**Handoff / current NEXT:** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md) — that control board is current. Themes below are durable; they are **not** an instruction to deepen Emma first or treat GVM as the entire strategy.
+**Handoff / current NEXT:** [`../CURRENT_PROJECT_STATE.md`](../CURRENT_PROJECT_STATE.md) — that control board is current. Themes below are durable; the locked order below governs future work; GVM must not become the roadmap.
 
 **Detailed history:** [`../ROADMAP.md`](../ROADMAP.md), [`../CHANGELOG.md`](../CHANGELOG.md)
 
@@ -40,15 +40,30 @@ Also foundational (earlier phases): design system, multi-tenant schema + RLS, se
 
 ## Future
 
-Ordered as strategic themes — exact sprint order lives in [`MASTER_TASKS.md`](./MASTER_TASKS.md).
+### Locked execution order — 2026-09-14
 
-### AI Workforce
+1. Post-release source-of-truth restamp (this documentation task).
+2. GVM + Chasum HQ Phase 5 validation in parallel.
+3. Outside Private Alpha readiness.
+4. Commercial SaaS Gate B.
+5. Summer Business Manager horizontal v1.
 
-- Deepen Emma (channels, FAQs config, public widget)
-- Alex Scheduler automation beyond recommendations
-- Maya Marketing, Leo Advisor, Sophia Success, Noah Ops — assist → automate stages
-- Command Center as real workforce coordination
-- Voice calling (architected; not yet implemented)
+The latter chapters remain separately scoped/approved implementation work. Core Operations launch-required defects continue throughout; validation tenants do not become product forks or dominate the roadmap.
+
+Outside Private Alpha readiness includes meaningful Production error visibility and trace/correlation (separate Sentry / OTel or equivalent evaluation), tenant onboarding/identity safety, and switching/import/migration as a product capability for customers, staff, services and future appointments. Summer-assisted onboarding/migration is a strategic opportunity.
+
+Gate B covers real provider billing, truthful subscriptions and account lifecycle, paid activation, upgrade/downgrade/cancellation, failed-payment/dunning behavior, entitlement synchronization and pricing-math reconciliation. Pricing remains configurable: **pay for 10 months and receive 2 months free**, not “20% off.” Before selling multi-staff operation, resolve practical staff login/invitations/roles/permissions/owner-admin boundaries; promised team access makes RBAC LAUNCH REQUIRED, otherwise claims must explicitly say owner-operated v1.
+
+### Summer Business Manager / intelligence layer
+
+Summer horizontal v1 is the explicit major intelligence track, not a chatbot, receptionist, FAQ bot or copy generator. Across booking/calendar, customers, staff/locations, payments, invoices/receipts, communications, reporting and business setup/context, progress through **UNDERSTAND → EXPLAIN → RECOMMEND → ACT WITH PERMISSION → AUDIT**; longer-term **AUTOMATE SAFELY → OPERATE PROACTIVELY**.
+
+Specialized workers share authoritative operating truth and permissions. Historical Emma naming does not set the future direction. Command Centre provides operating clarity; voice remains future capability, not a shipped claim.
+
+### Competitive standard
+
+Preserve a credible parity floor for essential service-business operations beside Fresha, Jane, Vagaro, Calendly, Square Appointments, Mangomint, Boulevard, GlossGenius, Mindbody and Booksy. Differentiate through connected intelligence, Command Centre clarity, Summer recommendations, safe permissioned actions, auditability, financial truth, simplicity and switching/onboarding speed. Competitor breadth is not uncontrolled scope.
+
 
 ### Inventory & Products
 

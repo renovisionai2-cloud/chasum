@@ -9,6 +9,7 @@ Record of significant product and architecture decisions.
 
 ---
 
+| 2026-09-14 | [Bible §7](../company/CHASUM_BIBLE.md#7-ai-philosophy): Summer is the canonical AI Business Manager / intelligence layer | Shared authoritative operating truth; legacy agent names do not override direction or create disconnected chatbot products | ✅ Active — PO locked direction |
 | 2026-07 | Multi-tenant via `businesses` table + RLS | Supabase-native; simple owner model | ✅ Active |
 | 2026-07 | Public booking via SECURITY DEFINER RPCs | Prevent PII leakage; single validation path | ✅ Active |
 | 2026-07 | Phase 4 scheduling in PostgreSQL RPCs | One engine for dashboard, public, API | ✅ Shipped |

@@ -90,6 +90,8 @@ Related: [`../UI_GUIDELINES.md`](../UI_GUIDELINES.md), [`../product/07_DESIGN_SY
 
 ## 7. AI Philosophy
 
+**Summer is Chasum’s canonical AI Business Manager / intelligence layer.** Legacy named-agent history must not override this direction. Specialized workers may emerge over time, but share the same business operating truth and must not fragment Chasum into disconnected chatbot products.
+
 AI employees are **teammates with jobs**, not chatbots.
 
 1. AI removes work instead of creating work.
@@ -97,7 +99,7 @@ AI employees are **teammates with jobs**, not chatbots.
 3. AI never invents business data — hours, slots, prices, policies, and history come from Chasum.
 4. AI explains recommendations in plain language.
 5. Owners remain in control (assist → automate → collaborate only with consent).
-6. Every AI employee has a named role and clear success metrics (Emma, Alex, Maya, Leo, Sophia, Noah, …).
+6. Every specialized AI worker has a clear role and success metrics within the shared Summer intelligence direction. Historical names are not the future execution order.
 7. AI workers may hand off to each other and to humans.
 8. Voice, SMS, and channels may be architected early; do not claim capabilities that are not shipped.
 9. Multi-tenant isolation applies to prompts, logs, and tools — no cross-business leakage.

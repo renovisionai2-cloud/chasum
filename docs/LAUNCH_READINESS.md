@@ -3,11 +3,11 @@
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
 **Last updated:** 2026-09-14
-**Updated by:** Codex — post-recovery source-of-truth reconciliation. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
+**Updated by:** Codex — post-release source-of-truth restamp. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
 
 These are **planning targets, not public promises.**
 
-**2026-09-14:** Production recovery CLOSED; public GVM exposure 3/3 PASS; worker reliability and Package A accepted. Phase 5 IN PROGRESS. First legitimate GVM booking + dual-email delivery and HQ dogfood remain operational validation. Outside Private Alpha NOT STARTED; Gate B NOT MET. [Recovery closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) records deployment and evidence. No change to the 18 workstreams, windows, or native strategy.
+**2026-09-14:** PR #32 merged; canonical main / Production SHA `8df29d298c196a2431c86a8cea4af1e5bfec09fd`, deployment `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`, release ACCEPTED; all three aliases aligned. Protected git-main SSO is expected security behavior, not application failure. Production recovery CLOSED; public GVM exposure 3/3 PASS; worker reliability and Package A accepted. Phase 5 IN PROGRESS. First legitimate GVM booking + dual-email delivery and HQ dogfood remain operational validation. Outside Private Alpha NOT STARTED; Gate B NOT MET. [Recovery closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) records deployment and evidence. No change to the 18 workstreams, windows, or native strategy.
 
 ---
 
@@ -82,7 +82,9 @@ At minimum evaluate: intuitive UX; workflow speed; visual hierarchy; professiona
 
 Service-business competitive **reference set** (benchmarks, not products to copy):
 
-Square · Vagaro · Jane · Fresha · Booksy · GlossGenius · Mangomint · Boulevard · Acuity · Calendly
+Square Appointments · Vagaro · Jane · Fresha · Booksy · GlossGenius · Mangomint · Boulevard · Acuity · Calendly · Mindbody
+
+Reach a credible parity floor in essential operations; differentiate through connected intelligence, Command Centre clarity, Summer recommendations, safe permissioned actions, auditability, financial truth, simplicity and switching/onboarding speed. Competitor breadth does not authorize uncontrolled scope.
 
 Chasum must compete with or exceed the **best principles** across this market while building the next-generation AI Business Operating System.
 
@@ -222,7 +224,7 @@ Launch requirement vs later expansion: **launch** = trusted booking + CRM + staf
 | Launch classification | **LAUNCH REQUIRED** — commercially launchable v1 cannot mint fake paid invoices or pretend self-serve billing is live. Operators need a truthful plan/subscription path. Full paid-provider lifecycle is **Gate B**, later than Phase 4A. |
 | Status | **PARTIAL** |
 | Private Alpha billing readiness | **Gate A COMPLETE** (PR #29, `f6517a1`) |
-| Commercial v1 billing readiness | **NOT MET** — Gate B required later |
+| Commercial v1 billing readiness | **NOT MET** — Gate B is the explicit chapter after Outside Private Alpha readiness |
 | Current owner / current task | Engineering / Founder — Gate A shipped. Do **not** start Gate B in this chapter. Phase 5 stabilization is IN PROGRESS; Production recovery/pin accepted. |
 | Blocking issue | No live payment-provider billing; paid self-serve conversion gated; upgrade / downgrade / cancellation / dunning immature. Phase 4A removed theater; it did not ship provider billing. |
 | Acceptance condition | **Do not use a single acceptance for this workstream.** See Gate A vs Gate B below. This workstream stays **PARTIAL** until Gate B is also met. |
@@ -261,7 +263,7 @@ Phase 4A **does not** mark the entire Commercial SaaS Lifecycle DONE.
 
 #### Gate B — Commercial v1 paid billing
 
-**STATUS:** REQUIRED LATER / **NOT MET**
+**STATUS:** EXPLICIT POST-PHASE-5 PRIORITY / **NOT MET**
 
 Required before Chasum may be classified **COMMERCIALLY LAUNCHABLE V1**.
 
@@ -276,6 +278,9 @@ Must ultimately cover, as required by the chosen provider/architecture:
 - failed-payment handling appropriate to launch scope
 - entitlement synchronization with actual subscription truth
 - no fake or manually misleading paid state
+- pricing-math reconciliation and truthful account lifecycle
+
+Pricing remains configurable. Annual principle: **PAY FOR 10 MONTHS AND RECEIVE 2 MONTHS FREE**, not “20% off.”
 
 **Do not design or implement this provider lifecycle in this documentation chapter.**
 
@@ -305,7 +310,7 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** if commercial v1 sells multi-staff login or team permissions. **IMPORTANT BUT POST-LAUNCH SAFE** if v1 remains **owner-operated** and marketing does not include staff login. Current GTM: do not market staff login as included. |
 | Status | **PARTIAL** |
-| Current owner / current task | Engineering — role catalog exists (`lib/employees/roles.ts`); enforcement is “later.” Owner-always permissions today (`TD-H6`). |
+| Current owner / current task | Engineering / Product — resolve commercial-v1 staff login, invitations, roles, permissions and owner/admin boundaries before team claims. Role catalog exists; owner-always permissions today (`TD-H6`). |
 | Blocking issue | Roles stored, not enforced for multi-staff login. |
 | Acceptance condition | Either (A) owner-only v1 is explicit in product + Pricing + Truth Matrix, or (B) at least one non-owner role is enforced on calendar/CRM/payments with tests. |
 | Target completion window | (A) now / hold; (B) before selling team seats — likely public-launch window if owner-only v1 is chosen |
@@ -356,10 +361,10 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 | Current owner / current task | Engineering — in-app Summer + marketing concierge + Command Centre grounded facts (PR #27). |
 | Blocking issue | Not full AI Business Operating Manager (proactive cross-OS actions). Dual Emma/Summer path remains. Roster roles are Coming Next. |
 | Acceptance condition | Summer reliably answers approved business questions from authoritative tenant data; supports approved launch workflows (booking/availability/CRM-grounded assist + Command Centre facts); makes no fabricated claims; handles failure/escalation honestly. **Not** “Summer is world class.” |
-| Target completion window | Hold grounded bar through commercial v1; deepen toward OS manager after |
+| Target completion window | Preserve grounded launch truth; horizontal v1 is the explicit post-Phase-5 chapter after Gate B, with scope approved separately; full autonomy remains longer-term |
 | Launch risk | **AMBER** |
 | Threatens Dec 2026–Feb 2027? | **NO** if claims stay grounded; **YES** if marketing implies autonomous OS manager |
-| Notes | Command Centre V1 is grounded-only. Competitor check: OpenAI contextual intelligence without gimmicks — current strength is assist, not autopilot. **Not the next major phase.** |
+| Notes | Command Centre V1 is grounded-only. Competitor check: OpenAI contextual intelligence without gimmicks — current strength is assist, not autopilot. **Explicit horizontal-v1 priority after Gate B; no implementation in this restamp.** |
 
 ---
 
@@ -418,12 +423,12 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 | Launch classification | **LAUNCH REQUIRED** at a **minimum** (know when Production is down / erroring). Deep APM is **IMPORTANT BUT POST-LAUNCH SAFE**. |
 | Status | **PARTIAL** |
 | Current owner / current task | Engineering — Sentry (`lib/observability/sentry.ts`, `instrumentation.ts`) + structured logs + `/api/health`. |
-| Blocking issue | Historical debt register still says “No Sentry” (`TD-H7`) — stale vs current `main`. Coverage/alerting depth unverified in this stamp. |
-| Acceptance condition | Production errors are visible to operators; `/api/health` is monitored; a failed cron/job is not silent. |
-| Target completion window | Before commercially launchable v1 |
+| Blocking issue | Instrumentation exists, but meaningful Production error visibility and trace/correlation coverage remain unverified (`TD-H7`). |
+| Acceptance condition | Production errors are visible; `/api/health` is monitored; failed cron/jobs are not silent; trace/correlation supports investigation without another blind Gateway Timeout campaign. Separately evaluate Sentry / OTel or equivalent. |
+| Target completion window | Before broader Outside Private Alpha; retain through commercially launchable v1 |
 | Launch risk | **AMBER** |
 | Threatens Dec 2026–Feb 2027? | **YES** if Production fails silently during pilots |
-| Notes | Verify Sentry DSN in Production rather than assuming. |
+| Notes | Evaluate and verify observability under a separately scoped task; this restamp performs no environment check and reopens no historical incident. |
 
 ---
 
@@ -466,7 +471,7 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 | Launch classification | **LAUNCH REQUIRED** for planning target #2 (Oct–Nov 2026). Commercial v1 should not be the first outside user if avoidable. |
 | Status | **NOT STARTED** |
 | Current owner / current task | Founder — select 1–2 outside design partners after GVM/HQ are stable. Phase 4A now supplies an honest plan-assignment path; that does **not** start this workstream. |
-| Blocking issue | GVM/HQ pilot stability incomplete; Production recovery closed; onboarding identity hygiene follow-up. |
+| Blocking issue | GVM/HQ pilot stability incomplete; onboarding identity safety, observability and governed switching/import readiness remain; Production recovery closed. |
 | Acceptance condition | At least one non-GVM / non-HQ service business completes setup, a real booking path, and a week of Command Centre/Reception use without a P0 tenant-isolation or money-truth failure. |
 | Target completion window | October–November 2026 |
 | Launch risk | **AMBER** |
@@ -475,13 +480,19 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 
 ---
 
+#### Outside Private Alpha capability gates
+
+Before broader Outside Private Alpha, prove meaningful Production error visibility and trace/correlation sufficient to investigate failures without another blind Gateway Timeout campaign. Evaluate Sentry / OTel or equivalent as a separate scoped task; do not reopen historical incidents absent new contradictory runtime evidence.
+
+Switching/import/migration is a **product capability**, not merely support work. Readiness requires a governed importing/mapping path for customers, staff, services and future appointments, with other entities justified later. Summer-assisted migration/onboarding remains a strategic opportunity. Tenant onboarding/identity safety remains mandatory. This restamp does not implement import tooling.
+
 ### 17. Production Release / Launch Hardening
 
 | Field | Value |
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** — do not sell a product Production is not actually serving. |
 | Status | **PARTIAL** |
-| Current owner / current task | Codex / ChatGPT — recovery CLOSED; serving `dbbe450` on `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`; reconciliation baseline main `476af17`. PR #32 is the historical reconciliation vehicle; subsequent release decisions remain separately governed. |
+| Current owner / current task | Codex / ChatGPT — recovery CLOSED; PR #32 merged, release ACCEPTED on `8df29d298c196a2431c86a8cea4af1e5bfec09fd` / `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn` (2026-09-14 evidence, not permanent constants). Subsequent releases remain governed. |
 | Blocking issue | Recovery is closed; ongoing operational validation and launch readiness remain. |
 | Acceptance condition | Production SHA is known, documented, and includes the capabilities we tell pilots they have (nav, staff honesty, Command Centre, Gate A billing truth); Preview→Staging still isolated; no silent Production deploys. |
 | Target completion window | Before GVM/HQ stable pilot claims; again before commercial v1 |
@@ -555,13 +566,13 @@ Future direction (not this PR, not Phase 5): push notifications, biometric authe
 
 Top factors:
 
-1. **Production recovery CLOSED; operational validation remains.** Production `dbbe450` descends from historical baseline main `476af17`. Public exposure, worker reliability and Package A are accepted. Do not redeploy or reopen recovery to reconcile docs.
+1. **Production recovery CLOSED; operational validation remains.** PR #32 main and accepted serving SHA align at `8df29d2`. Public exposure, worker reliability and Package A are accepted. Do not redeploy or reopen recovery to reconcile docs.
 2. **GVM/HQ pilots are not yet “stable use”** — first real appointment and production email remain open; HQ dogfood incomplete. This outranks a new architecture phase until Late Sep–Oct target is real.
 3. **Commercial SaaS lifecycle remains trailing** — Gate A is **COMPLETE**; fake paid-upgrade theater is closed. **Gate B** (live provider billing) is still required before commercially launchable v1 and is **not** the next phase.
 4. **Core operations are the strongest axis** — booking, CRM, Command Centre V1, staff quota honesty, truthful Private Alpha billing. This is why the target is AMBER, not RED.
 5. **Isolation/migrations** — 034–036 unapplied is scheduled risk, not a known live cross-tenant incident.
 
-No unsupported schedule promise: Late Sep–Oct pilots are the near gate; Oct–Nov outside Private Alpha depends on those pilots plus a verified Production pin; Dec–Feb commercial v1 still requires Gate B later.
+No unsupported schedule promise: Late Sep–Oct pilots are the near gate; Oct–Nov outside Private Alpha depends on those pilots plus a verified Production pin; Dec–Feb commercial v1 still requires the explicit Gate B chapter after Outside Private Alpha readiness.
 
 ---
 
@@ -608,6 +619,10 @@ Four-axis: launch-critical because live workflow + Production truth are prerequi
 
 **Launch-criticality proof:** Chasum cannot safely or commercially launch (and cannot honestly start selected outside Private Alpha) if the founding Production design partner has not completed a legitimate booking with customer confirmation email AND business new-booking email, Chasum HQ is not operated as a normal tenant, with accepted Production truth retained in canonical history. An outside partner would otherwise be the first real user of an unverified live product.
 
+### Locked operating queue
+
+This source-of-truth restamp → GVM + HQ Phase 5 validation **in parallel** → Outside Private Alpha readiness → Commercial SaaS Gate B → Summer Business Manager horizontal v1. Engineering must not wait idle for a legitimate GVM customer before HQ dogfood. Core Operations launch-required defects continue throughout; neither validation tenant becomes the roadmap or a product fork.
+
 ### Parallel work (not the main architecture phase)
 
 Keep bounded. Maximum three:
@@ -616,12 +631,12 @@ Keep bounded. Maximum three:
 2. **Momentic Preview/Staging booking canary** after any targeted product defect fix — not a substitute for a real GVM appointment.
 3. **Manual launch operations** — `/apply` pipeline, `/owner` plan assignment on disposable/synthetic Staging only when PO-approved, incident notes. Do **not** mutate Chasum HQ or GVM plans as a “check.”
 
-### Explicitly later (not next)
+### Locked post-Phase-5 chapters and separate gates
 
 | Candidate | Verdict |
 |-----------|---------|
-| Gate B (commercial-v1 paid billing) | **Later.** LEVEL 3. Required before Dec–Feb commercial v1. Not next: Private Alpha does not need a live provider; 4A just closed honesty. |
-| Launch-critical RBAC | **Later** while GTM remains owner-operated and staff login stays Coming Next. Becomes LAUNCH REQUIRED if team login is sold. |
+| Gate B (commercial-v1 paid billing) | **Explicit major priority after Outside Private Alpha readiness.** LEVEL 3; separately scoped/approved. Required before Dec–Feb commercial v1; Gate A alone is insufficient. |
+| Launch-critical RBAC | **Commercial-v1 decision gate before team claims.** Determine minimum staff login, invitations, roles, permissions and owner/admin boundaries. Team access promised in paid plans makes practical RBAC LAUNCH REQUIRED; an owner-operated v1 must be explicitly described that way in product/marketing. |
 | `/owner` expansion | **Later.** Controlled Private Alpha bar is met after 4A. |
-| Summer OS-manager depth | **Later.** Launch bar is grounded assist; over-building now risks fake AI. Capture gaps in Phase 5; do not expand. |
+| Summer OS-manager depth | **Summer Business Manager horizontal v1: explicit major priority after Gate B.** Separately scoped/approved; capture gaps in Phase 5. Understand → Explain → Recommend → Act with permission → Audit across authoritative domains, then Automate safely → Operate proactively over time; no implementation here. |
 | Native iOS / Android apps (workstream 18) | **After the Native App Start Gate, before broader public launch.** Classification: **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Working direction: React Native + Expo; final stack confirmed at native-app preflight. One reusable multi-tenant app. Not Phase 5 implementation. |
