@@ -1,0 +1,612 @@
+{
+  "verdict": "B — PASS WITH NON-BLOCKING FINDINGS",
+  "production_apply_authorized": false,
+  "old_head": "0e4c0536f021a44d52dc151220de42265b03ce78",
+  "original_evidence": "PACKAGE_A_026_FAILED_EVIDENCE.json",
+  "before_correction": {
+    "passed": 26,
+    "failed": 2
+  },
+  "corrected_tests": {
+    "passed": 43,
+    "failed": 0,
+    "cases": [
+      {
+        "name": "rehearses exact 008 → target → rollback, metadata and injected transaction failure",
+        "status": "passed"
+      },
+      {
+        "name": "five-minute cleanup rejects the immediately-following 10:30 slot",
+        "status": "passed"
+      },
+      {
+        "name": "validator rejects that immediately-following cleanup slot",
+        "status": "passed"
+      },
+      {
+        "name": "zero cleanup permits an adjacent slot",
+        "status": "passed"
+      },
+      {
+        "name": "existing service before-buffer blocks earlier candidate and preserves exact boundary",
+        "status": "passed"
+      },
+      {
+        "name": "existing service after-buffer blocks adjacency but allows 10:35",
+        "status": "passed"
+      },
+      {
+        "name": "existing staff before-buffer uses greatest, not sum",
+        "status": "passed"
+      },
+      {
+        "name": "existing staff after-buffer uses greatest, not sum",
+        "status": "passed"
+      },
+      {
+        "name": "existing after-buffer plus cleanup adds both intervals",
+        "status": "passed"
+      },
+      {
+        "name": "cancelled appointments reserve neither cleanup nor buffers",
+        "status": "passed"
+      },
+      {
+        "name": "allow_double_booking preserves classifier bypass only",
+        "status": "passed"
+      },
+      {
+        "name": "missing services metadata never hides raw appointment overlap",
+        "status": "passed"
+      },
+      {
+        "name": "missing staff metadata never hides raw appointment overlap",
+        "status": "passed"
+      },
+      {
+        "name": "foreign-tenant service metadata is not used for expansion",
+        "status": "passed"
+      },
+      {
+        "name": "exclude removes the existing expanded cleanup interval",
+        "status": "passed"
+      },
+      {
+        "name": "known-good 10:35 passes authoritative validation",
+        "status": "passed"
+      },
+      {
+        "name": "different appointment business_id does not block this scope",
+        "status": "passed"
+      },
+      {
+        "name": "different appointment location_id does not block this scope",
+        "status": "passed"
+      },
+      {
+        "name": "different appointment staff_id does not block this scope",
+        "status": "passed"
+      },
+      {
+        "name": "known-good 10:35 remains offered",
+        "status": "passed"
+      },
+      {
+        "name": "candidate cleanup blocks a slot immediately before an existing booking",
+        "status": "passed"
+      },
+      {
+        "name": "staff lunch blocks noon",
+        "status": "passed"
+      },
+      {
+        "name": "split location hours exclude the gap",
+        "status": "passed"
+      },
+      {
+        "name": "business closure excludes the date",
+        "status": "passed"
+      },
+      {
+        "name": "staff closure blocks its interval",
+        "status": "passed"
+      },
+      {
+        "name": "service blackout blocks its interval",
+        "status": "passed"
+      },
+      {
+        "name": "staff daily cap is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "services daily cap is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "service minimum notice is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "service booking horizon is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "duration override prevents extending past closing",
+        "status": "passed"
+      },
+      {
+        "name": "service_locations permits a secondary location",
+        "status": "passed"
+      },
+      {
+        "name": "exclude appointment permits rescheduling the same appointment",
+        "status": "passed"
+      },
+      {
+        "name": "GiST still rejects raw overlap",
+        "status": "passed"
+      },
+      {
+        "name": "Toronto slots retain instants under Auckland session timezone",
+        "status": "passed"
+      },
+      {
+        "name": "Toronto opening after the next autumn DST boundary uses winter UTC offset",
+        "status": "passed"
+      },
+      {
+        "name": "maps double-booking RPC errors",
+        "status": "passed"
+      },
+      {
+        "name": "maps vacation conflicts",
+        "status": "passed"
+      },
+      {
+        "name": "scores sooner slots higher",
+        "status": "passed"
+      },
+      {
+        "name": "changes only the existing-appointment branch of historical 026",
+        "status": "passed"
+      },
+      {
+        "name": "rollback drops only the derived new function with RESTRICT and reloads after commit",
+        "status": "passed"
+      },
+      {
+        "name": "uses services.min_booking_notice_minutes (not businesses.min_notice_minutes)",
+        "status": "passed"
+      },
+      {
+        "name": "loads location_id so unassigned validation can check service location eligibility",
+        "status": "passed"
+      }
+    ]
+  },
+  "staging": {
+    "project": "wnfahklzaxirftyskctd",
+    "apply": "APPLIED / VERIFIED",
+    "migration_version": "20260913195436",
+    "migration_name": "package_a_existing_appointment_interval_correction",
+    "four_function_target": "installed and verified including signatures/grants/comments",
+    "live_rpc": {
+      "existing_appointment": "10:00–10:30",
+      "cleanup_minutes": 5,
+      "1030_unavailable": true,
+      "1030_validation_rejected": true,
+      "1035_offered_and_accepted": true,
+      "exclude_appointment": "PASS",
+      "existing_after_buffer": "PASS"
+    }
+  },
+  "gvm_configuration_source": "User-established current facts retained; no Production query this task",
+  "gvm": {
+    "active_services": 14,
+    "cleanup_5": 11,
+    "service_before_5": 1,
+    "service_after_positive": 0,
+    "active_staff_buffers": 0,
+    "business_timezone": "America/Toronto",
+    "location_timezone": "America/Toronto"
+  },
+  "typecheck": "PASS",
+  "eslint": "PASS",
+  "build": "NOT REQUIRED — no application/build source changed",
+  "historical_026_unchanged": true,
+  "production_rollback_unchanged": true,
+  "sha256": {
+    "sql/recovery/A_production_availability_engine_realign.sql": "84863ad305bd98b01e817a43153f3344e816c5994c32f7b8452e2c09aac94fdf",
+    "sql/recovery/A_production_availability_engine_rollback.sql": "07185c31460d999dbeb698e8544f8048bf233a0669c74854d4f87d5c2d947201",
+    "sql/recovery/A_staging_availability_engine_pre_correction_rollback.sql": "2b84fac985c522c9d2f5648ac7d5ed807601062e7e8ae427a91aead4bcff42d1",
+    "supabase/migrations/026_availability_engine.sql": "37b19fb00c95994b5c8c05d143b7fc668b1d032c665ed3ce43aba8a33caea0a8"
+  },
+  "historical_intermediate_states": [
+    {
+      "sequence": 1,
+      "as_of_commit": "d524d1d1a90536258208bbec4559aa827b3759a0",
+      "verdict": "C — HOLD — MORE EVIDENCE NEEDED",
+      "staging": {
+        "project": "wnfahklzaxirftyskctd",
+        "pre_capture": "2026-09-13 19:39:22.311329+00",
+        "pre_matches_historical_026": true,
+        "apply": "REJECTED_BY_AUTOMATIC_APPROVAL_REVIEW",
+        "reason": "Shared Staging DDL and migration recording not recognized as specifically authorized; no alternate route used.",
+        "post_unchanged": true,
+        "hosted_workflows": "NOT RUN — corrected target not applied"
+      },
+      "superseded": true
+    }
+  ],
+  "reconciliation_date": "2026-09-13",
+  "implementation": "CORRECTED",
+  "technical_package_head": "d524d1d1a90536258208bbec4559aa827b3759a0",
+  "recovery_base": "dbbe4502365858d4194f197b9ac22afe8d259c14",
+  "hosted_acceptance": "COMPLETE",
+  "technical_production_readiness": "READY FOR PRODUCT OWNER PRODUCTION-APPLY DECISION",
+  "production_hold": "ON — governing state supplied; no live check in documentation task",
+  "hosted": {
+    "preview": "https://chasum-pu15qsyba-renovisionappcom.vercel.app",
+    "public_ui": {
+      "1030_absent": true,
+      "1035_offered": true,
+      "booking_submitted": false
+    },
+    "post": {
+      "invalid_1030_status": 400,
+      "invalid_row_persisted": false,
+      "legal_1035_status": 201
+    },
+    "patch": {
+      "self_exclusion": "PASS",
+      "other_expanded_interval_conflict_rejected": true,
+      "rejected_patch_preserved_prior_legal_state": true
+    },
+    "operator": {
+      "business_id": "724d9ecd-438d-439e-952e-2d8c4ab4486c",
+      "fixture": "one temporary service and one assignment; removed",
+      "service_staff_selectable": true,
+      "date": "2026-09-14",
+      "options": 31,
+      "first": "09:00",
+      "last": "16:30",
+      "interval_minutes": 15,
+      "customer_selected": false,
+      "appointment_submitted": false,
+      "availability_proof": "PASS",
+      "raw_http_status": null,
+      "raw_network_limitation": "UI returned options; raw request status unavailable; non-blocking independent-audit finding"
+    }
+  },
+  "synthetic_safety": {
+    "all_test_data_removed": true,
+    "real_provider_send": false,
+    "cron_worker_invoked": false,
+    "gvm_mutation": false,
+    "hq_operational_customer_appointment_mutation": false,
+    "temporary_hq_setup_mutation": "authorized one service/assignment, fully removed",
+    "public_api_fingerprints": {
+      "before": {
+        "businesses": {
+          "count": 4,
+          "md5": "de3fb558fa7475c90ae8787c4fc22efc"
+        },
+        "locations": {
+          "count": 4,
+          "md5": "5bd5b921ee84681a671aa98161c1fe7c"
+        },
+        "location_settings": {
+          "count": 4,
+          "md5": "f950c57b34b2e3fb38eda245827bf476"
+        },
+        "location_hours": {
+          "count": 28,
+          "md5": "441dad41196de12e269f2ae805051ac4"
+        },
+        "services": {
+          "count": 1,
+          "md5": "29390bd6b39283a9fe56036d88956f84"
+        },
+        "staff": {
+          "count": 2,
+          "md5": "6337297c8b740dc88dacd8c0c7bbb3bb"
+        },
+        "staff_services": {
+          "count": 1,
+          "md5": "521477808e1b5fc7948769b87ffd31ef"
+        },
+        "staff_working_hours": {
+          "count": 14,
+          "md5": "f7fb603f1322a84b212a650a8e77a92d"
+        },
+        "customers": {
+          "count": 2,
+          "md5": "7925ff40fc42b9c3c10fcd0e6199c946"
+        },
+        "appointments": {
+          "count": 7,
+          "md5": "9fe61c3546de31bbcf18da891a2a55a0"
+        },
+        "background_jobs": {
+          "count": 28,
+          "md5": "b97a77650bec95283c4a328b56557f9e"
+        },
+        "notifications": {
+          "count": 11,
+          "md5": "d39f4f31c5964a667b59fffc692412f3"
+        },
+        "notification_logs": {
+          "count": 17,
+          "md5": "f13df4eb2bb19a419721b9b14c7ab916"
+        },
+        "communications_audit_log": {
+          "count": 10,
+          "md5": "d925bb8244fb871c6ff915cf3ce0c35f"
+        },
+        "communication_send_intents": {
+          "count": 2,
+          "md5": "93d8396c68d7fdf14281265291dcdf44"
+        },
+        "api_keys": {
+          "count": 0,
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      },
+      "after": {
+        "businesses": {
+          "count": 4,
+          "md5": "de3fb558fa7475c90ae8787c4fc22efc"
+        },
+        "locations": {
+          "count": 4,
+          "md5": "5bd5b921ee84681a671aa98161c1fe7c"
+        },
+        "location_settings": {
+          "count": 4,
+          "md5": "f950c57b34b2e3fb38eda245827bf476"
+        },
+        "location_hours": {
+          "count": 28,
+          "md5": "441dad41196de12e269f2ae805051ac4"
+        },
+        "services": {
+          "count": 1,
+          "md5": "29390bd6b39283a9fe56036d88956f84"
+        },
+        "staff": {
+          "count": 2,
+          "md5": "6337297c8b740dc88dacd8c0c7bbb3bb"
+        },
+        "staff_services": {
+          "count": 1,
+          "md5": "521477808e1b5fc7948769b87ffd31ef"
+        },
+        "staff_working_hours": {
+          "count": 14,
+          "md5": "f7fb603f1322a84b212a650a8e77a92d"
+        },
+        "customers": {
+          "count": 2,
+          "md5": "7925ff40fc42b9c3c10fcd0e6199c946"
+        },
+        "appointments": {
+          "count": 7,
+          "md5": "9fe61c3546de31bbcf18da891a2a55a0"
+        },
+        "background_jobs": {
+          "count": 28,
+          "md5": "b97a77650bec95283c4a328b56557f9e"
+        },
+        "notifications": {
+          "count": 11,
+          "md5": "d39f4f31c5964a667b59fffc692412f3"
+        },
+        "notification_logs": {
+          "count": 17,
+          "md5": "f13df4eb2bb19a419721b9b14c7ab916"
+        },
+        "communications_audit_log": {
+          "count": 10,
+          "md5": "d925bb8244fb871c6ff915cf3ce0c35f"
+        },
+        "communication_send_intents": {
+          "count": 2,
+          "md5": "93d8396c68d7fdf14281265291dcdf44"
+        },
+        "api_keys": {
+          "count": 0,
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      },
+      "all_16_equal": true
+    },
+    "hq_operator_fingerprints": {
+      "before": {
+        "businesses": {
+          "count": 4,
+          "md5": "de3fb558fa7475c90ae8787c4fc22efc"
+        },
+        "locations": {
+          "count": 4,
+          "md5": "5bd5b921ee84681a671aa98161c1fe7c"
+        },
+        "location_settings": {
+          "count": 4,
+          "md5": "f950c57b34b2e3fb38eda245827bf476"
+        },
+        "location_hours": {
+          "count": 28,
+          "md5": "441dad41196de12e269f2ae805051ac4"
+        },
+        "services": {
+          "count": 1,
+          "md5": "29390bd6b39283a9fe56036d88956f84"
+        },
+        "staff": {
+          "count": 2,
+          "md5": "6337297c8b740dc88dacd8c0c7bbb3bb"
+        },
+        "staff_services": {
+          "count": 1,
+          "md5": "521477808e1b5fc7948769b87ffd31ef"
+        },
+        "staff_working_hours": {
+          "count": 14,
+          "md5": "f7fb603f1322a84b212a650a8e77a92d"
+        },
+        "customers": {
+          "count": 2,
+          "md5": "7925ff40fc42b9c3c10fcd0e6199c946"
+        },
+        "appointments": {
+          "count": 7,
+          "md5": "9fe61c3546de31bbcf18da891a2a55a0"
+        },
+        "background_jobs": {
+          "count": 28,
+          "md5": "b97a77650bec95283c4a328b56557f9e"
+        },
+        "notifications": {
+          "count": 11,
+          "md5": "d39f4f31c5964a667b59fffc692412f3"
+        },
+        "notification_logs": {
+          "count": 17,
+          "md5": "f13df4eb2bb19a419721b9b14c7ab916"
+        },
+        "communications_audit_log": {
+          "count": 10,
+          "md5": "d925bb8244fb871c6ff915cf3ce0c35f"
+        },
+        "communication_send_intents": {
+          "count": 2,
+          "md5": "93d8396c68d7fdf14281265291dcdf44"
+        },
+        "api_keys": {
+          "count": 0,
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      },
+      "after": {
+        "businesses": {
+          "count": 4,
+          "md5": "de3fb558fa7475c90ae8787c4fc22efc"
+        },
+        "locations": {
+          "count": 4,
+          "md5": "5bd5b921ee84681a671aa98161c1fe7c"
+        },
+        "location_settings": {
+          "count": 4,
+          "md5": "f950c57b34b2e3fb38eda245827bf476"
+        },
+        "location_hours": {
+          "count": 28,
+          "md5": "441dad41196de12e269f2ae805051ac4"
+        },
+        "services": {
+          "count": 1,
+          "md5": "29390bd6b39283a9fe56036d88956f84"
+        },
+        "staff": {
+          "count": 2,
+          "md5": "6337297c8b740dc88dacd8c0c7bbb3bb"
+        },
+        "staff_services": {
+          "count": 1,
+          "md5": "521477808e1b5fc7948769b87ffd31ef"
+        },
+        "staff_working_hours": {
+          "count": 14,
+          "md5": "f7fb603f1322a84b212a650a8e77a92d"
+        },
+        "customers": {
+          "count": 2,
+          "md5": "7925ff40fc42b9c3c10fcd0e6199c946"
+        },
+        "appointments": {
+          "count": 7,
+          "md5": "9fe61c3546de31bbcf18da891a2a55a0"
+        },
+        "background_jobs": {
+          "count": 28,
+          "md5": "b97a77650bec95283c4a328b56557f9e"
+        },
+        "notifications": {
+          "count": 11,
+          "md5": "d39f4f31c5964a667b59fffc692412f3"
+        },
+        "notification_logs": {
+          "count": 17,
+          "md5": "f13df4eb2bb19a419721b9b14c7ab916"
+        },
+        "communications_audit_log": {
+          "count": 10,
+          "md5": "d925bb8244fb871c6ff915cf3ce0c35f"
+        },
+        "communication_send_intents": {
+          "count": 2,
+          "md5": "93d8396c68d7fdf14281265291dcdf44"
+        },
+        "api_keys": {
+          "count": 0,
+          "md5": "d41d8cd98f00b204e9800998ecf8427e"
+        }
+      },
+      "all_16_equal": true
+    },
+    "limitation": "Matching counts/full-row MD5 fingerprints establish observed table-state equality, not a proof of absence of every transient or external effect."
+  },
+  "independent_audit": {
+    "auditor": "Claude",
+    "verdict": "B — PASS WITH NON-BLOCKING FINDINGS",
+    "source": "User-supplied final reconciliation instruction; independent audit not rerun in this task",
+    "p0": 0,
+    "p1": 0,
+    "conclusion": "TECHNICALLY READY FOR PRODUCT OWNER PRODUCTION-APPLY DECISION",
+    "verified_scope": [
+      "lineage/scope",
+      "historical 026 defect",
+      "bounded SQL correction",
+      "tenant-safe LEFT JOIN",
+      "buffers/cleanup and half-open boundaries",
+      "cancelled/exclude/double-book behavior",
+      "signatures/grants/comments",
+      "historical migration preservation",
+      "Production pre-state/rollback",
+      "transition rehearsal",
+      "test quality",
+      "Staging installed target",
+      "live RPC",
+      "public UI",
+      "POST",
+      "PATCH",
+      "synthetic/provider safety"
+    ]
+  },
+  "findings": {
+    "P2": [
+      {
+        "finding": "Stale committed recovery documentation",
+        "status": "RESOLVED by this documentation reconciliation"
+      },
+      {
+        "finding": "Operator raw network evidence weaker than API/RPC evidence",
+        "status": "OPEN — non-blocking evidence limitation"
+      },
+      {
+        "finding": "Preview Gateway Timeout digest 498843134",
+        "status": "Separate reliability incident; not a demonstrated Package A defect; non-blocking technical readiness"
+      }
+    ],
+    "P3": [
+      "Local fixture does not reproduce every Production FK relationship",
+      "Fingerprint epistemic limitation",
+      "slot_is_blocked ACL/comment pattern inherited from 026",
+      "Optional before-buffer UI check not completed; no repeat required"
+    ]
+  },
+  "post_cleanup_reconciliation": "PACKAGE_A_POST_CLEANUP_RECEPTION_RECONCILIATION.json",
+  "validation_provenance": "Local tests/typecheck/eslint results retained from captured engineering evidence, not rerun for documentation-only closeout."
+}

@@ -1,5 +1,8 @@
 "use client";
 
+import { operationalPosition, resizeOperationalEnd } from "@/lib/calendar/operational-time";
+import { formatBusinessTime } from "@/lib/locale";
+
 import { StatusBadge } from "@/components/ui/badge";
 import {
   CALENDAR_END_HOUR,
@@ -18,6 +21,8 @@ import { useState } from "react";
 export type CalendarColorMode = "service" | "staff";
 
 type DayAppointmentCardProps = {
+  timezone?: string;
+  day?: Date;
   appointment: AppointmentWithRelations;
   onSelect: (appointment: AppointmentWithRelations) => void;
   onResize?: (appointment: AppointmentWithRelations, newEnd: Date) => void;
@@ -37,6 +42,8 @@ function initials(name: string) {
 
 export function DayAppointmentCard({
   appointment,
+  timezone,
+  day,
   onSelect,
   onResize,
   colorMode = "service",
@@ -44,9 +51,10 @@ export function DayAppointmentCard({
   column = 0,
   columns = 1,
 }: DayAppointmentCardProps) {
+  const [invalidResize, setInvalidResize] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [previewHeight, setPreviewHeight] = useState<number | null>(null);
-  const { top, height } = getAppointmentPosition(
+  const { top, height } = timezone && day ? operationalPosition(appointment.start_time, appointment.end_time, day, timezone) : getAppointmentPosition(
     appointment.start_time,
     appointment.end_time,
   );
@@ -57,8 +65,8 @@ export function DayAppointmentCard({
 
   const widthPct = 100 / columns;
   const leftPct = column * widthPct;
-  const startLabel = formatTime(parseISO(appointment.start_time));
-  const endLabel = formatTime(parseISO(appointment.end_time));
+  const startLabel = timezone ? formatBusinessTime(appointment.start_time, { timezone }) : formatTime(parseISO(appointment.start_time));
+  const endLabel = timezone ? formatBusinessTime(appointment.end_time, { timezone }) : formatTime(parseISO(appointment.end_time));
   const hasNotes = Boolean(appointment.notes?.trim());
   const deposit = Number(appointment.deposit_cents ?? 0);
   const priceCents =
@@ -103,14 +111,12 @@ export function DayAppointmentCard({
       const deltaPx = ev.clientY - startY;
       const deltaMinutes =
         Math.round(((deltaPx / columnHeight) * totalMinutes) / 5) * 5;
-      const next = addMinutes(originalEnd, deltaMinutes);
+      const next = timezone ? resizeOperationalEnd(originalEnd, deltaMinutes, timezone) : addMinutes(originalEnd, deltaMinutes);
       const minEnd = addMinutes(startEnd, 5);
-      if (next.getTime() >= minEnd.getTime()) {
-        const nextHeight =
-          ((next.getTime() - parseISO(appointment.start_time).getTime()) /
-            60000 /
-            totalMinutes) *
-          100;
+      if (next && next.getTime() >= minEnd.getTime()) {
+        const nextHeight = timezone && day
+          ? operationalPosition(appointment.start_time, next.toISOString(), day, timezone).height
+          : ((next.getTime() - startEnd.getTime()) / 60000 / totalMinutes) * 100;
         setPreviewHeight(Math.max(nextHeight, 3));
       }
     }
@@ -122,9 +128,10 @@ export function DayAppointmentCard({
       const deltaPx = ev.clientY - startY;
       const deltaMinutes =
         Math.round(((deltaPx / columnHeight) * totalMinutes) / 5) * 5;
-      const next = addMinutes(originalEnd, deltaMinutes);
+      const next = timezone ? resizeOperationalEnd(originalEnd, deltaMinutes, timezone) : addMinutes(originalEnd, deltaMinutes);
       const minEnd = addMinutes(startEnd, 5);
-      if (next.getTime() >= minEnd.getTime() && deltaMinutes !== 0) {
+      setInvalidResize(!next);
+      if (next && next.getTime() >= minEnd.getTime() && deltaMinutes !== 0) {
         onResize?.(appointment, next);
       }
     }
@@ -132,6 +139,8 @@ export function DayAppointmentCard({
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
   }
+
+  if (timezone && day && height <= 0) return null;
 
   return (
     <button
@@ -193,6 +202,7 @@ export function DayAppointmentCard({
           </span>
         ) : null}
       </div>
+      {invalidResize && <span role="status">Unavailable or ambiguous local end time.</span>}
       {onResize && appointment.status !== "cancelled" ? (
         <span
           role="separator"

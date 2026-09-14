@@ -9,7 +9,7 @@ Deployment and cutover plan for replacing Picktime with Chasum for **GVM Baby Wo
 - Production app is live at `https://chasum.vercel.app`. Authoritative GVM tenant: `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`, slug `gvm-baby-world`.
 - Unchecked boxes below are **historical go-live steps**. Many infrastructure items predate later Production work (including migrations beyond 022 and slug aliases). Do **not** treat “apply 001 → 022” as current instruction.
 - **Remaining validation still called out (does not automatically dominate the backlog):** first real client appointment; Resend SMTP / production email path; smoke/cutover sign-off as actually still open.
-- Production deployed SHA: **VERIFY BEFORE CLAIMING CURRENT**. Last documented serving SHA in the identity closeout was `68e9a81`. Current `main` is later (`be2cf6e` at restamp).
+- Accepted Production: `dbbe4502365858d4194f197b9ac22afe8d259c14`, deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` (2026-09-14 recovery closeout).
 
 **Rule:** Prefer empty states over invented data. Do not redesign branding during go-live.
 
@@ -17,7 +17,15 @@ Companion docs: [`PRODUCTION_READINESS.md`](./PRODUCTION_READINESS.md), [`ROADMA
 
 ---
 
-## 1. Deployment checklist
+## Recovery closeout — 2026-09-14
+
+Production recovery CLOSED. Public booking is technically exposed and accepted: 3/3 bounded public renders PASS. Hold OFF; Cron enabled; worker webhooks OFF. Package A accepted. GVM business/location America/Toronto; CAD; Early Gender 30 minutes + 5 cleanup.
+
+First legitimate customer booking remains operational validation. Standing booking notification rule: **customer confirmation email AND business new-booking email**, each once. Technical recovery acceptance does not replace this first-real-booking observation.
+
+No Picktime shutdown, GVM website booking-link change, Google Business change, or declaration that Chasum is the sole intake system occurred. Those are separate operational decisions. See [closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
+
+## 1. Historical deployment checklist — not current execution authority
 
 Complete in order before accepting live patient traffic.
 

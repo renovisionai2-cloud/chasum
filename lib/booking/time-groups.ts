@@ -1,3 +1,4 @@
+import { hourInBusinessTimezone } from "@/lib/business/datetime";
 import { parseISO } from "date-fns";
 
 export type TimeOfDayGroupId = "morning" | "afternoon" | "evening";
@@ -17,8 +18,8 @@ function hourOf(iso: string): number {
   }
 }
 
-export function timeOfDayGroupId(iso: string): TimeOfDayGroupId {
-  const hour = hourOf(iso);
+export function timeOfDayGroupId(iso: string, timezone?: string): TimeOfDayGroupId {
+  const hour = timezone ? hourInBusinessTimezone(new Date(iso), { timezone }) : hourOf(iso);
   if (hour < 12) return "morning";
   if (hour < 17) return "afternoon";
   return "evening";
@@ -27,6 +28,7 @@ export function timeOfDayGroupId(iso: string): TimeOfDayGroupId {
 export function groupSlotsByTimeOfDay<T>(
   items: T[],
   getStart: (item: T) => string,
+  timezone?: string,
 ): TimeOfDayGroup<T>[] {
   const buckets: Record<TimeOfDayGroupId, T[]> = {
     morning: [],
@@ -34,7 +36,7 @@ export function groupSlotsByTimeOfDay<T>(
     evening: [],
   };
   for (const item of items) {
-    buckets[timeOfDayGroupId(getStart(item))].push(item);
+    buckets[timeOfDayGroupId(getStart(item), timezone)].push(item);
   }
   const order: Array<{ id: TimeOfDayGroupId; label: string }> = [
     { id: "morning", label: "Morning" },

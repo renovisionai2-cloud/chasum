@@ -1,5 +1,22 @@
 # Chasum Technical Debt Register
 
+## Post-recovery tracked debt — 2026-09-14
+
+Recovery is CLOSED. Tracking only; no implementation authorized here.
+
+| Severity | Item | Next decision |
+| --- | --- | --- |
+| P2 | Annual pricing principle is **pay for 10 months and receive 2 months free**; legacy “20% off” wording is not equivalent (2/12 ≈ 16.67% of monthly annual total). | Reconcile approved configurable pricing/math before Gate B; no pricing code change in this PR. |
+| P2 | GVM Employees previously showed “Active in Chasum: 3 of 1”. | Separate entitlement/plan review; do not mutate the tenant as a test. |
+| P2 | Historical public Gateway Timeout root cause unproven. | Non-blocking after accepted 3/3 final exposure; investigate only on new evidence. |
+| P2 | Password-reset cross-session defect is separate auth debt unless separately accepted as resolved. | No auth-recovery branch imported or acceptance inferred here. |
+| P3 | Invoices/receipts lack dedicated standalone dashboard routes. | Separate product sequencing. |
+| P3 | Narrow Reception tabs crowd/overflow. | Bounded responsive UI work when approved. |
+| P3 | Optional existing-before-buffer UI proof not recreated. | Package A cleanup/API/operator acceptance remains accepted. |
+| Governance | 034/035/036 locked/unapplied; 040 unexecuted; 041 accepted/unmodified. | No bulk replay. |
+
+
+
 **Version:** 1.0 · 2026-07-18  
 **Companion:** [BETA_READINESS_AUDIT.md](./BETA_READINESS_AUDIT.md)
 

@@ -3,10 +3,37 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-08-25
-**Updated by:** Native-app strategy governance correction (follow-up to PR #30). Workstream 18 is **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Working direction: React Native + Expo (final stack at native-app preflight). Phase 5 remains **PREFLIGHT REQUIRED / NOT STARTED**.
+**Last updated:** 2026-09-14
+**Updated by:** Codex — post-recovery source-of-truth reconciliation. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
 
 ---
+
+## Accepted recovery closeout — 2026-09-14
+
+**PRODUCTION RECOVERY = CLOSED. Phase 5 = IN PROGRESS, not complete.**
+This restamp records accepted recovery evidence; it does not rerun Production validation.
+See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
+
+| Item | Accepted state |
+| --- | --- |
+| Production deployment | `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` |
+| Serving SHA | `dbbe4502365858d4194f197b9ac22afe8d259c14` |
+| Production Supabase | `kxcydvhswkuzepwzzinq` |
+| Recovery hold | OFF |
+| Cron | ENABLED; `*/5 * * * *`; `/api/cron/process-jobs` |
+| Worker reliability / webhooks | ACCEPTED / CLOSED; worker webhooks OFF / absent |
+| Package A | ACCEPTED; Production record `20260913232447_package_a_existing_appointment_interval_correction` |
+| Canonical GVM business | `a04e1d65-eeb9-4d72-a5bf-739a9038bb91` — normal tenant |
+| GVM Main/Burlington location | `ebe0b761-a207-4ca7-96ed-ad835a06e2cc` |
+| GVM business/location timezone; currency | America/Toronto / America/Toronto; CAD |
+| Early Gender service | 30-minute duration + 5-minute cleanup |
+| Final public exposure | 3/3 bounded renders PASS |
+| Prior public Gateway Timeout | Historical P2; root cause unproven; not an active recovery blocker |
+| Migration gates | 034/035/036 locked/unapplied; 040 unexecuted on Production; 041 accepted/unmodified |
+
+Production pin/recovery acceptance is complete. GVM public/authenticated stabilization is substantially validated. First legitimate GVM booking plus customer confirmation and business new-booking email remain operational validation. Chasum HQ dogfood continues as a normal tenant; `/owner` is Platform Admin. Outside Private Alpha has not started. Commercial SaaS Gate B is NOT MET.
+
+Canonical reconciliation is in progress on `codex/post-recovery-source-of-truth-reconciliation`, based on main `476af17bfd06113281df0b5c33f995ccb26f5fff`. Main is an ancestor of serving Production; Production is an ancestor of Package A `a855e7733a0687de580c8fa3f861b389a476c926`. Exact history is preserved on `recovery/production-serving-20260914` and `recovery/package-a-availability-20260914`. This PR selectively ports accepted final state; it does not merge those branches or deploy their contents.
 
 ## Control board (start here)
 
@@ -52,12 +79,12 @@ Do **not** automatically “finish GVM” as a product rewrite. Do **not** start
 
 Strategic next (from the launch tracker):
 
-1. **World Class Phase 5 (PREFLIGHT REQUIRED / NOT STARTED):** **Production Pin and Design-Partner Pilot Stabilization** — workstreams 17 + 14 + 15. Verify Production SHA vs `main` `f6517a1`; GVM real booking+confirmation; HQ dogfood as a normal tenant. Unblocks outside Private Alpha (workstream 16). Capture mobile-web friction, owner/staff mobile patterns, notification needs, native-benefit workflows, Summer mobile use cases, and architecture issues that could complicate native later (workstream 18). Do **not** start native implementation. See [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
+1. **Complete canonical source-of-truth reconciliation**, then resume balanced product development. Phase 5 is **IN PROGRESS**: first legitimate GVM booking + dual-email operational validation, continued HQ dogfood, and outside Private Alpha readiness. Capture mobile and Summer evidence without expanding scope. See [launch tracker](./LAUNCH_READINESS.md).
 2. **Do not start Gate B.** Commercial v1 paid-provider billing remains LEVEL 3, later, Claude pre-challenge required.
 3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`.
 4. **Do not** fix DashboardTopNav tablet overflow, tenancy, booking-engine, commerce formulas, `/dashboard/hq`, RBAC, Summer architecture, or native apps in the next bounded slice unless the tracker reclassifies them.
 
-**GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first real appointment, Resend SMTP / production email path. Identity incident is closed; follow-up identity debt stays separately tracked.
+**GVM validation (separate — does not dominate the product roadmap):** remaining go-live craft in [`docs/GVM_GO_LIVE.md`](./GVM_GO_LIVE.md) — first legitimate appointment + customer/business email operational validation. Identity incident is closed; follow-up identity debt stays separately tracked.
 
 **Marketing (when directed):** Home page (`/`). Pricing, Meet Summer, Roadmap, Resources, Why Private Alpha, and Security remain locked.
 
@@ -93,7 +120,7 @@ Strategic next (from the launch tracker):
 | [`docs/product/05_ARCHITECTURE.md`](./product/05_ARCHITECTURE.md) | Product architecture detail |
 | [`docs/CHANGELOG.md`](./CHANGELOG.md) | Ship history |
 | [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md) | Debt register |
-| [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — **18 workstreams**; Phase 5 preflight; Private Alpha vs commercial-v1 billing gates; native mobile **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**; AI OS preservation check |
+| [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) | **Launch-criticality tracker** — **18 workstreams**; Phase 5 stabilization; Private Alpha vs commercial-v1 billing gates; native mobile **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**; AI OS preservation check |
 
 ---
 
@@ -361,7 +388,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Next: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
+**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Current: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 **Intent:**
 
@@ -397,7 +424,11 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-08-25) — World Class Phase 4A Commercial SaaS Lifecycle Honesty MERGED
+### Most recent (2026-09-14) — Production recovery CLOSED
+
+Accepted serving `dbbe450`, worker reliability, Package A, GVM timing correction and final public exposure 3/3 PASS. Hold OFF, Cron enabled, webhooks OFF. Exact history preserved remotely; current PR reconciles final implementation/docs for review without release. First legitimate booking + dual-email operational validation remains. [Closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
+
+### Historical (2026-08-25) — World Class Phase 4A Commercial SaaS Lifecycle Honesty MERGED
 
 - **PR #29** squash merge `f6517a17504667b58799a3202e43f5ec145643a1` — `feat: make Private Alpha SaaS billing truthful`
 - Signup cannot grant paid `subscription_plan_key`; new tenants begin Free / starter; `preferred_plan` remains intent only
@@ -467,7 +498,7 @@ Historical detail: [`docs/architecture/BUSINESS_SLUG_ALIASES.md`](./architecture
 ### Prior on main (selected)
 
 - Generic public booking slug aliases (`7f0f1cb`) — reusable infrastructure, not a GVM fork
-- Production billing compatibility patch (`ef69815`) — paid-upgrade guard + service-role `subscription_events` writes. **On `main`.** Track 3 DB hardening still not implemented. Whether later `main` commits are on Production: **VERIFY BEFORE CLAIMING CURRENT**.
+- Production billing compatibility patch (`ef69815`) — paid-upgrade guard + service-role `subscription_events` writes. **On `main`.** Track 3 DB hardening still not implemented. Accepted serving `dbbe450` includes this ancestry; see the September 14 closeout.
 - PR #19 documentation closeout of the identity incident (`91ae760`)
 
 ### Historical marketing / GVM chapter (2026-07-30 and earlier)
@@ -483,11 +514,7 @@ Preserved for history — **not** current branch instructions:
 
 ## Active branch
 
-```
-main
-```
-
-Handoff: documentation restamp on `main` `f6517a17504667b58799a3202e43f5ec145643a1`. Next implementation branch must not be created in this chapter.
+`codex/post-recovery-source-of-truth-reconciliation` from main `476af17bfd06113281df0b5c33f995ccb26f5fff`. Review-only PR; no main merge or Production release.
 
 **Obsolete as current working branch (historical only):**
 
@@ -500,34 +527,17 @@ Handoff: documentation restamp on `main` `f6517a17504667b58799a3202e43f5ec145643
 - `cursor/world-class-command-centre` — merged via PR #27
 - `cursor/world-class-phase-4a-saas-honesty` — merged via PR #29
 
-**Deploy policy:** This restamp is documentation only. It does not change Production or Staging application code or data.
+**Deploy policy:** Accepted runtime and docs reconciliation only. Incidental ordinary Preview deployments from approved non-main pushes are permitted. No Production/Staging deployment or data change.
 
 ---
 
-## Latest commit (repository `main`)
+## Latest repository / deployment state
 
-| Field | Value |
-|-------|--------|
-| **`main` / `origin/main` SHA** | `f6517a17504667b58799a3202e43f5ec145643a1` |
-| **Short** | `f6517a1` |
-| **Subject** | `feat: make Private Alpha SaaS billing truthful (#29)` |
-| **Date** | 2026-08-25 |
-
-### Production deployed SHA — VERIFY BEFORE CLAIMING CURRENT
-
-Do **not** infer that `main` (`f6517a1`) has been deployed to Production.
-
-| Field | Value |
-|-------|--------|
-| **Last documented Production serving SHA** | `68e9a816a230636e693d0e10b9b8ae7f3beb1e62` (`68e9a81`) |
-| **Context** | Identity-incident closeout recorded this as the PR #18 serving commit on `https://chasum.vercel.app` |
-| **This restamp** | Did **not** re-verify Production. Treat Production SHA as **unverified relative to current `main`**. |
-
----
+Main remains `476af17bfd06113281df0b5c33f995ccb26f5fff`. Accepted serving Production is `dbbe4502365858d4194f197b9ac22afe8d259c14` on `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`. They are not interchangeable. The reconciliation commit is identified by this PR, not a self-referential SHA.
 
 ## Uncommitted work
 
-This launch-readiness restamp (docs only). No application code. Production and Staging application data are untouched.
+The reconciliation PR contains reviewed final runtime ports, accepted Package A artifacts, regression tests and current documentation. No Production mutation.
 
 ---
 
@@ -556,7 +566,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 ### Product / validation (not automatic NEXT)
 
 - Commercial SaaS lifecycle incomplete (see Commercial SaaS section)
-- GVM: first real client appointment + production email SMTP still listed on go-live / release plan
+- GVM: first legitimate client appointment + dual-email operational validation
 - Public self-serve SaaS checkout not live — Private Alpha is intentional
 
 ### Marketing discipline
@@ -571,7 +581,7 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 Locked order for this chapter:
 
 1. **Source-of-truth accuracy** — this control board + [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md).
-2. **Phase 5 preflight — not started.** Production Pin and Design-Partner Pilot Stabilization (workstreams 17 + 14 + 15). Capture mobile friction and AI OS gaps. Do **not** implement in this stamp.
+2. **Phase 5 — IN PROGRESS.** Production recovery closed; legitimate GVM booking + dual-email validation and HQ dogfood remain. Capture mobile friction and AI OS gaps.
 3. **Do not start Gate B.** Commercial SaaS remains **PARTIAL**; Gate B (commercial-v1 paid billing) is a later LEVEL 3 slice.
 4. **Reusable product development** — Core Operations + Commercial SaaS + Summer Intelligence, in balance, sequenced by launch-criticality.
 5. **GVM operational trust** — protect the live design partner; remaining go-live items are validation, not the whole strategy.
@@ -607,7 +617,7 @@ Surfaces listed as “completed” on the Master Roadmap mean the department exi
 | World Class Phase 3 | Command Centre / Today experience **on main** (PR #27) |
 | World Class Phase 4A | Commercial SaaS Lifecycle Honesty **on main** (PR #29). Gate A **COMPLETE**. Workstream 4 stays **PARTIAL**. |
 | Commercial SaaS | Trailing; remains **PARTIAL**. **Gate B** = commercial-v1 paid-provider billing — later, not next. |
-| Next phase (preflight) | **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **NOT STARTED** |
+| Current phase | **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS** |
 | GVM / HQ validation | Inside Phase 5 — Late Sep–Oct 2026 stable pilot use |
 | Summer Intelligence | Deepen toward Business Manager actions later — **not** the next phase |
 | Core Operations craft | Reception/commerce/comms reliability as targeted defects inside Phase 5, not a rewrite |

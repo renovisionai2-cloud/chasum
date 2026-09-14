@@ -1,5 +1,6 @@
+import type { BookingChannel } from "@/lib/booking-engine/types";
 import { createServiceClient } from "@/lib/supabase/service";
-import { unwrapRelation } from "@/lib/supabase/relations";
+import { loadAppointmentNotificationContext } from "@/lib/integrations/notifications/appointment-context";
 import {
   enqueueEmailJob,
   enqueueSmsJob,
@@ -15,6 +16,7 @@ import { planIncludesSms } from "@/lib/billing/plan-features";
 import { getResendApiKey, getTwilioConfig } from "@/lib/env";
 import { logger } from "@/lib/observability/logger";
 import type { NotificationType } from "@/lib/types/integrations";
+import { initialBookingIntentId, newSendIntentId } from "@/lib/communications/intent-identity";
 
 type AppointmentEvent =
   | "created"
@@ -73,38 +75,20 @@ function resolveBusinessNotifyEmail(settings: {
 export async function handleAppointmentEvent(
   appointmentId: string,
   event: AppointmentEvent,
-  options?: { previousStartTime?: string },
+  options: { businessId: string; previousStartTime?: string; sendIntentId?: string; bookingChannel?: BookingChannel },
 ) {
   const supabase = createServiceClient();
 
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select(
-      `
-      id, business_id, staff_id, start_time, end_time, status,
-      service:services(name),
-      staff:staff(name, email),
-      customer:customers(name, email, phone)
-    `,
-    )
-    .eq("id", appointmentId)
-    .single();
-
-  if (!appointment) return;
+  const context = await loadAppointmentNotificationContext(supabase, appointmentId, options.businessId);
+  if (!context) return;
+  const { appointment, customer, service, staff } = context;
 
   const businessId = appointment.business_id;
+  // Later confirmations/reschedules are distinct event occurrences. The initial
+  // creation bridge explicitly passes the same occurrence used by inline delivery.
+  const sendIntentId = options?.sendIntentId ??
+    (event === "created" ? initialBookingIntentId(appointmentId) : newSendIntentId());
   const settings = await getBusinessNotificationSettings(businessId);
-  const service = unwrapRelation(appointment.service) as { name: string } | null;
-  const customer = unwrapRelation(appointment.customer) as {
-    name: string;
-    email: string | null;
-    phone: string | null;
-  } | null;
-  const staff = unwrapRelation(appointment.staff) as {
-    name: string;
-    email: string | null;
-  } | null;
-
   const customerName = customer?.name ?? "Customer";
   const serviceName = service?.name ?? "Appointment";
   const staffName = staff?.name ?? "To be assigned";
@@ -151,6 +135,8 @@ export async function handleAppointmentEvent(
       await enqueueEmailJob(businessId, {
         appointmentId,
         templateKey,
+        recipient: customer.email.trim(),
+        sendIntentId,
         previousStartTime: options?.previousStartTime,
         idempotencyKey: `${appointmentId}:${templateKey}:customer:${event}`,
       });
@@ -165,8 +151,10 @@ export async function handleAppointmentEvent(
       await enqueueEmailJob(businessId, {
         appointmentId,
         templateKey: "appointment.staff",
-        recipient: staff.email,
+        recipient: staff.email.trim(),
+        sendIntentId,
         action: titleMap[event].toLowerCase(),
+        skipPreferenceCheck: true,
         idempotencyKey: `${appointmentId}:appointment.staff:${staff.email}:${event}`,
       });
     }
@@ -177,8 +165,10 @@ export async function handleAppointmentEvent(
         appointmentId,
         templateKey: "appointment.business",
         recipient: businessTo,
+        sendIntentId,
         action: titleMap[event],
-        bookingSource: "reception",
+        bookingSource: options.bookingChannel ?? "staff",
+        skipPreferenceCheck: true,
         idempotencyKey: `${appointmentId}:appointment.business:${businessTo}:${event}`,
       });
     } else if (ownerEnabled && !businessTo && event !== "updated") {
@@ -203,6 +193,8 @@ export async function handleAppointmentEvent(
       await enqueueSmsJob(businessId, {
         appointmentId,
         templateKey: smsKey,
+        recipient: customer.phone.trim(),
+        sendIntentId,
         idempotencyKey: `${appointmentId}:${smsKey}:sms:${event}`,
       });
     }
@@ -250,8 +242,8 @@ export async function handleAppointmentEvent(
   }
 
   if (event === "cancelled") {
-    await deleteAppointmentFromCalendars(appointmentId);
+    await deleteAppointmentFromCalendars(appointment.id, businessId);
   } else {
-    await pushAppointmentToCalendars(appointmentId);
+    await pushAppointmentToCalendars(context, settings?.name ?? "Business");
   }
 }

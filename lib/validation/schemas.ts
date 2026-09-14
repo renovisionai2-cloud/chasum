@@ -3,6 +3,7 @@ import { z } from "zod";
 export const uuidSchema = z.string().uuid();
 
 export const createAppointmentBodySchema = z.object({
+  location_id: z.string().uuid().toLowerCase().optional(),
   service_id: z.string().uuid(),
   staff_id: z.string().uuid(),
   customer_id: z.string().uuid(),
@@ -25,6 +26,7 @@ export const createAppointmentBodySchema = z.object({
 
 export const patchAppointmentBodySchema = z
   .object({
+    location_id: z.string().uuid().toLowerCase().optional(),
     service_id: z.string().uuid().optional(),
     staff_id: z.string().uuid().optional(),
     customer_id: z.string().uuid().optional(),

@@ -2,9 +2,19 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { runCrmAiQuery } from "@/lib/crm/ai";
+import {
+  CUSTOMER_CONSENT_UNAVAILABLE,
+  CUSTOMER_PROFILE_CONFLICT,
+  consentTimestampForUpdate,
+  parseConsentWriteIntent,
+  parseCustomerPayload,
+  parseExpectedCustomerVersion,
+  stripMissingCustomerWriteColumns,
+} from "@/lib/crm/customer-payload";
 import { loadCrmProfile, touchCustomerActivity } from "@/lib/crm/service";
 import { displayCustomerName } from "@/lib/crm/display";
 import type { CrmProfile } from "@/lib/crm/types";
+import { isMissingSchemaError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState, Customer, Location, Staff } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
@@ -25,69 +35,6 @@ async function currentUserId() {
     data: { user },
   } = await supabase.auth.getUser();
   return user?.id ?? null;
-}
-
-function composeName(first?: string | null, last?: string | null, fallback?: string | null) {
-  const composed = [first, last].filter(Boolean).join(" ").trim();
-  return composed || fallback?.trim() || "";
-}
-
-function parseCustomerPayload(formData: FormData) {
-  const firstName = (formData.get("first_name") as string)?.trim() || null;
-  const lastName = (formData.get("last_name") as string)?.trim() || null;
-  const preferredName = (formData.get("preferred_name") as string)?.trim() || null;
-  const legacyName = (formData.get("name") as string)?.trim() || null;
-  const name = composeName(firstName, lastName, legacyName);
-
-  const tagsRaw = (formData.get("tags") as string) || "";
-  const tags = tagsRaw
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean);
-
-  const isVip = formData.get("is_vip") === "on" || formData.get("is_vip") === "true";
-  let crmStatus = (formData.get("crm_status") as string)?.trim() || "active";
-  if (isVip && crmStatus === "active") crmStatus = "vip";
-
-  const marketingConsent =
-    formData.get("marketing_consent") === "on" ||
-    formData.get("marketing_consent") === "true";
-  const membershipId = (formData.get("membership_id") as string)?.trim() || null;
-
-  return {
-    name,
-    first_name: firstName,
-    last_name: lastName,
-    preferred_name: preferredName,
-    email: (formData.get("email") as string)?.trim() || "",
-    phone: (formData.get("phone") as string)?.trim() || null,
-    address: (formData.get("address") as string)?.trim() || null,
-    photo_url: (formData.get("photo_url") as string)?.trim() || null,
-    date_of_birth: (formData.get("date_of_birth") as string)?.trim() || null,
-    gender: (formData.get("gender") as string)?.trim() || null,
-    emergency_contact_name:
-      (formData.get("emergency_contact_name") as string)?.trim() || null,
-    emergency_contact_phone:
-      (formData.get("emergency_contact_phone") as string)?.trim() || null,
-    emergency_contact_relationship:
-      (formData.get("emergency_contact_relationship") as string)?.trim() || null,
-    preferred_communication_method:
-      (formData.get("preferred_communication_method") as string)?.trim() || null,
-    crm_status: crmStatus,
-    assigned_staff_id: (formData.get("assigned_staff_id") as string)?.trim() || null,
-    preferred_location_id:
-      (formData.get("preferred_location_id") as string)?.trim() || null,
-    membership_id: membershipId,
-    is_vip: isVip,
-    anniversary_date: (formData.get("anniversary_date") as string)?.trim() || null,
-    loyalty_status: (formData.get("loyalty_status") as string)?.trim() || "standard",
-    marketing_consent: marketingConsent,
-    marketing_consent_at: marketingConsent ? new Date().toISOString() : null,
-    referral_source: (formData.get("referral_source") as string)?.trim() || null,
-    notes: (formData.get("notes") as string)?.trim() || null,
-    tags,
-    last_activity_at: new Date().toISOString(),
-  };
 }
 
 export type CrmDirectoryCustomer = Customer & {
@@ -155,7 +102,7 @@ export async function createCrmCustomer(
   }
   // Schema requires email (unique per business). Phone-only walk-ins get a stable placeholder.
   if (!payload.email && payload.phone) {
-    const digits = payload.phone.replace(/\D/g, "") || "unknown";
+    const digits = String(payload.phone).replace(/\D/g, "") || "unknown";
     payload.email = `phone.${digits}@chasum.local`;
   }
   if (!payload.email) return { error: "Email is required." };
@@ -173,37 +120,29 @@ export async function createCrmCustomer(
     if (error.code === "23505") {
       return { error: "A customer with this email already exists." };
     }
-    if (
-      error.message.includes("marketing_consent") ||
-      error.message.includes("membership_id")
-    ) {
-      const {
-        marketing_consent: _mc,
-        marketing_consent_at: _mca,
-        membership_id: _mid,
-        ...legacyPayload
-      } = payload;
-      void _mc;
-      void _mca;
-      void _mid;
-      const retry = await supabase
-        .from("customers")
-        .insert({
-          business_id: business.id,
-          ...legacyPayload,
-        })
-        .select("id")
-        .single();
-      if (retry.error) {
-        if (retry.error.code === "23505") {
-          return { error: "A customer with this email already exists." };
+    if (isMissingSchemaError(error.message)) {
+      const legacyPayload = stripMissingCustomerWriteColumns(
+        payload,
+        error.message,
+      );
+      const stripped = Object.keys(legacyPayload).length !== Object.keys(payload).length;
+      if (stripped) {
+        const retry = await supabase
+          .from("customers")
+          .insert({
+            business_id: business.id,
+            ...legacyPayload,
+          })
+          .select("id")
+          .single();
+        if (retry.error) {
+          if (retry.error.code === "23505") {
+            return { error: "A customer with this email already exists." };
+          }
+        } else {
+          revalidateCrm(retry.data.id);
+          return { success: "Client added." };
         }
-      } else {
-        revalidateCrm(retry.data.id);
-        return {
-          success:
-            "Client added. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
-        };
       }
     }
     // Pre-migration soft fallback
@@ -238,41 +177,104 @@ export async function updateCrmCustomer(
   const id = String(formData.get("id") ?? "");
   if (!id) return { error: "Customer id is required." };
 
-  const payload = parseCustomerPayload(formData);
+  const consentIntent = parseConsentWriteIntent(formData);
+  if (consentIntent.kind === "invalid") return { error: consentIntent.error };
+
+  const expectedVersion = parseExpectedCustomerVersion(formData);
+  if (!expectedVersion.ok) return { error: expectedVersion.error };
+
+  const consentRequested =
+    consentIntent.kind === "grant" || consentIntent.kind === "revoke";
+
+  const payload = parseCustomerPayload(formData, {
+    consentTimestampMode: "defer",
+  });
   if (!payload.name) return { error: "Customer name is required." };
   if (!payload.email) return { error: "Email is required." };
 
-  const { error } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("customers")
-    .update(payload)
+    .select("id, marketing_consent, marketing_consent_at")
     .eq("id", id)
-    .eq("business_id", business.id);
+    .eq("business_id", business.id)
+    .maybeSingle();
+
+  if (existingError) {
+    if (consentRequested) {
+      return {
+        error: isMissingSchemaError(existingError.message)
+          ? CUSTOMER_CONSENT_UNAVAILABLE
+          : existingError.message,
+      };
+    }
+    if (!isMissingSchemaError(existingError.message)) {
+      return { error: existingError.message };
+    }
+  } else if (!existing) {
+    return { error: "Customer not found." };
+  } else if (consentRequested) {
+    const nextConsent = consentIntent.kind === "grant";
+    payload.marketing_consent = nextConsent;
+    payload.marketing_consent_at = consentTimestampForUpdate({
+      nextConsent,
+      existingConsent: Boolean(existing.marketing_consent),
+      existingAt: (existing.marketing_consent_at as string | null) ?? null,
+    });
+  }
+
+  const applyUpdate = async (body: Record<string, unknown>) =>
+    supabase
+      .from("customers")
+      .update(body)
+      .eq("id", id)
+      .eq("business_id", business.id)
+      .eq("updated_at", expectedVersion.updatedAt)
+      .select("id")
+      .maybeSingle();
+
+  const { data, error } = await applyUpdate(payload);
 
   if (error) {
-    if (
-      error.message.includes("marketing_consent") ||
-      error.message.includes("membership_id")
-    ) {
-      const {
-        marketing_consent: _mc,
-        marketing_consent_at: _mca,
-        membership_id: _mid,
-        ...legacyPayload
-      } = payload;
-      void _mc;
-      void _mca;
-      void _mid;
-      const retry = await supabase
-        .from("customers")
-        .update(legacyPayload)
-        .eq("id", id)
-        .eq("business_id", business.id);
-      if (!retry.error) {
-        revalidateCrm(id);
-        return {
-          success:
-            "Customer profile saved. Apply migration 027_crm_phase_5_4 for marketing consent & membership.",
-        };
+    if (consentRequested) {
+      return {
+        error: isMissingSchemaError(error.message)
+          ? CUSTOMER_CONSENT_UNAVAILABLE
+          : error.message.includes("crm_status") ||
+              error.message.includes("first_name")
+            ? "Could not save CRM profile. Apply migration 018_crm_department if needed."
+            : error.message,
+      };
+    }
+    if (isMissingSchemaError(error.message)) {
+      const legacyPayload = stripMissingCustomerWriteColumns(
+        payload,
+        error.message,
+      );
+      const droppedConsent =
+        (Object.prototype.hasOwnProperty.call(payload, "marketing_consent") &&
+          !Object.prototype.hasOwnProperty.call(
+            legacyPayload,
+            "marketing_consent",
+          )) ||
+        (Object.prototype.hasOwnProperty.call(payload, "marketing_consent_at") &&
+          !Object.prototype.hasOwnProperty.call(
+            legacyPayload,
+            "marketing_consent_at",
+          ));
+      if (droppedConsent) {
+        return { error: CUSTOMER_CONSENT_UNAVAILABLE };
+      }
+      const stripped =
+        Object.keys(legacyPayload).length !== Object.keys(payload).length;
+      if (stripped) {
+        const retry = await applyUpdate(legacyPayload);
+        if (!retry.error && retry.data) {
+          revalidateCrm(id);
+          return { success: "Customer profile saved." };
+        }
+        if (!retry.error && !retry.data) {
+          return { error: CUSTOMER_PROFILE_CONFLICT };
+        }
       }
     }
     return {
@@ -283,6 +285,8 @@ export async function updateCrmCustomer(
           : error.message,
     };
   }
+
+  if (!data) return { error: CUSTOMER_PROFILE_CONFLICT };
 
   revalidateCrm(id);
   return { success: "Customer profile saved." };

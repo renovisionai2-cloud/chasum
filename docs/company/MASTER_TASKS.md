@@ -9,12 +9,14 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ---
 
+**Engineering ownership:** Codex is default primary engineer; Cursor is situational when local/auth/device context gives a real advantage. ChatGPT coordinates; Claude audits higher-risk work; Momentic runs workflow regression. One primary implementer per task.
+
 ## Current release
 
 **Working name:** World Class AI Business Operating System — launch-readiness chapter
-**Branch focus:** `main` (`f6517a1`)
+**Branch focus:** `codex/post-recovery-source-of-truth-reconciliation` from main `476af17`; accepted Production `dbbe450`.
 
-**Release intent:** Continue from current `main` only. Phases 1–4A are merged (PRs #23 / #25 / #27 / #29). **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (Gate A). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Next: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
+**Release intent:** Recovery CLOSED. Reconcile accepted final state on a main-based review branch; no merge or Production release in this task. Phases 1–4A are merged (PRs #23 / #25 / #27 / #29). **Phase 4A** Commercial SaaS Lifecycle Honesty is **COMPLETE / MERGED TO MAIN** (Gate A). Completing 4A does **not** mark Commercial SaaS Lifecycle DONE. Current: **Phase 5** Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. Gate B (commercial-v1 paid billing) is later. Do **not** merge `origin/cursor/world-class-portal-foundation`. GVM and Chasum HQ remain **normal validation tenants**.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 
@@ -22,12 +24,17 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-World Class Phases 1–4A are merged. Then, in order:
+Recovery is CLOSED; Phase 5 is IN PROGRESS. Current queue:
 
-1. **Phase 5 preflight — not started.** Production Pin and Design-Partner Pilot Stabilization (workstreams 17 + 14 + 15). Do **not** implement in this stamp. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps.
-2. Gate B (live paid-provider lifecycle) remains later: LEVEL 3 and requires Claude pre-challenge before implementation.
-3. **Do not** merge or rebase `origin/cursor/world-class-portal-foundation`. Reference only.
-4. **Do not** fix DashboardTopNav overflow, tenancy, booking-engine, commerce formulas, or `/dashboard/hq` unless the tracker reclassifies them.
+1. Complete canonical source-of-truth reconciliation for review.
+2. Resume balanced product development across Core Operations, Commercial SaaS, Intelligence and Validation.
+3. First legitimate GVM booking + dual-email operational validation.
+4. Chasum HQ dogfood as a normal tenant.
+5. Outside Private Alpha readiness (not started).
+6. Commercial SaaS Gate B sequencing when approved; Gate B NOT MET.
+7. Summer horizontal intelligence progression when scoped/approved.
+
+This reconciliation does not authorize any of those implementation expansions.
 
 Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a booking-path canary — not as a sprint theme.
 
@@ -41,7 +48,7 @@ Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a bookin
 - [x] World Class Phase 2: staff plan honesty (active-staff quota wiring) — merged PR #25
 - [x] World Class Phase 3: Command Centre / Today experience — merged PR #27
 - [x] World Class Phase 4A: Commercial SaaS Lifecycle Honesty (Gate A / Private Alpha billing) — **COMPLETE / MERGED TO MAIN** (PR #29); does **not** mark Commercial SaaS DONE (see [`../LAUNCH_READINESS.md`](../LAUNCH_READINESS.md))
-- [ ] World Class Phase 5: Production Pin and Design-Partner Pilot Stabilization — **PREFLIGHT REQUIRED / NOT STARTED**
+- [ ] World Class Phase 5: Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**
 - [ ] Commercial v1 paid billing (Gate B) — later; LEVEL 3; Claude pre-challenge before implementation
 - [ ] Later PO decision on `/dashboard/hq` disposition (move to `/owner`, relabel, or retire) — **no expansion until then**
 
@@ -117,7 +124,7 @@ Every development session that changes the product:
 
 Documentation-only sessions still commit and push when the PO asks. Application sessions must not skip lint/build.
 
-Level 3 work (tenancy, RLS, billing, booking architecture, **navigation architecture**, migrations, tenant identity, Production data) requires Claude independent pre-challenge before Cursor implementation.
+Level 3 work (tenancy, RLS, billing, booking architecture, **navigation architecture**, migrations, tenant identity, Production data) requires Claude independent pre-challenge before primary-engineer implementation.
 
 ---
 

@@ -1,12 +1,19 @@
 # Chasum Database
 
+## Accepted Production recovery state — 2026-09-14
+
+Recovery CLOSED; [canonical closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md). 029 communications repair and send-intent ledger accepted. Package A four-function correction accepted under purpose record `20260913232447_package_a_existing_appointment_interval_correction`; historical 026 unchanged. 041 is the accepted public-booking financial authority, unchanged. 040 was not executed on Production and is retained only as a regression fixture outside migrations. 034/035/036 remain locked/unapplied. Presence of a column such as next_retry_at does not establish that 034 ran. Historical 037/038 attribution does not replace catalog proof.
+
+No SQL execution, RLS/ACL change or migration replay is authorized by this reconciliation. Existing migration comments saying NOT APPLIED refer to their implementation dates, not current Production status.
+
+
 PostgreSQL via **Supabase** with Row Level Security (RLS) on every table. All tenant data is scoped by `business_id`.
 
 ---
 
 ## Migrations
 
-Run in order in the Supabase SQL Editor or via `supabase db push`:
+Historical migration inventory only. **Do not bulk-apply or numerically replay these files.** Live catalog state and separately approved targets govern each environment.
 
 | File | Description |
 |------|-------------|

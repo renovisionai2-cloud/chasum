@@ -531,6 +531,8 @@ export type BookingNotificationStatusItem = {
   label: string;
   detail?: string | null;
   canRetry?: boolean;
+  deliveryState?: "accepted" | "rejected" | "unknown" | "not_attempted";
+  reconciliationRequired?: boolean;
 };
 
 export type ActionState = {
@@ -558,6 +560,7 @@ export type ActionState = {
 };
 
 export type PublicBookingSummary = {
+  timezone?: string | null;
   serviceName: string;
   staffName: string;
   /** True when the guest chose Any available staff (no named employee yet). */

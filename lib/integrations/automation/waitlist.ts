@@ -1,47 +1,69 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { enqueueEmailJob, enqueueJob } from "@/lib/integrations/jobs/queue";
+import { newSendIntentId, waitlistChildIntentId } from "@/lib/communications/intent-identity";
+import { unwrapRelation } from "@/lib/supabase/relations";
 
 export async function notifyWaitlistForSlot(
   businessId: string,
   cancelledAppointmentId: string,
+  parentJobId?: string,
 ) {
   const supabase = createServiceClient();
+  // Worker retries preserve parentJobId. A direct invocation is a new occurrence.
+  const occurrenceId = parentJobId ?? newSendIntentId();
 
-  const { data: cancelled } = await supabase
+  const { data: cancelled, error: appointmentError } = await supabase
     .from("appointments")
-    .select("service_id, staff_id, start_time")
+    .select("id, business_id, service_id, staff_id, start_time")
     .eq("id", cancelledAppointmentId)
-    .single();
+    .eq("business_id", businessId)
+    .maybeSingle();
 
+  if (appointmentError) throw new Error("waitlist_appointment_read_failed");
   if (!cancelled) return;
+  if (cancelled.business_id !== businessId) throw new Error("waitlist_appointment_tenant_mismatch");
 
   const date = cancelled.start_time.split("T")[0];
 
-  const { data: entries } = await supabase
+  const { data: entries, error: entriesError } = await supabase
     .from("waitlists")
-    .select("*, customer:customers(name, email)")
+    .select("*, customer:customers(id, business_id, name, email)")
     .eq("business_id", businessId)
     .eq("service_id", cancelled.service_id)
     .eq("preferred_date", date)
     .eq("status", "waiting")
     .limit(5);
+  if (entriesError) throw new Error("waitlist_entries_read_failed");
 
   for (const entry of entries ?? []) {
-    const customer = entry.customer as { name: string; email: string };
+    const customer = unwrapRelation(entry.customer) as {
+      id: string; business_id: string; name: string; email: string | null;
+    } | null;
+    if (entry.business_id !== businessId || !customer || customer.business_id !== businessId ||
+        customer.id !== entry.customer_id || !customer.email) {
+      throw new Error("waitlist_customer_tenant_or_recipient_unverified");
+    }
 
     await enqueueEmailJob(businessId, {
       appointmentId: cancelledAppointmentId,
       templateKey: "appointment.business",
       recipient: customer.email,
       action: `A slot opened up for ${date}! Book now.`,
+      sendIntentId: waitlistChildIntentId(occurrenceId, entry.id),
+      parentJobId: occurrenceId,
+      waitlistEntryId: entry.id,
     });
 
-    await supabase
+    const { data: updated, error: updateError } = await supabase
       .from("waitlists")
       .update({ status: "notified" })
-      .eq("id", entry.id);
+      .eq("id", entry.id)
+      .eq("business_id", businessId)
+      .eq("status", "waiting")
+      .select("id");
+    if (updateError || updated?.length !== 1) throw new Error("waitlist_status_write_unconfirmed");
 
-    await supabase.from("notifications").insert({
+    const { error: notificationError } = await supabase.from("notifications").insert({
       business_id: businessId,
       type: "waitlist",
       channel: "in_app",
@@ -49,6 +71,7 @@ export async function notifyWaitlistForSlot(
       body: `${customer.name} was notified about an open slot on ${date}.`,
       metadata: { waitlistId: entry.id, appointmentId: cancelledAppointmentId },
     });
+    if (notificationError) throw new Error("waitlist_notification_write_failed");
   }
 }
 

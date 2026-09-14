@@ -9,7 +9,7 @@ import {
   getServiceRoleKey,
   getSupabaseEnv,
   getTwilioConfig,
-  isProductionRuntime,
+  getRuntimeEnvironment,
 } from "@/lib/env";
 import type { Metadata } from "next";
 
@@ -49,7 +49,7 @@ export default async function OwnerSettingsPage() {
           <SettingRow label="Auth source" value={owner.source} />
           <SettingRow
             label="Runtime"
-            value={isProductionRuntime() ? "production" : "development"}
+            value={getRuntimeEnvironment()}
           />
           <SettingRow label="App URL" value={getAppUrl()} />
         </CardContent>

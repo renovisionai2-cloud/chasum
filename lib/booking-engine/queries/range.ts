@@ -2,7 +2,7 @@ import { withLocationFilter } from "@/lib/location/constants";
 import type { LocationScope } from "@/lib/location/constants";
 import { createClient } from "@/lib/supabase/server";
 
-/** Calendar range query — read model for Day/Week/Month surfaces. */
+/** Calendar overlap read model: inclusive range end, exclusive appointment end. */
 export async function queryAppointmentsInRange(input: {
   businessId: string;
   startIso: string;
@@ -22,7 +22,7 @@ export async function queryAppointmentsInRange(input: {
     `,
     )
     .eq("business_id", input.businessId)
-    .gte("start_time", input.startIso)
+    .gt("end_time", input.startIso)
     .lte("start_time", input.endIso)
     .order("start_time");
 

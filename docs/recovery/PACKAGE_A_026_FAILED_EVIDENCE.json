@@ -1,0 +1,715 @@
+{
+  "verdict": "D \u2014 FAIL \u2014 DESIGN/IMPLEMENTATION DEFECT",
+  "production_apply_authorized": false,
+  "base": "dbbe4502365858d4194f197b9ac22afe8d259c14",
+  "production_capture_at": "2026-09-13 18:57:16.181818+00",
+  "production_functions": [
+    {
+      "name": "get_available_slots",
+      "owner": "postgres",
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "comment": null,
+      "body_sha256": "721f013d049961c810f099e512c764a5af674bca2fdeca1deffaab94c97d69a3"
+    },
+    {
+      "name": "slot_is_blocked",
+      "owner": "postgres",
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "comment": null,
+      "body_sha256": "559af6fb18736bf05ee517bd010d27aa06a7a6057072f08acf37f22fa580e528"
+    },
+    {
+      "name": "validate_appointment_slot",
+      "owner": "postgres",
+      "acl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "comment": null,
+      "body_sha256": "712c07a589aa67865e92f7ba31f808c835190034ea6571f23faa51c5989857a9"
+    }
+  ],
+  "production_reason_absent": true,
+  "dependency_inventory": {
+    "referenced_columns": [
+      [
+        "appointments",
+        "business_id"
+      ],
+      [
+        "appointments",
+        "end_time"
+      ],
+      [
+        "appointments",
+        "id"
+      ],
+      [
+        "appointments",
+        "location_id"
+      ],
+      [
+        "appointments",
+        "service_id"
+      ],
+      [
+        "appointments",
+        "staff_id"
+      ],
+      [
+        "appointments",
+        "start_time"
+      ],
+      [
+        "appointments",
+        "status"
+      ],
+      [
+        "availability",
+        "business_id"
+      ],
+      [
+        "availability",
+        "end_time"
+      ],
+      [
+        "availability",
+        "is_available"
+      ],
+      [
+        "availability",
+        "location_id"
+      ],
+      [
+        "availability",
+        "staff_id"
+      ],
+      [
+        "availability",
+        "start_time"
+      ],
+      [
+        "business_closures",
+        "business_id"
+      ],
+      [
+        "business_closures",
+        "close_time"
+      ],
+      [
+        "business_closures",
+        "closure_type"
+      ],
+      [
+        "business_closures",
+        "ends_at"
+      ],
+      [
+        "business_closures",
+        "location_id"
+      ],
+      [
+        "business_closures",
+        "open_time"
+      ],
+      [
+        "business_closures",
+        "starts_at"
+      ],
+      [
+        "businesses",
+        "allow_double_booking"
+      ],
+      [
+        "businesses",
+        "appointment_interval_minutes"
+      ],
+      [
+        "businesses",
+        "booking_limit_days"
+      ],
+      [
+        "businesses",
+        "id"
+      ],
+      [
+        "businesses",
+        "max_daily_bookings"
+      ],
+      [
+        "businesses",
+        "min_notice_minutes"
+      ],
+      [
+        "businesses",
+        "timezone"
+      ],
+      [
+        "calendar_connections",
+        "business_id"
+      ],
+      [
+        "calendar_connections",
+        "id"
+      ],
+      [
+        "calendar_connections",
+        "staff_id"
+      ],
+      [
+        "external_events",
+        "calendar_connection_id"
+      ],
+      [
+        "external_events",
+        "end_time"
+      ],
+      [
+        "external_events",
+        "is_busy"
+      ],
+      [
+        "external_events",
+        "start_time"
+      ],
+      [
+        "holidays",
+        "business_id"
+      ],
+      [
+        "holidays",
+        "date"
+      ],
+      [
+        "holidays",
+        "is_recurring"
+      ],
+      [
+        "holidays",
+        "location_id"
+      ],
+      [
+        "location_hour_segments",
+        "close_time"
+      ],
+      [
+        "location_hour_segments",
+        "day_of_week"
+      ],
+      [
+        "location_hour_segments",
+        "location_id"
+      ],
+      [
+        "location_hour_segments",
+        "open_time"
+      ],
+      [
+        "location_hour_segments",
+        "sort_order"
+      ],
+      [
+        "location_hours",
+        "close_time"
+      ],
+      [
+        "location_hours",
+        "day_of_week"
+      ],
+      [
+        "location_hours",
+        "is_open"
+      ],
+      [
+        "location_hours",
+        "location_id"
+      ],
+      [
+        "location_hours",
+        "open_time"
+      ],
+      [
+        "location_settings",
+        "appointment_interval_minutes"
+      ],
+      [
+        "location_settings",
+        "booking_limit_days"
+      ],
+      [
+        "location_settings",
+        "location_id"
+      ],
+      [
+        "location_settings",
+        "max_daily_bookings"
+      ],
+      [
+        "location_settings",
+        "min_booking_notice_minutes"
+      ],
+      [
+        "locations",
+        "business_id"
+      ],
+      [
+        "locations",
+        "id"
+      ],
+      [
+        "locations",
+        "is_default"
+      ],
+      [
+        "locations",
+        "timezone"
+      ],
+      [
+        "service_blackouts",
+        "business_id"
+      ],
+      [
+        "service_blackouts",
+        "ends_at"
+      ],
+      [
+        "service_blackouts",
+        "location_id"
+      ],
+      [
+        "service_blackouts",
+        "service_id"
+      ],
+      [
+        "service_blackouts",
+        "starts_at"
+      ],
+      [
+        "service_locations",
+        "location_id"
+      ],
+      [
+        "service_locations",
+        "service_id"
+      ],
+      [
+        "services",
+        "buffer_after_minutes"
+      ],
+      [
+        "services",
+        "buffer_before_minutes"
+      ],
+      [
+        "services",
+        "business_id"
+      ],
+      [
+        "services",
+        "cleanup_minutes"
+      ],
+      [
+        "services",
+        "duration_minutes"
+      ],
+      [
+        "services",
+        "id"
+      ],
+      [
+        "services",
+        "is_active"
+      ],
+      [
+        "services",
+        "location_id"
+      ],
+      [
+        "services",
+        "max_appointments_per_day"
+      ],
+      [
+        "services",
+        "max_booking_days_ahead"
+      ],
+      [
+        "services",
+        "min_booking_notice_minutes"
+      ],
+      [
+        "staff",
+        "buffer_after_minutes"
+      ],
+      [
+        "staff",
+        "buffer_before_minutes"
+      ],
+      [
+        "staff",
+        "business_id"
+      ],
+      [
+        "staff",
+        "id"
+      ],
+      [
+        "staff",
+        "is_active"
+      ],
+      [
+        "staff",
+        "location_id"
+      ],
+      [
+        "staff",
+        "max_appointments_per_day"
+      ],
+      [
+        "staff_closures",
+        "business_id"
+      ],
+      [
+        "staff_closures",
+        "ends_at"
+      ],
+      [
+        "staff_closures",
+        "location_id"
+      ],
+      [
+        "staff_closures",
+        "staff_id"
+      ],
+      [
+        "staff_closures",
+        "starts_at"
+      ],
+      [
+        "staff_hour_segments",
+        "day_of_week"
+      ],
+      [
+        "staff_hour_segments",
+        "end_time"
+      ],
+      [
+        "staff_hour_segments",
+        "segment_type"
+      ],
+      [
+        "staff_hour_segments",
+        "sort_order"
+      ],
+      [
+        "staff_hour_segments",
+        "staff_id"
+      ],
+      [
+        "staff_hour_segments",
+        "start_time"
+      ],
+      [
+        "staff_services",
+        "duration_override_minutes"
+      ],
+      [
+        "staff_services",
+        "service_id"
+      ],
+      [
+        "staff_services",
+        "staff_id"
+      ],
+      [
+        "staff_vacations",
+        "end_date"
+      ],
+      [
+        "staff_vacations",
+        "staff_id"
+      ],
+      [
+        "staff_vacations",
+        "start_date"
+      ],
+      [
+        "staff_working_hours",
+        "day_of_week"
+      ],
+      [
+        "staff_working_hours",
+        "end_time"
+      ],
+      [
+        "staff_working_hours",
+        "is_working"
+      ],
+      [
+        "staff_working_hours",
+        "lunch_end_time"
+      ],
+      [
+        "staff_working_hours",
+        "lunch_start_time"
+      ],
+      [
+        "staff_working_hours",
+        "staff_id"
+      ],
+      [
+        "staff_working_hours",
+        "start_time"
+      ]
+    ],
+    "missing": []
+  },
+  "helper_signatures": [
+    "CREATE OR REPLACE FUNCTION public.is_location_holiday(p_business_id uuid, p_location_id uuid, p_date date)",
+    "CREATE OR REPLACE FUNCTION public.is_staff_on_vacation(p_staff_id uuid, p_date date)",
+    "CREATE OR REPLACE FUNCTION public.resolve_location_id(p_business_id uuid, p_location_id uuid DEFAULT NULL::uuid)"
+  ],
+  "constraints": [
+    {
+      "relname": "appointments",
+      "conname": "appointments_payment_status_check",
+      "definition": "CHECK ((payment_status = ANY (ARRAY['unpaid'::text, 'deposit_required'::text, 'deposit_paid'::text, 'partially_paid'::text, 'fully_paid'::text, 'refunded'::text, 'voided'::text])))"
+    },
+    {
+      "relname": "appointments",
+      "conname": "appointments_staff_no_overlap",
+      "definition": "EXCLUDE USING gist (staff_id WITH =, tstzrange(start_time, end_time, '[)'::text) WITH &&) WHERE ((status <> 'cancelled'::appointment_status))"
+    },
+    {
+      "relname": "business_closures",
+      "conname": "business_closures_check",
+      "definition": "CHECK ((ends_at > starts_at))"
+    },
+    {
+      "relname": "business_closures",
+      "conname": "business_closures_closure_type_check",
+      "definition": "CHECK ((closure_type = ANY (ARRAY['holiday'::text, 'vacation'::text, 'temporary'::text, 'special_hours'::text])))"
+    },
+    {
+      "relname": "staff_hour_segments",
+      "conname": "staff_hour_segments_check",
+      "definition": "CHECK ((end_time > start_time))"
+    },
+    {
+      "relname": "staff_hour_segments",
+      "conname": "staff_hour_segments_day_of_week_check",
+      "definition": "CHECK (((day_of_week >= 0) AND (day_of_week <= 6)))"
+    },
+    {
+      "relname": "staff_hour_segments",
+      "conname": "staff_hour_segments_segment_type_check",
+      "definition": "CHECK ((segment_type = ANY (ARRAY['work'::text, 'lunch'::text, 'break'::text])))"
+    }
+  ],
+  "queue": [
+    {
+      "job_type": "sms",
+      "status": "cancelled",
+      "count": 29
+    },
+    {
+      "job_type": "email",
+      "status": "completed",
+      "count": 12
+    },
+    {
+      "job_type": "email",
+      "status": "cancelled",
+      "count": 235
+    },
+    {
+      "job_type": "reminder",
+      "status": "cancelled",
+      "count": 88
+    },
+    {
+      "job_type": "webhook",
+      "status": "cancelled",
+      "count": 152
+    },
+    {
+      "job_type": "waitlist_notify",
+      "status": "cancelled",
+      "count": 64
+    },
+    {
+      "job_type": "webhook",
+      "status": "pending",
+      "count": 1
+    }
+  ],
+  "held": [
+    {
+      "id": "1060a548-7518-4e8f-8741-302400d55d4c",
+      "status": "pending",
+      "attempts": 0,
+      "started_at": null
+    }
+  ],
+  "gvm": {
+    "active_services": 14,
+    "cleanup_5": 11,
+    "service_notice_overrides": 0,
+    "service_horizon_overrides": 0,
+    "service_caps": 0,
+    "staff_caps": 0,
+    "lunch_rows": 0,
+    "business_closures": 0,
+    "staff_closures": 0,
+    "service_blackouts": 0,
+    "main_services": 14,
+    "timezones": {
+      "business": "America/Toronto",
+      "location": "America/Toronto"
+    }
+  },
+  "staging_lock": [
+    {
+      "name": "availability_block_reason",
+      "identity": "p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_service_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid, p_allow_double_booking boolean",
+      "body_sha256": "ef4bcced8596a4b53daa53cecba8628fe0e5ec06d454f4a59e58d83dc3c9ced0",
+      "repository_body_equal": true
+    },
+    {
+      "name": "get_available_slots",
+      "identity": "p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_date date, p_exclude_appointment_id uuid, p_location_id uuid",
+      "body_sha256": "116e6b4028dde0bdcd2764ae5bec00f234109e7928a02cbd95301885018abaf9",
+      "repository_body_equal": true
+    },
+    {
+      "name": "slot_is_blocked",
+      "identity": "p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid",
+      "body_sha256": "0d95eb6d967cb52b776aaa66b6e0ea1fd4089ab4b73322175bb530704d14e6bd",
+      "repository_body_equal": true
+    },
+    {
+      "name": "validate_appointment_slot",
+      "identity": "p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_start_time timestamp with time zone, p_end_time timestamp with time zone, p_exclude_appointment_id uuid, p_location_id uuid",
+      "body_sha256": "e43deff9d3a5499460265d47000a4a6466303eb91263462106da1178f6c5f98b",
+      "repository_body_equal": true
+    }
+  ],
+  "tests": {
+    "passed": 26,
+    "failed": 2,
+    "cases": [
+      {
+        "name": "rehearses exact 008 \u2192 target \u2192 rollback, metadata and injected transaction failure",
+        "status": "passed"
+      },
+      {
+        "name": "five-minute cleanup rejects the immediately-following 10:30 slot",
+        "status": "failed"
+      },
+      {
+        "name": "validator rejects that immediately-following cleanup slot",
+        "status": "failed"
+      },
+      {
+        "name": "zero cleanup permits an adjacent slot",
+        "status": "passed"
+      },
+      {
+        "name": "known-good 10:35 remains offered",
+        "status": "passed"
+      },
+      {
+        "name": "candidate cleanup blocks a slot immediately before an existing booking",
+        "status": "passed"
+      },
+      {
+        "name": "staff lunch blocks noon",
+        "status": "passed"
+      },
+      {
+        "name": "split location hours exclude the gap",
+        "status": "passed"
+      },
+      {
+        "name": "business closure excludes the date",
+        "status": "passed"
+      },
+      {
+        "name": "staff closure blocks its interval",
+        "status": "passed"
+      },
+      {
+        "name": "service blackout blocks its interval",
+        "status": "passed"
+      },
+      {
+        "name": "staff daily cap is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "services daily cap is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "service minimum notice is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "service booking horizon is enforced",
+        "status": "passed"
+      },
+      {
+        "name": "duration override prevents extending past closing",
+        "status": "passed"
+      },
+      {
+        "name": "service_locations permits a secondary location",
+        "status": "passed"
+      },
+      {
+        "name": "exclude appointment permits rescheduling the same appointment",
+        "status": "passed"
+      },
+      {
+        "name": "GiST still rejects raw overlap",
+        "status": "passed"
+      },
+      {
+        "name": "Toronto slots retain instants under Auckland session timezone",
+        "status": "passed"
+      },
+      {
+        "name": "Toronto opening after the next autumn DST boundary uses winter UTC offset",
+        "status": "passed"
+      },
+      {
+        "name": "maps double-booking RPC errors",
+        "status": "passed"
+      },
+      {
+        "name": "maps vacation conflicts",
+        "status": "passed"
+      },
+      {
+        "name": "scores sooner slots higher",
+        "status": "passed"
+      },
+      {
+        "name": "embeds all approved 026 statements verbatim in one transaction",
+        "status": "passed"
+      },
+      {
+        "name": "rollback drops only the derived new function with RESTRICT and reloads after commit",
+        "status": "passed"
+      },
+      {
+        "name": "uses services.min_booking_notice_minutes (not businesses.min_notice_minutes)",
+        "status": "passed"
+      },
+      {
+        "name": "loads location_id so unassigned validation can check service location eligibility",
+        "status": "passed"
+      }
+    ]
+  },
+  "typecheck": "PASS",
+  "changed_file_eslint": "PASS",
+  "hosted_workflows": "NOT RUN: mandatory local cleanup tests fail; no hosted synthetic writes",
+  "production_mutation": false
+}

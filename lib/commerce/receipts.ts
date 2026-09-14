@@ -2,7 +2,11 @@ import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import type { CommerceReceipt } from "@/lib/commerce/types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
-import type { AppointmentTemplateContext } from "@/lib/communications/types";
+import type { AppointmentTemplateContext, SendResult } from "@/lib/communications/types";
+import { originalReceiptIntentId, newSendIntentId } from "@/lib/communications/intent-identity";
+import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
+import { inspectSendIntent, inspectUnresolvedSendIntent } from "@/lib/communications/send-intent";
+import { logger } from "@/lib/observability/logger";
 import { logQueryError, isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
@@ -408,6 +412,7 @@ export async function queueReceiptEmail(
     // directContext (never a stale appointment-only context).
     payload: {
       receiptId,
+      sendIntentId: originalReceiptIntentId(receiptId),
       businessId,
       directContext: {
         ...built.context,
@@ -455,7 +460,9 @@ export async function sendPaymentReceiptNow(input: {
   /** @deprecated Ignored — context is loaded from the linked transaction. */
   paymentStatusLabel?: string | null;
   idempotencyKey?: string | null;
-}): Promise<{ ok: boolean; skipped?: boolean; error?: string; messageId?: string }> {
+  /** Explicit human resend occurrence; automatic retries retain the original. */
+  sendIntentId?: string;
+}): Promise<SendResult> {
   const supabase = await createClient();
   const { data: receipt, error } = await supabase
     .from("commerce_receipts")
@@ -469,7 +476,14 @@ export async function sendPaymentReceiptNow(input: {
   }
 
   if (String(receipt.email_status) === "sent") {
-    return { ok: true, skipped: true, messageId: undefined };
+    return { ok: true, skipped: true, deliveryState: "accepted", retrySafe: false, reconciliationRequired: false };
+  }
+
+  // Queued is an in-flight/uncertain send, not proof of failure. A newer manual
+  // occurrence may exist even when the original occurrence was accepted.
+  if (String(receipt.email_status) === "queued") {
+    return { ok: false, deliveryState: "unknown", retrySafe: false, reconciliationRequired: true,
+      error: "Receipt delivery is in progress or uncertain. Reconcile before retrying." };
   }
 
   const built = await buildReceiptEmailContext({
@@ -487,8 +501,16 @@ export async function sendPaymentReceiptNow(input: {
     return { ok: false, error: built.error };
   }
 
+  const sendIntentId = input.sendIntentId ?? originalReceiptIntentId(input.receiptId);
+  if (workerReliabilityEnabled()) {
+    const recorded = await inspectSendIntent({ businessId: input.businessId, channel: "email",
+      templateKey: "commerce.receipt", to: built.context.customerEmail!,
+      reliability: { intentId: sendIntentId, source: "inline", entityType: "receipt", entityId: input.receiptId } });
+    if (recorded) return { ...recorded, ok: recorded.success, skipped: recorded.success };
+  }
+
   // Claim send attempt so parallel retries cannot double-send.
-  const { data: claimed } = await supabase
+  const { data: claimed, error: claimError } = await supabase
     .from("commerce_receipts")
     .update({ email_status: "queued" })
     .eq("id", input.receiptId)
@@ -497,21 +519,30 @@ export async function sendPaymentReceiptNow(input: {
     .select("*")
     .maybeSingle();
 
+  if (claimError) return { ok: false, deliveryState: "not_attempted", retrySafe: false,
+    reconciliationRequired: true, error: "Receipt claim could not be confirmed. Review before retrying." };
   if (!claimed) {
-    const { data: again } = await supabase
+    const { data: again, error: againError } = await supabase
       .from("commerce_receipts")
       .select("email_status")
       .eq("id", input.receiptId)
+      .eq("business_id", input.businessId)
       .maybeSingle();
-    if (String(again?.email_status) === "sent") {
-      return { ok: true, skipped: true };
+    if (!againError && String(again?.email_status) === "sent") {
+      return { ok: true, skipped: true, deliveryState: "accepted", retrySafe: false };
     }
-    return { ok: false, error: "Receipt send is already in progress." };
+    return { ok: false, deliveryState: "unknown", retrySafe: false, reconciliationRequired: true,
+      error: "Receipt send is already in progress or its state is uncertain." };
   }
 
   const { sendEmail } = await import("@/lib/communications/delivery");
-  const result = await sendEmail({
+  let result: SendResult;
+  try {
+    result = await sendEmail({
     businessId: input.businessId,
+    ...(workerReliabilityEnabled() ? { reliability: {
+      intentId: sendIntentId, source: "inline" as const, entityType: "receipt" as const, entityId: input.receiptId,
+    } } : {}),
     to: built.context.customerEmail!,
     templateKey: "commerce.receipt",
     customerId: built.context.customerId,
@@ -524,19 +555,35 @@ export async function sendPaymentReceiptNow(input: {
         : null,
     },
   });
-
-  await supabase
-    .from("commerce_receipts")
-    .update({
-      email_status: result.ok ? "sent" : "failed",
-    })
-    .eq("id", input.receiptId)
-    .eq("business_id", input.businessId);
-
-  if (!result.ok) {
-    return { ok: false, error: result.error ?? "Receipt email failed." };
+  } catch {
+    return { ok: false, deliveryState: "unknown", retrySafe: false, reconciliationRequired: true,
+      error: "Receipt delivery was interrupted. Reconcile before retrying." };
   }
-  return { ok: true, messageId: result.messageId };
+
+  // Uncertainty keeps the receipt queued. Resetting it to failed would let a
+  // subsequent human click mint a new occurrence and repeat an unknown send.
+  const uncertain = result.deliveryState === "unknown" || Boolean(result.reconciliationRequired) ||
+    (workerReliabilityEnabled() && !result.ok && !result.skipped && result.retrySafe !== true);
+  if (!result.ok && uncertain) return { ...result, ok: false, retrySafe: false,
+    reconciliationRequired: true, error: result.error ?? "Receipt outcome requires reconciliation." };
+  let bookkeepingFailed = false;
+  try {
+    const { data: updated, error: updateError } = await supabase
+      .from("commerce_receipts")
+      .update({ email_status: result.ok ? "sent" : "failed" })
+      .eq("id", input.receiptId).eq("business_id", input.businessId)
+      .eq("email_status", "queued").select("id").maybeSingle();
+    bookkeepingFailed = Boolean(updateError || !updated);
+  } catch { bookkeepingFailed = true; }
+  if (bookkeepingFailed) logger.error("notifications", "receipt_reconciliation_required", {
+    businessId: input.businessId, receiptId: input.receiptId, sendIntentId,
+    deliveryState: result.ok ? "accepted" : result.deliveryState,
+  });
+  return { ...result, deliveryState: result.deliveryState ?? (result.ok ? "accepted" : "rejected"),
+    reconciliationRequired: Boolean(result.reconciliationRequired || bookkeepingFailed),
+    retrySafe: bookkeepingFailed ? false : result.retrySafe,
+    error: result.ok ? result.error : result.error ?? "Receipt email failed." };
+
 }
 
 export type PaymentReceiptRetryResult = {
@@ -546,6 +593,9 @@ export type PaymentReceiptRetryResult = {
   transactionId?: string | null;
   /** True when a prior successful send was short-circuited (no second email). */
   skippedDuplicate?: boolean;
+  deliveryState?: SendResult["deliveryState"];
+  reconciliationRequired?: boolean;
+  retrySafe?: boolean;
 };
 
 /**
@@ -629,19 +679,43 @@ export async function retryPaymentReceiptForAppointment(input: {
     };
   }
 
-  // Explicit human retry may resend corrected content for the same receipt/
-  // transaction (e.g. after a stale financial snapshot). Never creates a new
-  // receipt row when one already exists for this transaction_id.
-  if (
-    String(receipt.emailStatus) === "sent" ||
-    String(receipt.emailStatus) === "queued"
-  ) {
-    await supabase
-      .from("commerce_receipts")
-      .update({ email_status: "failed" })
-      .eq("id", receipt.id)
-      .eq("business_id", input.businessId)
-      .in("email_status", ["sent", "queued"]);
+  // A queued receipt may be a newer manual send whose original occurrence was
+  // accepted earlier. Do not use the original key to clear this in-flight state.
+  if (receipt.emailStatus === "queued") return { status: "failed",
+    detail: "Receipt delivery is in progress or uncertain. Reconcile before retrying.",
+    receiptId: receipt.id, transactionId: tx.id, deliveryState: "unknown",
+    reconciliationRequired: true, retrySafe: false };
+
+  let sendIntentId = originalReceiptIntentId(receipt.id);
+  let acceptedBefore = receipt.emailStatus === "sent";
+  if (workerReliabilityEnabled()) {
+    const unresolved = await inspectUnresolvedSendIntent({ businessId: input.businessId,
+      channel: "email", templateKey: "commerce.receipt", to: customer.email.trim(),
+      entityType: "receipt", entityId: receipt.id });
+    if (unresolved) return { status: "failed", receiptId: receipt.id, transactionId: tx.id,
+      detail: "An earlier receipt send is in progress or uncertain. Reconcile before retrying.",
+      deliveryState: unresolved.deliveryState, reconciliationRequired: true, retrySafe: false };
+    const prior = await inspectSendIntent({ businessId: input.businessId, channel: "email",
+      templateKey: "commerce.receipt", to: customer.email.trim(),
+      reliability: { intentId: sendIntentId, source: "inline", entityType: "receipt", entityId: receipt.id } });
+    if (prior && !prior.success) return { status: "failed",
+      detail: "Prior receipt delivery requires reconciliation. No resend attempted.",
+      receiptId: receipt.id, transactionId: tx.id, deliveryState: prior.deliveryState,
+      reconciliationRequired: true, retrySafe: false };
+    acceptedBefore ||= prior?.success === true;
+  }
+  // Known acceptance permits a distinct requested resend. Confirmed failed
+  // attempts reuse the same occurrence and its durable rejected-state retry gate.
+  if (acceptedBefore) sendIntentId = newSendIntentId();
+  if (receipt.emailStatus === "sent") {
+    const { data: reset, error: resetError } = await supabase.from("commerce_receipts")
+      .update({ email_status: "failed" }).eq("id", receipt.id)
+      .eq("business_id", input.businessId).eq("email_status", "sent")
+      .select("id").maybeSingle();
+    if (resetError || !reset) return { status: "failed",
+      detail: "Receipt resend ownership could not be confirmed. Review before retrying.",
+      receiptId: receipt.id, transactionId: tx.id, deliveryState: "not_attempted",
+      reconciliationRequired: true, retrySafe: false };
   }
 
   const result = await sendPaymentReceiptNow({
@@ -649,17 +723,21 @@ export async function retryPaymentReceiptForAppointment(input: {
     receiptId: receipt.id,
     appointmentId,
     idempotencyKey: `retry:${appointmentId}:${tx.id}`,
+    sendIntentId,
   });
 
   if (result.ok) {
     return {
       status: "sent",
-      detail: result.skipped
+      detail: result.reconciliationRequired ? "Provider accepted the receipt; bookkeeping requires reconciliation. Do not resend." : result.skipped
         ? "Receipt already sent."
         : "Payment receipt sent.",
       receiptId: receipt.id,
       transactionId: tx.id,
       skippedDuplicate: Boolean(result.skipped),
+      deliveryState: result.deliveryState ?? "accepted",
+      reconciliationRequired: result.reconciliationRequired,
+      retrySafe: false,
     };
   }
 
@@ -670,6 +748,8 @@ export async function retryPaymentReceiptForAppointment(input: {
       detail: err,
       receiptId: receipt.id,
       transactionId: tx.id,
+      deliveryState: result.deliveryState, reconciliationRequired: result.reconciliationRequired,
+      retrySafe: result.retrySafe,
     };
   }
   return {
@@ -677,5 +757,7 @@ export async function retryPaymentReceiptForAppointment(input: {
     detail: err,
     receiptId: receipt.id,
     transactionId: tx.id,
+    deliveryState: result.deliveryState, reconciliationRequired: result.reconciliationRequired,
+    retrySafe: result.retrySafe,
   };
 }

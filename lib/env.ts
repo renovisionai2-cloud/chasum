@@ -97,12 +97,25 @@ function firstNonEmpty(
   return null;
 }
 
-/** True on Vercel/production deploys (not local Next.js). */
+/** Deployment identity; an optimized Preview build is not Production. */
+export function getRuntimeEnvironment(): "production" | "preview" | "development" | "unknown" {
+  const vercelEnv = process.env.VERCEL_ENV;
+  if (vercelEnv !== undefined) {
+    if (vercelEnv === "production" || vercelEnv === "preview" || vercelEnv === "development") {
+      return vercelEnv;
+    }
+    return "unknown";
+  }
+  return process.env.NODE_ENV === "production" ? "production" : "development";
+}
+
 export function isProductionRuntime(): boolean {
-  return (
-    process.env.VERCEL_ENV === "production" ||
-    process.env.NODE_ENV === "production"
-  );
+  return getRuntimeEnvironment() === "production";
+}
+
+/** Only recognized development runtimes may use permissive local fallbacks. */
+export function requiresHostedSafetyGuards(): boolean {
+  return getRuntimeEnvironment() !== "development";
 }
 
 /** Keeps post-auth `next` paths relative and safe. */

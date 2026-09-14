@@ -56,7 +56,9 @@ export async function retryAppointmentNotification(
               : result.status,
             label: "Payment receipt",
             detail: result.detail,
-            canRetry: result.status === "failed" || result.status === "sent",
+            deliveryState: result.deliveryState,
+            reconciliationRequired: result.reconciliationRequired,
+            canRetry: !result.reconciliationRequired && (result.status === "sent" || result.retrySafe === true),
           },
         ],
       };
@@ -73,7 +75,9 @@ export async function retryAppointmentNotification(
             status: "failed",
             label: "Payment receipt",
             detail: "Receipt retry failed.",
-            canRetry: true,
+            canRetry: false,
+            reconciliationRequired: true,
+            deliveryState: "unknown",
           },
         ],
       };
@@ -90,9 +94,12 @@ export async function retryAppointmentNotification(
   }
 
   try {
-    const report = await retryBookingNotification({ appointmentId, channel });
+    const report = await retryBookingNotification({ businessId: business.id, appointmentId, channel });
+    const accepted = report.items.every((item) => item.status === "sent");
+    const needsReview = report.items.some((item) => item.reconciliationRequired);
     return {
-      success: "Notification resent.",
+      success: accepted ? (needsReview ? "Provider accepted the notification; reconciliation requires review." : "Notification resent.") : undefined,
+      error: accepted ? undefined : report.items.find((item) => item.status !== "sent")?.detail ?? "Notification was not sent.",
       appointmentId,
       notifications: report.items,
     };

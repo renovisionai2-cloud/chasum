@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { getCalendarAdapter } from "@/lib/integrations/calendar";
 import { generateAppleIcsSecret } from "@/lib/integrations/calendar/apple";
 import type { CalendarProvider } from "@/lib/types/integrations";
+import type { AppointmentNotificationContext } from "@/lib/integrations/notifications/appointment-context";
 
 async function ensureFreshToken(connection: {
   id: string;
@@ -100,25 +101,24 @@ export async function syncCalendarConnection(connectionId: string) {
     .eq("id", connectionId);
 }
 
-export async function pushAppointmentToCalendars(appointmentId: string) {
+export async function pushAppointmentToCalendars(
+  context: AppointmentNotificationContext,
+  businessName: string,
+) {
   const supabase = createServiceClient();
+  // Use the tenant-validated event snapshot, including names/recipients, without an unsafe re-read.
+  const { appointment, customer, service, staff } = context;
+  const appointmentId = appointment.id;
+  if (appointment.status === "cancelled") return;
 
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select(
-      `*, service:services(name), staff:staff(id, name), customer:customers(name, email), business:businesses(name)`,
-    )
-    .eq("id", appointmentId)
-    .single();
-
-  if (!appointment || appointment.status === "cancelled") return;
-
-  const { data: connections } = await supabase
+  let query = supabase
     .from("calendar_connections")
     .select("*")
     .eq("business_id", appointment.business_id)
-    .eq("sync_enabled", true)
-    .or(`staff_id.is.null,staff_id.eq.${appointment.staff_id}`);
+    .eq("sync_enabled", true);
+  query = appointment.staff_id === null ? query.is("staff_id", null) :
+    query.or(`staff_id.is.null,staff_id.eq.${appointment.staff_id}`);
+  const { data: connections } = await query;
 
   for (const connection of connections ?? []) {
     if (connection.provider === "apple") continue;
@@ -130,17 +130,12 @@ export async function pushAppointmentToCalendars(appointmentId: string) {
     const accessToken = await ensureFreshToken(connection);
     if (!accessToken) continue;
 
-    const service = appointment.service as { name: string };
-    const staff = appointment.staff as { name: string };
-    const customer = appointment.customer as { name: string; email: string };
-    const business = appointment.business as { name: string };
-
     const eventPayload = {
       title: `${service.name} — ${customer.name}`,
-      description: `Staff: ${staff.name}\nBusiness: ${business.name}`,
+      description: `Staff: ${staff?.name ?? "To be assigned"}\nBusiness: ${businessName}`,
       startTime: appointment.start_time,
       endTime: appointment.end_time,
-      attendees: [customer.email],
+      attendees: customer.email ? [customer.email] : [],
     };
 
     const calendarId = connection.provider_calendar_id ?? "primary";
@@ -183,13 +178,14 @@ export async function pushAppointmentToCalendars(appointmentId: string) {
   }
 }
 
-export async function deleteAppointmentFromCalendars(appointmentId: string) {
+export async function deleteAppointmentFromCalendars(appointmentId: string, businessId: string) {
   const supabase = createServiceClient();
 
   const { data: links } = await supabase
     .from("external_events")
-    .select("*, connection:calendar_connections(*)")
-    .eq("appointment_id", appointmentId);
+    .select("*, connection:calendar_connections!inner(*)")
+    .eq("appointment_id", appointmentId)
+    .eq("connection.business_id", businessId);
 
   for (const link of links ?? []) {
     const connection = link.connection as {

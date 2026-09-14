@@ -7,7 +7,7 @@ import { loadAppointmentFinancialActivity } from "@/lib/actions/appointment-acti
 import {
   cancelAppointment,
 } from "@/lib/actions/appointments";
-import { formatTime, parseISO } from "@/lib/calendar/utils";
+import { formatBusinessTime, formatBusinessDateTime } from "@/lib/locale";
 import type { AppointmentFinancialActivity } from "@/lib/commerce/appointment-financial-activity";
 import { resolveDepositDueNowCents } from "@/lib/commerce/booking-financials";
 import {
@@ -35,6 +35,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 
 type AppointmentDrawerProps = {
+  timezone?: string;
   open: boolean;
   appointment: AppointmentWithRelations | null;
   locations: Location[];
@@ -67,6 +68,7 @@ function Section({
 
 export function AppointmentDrawer({
   open,
+  timezone,
   appointment,
   locations,
   onClose,
@@ -128,8 +130,6 @@ export function AppointmentDrawer({
     appointment.location?.name ??
     locations.find((l) => l.id === appointment.location_id)?.name ??
     "—";
-  const start = parseISO(appointment.start_time);
-  const end = parseISO(appointment.end_time);
   const deposit = Number(appointment.deposit_cents ?? 0);
   const priceCents = Number(appointment.price_cents ?? 0);
   const taxCents = Number(appointment.tax_cents ?? 0);
@@ -180,7 +180,7 @@ export function AppointmentDrawer({
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <StatusBadge status={appointment.status} />
               <span className="text-xs text-muted-foreground">
-                {formatTime(start)} – {formatTime(end)}
+                {formatBusinessTime(appointment.start_time, { timezone })} – {formatBusinessTime(appointment.end_time, { timezone })}
               </span>
             </div>
           </div>
@@ -227,7 +227,7 @@ export function AppointmentDrawer({
               <li>
                 <span className="font-medium">Scheduled</span>
                 <span className="ml-2 text-muted-foreground">
-                  {start.toLocaleString()}
+                  {formatBusinessDateTime(appointment.start_time, { timezone })}
                 </span>
               </li>
               <li>

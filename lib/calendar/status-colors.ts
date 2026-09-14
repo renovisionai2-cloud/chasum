@@ -1,3 +1,4 @@
+import { wallMinutes } from "@/lib/calendar/operational-time";
 import type { AppointmentStatus } from "@/lib/types/booking";
 import { APPOINTMENT_STATUS_COLORS } from "@/lib/types/booking";
 
@@ -20,9 +21,10 @@ export function getAppointmentBlockStyle(
 export function getCurrentTimePosition(
   startHour: number,
   endHour: number,
+  timezone?: string,
 ): number | null {
   const now = new Date();
-  const minutes = now.getHours() * 60 + now.getMinutes();
+  const minutes = timezone ? wallMinutes(now, timezone) : now.getHours() * 60 + now.getMinutes();
   const startMinutes = startHour * 60;
   const totalMinutes = (endHour - startHour) * 60;
 

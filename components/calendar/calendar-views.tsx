@@ -1,5 +1,8 @@
 "use client";
 
+import { isOperationalDay, overlapsOperationalDay } from "@/lib/calendar/operational-time";
+import { formatBusinessTime } from "@/lib/locale";
+
 import {
   AppointmentBlock,
   CurrentTimeIndicator,
@@ -14,7 +17,6 @@ import {
   assignOverlapLayout,
   formatTime,
   getHourSlots,
-  isSameDay,
   parseISO,
 } from "@/lib/calendar/utils";
 import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
@@ -26,6 +28,7 @@ import { format } from "date-fns";
 import { useState } from "react";
 
 type ViewProps = {
+  timezone?: string;
   date: Date;
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
@@ -41,6 +44,7 @@ const TIME_COL = "w-16 shrink-0 sm:w-[4.25rem]";
 
 export function DayView({
   date,
+  timezone = "America/Toronto",
   appointments,
   onSelectAppointment,
   onSelectSlot,
@@ -51,10 +55,10 @@ export function DayView({
 }: ViewProps) {
   const hours = getHourSlots();
   const dayAppointments = appointments.filter((appt) =>
-    isSameDay(parseISO(appt.start_time), date),
+    overlapsOperationalDay(appt.start_time, appt.end_time, date, timezone),
   );
   const layout = assignOverlapLayout(dayAppointments);
-  const showNow = isSameDay(date, new Date());
+  const showNow = isOperationalDay(new Date(), date, timezone);
   const isToday = showNow;
 
   return (
@@ -101,6 +105,7 @@ export function DayView({
               {formatTime(new Date(2024, 0, 1, hour))}
             </div>
             <TimeSlotDropZone
+              timezone={timezone}
               date={date}
               hour={hour}
               intervalMinutes={intervalMinutes}
@@ -121,13 +126,15 @@ export function DayView({
         ))}
 
         <div className={cn("pointer-events-none absolute inset-0", "pl-16 sm:pl-[4.25rem]")}>
-          <CurrentTimeIndicator show={showNow} />
+          <CurrentTimeIndicator timezone={timezone} show={showNow} />
           {dayAppointments.map((appt) => {
             const pack = layout.get(appt.id);
             return (
               <AppointmentBlock
+                timezone={timezone}
                 key={appt.id}
                 appointment={appt}
+                day={date}
                 onSelect={onSelectAppointment}
                 onResize={onResize}
                 colorMode={colorMode}
@@ -145,6 +152,7 @@ export function DayView({
 
 export function WeekView({
   date,
+  timezone = "America/Toronto",
   appointments,
   onSelectAppointment,
   onSelectSlot,
@@ -161,7 +169,7 @@ export function WeekView({
     d.setDate(weekStart.getDate() + i);
     return d;
   });
-  const todayInWeek = days.some((d) => isSameDay(d, new Date()));
+  const todayInWeek = days.some((d) => isOperationalDay(new Date(), d, timezone));
 
   return (
     <div className="max-h-[min(70vh,52rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
@@ -174,7 +182,7 @@ export function WeekView({
             )}
           />
           {days.map((day) => {
-            const isToday = isSameDay(day, new Date());
+            const isToday = isOperationalDay(new Date(), day, timezone);
             return (
               <div
                 key={day.toISOString()}
@@ -213,13 +221,14 @@ export function WeekView({
               </div>
               {days.map((day) => (
                 <TimeSlotDropZone
+                  timezone={timezone}
                   key={`${day.toISOString()}-${hour}`}
                   date={day}
                   hour={hour}
                   intervalMinutes={intervalMinutes}
                   className={cn(
                     "min-h-[56px] flex-1 border-l border-border/60",
-                    isSameDay(day, new Date()) && "bg-accent/10",
+                    isOperationalDay(new Date(), day, timezone) && "bg-accent/10",
                   )}
                   onClick={onSelectSlot}
                   onDrop={(slot, appointmentId) => {
@@ -245,7 +254,7 @@ export function WeekView({
           >
             {days.map((day) => {
               const dayAppts = appointments.filter((appt) =>
-                isSameDay(parseISO(appt.start_time), day),
+                overlapsOperationalDay(appt.start_time, appt.end_time, day, timezone),
               );
               const layout = assignOverlapLayout(dayAppts);
               return (
@@ -253,15 +262,17 @@ export function WeekView({
                   key={day.toISOString()}
                   className="relative border-l border-border/40"
                 >
-                  {isSameDay(day, new Date()) && (
-                    <CurrentTimeIndicator show={todayInWeek} />
+                  {isOperationalDay(new Date(), day, timezone) && (
+                    <CurrentTimeIndicator timezone={timezone} show={todayInWeek} />
                   )}
                   {dayAppts.map((appt) => {
                     const pack = layout.get(appt.id);
                     return (
                       <AppointmentBlock
+                        timezone={timezone}
                         key={appt.id}
                         appointment={appt}
+                        day={day}
                         onSelect={onSelectAppointment}
                         onResize={onResize}
                         colorMode={colorMode}
@@ -283,6 +294,7 @@ export function WeekView({
 }
 
 type MonthViewProps = {
+  timezone?: string;
   date: Date;
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
@@ -292,6 +304,7 @@ type MonthViewProps = {
 
 export function MonthView({
   date,
+  timezone = "America/Toronto",
   appointments,
   onSelectAppointment,
   onSelectDay,
@@ -310,7 +323,7 @@ export function MonthView({
 
   const agendaAppointments = agendaDay
     ? appointments
-        .filter((appt) => isSameDay(parseISO(appt.start_time), agendaDay))
+        .filter((appt) => overlapsOperationalDay(appt.start_time, appt.end_time, agendaDay, timezone))
         .sort(
           (a, b) =>
             parseISO(a.start_time).getTime() - parseISO(b.start_time).getTime(),
@@ -334,14 +347,14 @@ export function MonthView({
         <div className="grid grid-cols-7">
           {days.map((day) => {
             const dayAppts = appointments
-              .filter((appt) => isSameDay(parseISO(appt.start_time), day))
+              .filter((appt) => overlapsOperationalDay(appt.start_time, appt.end_time, day, timezone))
               .sort(
                 (a, b) =>
                   parseISO(a.start_time).getTime() -
                   parseISO(b.start_time).getTime(),
               );
             const isCurrentMonth = day.getMonth() === date.getMonth();
-            const isToday = isSameDay(day, new Date());
+            const isToday = isOperationalDay(new Date(), day, timezone);
             const overflowCount = Math.max(0, dayAppts.length - visibleLimit);
             const dateLabel = format(day, "MMMM d");
 
@@ -372,7 +385,7 @@ export function MonthView({
                         ? appt.staff?.color ?? appt.service.color
                         : appt.service.color;
                     const start = parseISO(appt.start_time);
-                    const label = `${formatTime(start)} ${appt.customer.name} · ${appt.service.name}`;
+                    const label = `${formatBusinessTime(start, { timezone })} ${appt.customer.name} · ${appt.service.name}`;
                     return (
                       <button
                         key={appt.id}
@@ -387,7 +400,7 @@ export function MonthView({
                         }}
                       >
                         <span className="font-medium tabular-nums">
-                          {formatTime(start)}
+                          {formatBusinessTime(start, { timezone })}
                         </span>{" "}
                         <span>{appt.customer.name}</span>
                       </button>
@@ -456,7 +469,7 @@ export function MonthView({
                   }}
                 >
                   <span className="text-sm font-semibold tabular-nums">
-                    {formatTime(start)}–{formatTime(end)}
+                    {formatBusinessTime(start, { timezone })}–{formatBusinessTime(end, { timezone })}
                   </span>
                   <span className="text-sm font-medium">
                     {appt.customer.name}

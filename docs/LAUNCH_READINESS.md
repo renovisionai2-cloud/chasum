@@ -2,10 +2,12 @@
 
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
-**Last updated:** 2026-08-25  
-**Updated by:** Native-app strategy governance correction (follow-up to PR #30). Workstream 18 is **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY**. Phase 5 remains **PREFLIGHT REQUIRED / NOT STARTED**. Tracker: **18 workstreams**.
+**Last updated:** 2026-09-14
+**Updated by:** Codex — post-recovery source-of-truth reconciliation. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
 
 These are **planning targets, not public promises.**
+
+**2026-09-14:** Production recovery CLOSED; public GVM exposure 3/3 PASS; worker reliability and Package A accepted. Phase 5 IN PROGRESS. First legitimate GVM booking + dual-email delivery and HQ dogfood remain operational validation. Outside Private Alpha NOT STARTED; Gate B NOT MET. [Recovery closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) records deployment and evidence. No change to the 18 workstreams, windows, or native strategy.
 
 ---
 
@@ -221,7 +223,7 @@ Launch requirement vs later expansion: **launch** = trusted booking + CRM + staf
 | Status | **PARTIAL** |
 | Private Alpha billing readiness | **Gate A COMPLETE** (PR #29, `f6517a1`) |
 | Commercial v1 billing readiness | **NOT MET** — Gate B required later |
-| Current owner / current task | Engineering / Founder — Gate A shipped. Do **not** start Gate B in this chapter. Next launch-critical phase is Production pin + design-partner pilot stabilization (preflight). |
+| Current owner / current task | Engineering / Founder — Gate A shipped. Do **not** start Gate B in this chapter. Phase 5 stabilization is IN PROGRESS; Production recovery/pin accepted. |
 | Blocking issue | No live payment-provider billing; paid self-serve conversion gated; upgrade / downgrade / cancellation / dunning immature. Phase 4A removed theater; it did not ship provider billing. |
 | Acceptance condition | **Do not use a single acceptance for this workstream.** See Gate A vs Gate B below. This workstream stays **PARTIAL** until Gate B is also met. |
 | Target completion window | Gate A: done before selected outside Private Alpha. Gate B: before December 2026–February 2027 commercially launchable v1 (or the commercial-v1 date slips). |
@@ -431,8 +433,8 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** for planning target #1 (Late Sep–Oct 2026). Not the entire product roadmap. |
 | Status | **PARTIAL** |
-| Current owner / current task | Founder + GVM + Engineering — remaining validation: first real client appointment; Resend SMTP / production email path. Identity incident **CLOSED**. This is part of the recommended next phase (preflight), not a GVM-only product rewrite. |
-| Blocking issue | First real appointment and production email still called out; Production serving SHA must be verified before claiming Phases 1–4A are live for GVM. |
+| Current owner / current task | Founder + GVM + Engineering — remaining validation: first legitimate client appointment + dual-email delivery. Identity incident **CLOSED**. This is continuing Phase 5 operational validation, not a GVM-only product rewrite. |
+| Blocking issue | First legitimate appointment + customer and business email operational validation remains; Production pin and public exposure accepted. |
 | Acceptance condition | GVM can complete a real booking with confirmation reaching the customer; `/book/gvm-baby-world` stays on tenant `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`; no identity regression. |
 | Target completion window | Late September–October 2026 |
 | Launch risk | **AMBER** |
@@ -447,7 +449,7 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** for planning target #1 — dogfood the **normal HQ tenant**, not `/dashboard/hq`. |
 | Status | **PARTIAL** |
-| Current owner / current task | Founder — operate Chasum through Staging/Production HQ tenant as a **normal business**. Staging HQ still had incomplete setup (no services) during Phase 3 review. Part of the recommended next phase (preflight). |
+| Current owner / current task | Founder — operate Chasum through Staging/Production HQ tenant as a **normal business**. HQ dogfood continues; temporary Package A fixtures were removed after acceptance. Do not mistake fixture cleanup for a new setup regression. |
 | Blocking issue | HQ is not yet a fully operational day-to-day business in the reviewed Staging tenant; Production HQ posture not restamped here. |
 | Acceptance condition | Chasum HQ tenant can run Command Centre + Reception + customers + at least one service/staff as a normal business; no privileged shortcuts vs other tenants. |
 | Target completion window | Late September–October 2026 |
@@ -464,7 +466,7 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 | Launch classification | **LAUNCH REQUIRED** for planning target #2 (Oct–Nov 2026). Commercial v1 should not be the first outside user if avoidable. |
 | Status | **NOT STARTED** |
 | Current owner / current task | Founder — select 1–2 outside design partners after GVM/HQ are stable. Phase 4A now supplies an honest plan-assignment path; that does **not** start this workstream. |
-| Blocking issue | GVM/HQ pilot stability incomplete; Production pin unverified; onboarding identity hygiene follow-up. |
+| Blocking issue | GVM/HQ pilot stability incomplete; Production recovery closed; onboarding identity hygiene follow-up. |
 | Acceptance condition | At least one non-GVM / non-HQ service business completes setup, a real booking path, and a week of Command Centre/Reception use without a P0 tenant-isolation or money-truth failure. |
 | Target completion window | October–November 2026 |
 | Launch risk | **AMBER** |
@@ -479,8 +481,8 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** — do not sell a product Production is not actually serving. |
 | Status | **PARTIAL** |
-| Current owner / current task | Founder / Engineering — Production deploys remain PO-gated. Last documented Production serving SHA `68e9a81` (identity closeout). Current `main` is `f6517a1` (PR #29 / Phase 4A). **VERIFY BEFORE CLAIMING CURRENT.** Primary work of the recommended next phase. |
-| Blocking issue | `main` ≠ documented Production; World Class Phases 1–4A may not be on Production yet. |
+| Current owner / current task | Codex / ChatGPT — recovery CLOSED; serving `dbbe450` on `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc`; main `476af17`. Reconcile exact history for review; no deployment. |
+| Blocking issue | Recovery is closed; canonical-history reconciliation and ongoing launch readiness remain. |
 | Acceptance condition | Production SHA is known, documented, and includes the capabilities we tell pilots they have (nav, staff honesty, Command Centre, Gate A billing truth); Preview→Staging still isolated; no silent Production deploys. |
 | Target completion window | Before GVM/HQ stable pilot claims; again before commercial v1 |
 | Launch risk | **AMBER** |
@@ -553,7 +555,7 @@ Future direction (not this PR, not Phase 5): push notifications, biometric authe
 
 Top factors:
 
-1. **Production may lag `main`** — World Class nav, staff honesty, Command Centre, and Gate A billing truth are on `main` (`f6517a1`); last documented Production serving SHA is `68e9a81`. Unverified pin is the highest near-term launch threat.
+1. **Production recovery CLOSED; repository reconciliation remains.** Production `dbbe450` descends from main `476af17`. Public exposure, worker reliability and Package A are accepted. Do not redeploy or reopen recovery to reconcile docs.
 2. **GVM/HQ pilots are not yet “stable use”** — first real appointment and production email remain open; HQ dogfood incomplete. This outranks a new architecture phase until Late Sep–Oct target is real.
 3. **Commercial SaaS lifecycle remains trailing** — Gate A is **COMPLETE**; fake paid-upgrade theater is closed. **Gate B** (live provider billing) is still required before commercially launchable v1 and is **not** the next phase.
 4. **Core operations are the strongest axis** — booking, CRM, Command Centre V1, staff quota honesty, truthful Private Alpha billing. This is why the target is AMBER, not RED.
@@ -573,7 +575,7 @@ Improved (not DONE):
 | 5. Entitlements / Plan Limits | Assigned product plan is now truthful, so staff-quota fences follow real `/owner` assignment rather than signup theater. Remaining fences unchanged. |
 | 8. Platform Admin / Control Centre | Plan + Private Alpha visibility and bounded starter/professional assignment shipped. Controlled Private Alpha ops bar met; commercial-v1 usage/health/trial depth not. |
 | 11. Support / Recovery / Operational Admin | Operators can see truthful plan/arrangement state while doing white-glove support. Help center still not in scope. |
-| 16. Selected Outside Private Alpha | Honest onboarding/billing arrangement path now exists. Workstream remains **NOT STARTED**; still blocked on GVM/HQ + Production pin. |
+| 16. Selected Outside Private Alpha | Honest onboarding/billing arrangement path now exists. Workstream remains **NOT STARTED**; still gated on GVM/HQ operational validation; Production pin is accepted. |
 
 Did **not** complete: Gate B, RBAC, Summer OS-manager depth, Production pin, GVM first real appointment, HQ dogfood, native apps.
 
@@ -583,7 +585,7 @@ Did **not** complete: Gate B, RBAC, Summer OS-manager depth, Production pin, GVM
 
 **WORLD CLASS PHASE 5 — PRODUCTION PIN AND DESIGN-PARTNER PILOT STABILIZATION**
 
-**STATUS:** PREFLIGHT REQUIRED / NOT STARTED
+**STATUS:** IN PROGRESS
 
 Do **not** implement in this documentation chapter. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps here.
 
@@ -592,8 +594,8 @@ Do **not** implement in this documentation chapter. Do **not** start Gate B, RBA
 | Exact phase name | **World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization** |
 | Launch classification | **LAUNCH REQUIRED** |
 | Tracker workstreams | **17** Production Release / Launch Hardening (primary pin); **14** GVM Baby World Pilot Stability; **15** Chasum HQ Pilot Stabilization. Unblocks **16** Selected Outside Private Alpha. Observes **12** responsive-web use and **18** native timing evidence; observes Summer grounded use without expanding it. |
-| Why now | Highest probability of delaying Oct–Nov Private Alpha. Architecture candidates (RBAC, `/owner` expansion, Summer, Gate B, native apps) would proceed on an unvalidated Production product. Production serving truth + GVM real workflow + HQ dogfooding currently pose a more immediate threat to Late Sep–Oct pilots and Oct–Nov outside Private Alpha than those alternatives. |
-| Exact launch dependency | Chasum cannot safely invite an outside design partner, or claim Late Sep–Oct stable pilot use, while Production serving SHA is unverified relative to `main`, GVM has not completed a real booking+confirmation path, and HQ is not dogfooded as a normal tenant. |
+| Why now | Highest probability of delaying Oct–Nov Private Alpha. Architecture candidates (RBAC, `/owner` expansion, Summer, Gate B, native apps) would proceed before remaining operational validation is complete. Remaining GVM real workflow + HQ dogfooding currently pose a more immediate validation dependency to Late Sep–Oct pilots and Oct–Nov outside Private Alpha than those alternatives. |
+| Exact launch dependency | Chasum cannot safely invite an outside design partner, or claim Late Sep–Oct stable pilot use, until GVM has completed its first legitimate booking with both required emails and HQ is dogfooded as a normal tenant. Production pin/recovery acceptance is complete; canonical reconciliation remains. |
 | Acceptance condition | (1) Production SHA is verified and documented, and includes World Class Phases 1–4A capabilities told to pilots **or** a conscious pin is recorded; (2) GVM completes a real booking with customer confirmation on the authoritative tenant; (3) Chasum HQ tenant can run Command Centre + Reception + at least one service/staff as a normal business; (4) no P0 tenant-isolation or money-truth failure; (5) no Stripe/provider, RBAC, Summer architecture, `/owner` expansion, native apps, or migrations in this phase. Pilot validation must exercise the connected operating chain (not merely deployment health) and **capture** mobile friction and grounded-AI workflow gaps without expanding either. |
 | Likely risk level | **LEVEL 2** for PO-gated Production pin, env/email verification, and targeted defect fixes with no schema/tenancy/provider change. **LEVEL 3** (Claude pre-challenge required) if migrations 034–036, Production data mutations, identity-schema work, or billing-provider work enter. |
 | Claude pre-challenge | **NOT required** for bounded operational pin + real-use validation + targeted defects. **Required** before any LEVEL 3 expansion. |
@@ -604,7 +606,7 @@ Do **not** implement in this documentation chapter. Do **not** start Gate B, RBA
 
 Four-axis: launch-critical because live workflow + Production truth are prerequisites to inviting outsiders (Axis 1); quality = Jane/Fresha operational trust on the real booking→confirmation→money path, not a theme-park (Axis 2); next-gen advantage is a connected OS that actually completes Customer → Booking → Appointment → Staff → Payment → Invoice → Communication before Summer/billing/RBAC/native layers expand (Axis 3); AI OS preservation = validate and record grounded Summer gaps without collapsing Chasum into conventional salon software (Axis 4).
 
-**Launch-criticality proof:** Chasum cannot safely or commercially launch (and cannot honestly start selected outside Private Alpha) if the founding Production design partner has not completed a real booking with customer confirmation, Chasum HQ is not operated as a normal tenant, and Production may still be serving a SHA that predates World Class Phases 1–4A. An outside partner would otherwise be the first real user of an unverified live product.
+**Launch-criticality proof:** Chasum cannot safely or commercially launch (and cannot honestly start selected outside Private Alpha) if the founding Production design partner has not completed a real booking with customer confirmation, Chasum HQ is not operated as a normal tenant, and Production truth is not durably reconciled in canonical history. An outside partner would otherwise be the first real user of an unverified live product.
 
 ### Parallel work (not the main architecture phase)
 
