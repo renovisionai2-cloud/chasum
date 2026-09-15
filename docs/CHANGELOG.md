@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-15 — Password reset callback failure UX (code only)
+
+Login now explains `error=auth_callback_failed` (“That reset link didn't work or has expired”) with a link to `/forgot-password`. `/auth/callback` emits safe failure classifications (`code_exchange_failed`, `otp_verify_failed`, `missing_auth_params`) without logging codes, hashes, or raw query strings. Regression tests cover recovery token_hash success/failure, unauthenticated `/reset-password`, login error UX, and email-confirm `type=email`.
+
+**Not in this PR:** the live Production (and Staging) recovery email template still uses `{{ .ConfirmationURL }}`. That Auth configuration change remains a separately PO-gated action. This slice does **not** mark the P1 reset-completion defect fully resolved.
+
 ### 2026-09-14 — Services phone layout
 
 Use explicit single-column grids below the tablet breakpoint so Services filters and cards fit the phone viewport. Edit/Delete actions and pagination remain visible without changing service or pagination behavior.
