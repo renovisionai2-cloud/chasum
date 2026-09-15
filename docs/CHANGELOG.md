@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-14 — Services phone layout
+
+Use explicit single-column grids below the tablet breakpoint so Services filters and cards fit the phone viewport. Edit/Delete actions and pagination remain visible without changing service or pagination behavior.
+
 ### 2026-09-14 — post-release canonical closeout and locked priorities
 
 PR #32 merged as `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; canonical main restored and Production release accepted on `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. All three Production aliases aligned. Protected git-main SSO interception is accepted expected Vercel protection, not a claimed application smoke pass. Recovery remains CLOSED; Phase 5 IN PROGRESS.
