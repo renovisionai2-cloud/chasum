@@ -1,7 +1,38 @@
 import { getSupabaseEnv, sanitizeAuthNextPath } from "@/lib/env";
+import { logger } from "@/lib/observability/logger";
 import { createClient } from "@/lib/supabase/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+
+type CallbackFailureClassification =
+  | "code_exchange_failed"
+  | "otp_verify_failed"
+  | "missing_auth_params";
+
+function authErrorFields(error: { status?: number; code?: string } | null) {
+  return {
+    errorStatus: typeof error?.status === "number" ? error.status : undefined,
+    errorCode: typeof error?.code === "string" ? error.code : undefined,
+  };
+}
+
+function logAuthCallbackFailure(
+  classification: CallbackFailureClassification,
+  details: {
+    codePresent: boolean;
+    hashPresent: boolean;
+    authType: EmailOtpType | null;
+    error?: { status?: number; code?: string } | null;
+  },
+) {
+  logger.warn("auth.callback", classification, {
+    classification,
+    codePresent: details.codePresent,
+    hashPresent: details.hashPresent,
+    authType: details.authType,
+    ...authErrorFields(details.error ?? null),
+  });
+}
 
 export async function GET(request: Request) {
   if (!getSupabaseEnv()) {
@@ -28,6 +59,12 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    logAuthCallbackFailure("code_exchange_failed", {
+      codePresent: true,
+      hashPresent: Boolean(tokenHash),
+      authType: type,
+      error,
+    });
   } else if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({
       type,
@@ -37,6 +74,18 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    logAuthCallbackFailure("otp_verify_failed", {
+      codePresent: false,
+      hashPresent: true,
+      authType: type,
+      error,
+    });
+  } else {
+    logAuthCallbackFailure("missing_auth_params", {
+      codePresent: Boolean(code),
+      hashPresent: Boolean(tokenHash),
+      authType: type,
+    });
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);

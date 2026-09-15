@@ -52,6 +52,7 @@ No fixes in this document — tracking only.
 | TD-H6 | Employee roles not enforced | Catalog exists; owner-always permissions |
 | TD-H7 | Production observability readiness | Existing instrumentation alone is not acceptance: evaluate Sentry / OTel or equivalent and prove error visibility + trace/correlation before broader Outside Private Alpha. |
 | TD-H8 | Middleware deprecation | `middleware.ts` vs Next “proxy” convention warning |
+| TD-H9 | Production recovery mail uses `{{ .ConfirmationURL }}` | Proven 2026-09-15: GoTrue `/verify` 303 succeeds, SSR `/auth/callback` gets no `token_hash`/`code`, user lands on login. App callback token_hash path is already correct. Login now surfaces `auth_callback_failed`. **Live template mutation is still required** (not this code PR). Do not mark P1 closed until Staging + Production template acceptance. |
 
 ---
 

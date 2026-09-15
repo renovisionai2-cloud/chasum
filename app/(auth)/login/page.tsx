@@ -17,6 +17,7 @@ type PageProps = {
 export default async function LoginPage({ searchParams }: PageProps) {
   const { redirect: redirectTo, error } = await searchParams;
   const supabaseNotConfigured = error === "supabase_not_configured";
+  const authCallbackFailed = error === "auth_callback_failed";
 
   return (
     <AuthForm
@@ -31,6 +32,11 @@ export default async function LoginPage({ searchParams }: PageProps) {
             Supabase is not configured. Add your credentials to{" "}
             <code className="text-xs">.env.local</code> to enable
             authentication.
+          </div>
+        ) : authCallbackFailed ? (
+          <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            That reset link didn&apos;t work or has expired.{" "}
+            <AuthLink href="/forgot-password">Request a new one</AuthLink>.
           </div>
         ) : undefined
       }
