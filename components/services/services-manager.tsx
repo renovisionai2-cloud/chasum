@@ -823,7 +823,7 @@ export function ServicesManager({
       ) : (
         <>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div className="grid flex-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <div className="relative sm:col-span-2 xl:col-span-1">
                 <Search
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -926,7 +926,7 @@ export function ServicesManager({
             </EmptyState>
           ) : (
             <>
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {pageRows.map((service) => {
                   const visibility =
                     service.booking_visibility ??
