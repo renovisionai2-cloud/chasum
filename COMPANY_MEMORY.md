@@ -17,7 +17,7 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ## Current chapter (2026-09-16 restamp)
 
-**Current serving truth lives in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md).** Canonical main / Production SHA is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` (PR #37, `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`). Reception reschedule-notification P1 is **CLOSED / PRODUCTION ACCEPTED**. Auth recovery remains **CLOSED**. Production recovery remains **CLOSED**. Phase 5 is **IN PROGRESS**.
+**Current serving truth lives in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md).** Accepted PR #37 runtime / Production release baseline is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` (`dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`). Current GitHub main identity is repository HEAD and may advance through documentation-only restamps (PR #38 / `docs/pr37-production-closeout`; **main at PR #38 restamp base:** `f36a7aa`) without changing that accepted PR #37 runtime behavior. Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Reception reschedule-notification P1 is **CLOSED / PRODUCTION ACCEPTED**. Auth recovery remains **CLOSED**. Production recovery remains **CLOSED**. Phase 5 is **IN PROGRESS**.
 
 The 2026-09-14 identities below remain accepted **historical** recovery-closeout evidence, not a claim that GitHub main never moved.
 

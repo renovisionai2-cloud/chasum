@@ -13,7 +13,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Reception Edit booking remains BookingSheet → `updateAppointment` → `updateBooking` → canonical Booking Engine event path. A material customer-visible appointment range change — **start or end** — now emits `appointment.rescheduled` with truthful `previousStartTime` and `previousEndTime`. Ordinary non-time edits remain `appointment.updated`. Existing communications orchestration is reused; no Reception-specific second notification implementation. Audit action for a range change is `reschedule`. No migration, config, or data migration.
 
-Accepted candidate `dce6f9cd8ff8494ed0176c2977a25ede0135f44e`. Squash-merged canonical main / Production SHA `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Production accepted on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`. Hosted Staging acceptance was **enqueue-only**; the three new reschedule email jobs were not proven delivered or Sent.
+Accepted candidate `dce6f9cd8ff8494ed0176c2977a25ede0135f44e`. Accepted PR #37 runtime / Production release SHA `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Production accepted on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`. Hosted Staging acceptance was **enqueue-only**; the three new reschedule email jobs were not proven delivered or Sent. GitHub main HEAD may later advance through documentation-only restamps without changing that accepted runtime.
 
 ### 2026-09-16 — Password recovery closeout + Phase 5 resume (docs only)
 

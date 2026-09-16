@@ -13,7 +13,7 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current release
 
-**Current canonical main (2026-09-16):** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` (PR #37). Reception reschedule-notification P1 **CLOSED / PRODUCTION ACCEPTED**. Password-reset completion P1 **CLOSED**. Broader Production recovery remains **CLOSED**. Phase 5 **IN PROGRESS**.
+**Accepted PR #37 runtime / Production release baseline:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD and may advance through documentation-only restamps without changing that accepted PR #37 runtime behavior. Reception reschedule-notification P1 **CLOSED / PRODUCTION ACCEPTED**. Password-reset completion P1 **CLOSED**. Broader Production recovery remains **CLOSED**. Phase 5 **IN PROGRESS**.
 
 **Working name:** World Class AI Business Operating System — launch-readiness chapter
 **Branch workflow:** Subsequent approved work branches from then-current main. PR #32 (`8df29d298c196a2431c86a8cea4af1e5bfec09fd`) remains the 2026-09-14 recovery-closeout identity, not a claim that main never moved.

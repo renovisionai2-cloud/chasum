@@ -13,11 +13,21 @@
 **RECEPTION RESCHEDULE NOTIFICATION P1 = CLOSED / PRODUCTION ACCEPTED.**
 **Production recovery remains CLOSED. Auth recovery remains CLOSED.** Do not conflate these programs. Do not reopen the Reception P1 unless new contradictory runtime evidence appears.
 
+Keep these three identities distinct. Do not hard-code a future docs-merge SHA; that would immediately stale this restamp.
+
+| Concept | Identity |
+| --- | --- |
+| Current GitHub source of truth | Repository `main` HEAD. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. That does not change accepted PR #37 runtime behavior. |
+| Accepted PR #37 runtime / Production release baseline | `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M` |
+| Docs restamp vehicle | PR #38 / `docs/pr37-production-closeout` |
+
+Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
+
 | Item | Accepted state |
 | --- | --- |
 | PR #37 | **MERGED / PRODUCTION ACCEPTED** — `fix: emit rescheduled when Reception save moves appointment time` |
 | Accepted candidate | `dce6f9cd8ff8494ed0176c2977a25ede0135f44e` |
-| Canonical main / Production Git SHA | `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` |
+| Accepted PR #37 runtime / Production release SHA | `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` |
 | Production deployment | `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M` |
 | Production app | `https://chasum.vercel.app` |
 | Production Supabase | `kxcydvhswkuzepwzzinq` |
@@ -57,7 +67,7 @@ See [`docs/CHANGELOG.md`](./CHANGELOG.md).
 
 ## Accepted Auth closeout + Phase 5 resume — 2026-09-16
 
-Historical Auth-closeout restamp (then-canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`, PR #35 squash). **Current** canonical main / Production SHA is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` (PR #37). Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Staging app: `https://staging.chasumai.com`. Staging Supabase: `wnfahklzaxirftyskctd`.
+Historical Auth-closeout restamp (then-canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`, PR #35 squash). Accepted PR #37 runtime / Production release baseline is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD and may advance through documentation-only restamps without changing that accepted PR #37 runtime behavior. Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Staging app: `https://staging.chasumai.com`. Staging Supabase: `wnfahklzaxirftyskctd`.
 
 **Broader historical Production recovery program = CLOSED.** Completing the separate Auth P1 does **not** reopen it.
 
@@ -89,7 +99,7 @@ This documentation does not authorize implementation, Auth/config mutation, or P
 **PRODUCTION RECOVERY = CLOSED. Phase 5 = IN PROGRESS, not complete.**
 This restamp records accepted recovery evidence; it does not rerun Production validation.
 See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
-Historical 2026-09-14 pin identities below are recovery-closeout evidence, not a claim that Production never moved afterward. Current canonical main is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`.
+Historical 2026-09-14 pin identities below are recovery-closeout evidence, not a claim that Production never moved afterward. Accepted PR #37 runtime / Production release baseline is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD.
 
 | Item | Accepted state |
 | --- | --- |
@@ -513,7 +523,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 ### Most recent (2026-09-16) — PR #37 Reception reschedule notifications PRODUCTION ACCEPTED
 
-PR #37 **MERGED / PRODUCTION ACCEPTED**. Canonical main / Production Git SHA `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Accepted candidate `dce6f9cd8ff8494ed0176c2977a25ede0135f44e`. Production deployment `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`. Reception Edit booking remains BookingSheet → `updateAppointment` → `updateBooking` → Booking Engine. Start **or** end customer-visible range change emits `appointment.rescheduled` with truthful `previousStartTime` / `previousEndTime` and audit `reschedule`; ordinary non-time edits remain `appointment.updated`. Existing communications orchestration reused. Hosted Staging acceptance was **enqueue-only** (appointment `72163056-6577-4e29-828a-2276ebd2975a`, 9:00–9:45 → 9:00–9:30 AM ET); three new email jobs were **not** proven Sent. Production verification PASS, read-only. Reception reschedule-notification P1 **CLOSED**. Phase 5 **IN PROGRESS**. No migration, config, or data migration. Changelog: [`docs/CHANGELOG.md`](./CHANGELOG.md).
+PR #37 **MERGED / PRODUCTION ACCEPTED**. Accepted PR #37 runtime / Production release SHA `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Accepted candidate `dce6f9cd8ff8494ed0176c2977a25ede0135f44e`. Production deployment `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`. Reception Edit booking remains BookingSheet → `updateAppointment` → `updateBooking` → Booking Engine. Start **or** end customer-visible range change emits `appointment.rescheduled` with truthful `previousStartTime` / `previousEndTime` and audit `reschedule`; ordinary non-time edits remain `appointment.updated`. Existing communications orchestration reused. Hosted Staging acceptance was **enqueue-only** (appointment `72163056-6577-4e29-828a-2276ebd2975a`, 9:00–9:45 → 9:00–9:30 AM ET); three new email jobs were **not** proven Sent. Production verification PASS, read-only. Reception reschedule-notification P1 **CLOSED**. Phase 5 **IN PROGRESS**. No migration, config, or data migration. Changelog: [`docs/CHANGELOG.md`](./CHANGELOG.md).
 
 ### Historical (2026-09-16) — password recovery closeout (docs restamp)
 
@@ -630,7 +640,13 @@ PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline m
 
 ## Latest repository / deployment state
 
-**Current canonical main (2026-09-16):** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` (PR #37 squash). **Production SHA (separately verified):** same `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` on `https://chasum.vercel.app` (`dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`). Staging `https://staging.chasumai.com` remains isolated (`dpl_5kQZyE2PiHRunvfnPB3xUjPDUFW2` / `7b8abcf` was the accepted Staging Auth E2E pin).
+**Current GitHub source of truth:** repository `main` HEAD. Verify with `git rev-parse origin/main`. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. Do not treat `f36a7aa` as permanent main HEAD. Documentation-only restamps do not change accepted PR #37 runtime behavior.
+
+**Accepted PR #37 runtime / Production release baseline:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` on `https://chasum.vercel.app` (`dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`). Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
+
+**Docs restamp vehicle:** PR #38 / `docs/pr37-production-closeout`.
+
+Staging `https://staging.chasumai.com` remains isolated (`dpl_5kQZyE2PiHRunvfnPB3xUjPDUFW2` / `7b8abcf` was the accepted Staging Auth E2E pin).
 
 PR #32 remains the **2026-09-14 recovery-closeout** identity: then-canonical SHA `8df29d298c196a2431c86a8cea4af1e5bfec09fd`, deployment `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Those are accepted historical pin facts, not a claim that GitHub main never moved. Future serving truth comes from the actual environment/current release record.
 
@@ -638,7 +654,7 @@ Prior recovery deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` / `dbbe450` is hist
 
 ## Worktree status
 
-**Active branch (this restamp):** `docs/pr37-production-closeout` from exact `origin/main` `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Documentation only; not merged at restamp time.
+**Docs restamp vehicle:** PR #38 / `docs/pr37-production-closeout`. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Documentation only. Do not hard-code the future PR #38 merge SHA.
 
 Uncommitted work is session-specific: inspect `git status`. PR #32 remains the historical 2026-09-14 reconciliation vehicle, not a permanent uncommitted task. `.momentic-mcp/` is local untracked tooling and must not be committed.
 
