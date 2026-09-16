@@ -13,12 +13,12 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current release
 
-**Current canonical main (2026-09-16):** `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. Password-reset completion P1 **CLOSED**. Broader Production recovery remains **CLOSED**. Phase 5 **RESUMES**.
+**Accepted PR #37 runtime / Production release baseline:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD and may advance through documentation-only restamps without changing that accepted PR #37 runtime behavior. Reception reschedule-notification P1 **CLOSED / PRODUCTION ACCEPTED**. Password-reset completion P1 **CLOSED**. Broader Production recovery remains **CLOSED**. Phase 5 **IN PROGRESS**.
 
 **Working name:** World Class AI Business Operating System — launch-readiness chapter
 **Branch workflow:** Subsequent approved work branches from then-current main. PR #32 (`8df29d298c196a2431c86a8cea4af1e5bfec09fd`) remains the 2026-09-14 recovery-closeout identity, not a claim that main never moved.
 
-**Release intent:** Recovery CLOSED; Auth reset-completion P1 CLOSED; Phase 5 IN PROGRESS / RESUMES. Phases 1–4A merged; Gate A complete, Commercial SaaS Lifecycle PARTIAL and Gate B NOT MET. GVM and HQ remain normal validation tenants. No recovery reopening absent new contradictory runtime evidence. Cross-session Auth (TD-H10) and `/rest/v1/` env (TD-H11) are separate non-blocking follow-ups.
+**Release intent:** Recovery CLOSED; Auth reset-completion P1 CLOSED; Reception reschedule-notification P1 CLOSED / PRODUCTION ACCEPTED; Phase 5 IN PROGRESS. Phases 1–4A merged; Gate A complete, Commercial SaaS Lifecycle PARTIAL and Gate B NOT MET. GVM and HQ remain normal validation tenants. No recovery reopening absent new contradictory runtime evidence. Cross-session Auth (TD-H10) and `/rest/v1/` env (TD-H11) are separate non-blocking follow-ups. Staging queue/worker health and Staging-only Resend capability are separate operational debt, not PR #37 failures.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 
@@ -26,7 +26,7 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ first booking dogfood and Reception reschedule-notification P1 are accepted; next bounded HQ lifecycle candidate is **cancellation testing**, separately authorized before mutation. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.

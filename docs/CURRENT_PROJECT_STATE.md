@@ -4,13 +4,70 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-09-16
-**Updated by:** Cursor — password-recovery closeout + Phase 5 resume restamp. Documentation only. Broader Production recovery remains CLOSED. Password-reset completion P1 CLOSED. Phase 5 RESUMES. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
+**Updated by:** Cursor — PR #37 Production closeout restamp. Documentation only. Reception reschedule-notification P1 CLOSED / PRODUCTION ACCEPTED. Broader Production recovery remains CLOSED. Auth recovery remains CLOSED. Phase 5 IN PROGRESS. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
 
 ---
 
+## Accepted PR #37 Production closeout — 2026-09-16
+
+**RECEPTION RESCHEDULE NOTIFICATION P1 = CLOSED / PRODUCTION ACCEPTED.**
+**Production recovery remains CLOSED. Auth recovery remains CLOSED.** Do not conflate these programs. Do not reopen the Reception P1 unless new contradictory runtime evidence appears.
+
+Keep these three identities distinct. Do not hard-code a future docs-merge SHA; that would immediately stale this restamp.
+
+| Concept | Identity |
+| --- | --- |
+| Current GitHub source of truth | Repository `main` HEAD. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. That does not change accepted PR #37 runtime behavior. |
+| Accepted PR #37 runtime / Production release baseline | `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M` |
+| Docs restamp vehicle | PR #38 / `docs/pr37-production-closeout` |
+
+Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
+
+| Item | Accepted state |
+| --- | --- |
+| PR #37 | **MERGED / PRODUCTION ACCEPTED** — `fix: emit rescheduled when Reception save moves appointment time` |
+| Accepted candidate | `dce6f9cd8ff8494ed0176c2977a25ede0135f44e` |
+| Accepted PR #37 runtime / Production release SHA | `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` |
+| Production deployment | `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M` |
+| Production app | `https://chasum.vercel.app` |
+| Production Supabase | `kxcydvhswkuzepwzzinq` |
+| Staging app | `https://staging.chasumai.com` |
+| Staging Supabase | `wnfahklzaxirftyskctd` |
+| Production `/api/build-info` | `commit=f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`, `env=production`, `ref=main`, `production=true` |
+| Production `/api/health` | HTTP 200, `ok=true`, `production=true`, `supabase=true`, `serviceRole=true`, `email=configured`, `cronSecret=configured` |
+| Optional health (not PR #37 regressions) | `sms=optional_missing`, `stripe=optional_missing`, `sentry=optional_missing` |
+
+**Product behavior now accepted**
+
+Reception Edit booking remains BookingSheet → `updateAppointment` → `updateBooking` → canonical Booking Engine event path. No Reception-specific second notification implementation.
+
+- Material customer-visible scheduled **range** change (start **or** end) → `appointment.rescheduled`
+- Ordinary non-time edit → `appointment.updated`
+- Lifecycle precedence: cancelled path → completed → no_show → range change → ordinary update
+- Reschedule events carry truthful previous-range context: `previousStartTime` + `previousEndTime`
+- Existing communications orchestration is reused
+- Audit action for a range change: `reschedule`
+- Tenant/business scoping, appointment identity, availability validation, and financial columns remain preserved
+
+**Candidate validation:** focused 31; booking 155; communications 220; notifications 62; combined 437; typecheck PASS; changed-file lint PASS; build PASS; `git diff --check` PASS. Claude corrected-candidate re-audit: **A — PASS**.
+
+**Hosted Staging acceptance (enqueue-only)** on Preview `dce6f9c`: one authorized HQ end-time-only Reception save of appointment `72163056-6577-4e29-828a-2276ebd2975a`. Before: Thu 17 Sep 2026 9:00–9:45 AM America/Toronto (45 min). After: 9:00–9:30 AM (30 min). Start unchanged; same appointment id, customer, service, staff, location; $0 preserved. Evidence: `appointment.rescheduled`; audit `reschedule`; in-app “Appointment rescheduled”; Summer reschedules 0 → 1; exactly 3 new **pending** email jobs (customer `appointment.reschedule`, business `appointment.business`, staff `appointment.staff`) sharing one new sendIntent occurrence; customer job carried `previousStartTime` + `previousEndTime`; one canonical `appointment.rescheduled` webhook; 0 new SMS/reminder/calendar_sync/recurring/waitlist jobs; historical due-queue fingerprint unchanged. **Do not document those three emails as delivered or Sent.** No provider-send proof was performed.
+
+**Staging queue (operational debt, not a PR #37 failure):** before acceptance, 22 historical due pending jobs (12 reminder, 10 webhook). Acceptance added 3 pending email + 1 pending webhook. None were processed. Do not process, delete, rewrite, or clean up those rows in this restamp. Not a Production incident. Bounded Staging queue/worker health follow-up.
+
+**Staging email capability (separate):** current test environment does not expose a dedicated Staging-only `RESEND_API_KEY` suitable for independent provider-send acceptance. Claude classification: important before Outside Private Alpha; not a blocker for continued internal GVM/HQ Phase 5 validation. No credential was created or copied here.
+
+**Production verification:** PASS, read-only. No Production appointment, customer, queue, email, SQL, Auth, env, billing, or manual alias mutation. Authenticated Reception/CRM/GVM smoke was not performed because no canonical Production session existed; protected routes correctly redirected to login. That is not a PR #37 defect.
+
+**Phase 5 remains IN PROGRESS.** HQ first normal booking dogfood ACCEPTED (customer confirmation, business new-booking notification, staff notification per enabled setting). Reception reschedule lifecycle defect FIXED / PRODUCTION ACCEPTED. Hosted-acceptance appointment currently has Staging range Thu 17 Sep 2026 9:00–9:30 AM ET. GVM still waits for the next legitimate real Production booking for operational exactly-once confirmation/business-notification evidence. Do not manufacture a GVM Production booking. Engineering must not idle while waiting for GVM.
+
+**Next governed product work (not authorized by this restamp):** (1) resume HQ Phase 5 appointment lifecycle validation — next bounded operational candidate is cancellation testing, separately authorized before mutation; (2) GVM legitimate Production booking observation continues passively in parallel; (3) engineering continues Phase 5 and must not wait idle for GVM. Do not start Commercial SaaS Gate B, Summer expansion, native app work, Platform Admin expansion, or broad strategic review from this docs task.
+
+See [`docs/CHANGELOG.md`](./CHANGELOG.md).
+
 ## Accepted Auth closeout + Phase 5 resume — 2026-09-16
 
-Canonical main at this restamp: `4f7da8fbadf9ab882be07b0112bee0c53d74913c` (PR #35 squash). Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Staging app: `https://staging.chasumai.com`. Staging Supabase: `wnfahklzaxirftyskctd`.
+Historical Auth-closeout restamp (then-canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`, PR #35 squash). Accepted PR #37 runtime / Production release baseline is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD and may advance through documentation-only restamps without changing that accepted PR #37 runtime behavior. Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Staging app: `https://staging.chasumai.com`. Staging Supabase: `wnfahklzaxirftyskctd`.
 
 **Broader historical Production recovery program = CLOSED.** Completing the separate Auth P1 does **not** reopen it.
 
@@ -42,7 +99,7 @@ This documentation does not authorize implementation, Auth/config mutation, or P
 **PRODUCTION RECOVERY = CLOSED. Phase 5 = IN PROGRESS, not complete.**
 This restamp records accepted recovery evidence; it does not rerun Production validation.
 See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
-Historical 2026-09-14 pin identities below are recovery-closeout evidence, not a claim that Production never moved afterward. Current canonical main is `4f7da8fbadf9ab882be07b0112bee0c53d74913c`.
+Historical 2026-09-14 pin identities below are recovery-closeout evidence, not a claim that Production never moved afterward. Accepted PR #37 runtime / Production release baseline is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD.
 
 | Item | Accepted state |
 | --- | --- |
@@ -88,6 +145,7 @@ Historical recovery refs preserve exact evidence; they are not current execution
 - **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
 - **Staging password recovery:** **PASS / CLOSED / FROZEN**. Token_hash Reset Password template accepted. No further Staging Auth testing unless new contradictory evidence appears.
 - **Production password-reset completion P1:** **CLOSED / ACCEPTED**. Live Reset Password href is the token_hash callback pattern. Do not reopen without contradictory current evidence.
+- **Reception reschedule-notification P1:** **CLOSED / PRODUCTION ACCEPTED** (PR #37). Material start **or** end range change is `appointment.rescheduled` with truthful `previousStartTime` / `previousEndTime`. Do not reopen without contradictory current evidence.
 - **State-ambiguity prevention:** governed (manifest, regression suite, Staging→main disposition, observability, CI/CD reconciliation). **Not** a Phase 5 blocker; bounded slices alongside Phase 5, required before Outside Private Alpha.
 
 ### ACTIVE
@@ -114,7 +172,7 @@ Genuine current gates only (not closed incidents):
 
 Do **not** automatically “finish GVM” as a product rewrite. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this chapter.
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ first booking dogfood and Reception reschedule-notification P1 are accepted; next bounded HQ lifecycle candidate is **cancellation testing**, separately authorized before mutation. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
@@ -427,7 +485,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Current: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
+**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Current: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. HQ first booking dogfood and Reception reschedule-notification P1 (PR #37) **PRODUCTION ACCEPTED**. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 **Intent:**
 
@@ -463,9 +521,13 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-09-16) — password recovery closeout (docs restamp)
+### Most recent (2026-09-16) — PR #37 Reception reschedule notifications PRODUCTION ACCEPTED
 
-Canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. Staging Auth **PASS / CLOSED / FROZEN**. Production password-reset completion **P1 CLOSED** after href-only template change + one GVM acceptance test. Broader Production recovery remains **CLOSED**. Phase 5 **RESUMES**. Cross-session Auth gap and Production `/rest/v1/` env debt remain separate (TD-H10 / TD-H11). Documentation only; no runtime mutation in this restamp.
+PR #37 **MERGED / PRODUCTION ACCEPTED**. Accepted PR #37 runtime / Production release SHA `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Accepted candidate `dce6f9cd8ff8494ed0176c2977a25ede0135f44e`. Production deployment `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`. Reception Edit booking remains BookingSheet → `updateAppointment` → `updateBooking` → Booking Engine. Start **or** end customer-visible range change emits `appointment.rescheduled` with truthful `previousStartTime` / `previousEndTime` and audit `reschedule`; ordinary non-time edits remain `appointment.updated`. Existing communications orchestration reused. Hosted Staging acceptance was **enqueue-only** (appointment `72163056-6577-4e29-828a-2276ebd2975a`, 9:00–9:45 → 9:00–9:30 AM ET); three new email jobs were **not** proven Sent. Production verification PASS, read-only. Reception reschedule-notification P1 **CLOSED**. Phase 5 **IN PROGRESS**. No migration, config, or data migration. Changelog: [`docs/CHANGELOG.md`](./CHANGELOG.md).
+
+### Historical (2026-09-16) — password recovery closeout (docs restamp)
+
+Then-canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. Staging Auth **PASS / CLOSED / FROZEN**. Production password-reset completion **P1 CLOSED** after href-only template change + one GVM acceptance test. Broader Production recovery remains **CLOSED**. Cross-session Auth gap and Production `/rest/v1/` env debt remain separate (TD-H10 / TD-H11). Documentation only at that restamp.
 
 ### Historical (2026-09-14) — PR #32 release accepted
 
@@ -578,7 +640,13 @@ PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline m
 
 ## Latest repository / deployment state
 
-**Current canonical main (2026-09-16):** `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. Production application `https://chasum.vercel.app`. Staging `https://staging.chasumai.com` remains isolated (`dpl_5kQZyE2PiHRunvfnPB3xUjPDUFW2` / `7b8abcf` was the accepted Staging Auth E2E pin).
+**Current GitHub source of truth:** repository `main` HEAD. Verify with `git rev-parse origin/main`. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. Do not treat `f36a7aa` as permanent main HEAD. Documentation-only restamps do not change accepted PR #37 runtime behavior.
+
+**Accepted PR #37 runtime / Production release baseline:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` on `https://chasum.vercel.app` (`dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`). Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
+
+**Docs restamp vehicle:** PR #38 / `docs/pr37-production-closeout`.
+
+Staging `https://staging.chasumai.com` remains isolated (`dpl_5kQZyE2PiHRunvfnPB3xUjPDUFW2` / `7b8abcf` was the accepted Staging Auth E2E pin).
 
 PR #32 remains the **2026-09-14 recovery-closeout** identity: then-canonical SHA `8df29d298c196a2431c86a8cea4af1e5bfec09fd`, deployment `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Those are accepted historical pin facts, not a claim that GitHub main never moved. Future serving truth comes from the actual environment/current release record.
 
@@ -586,7 +654,9 @@ Prior recovery deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` / `dbbe450` is hist
 
 ## Worktree status
 
-Uncommitted work is session-specific: inspect `git status`. PR #32 is the historical reconciliation vehicle for accepted runtime, Package A artifacts, tests and documentation, not a permanent uncommitted task.
+**Docs restamp vehicle:** PR #38 / `docs/pr37-production-closeout`. **main at PR #38 restamp base:** `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Documentation only. Do not hard-code the future PR #38 merge SHA.
+
+Uncommitted work is session-specific: inspect `git status`. PR #32 remains the historical 2026-09-14 reconciliation vehicle, not a permanent uncommitted task. `.momentic-mcp/` is local untracked tooling and must not be committed.
 
 ---
 
@@ -614,11 +684,16 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - **TD-H9 CLOSED:** Production/Staging Reset Password href is the accepted token_hash callback pattern (2026-09-16). Do not reopen the completion P1 without contradictory evidence.
 - **TD-H10 (do not solve here):** Account A / Account B cross-session recovery on current main — security/correct-account follow-up; not the closed P1; not a Phase 5 blocker.
 - **TD-H11 (do not solve here):** Production `NEXT_PUBLIC_SUPABASE_URL` includes `/rest/v1/`; app normalization currently protects Auth; separate env cleanup.
+- **P2 (do not solve here):** calendar `resize.ts` end-time-only semantics remain separate and out of PR #37.
+- **P2 (do not solve here):** completed / no_show audit action still uses generic update semantics.
+- **P3 (do not solve here):** Reception day-view timezone rendering; jump-to-date / range-heading mismatch; Staging health `production:true` / `cronSecret` missing observation; dedicated SMS `previousEndTime` test absent while HQ SMS is OFF.
+- **Staging queue/worker health (do not solve here):** 22 historical due pending Staging jobs (12 reminder, 10 webhook) plus 4 unprocessed HQ enqueue-only acceptance jobs (3 email, 1 webhook). Bounded operational follow-up. Not a PR #37 failure. Not a Production incident. Do not process or rewrite those rows from this restamp.
+- **Staging Resend capability (do not solve here):** no dedicated Staging-only `RESEND_API_KEY` for independent provider-send acceptance. Important before Outside Private Alpha; not a blocker for continued internal GVM/HQ Phase 5 validation. No credential copy.
 
 ### Product / validation (not automatic NEXT)
 
 - Commercial SaaS lifecycle incomplete (see Commercial SaaS section)
-- GVM: first legitimate client appointment + dual-email operational validation
+- GVM: first legitimate client appointment + dual-email operational validation still waiting (do not manufacture). HQ first booking + Reception reschedule P1 are accepted.
 - Public self-serve SaaS checkout not live — Private Alpha is intentional
 
 ### Marketing discipline
@@ -630,9 +705,9 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 
 ## Current priorities
 
-Locked post-release order (Phase 5 **resumes**; Auth P1 closeout does not insert a new first chapter):
+Locked post-release order (Phase 5 **IN PROGRESS**; Auth P1 and Reception reschedule-notification P1 closeouts do not insert a new first chapter):
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ first booking dogfood and Reception reschedule-notification P1 are accepted; next bounded HQ lifecycle candidate is **cancellation testing**, separately authorized before mutation. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.

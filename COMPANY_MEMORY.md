@@ -15,15 +15,21 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ---
 
-## Current chapter (2026-09-14 restamp)
+## Current chapter (2026-09-16 restamp)
 
-PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
+**Current serving truth lives in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md).** Accepted PR #37 runtime / Production release baseline is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` (`dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`). Current GitHub main identity is repository HEAD and may advance through documentation-only restamps (PR #38 / `docs/pr37-production-closeout`; **main at PR #38 restamp base:** `f36a7aa`) without changing that accepted PR #37 runtime behavior. Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Reception reschedule-notification P1 is **CLOSED / PRODUCTION ACCEPTED**. Auth recovery remains **CLOSED**. Production recovery remains **CLOSED**. Phase 5 is **IN PROGRESS**.
+
+The 2026-09-14 identities below remain accepted **historical** recovery-closeout evidence, not a claim that GitHub main never moved.
+
+## Historical chapter stamp (2026-09-14)
+
+PR #32 is **MERGED / ACCEPTED**. Then-canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth was **RESTORED** and that Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
 
 Recovery **CLOSED**; hold OFF, Cron enabled, webhooks OFF. Phase 5 **IN PROGRESS**; Gate A complete, Gate B NOT MET; Outside Private Alpha not started. Do not reopen recovery absent new contradictory runtime evidence.
 
 Post-release locked execution queue:
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ first booking dogfood and Reception reschedule-notification P1 are accepted; next bounded HQ lifecycle candidate is **cancellation testing**, separately authorized before mutation. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
