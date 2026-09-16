@@ -8,6 +8,7 @@ import {
 import { CustomerSection } from "@/components/booking-sheet/customer-section";
 import { PaymentsSection } from "@/components/booking-sheet/payments-section";
 import { BookingCommunicationsSection } from "@/components/booking-sheet/booking-communications-section";
+import { CancelAppointmentDialog } from "@/components/booking-sheet/cancel-appointment-dialog";
 import { QuickActionsMenu } from "@/components/booking-sheet/quick-actions-menu";
 import { SelectedAppointmentBanner } from "@/components/booking-sheet/selected-appointment-banner";
 import { SummerAssistant } from "@/components/booking-sheet/summer-assistant";
@@ -338,6 +339,9 @@ export function BookingSheet({
   const [snapshotLoading, setSnapshotLoading] = useState(false);
   const [communicationsFocusSignal, setCommunicationsFocusSignal] =
     useState(0);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const cancelInFlightRef = useRef(false);
+  const canCancel = isEditing && appointment?.status !== "cancelled";
 
   useFormAction(state, onSuccess, onClose);
 
@@ -385,6 +389,13 @@ export function BookingSheet({
     setAvailability(null);
     setSnapshot(null);
     setSnapshotForId(null);
+    setCancelConfirmOpen(false);
+    cancelInFlightRef.current = false;
+  }
+
+  if (!open && cancelConfirmOpen) {
+    setCancelConfirmOpen(false);
+    cancelInFlightRef.current = false;
   }
 
   const eligibleStaff = useMemo(
@@ -760,6 +771,31 @@ function handleStaffChange(id: string) {
     toast("Moved to tomorrow — pick a morning slot when openings load.", "success");
   }
 
+  function closeCancelConfirm() {
+    if (busy || cancelInFlightRef.current) return;
+    setCancelConfirmOpen(false);
+  }
+
+  function confirmCancelAppointment() {
+    if (!appointment || cancelInFlightRef.current || busy || pending) return;
+    if (appointment.status === "cancelled") return;
+    cancelInFlightRef.current = true;
+    startBusy(async () => {
+      try {
+        const result = await cancelAppointment(appointment.id);
+        if (result.error) toast(result.error, "error");
+        else {
+          toast(result.success ?? "Appointment cancelled.", "success");
+          setCancelConfirmOpen(false);
+          onSuccess();
+          onClose();
+        }
+      } finally {
+        cancelInFlightRef.current = false;
+      }
+    });
+  }
+
   async function runStatus(next: AppointmentStatus) {
     if (!appointment) return;
     startBusy(async () => {
@@ -774,6 +810,7 @@ function handleStaffChange(id: string) {
   }
 
   return (
+    <>
     <Sheet
       open={open}
       onClose={onClose}
@@ -788,21 +825,14 @@ function handleStaffChange(id: string) {
       headerActions={
         <QuickActionsMenu
           isEditing={isEditing}
+          canCancel={canCancel}
           customerId={selectedCustomer?.id}
           disabled={pending || busy}
           onCheckIn={() => void runStatus("arrived")}
           onComplete={() => void runStatus("completed")}
           onCancel={() => {
-            if (!appointment) return;
-            startBusy(async () => {
-              const result = await cancelAppointment(appointment.id);
-              if (result.error) toast(result.error, "error");
-              else {
-                toast(result.success ?? "Appointment cancelled.", "success");
-                onSuccess();
-                onClose();
-              }
-            });
+            if (!canCancel || !appointment) return;
+            setCancelConfirmOpen(true);
           }}
           onReschedule={scrollToAvailability}
           onDuplicate={() => {
@@ -1190,5 +1220,12 @@ function handleStaffChange(id: string) {
         />
       </div>
     </Sheet>
+    <CancelAppointmentDialog
+      open={cancelConfirmOpen}
+      busy={busy || pending}
+      onKeep={closeCancelConfirm}
+      onConfirm={confirmCancelAppointment}
+    />
+    </>
   );
 }
