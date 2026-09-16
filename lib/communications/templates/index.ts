@@ -355,6 +355,35 @@ function detailRow(label: string, valueHtml: string): string {
   </tr>`;
 }
 
+function previousInstantMoved(previousIso: string, currentIso: string): boolean {
+  const left = Date.parse(previousIso);
+  const right = Date.parse(currentIso);
+  if (Number.isNaN(left) || Number.isNaN(right)) {
+    return previousIso !== currentIso;
+  }
+  return left !== right;
+}
+
+function previousRangeLine(ctx: AppointmentTemplateContext): string {
+  const previousStart = ctx.previousStartTime?.trim();
+  if (!previousStart) return "";
+
+  const zone = ctxTimezone(ctx);
+  const previousEnd = ctx.previousEndTime?.trim() || "";
+  const startMoved = previousInstantMoved(previousStart, ctx.startTime);
+  const previousLabel = previousEnd
+    ? formatAppointmentEmailWhen(previousStart, zone, previousEnd)
+    : startMoved
+      ? formatAppointmentEmailWhen(previousStart, zone)
+      : "";
+  if (!previousLabel) return "";
+
+  const currentLabel = whenLabel(ctx);
+  if (previousLabel === currentLabel) return "";
+
+  return `<p style="margin:8px 0 0;color:#64748b;font-size:14px;">Previously: ${escapeHtml(previousLabel)}</p>`;
+}
+
 function appointmentDetails(ctx: AppointmentTemplateContext): string {
   const location =
     (ctx as AppointmentTemplateContext & { locationName?: string | null })
@@ -455,9 +484,7 @@ export function renderEmailTemplate(
       };
     }
     case "appointment.reschedule": {
-      const prev = ctx.previousStartTime
-        ? `<p style="margin:8px 0 0;color:#64748b;font-size:14px;">Previously: ${escapeHtml(formatAppointmentEmailWhen(ctx.previousStartTime, ctxTimezone(ctx)))}</p>`
-        : "";
+      const prev = previousRangeLine(ctx);
       const content = `${appointmentDetails(ctx)}${prev}
         <p style="margin:16px 0 0;">Your appointment has a new time. See you then.</p>
         ${contactBlock(b, ctx)}`;

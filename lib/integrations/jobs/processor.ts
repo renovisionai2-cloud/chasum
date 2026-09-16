@@ -279,6 +279,7 @@ async function processEmailJob(job: BackgroundJob, payload = job.payload) {
   }
 
   const previousStartTime = payload.previousStartTime as string | undefined;
+  const previousEndTime = payload.previousEndTime as string | undefined;
   const action = payload.action as string | undefined;
 
   const result = await sendEmail({
@@ -288,6 +289,7 @@ async function processEmailJob(job: BackgroundJob, payload = job.payload) {
     context: {
       ...ctx,
       previousStartTime,
+      previousEndTime,
       customMessage: action,
       bookingChannel:
         (payload.bookingSource as AppointmentTemplateContext["bookingChannel"]) ??
@@ -380,6 +382,7 @@ async function processSmsJob(job: BackgroundJob, payload = job.payload) {
     context: {
       ...ctx,
       previousStartTime: payload.previousStartTime as string | undefined,
+      previousEndTime: payload.previousEndTime as string | undefined,
       amountCents: payload.amountCents as number | undefined,
       customMessage: payload.customMessage as string | undefined,
     },

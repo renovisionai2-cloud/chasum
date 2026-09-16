@@ -75,7 +75,7 @@ function resolveBusinessNotifyEmail(settings: {
 export async function handleAppointmentEvent(
   appointmentId: string,
   event: AppointmentEvent,
-  options: { businessId: string; previousStartTime?: string; sendIntentId?: string; bookingChannel?: BookingChannel },
+  options: { businessId: string; previousStartTime?: string; previousEndTime?: string; sendIntentId?: string; bookingChannel?: BookingChannel },
 ) {
   const supabase = createServiceClient();
 
@@ -138,6 +138,7 @@ export async function handleAppointmentEvent(
         recipient: customer.email.trim(),
         sendIntentId,
         previousStartTime: options?.previousStartTime,
+        previousEndTime: options?.previousEndTime,
         idempotencyKey: `${appointmentId}:${templateKey}:customer:${event}`,
       });
     } else if (templateKey && !customer?.email) {

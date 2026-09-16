@@ -110,6 +110,10 @@ export async function rescheduleBooking(
           typeof beforeState.start_time === "string"
             ? beforeState.start_time
             : undefined,
+        previousEndTime:
+          typeof beforeState.end_time === "string"
+            ? beforeState.end_time
+            : undefined,
       },
     }),
   );

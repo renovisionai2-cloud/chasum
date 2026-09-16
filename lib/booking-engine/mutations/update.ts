@@ -7,6 +7,7 @@ import {
   createBookingEvent,
   emitBookingEvent,
 } from "@/lib/booking-engine/events";
+import { scheduledRangeChanged } from "@/lib/booking-engine/scheduled-range";
 import type {
   MutationResult,
   UpdateBookingIntent,
@@ -94,12 +95,28 @@ export async function updateBooking(
       return { phase: "rollback", error: error.message };
     }
 
+    const previousStartTime =
+      typeof existing.start_time === "string" ? existing.start_time : undefined;
+    const previousEndTime =
+      typeof existing.end_time === "string" ? existing.end_time : undefined;
+    const rangeChanged = scheduledRangeChanged({
+      existingStart: existing.start_time,
+      requestedStart: intent.requestedStart,
+      existingEnd: existing.end_time,
+      requestedEnd: validation.endTime,
+    });
+
+    // Status transitions keep their dedicated events. A real start- or end-time
+    // move on an otherwise open appointment is a reschedule so Reception Save
+    // reuses appointment.rescheduled communication orchestration.
     const eventType =
       resolvedStatus === "completed"
         ? "appointment.completed"
         : resolvedStatus === "no_show"
           ? "appointment.no_show"
-          : "appointment.updated";
+          : rangeChanged
+            ? "appointment.rescheduled"
+            : "appointment.updated";
 
     const event = await emitBookingEvent(
       createBookingEvent({
@@ -107,14 +124,19 @@ export async function updateBooking(
         businessId: intent.businessId,
         appointmentId: intent.appointmentId,
         channel: intent.channel,
-        payload: { beforeState },
+        payload: {
+          beforeState,
+          ...(eventType === "appointment.rescheduled"
+            ? { previousStartTime, previousEndTime }
+            : {}),
+        },
       }),
     );
 
     await logAppointmentChange({
       businessId: intent.businessId,
       appointmentId: intent.appointmentId,
-      action: "update",
+      action: eventType === "appointment.rescheduled" ? "reschedule" : "update",
       beforeState,
       afterState: {
         start_time: intent.requestedStart,
