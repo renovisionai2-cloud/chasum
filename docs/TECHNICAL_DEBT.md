@@ -1,17 +1,18 @@
 # Chasum Technical Debt Register
 
-## Post-recovery tracked debt — 2026-09-14
+## Post-recovery tracked debt — 2026-09-16 restamp
 
-Recovery is CLOSED. Tracking only; no implementation authorized here. Only new contradictory runtime evidence may reopen a Production incident; do not reopen either historical timeout investigation.
+Recovery is CLOSED. Password-reset **completion** P1 is CLOSED / ACCEPTED (token_hash Reset Password href on Staging and Production). Tracking only; no implementation authorized here. Only new contradictory runtime evidence may reopen a Production incident; do not reopen the historical timeout investigation or the closed reset-completion P1.
 
-**Outside Private Alpha readiness:** meaningful Production error visibility and trace/correlation are required before broader Outside Private Alpha. Separately evaluate Sentry / OTel or equivalent (TD-H7); historical Gateway Timeout attribution difficulty makes this an explicit readiness gate.
+**Outside Private Alpha readiness:** meaningful Production error visibility and trace/correlation are required before broader Outside Private Alpha. Separately evaluate Sentry / OTel or equivalent (TD-H7); historical Gateway Timeout attribution difficulty makes this an explicit readiness gate. State-ambiguity prevention (manifest, regression suite, Staging→main disposition, observability, CI/CD reconciliation) is governed alongside Phase 5 and is **not** a Phase 5 blocker.
 
 | Severity | Item | Next decision |
 | --- | --- | --- |
 | P2 | Annual pricing principle is **pay for 10 months and receive 2 months free**; legacy “20% off” wording is not equivalent (2/12 ≈ 16.67% of monthly annual total). | Reconcile approved configurable pricing/math before Gate B; no pricing code change in this PR. |
 | P2 | GVM Employees previously showed “Active in Chasum: 3 of 1”. | Separate entitlement/plan review; do not mutate the tenant as a test. |
 | P2 | Historical public Gateway Timeout root cause unproven. | Non-blocking after accepted 3/3 final exposure; investigate only on new evidence. |
-| P2 | Password-reset cross-session defect is separate auth debt unless separately accepted as resolved. | No auth-recovery branch imported or acceptance inferred here. |
+| P2 | Account A / Account B cross-session recovery (TD-H10). Current main can keep Account A after a failed Account B recovery link (`/login?error=auth_callback_failed` → guest-only middleware → Account A `/dashboard`). `/forgot-password` is guest-only. Security/correct-account: wrong signed-in operator can remain. Sept. 1 Staging hardening is not fully on main. | Separate bounded Auth follow-up. **Not** the closed Production reset-completion P1. **Not** a Staging Auth reopen. **Not** a Phase 5 blocker. Do not implement in this restamp. |
+| P3 | Production `NEXT_PUBLIC_SUPABASE_URL` contains `/rest/v1/` (TD-H11). App normalization currently protects Auth; accepted Production `/recover` passed. | Separate configuration cleanup. Not the closed Auth P1 root cause. Do not fix now. |
 | P3 | Invoices/receipts lack dedicated standalone dashboard routes. | Separate product sequencing. |
 | P3 | Narrow Reception tabs crowd/overflow. | Bounded responsive UI work when approved. |
 | P3 | Optional existing-before-buffer UI proof not recreated. | Package A cleanup/API/operator acceptance remains accepted. |
@@ -52,7 +53,9 @@ No fixes in this document — tracking only.
 | TD-H6 | Employee roles not enforced | Catalog exists; owner-always permissions |
 | TD-H7 | Production observability readiness | Existing instrumentation alone is not acceptance: evaluate Sentry / OTel or equivalent and prove error visibility + trace/correlation before broader Outside Private Alpha. |
 | TD-H8 | Middleware deprecation | `middleware.ts` vs Next “proxy” convention warning |
-| TD-H9 | Production recovery mail uses `{{ .ConfirmationURL }}` | Proven 2026-09-15: GoTrue `/verify` 303 succeeds, SSR `/auth/callback` gets no `token_hash`/`code`, user lands on login. App callback token_hash path is already correct. Login now surfaces `auth_callback_failed`. **Live template mutation is still required** (not this code PR). Do not mark P1 closed until Staging + Production template acceptance. |
+| TD-H9 | ~~Production recovery mail uses `{{ .ConfirmationURL }}`~~ | **CLOSED 2026-09-16.** Staging then Production Reset Password href accepted as `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`. Controlled E2E passed. Do not reopen the completion P1 without contradictory current evidence. |
+| TD-H10 | Account A / Account B cross-session recovery | **Open. Separate from TD-H9.** Sept. 1 Staging hardening is not fully on current main. Failed Account B recovery while Account A is authenticated → `/login?error=auth_callback_failed` → guest-only middleware → Account A `/dashboard`. `/forgot-password` remains guest-only. Security/correct-account: the signed-in operator can remain Account A. Not a Staging Auth reopen. Not a Phase 5 blocker. |
+| TD-H11 | Production `NEXT_PUBLIC_SUPABASE_URL` includes `/rest/v1/` | App normalization currently protects Auth; accepted Production `/recover` passed. Not the closed P1 root cause. Separate env cleanup; do not fix in this restamp. |
 
 ---
 

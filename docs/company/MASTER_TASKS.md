@@ -13,10 +13,12 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current release
 
-**Working name:** World Class AI Business Operating System — launch-readiness chapter
-**Branch workflow:** PR #32 merged as `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; Production release accepted and source of truth restored. Branch subsequent approved work from then-current main.
+**Current canonical main (2026-09-16):** `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. Password-reset completion P1 **CLOSED**. Broader Production recovery remains **CLOSED**. Phase 5 **RESUMES**.
 
-**Release intent:** Recovery CLOSED; Phase 5 IN PROGRESS. Phases 1–4A merged; Gate A complete, Commercial SaaS Lifecycle PARTIAL and Gate B NOT MET. GVM and HQ remain normal validation tenants. No recovery reopening absent new contradictory runtime evidence.
+**Working name:** World Class AI Business Operating System — launch-readiness chapter
+**Branch workflow:** Subsequent approved work branches from then-current main. PR #32 (`8df29d298c196a2431c86a8cea4af1e5bfec09fd`) remains the 2026-09-14 recovery-closeout identity, not a claim that main never moved.
+
+**Release intent:** Recovery CLOSED; Auth reset-completion P1 CLOSED; Phase 5 IN PROGRESS / RESUMES. Phases 1–4A merged; Gate A complete, Commercial SaaS Lifecycle PARTIAL and Gate B NOT MET. GVM and HQ remain normal validation tenants. No recovery reopening absent new contradictory runtime evidence. Cross-session Auth (TD-H10) and `/rest/v1/` env (TD-H11) are separate non-blocking follow-ups.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
 

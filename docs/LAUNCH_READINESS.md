@@ -2,12 +2,14 @@
 
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
-**Last updated:** 2026-09-14
-**Updated by:** Codex — post-release source-of-truth restamp. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
+**Last updated:** 2026-09-16
+**Updated by:** Cursor — password-recovery closeout + Phase 5 resume restamp. Documentation only. Broader Production recovery remains CLOSED. Password-reset completion P1 CLOSED. Phase 5 RESUMES. Planning windows, 18 workstreams and native strategy unchanged.
 
 These are **planning targets, not public promises.**
 
-**2026-09-14:** PR #32 merged; canonical main / Production SHA `8df29d298c196a2431c86a8cea4af1e5bfec09fd`, deployment `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`, release ACCEPTED; all three aliases aligned. Protected git-main SSO is expected security behavior, not application failure. Production recovery CLOSED; public GVM exposure 3/3 PASS; worker reliability and Package A accepted. Phase 5 IN PROGRESS. First legitimate GVM booking + dual-email delivery and HQ dogfood remain operational validation. Outside Private Alpha NOT STARTED; Gate B NOT MET. [Recovery closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) records deployment and evidence. No change to the 18 workstreams, windows, or native strategy.
+**2026-09-16:** Staging Auth **PASS / CLOSED / FROZEN**. Production password-reset completion **P1 CLOSED** (token_hash Reset Password href accepted; one GVM Production E2E passed). Broader Production recovery remains **CLOSED**. Phase 5 **resumes**. Cross-session Auth (TD-H10) and `/rest/v1/` env debt (TD-H11) remain separate and non-blocking. State-ambiguity prevention is governed in bounded slices alongside Phase 5 and is required before Outside Private Alpha; it is **not** a Phase 5 blocker. Canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. No change to the 18 workstreams, windows, pricing, native strategy, or tenant architecture.
+
+**2026-09-14:** PR #32 merged; then-canonical main / Production SHA `8df29d298c196a2431c86a8cea4af1e5bfec09fd`, deployment `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`, release ACCEPTED; all three aliases aligned. Protected git-main SSO is expected security behavior, not application failure. Production recovery CLOSED; public GVM exposure 3/3 PASS; worker reliability and Package A accepted. Phase 5 IN PROGRESS. First legitimate GVM booking + dual-email delivery and HQ dogfood remain operational validation. Outside Private Alpha NOT STARTED; Gate B NOT MET. [Recovery closeout](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md) records deployment and evidence. No change to the 18 workstreams, windows, or native strategy.
 
 ---
 
@@ -197,7 +199,7 @@ Launch requirement vs later expansion: **launch** = trusted booking + CRM + staf
 | Target completion window | Already usable; hold through commercial v1 |
 | Launch risk | **GREEN** |
 | Threatens Dec 2026–Feb 2027? | **NO** |
-| Notes | Auth surfaces exist. Paid-plan assignment hole closed in PR #29. Multi-staff login is workstream 6, not a silent claim of this row. |
+| Notes | Auth surfaces exist. Paid-plan assignment hole closed in PR #29. Password-reset **completion** P1 **CLOSED 2026-09-16** (token_hash template + GVM Production E2E). Remaining Auth follow-up is TD-H10 cross-session / correct-account, not this workstream’s closed P1. Multi-staff login is workstream 6, not a silent claim of this row. |
 
 ---
 
