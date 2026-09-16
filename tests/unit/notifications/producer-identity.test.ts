@@ -91,6 +91,24 @@ describe("producer occurrence identity", () => {
     expect(payload(jobs[4]).sendIntentId).not.toBe(initial);
   });
 
+  it("bridge maps appointment.rescheduled onto reschedule templates, not confirmation", async () => {
+    registerCommunicationsBookingBridge();
+    await bridge.callback!({
+      type: "appointment.rescheduled",
+      businessId: "business-a",
+      appointmentId: "appointment-a",
+      channel: "staff",
+      payload: { previousStartTime: "2026-09-16T18:00:00+00:00" },
+    });
+    const jobs = communicationJobs();
+    const templates = jobs.map((job) => String(payload(job).templateKey));
+    expect(templates).toContain("appointment.reschedule");
+    expect(templates).toContain("appointment.staff");
+    expect(templates).toContain("appointment.business");
+    expect(templates).not.toContain("appointment.confirmation");
+    expect(payload(jobs[0]).previousStartTime).toBe("2026-09-16T18:00:00+00:00");
+  });
+
   it("two reschedule occurrences do not reuse the old weak event-name key", async () => {
     await handleAppointmentEvent("appointment-a", "rescheduled", { businessId: "business-a", previousStartTime: "2026-07-01T10:00:00Z" });
     await handleAppointmentEvent("appointment-a", "rescheduled", { businessId: "business-a", previousStartTime: "2026-07-02T10:00:00Z" });

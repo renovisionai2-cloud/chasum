@@ -7,6 +7,7 @@ import {
   createBookingEvent,
   emitBookingEvent,
 } from "@/lib/booking-engine/events";
+import { scheduledStartChanged } from "@/lib/booking-engine/scheduled-start";
 import type {
   MutationResult,
   UpdateBookingIntent,
@@ -94,12 +95,24 @@ export async function updateBooking(
       return { phase: "rollback", error: error.message };
     }
 
+    const previousStartTime =
+      typeof existing.start_time === "string" ? existing.start_time : undefined;
+    const startChanged = scheduledStartChanged(
+      existing.start_time,
+      intent.requestedStart,
+    );
+
+    // Status transitions keep their dedicated events. A real start-time move
+    // on an otherwise open appointment is a reschedule so Reception Save
+    // reuses appointment.rescheduled communication orchestration.
     const eventType =
       resolvedStatus === "completed"
         ? "appointment.completed"
         : resolvedStatus === "no_show"
           ? "appointment.no_show"
-          : "appointment.updated";
+          : startChanged
+            ? "appointment.rescheduled"
+            : "appointment.updated";
 
     const event = await emitBookingEvent(
       createBookingEvent({
@@ -107,14 +120,19 @@ export async function updateBooking(
         businessId: intent.businessId,
         appointmentId: intent.appointmentId,
         channel: intent.channel,
-        payload: { beforeState },
+        payload: {
+          beforeState,
+          ...(eventType === "appointment.rescheduled"
+            ? { previousStartTime }
+            : {}),
+        },
       }),
     );
 
     await logAppointmentChange({
       businessId: intent.businessId,
       appointmentId: intent.appointmentId,
-      action: "update",
+      action: eventType === "appointment.rescheduled" ? "reschedule" : "update",
       beforeState,
       afterState: {
         start_time: intent.requestedStart,
