@@ -109,6 +109,34 @@ describe("producer occurrence identity", () => {
     expect(payload(jobs[0]).previousStartTime).toBe("2026-09-16T18:00:00+00:00");
   });
 
+  it("bridge forwards previousEndTime on appointment.rescheduled customer email jobs", async () => {
+    registerCommunicationsBookingBridge();
+    await bridge.callback!({
+      type: "appointment.rescheduled",
+      businessId: "business-a",
+      appointmentId: "appointment-a",
+      channel: "staff",
+      payload: {
+        previousStartTime: "2026-09-17T13:00:00+00:00",
+        previousEndTime: "2026-09-17T13:45:00+00:00",
+      },
+    });
+    const jobs = communicationJobs();
+    const customer = jobs.find(
+      (job) => payload(job).templateKey === "appointment.reschedule",
+    );
+    expect(payload(customer!).previousStartTime).toBe(
+      "2026-09-17T13:00:00+00:00",
+    );
+    expect(payload(customer!).previousEndTime).toBe(
+      "2026-09-17T13:45:00+00:00",
+    );
+    expect(jobs.every((job) => job.business_id === "business-a")).toBe(true);
+    expect(
+      jobs.every((job) => payload(job).appointmentId === "appointment-a"),
+    ).toBe(true);
+  });
+
   it("two reschedule occurrences do not reuse the old weak event-name key", async () => {
     await handleAppointmentEvent("appointment-a", "rescheduled", { businessId: "business-a", previousStartTime: "2026-07-01T10:00:00Z" });
     await handleAppointmentEvent("appointment-a", "rescheduled", { businessId: "business-a", previousStartTime: "2026-07-02T10:00:00Z" });

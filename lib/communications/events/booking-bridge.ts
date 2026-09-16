@@ -55,10 +55,17 @@ export function registerCommunicationsBookingBridge(): void {
         : typeof event.payload?.previous_start_time === "string"
           ? event.payload.previous_start_time
           : undefined;
+    const previousEndTime =
+      typeof event.payload?.previousEndTime === "string"
+        ? event.payload.previousEndTime
+        : typeof event.payload?.previous_end_time === "string"
+          ? event.payload.previous_end_time
+          : undefined;
 
     await handleAppointmentEvent(event.appointmentId, mapped, {
       businessId: event.businessId,
       previousStartTime,
+      previousEndTime,
       sendIntentId: event.type === "appointment.created"
         ? initialBookingIntentId(event.appointmentId)
         : undefined,

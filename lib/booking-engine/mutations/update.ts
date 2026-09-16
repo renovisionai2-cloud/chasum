@@ -7,7 +7,7 @@ import {
   createBookingEvent,
   emitBookingEvent,
 } from "@/lib/booking-engine/events";
-import { scheduledStartChanged } from "@/lib/booking-engine/scheduled-start";
+import { scheduledRangeChanged } from "@/lib/booking-engine/scheduled-range";
 import type {
   MutationResult,
   UpdateBookingIntent,
@@ -97,20 +97,24 @@ export async function updateBooking(
 
     const previousStartTime =
       typeof existing.start_time === "string" ? existing.start_time : undefined;
-    const startChanged = scheduledStartChanged(
-      existing.start_time,
-      intent.requestedStart,
-    );
+    const previousEndTime =
+      typeof existing.end_time === "string" ? existing.end_time : undefined;
+    const rangeChanged = scheduledRangeChanged({
+      existingStart: existing.start_time,
+      requestedStart: intent.requestedStart,
+      existingEnd: existing.end_time,
+      requestedEnd: validation.endTime,
+    });
 
-    // Status transitions keep their dedicated events. A real start-time move
-    // on an otherwise open appointment is a reschedule so Reception Save
+    // Status transitions keep their dedicated events. A real start- or end-time
+    // move on an otherwise open appointment is a reschedule so Reception Save
     // reuses appointment.rescheduled communication orchestration.
     const eventType =
       resolvedStatus === "completed"
         ? "appointment.completed"
         : resolvedStatus === "no_show"
           ? "appointment.no_show"
-          : startChanged
+          : rangeChanged
             ? "appointment.rescheduled"
             : "appointment.updated";
 
@@ -123,7 +127,7 @@ export async function updateBooking(
         payload: {
           beforeState,
           ...(eventType === "appointment.rescheduled"
-            ? { previousStartTime }
+            ? { previousStartTime, previousEndTime }
             : {}),
         },
       }),

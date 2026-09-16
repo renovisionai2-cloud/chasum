@@ -23,11 +23,12 @@ describe("Reception edit path reuses Booking Engine reschedule communications", 
     expect(src.match(/await updateBooking\(\{/g)?.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("classifies a real start-time change as appointment.rescheduled", () => {
+  it("classifies a real start- or end-time range change as appointment.rescheduled", () => {
     const src = source("lib/booking-engine/mutations/update.ts");
-    expect(src).toContain("scheduledStartChanged");
+    expect(src).toContain("scheduledRangeChanged");
     expect(src).toContain('"appointment.rescheduled"');
     expect(src).toContain("previousStartTime");
+    expect(src).toContain("previousEndTime");
     expect(src).toContain('"appointment.updated"');
     expect(src).toContain('"appointment.completed"');
     expect(src).toContain('"appointment.no_show"');
@@ -38,6 +39,7 @@ describe("Reception edit path reuses Booking Engine reschedule communications", 
     const reschedule = source("lib/booking-engine/mutations/reschedule.ts");
     expect(reschedule).toContain('type: "appointment.rescheduled"');
     expect(reschedule).toContain("previousStartTime");
+    expect(reschedule).toContain("previousEndTime");
 
     const bridge = source("lib/communications/events/booking-bridge.ts");
     expect(bridge).toContain('case "appointment.rescheduled"');

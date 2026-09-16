@@ -163,6 +163,7 @@ describe("updateBooking reschedule vs update events", () => {
         appointmentId: "appt-1",
         payload: expect.objectContaining({
           previousStartTime: "2026-09-16T18:00:00+00:00",
+          previousEndTime: "2026-09-16T18:45:00+00:00",
         }),
       }),
     );
@@ -229,6 +230,143 @@ describe("updateBooking reschedule vs update events", () => {
     );
     expect(createBookingEvent).toHaveBeenCalledWith(
       expect.objectContaining({ type: "appointment.no_show" }),
+    );
+  });
+
+  it("emits appointment.rescheduled when start is unchanged and resolved end moves", async () => {
+    validateBooking.mockResolvedValue({
+      ok: true,
+      context,
+      endTime: "2026-09-16T19:00:00+00:00",
+    });
+
+    const result = await updateBooking(
+      intent({
+        requestedStart: "2026-09-16T18:00:00+00:00",
+        notes: "extend to 60 minutes",
+      }),
+    );
+
+    expect(result.phase).toBe("success");
+    expect(createBookingEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "appointment.rescheduled",
+        businessId: "biz-1",
+        appointmentId: "appt-1",
+        channel: "staff",
+        payload: expect.objectContaining({
+          previousStartTime: "2026-09-16T18:00:00+00:00",
+          previousEndTime: "2026-09-16T18:45:00+00:00",
+          beforeState: expect.objectContaining({
+            start_time: "2026-09-16T18:00:00+00:00",
+            end_time: "2026-09-16T18:45:00+00:00",
+          }),
+        }),
+      }),
+    );
+    expect(logAppointmentChange).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "reschedule" }),
+    );
+    const row = updateRows[0] as Record<string, unknown>;
+    expect(row.start_time).toBe("2026-09-16T18:00:00+00:00");
+    expect(row.end_time).toBe("2026-09-16T19:00:00+00:00");
+    expect(row).not.toHaveProperty("payment_status");
+    expect(row).not.toHaveProperty("amount_paid_cents");
+    expect(eqCalls.some((call) => call.column === "id" && call.value === "appt-1")).toBe(
+      true,
+    );
+    expect(
+      eqCalls.some((call) => call.column === "business_id" && call.value === "biz-1"),
+    ).toBe(true);
+  });
+
+  it("emits appointment.updated for a notes-only edit with the same start and end instants", async () => {
+    validateBooking.mockResolvedValue({
+      ok: true,
+      context,
+      endTime: "2026-09-16T18:45:00+00:00",
+    });
+
+    await updateBooking(
+      intent({
+        requestedStart: "2026-09-16T18:00:00+00:00",
+        notes: "front-desk note only",
+      }),
+    );
+
+    expect(createBookingEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "appointment.updated",
+        appointmentId: "appt-1",
+        businessId: "biz-1",
+      }),
+    );
+    expect(createBookingEvent.mock.calls[0]?.[0]).not.toEqual(
+      expect.objectContaining({ type: "appointment.rescheduled" }),
+    );
+    expect(logAppointmentChange).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "update" }),
+    );
+  });
+
+  it("does not false-positive when start and end are equivalent ISO instants", async () => {
+    validateBooking.mockResolvedValue({
+      ok: true,
+      context,
+      endTime: "2026-09-16T18:45:00.000Z",
+    });
+
+    await updateBooking(
+      intent({
+        requestedStart: "2026-09-16T18:00:00.000Z",
+        notes: "same range, different ISO",
+      }),
+    );
+
+    expect(createBookingEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "appointment.updated" }),
+    );
+    expect(createBookingEvent.mock.calls[0]?.[0]).not.toEqual(
+      expect.objectContaining({ type: "appointment.rescheduled" }),
+    );
+    expect(logAppointmentChange).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "update" }),
+    );
+  });
+
+  it("keeps completed and no_show ahead of an end-time-only range change", async () => {
+    validateBooking.mockResolvedValue({
+      ok: true,
+      context,
+      endTime: "2026-09-16T19:00:00+00:00",
+    });
+
+    await updateBooking(
+      intent({
+        requestedStatus: "completed",
+        requestedStart: "2026-09-16T18:00:00+00:00",
+      }),
+    );
+    expect(createBookingEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "appointment.completed" }),
+    );
+    expect(logAppointmentChange).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "update" }),
+    );
+
+    createBookingEvent.mockClear();
+    logAppointmentChange.mockClear();
+    await updateBooking(
+      intent({
+        requestedStatus: "no_show",
+        requestedStart: "2026-09-16T18:00:00+00:00",
+      }),
+    );
+    expect(createBookingEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "appointment.no_show" }),
+    );
+    expect(logAppointmentChange).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "update" }),
     );
   });
 

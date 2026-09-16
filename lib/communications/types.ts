@@ -109,6 +109,7 @@ export type AppointmentTemplateContext = {
   invoiceNumber?: string | null;
   receiptNumber?: string | null;
   previousStartTime?: string | null;
+  previousEndTime?: string | null;
   customMessage?: string | null;
   /**
    * Booking Engine channel that created the appointment.
