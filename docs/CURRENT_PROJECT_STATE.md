@@ -3,16 +3,46 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-09-14
-**Updated by:** Codex — post-release source-of-truth restamp. Recovery CLOSED; Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
+**Last updated:** 2026-09-16
+**Updated by:** Cursor — password-recovery closeout + Phase 5 resume restamp. Documentation only. Broader Production recovery remains CLOSED. Password-reset completion P1 CLOSED. Phase 5 RESUMES. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
 
 ---
+
+## Accepted Auth closeout + Phase 5 resume — 2026-09-16
+
+Canonical main at this restamp: `4f7da8fbadf9ab882be07b0112bee0c53d74913c` (PR #35 squash). Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Staging app: `https://staging.chasumai.com`. Staging Supabase: `wnfahklzaxirftyskctd`.
+
+**Broader historical Production recovery program = CLOSED.** Completing the separate Auth P1 does **not** reopen it.
+
+| Item | Accepted state |
+| --- | --- |
+| Staging password recovery | **PASS / CLOSED / FROZEN** |
+| Staging host / deploy / SHA | `https://staging.chasumai.com` / `dpl_5kQZyE2PiHRunvfnPB3xUjPDUFW2` / `7b8abcf30dcb421b03c0a93220dc9f459fa0fcab` |
+| Production password-reset completion | **P1 CLOSED / ACCEPTED** |
+| Accepted recovery email href (Staging + Production Reset Password) | `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password` |
+| Production template mutation | Href-only under explicit PO authorization. Subject/copy preserved. No Site URL, redirect-list, SMTP, Resend, DNS, Auth-user admin, application-code, Vercel, database, migration, tenant, Cron/worker/webhook, or billing change. |
+| Production acceptance path | forgot-password → `/recover` 200 `user_recovery_requested` → email → token_hash `/auth/callback` → `/reset-password` → one password update → authenticated GVM Baby World dashboard. No `pkce_code_verifier_not_found`, no `code_exchange_failed`, no GoTrue `/verify` PKCE dependency. |
+| Further Staging Auth testing | **Not required** unless new contradictory evidence appears. |
+
+**Do not implement in this restamp (separate remaining items):**
+
+- Account A / Account B cross-session recovery gap — Sept. 1 Staging hardening is not fully on current main. Failed Account B recovery while Account A is authenticated can reach `/login?error=auth_callback_failed` then guest-only middleware and land on Account A `/dashboard`. `/forgot-password` remains guest-only on current main. Security/correct-account context: the signed-in operator can remain Account A after Account B’s recovery link fails. **Separate bounded Auth follow-up. Not the closed reset-completion P1. Not a Staging Auth reopen. Not a Phase 5 blocker.** Tracked as TD-H10.
+- Production `NEXT_PUBLIC_SUPABASE_URL` currently contains `/rest/v1/`. App normalization protected the accepted `/recover` path. **Not the closed Auth P1 root cause. Separate configuration cleanup (TD-H11). Do not fix now.**
+
+**State-ambiguity governance (locked improvements, not a new blocking program):** recent slowdown has been driven substantially by state ambiguity across code, configuration, deployments, environments, branches, migrations, runtime, and documentation — not merely ordinary product bugs. Required improvements, introduced in bounded slices **alongside** Phase 5 and completed to the required level **before Outside Private Alpha**: (1) Automated Environment / Release Manifest; (2) permanent launch-critical regression suite; (3) mandatory Staging → acceptance → main disposition; (4) structured observability + Sentry/release correlation; (5) CI/CD-driven release reconciliation.
+
+Permanent rules: no Production runtime code without canonical GitHub representation; no accepted Staging fix left outside main without explicit disposition; no Production release without exact-SHA Staging acceptance; no unexplained environment drift; no configuration changes without before/after evidence and rollback; no reopening accepted work without contradictory current evidence; one primary implementer per task; source-of-truth restamp is part of Definition of Done; Production is never the development environment.
+
+**Phase 5 resumes.** Prevention work is **not** a Phase 5 blocker. Locked execution remains: (1) GVM + Chasum HQ Phase 5 validation in parallel; (2) Outside Private Alpha readiness; (3) Commercial SaaS Gate B; (4) Summer Business Manager horizontal v1.
+
+This documentation does not authorize implementation, Auth/config mutation, or Production changes.
 
 ## Accepted post-release state — 2026-09-14
 
 **PRODUCTION RECOVERY = CLOSED. Phase 5 = IN PROGRESS, not complete.**
 This restamp records accepted recovery evidence; it does not rerun Production validation.
 See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
+Historical 2026-09-14 pin identities below are recovery-closeout evidence, not a claim that Production never moved afterward. Current canonical main is `4f7da8fbadf9ab882be07b0112bee0c53d74913c`.
 
 | Item | Accepted state |
 | --- | --- |
@@ -56,6 +86,9 @@ Historical recovery refs preserve exact evidence; they are not current execution
 - **Launch-criticality governance:** [`docs/LAUNCH_READINESS.md`](./LAUNCH_READINESS.md) — **18 workstreams**. Planning targets are not public promises. Launch criticality does not override quality. Permanent **AI Operating-System Preservation Check** sits beside launch criticality, world-class quality, and next-generation advantage.
 - **Native mobile / App Store:** **DESIGN NOW / PRE-LAUNCH BUILD AFTER CORE STABILITY** (workstream 18). One reusable multi-tenant Chasum app. GVM, Chasum HQ, and future businesses are normal tenants — no mobile forks. Working technical direction: **React Native + Expo**. Final stack: **TO BE CONFIRMED DURING NATIVE APP PREFLIGHT**. Begin material implementation after the Native App Start Gate, early enough for iOS/Android testing **before broader public launch**. Not Phase 5. Commercial v1 does **not** currently require App Store / Play apps.
 - **GVM duplicate-tenant identity incident:** **CLOSED**. Not an active World Class blocker. Do not reopen.
+- **Staging password recovery:** **PASS / CLOSED / FROZEN**. Token_hash Reset Password template accepted. No further Staging Auth testing unless new contradictory evidence appears.
+- **Production password-reset completion P1:** **CLOSED / ACCEPTED**. Live Reset Password href is the token_hash callback pattern. Do not reopen without contradictory current evidence.
+- **State-ambiguity prevention:** governed (manifest, regression suite, Staging→main disposition, observability, CI/CD reconciliation). **Not** a Phase 5 blocker; bounded slices alongside Phase 5, required before Outside Private Alpha.
 
 ### ACTIVE
 
@@ -430,7 +463,11 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-09-14) — PR #32 release accepted
+### Most recent (2026-09-16) — password recovery closeout (docs restamp)
+
+Canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. Staging Auth **PASS / CLOSED / FROZEN**. Production password-reset completion **P1 CLOSED** after href-only template change + one GVM acceptance test. Broader Production recovery remains **CLOSED**. Phase 5 **RESUMES**. Cross-session Auth gap and Production `/rest/v1/` env debt remain separate (TD-H10 / TD-H11). Documentation only; no runtime mutation in this restamp.
+
+### Historical (2026-09-14) — PR #32 release accepted
 
 PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
 
@@ -541,9 +578,11 @@ PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline m
 
 ## Latest repository / deployment state
 
-PR #32 is **MERGED / ACCEPTED**. Canonical main and accepted Production Git SHA are `8df29d298c196a2431c86a8cea4af1e5bfec09fd`; accepted deployment is `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Canonical GitHub source of truth is **RESTORED** and Production release **ACCEPTED**. These are accepted 2026-09-14 release identities, not permanent architectural constants; future serving truth comes from the actual environment/current release record.
+**Current canonical main (2026-09-16):** `4f7da8fbadf9ab882be07b0112bee0c53d74913c`. Production application `https://chasum.vercel.app`. Staging `https://staging.chasumai.com` remains isolated (`dpl_5kQZyE2PiHRunvfnPB3xUjPDUFW2` / `7b8abcf` was the accepted Staging Auth E2E pin).
 
-Prior recovery deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` / `dbbe450` is historical evidence. No Production change is authorized by this documentation PR.
+PR #32 remains the **2026-09-14 recovery-closeout** identity: then-canonical SHA `8df29d298c196a2431c86a8cea4af1e5bfec09fd`, deployment `dpl_3wENSHQrTUnu6VkaqjE7coJ4kjbn`. Those are accepted historical pin facts, not a claim that GitHub main never moved. Future serving truth comes from the actual environment/current release record.
+
+Prior recovery deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` / `dbbe450` is historical evidence. This documentation restamp authorizes **no** Production, Staging, Auth, Vercel, or database change.
 
 ## Worktree status
 
@@ -572,6 +611,9 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - **World Class Phase 2 follow-up (do not solve here):** staff quota TOCTOU race; raw DB-error passthrough; bulk Activate not proactively quota-disabled; directory “booking status” terminology; Add Myself empty-state-only
 - **World Class Phase 3 follow-up (do not solve here):** pre-existing DashboardTopNav overflow ~768–1024px — IMPORTANT BUT POST-LAUNCH SAFE; launch risk GREEN
 - Paid upgrades still route through Private Alpha `/apply`
+- **TD-H9 CLOSED:** Production/Staging Reset Password href is the accepted token_hash callback pattern (2026-09-16). Do not reopen the completion P1 without contradictory evidence.
+- **TD-H10 (do not solve here):** Account A / Account B cross-session recovery on current main — security/correct-account follow-up; not the closed P1; not a Phase 5 blocker.
+- **TD-H11 (do not solve here):** Production `NEXT_PUBLIC_SUPABASE_URL` includes `/rest/v1/`; app normalization currently protects Auth; separate env cleanup.
 
 ### Product / validation (not automatic NEXT)
 
@@ -588,12 +630,14 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 
 ## Current priorities
 
-Locked post-release order:
+Locked post-release order (Phase 5 **resumes**; Auth P1 closeout does not insert a new first chapter):
 
 1. GVM + Chasum HQ Phase 5 validation **in parallel**: observe a legitimate GVM booking with customer confirmation and business new-booking email, each exactly once; HQ dogfoods Command Centre, Reception, customers, service/staff and normal daily operations. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+
+Highest-leverage state-ambiguity prevention (manifest, regression suite, Staging→main disposition, observability, CI/CD reconciliation) is introduced in **bounded slices alongside Phase 5** and completed to the required level **before Outside Private Alpha**. It is **not** a Phase 5 blocker.
 
 Core Operations launch-required defect work continues throughout. GVM and HQ are validation tenants, not product forks; neither may dominate the roadmap.
 

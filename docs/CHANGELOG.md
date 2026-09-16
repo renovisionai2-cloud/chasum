@@ -9,11 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-16 — Password recovery closeout + Phase 5 resume (docs only)
+
+Staging password recovery **PASS / CLOSED / FROZEN**. Production password-reset completion **P1 CLOSED / ACCEPTED** after the authorized href-only Reset Password template change and one GVM Production acceptance test. Accepted href on Staging and Production:
+
+`{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`
+
+Broader historical Production recovery program remains **CLOSED**. Phase 5 **resumes**. Account A/B cross-session recovery (TD-H10) and Production `NEXT_PUBLIC_SUPABASE_URL` `/rest/v1/` (TD-H11) remain separate. State-ambiguity prevention is governed and non-blocking to Phase 5. Documentation only; no application, Auth, Vercel, or database mutation in this restamp.
+
 ### 2026-09-15 — Password reset callback failure UX (code only)
 
-Login now explains `error=auth_callback_failed` (“That reset link didn't work or has expired”) with a link to `/forgot-password`. `/auth/callback` emits safe failure classifications (`code_exchange_failed`, `otp_verify_failed`, `missing_auth_params`) without logging codes, hashes, or raw query strings. Regression tests cover recovery token_hash success/failure, unauthenticated `/reset-password`, login error UX, and email-confirm `type=email`.
+Login now explains `error=auth_callback_failed` (“That reset link didn't work or has expired”) with a link to `/forgot-password`. `/auth/callback` emits safe failure classifications (`code_exchange_failed`, `otp_verify_failed`, `missing_auth_params`) without logging codes, hashes, or raw query strings. Regression tests cover recovery token_hash success/failure, unauthenticated `/reset-password`, login error UX, and email-confirm `type=email`. Merged to canonical main as PR #35 (`4f7da8fbadf9ab882be07b0112bee0c53d74913c`).
 
-**Not in this PR:** the live Production (and Staging) recovery email template still uses `{{ .ConfirmationURL }}`. That Auth configuration change remains a separately PO-gated action. This slice does **not** mark the P1 reset-completion defect fully resolved.
+**Template follow-through (accepted 2026-09-16, not in PR #35):** Staging then Production Reset Password href was changed under explicit PO authorization from `{{ .ConfirmationURL }}` to the token_hash callback pattern. That Auth configuration is now accepted current truth. The remaining Account A/B cross-session gap is **not** this closed P1.
 
 ### 2026-09-14 — Services phone layout
 
