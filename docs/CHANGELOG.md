@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-17 — Permanent development continuity foundation
+
+- Preserve `docs/CURRENT_PROJECT_STATE.md` as the short current program board and archive its prior contents unchanged.
+- Add `docs/handoffs/LATEST_HANDOFF.md`, `docs/runtime/ENVIRONMENT_MANIFEST.md`, source precedence, agent/credit policy, bootstrap instructions and continuity refresh duties in `AGENTS.md`.
+- Environment manifest is a manually reconciled seed; read-only collection automation is specified, not implemented. Unknowns and evidence limits remain explicit. Omitted-status preservation remains the separate Codex engineering task; no runtime or environment change.
+
 ### 2026-09-17 — PR #43 completed/no-show occurrence integrity (CLOSED / PRODUCTION ACCEPTED)
 
 Candidate `01c33191d08c8dbcbb5849c7a53f040f8b807eb2` squash-merged as `16bd0a6adda4190bd6cfb7402aa9e3fecfd4138e`; automatic Production deployment `dpl_A6L82nvXbYk8mNo7zDrMgocCd1w1` READY. Production alias build-info/health and unauthenticated route gates passed at 19:18:22–19:18:24Z. `appointment.completed` / `appointment.no_show` now require real status transitions and retain precedence over simultaneous range changes; retained-status range changes emit `appointment.rescheduled` with `previousStartTime` / `previousEndTime`, otherwise `appointment.updated`. Audit update/reschedule contract and cancellation protections unchanged.
