@@ -62,6 +62,8 @@ type AppointmentSectionProps = {
   onDateSelected?: (date: string) => void;
   minDate?: string;
   statusWorkflow?: AppointmentStatus[] | null;
+  /** When true, operational fields are read-only (cancelled notes-only mode). */
+  locked?: boolean;
   /** When false, duration stays read-only (no Adjust control). */
   allowDurationOverride?: boolean;
 };
@@ -98,6 +100,7 @@ export function AppointmentSection({
   onNotesChange,
   minDate,
   statusWorkflow,
+  locked = false,
   allowDurationOverride = true,
 }: AppointmentSectionProps) {
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -119,9 +122,15 @@ export function AppointmentSection({
   const workflow = resolveAppointmentStatusWorkflow(
     statusWorkflow ?? DEFAULT_APPOINTMENT_STATUS_WORKFLOW,
   );
-  const statusOptions = Array.from(
-    new Set<AppointmentStatus>(["pending", ...workflow, status]),
-  );
+  const statusOptions = locked
+    ? Array.from(new Set<AppointmentStatus>([status]))
+    : Array.from(
+        new Set<AppointmentStatus>(
+          (["pending", ...workflow, status] as AppointmentStatus[]).filter(
+            (value) => value !== "cancelled",
+          ),
+        ),
+      );
 
   const packagePriceCents = selectedPackage?.price_cents ?? null;
   const servicePriceCents =
@@ -177,6 +186,7 @@ export function AppointmentSection({
             <Select
               id="bs-location"
               value={locationId}
+              disabled={locked}
               onChange={(e) => onLocationChange(e.target.value)}
             >
               {locations.map((l) => (
@@ -196,6 +206,7 @@ export function AppointmentSection({
             <Select
               id="bs-offer-type"
               value={offerType}
+              disabled={locked}
               onChange={(e) =>
                 onOfferTypeChange(e.target.value as BookingOfferType)
               }
@@ -212,6 +223,7 @@ export function AppointmentSection({
             <Select
               id="bs-package"
               value={packageId}
+              disabled={locked}
               onChange={(e) => onPackageChange(e.target.value)}
             >
               {activePackages.length === 0 ? (
@@ -241,7 +253,9 @@ export function AppointmentSection({
             id="bs-service"
             value={serviceId}
             onChange={(e) => onServiceChange(e.target.value)}
-            disabled={offerType === "package" && includedNames.length > 0}
+            disabled={
+              locked || (offerType === "package" && includedNames.length > 0)
+            }
           >
             {locationServices.length === 0 ? (
               <option value="">No active services</option>
@@ -284,6 +298,7 @@ export function AppointmentSection({
           <Select
             id="bs-staff"
             value={staffId}
+            disabled={locked}
             onChange={(e) => onStaffChange(e.target.value)}
           >
             <option value="">Unassigned — assign later</option>
@@ -301,6 +316,7 @@ export function AppointmentSection({
           label="Date"
           value={date}
           min={minDate}
+          disabled={locked}
           onChange={onDateChange}
           onAfterSelect={onDateSelected}
         />
@@ -333,7 +349,7 @@ export function AppointmentSection({
               </>
             )}
           </div>
-          {allowDurationOverride && !durationUnresolved ? (
+          {allowDurationOverride && !locked && !durationUnresolved ? (
             adjustOpen ? (
               <div className="mt-2 space-y-2 rounded-[var(--radius-md)] border border-border/80 bg-card px-3 py-2.5">
                 <p className="text-[11px] text-muted-foreground">
@@ -414,7 +430,7 @@ export function AppointmentSection({
         title="Advanced"
         description="Status, source, buffers, and service rules."
         collapsible
-        defaultOpen={false}
+        defaultOpen={locked}
       >
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -422,6 +438,7 @@ export function AppointmentSection({
             <Select
               id="bs-status"
               value={status}
+              disabled={locked}
               onChange={(e) =>
                 onStatusChange(e.target.value as AppointmentStatus)
               }

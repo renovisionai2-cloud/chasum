@@ -22,6 +22,8 @@ type QuickActionsMenuProps = {
   isEditing: boolean;
   /** When false, hide Cancel (already-cancelled / non-cancellable appointments). */
   canCancel?: boolean;
+  /** When true, hide Arrived / Complete / Reschedule on a terminal cancelled appointment. */
+  terminalCancelled?: boolean;
   customerId?: string | null;
   disabled?: boolean;
   onCheckIn: () => void;
@@ -38,6 +40,7 @@ type QuickActionsMenuProps = {
 export function QuickActionsMenu({
   isEditing,
   canCancel = true,
+  terminalCancelled = false,
   customerId,
   disabled,
   onCheckIn,
@@ -75,19 +78,19 @@ export function QuickActionsMenu({
       label: "Arrived",
       icon: CheckCircle2,
       onClick: onCheckIn,
-      show: isEditing,
+      show: isEditing && !terminalCancelled,
     },
     {
       label: "Complete",
       icon: CheckCircle2,
       onClick: onComplete,
-      show: isEditing,
+      show: isEditing && !terminalCancelled,
     },
     {
       label: "Reschedule",
       icon: CalendarClock,
       onClick: onReschedule,
-      show: true,
+      show: !terminalCancelled,
     },
     {
       label: "Duplicate",

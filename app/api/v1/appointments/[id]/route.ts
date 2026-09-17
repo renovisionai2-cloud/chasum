@@ -76,6 +76,60 @@ export async function PATCH(
   if (readError) return apiError("Unable to read appointment", 503);
   if (!current) return apiNotFound();
 
+  if (current.status === "cancelled") {
+    if (body.status && body.status !== "cancelled") {
+      return apiError("Cancelled appointments are terminal.", 409);
+    }
+    const uuidChanged = (
+      ["location_id", "service_id", "staff_id", "customer_id"] as const
+    ).some((key) => {
+      const next = body[key];
+      if (next == null) return false;
+      return String(next).toLowerCase() !== String(current[key]).toLowerCase();
+    });
+    const timeChanged = (["start_time", "end_time"] as const).some((key) => {
+      const next = body[key];
+      if (next == null) return false;
+      const left = Date.parse(String(current[key]));
+      const right = Date.parse(String(next));
+      if (Number.isNaN(left) || Number.isNaN(right)) return next !== current[key];
+      return left !== right;
+    });
+    if (uuidChanged || timeChanged) {
+      return apiError("Cancelled appointments can only update notes.", 409);
+    }
+
+    const patchBody: { notes?: string | null; status?: "cancelled" } = {};
+    if ("notes" in body) patchBody.notes = body.notes ?? null;
+    if (body.status === "cancelled") patchBody.status = "cancelled";
+    if (Object.keys(patchBody).length === 0) {
+      return apiSuccess(current);
+    }
+
+    const { data, error } = await supabase
+      .from("appointments")
+      .update(patchBody)
+      .eq("id", id)
+      .eq("business_id", auth.businessId)
+      .eq("updated_at", current.updated_at)
+      .select("*")
+      .maybeSingle();
+
+    if (error || !data) {
+      if (error) {
+        await captureBookingFailure(error, {
+          businessId: auth.businessId,
+          appointmentId: id,
+        });
+      }
+      return apiError(
+        error ? "Unable to update appointment" : "Appointment changed; reload and retry",
+        error ? 400 : 409,
+      );
+    }
+    return apiSuccess(data);
+  }
+
   const effective = { ...current, ...body };
   const schedulingChanged =
     (["location_id", "service_id", "staff_id"] as const).some(
@@ -85,7 +139,7 @@ export async function PATCH(
     // A different representation must pass PostgreSQL slot validation before writing.
     (["start_time", "end_time"] as const).some(
       (key) => effective[key] !== current[key],
-    ) || (current.status === "cancelled" && effective.status !== "cancelled");
+    );
   const validated = await validateAppointmentReferences({
     client: supabase,
     businessId: auth.businessId,
@@ -129,9 +183,8 @@ export async function PATCH(
     return apiError(error ? "Unable to update appointment" : "Appointment changed; reload and retry", error ? 400 : 409);
   }
 
-  // PATCH can also cancel: repeating that state must not create another cancellation occurrence.
-  if (current.status === "cancelled" && body.status === "cancelled") return apiSuccess(data);
-
+  // PATCH can also cancel an active appointment. Repeating cancelled is handled
+  // above as a notes-only/no-op terminal path.
   const { handleAppointmentEvent } = await import(
     "@/lib/integrations/notifications/orchestrator"
   );

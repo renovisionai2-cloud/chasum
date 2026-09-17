@@ -678,23 +678,59 @@ export async function updateAppointment(
   const locationFromForm = (formData.get("location_id") as string) || null;
   const durationOverride = Number(formData.get("duration_minutes"));
 
-  if (!serviceId || !customerId) {
-    return { error: "Customer and service are required." };
-  }
-
-  const startTime = parseAppointmentStart(formData);
-  if (!startTime) {
-    return { error: "Select an available time slot." };
-  }
-
   const { data: existing } = await supabase
     .from("appointments")
-    .select("location_id")
+    .select(
+      "location_id, service_id, staff_id, customer_id, start_time, end_time, status, notes",
+    )
     .eq("id", id)
     .eq("business_id", business.id)
     .maybeSingle();
 
   if (!existing) return { error: "Appointment not found." };
+
+  const startTime = parseAppointmentStart(formData);
+  const existingStart =
+    typeof existing.start_time === "string" ? existing.start_time : null;
+  const requestedStart = startTime
+    ? startTime.toISOString()
+    : existingStart;
+
+  if (existing.status === "cancelled") {
+    const result = await updateBooking({
+      channel: "staff",
+      appointmentId: id,
+      businessId: business.id,
+      locationId: locationFromForm || (existing.location_id as string),
+      serviceId: serviceId || (existing.service_id as string),
+      staffId: staffId?.trim() ? staffId : ((existing.staff_id as string | null) ?? null),
+      customerId: customerId || (existing.customer_id as string),
+      requestedStart: requestedStart ?? (existing.start_time as string),
+      requestedEnd:
+        typeof existing.end_time === "string" ? existing.end_time : undefined,
+      notes,
+      requestedStatus: status || "cancelled",
+      durationMinutes:
+        Number.isFinite(durationOverride) && durationOverride > 0
+          ? durationOverride
+          : undefined,
+      excludeAppointmentId: id,
+    });
+
+    const action = mutationToAction(result, "Notes saved.");
+    if (result.phase === "success") {
+      revalidateCalendar();
+    }
+    return action;
+  }
+
+  if (!serviceId || !customerId) {
+    return { error: "Customer and service are required." };
+  }
+
+  if (!requestedStart) {
+    return { error: "Select an available time slot." };
+  }
 
   const locationId = locationFromForm || existing.location_id;
 
@@ -706,7 +742,7 @@ export async function updateAppointment(
     serviceId,
     staffId: staffId?.trim() ? staffId : null,
     customerId,
-    requestedStart: startTime.toISOString(),
+    requestedStart,
     notes,
     requestedStatus: status,
     durationMinutes:
@@ -786,6 +822,14 @@ export async function setAppointmentStatus(
     .maybeSingle();
 
   if (!existing) return { error: "Appointment not found." };
+
+  if (existing.status === "cancelled") {
+    return { error: "Cancelled appointments are terminal." };
+  }
+
+  if (status === "cancelled") {
+    return { error: "Use Cancel appointment to cancel this appointment." };
+  }
 
   const result = await updateBooking({
     channel: "staff",

@@ -370,17 +370,12 @@ describe("updateBooking reschedule vs update events", () => {
     );
   });
 
-  it("emits appointment.cancelled without rewriting start_time", async () => {
-    await updateBooking(intent({ requestedStatus: "cancelled" }));
+  it("rejects generic updateBooking cancellation instead of emitting appointment.cancelled", async () => {
+    const result = await updateBooking(intent({ requestedStatus: "cancelled" }));
 
-    expect(createBookingEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "appointment.cancelled",
-        appointmentId: "appt-1",
-      }),
-    );
-    const row = updateRows[0] as Record<string, unknown>;
-    expect(row.status).toBe("cancelled");
-    expect(row).not.toHaveProperty("start_time");
+    expect(result.phase).toBe("rollback");
+    expect(result.error).toMatch(/use cancel appointment/i);
+    expect(createBookingEvent).not.toHaveBeenCalled();
+    expect(updateRows).toEqual([]);
   });
 });

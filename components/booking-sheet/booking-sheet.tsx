@@ -341,6 +341,7 @@ export function BookingSheet({
     useState(0);
   const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
   const cancelInFlightRef = useRef(false);
+  const isCancelled = isEditing && appointment?.status === "cancelled";
   const canCancel = isEditing && appointment?.status !== "cancelled";
 
   useFormAction(state, onSuccess, onClose);
@@ -478,6 +479,7 @@ export function BookingSheet({
 
   useEffect(() => {
     if (!open) return;
+    if (isCancelled) return;
     let cancelled = false;
     const timer = window.setTimeout(() => {
       void (async () => {
@@ -530,6 +532,7 @@ export function BookingSheet({
     staffOptionKey,
     eligibleStaff,
     durationMinutes,
+    isCancelled,
   ]);
 
   useEffect(() => {
@@ -576,24 +579,27 @@ export function BookingSheet({
     !OPTIONAL_STAFF_PERSISTENCE_ENABLED &&
     isUnassignedStaffSelection(activeStaffId);
 
-  const canSubmit =
-    !!selectedCustomer?.id &&
-    !!serviceId &&
-    !!locationId &&
-    !!slot &&
-    durationMinutes != null &&
-    durationMinutes > 0 &&
-    selectedSlotValid &&
-    !needsNamedEmployee;
+  const canSubmit = isCancelled
+    ? !!selectedCustomer?.id
+    : !!selectedCustomer?.id &&
+      !!serviceId &&
+      !!locationId &&
+      !!slot &&
+      durationMinutes != null &&
+      durationMinutes > 0 &&
+      selectedSlotValid &&
+      !needsNamedEmployee;
 
   const validationMessage = useMemo(() => {
     if (needsNamedEmployee && slot && selectedCustomer?.id && serviceId) {
       return RECEPTION_EMPLOYEE_REQUIRED_MESSAGE;
     }
     if (canSubmit) {
-      return isEditing
-        ? "Ready to save your changes."
-        : "Ready to confirm this appointment.";
+      return isCancelled
+        ? "Ready to save notes. Schedule and status stay cancelled."
+        : isEditing
+          ? "Ready to save your changes."
+          : "Ready to confirm this appointment.";
     }
     const missing: string[] = [];
     if (!selectedCustomer?.id) missing.push("a client");
@@ -619,6 +625,7 @@ export function BookingSheet({
     durationMinutes,
     selectedSlotValid,
     needsNamedEmployee,
+    isCancelled,
   ]);
 
   const bookingSourceLabel =
@@ -797,7 +804,7 @@ function handleStaffChange(id: string) {
   }
 
   async function runStatus(next: AppointmentStatus) {
-    if (!appointment) return;
+    if (!appointment || isCancelled) return;
     startBusy(async () => {
       const result = await setAppointmentStatus(appointment.id, next);
       if (result.error) toast(result.error, "error");
@@ -816,9 +823,11 @@ function handleStaffChange(id: string) {
       onClose={onClose}
       title={isEditing ? "Edit booking" : "New booking"}
       description={
-        isEditing
-          ? `${bookingSourceLabel} · update details and save`
-          : "Customer · Appointment · Time · Review"
+        isCancelled
+          ? "Cancelled appointment · notes only"
+          : isEditing
+            ? `${bookingSourceLabel} · update details and save`
+            : "Customer · Appointment · Time · Review"
       }
       resizable
       widthStorageKey="chasum.bookingSheetWidthPx"
@@ -826,6 +835,7 @@ function handleStaffChange(id: string) {
         <QuickActionsMenu
           isEditing={isEditing}
           canCancel={canCancel}
+          terminalCancelled={isCancelled}
           customerId={selectedCustomer?.id}
           disabled={pending || busy}
           onCheckIn={() => void runStatus("arrived")}
@@ -893,7 +903,11 @@ function handleStaffChange(id: string) {
           <input type="hidden" name="service_id" value={serviceId} />
           <input type="hidden" name="staff_id" value={activeStaffId} />
           <input type="hidden" name="location_id" value={locationId} />
-          <input type="hidden" name="start_time" value={slot ?? ""} />
+          <input
+            type="hidden"
+            name="start_time"
+            value={isCancelled ? (appointment?.start_time ?? slot ?? "") : (slot ?? "")}
+          />
           <input
             type="hidden"
             name="duration_minutes"
@@ -954,15 +968,17 @@ function handleStaffChange(id: string) {
             <Button type="submit" size="sm" disabled={!canSubmit || pending}>
               {pending
                 ? "Confirming…"
-                : isEditing
-                  ? "Save changes"
-                  : confirmButtonLabel(
-                      paymentDraft.mode,
-                      paymentDraft.mode === "none"
-                        ? 0
-                        : paymentDraft.amountCents,
-                      currency,
-                    )}
+                : isCancelled
+                  ? "Save notes"
+                  : isEditing
+                    ? "Save changes"
+                    : confirmButtonLabel(
+                        paymentDraft.mode,
+                        paymentDraft.mode === "none"
+                          ? 0
+                          : paymentDraft.amountCents,
+                        currency,
+                      )}
             </Button>
           </div>
         </form>
@@ -977,6 +993,7 @@ function handleStaffChange(id: string) {
           snapshot={activeSnapshot}
           snapshotLoading={snapshotLoading}
           initialShowQuickAdd={forceQuickAddCustomer}
+          locked={isCancelled}
         />
 
         {staffEligibilityNote ? (
@@ -1021,8 +1038,17 @@ function handleStaffChange(id: string) {
           onStatusChange={setStatus}
           onNotesChange={setNotes}
           minDate={format(new Date(), "yyyy-MM-dd")}
+          locked={isCancelled}
+          allowDurationOverride={!isCancelled}
         />
 
+        {isCancelled ? (
+          <p className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2 text-sm text-muted-foreground">
+            This appointment is cancelled. The original time is released and is
+            not re-checked for availability. You can save notes only.
+          </p>
+        ) : (
+          <>
         <AvailabilitySection
           ref={availabilityRef}
           loading={availLoading}
@@ -1097,6 +1123,8 @@ function handleStaffChange(id: string) {
             </div>
           </div>
         ) : null}
+          </>
+        )}
 
         <SelectedAppointmentBanner
           startIso={slot}
@@ -1111,11 +1139,13 @@ function handleStaffChange(id: string) {
           }
           timezone={timezone ?? selectedLocation?.timezone ?? null}
           slotConflict={
-            durationMinutes == null
-              ? "Duration is still loading for this service."
-              : slotConflict
-                ? "Needs update"
-                : null
+            isCancelled
+              ? null
+              : durationMinutes == null
+                ? "Duration is still loading for this service."
+                : slotConflict
+                  ? "Needs update"
+                  : null
           }
           serviceName={
             offerType === "package" && selectedPackage
@@ -1125,12 +1155,14 @@ function handleStaffChange(id: string) {
           customerName={selectedCustomer?.name ?? null}
         />
 
+        {isCancelled ? null : (
         <SummerAssistant
           disabled={availLoading || pending}
           onSuggestAfternoon={summerAfternoon}
           onSuggestOtherEmployee={summerOtherEmployee}
           onMoveTomorrowMorning={summerTomorrowMorning}
         />
+        )}
 
         {canSubmit && slot && selectedCustomer && durationMinutes != null ? (
           <BookingReviewCard
