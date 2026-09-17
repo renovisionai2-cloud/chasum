@@ -32,7 +32,8 @@ describe("Reception edit path reuses Booking Engine reschedule communications", 
     expect(src).toContain('"appointment.updated"');
     expect(src).toContain('"appointment.completed"');
     expect(src).toContain('"appointment.no_show"');
-    expect(src).toContain('"appointment.cancelled"');
+    expect(src).not.toContain('"appointment.cancelled"');
+    expect(src).toContain("Use Cancel appointment to cancel this appointment.");
   });
 
   it("leaves dedicated rescheduleBooking and the communications bridge intact", () => {

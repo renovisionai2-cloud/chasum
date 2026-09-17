@@ -195,9 +195,30 @@ describe("PATCH tenant integrity", () => {
     expect((await patch({ staff_id: T, start_time: "2026-09-21T14:00:00Z" })).status).toBe(400);
     expect(tables.appointments).toEqual(before); noSideEffects();
   });
-  it("revalidates reactivation of a cancelled appointment", async () => {
+  it("rejects reactivation of a cancelled appointment", async () => {
     tables.appointments[0].status = "cancelled";
-    expect((await patch({ status: "confirmed" })).status).toBe(200); expect(rpcCalls).toHaveLength(1);
+    const before = structuredClone(tables.appointments);
+    expect((await patch({ status: "confirmed" })).status).toBe(409);
+    expect(tables.appointments).toEqual(before);
+    expect(rpcCalls).toEqual([]);
+    expect(event).not.toHaveBeenCalled();
+  });
+
+  it("allows cancelled notes-only PATCH without a cancellation occurrence", async () => {
+    tables.appointments[0].status = "cancelled";
+    expect((await patch({ notes: "front desk follow-up" })).status).toBe(200);
+    expect(tables.appointments[0].notes).toBe("front desk follow-up");
+    expect(rpcCalls).toEqual([]);
+    expect(event).not.toHaveBeenCalled();
+  });
+
+  it("rejects cancelled appointment operational PATCH instead of silently changing schedule", async () => {
+    tables.appointments[0].status = "cancelled";
+    const before = structuredClone(tables.appointments);
+    expect((await patch({ start_time: "2026-09-21T14:00:00.000Z" })).status).toBe(409);
+    expect(tables.appointments).toEqual(before);
+    expect(rpcCalls).toEqual([]);
+    expect(event).not.toHaveBeenCalled();
   });
   it("keeps historical notes and cancellation available with retained inactive references", async () => {
     tables.locations[0].is_active = false; tables.services[0].is_active = false; tables.staff[0].is_active = false;

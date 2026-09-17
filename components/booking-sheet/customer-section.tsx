@@ -44,6 +44,8 @@ type CustomerSectionProps = {
   snapshotLoading: boolean;
   /** Open straight into the quick-add form (e.g. Summer / Reception flows). */
   initialShowQuickAdd?: boolean;
+  /** Cancelled notes-only mode: customer is displayed, not replaced. */
+  locked?: boolean;
 };
 
 function initials(name: string) {
@@ -179,6 +181,7 @@ export function CustomerSection({
   snapshot,
   snapshotLoading,
   initialShowQuickAdd = false,
+  locked = false,
 }: CustomerSectionProps) {
   const { toast } = useToast();
   const [showQuickAdd, setShowQuickAdd] = useState(initialShowQuickAdd);
@@ -267,28 +270,34 @@ export function CustomerSection({
             Customer
           </h3>
           <p className="text-xs text-muted-foreground">
-            Find a customer or add someone new
+            {locked
+              ? "Customer is locked for this cancelled appointment"
+              : "Find a customer or add someone new"}
           </p>
         </div>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => setShowQuickAdd((v) => !v)}
-        >
-          <Plus className="size-3.5" />
-          Quick add
-        </Button>
+        {locked ? null : (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => setShowQuickAdd((v) => !v)}
+          >
+            <Plus className="size-3.5" />
+            Quick add
+          </Button>
+        )}
       </div>
 
-      <CustomerSearch
-        selectedId={selected?.id}
-        seedCustomers={customers}
-        autoFocus={!selected}
-        onSelect={handleSelect}
-      />
+      {locked ? null : (
+        <CustomerSearch
+          selectedId={selected?.id}
+          seedCustomers={customers}
+          autoFocus={!selected}
+          onSelect={handleSelect}
+        />
+      )}
 
-      {showQuickAdd ? (
+      {!locked && showQuickAdd ? (
         <div className="space-y-3 rounded-[var(--radius-md)] border border-border bg-muted/20 p-3">
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
