@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-17 — PR #43 completed/no-show occurrence integrity (CLOSED / PRODUCTION ACCEPTED)
+
+Candidate `01c33191d08c8dbcbb5849c7a53f040f8b807eb2` squash-merged as `16bd0a6adda4190bd6cfb7402aa9e3fecfd4138e`; automatic Production deployment `dpl_A6L82nvXbYk8mNo7zDrMgocCd1w1` READY. Production alias build-info/health and unauthenticated route gates passed at 19:18:22–19:18:24Z. `appointment.completed` / `appointment.no_show` now require real status transitions and retain precedence over simultaneous range changes; retained-status range changes emit `appointment.rescheduled` with `previousStartTime` / `previousEndTime`, otherwise `appointment.updated`. Audit update/reschedule contract and cancellation protections unchanged.
+
+Corrected Claude A — PASS and prior deterministic validation accepted with provenance/limitations recorded in CURRENT_PROJECT_STATE. Hosted Staging lifecycle smoke NOT RUN / explicitly PO-waived. PO accepted existing reschedule communications for retained completed/no_show time changes. No schema, data, communications-mapping or API PATCH change. Phase 5 IN PROGRESS; GVM awaits its next legitimate booking. Control Tower accepted the runtime release. This separate documentation-only restamp requires review and separate merge approval. Later documentation revisions may advance main and the serving deployment without changing the accepted PR #43 runtime baseline; current serving identity must be checked.
+
 ### 2026-09-17 — Cancelled appointment terminal-state integrity (PR #41, Production accepted)
 
 Cancelled appointments are terminal (D1) and notes-editable only (D2). Booking Sheet, Quick Actions, `setAppointmentStatus`, `updateAppointment`, `updateBooking`, and API PATCH must not restore a cancelled appointment to an active or other lifecycle status. Operational fields stay locked; notes may change. Generic active→cancelled via `updateBooking` is blocked on the UI/server path. Canonical staff cancellation remains Quick Actions → Cancel → explicit confirmation → Cancel appointment → `cancelAppointment` → `cancelBooking` (PR #39 path preserved). A notes-only save must not emit `appointment.cancelled`, enqueue cancellation communications / webhook / in-app notification / `waitlist_notify`, change schedule, or resurrect the appointment.
