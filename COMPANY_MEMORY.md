@@ -17,7 +17,7 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ## Current chapter (2026-09-16 restamp)
 
-**Current serving truth lives in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md).** Accepted PR #37 runtime / Production release baseline is `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` (`dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`). Current GitHub main identity is repository HEAD and may advance through documentation-only restamps (PR #38 / `docs/pr37-production-closeout`; **main at PR #38 restamp base:** `f36a7aa`) without changing that accepted PR #37 runtime behavior. Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Reception reschedule-notification P1 is **CLOSED / PRODUCTION ACCEPTED**. Auth recovery remains **CLOSED**. Production recovery remains **CLOSED**. Phase 5 is **IN PROGRESS**.
+**Current serving truth lives in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md).** Accepted PR #39 runtime / Production release baseline is `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` (`dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`). Current GitHub main identity is repository HEAD and may advance through documentation-only restamps (this docs-only PR / `docs/pr39-production-closeout`; **main at this docs restamp base:** `0f0c376`) without changing that accepted PR #39 runtime behavior. Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Cancellation confirmation P1 and repeated-cancel waitlist idempotency P1 are **CLOSED / PRODUCTION ACCEPTED**. Reception reschedule-notification P1 remains **CLOSED / PRODUCTION ACCEPTED**. Auth recovery remains **CLOSED**. Production recovery remains **CLOSED**. Phase 5 is **IN PROGRESS**. Historical PR #37 runtime remains `f36a7aa` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`.
 
 The 2026-09-14 identities below remain accepted **historical** recovery-closeout evidence, not a claim that GitHub main never moved.
 
@@ -29,7 +29,7 @@ Recovery **CLOSED**; hold OFF, Cron enabled, webhooks OFF. Phase 5 **IN PROGRESS
 
 Post-release locked execution queue:
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ first booking dogfood and Reception reschedule-notification P1 are accepted; next bounded HQ lifecycle candidate is **cancellation testing**, separately authorized before mutation. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, and cancellation lifecycle slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
