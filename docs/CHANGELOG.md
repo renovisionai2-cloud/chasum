@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-16 — Cancellation confirmation + waitlist idempotency (PR #39, Production accepted)
+
+Booking Sheet Quick Actions → Cancel now opens confirmation dialog **Cancel appointment?** Safe action **Keep appointment**; destructive action **Cancel appointment**. The first Cancel click does not cancel. Keep / Escape / backdrop / X close with no cancellation. Explicit destructive confirmation is required. Cancelled appointments do not expose Booking Sheet Quick Actions Cancel.
+
+First real cancellation writes cancelled status, emits `appointment.cancelled`, records audit `cancel`, runs normal communications orchestration, and enqueues `waitlist_notify` once. Already-cancelled `cancelBooking` is a success no-op (no appointment write, no audit, no `appointment.cancelled`). `cancelAppointment` enqueues `waitlist_notify` only when `result.events` contains `appointment.cancelled`. No new schema column. No queue-level dedupe hack. No migration, schema, config, or data migration.
+
+Accepted candidate `10b3d627c31438eca046263b67b1800f0a287311`. Accepted PR #39 runtime / Production release SHA `0f0c376cdc2a0d7e80da94859f37ec918acf16d6`. Production accepted on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. Claude independent audit **A — PASS**. Hosted Staging acceptance PASS (enqueue-only). Production verification PASS (read-only). Do not document hosted or Production provider email delivery. GitHub main HEAD may later advance through documentation-only restamps without changing that accepted runtime.
+
 ### 2026-09-16 — Reception scheduled-range reschedule semantics (PR #37, Production accepted)
 
 Reception Edit booking remains BookingSheet → `updateAppointment` → `updateBooking` → canonical Booking Engine event path. A material customer-visible appointment range change — **start or end** — now emits `appointment.rescheduled` with truthful `previousStartTime` and `previousEndTime`. Ordinary non-time edits remain `appointment.updated`. Existing communications orchestration is reused; no Reception-specific second notification implementation. Audit action for a range change is `reschedule`. No migration, config, or data migration.
