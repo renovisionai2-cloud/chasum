@@ -3,12 +3,70 @@
 **Status:** Living project handoff — permanent source of truth for “where Chasum is right now”  
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
-**Last updated:** 2026-09-16
-**Updated by:** Cursor — PR #39 Production closeout restamp. Documentation only. Cancellation confirmation P1 CLOSED / PRODUCTION ACCEPTED. Repeated-cancel waitlist idempotency P1 CLOSED / PRODUCTION ACCEPTED. Reception reschedule-notification P1 remains CLOSED / PRODUCTION ACCEPTED. Broader Production recovery remains CLOSED. Auth recovery remains CLOSED. Phase 5 IN PROGRESS. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
+**Last updated:** 2026-09-17
+**Updated by:** Cursor — PR #41 Production closeout restamp. Documentation only. Cancelled-appointment terminal-state integrity P1 CLOSED / PRODUCTION ACCEPTED. Cancellation confirmation P1 remains CLOSED / PRODUCTION ACCEPTED. Repeated-cancel waitlist idempotency P1 remains CLOSED / PRODUCTION ACCEPTED. Reception reschedule-notification P1 remains CLOSED / PRODUCTION ACCEPTED. Broader Production recovery remains CLOSED. Auth recovery remains CLOSED. Phase 5 IN PROGRESS. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
 
 ---
 
-## Accepted PR #39 Production closeout — 2026-09-16
+## Accepted PR #41 Production closeout — 2026-09-17
+
+**CANCELLED-APPOINTMENT TERMINAL-STATE INTEGRITY P1 = CLOSED / PRODUCTION ACCEPTED.**
+**Cancellation confirmation P1 remains CLOSED / PRODUCTION ACCEPTED.**
+**Repeated-cancel waitlist idempotency P1 remains CLOSED / PRODUCTION ACCEPTED.**
+**Reception reschedule-notification P1 remains CLOSED / PRODUCTION ACCEPTED.**
+**Production recovery remains CLOSED. Auth recovery remains CLOSED.** Do not conflate these programs. Do not reopen PR #41 unless new contradictory runtime evidence appears. Do **not** reopen PR #39.
+
+Keep these three identities distinct. Do not hard-code a future docs-merge SHA; that would immediately stale this restamp.
+
+| Concept | Identity |
+| --- | --- |
+| Current GitHub source of truth | Repository `main` HEAD. **main at this docs restamp base:** `35ba43fd3c9c7e854ea11d558571e8456ed43079`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. That does not change accepted PR #41 runtime behavior. A docs-only automatic Vercel deployment may also become the current serving deployment. |
+| Accepted PR #41 runtime / Production release baseline | `35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J` |
+| Docs restamp vehicle | this docs-only PR / `docs/pr41-production-closeout` |
+
+Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Do not permanently claim `35ba43f` is forever current main or forever current serving identity. Preserve `35ba43f` as the accepted PR #41 runtime / product-release baseline.
+
+| Item | Accepted state |
+| --- | --- |
+| PR #41 | **MERGED / PRODUCTION ACCEPTED** — `fix: make cancelled appointments terminal across edit paths` |
+| Accepted candidate | `6dca0983882a1dde475fd6422b60731af761eec1` |
+| Accepted PR #41 runtime / Production release SHA | `35ba43fd3c9c7e854ea11d558571e8456ed43079` |
+| Production deployment | `dpl_42gbuqefLzJm12gBiLzDXPxcis2J` |
+| Production app | `https://chasum.vercel.app` |
+| Production Supabase | `kxcydvhswkuzepwzzinq` |
+| Staging app | `https://staging.chasumai.com` |
+| Staging Supabase | `wnfahklzaxirftyskctd` |
+| Production `/api/build-info` | `commit=35ba43fd3c9c7e854ea11d558571e8456ed43079`, `env=production`, `ref=main`, `production=true` |
+| Production `/api/health` | HTTP 200, `ok=true`, `production=true`, `supabase=true`, `serviceRole=true`, `email=configured`, `cronSecret=configured`, `softSchemaFallbacks=disabled`, `latencyMs=0` |
+| Optional health (not PR #41 regressions) | `sms=optional_missing`, `stripe=optional_missing`, `sentry=optional_missing` |
+
+**Product Owner D1 — cancelled is terminal.** A cancelled appointment must not be restored to an active or other lifecycle status through Booking Sheet, Quick Actions, `setAppointmentStatus`, `updateAppointment`, `updateBooking`, or API PATCH. Any future Restore / Uncancel capability requires a separately designed lifecycle action.
+
+**Product Owner D2 — cancelled appointments are notes-editable only.** Operational fields remain locked: status, date/time, duration, customer, service, staff, location. Notes may change. A notes-only update must not emit `appointment.cancelled`, enqueue cancellation communications, enqueue a cancellation webhook, enqueue a cancellation in-app notification, enqueue `waitlist_notify`, change schedule/inventory, resurrect the appointment, or claim unrelated operational fields were saved.
+
+**Canonical staff cancellation remains the PR #39 path:** Quick Actions → Cancel → explicit confirmation → Cancel appointment → `cancelAppointment` → `cancelBooking`. Generic `updateBooking` must not be the active→cancelled path.
+
+**Candidate validation:** Claude independent audit of exact candidate `6dca098`: **A — PASS**.
+
+**Hosted Staging UI acceptance PASS by explicit Product Owner re-scope** on exact candidate Preview `6dca098` / isolated Staging `wnfahklzaxirftyskctd`. One fresh HQ appointment only; one PR #39 Keep with zero mutation; one canonical cancellation only; exactly one `waitlist_notify` for the real cancellation; cancelled Booking Sheet terminal UI; Arrived / Complete / Reschedule / Cancel absent from cancelled Booking Sheet Quick Actions; operational fields locked; notes remained editable; exactly one notes-only Save; notes-only Save produced zero lifecycle / communications / waitlist job delta; historical queue rows unchanged; no worker/provider processing; no Production mutation.
+
+**Staging evidence appointment** `92803b48-e65a-48ec-b578-8187afc48542` remains **cancelled** as governed evidence. Do not delete, restore, edit, or clean it up. Final state: start `2026-09-17T15:00:00+00:00`, end `2026-09-17T15:45:00+00:00` (Thu 17 Sep 2026 11:00–11:45 AM America/Toronto), notes `Phase 5 PR41 terminal acceptance — notes saved safely`, `payment_status=unpaid`, amount/deposit/tax = 0. **Do not document creation or cancellation emails as delivered or Sent.**
+
+**Queue (enqueue-only, not processed):** Staging baseline before PR #41 acceptance = **51 total** (40 pending / 11 completed). Create occurrence added **4** pending jobs (3 email + 1 `appointment.created` webhook). Cancellation occurrence added **5** pending jobs (3 email + 1 `appointment.cancelled` webhook + 1 `waitlist_notify`). Notes-only Save added **0** jobs. Final after PR #41 evidence = **60 total** (49 pending / 11 completed / 0 processing). Historical 51-row set unchanged. Do not process, delete, rewrite, or clean up those rows in this restamp. Not a Production incident. Bounded Staging queue/worker health follow-up.
+
+**Live authenticated API smoke: deferred, not passed.** Chasum HQ had no governed Staging API key. Product Owner explicitly waived creating a new API credential solely for the two live rejection tests. No API key was created. Live cancelled→active API PATCH smoke and live cancelled schedule-field API PATCH smoke were deferred. This does **not** change the API product contract. The contract remains covered by behavioral route tests + Claude audit: cancelled→active API PATCH rejects; cancelled operational-field API PATCH rejects; notes-only update remains allowed; tenant isolation preserved; concurrency behavior preserved. Live authenticated API smoke is deferred to normal API / Outside Private Alpha readiness when Chasum HQ intentionally has a governed Staging API credential. Do not create an API key from this restamp.
+
+**Production verification:** PASS, read-only. Automatic git Production deploy `dpl_42gbuqefLzJm12gBiLzDXPxcis2J` READY, `target=production`, `source=git`, `ref=main`, no manual alias movement. Unauthenticated smoke: homepage 200, `/login` 200, `/dashboard` and `/dashboard/calendar` redirect to login. No Production sign-in, appointment, customer, queue, email, webhook, waitlist, SQL, Auth, env, billing, payment/refund/invoice/receipt, or manual alias mutation.
+
+**Phase 5 remains IN PROGRESS.** HQ accepted lifecycle evidence now includes: (1) normal booking dogfood — ACCEPTED; (2) customer/business/staff booking notifications — accepted for initial dogfood; (3) reschedule lifecycle — PRODUCTION ACCEPTED; (4) cancellation mechanical lifecycle — ACCEPTED; (5) cancellation confirmation P1 — CLOSED / PRODUCTION ACCEPTED; (6) repeated-cancel waitlist idempotency P1 — CLOSED / PRODUCTION ACCEPTED; (7) cancelled-appointment terminal-state integrity P1 — CLOSED / PRODUCTION ACCEPTED. Do **not** call Phase 5 complete. GVM still waits for the next legitimate real Production booking for operational exactly-once customer confirmation + business new-booking email observation. Do not manufacture a GVM Production booking. Engineering must not idle while waiting for GVM.
+
+**Non-blocking PR #41 residuals (do not reopen accepted PR #41; not new P1 unless already classified):** cancelled appointment drawer may still expose Reschedule even though Booking Sheet correctly locks it; cancelled Booking Sheet `selectedCustomer` dependency was classified by Claude as P2 and is currently unreachable under the unfiltered customer load; Save notes briefly shows “Confirming…” copy; pre-cancel self-slot availability copy can report the currently occupied slot as unavailable; completed / no_show lifecycle policy remains a separate P2 decision; live authenticated API smoke remains deferred to API / Outside Private Alpha readiness.
+
+**Next governed product work (not authorized by this restamp):** HQ booking, reschedule, cancellation confirmation, and cancelled terminal-state integrity slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM legitimate booking observation continues passively in parallel. Engineering does not idle waiting for GVM. Do not automatically start completed/no_show policy changes, Commercial SaaS Gate B, Summer expansion, Platform Admin expansion, native app work, queue cleanup, API-key creation, migrations, or Auth work.
+
+See [`docs/CHANGELOG.md`](./CHANGELOG.md).
+
+## Historical: Accepted PR #39 Production closeout — 2026-09-16
 
 **CANCELLATION CONFIRMATION P1 = CLOSED / PRODUCTION ACCEPTED.**
 **REPEATED-CANCEL WAITLIST IDEMPOTENCY P1 = CLOSED / PRODUCTION ACCEPTED.**
@@ -19,9 +77,10 @@ Keep these three identities distinct. Do not hard-code a future docs-merge SHA; 
 
 | Concept | Identity |
 | --- | --- |
-| Current GitHub source of truth | Repository `main` HEAD. **main at this docs restamp base:** `0f0c376cdc2a0d7e80da94859f37ec918acf16d6`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. That does not change accepted PR #39 runtime behavior. |
+| Current GitHub source of truth | Repository `main` HEAD. |
+| Latest accepted PRODUCT RELEASE BASELINE | PR #41: `35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`. |
 | Accepted PR #39 runtime / Production release baseline | `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA` |
-| Docs restamp vehicle | this docs-only PR / `docs/pr39-production-closeout` |
+| Docs restamp vehicle (historical) | PR #40 / `docs/pr39-production-closeout` |
 
 Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
 
@@ -64,25 +123,25 @@ Already-cancelled `cancelBooking` no-op: success contract preserved; no appointm
 
 **Phase 5 remains IN PROGRESS.** HQ accepted lifecycle evidence now includes: (1) normal booking dogfood — ACCEPTED; (2) customer/business/staff booking notifications — accepted for initial dogfood; (3) reschedule lifecycle — PRODUCTION ACCEPTED; (4) cancellation mechanical lifecycle — ACCEPTED; (5) cancellation confirmation P1 — CLOSED / PRODUCTION ACCEPTED; (6) repeated-cancel waitlist idempotency P1 — CLOSED / PRODUCTION ACCEPTED. Do **not** call Phase 5 complete. GVM still waits for the next legitimate real Production booking for operational exactly-once customer confirmation + business new-booking email observation. Do not manufacture a GVM Production booking. Engineering must not idle while waiting for GVM.
 
-**Next governed product work (not authorized by this restamp):** HQ booking, reschedule, and cancellation lifecycle slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM legitimate booking observation continues passively in parallel. Engineering does not idle waiting for GVM. Do not automatically start completed/no_show policy changes, Commercial SaaS Gate B, Summer expansion, Platform Admin expansion, native app work, or queue cleanup.
+**Then-next governed product work (historical):** cancelled-appointment terminal-state integrity was the next HQ lifecycle candidate after this restamp. That slice is now **PR #41 CLOSED / PRODUCTION ACCEPTED** (see the PR #41 closeout above). Do not treat terminal-state integrity as current NEXT. Do not reopen PR #39.
 
 See [`docs/CHANGELOG.md`](./CHANGELOG.md).
 
 ## Historical: Accepted PR #37 Production closeout — 2026-09-16
 
 **RECEPTION RESCHEDULE NOTIFICATION P1 = CLOSED / PRODUCTION ACCEPTED.**
-**Production recovery remains CLOSED. Auth recovery remains CLOSED.** Do not conflate these programs. Do not reopen the Reception P1 unless new contradictory runtime evidence appears. Latest accepted product release is **PR #39** (see above). PR #37 identities below remain historical evidence.
+**Production recovery remains CLOSED. Auth recovery remains CLOSED.** Do not conflate these programs. Do not reopen the Reception P1 unless new contradictory runtime evidence appears. Latest accepted product release is **PR #41** (see above). PR #39 and PR #37 identities below remain historical evidence.
 
 Keep these three identities distinct. Do not hard-code a future docs-merge SHA; that would immediately stale this restamp.
 
 | Concept | Identity |
 | --- | --- |
 | Current GitHub source of truth | Repository `main` HEAD. |
-| Latest accepted PRODUCT RELEASE BASELINE | PR #39: `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. |
+| Latest accepted PRODUCT RELEASE BASELINE | PR #41: `35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`. Historical PR #39 runtime remains `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. |
 | Accepted PR #37 runtime / Production release baseline | `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M` |
 | Docs restamp vehicle (historical) | PR #38 / `docs/pr37-production-closeout` |
 
-Current serving identity is not permanently pinned by this historical row and must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Do not describe `0f0c376` as permanent current serving identity.
+Current serving identity is not permanently pinned by this historical row and must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Do not describe `35ba43f` or `0f0c376` as permanent current serving identity.
 
 | Item | Accepted state |
 | --- | --- |
@@ -128,7 +187,7 @@ See [`docs/CHANGELOG.md`](./CHANGELOG.md).
 
 ## Accepted Auth closeout + Phase 5 resume — 2026-09-16
 
-Historical Auth-closeout restamp (then-canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`, PR #35 squash). Latest accepted product release is PR #39 (`0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`). Historical accepted PR #37 runtime / Production release baseline remains `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD and may advance through documentation-only restamps without changing accepted runtime. Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Staging app: `https://staging.chasumai.com`. Staging Supabase: `wnfahklzaxirftyskctd`.
+Historical Auth-closeout restamp (then-canonical main `4f7da8fbadf9ab882be07b0112bee0c53d74913c`, PR #35 squash). Latest accepted product release is PR #41 (`35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`). Historical accepted PR #39 runtime remains `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. Historical accepted PR #37 runtime / Production release baseline remains `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD and may advance through documentation-only restamps without changing accepted runtime. Production app: `https://chasum.vercel.app`. Production Supabase: `kxcydvhswkuzepwzzinq`. Staging app: `https://staging.chasumai.com`. Staging Supabase: `wnfahklzaxirftyskctd`.
 
 **Broader historical Production recovery program = CLOSED.** Completing the separate Auth P1 does **not** reopen it.
 
@@ -160,7 +219,7 @@ This documentation does not authorize implementation, Auth/config mutation, or P
 **PRODUCTION RECOVERY = CLOSED. Phase 5 = IN PROGRESS, not complete.**
 This restamp records accepted recovery evidence; it does not rerun Production validation.
 See [closeout and evidence provenance](./recovery/PRODUCTION_RECOVERY_CLOSEOUT_20260914.md).
-Historical 2026-09-14 pin identities below are recovery-closeout evidence, not a claim that Production never moved afterward. Latest accepted product release is PR #39 (`0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`). Historical accepted PR #37 runtime remains `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD.
+Historical 2026-09-14 pin identities below are recovery-closeout evidence, not a claim that Production never moved afterward. Latest accepted product release is PR #41 (`35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`). Historical accepted PR #39 runtime remains `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. Historical accepted PR #37 runtime remains `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2`. Current GitHub main identity is repository HEAD.
 
 | Item | Accepted state |
 | --- | --- |
@@ -209,7 +268,9 @@ Historical recovery refs preserve exact evidence; they are not current execution
 - **Reception reschedule-notification P1:** **CLOSED / PRODUCTION ACCEPTED** (PR #37). Material start **or** end range change is `appointment.rescheduled` with truthful `previousStartTime` / `previousEndTime`. Do not reopen without contradictory current evidence.
 - **Cancellation confirmation P1:** **CLOSED / PRODUCTION ACCEPTED** (PR #39). Booking Sheet Quick Actions → Cancel opens confirmation; Keep / Escape / backdrop / X do not cancel; explicit **Cancel appointment** is required. Do not reopen without contradictory current evidence.
 - **Repeated-cancel waitlist idempotency P1:** **CLOSED / PRODUCTION ACCEPTED** (PR #39). `waitlist_notify` enqueues only when `appointment.cancelled` actually occurred. Do not reopen without contradictory current evidence.
+- **Cancelled-appointment terminal-state integrity P1:** **CLOSED / PRODUCTION ACCEPTED** (PR #41). Cancelled is terminal; notes-editable only. Do not restore via Booking Sheet, Quick Actions, `setAppointmentStatus`, `updateAppointment`, `updateBooking`, or API PATCH. Canonical cancel remains the PR #39 path. Do not reopen without contradictory current evidence.
 - **State-ambiguity prevention:** governed (manifest, regression suite, Staging→main disposition, observability, CI/CD reconciliation). **Not** a Phase 5 blocker; bounded slices alongside Phase 5, required before Outside Private Alpha.
+- **Anti-stall:** A blocker in one lane does not authorize unsafe work and must not idle the entire program. Safe approved work may continue while another lane waits. Production safety and approval gates remain fully enforced.
 
 ### ACTIVE
 
@@ -235,7 +296,7 @@ Genuine current gates only (not closed incidents):
 
 Do **not** automatically “finish GVM” as a product rewrite. Do **not** start Gate B, RBAC, Summer expansion, `/owner` expansion, or native apps in this chapter.
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, and cancellation lifecycle slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, cancellation confirmation, waitlist idempotency, and cancelled terminal-state integrity slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
@@ -548,7 +609,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Current: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. HQ booking, reschedule (PR #37), and cancellation confirmation + waitlist idempotency (PR #39) **PRODUCTION ACCEPTED**. Do **not** call Phase 5 complete. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
+**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Current: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. HQ booking, reschedule (PR #37), cancellation confirmation + waitlist idempotency (PR #39), and cancelled terminal-state integrity (PR #41) **PRODUCTION ACCEPTED**. Do **not** call Phase 5 complete. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 **Intent:**
 
@@ -584,7 +645,11 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Last completed work
 
-### Most recent (2026-09-16) — PR #39 cancellation confirmation + waitlist idempotency PRODUCTION ACCEPTED
+### Most recent (2026-09-17) — PR #41 cancelled-appointment terminal-state integrity PRODUCTION ACCEPTED
+
+PR #41 **MERGED / PRODUCTION ACCEPTED**. Accepted candidate `6dca0983882a1dde475fd6422b60731af761eec1`. Accepted PR #41 runtime / Production release SHA `35ba43fd3c9c7e854ea11d558571e8456ed43079`. Production deployment `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`. Cancelled is terminal (D1); notes-editable only (D2). Canonical cancel remains Quick Actions → confirm → `cancelAppointment` → `cancelBooking`. Claude **A — PASS**. Hosted Staging UI acceptance PASS by explicit PO re-scope (appointment `92803b48-e65a-48ec-b578-8187afc48542`, 11:00–11:45 AM ET, left cancelled). Queue baseline 51 → final 60 (+4 create / +5 cancel / +0 notes); historical rows unchanged; jobs left pending/unprocessed. Live API smoke **deferred** (no governed HQ Staging API key; no key created). Production verification PASS, read-only. Terminal-state integrity P1 **CLOSED**. Phase 5 **IN PROGRESS**. No migration, schema, config, or data migration. Changelog: [`docs/CHANGELOG.md`](./CHANGELOG.md).
+
+### Historical (2026-09-16) — PR #39 cancellation confirmation + waitlist idempotency PRODUCTION ACCEPTED
 
 PR #39 **MERGED / PRODUCTION ACCEPTED**. Accepted candidate `10b3d627c31438eca046263b67b1800f0a287311`. Accepted PR #39 runtime / Production release SHA `0f0c376cdc2a0d7e80da94859f37ec918acf16d6`. Production deployment `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. Booking Sheet Quick Actions → Cancel opens confirmation (`Keep appointment` / `Cancel appointment`); first click does not cancel; cancelled appointments hide Quick Actions Cancel. `waitlist_notify` enqueues only when `appointment.cancelled` actually occurred. Hosted Staging acceptance was **enqueue-only** (appointment `7987a27b-ee30-4a39-97e2-3c5ea2c16dcb`, 10:00–10:45 AM ET, left cancelled). Cancellation job delta 3 email + 1 webhook + 1 waitlist, all unprocessed. Production verification PASS, read-only. Cancellation confirmation P1 and repeated-cancel waitlist idempotency P1 **CLOSED**. Phase 5 **IN PROGRESS**. No migration, schema, config, or data migration. Changelog: [`docs/CHANGELOG.md`](./CHANGELOG.md).
 
@@ -707,11 +772,11 @@ PR #32 used `codex/post-recovery-source-of-truth-reconciliation` from baseline m
 
 ## Latest repository / deployment state
 
-**Current GitHub source of truth:** repository `main` HEAD. Verify with `git rev-parse origin/main`. **main at this docs restamp base:** `0f0c376cdc2a0d7e80da94859f37ec918acf16d6`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. Do not treat `0f0c376` as permanent main HEAD. Documentation-only restamps do not change accepted PR #39 runtime behavior.
+**Current GitHub source of truth:** repository `main` HEAD. Verify with `git rev-parse origin/main`. **main at this docs restamp base:** `35ba43fd3c9c7e854ea11d558571e8456ed43079`. After this docs PR merges, GitHub main will advance to a new documentation-only merge commit. Do not treat `35ba43f` as permanent main HEAD. Documentation-only restamps do not change accepted PR #41 runtime behavior. A docs-only automatic Vercel deployment may also become the current serving deployment.
 
-**Accepted PR #39 runtime / Production release baseline:** `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `https://chasum.vercel.app` (`dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`). Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
+**Accepted PR #41 runtime / Production release baseline:** `35ba43fd3c9c7e854ea11d558571e8456ed43079` on `https://chasum.vercel.app` (`dpl_42gbuqefLzJm12gBiLzDXPxcis2J`). Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
 
-**Docs restamp vehicle:** this docs-only PR / `docs/pr39-production-closeout`. Historical PR #37 runtime remains `f36a7aa` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`; historical docs restamp vehicle was PR #38 / `docs/pr37-production-closeout`.
+**Docs restamp vehicle:** this docs-only PR / `docs/pr41-production-closeout`. Historical PR #39 runtime remains `0f0c376` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`; historical PR #39 docs restamp vehicle was PR #40 / `docs/pr39-production-closeout`. Historical PR #37 runtime remains `f36a7aa` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`; historical docs restamp vehicle was PR #38 / `docs/pr37-production-closeout`.
 
 Staging `https://staging.chasumai.com` remains isolated (`dpl_5kQZyE2PiHRunvfnPB3xUjPDUFW2` / `7b8abcf` was the accepted Staging Auth E2E pin).
 
@@ -721,7 +786,7 @@ Prior recovery deployment `dpl_EFp5585EcR3rmgmJH9wZ5rhpspRc` / `dbbe450` is hist
 
 ## Worktree status
 
-**Docs restamp vehicle:** this docs-only PR / `docs/pr39-production-closeout`. **main at this docs restamp base:** `0f0c376cdc2a0d7e80da94859f37ec918acf16d6`. Documentation only. Do not hard-code the future docs-PR merge SHA.
+**Docs restamp vehicle:** this docs-only PR / `docs/pr41-production-closeout`. **main at this docs restamp base:** `35ba43fd3c9c7e854ea11d558571e8456ed43079`. Documentation only. Do not hard-code the future docs-PR merge SHA.
 
 Uncommitted work is session-specific: inspect `git status`. PR #32 remains the historical 2026-09-14 reconciliation vehicle, not a permanent uncommitted task. `.momentic-mcp/` is local untracked tooling and must not be committed.
 
@@ -752,17 +817,21 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 - **TD-H10 (do not solve here):** Account A / Account B cross-session recovery on current main — security/correct-account follow-up; not the closed P1; not a Phase 5 blocker.
 - **TD-H11 (do not solve here):** Production `NEXT_PUBLIC_SUPABASE_URL` includes `/rest/v1/`; app normalization currently protects Auth; separate env cleanup.
 - **P2 (do not solve here):** completed / no_show cancellation policy remains an unresolved lifecycle product-contract question. Do not silently change policy.
-- **P2 (do not solve here):** calendar `resize.ts` end-time-only semantics remain separate and out of PR #37 / PR #39.
+- **P2 (do not solve here):** calendar `resize.ts` end-time-only semantics remain separate and out of PR #37 / PR #39 / PR #41.
 - **P2 (do not solve here):** completed / no_show audit action still uses generic update semantics.
+- **P2 (do not solve here):** cancelled appointment drawer may still expose Reschedule even though Booking Sheet Quick Actions correctly hide Arrived / Complete / Reschedule / Cancel. Does not reopen PR #41.
+- **P2 (do not solve here):** cancelled Booking Sheet `selectedCustomer` dependency was classified by Claude as P2 and is currently unreachable under the unfiltered customer load. Does not reopen PR #41.
+- **P2 (do not solve here):** Save notes briefly shows “Confirming…” copy; pre-cancel self-slot availability copy can report the currently occupied slot as unavailable. Does not reopen PR #41.
 - **P3 (do not solve here):** Week/Month retained cancelled blocks do not explicitly label “Cancelled”; appointment drawer may show disabled Cancel while Booking Sheet hides it; Communications bell cancellation row surfacing; Summer chip cancellation count/copy; existing Booking Sheet lint debt. Route naming truth: Reception lives at `/dashboard/calendar` and CRM at `/dashboard/clients` — do not create new routes from this restamp.
 - **P3 (do not solve here):** Reception day-view timezone rendering; jump-to-date / range-heading mismatch; Staging health `production:true` / `cronSecret` missing observation; dedicated SMS `previousEndTime` test absent while HQ SMS is OFF.
-- **Staging queue/worker health (do not solve here):** **40 pending/due** Staging jobs after the PR #39 hosted acceptance (historical debt plus PR #37 / earlier cancellation-validation artifacts plus PR #39 create 3 email + 1 created webhook and cancel 3 email + 1 cancelled webhook + 1 waitlist_notify). All new PR #39 jobs remained pending, `attempts=0`, unprocessed. Bounded operational follow-up. Not a PR #39 failure. Not a Production incident. Do not process or rewrite those rows from this restamp.
+- **Staging queue/worker health (do not solve here):** **40 pending/due** Staging jobs after the PR #39 hosted acceptance (historical debt plus PR #37 / earlier cancellation-validation artifacts plus PR #39 create 3 email + 1 created webhook and cancel 3 email + 1 cancelled webhook + 1 waitlist_notify). After the PR #41 hosted acceptance the live Staging queue was **60 total / 49 pending / 11 completed / 0 processing** (baseline 51 + 4 create + 5 cancel + 0 notes). Historical 51-row set unchanged. All new PR #39 and PR #41 jobs remained pending, `attempts=0`, unprocessed. Bounded operational follow-up. Not a PR #39 or PR #41 failure. Not a Production incident. Do not process or rewrite those rows from this restamp.
+- **Live authenticated API smoke (do not solve here):** deferred because Chasum HQ has no governed Staging API key. Product Owner waived creating a key solely for PR #41 rejection tests. API contract remains covered by tests + Claude audit. Resume when HQ intentionally has a governed Staging API credential. Do not create an API key from this restamp.
 - **Staging Resend capability (do not solve here):** no dedicated Staging-only `RESEND_API_KEY` for independent provider-send acceptance. Important before Outside Private Alpha; not a blocker for continued internal GVM/HQ Phase 5 validation. No credential copy.
 
 ### Product / validation (not automatic NEXT)
 
 - Commercial SaaS lifecycle incomplete (see Commercial SaaS section)
-- GVM: first legitimate client appointment + dual-email operational validation still waiting (do not manufacture). HQ booking, reschedule, and cancellation lifecycle slices are now accepted.
+- GVM: first legitimate client appointment + dual-email operational validation still waiting (do not manufacture). HQ booking, reschedule, cancellation confirmation, waitlist idempotency, and cancelled terminal-state integrity slices are now accepted.
 - Public self-serve SaaS checkout not live — Private Alpha is intentional
 
 ### Marketing discipline
@@ -774,9 +843,9 @@ Tracked in depth in [`docs/TECHNICAL_DEBT.md`](./TECHNICAL_DEBT.md). Snapshot �
 
 ## Current priorities
 
-Locked post-release order (Phase 5 **IN PROGRESS**; Auth P1, Reception reschedule-notification P1, and PR #39 cancellation P1 closeouts do not insert a new first chapter):
+Locked post-release order (Phase 5 **IN PROGRESS**; Auth P1, Reception reschedule-notification P1, PR #39 cancellation P1, and PR #41 terminal-state P1 closeouts do not insert a new first chapter):
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, and cancellation lifecycle slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, cancellation confirmation, waitlist idempotency, and cancelled terminal-state integrity slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.

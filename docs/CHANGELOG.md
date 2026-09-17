@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-17 — Cancelled appointment terminal-state integrity (PR #41, Production accepted)
+
+Cancelled appointments are terminal (D1) and notes-editable only (D2). Booking Sheet, Quick Actions, `setAppointmentStatus`, `updateAppointment`, `updateBooking`, and API PATCH must not restore a cancelled appointment to an active or other lifecycle status. Operational fields stay locked; notes may change. Generic active→cancelled via `updateBooking` is blocked on the UI/server path. Canonical staff cancellation remains Quick Actions → Cancel → explicit confirmation → Cancel appointment → `cancelAppointment` → `cancelBooking` (PR #39 path preserved). A notes-only save must not emit `appointment.cancelled`, enqueue cancellation communications / webhook / in-app notification / `waitlist_notify`, change schedule, or resurrect the appointment.
+
+Accepted candidate `6dca0983882a1dde475fd6422b60731af761eec1`. Accepted PR #41 runtime / Production release SHA `35ba43fd3c9c7e854ea11d558571e8456ed43079`. Production accepted on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`. Claude independent audit **A — PASS**. Hosted Staging UI acceptance PASS by explicit Product Owner re-scope (enqueue-only). Live authenticated API smoke deferred because Chasum HQ had no governed Staging API key; no API key was created; the API contract remains covered by behavioral tests + Claude audit. Production verification PASS (read-only). Do not document hosted or Production provider email delivery. No migration, schema, config, or data migration. GitHub main HEAD may later advance through documentation-only restamps without changing that accepted runtime.
+
 ### 2026-09-16 — Cancellation confirmation + waitlist idempotency (PR #39, Production accepted)
 
 Booking Sheet Quick Actions → Cancel now opens confirmation dialog **Cancel appointment?** Safe action **Keep appointment**; destructive action **Cancel appointment**. The first Cancel click does not cancel. Keep / Escape / backdrop / X close with no cancellation. Explicit destructive confirmation is required. Cancelled appointments do not expose Booking Sheet Quick Actions Cancel.

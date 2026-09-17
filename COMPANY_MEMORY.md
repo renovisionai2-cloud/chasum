@@ -15,9 +15,9 @@ Chasum is not booking software. Appointments are foundational; the product is th
 
 ---
 
-## Current chapter (2026-09-16 restamp)
+## Current chapter (2026-09-17 restamp)
 
-**Current serving truth lives in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md).** Accepted PR #39 runtime / Production release baseline is `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` (`dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`). Current GitHub main identity is repository HEAD and may advance through documentation-only restamps (this docs-only PR / `docs/pr39-production-closeout`; **main at this docs restamp base:** `0f0c376`) without changing that accepted PR #39 runtime behavior. Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Cancellation confirmation P1 and repeated-cancel waitlist idempotency P1 are **CLOSED / PRODUCTION ACCEPTED**. Reception reschedule-notification P1 remains **CLOSED / PRODUCTION ACCEPTED**. Auth recovery remains **CLOSED**. Production recovery remains **CLOSED**. Phase 5 is **IN PROGRESS**. Historical PR #37 runtime remains `f36a7aa` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`.
+**Current serving truth lives in [`docs/CURRENT_PROJECT_STATE.md`](docs/CURRENT_PROJECT_STATE.md).** Accepted PR #41 runtime / Production release baseline is `35ba43fd3c9c7e854ea11d558571e8456ed43079` (`dpl_42gbuqefLzJm12gBiLzDXPxcis2J`). Current GitHub main identity is repository HEAD and may advance through documentation-only restamps (this docs-only PR / `docs/pr41-production-closeout`; **main at this docs restamp base:** `35ba43f`) without changing that accepted PR #41 runtime behavior. A docs-only automatic Vercel deployment may also become the current serving deployment. Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Cancelled-appointment terminal-state integrity P1 is **CLOSED / PRODUCTION ACCEPTED**. Cancellation confirmation P1 and repeated-cancel waitlist idempotency P1 remain **CLOSED / PRODUCTION ACCEPTED**. Reception reschedule-notification P1 remains **CLOSED / PRODUCTION ACCEPTED**. Auth recovery remains **CLOSED**. Production recovery remains **CLOSED**. Phase 5 is **IN PROGRESS**. Historical PR #39 runtime remains `0f0c376` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. Historical PR #37 runtime remains `f36a7aa` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M`.
 
 The 2026-09-14 identities below remain accepted **historical** recovery-closeout evidence, not a claim that GitHub main never moved.
 
@@ -29,7 +29,10 @@ Recovery **CLOSED**; hold OFF, Cron enabled, webhooks OFF. Phase 5 **IN PROGRESS
 
 Post-release locked execution queue:
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, and cancellation lifecycle slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
+1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, cancellation confirmation, waitlist idempotency, and cancelled terminal-state integrity slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
+2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
+3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
@@ -68,6 +71,7 @@ Roadmap outcomes must stay balanced:
 5. **Beautiful on every device** — Reception and owner workflows must work on phone, tablet, and desktop.
 6. **Extend, don’t redesign** — Preserve the design system unless a deliberate redesign is requested.
 7. **No tenant forks** — GVM-specific and HQ-specific needs become configuration where possible.
+8. **Anti-stall** — A blocker in one lane (deployment, authentication, external customer event, credential gate, agent capacity/credits, or approval) does not authorize unsafe work, but it also must not idle the entire Chasum program. While one lane is waiting, other safe approved work should continue where useful: read-only investigation, source-of-truth reconciliation, regression preparation, audit preparation, bounded design analysis. Production safety and approval gates remain fully enforced.
 
 ---
 
@@ -89,7 +93,7 @@ Roadmap outcomes must stay balanced:
 
 ## Agent operating model
 
-Darshan = Founder / CEO / Product Owner. ChatGPT = control tower / Product & Development Program Lead. Codex = DEFAULT primary implementation engineer. Cursor = situational engineer when local/auth/device environment offers a real advantage. Claude = independent auditor for higher-risk work. Momentic = browser/workflow regression. One primary implementer per task.
+Darshan = Founder / CEO / Product Owner. ChatGPT = control tower / Product & Development Program Lead. Cursor = primary implementation engineer unless otherwise directed. Claude = independent auditor for higher-risk work. Momentic = browser/workflow regression. Codex may be used where useful and available; Codex availability/capacity must not block Chasum progress and is not recorded as permanent product truth. One primary implementer per task.
 
 ## Engineering reminders
 
@@ -125,4 +129,4 @@ Darshan = Founder / CEO / Product Owner. ChatGPT = control tower / Product & Dev
 
 ---
 
-*Last updated: 2026-09-14 — post-release source-of-truth and locked roadmap restamp.*
+*Last updated: 2026-09-17 — PR #41 Production closeout source-of-truth restamp. Documentation only.*
