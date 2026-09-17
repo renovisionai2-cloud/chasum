@@ -33,9 +33,6 @@ Post-release locked execution queue:
 2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
 3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
-2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
-3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
-4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
 
 Core Operations launch-required defect work continues throughout. GVM and HQ are validation tenants, not product forks; neither may dominate the roadmap.
 
