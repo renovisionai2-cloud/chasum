@@ -77,11 +77,12 @@ Keep these three identities distinct. Do not hard-code a future docs-merge SHA; 
 
 | Concept | Identity |
 | --- | --- |
-| Current GitHub source of truth | Repository `main` HEAD. Current serving / latest accepted product release is PR #39 (`0f0c376` / `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`). |
+| Current GitHub source of truth | Repository `main` HEAD. |
+| Latest accepted PRODUCT RELEASE BASELINE | PR #39: `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA`. |
 | Accepted PR #37 runtime / Production release baseline | `f36a7aaf7d5b601c2fa2c914cb89d125cf18eab2` on `dpl_3zx6E7Ck22xYNdHTxiJ6xBVk9U2M` |
 | Docs restamp vehicle (historical) | PR #38 / `docs/pr37-production-closeout` |
 
-Current serving identity must be verified from `/api/build-info` rather than inferred from an older milestone SHA.
+Current serving identity is not permanently pinned by this historical row and must be verified from `/api/build-info` rather than inferred from an older milestone SHA. Do not describe `0f0c376` as permanent current serving identity.
 
 | Item | Accepted state |
 | --- | --- |
