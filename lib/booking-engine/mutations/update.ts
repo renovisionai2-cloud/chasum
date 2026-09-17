@@ -241,13 +241,12 @@ export async function updateBooking(
     requestedEnd: validation.endTime,
   });
 
-  // Status transitions keep their dedicated events. A real start- or end-time
-  // move on an otherwise open appointment is a reschedule so Reception Save
-  // reuses appointment.rescheduled communication orchestration.
+  // Only real status transitions take precedence over a start- or end-time move.
+  const statusTransitioned = existing.status !== resolvedStatus;
   const eventType =
-    resolvedStatus === "completed"
+    statusTransitioned && resolvedStatus === "completed"
       ? "appointment.completed"
-      : resolvedStatus === "no_show"
+      : statusTransitioned && resolvedStatus === "no_show"
         ? "appointment.no_show"
         : rangeChanged
           ? "appointment.rescheduled"
