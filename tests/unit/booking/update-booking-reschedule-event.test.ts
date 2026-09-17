@@ -210,26 +210,72 @@ describe("updateBooking reschedule vs update events", () => {
     );
   });
 
-  it("keeps completed and no_show events ahead of a time change", async () => {
-    await updateBooking(
-      intent({
-        requestedStatus: "completed",
-        requestedStart: "2026-09-17T13:00:00+00:00",
-      }),
-    );
-    expect(createBookingEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "appointment.completed" }),
+  describe.each(["completed", "no_show"] as const)("%s occurrence integrity", (status) => {
+    it.each(["same", "start", "end"] as const)(
+      "emits one dedicated event for confirmed transition with %s range",
+      async (range) => {
+        const requestedStart = range === "start"
+          ? "2026-09-17T13:00:00+00:00"
+          : "2026-09-16T18:00:00+00:00";
+        const endTime = range === "start"
+          ? "2026-09-17T13:45:00+00:00"
+          : range === "end"
+            ? "2026-09-16T19:00:00+00:00"
+            : "2026-09-16T18:45:00+00:00";
+        validateBooking.mockResolvedValue({ ok: true, context, endTime });
+
+        const result = await updateBooking(intent({ requestedStatus: status, requestedStart }));
+
+        expect(result.phase).toBe("success");
+        expect(result.events).toHaveLength(1);
+        expect(createBookingEvent).toHaveBeenCalledTimes(1);
+        expect(emitBookingEvent).toHaveBeenCalledTimes(1);
+        expect(emitBookingEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ type: `appointment.${status}` }),
+        );
+        expect(logAppointmentChange).toHaveBeenCalledTimes(1);
+        expect(logAppointmentChange).toHaveBeenCalledWith(
+          expect.objectContaining({ action: "update" }),
+        );
+      },
     );
 
-    createBookingEvent.mockClear();
-    await updateBooking(
-      intent({
-        requestedStatus: "no_show",
-        requestedStart: "2026-09-17T13:00:00+00:00",
-      }),
-    );
-    expect(createBookingEvent).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "appointment.no_show" }),
+    it.each(["same", "start", "end"] as const)(
+      "emits one ordinary event for already-final status with %s range",
+      async (range) => {
+        existingRow = { ...existingRow, status };
+        const requestedStart = range === "start"
+          ? "2026-09-17T13:00:00+00:00"
+          : "2026-09-16T18:00:00.000Z";
+        const endTime = range === "start"
+          ? "2026-09-17T13:45:00+00:00"
+          : range === "end"
+            ? "2026-09-16T19:00:00+00:00"
+            : "2026-09-16T18:45:00.000Z";
+        validateBooking.mockResolvedValue({ ok: true, context, endTime });
+
+        const result = await updateBooking(intent({
+          requestedStatus: status, requestedStart, notes: "follow-up note",
+        }));
+
+        expect(result.phase).toBe("success");
+        expect(result.events).toHaveLength(1);
+        expect(createBookingEvent).toHaveBeenCalledTimes(1);
+        expect(emitBookingEvent).toHaveBeenCalledTimes(1);
+        expect(emitBookingEvent).toHaveBeenCalledWith(
+          expect.objectContaining({
+            type: range === "same" ? "appointment.updated" : "appointment.rescheduled",
+            payload: expect.objectContaining(range === "same" ? {} : {
+              previousStartTime: "2026-09-16T18:00:00+00:00",
+              previousEndTime: "2026-09-16T18:45:00+00:00",
+            }),
+          }),
+        );
+        expect(logAppointmentChange).toHaveBeenCalledTimes(1);
+        expect(logAppointmentChange).toHaveBeenCalledWith(
+          expect.objectContaining({ action: range === "same" ? "update" : "reschedule" }),
+        );
+      },
     );
   });
 
@@ -334,7 +380,7 @@ describe("updateBooking reschedule vs update events", () => {
     );
   });
 
-  it("keeps completed and no_show ahead of an end-time-only range change", async () => {
+  it("keeps first confirmed transitions to completed and no_show ahead of an end-time-only range change", async () => {
     validateBooking.mockResolvedValue({
       ok: true,
       context,
