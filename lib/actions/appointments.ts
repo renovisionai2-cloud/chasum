@@ -734,7 +734,12 @@ export async function cancelAppointment(id: string): Promise<ActionState> {
 
   const action = mutationToAction(result, "Appointment cancelled.");
   if (result.phase === "success") {
-    await enqueueWaitlistNotification(business.id, id);
+    const cancellationOccurred =
+      result.events?.some((event) => event.type === "appointment.cancelled") ===
+      true;
+    if (cancellationOccurred) {
+      await enqueueWaitlistNotification(business.id, id);
+    }
     revalidateCalendar();
   }
   return action;

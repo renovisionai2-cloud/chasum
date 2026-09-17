@@ -20,6 +20,8 @@ import { useEffect, useId, useRef, useState } from "react";
 
 type QuickActionsMenuProps = {
   isEditing: boolean;
+  /** When false, hide Cancel (already-cancelled / non-cancellable appointments). */
+  canCancel?: boolean;
   customerId?: string | null;
   disabled?: boolean;
   onCheckIn: () => void;
@@ -35,6 +37,7 @@ type QuickActionsMenuProps = {
 
 export function QuickActionsMenu({
   isEditing,
+  canCancel = true,
   customerId,
   disabled,
   onCheckIn,
@@ -120,7 +123,7 @@ export function QuickActionsMenu({
       label: "Cancel",
       icon: XCircle,
       onClick: onCancel,
-      show: isEditing,
+      show: isEditing && canCancel,
       danger: true,
     },
   ] as const;
