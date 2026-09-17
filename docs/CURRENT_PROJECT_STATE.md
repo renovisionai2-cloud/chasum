@@ -4,11 +4,51 @@
 **Authority:** This repository and `/docs` are the source of truth. External chat history is not.  
 **Update rule:** Refresh this file after every completed milestone (and when branch / commit / priorities materially change).  
 **Last updated:** 2026-09-17
-**Updated by:** Cursor — PR #41 Production closeout restamp. Documentation only. Cancelled-appointment terminal-state integrity P1 CLOSED / PRODUCTION ACCEPTED. Cancellation confirmation P1 remains CLOSED / PRODUCTION ACCEPTED. Repeated-cancel waitlist idempotency P1 remains CLOSED / PRODUCTION ACCEPTED. Reception reschedule-notification P1 remains CLOSED / PRODUCTION ACCEPTED. Broader Production recovery remains CLOSED. Auth recovery remains CLOSED. Phase 5 IN PROGRESS. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
+**Updated by:** Codex — PR #43 Production closeout restamp. Documentation only. Completed / no-show event-occurrence integrity P1 CLOSED / PRODUCTION ACCEPTED. Cancelled-appointment terminal-state integrity, cancellation confirmation, repeated-cancel waitlist idempotency and Reception reschedule-notification P1 remain CLOSED / PRODUCTION ACCEPTED. Broader Production recovery and Auth recovery remain CLOSED. Phase 5 IN PROGRESS. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
 
 ---
 
-## Accepted PR #41 Production closeout — 2026-09-17
+## Accepted PR #43 Production closeout — 2026-09-17
+
+**COMPLETED / NO-SHOW EVENT-OCCURRENCE INTEGRITY P1 = CLOSED / PRODUCTION ACCEPTED.** Control Tower reviewed and accepted the runtime release evidence. This separate documentation-only PR remains subject to review and separate merge approval. Phase 5 remains **IN PROGRESS**. PR #37/#39/#41, Production recovery and Auth recovery remain closed.
+
+| Identity | Observed value |
+| --- | --- |
+| Approved PR #43 candidate | `01c33191d08c8dbcbb5849c7a53f040f8b807eb2` |
+| Pre-merge main / sole release parent | `71b7c26d3aeeb5fb191f54302451fff4222fbbd7` |
+| Accepted PR #43 runtime baseline / main observed at release verification | `16bd0a6adda4190bd6cfb7402aa9e3fecfd4138e` |
+| Serving Production deployment observed | `dpl_A6L82nvXbYk8mNo7zDrMgocCd1w1` |
+| Immutable URL | `https://chasum-97lqkba7n-renovisionappcom.vercel.app` |
+| Documentation restamp | Separate documentation-only revision; no future merge SHA is presumed |
+
+Later documentation-only commits may advance main and the serving deployment without changing the accepted PR #43 runtime baseline. Check current serving identity rather than inferring it from a historical milestone. Older closeout identities and “next work” statements below describe their historical milestones, not current execution instructions.
+
+PR #43 squash-merged at **2026-09-17T19:16:40Z**. Release tree equals the audited candidate tree. Normal Git integration produced a READY deployment, `target=production`, `source=git`, Git ref `main`, linked to the release SHA; observed READY at **19:18:08Z**. No manual deployment, promotion or alias movement.
+
+Fresh no-cache GET checks against `https://chasum.vercel.app`, **19:18:22–19:18:24Z**:
+- `/api/build-info`: 200, commit `16bd0a6adda4190bd6cfb7402aa9e3fecfd4138e`, env `production`, ref `main`, production `true`; Vercel cache MISS.
+- `/api/health`: 200, ok/production/supabase/serviceRole true, email/cronSecret configured, softSchemaFallbacks disabled, latencyMs 0; Vercel cache MISS. Optional sms/stripe/sentry remain optional_missing, matching pre-release baseline.
+- Homepage and `/login`: 200 HTML.
+- `/dashboard`: 307 to `/login?redirect=%2Fdashboard`.
+- `/dashboard/calendar`: 307 to `/login?redirect=%2Fdashboard%2Fcalendar`. Redirects were inspected without following them.
+
+`appointment.completed` and `appointment.no_show` require a real status transition. Retained status with unchanged range emits `appointment.updated`; changed start/end emits `appointment.rescheduled` with `previousStartTime` and `previousEndTime`. First transitions retain dedicated-event precedence over simultaneous range changes and emit one event. Audit actions remain `update` / `reschedule`; cancellation protections, communications mapping and API PATCH implementation unchanged.
+
+**Accepted evidence provenance:** Codex's prior run: 42 tests across four focused files, typecheck, changed-file lint, build and diff check PASS; six already-final regression cases failed before correction. Claude's corrected independent audit, supplied to the release executor: A — PASS, 39 tests across three selected files and 601 tests across 58 broader adjacent files, plus static checks PASS. Broad-run evidence is aggregate, not a retained per-file breakdown. ChatGPT inspected source/diff/checks but did not run those commands. Release execution did not rerun the broad validation cycle.
+
+**Hosted Staging lifecycle-mutation smoke: NOT RUN / EXPLICITLY WAIVED BY PRODUCT OWNER.** No claim of hosted hidden event counts or distributed exactly-once/concurrency guarantees. Product Owner explicitly accepted that retained completed/no_show time changes can enqueue configured customer/staff/business reschedule communications; this is not silent historical correction.
+
+No SQL, database connections, migrations, Auth/RLS/env changes, tenant/financial changes, provider test sends or worker/queue processing were performed by the release executor. Existing platform/customer activity was not frozen. Preserve Staging evidence appointment `92803b48-e65a-48ec-b578-8187afc48542` and historical queue rows.
+
+**Separate residuals:** omitted requestedStatus may resolve completed/no_show to pending/confirmed in pre-existing code (caller reachability/hosted reproduction unestablished); completed/no_show terminality and restore/reopen policy; true same-status no-op suppression; API/Summer divergence; event-ledger and concurrency/idempotency questions. None resolved here.
+
+GVM still awaits the next legitimate real booking observation; do not manufacture a booking. Next gate: Control Tower review and separate merge approval for this documentation-only PR; keep it unmerged until approved. After the documentation restamp is merged, Control Tower selects the next bounded Phase 5 task. Do not start it automatically.
+
+---
+
+## Historical — Accepted PR #41 Production closeout — 2026-09-17
+
+**Original attribution:** Cursor — PR #41 Production closeout restamp. Documentation only. Cancelled-appointment terminal-state integrity P1 CLOSED / PRODUCTION ACCEPTED. Cancellation confirmation P1 remains CLOSED / PRODUCTION ACCEPTED. Repeated-cancel waitlist idempotency P1 remains CLOSED / PRODUCTION ACCEPTED. Reception reschedule-notification P1 remains CLOSED / PRODUCTION ACCEPTED. Broader Production recovery remains CLOSED. Auth recovery remains CLOSED. Phase 5 IN PROGRESS. Planning windows, 18 workstreams, pricing, native direction and tenant architecture unchanged.
 
 **CANCELLED-APPOINTMENT TERMINAL-STATE INTEGRITY P1 = CLOSED / PRODUCTION ACCEPTED.**
 **Cancellation confirmation P1 remains CLOSED / PRODUCTION ACCEPTED.**
@@ -78,7 +118,7 @@ Keep these three identities distinct. Do not hard-code a future docs-merge SHA; 
 | Concept | Identity |
 | --- | --- |
 | Current GitHub source of truth | Repository `main` HEAD. |
-| Latest accepted PRODUCT RELEASE BASELINE | PR #41: `35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`. |
+| Accepted PRODUCT RELEASE BASELINE at this historical restamp | PR #41: `35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`. |
 | Accepted PR #39 runtime / Production release baseline | `0f0c376cdc2a0d7e80da94859f37ec918acf16d6` on `dpl_E4CgoSXtXuVNavH3xuphDAYDyBHA` |
 | Docs restamp vehicle (historical) | PR #40 / `docs/pr39-production-closeout` |
 
@@ -609,7 +649,7 @@ Shared money recognition, commerce + platform events, business operating context
 
 ## Current milestone
 
-**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Current: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. HQ booking, reschedule (PR #37), cancellation confirmation + waitlist idempotency (PR #39), and cancelled terminal-state integrity (PR #41) **PRODUCTION ACCEPTED**. Do **not** call Phase 5 complete. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
+**Working name:** World Class Phase 4A **COMPLETE / MERGED TO MAIN** (PR #29). Current: World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**. HQ booking, reschedule (PR #37), cancellation confirmation + waitlist idempotency (PR #39), cancelled terminal-state integrity (PR #41), and completed/no-show event-occurrence integrity (PR #43) **PRODUCTION ACCEPTED**. PR #43 hosted Staging lifecycle smoke was **NOT RUN / EXPLICITLY PO-WAIVED**; event-truth acceptance relies on source review, deterministic tests and the corrected independent audit. Do **not** call Phase 5 complete. Commercial SaaS Lifecycle remains **PARTIAL**. Gate B **NOT MET**.
 
 **Intent:**
 
