@@ -461,7 +461,7 @@ describe("createInvoiceForAppointment exclusive-tax integrity", () => {
     expect(result.invoice?.totalCents).toBe(25000);
   });
 
-  it("characterizes nonzero discount_cents as a preserved field without inventing a total formula", async () => {
+  it("passthrough characterization: nonzero discount_cents is copied without a total formula", async () => {
     const { db, result } = await createCanonicalInvoice({
       discount_cents: 500,
       amount_paid_cents: 0,

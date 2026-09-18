@@ -136,14 +136,11 @@ export async function createInvoiceForAppointment(input: {
       ? catalogPriceCents
       : Math.max(0, Math.round(Number(storedPriceRaw)));
   const taxCents = Math.max(0, Math.round(Number(appt.tax_cents ?? 0)));
-  const discountCents = Math.max(0, Math.round(Number(appt.discount_cents ?? 0)));
+  const discountCents = Number(appt.discount_cents ?? 0);
   const subtotal = priceCents;
   const lineUnit = priceCents;
   const total = Math.max(0, priceCents + taxCents);
-  const amountPaid = Math.max(
-    0,
-    Math.round(Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0)),
-  );
+  const amountPaid = Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0);
   const balance = Math.max(0, total - amountPaid);
 
   const invoiceNumber =
