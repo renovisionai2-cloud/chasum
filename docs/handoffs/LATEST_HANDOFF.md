@@ -1,16 +1,16 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-17 by ChatGPT Control Tower. **Owner:** Control Tower.
+**Updated:** 2026-09-18 by Cursor (temporary #48 amendment). **Owner:** Control Tower.
 **Purpose:** Recover the next action in 5–10 minutes without historical chat access.
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a second current-state table.
-**Implementation status:** Documentation foundation candidate. Automatic environment collection is NOT IMPLEMENTED. Publication to main and independent cold-start acceptance are separate gates; inspect the PR state rather than assuming either has occurred.
+**Implementation status:** PR #45 continuity foundation is MERGED / ACCEPTED / CLOSED. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. Active implementation candidate is unmerged PR #49.
 
 ## A. Current control-tower state
 
 Phase 5, Production Pin and Design-Partner Pilot Stabilization, remains IN PROGRESS.
-Omitted-status preservation is scoped but blocked BEFORE implementation by a Codex-reported usage-limit/approval-tool failure. No source edit, test, branch, commit or PR resulted from that run. The underlying denial transcript was not supplied; a capacity report is not safety approval or evidence of an application incident.
+Active implementation candidate: Issue #48 / PR #49 `fix/invoice-exclusive-tax-integrity` (unmerged; Control Tower exact-delta review requested a bounded amendment before Claude audit). Issue #46 omitted-status preservation remains the next separate Codex engineering task and is not implemented.
 
-PR #43 and its PR #44 documentation restamp are accepted and closed. Do not create another restamp merely to chase a changing docs-merge SHA. This continuity foundation is a separately requested permanent process improvement, not a reopening of either PR.
+PR #43, PR #44 and PR #45 are accepted and closed. Do not create another restamp merely to chase a changing docs-merge SHA. PR #45 established the permanent continuity foundation on main `d5405cc…`; it is not an unmerged documentation draft.
 
 The current board owns task/branch/PR identity. The [manifest](../runtime/ENVIRONMENT_MANIFEST.md) owns environment observations. Read actual GitHub PR state, not stale instructions in a merged PR description. Legacy open PRs are not automatically the next task.
 
@@ -21,6 +21,7 @@ The current board owns task/branch/PR identity. The [manifest](../runtime/ENVIRO
 | PR #41 | Cancelled terminal; notes-editable only; canonical explicit-confirmation cancellation preserved. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/41), [historical board](archive/CURRENT_PROJECT_STATE_20260917_PRE_CONTINUITY.md). |
 | PR #43 | Completion/no-show events require real transitions; retained status + moved range emits rescheduled with previous start/end; unchanged range emits updated. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/43), [changelog](../CHANGELOG.md). |
 | PR #44 | Only current-state/changelog docs changed; reviewed and merged trees equal; application files unchanged. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/44), manifest P44 observation. |
+| PR #45 | Permanent development continuity foundation. MERGED / ACCEPTED / CLOSED. Documentation only; collector remains SPECIFIED / NOT IMPLEMENTED. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/45), [release evidence](https://github.com/renovisionai2-cloud/chasum/pull/45#issuecomment-5722300751). |
 
 Prior validation: Codex reported 42 focused tests and static/build checks. Claude's corrected independent audit retained A — PASS, 39 selected tests and 601 broader tests across 58 files; the broad run retained aggregate output, not per-file results. ChatGPT inspected repository evidence, not those test executions. Do not repeat that investigation for orientation.
 
@@ -48,9 +49,17 @@ Cancelled remains terminal and notes-editable only. First cancellation stays Qui
 
 ## D. Active risks and exact engineering continuation
 
-**Task:** OMITTED-STATUS PRESERVATION. **Owner:** Codex. **Model:** Terra intended. **Risk:** Level 2. **Authority:** bounded feature-branch implementation already directed; no Production merge or hosted mutation authorized.
+**In-flight candidate (temporary Cursor fallback):** Issue #48 invoice exclusive-tax integrity, PR #49 / `fix/invoice-exclusive-tax-integrity`.
+**PRIMARY NORMAL OWNER:** Codex.
+**TEMPORARY EXECUTION OWNER:** Cursor.
+**REASON:** Codex capacity unavailable.
+**SCOPE:** Issue #48 bounded invoice exclusive-tax integrity correction and this Control Tower amendment only.
+**PASS CONDITION:** exclusive stored `price_cents` + stored `tax_cents` on generated invoices; explicit zero preserved; null/absent catalog fallback intact; `discount_cents` and recorded payment extraction restored to pre-candidate semantics; existing invoices unrepaired; focused tests and required checks green; unmerged PR.
+Codex remains the permanent primary engineer. This candidate is unmerged and not a Production authorization. Issue #46 omitted-status preservation stays Codex-owned and is not part of this candidate.
 
-Start from freshly verified canonical main. Last observed main is on the board. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. The report's `71b7c26...` resume instruction is stale; the current accepted starting observation is `47189b0...`.
+**Next Codex engineering task:** OMITTED-STATUS PRESERVATION. **Owner:** Codex. **Model:** Terra intended. **Risk:** Level 2. **Authority:** bounded feature-branch implementation already directed; no Production merge or hosted mutation authorized.
+
+Start from freshly verified canonical main. Last observed main before this candidate is `d5405cc456496e4b0fc908129d8a3fa6160aac8d`. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. The report's `71b7c26...` and later `47189b0...` resume instructions are stale for current start.
 
 Known cause: updateBooking initially falls back to existing.status, but `!intent.requestedStatus` then invokes a resolver that returns only pending/confirmed. Missing FormData status can be null despite a type assertion. This predates PR #43.
 
@@ -68,15 +77,27 @@ Read the manifest. Do not create another live inventory of deployments, queue co
 
 Protect GVM, normal HQ, the Staging evidence appointments and historical queues. No synthetic GVM Production booking, worker invocation, queue cleanup, migration replay, credential work or alias movement is authorized.
 
-## F. Agent governance — PO locked
+## F. Agent governance — PO locked (NO-IDLE / AGENT FALLBACK)
 
 ChatGPT = Control Tower / Product & Development Lead: scope, strategy, drafting, source reconciliation and sequencing.
-Codex = PRIMARY ENGINEERING AGENT and sole implementer of an engineering task.
+Codex = PRIMARY NORMAL ENGINEERING IMPLEMENTER.
 Claude = large-context reviewer / independent auditor where risk warrants.
 Momentic = repeatable browser/workflow regression.
-Cursor = local/authenticated/device-specific exception with a real advantage, not the default engineer.
 
-One primary implementer per task. Do not move a denied action between tools to bypass its control. Darshan should make genuine PO decisions, not reconstruct state or perform unnecessary technical diagnostics.
+If Codex is genuinely unavailable because of capacity/credit/service limits, Control Tower may temporarily transfer ONE fully bounded critical-path implementation to Cursor when:
+- architecture is already decided;
+- scope is fully specified;
+- tests/pass condition are known;
+- waiting would unnecessarily block Chasum;
+- Cursor can execute safely.
+
+Record for that transfer: PRIMARY NORMAL OWNER: Codex; TEMPORARY EXECUTION OWNER: Cursor; REASON: Codex capacity unavailable; SCOPE: exact task; PASS CONDITION: exact task.
+
+ONE PRIMARY IMPLEMENTER PER TASK remains mandatory. Codex and Cursor must never race the same task. Once Cursor takes a bounded fallback implementation, Cursor owns that candidate through bounded delivery/amendments unless Control Tower explicitly stops it. When capacity returns, Codex resumes default ownership on the NEXT task.
+
+This policy supersedes older wording that Cursor may be used only for local/authenticated/device-specific exceptions, and older “Codex sole implementer with no fallback” wording.
+
+Do not move a denied action between tools to bypass its control. Darshan should make genuine PO decisions, not reconstruct state or perform unnecessary technical diagnostics.
 
 ## G. Codex credit policy
 
@@ -136,11 +157,13 @@ serving SHA and current main are distinct. Current repo/runtime evidence wins
 about observed reality, not about approval of a changed policy. Record and
 reconcile conflicts; never reset main or mutate environments to fit a handoff.
 Do not reopen accepted work without contradictory evidence. Continue from
-EXACT NEXT TASK with Codex primary, Terra intended for ordinary engineering,
-Claude risk-appropriate reviewer, Momentic browser regression and Cursor only
-for a real local/authenticated exception. Preserve credit and approval controls.
-If these files exist only on an unmerged continuity PR, inspect its exact head
-as proposed material alongside canonical main; do not call it merged authority.
+EXACT NEXT TASK with Codex as PRIMARY NORMAL ENGINEERING IMPLEMENTER,
+Terra intended for ordinary engineering, Claude risk-appropriate reviewer,
+and Momentic browser regression. If Codex is genuinely capacity-blocked,
+Control Tower may temporarily transfer ONE fully bounded critical-path
+implementation to Cursor (one implementer; no racing). Preserve credit and
+approval controls. PR #45 continuity foundation is merged/accepted; do not
+treat it as an unmerged draft.
 FIRST RESPONSE:
 CURRENT MAIN:
 CURRENT PRODUCTION: [accepted application baseline / last serving observation]

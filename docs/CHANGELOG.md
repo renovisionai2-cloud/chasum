@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-18 — Invoice exclusive-tax integrity (Issue #48 candidate)
+
+`createInvoiceForAppointment` now treats stored `appointments.price_cents` as the tax-exclusive subtotal and adds stored `tax_cents` for the invoice/line total, balance, and paid/partial/open status. Explicit stored `price_cents = 0` is preserved; catalog fallback remains only for null/absent stored price. `discount_cents` and recorded `amount_paid_cents` keep pre-candidate extraction semantics (passthrough only; no new discount or payment-normalization policy). Existing invoices are not rewritten. Unmerged PR #49 candidate; no hosted or historical invoice repair.
+
 ### 2026-09-17 — Permanent development continuity foundation
 
 - Preserve `docs/CURRENT_PROJECT_STATE.md` as the short current program board and archive its prior contents unchanged.

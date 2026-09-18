@@ -1,6 +1,6 @@
 # Chasum — Environment Manifest
 
-**Record owner:** ChatGPT Control Tower. **Prepared:** 2026-09-17.
+**Record owner:** ChatGPT Control Tower. **Prepared:** 2026-09-17. **P45 Production observation reconciled:** 2026-09-18 from accepted comment 5722300751 only.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
@@ -15,50 +15,51 @@ Keep expected and observed values separate. Every field needs a source, evidence
 
 A recorded MATCH never authorizes a release or substitutes for fresh preflight. The dated records below retain their historical classification; they must be refreshed before reliance in a new release. Never silently learn an approved baseline from whatever happens to be serving.
 
-**Health limitation:** at source `47189b0...`, `app/api/health/route.ts` checks configuration getters and flags. `supabase=true` and `serviceRole=true` indicate configuration presence, not a successful database query. `email=configured` does not prove delivery; `cronSecret=configured` does not prove cron or worker execution. The endpoint performs no active database/provider probe.
+**Health limitation:** `app/api/health/route.ts` checks configuration getters and flags. `supabase=true` and `serviceRole=true` indicate configuration presence, not a successful database query. `email=configured` does not prove delivery; `cronSecret=configured` does not prove cron or worker execution. The endpoint performs no active database/provider probe. These health values prove configuration presence only. They do NOT prove database binding, provider delivery or worker execution.
 
 ### Evidence sources
 
-- **G1:** Control Tower GitHub GET of `refs/heads/main` during this 2026-09-17 task: `47189b0f0a244bce5fd601bb76adda1a22a52255`. Exact wall-clock time was not retained; no invented timestamp.
-- **P44:** Accepted Cursor PR #44 operator report: Production HTTP captures 2026-09-17T20:16:57Z–20:16:59Z; alias inspect 20:16:44Z. [Merged PR](https://github.com/renovisionai2-cloud/chasum/pull/44) and [commit](https://github.com/renovisionai2-cloud/chasum/commit/47189b0f0a244bce5fd601bb76adda1a22a52255) corroborate Git identity. CLI/HTTP values below are accepted operator-reported observations, not newly executed by this documentation task.
+- **G1:** Control Tower GitHub GET of `refs/heads/main` during the 2026-09-17 continuity restamp: `47189b0f0a244bce5fd601bb76adda1a22a52255`. Exact wall-clock time was not retained; no invented timestamp. Later superseded as serving identity by accepted P45.
+- **P44:** Accepted Cursor PR #44 operator report: Production HTTP captures 2026-09-17T20:16:57Z–20:16:59Z; alias inspect 20:16:44Z. [Merged PR](https://github.com/renovisionai2-cloud/chasum/pull/44) and [commit](https://github.com/renovisionai2-cloud/chasum/commit/47189b0f0a244bce5fd601bb76adda1a22a52255) corroborate Git identity. Historical accepted observation; later superseded as serving identity by P45.
+- **P45:** Accepted Cursor PR #45 release report comment 5722300751. No fresh Vercel/Supabase/Auth/provider/queue probing was performed for this PR #49 documentation reconciliation. Serving SHA `d5405cc456496e4b0fc908129d8a3fa6160aac8d`; deployment `dpl_6MgZPGrW8KmguXRCDx4UG6TZKyHt`; URL `https://chasum-6st2ikx62-renovisionappcom.vercel.app`; target production; branch/ref main; READY observation 2026-09-17T22:45:15Z; accepted HTTP window 2026-09-17T22:47:10Z–2026-09-17T22:47:12Z; aliases `https://chasum.vercel.app`, `https://chasum-renovisionappcom.vercel.app`.
 - **P43:** [Accepted PR #43](https://github.com/renovisionai2-cloud/chasum/pull/43), [changelog](../CHANGELOG.md), and [historical board](../handoffs/archive/CURRENT_PROJECT_STATE_20260917_PRE_CONTINUITY.md).
 - **C1:** Approved environment/tenant separation and historical configuration in that archived board. These are expectations/history, not fresh live measurements.
 
-No database, Auth-admin, provider, queue, environment-variable inventory or live Vercel inspection was performed for this continuity candidate. Restricted fields stay UNKNOWN. Git migrations, local env files and green deployment checks do not establish deployed configuration or database state.
+No database, Auth-admin, provider, queue, environment-variable inventory or live Vercel inspection was performed for this PR #49 documentation reconciliation. Restricted fields stay UNKNOWN. Git migrations, local env files and green deployment checks do not establish deployed configuration or database state. Continuity collector remains SPECIFIED / NOT IMPLEMENTED.
 
 ## Production
 
 | Field | Expected / last observed | Classification | Evidence |
 | --- | --- | --- | --- |
-| Application URL | Expected and observed `https://chasum.vercel.app` | MATCH | P44 HTTP window |
-| Serving Git SHA | Expected and observed `47189b0f0a244bce5fd601bb76adda1a22a52255` after PR #44 | MATCH | P44 build-info |
-| Branch/ref; environment | Expected and observed `main`; `production`; production=true | MATCH | P44 |
-| Vercel deployment ID | Accepted observation `dpl_G4znohcEpi7rBFQTGAvRDtmwZPJV`; linked to expected release | MATCH | P44 inspect plus GitHub commit status |
-| Deployment URL | `https://chasum-2lmwav5g6-renovisionappcom.vercel.app` | MATCH | P44 linked deployment |
-| Active aliases | Observed `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`; not claimed exhaustive | MATCH | P44 inspect; first alias HTTP-verified |
-| Deployment readiness | Expected READY; observed READY at 20:16:31Z | MATCH | P44 |
-| Accepted application baseline vs serving | `16bd0a6adda4190bd6cfb7402aa9e3fecfd4138e` vs `47189b0...`; only two docs files differ | INTENTIONAL DIFFERENCE | Accepted P43/P44 tree comparison |
-| Production SHA vs canonical main | Equal in G1/P44 observations; not a perpetual equality claim | MATCH | Separate dated Git/runtime observations |
+| Application URL | Expected and observed `https://chasum.vercel.app` | MATCH | P45 HTTP window |
+| Serving Git SHA | Expected and observed `d5405cc456496e4b0fc908129d8a3fa6160aac8d` after PR #45 | MATCH | P45 build-info |
+| Branch/ref; environment | Expected and observed `main`; `production`; production=true | MATCH | P45 |
+| Vercel deployment ID | Accepted observation `dpl_6MgZPGrW8KmguXRCDx4UG6TZKyHt`; linked to expected release | MATCH | P45 inspect plus GitHub commit status |
+| Deployment URL | `https://chasum-6st2ikx62-renovisionappcom.vercel.app` | MATCH | P45 linked deployment |
+| Active aliases | Observed `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`; not claimed exhaustive | MATCH | P45 inspect; first alias HTTP-verified |
+| Deployment readiness | Expected READY; observed READY at 2026-09-17T22:45:15Z | MATCH | P45 |
+| Accepted application baseline vs serving | Application baseline `16bd0a6adda4190bd6cfb7402aa9e3fecfd4138e` vs serving `d5405cc...`; PR #45 documentation-only vs that baseline | INTENTIONAL DIFFERENCE | Accepted P43/P45 tree comparison; P45 non-documentation files identical to pre-merge `47189b0...` |
+| Production SHA vs canonical main | Equal in P45 merge/serving observations; not a perpetual equality claim | MATCH | Separate dated Git/runtime observations in 5722300751 |
 | Supabase project ref | Expected `kxcydvhswkuzepwzzinq`; live binding not measured here | UNKNOWN | C1; health does not disclose binding |
 | Migration summary / applied hashes | Historical claims exist; current applied set not revalidated | UNKNOWN | Files in Git do not prove database state |
 | Locked/unapplied migrations | 034/035/036 historically locked/unapplied; no migration, 029/ACL repair or bulk replay authorized here | UNKNOWN | C1; execution restrictions remain, live state unasserted |
-| Schema compatibility | P44 reports softSchemaFallbacks=disabled; actual schema compatibility not probed | UNKNOWN | Configuration flag is not schema evidence |
+| Schema compatibility | P45 reports softSchemaFallbacks=disabled; actual schema compatibility not probed | UNKNOWN | Configuration flag is not schema evidence |
 | Cron state | Current schedule/enablement unverified; cronSecret presence alone insufficient | UNKNOWN | No worker or cron call |
 | Worker state / freshness | No current execution/error/backlog measurement | UNKNOWN | Not queried |
 | Webhook state | Historical OFF record not promoted to fresh state | UNKNOWN | C1; not queried |
-| Relevant feature flags | P44 softSchemaFallbacks=disabled; remaining flags not captured | UNKNOWN | Partial flag evidence only |
+| Relevant feature flags | P45 softSchemaFallbacks=disabled; remaining flags not captured | UNKNOWN | Partial flag evidence only |
 | Hold/protection state | Prior recovery closed; current technical hold/protection settings not re-read | UNKNOWN | No new hold imposed; PO release gate remains |
 | Auth Site URL | Configured value not captured | UNKNOWN | Application URL is not proof of Auth setting |
 | Approved redirect fingerprint | Approved full set and current fingerprint unavailable | UNKNOWN | Not captured |
 | Auth template fingerprints | Full template bytes/hashes unavailable; approved href retained below | UNKNOWN | No fabricated full-template hash |
-| Communication provider presence | P44 email=configured; sms=optional_missing, consistent with baseline | MATCH | Presence only; no send/delivery proof |
-| Other configuration presence | P44 cronSecret=configured; stripe/sentry=optional_missing | MATCH | Configuration probe only |
+| Communication provider presence | P45 email=configured; sms=optional_missing, consistent with baseline | MATCH | Presence only; no send/delivery proof |
+| Other configuration presence | P45 cronSecret=configured; stripe/sentry=optional_missing | MATCH | Configuration probe only |
 | Environment variables by name/target | Inventory not collected; never publish values | UNKNOWN | Not collected |
 | Canonical tenant IDs | Expected GVM `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`, slug `gvm-baby-world`; Production HQ ID unverified | UNKNOWN | C1; no live row inspection |
 | Timezone/currency sanity | Expected GVM America/Toronto / CAD; current rows unqueried | UNKNOWN | C1 |
 | Queue totals | Not measured | UNKNOWN | Do not substitute historical Staging counts |
-| Health endpoint | P44 200; ok/production true; checks.supabase/serviceRole true; latencyMs=0 | MATCH | Configuration probe; timestamp 2026-09-17T20:16:58.674Z |
-| Route checks | `/`, `/login` 200; `/dashboard`, `/dashboard/calendar` 307 to login with encoded return path | MATCH | P44 20:16:57–59Z, no sign-in or redirect following |
+| Health endpoint | P45 200; ok=true; production=true; checks.supabase/serviceRole true; email/cronSecret configured; sms/stripe/sentry optional_missing; softSchemaFallbacks=disabled; latencyMs=8 | MATCH | Configuration probe only; timestamp 2026-09-17T22:47:11.209Z; not DB/provider/worker proof |
+| Route checks | `/`, `/login` 200; `/dashboard`, `/dashboard/calendar` 307 to login with encoded return path | MATCH | P45 22:47:10Z–22:47:12Z, no sign-in or redirect following |
 
 ## Staging
 
