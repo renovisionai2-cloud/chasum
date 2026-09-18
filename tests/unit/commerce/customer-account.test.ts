@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   CUSTOMER_ACCOUNT_TENANT_SCOPE,
   appointmentDepositAppliedCents,
+  appointmentExclusiveSubtotalCents,
   appointmentOutstandingCents,
   countUpcomingAppointmentsWithBalanceDue,
   customerBalanceChipLabel,
@@ -132,6 +133,54 @@ describe("customer account deposit projection", () => {
       ],
     });
     expect(totals.depositsCents).toBe(3_000);
+  });
+});
+
+describe("stored exclusive subtotal vs catalog fallback", () => {
+  it("legacy Number(price_cents ?? 0) || catalog replaces stored 0 with catalog", () => {
+    const stored = 0;
+    const catalogCents = 10_000;
+    expect(Number(stored ?? 0) || catalogCents).toBe(10_000);
+  });
+
+  it("explicit stored price_cents=0 stays zero and does not become catalog debt", () => {
+    const appt = {
+      status: "confirmed" as const,
+      price_cents: 0,
+      tax_cents: 0,
+      amount_paid_cents: 0,
+      deposit_cents: 0,
+      service: { price: 100 },
+    };
+    expect(appointmentExclusiveSubtotalCents(appt)).toBe(0);
+    expect(appointmentOutstandingCents(appt)).toBe(0);
+    const count = countUpcomingAppointmentsWithBalanceDue([appt]);
+    expect(count).toBe(0);
+    expect(customerBalanceChipLabel(count)).toBe("Clear");
+  });
+
+  it("null stored price_cents still falls back to catalog dollars", () => {
+    const appt = {
+      status: "confirmed" as const,
+      price_cents: null,
+      tax_cents: 0,
+      amount_paid_cents: 0,
+      service: { price: 100 },
+    };
+    expect(appointmentExclusiveSubtotalCents(appt)).toBe(10_000);
+    expect(appointmentOutstandingCents(appt)).toBe(10_000);
+  });
+
+  it("absent price_cents property still falls back to catalog dollars", () => {
+    const appt = {
+      status: "confirmed" as const,
+      tax_cents: 0,
+      amount_paid_cents: 0,
+      service: { price: 100 },
+    };
+    expect("price_cents" in appt).toBe(false);
+    expect(appointmentExclusiveSubtotalCents(appt)).toBe(10_000);
+    expect(appointmentOutstandingCents(appt)).toBe(10_000);
   });
 });
 

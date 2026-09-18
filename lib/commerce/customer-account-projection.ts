@@ -43,11 +43,15 @@ function serviceListPriceCents(
   return Math.round(Number(row?.price ?? 0) * 100);
 }
 
-/** Exclusive subtotal: stored price_cents, else catalog dollars. */
+/** Exclusive subtotal: stored price_cents when present, including 0. */
 export function appointmentExclusiveSubtotalCents(
   appt: CustomerAccountAppointmentRow,
 ): number {
-  return Number(appt.price_cents ?? 0) || serviceListPriceCents(appt);
+  const stored = appt.price_cents;
+  if (stored != null) {
+    return Math.max(0, Math.round(Number(stored)));
+  }
+  return serviceListPriceCents(appt);
 }
 
 /** Stored tax only — never recomputed from today's catalog. */
