@@ -126,16 +126,24 @@ export async function createInvoiceForAppointment(input: {
       .maybeSingle(),
   ]);
 
+  // Stored appointment price_cents is the tax-exclusive subtotal; tax_cents is
+  // separate. Explicit 0 is a valid stored amount and must not fall back to the
+  // current catalog price. Catalog fallback is only for null/absent price.
+  const catalogPriceCents = Math.round(Number(serviceRow?.price ?? 0) * 100);
+  const storedPriceRaw = (appt as { price_cents?: unknown }).price_cents;
   const priceCents =
-    Number(appt.price_cents ?? 0) ||
-    Math.round(Number(serviceRow?.price ?? 0) * 100);
-  const taxCents = Number(appt.tax_cents ?? 0);
-  const discountCents = Number(appt.discount_cents ?? 0);
-  const subtotal = Math.max(0, priceCents - taxCents + discountCents);
-  // Normalize: treat price_cents as service total before tax when tax separate
-  const lineUnit = Math.max(0, priceCents - taxCents);
-  const total = Math.max(0, priceCents);
-  const amountPaid = Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0);
+    storedPriceRaw == null
+      ? catalogPriceCents
+      : Math.max(0, Math.round(Number(storedPriceRaw)));
+  const taxCents = Math.max(0, Math.round(Number(appt.tax_cents ?? 0)));
+  const discountCents = Math.max(0, Math.round(Number(appt.discount_cents ?? 0)));
+  const subtotal = priceCents;
+  const lineUnit = priceCents;
+  const total = Math.max(0, priceCents + taxCents);
+  const amountPaid = Math.max(
+    0,
+    Math.round(Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0)),
+  );
   const balance = Math.max(0, total - amountPaid);
 
   const invoiceNumber =
@@ -168,7 +176,7 @@ export async function createInvoiceForAppointment(input: {
       status,
       issue_date: issueDate,
       due_date: dueDate,
-      subtotal_cents: lineUnit || subtotal,
+      subtotal_cents: subtotal,
       tax_cents: taxCents,
       discount_cents: discountCents,
       total_cents: total,
@@ -206,7 +214,7 @@ export async function createInvoiceForAppointment(input: {
     sort_order: 0,
     description: serviceRow?.name ?? "Service",
     quantity: 1,
-    unit_amount_cents: lineUnit || total,
+    unit_amount_cents: lineUnit,
     tax_cents: taxCents,
     discount_cents: discountCents,
     total_cents: total,

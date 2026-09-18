@@ -48,7 +48,9 @@ Cancelled remains terminal and notes-editable only. First cancellation stays Qui
 
 ## D. Active risks and exact engineering continuation
 
-**Task:** OMITTED-STATUS PRESERVATION. **Owner:** Codex. **Model:** Terra intended. **Risk:** Level 2. **Authority:** bounded feature-branch implementation already directed; no Production merge or hosted mutation authorized.
+**In-flight candidate (temporary Cursor fallback):** Issue #48 invoice exclusive-tax integrity on `fix/invoice-exclusive-tax-integrity`. Codex remains the permanent primary engineer; this is capacity fallback only, unmerged, and not a Production authorization. Issue #46 omitted-status preservation stays Codex-owned and is not part of this candidate.
+
+**Next Codex engineering task:** OMITTED-STATUS PRESERVATION. **Owner:** Codex. **Model:** Terra intended. **Risk:** Level 2. **Authority:** bounded feature-branch implementation already directed; no Production merge or hosted mutation authorized.
 
 Start from freshly verified canonical main. Last observed main is on the board. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. The report's `71b7c26...` resume instruction is stale; the current accepted starting observation is `47189b0...`.
 
