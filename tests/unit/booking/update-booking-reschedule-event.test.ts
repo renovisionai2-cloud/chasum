@@ -424,4 +424,171 @@ describe("updateBooking reschedule vs update events", () => {
     expect(createBookingEvent).not.toHaveBeenCalled();
     expect(updateRows).toEqual([]);
   });
+
+  describe("omitted or null requestedStatus preserves stored operational status", () => {
+    const SAME_START = "2026-09-16T18:00:00+00:00";
+    const SAME_END = "2026-09-16T18:45:00+00:00";
+    const MONEY_KEYS = [
+      "payment_status",
+      "amount_paid_cents",
+      "price_cents",
+      "tax_cents",
+      "deposit_cents",
+    ] as const;
+
+    function omitRequestedStatus(
+      overrides: Partial<UpdateBookingIntent> = {},
+    ): UpdateBookingIntent {
+      const next = intent({ requestedStart: SAME_START, ...overrides });
+      delete next.requestedStatus;
+      return next;
+    }
+
+    function nullRequestedStatus(
+      overrides: Partial<UpdateBookingIntent> = {},
+    ): UpdateBookingIntent {
+      return intent({
+        requestedStart: SAME_START,
+        ...overrides,
+        // FormData missing status can be null at runtime despite the optional type.
+        requestedStatus: null as unknown as UpdateBookingIntent["requestedStatus"],
+      });
+    }
+
+    function expectNoMoneyFields(row: Record<string, unknown>) {
+      for (const key of MONEY_KEYS) {
+        expect(row).not.toHaveProperty(key);
+      }
+    }
+
+    function expectTenantFilters() {
+      expect(
+        eqCalls.some((call) => call.column === "id" && call.value === "appt-1"),
+      ).toBe(true);
+      expect(
+        eqCalls.some(
+          (call) => call.column === "business_id" && call.value === "biz-1",
+        ),
+      ).toBe(true);
+    }
+
+    beforeEach(() => {
+      validateBooking.mockResolvedValue({
+        ok: true,
+        context,
+        endTime: SAME_END,
+      });
+    });
+
+    it.each(["completed", "no_show", "arrived", "waiting", "in_progress"] as const)(
+      "preserves existing %s when requestedStatus is omitted",
+      async (status) => {
+        existingRow = { ...existingRow, status };
+        const result = await updateBooking(omitRequestedStatus());
+
+        expect(result.phase).toBe("success");
+        expect(result.events).toHaveLength(1);
+        const row = updateRows[0] as Record<string, unknown>;
+        expect(row.status).toBe(status);
+        expectNoMoneyFields(row);
+        expectTenantFilters();
+        expect(createBookingEvent).toHaveBeenCalledTimes(1);
+        expect(emitBookingEvent).toHaveBeenCalledTimes(1);
+        expect(createBookingEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "appointment.updated" }),
+        );
+        expect(logAppointmentChange).toHaveBeenCalledWith(
+          expect.objectContaining({
+            action: "update",
+            afterState: expect.objectContaining({ status }),
+          }),
+        );
+      },
+    );
+
+    it.each(["completed", "no_show"] as const)(
+      "preserves existing %s when requestedStatus is runtime null",
+      async (status) => {
+        existingRow = { ...existingRow, status };
+        const result = await updateBooking(nullRequestedStatus());
+
+        expect(result.phase).toBe("success");
+        expect(result.events).toHaveLength(1);
+        const row = updateRows[0] as Record<string, unknown>;
+        expect(row.status).toBe(status);
+        expectNoMoneyFields(row);
+        expect(createBookingEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "appointment.updated" }),
+        );
+      },
+    );
+
+    it.each(["pending", "confirmed"] as const)(
+      "keeps existing %s through the pending/confirmed resolver when requestedStatus is omitted",
+      async (status) => {
+        existingRow = { ...existingRow, status };
+        const result = await updateBooking(omitRequestedStatus());
+
+        expect(result.phase).toBe("success");
+        const row = updateRows[0] as Record<string, unknown>;
+        expect(row.status).toBe(status);
+        expect(createBookingEvent).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "appointment.updated" }),
+        );
+      },
+    );
+
+    it("emits appointment.rescheduled for retained completed when start moves and status is omitted", async () => {
+      existingRow = { ...existingRow, status: "completed" };
+      validateBooking.mockResolvedValue({
+        ok: true,
+        context,
+        endTime: "2026-09-17T13:45:00+00:00",
+      });
+
+      const result = await updateBooking(
+        omitRequestedStatus({ requestedStart: "2026-09-17T13:00:00+00:00" }),
+      );
+
+      expect(result.phase).toBe("success");
+      expect(result.events).toHaveLength(1);
+      expect((updateRows[0] as Record<string, unknown>).status).toBe("completed");
+      expect(createBookingEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "appointment.rescheduled",
+          payload: expect.objectContaining({
+            previousStartTime: "2026-09-16T18:00:00+00:00",
+            previousEndTime: "2026-09-16T18:45:00+00:00",
+          }),
+        }),
+      );
+      expect(logAppointmentChange).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "reschedule" }),
+      );
+    });
+
+    it("emits appointment.rescheduled for retained no_show when end moves and status is omitted", async () => {
+      existingRow = { ...existingRow, status: "no_show" };
+      validateBooking.mockResolvedValue({
+        ok: true,
+        context,
+        endTime: "2026-09-16T19:00:00+00:00",
+      });
+
+      const result = await updateBooking(omitRequestedStatus());
+
+      expect(result.phase).toBe("success");
+      expect(result.events).toHaveLength(1);
+      expect((updateRows[0] as Record<string, unknown>).status).toBe("no_show");
+      expect(createBookingEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "appointment.rescheduled",
+          payload: expect.objectContaining({
+            previousStartTime: "2026-09-16T18:00:00+00:00",
+            previousEndTime: "2026-09-16T18:45:00+00:00",
+          }),
+        }),
+      );
+    });
+  });
 });

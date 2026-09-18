@@ -206,7 +206,7 @@ export async function updateBooking(
   }
 
   const resolvedStatus =
-    status === "pending" || status === "confirmed" || !intent.requestedStatus
+    status === "pending" || status === "confirmed"
       ? resolveRequestedStatus(validation.context, status)
       : status;
 
