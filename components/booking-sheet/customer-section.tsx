@@ -12,6 +12,7 @@ import {
   quickCreateCustomer,
   updateCustomer,
 } from "@/lib/actions/customers";
+import { customerBalanceChipLabel } from "@/lib/commerce/customer-account-projection";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { useFormAction } from "@/hooks/use-form-action";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
@@ -467,9 +468,9 @@ export function CustomerSection({
                 <Wallet className="size-3" aria-hidden />
                 {snapshotLoading
                   ? "…"
-                  : snapshot?.outstandingBalanceCount
-                    ? `${snapshot.outstandingBalanceCount} due`
-                    : "Clear"}
+                  : customerBalanceChipLabel(
+                      snapshot?.outstandingBalanceCount ?? 0,
+                    )}
               </p>
             </div>
           </div>

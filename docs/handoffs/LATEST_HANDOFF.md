@@ -1,16 +1,18 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-18 by Cursor (temporary #46 candidate). **Owner:** Control Tower.
+**Updated:** 2026-09-18 by Cursor (temporary #51 candidate). **Owner:** Control Tower.
 **Purpose:** Recover the next action in 5–10 minutes without historical chat access.
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a second current-state table.
-**Implementation status:** Issue #48 / PR #49 is CLOSED / PRODUCTION VERIFIED. PR #45 continuity foundation remains MERGED / ACCEPTED / CLOSED. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. Active implementation candidate is unmerged Issue #46.
+**Implementation status:** Issue #48 / PR #49 is CLOSED / PRODUCTION VERIFIED. Issue #46 / PR #50 is CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. Active implementation candidate is unmerged Issue #51.
 
 ## A. Current control-tower state
 
 Phase 5, Production Pin and Design-Partner Pilot Stabilization, remains IN PROGRESS.
-Active implementation candidate: Issue #46 omitted-status preservation, branch `fix/omitted-status-preservation` (unmerged; Control Tower exact-delta review next). Issue #48 / PR #49 is CLOSED / PRODUCTION VERIFIED and must not be reopened.
+Active implementation candidate: Issue #51 customer billing truth, branch `fix/customer-billing-truth` (unmerged; Control Tower exact-delta review next). Issue #46 / PR #50 and Issue #48 / PR #49 are CLOSED / PRODUCTION VERIFIED and must not be reopened.
 
-PR #43, PR #44, PR #45 and PR #49 are accepted and closed. Do not create another restamp merely to chase a changing docs-merge SHA. PR #45 established the permanent continuity foundation; later main now includes the accepted PR #49 runtime. Current accepted main/Production SHA is `d4529afcb49372961e2f02f35b7e51cdff4012bf`.
+PR #43, PR #44, PR #45, PR #49 and PR #50 are accepted and closed. Do not create another restamp merely to chase a changing docs-merge SHA. PR #45 established the permanent continuity foundation; later main now includes the accepted PR #50 runtime. Current accepted main/Production SHA is `30d7de3419a74f9f15159ff304545e7e46a5093d`.
+
+HQ connected-chain Phase 5 gate: MET. Phase 5 overall waits ONLY for the next legitimate GVM Production booking plus customer confirmation email once and business new-booking email once. Do not create a synthetic GVM Production booking.
 
 The current board owns task/branch/PR identity. The [manifest](../runtime/ENVIRONMENT_MANIFEST.md) owns environment observations. Read actual GitHub PR state, not stale instructions in a merged PR description. Legacy open PRs are not automatically the next task.
 
@@ -23,6 +25,7 @@ The current board owns task/branch/PR identity. The [manifest](../runtime/ENVIRO
 | PR #44 | Only current-state/changelog docs changed; reviewed and merged trees equal; application files unchanged. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/44), manifest P44 observation. |
 | PR #45 | Permanent development continuity foundation. MERGED / ACCEPTED / CLOSED. Documentation only; collector remains SPECIFIED / NOT IMPLEMENTED. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/45), [release evidence](https://github.com/renovisionai2-cloud/chasum/pull/45#issuecomment-5722300751). |
 | PR #49 / Issue #48 | Exclusive-tax invoice integrity. CLOSED / PRODUCTION VERIFIED. Hosted Staging financial chain WAIVED FOR THAT RELEASE ONLY / NOT DEMONSTRATED. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/49), [closeout](https://github.com/renovisionai2-cloud/chasum/issues/48#issuecomment-5736361422). |
+| PR #50 / Issue #46 | Omitted-status preservation. CLOSED / PRODUCTION VERIFIED. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/50). |
 
 Prior validation: Codex reported 42 focused tests and static/build checks. Claude's corrected independent audit retained A — PASS, 39 selected tests and 601 broader tests across 58 files; the broad run retained aggregate output, not per-file results. ChatGPT inspected repository evidence, not those test executions. Do not repeat that investigation for orientation.
 
@@ -50,27 +53,25 @@ Cancelled remains terminal and notes-editable only. First cancellation stays Qui
 
 ## D. Active risks and exact engineering continuation
 
-**In-flight candidate (temporary Cursor fallback):** Issue #46 omitted-status preservation, `fix/omitted-status-preservation`.
+**In-flight candidate (temporary Cursor fallback):** Issue #51 customer billing truth, `fix/customer-billing-truth`.
 **PRIMARY NORMAL OWNER:** Codex.
 **TEMPORARY EXECUTION OWNER:** Cursor.
 **REASON:** Codex capacity unavailable.
-**SCOPE:** Issue #46 only — omitted/null `requestedStatus` preservation in `updateBooking`.
-**PASS CONDITION:** omitted/null requestedStatus preserves existing valid appointment status; pending/confirmed resolver behavior unchanged; explicit transitions, cancellation, PR #43 events, tenant filters and money fields unchanged; focused tests and required checks green; unmerged PR.
-Codex remains the permanent primary engineer. This candidate is unmerged and not a Production authorization. If Codex capacity returns during this task, Codex must not race or duplicate Issue #46. Codex resumes default ownership on the next engineering task.
+**SCOPE:** Issue #51 only — customer billing read-model/presentation truth after payments (deposit summary + Balance chip + stored-tax outstanding projection).
+**PASS CONDITION:** ordinary `kind=payment` does not become deposit summary when configured deposit is zero; true deposits remain; paid invoice / $0 outstanding does not show `1 due`; tax-inclusive remaining is regression-proven from stored amounts; #48 arithmetic and persisted rows unchanged; tenant filters preserved; unmerged PR.
+Codex remains the permanent primary engineer. This candidate is unmerged and not a Production authorization. If Codex capacity returns during this task, Codex must not race or duplicate Issue #51. Codex resumes default ownership on the next engineering task.
 
-**Authority:** Control Tower comment 5736367439. **Risk:** Level 2. No Production merge or hosted mutation authorized.
+**Authority:** Control Tower comment 5737125623. **Risk:** Level 2. No Production merge or hosted mutation authorized.
 
-Start from freshly verified canonical main. Last observed main before this candidate is `d4529afcb49372961e2f02f35b7e51cdff4012bf`. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. The report's `71b7c26...`, `47189b0...` and `d5405cc...` resume instructions are stale for current start.
+Start from freshly verified canonical main `30d7de3419a74f9f15159ff304545e7e46a5093d`. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. Older `d4529af...` / Issue #46 resume instructions are stale for current start.
 
-Known cause: updateBooking initially falls back to existing.status, but `!intent.requestedStatus` then invokes a resolver that returns only pending/confirmed. Missing FormData status can be null despite a type assertion. This predates PR #43.
+Known causes already traced: `lib/commerce/customer-account.ts` used `Number(deposit_cents ?? 0) || netPaid`; Booking Sheet snapshot counted upcoming visits where `deposit < catalog/price` regardless of amount paid. Do not guess further CRM redesign.
 
-Source evidence already inspected: the ordinary Booking Sheet includes a hidden status input initialized from the appointment; Quick Actions explicitly supply status. No normal-UI omission or Production occurrence is demonstrated. Do not restart a broad caller audit or redesign the UI.
+Scope: customer-account projection, Booking Sheet Balance chip source, focused tests, and a concise candidate changelog/current-state update. Preserve invoice/payment/receipt rows, #48 exclusive-tax contract, tenant filters, and revenue recognition. Do not rewrite historical financial data.
 
-Scope: `lib/booking-engine/mutations/update.ts`, focused mutation tests, and a concise candidate changelog entry. Read only relevant sections of `availability/compose.ts`, `types.ts`, `lib/actions/appointments.ts`, and test harnesses. Add a failing regression using the real resolver and captured update payloads, then make the smallest update-only correction. Cover absent/null status with completed/no_show and other affected valid operational statuses. Preserve pending/confirmed, explicit transitions, cancellation guards, first-transition precedence, reschedule timestamps, audit actions, tenant filters and money columns. Do not alter shared create-booking policy.
+Pass: regressions become green; adjacent commerce tests and required type/lint/build/diff checks reported; unmerged PR with exact base/head and evidence limits. Then Control Tower exact-candidate review, risk-appropriate audit/validation, separate PO release approval.
 
-Pass: regression becomes green; adjacent cancellation/event tests and required type/lint/build/diff checks reported; unmerged PR with exact base/head and evidence limits. Then Control Tower exact-candidate review, risk-appropriate audit/validation, separate PO release approval, acceptance/restamp, and Phase 5 exit assessment.
-
-Other risks remain separate: cross-account Auth TD-H10; configuration TD-H11; observability, onboarding/import and commercial team/RBAC readiness. Completed/no-show terminality, restoration, no-op suppression, API/Summer divergence and event-ledger/concurrency redesign are deferred. No new Production P1 incident is established by this continuity work.
+Other risks remain separate: GVM legitimate Production booking + dual-email observation (passive wait); cross-account Auth TD-H10; configuration TD-H11; observability, onboarding/import and commercial team/RBAC readiness. Completed/no-show terminality, restoration, no-op suppression, API/Summer divergence and event-ledger/concurrency redesign are deferred. No new Production P1 incident is established by this continuity work.
 
 ## E. Environment state
 
@@ -163,7 +164,8 @@ Terra intended for ordinary engineering, Claude risk-appropriate reviewer,
 and Momentic browser regression. If Codex is genuinely capacity-blocked,
 Control Tower may temporarily transfer ONE fully bounded critical-path
 implementation to Cursor (one implementer; no racing). Preserve credit and
-approval controls. Issue #48 / PR #49 is CLOSED / PRODUCTION VERIFIED. PR #45
+approval controls. Issue #48 / PR #49 and Issue #46 / PR #50 are CLOSED /
+PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. PR #45
 continuity foundation remains merged/accepted; do not treat either as a draft.
 FIRST RESPONSE:
 CURRENT MAIN:

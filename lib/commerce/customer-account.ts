@@ -1,5 +1,9 @@
-import { listInvoices } from "@/lib/commerce/invoices";
+import {
+  CUSTOMER_ACCOUNT_TENANT_SCOPE,
+  projectCustomerAccountTotals,
+} from "@/lib/commerce/customer-account-projection";
 import { listActiveGiftCardsForCustomer } from "@/lib/commerce/gift-cards";
+import { listInvoices } from "@/lib/commerce/invoices";
 import { listTransactions } from "@/lib/commerce/payments";
 import { listReceipts } from "@/lib/commerce/receipts";
 import { listRefunds } from "@/lib/commerce/refunds";
@@ -17,7 +21,7 @@ export async function getCustomerCommerceAccount(
     .from("customers")
     .select("id, store_credit_cents")
     .eq("id", customerId)
-    .eq("business_id", businessId)
+    .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
     .maybeSingle();
 
   if (custErr && !isSoftSchemaFallbackAllowed(custErr.message)) {
@@ -33,10 +37,10 @@ export async function getCustomerCommerceAccount(
     supabase
       .from("appointments")
       .select(
-        "id, price_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, status, services(price)",
+        "id, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, status, services(price)",
       )
-      .eq("business_id", businessId)
-      .eq("customer_id", customerId)
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.customerId, customerId)
       .neq("status", "cancelled"),
     listActiveGiftCardsForCustomer(businessId, customerId),
   ]);
@@ -45,78 +49,35 @@ export async function getCustomerCommerceAccount(
   if (
     apptRes.error &&
     (apptRes.error.message.includes("price_cents") ||
+      apptRes.error.message.includes("tax_cents") ||
       apptRes.error.message.includes("payment_status") ||
       apptRes.error.message.includes("amount_paid"))
   ) {
     const fallback = await supabase
       .from("appointments")
       .select("id, deposit_cents, status, services(price)")
-      .eq("business_id", businessId)
-      .eq("customer_id", customerId)
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.customerId, customerId)
       .neq("status", "cancelled");
     appointments = (fallback.data ?? []).map((row) => ({
       ...row,
       price_cents: null,
+      tax_cents: 0,
       amount_paid_cents: Number(row.deposit_cents ?? 0),
       amount_refunded_cents: 0,
       payment_status: null,
     }));
   }
 
-  let appointmentOutstanding = 0;
-  let appointmentDeposits = 0;
-  let appointmentPaid = 0;
-
-  for (const appt of appointments) {
-    const service = appt.services as
-      | { price?: number }
-      | { price?: number }[]
-      | null;
-    const serviceRow = Array.isArray(service) ? service[0] : service;
-    const price =
-      Number(appt.price_cents ?? 0) ||
-      Math.round(Number(serviceRow?.price ?? 0) * 100);
-    const paid = Number(
-      appt.amount_paid_cents ?? appt.deposit_cents ?? 0,
-    );
-    const refunded = Number(appt.amount_refunded_cents ?? 0);
-    const netPaid = Math.max(0, paid - refunded);
-    appointmentPaid += netPaid;
-    appointmentDeposits += Math.min(
-      netPaid,
-      Number(appt.deposit_cents ?? 0) || netPaid,
-    );
-    appointmentOutstanding += Math.max(0, price - netPaid);
-  }
-
-  const invoiceOutstanding = invoices
-    .filter((i) => ["open", "partial", "overdue"].includes(i.status))
-    .reduce((s, i) => s + i.balanceCents, 0);
-
-  const ledgerSpend = timeline
-    .filter(
-      (t) =>
-        t.status === "succeeded" &&
-        (t.kind === "payment" ||
-          t.kind === "deposit" ||
-          t.kind === "gift_card" ||
-          t.method === "gift_card"),
-    )
-    .reduce((s, t) => s + t.amountCents, 0);
-
-  const depositsCents = Math.max(
-    timeline
-      .filter((t) => t.kind === "deposit" && t.status === "succeeded")
-      .reduce((s, t) => s + t.amountCents, 0),
-    appointmentDeposits,
-  );
-
-  const totalPaidCents = Math.max(ledgerSpend, appointmentPaid);
-  // Prefer live appointment balances; fall back to open invoices.
-  const outstandingBalanceCents = Math.max(
-    appointmentOutstanding,
-    invoiceOutstanding,
-  );
+  const {
+    depositsCents,
+    totalPaidCents,
+    outstandingBalanceCents,
+  } = projectCustomerAccountTotals({
+    appointments,
+    invoices,
+    timeline,
+  });
 
   return {
     customerId,

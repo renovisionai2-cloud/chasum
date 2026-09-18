@@ -4,6 +4,7 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getCustomerProfile } from "@/lib/actions/customers";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { previewAvailableSlots } from "@/lib/booking-engine";
+import { countUpcomingAppointmentsWithBalanceDue } from "@/lib/commerce/customer-account-projection";
 import { addDays, format } from "date-fns";
 
 export type BookingSheetSlot = {
@@ -181,16 +182,9 @@ export async function getBookingSheetCustomerSnapshot(customerId: string) {
   const profile = await getCustomerProfile(customerId);
   if (!profile) return null;
 
-  const outstanding = (profile.upcoming ?? []).filter((a) => {
-    const deposit = Number(
-      (a as { deposit_cents?: number }).deposit_cents ?? 0,
-    );
-    const price =
-      (a.service as { price?: number } | null)?.price != null
-        ? Math.round(Number((a.service as { price?: number }).price) * 100)
-        : Number((a as { price_cents?: number | null }).price_cents ?? 0);
-    return price > 0 && deposit < price && a.status !== "cancelled";
-  }).length;
+  const outstanding = countUpcomingAppointmentsWithBalanceDue(
+    profile.upcoming ?? [],
+  );
 
   return {
     customer: profile.customer,
