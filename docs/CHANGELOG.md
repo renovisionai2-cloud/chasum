@@ -9,9 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-18 — Invoice exclusive-tax integrity (Issue #48 candidate)
+### 2026-09-18 — Omitted-status preservation (Issue #46 candidate)
 
-`createInvoiceForAppointment` now treats stored `appointments.price_cents` as the tax-exclusive subtotal and adds stored `tax_cents` for the invoice/line total, balance, and paid/partial/open status. Explicit stored `price_cents = 0` is preserved; catalog fallback remains only for null/absent stored price. `discount_cents` and recorded `amount_paid_cents` keep pre-candidate extraction semantics (passthrough only; no new discount or payment-normalization policy). Existing invoices are not rewritten. Unmerged PR #49 candidate; no hosted or historical invoice repair.
+`updateBooking` now preserves an existing valid appointment status when `requestedStatus` is omitted or null. Omission itself no longer sends completed / no_show / arrived / waiting / in_progress through the pending/confirmed resolver. Pending/confirmed still resolve as before; explicit transitions, cancellation guards, PR #43 event precedence, tenant filters, and money fields are unchanged. Unmerged candidate; no hosted mutation.
+
+### 2026-09-18 — Invoice exclusive-tax integrity (Issue #48 / PR #49, CLOSED / PRODUCTION VERIFIED)
+
+`createInvoiceForAppointment` now treats stored `appointments.price_cents` as the tax-exclusive subtotal and adds stored `tax_cents` for the invoice/line total, balance, and paid/partial/open status. Explicit stored `price_cents = 0` is preserved; catalog fallback remains only for null/absent stored price. `discount_cents` and recorded `amount_paid_cents` keep pre-candidate extraction semantics (passthrough only; no new discount or payment-normalization policy). Existing invoices are not rewritten. Squash-merged as `d4529afcb49372961e2f02f35b7e51cdff4012bf`; Production `dpl_4GfV2vY4Yov9fx1mQobCFWUz6n2k` READY after Vercel incident recovery. Hosted Staging financial chain WAIVED FOR THAT RELEASE ONLY / NOT DEMONSTRATED.
 
 ### 2026-09-17 — Permanent development continuity foundation
 
