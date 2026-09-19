@@ -1,20 +1,20 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-18 by Cursor (temporary #51 candidate). **Owner:** Control Tower.
+**Updated:** 2026-09-18 by Cursor (temporary #54 candidate). **Owner:** Control Tower.
 **Purpose:** Recover the next action in 5–10 minutes without historical chat access.
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a second current-state table.
-**Implementation status:** Issue #48 / PR #49 is CLOSED / PRODUCTION VERIFIED. Issue #46 / PR #50 is CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. Active implementation candidate is unmerged Issue #51.
+**Implementation status:** Issue #51 / PR #52 is CLOSED / PRODUCTION VERIFIED. Issue #48 / PR #49 and Issue #46 / PR #50 remain CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. Active implementation candidate is unmerged Issue #54. Issue #53 is parallel release-governance work and is not this PR.
 
 ## A. Current control-tower state
 
 Phase 5, Production Pin and Design-Partner Pilot Stabilization, remains IN PROGRESS.
-Active implementation candidate: Issue #51 customer billing truth, branch `fix/customer-billing-truth` (unmerged; Control Tower exact-delta review next). Issue #46 / PR #50 and Issue #48 / PR #49 are CLOSED / PRODUCTION VERIFIED and must not be reopened.
+Active implementation candidate: Issue #54 Trusted Operator Access V1, branch `feat/trusted-operator-access-v1` (unmerged; Control Tower exact-candidate review next). Issue #51 / PR #52, Issue #46 / PR #50 and Issue #48 / PR #49 are CLOSED / PRODUCTION VERIFIED and must not be reopened. Issue #53 is parallel and must not be implemented in the #54 PR.
 
-PR #43, PR #44, PR #45, PR #49 and PR #50 are accepted and closed. Do not create another restamp merely to chase a changing docs-merge SHA. PR #45 established the permanent continuity foundation; later main now includes the accepted PR #50 runtime. Current accepted main/Production SHA is `30d7de3419a74f9f15159ff304545e7e46a5093d`.
+PR #43, PR #44, PR #45, PR #49, PR #50 and PR #52 are accepted and closed. Do not create another restamp merely to chase a changing docs-merge SHA. PR #45 established the permanent continuity foundation; later main now includes the accepted PR #52 runtime. Current accepted main/Production SHA is `cd735943518fda25be0bcc7e9f697b09b29fca9a`.
 
-HQ connected-chain Phase 5 gate: MET. Phase 5 overall waits ONLY for the next legitimate GVM Production booking plus customer confirmation email once and business new-booking email once. Do not create a synthetic GVM Production booking.
+HQ connected-chain Phase 5 gate: MET. Phase 5 overall waits ONLY for the next legitimate GVM Production booking plus customer confirmation email once and business new-booking email once. Dual-email observation is still waiting. Do not create a synthetic GVM Production booking. Do not send a real GVM Trusted Admin invite from this candidate.
 
-The current board owns task/branch/PR identity. The [manifest](../runtime/ENVIRONMENT_MANIFEST.md) owns environment observations. Read actual GitHub PR state, not stale instructions in a merged PR description. Legacy open PRs are not automatically the next task.
+The current board owns task/branch/PR identity. The [manifest](../runtime/ENVIRONMENT_MANIFEST.md) owns environment observations. Read actual GitHub PR state, not stale instructions in a merged PR description. Legacy open PRs are not automatically the next task. True employee RBAC remains DESIGN FOR NOW / BUILD LATER; #54 is not commercial RBAC.
 
 ## B. Recent completed work
 
@@ -26,6 +26,7 @@ The current board owns task/branch/PR identity. The [manifest](../runtime/ENVIRO
 | PR #45 | Permanent development continuity foundation. MERGED / ACCEPTED / CLOSED. Documentation only; collector remains SPECIFIED / NOT IMPLEMENTED. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/45), [release evidence](https://github.com/renovisionai2-cloud/chasum/pull/45#issuecomment-5722300751). |
 | PR #49 / Issue #48 | Exclusive-tax invoice integrity. CLOSED / PRODUCTION VERIFIED. Hosted Staging financial chain WAIVED FOR THAT RELEASE ONLY / NOT DEMONSTRATED. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/49), [closeout](https://github.com/renovisionai2-cloud/chasum/issues/48#issuecomment-5736361422). |
 | PR #50 / Issue #46 | Omitted-status preservation. CLOSED / PRODUCTION VERIFIED. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/50). |
+| PR #52 / Issue #51 | Customer billing truth. CLOSED / PRODUCTION VERIFIED. Ordinary payments are not summarized as deposits when configured deposit is zero; Balance chip uses stored remaining. | [PR](https://github.com/renovisionai2-cloud/chasum/pull/52). |
 
 Prior validation: Codex reported 42 focused tests and static/build checks. Claude's corrected independent audit retained A — PASS, 39 selected tests and 601 broader tests across 58 files; the broad run retained aggregate output, not per-file results. ChatGPT inspected repository evidence, not those test executions. Do not repeat that investigation for orientation.
 
@@ -53,31 +54,29 @@ Cancelled remains terminal and notes-editable only. First cancellation stays Qui
 
 ## D. Active risks and exact engineering continuation
 
-**In-flight candidate (temporary Cursor fallback):** Issue #51 customer billing truth, `fix/customer-billing-truth`.
+**In-flight candidate (temporary Cursor fallback):** Issue #54 Trusted Operator Access V1, `feat/trusted-operator-access-v1`.
 **PRIMARY NORMAL OWNER:** Codex.
 **TEMPORARY EXECUTION OWNER:** Cursor.
 **REASON:** Codex capacity unavailable.
-**SCOPE:** Issue #51 only — customer billing read-model/presentation truth after payments (deposit summary + Balance chip + stored-tax outstanding projection).
-**PASS CONDITION:** ordinary `kind=payment` does not become deposit summary when configured deposit is zero; true deposits remain; paid invoice / $0 outstanding does not show `1 due`; tax-inclusive remaining is regression-proven from stored amounts; #48 arithmetic and persisted rows unchanged; tenant filters preserved; unmerged PR.
-Codex remains the permanent primary engineer. This candidate is unmerged and not a Production authorization. If Codex capacity returns during this task, Codex must not race or duplicate Issue #51. Codex resumes default ownership on the next engineering task.
+**SCOPE:** Issue #54 only — primary-owner invite/resend/revoke of `business_members.role = admin` Trusted Admin inside one existing tenant; fail-closed tenant auto-create; system-email invite after membership + `app_metadata.chasum_operator`; authenticated `/access-denied`.
+**PASS CONDITION:** owner_id-only authority; no `inviteUserByEmail` before membership; marker present (any status) blocks `ensure_business_for_owner`; Platform Admin and other-tenant targets rejected including HQ; email failure leaves Pending; new Auth identity compensated only when this action created it; revoke deletes membership then `ban_duration: "876000h"`; re-invite unbans with `"none"`; no migration/RLS/new role/Platform Admin write; unmerged PR; no real GVM invite.
+Codex remains the permanent primary engineer. This candidate is unmerged and not a Production authorization. If Codex capacity returns during this task, Codex must not race or duplicate Issue #54. Codex resumes default ownership on the next engineering task.
 
-**Authority:** Control Tower comment 5737125623. **Risk:** Level 2. No Production merge or hosted mutation authorized.
+**Authority:** Control Tower comment 5738099117. Cursor design 5737958434. Architecture review 5738005189. Claude independent audit 5738066916 verdict B — APPROVE OPTION A WITH REQUIRED IMPLEMENTATION CONDITIONS. **Risk:** Level 3. No Production merge, hosted Auth/membership mutation, or real GVM grant authorized.
 
-Start from freshly verified canonical main `30d7de3419a74f9f15159ff304545e7e46a5093d`. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. Older `d4529af...` / Issue #46 resume instructions are stale for current start.
+Start from freshly verified canonical main `cd735943518fda25be0bcc7e9f697b09b29fca9a`. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. Older `30d7de3...` / Issue #51 resume instructions are stale for current start.
 
-Known causes already traced: `lib/commerce/customer-account.ts` used `Number(deposit_cents ?? 0) || netPaid`; Booking Sheet snapshot counted upcoming visits where `deposit < catalog/price` regardless of amount paid. Do not guess further CRM redesign.
+Locked product truth: Trusted Admin is full tenant-admin access inside one Chasum business during Private Alpha. It is not receptionist access, employee permission checkboxes, Platform Admin, or `/owner`. True employee RBAC remains DESIGN FOR NOW / BUILD LATER.
 
-Scope: customer-account projection, Booking Sheet Balance chip source, focused tests, and a concise candidate changelog/current-state update. Preserve invoice/payment/receipt rows, #48 exclusive-tax contract, tenant filters, and revenue recognition. Do not rewrite historical financial data.
+Remaining hosted sequence after this unmerged candidate: exact-candidate audit → Preview/Staging acceptance → separate Product Owner approval for a real GVM grant → GVM operator iPad/login acceptance → genuine GVM operation → first legitimate Production booking → customer confirmation exactly once → business new-booking email exactly once → close Phase 5.
 
-Pass: regressions become green; adjacent commerce tests and required type/lint/build/diff checks reported; unmerged PR with exact base/head and evidence limits. Then Control Tower exact-candidate review, risk-appropriate audit/validation, separate PO release approval.
-
-Other risks remain separate: GVM legitimate Production booking + dual-email observation (passive wait); cross-account Auth TD-H10; configuration TD-H11; observability, onboarding/import and commercial team/RBAC readiness. Completed/no-show terminality, restoration, no-op suppression, API/Summer divergence and event-ledger/concurrency redesign are deferred. No new Production P1 incident is established by this continuity work.
+Other risks remain separate: GVM legitimate Production booking + dual-email observation (passive wait); Issue #53 branch protection; residual owner_id-only RLS on communication_history / communication_follow_ups / business-assets (non-blocking unless Calendar/Reception/customer-search/booking unexpectedly fail); cross-account Auth TD-H10; configuration TD-H11. No new Production P1 incident is established by this continuity work.
 
 ## E. Environment state
 
 Read the manifest. Do not create another live inventory of deployments, queue counts, flags or migrations. This documentation task performed no database/provider/Auth/configuration mutation or privileged live verification. Staging SHA/deployment and restricted runtime fields remain UNKNOWN, not failed or healthy by assumption.
 
-Protect GVM, normal HQ, the Staging evidence appointments and historical queues. No synthetic GVM Production booking, worker invocation, queue cleanup, migration replay, credential work or alias movement is authorized.
+Protect GVM, normal HQ, the Staging evidence appointments and historical queues. No synthetic GVM Production booking, real GVM Trusted Admin invite, worker invocation, queue cleanup, migration replay, credential work or alias movement is authorized. This #54 candidate authorizes local/branch implementation, automated tests and an unmerged PR only.
 
 ## F. Agent governance — PO locked (NO-IDLE / AGENT FALLBACK)
 
@@ -165,8 +164,10 @@ and Momentic browser regression. If Codex is genuinely capacity-blocked,
 Control Tower may temporarily transfer ONE fully bounded critical-path
 implementation to Cursor (one implementer; no racing). Preserve credit and
 approval controls. Issue #48 / PR #49 and Issue #46 / PR #50 are CLOSED /
-PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. PR #45
-continuity foundation remains merged/accepted; do not treat either as a draft.
+PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. Issue #51 /
+PR #52 is CLOSED / PRODUCTION VERIFIED. Issue #53 is parallel and not this
+task. PR #45 continuity foundation remains merged/accepted; do not treat
+either as a draft.
 FIRST RESPONSE:
 CURRENT MAIN:
 CURRENT PRODUCTION: [accepted application baseline / last serving observation]

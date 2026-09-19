@@ -9,9 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-18 — Customer billing truth (Issue #51 candidate)
+### 2026-09-18 — Trusted Operator Access V1 (Issue #54 candidate)
 
-Customer Billing no longer treats `deposit_cents = 0` as “use net paid,” so ordinary cash payments are not summarized as deposits. True configured deposits still populate the deposit total. The Booking Sheet / CRM header Balance chip now counts remaining appointment money (stored `price_cents + tax_cents − net paid`) instead of “deposit < catalog price,” so a fully paid / $0 invoice no longer shows `1 due`. Non-invoiced taxable remaining uses stored tax only. Ledger, invoices, receipts, and #48 arithmetic are unchanged. Unmerged candidate; no hosted mutation.
+Primary owners can invite a Trusted Admin (`business_members.role = admin`) into the current business. Invite ordering commits Auth `app_metadata.chasum_operator` and membership before generating a non-auto-sent action link, then delivers it through the server-only Chasum system-email path. `getOrCreateBusiness()` fail-closes to `/access-denied` when the operator marker is present and no membership resolves, so revoked or pending operators cannot auto-create a tenant. Authority is `businesses.owner_id` only. No migration, RLS change, new role, Platform Admin write, real GVM invite, or Production mutation. True employee RBAC remains DESIGN FOR NOW / BUILD LATER. Unmerged candidate.
+
+Logs (`membership.invited` / `resent` / `revoked` / `failed`) are structured application logs, not a durable queryable membership audit ledger. Residual owner_id-only RLS on `communication_history`, `communication_follow_ups`, and `business-assets` is unchanged and classified non-blocking for GVM booking cutover.
+
+### 2026-09-18 — Customer billing truth (Issue #51 / PR #52, CLOSED / PRODUCTION VERIFIED)
+
+Customer Billing no longer treats `deposit_cents = 0` as “use net paid,” so ordinary cash payments are not summarized as deposits. True configured deposits still populate the deposit total. The Booking Sheet / CRM header Balance chip now counts remaining appointment money (stored `price_cents + tax_cents − net paid`) instead of “deposit < catalog price,” so a fully paid / $0 invoice no longer shows `1 due`. Non-invoiced taxable remaining uses stored tax only. Ledger, invoices, receipts, and #48 arithmetic are unchanged. Squash-merged as `cd735943518fda25be0bcc7e9f697b09b29fca9a`; Production `dpl_8yRCE7hjaRNMEdURgBthh1SkY9gm`. Do not reopen #51.
 
 ### 2026-09-18 — Omitted-status preservation (Issue #46 / PR #50, CLOSED / PRODUCTION VERIFIED)
 

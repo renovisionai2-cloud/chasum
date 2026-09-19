@@ -35,8 +35,11 @@ export default async function LoginPage({ searchParams }: PageProps) {
           </div>
         ) : authCallbackFailed ? (
           <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            That reset link didn&apos;t work or has expired.{" "}
-            <AuthLink href="/forgot-password">Request a new one</AuthLink>.
+            That sign-in, invitation, or reset link didn&apos;t work or has
+            expired.{" "}
+            <AuthLink href="/forgot-password">Request a new one</AuthLink>
+            , or contact the business owner if you were invited as Trusted
+            Admin.
           </div>
         ) : undefined
       }

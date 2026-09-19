@@ -1,34 +1,34 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.
-**Snapshot date:** 2026-09-18. **Updated by:** Cursor (temporary Issue #51 candidate; Control Tower remains board owner).
+**Snapshot date:** 2026-09-18. **Updated by:** Cursor (temporary Issue #54 candidate; Control Tower remains board owner).
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations, not permanent HEADs.
 
 | Control field | Current record |
 | --- | --- |
 | Project / product position | Chasum — world-class AI Business Operating System for service businesses. |
-| Current accepted main / Production SHA | `30d7de3419a74f9f15159ff304545e7e46a5093d` (PR #50 squash-merge). Verify remote HEAD before later work. |
-| Accepted Production application baseline | PR #50 runtime on main: `30d7de3419a74f9f15159ff304545e7e46a5093d`. |
-| Last accepted Production serving SHA | `30d7de3419a74f9f15159ff304545e7e46a5093d` |
-| Last accepted Production deployment | `dpl_AeqBfh1AhN3uyv66WJLu5vtyVm33`; details and evidence limits in [manifest](runtime/ENVIRONMENT_MANIFEST.md). |
+| Current accepted main / Production SHA | `cd735943518fda25be0bcc7e9f697b09b29fca9a` (PR #52 squash-merge). Verify remote HEAD before later work. |
+| Accepted Production application baseline | PR #52 runtime on main: `cd735943518fda25be0bcc7e9f697b09b29fca9a`. |
+| Last accepted Production serving SHA | `cd735943518fda25be0bcc7e9f697b09b29fca9a` |
+| Last accepted Production deployment | `dpl_8yRCE7hjaRNMEdURgBthh1SkY9gm`; details and evidence limits in [manifest](runtime/ENVIRONMENT_MANIFEST.md). |
 | Current Staging SHA / deployment | UNKNOWN; do not copy a candidate Preview or Production identity into these fields. HQ Phase 5 connected-chain dogfood was Staging/Preview evidence, not Production. |
 | Active phase / status | World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization / IN PROGRESS. |
 | HQ connected-chain Phase 5 gate | **MET** (Issue #47 comment 5737101477). |
-| Remaining Phase 5 gate ONLY | Legitimate GVM Production booking + customer confirmation email once + business new-booking email once. Do not create a synthetic GVM Production booking. |
-| Current product-engineering task | ISSUE #51 customer billing truth / UNMERGED CANDIDATE. |
-| Active engineering PR / branch | `fix/customer-billing-truth`. Unmerged; not Production-authorized. |
-| Primary engineer / model / risk | PRIMARY NORMAL OWNER: Codex. TEMPORARY EXECUTION OWNER for this #51 candidate: Cursor. REASON: Codex capacity unavailable. RISK: Level 2 read-model / presentation. |
-| What just completed | PR #50 / Issue #46: CLOSED / PRODUCTION VERIFIED. PR #49 / Issue #48: CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate MET. |
-| Accepted / locked | One multi-tenant platform; GVM and HQ normal tenants; cancelled terminal and notes-only; exclusive-tax invoice integrity (#48); omitted-status preservation (#46). |
-| Must not reopen | PR #37/#39/#41/#43/#44/#45/#49/#50, Issue #46/#48/#49, Production recovery, password-reset completion, absent new contradictory evidence. |
-| Blockers | PR for #51 is unmerged and not Production-authorized. Continuity collector remains SPECIFIED / NOT IMPLEMENTED. No hosted appointment mutation for #51. |
-| Current P1 items | Issue #51 is launch-hardening, not a Phase 5 blocker. No new Production P1 incident is established. |
-| Deferred | Nonzero `discount_cents` invoice formula; completed/no-show terminality/restoration; no-op suppression; API/Summer alignment; event ledger/concurrency; cross-account Auth TD-H10; configuration TD-H11. See [handoff](handoffs/LATEST_HANDOFF.md). |
-| Exact next task | After this unmerged #51 candidate: Control Tower exact-delta review → risk-appropriate independent audit → separate Product Owner release approval. No Production approval granted. |
-| Pass condition | Ordinary payments are not aggregated as deposits when configured deposit is zero; true deposits remain; paid / $0 outstanding customer does not show `1 due`; tax-inclusive remaining is regression-proven from stored amounts; #48 arithmetic and persisted rows unchanged; tenant filters preserved; focused + adjacent checks green. |
-| After pass | Exact-candidate review; risk-appropriate audit; separate PO release authorization. Phase 5 still waits only on legitimate GVM dual-email observation. |
-| Product Owner input | NO to start already-scoped implementation or documentation preparation. YES for Production-triggering merge or consequential scope/configuration changes. |
-| Parallel control work | Continuity collector remains SPECIFIED / NOT IMPLEMENTED and Codex-owned. Codex remains primary normal engineer; Cursor is temporary #51 execution owner only because Codex capacity is unavailable. |
+| Remaining Phase 5 gate ONLY | Legitimate GVM Production booking + customer confirmation email once + business new-booking email once. Do not create a synthetic GVM Production booking. Dual-email observation is still waiting; configuration health is not delivery proof. |
+| Current product-engineering task | ISSUE #54 Trusted Operator Access V1 / UNMERGED CANDIDATE. |
+| Active engineering PR / branch | `feat/trusted-operator-access-v1`. Unmerged; not Production-authorized. No real GVM invite. |
+| Primary engineer / model / risk | PRIMARY NORMAL OWNER: Codex. TEMPORARY EXECUTION OWNER for this #54 candidate: Cursor. REASON: Codex capacity unavailable. RISK: Level 3 auth / tenancy / membership. |
+| What just completed | PR #52 / Issue #51: CLOSED / PRODUCTION VERIFIED. PR #50 / Issue #46 and PR #49 / Issue #48 remain CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate MET. |
+| Accepted / locked | One multi-tenant platform; GVM and HQ normal tenants; cancelled terminal and notes-only; exclusive-tax invoice integrity (#48); omitted-status preservation (#46); customer billing truth (#51). Trusted Admin V1 = `business_members.role = admin` = full access inside one business during Private Alpha. Not employee RBAC, receptionist access, or Platform Admin. |
+| Must not reopen | PR #37/#39/#41/#43/#44/#45/#49/#50/#52, Issue #46/#48/#49/#51, Production recovery, password-reset completion, absent new contradictory evidence. |
+| Blockers | #54 is unmerged and not Production-authorized. Continuity collector remains SPECIFIED / NOT IMPLEMENTED. No hosted Auth/membership mutation for #54. Issue #53 is parallel release-governance work, not this PR. |
+| Current P1 items | No new Production P1 incident is established. #54 is Phase 5 launch-required, not a hosted grant. |
+| Deferred | True employee login/RBAC (DESIGN FOR NOW / BUILD LATER); tenant switcher; staff.user_id commercial login; communication_history / communication_follow_ups / business-assets owner_id-only RLS (non-blocking for GVM cutover); completed/no-show terminality/restoration; no-op suppression; API/Summer alignment; event ledger/concurrency; cross-account Auth TD-H10; configuration TD-H11. See [handoff](handoffs/LATEST_HANDOFF.md). |
+| Exact next task | After this unmerged #54 candidate: Control Tower exact-candidate review → independent exact-candidate audit → Preview/Staging acceptance → separate Product Owner approval for a real GVM grant. No Production authorization granted. |
+| Pass condition | Primary-owner-only invite/resend/revoke; membership + `app_metadata.chasum_operator` committed before any human-clickable link; fail-closed tenant auto-create when the marker is present; Platform Admin and other-tenant targets rejected; revoke deletes membership then bans via installed `ban_duration`; re-invite unbans with `'none'`; no migration/RLS/role change; focused + adjacent checks green. |
+| After pass | Exact-candidate review; independent audit; Preview/Staging acceptance; separate PO approval before any real GVM operator invite. Remaining Phase 5 sequence still ends at legitimate GVM dual-email observation. |
+| Product Owner input | NO to start already-scoped implementation or documentation preparation. YES for Production-triggering merge, real GVM invite, or consequential Auth/membership/configuration changes. |
+| Parallel control work | Issue #53 launch safety / branch protection is parallel and must not ship in this PR. Continuity collector remains SPECIFIED / NOT IMPLEMENTED and Codex-owned. Codex remains primary normal engineer; Cursor is temporary #54 execution owner only because Codex capacity is unavailable. |
 
 ## Continue without reconstructing history
 

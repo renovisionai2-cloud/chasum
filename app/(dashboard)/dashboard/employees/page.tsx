@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDepartments, getEmployeeDirectory } from "@/lib/actions/employees";
 import { getLocations } from "@/lib/actions/location";
+import { getTrustedAccessPanel } from "@/lib/actions/operator-access";
 import { getServices } from "@/lib/actions/services";
 import { getStaffQuota } from "@/lib/actions/staff";
 import type { Metadata } from "next";
@@ -13,13 +14,14 @@ export const metadata: Metadata = {
 
 export default async function EmployeesPage() {
   await getOrCreateBusiness();
-  const [employees, services, locations, departments, staffQuota] =
+  const [employees, services, locations, departments, staffQuota, trustedAccess] =
     await Promise.all([
       getEmployeeDirectory(),
       getServices(),
       getLocations(),
       getDepartments(),
       getStaffQuota(),
+      getTrustedAccessPanel(),
     ]);
 
   return (
@@ -34,6 +36,7 @@ export default async function EmployeesPage() {
         locations={locations}
         departments={departments}
         staffQuota={staffQuota}
+        trustedAccess={trustedAccess}
       />
     </div>
   );

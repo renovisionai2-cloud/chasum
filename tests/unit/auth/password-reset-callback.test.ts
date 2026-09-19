@@ -183,7 +183,9 @@ describe("password reset callback hardening", () => {
     render(ui);
 
     expect(
-      screen.getByText(/that reset link didn't work or has expired/i),
+      screen.getByText(
+        /that sign-in, invitation, or reset link didn't work or has expired/i,
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /request a new one/i }),
