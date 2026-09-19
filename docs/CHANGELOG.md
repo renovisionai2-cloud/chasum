@@ -9,9 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-18 — Omitted-status preservation (Issue #46 candidate)
+### 2026-09-18 — Customer billing truth (Issue #51 candidate)
 
-`updateBooking` now preserves an existing valid appointment status when `requestedStatus` is omitted or null. Omission itself no longer sends completed / no_show / arrived / waiting / in_progress through the pending/confirmed resolver. Pending/confirmed still resolve as before; explicit transitions, cancellation guards, PR #43 event precedence, tenant filters, and money fields are unchanged. Unmerged candidate; no hosted mutation.
+Customer Billing no longer treats `deposit_cents = 0` as “use net paid,” so ordinary cash payments are not summarized as deposits. True configured deposits still populate the deposit total. The Booking Sheet / CRM header Balance chip now counts remaining appointment money (stored `price_cents + tax_cents − net paid`) instead of “deposit < catalog price,” so a fully paid / $0 invoice no longer shows `1 due`. Non-invoiced taxable remaining uses stored tax only. Ledger, invoices, receipts, and #48 arithmetic are unchanged. Unmerged candidate; no hosted mutation.
+
+### 2026-09-18 — Omitted-status preservation (Issue #46 / PR #50, CLOSED / PRODUCTION VERIFIED)
+
+`updateBooking` preserves an existing valid appointment status when `requestedStatus` is omitted or null. Squash-merged as `30d7de3419a74f9f15159ff304545e7e46a5093d`; Production `dpl_AeqBfh1AhN3uyv66WJLu5vtyVm33`. Do not reopen #46.
 
 ### 2026-09-18 — Invoice exclusive-tax integrity (Issue #48 / PR #49, CLOSED / PRODUCTION VERIFIED)
 

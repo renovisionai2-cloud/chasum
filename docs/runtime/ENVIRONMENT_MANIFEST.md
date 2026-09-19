@@ -1,6 +1,6 @@
 # Chasum — Environment Manifest
 
-**Record owner:** ChatGPT Control Tower. **Prepared:** 2026-09-17. **P49 Production observation reconciled:** 2026-09-18 from accepted comments 5736348282 and 5736361422.
+**Record owner:** ChatGPT Control Tower. **Prepared:** 2026-09-17. **P50 Production observation reconciled:** 2026-09-18 from accepted PR #50 closeout comment 5736696975. This Issue #51 documentation reconciliation copies that already-accepted serving observation; it did not re-probe Production.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
@@ -21,46 +21,47 @@ A recorded MATCH never authorizes a release or substitutes for fresh preflight. 
 
 - **G1:** Control Tower GitHub GET of `refs/heads/main` during the 2026-09-17 continuity restamp: `47189b0f0a244bce5fd601bb76adda1a22a52255`. Exact wall-clock time was not retained; no invented timestamp. Later superseded as serving identity by accepted P45.
 - **P44:** Accepted Cursor PR #44 operator report: Production HTTP captures 2026-09-17T20:16:57Z–20:16:59Z; alias inspect 20:16:44Z. [Merged PR](https://github.com/renovisionai2-cloud/chasum/pull/44) and [commit](https://github.com/renovisionai2-cloud/chasum/commit/47189b0f0a244bce5fd601bb76adda1a22a52255) corroborate Git identity. Historical accepted observation; later superseded as serving identity by P45.
-- **P49:** Accepted Cursor PR #49 post-incident recheck comment 5736348282 and Control Tower closeout 5736361422. Serving SHA `d4529afcb49372961e2f02f35b7e51cdff4012bf`; deployment `dpl_4GfV2vY4Yov9fx1mQobCFWUz6n2k`; target production; branch/ref main; READY after Vercel platform incident recovery; accepted HTTP window 2026-09-18T21:19:39Z; aliases `https://chasum.vercel.app`, `https://chasum-renovisionappcom.vercel.app`. This #46 documentation reconciliation copies that already-accepted serving observation; it did not re-probe Production.
-- **P45:** Accepted Cursor PR #45 release report comment 5722300751. Historical serving SHA `d5405cc456496e4b0fc908129d8a3fa6160aac8d`; deployment `dpl_6MgZPGrW8KmguXRCDx4UG6TZKyHt`. Superseded as serving identity by accepted P49.
+- **P50:** Accepted Cursor PR #50 Production closeout comment 5736696975. Serving SHA `30d7de3419a74f9f15159ff304545e7e46a5093d`; deployment `dpl_AeqBfh1AhN3uyv66WJLu5vtyVm33`; target production; branch/ref main; READY; primary alias `https://chasum.vercel.app`; build-info `30d7de3` / `main` / `production` / `production=true`. Health is configuration-presence only. This Issue #51 documentation reconciliation copies that already-accepted serving observation; it did not re-probe Production.
+- **P49:** Accepted Cursor PR #49 post-incident recheck comment 5736348282 and Control Tower closeout 5736361422. Historical serving SHA `d4529afcb49372961e2f02f35b7e51cdff4012bf`; deployment `dpl_4GfV2vY4Yov9fx1mQobCFWUz6n2k`. Superseded as serving identity by accepted P50.
+- **P45:** Accepted Cursor PR #45 release report comment 5722300751. Historical serving SHA `d5405cc456496e4b0fc908129d8a3fa6160aac8d`; deployment `dpl_6MgZPGrW8KmguXRCDx4UG6TZKyHt`. Superseded as serving identity by accepted P49, then P50.
 - **P43:** [Accepted PR #43](https://github.com/renovisionai2-cloud/chasum/pull/43), [changelog](../CHANGELOG.md), and [historical board](../handoffs/archive/CURRENT_PROJECT_STATE_20260917_PRE_CONTINUITY.md).
 - **C1:** Approved environment/tenant separation and historical configuration in that archived board. These are expectations/history, not fresh live measurements.
 
-No database, Auth-admin, provider, queue, environment-variable inventory or live Vercel inspection was performed for this Issue #46 documentation reconciliation. Restricted fields stay UNKNOWN. Git migrations, local env files and green deployment checks do not establish deployed configuration or database state. Continuity collector remains SPECIFIED / NOT IMPLEMENTED. Hosted Staging financial chain for #48 remains WAIVED FOR THAT RELEASE ONLY / NOT DEMONSTRATED and is not a permanent waiver.
+No database, Auth-admin, provider, queue, environment-variable inventory or live Vercel inspection was performed for this Issue #51 documentation reconciliation. Restricted fields stay UNKNOWN. Git migrations, local env files and green deployment checks do not establish deployed configuration or database state. Continuity collector remains SPECIFIED / NOT IMPLEMENTED. Hosted Staging financial chain for #48 remains WAIVED FOR THAT RELEASE ONLY / NOT DEMONSTRATED and is not a permanent waiver. HQ Phase 5 connected-chain dogfood (Issue #47 comment 5737101477) is Staging/Preview evidence, not Production.
 
 ## Production
 
 | Field | Expected / last observed | Classification | Evidence |
 | --- | --- | --- | --- |
-| Application URL | Expected and observed `https://chasum.vercel.app` | MATCH | P49 alias inspect |
-| Serving Git SHA | Expected and observed `d4529afcb49372961e2f02f35b7e51cdff4012bf` after PR #49 | MATCH | P49 `/api/build-info` |
-| Branch/ref; environment | Expected and observed `main`; `production`; production=true | MATCH | P49 |
-| Vercel deployment ID | Accepted observation `dpl_4GfV2vY4Yov9fx1mQobCFWUz6n2k`; linked to expected release | MATCH | P49 inspect plus alias |
-| Deployment URL | Not re-copied as a second identity; primary alias is the accepted serving URL | MATCH | P49 alias inspect |
-| Active aliases | Observed `chasum.vercel.app`, `chasum-renovisionappcom.vercel.app`; not claimed exhaustive | MATCH | P49 inspect; first alias HTTP-verified |
-| Deployment readiness | Expected READY; observed READY after Vercel Builds / Build & Deploy incident recovery | MATCH | P49 2026-09-18T21:19:39Z |
-| Accepted application baseline vs serving | Serving SHA equals accepted PR #49 squash-merge `d4529af...` | MATCH | P49 closeout 5736361422 |
-| Production SHA vs canonical main | Equal in P49 merge/serving observations; not a perpetual equality claim | MATCH | Separate dated Git/runtime observations in 5736348282 |
+| Application URL | Expected and observed `https://chasum.vercel.app` | MATCH | P50 alias inspect copied from 5736696975 |
+| Serving Git SHA | Expected and observed `30d7de3419a74f9f15159ff304545e7e46a5093d` after PR #50 | MATCH | P50 `/api/build-info` (`30d7de3`) |
+| Branch/ref; environment | Expected and observed `main`; `production`; production=true | MATCH | P50 |
+| Vercel deployment ID | Accepted observation `dpl_AeqBfh1AhN3uyv66WJLu5vtyVm33`; linked to expected release | MATCH | P50 inspect plus alias |
+| Deployment URL | Not re-copied as a second identity; primary alias is the accepted serving URL | MATCH | P50 alias inspect |
+| Active aliases | Observed `chasum.vercel.app`; not claimed exhaustive | MATCH | P50 inspect; primary alias HTTP-verified in 5736696975 |
+| Deployment readiness | Expected READY; observed READY | MATCH | P50 2026-09-18T21:58:38Z closeout |
+| Accepted application baseline vs serving | Serving SHA equals accepted PR #50 squash-merge `30d7de3...` | MATCH | P50 closeout 5736696975 |
+| Production SHA vs canonical main | Equal in P50 merge/serving observations; not a perpetual equality claim | MATCH | Separate dated Git/runtime observations in 5736696975 |
 | Supabase project ref | Expected `kxcydvhswkuzepwzzinq`; live binding not measured here | UNKNOWN | C1; health does not disclose binding |
 | Migration summary / applied hashes | Historical claims exist; current applied set not revalidated | UNKNOWN | Files in Git do not prove database state |
 | Locked/unapplied migrations | 034/035/036 historically locked/unapplied; no migration, 029/ACL repair or bulk replay authorized here | UNKNOWN | C1; execution restrictions remain, live state unasserted |
-| Schema compatibility | P49 reports softSchemaFallbacks=disabled; actual schema compatibility not probed | UNKNOWN | Configuration flag is not schema evidence |
+| Schema compatibility | P50 reports softSchemaFallbacks=disabled; actual schema compatibility not probed | UNKNOWN | Configuration flag is not schema evidence |
 | Cron state | Current schedule/enablement unverified; cronSecret presence alone insufficient | UNKNOWN | No worker or cron call |
 | Worker state / freshness | No current execution/error/backlog measurement | UNKNOWN | Not queried |
 | Webhook state | Historical OFF record not promoted to fresh state | UNKNOWN | C1; not queried |
-| Relevant feature flags | P49 softSchemaFallbacks=disabled; remaining flags not captured | UNKNOWN | Partial flag evidence only |
+| Relevant feature flags | P50 softSchemaFallbacks=disabled; remaining flags not captured | UNKNOWN | Partial flag evidence only |
 | Hold/protection state | Prior recovery closed; current technical hold/protection settings not re-read | UNKNOWN | No new hold imposed; PO release gate remains |
 | Auth Site URL | Configured value not captured | UNKNOWN | Application URL is not proof of Auth setting |
 | Approved redirect fingerprint | Approved full set and current fingerprint unavailable | UNKNOWN | Not captured |
 | Auth template fingerprints | Full template bytes/hashes unavailable; approved href retained below | UNKNOWN | No fabricated full-template hash |
-| Communication provider presence | P49 email=configured; sms=optional_missing, consistent with baseline | MATCH | Presence only; no send/delivery proof |
-| Other configuration presence | P49 cronSecret=configured; stripe/sentry=optional_missing | MATCH | Configuration probe only |
+| Communication provider presence | P50 email=configured; sms=optional_missing, consistent with baseline | MATCH | Presence only; no send/delivery proof |
+| Other configuration presence | P50 cronSecret=configured; stripe/sentry=optional_missing | MATCH | Configuration probe only |
 | Environment variables by name/target | Inventory not collected; never publish values | UNKNOWN | Not collected |
 | Canonical tenant IDs | Expected GVM `a04e1d65-eeb9-4d72-a5bf-739a9038bb91`, slug `gvm-baby-world`; Production HQ ID unverified | UNKNOWN | C1; no live row inspection |
 | Timezone/currency sanity | Expected GVM America/Toronto / CAD; current rows unqueried | UNKNOWN | C1 |
 | Queue totals | Not measured | UNKNOWN | Do not substitute historical Staging counts |
-| Health endpoint | P49 200; ok=true; production=true; checks.supabase/serviceRole true; email/cronSecret configured; sms/stripe/sentry optional_missing; softSchemaFallbacks=disabled | MATCH | Configuration-presence baseline unchanged; not DB/provider/worker/queue proof |
-| Route checks | `/`, `/login` 200; `/dashboard`, `/dashboard/calendar` 307 to login with encoded return path | MATCH | P49 21:19:39Z window, no sign-in or redirect following |
+| Health endpoint | P50 200; ok=true; production=true; checks.supabase/serviceRole true; email/cronSecret configured; sms/stripe/sentry optional_missing; softSchemaFallbacks=disabled | MATCH | Configuration-presence only; not DB/provider/worker/queue proof |
+| Route checks | `/`, `/login` 200; `/dashboard`, `/dashboard/calendar` 307 to login with encoded return path | MATCH | P50 21:58:38Z closeout, no sign-in or redirect following |
 | Hosted Staging financial chain (#48) | WAIVED FOR THAT RELEASE ONLY / NOT DEMONSTRATED | INTENTIONAL DIFFERENCE | 5736361422; not a permanent waiver |
 
 ## Staging
@@ -85,12 +86,15 @@ No database, Auth-admin, provider, queue, environment-variable inventory or live
 | Protected evidence | `92803b48-e65a-48ec-b578-8187afc48542` historically cancelled; preserve appointment and historical queues | UNKNOWN | C1; not re-read or modified |
 | Health endpoint | No current response | UNKNOWN | Not requested |
 | SHA vs main / Production | Different SHAs can be intentional; no current comparison possible | UNKNOWN | Approval/rationale needed for intentional classification |
+| HQ Phase 5 connected-chain dogfood | MET on Staging/Preview only (Issue #47 comment 5737101477). Not a Production observation. | INTENTIONAL DIFFERENCE | Staging/Preview evidence; do not copy into Production identity |
 
 ## Preview — one record per candidate
 
 Preview is not one shared mutable identity. For each relevant candidate record the same fields as above: application URL, SHA, branch/ref, deployment ID, active aliases, classification, Supabase ref, migration/schema state, locked migrations, cron/worker/webhook/flags/protection, Auth Site URL/redirect/template fingerprints, provider presence, variable names/targets, tenant scope, timezone/currency, queues, health and comparison to approved base/main.
 
-No meaningful Preview runtime inventory has been collected for this Issue #46 candidate; all such fields are UNKNOWN until observed. Normal automatic Vercel Preview from a branch push is not acceptance and must not be interacted with unless separately authorized. Expected data plane is isolated Staging, never Production; a Preview hostname or successful build does not prove that binding. Hosted lifecycle testing needs its own authorization. Never process inherited Staging queues to obtain a healthy-looking test.
+No meaningful Preview runtime inventory has been collected for this Issue #51 candidate; all such fields are UNKNOWN until observed. Normal automatic Vercel Preview from a branch push is not acceptance and must not be interacted with unless separately authorized. Expected data plane is isolated Staging, never Production; a Preview hostname or successful build does not prove that binding. Hosted lifecycle testing needs its own authorization. Never process inherited Staging queues to obtain a healthy-looking test.
+
+HQ Phase 5 connected-chain dogfood (Issue #47 comment 5737101477) was Staging/Preview evidence on an earlier current-tree Preview. It is not Production serving identity and must not be copied into the Production table.
 
 ## Approved Auth contract, not a full snapshot
 
@@ -101,7 +105,7 @@ These are placeholders, not secret values. This is not the complete template and
 
 ## Minimum automation follow-up — NOT IMPLEMENTED
 
-Codex owns collector engineering, Terra intended, separately bounded from omitted-status preservation. First iteration: one dependency-light read-only collector and deterministic offline tests; reuse GitHub metadata, `/api/build-info` and `/api/health`. No new endpoint, CI, credentials or privileged Supabase adapter required. Existing scripts must be source-inspected before reuse; an audit/verify name does not guarantee read-only behavior.
+Codex owns collector engineering, Terra intended, separately bounded from customer billing truth. First iteration: one dependency-light read-only collector and deterministic offline tests; reuse GitHub metadata, `/api/build-info` and `/api/health`. No new endpoint, CI, credentials or privileged Supabase adapter required. Existing scripts must be source-inspected before reuse; an audit/verify name does not guarantee read-only behavior.
 
 Inputs: explicitly allowlisted repository/app origins and approved candidate/base expectations. Output: redacted local JSON for review, never automatic baseline acceptance, Markdown rewriting, commits or environment changes. Per-field schema: `expected`, `observed`, `classification`, `source`, `observed_at`, `reason`. Missing values remain null/UNKNOWN.
 
