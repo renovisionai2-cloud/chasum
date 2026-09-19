@@ -21,6 +21,11 @@ export const PANEL_STANDARD_PX = 480;
 export const MIN_CALENDAR_SIDE_BY_SIDE_PX = 480;
 /** Keep the panel inside the viewport even when overlayed. */
 export const PANEL_VIEWPORT_GUTTER_PX = 24;
+/**
+ * Deterministic first-paint viewport so SSR HTML matches client hydration.
+ * Real browser width is applied after mount via useLayoutEffect.
+ */
+export const RECEPTION_SSR_VIEWPORT_WIDTH_PX = 1366;
 
 export const OPERATOR_VIEWPORTS = [
   { name: "large-desktop", width: 1440, height: 900 },

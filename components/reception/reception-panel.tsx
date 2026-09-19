@@ -13,6 +13,7 @@ import type { BookingDraft } from "@/lib/booking/booking-draft";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import {
   PANEL_VIEWPORT_GUTTER_PX,
+  RECEPTION_SSR_VIEWPORT_WIDTH_PX,
   receptionWorkspaceLayout,
 } from "@/lib/reception/panel-layout";
 import type { TaxRate } from "@/lib/business/types";
@@ -28,7 +29,6 @@ import { PanelRightClose, PanelRightOpen } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const LEGACY_PANEL_WIDTH_KEY = "chasum.receptionPanelWidthPx";
-const SSR_VIEWPORT_WIDTH_PX = 1366;
 
 type WaitlistEntry = {
   id: string;
@@ -63,11 +63,6 @@ type ReceptionPanelProps = {
   createCustomerSignal?: number;
 };
 
-function readViewportWidth(): number {
-  if (typeof window === "undefined") return SSR_VIEWPORT_WIDTH_PX;
-  return window.innerWidth;
-}
-
 export function ReceptionPanel({
   customers,
   services,
@@ -99,10 +94,13 @@ export function ReceptionPanel({
     string | null
   >(null);
   const [toolsOpen, setToolsOpen] = useState(false);
-  const [viewportWidth, setViewportWidth] = useState(readViewportWidth);
+  const [viewportWidth, setViewportWidth] = useState(
+    RECEPTION_SSR_VIEWPORT_WIDTH_PX,
+  );
 
   useLayoutEffect(() => {
     const sync = () => setViewportWidth(window.innerWidth);
+    sync();
     window.addEventListener("resize", sync);
     try {
       window.localStorage.removeItem(LEGACY_PANEL_WIDTH_KEY);

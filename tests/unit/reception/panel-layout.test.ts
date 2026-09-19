@@ -8,6 +8,7 @@ import {
   PANEL_STANDARD_PX,
   PANEL_VIEWPORT_GUTTER_PX,
   RECEPTION_ROW_GAP_PX,
+  RECEPTION_SSR_VIEWPORT_WIDTH_PX,
   documentRowWidthPx,
   receptionWorkspaceLayout,
 } from "@/lib/reception/panel-layout";
@@ -109,6 +110,13 @@ describe("receptionWorkspaceLayout", () => {
     expect(layout.panelWidthPx).toBeLessThanOrEqual(
       400 - PANEL_VIEWPORT_GUTTER_PX,
     );
+  });
+
+  it("SSR first-paint width is the stable 1366 side-by-side shell", () => {
+    const layout = receptionWorkspaceLayout(RECEPTION_SSR_VIEWPORT_WIDTH_PX);
+    expect(RECEPTION_SSR_VIEWPORT_WIDTH_PX).toBe(1366);
+    expect(layout.mode).toBe("side-by-side");
+    expect(layout.panelWidthPx).toBe(PANEL_STANDARD_PX);
   });
 
   it.each([...OPERATOR_VIEWPORTS])(

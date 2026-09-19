@@ -1,6 +1,8 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useRef, useState, type ReactElement } from "react";
+import { act, useLayoutEffect, useState, type ComponentProps, type ReactElement } from "react";
+import { hydrateRoot, type Root } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ReceptionPanel } from "@/components/reception/reception-panel";
 import {
@@ -65,16 +67,16 @@ vi.mock("@/components/reception/quick-appointment", () => ({
   QuickAppointmentForm: function QuickAppointmentForm(props: {
     preselectedCustomerId?: string;
   }) {
-    const mountId = useRef<number | null>(null);
-    if (mountId.current == null) {
-      formState.mounts += 1;
-      mountId.current = formState.mounts;
-    }
+    const [mountId, setMountId] = useState<number | null>(null);
     const [notes, setNotes] = useState("keep-this-draft");
+    useLayoutEffect(() => {
+      formState.mounts += 1;
+      setMountId(formState.mounts);
+    }, []);
     return (
       <div
         data-testid="quick-appointment-form"
-        data-mount={String(mountId.current)}
+        data-mount={mountId == null ? "" : String(mountId)}
       >
         <span data-testid="preselected-customer">
           {props.preselectedCustomerId ?? ""}
@@ -115,21 +117,22 @@ function mockViewport(width: number) {
   };
 }
 
-function renderPanel(extra?: Partial<React.ComponentProps<typeof ReceptionPanel>>) {
-  return render(
-    <ReceptionPanel
-      customers={[]}
-      services={[]}
-      staff={[]}
-      locations={[]}
-      insights={[]}
-      open
-      onOpenChange={() => undefined}
-      onBooked={() => undefined}
-      onOpenFullDialog={() => undefined}
-      {...extra}
-    />,
-  );
+function panelProps(): ComponentProps<typeof ReceptionPanel> {
+  return {
+    customers: [],
+    services: [],
+    staff: [],
+    locations: [],
+    insights: [],
+    open: true,
+    onOpenChange: () => undefined,
+    onBooked: () => undefined,
+    onOpenFullDialog: () => undefined,
+  };
+}
+
+function renderPanel(extra?: Partial<ComponentProps<typeof ReceptionPanel>>) {
+  return render(<ReceptionPanel {...panelProps()} {...extra} />);
 }
 
 function ReceptionWorkspace({ width }: { width: number }): ReactElement {
@@ -249,5 +252,47 @@ describe("ReceptionPanel viewport stability", () => {
       mountAfterCustomer,
     );
     expect(formState.mounts).toBe(mountsAfterDraft);
+  });
+
+  it("SSR markup is the 1366 side-by-side shell even when window is 1024, then hydrates and syncs overlay", async () => {
+    mockViewport(1024);
+    const tree = <ReceptionPanel {...panelProps()} />;
+    const markup = renderToString(tree);
+    expect(markup).toContain('data-layout-mode="side-by-side"');
+    expect(markup).toContain('data-occupies-flex="true"');
+    expect(markup).not.toContain('data-layout-mode="overlay"');
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    container.innerHTML = markup;
+
+    const hydrationErrors: string[] = [];
+    const originalError = console.error;
+    console.error = (...args: unknown[]) => {
+      const text = args.map(String).join(" ");
+      if (/hydrat/i.test(text)) hydrationErrors.push(text);
+      originalError.apply(console, args);
+    };
+
+    let root: Root | undefined;
+    try {
+      await act(async () => {
+        root = hydrateRoot(container, tree);
+      });
+      await waitFor(() => {
+        expect(
+          container.querySelector("[data-layout-mode]")?.getAttribute(
+            "data-layout-mode",
+          ),
+        ).toBe("overlay");
+      });
+      expect(hydrationErrors).toEqual([]);
+    } finally {
+      console.error = originalError;
+      await act(async () => {
+        root?.unmount();
+      });
+      container.remove();
+    }
   });
 });
