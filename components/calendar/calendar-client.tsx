@@ -623,7 +623,7 @@ export function CalendarClient({
           <div className="h-full w-1/3 animate-pulse bg-primary" />
         </div>
       ) : null}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:has-[[data-occupies-flex=false]]:gap-0">
         <div
           className={`min-w-0 flex-1 transition-opacity ${isRefreshing ? "opacity-80" : ""}`}
         >
