@@ -9,9 +9,31 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-18 — Customer billing truth (Issue #51 candidate)
+### 2026-09-19 — Trusted Operator hosted Preview/Staging acceptance (PR #55)
 
-Customer Billing no longer treats `deposit_cents = 0` as “use net paid,” so ordinary cash payments are not summarized as deposits. True configured deposits still populate the deposit total. The Booking Sheet / CRM header Balance chip now counts remaining appointment money (stored `price_cents + tax_cents − net paid`) instead of “deposit < catalog price,” so a fully paid / $0 invoice no longer shows `1 due`. Non-invoiced taxable remaining uses stored tax only. Ledger, invoices, receipts, and #48 arithmetic are unchanged. Unmerged candidate; no hosted mutation.
+Hosted Preview/Staging acceptance on application HEAD `a773772309aab9604cd46ba07cb2ca69f3c51989` is **B — PASS WITH NON-BLOCKING LIMITATIONS** (PR comment 5744195939; Control Tower 5744211544). User A→B session replacement succeeded; revoke, re-invite (same Auth identity, one membership), and cross-tenant refusal passed; the disposable test Trusted Admin was revoked. Two UX limitations remain documented and unfixed: revoke/ban can land at `/login` instead of authenticated `/access-denied`; replaying a used one-time magiclink can leave `?error=auth_callback_failed` on an already-authenticated dashboard tab. Neither restored User A nor leaked tenants. No Production/GVM mutation. Application code is technically release-ready; Production merge still requires explicit Product Owner approval. Unmerged candidate.
+
+### 2026-09-19 — Auth callback ordered Set-Cookie forwarding (PR #55 amendment)
+
+Callback helper now appends every Supabase `setAll` write as its own `Set-Cookie` header via `cookie@1.1.1` `stringifySetCookie`, including `partitioned`/`priority` and same-name clears with different domain/path. Next.js `ResponseCookies` is not used for emission because it collapses cookies by name. Hosted acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.
+
+### 2026-09-19 — Auth callback session-cookie propagation (PR #55 amendment)
+
+`/auth/callback` now uses a callback-specific SSR helper that copies Supabase `setAll` cookie writes (including chunked names and removals) and safe cache headers onto the actual `NextResponse.redirect`. Token-hash invite/resend link generation is unchanged. Hosted Preview/Staging proved the token-hash email and callback redirect, then failed because User A remained signed in after User B's magiclink — cookies were not on the outgoing redirect. Controlled acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.
+
+### 2026-09-19 — Trusted Operator token-hash callback (PR #55 amendment)
+
+Trusted Admin invite/resend emails now send a Chasum `/auth/callback?token_hash=...&type=invite|magiclink&next=/dashboard` URL instead of Supabase `properties.action_link`. `generateLink()` still runs; missing `hashed_token` or an unexpected `verification_type` fails closed without sending email. Existing `/auth/callback` `verifyOtp` path is reused. That link-generation change passed hosted email/callback verification; the remaining hosted blocker is session-cookie propagation on the callback redirect. No Production/GVM mutation. Unmerged candidate.
+
+### 2026-09-18 — Trusted Operator Access V1 (Issue #54 candidate)
+
+Primary owners can invite a Trusted Admin (`business_members.role = admin`) into the current business. Invite ordering commits Auth `app_metadata.chasum_operator` and membership before generating a non-auto-sent action link, then delivers it through the server-only Chasum system-email path. `getOrCreateBusiness()` fail-closes to `/access-denied` when the operator marker is present and no membership resolves, so revoked or pending operators cannot auto-create a tenant. Authority is `businesses.owner_id` only. No migration, RLS change, new role, Platform Admin write, real GVM invite, or Production mutation. True employee RBAC remains DESIGN FOR NOW / BUILD LATER. Unmerged candidate.
+
+Logs (`membership.invited` / `resent` / `revoked` / `failed`) are structured application logs, not a durable queryable membership audit ledger. Residual owner_id-only RLS on `communication_history`, `communication_follow_ups`, and `business-assets` is unchanged and classified non-blocking for GVM booking cutover.
+
+### 2026-09-18 — Customer billing truth (Issue #51 / PR #52, CLOSED / PRODUCTION VERIFIED)
+
+Customer Billing no longer treats `deposit_cents = 0` as “use net paid,” so ordinary cash payments are not summarized as deposits. True configured deposits still populate the deposit total. The Booking Sheet / CRM header Balance chip now counts remaining appointment money (stored `price_cents + tax_cents − net paid`) instead of “deposit < catalog price,” so a fully paid / $0 invoice no longer shows `1 due`. Non-invoiced taxable remaining uses stored tax only. Ledger, invoices, receipts, and #48 arithmetic are unchanged. Squash-merged as `cd735943518fda25be0bcc7e9f697b09b29fca9a`; Production `dpl_8yRCE7hjaRNMEdURgBthh1SkY9gm`. Do not reopen #51.
 
 ### 2026-09-18 — Omitted-status preservation (Issue #46 / PR #50, CLOSED / PRODUCTION VERIFIED)
 

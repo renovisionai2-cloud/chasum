@@ -1,6 +1,6 @@
 import { getSupabaseEnv, sanitizeAuthNextPath } from "@/lib/env";
 import { logger } from "@/lib/observability/logger";
-import { createClient } from "@/lib/supabase/server";
+import { createAuthCallbackClient } from "@/lib/supabase/auth-callback";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
@@ -51,13 +51,14 @@ export async function GET(request: Request) {
       (type === "recovery" ? "/reset-password" : "/dashboard"),
   );
 
-  const supabase = await createClient();
+  const { supabase, redirectWithAuthCookies } =
+    createAuthCallbackClient(request);
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return redirectWithAuthCookies(`${origin}${next}`);
     }
     logAuthCallbackFailure("code_exchange_failed", {
       codePresent: true,
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
     });
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return redirectWithAuthCookies(`${origin}${next}`);
     }
     logAuthCallbackFailure("otp_verify_failed", {
       codePresent: false,

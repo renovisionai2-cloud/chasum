@@ -9,7 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { OperatorAccessPanel } from "@/components/employees/operator-access-panel";
 import { createStaff } from "@/lib/actions/staff";
+import type { TrustedOperatorRow } from "@/lib/actions/operator-access";
 import type { StaffQuotaDecision } from "@/lib/billing/plan-entitlements";
 import type { Department } from "@/lib/employees/types";
 import type { ActionState, Location, Service } from "@/lib/types/booking";
@@ -149,17 +151,26 @@ export function EmployeeManager({
   locations,
   departments,
   staffQuota,
+  trustedAccess,
 }: {
   employees: DirectoryEmployee[];
   services: Service[];
   locations: Location[];
   departments: Department[];
   staffQuota: StaffQuotaDecision;
+  trustedAccess: {
+    canManage: boolean;
+    operators: TrustedOperatorRow[];
+  };
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
+      <OperatorAccessPanel
+        canManage={trustedAccess.canManage}
+        operators={trustedAccess.operators}
+      />
       <EmployeeDirectory
         employees={employees}
         services={services}

@@ -17,6 +17,15 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
+vi.mock("@supabase/ssr", () => ({
+  createServerClient: () => ({
+    auth: {
+      exchangeCodeForSession,
+      verifyOtp,
+    },
+  }),
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`);
@@ -183,7 +192,9 @@ describe("password reset callback hardening", () => {
     render(ui);
 
     expect(
-      screen.getByText(/that reset link didn't work or has expired/i),
+      screen.getByText(
+        /that sign-in, invitation, or reset link didn't work or has expired/i,
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /request a new one/i }),

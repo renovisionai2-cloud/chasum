@@ -1,3 +1,4 @@
+import { shouldFailClosedTenantCreate } from "@/lib/access/operator-membership";
 import { RECOMMENDED_NEW_BUSINESS_INTERVAL_MINUTES } from "@/lib/booking/interval";
 import { createClient } from "@/lib/supabase/server";
 import { isPlaceholderBusiness } from "@/lib/onboarding/setup-progress";
@@ -78,6 +79,14 @@ export const getOrCreateBusiness = cache(async (): Promise<Business> => {
   const user = await requireUser();
   const existing = await resolveBusinessForUser(user.id);
   if (existing) return existing;
+  if (
+    shouldFailClosedTenantCreate({
+      resolvedBusiness: existing,
+      appMetadata: (user.app_metadata ?? {}) as Record<string, unknown>,
+    })
+  ) {
+    redirect("/access-denied");
+  }
   // TENANT IDENTITY SAFETY GATE: this path creates a tenant only when the
   // signed-in user has no membership and no owned business. It does not
   // detect whether another tenant already represents the same real-world
