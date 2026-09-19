@@ -9,9 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-19 — Trusted Operator Access V1 Production closeout (PR #55, MERGED)
+
+PR #55 Trusted Operator Access V1 is **MERGED / CLOSED** (2026-09-19T18:19:57Z). Approved PR head before merge: `30ae664b36fb45892497dd89360de6e7654d6967`. Last runtime-verified Production application baseline / squash-merge SHA: `fc9a302a1a2e6feedd550478264d97eec9216b29`. Previous Production application SHA: `cd735943518fda25be0bcc7e9f697b09b29fca9a`. Production deployment `dpl_4ef8swfREjLjcgQyZDtuJx31K4fu` READY / success, target production, ref main; primary alias `https://chasum.vercel.app`. Runtime verification 5744330411; Control Tower Production acceptance 5744361600. No Supabase migrations, RLS SQL, schema files, `vercel.json`, GitHub workflow, Production Auth/env, or GVM tenant mutation in the `cd73594…fc9a302` release. No real GVM operator was invited. Issue #54 remains OPEN. Phase 5 remains IN PROGRESS. Do not restamp merely to chase a later documentation-only merge SHA.
+
 ### 2026-09-19 — Trusted Operator hosted Preview/Staging acceptance (PR #55)
 
-Hosted Preview/Staging acceptance on application HEAD `a773772309aab9604cd46ba07cb2ca69f3c51989` is **B — PASS WITH NON-BLOCKING LIMITATIONS** (PR comment 5744195939; Control Tower 5744211544). User A→B session replacement succeeded; revoke, re-invite (same Auth identity, one membership), and cross-tenant refusal passed; the disposable test Trusted Admin was revoked. Two UX limitations remain documented and unfixed: revoke/ban can land at `/login` instead of authenticated `/access-denied`; replaying a used one-time magiclink can leave `?error=auth_callback_failed` on an already-authenticated dashboard tab. Neither restored User A nor leaked tenants. No Production/GVM mutation. Application code is technically release-ready; Production merge still requires explicit Product Owner approval. Unmerged candidate.
+Hosted Preview/Staging acceptance on application HEAD `a773772309aab9604cd46ba07cb2ca69f3c51989` is **B — PASS WITH NON-BLOCKING LIMITATIONS** (PR comment 5744195939; Control Tower 5744211544). User A→B session replacement succeeded; revoke, re-invite (same Auth identity, one membership), and cross-tenant refusal passed; the disposable test Trusted Admin was revoked. Two UX limitations remain documented and unfixed: revoke/ban can land at `/login` instead of authenticated `/access-denied`; replaying a used one-time magiclink can leave `?error=auth_callback_failed` on an already-authenticated dashboard tab. Neither restored User A nor leaked tenants. No Production/GVM mutation. Historical unmerged-candidate record; Production closeout is the entry above.
 
 ### 2026-09-19 — Auth callback ordered Set-Cookie forwarding (PR #55 amendment)
 
