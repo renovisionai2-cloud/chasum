@@ -52,17 +52,30 @@ const USER_A_SESSION_COOKIE = "USER_A_SESSION_COOKIE";
 const USER_B_SESSION_COOKIE = "USER_B_SESSION_COOKIE";
 const SYNTHETIC_USER_B_HASH = "SYNTHETIC_USER_B_HASH";
 
-function cookieValues(response: NextResponse) {
-  return Object.fromEntries(
-    response.cookies.getAll().map((cookie) => [cookie.name, cookie.value]),
-  );
+function setCookieHeader(response: NextResponse) {
+  return response.headers.getSetCookie();
 }
 
-function setCookieHeader(response: NextResponse) {
-  const headers = response.headers as Headers & {
-    getSetCookie?: () => string[];
-  };
-  return headers.getSetCookie?.() ?? [];
+function cookieNameValue(header: string) {
+  const pair = header.split(";", 1)[0] ?? "";
+  const eq = pair.indexOf("=");
+  if (eq <= 0) return { name: "", value: "" };
+  let value = pair.slice(eq + 1);
+  try {
+    value = decodeURIComponent(value);
+  } catch {
+    /* keep raw */
+  }
+  return { name: pair.slice(0, eq), value };
+}
+
+function cookieValues(response: NextResponse) {
+  const out: Record<string, string> = {};
+  for (const header of setCookieHeader(response)) {
+    const parsed = cookieNameValue(header);
+    if (parsed.name) out[parsed.name] = parsed.value;
+  }
+  return out;
 }
 
 async function writeSessionCookies(
@@ -491,5 +504,120 @@ describe("auth callback response cookie propagation", () => {
     expect(logged).not.toContain("SYNTHETIC_AUTH_CODE");
     expect(logged).not.toContain(USER_B_SESSION_COOKIE);
     warn.mockRestore();
+  });
+
+  it("emits two same-name Set-Cookie headers with different scopes", async () => {
+    authMocks.verifyOtp.mockImplementation(async () => {
+      await writeSessionCookies([
+        {
+          name: USER_A_COOKIE_NAME,
+          value: "",
+          options: { domain: ".example.com", path: "/", maxAge: 0 },
+        },
+        {
+          name: USER_A_COOKIE_NAME,
+          value: "",
+          options: { path: "/", maxAge: 0 },
+        },
+      ]);
+      return { data: {}, error: null };
+    });
+    const { GET } = await import("@/app/auth/callback/route");
+    const response = await GET(
+      new Request(
+        `https://chasum.vercel.app/auth/callback?token_hash=${SYNTHETIC_USER_B_HASH}&type=magiclink&next=%2Fdashboard`,
+      ),
+    );
+
+    const headers = setCookieHeader(response);
+    expect(headers).toHaveLength(2);
+    expect(headers[0]).toMatch(/sb-test-auth-token=/);
+    expect(headers[0]).toMatch(/Domain=\.example\.com/i);
+    expect(headers[0].toLowerCase()).toMatch(/max-age=0/);
+    expect(headers[1]).toMatch(/sb-test-auth-token=/);
+    expect(headers[1]).not.toMatch(/Domain=/i);
+    expect(headers[1].toLowerCase()).toMatch(/max-age=0/);
+  });
+
+  it("preserves clear/clear/set order for the same cookie name", async () => {
+    authMocks.verifyOtp.mockImplementation(async () => {
+      await writeSessionCookies([
+        {
+          name: USER_A_COOKIE_NAME,
+          value: "",
+          options: { domain: ".example.com", path: "/", maxAge: 0 },
+        },
+        {
+          name: USER_A_COOKIE_NAME,
+          value: "",
+          options: { path: "/", maxAge: 0 },
+        },
+        {
+          name: USER_A_COOKIE_NAME,
+          value: USER_B_SESSION_COOKIE,
+          options: { path: "/", httpOnly: true, maxAge: 3600 },
+        },
+      ]);
+      return { data: {}, error: null };
+    });
+    const { GET } = await import("@/app/auth/callback/route");
+    const response = await GET(
+      new Request(
+        `https://chasum.vercel.app/auth/callback?token_hash=${SYNTHETIC_USER_B_HASH}&type=magiclink&next=%2Fdashboard`,
+        { headers: { cookie: `${USER_A_COOKIE_NAME}=${USER_A_SESSION_COOKIE}` } },
+      ),
+    );
+
+    const headers = setCookieHeader(response);
+    expect(headers).toHaveLength(3);
+    expect(headers[0]).toMatch(/Domain=\.example\.com/i);
+    expect(headers[0].toLowerCase()).toMatch(/max-age=0/);
+    expect(headers[1]).not.toMatch(/Domain=/i);
+    expect(headers[1].toLowerCase()).toMatch(/max-age=0/);
+    expect(headers[2]).toContain(USER_B_SESSION_COOKIE);
+    expect(headers[2]).not.toMatch(/Domain=/i);
+    expect(response.cookies.getAll().length).toBeLessThan(headers.length);
+  });
+
+  it("forwards Partitioned on the serialized Set-Cookie", async () => {
+    authMocks.verifyOtp.mockImplementation(async () => {
+      await writeSessionCookies([
+        {
+          name: USER_A_COOKIE_NAME,
+          value: USER_B_SESSION_COOKIE,
+          options: { path: "/", httpOnly: true, secure: true, partitioned: true },
+        },
+      ]);
+      return { data: {}, error: null };
+    });
+    const { GET } = await import("@/app/auth/callback/route");
+    const response = await GET(
+      new Request(
+        `https://chasum.vercel.app/auth/callback?token_hash=${SYNTHETIC_USER_B_HASH}&type=magiclink&next=%2Fdashboard`,
+      ),
+    );
+
+    expect(setCookieHeader(response).join("\n")).toMatch(/;\s*Partitioned/i);
+  });
+
+  it("forwards Priority=High on the serialized Set-Cookie", async () => {
+    authMocks.verifyOtp.mockImplementation(async () => {
+      await writeSessionCookies([
+        {
+          name: USER_A_COOKIE_NAME,
+          value: USER_B_SESSION_COOKIE,
+          options: { path: "/", httpOnly: true, priority: "high" },
+        },
+      ]);
+      return { data: {}, error: null };
+    });
+    const { GET } = await import("@/app/auth/callback/route");
+    const response = await GET(
+      new Request(
+        `https://chasum.vercel.app/auth/callback?token_hash=${SYNTHETIC_USER_B_HASH}&type=magiclink&next=%2Fdashboard`,
+      ),
+    );
+
+    expect(setCookieHeader(response).join("\n")).toMatch(/;\s*Priority=High/i);
   });
 });

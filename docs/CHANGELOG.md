@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-19 — Auth callback ordered Set-Cookie forwarding (PR #55 amendment)
+
+Callback helper now appends every Supabase `setAll` write as its own `Set-Cookie` header via `cookie@1.1.1` `stringifySetCookie`, including `partitioned`/`priority` and same-name clears with different domain/path. Next.js `ResponseCookies` is not used for emission because it collapses cookies by name. Hosted acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.
+
 ### 2026-09-19 — Auth callback session-cookie propagation (PR #55 amendment)
 
 `/auth/callback` now uses a callback-specific SSR helper that copies Supabase `setAll` cookie writes (including chunked names and removals) and safe cache headers onto the actual `NextResponse.redirect`. Token-hash invite/resend link generation is unchanged. Hosted Preview/Staging proved the token-hash email and callback redirect, then failed because User A remained signed in after User B's magiclink — cookies were not on the outgoing redirect. Controlled acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.

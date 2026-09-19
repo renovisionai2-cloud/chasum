@@ -77,6 +77,15 @@ describe("trusted operator source locks", () => {
     expect(source).not.toContain("ensure_business_for_owner");
   });
 
+  it("emits ordered raw Set-Cookie headers instead of name-collapsed ResponseCookies", () => {
+    const helper = readRepo("lib/supabase/auth-callback.ts");
+    expect(helper).toContain("stringifySetCookie");
+    expect(helper).toContain('headers.append(\n      "Set-Cookie"');
+    expect(helper).toContain("capturedCookies.push(write)");
+    expect(helper).not.toContain("response.cookies.set");
+    expect(helper).not.toContain("capturedCookies.findIndex");
+  });
+
   it("keeps /access-denied authenticated-safe and out of guest-route bounce", () => {
     const page = readRepo("app/(auth)/access-denied/page.tsx");
     const middleware = readRepo("lib/supabase/middleware.ts");

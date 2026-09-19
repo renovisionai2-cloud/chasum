@@ -1,5 +1,6 @@
 import { requireSupabaseEnv } from "@/lib/env";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { stringifySetCookie } from "cookie";
 import { NextResponse } from "next/server";
 
 type CookieWrite = {
@@ -36,41 +37,27 @@ function parseCookieHeader(header: string): { name: string; value: string }[] {
   return cookies;
 }
 
-function toNextCookieOptions(options: CookieOptions | undefined) {
-  if (!options) return {};
-  const next: {
-    path?: string;
-    domain?: string;
-    maxAge?: number;
-    expires?: Date;
-    httpOnly?: boolean;
-    secure?: boolean;
-    sameSite?: boolean | "lax" | "strict" | "none";
-  } = {};
-  if (typeof options.path === "string") next.path = options.path;
-  if (typeof options.domain === "string") next.domain = options.domain;
-  if (typeof options.maxAge === "number") next.maxAge = options.maxAge;
-  if (options.expires instanceof Date) next.expires = options.expires;
-  if (typeof options.httpOnly === "boolean") next.httpOnly = options.httpOnly;
-  if (typeof options.secure === "boolean") next.secure = options.secure;
-  if (
-    options.sameSite === true ||
-    options.sameSite === false ||
-    options.sameSite === "lax" ||
-    options.sameSite === "strict" ||
-    options.sameSite === "none"
-  ) {
-    next.sameSite = options.sameSite;
-  }
-  return next;
+function isRemovalWrite(write: CookieWrite) {
+  return write.value === "" || write.options.maxAge === 0;
 }
 
-function applyCapturedCookies(response: NextResponse, writes: CookieWrite[]) {
+function applyIncomingWrite(
+  incoming: { name: string; value: string }[],
+  write: CookieWrite,
+) {
+  for (let i = incoming.length - 1; i >= 0; i -= 1) {
+    if (incoming[i].name === write.name) incoming.splice(i, 1);
+  }
+  if (!isRemovalWrite(write)) {
+    incoming.push({ name: write.name, value: write.value });
+  }
+}
+
+function appendCapturedCookies(response: NextResponse, writes: CookieWrite[]) {
   for (const write of writes) {
-    response.cookies.set(
-      write.name,
-      write.value,
-      toNextCookieOptions(write.options),
+    response.headers.append(
+      "Set-Cookie",
+      stringifySetCookie(write.name, write.value, write.options),
     );
   }
 }
@@ -91,10 +78,10 @@ function applySafeCacheHeaders(
 }
 
 /**
- * Callback-only SSR client. Cookie writes are captured and applied to the
- * actual NextResponse.redirect returned to the browser. Do not use the
- * generic server client for /auth/callback — its setAll mutates cookieStore
- * without attaching Set-Cookie to the outgoing redirect.
+ * Callback-only SSR client. Cookie writes are captured in order and each is
+ * appended as its own Set-Cookie header on the actual redirect. Do not emit
+ * through ResponseCookies: Next 16 stores cookies in a name-only Map and
+ * would collapse same-name clears with different domain/path.
  */
 export function createAuthCallbackClient(request: Request) {
   const { url, anonKey } = requireSupabaseEnv();
@@ -117,27 +104,8 @@ export function createAuthCallbackClient(request: Request) {
             value: cookie.value,
             options: { ...(cookie.options ?? {}) },
           };
-          const capturedIndex = capturedCookies.findIndex(
-            (existing) => existing.name === write.name,
-          );
-          if (capturedIndex >= 0) capturedCookies[capturedIndex] = write;
-          else capturedCookies.push(write);
-
-          const incomingIndex = incoming.findIndex(
-            (existing) => existing.name === write.name,
-          );
-          const removing =
-            write.value === "" || write.options.maxAge === 0;
-          if (removing) {
-            if (incomingIndex >= 0) incoming.splice(incomingIndex, 1);
-          } else if (incomingIndex >= 0) {
-            incoming[incomingIndex] = {
-              name: write.name,
-              value: write.value,
-            };
-          } else {
-            incoming.push({ name: write.name, value: write.value });
-          }
+          capturedCookies.push(write);
+          applyIncomingWrite(incoming, write);
         }
         for (const [key, value] of Object.entries(headers ?? {})) {
           capturedHeaders[key] = value;
@@ -148,7 +116,7 @@ export function createAuthCallbackClient(request: Request) {
 
   function redirectWithAuthCookies(location: string) {
     const response = NextResponse.redirect(location);
-    applyCapturedCookies(response, capturedCookies);
+    appendCapturedCookies(response, capturedCookies);
     applySafeCacheHeaders(
       response,
       capturedHeaders,
