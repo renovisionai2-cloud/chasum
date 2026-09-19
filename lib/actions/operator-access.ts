@@ -263,6 +263,23 @@ async function persistOperatorMetadata(
   return updated.user;
 }
 
+const OPERATOR_LINK_TYPES = ["invite", "magiclink"] as const;
+type OperatorLinkType = (typeof OPERATOR_LINK_TYPES)[number];
+
+function isOperatorLinkType(value: string | undefined | null): value is OperatorLinkType {
+  return (OPERATOR_LINK_TYPES as readonly string[]).includes(value ?? "");
+}
+
+function buildOperatorCallbackUrl(input: {
+  hashedToken: string;
+  verificationType: OperatorLinkType;
+}): string {
+  const callback = new URL(getAuthCallbackUrl("/dashboard"));
+  callback.searchParams.set("token_hash", input.hashedToken);
+  callback.searchParams.set("type", input.verificationType);
+  return callback.toString();
+}
+
 async function generateInviteActionLink(input: {
   admin: ServiceClient;
   email: string;
@@ -279,12 +296,24 @@ async function generateInviteActionLink(input: {
         email: input.email,
         options: { redirectTo: getAuthCallbackUrl("/dashboard") },
       });
-  if (generated.error || !generated.data.properties?.action_link) {
+  if (generated.error) {
     throw new Error(
-      generated.error?.message ?? "Could not generate the invitation link.",
+      generated.error.message || "Could not generate the invitation link.",
     );
   }
-  return generated.data.properties.action_link;
+
+  const properties = generated.data?.properties;
+  const hashedToken =
+    typeof properties?.hashed_token === "string" ? properties.hashed_token.trim() : "";
+  const verificationType = properties?.verification_type;
+  if (!hashedToken || !isOperatorLinkType(verificationType)) {
+    throw new Error("Could not generate the invitation link.");
+  }
+
+  return buildOperatorCallbackUrl({
+    hashedToken,
+    verificationType,
+  });
 }
 
 async function deliverInviteEmail(input: {

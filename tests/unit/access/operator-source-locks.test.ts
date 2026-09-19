@@ -24,6 +24,9 @@ describe("trusted operator source locks", () => {
     expect(source).not.toMatch(/admin\.signOut/);
     expect(source).not.toContain("auth.users");
     expect(source).toContain("generateLink");
+    expect(source).toContain("hashed_token");
+    expect(source).toContain("verification_type");
+    expect(source).not.toContain("properties.action_link");
     expect(source).toContain("ban_duration");
     expect(source).toContain("TRUSTED_OPERATOR_UNBAN_DURATION");
     expect(source).toContain("role: TRUSTED_OPERATOR_ROLE");
@@ -63,9 +66,10 @@ describe("trusted operator source locks", () => {
     expect(panel).not.toMatch(/Employee login|Receptionist|Limited access/);
   });
 
-  it("callback still exchanges the session and does not create a tenant", () => {
+  it("callback still exchanges the session, verifies token_hash, and does not create a tenant", async () => {
     const source = readRepo("app/auth/callback/route.ts");
     expect(source).toContain("exchangeCodeForSession");
+    expect(source).toContain("verifyOtp");
     expect(source).not.toContain("getOrCreateBusiness");
     expect(source).not.toContain("ensure_business_for_owner");
   });

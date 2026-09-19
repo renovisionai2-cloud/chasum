@@ -67,4 +67,64 @@ describe("trusted operator invitation callback", () => {
     expect(warn.mock.calls.join(" ")).not.toContain("EXPIRED_INVITE");
     warn.mockRestore();
   });
+
+  it("verifies a magiclink token_hash and redirects to dashboard", async () => {
+    verifyOtp.mockResolvedValue({ data: {}, error: null });
+    const { GET } = await import("@/app/auth/callback/route");
+    const response = await GET(
+      new Request(
+        "https://chasum.vercel.app/auth/callback?token_hash=TEST_HASH&type=magiclink&next=%2Fdashboard",
+      ),
+    );
+    expect(verifyOtp).toHaveBeenCalledTimes(1);
+    expect(verifyOtp).toHaveBeenCalledWith({
+      token_hash: "TEST_HASH",
+      type: "magiclink",
+    });
+    expect(exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://chasum.vercel.app/dashboard",
+    );
+  });
+
+  it("verifies an invite token_hash and redirects to dashboard", async () => {
+    verifyOtp.mockResolvedValue({ data: {}, error: null });
+    const { GET } = await import("@/app/auth/callback/route");
+    const response = await GET(
+      new Request(
+        "https://chasum.vercel.app/auth/callback?token_hash=TEST_INVITE_HASH&type=invite&next=%2Fdashboard",
+      ),
+    );
+    expect(verifyOtp).toHaveBeenCalledWith({
+      token_hash: "TEST_INVITE_HASH",
+      type: "invite",
+    });
+    expect(exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(response.headers.get("location")).toBe(
+      "https://chasum.vercel.app/dashboard",
+    );
+  });
+
+  it("redirects a failed magiclink token_hash without logging the token", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    verifyOtp.mockResolvedValue({
+      data: {},
+      error: { status: 403, code: "otp_expired" },
+    });
+    const { GET } = await import("@/app/auth/callback/route");
+    const response = await GET(
+      new Request(
+        "https://chasum.vercel.app/auth/callback?token_hash=TEST_HASH&type=magiclink&next=%2Fdashboard",
+      ),
+    );
+    expect(response.headers.get("location")).toBe(
+      "https://chasum.vercel.app/login?error=auth_callback_failed",
+    );
+    const logged = warn.mock.calls.map((args) => args.map(String).join(" ")).join("\n");
+    expect(logged).toContain("otp_verify_failed");
+    expect(logged).not.toContain("TEST_HASH");
+    expect(logged).not.toContain("token_hash=TEST_HASH");
+    warn.mockRestore();
+  });
 });

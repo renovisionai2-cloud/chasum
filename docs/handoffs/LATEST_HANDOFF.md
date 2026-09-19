@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-18 by Cursor (temporary #54 candidate). **Owner:** Control Tower.
+**Updated:** 2026-09-19 by Cursor (temporary #54 / PR #55 token-hash callback amendment). **Owner:** Control Tower.
 **Purpose:** Recover the next action in 5–10 minutes without historical chat access.
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a second current-state table.
 **Implementation status:** Issue #51 / PR #52 is CLOSED / PRODUCTION VERIFIED. Issue #48 / PR #49 and Issue #46 / PR #50 remain CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. Active implementation candidate is unmerged Issue #54. Issue #53 is parallel release-governance work and is not this PR.
@@ -8,7 +8,7 @@
 ## A. Current control-tower state
 
 Phase 5, Production Pin and Design-Partner Pilot Stabilization, remains IN PROGRESS.
-Active implementation candidate: Issue #54 Trusted Operator Access V1, branch `feat/trusted-operator-access-v1` (unmerged; Control Tower exact-candidate review next). Issue #51 / PR #52, Issue #46 / PR #50 and Issue #48 / PR #49 are CLOSED / PRODUCTION VERIFIED and must not be reopened. Issue #53 is parallel and must not be implemented in the #54 PR.
+Active implementation candidate: Issue #54 Trusted Operator Access V1 / PR #55, branch `feat/trusted-operator-access-v1` (UNMERGED; not Production-authorized). Controlled NON-PRODUCTION Preview/Staging acceptance is IN PROGRESS. Email/provider/Preview redirect configuration gates are cleared. Current blocker is the token-hash callback amendment. Do not claim hosted acceptance PASS. Issue #51 / PR #52, Issue #46 / PR #50 and Issue #48 / PR #49 are CLOSED / PRODUCTION VERIFIED and must not be reopened. Issue #53 is parallel and must not be implemented in the #54 PR.
 
 PR #43, PR #44, PR #45, PR #49, PR #50 and PR #52 are accepted and closed. Do not create another restamp merely to chase a changing docs-merge SHA. PR #45 established the permanent continuity foundation; later main now includes the accepted PR #52 runtime. Current accepted main/Production SHA is `cd735943518fda25be0bcc7e9f697b09b29fca9a`.
 
@@ -62,13 +62,13 @@ Cancelled remains terminal and notes-editable only. First cancellation stays Qui
 **PASS CONDITION:** owner_id-only authority; no `inviteUserByEmail` before membership; marker present (any status) blocks `ensure_business_for_owner`; Platform Admin and other-tenant targets rejected including HQ; email failure leaves Pending; new Auth identity compensated only when this action created it; revoke deletes membership then `ban_duration: "876000h"`; re-invite unbans with `"none"`; no migration/RLS/new role/Platform Admin write; unmerged PR; no real GVM invite.
 Codex remains the permanent primary engineer. This candidate is unmerged and not a Production authorization. If Codex capacity returns during this task, Codex must not race or duplicate Issue #54. Codex resumes default ownership on the next engineering task.
 
-**Authority:** Control Tower comment 5738099117. Cursor design 5737958434. Architecture review 5738005189. Claude independent audit 5738066916 verdict B — APPROVE OPTION A WITH REQUIRED IMPLEMENTATION CONDITIONS. **Risk:** Level 3. No Production merge, hosted Auth/membership mutation, or real GVM grant authorized.
+**Authority:** Control Tower comment 5738099117; token-hash callback amendment 5742803473. Cursor design 5737958434. Architecture review 5738005189. Claude independent audit 5738066916 verdict B — APPROVE OPTION A WITH REQUIRED IMPLEMENTATION CONDITIONS. **Risk:** Level 3. No Production merge or real GVM grant authorized. Controlled Staging Preview acceptance already created a disposable Staging Auth identity and HQ Trusted Admin membership; no Production/GVM mutation occurred.
 
 Start from freshly verified canonical main `cd735943518fda25be0bcc7e9f697b09b29fca9a`. If it advanced, report the delta and reconcile the implementation base before proceeding; never reset/force-push to satisfy an old handoff or create duplicate work. Older `30d7de3...` / Issue #51 resume instructions are stale for current start.
 
 Locked product truth: Trusted Admin is full tenant-admin access inside one Chasum business during Private Alpha. It is not receptionist access, employee permission checkboxes, Platform Admin, or `/owner`. True employee RBAC remains DESIGN FOR NOW / BUILD LATER.
 
-Remaining hosted sequence after this unmerged candidate: exact-candidate audit → Preview/Staging acceptance → separate Product Owner approval for a real GVM grant → GVM operator iPad/login acceptance → genuine GVM operation → first legitimate Production booking → customer confirmation exactly once → business new-booking email exactly once → close Phase 5.
+Remaining hosted sequence after this token-hash callback amendment: Control Tower exact-delta review → independent audit → resume Preview/Staging acceptance (not yet PASS) → separate Product Owner approval for a real GVM grant → GVM operator iPad/login acceptance → genuine GVM operation → first legitimate Production booking → customer confirmation exactly once → business new-booking email exactly once → close Phase 5.
 
 Other risks remain separate: GVM legitimate Production booking + dual-email observation (passive wait); Issue #53 branch protection; residual owner_id-only RLS on communication_history / communication_follow_ups / business-assets (non-blocking unless Calendar/Reception/customer-search/booking unexpectedly fail); cross-account Auth TD-H10; configuration TD-H11. No new Production P1 incident is established by this continuity work.
 
@@ -76,7 +76,7 @@ Other risks remain separate: GVM legitimate Production booking + dual-email obse
 
 Read the manifest. Do not create another live inventory of deployments, queue counts, flags or migrations. This documentation task performed no database/provider/Auth/configuration mutation or privileged live verification. Staging SHA/deployment and restricted runtime fields remain UNKNOWN, not failed or healthy by assumption.
 
-Protect GVM, normal HQ, the Staging evidence appointments and historical queues. No synthetic GVM Production booking, real GVM Trusted Admin invite, worker invocation, queue cleanup, migration replay, credential work or alias movement is authorized. This #54 candidate authorizes local/branch implementation, automated tests and an unmerged PR only.
+Protect GVM, normal HQ, the Staging evidence appointments and historical queues. No synthetic GVM Production booking, real GVM Trusted Admin invite, worker invocation, queue cleanup, migration replay, credential work or alias movement is authorized. This amendment is source/tests only: do not Invite, Resend, Revoke, or change Vercel/Auth config until Control Tower authorizes hosted retest. True employee RBAC remains DESIGN FOR NOW / BUILD LATER.
 
 ## F. Agent governance — PO locked (NO-IDLE / AGENT FALLBACK)
 

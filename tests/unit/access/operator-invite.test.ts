@@ -80,6 +80,23 @@ function form(email: string, extra: Record<string, string> = {}) {
   return data;
 }
 
+const SUPABASE_HOSTED_ACTION_LINK =
+  "https://auth.example/SUPABASE_HOSTED_ACTION_LINK";
+const TEST_OPERATOR_HASHED_TOKEN = "TEST_OPERATOR_HASHED_TOKEN";
+const CHASUM_CALLBACK_ORIGIN = "https://chasum.vercel.app/auth/callback";
+
+function emailedBodies() {
+  const payload = sendEmail.mock.calls[0]?.[0] as
+    | { html?: string; text?: string; to?: string }
+    | undefined;
+  return {
+    html: payload?.html ?? "",
+    text: payload?.text ?? "",
+    to: payload?.to ?? "",
+    combined: `${payload?.html ?? ""}\n${payload?.text ?? ""}`,
+  };
+}
+
 function createHarness(options?: {
   users?: UserRow[];
   memberships?: { business_id: string; user_id: string; role: string; created_at?: string }[];
@@ -88,6 +105,8 @@ function createHarness(options?: {
   createError?: { code?: string; message?: string; status?: number } | null;
   insertError?: { code?: string; message?: string } | null;
   generateError?: string | null;
+  generateHashedToken?: string | null;
+  generateVerificationType?: string;
   failMetadataRestore?: boolean;
 }) {
   const users = [...(options?.users ?? [])];
@@ -97,6 +116,7 @@ function createHarness(options?: {
   const calls = {
     createUser: 0,
     generateLink: 0,
+    generateLinkTypes: [] as string[],
     deleteUser: 0,
     insert: 0,
     updateUserById: [] as Array<Record<string, unknown>>,
@@ -180,15 +200,24 @@ function createHarness(options?: {
         async listUsers() {
           return { data: { users }, error: null };
         },
-        async generateLink() {
+        async generateLink(attrs: { type: string }) {
           calls.generateLink += 1;
+          calls.generateLinkTypes.push(attrs.type);
           calls.sequence.push("generateLink");
           if (options?.generateError) {
             return { data: null, error: { message: options.generateError } };
           }
+          const hashedToken =
+            options?.generateHashedToken === undefined
+              ? TEST_OPERATOR_HASHED_TOKEN
+              : options.generateHashedToken;
           return {
             data: {
-              properties: { action_link: "https://auth.example/invite-secret" },
+              properties: {
+                action_link: SUPABASE_HOSTED_ACTION_LINK,
+                hashed_token: hashedToken,
+                verification_type: options?.generateVerificationType ?? attrs.type,
+              },
               user: users[0] ?? null,
             },
             error: null,
@@ -343,20 +372,25 @@ describe("trusted operator invite/revoke actions", () => {
       role: "admin",
     });
     expect(sendEmail).toHaveBeenCalledTimes(1);
-    const payload = sendEmail.mock.calls[0][0] as { html: string; to: string };
-    expect(payload.to).toBe("op@tenant.test");
-    expect(payload.html).toContain("https://auth.example/invite-secret");
+    expect(harness.calls.generateLinkTypes).toEqual(["invite"]);
+    const email = emailedBodies();
+    expect(email.to).toBe("op@tenant.test");
+    expect(email.combined).toContain(CHASUM_CALLBACK_ORIGIN);
+    expect(email.combined).toContain(`token_hash=${TEST_OPERATOR_HASHED_TOKEN}`);
+    expect(email.combined).toContain("type=invite");
+    expect(email.combined).toContain("next=%2Fdashboard");
+    expect(email.combined).not.toContain(SUPABASE_HOSTED_ACTION_LINK);
     const metadataWrite = harness.calls.updateUserById.find((patch) =>
       Boolean(patch.app_metadata),
     );
     expect(metadataWrite).toBeTruthy();
     expect(harness.calls.generateLink).toBe(1);
-    expect(JSON.stringify(vi.mocked(logger).info.mock.calls)).not.toContain(
-      "invite-secret",
-    );
-    expect(JSON.stringify(vi.mocked(logger).error.mock.calls)).not.toContain(
-      "invite-secret",
-    );
+    const logged = JSON.stringify([
+      ...vi.mocked(logger).info.mock.calls,
+      ...vi.mocked(logger).error.mock.calls,
+    ]);
+    expect(logged).not.toContain(TEST_OPERATOR_HASHED_TOKEN);
+    expect(logged).not.toContain(SUPABASE_HOSTED_ACTION_LINK);
   });
 
   it("rejects a delegated Trusted Admin from inviting", async () => {
@@ -549,7 +583,8 @@ describe("trusted operator invite/revoke actions", () => {
     const logged = JSON.stringify(vi.mocked(logger).error.mock.calls);
     expect(logged).toContain("compensation_failed");
     expect(logged).toContain("metadata");
-    expect(logged).not.toContain("invite-secret");
+    expect(logged).not.toContain(TEST_OPERATOR_HASHED_TOKEN);
+    expect(logged).not.toContain(SUPABASE_HOSTED_ACTION_LINK);
   });
 
   it("leaves Pending access when email delivery fails after membership", async () => {
@@ -621,11 +656,17 @@ describe("trusted operator invite/revoke actions", () => {
     expect(result.success).toMatch(/resent/i);
     expect(harness.calls.insert).toBe(0);
     expect(harness.calls.generateLink).toBe(1);
+    expect(harness.calls.generateLinkTypes).toEqual(["invite"]);
     expect(sendEmail).toHaveBeenCalledTimes(1);
+    const email = emailedBodies();
+    expect(email.combined).toContain(CHASUM_CALLBACK_ORIGIN);
+    expect(email.combined).toContain(`token_hash=${TEST_OPERATOR_HASHED_TOKEN}`);
+    expect(email.combined).toContain("type=invite");
+    expect(email.combined).not.toContain(SUPABASE_HOSTED_ACTION_LINK);
   });
 
   it("returns truthful already-active status on explicit resend", async () => {
-    createHarness({
+    const harness = createHarness({
       users: [
         {
           id: "op-1",
@@ -641,7 +682,42 @@ describe("trusted operator invite/revoke actions", () => {
     );
     const result = await resendTrustedOperatorInvite({}, form("op@tenant.test"));
     expect(result.success).toMatch(/already a Trusted Admin/i);
+    expect(harness.calls.insert).toBe(0);
+    expect(harness.memberships).toHaveLength(1);
+    expect(harness.calls.generateLinkTypes).toEqual(["magiclink"]);
     expect(sendEmail).toHaveBeenCalledTimes(1);
+    const email = emailedBodies();
+    expect(email.combined).toContain(CHASUM_CALLBACK_ORIGIN);
+    expect(email.combined).toContain(`token_hash=${TEST_OPERATOR_HASHED_TOKEN}`);
+    expect(email.combined).toContain("type=magiclink");
+    expect(email.combined).not.toContain(SUPABASE_HOSTED_ACTION_LINK);
+  });
+
+  it("fails closed when generateLink returns an unsupported verification type", async () => {
+    const harness = createHarness({
+      generateVerificationType: "signup",
+    });
+    const { inviteTrustedOperator } = await import("@/lib/actions/operator-access");
+    const result = await inviteTrustedOperator({}, form("op@tenant.test"));
+    expect(result.success).toBeUndefined();
+    expect(result.error).toMatch(/could not generate the invitation link/i);
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(harness.memberships).toHaveLength(1);
+    expect(JSON.stringify(result)).not.toContain(TEST_OPERATOR_HASHED_TOKEN);
+    expect(JSON.stringify(result)).not.toContain(SUPABASE_HOSTED_ACTION_LINK);
+  });
+
+  it("fails closed when generateLink omits hashed_token", async () => {
+    const harness = createHarness({
+      generateHashedToken: null,
+    });
+    const { inviteTrustedOperator } = await import("@/lib/actions/operator-access");
+    const result = await inviteTrustedOperator({}, form("op@tenant.test"));
+    expect(result.success).toBeUndefined();
+    expect(result.error).toMatch(/could not generate the invitation link/i);
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(harness.memberships).toHaveLength(1);
+    expect(JSON.stringify(result)).not.toContain(SUPABASE_HOSTED_ACTION_LINK);
   });
 
   it("hides Trusted Access management from a delegated admin", async () => {

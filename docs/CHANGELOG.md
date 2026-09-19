@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-19 — Trusted Operator token-hash callback (PR #55 amendment)
+
+Trusted Admin invite/resend emails now send a Chasum `/auth/callback?token_hash=...&type=invite|magiclink&next=/dashboard` URL instead of Supabase `properties.action_link`. `generateLink()` still runs; missing `hashed_token` or an unexpected `verification_type` fails closed without sending email. Existing `/auth/callback` `verifyOtp` path is reused. Controlled Preview/Staging acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.
+
 ### 2026-09-18 — Trusted Operator Access V1 (Issue #54 candidate)
 
 Primary owners can invite a Trusted Admin (`business_members.role = admin`) into the current business. Invite ordering commits Auth `app_metadata.chasum_operator` and membership before generating a non-auto-sent action link, then delivers it through the server-only Chasum system-email path. `getOrCreateBusiness()` fail-closes to `/access-denied` when the operator marker is present and no membership resolves, so revoked or pending operators cannot auto-create a tenant. Authority is `businesses.owner_id` only. No migration, RLS change, new role, Platform Admin write, real GVM invite, or Production mutation. True employee RBAC remains DESIGN FOR NOW / BUILD LATER. Unmerged candidate.
