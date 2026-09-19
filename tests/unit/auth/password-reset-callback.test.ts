@@ -17,6 +17,15 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
+vi.mock("@supabase/ssr", () => ({
+  createServerClient: () => ({
+    auth: {
+      exchangeCodeForSession,
+      verifyOtp,
+    },
+  }),
+}));
+
 vi.mock("next/navigation", () => ({
   redirect: (url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`);

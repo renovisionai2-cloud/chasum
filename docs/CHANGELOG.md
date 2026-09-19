@@ -9,9 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-19 — Auth callback session-cookie propagation (PR #55 amendment)
+
+`/auth/callback` now uses a callback-specific SSR helper that copies Supabase `setAll` cookie writes (including chunked names and removals) and safe cache headers onto the actual `NextResponse.redirect`. Token-hash invite/resend link generation is unchanged. Hosted Preview/Staging proved the token-hash email and callback redirect, then failed because User A remained signed in after User B's magiclink — cookies were not on the outgoing redirect. Controlled acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.
+
 ### 2026-09-19 — Trusted Operator token-hash callback (PR #55 amendment)
 
-Trusted Admin invite/resend emails now send a Chasum `/auth/callback?token_hash=...&type=invite|magiclink&next=/dashboard` URL instead of Supabase `properties.action_link`. `generateLink()` still runs; missing `hashed_token` or an unexpected `verification_type` fails closed without sending email. Existing `/auth/callback` `verifyOtp` path is reused. Controlled Preview/Staging acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.
+Trusted Admin invite/resend emails now send a Chasum `/auth/callback?token_hash=...&type=invite|magiclink&next=/dashboard` URL instead of Supabase `properties.action_link`. `generateLink()` still runs; missing `hashed_token` or an unexpected `verification_type` fails closed without sending email. Existing `/auth/callback` `verifyOtp` path is reused. That link-generation change passed hosted email/callback verification; the remaining hosted blocker is session-cookie propagation on the callback redirect. No Production/GVM mutation. Unmerged candidate.
 
 ### 2026-09-18 — Trusted Operator Access V1 (Issue #54 candidate)
 

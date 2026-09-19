@@ -70,6 +70,9 @@ describe("trusted operator source locks", () => {
     const source = readRepo("app/auth/callback/route.ts");
     expect(source).toContain("exchangeCodeForSession");
     expect(source).toContain("verifyOtp");
+    expect(source).toContain("createAuthCallbackClient");
+    expect(source).toContain("redirectWithAuthCookies");
+    expect(source).not.toContain('from "@/lib/supabase/server"');
     expect(source).not.toContain("getOrCreateBusiness");
     expect(source).not.toContain("ensure_business_for_owner");
   });
