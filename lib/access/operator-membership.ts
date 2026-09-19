@@ -47,6 +47,15 @@ export const ALREADY_ACTIVE_MESSAGE = "That person is already a Trusted Admin of
 export const ALREADY_INVITED_MESSAGE =
   "That person already has a pending Trusted Admin invitation for this business.";
 
+export const EXISTING_IDENTITY_COMPENSATION_FAILED_MESSAGE =
+  "Trusted Admin setup failed and the existing account could not be restored. Contact the business owner before retrying.";
+
+export type OperatorCompensationSnapshot = {
+  hadOperatorMarker: boolean;
+  previousOperator: unknown;
+  wasBanned: boolean;
+};
+
 export function normalizeOperatorEmail(
   email: string | undefined | null,
 ): string | null {
@@ -103,6 +112,50 @@ export function mergeOperatorAppMetadata(
     existing && typeof existing === "object" ? { ...existing } : {};
   current[TRUSTED_OPERATOR_METADATA_KEY] = operator;
   return current;
+}
+
+function cloneJsonValue(value: unknown): unknown {
+  if (value && typeof value === "object") {
+    return { ...(value as Record<string, unknown>) };
+  }
+  return value;
+}
+
+/** Capture only Trusted Operator / ban fields before mutating a pre-existing identity. */
+export function snapshotOperatorCompensationState(input: {
+  appMetadata: Record<string, unknown> | undefined | null;
+  bannedUntil?: string | null;
+}): OperatorCompensationSnapshot {
+  const hadOperatorMarker = hasOperatorMarker(input.appMetadata);
+  return {
+    hadOperatorMarker,
+    previousOperator: hadOperatorMarker
+      ? cloneJsonValue(input.appMetadata![TRUSTED_OPERATOR_METADATA_KEY])
+      : undefined,
+    wasBanned: Boolean(input.bannedUntil),
+  };
+}
+
+/**
+ * Restore ONLY app_metadata.chasum_operator from a pre-attempt snapshot.
+ * Reads whatever other keys currently exist so concurrent unrelated metadata is kept.
+ */
+export function restoreOperatorAppMetadata(
+  current: Record<string, unknown> | undefined | null,
+  snapshot: Pick<
+    OperatorCompensationSnapshot,
+    "hadOperatorMarker" | "previousOperator"
+  >,
+): Record<string, unknown> {
+  const next = current && typeof current === "object" ? { ...current } : {};
+  if (snapshot.hadOperatorMarker) {
+    next[TRUSTED_OPERATOR_METADATA_KEY] = cloneJsonValue(
+      snapshot.previousOperator,
+    );
+  } else {
+    delete next[TRUSTED_OPERATOR_METADATA_KEY];
+  }
+  return next;
 }
 
 export function buildInvitedOperatorMetadata(input: {

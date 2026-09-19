@@ -9,6 +9,7 @@ import {
   buildTrustedAdminInviteEmail,
   EMAIL_DELIVERY_FAILED_MESSAGE,
   emailsMatch,
+  EXISTING_IDENTITY_COMPENSATION_FAILED_MESSAGE,
   isDuplicateEmailCreateError,
   isPrimaryOwner,
   isUniqueMembershipConflict,
@@ -18,10 +19,13 @@ import {
   OWNER_ONLY_MESSAGE,
   PLATFORM_ADMIN_TARGET_MESSAGE,
   readOperatorMetadata,
+  restoreOperatorAppMetadata,
+  snapshotOperatorCompensationState,
   TRUSTED_OPERATOR_BAN_DURATION,
   TRUSTED_OPERATOR_ROLE,
   TRUSTED_OPERATOR_UNBAN_DURATION,
   trustedOperatorListStatus,
+  type OperatorCompensationSnapshot,
   type TrustedOperatorMetadata,
 } from "@/lib/access/operator-membership";
 import { getBusiness, requireUser } from "@/lib/actions/business";
@@ -320,6 +324,52 @@ async function compensateCreatedIdentity(
   }
 }
 
+async function restorePreExistingIdentity(input: {
+  admin: ServiceClient;
+  userId: string;
+  snapshot: OperatorCompensationSnapshot;
+  didUnban: boolean;
+}): Promise<{ ok: true } | { ok: false; restorationStage: "metadata" | "ban" }> {
+  const { admin, userId, snapshot, didUnban } = input;
+  let restorationStage: "metadata" | "ban" | null = null;
+
+  try {
+    const { data: fresh, error: readError } = await admin.auth.admin.getUserById(
+      userId,
+    );
+    if (readError || !fresh.user) {
+      throw new Error(readError?.message ?? "missing");
+    }
+    const merged = restoreOperatorAppMetadata(
+      (fresh.user.app_metadata ?? {}) as Record<string, unknown>,
+      snapshot,
+    );
+    const { error: updateError } = await admin.auth.admin.updateUserById(
+      userId,
+      { app_metadata: merged },
+    );
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
+  } catch {
+    restorationStage = "metadata";
+  }
+
+  if (snapshot.wasBanned && didUnban) {
+    const { error: banError } = await admin.auth.admin.updateUserById(userId, {
+      ban_duration: TRUSTED_OPERATOR_BAN_DURATION,
+    });
+    if (banError && !restorationStage) {
+      restorationStage = "ban";
+    }
+  }
+
+  if (restorationStage) {
+    return { ok: false, restorationStage };
+  }
+  return { ok: true };
+}
+
 async function commitTrustedAdminAccess(input: {
   admin: ServiceClient;
   actorId: string;
@@ -330,6 +380,9 @@ async function commitTrustedAdminAccess(input: {
 }): Promise<ActionState> {
   const { admin, actorId, business, email, displayName, send } = input;
   let identity: InviteIdentity | null = null;
+  let snapshot: OperatorCompensationSnapshot | null = null;
+  let didUnban = false;
+  let membershipEstablished = false;
 
   try {
     if (getPlatformOwnerEmails().includes(email)) {
@@ -386,6 +439,11 @@ async function commitTrustedAdminAccess(input: {
       };
     }
 
+    snapshot = snapshotOperatorCompensationState({
+      appMetadata: (identity.user.app_metadata ?? {}) as Record<string, unknown>,
+      bannedUntil: identity.user.banned_until,
+    });
+
     const bannedUntil = identity.user.banned_until;
     if (bannedUntil) {
       const { error: unbanError } = await admin.auth.admin.updateUserById(
@@ -396,6 +454,7 @@ async function commitTrustedAdminAccess(input: {
         await compensateCreatedIdentity(admin, identity.created, identity.user.id);
         return { error: unbanError.message };
       }
+      didUnban = true;
     }
 
     const invitedAt = new Date().toISOString();
@@ -419,6 +478,7 @@ async function commitTrustedAdminAccess(input: {
       createdBy: actorId,
     });
     if (inserted.duplicate) {
+      membershipEstablished = true;
       const status = trustedOperatorListStatus({
         lastSignInAt: identity.user.last_sign_in_at,
       });
@@ -427,6 +487,7 @@ async function commitTrustedAdminAccess(input: {
           status === "active" ? ALREADY_ACTIVE_MESSAGE : ALREADY_INVITED_MESSAGE,
       };
     }
+    membershipEstablished = true;
 
     if (!send) {
       return { success: ALREADY_INVITED_MESSAGE };
@@ -477,23 +538,42 @@ async function commitTrustedAdminAccess(input: {
       success: `Trusted Admin invitation sent to ${email}. They will have full access to this business during Private Alpha.`,
     };
   } catch (error) {
-    if (identity?.created) {
-      try {
-        await compensateCreatedIdentity(admin, true, identity.user.id);
-      } catch (cleanupError) {
-        logMembership("failed", {
-          reason: "compensation_failed",
-          businessId: business.id,
+    if (!membershipEstablished && identity) {
+      if (identity.created) {
+        try {
+          await compensateCreatedIdentity(admin, true, identity.user.id);
+        } catch (cleanupError) {
+          logMembership("failed", {
+            reason: "compensation_failed",
+            restorationStage: "delete",
+            businessId: business.id,
+            userId: identity.user.id,
+            cleanup:
+              cleanupError instanceof Error ? cleanupError.message : "unknown",
+          });
+          return {
+            error:
+              cleanupError instanceof Error
+                ? cleanupError.message
+                : "Trusted Admin setup failed and the new Auth identity could not be removed.",
+          };
+        }
+      } else if (snapshot) {
+        const restored = await restorePreExistingIdentity({
+          admin,
           userId: identity.user.id,
-          cleanup:
-            cleanupError instanceof Error ? cleanupError.message : "unknown",
+          snapshot,
+          didUnban,
         });
-        return {
-          error:
-            cleanupError instanceof Error
-              ? cleanupError.message
-              : "Trusted Admin setup failed and the new Auth identity could not be removed.",
-        };
+        if (!restored.ok) {
+          logMembership("failed", {
+            reason: "compensation_failed",
+            restorationStage: restored.restorationStage,
+            businessId: business.id,
+            userId: identity.user.id,
+          });
+          return { error: EXISTING_IDENTITY_COMPENSATION_FAILED_MESSAGE };
+        }
       }
     }
     logMembership("failed", {

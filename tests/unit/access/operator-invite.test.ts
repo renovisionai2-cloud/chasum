@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { logger } from "@/lib/observability/logger";
 import {
   EMAIL_DELIVERY_FAILED_MESSAGE,
+  EXISTING_IDENTITY_COMPENSATION_FAILED_MESSAGE,
   OWNER_ONLY_MESSAGE,
   OTHER_TENANT_TARGET_MESSAGE,
   PLATFORM_ADMIN_TARGET_MESSAGE,
@@ -87,6 +88,7 @@ function createHarness(options?: {
   createError?: { code?: string; message?: string; status?: number } | null;
   insertError?: { code?: string; message?: string } | null;
   generateError?: string | null;
+  failMetadataRestore?: boolean;
 }) {
   const users = [...(options?.users ?? [])];
   const memberships = [...(options?.memberships ?? [])];
@@ -134,7 +136,19 @@ function createHarness(options?: {
         },
         async updateUserById(id: string, patch: Record<string, unknown>) {
           calls.updateUserById.push(patch);
-          if (patch.app_metadata) calls.sequence.push("metadata");
+          if (patch.app_metadata) {
+            const metadataWrites = calls.sequence.filter((step) =>
+              step.startsWith("metadata"),
+            ).length;
+            if (options?.failMetadataRestore && metadataWrites >= 1) {
+              calls.sequence.push("metadata_restore_failed");
+              return {
+                data: { user: null },
+                error: { message: "metadata restore failed" },
+              };
+            }
+            calls.sequence.push("metadata");
+          }
           if (patch.ban_duration === TRUSTED_OPERATOR_UNBAN_DURATION) {
             calls.sequence.push("unban");
           } else if (typeof patch.ban_duration === "string") {
@@ -445,15 +459,97 @@ describe("trusted operator invite/revoke actions", () => {
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
-  it("never deletes a pre-existing Auth user on failure", async () => {
+  it("restores an ordinary existing Auth user when membership insert fails", async () => {
     const harness = createHarness({
       createError: { code: "email_exists", message: "already registered" },
-      users: [{ id: "op-1", email: "op@tenant.test", app_metadata: { provider: "email" } }],
+      users: [
+        {
+          id: "op-1",
+          email: "op@tenant.test",
+          app_metadata: { provider: "email", providers: ["email"] },
+        },
+      ],
       insertError: { message: "membership failed" },
     });
     const { inviteTrustedOperator } = await import("@/lib/actions/operator-access");
-    await inviteTrustedOperator({}, form("op@tenant.test"));
+    const result = await inviteTrustedOperator({}, form("op@tenant.test"));
+    expect(result.error).toMatch(/membership failed/i);
+    expect(result.success).toBeUndefined();
     expect(harness.calls.deleteUser).toBe(0);
+    expect(harness.users).toHaveLength(1);
+    expect(harness.memberships).toHaveLength(0);
+    expect(harness.users[0]?.app_metadata).toEqual({
+      provider: "email",
+      providers: ["email"],
+    });
+    expect(harness.users[0]?.app_metadata).not.toHaveProperty("chasum_operator");
+    expect(harness.calls.generateLink).toBe(0);
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("restores revoked marker and re-bans when re-invite membership insert fails", async () => {
+    const revoked = {
+      business_id: "biz-1",
+      role: "admin",
+      status: "revoked",
+      invited_by: "owner-1",
+      invited_at: "2026-09-01T00:00:00.000Z",
+      revoked_by: "owner-1",
+      revoked_at: "2026-09-02T00:00:00.000Z",
+    };
+    const harness = createHarness({
+      createError: { code: "email_exists", message: "already registered" },
+      users: [
+        {
+          id: "op-1",
+          email: "op@tenant.test",
+          app_metadata: { provider: "email", chasum_operator: revoked },
+          banned_until: "2099-01-01T00:00:00.000Z",
+        },
+      ],
+      insertError: { message: "membership failed" },
+    });
+    const { inviteTrustedOperator } = await import("@/lib/actions/operator-access");
+    const result = await inviteTrustedOperator({}, form("op@tenant.test"));
+    expect(result.error).toMatch(/membership failed/i);
+    expect(result.success).toBeUndefined();
+    expect(harness.calls.deleteUser).toBe(0);
+    expect(harness.memberships).toHaveLength(0);
+    expect(harness.users[0]?.app_metadata.provider).toBe("email");
+    expect(harness.users[0]?.app_metadata.chasum_operator).toEqual(revoked);
+    expect(harness.calls.sequence).toContain("unban");
+    expect(harness.calls.sequence.lastIndexOf("ban")).toBeGreaterThan(
+      harness.calls.sequence.lastIndexOf("unban"),
+    );
+    expect(harness.users[0]?.banned_until).toBeTruthy();
+    expect(harness.calls.generateLink).toBe(0);
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("logs compensation failure and does not claim success when restore fails", async () => {
+    const harness = createHarness({
+      createError: { code: "email_exists", message: "already registered" },
+      users: [
+        {
+          id: "op-1",
+          email: "op@tenant.test",
+          app_metadata: { provider: "email" },
+        },
+      ],
+      insertError: { message: "membership failed" },
+      failMetadataRestore: true,
+    });
+    const { inviteTrustedOperator } = await import("@/lib/actions/operator-access");
+    const result = await inviteTrustedOperator({}, form("op@tenant.test"));
+    expect(result.success).toBeUndefined();
+    expect(result.error).toBe(EXISTING_IDENTITY_COMPENSATION_FAILED_MESSAGE);
+    expect(harness.calls.generateLink).toBe(0);
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(harness.calls.deleteUser).toBe(0);
+    const logged = JSON.stringify(vi.mocked(logger).error.mock.calls);
+    expect(logged).toContain("compensation_failed");
+    expect(logged).toContain("metadata");
+    expect(logged).not.toContain("invite-secret");
   });
 
   it("leaves Pending access when email delivery fails after membership", async () => {

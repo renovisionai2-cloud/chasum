@@ -11,7 +11,9 @@ import {
   isUniqueMembershipConflict,
   mergeOperatorAppMetadata,
   normalizeOperatorEmail,
+  restoreOperatorAppMetadata,
   shouldFailClosedTenantCreate,
+  snapshotOperatorCompensationState,
   TRUSTED_OPERATOR_BAN_DURATION,
   TRUSTED_OPERATOR_ROLE,
   TRUSTED_OPERATOR_UNBAN_DURATION,
@@ -94,6 +96,39 @@ describe("trusted operator helpers", () => {
       role: "admin",
       status: "invited",
     });
+  });
+
+  it("restores or removes only the Trusted Operator metadata key", () => {
+    const current = {
+      provider: "email",
+      plan: "trial",
+      chasum_operator: { status: "invited", business_id: "biz-1" },
+    };
+    expect(
+      restoreOperatorAppMetadata(current, {
+        hadOperatorMarker: false,
+        previousOperator: undefined,
+      }),
+    ).toEqual({ provider: "email", plan: "trial" });
+
+    const previous = {
+      business_id: "biz-1",
+      role: "admin" as const,
+      status: "revoked" as const,
+      invited_by: "owner-1",
+      invited_at: "2026-09-01T00:00:00.000Z",
+      revoked_by: "owner-1",
+      revoked_at: "2026-09-02T00:00:00.000Z",
+    };
+    expect(
+      restoreOperatorAppMetadata(
+        { provider: "email", chasum_operator: { status: "invited" } },
+        snapshotOperatorCompensationState({
+          appMetadata: { provider: "email", chasum_operator: previous },
+          bannedUntil: "2099-01-01T00:00:00.000Z",
+        }),
+      ),
+    ).toEqual({ provider: "email", chasum_operator: previous });
   });
 
   it("retains invited timestamps when revoking", () => {
