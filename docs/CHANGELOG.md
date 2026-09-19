@@ -9,6 +9,10 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-19 — Trusted Operator hosted Preview/Staging acceptance (PR #55)
+
+Hosted Preview/Staging acceptance on application HEAD `a773772309aab9604cd46ba07cb2ca69f3c51989` is **B — PASS WITH NON-BLOCKING LIMITATIONS** (PR comment 5744195939; Control Tower 5744211544). User A→B session replacement succeeded; revoke, re-invite (same Auth identity, one membership), and cross-tenant refusal passed; the disposable test Trusted Admin was revoked. Two UX limitations remain documented and unfixed: revoke/ban can land at `/login` instead of authenticated `/access-denied`; replaying a used one-time magiclink can leave `?error=auth_callback_failed` on an already-authenticated dashboard tab. Neither restored User A nor leaked tenants. No Production/GVM mutation. Application code is technically release-ready; Production merge still requires explicit Product Owner approval. Unmerged candidate.
+
 ### 2026-09-19 — Auth callback ordered Set-Cookie forwarding (PR #55 amendment)
 
 Callback helper now appends every Supabase `setAll` write as its own `Set-Cookie` header via `cookie@1.1.1` `stringifySetCookie`, including `partitioned`/`priority` and same-name clears with different domain/path. Next.js `ResponseCookies` is not used for emission because it collapses cookies by name. Hosted acceptance remains IN PROGRESS / not PASS. No Production/GVM mutation. Unmerged candidate.
