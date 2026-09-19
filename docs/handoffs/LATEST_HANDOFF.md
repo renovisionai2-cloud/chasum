@@ -1,19 +1,19 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-19 by Cursor (temporary PR #55 Production release source-of-truth docs closeout). **Owner:** Control Tower.
+**Updated:** 2026-09-19 by Cursor (PR #55 Production source-of-truth closeout). **Owner:** Control Tower.
 **Purpose:** Recover the next action in 5–10 minutes without historical chat access.
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a second current-state table.
-**Implementation status:** Issue #51 / PR #52, Issue #48 / PR #49, and Issue #46 / PR #50 remain CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. PR #55 Trusted Operator Access V1 is **MERGED / CLOSED**. Last runtime-verified Production application baseline is `fc9a302a1a2e6feedd550478264d97eec9216b29`. Issue #54 remains OPEN because the real GVM Trusted Admin grant has not been authorized. Issue #53 is parallel release-governance work and is not this PR.
+**Implementation status:** Issue #51 / PR #52, Issue #48 / PR #49, and Issue #46 / PR #50 remain CLOSED / PRODUCTION VERIFIED. HQ connected-chain Phase 5 gate is MET. Automatic environment collection remains SPECIFIED / NOT IMPLEMENTED. PR #55 Trusted Operator Access V1 is **MERGED / CLOSED**. Last runtime-verified Production application baseline is `fc9a302a1a2e6feedd550478264d97eec9216b29`. Issue #54 remains OPEN because the real GVM Trusted Admin grant has not been authorized. Issue #53 is parallel release-governance work and must not ship inside the GVM grant.
 
 ## A. Current control-tower state
 
 Phase 5 remains IN PROGRESS. PR #55 is MERGED / CLOSED (2026-09-19T18:19:57Z; approved head `30ae664b36fb45892497dd89360de6e7654d6967`; squash / last runtime-verified application SHA `fc9a302a1a2e6feedd550478264d97eec9216b29`). Previous Production application SHA `cd735943518fda25be0bcc7e9f697b09b29fca9a`. Production `dpl_4ef8swfREjLjcgQyZDtuJx31K4fu` READY / success, target production, ref main; unique `https://chasum-bxotnq0i1-renovisionappcom.vercel.app`; alias `https://chasum.vercel.app`. Evidence: 5744330411 / 5744361600 / Issue #54 5744362262.
 
-Hosted Preview/Staging B (5744195939 / 5744211544) is historical. Its two UX limitations are backlog, not grant blockers, and are not claimed fixed. Issue #54 remains OPEN: application implementation is PRODUCTION VERIFIED; the real GVM Trusted Admin grant is **not** authorized. No real GVM operator was invited. Do not reopen #52/#51, #50/#46, or #49/#48. Issue #53 is parallel and must not ship here.
+Hosted Preview/Staging B (5744195939 / 5744211544) is historical. Its two UX limitations are backlog, not grant blockers, and are not claimed fixed. Issue #54 remains OPEN: application implementation is PRODUCTION VERIFIED; the real GVM Trusted Admin grant is **not** authorized. No real GVM operator was invited. Do not reopen #52/#51, #50/#46, or #49/#48. Issue #53 is parallel and must not ship inside the GVM grant.
 
-Do not restamp merely to chase a docs-merge SHA. Freshly query remote main; a later documentation-only merge may advance Git main / Vercel build SHA without changing the executable application tree. Do not treat `cd73594…` as current canonical main. Do not self-reference this documentation commit’s SHA.
+Do not restamp merely to chase a docs-merge SHA. Freshly query remote main; a later documentation-only merge may advance Git main / Vercel build SHA without changing the last runtime-verified application baseline. Do not treat `cd73594…` as current canonical main. Docs-only SHAs do not replace the runtime-verified application baseline.
 
-HQ connected-chain gate: MET. Trusted Operator Production implementation: VERIFIED. Immediate remaining prerequisite: real GVM operator access approval + login acceptance. Phase 5 still ends only at a legitimate GVM Production booking plus customer confirmation email once and business new-booking email once. Dual-email observation is still waiting. Do not create a synthetic GVM Production booking or send a real GVM invite from this closeout.
+HQ connected-chain gate: MET. Trusted Operator Production implementation: VERIFIED. Immediate remaining prerequisite: real GVM operator access approval + login acceptance. Phase 5 still ends only at a legitimate GVM Production booking plus customer confirmation email once and business new-booking email once. Dual-email observation is still waiting. Do not create a synthetic GVM Production booking. Do not send a real GVM invite until separate Product Owner approval.
 
 The board owns task/PR identity. The [manifest](../runtime/ENVIRONMENT_MANIFEST.md) owns environment observations. Read actual GitHub PR state. True employee RBAC remains DESIGN FOR NOW / BUILD LATER; #54 is not commercial RBAC.
 
@@ -54,15 +54,13 @@ Cancelled remains terminal and notes-editable only. First cancellation stays Qui
 
 ## D. Active risks and exact engineering continuation
 
-**In-flight candidate (temporary Cursor fallback):** documentation-only Production closeout for PR #55, branch `docs/pr55-production-closeout`.
+**Current engineering state:** no in-flight application candidate. PR #55 is MERGED / PRODUCTION VERIFIED. Last runtime-verified Production application baseline is `fc9a302a1a2e6feedd550478264d97eec9216b29`. Issue #54 remains OPEN because the real GVM Trusted Admin grant is **not** authorized.
 **PRIMARY NORMAL OWNER:** Codex.
-**TEMPORARY EXECUTION OWNER:** Cursor.
-**REASON:** Codex capacity unavailable.
-**SCOPE:** documentation only. Do not change application/runtime/test/package files. Do not merge this docs PR. Do not grant GVM access. Do not re-probe Production.
-**PASS CONDITION:** docs match Production evidence 5744330411 / Control Tower 5744361600 / Issue #54 5744362262; application/runtime/test/package trees identical to `fc9a302a1a2e6feedd550478264d97eec9216b29`; Issue #54 stays open; no real GVM grant; no Production mutation.
-Codex remains the permanent primary engineer. If Codex capacity returns during this task, Codex must not race or duplicate this closeout. Codex resumes default ownership on the next engineering task.
+**Next substantive gate:** separate Product Owner decision for the REAL GVM Trusted Admin grant.
+**PASS CONDITION:** PO-authorized in-product `owner_id` Trusted Admin grant to the intended real GVM operator, then GVM-tenant login/iPad acceptance, `/owner` denied, operational surfaces, genuine GVM operation, legitimate Production booking, and dual-email observation. Issue #54 stays open until that grant sequence is authorized and completed. No historical grant scripts. No Production SQL/Auth dashboard mutation.
+Codex remains the permanent primary engineer. Cursor’s bounded #54/#55 fallback is complete. Codex owns the next engineering task if one is authorized.
 
-**Authority:** 5744361600 / 5744330411 / Issue #54 5744362262; hosted 5744211544 / 5744195939; implementation 5738099117; token-hash 5742803473; session cookies 5743594318; ordered Set-Cookie 5743814476; Claude 5738066916 / 5743974268. **Risk:** Level 3 release documentation. No real GVM grant authorized. Staging test Trusted Admin `chasum1215+pr55ta@gmail.com` remains **REVOKED** (Auth identity remains; no active HQ membership; no manual Auth delete or metadata edit).
+**Authority:** 5744361600 / 5744330411 / Issue #54 5744362262; hosted 5744211544 / 5744195939; implementation 5738099117; token-hash 5742803473; session cookies 5743594318; ordered Set-Cookie 5743814476; Claude 5738066916 / 5743974268. **Risk:** remaining #54 work is a Level 3 Auth/membership Production grant and is **not** authorized. Staging test Trusted Admin `chasum1215+pr55ta@gmail.com` remains **REVOKED** (Auth identity remains; no active HQ membership; no manual Auth delete or metadata edit).
 
 Non-blocking hosted limitations (security PASS; not grant blockers; not claimed fixed):
 1. Revoke/ban UX: lost tenant access and landed `/login` rather than authenticated `/access-denied`.
@@ -72,7 +70,7 @@ Start by freshly querying `origin/main`. Preserve `fc9a302a1a2e6feedd550478264d9
 
 Locked product truth: Trusted Admin V1 = `business_members.role = admin` with broad tenant-admin access inside one business during Private Alpha. Not receptionist access, employee checkboxes, Platform Admin, or `/owner`. True employee login/RBAC remains DESIGN FOR NOW / BUILD LATER.
 
-Locked future #54 sequence after this docs closeout is reviewed and merged under separate PO approval:
+Locked future #54 sequence after separate Product Owner approval:
 PO explicitly approves real GVM Trusted Admin grant → verify Production runtime / tenant identity → IN-PRODUCT Trusted Admin workflow only → `owner_id` authority only → invite the intended real GVM operator → fresh Chasum email → operator login/iPad acceptance → GVM tenant only → `/owner` denied → operational surfaces → genuine GVM operation → legitimate Production booking → customer confirmation exactly once → business new-booking email exactly once → Phase 5 closeout if clean.
 
 Never use historical grant scripts, manual Production SQL, Auth metadata editing, or Supabase dashboard user mutation. Do not mark Phase 5 complete because #55 is Production verified.
@@ -81,11 +79,11 @@ Other separate risks: GVM dual-email observation (wait until grant); Issue #53; 
 
 ## E. Environment state
 
-Read the manifest. Do not create another live inventory of deployments, queue counts, flags or migrations. This documentation task performed no Production GET, database/provider/Auth/configuration mutation, or privileged live verification. Staging SHA/deployment and restricted runtime fields remain UNKNOWN, not failed or healthy by assumption.
+Read the manifest. Do not create another live inventory of deployments, queue counts, flags or migrations. Accepted Production evidence was copied from 5744330411 / 5744361600; it was not re-probed for the closeout restamp. Staging SHA/deployment and restricted runtime fields remain UNKNOWN, not failed or healthy by assumption.
 
 Protect GVM, normal HQ, the Staging evidence appointments and historical queues. No synthetic GVM Production booking, real GVM Trusted Admin invite, worker invocation, queue cleanup, migration replay, credential work or alias movement is authorized.
 
-Temporary NON-PRODUCTION PR #55 acceptance configuration may still exist and must not be removed in this docs closeout: branch-scoped Preview `RESEND_API_KEY`, branch-scoped Preview `NEXT_PUBLIC_APP_URL`, and a Staging Auth redirect allowlist entry for the old PR #55 Preview alias. Production release is now verified and no further PR #55 hosted retest is currently required. Later removal is IMPORTANT SECURITY/CONFIG HYGIENE / POST-RELEASE SAFE / SEPARATE CONTROLLED NON-PRODUCTION CLEANUP. Do not mix that cleanup into this documentation PR. Do not touch Production configuration. True employee RBAC remains DESIGN FOR NOW / BUILD LATER.
+Temporary NON-PRODUCTION PR #55 acceptance configuration may still exist: branch-scoped Preview `RESEND_API_KEY`, branch-scoped Preview `NEXT_PUBLIC_APP_URL`, and a Staging Auth redirect allowlist entry for the old PR #55 Preview alias. Production release is now verified and no further PR #55 hosted retest is currently required. Later removal is IMPORTANT SECURITY/CONFIG HYGIENE / POST-RELEASE SAFE / SEPARATE CONTROLLED NON-PRODUCTION CLEANUP. Do not mix that cleanup into the GVM grant. Do not touch Production configuration. True employee RBAC remains DESIGN FOR NOW / BUILD LATER.
 
 The `cd73594…fc9a302` release included application/docs/tests/package dependency changes and NO Supabase migrations, RLS SQL, schema migration files, `vercel.json` change, GitHub workflow change, Production Auth config change, Production env mutation, or GVM tenant mutation.
 
