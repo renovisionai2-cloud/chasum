@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OwnerPageFrame } from "@/components/owner/page-frame";
 import { getOwnerOverviewMetrics } from "@/lib/owner/data";
+import { getOwnerWorkerHealthSnapshot } from "@/lib/owner/worker-health";
+import { isSentryEnabled } from "@/lib/observability/sentry";
 import { Activity } from "lucide-react";
 import { format } from "date-fns";
 import type { Metadata } from "next";
@@ -28,14 +30,50 @@ function CheckRow({ label, ok }: { label: string; ok: boolean }) {
   );
 }
 
+function PresenceRow({
+  label,
+  configured,
+}: {
+  label: string;
+  configured: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between border-b border-border/70 py-2.5 text-sm last:border-0">
+      <span>{label}</span>
+      <Badge
+        className={
+          configured
+            ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
+            : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+        }
+      >
+        {configured ? "Configured" : "Not configured"}
+      </Badge>
+    </div>
+  );
+}
+
+function CountRow({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between border-b border-border/70 py-2.5 text-sm last:border-0">
+      <span>{label}</span>
+      <span className="font-mono text-xs text-muted-foreground">{value}</span>
+    </div>
+  );
+}
+
 export default async function OwnerHealthPage() {
-  const metrics = await getOwnerOverviewMetrics();
+  const [metrics, workerHealth] = await Promise.all([
+    getOwnerOverviewMetrics(),
+    getOwnerWorkerHealthSnapshot(),
+  ]);
   const { checks } = metrics.systemHealth;
+  const sentryConfigured = isSentryEnabled();
 
   return (
     <OwnerPageFrame
       title="Platform Health"
-      description="Production dependency checks and recent platform alerts."
+      description="Production dependency checks and read-only operational health."
     >
       <Card>
         <CardHeader>
@@ -50,20 +88,89 @@ export default async function OwnerHealthPage() {
           <CheckRow label="Resend (email)" ok={checks.email} />
           <CheckRow label="Cron secret" ok={checks.cronSecret} />
           <CheckRow label="Twilio SMS (optional)" ok={checks.sms} />
+          <PresenceRow label="Sentry (optional)" configured={sentryConfigured} />
+          <p className="pt-3 text-xs text-muted-foreground">
+            Configuration presence does not prove that an external provider is
+            healthy or receiving events.
+          </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Recent alerts</CardTitle>
+          <CardTitle className="text-base">Background worker health</CardTitle>
         </CardHeader>
         <CardContent>
+          {!workerHealth.available ? (
+            <EmptyState
+              variant="inline"
+              glyph={Activity}
+              title="Worker health unavailable"
+              description="Chasum could not read background-job health. Counts are intentionally not shown as zero."
+            />
+          ) : (
+            <>
+              <CountRow
+                label="Overdue eligible jobs"
+                value={workerHealth.counts.overduePending}
+              />
+              <CountRow label="Failed jobs" value={workerHealth.counts.failed} />
+              <CountRow
+                label="Stale processing jobs"
+                value={workerHealth.counts.staleProcessing}
+              />
+              <CountRow
+                label="Held by configuration"
+                value={workerHealth.counts.heldByConfig}
+              />
+              <CountRow
+                label="Future scheduled jobs"
+                value={workerHealth.counts.futurePending}
+              />
+              <CountRow
+                label="Pending inside grace"
+                value={workerHealth.counts.pendingGrace}
+              />
+              {workerHealth.counts.invalid > 0 ? (
+                <CountRow
+                  label="Invalid / unclassified rows"
+                  value={workerHealth.counts.invalid}
+                />
+              ) : null}
+              {workerHealth.oldestOverdueAt ? (
+                <p className="pt-3 text-xs text-muted-foreground">
+                  Oldest overdue eligibility:{" "}
+                  {format(
+                    new Date(workerHealth.oldestOverdueAt),
+                    "MMM d · h:mm a",
+                  )}
+                </p>
+              ) : null}
+              <p className="pt-2 text-xs text-muted-foreground">
+                Future-scheduled and configuration-held work are not counted as
+                overdue incidents.
+              </p>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">
+            Historical / manual platform alerts
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-3 text-xs text-muted-foreground">
+            These records are not an automatic runtime error stream.
+          </p>
           {metrics.recentAlerts.length === 0 ? (
             <EmptyState
               variant="inline"
               glyph={Activity}
-              title="No alerts"
-              description="Apply migration 014 to enable platform_alerts."
+              title="No historical alerts"
+              description="No manual or historical platform alerts are available."
             />
           ) : (
             <ul className="space-y-3">
