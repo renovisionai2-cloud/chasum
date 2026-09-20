@@ -1,0 +1,29 @@
+fileType: momentic/test/v2
+id: reception-1024-day-overlay-containment
+name: Reception 1024 Day overlay containment
+browserType: Google Chrome
+viewport:
+  width: 1024
+  height: 768
+steps:
+  - navigate:
+      url: /dashboard/calendar
+      comment: Requires authenticated HQ access supplied at runtime via BASE_URL. Do not embed credentials or Vercel bypass secrets.
+  - javascript:
+      code: |
+        const openBtn = document.querySelector('[aria-label="Open reception panel"]');
+        if (openBtn) openBtn.click();
+        const html = document.documentElement;
+        if (html.scrollWidth > html.clientWidth) {
+          throw new Error("document overflow " + html.scrollWidth + " > " + html.clientWidth);
+        }
+        const panel = document.querySelector('[data-testid="reception-panel"]');
+        if (panel) {
+          const mode = panel.getAttribute("data-layout-mode");
+          const r = panel.getBoundingClientRect();
+          if (mode !== "overlay") throw new Error("expected overlay at 1024, got " + mode);
+          if (Math.round(r.width) !== 480) throw new Error("expected 480px panel, got " + Math.round(r.width));
+          if (Math.round(r.y) < 48) throw new Error("panel should sit below top nav");
+          if (Math.round(r.right) > html.clientWidth + 1) throw new Error("panel exceeds viewport");
+        }
+      comment: 1024 Day must keep document width at the viewport. Open Reception is overlay 480 below the top nav.
