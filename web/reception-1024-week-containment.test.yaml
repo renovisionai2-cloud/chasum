@@ -1,0 +1,29 @@
+fileType: momentic/test/v2
+id: reception-1024-week-containment
+name: Reception 1024 Week containment
+browserType: Google Chrome
+viewport:
+  width: 1024
+  height: 768
+steps:
+  - navigate:
+      url: /dashboard/calendar
+      comment: Requires authenticated HQ access supplied at runtime via BASE_URL. Do not embed credentials or Vercel bypass secrets.
+  - click: the Week tab in the calendar view toolbar
+  - javascript:
+      code: |
+        const html = document.documentElement;
+        if (html.scrollWidth > html.clientWidth) {
+          throw new Error("document overflow " + html.scrollWidth + " > " + html.clientWidth);
+        }
+        const cands = [...document.querySelectorAll("div")].filter((el) => {
+          const cs = getComputedStyle(el);
+          return cs.overflowX === "auto" || cs.overflow === "auto" || cs.overflow === "scroll" || cs.overflowX === "scroll";
+        });
+        const week = cands.find((el) => el.scrollWidth >= 780 && el.clientWidth > 0);
+        if (!week) throw new Error("Week local scroller not found");
+        if (week.scrollWidth < 780) throw new Error("Week canvas lost min width " + week.scrollWidth);
+        if (week.clientWidth < 780 && week.scrollWidth <= week.clientWidth) {
+          throw new Error("expected local Week scroll when pane < 780");
+        }
+      comment: 1024 Week must not widen the document. The 780px Week canvas scrolls locally.
