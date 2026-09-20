@@ -3,6 +3,7 @@
  */
 
 import * as Sentry from "@sentry/nextjs";
+import { sanitizeSentryEvent, sentryPrivacyIntegration } from "./sentry-privacy";
 import {
   sanitizeTelemetryContext,
   type TelemetryContext,
@@ -39,6 +40,25 @@ export function initSentry(
       tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0.1),
       enabled: true,
       sendDefaultPii: false,
+      // Error-only boundary. Other telemetry needs its own approved privacy contract.
+      beforeSend: (event, hint) => {
+        hint.attachments = [];
+        return { ...sanitizeSentryEvent(event), type: undefined };
+      },
+      beforeSendTransaction: () => null,
+      beforeBreadcrumb: () => null,
+      enableLogs: false,
+      beforeSendLog: () => null,
+      beforeSendMetric: () => null,
+      sendClientReports: false,
+      integrations: (defaults) => [
+        ...defaults.filter((integration) => ![
+          "BrowserSession", "ProcessSession", "RequestSession",
+          // HTTP integrations also create request-session envelopes outside beforeSend.
+          "Http", "Http.Server",
+        ].includes(integration.name)),
+        sentryPrivacyIntegration,
+      ],
     });
     initialized = true;
     if (runtime === "nodejs") {
