@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 
+import { requireBusiness } from "@/lib/actions/business";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { PreviewBuildBadge } from "@/components/system/preview-build-badge";
 import { getSupabaseEnv } from "@/lib/env";
@@ -29,6 +30,8 @@ export default async function DashboardLayout({
   if (!user) {
     redirect("/login");
   }
+
+  await requireBusiness();
 
   const [locations, locationScope, locationQuota, showHq] = await Promise.all([
     getLocations(),

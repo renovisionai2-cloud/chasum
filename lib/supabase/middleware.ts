@@ -11,7 +11,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/forgot-password");
 
   const isResetPasswordRoute = pathname.startsWith("/reset-password");
-  const isDashboardRoute = pathname.startsWith("/dashboard");
+  const isDashboardRoute =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding");
   const isOwnerRoute = pathname.startsWith("/owner");
 
   const env = getSupabaseEnv();

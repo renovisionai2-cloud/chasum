@@ -7,14 +7,13 @@ function readRepo(...parts: string[]) {
 }
 
 describe("trusted operator source locks", () => {
-  it("fail-closes getOrCreateBusiness before ensure_business_for_owner when the operator marker is present", () => {
+  it("keeps resolution read-only and fail-closes unresolved operators", () => {
     const source = readRepo("lib/actions/business.ts");
-    const marker = source.indexOf("shouldFailClosedTenantCreate");
-    const create = source.indexOf("ensure_business_for_owner");
-    expect(marker).toBeGreaterThan(-1);
-    expect(create).toBeGreaterThan(-1);
-    expect(marker).toBeLessThan(create);
+    expect(source).toContain("shouldFailClosedTenantCreate");
     expect(source).toContain('redirect("/access-denied")');
+    expect(source).toContain('redirect("/onboarding/business")');
+    expect(source).not.toContain("ensure_business_for_owner");
+    expect(source).not.toMatch(/\.(insert|upsert|rpc)\(/);
   });
 
   it("never auto-sends inviteUserByEmail and never uses admin.signOut", () => {
@@ -33,15 +32,21 @@ describe("trusted operator source locks", () => {
   });
 
   it("keeps /owner and /dashboard/hq on requirePlatformOwner", () => {
-    expect(readRepo("app/(owner)/layout.tsx")).toContain("requirePlatformOwner");
+    expect(readRepo("app/(owner)/layout.tsx")).toContain(
+      "requirePlatformOwner",
+    );
     expect(readRepo("lib/hq/snapshot.ts")).toContain("requirePlatformOwner");
     expect(readRepo("lib/owner/auth.ts")).toContain("platform_admins");
   });
 
   it("does not write platform_admins, businesses.owner_id, or PLATFORM_OWNER_EMAILS", () => {
     const source = readRepo("lib/actions/operator-access.ts");
-    expect(source).not.toMatch(/from\("platform_admins"\)[\s\S]{0,80}\.(insert|update|upsert|delete)/);
-    expect(source).not.toMatch(/from\("businesses"\)[\s\S]{0,80}\.(insert|update|upsert)/);
+    expect(source).not.toMatch(
+      /from\("platform_admins"\)[\s\S]{0,80}\.(insert|update|upsert|delete)/,
+    );
+    expect(source).not.toMatch(
+      /from\("businesses"\)[\s\S]{0,80}\.(insert|update|upsert)/,
+    );
     expect(source).not.toContain("PLATFORM_OWNER_EMAILS");
     expect(source).toContain("getPlatformOwnerEmails");
   });
@@ -62,7 +67,9 @@ describe("trusted operator source locks", () => {
     expect(panel).not.toContain("lib/supabase/service");
     expect(panel).not.toContain("SUPABASE_SERVICE_ROLE_KEY");
     expect(panel).toContain("Trusted Admin");
-    expect(panel).toContain("Full access to this business during Private Alpha");
+    expect(panel).toContain(
+      "Full access to this business during Private Alpha",
+    );
     expect(panel).not.toMatch(/Employee login|Receptionist|Limited access/);
   });
 
@@ -98,9 +105,7 @@ describe("trusted operator source locks", () => {
     expect(page).toContain(
       "Your access to this business is unavailable or has been revoked.",
     );
-    expect(middleware).not.toMatch(
-      /isGuestOnlyAuthRoute[\s\S]*access-denied/,
-    );
+    expect(middleware).not.toMatch(/isGuestOnlyAuthRoute[\s\S]*access-denied/);
     expect(matcher).not.toContain("/access-denied");
   });
 

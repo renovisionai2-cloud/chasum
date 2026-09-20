@@ -19,6 +19,8 @@ const runtime = vi.hoisted(() => ({
     throw new Error(`NEXT_REDIRECT:${url}`);
   }),
   memberRows: [] as MemberRow[],
+  membershipError: null as { message: string } | null,
+  ownerError: null as { message: string } | null,
   owned: null as Record<string, unknown> | null,
 }));
 
@@ -34,11 +36,11 @@ vi.mock("@/lib/supabase/server", () => ({
         in: () => api,
         order: async () =>
           table === "business_members"
-            ? { data: runtime.memberRows, error: null }
+            ? { data: runtime.memberRows, error: runtime.membershipError }
             : { data: [], error: null },
         maybeSingle: async () =>
           table === "businesses"
-            ? { data: runtime.owned, error: null }
+            ? { data: runtime.owned, error: runtime.ownerError }
             : { data: null, error: null },
       };
       return api;
@@ -65,6 +67,8 @@ describe("getOrCreateBusiness trusted-operator fail-closed", () => {
     runtime.rpc.mockReset();
     runtime.redirect.mockClear();
     runtime.memberRows = [];
+    runtime.membershipError = null;
+    runtime.ownerError = null;
     runtime.owned = null;
   });
 
@@ -121,7 +125,7 @@ describe("getOrCreateBusiness trusted-operator fail-closed", () => {
     expect(runtime.rpc).not.toHaveBeenCalled();
   });
 
-  it("still auto-creates for ordinary signup users without the marker", async () => {
+  it("redirects ordinary signup users to explicit onboarding without creation", async () => {
     runtime.getUser.mockResolvedValue({
       data: {
         user: {
@@ -142,11 +146,74 @@ describe("getOrCreateBusiness trusted-operator fail-closed", () => {
       error: null,
     });
     const { getOrCreateBusiness } = await import("@/lib/actions/business");
-    const business = await getOrCreateBusiness();
-    expect(runtime.rpc).toHaveBeenCalledWith(
-      "ensure_business_for_owner",
-      expect.any(Object),
+    await expect(getOrCreateBusiness()).rejects.toThrow(
+      "NEXT_REDIRECT:/onboarding/business",
     );
-    expect(business.id).toBe("biz-new");
+    expect(runtime.rpc).not.toHaveBeenCalled();
   });
+
+  it.each(["GVM Baby World", "Chasum HQ"])(
+    "preserves the existing primary tenant for %s",
+    async (name) => {
+      runtime.getUser.mockResolvedValue({
+        data: { user: { id: "primary-owner", app_metadata: {} } },
+      });
+      runtime.owned = {
+        id: "canonical-business",
+        owner_id: "primary-owner",
+        name,
+      };
+      const { requireBusiness } = await import("@/lib/actions/business");
+      expect((await requireBusiness()).id).toBe("canonical-business");
+      expect(runtime.rpc).not.toHaveBeenCalled();
+    },
+  );
+
+  it("preserves membership-first Private Alpha precedence", async () => {
+    runtime.getUser.mockResolvedValue({
+      data: { user: { id: "member", app_metadata: {} } },
+    });
+    runtime.owned = { id: "older-shell" };
+    runtime.memberRows = [
+      {
+        business_id: "other",
+        created_at: "2020",
+        businesses: {
+          id: "other",
+          name: "Other",
+          slug: "other",
+          owner_id: "someone",
+        },
+      },
+      {
+        business_id: "canonical",
+        created_at: "2021",
+        businesses: {
+          id: "canonical",
+          name: "Main",
+          slug: "main",
+          owner_id: "someone",
+          private_alpha_enabled: true,
+        },
+      },
+    ];
+    const { requireBusiness } = await import("@/lib/actions/business");
+    expect((await requireBusiness()).id).toBe("canonical");
+    expect(runtime.rpc).not.toHaveBeenCalled();
+  });
+
+  it.each(["membershipError", "ownerError"] as const)(
+    "fails closed on %s",
+    async (field) => {
+      runtime.getUser.mockResolvedValue({
+        data: { user: { id: "member", app_metadata: {} } },
+      });
+      runtime[field] = { message: "lookup failed" };
+      const { requireBusiness } = await import("@/lib/actions/business");
+      await expect(requireBusiness()).rejects.toThrow(
+        "Business access could not be verified",
+      );
+      expect(runtime.rpc).not.toHaveBeenCalled();
+    },
+  );
 });
