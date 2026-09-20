@@ -8,94 +8,41 @@
 
 World Class Phase 5 is **COMPLETE**.
 
-Issue #47 closed after genuine GVM Production use satisfied the final Phase 5 gate. Accepted evidence includes:
-- GVM desktop acceptance PASS;
-- GVM iPhone acceptance PASS;
-- legitimate Production Reception booking;
-- customer confirmation email observed;
-- business new-booking email observed;
-- no synthetic Production booking;
-- no tenant-identity contradiction.
-
-Issue #54 is also **CLOSED / COMPLETED**. Trusted Operator Access V1 remains the supported reusable tenant-admin path for Private Alpha; it is not Platform Admin and not the final commercial employee-RBAC model.
-
 Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-The current roadmap order is:
+Current Git / accepted release state:
+- current application main at this restamp base: `170f0f2608d0e3ed343bafdd4367efdcb604b8a2`;
+- PR #67 / Issue #66 Observability Phase A: **CLOSED / PRODUCTION ACCEPTED**;
+- PR #70 / Issue #69 Observability Phase B2: **CLOSED / PRODUCTION ACCEPTED**;
+- Issue #65 observability parent: **OPEN**;
+- Issue #68 / B1: **ACTIVE / Codex-owned**;
+- no B1 PR exists yet;
+- remote B1 branch remains at pre-B2 base `d56de47121a81e5f87e42ade718c4c3d8efe14f4` intentionally because Codex may hold local uncommitted work.
 
-Outside Private Alpha readiness  
-→ Commercial SaaS Gate B  
-→ Summer Business Manager horizontal v1
+PR #67 established safe observability primitives:
+- allowlist-first telemetry context;
+- non-identifying support references;
+- config-aware worker-health classifier;
+- logger/Sentry context sanitization;
+- no Sentry provider activation.
 
-Core Operations launch-required defects may continue throughout. GVM and Chasum HQ remain real validation tenants, not product forks and not the entire roadmap.
+PR #70 added read-only Platform Admin worker-health visibility:
+- owner-authorized background-job health projection;
+- stable ordered pagination;
+- truthful HELD_BY_CONFIG vs overdue semantics;
+- unavailable != zero;
+- top-level Platform Health reflects real worker-health problems;
+- Sentry presence copy does not claim provider health;
+- platform_alerts is explicitly historical/manual;
+- no job/config/provider/GVM mutation.
 
-### Current Git / release state
+Vercel Production succeeded for both accepted releases. No newer direct `/api/build-info` / `/api/health` serving-endpoint observation supersedes the previously accepted PR #59 direct runtime baseline; preserve that distinction.
 
-Fresh restamp base:
+Issue #57 branded-domain cutover remains **DEFERRED / DESIGN FOR NOW — BUILD LATER**. `chasum.vercel.app` remains the legitimate Private Alpha Production hostname.
 
-`ef9d2799c5f39abbcd1e3478f828f5f3443d54ea`
-
-This is PR #63’s squash merge.
-
-PR #63 / Issue #62 is **PRODUCTION ACCEPTED / CLOSED**:
-- customer confirmation/reminder/reschedule/cancellation now use the appointment’s own same-business location address;
-- eligible addresses get one-tap Google Maps directions;
-- staff/business/SMS semantics remain bounded;
-- final Staging acceptance used a real internal email through Resend and actual inbox inspection;
-- temporary Staging address restored;
-- temporary PR #63 Vercel secret removed;
-- temporary Resend acceptance key permanently revoked after PO confirmation;
-- Production Resend credentials unchanged.
-
-For PR #63 Production closeout, Vercel reported deployment completed and Production GVM tenant/schema/address state was read-only verified. Control Tower’s tool path could not freshly fetch Production `/api/build-info` / `/api/health`; those endpoint values are not claimed for that release.
-
-Last Production release with direct runtime-endpoint verification remains PR #59 / Issue #58:
-`3629004e05fb0a921ab96954ab701eb4a2f4cd5a`
-
-That release verified Production build-info/health, GVM tenant identity and true 1366/1024/1180 Reception viewport behavior.
-
-### Repository governance
-
-Issue #60 / PR #61 is **CLOSED / governance active**.
-
-Competitive Product Gate is durable repository policy:
-- material customer/operator work = REQUIRED;
-- documentation/governance/maintenance/recovery/security and other non-product work may use reasoned NOT_APPLICABLE;
-- workflow runs on PR events without product/category filtering;
-- validator mechanically enforces the declaration.
-
-Issue #53 is **CLOSED / COMPLETED**.
-
-Repository ruleset:
-`23730556` — **Chasum main governed release**
-
-Current behavior:
-- target: `main` only;
-- PR required;
-- approving reviews = 0;
-- review-thread resolution required;
-- required checks: `Vercel`, `competitive-product-gate`;
-- branch must be up to date;
-- force-push blocked;
-- deletion blocked;
-- repository-admin bypass = PR-only.
-
-GitHub adds `require_extra_approval_for_unattributed_changes=true` by default. GitHub documents that this has no effect when required approvals = 0, so it does not materially change the approved policy.
-
-### Branded domain
-
-Issue #57 is **DEFERRED / DESIGN FOR NOW — BUILD LATER**.
-
-Product Owner comment 5745462206 supersedes the earlier cutover approval:
-- `https://chasum.vercel.app` remains the legitimate Private Alpha Production hostname;
-- `https://staging.chasumai.com` remains Staging;
-- public DNS/Auth/env cutover is not authorized now;
-- dormant Vercel apex/www attachment may remain until future cutover;
-- Microsoft 365 / Resend / mail DNS remain untouched.
-
-Do not restart Issue #57 without a fresh launch-stage decision and preflight.
+Repository ruleset `23730556` remains active on `main`. Every PR requires `Vercel` + `competitive-product-gate`; internal observability/docs work may use reasoned `NOT_APPLICABLE`.
 
 ## B. Recent completed work
 
@@ -107,6 +54,8 @@ Do not restart Issue #57 without a fresh launch-stage decision and preflight.
 | Issue #60 / PR #61 | Competitive Product Gate governance CLOSED / ACTIVE. |
 | Issue #62 / PR #63 | Customer location address + one-tap directions CLOSED / PRODUCTION ACCEPTED. |
 | Issue #53 | Main branch governed release ruleset CLOSED / ACTIVE. |
+| Issue #66 / PR #67 | Observability Phase A CLOSED / PRODUCTION ACCEPTED. Safe telemetry context, support references, worker classifier, logger/Sentry sanitizer; no provider activation. |
+| Issue #69 / PR #70 | Observability Phase B2 CLOSED / PRODUCTION ACCEPTED. Read-only Platform Admin worker-health visibility with truthful operator semantics. |
 | Issue #57 | Branded Production domain deliberately DEFERRED. |
 
 Do not reopen these absent new contradictory evidence.
@@ -133,48 +82,64 @@ Observation is not approval. Fresh evidence can establish what exists; it cannot
 
 **PRIMARY NORMAL ENGINEER:** Codex.  
 **Control Tower:** ChatGPT.  
-**Independent auditor:** Claude where risk warrants.  
-**Browser regression:** Momentic.  
+**Independent auditor:** Claude.  
+**Browser regression:** Momentic where UI/authenticated flows warrant.  
 **Cursor:** fallback/local authenticated operator when justified.
 
-### Exact next substantive task
+### Active task
 
-**Outside Private Alpha readiness — Production observability / error visibility / trace-correlation assessment and bounded implementation plan.**
+**Issue #68 / Observability Phase B1 — ACTIVE / Codex-owned.**
 
-Why first:
-- once outside design partners are invited, failures cannot depend on manual “Gateway Timeout” archaeology;
-- current Launch Readiness explicitly requires meaningful Production error visibility before broader Outside Private Alpha;
-- observability is infrastructure/readiness work and can begin without waiting on onboarding/import implementation;
-- this should be scoped before adding a vendor or mutating Production.
+B1 scope:
+- supported Next.js server request-error hook;
+- client-safe instrumentation foundation;
+- error-boundary convergence;
+- safe structured log-message policy;
+- safe intent/send-intent correlation standardization;
+- DSN-present mocked Sentry sanitization coverage;
+- no Production Sentry/provider activation.
 
-Start read-only.
+### Continuous-execution rule
 
-Required assessment:
-1. current Sentry/OpenTelemetry/logging code and dependencies;
-2. current Production configuration presence/absence that can be observed safely;
-3. what Vercel runtime logs already provide;
-4. correlation IDs/request IDs currently propagated or missing;
-5. tenant/business context that can be logged safely without leaking PII/secrets;
-6. client + server error coverage needed for booking/auth/commerce/communications;
-7. minimum launch-safe alerting/error-triage path;
-8. whether Sentry, OTel, Vercel-native logging, or a bounded combination best fits v1;
-9. cost/vendor-lock-in and privacy implications;
-10. exact Production/config approval required before implementation.
+Do not wait for Product Owner to say “continue” between technical gates.
 
-Competitive Product Gate:
-normally **NOT_APPLICABLE** for this internal observability/readiness task; give a concrete reason in any PR.
+When Codex returns:
+1. inspect its exact local base/head/delta;
+2. preserve local work;
+3. compare old B1 base `d56de471…` vs current main `170f0f260…`;
+4. reconcile only non-overlapping B1 changes onto current main;
+5. preserve PR #70/B2 behavior and rerun B2 worker-health tests;
+6. open/update one B1 PR;
+7. run focused tests, typecheck, changed-file lint, build, diff-check, Vercel and competitive gate;
+8. use Momentic/browser regression if error-boundary/authenticated UI changed materially;
+9. send the exact reconciled head to Claude;
+10. bring Product Owner only the genuine merge or consequential Production-config decision.
 
-Do not install or enable a new Production vendor merely because it is available. First produce the bounded architecture and acceptance contract.
+### B2 regression truths that B1 must preserve
 
-### Other Outside Private Alpha readiness work after/alongside observability
+- `/owner/health` is Platform Admin, not Chasum HQ;
+- owner authorization precedes service-role worker-health reads;
+- background_jobs health read is classification-field-only and ordered by stable id before pagination;
+- no queue mutation;
+- HELD_BY_CONFIG stays distinct from overdue;
+- future/grace/config-held work does not create false incidents;
+- unavailable health never renders fake zeros;
+- top-level System status cannot claim Healthy on unavailable/overdue/failed/stale/invalid worker state;
+- Sentry configured != provider healthy;
+- platform_alerts remains historical/manual;
+- no customer/provider payload content in health UI.
 
-- tenant onboarding / identity safety acceptance;
-- switching/import/migration as a product capability for customers, staff, services and future appointments;
-- Summer-assisted migration/onboarding remains an opportunity, not a reason to expand Summer before the readiness contract is clear.
+### Stop only for a real Product Owner decision
 
-Commercial SaaS Gate B remains after Outside Private Alpha readiness and requires separate LEVEL 3 scope/approval.
+Stop for:
+- B1 merge approval;
+- Production Sentry/provider/config activation;
+- migration/RLS/Auth/tenant/billing/Production-data decisions;
+- a material architecture conflict.
 
-Practical staff login/RBAC is still a commercial-v1 gate before team claims; do not silently equate Private Alpha Trusted Admin with final RBAC.
+Otherwise continue automatically.
+
+After B1, parent #65 should reconcile whether any Production telemetry-provider activation is actually launch-required now versus separately gated. Outside Private Alpha readiness then continues with tenant onboarding/identity safety and governed switching/import capability. Commercial SaaS Gate B remains later.
 
 ## E. Environment safety
 
@@ -223,10 +188,13 @@ Read:
 Freshly query remote main and active PR/issue state.
 
 Current restamp base before this docs PR:
-ef9d2799c5f39abbcd1e3478f828f5f3443d54ea
+170f0f2608d0e3ed343bafdd4367efdcb604b8a2
 
 Phase 5 is COMPLETE.
-Issues #47, #54, #58, #60, #62 and #53 are closed/accepted.
+Issue #66 / PR #67 Observability Phase A is Production accepted.
+Issue #69 / PR #70 Observability Phase B2 is Production accepted.
+Parent Issue #65 remains OPEN.
+Issue #68 / B1 is ACTIVE / Codex-owned.
 Issue #57 branded-domain cutover is deferred.
 
 Main is governed by ruleset 23730556.
@@ -234,13 +202,16 @@ Every PR needs Vercel + competitive-product-gate.
 Non-product PRs use a concrete NOT_APPLICABLE reason.
 
 NEXT:
-Outside Private Alpha readiness — read-only Production observability /
-error visibility / trace-correlation assessment and bounded implementation plan.
+Issue #68 / Observability Phase B1.
+Preserve Codex local work, reconcile onto current main, rerun B2 regression,
+tests/Preview/Vercel, then Claude audit.
 
-Do not restart Phase 5 or branded-domain work.
+Do not disturb the B1 remote branch while Codex may have local uncommitted work.
+Do not activate Production Sentry/provider configuration without a fresh Product
+Owner gate.
 Do not manufacture Production bookings/emails.
 Do not start Gate B or Summer horizontal-v1 implementation yet.
-Proceed with the next safe scoped action; stop only for a real Product Owner
+Proceed automatically through safe gates; stop only for a real Product Owner
 decision or consequential Production/config approval.
 ```
 
