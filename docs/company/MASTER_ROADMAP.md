@@ -52,7 +52,7 @@ Phase 5 is complete. GVM + Chasum HQ continue real-use validation in parallel, b
 
 The latter chapters remain separately scoped/approved implementation work. Core Operations launch-required defects continue throughout; validation tenants do not become product forks or dominate the roadmap.
 
-Outside Private Alpha readiness includes meaningful Production error visibility and trace/correlation (the **first current bounded task**), tenant onboarding/identity safety, and switching/import/migration as a product capability for customers, staff, services and future appointments. Summer-assisted onboarding/migration is a strategic opportunity.
+Outside Private Alpha readiness includes meaningful Production error visibility and trace/correlation, tenant onboarding/identity safety, and switching/import/migration as a product capability for customers, staff, services and future appointments. Observability Phase A (#66/#67) and B2 (#69/#70) are Production accepted; the active bounded observability slice is Issue #68/B1 framework + client-safe capture integration. Production telemetry-provider activation remains a separate Product Owner gate. Summer-assisted onboarding/migration is a strategic opportunity.
 
 Gate B covers real provider billing, truthful subscriptions and account lifecycle, paid activation, upgrade/downgrade/cancellation, failed-payment/dunning behavior, entitlement synchronization and pricing-math reconciliation. Pricing remains configurable: **pay for 10 months and receive 2 months free**, not “20% off.” Before selling multi-staff operation, resolve practical staff login/invitations/roles/permissions/owner-admin boundaries; promised team access makes RBAC LAUNCH REQUIRED, otherwise claims must explicitly say owner-operated v1.
 
