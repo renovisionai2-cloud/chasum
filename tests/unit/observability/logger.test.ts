@@ -1,9 +1,26 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+const sentry = vi.hoisted(() => ({
+  captureException: vi.fn(),
+}));
+
+vi.mock("@/lib/observability/sentry", () => ({
+  captureException: sentry.captureException,
+}));
+
 import { sanitizeTelemetryContext } from "@/lib/observability/context";
-import { logger } from "@/lib/observability/logger";
+import {
+  captureBookingFailure,
+  captureCommunicationFailure,
+  capturePaymentFailure,
+  logger,
+} from "@/lib/observability/logger";
 
 describe("structured logger", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    sentry.captureException.mockReset();
+  });
 
   it("emits without throwing", () => {
     expect(() =>
@@ -60,5 +77,26 @@ describe("structured logger", () => {
     expect(JSON.parse(output.mock.calls[0][0] as string).context).toEqual({
       domain: "booking",
     });
+  });
+
+  it("uses controlled failure messages instead of raw error text", async () => {
+    const output = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const raw = "provider/customer detail ada@example.com";
+
+    await captureBookingFailure(new Error(raw));
+    await capturePaymentFailure(new Error(raw));
+    await captureCommunicationFailure(new Error(raw));
+
+    const payloads = output.mock.calls.map(([line]) =>
+      JSON.parse(line as string),
+    );
+
+    expect(payloads.map((payload) => payload.message)).toEqual([
+      "booking_failure",
+      "payment_failure",
+      "communications_failure",
+    ]);
+    expect(JSON.stringify(payloads)).not.toContain(raw);
+    expect(sentry.captureException).toHaveBeenCalledTimes(3);
   });
 });
