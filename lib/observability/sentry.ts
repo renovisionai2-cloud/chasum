@@ -2,6 +2,10 @@
  * Sentry integration — no-ops when SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN is unset.
  */
 
+import {
+  sanitizeTelemetryContext,
+  type TelemetryContext,
+} from "@/lib/observability/context";
 import type { LogContext } from "@/lib/observability/logger";
 
 function getDsn(): string | null {
@@ -52,9 +56,10 @@ export function captureException(
     const Sentry = require("@sentry/nextjs") as typeof import("@sentry/nextjs");
     Sentry.withScope((scope) => {
       if (context) {
-        scope.setExtras(context);
-        if (typeof context.domain === "string") {
-          scope.setTag("domain", context.domain);
+        const safeContext = sanitizeTelemetryContext(context);
+        if (safeContext) scope.setExtras(safeContext);
+        if (typeof safeContext?.domain === "string") {
+          scope.setTag("domain", safeContext.domain);
         }
       }
       Sentry.captureException(error);
@@ -74,7 +79,9 @@ export function captureMessage(
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Sentry = require("@sentry/nextjs") as typeof import("@sentry/nextjs");
     Sentry.withScope((scope) => {
-      if (context) scope.setExtras(context);
+      const safeContext: TelemetryContext | undefined =
+        sanitizeTelemetryContext(context);
+      if (safeContext) scope.setExtras(safeContext);
       Sentry.captureMessage(message, level);
     });
   } catch {
