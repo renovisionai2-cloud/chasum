@@ -2,7 +2,8 @@ import { sanitizeTelemetryContext } from "@/lib/observability/context";
 
 /**
  * Structured logging + Sentry capture helpers.
- * Never log secrets, card numbers, or raw API keys.
+ * Never log secrets, card numbers, raw API keys, or arbitrary provider/customer
+ * error text as the structured message.
  */
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
@@ -63,7 +64,7 @@ export async function captureBookingFailure(
   context?: LogContext,
 ): Promise<void> {
   const { captureException } = await import("@/lib/observability/sentry");
-  logger.error("booking", errorMessage(error), context);
+  logger.error("booking", "booking_failure", context);
   captureException(error, { domain: "booking", ...context });
 }
 
@@ -72,7 +73,7 @@ export async function capturePaymentFailure(
   context?: LogContext,
 ): Promise<void> {
   const { captureException } = await import("@/lib/observability/sentry");
-  logger.error("payment", errorMessage(error), context);
+  logger.error("payment", "payment_failure", context);
   captureException(error, { domain: "payment", ...context });
 }
 
@@ -81,11 +82,6 @@ export async function captureCommunicationFailure(
   context?: LogContext,
 ): Promise<void> {
   const { captureException } = await import("@/lib/observability/sentry");
-  logger.error("communications", errorMessage(error), context);
+  logger.error("communications", "communications_failure", context);
   captureException(error, { domain: "communications", ...context });
-}
-
-function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return String(error);
 }
