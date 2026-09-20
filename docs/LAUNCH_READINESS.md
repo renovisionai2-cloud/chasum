@@ -3,13 +3,13 @@
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
 **Last updated:** 2026-09-20
-**Updated by:** ChatGPT Control Tower — post-observability Phase A + B2 continuity restamp. Phase 5 is COMPLETE; Outside Private Alpha readiness is the current program phase. Historical dated entries below retain the status that was true at their observation time.
+**Updated by:** ChatGPT Control Tower — post-PR #76 / Issue #65 observability closeout. Phase 5 is COMPLETE; Outside Private Alpha readiness remains the current program phase. Historical dated entries below retain the status that was true at their observation time.
 
 These are **planning targets, not public promises.**
 
-**2026-09-20 current control state:** World Class Phase 5 is **COMPLETE**. Observability Phase A (#66 / PR #67) and B2 (#69 / PR #70) are **PRODUCTION ACCEPTED**. Current application main at this restamp base is `170f0f2608d0e3ed343bafdd4367efdcb604b8a2`. Parent Issue #65 remains OPEN; Issue #68 / B1 is the active Codex-owned slice for framework request-error capture, client-safe instrumentation, error-boundary convergence, safe log-message policy and Sentry DSN-present sanitization tests. No Production Sentry/provider activation has been authorized or performed. Issue #57 branded-domain cutover remains deferred; `chasum.vercel.app` remains the legitimate Private Alpha Production hostname. Current program phase is **Outside Private Alpha readiness**.
+**2026-09-20 current control state:** World Class Phase 5 is **COMPLETE**. Observability Phase A (#66 / PR #67), B2 (#69 / PR #70), B1 (#68 / PR #74) and C1 privacy hardening (#75 / PR #76) are **PRODUCTION ACCEPTED**. Current accepted application main at this restamp base is `470785f997c456a325c2ad17a503660bc6eafebc`. Parent Issue #65 is **CLOSED / COMPLETE**. Production Sentry/provider activation remains OFF and separately governed. Issue #72 tenant identity/onboarding safety is the next launch-required gate; #73 governed switching/import follows. Issue #57 branded-domain cutover remains deferred; `chasum.vercel.app` remains the legitimate Private Alpha Production hostname. Current program phase is **Outside Private Alpha readiness**.
 
-**Observability readiness status:** safe telemetry context/correlation/worker classifier and read-only Platform Admin worker-health visibility are built and Production accepted. Remaining launch-required observability work is B1 framework/client capture integration and a separately governed decision on whether/when to activate a Production provider.
+**Observability readiness status:** **COMPLETE for the Outside Private Alpha launch-required foundation.** Server/client error capture, allowlist-first structured context, outbound-event privacy hardening, safe support references and truthful worker-health visibility are Production accepted. Production provider activation, source maps, deeper APM/metrics and richer alerting are separately governed future improvements and do not keep Issue #65 open.
 
 **2026-09-17 (PR #41):** Cancelled-appointment terminal-state integrity P1 **CLOSED / PRODUCTION ACCEPTED**. Accepted PR #41 runtime / product-release baseline `35ba43fd3c9c7e854ea11d558571e8456ed43079` on `dpl_42gbuqefLzJm12gBiLzDXPxcis2J`. Current GitHub main identity is repository HEAD (**main at this docs restamp base:** `35ba43f`). After this docs PR merges, GitHub main will advance to a new documentation-only merge commit; serving identity must be verified from `/api/build-info`. Cancelled is terminal; notes-editable only; canonical PR #39 cancel path preserved. Hosted Staging UI acceptance PASS by explicit PO re-scope (enqueue-only). Live API smoke deferred (no governed HQ Staging API key; no key created). Phase 5 **IN PROGRESS**. HQ booking, reschedule, cancellation confirmation, and cancelled terminal-state integrity are accepted. GVM still waits for a legitimate Production booking. Outside Private Alpha **NOT STARTED**. Gate B **NOT MET**. No change to the 18 workstreams, windows, pricing, native strategy, or tenant architecture.
 
@@ -432,15 +432,15 @@ When live provider billing / webhooks / schema / migrations / Production subscri
 
 | Field | Value |
 |-------|--------|
-| Launch classification | **LAUNCH REQUIRED** at a **minimum** (know when Production is down / erroring). Deep APM is **IMPORTANT BUT POST-LAUNCH SAFE**. |
-| Status | **PARTIAL** |
-| Current owner / current task | ChatGPT Control Tower + Codex — **exact next governed task:** read-only Production observability / error visibility / trace-correlation assessment, then a bounded implementation plan. |
-| Blocking issue | Instrumentation exists, but meaningful Production error visibility and trace/correlation coverage remain unverified (`TD-H7`). |
-| Acceptance condition | Production errors are visible; `/api/health` is monitored; failed cron/jobs are not silent; trace/correlation supports investigation without another blind Gateway Timeout campaign. Separately evaluate Sentry / OTel or equivalent. |
-| Target completion window | Before broader Outside Private Alpha; retain through commercially launchable v1 |
-| Launch risk | **AMBER** |
-| Threatens Dec 2026–Feb 2027? | **YES** if Production fails silently during pilots |
-| Notes | Evaluate and verify observability under a separately scoped task; this restamp performs no environment check and reopens no historical incident. |
+| Launch classification | **LAUNCH REQUIRED foundation COMPLETE.** Deep APM/provider expansion is **IMPORTANT BUT POST-LAUNCH SAFE / separately governed**. |
+| Status | **COMPLETE — provider-off foundation accepted** |
+| Current owner / current task | No active observability implementation. Issue #65 is closed. Production Sentry activation remains a later explicit Product Owner gate, not a prerequisite to continue Outside Private Alpha readiness. |
+| Blocking issue | **None for the defined foundation.** Direct Production endpoint identity remains UNKNOWN beyond the last directly observed runtime baseline; do not infer it from deployment success. |
+| Acceptance condition | Met through PRs #67/#70/#74/#76: supported error hooks, safe context/correlation, truthful worker visibility, outbound privacy hardening, provider-off safety and documented activation preflight. |
+| Target completion window | Completed 2026-09-20; retain/regression-test through launch |
+| Launch risk | **GREEN for foundation / AMBER operationally until real provider activation is separately chosen** |
+| Threatens Dec 2026–Feb 2027? | **NO as an open foundation blocker** |
+| Notes | Do not create another observability phase merely because deeper monitoring is possible. Activate/configure external telemetry only under a separate consequential gate. |
 
 ---
 
@@ -620,7 +620,7 @@ This is the immediate post-Phase-5 readiness chapter. It is not an invitation to
 | Primary tracker workstreams | **13** Observability / Errors / Recovery; **3** Safe Tenant Provisioning / Onboarding; **16** Selected Outside Private Alpha; switching/import capability spans onboarding and Core Operations. |
 | Why now | Phase 5 real-use proof is complete. The next launch risk is inviting outsiders before Chasum can diagnose failures, onboard tenants safely, and help them switch from incumbent systems without manual developer reconstruction. |
 | Exact launch dependency | Before broader outside Private Alpha, Chasum must have meaningful Production error visibility/trace-correlation, tenant identity/onboarding safety, and a governed migration/import path appropriate to the selected design partners. |
-| First bounded task | **Production observability / error visibility / trace-correlation assessment and bounded implementation plan.** Start read-only; do not enable a new Production vendor/config without separate consequential approval. |
+| First bounded task | **Issue #72 tenant identity and duplicate-prevention implementation gate.** Architecture/competitive assessment is complete; Level-3 tenant-creation RLS/RPC/schema hardening requires Product Owner approval before implementation. |
 | Acceptance condition | (1) Production failures can be investigated with sufficient error/trace context; (2) onboarding identity safety is accepted for an outside tenant; (3) switching/import contract covers at least customers, staff, services and future appointments or has an explicit bounded manual/assisted path; (4) at least one selected outside tenant can be onboarded without developer-only tenant surgery; (5) no P0 tenant/money-truth regression. |
 | Likely risk level | Read-only assessment = low. Instrumentation/provider/config changes can become LEVEL 2/3 depending on Production secrets, PII, vendor SDKs and rollout. Import/onboarding writes are separately risk-classified. |
 | Competitive gate | Observability/internal maintenance is normally **NOT_APPLICABLE** with a concrete reason. Customer-facing onboarding/import work is **REQUIRED** and must benchmark switching/onboarding workflows before implementation. |
@@ -640,7 +640,7 @@ Core Operations launch-required defects continue throughout. GVM and HQ continue
 ### Parallel work — keep bounded
 
 1. **GVM + HQ real-use hardening:** continue genuine use and capture concrete defects; do not manufacture Production tests.
-2. **Outside-tenant onboarding/import contract:** research/define while observability assessment proceeds, but do not race two implementation agents on overlapping architecture.
+2. **Outside-tenant onboarding/import contract:** #72 tenant identity is next; #73 import architecture is already assessment-ready and follows after the authoritative tenant target is governed.
 3. **Security/config hygiene:** remove historical temporary Preview credentials/config only after dependency checks and explicit approval when irreversible.
 
 ### Separate later gates
