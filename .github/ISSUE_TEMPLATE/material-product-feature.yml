@@ -1,0 +1,126 @@
+name: Material product feature
+description: Define the product contract and competitive parity floor before implementation.
+title: "[Product] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for material customer/operator workflows. Complete bounded current competitor research before assigning implementation. Do not write only “make it world class.”
+
+  - type: input
+    id: feature
+    attributes:
+      label: FEATURE
+      placeholder: Reception booking workflow
+    validations:
+      required: true
+
+  - type: textarea
+    id: job
+    attributes:
+      label: USER / OPERATOR JOB
+      description: What real job is the customer, staff member, or owner trying to complete?
+    validations:
+      required: true
+
+  - type: textarea
+    id: competitors
+    attributes:
+      label: RELEVANT COMPETITORS
+      description: Normally 2–5 products relevant to this workflow only.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: COMPETITIVE EVIDENCE
+      description: What do mature products currently provide? Include dated links/evidence where useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: parity
+    attributes:
+      label: PARITY FLOOR
+      description: What must Chasum do so switching is not a downgrade?
+    validations:
+      required: true
+
+  - type: textarea
+    id: gap
+    attributes:
+      label: CURRENT CHASUM GAP
+    validations:
+      required: true
+
+  - type: textarea
+    id: advantage
+    attributes:
+      label: CHASUM ADVANTAGE
+      description: What are we deliberately making better?
+    validations:
+      required: true
+
+  - type: textarea
+    id: switching
+    attributes:
+      label: WHY WOULD A CUSTOMER SWITCH?
+      description: “Because Chasum also has the feature” is not sufficient.
+    validations:
+      required: true
+
+  - type: textarea
+    id: contract
+    attributes:
+      label: UX / PRODUCT CONTRACT
+      description: Define stable, testable behavior for this workflow.
+    validations:
+      required: true
+
+  - type: textarea
+    id: architecture
+    attributes:
+      label: ARCHITECTURAL REQUIREMENTS
+      description: Multi-tenant, location, money/data truth, Summer, mobile, security or reuse constraints.
+    validations:
+      required: true
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: OUT OF SCOPE
+    validations:
+      required: true
+
+  - type: dropdown
+    id: launch_classification
+    attributes:
+      label: LAUNCH CLASSIFICATION
+      options:
+        - LAUNCH REQUIRED
+        - IMPORTANT BUT POST-LAUNCH SAFE
+        - DESIGN FOR NOW / BUILD LATER
+        - BACKLOG
+        - DEFER / DO NOT BUILD NOW
+    validations:
+      required: true
+
+  - type: textarea
+    id: pass_condition
+    attributes:
+      label: PASS CONDITION
+    validations:
+      required: true
+
+  - type: dropdown
+    id: competitive_gate
+    attributes:
+      label: COMPETITIVE GATE
+      description: PASS means the product contract is defined well enough to implement. FAIL means do not implement yet. NOT APPLICABLE requires an explanation above.
+      options:
+        - PASS
+        - FAIL
+        - NOT APPLICABLE
+    validations:
+      required: true
