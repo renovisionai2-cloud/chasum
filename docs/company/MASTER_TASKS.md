@@ -15,27 +15,35 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current release
 
-**Accepted PR #41 runtime / Production release baseline:** `35ba43fd3c9c7e854ea11d558571e8456ed43079`. **main at this docs restamp base:** `35ba43fd3c9c7e854ea11d558571e8456ed43079`. Current GitHub main identity is repository HEAD and may advance through documentation-only restamps without changing that accepted PR #41 runtime behavior. A docs-only automatic Vercel deployment may also become the current serving deployment; verify serving identity from `/api/build-info`. Cancelled-appointment terminal-state integrity P1 **CLOSED / PRODUCTION ACCEPTED**. Cancellation confirmation P1 remains **CLOSED / PRODUCTION ACCEPTED**. Repeated-cancel waitlist idempotency P1 remains **CLOSED / PRODUCTION ACCEPTED**. Reception reschedule-notification P1 remains **CLOSED / PRODUCTION ACCEPTED**. Password-reset completion P1 **CLOSED**. Broader Production recovery remains **CLOSED**. Phase 5 **IN PROGRESS**.
+**Current accepted application release:** PR #63 squash merge `ef9d2799c5f39abbcd1e3478f828f5f3443d54ea` — Issue #62 CLOSED / PRODUCTION ACCEPTED. Vercel reported deployment completed; Production GVM tenant/schema/address state was read-only verified. Direct Production `/api/build-info` / `/api/health` were not freshly observed for PR #63 and are not claimed.
 
-**Working name:** World Class AI Business Operating System — launch-readiness chapter
-**Branch workflow:** Subsequent approved work branches from then-current main. PR #32 (`8df29d298c196a2431c86a8cea4af1e5bfec09fd`) remains the 2026-09-14 recovery-closeout identity, not a claim that main never moved.
+**Last direct runtime-endpoint verified Production baseline:** `3629004e05fb0a921ab96954ab701eb4a2f4cd5a` (PR #59 / Issue #58). Production build-info/health, GVM tenant identity, and true 1366/1024/1180 Reception viewport checks passed.
 
-**Release intent:** Recovery CLOSED; Auth reset-completion P1 CLOSED; Reception reschedule-notification P1 CLOSED / PRODUCTION ACCEPTED; cancellation confirmation P1 CLOSED / PRODUCTION ACCEPTED; repeated-cancel waitlist idempotency P1 CLOSED / PRODUCTION ACCEPTED; cancelled-appointment terminal-state integrity P1 CLOSED / PRODUCTION ACCEPTED; Phase 5 IN PROGRESS. Phases 1–4A merged; Gate A complete, Commercial SaaS Lifecycle PARTIAL and Gate B NOT MET. GVM and HQ remain normal validation tenants. No recovery reopening absent new contradictory runtime evidence. Cross-session Auth (TD-H10) and `/rest/v1/` env (TD-H11) are separate non-blocking follow-ups. Staging queue/worker health and Staging-only Resend capability are separate operational debt, not PR #41 failures. Live authenticated API smoke remains deferred until HQ has a governed Staging API credential; do not create a key from this restamp. ChatGPT control tower / Product Owner selects the next bounded Phase 5 lifecycle slice after this source-of-truth restamp.
+**Phase 5:** COMPLETE. Genuine GVM Production booking + customer confirmation + business new-booking email evidence is accepted; Issue #47 and Issue #54 are CLOSED.
 
-**Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice. Those were historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias.
+**Current program phase:** Outside Private Alpha readiness.
+
+**Repository governance:** main is protected by ruleset `23730556` (“Chasum main governed release”): PR required, checks `Vercel` + `competitive-product-gate`, strict/up-to-date, review-thread resolution, force-push/deletion blocked, PR-only admin bypass.
+
+**Working name:** World Class AI Business Operating System — Outside Private Alpha readiness chapter.
+
+**Release intent:** preserve accepted Core Operations and Phase 5 evidence while making Chasum supportable for selected outside design partners. The immediate readiness sequence is observability/error tracing → tenant onboarding/identity safety → governed switching/import capability. Gate B, full employee RBAC, Summer horizontal-v1 implementation, native apps, and branded-domain cutover remain separate later gates.
+
+**Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice; “Phase 5 still waits for first GVM booking.” Those are historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias; Phase 5 is complete.
 
 ---
 
 ## Current sprint
 
-1. GVM + Chasum HQ Phase 5 validation **in parallel**. HQ booking, reschedule, cancellation confirmation, waitlist idempotency, and cancelled terminal-state integrity slices are now accepted. ChatGPT control tower / Product Owner will select the next bounded Phase 5 lifecycle slice after this source-of-truth restamp. GVM still waits for the next legitimate Production booking for exactly-once confirmation/business-notification evidence — observe passively; do not manufacture a GVM booking. Engineering must not wait idle for a GVM customer.
-2. Outside Private Alpha readiness, including observability, switching/import capability and tenant onboarding/identity safety.
-3. Commercial SaaS Gate B — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
-4. Summer Business Manager horizontal v1 — explicit major post-Phase-5 priority; separately scoped and approved before implementation.
+1. **Outside Private Alpha readiness — Production observability / error visibility / trace-correlation assessment and bounded implementation plan.** Start read-only. Evaluate current Sentry/OTel/logging/runtime evidence and the smallest launch-safe instrumentation path.
+2. Tenant onboarding / identity safety acceptance for an outside design partner.
+3. Governed switching/import/migration capability for customers, staff, services and future appointments; Summer-assisted migration remains an opportunity, not the current implementation mandate.
+4. Commercial SaaS Gate B — after Outside Private Alpha readiness; separately scoped/approved.
+5. Summer Business Manager horizontal v1 — after Gate B; separately scoped/approved.
 
-Core Operations launch-required defect work continues throughout. GVM and HQ are validation tenants, not product forks; neither may dominate the roadmap.
+Core Operations launch-required defect work continues throughout. GVM and HQ remain validation tenants, not product forks.
 
-This documentation does not authorize implementation expansion.
+This documentation does not authorize consequential Production instrumentation/provider changes. Read-only assessment may proceed automatically; vendor/config/secret rollout remains Product Owner-governed.
 
 Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a booking-path canary — not as a sprint theme.
 
@@ -49,7 +57,7 @@ Momentic is **complete** (PRs #20 / #21, Chasum Test Studio). Use it as a bookin
 - [x] World Class Phase 2: staff plan honesty (active-staff quota wiring) — merged PR #25
 - [x] World Class Phase 3: Command Centre / Today experience — merged PR #27
 - [x] World Class Phase 4A: Commercial SaaS Lifecycle Honesty (Gate A / Private Alpha billing) — **COMPLETE / MERGED TO MAIN** (PR #29); does **not** mark Commercial SaaS DONE (see [`../LAUNCH_READINESS.md`](../LAUNCH_READINESS.md))
-- [ ] World Class Phase 5: Production Pin and Design-Partner Pilot Stabilization — **IN PROGRESS**
+- [x] World Class Phase 5: Production Pin and Design-Partner Pilot Stabilization — **COMPLETE** (Issue #47 / #54)
 - [ ] Commercial v1 paid billing (Gate B) — explicit post-Phase-5 chapter after Outside Private Alpha readiness; LEVEL 3; Claude pre-challenge before implementation
 - [ ] Later PO decision on `/dashboard/hq` disposition (move to `/owner`, relabel, or retire) — **no expansion until then**
 
@@ -66,7 +74,7 @@ These Stripe / paid-lifecycle items are **Gate B** (commercial-v1 paid billing).
 
 ### Outside Private Alpha readiness
 
-- [ ] Production error visibility and trace/correlation sufficient to investigate failures without a blind Gateway Timeout campaign; separately evaluate Sentry / OTel or equivalent before broader Outside Private Alpha.
+- [ ] **CURRENT:** Production error visibility and trace/correlation sufficient to investigate failures without a blind Gateway Timeout campaign; separately evaluate Sentry / OTel or equivalent before broader Outside Private Alpha.
 - [ ] Governed switching/import/migration as a product capability: map customers, staff, services and future appointments; additional entities as justified. Summer-assisted migration/onboarding remains a strategic opportunity.
 - [ ] Tenant onboarding and identity safety acceptance.
 
@@ -78,7 +86,7 @@ These Stripe / paid-lifecycle items are **Gate B** (commercial-v1 paid billing).
 ### Core Operations / validation (do not let these dominate the whole backlog)
 
 - [ ] Reception + CRM communication: real Twilio/Resend paths verified in staging/production
-- [ ] GVM validation remaining: legitimate booking observation + customer and business emails, each exactly once — see [`../GVM_GO_LIVE.md`](../GVM_GO_LIVE.md) (not automatic product NEXT #1)
+- [x] GVM Phase 5 validation: legitimate Production booking + customer and business emails accepted; ongoing real-use hardening continues without manufactured tests.
 - [ ] Reports: scheduled email delivery worker (CRUD exists; send pipeline next)
 
 ### Engineering gates (visible; not this sprint’s product story unless PO schedules)
