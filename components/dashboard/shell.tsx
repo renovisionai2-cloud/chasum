@@ -44,7 +44,7 @@ function ShellInner({
         />
       </div>
 
-      <div className="flex flex-1 flex-col lg:pl-64">
+      <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
         <DashboardTopNav
           userEmail={userEmail}
           locations={locations}

@@ -3,7 +3,7 @@
  *
  * Width is derived from the actual dashboard workspace, not whole
  * `window.innerWidth`. Chrome numbers match:
- * - `components/dashboard/shell.tsx` (`lg:pl-64`, `lg:px-8`, `md:px-6`, `px-4`)
+ * - `components/dashboard/shell.tsx` (`min-w-0`, `lg:pl-64`, `lg:px-8`, `md:px-6`, `px-4`)
  * - `components/dashboard/sidebar.tsx` (`w-64`)
  * - `components/calendar/calendar-client.tsx` (`gap-4`, `lg:flex-row`)
  */
