@@ -35,22 +35,24 @@ Also foundational (earlier phases): design system, multi-tenant schema + RLS, se
 | **World Class Phase 2 — Staff Plan Honesty** | Active-staff plan limits on `main` (PR #25). |
 | **World Class Phase 3 — Command Centre V1** | `/dashboard` Command Centre on `main` (PR #27). |
 | **World Class Phase 4A — Commercial SaaS Lifecycle Honesty** | Private Alpha billing honesty / Gate A on `main` (PR #29). Commercial SaaS Lifecycle remains **PARTIAL**. Gate B not met. |
+| **World Class Phase 5 — Production Pin and Design-Partner Pilot Stabilization** | **COMPLETE.** GVM genuine Production booking + dual-email acceptance and HQ connected-chain evidence accepted (Issues #47 / #54). Reception stability, communications/location hardening and governed release controls also accepted through #58/#59, #62/#63 and #53. |
 
 ---
 
 ## Future
 
-### Locked execution order — 2026-09-14
+### Locked execution order — 2026-09-20
 
-1. Post-release source-of-truth restamp (this documentation task).
-2. GVM + Chasum HQ Phase 5 validation in parallel.
-3. Outside Private Alpha readiness.
-4. Commercial SaaS Gate B.
-5. Summer Business Manager horizontal v1.
+1. Outside Private Alpha readiness — **current**.
+2. Commercial SaaS Gate B.
+3. Summer Business Manager horizontal v1.
+4. Native material implementation after the Native App Start Gate and before broader public launch.
+
+Phase 5 is complete. GVM + Chasum HQ continue real-use validation in parallel, but they are no longer the program gate.
 
 The latter chapters remain separately scoped/approved implementation work. Core Operations launch-required defects continue throughout; validation tenants do not become product forks or dominate the roadmap.
 
-Outside Private Alpha readiness includes meaningful Production error visibility and trace/correlation (separate Sentry / OTel or equivalent evaluation), tenant onboarding/identity safety, and switching/import/migration as a product capability for customers, staff, services and future appointments. Summer-assisted onboarding/migration is a strategic opportunity.
+Outside Private Alpha readiness includes meaningful Production error visibility and trace/correlation (the **first current bounded task**), tenant onboarding/identity safety, and switching/import/migration as a product capability for customers, staff, services and future appointments. Summer-assisted onboarding/migration is a strategic opportunity.
 
 Gate B covers real provider billing, truthful subscriptions and account lifecycle, paid activation, upgrade/downgrade/cancellation, failed-payment/dunning behavior, entitlement synchronization and pricing-math reconciliation. Pricing remains configurable: **pay for 10 months and receive 2 months free**, not “20% off.” Before selling multi-staff operation, resolve practical staff login/invitations/roles/permissions/owner-admin boundaries; promised team access makes RBAC LAUNCH REQUIRED, otherwise claims must explicitly say owner-operated v1.
 
