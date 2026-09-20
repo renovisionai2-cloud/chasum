@@ -47,7 +47,7 @@ beforeEach(() => {
     customers: [{ id: C, business_id: A, name: "Own Customer", email: "own-customer@example.invalid", phone: "+15555550100" }],
     services: [{ id: S, business_id: A, name: "Own Service", is_active: true }],
     staff: [{ id: T, business_id: A, name: "Own Staff", email: "own-staff@example.invalid", is_active: true }],
-    locations: [{ id: L, business_id: A, name: "Own Location", is_active: true }],
+    locations: [{ id: L, business_id: A, name: "Own Location", is_active: true, address_line1: "OWN_ADDRESS_LINE" }],
     businesses: [{ id: A, name: "Own Business", email: "own-business@example.invalid", email_notifications_enabled: true,
       sms_notifications_enabled: true, owner_notifications_enabled: true, staff_notifications_enabled: true,
       reminder_hours_before: 720, private_alpha_enabled: true }],
@@ -55,6 +55,7 @@ beforeEach(() => {
   };
   ["customers", "services", "staff", "locations"].forEach((table, i) => tables[table].push({
     id: uuid(20 + i), business_id: B, name: "FOREIGN_PRIVATE_NAME", email: "foreign-private@example.invalid", phone: "+15555559999", is_active: true,
+    address_line1: "FOREIGN_ADDRESS_LINE",
   }));
   server.use(http.all(`${url}/rest/v1/*`, async ({ request }) => {
     const u = new URL(request.url), table = u.pathname.split("/").at(-1)!;
@@ -78,7 +79,7 @@ describe("appointment event tenant integrity", () => {
     tables.appointments[0][field] = uuid(999);
     await expect(run()).rejects.toThrow("Appointment requires data reconciliation"); noEffects();
     expect(effects.warn).toHaveBeenCalledWith("notifications", "appointment_reconciliation_required", { appointmentId: AP, businessId: A });
-    expect(JSON.stringify([effects.info.mock.calls, effects.warn.mock.calls, effects.error.mock.calls])).not.toMatch(/FOREIGN_PRIVATE_NAME|foreign-private@example.invalid|15555559999/);
+    expect(JSON.stringify([effects.info.mock.calls, effects.warn.mock.calls, effects.error.mock.calls])).not.toMatch(/FOREIGN_PRIVATE_NAME|FOREIGN_ADDRESS_LINE|foreign-private@example.invalid|15555559999/);
   });
   it("blocks mixed historical mismatches before all partial side effects", async () => {
     for (const [field, table] of related) tables.appointments[0][field] = foreign(table);
@@ -88,6 +89,7 @@ describe("appointment event tenant integrity", () => {
     lookupError = table;
     await expect(run()).rejects.toThrow("Unable to load appointment notification context"); noEffects();
     expect(JSON.stringify([effects.info.mock.calls, effects.warn.mock.calls, effects.error.mock.calls])).not.toContain("FOREIGN_PRIVATE_NAME");
+    expect(JSON.stringify([effects.info.mock.calls, effects.warn.mock.calls, effects.error.mock.calls])).not.toContain("FOREIGN_ADDRESS_LINE");
   });
   it.each(["location_id", "customer_id", "service_id"])("rejects null required %s without resolving a substitute", async field => {
     tables.appointments[0][field] = null;

@@ -9,6 +9,11 @@ import {
 import { PermanentDeliverySkip, isPermanentDeliverySkip } from "@/lib/communications/errors";
 import type { AppointmentTemplateContext } from "@/lib/communications";
 import type { SendResult } from "@/lib/communications/types";
+import {
+  APPOINTMENT_LOCATION_EMBED,
+  sameBusinessLocation,
+  toAppointmentLocationAddress,
+} from "@/lib/communications/appointment-location";
 import type { SendReliabilityContext } from "@/lib/communications/send-intent";
 import { workerReliabilityEnabled, workerWebhooksEnabled } from "@/lib/communications/reliability-config";
 import { logger } from "@/lib/observability/logger";
@@ -165,7 +170,7 @@ async function getAppointmentContext(
       service:services(name),
       staff:staff(name, email),
       customer:customers(id, name, email, phone),
-      location:locations(name, timezone)
+      location:locations(${APPOINTMENT_LOCATION_EMBED})
     `,
     )
     .eq("id", appointmentId)
@@ -190,9 +195,21 @@ async function getAppointmentContext(
     email: string;
     phone: string | null;
   } | null;
-  const location = unwrapRelation(
-    (data as { location?: unknown }).location,
-  ) as { name: string; timezone?: string | null } | null;
+  const location = sameBusinessLocation(
+    unwrapRelation(
+      (data as { location?: unknown }).location,
+    ) as {
+      name: string;
+      timezone?: string | null;
+      business_id?: string | null;
+      address_line1?: string | null;
+      address_line2?: string | null;
+      city?: string | null;
+      state?: string | null;
+      postal_code?: string | null;
+    } | null,
+    data.business_id,
+  );
 
   // Staff may be unassigned — still deliver customer/business mail.
   if (!business || !service || !customer) return null;
@@ -223,6 +240,7 @@ async function getAppointmentContext(
     locationTimezone,
     businessTimezone,
     locationName: location?.name?.trim() || null,
+    locationAddress: toAppointmentLocationAddress(location),
     notes: data.notes,
   };
 }
