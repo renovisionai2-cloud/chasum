@@ -1,6 +1,26 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { WorkerHealthInput } from "@/lib/observability/worker-health";
+
+const requirePlatformOwner = vi.fn();
+const createServiceClient = vi.fn();
+const workerReliabilityEnabled = vi.fn();
+const workerWebhooksEnabled = vi.fn();
+
+vi.mock("@/lib/owner/auth", () => ({
+  requirePlatformOwner: (...args: unknown[]) => requirePlatformOwner(...args),
+}));
+
+vi.mock("@/lib/supabase/service", () => ({
+  createServiceClient: (...args: unknown[]) => createServiceClient(...args),
+}));
+
+vi.mock("@/lib/communications/reliability-config", () => ({
+  workerReliabilityEnabled: () => workerReliabilityEnabled(),
+  workerWebhooksEnabled: () => workerWebhooksEnabled(),
+}));
+
 import {
+  getOwnerWorkerHealthSnapshot,
   summarizeOwnerWorkerHealth,
   unavailableOwnerWorkerHealth,
 } from "@/lib/owner/worker-health";
@@ -28,6 +48,13 @@ function row(
 }
 
 describe("owner worker-health projection", () => {
+  beforeEach(() => {
+    requirePlatformOwner.mockReset();
+    createServiceClient.mockReset();
+    workerReliabilityEnabled.mockReset();
+    workerWebhooksEnabled.mockReset();
+  });
+
   it("aggregates truthful active worker states", () => {
     const snapshot = summarizeOwnerWorkerHealth(
       [
@@ -151,5 +178,44 @@ describe("owner worker-health projection", () => {
     expect(serialized).not.toContain("private@example.com");
     expect(serialized).not.toContain("notes");
     expect(serialized).not.toContain("payload");
+  });
+
+  it("orders background_jobs by id before offset pagination", async () => {
+    const calls: string[] = [];
+    requirePlatformOwner.mockResolvedValue({ user: { id: "owner-1" } });
+    workerReliabilityEnabled.mockReturnValue(true);
+    workerWebhooksEnabled.mockReturnValue(true);
+
+    const builder = {
+      select(columns: string) {
+        calls.push(`select:${columns}`);
+        return this;
+      },
+      order(column: string, options: { ascending: boolean }) {
+        calls.push(`order:${column}:${String(options.ascending)}`);
+        return this;
+      },
+      range(from: number, to: number) {
+        calls.push(`range:${from}:${to}`);
+        return Promise.resolve({ data: [row()], error: null });
+      },
+    };
+
+    createServiceClient.mockReturnValue({
+      from(table: string) {
+        calls.push(`from:${table}`);
+        return builder;
+      },
+    });
+
+    const snapshot = await getOwnerWorkerHealthSnapshot();
+
+    expect(snapshot.available).toBe(true);
+    expect(calls).toEqual([
+      "from:background_jobs",
+      "select:status, job_type, scheduled_at, started_at, next_retry_at, cancelled_at",
+      "order:id:true",
+      "range:0:999",
+    ]);
   });
 });
