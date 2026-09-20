@@ -9,7 +9,7 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ---
 
-**Engineering ownership:** Darshan = Founder / CEO / Product Owner. ChatGPT = control tower / Product & Development Program Lead. Cursor = primary implementation engineer unless otherwise directed. Claude = independent auditor for higher-risk work. Momentic = browser/workflow regression. Codex may be used where useful and available; Codex availability/capacity must not block Chasum progress and is not permanent product truth. One primary implementer per task.
+**Engineering ownership:** Darshan = Founder / CEO / Product Owner. ChatGPT = Control Tower / Product & Development Program Lead. **Codex = PRIMARY NORMAL ENGINEERING IMPLEMENTER.** Claude = independent auditor where risk warrants. Momentic = browser/workflow regression. Cursor = fallback/local authenticated operator for bounded work when justified. One primary implementer per task; no racing.
 
 **Anti-stall:** A blocker in one lane — deployment, authentication, external customer event, credential gate, agent capacity/credits, or approval — does not authorize unsafe work, but it also must not idle the entire Chasum program. While one lane is waiting, other safe approved work should continue where useful (read-only investigation, source-of-truth reconciliation, regression preparation, audit preparation, bounded design analysis). Production safety and approval gates remain fully enforced.
 
