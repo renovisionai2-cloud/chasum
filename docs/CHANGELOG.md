@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-20 — Customer confirmation location address + one-tap directions (Issue #62 candidate)
+
+- Customer appointment emails now use the appointment's own location row for arrival information: customer-facing name, structured physical address, and a Google Maps search "Get directions" link when `address_line1` plus city or postal code is present.
+- Applies to customer confirmation, reminder, reschedule, and cancellation HTML and plain text through one shared location helper. Staff and business appointment emails keep name-only location semantics (no customer directions CTA).
+- Date/time remains location → business → fallback timezone formatting. When the location timezone differs from the business timezone, customer emails add a concise "Times shown in {abbrev}." cue using the existing abbreviation helper.
+- No schema migration, SMS change, ICS redesign, self-service cancel/reschedule, Maps API/geocoding, Production mutation, or provider/config change.
+
 ### 2026-09-19 — Competitive Product Gate governance (Issue #60 candidate)
 
 - Make competitor/parity review a mandatory pre-build gate for material customer/operator features rather than a chat-memory convention.

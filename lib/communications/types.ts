@@ -86,6 +86,17 @@ export type AppointmentTemplateContext = {
   businessTimezone?: string | null;
   /** Location display name when available — omit empty section when null. */
   locationName?: string | null;
+  /**
+   * Structured physical address of the appointment's location.
+   * Presentation-owned; never a preformatted database string.
+   */
+  locationAddress?: {
+    addressLine1: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+  } | null;
   notes?: string | null;
   /** @deprecated Prefer appointmentTotalCents — kept for older callers. */
   amountCents?: number | null;

@@ -8,6 +8,11 @@ import {
   resolveAppointmentEmailTimezone,
 } from "@/lib/communications/appointment-datetime";
 import { bookingSourceLabel } from "@/lib/communications/booking-source";
+import {
+  customerLocationHtml,
+  customerLocationPlainLines,
+  customerTimezoneCue,
+} from "@/lib/communications/appointment-location";
 import type {
   AppointmentTemplateContext,
   BrandingContext,
@@ -402,6 +407,42 @@ function appointmentDetails(ctx: AppointmentTemplateContext): string {
     <table role="presentation" style="width:100%;border-collapse:collapse;margin:8px 0;">${rows}</table>`;
 }
 
+function customerDateTimeHtml(ctx: AppointmentTemplateContext): string {
+  const cue = customerTimezoneCue(ctx);
+  if (!cue) return dateTimeBlock(ctx);
+  return `${dateTimeBlock(ctx)}<br/><span style="font-weight:400;color:#64748b;font-size:13px;">${escapeHtml(cue)}</span>`;
+}
+
+/** Customer confirmation/reminder/reschedule/cancellation details. */
+function customerAppointmentDetails(ctx: AppointmentTemplateContext): string {
+  const locationHtml = customerLocationHtml(ctx);
+  const rows = [
+    detailRow("Service", escapeHtml(ctx.serviceName)),
+    detailRow("Provider", escapeHtml(ctx.staffName)),
+    detailRow("Date and time", customerDateTimeHtml(ctx)),
+    locationHtml ? detailRow("Location", locationHtml) : "",
+  ]
+    .filter(Boolean)
+    .join("");
+
+  return `
+    <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
+    <table role="presentation" style="width:100%;border-collapse:collapse;margin:8px 0;">${rows}</table>`;
+}
+
+function customerAppointmentPlainDetails(
+  ctx: AppointmentTemplateContext,
+): string[] {
+  const cue = customerTimezoneCue(ctx);
+  return [
+    `Service: ${ctx.serviceName}`,
+    `Provider: ${ctx.staffName}`,
+    `When: ${whenLabel(ctx)}`,
+    cue,
+    ...customerLocationPlainLines(ctx),
+  ].filter((line): line is string => Boolean(line));
+}
+
 function appointmentDetailsBusiness(ctx: AppointmentTemplateContext): string {
   const location =
     (ctx as AppointmentTemplateContext & { locationName?: string | null })
@@ -430,7 +471,7 @@ export function renderEmailTemplate(
     case "appointment.confirmation": {
       const content = `
         <p style="margin:0 0 4px;color:#475569;font-size:14px;">Your appointment is confirmed.</p>
-        ${appointmentDetails(ctx)}
+        ${customerAppointmentDetails(ctx)}
         ${financialBlock(ctx, "customer")}
         ${appointmentContactCta(b, ctx)}`;
       const total =
@@ -447,9 +488,7 @@ export function renderEmailTemplate(
           `Hi ${ctx.customerName},`,
           `Your appointment is confirmed.`,
           ``,
-          `Service: ${ctx.serviceName}`,
-          `Provider: ${ctx.staffName}`,
-          `When: ${whenLabel(ctx)}`,
+          ...customerAppointmentPlainDetails(ctx),
           total != null ? `Appointment total: ${money(total)}` : "",
           ctx.depositPaidCents
             ? `Deposit paid: ${money(ctx.depositPaidCents)}`
@@ -473,37 +512,46 @@ export function renderEmailTemplate(
       };
     }
     case "appointment.reminder": {
-      const content = `${appointmentDetails(ctx)}
+      const content = `${customerAppointmentDetails(ctx)}
         <p style="margin:16px 0 0;">Just a friendly reminder — we can’t wait to see you.</p>
         ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Reminder: ${ctx.serviceName} with ${ctx.businessName}`,
         html: layout(content, b, { headline: "Appointment reminder" }),
-        text: `Reminder: ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}.`,
+        text: [
+          `Reminder: ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}.`,
+          ...customerAppointmentPlainDetails(ctx),
+        ].join("\n"),
       };
     }
     case "appointment.reschedule": {
       const prev = previousRangeLine(ctx);
-      const content = `${appointmentDetails(ctx)}${prev}
+      const content = `${customerAppointmentDetails(ctx)}${prev}
         <p style="margin:16px 0 0;">Your appointment has a new time. See you then.</p>
         ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Updated time — ${ctx.serviceName} · ${ctx.businessName}`,
         html: layout(content, b, { headline: "Appointment updated" }),
-        text: `Your ${ctx.serviceName} appointment is now ${whenLabel(ctx)}.`,
+        text: [
+          `Your ${ctx.serviceName} appointment is now ${whenLabel(ctx)}.`,
+          ...customerAppointmentPlainDetails(ctx),
+        ].join("\n"),
       };
     }
     case "appointment.cancellation": {
-      const content = `${appointmentDetails(ctx)}
+      const content = `${customerAppointmentDetails(ctx)}
         <p style="margin:16px 0 0;">This appointment has been cancelled. Reply anytime if you’d like to rebook — we’d love to have you back.</p>
         ${contactBlock(b, ctx)}`;
       return {
         key,
         subject: `Cancelled — ${ctx.serviceName} on ${monthDay}`,
         html: layout(content, b, { headline: "Appointment cancelled" }),
-        text: `Your ${ctx.serviceName} on ${whenLabel(ctx)} has been cancelled.`,
+        text: [
+          `Your ${ctx.serviceName} on ${whenLabel(ctx)} has been cancelled.`,
+          ...customerAppointmentPlainDetails(ctx),
+        ].join("\n"),
       };
     }
     case "commerce.invoice": {

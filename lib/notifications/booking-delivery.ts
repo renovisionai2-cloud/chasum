@@ -7,6 +7,11 @@
 
 import { planIncludesSms } from "@/lib/billing/plan-features";
 import { sendEmail, sendSMS } from "@/lib/communications/delivery";
+import {
+  APPOINTMENT_LOCATION_EMBED,
+  sameBusinessLocation,
+  toAppointmentLocationAddress,
+} from "@/lib/communications/appointment-location";
 import type { AppointmentTemplateContext, SendResult } from "@/lib/communications/types";
 import { initialBookingIntentId, newSendIntentId } from "@/lib/communications/intent-identity";
 import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
@@ -102,7 +107,7 @@ export async function loadAppointmentNotifyContext(
       service:services(name),
       staff:staff(name, email),
       customer:customers(id, name, email, phone),
-      location:locations(name, timezone)
+      location:locations(${APPOINTMENT_LOCATION_EMBED})
     `,
     )
     .eq("id", appointmentId);
@@ -140,9 +145,21 @@ export async function loadAppointmentNotifyContext(
     email: string | null;
     phone: string | null;
   } | null;
-  const location = unwrapRelation(
-    (data as { location?: unknown }).location,
-  ) as { name: string; timezone?: string | null } | null;
+  const location = sameBusinessLocation(
+    unwrapRelation(
+      (data as { location?: unknown }).location,
+    ) as {
+      name: string;
+      timezone?: string | null;
+      business_id?: string | null;
+      address_line1?: string | null;
+      address_line2?: string | null;
+      city?: string | null;
+      state?: string | null;
+      postal_code?: string | null;
+    } | null,
+    data.business_id,
+  );
 
   if (!business || !customer) return null;
 
@@ -259,6 +276,7 @@ export async function loadAppointmentNotifyContext(
     locationTimezone,
     businessTimezone,
     locationName: location?.name?.trim() || null,
+    locationAddress: toAppointmentLocationAddress(location),
     notes: data.notes,
     amountCents: appointmentTotalCents,
     subtotalCents,
