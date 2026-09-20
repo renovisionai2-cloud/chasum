@@ -1,7 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { createSupportReference } from "@/lib/observability/correlation";
+import { captureException } from "@/lib/observability/sentry";
+import { useEffect, useState } from "react";
+
+function supportReference(): string | null {
+  try {
+    return createSupportReference();
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Calendar-route error boundary — keeps Reception failures from blanking
@@ -14,9 +24,16 @@ export default function CalendarError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [referenceId] = useState(supportReference);
+
   useEffect(() => {
-    console.error("[calendar]", error.digest ?? "", error.message);
-  }, [error]);
+    captureException(error, {
+      domain: "ui",
+      scope: "calendar_error_boundary",
+      digest: error.digest,
+      referenceId,
+    });
+  }, [error, referenceId]);
 
   return (
     <div className="mx-auto flex max-w-lg flex-col items-start gap-4 rounded-[var(--radius-lg)] border border-border bg-card p-6 shadow-sm">
@@ -28,9 +45,9 @@ export default function CalendarError({
           Something went wrong loading this view. Your bookings are safe —
           try again or switch to another day.
         </p>
-        {error.digest ? (
+        {referenceId ? (
           <p className="mt-2 font-mono text-[11px] text-muted-foreground">
-            Ref {error.digest}
+            Support reference {referenceId}
           </p>
         ) : null}
       </div>

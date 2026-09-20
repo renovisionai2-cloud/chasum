@@ -410,7 +410,7 @@ async function finishDelivery(
     }
   }
   if (reconciliationRequired) logger.error("worker_reliability", "delivery_reconciliation_required", {
-    businessId: input.businessId, jobId: input.reliability?.jobId, intentId: result.intentId,
+    businessId: input.businessId, jobId: input.reliability?.jobId, sendIntentId: result.intentId,
     deliveryState: result.deliveryState, providerCalled: result.providerCalled,
   });
   return { ok: result.success, messageId: result.messageId, error: result.error, skipped: result.skipped,

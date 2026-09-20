@@ -1,14 +1,20 @@
 /**
- * Sentry integration — no-ops when SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN is unset.
+ * Sentry integration — no-ops when the relevant Sentry DSN is unset.
  */
 
+import * as Sentry from "@sentry/nextjs";
 import {
   sanitizeTelemetryContext,
   type TelemetryContext,
 } from "@/lib/observability/context";
 import type { LogContext } from "@/lib/observability/logger";
 
-function getDsn(): string | null {
+function getDsn(
+  runtime?: "nodejs" | "edge" | "client",
+): string | null {
+  if (runtime === "client" || typeof window !== "undefined") {
+    return process.env.NEXT_PUBLIC_SENTRY_DSN ?? null;
+  }
   return process.env.SENTRY_DSN ?? process.env.NEXT_PUBLIC_SENTRY_DSN ?? null;
 }
 
@@ -18,31 +24,28 @@ export function isSentryEnabled(): boolean {
 
 let initialized = false;
 
-export function initSentry(runtime: "nodejs" | "edge" | "client" = "nodejs"): void {
+export function initSentry(
+  runtime: "nodejs" | "edge" | "client" = "nodejs",
+): void {
   if (initialized) return;
-  const dsn = getDsn();
+  const dsn = getDsn(runtime);
   if (!dsn) return;
 
   try {
-    // Dynamic require keeps builds working when Sentry is unused locally.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Sentry = require("@sentry/nextjs") as typeof import("@sentry/nextjs");
     Sentry.init({
       dsn,
       environment:
         process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "development",
       tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0.1),
       enabled: true,
-      // Avoid PII by default
       sendDefaultPii: false,
     });
     initialized = true;
     if (runtime === "nodejs") {
-      // no-op marker for health checks
       process.env.__CHASUM_SENTRY_INIT__ = "1";
     }
   } catch {
-    // Package missing or edge constraints — stay silent
+    // Provider initialization must never prevent Chasum from serving requests.
   }
 }
 
@@ -52,8 +55,6 @@ export function captureException(
 ): void {
   if (!getDsn()) return;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Sentry = require("@sentry/nextjs") as typeof import("@sentry/nextjs");
     Sentry.withScope((scope) => {
       if (context) {
         const safeContext = sanitizeTelemetryContext(context);
@@ -65,7 +66,7 @@ export function captureException(
       Sentry.captureException(error);
     });
   } catch {
-    // ignore
+    // Observability must never become an application failure.
   }
 }
 
@@ -76,15 +77,16 @@ export function captureMessage(
 ): void {
   if (!getDsn()) return;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Sentry = require("@sentry/nextjs") as typeof import("@sentry/nextjs");
     Sentry.withScope((scope) => {
       const safeContext: TelemetryContext | undefined =
         sanitizeTelemetryContext(context);
       if (safeContext) scope.setExtras(safeContext);
+      if (typeof safeContext?.domain === "string") {
+        scope.setTag("domain", safeContext.domain);
+      }
       Sentry.captureMessage(message, level);
     });
   } catch {
-    // ignore
+    // Observability must never become an application failure.
   }
 }

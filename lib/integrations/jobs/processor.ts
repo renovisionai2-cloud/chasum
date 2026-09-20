@@ -90,7 +90,7 @@ function requireDeliveryOutcome(result: SendResult, job: BackgroundJob): void {
       logger.warn("worker", "accepted_delivery_bookkeeping_unconfirmed", {
         jobId: job.id,
         businessId: job.business_id,
-        intentId: result.intentId,
+        sendIntentId: result.intentId,
       });
     }
     return;
@@ -514,7 +514,7 @@ export async function processClaimedJob(
       jobId: job.id,
       businessId: job.business_id,
       attempt: job.attempts,
-      intentId: job.payload.sendIntentId ?? null,
+      sendIntentId: job.payload.sendIntentId ?? null,
       reason,
       retrySafe: transactionalSend ? retrySafe : null,
       retryPolicy: transactionalSend ? "confirmed_delivery_rejection_only" : "baseline_noncommunication",
