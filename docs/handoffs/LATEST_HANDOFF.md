@@ -188,10 +188,13 @@ Read:
 Freshly query remote main and active PR/issue state.
 
 Current restamp base before this docs PR:
-ef9d2799c5f39abbcd1e3478f828f5f3443d54ea
+170f0f2608d0e3ed343bafdd4367efdcb604b8a2
 
 Phase 5 is COMPLETE.
-Issues #47, #54, #58, #60, #62 and #53 are closed/accepted.
+Issue #66 / PR #67 Observability Phase A is Production accepted.
+Issue #69 / PR #70 Observability Phase B2 is Production accepted.
+Parent Issue #65 remains OPEN.
+Issue #68 / B1 is ACTIVE / Codex-owned.
 Issue #57 branded-domain cutover is deferred.
 
 Main is governed by ruleset 23730556.
@@ -199,13 +202,16 @@ Every PR needs Vercel + competitive-product-gate.
 Non-product PRs use a concrete NOT_APPLICABLE reason.
 
 NEXT:
-Outside Private Alpha readiness — read-only Production observability /
-error visibility / trace-correlation assessment and bounded implementation plan.
+Issue #68 / Observability Phase B1.
+Preserve Codex local work, reconcile onto current main, rerun B2 regression,
+tests/Preview/Vercel, then Claude audit.
 
-Do not restart Phase 5 or branded-domain work.
+Do not disturb the B1 remote branch while Codex may have local uncommitted work.
+Do not activate Production Sentry/provider configuration without a fresh Product
+Owner gate.
 Do not manufacture Production bookings/emails.
 Do not start Gate B or Summer horizontal-v1 implementation yet.
-Proceed with the next safe scoped action; stop only for a real Product Owner
+Proceed automatically through safe gates; stop only for a real Product Owner
 decision or consequential Production/config approval.
 ```
 
