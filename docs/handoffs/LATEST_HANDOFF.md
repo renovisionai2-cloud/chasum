@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-20 by ChatGPT Control Tower.  
+**Updated:** 2026-09-20 by ChatGPT Control Tower after PR #76 / Issue #65 observability closeout.  
 **Purpose:** recover the next action in 5–10 minutes without historical chat access.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a competing current-state table.
 
@@ -12,166 +12,135 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Current Git / accepted release state:
-- current application main at this restamp base: `170f0f2608d0e3ed343bafdd4367efdcb604b8a2`;
-- PR #67 / Issue #66 Observability Phase A: **CLOSED / PRODUCTION ACCEPTED**;
-- PR #70 / Issue #69 Observability Phase B2: **CLOSED / PRODUCTION ACCEPTED**;
-- Issue #65 observability parent: **OPEN**;
-- Issue #68 / B1: **ACTIVE / Codex-owned**;
-- no B1 PR exists yet;
-- remote B1 branch remains at pre-B2 base `d56de47121a81e5f87e42ade718c4c3d8efe14f4` intentionally because Codex may hold local uncommitted work.
+Current accepted application main at this restamp base:
 
-PR #67 established safe observability primitives:
-- allowlist-first telemetry context;
-- non-identifying support references;
-- config-aware worker-health classifier;
-- logger/Sentry context sanitization;
-- no Sentry provider activation.
+`470785f997c456a325c2ad17a503660bc6eafebc`
 
-PR #70 added read-only Platform Admin worker-health visibility:
-- owner-authorized background-job health projection;
-- stable ordered pagination;
-- truthful HELD_BY_CONFIG vs overdue semantics;
-- unavailable != zero;
-- top-level Platform Health reflects real worker-health problems;
-- Sentry presence copy does not claim provider health;
-- platform_alerts is explicitly historical/manual;
-- no job/config/provider/GVM mutation.
+Observability program:
+- Issue #66 / PR #67 Phase A — **CLOSED / PRODUCTION ACCEPTED**;
+- Issue #69 / PR #70 B2 — **CLOSED / PRODUCTION ACCEPTED**;
+- Issue #68 / PR #74 B1 — **CLOSED / PRODUCTION ACCEPTED**;
+- Issue #75 / PR #76 C1 privacy hardening — **CLOSED / PRODUCTION ACCEPTED**;
+- parent Issue #65 — **CLOSED / COMPLETE**.
 
-Vercel Production succeeded for both accepted releases. No newer direct `/api/build-info` / `/api/health` serving-endpoint observation supersedes the previously accepted PR #59 direct runtime baseline; preserve that distinction.
+PR #76 Vercel Production status is SUCCESS. Control Tower could not freshly fetch Production `/api/build-info` / `/api/health`; latest endpoint identity remains UNKNOWN rather than inferred. Production Sentry remains OFF. No DSN, trace-sampling, source-map, Vercel environment, provider, migration/RLS/Auth, worker, provider-send or GVM/customer/tenant mutation occurred in the observability closeout.
 
-Issue #57 branded-domain cutover remains **DEFERRED / DESIGN FOR NOW — BUILD LATER**. `chasum.vercel.app` remains the legitimate Private Alpha Production hostname.
+Do not reopen observability merely for deeper APM ideas. Production Sentry activation is a separate later Product Owner gate.
 
-Repository ruleset `23730556` remains active on `main`. Every PR requires `Vercel` + `competitive-product-gate`; internal observability/docs work may use reasoned `NOT_APPLICABLE`.
+## B. Current Outside Private Alpha queue
 
-## B. Recent completed work
+### NEXT — Issue #72: tenant identity and duplicate-prevention gate
 
-| Work | Final state |
-| --- | --- |
-| Issue #47 | Phase 5 CLOSED / COMPLETE after genuine GVM booking + dual-email observation. |
-| Issue #54 / PR #55 | Trusted Operator Access V1 PRODUCTION VERIFIED; real GVM operational access accepted; issue closed. |
-| Issue #58 / PR #59 | Reception viewport/stability CLOSED / PRODUCTION ACCEPTED. |
-| Issue #60 / PR #61 | Competitive Product Gate governance CLOSED / ACTIVE. |
-| Issue #62 / PR #63 | Customer location address + one-tap directions CLOSED / PRODUCTION ACCEPTED. |
-| Issue #53 | Main branch governed release ruleset CLOSED / ACTIVE. |
-| Issue #66 / PR #67 | Observability Phase A CLOSED / PRODUCTION ACCEPTED. Safe telemetry context, support references, worker classifier, logger/Sentry sanitizer; no provider activation. |
-| Issue #69 / PR #70 | Observability Phase B2 CLOSED / PRODUCTION ACCEPTED. Read-only Platform Admin worker-health visibility with truthful operator semantics. |
-| Issue #57 | Branded Production domain deliberately DEFERRED. |
+Phase 0 source + competitive assessment is complete.
 
-Do not reopen these absent new contradictory evidence.
+Verified risk:
+ordinary zero-business authenticated users can currently reach `getOrCreateBusiness()` → `ensure_business_for_owner` through dashboard dependencies. Same-owner concurrency is protected, but the system does not enforce one Chasum tenant per real-world business across different user accounts.
 
-Earlier accepted #46/#48/#51 money/state work also remains closed.
+Approved architecture direction:
 
-## C. Accepted source authority
+Account verification  
+→ membership/ownership resolution  
+→ explicit **existing business / create new** intent  
+→ conservative identity preflight  
+→ ambiguity = STOP / Private Alpha review  
+→ server-only atomic creation  
+→ durable identity-decision audit  
+→ setup/dashboard
 
-| Rank | Document | Owns |
-| --- | --- | --- |
-| 1 | [CHASUM_BIBLE](../company/CHASUM_BIBLE.md) | Product/architecture constitution. |
-| 2 | [CURRENT_PROJECT_STATE](../CURRENT_PROJECT_STATE.md) | Sole current program board and exact NEXT. |
-| 3 | [ENVIRONMENT_MANIFEST](../runtime/ENVIRONMENT_MANIFEST.md) | Runtime/environment observations and limits. |
-| 4 | This handoff | Recovery instructions and execution continuity. |
-| 5 | [LAUNCH_READINESS](../LAUNCH_READINESS.md) | Launch-criticality and readiness gates. |
-| 6 | [MASTER_ROADMAP](../company/MASTER_ROADMAP.md) | Strategic sequence. |
-| 7 | [MASTER_TASKS](../company/MASTER_TASKS.md) | Actionable backlog. |
-| 8 | [CHANGELOG](../CHANGELOG.md) | Completed history. |
-| 9 | [TECHNICAL_DEBT](../TECHNICAL_DEBT.md) | Debt; not automatic authorization. |
+Important invariants:
+- authentication success must not silently imply tenant creation;
+- Business → Locations remains the architecture;
+- a second location never implies a new Business;
+- same real-world business + new owner/email must not create another tenant;
+- invited/Trusted Admin membership resolves before creation;
+- discovery must not expose private tenant/owner data;
+- fuzzy matching/KYC/automated merge are not v1 requirements.
 
-Observation is not approval. Fresh evidence can establish what exists; it cannot retroactively authorize a policy or Production mutation.
+### Level-3 approval boundary
 
-## D. Exact next engineering continuation
+App-layer UX/resolution work is bounded, but a fully launch-safe gate requires tenant-creation authorization changes:
+1. stop ordinary authenticated direct Business INSERT;
+2. close or replace authenticated execution of the create-capable `ensure_business_for_owner` path;
+3. add a trusted server-only atomic creation primitive;
+4. add a narrow durable tenant-identity decision audit.
 
-**PRIMARY NORMAL ENGINEER:** Codex.  
-**Control Tower:** ChatGPT.  
-**Independent auditor:** Claude.  
-**Browser regression:** Momentic where UI/authenticated flows warrant.  
-**Cursor:** fallback/local authenticated operator when justified.
+This is **Level 3** because RLS/RPC/schema authorization controls tenant creation and cross-tenant safety.
 
-### Active task
+**Product Owner approval is required before dispatching that Level-3 implementation.**
+Approval to implement on a feature branch does **not** authorize applying a migration to Staging or Production. Migration application remains a later governed gate after code review/audit.
 
-**Issue #68 / Observability Phase B1 — ACTIVE / Codex-owned.**
+### AFTER #72 — Issue #73: governed switching/import readiness
 
-B1 scope:
-- supported Next.js server request-error hook;
-- client-safe instrumentation foundation;
-- error-boundary convergence;
-- safe structured log-message policy;
-- safe intent/send-intent correlation standardization;
-- DSN-present mocked Sentry sanitization coverage;
-- no Production Sentry/provider activation.
+Read-only architecture + competitive assessment is also complete.
 
-### Continuous-execution rule
+Direction:
+verified tenant → normalized source data → deterministic preview → explicit commit → idempotent source mapping → durable audit.
 
-Do not wait for Product Owner to say “continue” between technical gates.
+V1 entities:
+locations, services, staff, staff-service assignments, customers, future appointments.
 
-When Codex returns:
-1. inspect its exact local base/head/delta;
-2. preserve local work;
-3. compare old B1 base `d56de471…` vs current main `170f0f260…`;
-4. reconcile only non-overlapping B1 changes onto current main;
-5. preserve PR #70/B2 behavior and rerun B2 worker-health tests;
-6. open/update one B1 PR;
-7. run focused tests, typecheck, changed-file lint, build, diff-check, Vercel and competitive gate;
-8. use Momentic/browser regression if error-boundary/authenticated UI changed materially;
-9. send the exact reconciled head to Claude;
-10. bring Product Owner only the genuine merge or consequential Production-config decision.
+Do not build one importer per competitor. Do not use GVM service-role scripts as a commercial migration product. Summer may later explain/recommend mappings, but deterministic import truth remains authoritative.
 
-### B2 regression truths that B1 must preserve
+## C. Program sequence
 
-- `/owner/health` is Platform Admin, not Chasum HQ;
-- owner authorization precedes service-role worker-health reads;
-- background_jobs health read is classification-field-only and ordered by stable id before pagination;
-- no queue mutation;
-- HELD_BY_CONFIG stays distinct from overdue;
-- future/grace/config-held work does not create false incidents;
-- unavailable health never renders fake zeros;
-- top-level System status cannot claim Healthy on unavailable/overdue/failed/stale/invalid worker state;
-- Sentry configured != provider healthy;
-- platform_alerts remains historical/manual;
-- no customer/provider payload content in health UI.
+Outside Private Alpha readiness:
+1. Observability / #65 — **COMPLETE**;
+2. Tenant identity/onboarding safety / #72 — **NEXT**;
+3. Governed switching/import / #73 — after #72 target identity is governed;
+4. onboard at least one selected outside design partner without developer-only tenant surgery and without P0 tenant/money-truth regression.
 
-### Stop only for a real Product Owner decision
+Then:
+**Commercial SaaS Gate B**
+→ **Summer Business Manager horizontal v1**
+→ continued launch hardening
+→ broader commercial/public launch.
 
-Stop for:
-- B1 merge approval;
-- Production Sentry/provider/config activation;
-- migration/RLS/Auth/tenant/billing/Production-data decisions;
-- a material architecture conflict.
+Core Operations defects continue when real evidence appears. GVM and HQ remain validation tenants, not product forks and not the whole roadmap.
 
-Otherwise continue automatically.
+## D. Product / competitive anchor
 
-After B1, parent #65 should reconcile whether any Production telemetry-provider activation is actually launch-required now versus separately gated. Outside Private Alpha readiness then continues with tenant onboarding/identity safety and governed switching/import capability. Commercial SaaS Gate B remains later.
+Chasum is a **world-class AI Business Operating System for service businesses**, not merely booking software.
 
-## E. Environment safety
+Connected operating chain:
+Customer → Booking → Appointment → Staff → Location → Service → Payment → Invoice → Receipt → Communication → Follow-up → Reporting → Automation → Summer Intelligence.
+
+Competitive Product Gate is permanent for material customer/operator work. Relevant benchmark set includes Fresha, Jane, Vagaro, Calendly, Square Appointments, Mangomint, Boulevard, GlossGenius, Mindbody and Booksy. Extract mature workflow principles; do not copy products.
+
+Summer remains the core intelligence differentiator:
+
+UNDERSTAND → EXPLAIN → RECOMMEND → ACT SAFELY → AUDIT.
+
+## E. Agent / Astra governance
+
+ChatGPT = Control Tower.  
+Codex = primary engineer.  
+Claude = independent large-context/high-risk auditor.  
+Momentic = browser/workflow regression.  
+Cursor = local/authenticated/device-specific fallback.
+
+GPT-6 Astra effort:
+- Light: simple/bounded/mechanical;
+- Medium: normal engineering;
+- High: difficult engineering only when Medium is insufficient;
+- Extra High: justified Level-3 security/RLS/tenancy/financial work;
+- Ultra: exceptional only.
+
+For #72's RLS/RPC tenant-creation authorization slice, **Extra High is justified** by cross-tenant/identity safety. Do not use Ultra. If implementation is deliberately split, app-only UI/resolution work may remain Medium.
+
+## F. Environment safety
 
 Production:
 - host remains `https://chasum.vercel.app`;
 - Production Supabase ref `kxcydvhswkuzepwzzinq`;
 - GVM normal tenant remains protected;
-- do not manufacture bookings or provider sends for routine checks.
+- do not manufacture bookings/provider sends;
+- no #72 migration/RLS/Auth/tenant mutation without the later explicit environment-application gate.
 
 Staging:
 - expected canonical hostname `https://staging.chasumai.com`;
-- Staging Supabase ref `wnfahklzaxirftyskctd`;
-- preserve accepted evidence appointments/queues unless a task explicitly authorizes mutation.
+- Staging Supabase ref `wnfahklzaxirftyskctd`.
 
-Historical Preview acceptance credentials:
-- PR #63 temporary acceptance key is permanently revoked and no longer referenced by PR #63 Preview;
-- two historical PR #55 Preview Resend keys still exist in the Resend inventory and are separate security-hygiene items. Do not revoke them without explicit Product Owner confirmation and a dependency check.
-
-No current migration replay, RLS rewrite, Production Auth dashboard mutation, worker cleanup or branded-domain cutover is authorized by this handoff.
-
-## F. Locked product truths
-
-- one reusable multi-tenant SaaS platform;
-- GVM Baby World and Chasum HQ are normal tenants;
-- Platform Admin / Control Centre is separate;
-- Business → Location → Resources / Staff / Services / Operations;
-- Summer = AI Business Manager, not a receptionist-only chatbot;
-- Trusted Admin V1 = broad normal-tenant admin during Private Alpha, not Platform Admin and not the final employee permission model;
-- annual pricing principle = pay for 10 months, receive 2 months free;
-- pricing hypotheses remain configurable;
-- `chasumai.com` branded app cutover is deferred;
-- Production is never a development environment.
+Issue #57 branded-domain cutover remains deferred.
 
 ## G. New-chat bootstrap
 
@@ -187,32 +156,33 @@ Read:
 
 Freshly query remote main and active PR/issue state.
 
-Current restamp base before this docs PR:
-170f0f2608d0e3ed343bafdd4367efdcb604b8a2
+Accepted application restamp base:
+470785f997c456a325c2ad17a503660bc6eafebc
 
 Phase 5 is COMPLETE.
-Issue #66 / PR #67 Observability Phase A is Production accepted.
-Issue #69 / PR #70 Observability Phase B2 is Production accepted.
-Parent Issue #65 remains OPEN.
-Issue #68 / B1 is ACTIVE / Codex-owned.
-Issue #57 branded-domain cutover is deferred.
+Issue #65 observability parent is CLOSED / COMPLETE.
+PRs #67, #70, #74 and #76 are Production accepted.
+Production Sentry remains OFF.
 
-Main is governed by ruleset 23730556.
-Every PR needs Vercel + competitive-product-gate.
-Non-product PRs use a concrete NOT_APPLICABLE reason.
+Current program phase:
+Outside Private Alpha readiness.
 
 NEXT:
-Issue #68 / Observability Phase B1.
-Preserve Codex local work, reconcile onto current main, rerun B2 regression,
-tests/Preview/Vercel, then Claude audit.
+Issue #72 — tenant identity and duplicate-prevention gate.
+Architecture/competitive assessment is complete.
+Level-3 tenant-creation RLS/RPC/schema hardening requires Product Owner approval
+before implementation. Approval to code does not authorize Staging/Production
+migration application.
 
-Do not disturb the B1 remote branch while Codex may have local uncommitted work.
-Do not activate Production Sentry/provider configuration without a fresh Product
-Owner gate.
-Do not manufacture Production bookings/emails.
-Do not start Gate B or Summer horizontal-v1 implementation yet.
-Proceed automatically through safe gates; stop only for a real Product Owner
-decision or consequential Production/config approval.
+After #72:
+Issue #73 governed switching/import readiness.
+
+Then:
+Commercial SaaS Gate B → Summer Business Manager horizontal v1.
+
+Do not reopen accepted observability work without contradictory evidence.
+Do not start Gate B or Summer horizontal-v1 before Outside Private Alpha readiness closes.
+Proceed automatically through safe gates; stop only for a genuine Product Owner decision.
 ```
 
 Refresh this handoff after a major release/phase completion, high-risk incident closure, architecture/governance change, every few significant PRs, or approximately weekly during heavy development. Use one scoped restamp, not endless documentation churn.
