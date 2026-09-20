@@ -27,7 +27,7 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 **Working name:** World Class AI Business Operating System — Outside Private Alpha readiness chapter.
 
-**Release intent:** preserve accepted Core Operations and Phase 5 evidence while making Chasum supportable for selected outside design partners. The immediate readiness sequence is observability/error tracing → tenant onboarding/identity safety → governed switching/import capability. Gate B, full employee RBAC, Summer horizontal-v1 implementation, native apps, and branded-domain cutover remain separate later gates.
+**Release intent:** preserve accepted Core Operations and Phase 5 evidence while making Chasum supportable for selected outside design partners. Observability Phase A and B2 are Production accepted; the immediate remaining observability slice is Issue #68/B1 framework + client-safe capture integration. After that, continue tenant onboarding/identity safety → governed switching/import capability. Gate B, full employee RBAC, Summer horizontal-v1 implementation, native apps, and branded-domain cutover remain separate later gates.
 
 **Obsolete (do not follow as current sprint):** “Company OS + AI Receptionist foundation” on `cursor/phase-3-integrations`; “apply migrations 001 → 022”; treat Emma as the current AI slice; “Phase 5 still waits for first GVM booking.” Those are historical. Migrations far beyond 022 are in use; Emma is a legacy Summer alias; Phase 5 is complete.
 
@@ -35,7 +35,7 @@ Update this file at the start of every sprint. It is the working queue — not a
 
 ## Current sprint
 
-1. **Outside Private Alpha readiness — Production observability / error visibility / trace-correlation assessment and bounded implementation plan.** Start read-only. Evaluate current Sentry/OTel/logging/runtime evidence and the smallest launch-safe instrumentation path.
+1. **Issue #68 / Observability Phase B1 — ACTIVE / Codex-owned.** Reconcile Codex work onto current main, preserve accepted B2 worker-health truth, run tests/Preview/Vercel + Claude audit, then bring only the genuine merge decision. Production Sentry/provider activation remains separately PO-governed.
 2. Tenant onboarding / identity safety acceptance for an outside design partner.
 3. Governed switching/import/migration capability for customers, staff, services and future appointments; Summer-assisted migration remains an opportunity, not the current implementation mandate.
 4. Commercial SaaS Gate B — after Outside Private Alpha readiness; separately scoped/approved.
