@@ -2,7 +2,17 @@
 
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { createSupportReference } from "@/lib/observability/correlation";
+import { captureException } from "@/lib/observability/sentry";
+import { useEffect, useState } from "react";
+
+function supportReference(): string | null {
+  try {
+    return createSupportReference();
+  } catch {
+    return null;
+  }
+}
 
 export default function GlobalError({
   error,
@@ -11,15 +21,16 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [referenceId] = useState(supportReference);
+
   useEffect(() => {
-    console.error(error);
-    void import("@/lib/observability/sentry").then(
-      ({ captureException, initSentry }) => {
-        initSentry("client");
-        captureException(error, { domain: "ui", digest: error.digest });
-      },
-    );
-  }, [error]);
+    captureException(error, {
+      domain: "ui",
+      scope: "global_error_boundary",
+      digest: error.digest,
+      referenceId,
+    });
+  }, [error, referenceId]);
 
   return (
     <html lang="en">
@@ -32,6 +43,11 @@ export default function GlobalError({
           <p className="max-w-md text-muted-foreground">
             An unexpected error occurred. You can try again or return home.
           </p>
+          {referenceId ? (
+            <p className="font-mono text-xs text-muted-foreground">
+              Support reference {referenceId}
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button onClick={reset}>Try again</Button>
