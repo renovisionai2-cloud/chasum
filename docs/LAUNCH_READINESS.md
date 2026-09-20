@@ -2,8 +2,8 @@
 
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
-**Last updated:** 2026-09-17
-**Updated by:** Cursor — PR #41 Production closeout restamp. Documentation only. Cancelled-appointment terminal-state integrity P1 CLOSED / PRODUCTION ACCEPTED. Cancellation confirmation P1 remains CLOSED / PRODUCTION ACCEPTED. Repeated-cancel waitlist idempotency P1 remains CLOSED / PRODUCTION ACCEPTED. Reception reschedule-notification P1 remains CLOSED / PRODUCTION ACCEPTED. Broader Production recovery remains CLOSED. Auth recovery remains CLOSED. Phase 5 IN PROGRESS. Planning windows, 18 workstreams and native strategy unchanged.
+**Last updated:** 2026-09-20
+**Updated by:** ChatGPT Control Tower — post-Phase-5 continuity restamp. Phase 5 is COMPLETE; Outside Private Alpha readiness is the current program phase. Historical dated entries below retain the status that was true at their observation time.
 
 These are **planning targets, not public promises.**
 
@@ -235,7 +235,7 @@ Launch requirement vs later expansion: **launch** = trusted booking + CRM + staf
 | Status | **PARTIAL** |
 | Private Alpha billing readiness | **Gate A COMPLETE** (PR #29, `f6517a1`) |
 | Commercial v1 billing readiness | **NOT MET** — Gate B is the explicit chapter after Outside Private Alpha readiness |
-| Current owner / current task | Engineering / Founder — Gate A shipped. Do **not** start Gate B in this chapter. Phase 5 stabilization is IN PROGRESS; Production recovery/pin accepted. |
+| Current owner / current task | Engineering / Founder — Gate A shipped. **Do not start Gate B yet.** Outside Private Alpha readiness is current; Gate B follows after that readiness chapter. |
 | Blocking issue | No live payment-provider billing; paid self-serve conversion gated; upgrade / downgrade / cancellation / dunning immature. Phase 4A removed theater; it did not ship provider billing. |
 | Acceptance condition | **Do not use a single acceptance for this workstream.** See Gate A vs Gate B below. This workstream stays **PARTIAL** until Gate B is also met. |
 | Target completion window | Gate A: done before selected outside Private Alpha. Gate B: before December 2026–February 2027 commercially launchable v1 (or the commercial-v1 date slips). |
