@@ -69,6 +69,13 @@ export default async function OwnerHealthPage() {
   ]);
   const { checks } = metrics.systemHealth;
   const sentryConfigured = isSentryEnabled();
+  const workerNeedsAttention =
+    !workerHealth.available ||
+    workerHealth.counts.overduePending > 0 ||
+    workerHealth.counts.failed > 0 ||
+    workerHealth.counts.staleProcessing > 0 ||
+    workerHealth.counts.invalid > 0;
+  const overallHealthy = metrics.systemHealth.ok && !workerNeedsAttention;
 
   return (
     <OwnerPageFrame
@@ -79,7 +86,7 @@ export default async function OwnerHealthPage() {
         <CardHeader>
           <CardTitle className="text-base">
             System status ·{" "}
-            {metrics.systemHealth.ok ? "Healthy" : "Needs attention"}
+            {overallHealthy ? "Healthy" : "Needs attention"}
           </CardTitle>
         </CardHeader>
         <CardContent>
