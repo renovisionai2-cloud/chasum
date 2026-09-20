@@ -126,6 +126,32 @@ describe("worker health classifier", () => {
     ).toBe("STALE_PROCESSING");
   });
 
+  it("treats cancelled_at as terminal even when status is stale", () => {
+    expect(
+      classifyWorkerJob(
+        {
+          ...base,
+          status: "pending",
+          scheduled_at: "2026-09-20T11:00:00Z",
+          cancelled_at: "2026-09-20T11:30:00Z",
+        },
+        enabled,
+      ),
+    ).toBe("CANCELLED");
+    expect(
+      classifyWorkerJob(
+        {
+          ...base,
+          status: "processing",
+          scheduled_at: "2026-09-20T11:00:00Z",
+          started_at: "2026-09-20T11:10:00Z",
+          cancelled_at: "2026-09-20T11:30:00Z",
+        },
+        enabled,
+      ),
+    ).toBe("CANCELLED");
+  });
+
   it("returns INVALID for malformed timestamps, statuses, and job types", () => {
     expect(
       classifyWorkerJob(
