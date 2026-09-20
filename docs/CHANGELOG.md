@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-19 — Competitive Product Gate governance (Issue #60 candidate)
+
+- Make competitor/parity review a mandatory pre-build gate for material customer/operator features rather than a chat-memory convention.
+- `AGENTS.md` now assigns gate applicability and bounded competitor research to Control Tower before engineering assignment; explicit exemptions remain available for documentation, maintenance, recovery, relevant security work, and already-defined narrow fixes.
+- Reuse `docs/company/PRODUCT_PRINCIPLES.md` as the canonical detailed gate: evidence, parity floor, Chasum advantage, switching test, product contract and world-class acceptance.
+- Add a material-product GitHub issue form, PR acceptance template, and a mechanical PR-body check. Automation validates that the gate was completed (or reasoned NOT_APPLICABLE); it does not judge product-analysis quality.
+- No application runtime, Production, tenant, Auth, RLS, schema, booking, financial or provider behavior changes in this governance candidate.
+
 ### 2026-09-19 — Trusted Operator Access V1 Production closeout (PR #55, MERGED)
 
 PR #55 Trusted Operator Access V1 is **MERGED / CLOSED** (2026-09-19T18:19:57Z). Approved PR head before merge: `30ae664b36fb45892497dd89360de6e7654d6967`. Last runtime-verified Production application baseline / squash-merge SHA: `fc9a302a1a2e6feedd550478264d97eec9216b29`. Previous Production application SHA: `cd735943518fda25be0bcc7e9f697b09b29fca9a`. Production deployment `dpl_4ef8swfREjLjcgQyZDtuJx31K4fu` READY / success, target production, ref main; primary alias `https://chasum.vercel.app`. Runtime verification 5744330411; Control Tower Production acceptance 5744361600. No Supabase migrations, RLS SQL, schema files, `vercel.json`, GitHub workflow, Production Auth/env, or GVM tenant mutation in the `cd73594…fc9a302` release. No real GVM operator was invited. Issue #54 remains OPEN. Phase 5 remains IN PROGRESS. Do not restamp merely to chase a later documentation-only merge SHA.

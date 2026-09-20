@@ -19,6 +19,30 @@ The PO-locked policy supersedes historical Cursor-primary wording.
 Intended model and actually available model are different facts; do not silently
 escalate or circumvent approval/credit controls.
 
+## Competitive product gate — mandatory
+
+**Material customer/operator features require a Competitive Product Gate before implementation.**
+This includes booking, Reception, customer communications, payments, invoices/receipts,
+onboarding, multi-location, staff/team workflows, reporting, Commercial SaaS, Summer,
+mobile, and comparable operating experiences.
+
+Control Tower decides applicability before assigning engineering. When required, Control
+Tower performs bounded current research (normally 2–5 relevant competitors), records the
+competitive evidence, parity floor, Chasum advantage, switching reason, product/UX contract
+and pass condition in the feature issue, and only then assigns bounded implementation.
+Do not ask Codex/Cursor to invent product strategy from broad competitor research.
+
+The gate is normally **NOT APPLICABLE** to documentation-only work, mechanical refactors,
+internal maintenance, emergency Production recovery, security work where benchmarking is
+irrelevant, and narrowly bounded bug fixes whose intended product behavior is already
+locked. Ambiguity belongs to Control Tower. A reasoned NOT_APPLICABLE is required.
+
+For material product acceptance, code/tests/build are necessary but insufficient. Confirm
+the parity floor, deliberate Chasum advantage, responsive/usability basics, and workflow
+validation where applicable. If a mature incumbent has a materially better normal workflow
+and Chasum has no deliberate reason for the difference, do not call the feature world class:
+correct it or explicitly classify the safe deferral.
+
 Before work, verify remote main and exact candidate scope. Treat old SHA values
 as dated observations, never instructions to reset branches. Fresh reality is
 not automatic Product Owner acceptance. Separate accepted application baseline,

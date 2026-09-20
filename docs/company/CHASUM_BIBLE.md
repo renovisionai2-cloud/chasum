@@ -163,6 +163,8 @@ A feature is production ready only when:
 9. Mobile and dark mode are acceptable.
 10. Rollback or soft-fallback path exists if a migration is not yet applied.
 11. Docs that own the area are updated when behavior becomes lasting policy.
+12. Material customer/operator features completed the Competitive Product Gate before implementation and acceptance confirms the parity floor plus a deliberate Chasum advantage (or an explicit safe deferral).
+13. Responsive/accessibility basics and real workflow validation are complete where applicable; passing code/tests/build alone is not sufficient for material product work.
 
 Related: [`../PRODUCTION_READINESS.md`](../PRODUCTION_READINESS.md).
 
@@ -170,7 +172,7 @@ Related: [`../PRODUCTION_READINESS.md`](../PRODUCTION_READINESS.md).
 
 ## 12. Release Process
 
-1. Implement against principles and roadmap ([`MASTER_ROADMAP.md`](./MASTER_ROADMAP.md), [`MASTER_TASKS.md`](./MASTER_TASKS.md)).
+1. For material customer/operator work, complete the Competitive Product Gate in [`PRODUCT_PRINCIPLES.md`](./PRODUCT_PRINCIPLES.md) before assigning implementation; then implement against principles and roadmap ([`MASTER_ROADMAP.md`](./MASTER_ROADMAP.md), [`MASTER_TASKS.md`](./MASTER_TASKS.md)).
 2. Run **lint** and **build**; fix all issues introduced.
 3. Update **CHANGELOG**.
 4. **Commit** with a clear message (why over what).

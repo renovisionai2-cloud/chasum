@@ -75,6 +75,63 @@ Design for single location today and multi-location / multi-business / multi-ten
 
 ---
 
+## Competitive Product Gate
+
+Material customer/operator work must pass a bounded competitive-product review **before implementation**, not after a real tenant discovers an obvious incumbent advantage.
+
+### Applicability
+
+**Required** for material workflows such as booking, Reception, customer communications, payments, invoices/receipts, onboarding, multi-location, staff/team operations, reporting, Commercial SaaS, Summer, mobile, and other experiences a customer or operator uses to run the business.
+
+Normally **not applicable** to documentation-only changes, mechanical refactors, internal maintenance, emergency Production recovery, security fixes where benchmarking is irrelevant, and narrowly bounded bug fixes whose intended behavior is already locked. Control Tower decides ambiguous cases and records the reason.
+
+### Control Tower pre-build contract
+
+For a required gate, Control Tower owns product strategy and records:
+
+- **Feature**
+- **User / operator job**
+- **Relevant competitors** — only those that materially inform this workflow
+- **Competitive evidence** — what mature products currently provide
+- **Parity floor** — what Chasum must provide so switching is not a downgrade
+- **Current Chasum gap**
+- **Chasum advantage** — what we deliberately make better
+- **Why would a customer switch?**
+- **UX / product contract**
+- **Architectural requirements**
+- **Out of scope**
+- **Launch classification**
+- **Pass condition**
+- **Competitive gate:** PASS / FAIL / NOT APPLICABLE
+
+Typical research is **2–5 relevant competitors**, using current evidence. ChatGPT Control Tower owns targeted product research; Claude may perform a large-context product audit when useful; Codex implements; Momentic validates workflows; Cursor handles bounded local/authenticated execution or capacity fallback. Do not burn engineering credits on broad competitive exploration.
+
+### Switching test
+
+Ask:
+
+> A business already uses a mature incumbent. If they see the Chasum workflow side by side, why would switching feel like an upgrade?
+
+Credible answers include fewer steps, clearer operation, better mobile use, more complete customer information, stronger financial truth, better multi-location operation, safer automation, faster onboarding/switching, or Summer understanding and acting across the connected business.
+
+“Chasum also has the feature” is not an advantage.
+
+### Acceptance rule
+
+For material customer/operator work, tests and builds passing are necessary but not sufficient. Acceptance must establish:
+
+1. **Does it work and remain reliable?**
+2. **Is it simple and responsive?**
+3. **Does it meet the parity floor for the normal workflow?**
+4. **What is the deliberate Chasum advantage?**
+5. **Did the actual workflow validation support the product contract?**
+
+If a mature competitor clearly provides a materially better normal workflow and Chasum has no deliberate reason for the difference, the feature is **not world class yet**. Correct it or explicitly classify the gap and why it is safe to defer.
+
+This gate does **not** mean matching every competitor feature. Essential workflows need credible parity; strategic Chasum differentiators need meaningful advantage; non-strategic breadth may be consciously deferred.
+
+---
+
 ## Feature decision checklist
 
 Before building, the feature should pass **at least two** of:
