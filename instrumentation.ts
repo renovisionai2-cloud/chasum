@@ -12,6 +12,14 @@ export async function register() {
   }
 }
 
+function readDigest(error: unknown): string | undefined {
+  if (!error || typeof error !== "object" || !("digest" in error)) {
+    return undefined;
+  }
+  const digest = (error as { digest?: unknown }).digest;
+  return typeof digest === "string" ? digest : undefined;
+}
+
 export const onRequestError: Instrumentation.onRequestError = async (
   error,
   request,
@@ -36,7 +44,7 @@ export const onRequestError: Instrumentation.onRequestError = async (
     routeType: context.routeType,
     method: request.method,
     runtime: process.env.NEXT_RUNTIME ?? "unknown",
-    digest: error.digest,
+    digest: readDigest(error),
     referenceId,
   });
 };
