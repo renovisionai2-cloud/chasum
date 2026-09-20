@@ -1,3 +1,5 @@
+import { sanitizeTelemetryContext } from "@/lib/observability/context";
+
 /**
  * Structured logging + Sentry capture helpers.
  * Never log secrets, card numbers, or raw API keys.
@@ -15,31 +17,10 @@ type LogPayload = {
   context?: LogContext;
 };
 
-function sanitizeContext(context?: LogContext): LogContext | undefined {
-  if (!context) return undefined;
-  const out: LogContext = {};
-  for (const [key, value] of Object.entries(context)) {
-    const lower = key.toLowerCase();
-    if (
-      lower.includes("password") ||
-      lower.includes("secret") ||
-      lower.includes("token") ||
-      lower.includes("authorization") ||
-      lower.includes("card") ||
-      lower.includes("cvv")
-    ) {
-      out[key] = "[redacted]";
-      continue;
-    }
-    out[key] = value;
-  }
-  return out;
-}
-
 function emit(payload: LogPayload): void {
   const line = JSON.stringify({
     ...payload,
-    context: sanitizeContext(payload.context),
+    context: sanitizeTelemetryContext(payload.context),
   });
   if (payload.level === "error") {
     console.error(line);
