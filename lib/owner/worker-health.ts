@@ -153,6 +153,7 @@ export async function getOwnerWorkerHealthSnapshot(): Promise<OwnerWorkerHealthS
       const { data, error } = await service
         .from("background_jobs")
         .select(JOB_SELECT)
+        .order("id", { ascending: true })
         .range(from, from + pageSize - 1);
 
       if (error) return unavailableOwnerWorkerHealth();
