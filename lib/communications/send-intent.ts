@@ -138,7 +138,7 @@ export async function inspectSendIntent(input: SendInput, store?: SendIntentStor
     if (row.state === "rejected") return null;
     logger.info("worker_reliability", "duplicate_suppressed", {
       businessId: input.businessId, jobId: input.reliability.jobId,
-      intentId: row.id, state: row.state, providerCalled: false,
+      sendIntentId: row.id, state: row.state, providerCalled: false,
     });
     return existingResult(row);
   } catch {
@@ -216,7 +216,7 @@ export async function runDurableSend(
       if (!identityMatches(prior)) return held("send_intent_identity_changed", prior);
       if (prior.state !== "rejected") {
         logger.info("worker_reliability", "duplicate_suppressed", {
-          businessId: input.businessId, intentId: prior.id, state: prior.state,
+          businessId: input.businessId, sendIntentId: prior.id, state: prior.state,
         });
         return existingResult(prior);
       }
@@ -241,7 +241,7 @@ export async function runDurableSend(
 
   logger.info("worker_reliability", "provider_request_started", {
     businessId: input.businessId, jobId: input.reliability.jobId,
-    intentId: row.id, intentAttempt: row.attempt, source: input.reliability.source,
+    sendIntentId: row.id, intentAttempt: row.attempt, source: input.reliability.source,
   });
   let result: ProviderOutcome;
   try {
@@ -264,7 +264,7 @@ export async function runDurableSend(
     // The original committed sending reservation remains a durable no-replay guard.
   }
   logger[persisted && state !== "unknown" ? "info" : "error"]("worker_reliability", "provider_result_recorded", {
-    businessId: input.businessId, jobId: input.reliability.jobId, intentId: row.id,
+    businessId: input.businessId, jobId: input.reliability.jobId, sendIntentId: row.id,
     state, persisted, provider: result.provider, providerMessageId: result.messageId,
   });
   return {
