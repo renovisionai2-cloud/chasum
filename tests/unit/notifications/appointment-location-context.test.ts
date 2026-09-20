@@ -228,6 +228,24 @@ describe("appointment notify context uses the appointment location only", () => 
     expect(JSON.stringify(ctx)).not.toContain("999 Other Avenue");
     expect(JSON.stringify(ctx)).not.toContain("123 Example Street");
   });
+
+  it.each([undefined, null, "", "   "])(
+    "omits location/address when Location A business_id is %j and does not fall back to Location B",
+    async (businessId) => {
+      const locA = rows.locations.find((loc) => loc.id === LOC_A)!;
+      if (businessId === undefined) delete locA.business_id;
+      else locA.business_id = businessId;
+      const ctx = await loadAppointmentNotifyContext(APPT, BIZ_A);
+      expect(ctx).not.toBeNull();
+      expect(ctx!.locationName).toBeNull();
+      expect(ctx!.locationAddress).toBeNull();
+      expect(JSON.stringify(ctx)).not.toContain("123 Example Street");
+      expect(JSON.stringify(ctx)).not.toContain("Suite 200");
+      expect(JSON.stringify(ctx)).not.toContain("999 Other Avenue");
+      expect(JSON.stringify(ctx)).not.toContain("Harbour");
+      expect(JSON.stringify(ctx)).not.toContain("Hamilton");
+    },
+  );
 });
 
 describe("loader/processor source contract", () => {

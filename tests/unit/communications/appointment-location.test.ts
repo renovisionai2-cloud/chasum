@@ -128,11 +128,52 @@ describe("directions eligibility and Maps URL", () => {
 });
 
 describe("same-business location mapping", () => {
-  it("keeps the appointment business location and drops a foreign row", () => {
+  it("keeps a row whose business_id matches the appointment", () => {
     const own = { business_id: "biz-a", address_line1: "Address A" };
-    const foreign = { business_id: "biz-b", address_line1: "Address B" };
     expect(sameBusinessLocation(own, "biz-a")).toEqual(own);
-    expect(sameBusinessLocation(foreign, "biz-a")).toBeNull();
+    expect(sameBusinessLocation({ ...own, business_id: "  biz-a  " }, "biz-a")).toEqual({
+      ...own,
+      business_id: "  biz-a  ",
+    });
+  });
+
+  it("drops a foreign business_id", () => {
+    expect(
+      sameBusinessLocation(
+        { business_id: "biz-b", address_line1: "Address B" },
+        "biz-a",
+      ),
+    ).toBeNull();
+  });
+
+  it("fails closed when business_id is undefined", () => {
+    expect(
+      sameBusinessLocation({ address_line1: "Address A" }, "biz-a"),
+    ).toBeNull();
+  });
+
+  it("fails closed when business_id is null", () => {
+    expect(
+      sameBusinessLocation(
+        { business_id: null, address_line1: "Address A" },
+        "biz-a",
+      ),
+    ).toBeNull();
+  });
+
+  it("fails closed when business_id is empty or whitespace", () => {
+    expect(
+      sameBusinessLocation(
+        { business_id: "", address_line1: "Address A" },
+        "biz-a",
+      ),
+    ).toBeNull();
+    expect(
+      sameBusinessLocation(
+        { business_id: "   ", address_line1: "Address A" },
+        "biz-a",
+      ),
+    ).toBeNull();
   });
 
   it("maps structured fields without inventing missing pieces", () => {

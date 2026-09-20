@@ -48,16 +48,19 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Drop a location that does not belong to the appointment's business. */
+/**
+ * Keep a location only when its business_id positively matches the appointment.
+ * Missing, blank, or foreign business_id fails closed — never infer ownership.
+ */
 export function sameBusinessLocation<T extends { business_id?: string | null }>(
   location: T | null | undefined,
   appointmentBusinessId: string,
 ): T | null {
   if (!location) return null;
-  const locationBusinessId = location.business_id?.trim();
-  if (locationBusinessId && locationBusinessId !== appointmentBusinessId) {
-    return null;
-  }
+  const locationBusinessId = trimOrNull(location.business_id);
+  const expectedBusinessId = trimOrNull(appointmentBusinessId);
+  if (!locationBusinessId || !expectedBusinessId) return null;
+  if (locationBusinessId !== expectedBusinessId) return null;
   return location;
 }
 
@@ -179,4 +182,22 @@ export function customerLocationPlainLines(
   const maps = googleMapsSearchUrl(ctx.locationAddress);
   if (maps) lines.push(`Directions: ${maps}`);
   return lines;
+}
+
+/** Timezone cue + location/address/directions — no Service/Provider/When. */
+export function customerArrivalPlainLines(
+  ctx: Pick<
+    AppointmentTemplateContext,
+    | "locationName"
+    | "locationAddress"
+    | "locationTimezone"
+    | "businessTimezone"
+    | "timezone"
+    | "startTime"
+  >,
+): string[] {
+  const cue = customerTimezoneCue(ctx);
+  return [cue, ...customerLocationPlainLines(ctx)].filter(
+    (line): line is string => Boolean(line),
+  );
 }

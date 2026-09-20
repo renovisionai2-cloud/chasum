@@ -49,6 +49,10 @@ function baseCtx(
   };
 }
 
+function countLabel(text: string, label: string): number {
+  return text.split(label).length - 1;
+}
+
 describe("customer lifecycle location/address/directions", () => {
   it("CASE A: complete address appears in HTML and text for all four customer templates", () => {
     const ctx = baseCtx();
@@ -73,6 +77,66 @@ describe("customer lifecycle location/address/directions", () => {
       expect(rendered.text).toContain("https://www.google.com/maps/search/?api=1&query=");
       expect(rendered.text).not.toContain("999 Other Avenue");
     }
+  });
+
+  it("confirmation keeps one structured Service/Provider/When block plus arrival lines", () => {
+    const rendered = renderEmailTemplate("appointment.confirmation", baseCtx());
+    expect(rendered.text).toContain("Your appointment is confirmed.");
+    expect(countLabel(rendered.text, "Service:")).toBe(1);
+    expect(countLabel(rendered.text, "Provider:")).toBe(1);
+    expect(countLabel(rendered.text, "When:")).toBe(1);
+    expect(rendered.text).toContain("Times shown in PDT.");
+    expect(rendered.text).toContain("Location: Burlington");
+    expect(rendered.text).toContain("Address:");
+    expect(rendered.text).toContain("Directions:");
+  });
+
+  it("reminder keeps the concise sentence and appends arrival lines only", () => {
+    const rendered = renderEmailTemplate("appointment.reminder", baseCtx());
+    expect(rendered.subject).toBe(
+      "Reminder: Early gender (16-18 weeks) with GVM Baby World Ultrasound",
+    );
+    expect(rendered.text).toMatch(
+      /^Reminder: Early gender \(16-18 weeks\) with Bobita on /,
+    );
+    expect(rendered.text).toContain("Times shown in PDT.");
+    expect(rendered.text).toContain("Location: Burlington");
+    expect(rendered.text).toContain("Address:");
+    expect(rendered.text).toContain("123 Example Street");
+    expect(rendered.text).toContain("Directions:");
+    expect(rendered.text).not.toContain("Service:");
+    expect(rendered.text).not.toContain("Provider:");
+    expect(rendered.text).not.toContain("When:");
+  });
+
+  it("reschedule keeps the updated-time sentence and appends arrival lines only", () => {
+    const rendered = renderEmailTemplate("appointment.reschedule", baseCtx());
+    expect(rendered.subject).toMatch(/^Updated time —/);
+    expect(rendered.text).toMatch(
+      /^Your Early gender \(16-18 weeks\) appointment is now /,
+    );
+    expect(rendered.text).toContain("Times shown in PDT.");
+    expect(rendered.text).toContain("Location: Burlington");
+    expect(rendered.text).toContain("Address:");
+    expect(rendered.text).toContain("Directions:");
+    expect(rendered.text).not.toContain("Service:");
+    expect(rendered.text).not.toContain("Provider:");
+    expect(rendered.text).not.toContain("When:");
+  });
+
+  it("cancellation keeps the cancellation sentence and appends arrival lines only", () => {
+    const rendered = renderEmailTemplate("appointment.cancellation", baseCtx());
+    expect(rendered.subject).toMatch(/^Cancelled —/);
+    expect(rendered.text).toMatch(
+      /^Your Early gender \(16-18 weeks\) on .+ has been cancelled\./,
+    );
+    expect(rendered.text).toContain("Times shown in PDT.");
+    expect(rendered.text).toContain("Location: Burlington");
+    expect(rendered.text).toContain("Address:");
+    expect(rendered.text).toContain("Directions:");
+    expect(rendered.text).not.toContain("Service:");
+    expect(rendered.text).not.toContain("Provider:");
+    expect(rendered.text).not.toContain("When:");
   });
 
   it("CASE B: line1 + city is displayable and eligible for directions", () => {

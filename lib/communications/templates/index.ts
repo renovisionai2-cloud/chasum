@@ -9,8 +9,8 @@ import {
 } from "@/lib/communications/appointment-datetime";
 import { bookingSourceLabel } from "@/lib/communications/booking-source";
 import {
+  customerArrivalPlainLines,
   customerLocationHtml,
-  customerLocationPlainLines,
   customerTimezoneCue,
 } from "@/lib/communications/appointment-location";
 import type {
@@ -433,14 +433,12 @@ function customerAppointmentDetails(ctx: AppointmentTemplateContext): string {
 function customerAppointmentPlainDetails(
   ctx: AppointmentTemplateContext,
 ): string[] {
-  const cue = customerTimezoneCue(ctx);
   return [
     `Service: ${ctx.serviceName}`,
     `Provider: ${ctx.staffName}`,
     `When: ${whenLabel(ctx)}`,
-    cue,
-    ...customerLocationPlainLines(ctx),
-  ].filter((line): line is string => Boolean(line));
+    ...customerArrivalPlainLines(ctx),
+  ];
 }
 
 function appointmentDetailsBusiness(ctx: AppointmentTemplateContext): string {
@@ -521,7 +519,7 @@ export function renderEmailTemplate(
         html: layout(content, b, { headline: "Appointment reminder" }),
         text: [
           `Reminder: ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}.`,
-          ...customerAppointmentPlainDetails(ctx),
+          ...customerArrivalPlainLines(ctx),
         ].join("\n"),
       };
     }
@@ -536,7 +534,7 @@ export function renderEmailTemplate(
         html: layout(content, b, { headline: "Appointment updated" }),
         text: [
           `Your ${ctx.serviceName} appointment is now ${whenLabel(ctx)}.`,
-          ...customerAppointmentPlainDetails(ctx),
+          ...customerArrivalPlainLines(ctx),
         ].join("\n"),
       };
     }
@@ -550,7 +548,7 @@ export function renderEmailTemplate(
         html: layout(content, b, { headline: "Appointment cancelled" }),
         text: [
           `Your ${ctx.serviceName} on ${whenLabel(ctx)} has been cancelled.`,
-          ...customerAppointmentPlainDetails(ctx),
+          ...customerArrivalPlainLines(ctx),
         ].join("\n"),
       };
     }
