@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-21 by Codex under ChatGPT Control Tower’s Issue #72 acceptance restamp contract.
+**Updated:** 2026-09-21 by Codex under ChatGPT Control Tower’s Issue #73 Package A contract.
 **Purpose:** recover the next action in 5–10 minutes without historical chat access.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a competing current-state table.
 
@@ -12,9 +12,9 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Git main at this restamp: `d6f6cd0481305c07d6c721cf3bb4b4cc147ac433`.
+Git main at this restamp: `ec03d36f39705024dfcc5b923ca87e42795f3743`.
 
-Accepted Issue #72 application candidate: `4c39652866117a4ce93b4f8193375c8816c2b582` on **OPEN / UNMERGED PR #78**. A later documentation-restamp HEAD is not a newly audited application candidate.
+Issue #72 / PR #78 is merged and Production accepted. Issue #73 is active.
 
 Observability program:
 - Issue #66 / PR #67 Phase A — **CLOSED / PRODUCTION ACCEPTED**;
@@ -23,55 +23,39 @@ Observability program:
 - Issue #75 / PR #76 C1 privacy hardening — **CLOSED / PRODUCTION ACCEPTED**;
 - parent Issue #65 — **CLOSED / COMPLETE**.
 
-PR #76 Vercel Production status is SUCCESS. Control Tower could not freshly fetch Production `/api/build-info` / `/api/health`; latest endpoint identity remains UNKNOWN rather than inferred. Production Sentry remains OFF. No DSN, trace-sampling, source-map, Vercel environment, provider, migration/RLS/Auth, worker, provider-send or GVM/customer/tenant mutation occurred in the observability closeout.
+Observability remains COMPLETE and Production Sentry OFF. Issue #72 closeout directly verified Production build `ec03d36...`; no environment probe is part of Package A.
 
 Do not reopen observability merely for deeper APM ideas. Production Sentry activation is a separate later Product Owner gate.
 
 ## B. Current Outside Private Alpha queue
 
-### CURRENT GATE — Issue #72: Product Owner merge / Production rollout decision
+### CURRENT — Issue #73 Package A
 
-Implementation is complete on PR #78. Account verification → membership/ownership resolution → explicit existing-business/create-new intent → conservative ambiguity preflight → STOP / Private Alpha review or server-only atomic creation → durable decision audit → dashboard.
+Issue #72 is CLOSED / PRODUCTION ACCEPTED. PR #78 merged at
+`ec03d36f39705024dfcc5b923ca87e42795f3743`. Migration
+`20260920230358 / tenant_identity_gate` is applied/accepted in Production and
+Staging. Refreshed existing-GVM dashboard acceptance passed with unchanged
+4 Businesses / 4 Locations / 1 membership / 0 identity decisions.
 
-Completed gates:
-- Initial independent Level-3 audit and focused helper-privilege re-audit: **PASS**.
-- Separately approved migration `20260920230358_tenant_identity_gate`: **APPLIED TO STAGING ONLY**; ledger reconciled to `20260920230358 / tenant_identity_gate`.
-- Live Staging DB/RLS/RPC acceptance: **PASS**.
-- Hosted Preview acceptance: **PASS** at application candidate `4c39652866117a4ce93b4f8193375c8816c2b582`.
-- Post-create dashboard/onboarding router-cache loop: **FIXED / ACCEPTED**.
-- Focused independent Claude audit: **A — PASS FOR PRODUCT OWNER MERGE/ROLLOUT DECISION AFTER DOCUMENTATION RESTAMP**.
-- Synthetic cleanup restored 4 Businesses / 4 Locations / 1 membership / 0 identity decisions.
+Package A is the additive pure domain, normalization, validation, duplicate and
+dependency analysis, deterministic preview and SHA-256 contract. See
+[Package A](../import/ISSUE_73_PACKAGE_A.md). No persistence, migration, upload,
+UI or operational write is authorized. Package B needs separate Level-3 approval.
 
-Hosted Trusted Operator scenario was not executed because no safe synthetic fixture was available; this is explicitly **NON-BLOCKING**.
+Locked decisions: no valid email = unsupported; staff required; exact financial
+truth or explicit reconciliation; private temporary input and safe durable
+outcomes later; required source account key. Summer is advisory, never a second
+write authority. Do not build competitor-specific write engines.
 
-**PR #78 is unmerged. Production migration is unapplied. Merge, Production sequencing and controlled Production acceptance need Darshan’s explicit decision. Issue #72 is not closed.**
-
-Important invariants remain:
-- Authentication/dashboard reads never create tenants.
-- Business → Locations; a second location does not imply a new Business.
-- Existing membership resolves first; ambiguous identity never silently creates or grants access.
-- Discovery exposes no private tenant/owner records.
-- GVM and Chasum HQ remain normal tenants; Platform Admin is separate at `/owner`.
-- Fuzzy matching/KYC/automated merge remain out of scope.
-
-### AFTER #72 PRODUCTION CLOSEOUT — Issue #73: governed switching/import readiness
-
-Read-only architecture + competitive assessment is also complete.
-
-Direction:
-verified tenant → normalized source data → deterministic preview → explicit commit → idempotent source mapping → durable audit.
-
-V1 entities:
-locations, services, staff, staff-service assignments, customers, future appointments.
-
-Do not build one importer per competitor. Do not use GVM service-role scripts as a commercial migration product. Summer may later explain/recommend mappings, but deterministic import truth remains authoritative.
+GVM and HQ remain normal tenants; Platform Admin is separate. Business →
+Locations and #72 membership-first identity remain unchanged.
 
 ## C. Program sequence
 
 Outside Private Alpha readiness:
 1. Observability / #65 — **COMPLETE**;
-2. Tenant identity/onboarding safety / #72 — **ACCEPTANCE/AUDIT COMPLETE; PO MERGE + PRODUCTION ROLLOUT DECISION PENDING**;
-3. Governed switching/import / #73 — after #72 Production closeout;
+2. Tenant identity/onboarding safety / #72 — **CLOSED / PRODUCTION ACCEPTED**;
+3. Governed switching/import / #73 — **ACTIVE — Package A candidate**;
 4. onboard at least one selected outside design partner without developer-only tenant surgery and without P0 tenant/money-truth regression.
 
 Then:
@@ -111,7 +95,7 @@ GPT-6 Astra effort:
 - Extra High: justified Level-3 security/RLS/tenancy/financial work;
 - Ultra: exceptional only.
 
-Issue #72 implementation and high-risk audits are complete. This documentation-only restamp is Light; any future material security correction is separately scoped. Do not reopen implementation or escalate effort merely to restamp status.
+Issue #72 implementation and high-risk audits are complete. Package A pure domain implementation is Medium; any future material security correction is separately scoped. Do not reopen implementation or escalate effort merely to restamp status.
 
 ## F. Environment safety
 
@@ -120,7 +104,7 @@ Production:
 - Production Supabase ref `kxcydvhswkuzepwzzinq`;
 - GVM normal tenant remains protected;
 - do not manufacture bookings/provider sends;
-- Issue #72 migration NOT APPLIED; no Production migration or PR merge without explicit Product Owner decision.
+- Issue #72 migration APPLIED / ACCEPTED; Package A grants no further environment action.
 
 Staging:
 - expected canonical hostname `https://staging.chasumai.com`;
@@ -144,28 +128,15 @@ Read:
 
 Freshly query remote main and active PR/issue state.
 
-Git main at documentation restamp:
-d6f6cd0481305c07d6c721cf3bb4b4cc147ac433
-Accepted Issue #72 application candidate (PR #78, unmerged):
-4c39652866117a4ce93b4f8193375c8816c2b582
+Current main / accepted Production:
+ec03d36f39705024dfcc5b923ca87e42795f3743
 
-Phase 5 is COMPLETE.
-Issue #65 observability parent is CLOSED / COMPLETE.
-PRs #67, #70, #74 and #76 are Production accepted.
-Production Sentry remains OFF.
-
-Current program phase:
-Outside Private Alpha readiness.
-
-NEXT:
-Prepare Darshan’s coordinated PR #78 merge / Production rollout decision.
-Issue #72 implementation, Staging migration, DB/RLS/RPC and hosted acceptance,
-router-cache correction and independent audit are complete.
-Production migration remains unapplied. PR #78 remains unmerged.
-No further Staging mutation absent a newly identified blocker.
-
-After #72 Production closeout:
-Issue #73 governed switching/import readiness.
+Phase 5 and observability COMPLETE. Production Sentry OFF.
+Issue #72 CLOSED / PRODUCTION ACCEPTED.
+Current phase: Outside Private Alpha readiness — IN PROGRESS.
+NEXT: review #73 Package A pure preview candidate.
+Package B database/write work requires separate Level-3 PO approval.
+No environment mutation, UI, upload or import commit in Package A.
 
 Then:
 Commercial SaaS Gate B → Summer Business Manager horizontal v1.
