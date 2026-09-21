@@ -1,9 +1,7 @@
 # Issue #73 — Package B1: private import persistence foundation
 
-**LEVEL 3 / IMPLEMENTED CANDIDATE / NOT APPLIED.** Base main:
-`aa97e294625418499a675a3b4b3ee502c85654cd`. Package A is COMPLETE / PRODUCTION
-ACCEPTED. B1 authorization is [the Product Owner decision on #73](https://github.com/renovisionai2-cloud/chasum/issues/73#issuecomment-5766783047).
-Package B2 remains NOT AUTHORIZED.
+**LEVEL 3 / MERGED / STAGING APPLIED + VERIFIED / PRODUCTION DB NOT APPLIED.** PR #82 merged at canonical main
+`6b095cbf8c42664a44398c01b2b19ff2e1f15c40`. Package A is COMPLETE / PRODUCTION ACCEPTED. B1 passed independent Level-3 audit and controlled Staging acceptance. Package B2 remains NOT AUTHORIZED.
 
 ## Scope and schema
 
@@ -170,7 +168,4 @@ boundary, and rejection of empty/whitespace/untrimmed/overlength input.
 This is local PostgreSQL evidence, not hosted Supabase compatibility acceptance.
 Typecheck/build are not required for this SQL/Python/docs-only change.
 
-Migration is **NOT APPLIED to Staging or Production**. No GVM/HQ mutation.
-Next: Control Tower exact-delta review → independent Level-3 audit → separate
-Product Owner Staging migration decision. No merge, hosted application or B2
-implementation is authorized by delivery of this candidate.
+Migration content SHA-256 is `57b79680fdc60ad5789d90d1d9e6e9600b9b15fb84002687e86c1130acd4dc9f`. It is **APPLIED + VERIFIED on Staging only** (`wnfahklzaxirftyskctd`) and **NOT APPLIED to Production** (`kxcydvhswkuzepwzzinq`). Staging recorded hosted migration history name `governed_import_foundation` at generated version `20260921220118`; this is consistent with the governed `apply_migration` path and does not change the repository filename/content/hash. Post-apply verification showed all three tables empty, RLS/FORCE RLS enabled, zero policies, service_role SELECT-only, helper SECURITY INVOKER with pinned search_path and API EXECUTE revoked. A before/after fingerprint of unrelated public relations, columns, constraints, functions, triggers, policies and table privileges was unchanged. No GVM/HQ mutation. B2 remains blocked; no Production DB application is authorized by this status.
