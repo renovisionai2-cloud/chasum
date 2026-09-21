@@ -1,8 +1,24 @@
 # Issue #72 — tenant identity implementation and application gate
 
-Status: feature-branch candidate; independent Level-3 audit pending. Migration
-`20260920230358_tenant_identity_gate.sql` is **NOT APPLIED to Staging/Production**.
-Do not merge or apply from this document. Outside Private Alpha is not cleared.
+**Current status — 2026-09-21:** Candidate implementation complete; initial independent Level-3 audit, helper-privilege re-audit, live Staging DB/RLS/RPC acceptance, hosted Preview acceptance, router-cache correction and focused independent audit **PASS**.
+
+Migration `20260920230358_tenant_identity_gate.sql` is **APPLIED TO STAGING ONLY**, with ledger reconciled to `20260920230358 / tenant_identity_gate`. It is **NOT APPLIED to Production**. PR #78 is **OPEN / UNMERGED**; merge and Production rollout are not yet approved. Outside Private Alpha remains IN PROGRESS: #72 Production closeout and subsequent #73 readiness work remain.
+
+Accepted application candidate: `4c39652866117a4ce93b4f8193375c8816c2b582`. A documentation-restamp PR HEAD may advance without changing this audited application tree. This document is not authorization to merge or apply a migration.
+
+## Current governed acceptance
+
+- Staging: `wnfahklzaxirftyskctd`; Production `kxcydvhswkuzepwzzinq` untouched by Issue #72.
+- Live acceptance verified denied authenticated direct Business INSERT; denied direct `create_default_location` execution for PUBLIC/anon/authenticated/service_role; resolve-only `ensure_business_for_owner`; service-role-only `decide_business_identity` entry; private decision audit; active owner-reassignment guard.
+- Hosted Preview: `https://chasum-git-feat-tenant-identity-duplica-64c5c5-renovisionappcom.vercel.app`; exact accepted application SHA above, `env=preview`, `production=false`, branch `feat/tenant-identity-duplicate-prevention`, Staging data plane.
+- Zero-business dashboard and existing-business intent create nothing; ambiguity stops without a tenant/membership or disclosure. Unique creation produces one Business, correct owner, 7 business_hours, one default Location, one location_settings, 7 location_hours and one create_new audit.
+- Visible Command Centre, refresh, repeated dashboard access, onboarding revisit and re-login resolve the same tenant without a second Business. Temporary Chasum Test Studio membership regression passed. All synthetic artifacts cleaned; baseline restored to **4 Businesses / 4 Locations / 1 membership / 0 decisions**.
+- Hosted Trusted Operator scenario **NOT EXECUTED** because no safe synthetic fixture was available; explicitly **NON-BLOCKING**. Do not infer hosted operator coverage from unit tests.
+- Momentic 3.52.0 persisted protected-preview request headers in artifacts. Final hosted acceptance therefore used the approved equivalent non-recording Playwright path. This is a tooling limitation, not a Chasum product defect.
+- Router correction `d4aee4539fc9b90c789d14875577176d56243e07` → `4c39652866117a4ce93b4f8193375c8816c2b582`: one commit/four files; success-only `revalidatePath("/dashboard", "layout")` before redirect and `prefetch={false}` on both onboarding dashboard access-check Links. Explicit hosted loop observations recorded **zero alternating transitions**.
+- Codex correction validation: 74 tests / 9 focused files, typecheck, changed-file ESLint, build and diff-check passed. Independent Claude focused audit separately passed 45 focused tests, typecheck, ESLint, build and diff-check and verified hosted/cleanup evidence. Final verdict: **A — PASS FOR PRODUCT OWNER MERGE/ROLLOUT DECISION AFTER DOCUMENTATION RESTAMP**.
+
+The remaining gate is Darshan’s explicit coordinated PR #78 merge/Production rollout decision and controlled Production acceptance. Issue #72 is not closed; no further Staging mutation is authorized absent a newly identified blocker. #73 governed switching/import readiness follows #72 Production closeout.
 
 ## Contract and authority
 
@@ -18,11 +34,9 @@ must contact their owner or Support separately. Creation is an explicit confirme
 server action with freshly authenticated actor identity and a fresh access lookup.
 Paid signup preference remains non-billing. One Business can have many Locations.
 
-## Current source-derived posture and changes
+## Implementation-time source findings and resulting changes
 
-Migration 033 grants business owners/members FOR ALL, including self-owned INSERT.
-Migration 032's authenticated definer RPC is create-capable. These are source
-findings, not a new live policy dump. No governed database was connected.
+At the initial implementation assessment, migration 033 granted business owners/members FOR ALL, including self-owned INSERT, and migration 032’s authenticated definer RPC was create-capable. These were source findings, not a live policy dump; no governed database was connected during that assessment. The later accepted live Staging state is recorded above.
 
 The new migration splits the management policy into SELECT/UPDATE/DELETE, retains
 public booking SELECT, revokes client INSERT and adds a restrictive deny policy.
@@ -49,7 +63,7 @@ publicly executable and lacks caller-tenant authorization. This was discovered
 before any application of the candidate migration. The rest of that preflight
 passed; no broader architecture change is required.
 
-PR #78's unapplied migration now revokes EXECUTE on that exact signature from
+At that pre-apply correction stage, PR #78’s then-unapplied migration was changed to revoke EXECUTE on that exact signature from
 PUBLIC, anon, authenticated and service_role. No application caller needs direct
 service-role access. The trusted `decide_business_identity` runs as its database
 owner, which retains helper EXECUTE for internal seeding. The helper body is
@@ -59,7 +73,7 @@ The disposable fixture models PUBLIC plus explicit API-role grants before applyi
 the correction. Tests check effective privileges, denied direct calls (including
 the default argument), successful service-role entry through the trusted writer,
 complete seeds/audit and rollback on seed/audit failure. No governed environment
-was mutated. Broader historical SECURITY DEFINER advisor findings remain outside
+was mutated during that disposable correction validation; later Staging application was separately approved. Broader historical SECURITY DEFINER advisor findings remain outside
 this PR; this correction does not claim to resolve that inventory.
 
 ## Ambiguity and concurrency
@@ -108,7 +122,7 @@ manual override needs a separately approved server-only operation binding the ex
 reviewed identity to creation, recording the reviewer and decision atomically. Do not
 insert a standalone override audit to bypass this function or create tenants manually.
 
-## Validation and limits
+## Implementation-time validation and limits (historical)
 
 `python3 tests/database/tenant-identity.test.py` creates a NEW local PostgreSQL 17
 cluster with TCP disabled and a private Unix socket. It ignores connection PG* env
@@ -134,10 +148,11 @@ Screenshots were inspected locally; the script regenerates them outside the repo
 
 Focused application tests exercise resolution, action forgery, missing migration,
 operator states, explicit intent, form feedback, profile saves and downstream guards.
-Later hosted Momentic must verify the real authenticated route/action after a separate
-Staging migration gate; an unapplied Preview cannot prove successful new creation.
+At implementation time, hosted route/action verification remained pending a separate Staging migration gate. That gate and approved equivalent hosted Playwright acceptance are now complete, as recorded above; the local component smoke alone was not treated as hosted proof.
 
-## Minimum later environment gate (DO NOT EXECUTE NOW)
+## Original pre-Staging gate checklist (historical, not a pending execution queue)
+
+The following preserves the original gate design. Independent audits, separately approved Staging application and live DB/hosted acceptance have since completed. The optional hosted operator case remains unexecuted/non-blocking as stated above. Production approval and rollback safety in item 6 remain applicable; this checklist grants no execution authority.
 
 1. Independent Level-3 exact-commit audit, especially all creation paths and effective
    privileges, lock order/latency, normalization false negatives and audit privacy.

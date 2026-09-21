@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-20 by ChatGPT Control Tower after PR #76 / Issue #65 observability closeout.  
+**Updated:** 2026-09-21 by Codex under ChatGPT Control Tower’s Issue #72 acceptance restamp contract.
 **Purpose:** recover the next action in 5–10 minutes without historical chat access.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a competing current-state table.
 
@@ -12,9 +12,9 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Current accepted application main at this restamp base:
+Git main at this restamp: `d6f6cd0481305c07d6c721cf3bb4b4cc147ac433`.
 
-`470785f997c456a325c2ad17a503660bc6eafebc`
+Accepted Issue #72 application candidate: `4c39652866117a4ce93b4f8193375c8816c2b582` on **OPEN / UNMERGED PR #78**. A later documentation-restamp HEAD is not a newly audited application candidate.
 
 Observability program:
 - Issue #66 / PR #67 Phase A — **CLOSED / PRODUCTION ACCEPTED**;
@@ -29,47 +29,32 @@ Do not reopen observability merely for deeper APM ideas. Production Sentry activ
 
 ## B. Current Outside Private Alpha queue
 
-### NEXT — Issue #72: tenant identity and duplicate-prevention gate
+### CURRENT GATE — Issue #72: Product Owner merge / Production rollout decision
 
-Phase 0 source + competitive assessment is complete.
+Implementation is complete on PR #78. Account verification → membership/ownership resolution → explicit existing-business/create-new intent → conservative ambiguity preflight → STOP / Private Alpha review or server-only atomic creation → durable decision audit → dashboard.
 
-Verified risk:
-ordinary zero-business authenticated users can currently reach `getOrCreateBusiness()` → `ensure_business_for_owner` through dashboard dependencies. Same-owner concurrency is protected, but the system does not enforce one Chasum tenant per real-world business across different user accounts.
+Completed gates:
+- Initial independent Level-3 audit and focused helper-privilege re-audit: **PASS**.
+- Separately approved migration `20260920230358_tenant_identity_gate`: **APPLIED TO STAGING ONLY**; ledger reconciled to `20260920230358 / tenant_identity_gate`.
+- Live Staging DB/RLS/RPC acceptance: **PASS**.
+- Hosted Preview acceptance: **PASS** at application candidate `4c39652866117a4ce93b4f8193375c8816c2b582`.
+- Post-create dashboard/onboarding router-cache loop: **FIXED / ACCEPTED**.
+- Focused independent Claude audit: **A — PASS FOR PRODUCT OWNER MERGE/ROLLOUT DECISION AFTER DOCUMENTATION RESTAMP**.
+- Synthetic cleanup restored 4 Businesses / 4 Locations / 1 membership / 0 identity decisions.
 
-Approved architecture direction:
+Hosted Trusted Operator scenario was not executed because no safe synthetic fixture was available; this is explicitly **NON-BLOCKING**.
 
-Account verification  
-→ membership/ownership resolution  
-→ explicit **existing business / create new** intent  
-→ conservative identity preflight  
-→ ambiguity = STOP / Private Alpha review  
-→ server-only atomic creation  
-→ durable identity-decision audit  
-→ setup/dashboard
+**PR #78 is unmerged. Production migration is unapplied. Merge, Production sequencing and controlled Production acceptance need Darshan’s explicit decision. Issue #72 is not closed.**
 
-Important invariants:
-- authentication success must not silently imply tenant creation;
-- Business → Locations remains the architecture;
-- a second location never implies a new Business;
-- same real-world business + new owner/email must not create another tenant;
-- invited/Trusted Admin membership resolves before creation;
-- discovery must not expose private tenant/owner data;
-- fuzzy matching/KYC/automated merge are not v1 requirements.
+Important invariants remain:
+- Authentication/dashboard reads never create tenants.
+- Business → Locations; a second location does not imply a new Business.
+- Existing membership resolves first; ambiguous identity never silently creates or grants access.
+- Discovery exposes no private tenant/owner records.
+- GVM and Chasum HQ remain normal tenants; Platform Admin is separate at `/owner`.
+- Fuzzy matching/KYC/automated merge remain out of scope.
 
-### Level-3 approval boundary
-
-App-layer UX/resolution work is bounded, but a fully launch-safe gate requires tenant-creation authorization changes:
-1. stop ordinary authenticated direct Business INSERT;
-2. close or replace authenticated execution of the create-capable `ensure_business_for_owner` path;
-3. add a trusted server-only atomic creation primitive;
-4. add a narrow durable tenant-identity decision audit.
-
-This is **Level 3** because RLS/RPC/schema authorization controls tenant creation and cross-tenant safety.
-
-**Product Owner approval is required before dispatching that Level-3 implementation.**
-Approval to implement on a feature branch does **not** authorize applying a migration to Staging or Production. Migration application remains a later governed gate after code review/audit.
-
-### AFTER #72 — Issue #73: governed switching/import readiness
+### AFTER #72 PRODUCTION CLOSEOUT — Issue #73: governed switching/import readiness
 
 Read-only architecture + competitive assessment is also complete.
 
@@ -85,8 +70,8 @@ Do not build one importer per competitor. Do not use GVM service-role scripts as
 
 Outside Private Alpha readiness:
 1. Observability / #65 — **COMPLETE**;
-2. Tenant identity/onboarding safety / #72 — **NEXT**;
-3. Governed switching/import / #73 — after #72 target identity is governed;
+2. Tenant identity/onboarding safety / #72 — **ACCEPTANCE/AUDIT COMPLETE; PO MERGE + PRODUCTION ROLLOUT DECISION PENDING**;
+3. Governed switching/import / #73 — after #72 Production closeout;
 4. onboard at least one selected outside design partner without developer-only tenant surgery and without P0 tenant/money-truth regression.
 
 Then:
@@ -112,10 +97,11 @@ UNDERSTAND → EXPLAIN → RECOMMEND → ACT SAFELY → AUDIT.
 
 ## E. Agent / Astra governance
 
-ChatGPT = Control Tower.  
+Darshan = Founder / CEO / Product Owner; final merge/Production authority.
+ChatGPT = Control Tower / product and development program lead.
 Codex = primary engineer.  
 Claude = independent large-context/high-risk auditor.  
-Momentic = browser/workflow regression.  
+Momentic = browser/workflow regression; Issue #72 hosted acceptance used the approved non-recording Playwright equivalent because Momentic 3.52.0 retained protected-preview headers in artifacts.
 Cursor = local/authenticated/device-specific fallback.
 
 GPT-6 Astra effort:
@@ -125,7 +111,7 @@ GPT-6 Astra effort:
 - Extra High: justified Level-3 security/RLS/tenancy/financial work;
 - Ultra: exceptional only.
 
-For #72's RLS/RPC tenant-creation authorization slice, **Extra High is justified** by cross-tenant/identity safety. Do not use Ultra. If implementation is deliberately split, app-only UI/resolution work may remain Medium.
+Issue #72 implementation and high-risk audits are complete. This documentation-only restamp is Light; any future material security correction is separately scoped. Do not reopen implementation or escalate effort merely to restamp status.
 
 ## F. Environment safety
 
@@ -134,11 +120,13 @@ Production:
 - Production Supabase ref `kxcydvhswkuzepwzzinq`;
 - GVM normal tenant remains protected;
 - do not manufacture bookings/provider sends;
-- no #72 migration/RLS/Auth/tenant mutation without the later explicit environment-application gate.
+- Issue #72 migration NOT APPLIED; no Production migration or PR merge without explicit Product Owner decision.
 
 Staging:
 - expected canonical hostname `https://staging.chasumai.com`;
-- Staging Supabase ref `wnfahklzaxirftyskctd`.
+- Staging Supabase ref `wnfahklzaxirftyskctd`; Issue #72 migration APPLIED and acceptance PASS.
+- Accepted Preview: `https://chasum-git-feat-tenant-identity-duplica-64c5c5-renovisionappcom.vercel.app`; data plane Staging.
+- No further #72 Staging mutation is authorized unless needed by a newly identified blocker; this handoff is not an execution grant.
 
 Issue #57 branded-domain cutover remains deferred.
 
@@ -156,8 +144,10 @@ Read:
 
 Freshly query remote main and active PR/issue state.
 
-Accepted application restamp base:
-470785f997c456a325c2ad17a503660bc6eafebc
+Git main at documentation restamp:
+d6f6cd0481305c07d6c721cf3bb4b4cc147ac433
+Accepted Issue #72 application candidate (PR #78, unmerged):
+4c39652866117a4ce93b4f8193375c8816c2b582
 
 Phase 5 is COMPLETE.
 Issue #65 observability parent is CLOSED / COMPLETE.
@@ -168,13 +158,13 @@ Current program phase:
 Outside Private Alpha readiness.
 
 NEXT:
-Issue #72 — tenant identity and duplicate-prevention gate.
-Architecture/competitive assessment is complete.
-Level-3 tenant-creation RLS/RPC/schema hardening requires Product Owner approval
-before implementation. Approval to code does not authorize Staging/Production
-migration application.
+Prepare Darshan’s coordinated PR #78 merge / Production rollout decision.
+Issue #72 implementation, Staging migration, DB/RLS/RPC and hosted acceptance,
+router-cache correction and independent audit are complete.
+Production migration remains unapplied. PR #78 remains unmerged.
+No further Staging mutation absent a newly identified blocker.
 
-After #72:
+After #72 Production closeout:
 Issue #73 governed switching/import readiness.
 
 Then:

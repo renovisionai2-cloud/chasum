@@ -37,7 +37,7 @@ Slug and display name are **not** identity.
 - Historical slugs cannot be hijacked by another tenant (unique alias slug + cross-table exclusion).
 - Issue #72 candidate: `requireBusiness()` and its compatibility alias `getOrCreateBusiness()` resolve existing access or redirect to `/onboarding/business`; they never create.
 - New migration `20260920230358_tenant_identity_gate.sql` makes the legacy RPC resolve-only, denies authenticated Business INSERT, and adds the service-only atomic identity/creation/audit primitive.
-- **Migration NOT APPLIED to Staging/Production by this implementation.** Live database enforcement remains subject to a separate environment gate. See [Issue #72 implementation and rollout](tenant-identity/ISSUE_72_IMPLEMENTATION.md).
+- **2026-09-21: Migration APPLIED and accepted on Staging only** (`wnfahklzaxirftyskctd`; ledger `20260920230358 / tenant_identity_gate`). Live DB/RLS/RPC and hosted acceptance passed. **NOT APPLIED to Production; PR #78 remains unmerged.** Production rollout remains separately governed by the Product Owner. See [Issue #72 implementation and rollout](tenant-identity/ISSUE_72_IMPLEMENTATION.md).
 
 ## What is deliberately not built here
 
