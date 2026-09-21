@@ -44,8 +44,11 @@ BYPASSRLS does not confer table privileges. See [PostgreSQL RLS documentation](h
 
 No raw names, email addresses, phone numbers, addresses, notes, payload JSON,
 provider errors or file bytes have columns here. Reasons are an exact allowlist
-of Package A codes, at most 40 non-null entries in one dimension. Row keys use
-bounded opaque token syntax. Source keys, UUIDs and hashes remain sensitive
+of Package A codes, at most 40 non-null entries in one dimension. source_row_key
+follows Package A’s trimmed 1–200-character locator contract, with no character
+whitelist. Non-PII locators such as `row 17`, `sheet/1` and `page#2-row#4` persist
+unchanged. Edge whitespace is rejected using the ECMAScript trim character set;
+the database never silently trims or rewrites a locator. Source keys, UUIDs and hashes remain sensitive
 pseudonymous metadata, not anonymous data. Syntax cannot prove a source key is
 non-PII: the future server adapter must supply reviewed opaque identifiers and
 must not encode contact data into them. Service-role reads require that server
@@ -150,8 +153,8 @@ absence of the three targets and required table/UUID tenant columns. CREATE TABL
 and CREATE FUNCTION have no IF NOT EXISTS/OR REPLACE drift masking. Unexpected
 objects or effective privileges roll back the entire transaction. No bulk replay.
 
-`python3 tests/database/governed-import-foundation.test.py` passed **110 tests**
-on disposable local PostgreSQL 17.11. Each run creates a fresh private directory,
+`python3 tests/database/governed-import-foundation.test.py` passed **124 tests**
+on disposable local PostgreSQL 17.11 with UTF-8 encoding. Each run creates a fresh private directory,
 uses Unix socket only (`listen_addresses=''`), psql `-X`, and a minimal child
 environment containing no PG* connection variables, DATABASE_URL or hosted
 credentials. Exact migration body/hash is recorded. Cluster stops and temporary
@@ -162,6 +165,8 @@ independent RLS denial, definitions/indexes/policies/triggers, all forbidden sta
 edges, valid transitions, scalar/FK validation, every target type, namespace
 mismatch, concurrency, phase immutability, reconciliation, Business offboarding,
 reapply/pre-existing target failures and late ACL failure with complete rollback.
+Locator regressions cover spaces/slashes/hash characters, Unicode, the 200-character
+boundary, and rejection of empty/whitespace/untrimmed/overlength input.
 This is local PostgreSQL evidence, not hosted Supabase compatibility acceptance.
 Typecheck/build are not required for this SQL/Python/docs-only change.
 

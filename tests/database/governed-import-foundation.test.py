@@ -85,9 +85,10 @@ class Foundation(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory(prefix='chasum-b1-', dir='/private/tmp')
         cls.path = Path(cls.temp.name)
         cls.addClassCleanup(cls.temp.cleanup)
-        subprocess.run([str(BIN/'initdb'), '-D', str(cls.path/'data'), '-U', 'postgres', '-A', 'trust', '--no-locale'], check=True, env=ENV, stdout=subprocess.DEVNULL, timeout=30)
+        subprocess.run([str(BIN/'initdb'), '-D', str(cls.path/'data'), '-U', 'postgres', '-A', 'trust', '--no-locale', '--encoding=UTF8'], check=True, env=ENV, stdout=subprocess.DEVNULL, timeout=30)
         subprocess.run([str(BIN/'pg_ctl'), '-D', str(cls.path/'data'), '-l', str(cls.path/'postgres.log'), '-o', f"-k {cls.path} -p {PORT} -c listen_addresses='' -c unix_socket_permissions=0700", '-w', 'start'], check=True, env=ENV, stdout=subprocess.DEVNULL, timeout=30)
         cls.addClassCleanup(lambda: subprocess.run([str(BIN/'pg_ctl'), '-D', str(cls.path/'data'), '-m', 'fast', '-w', 'stop'], check=True, env=ENV, stdout=subprocess.DEVNULL, timeout=30))
+        assert cls.execute('show server_encoding;') == 'UTF8'
         assert cls.execute('show listen_addresses;') == ''
         assert cls.execute('show unix_socket_directories;') == str(cls.path)
         assert cls.execute('select inet_server_addr() is null;') == 't'
@@ -401,7 +402,7 @@ for field in ['id','business_id','source_system','source_account_key','entity_ty
     register('ref_immutable_' + field, immutable_ref)
 
 for field, value in [
-    ('status','UNKNOWN'), ('planned_action','SEND'), ('source_row_hash','bad'), ('source_row_key','person@example.test'),
+    ('status','UNKNOWN'), ('planned_action','SEND'), ('source_row_hash','bad'),
     ('reason_codes','{free form error}'), ('reason_codes','{SECRET_PROVIDER_ERROR}'), ('reason_codes','{NULL}'),
     ('reason_codes','{' + ','.join(['INVALID_ROW']*41) + '}'), ('phase','other'), ('target_entity_id',None),
 ]:
@@ -410,6 +411,28 @@ for field, value in [
         extra = dict(planned_action='LINK_EXISTING', status='DUPLICATE_EXISTING') if field=='target_entity_id' else {}
         self.rejected(outcome_insert(**extra, **{field:value}))
     register('outcome_invalid_' + field + '_' + str(len(str(value))), invalid_outcome)
+
+# Non-PII opaque locators exercise Package A-valid characters, not a privacy heuristic.
+for label, key in [
+    ('space', 'row 17'), ('slash', 'sheet/1'), ('hash', 'page#2-row#4'),
+    ('max_length', 'r' * 200), ('unicode', '列/1'),
+]:
+    def valid_locator(self, key=key):
+        self.execute(run_insert() + outcome_insert(source_row_key=key))
+        self.assertEqual(self.execute('select source_row_key from public.data_import_row_outcomes;'), key)
+    register('locator_valid_' + label, valid_locator)
+
+for label, key in [
+    ('empty', ''), ('whitespace_only', '   '), ('leading_space', ' row 17'),
+    ('trailing_space', 'row 17 '), ('too_long', 'r' * 201), ('tab_only', '\t'),
+    ('leading_tab', '\trow 17'), ('trailing_nbsp', 'row 17\u00a0'),
+    ('leading_bom', '\ufeffsheet/1'), ('trailing_newline', 'sheet/1\n'),
+]:
+    def invalid_locator(self, key=key):
+        self.execute(run_insert())
+        self.rejected(outcome_insert(source_row_key=key))
+        self.assertEqual(self.execute('select count(*) from public.data_import_row_outcomes;'), '0')
+    register('locator_invalid_' + label, invalid_locator)
 
 for table in TABLES:
     def drift(self, table=table):

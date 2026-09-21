@@ -93,7 +93,11 @@ create table public.data_import_row_outcomes (
   import_run_id uuid not null references public.data_import_runs(id) on delete cascade,
   phase text not null check (phase in ('preview','commit')),
   entity_type text not null check (entity_type in ('location','service','staff','serviceLocation','staffLocation','staffService','customer','appointment')),
-  source_row_key text not null check (source_row_key ~ '^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$'),
+  -- Package A trims ECMAScript whitespace. Reject untrimmed input without
+  -- coercion; btrim's default space-only set would miss tabs/Unicode whitespace.
+  source_row_key text not null check (
+    source_row_key = btrim(source_row_key, U&'\0009\000A\000B\000C\000D\0020\00A0\1680\2000\2001\2002\2003\2004\2005\2006\2007\2008\2009\200A\2028\2029\202F\205F\3000\FEFF')
+    and length(source_row_key) between 1 and 200),
   source_row_hash text not null check (source_row_hash ~ '^[a-f0-9]{64}$'),
   status text not null check (status in ('READY','WARNING','DUPLICATE_EXISTING','DUPLICATE_IN_FILE','INVALID','UNRESOLVED_REFERENCE','SKIPPED')),
   planned_action text not null check (planned_action in ('CREATE','LINK_EXISTING','SKIP','BLOCK','REVIEW')),
