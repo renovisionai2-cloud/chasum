@@ -1,6 +1,6 @@
 # Chasum — Environment Manifest
 
-**Record owner:** ChatGPT Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-09-20 after Phase 5 completion, PR #59 direct Production verification, PR #63 Production acceptance, Issue #53 repository governance, and Observability PRs #67/#70/#74/#76 Production acceptance with parent Issue #65 closed. This manifest preserves dated observations and their limits; it is not an automatic inventory.
+**Record owner:** ChatGPT Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-09-21 for Issue #72 Staging/Preview acceptance, following the 2026-09-20 reconciliation after Phase 5 completion, PR #59 direct Production verification, PR #63 Production acceptance, Issue #53 repository governance, and Observability PRs #67/#70/#74/#76 Production acceptance with parent Issue #65 closed. This manifest preserves dated observations and their limits; it is not an automatic inventory.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
@@ -19,6 +19,8 @@ A recorded MATCH never authorizes a release or substitutes for fresh preflight. 
 
 ### Evidence sources
 
+- **P78-STAGING (2026-09-21):** Control Tower accepted Issue #72 live Staging migration/database/RLS/RPC evidence. Project `wnfahklzaxirftyskctd`; migration `20260920230358_tenant_identity_gate` **APPLIED**, ledger reconciled to `20260920230358 / tenant_identity_gate`. Direct authenticated Business INSERT denied; default-location helper direct EXECUTE denied to PUBLIC/anon/authenticated/service_role; legacy owner RPC resolve-only; governed writer service-role entry only; private decision audit and owner-reassignment guard verified. Creation/seeds, ambiguity and cleanup passed. Baseline restored: 4 Businesses / 4 Locations / 1 membership / 0 identity decisions. This confirms Issue #72 only, not the entire migration inventory. Production migration NOT APPLIED; Production/GVM untouched.
+- **P78-PREVIEW (2026-09-21):** Approved hosted Playwright acceptance at exact application candidate `4c39652866117a4ce93b4f8193375c8816c2b582`, branch `feat/tenant-identity-duplicate-prevention`; Preview `https://chasum-git-feat-tenant-identity-duplica-64c5c5-renovisionappcom.vercel.app`. Build-info confirmed `env=preview`, `production=false`, exact commit/ref; Preview Supabase configuration confirmed Staging `wnfahklzaxirftyskctd`. Zero-business/existing intent, ambiguity, exactly-once creation with complete seeds, visible Command Centre, refresh/re-login/onboarding revisit idempotency and Chasum Test Studio membership regression passed. Router-cache correction passed explicit bounded loop checks with zero alternating transitions. All synthetic artifacts cleaned; baseline restored as P78-STAGING. Optional hosted Trusted Operator scenario NOT EXECUTED (no safe synthetic fixture), explicitly non-blocking. Focused independent audit PASS; PR #78 remains unmerged. A subsequent docs-only PR HEAD does not change this accepted application identity. Evidence: Control Tower restamp authorization and [implementation acceptance record](../tenant-identity/ISSUE_72_IMPLEMENTATION.md); no new runtime/database probe in this docs task.
 - **G1:** Control Tower GitHub GET of `refs/heads/main` during the 2026-09-17 continuity restamp: `47189b0f0a244bce5fd601bb76adda1a22a52255`. Exact wall-clock time was not retained; no invented timestamp. Later superseded as serving identity by accepted P45.
 - **P44:** Accepted Cursor PR #44 operator report: Production HTTP captures 2026-09-17T20:16:57Z–20:16:59Z; alias inspect 20:16:44Z. [Merged PR](https://github.com/renovisionai2-cloud/chasum/pull/44) and [commit](https://github.com/renovisionai2-cloud/chasum/commit/47189b0f0a244bce5fd601bb76adda1a22a52255) corroborate Git identity. Historical accepted observation; later superseded as serving identity by P45.
 - **P52:** Accepted Cursor PR #52 Production closeout comment 5737683070. Historical serving SHA `cd735943518fda25be0bcc7e9f697b09b29fca9a`; deployment `dpl_8yRCE7hjaRNMEdURgBthh1SkY9gm`; target production; branch/ref main; READY; primary alias `https://chasum.vercel.app`. Health is configuration-presence only. **Historical; superseded as serving identity by P55-PROD.** Do not delete.
@@ -39,9 +41,9 @@ A recorded MATCH never authorizes a release or substitutes for fresh preflight. 
 - **P43:** [Accepted PR #43](https://github.com/renovisionai2-cloud/chasum/pull/43), [changelog](../CHANGELOG.md), and [historical board](../handoffs/archive/CURRENT_PROJECT_STATE_20260917_PRE_CONTINUITY.md).
 - **C1:** Approved environment/tenant separation and historical configuration in that archived board. These are expectations/history, not fresh live measurements.
 
-Current 2026-09-20 reconciliation uses only accepted evidence above. Phase 5 is COMPLETE. PRs #67/#70/#74/#76 establish the accepted provider-off observability foundation and Issue #65 is closed. None of the later observability releases included a fresh direct Production `/api/build-info` / `/api/health` fetch; therefore the last directly observed serving endpoint identity remains P59-PROD and must not be inferred forward from Vercel deployment success. Continuity collector remains SPECIFIED / NOT IMPLEMENTED. Historical PR #55 Preview/Staging configuration may still exist; two PR #55-named Resend API keys were still present in the provider inventory during PR #63 cleanup and require separate dependency review + Product Owner confirmation before irreversible revocation.
+Historical 2026-09-20 reconciliation used only accepted evidence above. Phase 5 is COMPLETE. PRs #67/#70/#74/#76 establish the accepted provider-off observability foundation and Issue #65 is closed. None of the later observability releases included a fresh direct Production `/api/build-info` / `/api/health` fetch; therefore the last directly observed serving endpoint identity remains P59-PROD and must not be inferred forward from Vercel deployment success. Continuity collector remains SPECIFIED / NOT IMPLEMENTED. Historical PR #55 Preview/Staging configuration may still exist; two PR #55-named Resend API keys were still present in the provider inventory during PR #63 cleanup and require separate dependency review + Product Owner confirmation before irreversible revocation.
 
-## 2026-09-20 current reconciliation
+## 2026-09-20 historical reconciliation
 
 - Restamp application base before this docs-only PR: `470785f997c456a325c2ad17a503660bc6eafebc`.
 - Phase 5: **COMPLETE** through genuine GVM Production use; do not manufacture replacement evidence.
@@ -51,6 +53,10 @@ Current 2026-09-20 reconciliation uses only accepted evidence above. Phase 5 is 
 - Current Private Alpha Production hostname remains `https://chasum.vercel.app`. Issue #57 branded-domain cutover is deferred by Product Owner decision 5745462206.
 - Main branch is ruleset-governed (R53).
 - PR #63 temporary acceptance key is permanently revoked (C63-KEY).
+
+## 2026-09-21 Issue #72 reconciliation
+
+P78-STAGING and P78-PREVIEW record accepted non-Production evidence only. Git main at restamp is `d6f6cd0481305c07d6c721cf3bb4b4cc147ac433`; application candidate `4c39652866117a4ce93b4f8193375c8816c2b582` remains on unmerged PR #78. The next gate is the Product Owner merge/Production rollout decision. No Production endpoint re-probe or environment action occurred in this restamp. Historical Production serving-identity limitations below remain unchanged.
 
 ## Production
 
@@ -95,8 +101,8 @@ Current 2026-09-20 reconciliation uses only accepted evidence above. Phase 5 is 
 | Git SHA / branch/ref | No current serving observation | UNKNOWN | Never substitute a candidate Preview SHA |
 | Vercel deployment / active aliases | Current bindings not inspected | UNKNOWN | Not inspected |
 | Environment classification | Expected non-Production app using isolated Staging data; actual Vercel target must be observed | UNKNOWN | Do not infer from hostname |
-| Supabase project ref | Expected `wnfahklzaxirftyskctd`; current binding unverified | UNKNOWN | C1 |
-| Migration summary / locked-unapplied | Current applied set unknown; historical 034–036 restriction remains no-execution instruction | UNKNOWN | No SQL/management reads |
+| Supabase project ref | `wnfahklzaxirftyskctd` verified for P78 Staging acceptance and its isolated Preview; canonical Staging hostname binding not freshly observed | MATCH for P78 / UNKNOWN canonical hostname | P78-STAGING / P78-PREVIEW; C1 |
+| Migration summary / locked-unapplied | Issue #72 `20260920230358 / tenant_identity_gate` known APPLIED and accepted. Other applied-set questions remain governed by existing evidence; historical locked/unapplied 034–036 restrictions remain. | MATCH for #72 / UNKNOWN for remaining inventory | P78-STAGING; no new SQL/management reads in docs task |
 | Schema compatibility / feature flags | Current values not captured | UNKNOWN | Not probed |
 | Cron / worker / webhook state | Current values not captured | UNKNOWN | Historical queue counts do not prove health |
 | Hold/protection state | Current hosting/Auth protections not inspected | UNKNOWN | Never weaken protection to obtain a pass |

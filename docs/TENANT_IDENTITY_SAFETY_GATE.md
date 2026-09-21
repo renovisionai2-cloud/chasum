@@ -35,11 +35,13 @@ Slug and display name are **not** identity.
 - `businesses.id` remains the tenant key for customers, appointments, commerce, staff, services, locations, memberships, and notifications.
 - Public booking URLs resolve `businesses.slug` first, then a one-hop `business_slug_aliases` lookup to that same `business_id`.
 - Historical slugs cannot be hijacked by another tenant (unique alias slug + cross-table exclusion).
-- `getOrCreateBusiness()` / `ensure_business_for_owner` still create a tenant only when the signed-in user has no membership and no owned row. They do **not** detect same-real-world-business duplicates across users.
+- Issue #72 candidate: `requireBusiness()` and its compatibility alias `getOrCreateBusiness()` resolve existing access or redirect to `/onboarding/business`; they never create.
+- New migration `20260920230358_tenant_identity_gate.sql` makes the legacy RPC resolve-only, denies authenticated Business INSERT, and adds the service-only atomic identity/creation/audit primitive.
+- **2026-09-21: Migration APPLIED and accepted on Staging only** (`wnfahklzaxirftyskctd`; ledger `20260920230358 / tenant_identity_gate`). Live DB/RLS/RPC and hosted acceptance passed. **NOT APPLIED to Production; PR #78 remains unmerged.** Production rollout remains separately governed by the Product Owner. See [Issue #72 implementation and rollout](tenant-identity/ISSUE_72_IMPLEMENTATION.md).
 
 ## What is deliberately not built here
 
-A fuzzy identity-matching service during onboarding. That is DESIGN FOR NOW / BUILD LATER. A low-risk UI hint (“an existing business may already match”) may be added later without expanding this patch.
+Fuzzy entity resolution, KYC, automatic membership attachment, automated ownership transfer and duplicate merging remain outside this implementation. The bounded preflight treats contact/location/brand signals as reasons for review, never immutable proof of identity.
 
 ## Future deletion
 

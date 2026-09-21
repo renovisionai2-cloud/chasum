@@ -2,12 +2,14 @@
 
 **Status:** Canonical launch-governance tracker  
 **Authority:** Working planning targets and launch-criticality classification live here. Product handoff still starts at [`CURRENT_PROJECT_STATE.md`](./CURRENT_PROJECT_STATE.md).  
-**Last updated:** 2026-09-20
-**Updated by:** ChatGPT Control Tower — post-PR #76 / Issue #65 observability closeout. Phase 5 is COMPLETE; Outside Private Alpha readiness remains the current program phase. Historical dated entries below retain the status that was true at their observation time.
+**Last updated:** 2026-09-21
+**Updated by:** Codex under ChatGPT Control Tower’s Issue #72 acceptance restamp contract. Phase 5 is COMPLETE; Outside Private Alpha readiness remains the current program phase. Historical dated entries below retain the status that was true at their observation time.
 
 These are **planning targets, not public promises.**
 
-**2026-09-20 current control state:** World Class Phase 5 is **COMPLETE**. Observability Phase A (#66 / PR #67), B2 (#69 / PR #70), B1 (#68 / PR #74) and C1 privacy hardening (#75 / PR #76) are **PRODUCTION ACCEPTED**. Current accepted application main at this restamp base is `470785f997c456a325c2ad17a503660bc6eafebc`. Parent Issue #65 is **CLOSED / COMPLETE**. Production Sentry/provider activation remains OFF and separately governed. Issue #72 tenant identity/onboarding safety is the next launch-required gate; #73 governed switching/import follows. Issue #57 branded-domain cutover remains deferred; `chasum.vercel.app` remains the legitimate Private Alpha Production hostname. Current program phase is **Outside Private Alpha readiness**.
+**2026-09-21 current control state:** Outside Private Alpha readiness remains **IN PROGRESS**. Issue #72 / PR #78 implementation, separately approved Staging migration `20260920230358_tenant_identity_gate`, live DB/RLS/RPC acceptance, hosted Playwright acceptance and independent audits are complete at application candidate `4c39652866117a4ce93b4f8193375c8816c2b582`. PR #78 remains unmerged; the migration is NOT APPLIED to Production. The remaining #72 gate is the Product Owner’s coordinated merge/Production rollout decision and controlled Production acceptance. #73 governed switching/import readiness follows #72 Production closeout. Phase 5 and observability remain COMPLETE; Production Sentry stays OFF. Gate B has not begun. Git main at restamp: `d6f6cd0481305c07d6c721cf3bb4b4cc147ac433`.
+
+**2026-09-20 historical control state (superseded by the 2026-09-21 entry only as current queue state):** World Class Phase 5 is **COMPLETE**. Observability Phase A (#66 / PR #67), B2 (#69 / PR #70), B1 (#68 / PR #74) and C1 privacy hardening (#75 / PR #76) are **PRODUCTION ACCEPTED**. Current accepted application main at this restamp base is `470785f997c456a325c2ad17a503660bc6eafebc`. Parent Issue #65 is **CLOSED / COMPLETE**. Production Sentry/provider activation remains OFF and separately governed. Issue #72 tenant identity/onboarding safety is the next launch-required gate; #73 governed switching/import follows. Issue #57 branded-domain cutover remains deferred; `chasum.vercel.app` remains the legitimate Private Alpha Production hostname. Current program phase is **Outside Private Alpha readiness**.
 
 **Observability readiness status:** **COMPLETE for the Outside Private Alpha launch-required foundation.** Server/client error capture, allowlist-first structured context, outbound-event privacy hardening, safe support references and truthful worker-health visibility are Production accepted. Production provider activation, source maps, deeper APM/metrics and richer alerting are separately governed future improvements and do not keep Issue #65 open.
 
@@ -219,13 +221,13 @@ Launch requirement vs later expansion: **launch** = trusted booking + CRM + staf
 |-------|--------|
 | Launch classification | **LAUNCH REQUIRED** — a new business must become a real tenant without identity collisions or fake “you’re live” states. |
 | Status | **PARTIAL** |
-| Current owner / current task | Engineering — `getOrCreateBusiness` + setup checklist. Follow-up: onboarding duplicate detection (identity-incident debt). |
-| Blocking issue | Duplicate-business detection / slug identity hygiene still listed as follow-up; setup can remain incomplete (valid). |
+| Current owner / current task | Product Owner / Control Tower — #72 merge + Production rollout decision. Accepted candidate uses membership-first resolution, explicit create/join onboarding, conservative ambiguity stop and service-only governed atomic tenant creation. Authentication/dashboard reads no longer create tenants. |
+| Blocking issue | #72 controlled Production rollout acceptance remains pending; Staging migration, database/RLS/RPC, hosted application and independent audit gates passed. Setup may legitimately remain incomplete after creation. |
 | Acceptance condition | New owner gets one business, a unique booking slug, and an honest setup checklist; Tenant Identity Safety Gate remains enforced; no second GVM-style public-slug collision. |
 | Target completion window | Before selected outside Private Alpha (October–November 2026) |
 | Launch risk | **AMBER** |
 | Threatens Dec 2026–Feb 2027? | **YES** if a second identity collision ships to a paying or public tenant |
-| Notes | Gate: [`TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md). HQ Staging setup was still incomplete (no services) during Phase 3 review — expected dogfood gap, not a product defect. Duplicate-detection follow-up is **not** the next major phase; it remains a bounded item before outside Private Alpha. |
+| Notes | Gate: [`TENANT_IDENTITY_SAFETY_GATE.md`](./TENANT_IDENTITY_SAFETY_GATE.md). HQ Staging setup was still incomplete (no services) during Phase 3 review — expected dogfood gap, not a product defect. #72 Staging acceptance is complete, including exact-once creation, complete seeds, ambiguity stop and post-create router-cache correction. Production rollout remains pending; #73 follows its closeout. |
 
 ---
 
@@ -620,7 +622,7 @@ This is the immediate post-Phase-5 readiness chapter. It is not an invitation to
 | Primary tracker workstreams | **13** Observability / Errors / Recovery; **3** Safe Tenant Provisioning / Onboarding; **16** Selected Outside Private Alpha; switching/import capability spans onboarding and Core Operations. |
 | Why now | Phase 5 real-use proof is complete. The next launch risk is inviting outsiders before Chasum can diagnose failures, onboard tenants safely, and help them switch from incumbent systems without manual developer reconstruction. |
 | Exact launch dependency | Before broader outside Private Alpha, Chasum must have meaningful Production error visibility/trace-correlation, tenant identity/onboarding safety, and a governed migration/import path appropriate to the selected design partners. |
-| First bounded task | **Issue #72 tenant identity and duplicate-prevention implementation gate.** Architecture/competitive assessment is complete; Level-3 tenant-creation RLS/RPC/schema hardening requires Product Owner approval before implementation. |
+| First bounded task | **Issue #72 controlled merge + Production rollout decision.** Implementation, separately approved Staging migration, DB/RLS/RPC and hosted acceptance, and independent audit are complete. Production migration remains unapplied and PR #78 unmerged. |
 | Acceptance condition | (1) Production failures can be investigated with sufficient error/trace context; (2) onboarding identity safety is accepted for an outside tenant; (3) switching/import contract covers at least customers, staff, services and future appointments or has an explicit bounded manual/assisted path; (4) at least one selected outside tenant can be onboarded without developer-only tenant surgery; (5) no P0 tenant/money-truth regression. |
 | Likely risk level | Read-only assessment = low. Instrumentation/provider/config changes can become LEVEL 2/3 depending on Production secrets, PII, vendor SDKs and rollout. Import/onboarding writes are separately risk-classified. |
 | Competitive gate | Observability/internal maintenance is normally **NOT_APPLICABLE** with a concrete reason. Customer-facing onboarding/import work is **REQUIRED** and must benchmark switching/onboarding workflows before implementation. |
@@ -640,7 +642,7 @@ Core Operations launch-required defects continue throughout. GVM and HQ continue
 ### Parallel work — keep bounded
 
 1. **GVM + HQ real-use hardening:** continue genuine use and capture concrete defects; do not manufacture Production tests.
-2. **Outside-tenant onboarding/import contract:** #72 tenant identity is next; #73 import architecture is already assessment-ready and follows after the authoritative tenant target is governed.
+2. **Outside-tenant onboarding/import contract:** #72 is awaiting controlled merge/Production rollout acceptance; #73 import architecture is assessment-ready and follows #72 Production closeout.
 3. **Security/config hygiene:** remove historical temporary Preview credentials/config only after dependency checks and explicit approval when irreversible.
 
 ### Separate later gates
