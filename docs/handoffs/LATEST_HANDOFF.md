@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-21 by Codex under ChatGPT Control Tower’s Issue #73 Package B1 contract.
+**Updated:** 2026-09-21 by ChatGPT Control Tower after Issue #73 Package B1 merge + Staging acceptance.
 **Purpose:** recover the next action in 5–10 minutes without historical chat access.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a competing current-state table.
 
@@ -12,7 +12,7 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Git main / B1 base: `aa97e294625418499a675a3b4b3ee502c85654cd` (Package A closeout).
+Git main: `6b095cbf8c42664a44398c01b2b19ff2e1f15c40` (PR #82 Package B1 merged).
 
 Issue #72 / PR #78 is merged and Production accepted. Issue #73 is active.
 
@@ -29,7 +29,7 @@ Do not reopen observability merely for deeper APM ideas. Production Sentry activ
 
 ## B. Current Outside Private Alpha queue
 
-### CURRENT — Issue #73 Package B1 Level-3 candidate review
+### CURRENT — Issue #83 Stage 1A-Operator / #73 B1 accepted foundation
 
 Issue #72 is CLOSED / PRODUCTION ACCEPTED. PR #78 merged at
 `ec03d36f39705024dfcc5b923ca87e42795f3743`. Migration
@@ -37,15 +37,11 @@ Issue #72 is CLOSED / PRODUCTION ACCEPTED. PR #78 merged at
 Staging. Refreshed existing-GVM dashboard acceptance passed with unchanged
 4 Businesses / 4 Locations / 1 membership / 0 identity decisions.
 
-Package A is **COMPLETE / PRODUCTION ACCEPTED CODE FOUNDATION** at main
-`ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e`: additive pure domain, normalization,
-validation, duplicate/dependency analysis, deterministic preview and SHA-256
-contract. See [Package A](../import/ISSUE_73_PACKAGE_A.md). It adds no persistence,
-migration, upload, UI or operational write. B1 is now an authorized LEVEL-3
-code-only candidate: three private import tables, lifecycle/ref/outcome integrity,
-service-role SELECT-only and 110 disposable PostgreSQL tests. See
-[Package B1](../import/ISSUE_73_PACKAGE_B1.md). Migration NOT APPLIED anywhere
-hosted; B2 operational writer remains NOT AUTHORIZED.
+Package A remains **COMPLETE / PRODUCTION ACCEPTED CODE FOUNDATION**. PR #82 Package B1 is merged at
+`6b095cbf8c42664a44398c01b2b19ff2e1f15c40`. The exact audited migration
+`20260921203029_governed_import_foundation.sql` (SHA-256
+`57b79680fdc60ad5789d90d1d9e6e9600b9b15fb84002687e86c1130acd4dc9f`) is
+**APPLIED + VERIFIED on Staging only**. Hosted Staging verification confirmed the three empty import tables, RLS + FORCE RLS, zero policies, service_role SELECT-only, helper SECURITY INVOKER/pinned search_path and revoked API EXECUTE. Production Supabase has NOT received B1. B2 operational writer remains NOT AUTHORIZED.
 
 Locked decisions: no valid email = unsupported; staff required; exact financial
 truth with revised D3 (NONE/representable EXACT only; reconciliation stays REVIEW/BLOCK, no new payment status); private temporary input and safe durable
@@ -60,7 +56,7 @@ Locations and #72 membership-first identity remain unchanged.
 Outside Private Alpha readiness:
 1. Observability / #65 — **COMPLETE**;
 2. Tenant identity/onboarding safety / #72 — **CLOSED / PRODUCTION ACCEPTED**;
-3. Governed switching/import / #73 — **ACTIVE — Package A COMPLETE; B1 IMPLEMENTED CANDIDATE / NOT APPLIED; B2 NOT AUTHORIZED**;
+3. Governed switching/import / #73 — **ACTIVE — Package A COMPLETE; B1 MERGED + STAGING VERIFIED / PRODUCTION DB NOT APPLIED; B2 NOT AUTHORIZED**;
 4. onboard at least one selected outside design partner without developer-only tenant surgery and without P0 tenant/money-truth regression.
 
 Then:
@@ -100,7 +96,7 @@ GPT-6 Astra effort:
 - Extra High: justified Level-3 security/RLS/tenancy/financial work;
 - Ultra: exceptional only.
 
-Issue #72 implementation/high-risk audits and Issue #73 Package A implementation/audit are complete. B1 is Level 3 code-only authorized; B2 is not authorized. Do not reopen accepted Package A implementation merely to restamp status.
+Issue #72 implementation/high-risk audits and Issue #73 Package A/B1 implementation/audits are complete. B1 is merged and Staging-verified; Production DB application remains separately governed. B2 is not authorized. Do not reopen accepted Package A/B1 work absent contradictory evidence.
 
 ## F. Environment safety
 
@@ -109,11 +105,11 @@ Production:
 - Production Supabase ref `kxcydvhswkuzepwzzinq`;
 - GVM normal tenant remains protected;
 - do not manufacture bookings/provider sends;
-- Issue #72 migration APPLIED / ACCEPTED; Package A merged/accepted and grants no further environment action. B1 migration is NOT APPLIED; B2 remains NOT authorized.
+- Issue #72 migration APPLIED / ACCEPTED; Package A/B1 repository changes merged. B1 migration is NOT APPLIED to Production; B2 remains NOT authorized.
 
 Staging:
 - expected canonical hostname `https://staging.chasumai.com`;
-- Staging Supabase ref `wnfahklzaxirftyskctd`; Issue #72 migration APPLIED and acceptance PASS.
+- Staging Supabase ref `wnfahklzaxirftyskctd`; Issue #72 and B1 migrations APPLIED / acceptance PASS. B1 ledger name is `governed_import_foundation` with hosted generated version `20260921220118`; repository filename remains `20260921203029_governed_import_foundation.sql`, exact SQL hash verified.
 - Accepted Preview: `https://chasum-git-feat-tenant-identity-duplica-64c5c5-renovisionappcom.vercel.app`; data plane Staging.
 - No further #72 Staging mutation is authorized unless needed by a newly identified blocker; this handoff is not an execution grant.
 
@@ -133,14 +129,14 @@ Read:
 
 Freshly query remote main and active PR/issue state.
 
-Current main / B1 base:
-aa97e294625418499a675a3b4b3ee502c85654cd
+Current main:
+6b095cbf8c42664a44398c01b2b19ff2e1f15c40
 
 Phase 5 and observability COMPLETE. Production Sentry OFF.
 Issue #72 CLOSED / PRODUCTION ACCEPTED.
 Current phase: Outside Private Alpha readiness — IN PROGRESS.
-NEXT: Control Tower B1 exact-delta review → independent Level-3 audit → separate PO Staging migration decision.
-B1 is IMPLEMENTED CANDIDATE / NOT APPLIED; do NOT apply it or start B2.
+NEXT: Issue #83 Stage 1A-Operator — internal Business Service Catalog / service_locations convergence across Services, Reception and Booking Sheet. Public booking remains unchanged until Stage 1B.
+B1 is MERGED + STAGING VERIFIED / PRODUCTION DB NOT APPLIED; do NOT start B2.
 Package A is merged/accepted and contains no environment mutation, UI, upload or import commit.
 
 Then:
