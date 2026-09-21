@@ -28,6 +28,12 @@ create policy "No client business creation" on public.businesses as restrictive 
 revoke insert on public.businesses from public, anon, authenticated;
 -- Preserve existing public booking SELECT and legitimate owner/member UPDATE.
 
+-- Live Staging preflight found this existing DEFINER helper publicly executable.
+-- Only database-owned internal calls need it; no direct service-role call exists.
+-- The owner retains EXECUTE, so decide_business_identity can still seed atomically.
+revoke execute on function public.create_default_location(uuid, text)
+  from public, anon, authenticated, service_role;
+
 -- Identity cannot be reassigned through the ordinary profile UPDATE path.
 create function public.guard_business_identity_update() returns trigger
 language plpgsql set search_path = pg_catalog, public, pg_temp as $$

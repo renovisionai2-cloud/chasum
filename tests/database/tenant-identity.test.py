@@ -54,6 +54,9 @@ class IdentityGate(unittest.TestCase):
 
     def test_create_seed_audit(self):
         result=outcome(); self.assertEqual(result['status'],'created')
+        for table in ['businesses','locations','location_settings','tenant_identity_decisions']:
+            self.assertEqual(sql('select count(*) from '+table).stdout.strip(),'1')
+        self.assertEqual(sql('select business_id from locations where is_default').stdout.strip(),result['business']['id'])
         self.assertEqual(sql('select count(*) from business_hours').stdout.strip(),'7')
         self.assertEqual(sql('select count(*) from location_hours').stdout.strip(),'7')
         self.assertEqual(sql('select appointment_interval_minutes from location_settings').stdout.strip(),'15')
@@ -111,6 +114,32 @@ class IdentityGate(unittest.TestCase):
     def test_rpc_denied_clients(self):
         for role in ['anon','authenticated']:
             self.assertNotEqual(sql('set role '+role+';'+call(actor=OTHER),True).returncode,0)
+
+    def test_default_location_execute_posture(self):
+        for role in ['anon','authenticated','service_role']:
+            self.assertEqual(sql(f"select has_function_privilege('{role}','public.create_default_location(uuid,text)','EXECUTE');").stdout.strip(),'f')
+        self.assertEqual(sql("select count(*) from pg_proc p cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a where p.oid='public.create_default_location(uuid,text)'::regprocedure and a.grantee=0 and a.privilege_type='EXECUTE';").stdout.strip(),'0')
+        self.assertEqual(sql("select h.proowner=d.proowner and has_function_privilege(d.proowner,h.oid,'EXECUTE') from pg_proc h, pg_proc d where h.oid='public.create_default_location(uuid,text)'::regprocedure and d.oid='public.decide_business_identity(uuid,text,text,text,text,text,text,text,text,text,text)'::regprocedure;").stdout.strip(),'t')
+
+    def test_default_location_direct_clients_denied(self):
+        self.existing()
+        for role in ['anon','authenticated']:
+            # Test the full signature and the default-argument invocation.
+            for args in [f"'{CANDIDATE}','Unauthorized location'",f"'{CANDIDATE}'"]:
+                result=sql(f"set role {role};set request.jwt.claim.sub='{USER_ID}';select public.create_default_location({args});",True)
+                self.assertNotEqual(result.returncode,0)
+                self.assertIn('permission denied for function create_default_location',result.stderr)
+        for table in ['locations','location_settings','location_hours']:
+            self.assertEqual(sql('select count(*) from '+table).stdout.strip(),'0')
+
+    def test_default_location_direct_service_denied(self):
+        self.existing()
+        result=sql(f"set role service_role;select public.create_default_location('{CANDIDATE}','Direct bypass');",True)
+        self.assertNotEqual(result.returncode,0)
+        self.assertIn('permission denied for function create_default_location',result.stderr)
+        # Service role must instead enter the validated writer, which seeds internally.
+        self.assertEqual(outcome()['status'],'created')
+        self.assertEqual(sql(f"select count(*) from locations where business_id='{CANDIDATE}';").stdout.strip(),'0')
 
     def test_client_cannot_attach_membership(self):
         self.existing()
@@ -189,7 +218,7 @@ class IdentityGate(unittest.TestCase):
         sql("create function public.fail_audit() returns trigger language plpgsql as $$begin raise exception 'synthetic audit failure';end$$;create trigger fail_audit before insert on tenant_identity_decisions for each row execute function fail_audit();")
         try:
             self.assertNotEqual(sql('set role service_role;'+call(),True).returncode,0)
-            for table in ['businesses','business_hours','locations','location_settings','tenant_identity_decisions']:
+            for table in ['businesses','business_hours','locations','location_settings','location_hours','tenant_identity_decisions']:
                 self.assertEqual(sql('select count(*) from '+table).stdout.strip(),'0')
         finally: sql('drop trigger fail_audit on tenant_identity_decisions;drop function fail_audit();')
 
@@ -197,7 +226,7 @@ class IdentityGate(unittest.TestCase):
         sql("create function public.fail_seed() returns trigger language plpgsql as $$begin raise exception 'synthetic seed failure';end$$;create trigger fail_seed before insert on location_hours for each row execute function fail_seed();")
         try:
             self.assertNotEqual(sql('set role service_role;'+call(),True).returncode,0)
-            for table in ['businesses','business_hours','locations','location_settings','tenant_identity_decisions']:
+            for table in ['businesses','business_hours','locations','location_settings','location_hours','tenant_identity_decisions']:
                 self.assertEqual(sql('select count(*) from '+table).stdout.strip(),'0')
         finally: sql('drop trigger fail_seed on location_hours;drop function fail_seed();')
 
@@ -212,6 +241,10 @@ if __name__=='__main__':
         sql(extract('supabase/migrations/032_private_alpha_co_owners.sql','is_business_owner'))
         sql("alter table business_members enable row level security;create policy members_read on business_members for select using(user_id=auth.uid() or is_business_owner(business_id));")
         sql(extract('supabase/migrations/008_phase5_multi_location.sql','create_default_location'))
+        # Model both inherited PUBLIC execution and explicit API-role grants.
+        # The candidate must remove both, not rely on RLS or on default ACLs.
+        sql('grant execute on function public.create_default_location(uuid,text) to anon, authenticated, service_role;')
+        assert sql("select has_function_privilege('authenticated','public.create_default_location(uuid,text)','EXECUTE');").stdout.strip()=='t'
         sql(extract('supabase/migrations/032_private_alpha_co_owners.sql','ensure_business_for_owner'))
         sql('create policy "Owners manage their businesses" on businesses for all using (owner_id=auth.uid() or is_business_owner(id)) with check (owner_id=auth.uid() or is_business_owner(id));')
         sql((ROOT/'supabase/migrations/039_business_slug_aliases.sql').read_text())

@@ -41,6 +41,27 @@ The server action returns only generic statuses/errors. It does not disclose the
 candidate, matching contact fields or database errors. Missing migration/service
 credentials/query failures fail closed; there is no legacy fallback.
 
+### Narrow pre-apply correction: default-location helper
+
+Control Tower's read-only live Staging preflight found that the existing
+`public.create_default_location(uuid,text)` is owned by postgres, SECURITY DEFINER,
+publicly executable and lacks caller-tenant authorization. This was discovered
+before any application of the candidate migration. The rest of that preflight
+passed; no broader architecture change is required.
+
+PR #78's unapplied migration now revokes EXECUTE on that exact signature from
+PUBLIC, anon, authenticated and service_role. No application caller needs direct
+service-role access. The trusted `decide_business_identity` runs as its database
+owner, which retains helper EXECUTE for internal seeding. The helper body is
+unchanged. RLS alone does not control function invocation.
+
+The disposable fixture models PUBLIC plus explicit API-role grants before applying
+the correction. Tests check effective privileges, denied direct calls (including
+the default argument), successful service-role entry through the trusted writer,
+complete seeds/audit and rollback on seed/audit failure. No governed environment
+was mutated. Broader historical SECURITY DEFINER advisor findings remain outside
+this PR; this correction does not claim to resolve that inventory.
+
 ## Ambiguity and concurrency
 
 Preflight lives inside the database writer, not a separate time-of-check token.
@@ -96,9 +117,13 @@ of existing tables plus the actual prior owner/seed/slug functions and new migra
 This is executable authorization/concurrency/rollback evidence, not live Supabase
 catalog parity or a full historical migration replay. Do not substitute a remote URL.
 
-Candidate local results: 323 tests across 31 focused/regression files passed;
+Initial candidate local results: 323 tests across 31 focused/regression files passed;
 25 disposable PostgreSQL tests passed (including lock timeout, concurrent owners,
 audit and seed rollback). Typecheck, changed-file ESLint and build passed.
+
+Narrow helper-privilege correction: 28 disposable PostgreSQL tests and 108
+access/onboarding tests across 11 files passed. Typecheck, changed-file ESLint,
+build and diff-check passed. No shared application/UI code changed in this delta.
 
 `node tests/browser/tenant-identity-smoke.mjs` bundles the actual page/form with
 explicit backend stubs and blocks all network. Chromium at 375px and 1280px verified
@@ -139,3 +164,5 @@ Staging migration gate; an unapplied Preview cannot prove successful new creatio
 References for privilege mechanics:
 https://supabase.com/docs/guides/database/postgres/row-level-security
 https://supabase.com/docs/guides/database/functions
+https://www.postgresql.org/docs/17/sql-grant.html
+https://www.postgresql.org/docs/17/sql-createfunction.html

@@ -3,6 +3,18 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => readFileSync(path, "utf8");
 const sql = read("supabase/migrations/20260920230358_tenant_identity_gate.sql");
 describe("tenant creation security contracts (local PostgreSQL tests prove behavior)", () => {
+  it("keeps default-location seeding internal to the database-owned writer", () => {
+    expect(sql).toMatch(
+      /revoke execute on function public\.create_default_location\(uuid, text\)\s+from public, anon, authenticated, service_role;/,
+    );
+    expect(sql).not.toMatch(
+      /grant\s+(execute|all(?:\s+privileges)?)\s+on\s+function\s+public\.create_default_location/i,
+    );
+    expect(sql).not.toMatch(
+      /create(?:\s+or\s+replace)?\s+function\s+(?:public\.)?create_default_location/i,
+    );
+    expect(sql).toContain("v_location := public.create_default_location(");
+  });
   it("keeps new function private to service role", () => {
     expect(sql).toContain("from public, anon, authenticated;");
     expect(sql).toMatch(
