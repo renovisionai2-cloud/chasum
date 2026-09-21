@@ -8,6 +8,7 @@ import {
   type IdentityActionState,
 } from "@/lib/tenant-identity/input";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function submitBusinessIdentity(
   _previous: IdentityActionState,
@@ -77,7 +78,11 @@ export async function submitBusinessIdentity(
         "Business onboarding is unavailable. Please contact Chasum Support.",
     };
   }
-  if (outcome === "created") redirect("/dashboard");
+  if (outcome === "created") {
+    // Discard dashboard redirects prefetched before this user owned a business.
+    revalidatePath("/dashboard", "layout");
+    redirect("/dashboard");
+  }
   if (outcome === "existing")
     return {
       error: "Your account already has business access. Open your dashboard.",

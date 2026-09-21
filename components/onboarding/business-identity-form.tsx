@@ -31,7 +31,7 @@ export function BusinessIdentityForm() {
         <Link className="inline-block underline" href="/contact">
           Contact Chasum Support
         </Link>
-        <Link className="block underline" href="/dashboard">
+        <Link className="block underline" href="/dashboard" prefetch={false}>
           Check my business access
         </Link>
       </section>
@@ -166,7 +166,11 @@ export function BusinessIdentityForm() {
             ? "Confirm and create business"
             : "Continue with existing business"}
       </Button>
-      <Link className="block text-sm underline" href="/dashboard">
+      <Link
+        className="block text-sm underline"
+        href="/dashboard"
+        prefetch={false}
+      >
         Already invited? Check my business access
       </Link>
     </form>

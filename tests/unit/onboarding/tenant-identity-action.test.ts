@@ -4,6 +4,10 @@ const mocks = vi.hoisted(() => ({
   resolve: vi.fn(),
   rpc: vi.fn(),
   service: vi.fn(),
+  revalidate: vi.fn(),
+  redirect: vi.fn((path: string) => {
+    throw new Error(`REDIRECT:${path}`);
+  }),
 }));
 vi.mock("@/lib/actions/business", () => ({
   requireUser: mocks.user,
@@ -13,10 +17,9 @@ vi.mock("@/lib/supabase/service", () => ({
   createServiceClient: mocks.service,
 }));
 vi.mock("next/navigation", () => ({
-  redirect: (path: string) => {
-    throw new Error(`REDIRECT:${path}`);
-  },
+  redirect: mocks.redirect,
 }));
+vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidate }));
 import { submitBusinessIdentity } from "@/lib/actions/tenant-identity";
 function form(intent = "create_new") {
   const data = new FormData();
@@ -45,6 +48,36 @@ beforeEach(() => {
   mocks.rpc.mockResolvedValue({ data: { status: "created" }, error: null });
 });
 describe("explicit business identity action", () => {
+  it("invalidates pre-creation dashboard state after persistence and before redirect", async () => {
+    await expect(submitBusinessIdentity({}, form())).rejects.toThrow(
+      "REDIRECT:/dashboard",
+    );
+    expect(mocks.revalidate).toHaveBeenCalledExactlyOnceWith(
+      "/dashboard",
+      "layout",
+    );
+    expect(mocks.rpc.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.revalidate.mock.invocationCallOrder[0],
+    );
+    expect(mocks.revalidate.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.redirect.mock.invocationCallOrder[0],
+    );
+  });
+  it.each(["ambiguous", "join_existing", "existing", "unexpected"])(
+    "does not invalidate dashboard state for the %s outcome",
+    async (status) => {
+      mocks.rpc.mockResolvedValue({ data: { status }, error: null });
+      await submitBusinessIdentity({}, form());
+      expect(mocks.revalidate).not.toHaveBeenCalled();
+      expect(mocks.redirect).not.toHaveBeenCalled();
+    },
+  );
+  it("does not invalidate dashboard state on a thrown persistence failure", async () => {
+    mocks.rpc.mockRejectedValue(new Error("database failure"));
+    expect(await submitBusinessIdentity({}, form())).toHaveProperty("error");
+    expect(mocks.revalidate).not.toHaveBeenCalled();
+  });
+
   it("uses the verified actor and authoritative RPC despite forged browser approval/identity", async () => {
     const data = form();
     data.set("actor_user_id", "victim");
@@ -83,6 +116,7 @@ describe("explicit business identity action", () => {
     mocks.resolve.mockResolvedValue({ id: "existing" });
     expect(await submitBusinessIdentity({}, form())).toHaveProperty("error");
     expect(mocks.service).not.toHaveBeenCalled();
+    expect(mocks.revalidate).not.toHaveBeenCalled();
   });
   it.each(["invited", "revoked"])(
     "fails closed for unresolved %s operator",
@@ -96,12 +130,14 @@ describe("explicit business identity action", () => {
         "REDIRECT:/access-denied",
       );
       expect(mocks.service).not.toHaveBeenCalled();
+      expect(mocks.revalidate).not.toHaveBeenCalled();
     },
   );
   it("rejects unverified accounts", async () => {
     mocks.user.mockResolvedValue({ id: "user", app_metadata: {} });
     expect(await submitBusinessIdentity({}, form())).toHaveProperty("error");
     expect(mocks.service).not.toHaveBeenCalled();
+    expect(mocks.revalidate).not.toHaveBeenCalled();
   });
   it.each(["intent", "confirmation", "phone", "email", "city"])(
     "rejects missing %s without privileged invocation",
@@ -110,6 +146,7 @@ describe("explicit business identity action", () => {
       data.delete(key);
       expect(await submitBusinessIdentity({}, data)).toHaveProperty("error");
       expect(mocks.rpc).not.toHaveBeenCalled();
+      expect(mocks.revalidate).not.toHaveBeenCalled();
     },
   );
   it("ambiguity never leaks candidate identity or creates a second request", async () => {
@@ -132,6 +169,7 @@ describe("explicit business identity action", () => {
     const result = await submitBusinessIdentity({}, form());
     expect(result.error).toContain("unavailable");
     expect(JSON.stringify(result)).not.toContain("secret");
+    expect(mocks.revalidate).not.toHaveBeenCalled();
     expect(mocks.rpc).toHaveBeenCalledTimes(1);
   });
   it("concurrent winner reported as existing cannot be treated as a new business", async () => {

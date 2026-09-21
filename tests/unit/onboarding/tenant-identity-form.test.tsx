@@ -1,12 +1,31 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-const mocks = vi.hoisted(() => ({ submit: vi.fn() }));
+const mocks = vi.hoisted(() => ({ submit: vi.fn(), link: vi.fn() }));
+vi.mock("next/link", () => ({
+  default: ({
+    prefetch,
+    ...props
+  }: import("react").ComponentProps<"a"> & { prefetch?: boolean }) => {
+    mocks.link({ href: props.href, prefetch });
+    return <a {...props} />;
+  },
+}));
+function expectFreshDashboardLinks() {
+  const links = mocks.link.mock.calls
+    .map(([props]) => props)
+    .filter((p) => p.href === "/dashboard");
+  expect(links.length).toBeGreaterThan(0);
+  for (const props of links) expect(props.prefetch).toBe(false);
+}
 vi.mock("@/lib/actions/tenant-identity", () => ({
   submitBusinessIdentity: mocks.submit,
 }));
 import { BusinessIdentityForm } from "@/components/onboarding/business-identity-form";
-beforeEach(() => mocks.submit.mockReset());
+beforeEach(() => {
+  mocks.submit.mockReset();
+  mocks.link.mockClear();
+});
 describe("business identity onboarding", () => {
   it("requires an explicit choice and shows no business discovery records", () => {
     render(<BusinessIdentityForm />);
@@ -15,6 +34,7 @@ describe("business identity onboarding", () => {
     ).toBeDisabled();
     expect(screen.getAllByRole("radio")).toHaveLength(2);
     expect(screen.queryByLabelText("Business email")).toBeNull();
+    expectFreshDashboardLinks();
   });
   it("existing-business choice leads to manual access without a new business", async () => {
     mocks.submit.mockResolvedValue({ existing: true });
@@ -32,6 +52,7 @@ describe("business identity onboarding", () => {
       }),
     ).toBeInTheDocument();
     expect(mocks.submit.mock.calls[0][1].get("intent")).toBe("join_existing");
+    expectFreshDashboardLinks();
     expect(
       screen.getByRole("link", { name: "Contact Chasum Support" }),
     ).toHaveAttribute("href", "/contact");
@@ -65,5 +86,6 @@ describe("business identity onboarding", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button")).toBeNull();
+    expectFreshDashboardLinks();
   });
 });
