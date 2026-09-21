@@ -7,11 +7,10 @@ import { loadCustomerCommerceAccount } from "@/lib/actions/commerce";
 import { displayCustomerName, loadCrmCustomerProfile } from "@/lib/actions/crm";
 import { getCustomers } from "@/lib/actions/customers";
 import { getLocations } from "@/lib/actions/location";
-import { getServices } from "@/lib/actions/services";
+import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
 import type {
   Customer,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 import { ArrowLeft } from "lucide-react";
@@ -58,7 +57,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
       loadCrmCustomerProfile(id),
       getStaff(),
       getLocations(),
-      getServices(),
+      getOperatorServiceCatalog(),
       getCustomers(),
       listMemberships(),
       loadCustomerCommerceAccount(id),
@@ -110,7 +109,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
         profile={profile}
         staff={staff as StaffWithServices[]}
         locations={locations}
-        services={services as Service[]}
+        services={services}
         customers={(customers ?? []) as Customer[]}
         memberships={memberships}
         mapsAddress={mapsAddress}

@@ -1,5 +1,7 @@
 "use client";
 
+import { ServiceLocationStatus } from "@/components/services/service-location-status";
+import { isServiceOfferedAtLocation, type OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 import { ServiceCategoriesPanel } from "@/components/services/service-categories-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -681,12 +683,17 @@ export function ServicesManager({
   categories,
   staff,
   locations,
+  selectedLocationId = null,
 }: {
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
+  selectedLocationId?: string | null;
   categories: ServiceCategory[];
   staff: Pick<Staff, "id" | "name" | "title" | "is_active" | "location_id" | "color">[];
   locations: Location[];
 }) {
+  const selectedLocation = locations.find((location) => location.id === selectedLocationId);
+  const showLocationStatus = selectedLocation && (locations.length > 1 ||
+    services.some((service) => !isServiceOfferedAtLocation(service, selectedLocation.id)));
   const [tab, setTab] = useState<TabKey>("catalog");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Service | undefined>();
@@ -822,6 +829,12 @@ export function ServicesManager({
         <ServiceCategoriesPanel categories={categories} />
       ) : (
         <>
+          {showLocationStatus && (
+            <p className="text-sm text-muted-foreground">
+              Business catalog · Offering status for <strong className="text-foreground">{selectedLocation.name}</strong>.
+              Enable existing services here without creating copies.
+            </p>
+          )}
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <div className="relative sm:col-span-2 xl:col-span-1">
@@ -1006,6 +1019,9 @@ export function ServicesManager({
                             </span>
                           )}
                         </div>
+                        {showLocationStatus && (
+                          <ServiceLocationStatus service={service} locationId={selectedLocation.id} />
+                        )}
                       </CardContent>
                     </Card>
                   );

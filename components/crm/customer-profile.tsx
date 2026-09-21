@@ -1,5 +1,7 @@
 "use client";
 
+import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
+
 import { BookingSheet } from "@/components/booking-sheet";
 import { CustomerCommercePanel } from "@/components/commerce/customer-commerce-panel";
 import { CommunicationCenter } from "@/components/communication/communication-center";
@@ -41,7 +43,6 @@ import type {
   AppointmentWithRelations,
   Customer,
   Location,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
@@ -137,7 +138,7 @@ export function CustomerProfileView({
   profile: CrmProfile;
   staff: StaffWithServices[];
   locations: Location[];
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
   customers: Customer[];
   memberships: Membership[];
   mapsAddress?: string | null;

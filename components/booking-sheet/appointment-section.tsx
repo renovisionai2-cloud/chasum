@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  filterServicesOfferedAtLocation,
+  type OperatorServiceCatalogItem,
+} from "@/lib/services/operator-catalog";
+
 import { BookingPriceSummary } from "@/components/booking/booking-price-summary";
 import { BookingSection } from "@/components/booking/booking-section";
 import { Button } from "@/components/ui/button";
@@ -16,7 +21,6 @@ import { formatMoneyCents } from "@/lib/commerce/money";
 import type {
   AppointmentStatus,
   Location,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 import {
@@ -29,7 +33,7 @@ import { useState } from "react";
 export type BookingOfferType = "service" | "package";
 
 type AppointmentSectionProps = {
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
   packages: ServicePackage[];
   staff: StaffWithServices[];
   locations: Location[];
@@ -108,8 +112,8 @@ export function AppointmentSection({
     String(durationMinutes || ""),
   );
 
-  const locationServices = services.filter(
-    (s) => s.is_active && (!locationId || s.location_id === locationId),
+  const locationServices = filterServicesOfferedAtLocation(services, locationId).filter(
+    (service) => service.is_active,
   );
   const activePackages = packages.filter((p) => p.is_active);
   const selectedPackage = activePackages.find((p) => p.id === packageId);

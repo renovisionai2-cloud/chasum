@@ -1,5 +1,7 @@
 "use client";
 
+import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
+
 import { CalendarClient } from "@/components/calendar/calendar-client";
 import { MorningBrief } from "@/components/day-view/morning-brief";
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
@@ -12,7 +14,6 @@ import type {
   CalendarView,
   Customer,
   Location,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 
@@ -20,7 +21,7 @@ type ReceptionWorkspaceProps = {
   brief: MorningBriefData;
   insights: DashboardInsight[];
   appointments: AppointmentWithRelations[];
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
   staff: StaffWithServices[];
   customers: Customer[];
   locations: Location[];

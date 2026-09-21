@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  filterServicesOfferedAtLocation,
+  type OperatorServiceCatalogItem,
+} from "@/lib/services/operator-catalog";
+
 import { BookingNotificationStatus } from "@/components/booking/booking-notification-status";
 import {
   BookingPaymentSection,
@@ -41,7 +46,6 @@ import type {
   BookingNotificationStatusItem,
   Customer,
   Location,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 import { useToast } from "@/providers/toast-provider";
@@ -58,7 +62,7 @@ import {
 
 type QuickAppointmentProps = {
   customers: Customer[];
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
   staff: StaffWithServices[];
   locations: Location[];
   taxRates?: TaxRate[];
@@ -142,17 +146,6 @@ export function QuickAppointmentForm({
     return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
   }, [initialCustomers, extraCustomers]);
 
-  const activeServices = services.filter((s) => s.is_active);
-
-  const preferredService =
-    defaultServiceId ??
-    (prefs.serviceId &&
-    activeServices.some((s) => s.id === prefs.serviceId)
-      ? prefs.serviceId
-      : null) ??
-    activeServices[0]?.id ??
-    "";
-
   const preferredLocation =
     (prefs.locationId &&
     locations.some((l) => l.id === prefs.locationId)
@@ -172,9 +165,13 @@ export function QuickAppointmentForm({
   const [locationOverride, setLocationOverride] = useState<string | null>(
     null,
   );
-  const serviceId = serviceOverride ?? preferredService;
   const staffId = staffOverride ?? preferredStaff;
   const locationId = locationOverride ?? preferredLocation;
+  const activeServices = filterServicesOfferedAtLocation(services, locationId)
+    .filter((service) => service.is_active);
+  const serviceId = [serviceOverride, defaultServiceId, prefs.serviceId]
+    .find((id) => activeServices.some((service) => service.id === id))
+    ?? activeServices[0]?.id ?? "";
   const [date, setDate] = useState(
     walkInMode || !defaultSlotIso
       ? format(new Date(), "yyyy-MM-dd")
@@ -985,6 +982,9 @@ export function QuickAppointmentForm({
                 writeBookingPreferences({ serviceId: e.target.value });
               }}
             >
+              {activeServices.length === 0 && (
+                <option value="">No active services at this location</option>
+              )}
               {activeServices.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}

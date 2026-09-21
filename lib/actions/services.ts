@@ -14,6 +14,7 @@ import type {
   ServiceBlackout,
   ServiceStaffAssignment,
 } from "@/lib/types/booking";
+import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 import { revalidatePath } from "next/cache";
 
 function revalidateServices() {
@@ -254,6 +255,50 @@ export async function getServices(): Promise<Service[]> {
     throw new Error(error.message);
   }
   return (data as Service[]) ?? [];
+}
+
+/** Business-wide operator catalog; never inherits the active-location filter. */
+export async function getOperatorServiceCatalog(): Promise<OperatorServiceCatalogItem[]> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select("*, service_locations(location_id)")
+    .eq("business_id", business.id)
+    .order("sort_order", { ascending: true })
+    .order("name");
+  // Do not turn a relationship/query failure into a misleading empty catalog.
+  if (error) throw new Error(error.message);
+  return (data as OperatorServiceCatalogItem[]) ?? [];
+}
+
+/** Adds one tenant-validated relationship without replacing any existing mapping. */
+export async function enableServiceAtLocation(
+  serviceId: string,
+  locationId: string,
+): Promise<ActionState> {
+  if (!serviceId || !locationId) return { error: "Service and location are required." };
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+  const [service, location] = await Promise.all([
+    supabase.from("services").select("id, location_id")
+      .eq("id", serviceId).eq("business_id", business.id).maybeSingle(),
+    supabase.from("locations").select("id")
+      .eq("id", locationId).eq("business_id", business.id)
+      .eq("is_active", true).maybeSingle(),
+  ]);
+  if (service.error || location.error || !service.data || !location.data) {
+    return { error: "Service or location is unavailable for this business." };
+  }
+  const { error } = await supabase.from("service_locations").upsert({
+    service_id: service.data.id,
+    location_id: location.data.id,
+    is_primary: service.data.location_id === location.data.id,
+  }, { onConflict: "service_id,location_id", ignoreDuplicates: true });
+  if (error) return { error: "Could not enable this service. Please try again." };
+  revalidateServices();
+  revalidatePath("/dashboard/clients/[id]", "page");
+  return { success: "Service enabled at this location." };
 }
 
 export async function getServiceStaffAssignments(
