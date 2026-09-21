@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { entityTypes, mappingSchema, payloadSchema, snapshotSchema, type EntityType, type ImportRow, type Preview, type ReasonCode, type Reference, type ResolvedReference, type RowOutcome } from "./contracts";
+import { assignmentTypes, entityTypes, mappingSchema, payloadSchema, snapshotSchema, type EntityType, type IdEntityType, type TargetAssignment, type ImportRow, type Preview, type ReasonCode, type Reference, type ResolvedReference, type RowOutcome } from "./contracts";
 import { canonicalSerialize, hash, unordered } from "./hash";
 import { normalizeTimezone, resolveTimestamp } from "./timezone";
 export class ImportContractError extends Error {
@@ -13,6 +13,13 @@ const rowId = (r: {
     entityType: EntityType;
     sourceRowKey: string;
 }) => canonicalSerialize([r.entityType, r.sourceRowKey]);
+const endpoints = (a: TargetAssignment): Record<string, string> => {
+    switch (a.entityType) {
+        case "staffService": return { staff: a.staffId, service: a.serviceId };
+        case "staffLocation": return { staff: a.staffId, location: a.locationId };
+        case "serviceLocation": return { service: a.serviceId, location: a.locationId };
+    }
+};
 export function sourceRowHash(row: ImportRow): string {
     // Locator changes are not changes to operational content. Hash is never identity.
     const { sourceRowKey: _key, sourceExternalId: _id, ...content } = normalizeRow(row);
@@ -58,6 +65,12 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
     const ids = snapshot.entities.map(e => canonicalSerialize([e.entityType, e.id]));
     if (new Set(ids).size !== ids.length)
         throw new ImportContractError("INVALID_SNAPSHOT");
+    for (const assignment of snapshot.assignments) {
+        if (Object.entries(endpoints(assignment)).some(([type, id]) => !snapshot.entities.some(e => e.entityType === type && e.id === id)))
+            throw new ImportContractError("INVALID_SNAPSHOT");
+    }
+    if (new Set(snapshot.assignments.map(a => canonicalSerialize(a))).size !== snapshot.assignments.length)
+        throw new ImportContractError("INVALID_SNAPSHOT");
     for (const e of snapshot.entities) {
         if (e.email)
             e.email = email(e.email);
@@ -76,6 +89,12 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
     if (mapping.links.some(l => !rows.some(r => rowId(r) === rowId(l))))
         throw new ImportContractError("INVALID_ROOT");
     const results = rows.map((r): RowOutcome => ({ entityType: r.entityType, sourceRowKey: r.sourceRowKey, ...(r.sourceExternalId ? { sourceExternalId: r.sourceExternalId } : {}), sourceRowHash: sourceRowHash(r), status: "READY", plannedAction: "CREATE", reasonCodes: [], dependencies: {} }));
+    const setExistingId = (i: number, id: string) => {
+        const o = results[i];
+        if (o.entityType === "serviceLocation" || o.entityType === "staffLocation" || o.entityType === "staffService")
+            throw new ImportContractError("INVALID_ROOT");
+        o.existingId = id;
+    };
     const add = (i: number, reason: ReasonCode, status: RowOutcome["status"] = "INVALID", action: RowOutcome["plannedAction"] = "BLOCK") => {
         const o = results[i];
         o.reasonCodes.push(reason);
@@ -123,7 +142,7 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
             if (!Object.hasOwn(mapping.statusMapping, r.sourceStatus))
                 add(i, "UNMAPPED_STATUS");
             const zone = r.timezone ?? normalized.source.sourceTimezone;
-            const a = resolveTimestamp(r.start, zone), b = resolveTimestamp(r.end, zone);
+            const a = resolveTimestamp(r.start, zone, r.timezone !== undefined), b = resolveTimestamp(r.end, zone, r.timezone !== undefined);
             if (r.timezone && !normalizeTimezone(r.timezone))
                 add(i, "INVALID_TIMEZONE");
             if (a.error)
@@ -133,6 +152,9 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
             if (a.iso && b.iso) {
                 r.start = a.iso;
                 r.end = b.iso;
+                // The normalized representation uses UTC, including its explicit zone.
+                // Validate original offset/zone truth BEFORE normalizing; re-preview is stable.
+                if (r.timezone !== undefined) r.timezone = "UTC";
                 if (a.iso >= b.iso)
                     add(i, "INVALID_RANGE");
                 if (a.iso <= now.iso!)
@@ -177,7 +199,7 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
                 add(i, "MISSING_REFERENCE", "UNRESOLVED_REFERENCE");
                 continue;
             }
-            results[i].existingId = id;
+            setExistingId(i, id);
             if (prior[0] && prior[0].sourceRowHash !== results[i].sourceRowHash)
                 add(i, "SOURCE_ID_CHANGED", "WARNING", "REVIEW");
             else
@@ -188,7 +210,7 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
             if (matches.length > 1)
                 add(i, "AMBIGUOUS_MATCH", "WARNING", "REVIEW");
             else if (matches.length === 1) {
-                results[i].existingId = matches[0].id;
+                setExistingId(i, matches[0].id);
                 add(i, "CUSTOMER_EMAIL_MATCH", "DUPLICATE_EXISTING", "LINK_EXISTING");
                 if (matches[0].name !== r.name || (matches[0].phone && r.phone && matches[0].phone !== r.phone))
                     add(i, "IDENTITY_CONFLICT", "WARNING", "REVIEW");
@@ -201,7 +223,7 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
         }
     }
     const usable = (o: RowOutcome) => o.plannedAction === "CREATE" && o.status === "READY" || o.plannedAction === "LINK_EXISTING";
-    const resolve = (ref: Reference | undefined, type: EntityType): ResolvedReference | null => {
+    const resolve = (ref: Reference | undefined, type: IdEntityType): ResolvedReference | null => {
         if (!ref)
             return null;
         if ("existingId" in ref)
@@ -212,14 +234,13 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
         return matches[0].existingId ? { entityType: type, existingId: matches[0].existingId } : { entityType: type, sourceRowKey: ref.sourceRowKey };
     };
     const token = (r: ResolvedReference) => canonicalSerialize([r.entityType, r.existingId ?? r.sourceRowKey]);
-    const assignmentTypes = ["serviceLocation", "staffLocation", "staffService"] as const;
     for (const type of entityTypes) {
         for (const [i, r] of rows.entries()) {
             if (r.entityType !== type)
                 continue;
             const deps: Record<string, [
                 Reference | undefined,
-                EntityType
+                IdEntityType
             ]> = {};
             if (r.entityType === "service" || r.entityType === "staff")
                 deps.primaryLocation = [r.primaryLocation, "location"];
@@ -257,10 +278,9 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
                         continue;
                     const pair = canonicalSerialize(Object.fromEntries(Object.entries(dep).map(([k, v]) => [k, token(v!)])));
                     pairs.set(pair, [...(pairs.get(pair) ?? []), i]);
-                    const match = snapshot.entities.find(e => e.entityType === type && e.endpoints && Object.entries(dep).every(([k, v]) => v?.existingId === e.endpoints?.[k]));
+                    const match = snapshot.assignments.some(e => e.entityType === type && Object.entries(dep).every(([k, v]) => v?.existingId === endpoints(e)[k]));
                     if (match) {
-                        results[i].existingId = match.id;
-                        add(i, "ASSIGNMENT_EXISTS", "DUPLICATE_EXISTING", "LINK_EXISTING");
+                        add(i, "ASSIGNMENT_EXISTS", "DUPLICATE_EXISTING", "SKIP");
                     }
                 }
             for (const indices of pairs.values())
@@ -270,7 +290,7 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
     }
     const hasAssignment = (type: EntityType, a: ResolvedReference, b: ResolvedReference) => {
         const names = type === "staffService" ? ["staff", "service"] : type === "staffLocation" ? ["staff", "location"] : ["service", "location"];
-        return snapshot.entities.some(e => e.entityType === type && a.existingId && b.existingId && e.endpoints?.[names[0]] === a.existingId && e.endpoints?.[names[1]] === b.existingId) || results.some(o => o.entityType === type && usable(o) && o.dependencies[names[0]] && o.dependencies[names[1]] && token(o.dependencies[names[0]]!) === token(a) && token(o.dependencies[names[1]]!) === token(b));
+        return snapshot.assignments.some(e => e.entityType === type && a.existingId && b.existingId && endpoints(e)[names[0]] === a.existingId && endpoints(e)[names[1]] === b.existingId) || results.some(o => o.entityType === type && usable(o) && o.dependencies[names[0]] && o.dependencies[names[1]] && token(o.dependencies[names[0]]!) === token(a) && token(o.dependencies[names[1]]!) === token(b));
     };
     const atLocation = (entity: ResolvedReference, loc: ResolvedReference) => {
         const primary = entity.existingId ? existing(entity.entityType, entity.existingId)?.primaryLocationId : undefined;
@@ -282,20 +302,33 @@ export function previewImport(input: unknown, targetSnapshot: unknown, mappingIn
             const { staff, service, location } = results[i].dependencies;
             if (staff && service && location && (!atLocation(staff, location) || !atLocation(service, location) || !hasAssignment("staffService", staff, service)))
                 add(i, "ASSIGNMENT_REQUIRED", "UNRESOLVED_REFERENCE");
+        }
+    // Existing snapshot collisions are independent of in-file eligibility.
+    for (const [i, r] of rows.entries())
+        if (r.entityType === "appointment") {
+            const { staff } = results[i].dependencies;
             const mapped = mapping.statusMapping[r.sourceStatus];
             const active = mapped && !["cancelled"].includes(mapped);
             if (active && staff) {
                 const overlaps = snapshot.entities.some(e => e.entityType === "appointment" && e.id !== results[i].existingId && e.staffId === staff.existingId && !["cancelled"].includes(e.status!) && r.start < e.end! && e.start! < r.end);
-                const inFile = rows.some((other, j) => j !== i && other.entityType === "appointment" && results[j].dependencies.staff && token(results[j].dependencies.staff!) === token(staff) && Object.hasOwn(mapping.statusMapping, other.sourceStatus) && !["cancelled"].includes(mapping.statusMapping[other.sourceStatus]) && r.start < other.end && other.start < r.end);
-                if (overlaps || inFile)
+                if (overlaps)
                     add(i, "APPOINTMENT_OVERLAP", "WARNING", "REVIEW");
             }
         }
+    // Freeze the operational write set before warning either side of a collision.
+    // Invalid, unresolved, review-only and existing-link rows cannot create new occupancy.
+    const eligible = rows.map((r, i) => r.entityType === "appointment" && results[i].status === "READY" && results[i].plannedAction === "CREATE" && mapping.statusMapping[r.sourceStatus] !== "cancelled");
+    for (const [i, r] of rows.entries()) {
+        if (!eligible[i] || r.entityType !== "appointment") continue;
+        const staff = results[i].dependencies.staff!;
+        const inFile = rows.some((other, j) => j !== i && eligible[j] && other.entityType === "appointment" && token(results[j].dependencies.staff!) === token(staff) && r.start < other.end && other.start < r.end);
+        if (inFile) add(i, "APPOINTMENT_OVERLAP", "WARNING", "REVIEW");
+    }
     for (const o of results)
         o.reasonCodes = [...new Set(o.reasonCodes)].sort();
     normalized.rows = unordered(rows);
     const outcomes = unordered(results);
-    const snapshotHash = hash({ ...snapshot, entities: unordered(snapshot.entities), sourceRefs: unordered(snapshot.sourceRefs) });
+    const snapshotHash = hash({ ...snapshot, entities: unordered(snapshot.entities), assignments: unordered(snapshot.assignments), sourceRefs: unordered(snapshot.sourceRefs) });
     const counts: Preview["counts"] = { READY: 0, WARNING: 0, DUPLICATE_EXISTING: 0, DUPLICATE_IN_FILE: 0, INVALID: 0, UNRESOLVED_REFERENCE: 0, SKIPPED: 0 };
     outcomes.forEach(o => counts[o.status]++);
     // asOf changes only eligibility outcomes, not the hash when reviewed truth is unchanged.

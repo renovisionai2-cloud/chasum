@@ -15,7 +15,7 @@ type TimeResult = {
     iso?: never;
 };
 /** Strict ISO wall time, second precision. Date-only, rollover and implicit host zone rejected. */
-export function resolveTimestamp(value: string, timezone: string): TimeResult {
+export function resolveTimestamp(value: string, timezone: string, requireOffsetConsistency = false): TimeResult {
     const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.000)?)?(Z|[+-]\d{2}:\d{2})?$/.exec(value);
     if (!m)
         return { error: "INVALID_TIMESTAMP" };
@@ -28,6 +28,13 @@ export function resolveTimestamp(value: string, timezone: string): TimeResult {
         if (offset !== "Z" && (Number(offset.slice(1, 3)) > 14 || Number(offset.slice(4)) > 59 || (Number(offset.slice(1, 3)) === 14 && Number(offset.slice(4)) !== 0)))
             return { error: "INVALID_TIMESTAMP" };
         const n = Date.parse(wall + offset);
+        if (requireOffsetConsistency && Number.isFinite(n)) {
+            const zone = normalizeTimezone(timezone);
+            if (!zone) return { error: "INVALID_TIMEZONE" };
+            const parts = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).formatToParts(n).map(p => [p.type, p.value]));
+            if (`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}` !== wall)
+                return { error: "INVALID_TIMESTAMP" };
+        }
         return Number.isFinite(n) ? { iso: new Date(n).toISOString() } : { error: "INVALID_TIMESTAMP" };
     }
     const zone = normalizeTimezone(timezone);

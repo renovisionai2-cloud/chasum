@@ -1,6 +1,10 @@
 import { z } from "zod";
 export const entityTypes = ["location", "service", "staff", "serviceLocation", "staffLocation", "staffService", "customer", "appointment"] as const;
 export type EntityType = typeof entityTypes[number];
+export const idEntityTypes = ["location", "service", "staff", "customer", "appointment"] as const;
+export type IdEntityType = typeof idEntityTypes[number];
+export const assignmentTypes = ["serviceLocation", "staffLocation", "staffService"] as const;
+export type AssignmentEntityType = typeof assignmentTypes[number];
 export const statuses = ["pending", "confirmed", "arrived", "waiting", "in_progress", "cancelled", "completed", "no_show"] as const;
 export const runStates = ["uploaded", "previewed", "committing", "completed", "completed_with_errors", "failed", "cancelled"] as const;
 const text = z.string().trim();
@@ -29,6 +33,8 @@ export const rowSchema = z.discriminatedUnion("entityType", [
     z.object({ ...identity, entityType: z.literal("appointment"), location: referenceSchema.optional(), service: referenceSchema.optional(), staff: referenceSchema.optional(), customer: referenceSchema.optional(), start: text, end: text, timezone: text.optional(), sourceStatus: text, financials: financialSchema, notes: text.optional() }).strict(),
 ]);
 export type ImportRow = z.infer<typeof rowSchema>;
+// inputChecksum is supplied source metadata, not authentication or proof of bytes.
+// Future upload server computes it from received bytes; B binds it during recomputation.
 export const payloadSchema = z.object({
     source: z.object({ schemaVersion: z.literal("1"), sourceSystem: key, sourceAccountKey: key, sourceLabel: text.optional(), sourceTimezone: text, sourceCurrency: text, inputChecksum: z.string().regex(/^[a-fA-F0-9]{64}$/) }).strict(),
     target: z.object({ businessId: z.uuid(), businessTimezone: text, businessCurrency: text }).strict(),
@@ -38,20 +44,26 @@ export type CanonicalPayload = z.infer<typeof payloadSchema>;
 export const mappingSchema = z.object({
     version: key,
     statusMapping: z.record(z.string(), z.enum(statuses)),
-    links: z.array(z.object({ entityType: z.enum(entityTypes), sourceRowKey: key, existingId: z.uuid() }).strict()),
+    links: z.array(z.object({ entityType: z.enum(idEntityTypes), sourceRowKey: key, existingId: z.uuid() }).strict()),
 }).strict();
 export type MappingConfig = z.infer<typeof mappingSchema>;
+export const assignmentSchema = z.discriminatedUnion("entityType", [
+    z.object({ entityType: z.literal("serviceLocation"), serviceId: z.uuid(), locationId: z.uuid() }).strict(),
+    z.object({ entityType: z.literal("staffLocation"), staffId: z.uuid(), locationId: z.uuid() }).strict(),
+    z.object({ entityType: z.literal("staffService"), staffId: z.uuid(), serviceId: z.uuid() }).strict(),
+]);
+export type TargetAssignment = z.infer<typeof assignmentSchema>;
 export const snapshotSchema = z.object({
     businessId: z.uuid(),
     entities: z.array(z.object({
-        id: z.uuid(), businessId: z.uuid(), entityType: z.enum(entityTypes), version: key,
+        id: z.uuid(), businessId: z.uuid(), entityType: z.enum(idEntityTypes), version: key,
         name: text.optional(), email: text.optional(), phone: text.optional(), slug: text.optional(), address: text.optional(),
         primaryLocationId: z.uuid().optional(), durationMinutes: z.number().optional(), priceCents: z.number().optional(),
         start: text.optional(), end: text.optional(), staffId: z.uuid().optional(), status: z.enum(statuses).optional(),
-        // Assignment endpoints use service/location/staff keys with target IDs.
-        endpoints: z.record(z.string(), z.uuid()).optional(),
     }).strict()),
-    sourceRefs: z.array(z.object({ businessId: z.uuid(), sourceSystem: key, sourceAccountKey: key, entityType: z.enum(entityTypes), sourceExternalId: key, sourceRowHash: z.string().regex(/^[a-f0-9]{64}$/), chasumEntityId: z.uuid() }).strict()),
+    assignments: z.array(assignmentSchema),
+    // Option A: durable UUID source refs exclude composite assignments.
+    sourceRefs: z.array(z.object({ businessId: z.uuid(), sourceSystem: key, sourceAccountKey: key, entityType: z.enum(idEntityTypes), sourceExternalId: key, sourceRowHash: z.string().regex(/^[a-f0-9]{64}$/), chasumEntityId: z.uuid() }).strict()),
 }).strict();
 export type TargetSnapshot = z.infer<typeof snapshotSchema>;
 export const reasonCodes = ["INVALID_ROOT", "INVALID_ROW", "INVALID_SNAPSHOT", "TARGET_MISMATCH", "NAME_REQUIRED", "CUSTOMER_EMAIL_UNSUPPORTED", "INVALID_EMAIL", "INVALID_DURATION", "INVALID_MONEY", "INVALID_CURRENCY", "CURRENCY_MISMATCH", "INVALID_TIMEZONE", "INVALID_TIMESTAMP", "DST_NONEXISTENT", "DST_AMBIGUOUS", "NOT_FUTURE", "INVALID_RANGE", "UNMAPPED_STATUS", "FINANCIAL_RECONCILIATION_REQUIRED", "DUPLICATE_ROW_KEY", "DUPLICATE_SOURCE_ID", "DUPLICATE_EMAIL", "DUPLICATE_LOCATION_SLUG", "DUPLICATE_ASSIGNMENT", "MISSING_REFERENCE", "BLOCKED_PARENT", "SOURCE_REF_MATCH", "SOURCE_ID_CHANGED", "EXPLICIT_LINK", "CUSTOMER_EMAIL_MATCH", "IDENTITY_CONFLICT", "EXISTING_CANDIDATE", "AMBIGUOUS_MATCH", "ASSIGNMENT_EXISTS", "ASSIGNMENT_REQUIRED", "APPOINTMENT_OVERLAP"] as const;
@@ -59,13 +71,12 @@ export type ReasonCode = typeof reasonCodes[number];
 export type OutcomeStatus = "READY" | "WARNING" | "DUPLICATE_EXISTING" | "DUPLICATE_IN_FILE" | "INVALID" | "UNRESOLVED_REFERENCE" | "SKIPPED";
 export type PlannedAction = "CREATE" | "LINK_EXISTING" | "SKIP" | "BLOCK" | "REVIEW";
 export type ResolvedReference = {
-    entityType: EntityType;
+    entityType: IdEntityType;
     sourceRowKey?: string;
     existingId?: string;
 };
 /** Pseudonymous locators/hashes still require access control; never retain raw PII here. */
-export interface RowOutcome {
-    entityType: EntityType;
+interface OutcomeFields {
     sourceRowKey: string;
     sourceExternalId?: string;
     sourceRowHash: string;
@@ -73,8 +84,11 @@ export interface RowOutcome {
     plannedAction: PlannedAction;
     reasonCodes: ReasonCode[];
     dependencies: Record<string, ResolvedReference | null>;
-    existingId?: string;
 }
+export type RowOutcome = OutcomeFields & (
+    { entityType: IdEntityType; existingId?: string } |
+    { entityType: AssignmentEntityType; existingId?: never }
+);
 export interface Preview {
     version: "1";
     previewHash: string;

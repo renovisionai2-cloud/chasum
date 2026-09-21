@@ -23,10 +23,24 @@ sourceRowKeys, stable within a payload; external IDs are optional and never
 fabricated from hashes. Do not put email/phone in row locators.
 
 Each outcome has a status, separate planned action, controlled reasons, resolved
-dependencies, content hash and legitimately resolved target ID. It contains no
+dependencies, content hash and, for ID-bearing entities only, a resolved target ID. It contains no
 names/email/phone/address/notes. Locators, target IDs and hashes remain sensitive
 pseudonymous metadata, not anonymous data. The returned `normalized` payload is
 PII-bearing and is NOT the durable outcome projection or generic log content.
+
+Target snapshots separate UUID-bearing `entities` (location, service, staff,
+customer, appointment) from `assignments`. Assignment keys match the real schema:
+staff_services(staff_id, service_id), staff_locations(staff_id, location_id),
+service_locations(service_id, location_id). Discriminated assignment records
+contain only their typed endpoint pair; no synthetic assignment UUID exists.
+Every endpoint must resolve to an entity of the right type in this tenant's
+snapshot. Malformed, missing, foreign or repeated snapshot pairs fail closed.
+
+Option A: durable source refs and explicit mapping links apply only to ID-bearing
+entities. Assignments use endpoint-pair idempotency, not source refs. An existing
+pair returns DUPLICATE_EXISTING / SKIP with ASSIGNMENT_EXISTS and no existingId;
+its resolved dependencies provide complete identity. Duplicate input pairs flag
+all copies, including source-row references resolving to the same existing IDs.
 
 Exact source identity is Business + sourceSystem + sourceAccountKey + entityType
 + sourceExternalId. Changed content on an existing source ID requires review.
@@ -40,11 +54,22 @@ Children resolve only to READY creates or accepted existing links. Appointment
 location, service, staff and customer are required; staff-service and location
 assignments must agree. Primary location membership is implicit; additional
 membership is explicit. Overlaps are half-open (start < other end and end > other
-start), staff-wide, including within the input. Cancelled appointments
-are excluded from this warning calculation. Full scheduling/availability is
+start), staff-wide. Existing snapshot occupancy is checked independently.
+In-file collision warnings are generated only by READY / CREATE appointments,
+with eligibility frozen after all validation and snapshot collision checks.
+Invalid, unresolved, review-only and existing-link rows do not create new planned
+occupancy. Both sides of READY collisions warn regardless of input ordering.
+Cancelled appointments are excluded from this warning calculation. Full scheduling/availability is
 not duplicated; Package B must revalidate authoritative constraints.
 
 Time uses explicit source zone or an offset-bearing timestamp, never host zone.
+If a row supplies both an offset timestamp and IANA timezone, its wall time must
+match that zone at the specified instant (including DST); contradictions produce
+INVALID_TIMESTAMP. Without a row timezone, the explicit offset is authoritative
+and need not match the source default zone. Successful timestamp normalization
+uses UTC; an explicitly supplied row timezone is then normalized to UTC as well.
+Validation happens first, so normalized payload re-preview is stable and cannot
+silently accept contradictory original inputs.
 Local wall times are round-trip matched against candidate Intl timezone offsets;
 Toronto gaps/folds block, rather than selecting an offset. Date-only and calendar
 rollovers block. Contract precision is seconds (optional `.000` accepted); other
@@ -66,11 +91,18 @@ separately approved `import_unreconciled` capability before writing such rows.
 
 SHA-256 binds version, target, source namespace/checksum, normalized data,
 versioned status mapping, explicit link config, snapshot (including record
-versions), and all row outcomes/actions. Object keys and unordered collections
+versions and composite assignment endpoint truth), and all row outcomes/actions. Object keys and unordered collections
 are canonicalized. UI sourceLabel and generated timestamps/random IDs are not
 hash inputs. asOf affects the hash when eligibility/outcomes change. Changed
 target versions, mapping, source account, Business or material source data change
 the hash. Hashes are commitments, not authentication tokens.
+
+`inputChecksum` is caller/server-supplied source identity metadata in Package A.
+A validates its format, not the underlying bytes; it is not an authentication
+token or proof of file contents. Package C/future upload server must compute it
+from actual received file/payload bytes rather than trusting a client assertion.
+Package B must bind it with normalized payload and authoritative recomputation.
+No upload or storage implementation is included here.
 
 Package B must receive the reviewed hash, reauthenticate/re-authorize the actor,
 recompute preview against current target truth and STOP on mismatch. Its atomic
@@ -106,5 +138,5 @@ preview integrity and auditable deterministic decisions. No broad research redo.
 Synthetic in-memory Vitest tests cover contracts, email, references, duplicates,
 assignments, conflicts, DST, financial truth, tenant boundaries, hashing and
 no-I/O dependencies. Typecheck, changed-file lint, build and diff-check are
-PASS on this candidate (77 tests / 2 files). No hosted or live-database test is needed
+PASS on this candidate (107 tests / 2 files). No hosted or live-database test is needed
 for this package; it cannot establish import write/Production readiness.

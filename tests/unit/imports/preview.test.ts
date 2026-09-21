@@ -16,7 +16,7 @@ function fixture() {
             customer,
             { entityType: "appointment", sourceRowKey: "appointment-1", location: ref("location-1"), service: ref("service-1"), staff: ref("staff-1"), customer: ref("customer-1"), start: "2027-01-20T12:30", end: "2027-01-20T13:00", sourceStatus: "booked", financials: { kind: "NONE" } },
         ] };
-    const snapshot: TargetSnapshot = { businessId: business, entities: [], sourceRefs: [] };
+    const snapshot: TargetSnapshot = { businessId: business, entities: [], assignments: [], sourceRefs: [] };
     const mapping: MappingConfig = { version: "1", statusMapping: { booked: "confirmed" }, links: [] };
     return { payload: structuredClone(payload), snapshot, mapping };
 }
@@ -164,4 +164,121 @@ it("conflicting known customer phone requires review", () => {
     const f = change("customer-1", { phone: "5550100" });
     f.snapshot.entities.push({ id, businessId: business, entityType: "customer", version: "1", name: "Synthetic Person", email: "person@example.test", phone: "5550199" });
     expect(row(run(f)).reasonCodes).toContain("IDENTITY_CONFLICT");
+});
+
+describe("composite assignment correction", () => {
+    const serviceId = "33333333-3333-4333-8333-333333333333";
+    const locationId = "44444444-4444-4444-8444-444444444444";
+    const cases = [
+        { entityType: "staffService", staffId: id, serviceId },
+        { entityType: "staffLocation", staffId: id, locationId },
+        { entityType: "serviceLocation", serviceId, locationId },
+    ] as const;
+    function composite(a: typeof cases[number]) {
+        const f = fixture();
+        f.snapshot.entities = [
+            { entityType: "staff", id, businessId: business, version: "1" },
+            { entityType: "service", id: serviceId, businessId: business, version: "1" },
+            { entityType: "location", id: locationId, businessId: business, version: "1" },
+        ];
+        f.snapshot.assignments = [a];
+        f.payload.rows = [a.entityType === "staffService"
+            ? { entityType: a.entityType, sourceRowKey: "pair", staff: { existingId: id }, service: { existingId: serviceId } }
+            : a.entityType === "staffLocation"
+                ? { entityType: a.entityType, sourceRowKey: "pair", staff: { existingId: id }, location: { existingId: locationId } }
+                : { entityType: a.entityType, sourceRowKey: "pair", service: { existingId: serviceId }, location: { existingId: locationId } }];
+        return f;
+    }
+    it.each(cases)("$entityType uses endpoint identity, no synthetic UUID", a => {
+        const p = run(composite(a));
+        expect(row(p, "pair")).toMatchObject({ status: "DUPLICATE_EXISTING", plannedAction: "SKIP", reasonCodes: ["ASSIGNMENT_EXISTS"] });
+        expect(row(p, "pair")).not.toHaveProperty("existingId");
+        expect(Object.values(row(p, "pair").dependencies).every(d => d?.existingId)).toBe(true);
+    });
+    it.each(cases)("$entityType snapshot presence binds hash and outcome", a => {
+        const f = composite(a), present = run(f);
+        f.snapshot.assignments = [];
+        const absent = run(f);
+        expect(row(absent, "pair")).toMatchObject({ status: "READY", plannedAction: "CREATE" });
+        expect(absent.snapshotHash).not.toBe(present.snapshotHash);
+        expect(absent.previewHash).not.toBe(present.previewHash);
+    });
+    it.each(cases)("$entityType duplicate resolved pairs block every copy", a => {
+        const f = composite(a);
+        f.payload.rows.push({ ...f.payload.rows[0], sourceRowKey: "pair-2" });
+        const p = run(f);
+        expect(p.outcomes.every(o => o.status === "DUPLICATE_IN_FILE" && o.reasonCodes.includes("DUPLICATE_ASSIGNMENT") && !o.existingId)).toBe(true);
+    });
+    it.each([
+        { entityType: "staffService", staffId: id },
+        { entityType: "staffService", staffId: id, serviceId: "bad" },
+        { entityType: "staffService", staffId: id, serviceId, id },
+    ])("malformed composite snapshot fails closed: %j", a => {
+        const f = composite(cases[0]);
+        expect(() => previewImport(f.payload, { ...f.snapshot, assignments: [a] }, f.mapping, "2026-09-21T00:00Z")).toThrow("INVALID_SNAPSHOT");
+    });
+    it("unresolved endpoint snapshot fails closed", () => { const f = composite(cases[0]); f.snapshot.entities = f.snapshot.entities.filter(e => e.entityType !== "service"); expect(() => run(f)).toThrow("INVALID_SNAPSHOT"); });
+    it("foreign endpoint snapshot fails closed", () => { const f = composite(cases[0]); f.snapshot.entities[0].businessId = serviceId; expect(() => run(f)).toThrow("TARGET_MISMATCH"); });
+    it("assignment UUID source refs are forbidden", () => {
+        const f = composite(cases[0]);
+        expect(() => previewImport(f.payload, { ...f.snapshot, sourceRefs: [{ businessId: business, sourceSystem: "fixture", sourceAccountKey: "workspace-1", entityType: "staffService", sourceExternalId: "pair", sourceRowHash: "a".repeat(64), chasumEntityId: id }] }, f.mapping, "2026-09-21T00:00Z")).toThrow("INVALID_SNAPSHOT");
+    });
+    it("assignment UUID explicit links are forbidden", () => {
+        const f = composite(cases[0]);
+        expect(() => previewImport(f.payload, f.snapshot, { ...f.mapping, links: [{ entityType: "staffService", sourceRowKey: "pair", existingId: id }] }, "2026-09-21T00:00Z")).toThrow("INVALID_ROOT");
+    });
+    it("assignment cannot enter UUID entity snapshot", () => {
+        const f = composite(cases[0]);
+        expect(() => previewImport(f.payload, { ...f.snapshot, entities: [...f.snapshot.entities, { entityType: "staffService", id, businessId: business, version: "1" }] }, f.mapping, "2026-09-21T00:00Z")).toThrow("INVALID_SNAPSHOT");
+    });
+    it("snapshot assignment order does not affect hash", () => {
+        const f = composite(cases[0]); f.snapshot.assignments = [...cases];
+        const first = run(f); f.snapshot.assignments.reverse(); expect(run(f).previewHash).toBe(first.previewHash);
+    });
+    it("existing composite assignments satisfy appointment dependencies", () => {
+        const f = composite(cases[0]); f.snapshot.assignments = [...cases];
+        f.payload.rows = [customer, { entityType: "appointment", sourceRowKey: "appointment-1", staff: { existingId: id }, service: { existingId: serviceId }, location: { existingId: locationId }, customer: ref("customer-1"), start: "2027-01-20T12:30", end: "2027-01-20T13:00", sourceStatus: "booked", financials: { kind: "NONE" } }];
+        expect(row(run(f), "appointment-1").status).toBe("READY");
+    });
+});
+describe("operational overlap eligibility", () => {
+    it.each([
+        { financials: { ...exact, priceCents: -1 } },
+        { customer: ref("missing") },
+        { financials: { kind: "UNRECONCILED" } },
+        { sourceStatus: "unknown" },
+    ])("non-eligible appointment cannot taint valid create: %j", update => {
+        const f = fixture();
+        f.payload.rows.push({ ...f.payload.rows[5], sourceRowKey: "appointment-2", ...update } as ImportRow);
+        const p = run(f);
+        expect(row(p, "appointment-2").status).not.toBe("READY");
+        expect(row(p, "appointment-1").status).toBe("READY");
+        expect(row(p, "appointment-1").reasonCodes).not.toContain("APPOINTMENT_OVERLAP");
+        f.payload.rows.reverse(); expect(run(f).previewHash).toBe(p.previewHash);
+    });
+    it("all READY collisions warn symmetrically independent of order", () => {
+        const f = fixture(); f.payload.rows.push({ ...f.payload.rows[5], sourceRowKey: "appointment-2" });
+        const p = run(f);
+        for (const key of ["appointment-1", "appointment-2"]) expect(row(p, key)).toMatchObject({ status: "WARNING", plannedAction: "REVIEW", reasonCodes: ["APPOINTMENT_OVERLAP"] });
+        f.payload.rows.reverse(); expect(run(f).previewHash).toBe(p.previewHash);
+    });
+});
+describe("explicit offset and row timezone consistency", () => {
+    it.each([
+        ["2027-01-20T12:30-05:00", "2027-01-20T13:00-05:00", "America/Toronto", "READY"],
+        ["2027-01-20T12:30+09:00", "2027-01-20T13:00+09:00", "America/Toronto", "INVALID"],
+        ["2027-01-20T12:30+09:00", "2027-01-20T13:00+09:00", undefined, "READY"],
+        ["2027-07-20T12:30-05:00", "2027-07-20T13:00-05:00", "America/Toronto", "INVALID"],
+        ["2027-07-20T12:30-04:00", "2027-07-20T13:00-04:00", "America/Toronto", "READY"],
+    ])("checks %s in %s", (start, end, timezone, status) => {
+        const f = change("appointment-1", { start, end, timezone }), p = run(f);
+        expect(row(p, "appointment-1").status).toBe(status);
+        if (status === "INVALID") expect(row(p, "appointment-1").reasonCodes).toContain("INVALID_TIMESTAMP");
+        expect(previewImport(p.normalized, f.snapshot, f.mapping, "2026-09-21T00:00Z").previewHash).toBe(p.previewHash);
+    });
+    it("explicit local row timezone remains stable after UTC normalization", () => {
+        const f = change("appointment-1", { timezone: "America/Toronto" }), p = run(f);
+        expect(p.normalized.rows.find(r => r.entityType === "appointment")).toMatchObject({ start: "2027-01-20T17:30:00.000Z", timezone: "UTC" });
+        expect(previewImport(p.normalized, f.snapshot, f.mapping, "2026-09-21T00:00Z").previewHash).toBe(p.previewHash);
+    });
 });
