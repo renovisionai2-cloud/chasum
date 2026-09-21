@@ -84,8 +84,10 @@ refunds exceeding paid amounts block. Same-currency representable snapshots are
 preserved. Currency mismatches, UNRECONCILED, paid/refunded snapshots and deposits
 above total require FINANCIAL_RECONCILIATION_REQUIRED / REVIEW. Paid/refunded
 source truth remains intact in memory; it must not be converted into fabricated
-Chasum transactions. Package B must resolve ledger/reporting semantics and the
-separately approved `import_unreconciled` capability before writing such rows.
+Chasum transactions. The revised Product Owner D3 decision now keeps these rows REVIEW/BLOCK for
+v1; do NOT add `import_unreconciled` or commit paid/refunded source state. See
+[Package B1](ISSUE_73_PACKAGE_B1.md) for the current boundary. Finance migration
+requires separate governance.
 
 ## Preview integrity
 

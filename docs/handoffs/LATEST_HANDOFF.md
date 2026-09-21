@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-21 by Codex under ChatGPT Control Tower’s Issue #73 Package A contract.
+**Updated:** 2026-09-21 by Codex under ChatGPT Control Tower’s Issue #73 Package B1 contract.
 **Purpose:** recover the next action in 5–10 minutes without historical chat access.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md). This handoff explains that board; it does not own a competing current-state table.
 
@@ -12,7 +12,7 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Git main at this restamp: `ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e`.
+Git main / B1 base: `aa97e294625418499a675a3b4b3ee502c85654cd` (Package A closeout).
 
 Issue #72 / PR #78 is merged and Production accepted. Issue #73 is active.
 
@@ -29,7 +29,7 @@ Do not reopen observability merely for deeper APM ideas. Production Sentry activ
 
 ## B. Current Outside Private Alpha queue
 
-### CURRENT — Issue #73 Package B decision gate (Package A complete)
+### CURRENT — Issue #73 Package B1 Level-3 candidate review
 
 Issue #72 is CLOSED / PRODUCTION ACCEPTED. PR #78 merged at
 `ec03d36f39705024dfcc5b923ca87e42795f3743`. Migration
@@ -41,11 +41,14 @@ Package A is **COMPLETE / PRODUCTION ACCEPTED CODE FOUNDATION** at main
 `ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e`: additive pure domain, normalization,
 validation, duplicate/dependency analysis, deterministic preview and SHA-256
 contract. See [Package A](../import/ISSUE_73_PACKAGE_A.md). It adds no persistence,
-migration, upload, UI or operational write. Package B remains NOT authorized and
-needs a separate Level-3 Product Owner decision.
+migration, upload, UI or operational write. B1 is now an authorized LEVEL-3
+code-only candidate: three private import tables, lifecycle/ref/outcome integrity,
+service-role SELECT-only and 110 disposable PostgreSQL tests. See
+[Package B1](../import/ISSUE_73_PACKAGE_B1.md). Migration NOT APPLIED anywhere
+hosted; B2 operational writer remains NOT AUTHORIZED.
 
 Locked decisions: no valid email = unsupported; staff required; exact financial
-truth or explicit reconciliation; private temporary input and safe durable
+truth with revised D3 (NONE/representable EXACT only; reconciliation stays REVIEW/BLOCK, no new payment status); private temporary input and safe durable
 outcomes later; required source account key. Summer is advisory, never a second
 write authority. Do not build competitor-specific write engines.
 
@@ -57,7 +60,7 @@ Locations and #72 membership-first identity remain unchanged.
 Outside Private Alpha readiness:
 1. Observability / #65 — **COMPLETE**;
 2. Tenant identity/onboarding safety / #72 — **CLOSED / PRODUCTION ACCEPTED**;
-3. Governed switching/import / #73 — **ACTIVE — Package A COMPLETE; Package B decision gate pending**;
+3. Governed switching/import / #73 — **ACTIVE — Package A COMPLETE; B1 IMPLEMENTED CANDIDATE / NOT APPLIED; B2 NOT AUTHORIZED**;
 4. onboard at least one selected outside design partner without developer-only tenant surgery and without P0 tenant/money-truth regression.
 
 Then:
@@ -97,7 +100,7 @@ GPT-6 Astra effort:
 - Extra High: justified Level-3 security/RLS/tenancy/financial work;
 - Ultra: exceptional only.
 
-Issue #72 implementation/high-risk audits and Issue #73 Package A implementation/audit are complete. Package B is Level 3 and not authorized. Do not reopen accepted Package A implementation merely to restamp status.
+Issue #72 implementation/high-risk audits and Issue #73 Package A implementation/audit are complete. B1 is Level 3 code-only authorized; B2 is not authorized. Do not reopen accepted Package A implementation merely to restamp status.
 
 ## F. Environment safety
 
@@ -106,7 +109,7 @@ Production:
 - Production Supabase ref `kxcydvhswkuzepwzzinq`;
 - GVM normal tenant remains protected;
 - do not manufacture bookings/provider sends;
-- Issue #72 migration APPLIED / ACCEPTED; Package A merged/accepted and grants no further environment action. Package B remains NOT authorized.
+- Issue #72 migration APPLIED / ACCEPTED; Package A merged/accepted and grants no further environment action. B1 migration is NOT APPLIED; B2 remains NOT authorized.
 
 Staging:
 - expected canonical hostname `https://staging.chasumai.com`;
@@ -130,14 +133,14 @@ Read:
 
 Freshly query remote main and active PR/issue state.
 
-Current main / accepted Production:
-ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e
+Current main / B1 base:
+aa97e294625418499a675a3b4b3ee502c85654cd
 
 Phase 5 and observability COMPLETE. Production Sentry OFF.
 Issue #72 CLOSED / PRODUCTION ACCEPTED.
 Current phase: Outside Private Alpha readiness — IN PROGRESS.
-NEXT: prepare the exact #73 Package B Level-3 schema/write-path Product Owner decision.
-Do NOT implement Package B before that approval.
+NEXT: Control Tower B1 exact-delta review → independent Level-3 audit → separate PO Staging migration decision.
+B1 is IMPLEMENTED CANDIDATE / NOT APPLIED; do NOT apply it or start B2.
 Package A is merged/accepted and contains no environment mutation, UI, upload or import commit.
 
 Then:
