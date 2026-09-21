@@ -1,7 +1,7 @@
 # Issue #73 — Package A: deterministic import preview
 
-Candidate based on main `ec03d36f39705024dfcc5b923ca87e42795f3743`.
-Issue #72 is CLOSED / PRODUCTION ACCEPTED. Issue #73 remains open.
+Implemented from base main `ec03d36f39705024dfcc5b923ca87e42795f3743`; independently audited candidate `f208ed9e6e9abd89235be6ac53b25fdfed04a1f6` was squash-merged as main `ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e`.
+Package A is **COMPLETE / PRODUCTION ACCEPTED CODE FOUNDATION**. Issue #72 remains CLOSED / PRODUCTION ACCEPTED; Issue #73 remains open for separately governed Package B/C work.
 
 ## Implemented
 
@@ -138,5 +138,5 @@ preview integrity and auditable deterministic decisions. No broad research redo.
 Synthetic in-memory Vitest tests cover contracts, email, references, duplicates,
 assignments, conflicts, DST, financial truth, tenant boundaries, hashing and
 no-I/O dependencies. Typecheck, changed-file lint, build and diff-check are
-PASS on this candidate (107 tests / 2 files). No hosted or live-database test is needed
+PASS on the accepted candidate (107 tests / 2 files). No hosted or live-database test is needed
 for this package; it cannot establish import write/Production readiness.

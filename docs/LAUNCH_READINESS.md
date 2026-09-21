@@ -7,7 +7,7 @@
 
 These are **planning targets, not public promises.**
 
-**2026-09-21 current control state (after #72 closeout):** Issue #72 is CLOSED / PRODUCTION ACCEPTED at `ec03d36f39705024dfcc5b923ca87e42795f3743`; its migration and existing-tenant runtime gates passed. Issue #73 Package A is the active candidate: pure deterministic import preview only. Package B schema/commit and Package C UX remain later governed gates. Outside Private Alpha readiness remains IN PROGRESS; Phase 5/observability COMPLETE; Sentry OFF; Gate B not begun.
+**2026-09-21 current control state:** Issue #72 is CLOSED / PRODUCTION ACCEPTED. PR #79 / Issue #73 Package A is **COMPLETE / PRODUCTION ACCEPTED CODE FOUNDATION** at main `ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e`; Vercel Production deployment is SUCCESS. Package A remains pure deterministic import preview only with no persistence/write/UI surface. Package B schema/commit is NOT authorized and requires a separate Level-3 Product Owner decision; Package C UX remains later governed. Outside Private Alpha readiness remains IN PROGRESS; Phase 5/observability COMPLETE; Sentry OFF; Gate B not begun.
 
 **2026-09-21 historical pre-merge control state:** Outside Private Alpha readiness remains **IN PROGRESS**. Issue #72 / PR #78 implementation, separately approved Staging migration `20260920230358_tenant_identity_gate`, live DB/RLS/RPC acceptance, hosted Playwright acceptance and independent audits are complete at application candidate `4c39652866117a4ce93b4f8193375c8816c2b582`. PR #78 remains unmerged; the migration is NOT APPLIED to Production. The remaining #72 gate is the Product Owner’s coordinated merge/Production rollout decision and controlled Production acceptance. #73 governed switching/import readiness follows #72 Production closeout. Phase 5 and observability remain COMPLETE; Production Sentry stays OFF. Gate B has not begun. Git main at restamp: `d6f6cd0481305c07d6c721cf3bb4b4cc147ac433`.
 
@@ -624,7 +624,7 @@ This is the immediate post-Phase-5 readiness chapter. It is not an invitation to
 | Primary tracker workstreams | **13** Observability / Errors / Recovery; **3** Safe Tenant Provisioning / Onboarding; **16** Selected Outside Private Alpha; switching/import capability spans onboarding and Core Operations. |
 | Why now | Phase 5 real-use proof is complete. The next launch risk is inviting outsiders before Chasum can diagnose failures, onboard tenants safely, and help them switch from incumbent systems without manual developer reconstruction. |
 | Exact launch dependency | Before broader outside Private Alpha, Chasum must have meaningful Production error visibility/trace-correlation, tenant identity/onboarding safety, and a governed migration/import path appropriate to the selected design partners. |
-| First bounded task | **Issue #73 Package A review.** #72 closed in Production. Pure import preview candidate only; Package B requires separate Level-3 approval. |
+| First bounded task | **Issue #73 Package B Level-3 decision preparation.** Package A is merged/Production accepted as pure preview foundation. Package B remains NOT authorized until a separate Product Owner decision. |
 | Acceptance condition | (1) Production failures can be investigated with sufficient error/trace context; (2) onboarding identity safety is accepted for an outside tenant; (3) switching/import contract covers at least customers, staff, services and future appointments or has an explicit bounded manual/assisted path; (4) at least one selected outside tenant can be onboarded without developer-only tenant surgery; (5) no P0 tenant/money-truth regression. |
 | Likely risk level | Read-only assessment = low. Instrumentation/provider/config changes can become LEVEL 2/3 depending on Production secrets, PII, vendor SDKs and rollout. Import/onboarding writes are separately risk-classified. |
 | Competitive gate | Observability/internal maintenance is normally **NOT_APPLICABLE** with a concrete reason. Customer-facing onboarding/import work is **REQUIRED** and must benchmark switching/onboarding workflows before implementation. |
@@ -644,7 +644,7 @@ Core Operations launch-required defects continue throughout. GVM and HQ continue
 ### Parallel work — keep bounded
 
 1. **GVM + HQ real-use hardening:** continue genuine use and capture concrete defects; do not manufacture Production tests.
-2. **Outside-tenant onboarding/import contract:** #72 is Production accepted; #73 Package A implements the approved pure preview contract.
+2. **Outside-tenant onboarding/import contract:** #72 is Production accepted; #73 Package A is merged/Production accepted as the pure preview foundation. Package B remains separately Level-3 governed and not authorized.
 3. **Security/config hygiene:** remove historical temporary Preview credentials/config only after dependency checks and explicit approval when irreversible.
 
 ### Separate later gates

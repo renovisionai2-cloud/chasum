@@ -12,7 +12,7 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Git main at this restamp: `ec03d36f39705024dfcc5b923ca87e42795f3743`.
+Git main at this restamp: `ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e`.
 
 Issue #72 / PR #78 is merged and Production accepted. Issue #73 is active.
 
@@ -23,13 +23,13 @@ Observability program:
 - Issue #75 / PR #76 C1 privacy hardening — **CLOSED / PRODUCTION ACCEPTED**;
 - parent Issue #65 — **CLOSED / COMPLETE**.
 
-Observability remains COMPLETE and Production Sentry OFF. Issue #72 closeout directly verified Production build `ec03d36...`; no environment probe is part of Package A.
+Observability remains COMPLETE and Production Sentry OFF. Issue #72 closeout directly verified Production build `ec03d36...`. PR #79 Package A merged at `ea2fbe18...` and its automatic Vercel Production deployment is SUCCESS; no live import/write path exists.
 
 Do not reopen observability merely for deeper APM ideas. Production Sentry activation is a separate later Product Owner gate.
 
 ## B. Current Outside Private Alpha queue
 
-### CURRENT — Issue #73 Package A
+### CURRENT — Issue #73 Package B decision gate (Package A complete)
 
 Issue #72 is CLOSED / PRODUCTION ACCEPTED. PR #78 merged at
 `ec03d36f39705024dfcc5b923ca87e42795f3743`. Migration
@@ -37,10 +37,12 @@ Issue #72 is CLOSED / PRODUCTION ACCEPTED. PR #78 merged at
 Staging. Refreshed existing-GVM dashboard acceptance passed with unchanged
 4 Businesses / 4 Locations / 1 membership / 0 identity decisions.
 
-Package A is the additive pure domain, normalization, validation, duplicate and
-dependency analysis, deterministic preview and SHA-256 contract. See
-[Package A](../import/ISSUE_73_PACKAGE_A.md). No persistence, migration, upload,
-UI or operational write is authorized. Package B needs separate Level-3 approval.
+Package A is **COMPLETE / PRODUCTION ACCEPTED CODE FOUNDATION** at main
+`ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e`: additive pure domain, normalization,
+validation, duplicate/dependency analysis, deterministic preview and SHA-256
+contract. See [Package A](../import/ISSUE_73_PACKAGE_A.md). It adds no persistence,
+migration, upload, UI or operational write. Package B remains NOT authorized and
+needs a separate Level-3 Product Owner decision.
 
 Locked decisions: no valid email = unsupported; staff required; exact financial
 truth or explicit reconciliation; private temporary input and safe durable
@@ -55,7 +57,7 @@ Locations and #72 membership-first identity remain unchanged.
 Outside Private Alpha readiness:
 1. Observability / #65 — **COMPLETE**;
 2. Tenant identity/onboarding safety / #72 — **CLOSED / PRODUCTION ACCEPTED**;
-3. Governed switching/import / #73 — **ACTIVE — Package A candidate**;
+3. Governed switching/import / #73 — **ACTIVE — Package A COMPLETE; Package B decision gate pending**;
 4. onboard at least one selected outside design partner without developer-only tenant surgery and without P0 tenant/money-truth regression.
 
 Then:
@@ -95,7 +97,7 @@ GPT-6 Astra effort:
 - Extra High: justified Level-3 security/RLS/tenancy/financial work;
 - Ultra: exceptional only.
 
-Issue #72 implementation and high-risk audits are complete. Package A pure domain implementation is Medium; any future material security correction is separately scoped. Do not reopen implementation or escalate effort merely to restamp status.
+Issue #72 implementation/high-risk audits and Issue #73 Package A implementation/audit are complete. Package B is Level 3 and not authorized. Do not reopen accepted Package A implementation merely to restamp status.
 
 ## F. Environment safety
 
@@ -104,7 +106,7 @@ Production:
 - Production Supabase ref `kxcydvhswkuzepwzzinq`;
 - GVM normal tenant remains protected;
 - do not manufacture bookings/provider sends;
-- Issue #72 migration APPLIED / ACCEPTED; Package A grants no further environment action.
+- Issue #72 migration APPLIED / ACCEPTED; Package A merged/accepted and grants no further environment action. Package B remains NOT authorized.
 
 Staging:
 - expected canonical hostname `https://staging.chasumai.com`;
@@ -129,14 +131,14 @@ Read:
 Freshly query remote main and active PR/issue state.
 
 Current main / accepted Production:
-ec03d36f39705024dfcc5b923ca87e42795f3743
+ea2fbe18e1c6bd759813bcb56d0544b86aa2aa5e
 
 Phase 5 and observability COMPLETE. Production Sentry OFF.
 Issue #72 CLOSED / PRODUCTION ACCEPTED.
 Current phase: Outside Private Alpha readiness — IN PROGRESS.
-NEXT: review #73 Package A pure preview candidate.
-Package B database/write work requires separate Level-3 PO approval.
-No environment mutation, UI, upload or import commit in Package A.
+NEXT: prepare the exact #73 Package B Level-3 schema/write-path Product Owner decision.
+Do NOT implement Package B before that approval.
+Package A is merged/accepted and contains no environment mutation, UI, upload or import commit.
 
 Then:
 Commercial SaaS Gate B → Summer Business Manager horizontal v1.
