@@ -28,6 +28,7 @@ describe("Issue #81 Stage 1C migration contract", () => {
     );
     expect(quota).toContain("l.is_active = true");
     expect(quota).not.toContain("private_alpha_enabled");
+    expect(quota).toContain("public.is_business_owner(b.id)");
     expect(migration).toContain("to authenticated;");
     expect(migration).not.toContain(
       "grant execute on function public.can_add_location(uuid)\n  to authenticated, service_role",
@@ -68,6 +69,8 @@ describe("Issue #81 Stage 1C migration contract", () => {
     expect(writer).toContain("security definer");
     expect(writer).toContain("set search_path = public, pg_temp");
     expect(writer).toContain("is_business_owner(p_business_id)");
+    expect(writer).toContain("pg_timezone_names");
+    expect(writer).toContain("Location timezone is invalid.");
     expect(writer).toContain("Multiple active default locations require review before copying.");
     expect(writer).toContain("insert into public.locations");
     expect(writer).toContain("insert into public.location_settings");
