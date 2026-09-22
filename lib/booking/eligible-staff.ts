@@ -13,23 +13,16 @@ export type StaffLocationEligibility = {
   staff_services?: Array<{ service_id: string }> | null;
 };
 
-/** True when the employee may work at this location (primary, multi-location, or unscoped). */
+/** Stage-1 works-at truth: primary exact match OR explicit staff_locations membership. */
 export function isStaffEligibleForLocation(
   member: StaffLocationEligibility,
   locationId: string | null | undefined,
 ): boolean {
   if (!locationId) return true;
   if (member.location_id === locationId) return true;
-  // Unscoped / business-wide primary location — eligible everywhere.
-  if (member.location_id == null || member.location_id === "") return true;
-  const extras = member.staff_locations ?? [];
-  // When multi-location rows are present, require an explicit match.
-  if (extras.length > 0) {
-    return extras.some((row) => row.location_id === locationId);
-  }
-  // No staff_locations loaded — do not hide a service-assigned employee solely
-  // because their primary location_id differs (common multi-site data gap).
-  return true;
+  return (member.staff_locations ?? []).some(
+    (row) => row.location_id === locationId,
+  );
 }
 
 /** Active employees assigned to the service and eligible for the location. */
