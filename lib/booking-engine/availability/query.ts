@@ -224,33 +224,28 @@ async function validateUnassignedBooking(
     };
   }
 
-  // Location eligibility: prefer service_locations; fall back to primary location_id.
-  if (intent.locationId) {
-    const { data: serviceLocations, error: locLinkError } = await supabase
+  // Stage-1 offered-at truth: primary exact match OR explicit mapping.
+  if (intent.locationId && service.location_id !== intent.locationId) {
+    const { data: serviceLocation, error: locLinkError } = await supabase
       .from("service_locations")
       .select("location_id")
-      .eq("service_id", intent.serviceId);
+      .eq("service_id", intent.serviceId)
+      .eq("location_id", intent.locationId)
+      .maybeSingle();
 
-    if (!locLinkError && serviceLocations && serviceLocations.length > 0) {
-      const offered = serviceLocations.some(
-        (row) => row.location_id === intent.locationId,
-      );
-      if (!offered) {
-        return {
-          ok: false,
-          conflicts: [
-            conflictFromCode(
-              "NOT_AUTHORIZED",
-              "This service is not offered at the selected location.",
-              { recoverable: true },
-            ),
-          ],
-        };
-      }
-    } else if (
-      service.location_id &&
-      service.location_id !== intent.locationId
-    ) {
+    if (locLinkError) {
+      return {
+        ok: false,
+        conflicts: [
+          conflictFromCode(
+            "UNKNOWN",
+            "Could not verify this service at the selected location.",
+            { recoverable: true },
+          ),
+        ],
+      };
+    }
+    if (!serviceLocation) {
       return {
         ok: false,
         conflicts: [
@@ -267,7 +262,9 @@ async function validateUnassignedBooking(
   // At least one active employee must be assigned to the service.
   const { data: linkedStaff, error: linkError } = await supabase
     .from("staff_services")
-    .select("staff_id, staff!inner(id, is_active)")
+    .select(
+      "staff_id, staff!inner(id, is_active, location_id, staff_locations(location_id))",
+    )
     .eq("service_id", intent.serviceId);
 
   if (linkError) {
@@ -284,8 +281,20 @@ async function validateUnassignedBooking(
   }
 
   const hasActiveAssignee = (linkedStaff ?? []).some((row) => {
-    const st = row.staff as unknown as { id: string; is_active: boolean } | null;
-    return Boolean(st?.is_active);
+    const st = row.staff as unknown as {
+      id: string;
+      is_active: boolean;
+      location_id: string | null;
+      staff_locations?: Array<{ location_id: string }> | null;
+    } | null;
+    if (!st?.is_active) return false;
+    if (!intent.locationId) return true;
+    return (
+      st.location_id === intent.locationId ||
+      (st.staff_locations ?? []).some(
+        (link) => link.location_id === intent.locationId,
+      )
+    );
   });
 
   if (!hasActiveAssignee) {
