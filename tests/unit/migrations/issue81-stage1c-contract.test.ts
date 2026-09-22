@@ -64,8 +64,7 @@ describe("Issue #81 Stage 1C migration contract", () => {
 
   it("starts blank with seven closed days instead of invented availability", () => {
     const writer = migration.slice(
-      migration.indexOf("else
-    -- \"Start blank\""),
+      migration.indexOf('-- "Start blank"'),
     );
     expect(writer).toContain("false");
     expect(writer).toContain("generate_series(0, 6)");
