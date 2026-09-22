@@ -186,6 +186,35 @@ begin
   end if;
 end $$;
 
+-- Public-read policy helpers bypass parent-table RLS narrowly, have no
+-- default PUBLIC execute, and are callable only by the policy roles.
+do $
+declare
+  f text;
+begin
+  foreach f in array array[
+    'public.is_public_service_location(uuid,uuid)',
+    'public.is_public_staff_location(uuid,uuid)',
+    'public.is_public_staff_service(uuid,uuid)'
+  ] loop
+    if exists (
+      select 1
+      from pg_proc p
+      cross join lateral aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+      where p.oid = f::regprocedure
+        and a.grantee = 0
+        and a.privilege_type = 'EXECUTE'
+    ) then
+      raise exception 'PUBLIC EXECUTE remains on public-read helper %', f;
+    end if;
+    if not has_function_privilege('anon',f,'EXECUTE')
+       or not has_function_privilege('authenticated',f,'EXECUTE')
+       or has_function_privilege('service_role',f,'EXECUTE') then
+      raise exception 'public-read helper EXECUTE posture incorrect on %', f;
+    end if;
+  end loop;
+end $;
+
 -- Governed RPCs have no PUBLIC execute and intended explicit roles do.
 do $$
 declare
