@@ -27,6 +27,7 @@ const setupContext = {
       isDefault: true,
       serviceCount: 7,
       openDayCount: 5,
+      hourDayCount: 7,
       segmentCount: 2,
       settings: {
         appointmentIntervalMinutes: 15,
@@ -44,6 +45,7 @@ const setupContext = {
       isDefault: false,
       serviceCount: 4,
       openDayCount: 4,
+      hourDayCount: 7,
       segmentCount: 0,
       settings: {
         appointmentIntervalMinutes: 30,
@@ -56,6 +58,7 @@ const setupContext = {
       },
     },
   ],
+  defaultLocationCount: 1,
   staff: [
     {
       id: "staff-1",
