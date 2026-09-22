@@ -122,7 +122,14 @@ begin
      or has_function_privilege('service_role','public.enforce_location_quota()','EXECUTE') then
     raise exception 'quota trigger helper EXECUTE leaked';
   end if;
-end $$;
+  if has_table_privilege('anon','public.locations','INSERT')
+     or has_table_privilege('authenticated','public.locations','INSERT') then
+    raise exception 'direct API Location INSERT remains available';
+  end if;
+  if not has_table_privilege('service_role','public.locations','INSERT') then
+    raise exception 'service_role Location INSERT was unexpectedly removed';
+  end if;
+end $;
 
 set local role anon;
 select pg_temp.expect_failure(
@@ -130,6 +137,16 @@ select pg_temp.expect_failure(
     'select public.create_location_from_template(%L,%L,%L,%L,null,null,null,null,null,null,%L,null)',
     '10000000-0000-0000-0000-000000000201','Anon blocked','anon-blocked','UTC','blank'
   ),
+  'permission denied'
+);
+reset role;
+
+-- Even below quota, authenticated API clients cannot bypass the atomic writer
+-- with a structurally partial direct Location INSERT.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000101',true);
+select pg_temp.expect_failure(
+  'insert into public.locations(business_id,name,slug,timezone,is_active,is_default) values (''10000000-0000-0000-0000-000000000201'',''Direct partial'',''direct-partial'',''UTC'',true,false)',
   'permission denied'
 );
 reset role;
