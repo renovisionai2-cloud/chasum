@@ -94,6 +94,16 @@ describe("Issue #81 Stage 1C application contract", () => {
     expect(switcher).not.toContain("FREE_PLAN_UPGRADE_CTA");
   });
 
+  it("surfaces the locked Services / Hours / Staff / Resources review destinations", () => {
+    const hub = source("components/business/business-hub.tsx");
+    expect(hub).toContain("Location hours & scheduling");
+    expect(hub).toContain("Assign employees");
+    expect(hub).toContain("Review services");
+    expect(hub).toContain("Rooms & resources");
+    expect(hub).toContain("/dashboard/business?tab=services");
+    expect(hub).toContain("/dashboard/business?tab=rooms");
+  });
+
   it("uses canonical Business = 6 in code and fallback catalog", () => {
     const entitlements = source("lib/billing/plan-entitlements.ts");
     const catalog = source("lib/billing/catalog.ts");
