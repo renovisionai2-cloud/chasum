@@ -119,7 +119,10 @@ create policy "Public can view bookable service locations" on public.service_loc
 using (exists (
   select 1 from public.services s join public.locations l on l.id = service_locations.location_id
   where s.id = service_locations.service_id and s.business_id = l.business_id
-    and s.is_active = true and coalesce(s.online_booking, true) is not false and l.is_active = true
+    and s.is_active = true
+    and coalesce(s.online_booking, true) is not false
+    and coalesce(s.booking_visibility, 'online') = 'online'
+    and l.is_active = true
 ));
 create policy "Public can view active staff locations" on public.staff_locations for select to anon, authenticated
 using (exists (
@@ -132,7 +135,9 @@ using (exists (
   select 1 from public.staff st join public.services s on s.id = staff_services.service_id
   where st.id = staff_services.staff_id and st.business_id = s.business_id
     and st.is_active = true and coalesce(st.accept_online_bookings, true) is not false
-    and s.is_active = true and coalesce(s.online_booking, true) is not false
+    and s.is_active = true
+    and coalesce(s.online_booking, true) is not false
+    and coalesce(s.booking_visibility, 'online') = 'online'
 ));
 
 revoke all privileges on table public.service_locations from public, anon, authenticated, service_role;
