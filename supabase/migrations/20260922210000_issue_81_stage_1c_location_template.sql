@@ -44,6 +44,12 @@ revoke all on function public.can_add_location(uuid)
 grant execute on function public.can_add_location(uuid)
   to authenticated;
 
+-- Additional active Locations must be created through the governed atomic
+-- workflow. Existing SECURITY DEFINER/system writers retain owner/service
+-- privileges; browser/API roles cannot create structurally partial Locations.
+revoke insert on table public.locations
+  from public, anon, authenticated;
+
 -- Final DB-level quota authority. It protects every active Location INSERT and
 -- inactive -> active transition, including direct PostgREST writes.
 create or replace function public.enforce_location_quota()
