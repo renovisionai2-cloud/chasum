@@ -251,6 +251,8 @@ export type Service = {
   cancellation_policy: string | null;
   created_at: string;
   updated_at: string;
+  /** Stage-1 offered-at memberships when explicitly selected by a reader. */
+  service_locations?: Array<{ location_id: string }> | null;
 };
 
 export type ServiceLocationAssignment = {
@@ -342,6 +344,8 @@ export type StaffWithServices = Staff & {
     price_override?: number | null;
     duration_override_minutes?: number | null;
   }[];
+  /** Stage-1 works-at memberships when explicitly selected by a reader. */
+  staff_locations?: Array<{ location_id: string }> | null;
 };
 
 export type StaffScheduleMap = Record<
