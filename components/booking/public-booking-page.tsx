@@ -155,7 +155,6 @@ export function PublicBookingPage({
           date: selectedDate,
           locationId: selectedLocation?.id,
           staffId: anyStaff ? null : selectedStaff?.id,
-          staff: availableStaff,
         });
         if (!cancelled) {
           setSlotOptions(options);
