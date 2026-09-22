@@ -129,7 +129,7 @@ begin
   if not has_table_privilege('service_role','public.locations','INSERT') then
     raise exception 'service_role Location INSERT was unexpectedly removed';
   end if;
-end $;
+end $$;
 
 set local role anon;
 select pg_temp.expect_failure(
