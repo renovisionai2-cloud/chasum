@@ -1,9 +1,18 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 function source(path: string) {
   return readFileSync(resolve(process.cwd(), path), "utf8");
+}
+
+function sourceFiles(root: string): string[] {
+  const absolute = resolve(process.cwd(), root);
+  return readdirSync(absolute, { withFileTypes: true }).flatMap((entry) => {
+    const relative = `${root}/${entry.name}`;
+    if (entry.isDirectory()) return sourceFiles(relative);
+    return /\.(ts|tsx)$/.test(entry.name) ? [relative] : [];
+  });
 }
 
 describe("Issue #81 Stage 1C application contract", () => {
@@ -15,6 +24,14 @@ describe("Issue #81 Stage 1C application contract", () => {
     );
     expect(quota).toContain("evaluateLocationQuota");
     expect(quota).not.toContain('rpc("can_add_location"');
+  });
+
+  it("has no direct application Location INSERT path outside the governed RPC", () => {
+    const offenders = ["app", "components", "lib"].flatMap(sourceFiles).filter(
+      (path) =>
+        /\.from\(["']locations["']\)\s*\.insert\(/s.test(source(path)),
+    );
+    expect(offenders).toEqual([]);
   });
 
   it("creates locations only through the atomic Stage 1C RPC", () => {
@@ -63,6 +80,8 @@ describe("Issue #81 Stage 1C application contract", () => {
     expect(dialog).toContain("sm:grid-cols-2");
     expect(dialog).toContain("flex flex-wrap");
     expect(dialog).toContain("aria-pressed");
+    expect(dialog).toContain("source.hourDayCount === 7");
+    expect(dialog).toContain("defaultLocationCount === 1");
     expect(dialog).toContain('htmlFor="location_name"');
     expect(dialog).toContain('htmlFor="copy_source"');
   });
