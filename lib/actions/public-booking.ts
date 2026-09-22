@@ -78,7 +78,20 @@ export async function getPublicSlotOptions(input: {
 
   const anyAvailable = !input.staffId;
 
-  const eligible = filterEligibleBookingStaff(input.staff, {
+  // Never trust the Staff relationship payload posted back by the browser.
+  // Re-resolve the public-bookable candidates server-side so displayed Staff,
+  // generated slots, validation and the final writer share one authority.
+  const supabase = await createClient();
+  const { data: authoritativeStaff, error: staffError } = await supabase
+    .from("staff")
+    .select("*, staff_services(service_id), staff_locations(location_id)")
+    .eq("business_id", business.id)
+    .eq("is_active", true)
+    .eq("accept_online_bookings", true);
+
+  if (staffError) return [];
+
+  const eligible = filterEligibleBookingStaff(authoritativeStaff ?? [], {
     serviceId: input.serviceId,
     locationId: input.locationId,
   }).filter((member) => !input.staffId || member.id === input.staffId);
