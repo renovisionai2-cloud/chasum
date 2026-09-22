@@ -673,6 +673,16 @@ export function BusinessHub({
                   Assign employees
                 </Button>
               </Link>
+              <Link href="/dashboard/business?tab=services">
+                <Button size="sm" variant="outline">
+                  Review services
+                </Button>
+              </Link>
+              <Link href="/dashboard/business?tab=rooms">
+                <Button size="sm" variant="outline">
+                  Rooms & resources
+                </Button>
+              </Link>
             </div>
             <EditLocationDialog
               location={editingLocation}
