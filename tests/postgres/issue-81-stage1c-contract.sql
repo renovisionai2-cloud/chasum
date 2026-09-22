@@ -151,6 +151,48 @@ select pg_temp.expect_failure(
 );
 reset role;
 
+-- Quota projection is tenant-authorized, not a cross-tenant information oracle.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000101',true);
+do $$
+begin
+  if public.can_add_location('10000000-0000-0000-0000-000000000202') is not null then
+    raise exception 'cross-tenant quota projection leaked a result';
+  end if;
+end $$;
+select pg_temp.expect_failure(
+  format(
+    'select public.create_location_from_template(%L,%L,%L,%L,null,null,null,null,null,null,%L,null)',
+    '10000000-0000-0000-0000-000000000202',
+    'Cross Business Writer','cross-business-writer','UTC','blank'
+  ),
+  'not authorized'
+);
+reset role;
+
+-- Invalid timezone fails before any Location mutation.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000101',true);
+select pg_temp.expect_failure(
+  format(
+    'select public.create_location_from_template(%L,%L,%L,%L,null,null,null,null,null,null,%L,null)',
+    '10000000-0000-0000-0000-000000000201',
+    'Bad Timezone','bad-timezone','Not/A_Real_Zone','blank'
+  ),
+  'timezone is invalid'
+);
+reset role;
+do $$
+begin
+  if exists (
+    select 1 from public.locations
+    where business_id='10000000-0000-0000-0000-000000000201'
+      and slug='bad-timezone'
+  ) then
+    raise exception 'invalid timezone left a Location row';
+  end if;
+end $$;
+
 -- Starter + Private Alpha does NOT bypass the billed/product plan cap.
 do $$
 begin
