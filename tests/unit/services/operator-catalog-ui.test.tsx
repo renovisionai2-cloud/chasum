@@ -5,6 +5,7 @@ import { BookingSheet } from "@/components/booking-sheet/booking-sheet";
 import { QuickAppointmentForm } from "@/components/reception/quick-appointment";
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 import type { Location } from "@/lib/types/booking";
+import type { ServicePackage } from "@/lib/business/types";
 const mocks = vi.hoisted(() => ({ enable: vi.fn().mockResolvedValue({ success: "Enabled" }), refresh: vi.fn(), toast: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: mocks.refresh }), usePathname: () => "/dashboard/services" }));
@@ -67,6 +68,34 @@ describe("Services business catalog", () => {
 });
 
 describe("real Booking Sheet and AppointmentSection location switching", () => {
+  it("explains an incompatible package even when the location offers an unrelated service", () => {
+    const catalog = services.map((service) => service.id === "shared"
+      ? { ...service, service_locations: [...(service.service_locations ?? []), { location_id: "C" }] }
+      : service);
+    const pkg: ServicePackage = {
+      id: "s2-package", business_id: "business", name: "Primary only package",
+      description: null, price_cents: 5000, total_visits: 2,
+      expires_after_days: null, transferable: false, is_active: true,
+      service_ids: ["primary-only"], created_at: "2026-09-01", updated_at: "2026-09-01",
+    };
+    render(<BookingSheet open onClose={vi.fn()} onSuccess={vi.fn()} services={catalog} locations={locations} staff={[]} customers={[]} packages={[pkg]} />);
+    fireEvent.change(screen.getByLabelText("Location"), { target: { value: "C" } });
+    expect(screen.getByLabelText("Service")).toHaveValue("shared");
+    fireEvent.change(screen.getByLabelText("Book"), { target: { value: "package" } });
+    expect(screen.getByLabelText("Book")).toHaveValue("package");
+    expect(screen.getByLabelText("Package")).toHaveValue(pkg.id);
+    const select = screen.getByLabelText("Service for this visit");
+    expect(select).toHaveValue("");
+    expect(select).toBeDisabled();
+    expect(within(select).getAllByRole("option")).toHaveLength(1);
+    expect(within(select).getByRole("option", { name: "No package services are offered at this location" })).toHaveValue("");
+    expect(within(select).queryByText(/Shared consultation/)).not.toBeInTheDocument();
+    expect(within(select).queryByText(/Primary only/)).not.toBeInTheDocument();
+    expect(screen.getByText("This package has no services available at the selected location. Choose another location or package.")).toBeVisible();
+    expect(document.querySelector('input[name="service_id"]')).toHaveValue("");
+    expect(document.querySelector('button[type="submit"]')).toBeDisabled();
+  });
+
   it("preserves a still-offered service, removes unmapped options, clears an invalid selection", () => {
     render(<BookingSheet open onClose={vi.fn()} onSuccess={vi.fn()} services={services} locations={locations} staff={[]} customers={[]} packages={[]} />);
     const serviceSelect = screen.getByLabelText("Service");

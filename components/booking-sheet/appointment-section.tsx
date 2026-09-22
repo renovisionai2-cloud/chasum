@@ -117,6 +117,14 @@ export function AppointmentSection({
   );
   const activePackages = packages.filter((p) => p.is_active);
   const selectedPackage = activePackages.find((p) => p.id === packageId);
+  const selectableServices =
+    offerType === "package" && selectedPackage
+      ? locationServices.filter((service) =>
+          selectedPackage.service_ids.includes(service.id),
+        )
+      : locationServices;
+  const packageUnavailableAtLocation =
+    offerType === "package" && Boolean(selectedPackage) && selectableServices.length === 0;
   const selectedService = services.find((s) => s.id === serviceId);
   const eligibleStaff = filterEligibleBookingStaff(staff, {
     serviceId,
@@ -255,21 +263,21 @@ export function AppointmentSection({
           </Label>
           <Select
             id="bs-service"
+            className={packageUnavailableAtLocation ? "text-xs" : undefined}
             value={serviceId}
             onChange={(e) => onServiceChange(e.target.value)}
             disabled={
               locked || (offerType === "package" && includedNames.length > 0)
             }
           >
-            {locationServices.length === 0 ? (
-              <option value="">No active services</option>
+            {selectableServices.length === 0 ? (
+              <option value="">
+                {packageUnavailableAtLocation
+                  ? "No package services are offered at this location"
+                  : "No active services"}
+              </option>
             ) : (
-              (offerType === "package" && selectedPackage
-                ? locationServices.filter((s) =>
-                    selectedPackage.service_ids.includes(s.id),
-                  )
-                : locationServices
-              ).map((s) => {
+              selectableServices.map((s) => {
                 const cents = Math.round(Number(s.price) * 100);
                 return (
                   <option key={s.id} value={s.id}>
@@ -280,6 +288,11 @@ export function AppointmentSection({
               })
             )}
           </Select>
+          {packageUnavailableAtLocation ? (
+            <p className="text-xs text-muted-foreground">
+              This package has no services available at the selected location. Choose another location or package.
+            </p>
+          ) : null}
           {selectedService ? (
             <div className="rounded-[var(--radius-md)] border border-border/70 bg-muted/15 px-3 py-2.5">
               <p className="text-sm font-medium">{selectedService.name}</p>
