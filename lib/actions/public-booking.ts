@@ -65,10 +65,6 @@ export async function getPublicSlotOptions(input: {
   date: string;
   locationId?: string;
   staffId?: string | null;
-  staff: Pick<
-    StaffWithServices,
-    "id" | "name" | "staff_services" | "staff_locations" | "location_id"
-  >[];
 }): Promise<PublicSlotOption[]> {
   const limited = await publicRateLimit("publicSlots", input.slug);
   if (limited) return [];
