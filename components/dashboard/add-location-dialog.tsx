@@ -104,9 +104,7 @@ function AddLocationDialogInner({
       .map((member) => member.id);
   }, [setupContext.staff, source]);
 
-  useEffect(() => {
-    if (createState.locationId) setStep(4);
-  }, [createState.locationId]);
+  const visibleStep: 1 | 2 | 3 | 4 = createState.locationId ? 4 : step;
 
   useEffect(() => {
     if (!staffState.success) return;
@@ -156,7 +154,7 @@ function AddLocationDialogInner({
               <span
                 className={
                   "flex size-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold " +
-                  (step >= number
+                  (visibleStep >= number
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-muted")
                 }
@@ -184,7 +182,7 @@ function AddLocationDialogInner({
             </Button>
           </div>
         </div>
-      ) : step === 1 ? (
+      ) : visibleStep === 1 ? (
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="location_name">Location name</Label>
@@ -285,7 +283,7 @@ function AddLocationDialogInner({
             </Button>
           </div>
         </div>
-      ) : step === 2 ? (
+      ) : visibleStep === 2 ? (
         <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
             <SetupCard
@@ -349,7 +347,7 @@ function AddLocationDialogInner({
             </Button>
           </div>
         </div>
-      ) : step === 3 ? (
+      ) : visibleStep === 3 ? (
         <form action={createAction} className="space-y-4">
           <input type="hidden" name="name" value={name} />
           <input type="hidden" name="slug" value={slug} />
