@@ -424,26 +424,17 @@ export async function getPublicStaff(
 ) {
   const supabase = await createClient();
 
-  let query = supabase
+  const { data, error } = await supabase
     .from("staff")
-    .select("*, staff_services(service_id)")
+    .select("*, staff_services(service_id), staff_locations(location_id)")
     .eq("business_id", businessId)
     .eq("is_active", true)
     .order("name");
 
-  if (locationId) {
-    query = query.eq("location_id", locationId);
-  }
-
-  const { data, error } = await query;
-
   if (error) throw new Error(error.message);
 
-  if (!serviceId) return data;
-
-  return data.filter((member) =>
-    member.staff_services.some(
-      (ss: { service_id: string }) => ss.service_id === serviceId,
-    ),
-  );
+  return filterEligibleBookingStaff(data ?? [], {
+    serviceId,
+    locationId,
+  });
 }
