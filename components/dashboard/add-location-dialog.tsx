@@ -106,10 +106,15 @@ function AddLocationDialogInner({
 
   const visibleStep: 1 | 2 | 3 | 4 = createState.locationId ? 4 : step;
 
+  const closeWorkflow = () => {
+    onOpenChange(false);
+    router.replace("/dashboard/business?tab=locations");
+  };
+
   useEffect(() => {
     if (!staffState.success) return;
     onOpenChange(false);
-    router.refresh();
+    router.replace("/dashboard/business?tab=locations");
   }, [staffState.success, onOpenChange, router]);
 
   const goToSetup = () => {
@@ -135,14 +140,13 @@ function AddLocationDialogInner({
   };
 
   const finishWithoutStaff = () => {
-    onOpenChange(false);
-    router.refresh();
+    closeWorkflow();
   };
 
   return (
     <Dialog
       open={open}
-      onClose={() => onOpenChange(false)}
+      onClose={closeWorkflow}
       title="Add location"
       description="Set up a new site from known business truth, then review what is different here."
     >
@@ -177,7 +181,7 @@ function AddLocationDialogInner({
             }
           />
           <div className="flex justify-end">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={closeWorkflow}>
               Close
             </Button>
           </div>
@@ -271,7 +275,7 @@ function AddLocationDialogInner({
             </p>
           ) : null}
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={closeWorkflow}>
               Cancel
             </Button>
             <Button
