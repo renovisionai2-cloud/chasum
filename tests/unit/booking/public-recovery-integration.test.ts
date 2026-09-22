@@ -125,7 +125,7 @@ beforeEach(() => {
   rows = {
     businesses: [{ ...business }], appointments: [], background_jobs: [], communication_send_intents: [], notifications: [], notification_logs: [],
     services: [{ id: "service-a", business_id: business.id, location_id: "location-a", name: "Test Service", duration_minutes: 30, price: 25, is_active: true, online_booking: true, deposit_cents: 0, deposit_required: false }],
-    staff: [{ id: "staff-a", business_id: business.id, name: "Test Staff", is_active: true, email: null }],
+    staff: [{ id: "staff-a", business_id: business.id, name: "Test Staff", is_active: true, accept_online_bookings: true, email: null }],
     customers: [{ id: "customer-a", business_id: business.id, name: "Test Customer", email: "customer@example.invalid", phone: null, preferred_communication_method: "email", marketing_consent: false }],
     locations: [{ id: "location-a", business_id: business.id, name: "Main", timezone: "America/Toronto" }],
   };

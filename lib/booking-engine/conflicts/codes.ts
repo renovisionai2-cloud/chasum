@@ -88,6 +88,14 @@ export function mapRpcErrorToConflict(
     return match("RESOURCE_BUSY", true, "Required resource is not available.");
   }
   if (
+    m.includes("not offered at the selected location") ||
+    m.includes("does not work at the selected location") ||
+    m.includes("does not offer this service") ||
+    m.includes("not assigned to this service")
+  ) {
+    return match("NOT_AUTHORIZED", true, message);
+  }
+  if (
     m.includes("permission") ||
     m.includes("not authorized") ||
     m.includes("rls") ||

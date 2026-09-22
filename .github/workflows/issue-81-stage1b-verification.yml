@@ -1,0 +1,176 @@
+name: Issue 81 Stage 1B Verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "components/booking/**"
+      - "lib/actions/**"
+      - "lib/booking/**"
+      - "lib/booking-engine/**"
+      - "lib/types/**"
+      - "tests/**"
+      - "scripts/verify-stage1b-disposable-postgres.mjs"
+      - "supabase/migrations/20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql"
+      - "package.json"
+      - ".github/workflows/issue-81-stage1b-verification.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  exact-candidate-verification:
+    if: github.head_ref == 'codex/issue-81-stage-1b'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: stage1b
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d stage1b"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      STAGE1B_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/stage1b
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Verify exact base
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.event.pull_request.base.sha }}" = "0b91bed6cb64511131ad87ff48f54a998ba195d1"
+          git merge-base --is-ancestor "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
+
+      - name: Prove global lint debt exists on exact main
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha }}"
+          git worktree add --detach /tmp/stage1b-main "$BASE"
+          ln -s "$GITHUB_WORKSPACE/node_modules" /tmp/stage1b-main/node_modules
+          set +e
+          (cd /tmp/stage1b-main && npm run lint) 2>&1 | tee /tmp/stage1b-main-lint.log
+          MAIN_LINT=${PIPESTATUS[0]}
+          set -e
+          if [ "$MAIN_LINT" -eq 0 ]; then
+            echo "Exact main lint unexpectedly passed; Stage 1B must not rely on a baseline-lint exception."
+            exit 1
+          fi
+          echo "Exact main global lint is pre-existing/non-zero as expected."
+          grep -E "✖ [0-9]+ problems" /tmp/stage1b-main-lint.log || true
+
+      - name: Lint Stage 1B changed source files only
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha }}"
+          mapfile -t FILES < <(git diff --name-only "$BASE"...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.mjs' '*.cjs')
+          printf 'Stage 1B lint delta files:\n%s\n' "${FILES[*]}"
+          if [ "${#FILES[@]}" -gt 0 ]; then
+            npx eslint "${FILES[@]}"
+          fi
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Stage 1B focused application tests
+        run: >-
+          npm test --
+          tests/unit/booking-engine/relationship-conflicts.test.ts
+          tests/unit/booking/eligible-staff.test.ts
+          tests/unit/booking/stage1b-convergence-source.test.ts
+          tests/unit/migrations/issue81-stage1b-contract.test.ts
+
+      - name: Relevant application regression tests
+        run: >-
+          npm test --
+          tests/unit/booking/public-recovery-integration.test.ts
+          tests/unit/booking/public-booking-orchestration-once.test.ts
+          tests/unit/services/operator-catalog-actions.test.ts
+          tests/unit/services/operator-reception.test.ts
+          tests/unit/booking-engine
+          tests/unit/booking
+          tests/unit/scheduling
+
+      - name: Bootstrap disposable PostgreSQL baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql "$STAGE1B_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          create extension if not exists pgcrypto;
+          do $$ begin create role anon nologin; exception when duplicate_object then null; end $$;
+          do $$ begin create role authenticated nologin; exception when duplicate_object then null; end $$;
+          do $$ begin create role service_role nologin bypassrls; exception when duplicate_object then null; end $$;
+          create schema if not exists auth;
+          create table if not exists auth.users (
+            id uuid primary key
+          );
+          create or replace function auth.uid() returns uuid
+          language sql stable
+          as 'select nullif(current_setting(''request.jwt.claim.sub'', true), '''')::uuid';
+          create or replace function auth.role() returns text
+          language sql stable
+          as 'select nullif(current_setting(''request.jwt.claim.role'', true), '''')';
+          create schema if not exists storage;
+          create table if not exists storage.buckets (
+            id text primary key,
+            name text not null,
+            public boolean not null default false
+          );
+          create table if not exists storage.objects (
+            id uuid primary key default gen_random_uuid(),
+            bucket_id text,
+            name text
+          );
+          create or replace function storage.foldername(name text) returns text[]
+          language sql immutable
+          as 'select string_to_array(name, ''/'')';
+
+          SQL
+
+          echo "Applying repository migrations to disposable baseline, excluding locked 034-036 and Stage 1B candidate."
+          for f in $(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | sort); do
+            b="$(basename "$f")"
+            case "$b" in
+              *034_*|*035_*|*036_*|20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql)
+                echo "SKIP $b"
+                continue
+                ;;
+            esac
+            echo "APPLY $b"
+            psql "$STAGE1B_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+          done
+
+          # Mirror the verified hosted baseline ACLs used by public booking.
+          # Read-only Production and Staging checks both show anon,
+          # authenticated, and service_role have SELECT on these parent tables.
+          psql "$STAGE1B_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          grant usage on schema public to anon, authenticated, service_role;
+          grant select on table public.services, public.staff, public.locations
+            to anon, authenticated, service_role;
+          SQL
+
+      - name: Stage 1B disposable PostgreSQL contract
+        run: npm run test:stage1b:postgres
+
+      - name: Production build
+        run: npm run build
+
+      - name: Diff check
+        run: git diff --check "${{ github.event.pull_request.base.sha }}"...HEAD

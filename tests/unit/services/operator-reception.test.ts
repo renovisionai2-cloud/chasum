@@ -6,7 +6,7 @@ vi.mock("@/lib/actions/business", () => ({ getOrCreateBusiness: async () => ({ i
 vi.mock("@/lib/actions/location", () => ({ getActiveLocationId: async () => "secondary" }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ from: mock.from }) }));
 vi.mock("@/lib/actions/scheduling", () => ({ fetchAvailableSlots: mock.slots }));
-const staffQuery = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), limit: vi.fn().mockReturnThis(), then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: [{ id: "staff", name: "Staff", staff_services: [{ service_id: "mapped" }] }] }).then(resolve) };
+const staffQuery = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), limit: vi.fn().mockReturnThis(), then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: [{ id: "staff", name: "Staff", is_active: true, location_id: "primary", staff_locations: [{ location_id: "secondary" }], staff_services: [{ service_id: "mapped" }] }] }).then(resolve) };
 beforeEach(() => {
   vi.clearAllMocks();
   mock.catalog.mockResolvedValue([
@@ -21,7 +21,7 @@ beforeEach(() => {
 it("finds a secondary service after unrelated catalog entries without broadening staff scope", async () => {
   expect(await getNextAvailableSlot()).toMatchObject({ serviceId: "mapped", staffId: "staff" });
   expect(mock.slots).toHaveBeenCalledWith("tenant", "mapped", "staff", expect.any(String), undefined, "secondary");
-  expect(staffQuery.eq).toHaveBeenCalledWith("location_id", "secondary");
+  expect(staffQuery.eq).not.toHaveBeenCalledWith("location_id", "secondary");
 });
 it("Reception brief applies offerings before its sample limit", async () => {
   expect(await getReceptionBrief()).toMatchObject({ openTimeSlots: 1 });

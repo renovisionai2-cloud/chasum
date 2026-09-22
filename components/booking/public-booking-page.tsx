@@ -1,4 +1,6 @@
 "use client";
+import { isStaffEligibleForLocation } from "@/lib/booking/eligible-staff";
+import { isServiceOfferedAtLocation } from "@/lib/services/operator-catalog";
 
 import { BookingConfirmation } from "@/components/booking/booking-confirmation";
 import { BusinessContact } from "@/components/booking/business-contact";
@@ -119,17 +121,24 @@ export function PublicBookingPage({
   );
 
   const locationServices = selectedLocation
-    ? services.filter((s) => s.location_id === selectedLocation.id)
+    ? services.filter((service) =>
+        isServiceOfferedAtLocation(service, selectedLocation.id),
+      )
     : services;
 
   const availableStaff = useMemo(() => {
-    const pool = selectedLocation
-      ? staff.filter((m) => m.location_id === selectedLocation.id)
-      : staff;
     if (!selectedService) return [];
-    return pool.filter((m) =>
-      m.staff_services.some((ss) => ss.service_id === selectedService.id),
-    );
+    return staff.filter((member) => {
+      if (
+        selectedLocation &&
+        !isStaffEligibleForLocation(member, selectedLocation.id)
+      ) {
+        return false;
+      }
+      return member.staff_services.some(
+        (ss) => ss.service_id === selectedService.id,
+      );
+    });
   }, [staff, selectedLocation, selectedService]);
 
   const stepIndex = visibleSteps.indexOf(step);
@@ -146,7 +155,6 @@ export function PublicBookingPage({
           date: selectedDate,
           locationId: selectedLocation?.id,
           staffId: anyStaff ? null : selectedStaff?.id,
-          staff: availableStaff,
         });
         if (!cancelled) {
           setSlotOptions(options);
