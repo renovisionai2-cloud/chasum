@@ -38,7 +38,7 @@ as $$
     on sp.plan_key = coalesce(b.subscription_plan_key, 'starter')
   where b.id = p_business_id
     and public.is_business_owner(b.id);
-$;
+$$;
 
 revoke all on function public.can_add_location(uuid)
   from public, anon, authenticated, service_role;
