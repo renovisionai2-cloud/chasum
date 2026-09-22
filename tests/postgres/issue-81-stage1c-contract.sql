@@ -27,6 +27,14 @@ insert into public.businesses(
   ('10000000-0000-0000-0000-000000000202','10000000-0000-0000-0000-000000000102','Stage1C B','stage1c-b','UTC',30,60,null,null,0,'enterprise',false),
   ('10000000-0000-0000-0000-000000000203','10000000-0000-0000-0000-000000000103','Starter Alpha','stage1c-starter-alpha','UTC',30,60,null,null,0,'starter',true),
   ('10000000-0000-0000-0000-000000000204','10000000-0000-0000-0000-000000000104','Business Limit','stage1c-business-limit','UTC',30,60,null,null,0,'business',false);
+insert into public.business_members(
+  id,business_id,user_id,role
+) values (
+  '10000000-0000-0000-0000-000000000801',
+  '10000000-0000-0000-0000-000000000201',
+  '10000000-0000-0000-0000-000000000105',
+  'admin'
+);
 set local session_replication_role = origin;
 
 insert into public.locations(id,business_id,name,slug,timezone,is_default,is_active)
@@ -94,10 +102,14 @@ insert into public.business_closures(
 -- Entitlement reconciliation and privilege posture.
 do $$
 begin
-  if (select max_locations from public.subscription_plans where plan_key='business') <> 6 then
-    raise exception 'Business location limit was not reconciled to 6';
+  if (select max_locations from public.subscription_plans where plan_key='starter') <> 1
+     or (select max_locations from public.subscription_plans where plan_key='professional') <> 3
+     or (select max_locations from public.subscription_plans where plan_key='business') <> 6
+     or (select max_locations from public.subscription_plans where plan_key='enterprise') is not null then
+    raise exception 'location plan limits are not 1 / 3 / 6 / unlimited';
   end if;
   if has_function_privilege('anon','public.can_add_location(uuid)','EXECUTE')
+     or has_function_privilege('service_role','public.can_add_location(uuid)','EXECUTE')
      or has_function_privilege('anon','public.create_location_from_template(uuid,text,text,text,text,text,text,text,text,text,text,uuid)','EXECUTE')
      or has_function_privilege('service_role','public.create_location_from_template(uuid,text,text,text,text,text,text,text,text,text,text,uuid)','EXECUTE') then
     raise exception 'Stage 1C function EXECUTE leaked';
@@ -110,7 +122,17 @@ begin
      or has_function_privilege('service_role','public.enforce_location_quota()','EXECUTE') then
     raise exception 'quota trigger helper EXECUTE leaked';
   end if;
-end $$;
+end $;
+
+set local role anon;
+select pg_temp.expect_failure(
+  format(
+    'select public.create_location_from_template(%L,%L,%L,%L,null,null,null,null,null,null,%L,null)',
+    '10000000-0000-0000-0000-000000000201','Anon blocked','anon-blocked','UTC','blank'
+  ),
+  'permission denied'
+);
+reset role;
 
 -- Starter + Private Alpha does NOT bypass the billed/product plan cap.
 do $$
@@ -200,6 +222,33 @@ begin
     raise exception 'closures/exceptions were copied';
   end if;
 end $$;
+
+-- An authenticated Business admin may use the same governed writer.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000105',true);
+select set_config(
+  'stage1c.admin_created',
+  (public.create_location_from_template(
+    '10000000-0000-0000-0000-000000000201',
+    'Admin Created','admin-created','UTC',
+    null,null,null,null,null,null,
+    'blank',null
+  )->>'location_id'),
+  true
+);
+reset role;
+
+do $
+declare admin_id uuid := current_setting('stage1c.admin_created')::uuid;
+begin
+  if not exists (
+    select 1 from public.locations
+    where id=admin_id
+      and business_id='10000000-0000-0000-0000-000000000201'
+  ) then
+    raise exception 'Business admin could not create a governed location';
+  end if;
+end $;
 
 -- Explicit copy must reject a source from another Business.
 set local role authenticated;
@@ -296,9 +345,51 @@ begin
   end if;
 end $$;
 
--- Failure after the Location INSERT must roll the whole RPC back. A slug
--- conflict occurs at the core insert and leaves no side rows.
-do $$
+-- A downstream source-settings failure occurs after the new Location INSERT;
+-- PostgreSQL function atomicity must remove that inserted Location and all side rows.
+insert into public.locations(
+  id,business_id,name,slug,timezone,is_default,is_active
+) values (
+  '10000000-0000-0000-0000-000000000399',
+  '10000000-0000-0000-0000-000000000201',
+  'Broken Source','broken-source','UTC',false,true
+);
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000101',true);
+select pg_temp.expect_failure(
+  format(
+    'select public.create_location_from_template(%L,%L,%L,%L,null,null,null,null,null,null,%L,%L)',
+    '10000000-0000-0000-0000-000000000201',
+    'Rollback After Insert','rollback-after-insert','UTC',
+    'copy','10000000-0000-0000-0000-000000000399'
+  ),
+  'booking settings are incomplete'
+);
+reset role;
+
+do $
+begin
+  if exists (
+    select 1 from public.locations
+    where business_id='10000000-0000-0000-0000-000000000201'
+      and slug='rollback-after-insert'
+  ) then
+    raise exception 'downstream create failure left a Location row';
+  end if;
+  if exists (
+    select 1
+    from public.location_settings ls
+    join public.locations l on l.id=ls.location_id
+    where l.business_id='10000000-0000-0000-0000-000000000201'
+      and l.slug='rollback-after-insert'
+  ) then
+    raise exception 'downstream create failure left side rows';
+  end if;
+end $;
+
+-- A slug conflict at the core insert also leaves no row.
+do $
 declare before_count bigint;
 begin
   select count(*) into before_count from public.locations where business_id='10000000-0000-0000-0000-000000000201';
@@ -313,9 +404,9 @@ begin
     null;
   end;
   if (select count(*) from public.locations where business_id='10000000-0000-0000-0000-000000000201') <> before_count then
-    raise exception 'failed create left a Location row';
+    raise exception 'duplicate-slug create left a Location row';
   end if;
-end $$;
+end $;
 
 -- Stage 1C does not introduce resource-aware booking or migrations 034-036.
 do $$
