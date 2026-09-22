@@ -2,6 +2,7 @@
 
 import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { filterServicesOfferedAtLocation } from "@/lib/services/operator-catalog";
+import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { fetchAvailableSlots } from "@/lib/actions/scheduling";
@@ -64,9 +65,8 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
     getOperatorServiceCatalog(),
     supabase
       .from("staff")
-      .select("id, name, staff_services(service_id)")
+      .select("id, name, is_active, location_id, staff_services(service_id), staff_locations(location_id)")
       .eq("business_id", business.id)
-      .eq("location_id", locationId)
       .eq("is_active", true)
       .limit(5),
   ]);
@@ -89,7 +89,9 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
   let openTimeSlots = 0;
   const serviceList = filterServicesOfferedAtLocation(catalog, locationId)
     .filter((service) => service.is_active);
-  const staffList = staff ?? [];
+  const staffList = filterEligibleBookingStaff(staff ?? [], {
+    locationId,
+  });
 
   for (const service of serviceList.slice(0, 2)) {
     for (const member of staffList) {
@@ -134,9 +136,8 @@ export async function getNextAvailableSlot(input?: {
     getOperatorServiceCatalog(),
     supabase
       .from("staff")
-      .select("id, name, staff_services(service_id)")
+      .select("id, name, is_active, location_id, staff_services(service_id), staff_locations(location_id)")
       .eq("business_id", business.id)
-      .eq("location_id", locationId)
       .eq("is_active", true),
   ]);
 
@@ -149,11 +150,10 @@ export async function getNextAvailableSlot(input?: {
       ? services.find((s) => s.id === input.serviceId)
       : null) ?? services[0];
 
-  const eligible = staff.filter((member) => {
-    if (input?.staffId && member.id !== input.staffId) return false;
-    const links = member.staff_services as { service_id: string }[] | null;
-    return (links ?? []).some((ss) => ss.service_id === service.id);
-  });
+  const eligible = filterEligibleBookingStaff(staff, {
+    serviceId: service.id,
+    locationId,
+  }).filter((member) => !input?.staffId || member.id === input.staffId);
 
   if (!eligible.length) return null;
 
