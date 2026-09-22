@@ -42,7 +42,7 @@ $$;
 revoke all on function public.can_add_location(uuid)
   from public, anon, authenticated, service_role;
 grant execute on function public.can_add_location(uuid)
-  to authenticated, service_role;
+  to authenticated;
 
 -- Final DB-level quota authority. It protects every active Location INSERT and
 -- inactive -> active transition, including direct PostgREST writes.
@@ -143,6 +143,7 @@ declare
   v_source_id uuid;
   v_service_count integer := 0;
   v_hours_count integer := 0;
+  v_default_count integer := 0;
   v_mode text := lower(trim(coalesce(p_setup_mode, '')));
 begin
   if not public.is_business_owner(p_business_id) then
@@ -182,19 +183,29 @@ begin
   end if;
 
   if v_mode = 'default' then
+    select count(*)
+    into v_default_count
+    from public.locations l
+    where l.business_id = p_business_id
+      and l.is_active = true
+      and l.is_default = true;
+
+    if v_default_count = 0 then
+      raise exception 'No active default location is available to copy.'
+        using errcode = 'P0001';
+    end if;
+    if v_default_count > 1 then
+      raise exception 'Multiple active default locations require review before copying.'
+        using errcode = 'P0001';
+    end if;
+
     select l.*
     into v_source
     from public.locations l
     where l.business_id = p_business_id
       and l.is_active = true
-      and l.is_default = true
-    order by l.created_at
-    limit 1;
+      and l.is_default = true;
 
-    if not found then
-      raise exception 'No active default location is available to copy.'
-        using errcode = 'P0001';
-    end if;
     v_source_id := v_source.id;
   elsif v_mode = 'copy' then
     if p_source_location_id is null then
