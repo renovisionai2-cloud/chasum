@@ -246,7 +246,7 @@ end $$;
 -- Public-safe relationship reads expose active/bookable same-Business rows only.
 set local role anon;
 select set_config('request.jwt.claim.sub','',true);
-do $
+do $publicsafe$
 begin
   -- Direct helper calls must not disclose same-Business parent pairing when
   -- the governed relationship row itself does not exist.
@@ -293,7 +293,7 @@ begin
   if (select count(*) from public.staff_services where staff_id='00000000-0000-0000-0000-000000000502') <> 0 then
     raise exception 'anon saw non-public staff-service relationship';
   end if;
-end $$;
+end $publicsafe$;
 reset role;
 
 -- Owner/admin relationship management remains functional under RLS.
