@@ -10,7 +10,16 @@ const migration = readFileSync(
   "utf8",
 );
 
+const postgresContract = readFileSync(
+  resolve(process.cwd(), "tests/postgres/issue-81-stage1c-contract.sql"),
+  "utf8",
+);
+
 describe("Issue #81 Stage 1C migration contract", () => {
+  it("rejects malformed single-dollar PostgreSQL test block delimiters", () => {
+    expect(postgresContract).not.toMatch(/^\s*(?:do \$|end \$;)\s*$/m);
+  });
+
   it("reconciles Business to six locations and removes the Private Alpha bypass", () => {
     expect(migration).toContain("set max_locations = 6");
     const quota = migration.slice(
