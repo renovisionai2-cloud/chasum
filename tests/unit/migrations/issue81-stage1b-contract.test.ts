@@ -69,6 +69,33 @@ describe("Issue #81 Stage 1B migration contract", () => {
     expect(customerIndex).toBeGreaterThan(validateIndex);
   });
 
+  it("uses narrowly callable security-definer helpers for public relationship visibility", () => {
+    for (const fn of [
+      "is_public_service_location",
+      "is_public_staff_location",
+      "is_public_staff_service",
+    ]) {
+      expect(migration).toContain(`create or replace function public.${fn}`);
+      const section = migration.slice(
+        migration.indexOf(`create or replace function public.${fn}`),
+        migration.indexOf("drop policy if exists", migration.indexOf(`create or replace function public.${fn}`)),
+      );
+      expect(section).toContain("security definer");
+      expect(section).toContain("set search_path = public, pg_temp");
+    }
+
+    expect(migration).toContain(
+      "using (public.is_public_service_location(service_id, location_id))",
+    );
+    expect(migration).toContain(
+      "using (public.is_public_staff_location(staff_id, location_id))",
+    );
+    expect(migration).toContain(
+      "using (public.is_public_staff_service(staff_id, service_id))",
+    );
+    expect(migration).toContain("to anon, authenticated;");
+  });
+
   it("removes default PUBLIC execute and grants only intended API roles", () => {
     for (const fn of [
       "get_available_slots",
