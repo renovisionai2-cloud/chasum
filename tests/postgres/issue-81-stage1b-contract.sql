@@ -19,76 +19,65 @@ begin
   end;
 end $$;
 
--- Deterministic fixture UUIDs.
-\set owner1 00000000-0000-0000-0000-000000000101
-\set owner2 00000000-0000-0000-0000-000000000102
-\set biz1   00000000-0000-0000-0000-000000000201
-\set biz2   00000000-0000-0000-0000-000000000202
-\set loc1   00000000-0000-0000-0000-000000000301
-\set loc1b  00000000-0000-0000-0000-000000000302
-\set loc2   00000000-0000-0000-0000-000000000303
-\set svc1   00000000-0000-0000-0000-000000000401
-\set svc2   00000000-0000-0000-0000-000000000402
-\set st1    00000000-0000-0000-0000-000000000501
-\set st2    00000000-0000-0000-0000-000000000502
+-- Deterministic disposable fixture UUIDs are inlined below.
 
 -- Bypass auth.users FK only for disposable fixture bootstrap. Relationship
 -- and tenant-key guards are tested below with triggers enabled.
 set local session_replication_role = replica;
 insert into public.businesses(id, owner_id, name, slug, timezone, appointment_interval_minutes, booking_limit_days)
 values
-  (:'biz1', :'owner1', 'Stage1B A', 'stage1b-a', 'UTC', 30, 60),
-  (:'biz2', :'owner2', 'Stage1B B', 'stage1b-b', 'UTC', 30, 60);
+  ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000101', 'Stage1B A', 'stage1b-a', 'UTC', 30, 60),
+  ('00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000102', 'Stage1B B', 'stage1b-b', 'UTC', 30, 60);
 set local session_replication_role = origin;
 
 insert into public.locations(id,business_id,name,slug,timezone,is_default,is_active)
 values
-  (:'loc1', :'biz1','A Primary','a-primary','UTC',true,true),
-  (:'loc1b',:'biz1','A Secondary','a-secondary','UTC',false,true),
-  (:'loc2', :'biz2','B Primary','b-primary','UTC',true,true);
+  ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000201','A Primary','a-primary','UTC',true,true),
+  ('00000000-0000-0000-0000-000000000302','00000000-0000-0000-0000-000000000201','A Secondary','a-secondary','UTC',false,true),
+  ('00000000-0000-0000-0000-000000000303', '00000000-0000-0000-0000-000000000202','B Primary','b-primary','UTC',true,true);
 
 insert into public.services(id,business_id,name,duration_minutes,price,location_id,is_active,online_booking,tax_rate_bps,deposit_cents,deposit_required)
 values
-  (:'svc1',:'biz1','A Service',30,100.00,:'loc1',true,true,1300,2000,true),
-  (:'svc2',:'biz2','B Service',30,50.00,:'loc2',true,true,0,0,false);
+  ('00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000201','A Service',30,100.00,'00000000-0000-0000-0000-000000000301',true,true,1300,2000,true),
+  ('00000000-0000-0000-0000-000000000402','00000000-0000-0000-0000-000000000202','B Service',30,50.00,'00000000-0000-0000-0000-000000000303',true,true,0,0,false);
 
 insert into public.staff(id,business_id,name,location_id,is_active,accept_online_bookings)
 values
-  (:'st1',:'biz1','A Staff',:'loc1',true,true),
-  (:'st2',:'biz2','B Staff',:'loc2',true,true);
+  ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000201','A Staff','00000000-0000-0000-0000-000000000301',true,true),
+  ('00000000-0000-0000-0000-000000000502','00000000-0000-0000-0000-000000000202','B Staff','00000000-0000-0000-0000-000000000303',true,true);
 
 -- Same-Business CRUD succeeds.
-insert into public.service_locations(service_id,location_id) values (:'svc1',:'loc1b');
-insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
-insert into public.staff_services(staff_id,service_id) values (:'st1',:'svc1');
-update public.service_locations set is_primary=false where service_id=:'svc1' and location_id=:'loc1b';
-update public.staff_locations set is_primary=false where staff_id=:'st1' and location_id=:'loc1b';
-update public.staff_services set price_override=99 where staff_id=:'st1' and service_id=:'svc1';
+insert into public.service_locations(service_id,location_id) values ('00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000302');
+insert into public.staff_locations(staff_id,location_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302');
+insert into public.staff_services(staff_id,service_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000401');
+update public.service_locations set is_primary=false where service_id='00000000-0000-0000-0000-000000000401' and location_id='00000000-0000-0000-0000-000000000302';
+update public.staff_locations set is_primary=false where staff_id='00000000-0000-0000-0000-000000000501' and location_id='00000000-0000-0000-0000-000000000302';
+update public.staff_services set price_override=99 where staff_id='00000000-0000-0000-0000-000000000501' and service_id='00000000-0000-0000-0000-000000000401';
 
 -- Cross-Business INSERT / UPDATE fails even as postgres (BYPASSRLS).
 select pg_temp.expect_failure(
-  format('insert into public.service_locations(service_id,location_id) values (%L,%L)', :'svc1', :'loc2'),
+  format('insert into public.service_locations(service_id,location_id) values (%L,%L)', '00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000303'),
   'same Business');
 select pg_temp.expect_failure(
-  format('update public.service_locations set location_id=%L where service_id=%L and location_id=%L', :'loc2', :'svc1', :'loc1b'),
+  format('update public.service_locations set location_id=%L where service_id=%L and location_id=%L', '00000000-0000-0000-0000-000000000303', '00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000302'),
   'same Business');
 select pg_temp.expect_failure(
-  format('insert into public.staff_locations(staff_id,location_id) values (%L,%L)', :'st1', :'loc2'),
+  format('insert into public.staff_locations(staff_id,location_id) values (%L,%L)', '00000000-0000-0000-0000-000000000501', '00000000-0000-0000-0000-000000000303'),
   'same Business');
 select pg_temp.expect_failure(
-  format('update public.staff_locations set location_id=%L where staff_id=%L and location_id=%L', :'loc2', :'st1', :'loc1b'),
+  format('update public.staff_locations set location_id=%L where staff_id=%L and location_id=%L', '00000000-0000-0000-0000-000000000303', '00000000-0000-0000-0000-000000000501', '00000000-0000-0000-0000-000000000302'),
   'same Business');
 select pg_temp.expect_failure(
-  format('insert into public.staff_services(staff_id,service_id) values (%L,%L)', :'st1', :'svc2'),
+  format('insert into public.staff_services(staff_id,service_id) values (%L,%L)', '00000000-0000-0000-0000-000000000501', '00000000-0000-0000-0000-000000000402'),
   'same Business');
 select pg_temp.expect_failure(
-  format('update public.staff_services set service_id=%L where staff_id=%L and service_id=%L', :'svc2', :'st1', :'svc1'),
+  format('update public.staff_services set service_id=%L where staff_id=%L and service_id=%L', '00000000-0000-0000-0000-000000000402', '00000000-0000-0000-0000-000000000501', '00000000-0000-0000-0000-000000000401'),
   'same Business');
 
 -- Tenant keys are immutable.
-select pg_temp.expect_failure(format('update public.services set business_id=%L where id=%L', :'biz2', :'svc1'), 'immutable');
-select pg_temp.expect_failure(format('update public.staff set business_id=%L where id=%L', :'biz2', :'st1'), 'immutable');
-select pg_temp.expect_failure(format('update public.locations set business_id=%L where id=%L', :'biz2', :'loc1'), 'immutable');
+select pg_temp.expect_failure(format('update public.services set business_id=%L where id=%L', '00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000401'), 'immutable');
+select pg_temp.expect_failure(format('update public.staff set business_id=%L where id=%L', '00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000501'), 'immutable');
+select pg_temp.expect_failure(format('update public.locations set business_id=%L where id=%L', '00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000301'), 'immutable');
 
 -- ACL posture.
 do $$
@@ -145,13 +134,13 @@ set local role anon;
 select set_config('request.jwt.claim.sub','',true);
 do $$
 begin
-  if (select count(*) from public.service_locations where service_id=:'svc1') <> 1 then
+  if (select count(*) from public.service_locations where service_id='00000000-0000-0000-0000-000000000401') <> 1 then
     raise exception 'anon service_locations read mismatch';
   end if;
-  if (select count(*) from public.staff_locations where staff_id=:'st1') <> 1 then
+  if (select count(*) from public.staff_locations where staff_id='00000000-0000-0000-0000-000000000501') <> 1 then
     raise exception 'anon staff_locations read mismatch';
   end if;
-  if (select count(*) from public.staff_services where staff_id=:'st1') <> 1 then
+  if (select count(*) from public.staff_services where staff_id='00000000-0000-0000-0000-000000000501') <> 1 then
     raise exception 'anon staff_services read mismatch';
   end if;
 end $$;
@@ -159,17 +148,17 @@ reset role;
 
 -- Owner/admin relationship management remains functional under RLS.
 set local role authenticated;
-select set_config('request.jwt.claim.sub', :'owner1', true);
-delete from public.staff_locations where staff_id=:'st1' and location_id=:'loc1b';
-insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000101', true);
+delete from public.staff_locations where staff_id='00000000-0000-0000-0000-000000000501' and location_id='00000000-0000-0000-0000-000000000302';
+insert into public.staff_locations(staff_id,location_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302');
 reset role;
 
 -- Availability fixtures for tomorrow in UTC.
 insert into public.location_hours(location_id,day_of_week,is_open,open_time,close_time)
-values (:'loc1b', extract(dow from current_date + 1)::int, true, '09:00','17:00')
+values ('00000000-0000-0000-0000-000000000302', extract(dow from current_date + 1)::int, true, '09:00','17:00')
 on conflict (location_id,day_of_week) do update set is_open=true,open_time='09:00',close_time='17:00';
 insert into public.staff_working_hours(staff_id,day_of_week,is_working,start_time,end_time)
-values (:'st1', extract(dow from current_date + 1)::int, true, '09:00','17:00')
+values ('00000000-0000-0000-0000-000000000501', extract(dow from current_date + 1)::int, true, '09:00','17:00')
 on conflict (staff_id,day_of_week) do update set is_working=true,start_time='09:00',end_time='17:00';
 
 -- Legitimate secondary Service + secondary Staff produces slots.
@@ -177,41 +166,41 @@ do $$
 declare n int;
 begin
   select count(*) into n
-  from public.get_available_slots(:'biz1',:'svc1',:'st1',current_date+1,null,:'loc1b');
+  from public.get_available_slots('00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000501',current_date+1,null,'00000000-0000-0000-0000-000000000302');
   if n < 1 then raise exception 'secondary relationship combination produced no slots'; end if;
 end $$;
 
 -- Each missing relationship fails closed.
-delete from public.service_locations where service_id=:'svc1' and location_id=:'loc1b';
+delete from public.service_locations where service_id='00000000-0000-0000-0000-000000000401' and location_id='00000000-0000-0000-0000-000000000302';
 select pg_temp.expect_failure(
   format('select public.validate_appointment_slot(%L,%L,%L,(current_date+1+time ''10:00'')::timestamptz,(current_date+1+time ''10:30'')::timestamptz,null,%L)',
-         :'biz1',:'svc1',:'st1',:'loc1b'),
+         '00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302'),
   'not offered at the selected location');
-insert into public.service_locations(service_id,location_id) values (:'svc1',:'loc1b');
+insert into public.service_locations(service_id,location_id) values ('00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000302');
 
-delete from public.staff_locations where staff_id=:'st1' and location_id=:'loc1b';
+delete from public.staff_locations where staff_id='00000000-0000-0000-0000-000000000501' and location_id='00000000-0000-0000-0000-000000000302';
 select pg_temp.expect_failure(
   format('select public.validate_appointment_slot(%L,%L,%L,(current_date+1+time ''10:00'')::timestamptz,(current_date+1+time ''10:30'')::timestamptz,null,%L)',
-         :'biz1',:'svc1',:'st1',:'loc1b'),
+         '00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302'),
   'does not work at the selected location');
-insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
+insert into public.staff_locations(staff_id,location_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302');
 
-delete from public.staff_services where staff_id=:'st1' and service_id=:'svc1';
+delete from public.staff_services where staff_id='00000000-0000-0000-0000-000000000501' and service_id='00000000-0000-0000-0000-000000000401';
 select pg_temp.expect_failure(
   format('select public.validate_appointment_slot(%L,%L,%L,(current_date+1+time ''10:00'')::timestamptz,(current_date+1+time ''10:30'')::timestamptz,null,%L)',
-         :'biz1',:'svc1',:'st1',:'loc1b'),
+         '00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302'),
   'does not offer this service');
-insert into public.staff_services(staff_id,service_id) values (:'st1',:'svc1');
+insert into public.staff_services(staff_id,service_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000401');
 
 -- Final writer rejects relationship failure before Customer mutation.
-delete from public.staff_locations where staff_id=:'st1' and location_id=:'loc1b';
+delete from public.staff_locations where staff_id='00000000-0000-0000-0000-000000000501' and location_id='00000000-0000-0000-0000-000000000302';
 do $$
 declare before_count bigint; after_count bigint;
 begin
-  select count(*) into before_count from public.customers where business_id=:'biz1' and email='stage1b-invalid@example.test';
+  select count(*) into before_count from public.customers where business_id='00000000-0000-0000-0000-000000000201' and email='stage1b-invalid@example.test';
   begin
     perform public.book_public_appointment(
-      :'biz1',:'loc1b',:'svc1',:'st1',
+      '00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000302','00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000501',
       'Invalid Relationship','stage1b-invalid@example.test',
       (current_date+1+time '10:00')::timestamptz,
       (current_date+1+time '10:30')::timestamptz,
@@ -221,10 +210,10 @@ begin
   exception when others then
     if position('does not work at the selected location' in sqlerrm)=0 then raise; end if;
   end;
-  select count(*) into after_count from public.customers where business_id=:'biz1' and email='stage1b-invalid@example.test';
+  select count(*) into after_count from public.customers where business_id='00000000-0000-0000-0000-000000000201' and email='stage1b-invalid@example.test';
   if after_count <> before_count then raise exception 'customer mutated before relationship rejection'; end if;
 end $$;
-insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
+insert into public.staff_locations(staff_id,location_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302');
 
 -- Valid secondary named-Staff public booking reaches normal write path and
 -- preserves catalog financial/status behavior.
@@ -232,14 +221,14 @@ do $$
 declare appt uuid; r record;
 begin
   appt := public.book_public_appointment(
-    :'biz1',:'loc1b',:'svc1',:'st1',
+    '00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000302','00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000501',
     'Valid Secondary','stage1b-valid@example.test',
     (current_date+1+time '10:00')::timestamptz,
     (current_date+1+time '10:30')::timestamptz,
     'confirmed',null,1,1,1,'stage1b'
   );
   select * into r from public.appointments where id=appt;
-  if r.staff_id <> :'st1'::uuid or r.location_id <> :'loc1b'::uuid then
+  if r.staff_id <> '00000000-0000-0000-0000-000000000501'::uuid or r.location_id <> '00000000-0000-0000-0000-000000000302'::uuid then
     raise exception 'secondary booking relationship stamps incorrect';
   end if;
   if r.status::text <> 'confirmed' then raise exception 'appointment status changed'; end if;
