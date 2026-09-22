@@ -1,5 +1,7 @@
 "use client";
 
+import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
+
 import { AiSuggestionsCard } from "@/components/reception/ai-suggestions-card";
 import { CustomerPreview } from "@/components/reception/customer-preview";
 import { CustomerSearch } from "@/components/reception/customer-search";
@@ -21,7 +23,6 @@ import type { DashboardInsight } from "@/lib/dashboard/insights";
 import type {
   Customer,
   Location,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,7 @@ type WaitlistEntry = {
 
 type ReceptionPanelProps = {
   customers: Customer[];
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
   staff: StaffWithServices[];
   locations: Location[];
   taxRates?: TaxRate[];

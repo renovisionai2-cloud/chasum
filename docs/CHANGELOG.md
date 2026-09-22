@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-21 — Operator Business Service Catalog (Issue #83 candidate)
+
+- Services keeps the Business catalog visible and distinguishes offering status at the selected location; safe quick enablement adds a service_locations relationship without duplicating Service records.
+- Calendar/Reception/client-profile Booking Sheet uses the same primary-or-explicit-membership rule, including location switching and Reception service sampling.
+- Existing getServices callers outside this booking scope, public booking, staff eligibility, availability SQL and financial semantics remain unchanged. No migration or hosted data mutation. Not merged; hosted acceptance remains pending.
+- Scope, call-site inventory and validation limitations: [Stage 1A implementation evidence](multi-location/ISSUE_83_STAGE_1A.md).
+
+
 ### 2026-09-20 — Customer confirmation location address + one-tap directions (Issue #62 candidate)
 
 - Customer appointment emails now use the appointment's own location row for arrival information: customer-facing name, structured physical address, and a Google Maps search "Get directions" link when `address_line1` plus city or postal code is present.

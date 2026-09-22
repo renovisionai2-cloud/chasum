@@ -1,5 +1,7 @@
 "use client";
 
+import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
+
 import { BookingSheet } from "@/components/booking-sheet";
 import {
   type CalendarColorMode,
@@ -53,7 +55,6 @@ import type {
   CalendarView,
   Customer,
   Location,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 import { DEFAULT_BOOKING_INTERVAL_MINUTES } from "@/lib/booking/interval";
@@ -87,7 +88,7 @@ import {
 
 type CalendarClientProps = {
   appointments: AppointmentWithRelations[];
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
   staff: StaffWithServices[];
   customers: Customer[];
   locations: Location[];

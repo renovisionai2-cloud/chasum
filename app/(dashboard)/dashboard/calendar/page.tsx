@@ -8,7 +8,7 @@ import { getStaffDayOverlays } from "@/lib/actions/day-overlays";
 import { getLocations, getLocationScope, getBookingIntervalMinutes } from "@/lib/actions/location";
 import { getMorningBrief } from "@/lib/actions/morning-brief";
 import { getWaitlistEntries } from "@/lib/actions/notifications";
-import { getServices } from "@/lib/actions/services";
+import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
 import { calendarDayStart, addCalendarDays } from "@/lib/business/datetime";
 import { getBusinessTimezone, formatBusinessDate } from "@/lib/locale";
@@ -96,7 +96,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
     appointmentIntervalMinutes,
   ] = await Promise.all([
     getAppointments(range.start.toISOString(), range.end.toISOString()),
-    getServices(),
+    getOperatorServiceCatalog(),
     getStaff(),
     getCustomers(),
     getMorningBrief(),

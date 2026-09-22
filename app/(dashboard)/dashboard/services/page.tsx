@@ -2,8 +2,8 @@ import { ServicesManager } from "@/components/services/services-manager";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { listServiceCategories } from "@/lib/actions/business-management";
-import { getLocations } from "@/lib/actions/location";
-import { getServices } from "@/lib/actions/services";
+import { getLocations, getLocationScope } from "@/lib/actions/location";
+import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { getStaffForAssignment } from "@/lib/actions/staff";
 import type { Metadata } from "next";
 
@@ -13,11 +13,12 @@ export const metadata: Metadata = {
 
 export default async function ServicesPage() {
   await getOrCreateBusiness();
-  const [services, categories, staff, locations] = await Promise.all([
-    getServices(),
+  const [services, categories, staff, locations, scope] = await Promise.all([
+    getOperatorServiceCatalog(),
     listServiceCategories(),
     getStaffForAssignment(),
     getLocations(),
+    getLocationScope(),
   ]);
 
   return (
@@ -28,6 +29,7 @@ export default async function ServicesPage() {
       />
       <ServicesManager
         services={services}
+        selectedLocationId={scope.mode === "single" ? scope.locationId : null}
         categories={categories}
         staff={staff}
         locations={locations}

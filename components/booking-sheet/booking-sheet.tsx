@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  filterServicesOfferedAtLocation,
+  type OperatorServiceCatalogItem,
+} from "@/lib/services/operator-catalog";
+
 import { AppointmentSection, type BookingOfferType } from "@/components/booking-sheet/appointment-section";
 import {
   AvailabilitySection,
@@ -62,7 +67,6 @@ import type {
   AppointmentWithRelations,
   Customer,
   Location,
-  Service,
   StaffWithServices,
 } from "@/lib/types/booking";
 import { useFormAction } from "@/hooks/use-form-action";
@@ -81,7 +85,7 @@ export type BookingSheetProps = {
   open: boolean;
   onClose: () => void;
   appointment?: AppointmentWithRelations | null;
-  services: Service[];
+  services: OperatorServiceCatalogItem[];
   staff: StaffWithServices[];
   customers: Customer[];
   locations: Location[];
@@ -186,8 +190,8 @@ export function BookingSheet({
       locations[0]?.id ??
       "";
 
-    const locationServices = services.filter(
-      (s) => s.is_active && (!locationId || s.location_id === locationId),
+    const locationServices = filterServicesOfferedAtLocation(services, locationId).filter(
+      (service) => service.is_active,
     );
 
     // Resolve serviceId FIRST — duration must follow this service, never the
@@ -196,7 +200,7 @@ export function BookingSheet({
       appointment?.service_id ??
       (!appointment &&
       draft?.serviceId &&
-      services.some((s) => s.id === draft.serviceId)
+      locationServices.some((s) => s.id === draft.serviceId)
         ? draft.serviceId
         : null) ??
       (!appointment &&
@@ -660,14 +664,12 @@ export function BookingSheet({
     setPackageId(id);
     const pkg = packages.find((p) => p.id === id);
     if (!pkg) return;
-    const firstServiceId =
-      pkg.service_ids.find((sid) =>
-        services.some((s) => s.id === sid && s.is_active),
-      ) ?? "";
-    if (firstServiceId) {
-      setServiceId(firstServiceId);
-      setDurationOverride(null);
-    }
+    const offered = filterServicesOfferedAtLocation(services, locationId);
+    const firstServiceId = pkg.service_ids.find((sid) =>
+      offered.some((service) => service.id === sid && service.is_active),
+    ) ?? "";
+    setServiceId(firstServiceId);
+    setDurationOverride(null);
   }
 
   function handleDurationOverride(minutes: number | null) {
@@ -681,6 +683,14 @@ function handleStaffChange(id: string) {
 
   function handleLocationChange(id: string) {
     setLocationId(id);
+    const offered = filterServicesOfferedAtLocation(services, id).filter(
+      (service) => service.is_active && (
+        offerType !== "package" || selectedPackage?.service_ids.includes(service.id)
+      ),
+    );
+    if (!offered.some((service) => service.id === serviceId)) {
+      handleServiceChange(offered[0]?.id ?? "");
+    }
   }
 
   function handleDateChange(next: string) {

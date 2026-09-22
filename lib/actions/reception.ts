@@ -1,5 +1,7 @@
 "use server";
 
+import { getOperatorServiceCatalog } from "@/lib/actions/services";
+import { filterServicesOfferedAtLocation } from "@/lib/services/operator-catalog";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { fetchAvailableSlots } from "@/lib/actions/scheduling";
@@ -39,7 +41,7 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
   const [
     { data: todayAppts },
     { count: pendingCount },
-    { data: services },
+    catalog,
     { data: staff },
   ] = await Promise.all([
     supabase
@@ -59,13 +61,7 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
       .eq("location_id", locationId)
       .eq("status", "pending")
       .gte("start_time", now.toISOString()),
-    supabase
-      .from("services")
-      .select("id, name")
-      .eq("business_id", business.id)
-      .eq("location_id", locationId)
-      .eq("is_active", true)
-      .limit(3),
+    getOperatorServiceCatalog(),
     supabase
       .from("staff")
       .select("id, name, staff_services(service_id)")
@@ -91,7 +87,8 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
     }, 0);
 
   let openTimeSlots = 0;
-  const serviceList = services ?? [];
+  const serviceList = filterServicesOfferedAtLocation(catalog, locationId)
+    .filter((service) => service.is_active);
   const staffList = staff ?? [];
 
   for (const service of serviceList.slice(0, 2)) {
@@ -133,13 +130,8 @@ export async function getNextAvailableSlot(input?: {
   const locationId = await getActiveLocationId();
   const supabase = await createClient();
 
-  const [{ data: services }, { data: staff }] = await Promise.all([
-    supabase
-      .from("services")
-      .select("id, name")
-      .eq("business_id", business.id)
-      .eq("location_id", locationId)
-      .eq("is_active", true),
+  const [catalog, { data: staff }] = await Promise.all([
+    getOperatorServiceCatalog(),
     supabase
       .from("staff")
       .select("id, name, staff_services(service_id)")
@@ -148,7 +140,9 @@ export async function getNextAvailableSlot(input?: {
       .eq("is_active", true),
   ]);
 
-  if (!services?.length || !staff?.length) return null;
+  const services = filterServicesOfferedAtLocation(catalog, locationId)
+    .filter((service) => service.is_active);
+  if (!services.length || !staff?.length) return null;
 
   const service =
     (input?.serviceId
