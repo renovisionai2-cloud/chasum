@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 type PageProps = {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; add?: string }>;
 };
 
 export default async function BusinessPage({ searchParams }: PageProps) {
@@ -126,6 +126,7 @@ export default async function BusinessPage({ searchParams }: PageProps) {
         holidays={holidays}
         closures={closures}
         documents={documents}
+        initialAddLocationOpen={params.add === "1"}
         initialTab={
           params.tab as
             | "profile"
