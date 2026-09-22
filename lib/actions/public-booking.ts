@@ -292,8 +292,13 @@ export async function bookAppointment(
       .eq("service_id", serviceId);
     const eligibleIds = filterEligibleBookingStaff(
       (linked ?? [])
-        .map((row) => row.staff)
-        .filter(Boolean) as unknown as StaffWithServices[],
+        .map((row) => {
+          const member = row.staff as unknown as StaffWithServices | null;
+          return member
+            ? { ...member, staff_services: [{ service_id: serviceId }] }
+            : null;
+        })
+        .filter((member): member is StaffWithServices => Boolean(member)),
       { serviceId, locationId },
     ).map((member) => member.id);
 
