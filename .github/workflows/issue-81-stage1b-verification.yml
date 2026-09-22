@@ -1,0 +1,38 @@
+name: Issue 81 Stage 1B Verification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "components/booking/**"
+      - "lib/actions/**"
+      - "lib/booking/**"
+      - "lib/booking-engine/**"
+      - "lib/types/**"
+      - "tests/**"
+      - "scripts/verify-stage1b-disposable-postgres.mjs"
+      - "supabase/migrations/20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql"
+      - "package.json"
+      - ".github/workflows/issue-81-stage1b-verification.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  application-verification:
+    if: github.head_ref == 'codex/issue-81-stage-1b'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
