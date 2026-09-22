@@ -37,7 +37,7 @@ describe("Issue #81 Stage 1B application convergence", () => {
     expect(section).toContain('.from("staff")');
     expect(section).toContain("staff_locations(location_id)");
     expect(section).toContain('.eq("accept_online_bookings", true)');
-    expect(section).not.toContain("input.staff");
+    expect(section).not.toMatch(/\bstaff\s*:/);
   });
 
   it("Booking Engine composes all three governed relationships", () => {
