@@ -592,10 +592,10 @@ export function BusinessHub({
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              {locationQuota?.plan?.max_locations == null
+              {locationQuota?.maxLocations == null
                 ? "Your plan allows unlimited locations. Manage hours, employees, and services per site."
-                : `Your plan allows ${locationQuota.plan.max_locations} location${
-                    locationQuota.plan.max_locations === 1 ? "" : "s"
+                : `Your plan allows ${locationQuota.maxLocations} location${
+                    locationQuota.maxLocations === 1 ? "" : "s"
                   } (${locationQuota.currentCount} in use). ${
                     locationQuota.canAdd
                       ? "You can add another location."
@@ -655,6 +655,7 @@ export function BusinessHub({
                 type="button"
                 size="sm"
                 onClick={() => setAddLocationOpen(true)}
+                disabled={locationQuota?.canAdd === false}
               >
                 Add Location
               </Button>
@@ -682,6 +683,12 @@ export function BusinessHub({
               canAdd={locationQuota?.canAdd ?? true}
               planName={locationQuota?.planName ?? "your plan"}
               maxLocations={locationQuota?.maxLocations ?? null}
+              blankDefaults={{
+                appointmentIntervalMinutes: business.appointment_interval_minutes,
+                bookingLimitDays: business.booking_limit_days,
+                maxDailyBookings: business.max_daily_bookings,
+                cancellationPolicy: business.cancellation_policy,
+              }}
             />
           </CardContent>
         </Card>
