@@ -222,6 +222,7 @@ export function BusinessHub({
   holidays,
   closures,
   documents,
+  initialAddLocationOpen = false,
   initialTab = "profile",
 }: {
   business: Business;
@@ -248,13 +249,16 @@ export function BusinessHub({
   holidays: Holiday[];
   closures: BusinessClosure[];
   documents: BusinessDocument[];
+  initialAddLocationOpen?: boolean;
   initialTab?: TabKey;
 }) {
   const [tab, setTab] = useState<TabKey>(() =>
     TABS.some((item) => item.key === initialTab) ? initialTab : "profile",
   );
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
-  const [addLocationOpen, setAddLocationOpen] = useState(false);
+  const [addLocationOpen, setAddLocationOpen] = useState(
+    initialAddLocationOpen,
+  );
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const refresh = useRefresh();
   const { toast } = useToast();
