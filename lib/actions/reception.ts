@@ -67,8 +67,7 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
       .from("staff")
       .select("id, name, is_active, location_id, staff_services(service_id), staff_locations(location_id)")
       .eq("business_id", business.id)
-      .eq("is_active", true)
-      .limit(5),
+      .eq("is_active", true),
   ]);
 
   const rows = todayAppts ?? [];
@@ -91,7 +90,7 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
     .filter((service) => service.is_active);
   const staffList = filterEligibleBookingStaff(staff ?? [], {
     locationId,
-  });
+  }).slice(0, 5);
 
   for (const service of serviceList.slice(0, 2)) {
     for (const member of staffList) {
