@@ -50,6 +50,11 @@ values
 insert into public.service_locations(service_id,location_id) values ('00000000-0000-0000-0000-000000000401','00000000-0000-0000-0000-000000000302');
 insert into public.staff_locations(staff_id,location_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000302');
 insert into public.staff_services(staff_id,service_id) values ('00000000-0000-0000-0000-000000000501','00000000-0000-0000-0000-000000000401');
+insert into public.service_locations(service_id,location_id) values ('00000000-0000-0000-0000-000000000402','00000000-0000-0000-0000-000000000303');
+insert into public.staff_locations(staff_id,location_id) values ('00000000-0000-0000-0000-000000000502','00000000-0000-0000-0000-000000000303');
+insert into public.staff_services(staff_id,service_id) values ('00000000-0000-0000-0000-000000000502','00000000-0000-0000-0000-000000000402');
+update public.services set online_booking=false where id='00000000-0000-0000-0000-000000000402';
+update public.staff set accept_online_bookings=false where id='00000000-0000-0000-0000-000000000502';
 update public.service_locations set is_primary=false where service_id='00000000-0000-0000-0000-000000000401' and location_id='00000000-0000-0000-0000-000000000302';
 update public.staff_locations set is_primary=false where staff_id='00000000-0000-0000-0000-000000000501' and location_id='00000000-0000-0000-0000-000000000302';
 update public.staff_services set price_override=99 where staff_id='00000000-0000-0000-0000-000000000501' and service_id='00000000-0000-0000-0000-000000000401';
@@ -79,24 +84,94 @@ select pg_temp.expect_failure(format('update public.services set business_id=%L 
 select pg_temp.expect_failure(format('update public.staff set business_id=%L where id=%L', '00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000501'), 'immutable');
 select pg_temp.expect_failure(format('update public.locations set business_id=%L where id=%L', '00000000-0000-0000-0000-000000000202', '00000000-0000-0000-0000-000000000301'), 'immutable');
 
--- ACL posture.
+-- Exact least-privilege ACL posture on all three relationship tables.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['service_locations','staff_locations','staff_services'] loop
+    if has_table_privilege('PUBLIC','public.'||t,'SELECT')
+       or has_table_privilege('PUBLIC','public.'||t,'INSERT')
+       or has_table_privilege('PUBLIC','public.'||t,'UPDATE')
+       or has_table_privilege('PUBLIC','public.'||t,'DELETE')
+       or has_table_privilege('PUBLIC','public.'||t,'TRUNCATE')
+       or has_table_privilege('PUBLIC','public.'||t,'REFERENCES')
+       or has_table_privilege('PUBLIC','public.'||t,'TRIGGER')
+       or has_table_privilege('PUBLIC','public.'||t,'MAINTAIN') then
+      raise exception 'PUBLIC relationship privilege remains on %', t;
+    end if;
+
+    if not has_table_privilege('anon','public.'||t,'SELECT')
+       or has_table_privilege('anon','public.'||t,'INSERT')
+       or has_table_privilege('anon','public.'||t,'UPDATE')
+       or has_table_privilege('anon','public.'||t,'DELETE')
+       or has_table_privilege('anon','public.'||t,'TRUNCATE')
+       or has_table_privilege('anon','public.'||t,'REFERENCES')
+       or has_table_privilege('anon','public.'||t,'TRIGGER')
+       or has_table_privilege('anon','public.'||t,'MAINTAIN') then
+      raise exception 'anon ACL posture incorrect on %', t;
+    end if;
+
+    if not has_table_privilege('authenticated','public.'||t,'SELECT')
+       or not has_table_privilege('authenticated','public.'||t,'INSERT')
+       or not has_table_privilege('authenticated','public.'||t,'UPDATE')
+       or not has_table_privilege('authenticated','public.'||t,'DELETE')
+       or has_table_privilege('authenticated','public.'||t,'TRUNCATE')
+       or has_table_privilege('authenticated','public.'||t,'REFERENCES')
+       or has_table_privilege('authenticated','public.'||t,'TRIGGER')
+       or has_table_privilege('authenticated','public.'||t,'MAINTAIN') then
+      raise exception 'authenticated ACL posture incorrect on %', t;
+    end if;
+
+    if not has_table_privilege('service_role','public.'||t,'SELECT')
+       or not has_table_privilege('service_role','public.'||t,'INSERT')
+       or not has_table_privilege('service_role','public.'||t,'UPDATE')
+       or not has_table_privilege('service_role','public.'||t,'DELETE')
+       or has_table_privilege('service_role','public.'||t,'TRUNCATE')
+       or has_table_privilege('service_role','public.'||t,'REFERENCES')
+       or has_table_privilege('service_role','public.'||t,'TRIGGER')
+       or has_table_privilege('service_role','public.'||t,'MAINTAIN') then
+      raise exception 'service_role ACL posture incorrect on %', t;
+    end if;
+  end loop;
+end $$;
+
+-- Exact governed trigger presence.
 do $$
 begin
-  if has_table_privilege('PUBLIC','public.service_locations','SELECT')
-     or has_table_privilege('PUBLIC','public.staff_locations','SELECT')
-     or has_table_privilege('PUBLIC','public.staff_services','SELECT') then
-    raise exception 'PUBLIC relationship privilege remains';
+  if (select count(*) from pg_trigger where not tgisinternal and tgname in (
+    'service_locations_same_business',
+    'staff_locations_same_business',
+    'staff_services_same_business',
+    'services_business_id_immutable',
+    'staff_business_id_immutable',
+    'locations_business_id_immutable'
+  )) <> 6 then
+    raise exception 'Stage 1B trigger set is incomplete';
   end if;
-  if not has_table_privilege('anon','public.service_locations','SELECT')
-     or has_table_privilege('anon','public.service_locations','INSERT')
-     or has_table_privilege('anon','public.staff_locations','UPDATE')
-     or has_table_privilege('anon','public.staff_services','DELETE') then
-    raise exception 'anon ACL posture incorrect';
+end $$;
+
+-- Exact governed policy names/commands/roles.
+do $$
+begin
+  if (select count(*) from pg_policies
+      where schemaname='public'
+        and (
+          (tablename='service_locations' and policyname in ('Owners manage service locations','Public can view bookable service locations'))
+          or (tablename='staff_locations' and policyname in ('Owners manage staff locations','Public can view active staff locations'))
+          or (tablename='staff_services' and policyname in ('Owners manage staff services','Public can view bookable staff services'))
+        )) <> 6 then
+    raise exception 'Stage 1B relationship policy set is incomplete';
   end if;
-  if has_table_privilege('authenticated','public.service_locations','TRUNCATE')
-     or has_table_privilege('authenticated','public.staff_locations','REFERENCES')
-     or has_table_privilege('authenticated','public.staff_services','TRIGGER') then
-    raise exception 'authenticated excess privilege remains';
+
+  if exists (
+    select 1 from pg_policies
+    where schemaname='public'
+      and tablename in ('service_locations','staff_locations','staff_services')
+      and policyname like 'Owners manage %'
+      and not (cmd='ALL' and roles='{authenticated}'::name[])
+  ) then
+    raise exception 'owner relationship policy role/command drift';
   end if;
 end $$;
 
@@ -142,6 +217,15 @@ begin
   end if;
   if (select count(*) from public.staff_services where staff_id='00000000-0000-0000-0000-000000000501') <> 1 then
     raise exception 'anon staff_services read mismatch';
+  end if;
+  if (select count(*) from public.service_locations where service_id='00000000-0000-0000-0000-000000000402') <> 0 then
+    raise exception 'anon saw non-bookable service relationship';
+  end if;
+  if (select count(*) from public.staff_locations where staff_id='00000000-0000-0000-0000-000000000502') <> 0 then
+    raise exception 'anon saw non-online staff-location relationship';
+  end if;
+  if (select count(*) from public.staff_services where staff_id='00000000-0000-0000-0000-000000000502') <> 0 then
+    raise exception 'anon saw non-public staff-service relationship';
   end if;
 end $$;
 reset role;
