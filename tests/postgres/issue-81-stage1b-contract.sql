@@ -1,0 +1,252 @@
+\set ON_ERROR_STOP on
+begin;
+
+-- Issue #81 Stage 1B disposable-Postgres contract.
+-- Run only after the Stage 1B migration has been applied to a disposable
+-- database that mirrors the governed Production baseline (034-036 absent).
+
+create or replace function pg_temp.expect_failure(p_sql text, p_contains text)
+returns void language plpgsql as $$
+begin
+  begin
+    execute p_sql;
+    raise exception 'expected failure but statement succeeded: %', p_sql;
+  exception when others then
+    if sqlerrm like 'expected failure%' then raise; end if;
+    if position(lower(p_contains) in lower(sqlerrm)) = 0 then
+      raise exception 'wrong failure. expected %, got %', p_contains, sqlerrm;
+    end if;
+  end;
+end $$;
+
+-- Deterministic fixture UUIDs.
+\set owner1 00000000-0000-0000-0000-000000000101
+\set owner2 00000000-0000-0000-0000-000000000102
+\set biz1   00000000-0000-0000-0000-000000000201
+\set biz2   00000000-0000-0000-0000-000000000202
+\set loc1   00000000-0000-0000-0000-000000000301
+\set loc1b  00000000-0000-0000-0000-000000000302
+\set loc2   00000000-0000-0000-0000-000000000303
+\set svc1   00000000-0000-0000-0000-000000000401
+\set svc2   00000000-0000-0000-0000-000000000402
+\set st1    00000000-0000-0000-0000-000000000501
+\set st2    00000000-0000-0000-0000-000000000502
+
+-- Bypass auth.users FK only for disposable fixture bootstrap. Relationship
+-- and tenant-key guards are tested below with triggers enabled.
+set local session_replication_role = replica;
+insert into public.businesses(id, owner_id, name, slug, timezone, appointment_interval_minutes, booking_limit_days)
+values
+  (:'biz1', :'owner1', 'Stage1B A', 'stage1b-a', 'UTC', 30, 60),
+  (:'biz2', :'owner2', 'Stage1B B', 'stage1b-b', 'UTC', 30, 60);
+set local session_replication_role = origin;
+
+insert into public.locations(id,business_id,name,slug,timezone,is_default,is_active)
+values
+  (:'loc1', :'biz1','A Primary','a-primary','UTC',true,true),
+  (:'loc1b',:'biz1','A Secondary','a-secondary','UTC',false,true),
+  (:'loc2', :'biz2','B Primary','b-primary','UTC',true,true);
+
+insert into public.services(id,business_id,name,duration_minutes,price,location_id,is_active,online_booking,tax_rate_bps,deposit_cents,deposit_required)
+values
+  (:'svc1',:'biz1','A Service',30,100.00,:'loc1',true,true,1300,2000,true),
+  (:'svc2',:'biz2','B Service',30,50.00,:'loc2',true,true,0,0,false);
+
+insert into public.staff(id,business_id,name,location_id,is_active,accept_online_bookings)
+values
+  (:'st1',:'biz1','A Staff',:'loc1',true,true),
+  (:'st2',:'biz2','B Staff',:'loc2',true,true);
+
+-- Same-Business CRUD succeeds.
+insert into public.service_locations(service_id,location_id) values (:'svc1',:'loc1b');
+insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
+insert into public.staff_services(staff_id,service_id) values (:'st1',:'svc1');
+update public.service_locations set is_primary=false where service_id=:'svc1' and location_id=:'loc1b';
+update public.staff_locations set is_primary=false where staff_id=:'st1' and location_id=:'loc1b';
+update public.staff_services set price_override=99 where staff_id=:'st1' and service_id=:'svc1';
+
+-- Cross-Business INSERT / UPDATE fails even as postgres (BYPASSRLS).
+select pg_temp.expect_failure(
+  format('insert into public.service_locations(service_id,location_id) values (%L,%L)', :'svc1', :'loc2'),
+  'same Business');
+select pg_temp.expect_failure(
+  format('update public.service_locations set location_id=%L where service_id=%L and location_id=%L', :'loc2', :'svc1', :'loc1b'),
+  'same Business');
+select pg_temp.expect_failure(
+  format('insert into public.staff_locations(staff_id,location_id) values (%L,%L)', :'st1', :'loc2'),
+  'same Business');
+select pg_temp.expect_failure(
+  format('update public.staff_locations set location_id=%L where staff_id=%L and location_id=%L', :'loc2', :'st1', :'loc1b'),
+  'same Business');
+select pg_temp.expect_failure(
+  format('insert into public.staff_services(staff_id,service_id) values (%L,%L)', :'st1', :'svc2'),
+  'same Business');
+select pg_temp.expect_failure(
+  format('update public.staff_services set service_id=%L where staff_id=%L and service_id=%L', :'svc2', :'st1', :'svc1'),
+  'same Business');
+
+-- Tenant keys are immutable.
+select pg_temp.expect_failure(format('update public.services set business_id=%L where id=%L', :'biz2', :'svc1'), 'immutable');
+select pg_temp.expect_failure(format('update public.staff set business_id=%L where id=%L', :'biz2', :'st1'), 'immutable');
+select pg_temp.expect_failure(format('update public.locations set business_id=%L where id=%L', :'biz2', :'loc1'), 'immutable');
+
+-- ACL posture.
+do $$
+begin
+  if has_table_privilege('PUBLIC','public.service_locations','SELECT')
+     or has_table_privilege('PUBLIC','public.staff_locations','SELECT')
+     or has_table_privilege('PUBLIC','public.staff_services','SELECT') then
+    raise exception 'PUBLIC relationship privilege remains';
+  end if;
+  if not has_table_privilege('anon','public.service_locations','SELECT')
+     or has_table_privilege('anon','public.service_locations','INSERT')
+     or has_table_privilege('anon','public.staff_locations','UPDATE')
+     or has_table_privilege('anon','public.staff_services','DELETE') then
+    raise exception 'anon ACL posture incorrect';
+  end if;
+  if has_table_privilege('authenticated','public.service_locations','TRUNCATE')
+     or has_table_privilege('authenticated','public.staff_locations','REFERENCES')
+     or has_table_privilege('authenticated','public.staff_services','TRIGGER') then
+    raise exception 'authenticated excess privilege remains';
+  end if;
+end $$;
+
+-- Trigger helpers cannot be invoked directly by API roles.
+do $$
+begin
+  if has_function_privilege('anon','public.assert_same_business_relationship()','EXECUTE')
+     or has_function_privilege('authenticated','public.assert_same_business_relationship()','EXECUTE')
+     or has_function_privilege('service_role','public.assert_same_business_relationship()','EXECUTE') then
+    raise exception 'relationship helper EXECUTE leaked';
+  end if;
+end $$;
+
+-- Governed RPCs have no PUBLIC execute and intended explicit roles do.
+do $$
+declare
+  f text;
+begin
+  foreach f in array array[
+    'public.get_available_slots(uuid,uuid,uuid,date,uuid,uuid)',
+    'public.validate_appointment_slot(uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,uuid,uuid)',
+    'public.book_public_appointment(uuid,uuid,uuid,uuid,text,text,timestamp with time zone,timestamp with time zone,text,text,integer,integer,integer,text)'
+  ] loop
+    if has_function_privilege('PUBLIC',f,'EXECUTE') then raise exception 'PUBLIC EXECUTE remains on %', f; end if;
+    if not has_function_privilege('anon',f,'EXECUTE')
+       or not has_function_privilege('authenticated',f,'EXECUTE')
+       or not has_function_privilege('service_role',f,'EXECUTE') then
+      raise exception 'intended EXECUTE missing on %', f;
+    end if;
+  end loop;
+end $$;
+
+-- Public-safe relationship reads expose active/bookable same-Business rows only.
+set local role anon;
+select set_config('request.jwt.claim.sub','',true);
+do $$
+begin
+  if (select count(*) from public.service_locations where service_id=:'svc1') <> 1 then
+    raise exception 'anon service_locations read mismatch';
+  end if;
+  if (select count(*) from public.staff_locations where staff_id=:'st1') <> 1 then
+    raise exception 'anon staff_locations read mismatch';
+  end if;
+  if (select count(*) from public.staff_services where staff_id=:'st1') <> 1 then
+    raise exception 'anon staff_services read mismatch';
+  end if;
+end $$;
+reset role;
+
+-- Owner/admin relationship management remains functional under RLS.
+set local role authenticated;
+select set_config('request.jwt.claim.sub', :'owner1', true);
+delete from public.staff_locations where staff_id=:'st1' and location_id=:'loc1b';
+insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
+reset role;
+
+-- Availability fixtures for tomorrow in UTC.
+insert into public.location_hours(location_id,day_of_week,is_open,open_time,close_time)
+values (:'loc1b', extract(dow from current_date + 1)::int, true, '09:00','17:00')
+on conflict (location_id,day_of_week) do update set is_open=true,open_time='09:00',close_time='17:00';
+insert into public.staff_working_hours(staff_id,day_of_week,is_working,start_time,end_time)
+values (:'st1', extract(dow from current_date + 1)::int, true, '09:00','17:00')
+on conflict (staff_id,day_of_week) do update set is_working=true,start_time='09:00',end_time='17:00';
+
+-- Legitimate secondary Service + secondary Staff produces slots.
+do $$
+declare n int;
+begin
+  select count(*) into n
+  from public.get_available_slots(:'biz1',:'svc1',:'st1',current_date+1,null,:'loc1b');
+  if n < 1 then raise exception 'secondary relationship combination produced no slots'; end if;
+end $$;
+
+-- Each missing relationship fails closed.
+delete from public.service_locations where service_id=:'svc1' and location_id=:'loc1b';
+select pg_temp.expect_failure(
+  format('select public.validate_appointment_slot(%L,%L,%L,(current_date+1+time ''10:00'')::timestamptz,(current_date+1+time ''10:30'')::timestamptz,null,%L)',
+         :'biz1',:'svc1',:'st1',:'loc1b'),
+  'not offered at the selected location');
+insert into public.service_locations(service_id,location_id) values (:'svc1',:'loc1b');
+
+delete from public.staff_locations where staff_id=:'st1' and location_id=:'loc1b';
+select pg_temp.expect_failure(
+  format('select public.validate_appointment_slot(%L,%L,%L,(current_date+1+time ''10:00'')::timestamptz,(current_date+1+time ''10:30'')::timestamptz,null,%L)',
+         :'biz1',:'svc1',:'st1',:'loc1b'),
+  'does not work at the selected location');
+insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
+
+delete from public.staff_services where staff_id=:'st1' and service_id=:'svc1';
+select pg_temp.expect_failure(
+  format('select public.validate_appointment_slot(%L,%L,%L,(current_date+1+time ''10:00'')::timestamptz,(current_date+1+time ''10:30'')::timestamptz,null,%L)',
+         :'biz1',:'svc1',:'st1',:'loc1b'),
+  'does not offer this service');
+insert into public.staff_services(staff_id,service_id) values (:'st1',:'svc1');
+
+-- Final writer rejects relationship failure before Customer mutation.
+delete from public.staff_locations where staff_id=:'st1' and location_id=:'loc1b';
+do $$
+declare before_count bigint; after_count bigint;
+begin
+  select count(*) into before_count from public.customers where business_id=:'biz1' and email='stage1b-invalid@example.test';
+  begin
+    perform public.book_public_appointment(
+      :'biz1',:'loc1b',:'svc1',:'st1',
+      'Invalid Relationship','stage1b-invalid@example.test',
+      (current_date+1+time '10:00')::timestamptz,
+      (current_date+1+time '10:30')::timestamptz,
+      'confirmed',null,0,0,0,null
+    );
+    raise exception 'expected relationship rejection';
+  exception when others then
+    if position('does not work at the selected location' in sqlerrm)=0 then raise; end if;
+  end;
+  select count(*) into after_count from public.customers where business_id=:'biz1' and email='stage1b-invalid@example.test';
+  if after_count <> before_count then raise exception 'customer mutated before relationship rejection'; end if;
+end $$;
+insert into public.staff_locations(staff_id,location_id) values (:'st1',:'loc1b');
+
+-- Valid secondary named-Staff public booking reaches normal write path and
+-- preserves catalog financial/status behavior.
+do $$
+declare appt uuid; r record;
+begin
+  appt := public.book_public_appointment(
+    :'biz1',:'loc1b',:'svc1',:'st1',
+    'Valid Secondary','stage1b-valid@example.test',
+    (current_date+1+time '10:00')::timestamptz,
+    (current_date+1+time '10:30')::timestamptz,
+    'confirmed',null,1,1,1,'stage1b'
+  );
+  select * into r from public.appointments where id=appt;
+  if r.staff_id <> :'st1'::uuid or r.location_id <> :'loc1b'::uuid then
+    raise exception 'secondary booking relationship stamps incorrect';
+  end if;
+  if r.status::text <> 'confirmed' then raise exception 'appointment status changed'; end if;
+  if r.price_cents <> 10000 or r.tax_cents <> 1300 or r.deposit_cents <> 2000 then
+    raise exception 'financial regression: %, %, %', r.price_cents, r.tax_cents, r.deposit_cents;
+  end if;
+  if r.payment_status <> 'deposit_required' then raise exception 'deposit status regression'; end if;
+end $$;
+
+rollback;
