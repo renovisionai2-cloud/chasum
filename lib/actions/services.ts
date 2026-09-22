@@ -14,7 +14,10 @@ import type {
   ServiceBlackout,
   ServiceStaffAssignment,
 } from "@/lib/types/booking";
-import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
+import {
+  isServiceOfferedAtLocation,
+  type OperatorServiceCatalogItem,
+} from "@/lib/services/operator-catalog";
 import { revalidatePath } from "next/cache";
 
 function revalidateServices() {
@@ -597,42 +600,40 @@ export async function getPublicServices(
 ) {
   const supabase = await createClient();
 
-  let query = supabase
+  const query = supabase
     .from("services")
-    .select("*")
+    .select("*, service_locations(location_id)")
     .eq("business_id", businessId)
     .eq("is_active", true)
     .eq("online_booking", true)
     .order("sort_order", { ascending: true })
     .order("name");
 
-  if (locationId) {
-    query = query.eq("location_id", locationId);
-  }
-
   const { data, error } = await query;
 
-  if (error) {
-    if (error.message.includes("sort_order")) {
-      let fallback = supabase
-        .from("services")
-        .select("*")
-        .eq("business_id", businessId)
-        .eq("is_active", true)
-        .eq("online_booking", true)
-        .order("name");
-      if (locationId) fallback = fallback.eq("location_id", locationId);
-      const retry = await fallback;
-      if (retry.error) throw new Error(retry.error.message);
-      return retry.data;
-    }
+  const rows = error?.message.includes("sort_order")
+    ? (
+        await supabase
+          .from("services")
+          .select("*, service_locations(location_id)")
+          .eq("business_id", businessId)
+          .eq("is_active", true)
+          .eq("online_booking", true)
+          .order("name")
+      ).data
+    : data;
+
+  if (error && !error.message.includes("sort_order")) {
     throw new Error(error.message);
   }
 
-  // Prefer booking_visibility when present (kept in sync with online_booking).
-  return (data ?? []).filter((service) => {
+  // Public readers keep the Business-wide catalog for location switching, while
+  // optional location-scoped callers use the same primary-OR-mapping predicate
+  // as server validation.
+  return (rows ?? []).filter((service) => {
     const visibility = (service as Service).booking_visibility;
-    if (!visibility) return true;
-    return visibility === "online";
+    if (visibility && visibility !== "online") return false;
+    if (!locationId) return true;
+    return isServiceOfferedAtLocation(service, locationId);
   });
 }
