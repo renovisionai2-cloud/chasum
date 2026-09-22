@@ -90,14 +90,15 @@ declare
   t text;
 begin
   foreach t in array array['service_locations','staff_locations','staff_services'] loop
-    if has_table_privilege('PUBLIC','public.'||t,'SELECT')
-       or has_table_privilege('PUBLIC','public.'||t,'INSERT')
-       or has_table_privilege('PUBLIC','public.'||t,'UPDATE')
-       or has_table_privilege('PUBLIC','public.'||t,'DELETE')
-       or has_table_privilege('PUBLIC','public.'||t,'TRUNCATE')
-       or has_table_privilege('PUBLIC','public.'||t,'REFERENCES')
-       or has_table_privilege('PUBLIC','public.'||t,'TRIGGER')
-       or has_table_privilege('PUBLIC','public.'||t,'MAINTAIN') then
+    if exists (
+      select 1
+      from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+      cross join lateral aclexplode(coalesce(c.relacl, acldefault('r', c.relowner))) a
+      where n.nspname = 'public'
+        and c.relname = t
+        and a.grantee = 0
+    ) then
       raise exception 'PUBLIC relationship privilege remains on %', t;
     end if;
 
@@ -195,7 +196,16 @@ begin
     'public.validate_appointment_slot(uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,uuid,uuid)',
     'public.book_public_appointment(uuid,uuid,uuid,uuid,text,text,timestamp with time zone,timestamp with time zone,text,text,integer,integer,integer,text)'
   ] loop
-    if has_function_privilege('PUBLIC',f,'EXECUTE') then raise exception 'PUBLIC EXECUTE remains on %', f; end if;
+    if exists (
+      select 1
+      from pg_proc p
+      cross join lateral aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+      where p.oid = f::regprocedure
+        and a.grantee = 0
+        and a.privilege_type = 'EXECUTE'
+    ) then
+      raise exception 'PUBLIC EXECUTE remains on %', f;
+    end if;
     if not has_function_privilege('anon',f,'EXECUTE')
        or not has_function_privilege('authenticated',f,'EXECUTE')
        or not has_function_privilege('service_role',f,'EXECUTE') then
