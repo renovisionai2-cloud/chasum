@@ -148,6 +148,7 @@ export type LocationTemplateSource = {
   isDefault: boolean;
   serviceCount: number;
   openDayCount: number;
+  hourDayCount: number;
   segmentCount: number;
   settings: {
     appointmentIntervalMinutes: number;
@@ -170,6 +171,7 @@ export type LocationSetupStaffOption = {
 export type LocationSetupContext = {
   sources: LocationTemplateSource[];
   staff: LocationSetupStaffOption[];
+  defaultLocationCount: number;
 };
 
 export const getLocationSetupContext = cache(
@@ -180,7 +182,7 @@ export const getLocationSetupContext = cache(
     const locationIds = locations.map((location) => location.id);
 
     if (locationIds.length === 0) {
-      return { sources: [], staff: [] };
+      return { sources: [], staff: [], defaultLocationCount: 0 };
     }
 
     const [settingsRes, hoursRes, segmentsRes, servicesRes, staffRes] =
@@ -226,10 +228,12 @@ export const getLocationSetupContext = cache(
     const settingsByLocation = new Map(
       (settingsRes.data ?? []).map((row) => [row.location_id as string, row]),
     );
+    const hourDaysByLocation = new Map<string, number>();
     const openDaysByLocation = new Map<string, number>();
     for (const row of hoursRes.data ?? []) {
-      if (!row.is_open) continue;
       const id = row.location_id as string;
+      hourDaysByLocation.set(id, (hourDaysByLocation.get(id) ?? 0) + 1);
+      if (!row.is_open) continue;
       openDaysByLocation.set(id, (openDaysByLocation.get(id) ?? 0) + 1);
     }
     const segmentsByLocation = new Map<string, number>();
@@ -260,6 +264,7 @@ export const getLocationSetupContext = cache(
         isDefault: location.is_default,
         serviceCount,
         openDayCount: openDaysByLocation.get(location.id) ?? 0,
+        hourDayCount: hourDaysByLocation.get(location.id) ?? 0,
         segmentCount: segmentsByLocation.get(location.id) ?? 0,
         settings: settings
           ? {
@@ -303,7 +308,12 @@ export const getLocationSetupContext = cache(
       } satisfies LocationSetupStaffOption;
     });
 
-    return { sources, staff };
+    return {
+      sources,
+      staff,
+      defaultLocationCount: locations.filter((location) => location.is_default)
+        .length,
+    };
   },
 );
 
