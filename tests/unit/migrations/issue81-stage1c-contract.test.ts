@@ -25,8 +25,11 @@ describe("Issue #81 Stage 1C migration contract", () => {
     expect(migrationClosers).toHaveLength(migrationOpeners.length);
   });
 
-  it("reconciles Business to six locations and removes the Private Alpha bypass", () => {
+  it("reconciles only verified Business 10 -> 6 drift and fails closed on unexpected values", () => {
+    expect(migration).toContain("if v_current = 10 then");
     expect(migration).toContain("set max_locations = 6");
+    expect(migration).toContain("elsif v_current is distinct from 6 then");
+    expect(migration).toContain("Unexpected Business max_locations value");
     const quota = migration.slice(
       migration.indexOf("create or replace function public.can_add_location"),
       migration.indexOf("create or replace function public.enforce_location_quota"),
