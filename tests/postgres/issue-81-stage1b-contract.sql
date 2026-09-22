@@ -246,8 +246,35 @@ end $$;
 -- Public-safe relationship reads expose active/bookable same-Business rows only.
 set local role anon;
 select set_config('request.jwt.claim.sub','',true);
-do $$
+do $
 begin
+  -- Direct helper calls must not disclose same-Business parent pairing when
+  -- the governed relationship row itself does not exist.
+  if public.is_public_service_location(
+    '00000000-0000-0000-0000-000000000401',
+    '00000000-0000-0000-0000-000000000301'
+  ) then
+    raise exception 'public service-location helper exposed an unmapped pair';
+  end if;
+  if not public.is_public_service_location(
+    '00000000-0000-0000-0000-000000000401',
+    '00000000-0000-0000-0000-000000000302'
+  ) then
+    raise exception 'public service-location helper hid a mapped pair';
+  end if;
+  if public.is_public_staff_location(
+    '00000000-0000-0000-0000-000000000501',
+    '00000000-0000-0000-0000-000000000301'
+  ) then
+    raise exception 'public staff-location helper exposed an unmapped pair';
+  end if;
+  if not public.is_public_staff_location(
+    '00000000-0000-0000-0000-000000000501',
+    '00000000-0000-0000-0000-000000000302'
+  ) then
+    raise exception 'public staff-location helper hid a mapped pair';
+  end if;
+
   if (select count(*) from public.service_locations where service_id='00000000-0000-0000-0000-000000000401') <> 1 then
     raise exception 'anon service_locations read mismatch';
   end if;
