@@ -18,6 +18,7 @@ import { getHolidays } from "@/lib/actions/holidays";
 import {
   getLocationHours,
   getLocationQuota,
+  getLocationSetupContext,
   getLocations,
 } from "@/lib/actions/location";
 import { getServices } from "@/lib/actions/services";
@@ -40,6 +41,7 @@ export default async function BusinessPage({ searchParams }: PageProps) {
   const [
     locations,
     locationQuota,
+    locationSetupContext,
     services,
     categories,
     resources,
@@ -57,6 +59,7 @@ export default async function BusinessPage({ searchParams }: PageProps) {
   ] = await Promise.all([
     getLocations(),
     getLocationQuota(),
+    getLocationSetupContext(),
     getServices(),
     listServiceCategories(),
     getBookingResources(),
@@ -108,6 +111,7 @@ export default async function BusinessPage({ searchParams }: PageProps) {
         business={business}
         locations={locations}
         locationQuota={locationQuota}
+        locationSetupContext={locationSetupContext}
         services={services}
         categories={categories}
         resources={resources}
