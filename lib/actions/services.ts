@@ -610,20 +610,19 @@ export async function getPublicServices(
     .order("name");
 
   const { data, error } = await query;
+  let rows = data;
 
-  const rows = error?.message.includes("sort_order")
-    ? (
-        await supabase
-          .from("services")
-          .select("*, service_locations(location_id)")
-          .eq("business_id", businessId)
-          .eq("is_active", true)
-          .eq("online_booking", true)
-          .order("name")
-      ).data
-    : data;
-
-  if (error && !error.message.includes("sort_order")) {
+  if (error?.message.includes("sort_order")) {
+    const retry = await supabase
+      .from("services")
+      .select("*, service_locations(location_id)")
+      .eq("business_id", businessId)
+      .eq("is_active", true)
+      .eq("online_booking", true)
+      .order("name");
+    if (retry.error) throw new Error(retry.error.message);
+    rows = retry.data;
+  } else if (error) {
     throw new Error(error.message);
   }
 
