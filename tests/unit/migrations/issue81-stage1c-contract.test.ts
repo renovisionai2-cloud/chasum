@@ -25,6 +25,18 @@ describe("Issue #81 Stage 1C migration contract", () => {
     );
   });
 
+  it("makes the atomic RPC the browser/authenticated Location-create authority", () => {
+    expect(migration).toContain(
+      "revoke insert on table public.locations",
+    );
+    expect(migration).toContain(
+      "from public, anon, authenticated",
+    );
+    expect(migration).not.toContain(
+      "revoke insert on table public.locations\n  from service_role",
+    );
+  });
+
   it("enforces quota at the locations write boundary with a pinned helper", () => {
     expect(migration).toContain("locations_enforce_plan_quota");
     expect(migration).toContain(
