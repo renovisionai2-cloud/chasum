@@ -36,8 +36,9 @@ as $$
   from public.businesses b
   left join public.subscription_plans sp
     on sp.plan_key = coalesce(b.subscription_plan_key, 'starter')
-  where b.id = p_business_id;
-$$;
+  where b.id = p_business_id
+    and public.is_business_owner(b.id);
+$;
 
 revoke all on function public.can_add_location(uuid)
   from public, anon, authenticated, service_role;
@@ -180,6 +181,15 @@ begin
 
   if nullif(trim(coalesce(p_timezone, '')), '') is null then
     raise exception 'Location timezone is required.'
+      using errcode = 'P0001';
+  end if;
+
+  if not exists (
+    select 1
+    from pg_timezone_names tz
+    where tz.name = trim(p_timezone)
+  ) then
+    raise exception 'Location timezone is invalid.'
       using errcode = 'P0001';
   end if;
 
