@@ -57,6 +57,24 @@ describe("Issue #81 Stage 1C application contract", () => {
     expect(dialog).toContain("Skip for now");
   });
 
+  it("keeps the workflow mobile-first and accessibility basics explicit", () => {
+    const dialog = source("components/dashboard/add-location-dialog.tsx");
+    expect(dialog).toContain("sm:grid-cols-3");
+    expect(dialog).toContain("sm:grid-cols-2");
+    expect(dialog).toContain("flex flex-wrap");
+    expect(dialog).toContain("aria-pressed");
+    expect(dialog).toContain('htmlFor="location_name"');
+    expect(dialog).toContain('htmlFor="copy_source"');
+  });
+
+  it("routes global location-add entry into the single workflow and uses generic plan-change copy", () => {
+    const switcher = source("components/dashboard/location-switcher.tsx");
+    expect(switcher).toContain("/dashboard/business?tab=locations&add=1");
+    expect(switcher).toContain("Request plan change");
+    expect(switcher).not.toContain("UpgradeToProfessionalModal");
+    expect(switcher).not.toContain("FREE_PLAN_UPGRADE_CTA");
+  });
+
   it("uses canonical Business = 6 in code and fallback catalog", () => {
     const entitlements = source("lib/billing/plan-entitlements.ts");
     const catalog = source("lib/billing/catalog.ts");
