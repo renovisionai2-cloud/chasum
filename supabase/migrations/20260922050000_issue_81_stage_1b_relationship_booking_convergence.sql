@@ -70,6 +70,87 @@ drop trigger if exists locations_business_id_immutable on public.locations;
 create trigger locations_business_id_immutable before update of business_id on public.locations
 for each row execute function public.prevent_business_id_reassignment();
 
+create or replace function public.is_public_service_location(
+  p_service_id uuid,
+  p_location_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select exists (
+    select 1
+    from public.services s
+    join public.locations l on l.id = p_location_id
+    where s.id = p_service_id
+      and s.business_id = l.business_id
+      and s.is_active = true
+      and coalesce(s.online_booking, true) is not false
+      and coalesce(s.booking_visibility, 'online') = 'online'
+      and l.is_active = true
+  );
+$$;
+revoke all on function public.is_public_service_location(uuid, uuid)
+  from public, anon, authenticated, service_role;
+grant execute on function public.is_public_service_location(uuid, uuid)
+  to anon, authenticated;
+
+create or replace function public.is_public_staff_location(
+  p_staff_id uuid,
+  p_location_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select exists (
+    select 1
+    from public.staff st
+    join public.locations l on l.id = p_location_id
+    where st.id = p_staff_id
+      and st.business_id = l.business_id
+      and st.is_active = true
+      and coalesce(st.accept_online_bookings, true) is not false
+      and l.is_active = true
+  );
+$$;
+revoke all on function public.is_public_staff_location(uuid, uuid)
+  from public, anon, authenticated, service_role;
+grant execute on function public.is_public_staff_location(uuid, uuid)
+  to anon, authenticated;
+
+create or replace function public.is_public_staff_service(
+  p_staff_id uuid,
+  p_service_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select exists (
+    select 1
+    from public.staff st
+    join public.services s on s.id = p_service_id
+    where st.id = p_staff_id
+      and st.business_id = s.business_id
+      and st.is_active = true
+      and coalesce(st.accept_online_bookings, true) is not false
+      and s.is_active = true
+      and coalesce(s.online_booking, true) is not false
+      and coalesce(s.booking_visibility, 'online') = 'online'
+  );
+$$;
+revoke all on function public.is_public_staff_service(uuid, uuid)
+  from public, anon, authenticated, service_role;
+grant execute on function public.is_public_staff_service(uuid, uuid)
+  to anon, authenticated;
+
 drop policy if exists "Owners manage service locations" on public.service_locations;
 drop policy if exists "Owners manage staff locations" on public.staff_locations;
 drop policy if exists "Owners manage staff services" on public.staff_services;
@@ -117,29 +198,11 @@ with check (exists (
 ));
 
 create policy "Public can view bookable service locations" on public.service_locations for select to anon, authenticated
-using (exists (
-  select 1 from public.services s join public.locations l on l.id = service_locations.location_id
-  where s.id = service_locations.service_id and s.business_id = l.business_id
-    and s.is_active = true
-    and coalesce(s.online_booking, true) is not false
-    and coalesce(s.booking_visibility, 'online') = 'online'
-    and l.is_active = true
-));
+using (public.is_public_service_location(service_id, location_id));
 create policy "Public can view active staff locations" on public.staff_locations for select to anon, authenticated
-using (exists (
-  select 1 from public.staff st join public.locations l on l.id = staff_locations.location_id
-  where st.id = staff_locations.staff_id and st.business_id = l.business_id
-    and st.is_active = true and coalesce(st.accept_online_bookings, true) is not false and l.is_active = true
-));
+using (public.is_public_staff_location(staff_id, location_id));
 create policy "Public can view bookable staff services" on public.staff_services for select to anon, authenticated
-using (exists (
-  select 1 from public.staff st join public.services s on s.id = staff_services.service_id
-  where st.id = staff_services.staff_id and st.business_id = s.business_id
-    and st.is_active = true and coalesce(st.accept_online_bookings, true) is not false
-    and s.is_active = true
-    and coalesce(s.online_booking, true) is not false
-    and coalesce(s.booking_visibility, 'online') = 'online'
-));
+using (public.is_public_staff_service(staff_id, service_id));
 
 revoke all privileges on table public.service_locations from public, anon, authenticated, service_role;
 revoke all privileges on table public.staff_locations from public, anon, authenticated, service_role;
