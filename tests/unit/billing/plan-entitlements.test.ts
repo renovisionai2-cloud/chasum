@@ -67,10 +67,10 @@ describe("location quota decision", () => {
     expect(evaluateLocationQuota(20, "enterprise").canAdd).toBe(true);
   });
 
-  it("keeps application-layer Business cap at 6 even if fallback catalog still lists 10", () => {
+  it("keeps the fallback catalog and application quota aligned at Business = 6", () => {
     expect(
       FALLBACK_PLANS.find((p) => p.planKey === "business")?.maxLocations,
-    ).toBe(10);
+    ).toBe(6);
     expect(evaluateLocationQuota(6, "business").canAdd).toBe(false);
     expect(evaluateLocationQuota(9, "business").canAdd).toBe(false);
   });
