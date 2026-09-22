@@ -57,9 +57,9 @@ function AddLocationDialogInner({
 }: AddLocationDialogProps) {
   const router = useRouter();
   const defaultSource =
-    setupContext.sources.find((source) => source.isDefault) ??
-    setupContext.sources[0] ??
-    null;
+    setupContext.defaultLocationCount === 1
+      ? setupContext.sources.find((source) => source.isDefault) ?? null
+      : null;
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [name, setName] = useState("");
@@ -124,7 +124,9 @@ function AddLocationDialogInner({
 
   const canReview =
     mode === "blank" ||
-    (source != null && source.settings != null);
+    (source != null &&
+      source.settings != null &&
+      source.hourDayCount === 7);
 
   const toggleStaff = (staffId: string) => {
     setSelectedStaff((current) => {
@@ -295,7 +297,9 @@ function AddLocationDialogInner({
               description={
                 defaultSource
                   ? `Recommended · copy ${defaultSource.name}`
-                  : "No default location available"
+                  : setupContext.defaultLocationCount > 1
+                    ? "Multiple default locations need review"
+                    : "No default location available"
               }
               selected={mode === "default"}
               disabled={!defaultSource}
@@ -334,8 +338,8 @@ function AddLocationDialogInner({
             </div>
           ) : null}
 
-          {source && !source.settings ? (
-            <AlertMessage error="This source location is missing booking settings and cannot be copied safely." />
+          {source && (!source.settings || source.hourDayCount !== 7) ? (
+            <AlertMessage error="This source location has incomplete booking settings or hours and cannot be copied safely." />
           ) : null}
 
           <div className="flex justify-between gap-2">
