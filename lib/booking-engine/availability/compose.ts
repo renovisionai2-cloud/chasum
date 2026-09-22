@@ -58,6 +58,8 @@ async function composeAvailabilityContextUncached(
     serviceRes,
     staffRes,
     linkRes,
+    serviceLocationRes,
+    staffLocationRes,
     locationSettingsRes,
     locationRes,
   ] = await Promise.all([
@@ -89,6 +91,18 @@ async function composeAvailabilityContextUncached(
       .select("service_id, duration_override_minutes, price_override")
       .eq("staff_id", input.staffId)
       .eq("service_id", input.serviceId)
+      .maybeSingle(),
+    supabase
+      .from("service_locations")
+      .select("location_id")
+      .eq("service_id", input.serviceId)
+      .eq("location_id", input.locationId)
+      .maybeSingle(),
+    supabase
+      .from("staff_locations")
+      .select("location_id")
+      .eq("staff_id", input.staffId)
+      .eq("location_id", input.locationId)
       .maybeSingle(),
     supabase
       .from("location_settings")
@@ -153,6 +167,64 @@ async function composeAvailabilityContextUncached(
     );
   }
 
+  const serviceAtLocation =
+    service.location_id === input.locationId || Boolean(serviceLocationRes.data);
+  if (serviceLocationRes.error && service.location_id !== input.locationId) {
+    conflicts.push(
+      conflictFromCode(
+        "UNKNOWN",
+        "Could not verify this service at the selected location.",
+        { recoverable: true },
+      ),
+    );
+  } else if (!serviceAtLocation) {
+    conflicts.push(
+      conflictFromCode(
+        "NOT_AUTHORIZED",
+        "This service is not offered at the selected location.",
+        { recoverable: true },
+      ),
+    );
+  }
+
+  const staffAtLocation =
+    staff.location_id === input.locationId || Boolean(staffLocationRes.data);
+  if (staffLocationRes.error && staff.location_id !== input.locationId) {
+    conflicts.push(
+      conflictFromCode(
+        "UNKNOWN",
+        "Could not verify this employee at the selected location.",
+        { recoverable: true },
+      ),
+    );
+  } else if (!staffAtLocation) {
+    conflicts.push(
+      conflictFromCode(
+        "NOT_AUTHORIZED",
+        "This employee does not work at the selected location.",
+        { recoverable: true },
+      ),
+    );
+  }
+
+  if (linkRes.error) {
+    conflicts.push(
+      conflictFromCode(
+        "UNKNOWN",
+        "Could not verify this employee's service assignment.",
+        { recoverable: true },
+      ),
+    );
+  } else if (!link) {
+    conflicts.push(
+      conflictFromCode(
+        "NOT_AUTHORIZED",
+        "Employee is not assigned to this service.",
+        { recoverable: true },
+      ),
+    );
+  }
+
   const visibility =
     (service.booking_visibility as AvailabilityContext["bookingVisibility"]) ??
     null;
@@ -183,26 +255,6 @@ async function composeAvailabilityContextUncached(
         { recoverable: false },
       ),
     );
-  }
-
-  if (
-    (input.channel === "public" || input.channel === "summer") &&
-    linkRes.error == null &&
-    !link
-  ) {
-    const { count } = await supabase
-      .from("staff_services")
-      .select("service_id", { count: "exact", head: true })
-      .eq("service_id", input.serviceId);
-    if ((count ?? 0) > 0) {
-      conflicts.push(
-        conflictFromCode(
-          "NOT_AUTHORIZED",
-          "Employee is not assigned to this service.",
-          { recoverable: true },
-        ),
-      );
-    }
   }
 
   if (conflicts.length > 0) {
