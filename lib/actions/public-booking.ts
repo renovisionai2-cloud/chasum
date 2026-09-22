@@ -260,6 +260,7 @@ export async function bookAppointment(
       .eq("id", staffId)
       .eq("business_id", business.id)
       .eq("is_active", true)
+      .eq("accept_online_bookings", true)
       .single();
     staffMember = data;
     if (!staffMember) return { error: "Provider not available." };
@@ -287,14 +288,14 @@ export async function bookAppointment(
     const { data: linked } = await supabase
       .from("staff_services")
       .select(
-        "staff_id, staff!inner(id, name, is_active, location_id, staff_locations(location_id))",
+        "staff_id, staff!inner(id, name, is_active, accept_online_bookings, location_id, staff_locations(location_id))",
       )
       .eq("service_id", serviceId);
     const eligibleIds = filterEligibleBookingStaff(
       (linked ?? [])
         .map((row) => {
           const member = row.staff as unknown as StaffWithServices | null;
-          return member
+          return member?.accept_online_bookings !== false
             ? { ...member, staff_services: [{ service_id: serviceId }] }
             : null;
         })
