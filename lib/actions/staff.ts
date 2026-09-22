@@ -429,6 +429,7 @@ export async function getPublicStaff(
     .select("*, staff_services(service_id), staff_locations(location_id)")
     .eq("business_id", businessId)
     .eq("is_active", true)
+    .eq("accept_online_bookings", true)
     .order("name");
 
   if (error) throw new Error(error.message);
