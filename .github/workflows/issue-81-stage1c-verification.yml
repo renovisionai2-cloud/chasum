@@ -95,6 +95,7 @@ jobs:
           npm test --
           tests/unit/migrations/issue81-stage1c-contract.test.ts
           tests/unit/actions/issue81-stage1c-source.test.ts
+          tests/unit/ui/add-location-dialog.test.tsx
           tests/unit/billing/plan-entitlements.test.ts
 
       - name: Relevant application regressions
