@@ -849,7 +849,7 @@ CREATE OR REPLACE FUNCTION public.book_public_appointment(p_business_id uuid, p_
  LANGUAGE plpgsql
  SECURITY DEFINER
  SET search_path TO 'public'
-AS $
+AS $$
 declare
   v_id uuid;
   v_customer_id uuid;
@@ -1112,7 +1112,7 @@ exception
   when exclusion_violation then
     raise exception 'Time slot no longer available';
 end;
-$;
+$$;
 
 
 revoke execute on function public.get_available_slots(uuid, uuid, uuid, date, uuid, uuid) from public, anon, authenticated, service_role;
