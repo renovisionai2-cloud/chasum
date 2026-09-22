@@ -188,7 +188,7 @@ end $$;
 
 -- Public-read policy helpers bypass parent-table RLS narrowly, have no
 -- default PUBLIC execute, and are callable only by the policy roles.
-do $
+do $stage1b$
 declare
   f text;
 begin
@@ -213,7 +213,7 @@ begin
       raise exception 'public-read helper EXECUTE posture incorrect on %', f;
     end if;
   end loop;
-end $;
+end $stage1b$;
 
 -- Governed RPCs have no PUBLIC execute and intended explicit roles do.
 do $$
