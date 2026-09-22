@@ -5,29 +5,27 @@ import {
 } from "@/lib/booking/eligible-staff";
 
 describe("filterEligibleBookingStaff", () => {
-  const bobita = {
+  const secondaryMapped = {
     id: "b",
     name: "Bobita Singh",
     is_active: true,
     location_id: "loc-other",
     staff_services: [{ service_id: "svc-1" }],
+    staff_locations: [{ location_id: "loc-main" }],
+  };
+  const missingSecondaryMapping = {
+    ...secondaryMapped,
+    id: "gap",
+    name: "Missing mapping",
     staff_locations: [] as Array<{ location_id: string }>,
   };
-  const darshan = {
+  const primary = {
     id: "d",
     name: "Darshan Dindial",
     is_active: true,
     location_id: "loc-main",
     staff_services: [{ service_id: "svc-1" }],
-    staff_locations: [{ location_id: "loc-main" }],
-  };
-  const summer = {
-    id: "s",
-    name: "Summer Dindial",
-    is_active: true,
-    location_id: "loc-main",
-    staff_services: [{ service_id: "svc-1" }],
-    staff_locations: [{ location_id: "loc-main" }],
+    staff_locations: [] as Array<{ location_id: string }>,
   };
   const inactive = {
     id: "x",
@@ -35,7 +33,7 @@ describe("filterEligibleBookingStaff", () => {
     is_active: false,
     location_id: "loc-main",
     staff_services: [{ service_id: "svc-1" }],
-    staff_locations: [],
+    staff_locations: [] as Array<{ location_id: string }>,
   };
   const otherService = {
     id: "o",
@@ -43,31 +41,38 @@ describe("filterEligibleBookingStaff", () => {
     is_active: true,
     location_id: "loc-main",
     staff_services: [{ service_id: "svc-2" }],
-    staff_locations: [],
+    staff_locations: [] as Array<{ location_id: string }>,
   };
 
-  it("lists every active employee assigned to the service", () => {
+  it("keeps primary compatibility and legitimate secondary mappings", () => {
     const rows = filterEligibleBookingStaff(
-      [bobita, darshan, summer, inactive, otherService],
+      [secondaryMapped, missingSecondaryMapping, primary, inactive, otherService],
       { serviceId: "svc-1", locationId: "loc-main" },
     );
     expect(rows.map((r) => r.name).sort()).toEqual([
       "Bobita Singh",
       "Darshan Dindial",
-      "Summer Dindial",
     ]);
   });
 
-  it("does not require availability to appear", () => {
-    expect(isStaffEligibleForLocation(bobita, "loc-main")).toBe(true);
+  it("fails closed when secondary staff-location relationship data is absent", () => {
+    expect(isStaffEligibleForLocation(missingSecondaryMapping, "loc-main")).toBe(false);
   });
 
-  it("respects explicit multi-location assignments", () => {
-    const remoteOnly = {
-      ...bobita,
-      location_id: "loc-remote",
-      staff_locations: [{ location_id: "loc-remote" }],
-    };
-    expect(isStaffEligibleForLocation(remoteOnly, "loc-main")).toBe(false);
+  it("accepts an explicit secondary staff-location relationship", () => {
+    expect(isStaffEligibleForLocation(secondaryMapped, "loc-main")).toBe(true);
+  });
+
+  it("does not require a redundant mapping for the primary location", () => {
+    expect(isStaffEligibleForLocation(primary, "loc-main")).toBe(true);
+  });
+
+  it("still requires staff_services", () => {
+    expect(
+      filterEligibleBookingStaff([otherService], {
+        serviceId: "svc-1",
+        locationId: "loc-main",
+      }),
+    ).toEqual([]);
   });
 });
