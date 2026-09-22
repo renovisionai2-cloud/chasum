@@ -16,8 +16,13 @@ const postgresContract = readFileSync(
 );
 
 describe("Issue #81 Stage 1C migration contract", () => {
-  it("rejects malformed single-dollar PostgreSQL test block delimiters", () => {
+  it("rejects malformed single-dollar SQL delimiters in migration and PostgreSQL contract", () => {
+    expect(migration).not.toMatch(/^\s*\$;\s*$/m);
     expect(postgresContract).not.toMatch(/^\s*(?:do \$|end \$;)\s*$/m);
+
+    const migrationOpeners = migration.match(/\bas \$\$/gi) ?? [];
+    const migrationClosers = migration.match(/^\s*\$\$;\s*$/gm) ?? [];
+    expect(migrationClosers).toHaveLength(migrationOpeners.length);
   });
 
   it("reconciles Business to six locations and removes the Private Alpha bypass", () => {
