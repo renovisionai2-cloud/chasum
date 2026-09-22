@@ -30,12 +30,18 @@ describe("operator catalog boundary", () => {
     expect(q.eq).toHaveBeenCalledWith("location_id", "primary");
     expect(q.select).toHaveBeenCalledWith("*");
   });
-  it("preserves public filters and does not expose secondary memberships", async () => {
-    const q = query([{ id: "online", booking_visibility: "online" }, { id: "internal", booking_visibility: "internal" }]);
+  it("preserves public filters and honors secondary service memberships", async () => {
+    const q = query([
+      { id: "online", location_id: "primary", booking_visibility: "online", service_locations: [{ location_id: "secondary" }] },
+      { id: "internal", location_id: "primary", booking_visibility: "internal", service_locations: [{ location_id: "secondary" }] },
+      { id: "elsewhere", location_id: "primary", booking_visibility: "online", service_locations: [] },
+    ]);
     mock.from.mockReturnValue(q);
-    expect(await getPublicServices("tenant", "secondary")).toEqual([{ id: "online", booking_visibility: "online" }]);
-    expect(q.eq.mock.calls).toEqual([["business_id", "tenant"], ["is_active", true], ["online_booking", true], ["location_id", "secondary"]]);
-    expect(q.select).toHaveBeenCalledWith("*");
+    expect(await getPublicServices("tenant", "secondary")).toEqual([
+      { id: "online", location_id: "primary", booking_visibility: "online", service_locations: [{ location_id: "secondary" }] },
+    ]);
+    expect(q.eq.mock.calls).toEqual([["business_id", "tenant"], ["is_active", true], ["online_booking", true]]);
+    expect(q.select).toHaveBeenCalledWith("*, service_locations(location_id)");
   });
 });
 describe("enable at location", () => {
