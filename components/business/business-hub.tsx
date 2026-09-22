@@ -66,6 +66,7 @@ import type {
   Service,
 } from "@/lib/types/booking";
 import { AddLocationDialog } from "@/components/dashboard/add-location-dialog";
+import type { LocationSetupContext } from "@/lib/actions/location";
 import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
@@ -206,6 +207,7 @@ export function BusinessHub({
   business,
   locations,
   locationQuota,
+  locationSetupContext,
   services,
   categories,
   resources,
@@ -226,9 +228,12 @@ export function BusinessHub({
   locations: Location[];
   locationQuota?: {
     plan: { name?: string | null; max_locations?: number | null } | null;
+    planName: string;
+    maxLocations: number | null;
     currentCount: number;
     canAdd: boolean;
   };
+  locationSetupContext: LocationSetupContext;
   services: Service[];
   categories: ServiceCategory[];
   resources: BookingResource[];
@@ -580,6 +585,7 @@ export function BusinessHub({
               type="button"
               size="sm"
               onClick={() => setAddLocationOpen(true)}
+              disabled={locationQuota?.canAdd === false}
             >
               Add Location
             </Button>
@@ -597,7 +603,7 @@ export function BusinessHub({
                   }`}
             </p>
             {!locationQuota?.canAdd &&
-            locationQuota?.plan?.max_locations != null ? (
+            locationQuota?.maxLocations != null ? (
               <div className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm">
                 <p className="font-medium text-amber-950 dark:text-amber-100">
                   Location limit reached
@@ -605,8 +611,8 @@ export function BusinessHub({
                 <p className="mt-1 text-xs text-muted-foreground">
                   {locationQuota.currentCount} active location
                   {locationQuota.currentCount === 1 ? "" : "s"} on{" "}
-                  {locationQuota.plan.name ?? "your plan"} (max{" "}
-                  {locationQuota.plan.max_locations}). Request a plan change to
+                  {locationQuota.planName} (max{" "}
+                  {locationQuota.maxLocations}). Request a plan change to
                   create another site.
                 </p>
                 <Link href="/apply" className="mt-2 inline-block">
@@ -672,6 +678,10 @@ export function BusinessHub({
               open={addLocationOpen}
               onOpenChange={setAddLocationOpen}
               defaultTimezone={business.timezone}
+              setupContext={locationSetupContext}
+              canAdd={locationQuota?.canAdd ?? true}
+              planName={locationQuota?.planName ?? "your plan"}
+              maxLocations={locationQuota?.maxLocations ?? null}
             />
           </CardContent>
         </Card>
