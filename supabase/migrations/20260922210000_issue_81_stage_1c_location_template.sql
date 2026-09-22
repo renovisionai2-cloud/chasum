@@ -9,11 +9,34 @@
 --   location_hours/location_settings = concrete scheduling truth
 -- Snapshot/copy only. No live inheritance. No resource-aware booking.
 
--- Reconcile the Product Owner-locked Business location entitlement.
-update public.subscription_plans
-set max_locations = 6
-where plan_key = 'business'
-  and max_locations is distinct from 6;
+-- Reconcile only the verified hosted Business drift (10 -> 6).
+-- If hosted truth changes before application, fail closed for explicit review
+-- instead of silently overwriting an unexpected entitlement value.
+do $stage1c_plan$
+declare
+  v_current integer;
+begin
+  select sp.max_locations
+  into v_current
+  from public.subscription_plans sp
+  where sp.plan_key = 'business'
+  for update;
+
+  if not found then
+    raise exception 'Business subscription plan is missing.'
+      using errcode = 'P0001';
+  end if;
+
+  if v_current = 10 then
+    update public.subscription_plans
+    set max_locations = 6
+    where plan_key = 'business';
+  elsif v_current is distinct from 6 then
+    raise exception 'Unexpected Business max_locations value: %', v_current
+      using errcode = 'P0001';
+  end if;
+end
+$stage1c_plan$;
 
 -- Read-only quota projection. The trigger below is the final write authority.
 create or replace function public.can_add_location(p_business_id uuid)
