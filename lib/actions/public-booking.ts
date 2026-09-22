@@ -3,6 +3,7 @@
 import { addMinutes, parseISO } from "date-fns";
 import { headers } from "next/headers";
 import { publicBookingStaffIdForEngine } from "@/lib/booking/public-write-path";
+import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import { getPublicBusinessBySlug } from "@/lib/booking/slug-alias-lookup";
 import { getPublicAvailableSlots } from "@/lib/actions/scheduling";
 import { isPublicBookingAllowed } from "@/lib/booking/access";
@@ -64,7 +65,10 @@ export async function getPublicSlotOptions(input: {
   date: string;
   locationId?: string;
   staffId?: string | null;
-  staff: Pick<StaffWithServices, "id" | "name" | "staff_services" | "location_id">[];
+  staff: Pick<
+    StaffWithServices,
+    "id" | "name" | "staff_services" | "staff_locations" | "location_id"
+  >[];
 }): Promise<PublicSlotOption[]> {
   const limited = await publicRateLimit("publicSlots", input.slug);
   if (limited) return [];
@@ -74,11 +78,10 @@ export async function getPublicSlotOptions(input: {
 
   const anyAvailable = !input.staffId;
 
-  const eligible = input.staff.filter((member) => {
-    if (input.locationId && member.location_id !== input.locationId) return false;
-    if (input.staffId && member.id !== input.staffId) return false;
-    return member.staff_services.some((ss) => ss.service_id === input.serviceId);
-  });
+  const eligible = filterEligibleBookingStaff(input.staff, {
+    serviceId: input.serviceId,
+    locationId: input.locationId,
+  }).filter((member) => !input.staffId || member.id === input.staffId);
 
   if (eligible.length === 0) return [];
 
@@ -283,21 +286,16 @@ export async function bookAppointment(
   if (anyStaff) {
     const { data: linked } = await supabase
       .from("staff_services")
-      .select("staff_id, staff!inner(id, name, is_active, location_id)")
+      .select(
+        "staff_id, staff!inner(id, name, is_active, location_id, staff_locations(location_id))",
+      )
       .eq("service_id", serviceId);
-    const eligibleIds = (linked ?? [])
-      .map((row) => {
-        const st = row.staff as unknown as {
-          id: string;
-          name: string;
-          is_active: boolean;
-          location_id: string | null;
-        } | null;
-        if (!st?.is_active) return null;
-        if (st.location_id && st.location_id !== locationId) return null;
-        return st.id;
-      })
-      .filter((id): id is string => Boolean(id));
+    const eligibleIds = filterEligibleBookingStaff(
+      (linked ?? [])
+        .map((row) => row.staff)
+        .filter(Boolean) as unknown as StaffWithServices[],
+      { serviceId, locationId },
+    ).map((member) => member.id);
 
     if (eligibleIds.length === 0) {
       return {
