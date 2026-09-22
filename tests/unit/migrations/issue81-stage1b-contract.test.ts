@@ -50,6 +50,15 @@ describe("Issue #81 Stage 1B migration contract", () => {
     expect(book).toContain("staff_services");
   });
 
+  it("keeps the live public-booking function syntactically dollar-quoted", () => {
+    const book = migration.slice(
+      migration.indexOf("CREATE OR REPLACE FUNCTION public.book_public_appointment"),
+    );
+    expect(book).toContain("AS $\\ndeclare");
+    expect(book).toContain("end;\\n$;");
+    expect(book).not.toContain("AS $\\ndeclare");
+  });
+
   it("validates final booking before customer mutation", () => {
     const book = migration.slice(
       migration.indexOf("CREATE OR REPLACE FUNCTION public.book_public_appointment"),
