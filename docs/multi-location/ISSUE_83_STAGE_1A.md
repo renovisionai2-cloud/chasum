@@ -1,8 +1,6 @@
 # Issue #83 — Stage 1A operator catalog implementation
 
-Candidate only; no merge or hosted acceptance is claimed. Starting main and branch
-base: `f2ad2eac10330b55c229bdad72539159911fffa7`.
-Branch: `feat/stage-1a-operator-service-catalog`.
+**Status: MERGED / PRODUCTION ACCEPTED APPLICATION RELEASE.** Starting base: `f2ad2eac10330b55c229bdad72539159911fffa7`. Accepted corrected PR head: `c90336aa084fde014e1e51d1c2f21e1aef1d942f`. Squash-merge / application release: `88f6902e4688dc610ecba4e52ecc17d02ec25e9b`. Normal Vercel Production deployment: SUCCESS. No Supabase migration or Production tenant-data mutation accompanied this release.
 
 ## Contract and architecture
 
@@ -80,8 +78,7 @@ No disable, bulk mapping, privileged writer or migration was added.
 - New focused helper/action/component/wiring/Reception coverage; real BookingSheet,
   AppointmentSection, QuickAppointment and ServicesManager exercised with mocked
   external actions. DB constraints/RLS are not claimed tested by mocks.
-- Targeted Services + booking + Reception + Calendar + commerce suites: 53 files,
-  401 tests passed. Typecheck passed. Next 16.2.10 production build passed.
+- Final targeted Services + booking + Reception + Calendar + commerce suites after the bounded package/location correction: 53 files, 402 tests passed. Typecheck passed. Next 16.2.10 production build passed.
 - Raw changed-file ESLint is NOT clean: 23 errors + 1 warning reproduce on the exact
   untouched base in BookingSheet and QuickAppointment (effect state, purity,
   memoization, refs and unused `_next`). No rules disabled. No new diagnostic
@@ -89,15 +86,8 @@ No disable, bulk mapping, privileged writer or migration was added.
   baseline limitation for Control Tower, not a claimed lint PASS.
 - git diff --check passed. Frozen paths and public/getServices function bytes checked
   against the authorized base.
-- Local Chromium synthetic fixture: desktop 1440×1000, laptop 1280×800,
-  tablet 768×1024, mobile 390×844. Catalog unmapped/secondary/single states,
-  QuickAppointment and BookingSheet location switches, keyboard focus and Escape
-  checked; no horizontal overflow or page errors. Mobile catalog/sheet and desktop
-  screenshots visually inspected. Real components/styles; external actions and
-  auxiliary panels stubbed; all non-loopback requests blocked. No hosted acceptance.
-- Local evidence: `/private/tmp/issue83-ui/` (fixture, runner, results and screenshots)
-  and `/private/tmp/issue83-{regression,typecheck,build,lint}.log`. Temporary evidence
-  is not permanent release storage. Preserve separately if needed for acceptance.
+- Governed hosted Preview acceptance on Staging exercised Services A/B/C, ALL LOCATIONS, Calendar and CRM Booking Sheet location switching, Quick Appointment filtering, the real Enable-at-Location action, public-freeze smoke and responsive operator states. One P2 package/location empty-state defect was found and corrected in the same PR. Targeted hosted retest passed on corrected head `c90336aa084fde014e1e51d1c2f21e1aef1d942f`: explicit package-unavailable option/help, empty `service_id`, disabled confirmation, no unrelated Service substitution, ordinary Service mode regression PASS. Desktop 1440×1000 and mobile 390×844 retest PASS; broader initial run also covered tablet 768×1024.
+- Acceptance cleanup was mandatory and passed twice. Chasum Test Studio returned exactly to 1 Location / 1 active Service / 1 service mapping / 2 Customers / 0 packages / Starter after each governed hosted run; temporary QA Auth/member/fixture rows were absent. Stable pre/post fingerprint: `c1844210672164d00546d8fc222f940d` exact-match with empty semantic diff. Production, GVM and Chasum HQ were untouched.
 
 ## Frozen boundaries and next gates
 
@@ -111,6 +101,6 @@ Stage 1B. Internal service visibility is not proof of staff/slot availability;
 existing validation remains authoritative. Public convergence must ship with 1B.
 Stage 1C, entitlement changes, B2 and hosted mapping backfills remain unauthorized.
 
-Next: Control Tower exact-delta review → focused independent audit → isolated
-Preview/browser acceptance → Product Owner merge decision. Do not merge from this
-implementation task or treat its local fixture as database/runtime acceptance.
+Stage 1A closeout: independent Claude focused audit PASS; Control Tower source/correction reviews PASS; governed hosted acceptance + targeted hosted retest PASS; Product Owner approved squash merge; normal Vercel Production deployment SUCCESS.
+
+Next gate is **NOT Stage 1B implementation**. Before any Stage 1B/public convergence work, separately govern the Level-3 same-Business relationship integrity/RLS hardening for `service_locations`, `staff_locations`, and `staff_services`, then restate the combined Staff-location server + public Service convergence contract for Product Owner approval. Stage 1C and Package B2 remain blocked.
