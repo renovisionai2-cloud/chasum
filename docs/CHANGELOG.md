@@ -9,6 +9,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-22 — Multi-location relationship + public-booking convergence (Issue #81 Stage 1B, MERGED / PRODUCTION ACCEPTED)
+
+- PR #87 exact audited candidate `7656bf6a163fa1708537c0f2cb7abf5088c3575b` squash-merged as `1d4ecc759076acb82da9f346ec05948e6e0194ca`; normal Vercel Production deployment SUCCESS.
+- Service↔Location, Staff↔Location and Staff↔Service same-Business integrity is enforced below RLS; `services.business_id`, `staff.business_id` and `locations.business_id` are immutable.
+- Relationship RLS/ACLs and booking RPC EXECUTE posture are normalized; public-safe relationship discovery uses narrow boolean SECURITY DEFINER helpers with pinned search_path and explicit grants.
+- Public Service/Staff discovery, Booking Engine, Reception, slot validation and final public writer now share Stage-1 primary-or-explicit-mapping location truth; `staff_services` remains required and unmatched secondary Staff fails closed.
+- Final public booking validates relationships before Customer mutation. Named Staff remains required; optional/unassigned Staff persistence and resource-aware booking remain out of scope.
+- Exact migration `20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql` SHA-256 `82d1a480f604833b38d89da5792e63db0cc3c061ec485580f4bd5df7b544ba6d` is accepted on Staging and Production. Production post-apply counts remain 31 / 10 / 56 relationship rows with zero cross-tenant links, zero orphans and zero missing primary mappings. Migrations 034–036 remain unapplied.
+- Production smoke was read-only: real public-role discovery, slot generation and slot validation only. No manufactured GVM booking, Customer mutation or provider communication.
+
+
 ### 2026-09-21 — Operator Business Service Catalog (Issue #83 candidate)
 
 - Services keeps the Business catalog visible and distinguishes offering status at the selected location; safe quick enablement adds a service_locations relationship without duplicating Service records.
