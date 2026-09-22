@@ -82,9 +82,11 @@ set search_path = public, pg_temp
 as $$
   select exists (
     select 1
-    from public.services s
-    join public.locations l on l.id = p_location_id
-    where s.id = p_service_id
+    from public.service_locations sl
+    join public.services s on s.id = sl.service_id
+    join public.locations l on l.id = sl.location_id
+    where sl.service_id = p_service_id
+      and sl.location_id = p_location_id
       and s.business_id = l.business_id
       and s.is_active = true
       and coalesce(s.online_booking, true) is not false
@@ -109,9 +111,11 @@ set search_path = public, pg_temp
 as $$
   select exists (
     select 1
-    from public.staff st
-    join public.locations l on l.id = p_location_id
-    where st.id = p_staff_id
+    from public.staff_locations stl
+    join public.staff st on st.id = stl.staff_id
+    join public.locations l on l.id = stl.location_id
+    where stl.staff_id = p_staff_id
+      and stl.location_id = p_location_id
       and st.business_id = l.business_id
       and st.is_active = true
       and coalesce(st.accept_online_bookings, true) is not false
@@ -135,9 +139,11 @@ set search_path = public, pg_temp
 as $$
   select exists (
     select 1
-    from public.staff st
-    join public.services s on s.id = p_service_id
-    where st.id = p_staff_id
+    from public.staff_services ss
+    join public.staff st on st.id = ss.staff_id
+    join public.services s on s.id = ss.service_id
+    where ss.staff_id = p_staff_id
+      and ss.service_id = p_service_id
       and st.business_id = s.business_id
       and st.is_active = true
       and coalesce(st.accept_online_bookings, true) is not false
