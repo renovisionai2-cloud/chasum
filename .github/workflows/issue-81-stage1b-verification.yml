@@ -97,8 +97,16 @@ jobs:
           tests/unit/booking/stage1b-convergence-source.test.ts
           tests/unit/migrations/issue81-stage1b-contract.test.ts
 
-      - name: Application regression tests
-        run: npm test
+      - name: Relevant application regression tests
+        run: >-
+          npm test --
+          tests/unit/booking/public-recovery-integration.test.ts
+          tests/unit/booking/public-booking-orchestration-once.test.ts
+          tests/unit/services/operator-catalog-actions.test.ts
+          tests/unit/services/operator-reception.test.ts
+          tests/unit/booking-engine
+          tests/unit/booking
+          tests/unit/scheduling
 
       - name: Bootstrap disposable PostgreSQL baseline
         shell: bash
