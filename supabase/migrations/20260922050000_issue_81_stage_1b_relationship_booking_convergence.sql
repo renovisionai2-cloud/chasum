@@ -1,6 +1,7 @@
 -- Issue #81 Stage 1B — Level-3 relationship and booking convergence.
 -- FEATURE-BRANCH MIGRATION ONLY. DO NOT APPLY TO STAGING OR PRODUCTION WITHOUT PO APPROVAL.
 -- No backfill. Resources and migrations 034-036 remain out of scope.
+-- Verification candidate: migration remains unapplied to every hosted database.
 
 create or replace function public.assert_same_business_relationship()
 returns trigger
