@@ -122,7 +122,7 @@ begin
      or has_function_privilege('service_role','public.enforce_location_quota()','EXECUTE') then
     raise exception 'quota trigger helper EXECUTE leaked';
   end if;
-end $;
+end $$;
 
 set local role anon;
 select pg_temp.expect_failure(
@@ -238,7 +238,7 @@ select set_config(
 );
 reset role;
 
-do $
+do $$
 declare admin_id uuid := current_setting('stage1c.admin_created')::uuid;
 begin
   if not exists (
@@ -248,7 +248,7 @@ begin
   ) then
     raise exception 'Business admin could not create a governed location';
   end if;
-end $;
+end $$;
 
 -- Explicit copy must reject a source from another Business.
 set local role authenticated;
@@ -368,7 +368,7 @@ select pg_temp.expect_failure(
 );
 reset role;
 
-do $
+do $$
 begin
   if exists (
     select 1 from public.locations
@@ -386,10 +386,10 @@ begin
   ) then
     raise exception 'downstream create failure left side rows';
   end if;
-end $;
+end $$;
 
 -- A slug conflict at the core insert also leaves no row.
-do $
+do $$
 declare before_count bigint;
 begin
   select count(*) into before_count from public.locations where business_id='10000000-0000-0000-0000-000000000201';
@@ -406,7 +406,7 @@ begin
   if (select count(*) from public.locations where business_id='10000000-0000-0000-0000-000000000201') <> before_count then
     raise exception 'duplicate-slug create left a Location row';
   end if;
-end $;
+end $$;
 
 -- Stage 1C does not introduce resource-aware booking or migrations 034-036.
 do $$
