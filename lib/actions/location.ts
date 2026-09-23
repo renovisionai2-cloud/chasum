@@ -150,6 +150,10 @@ export type LocationTemplateSource = {
   openDayCount: number;
   hourDayCount: number;
   segmentCount: number;
+  weeklyHours: Array<{
+    dayOfWeek: number;
+    ranges: Array<{ openTime: string; closeTime: string }>;
+  }>;
   settings: {
     appointmentIntervalMinutes: number;
     bookingLimitDays: number;
@@ -172,6 +176,7 @@ export type LocationSetupContext = {
   sources: LocationTemplateSource[];
   staff: LocationSetupStaffOption[];
   defaultLocationCount: number;
+  businessMinBookingNoticeMinutes: number;
 };
 
 export const getLocationSetupContext = cache(
@@ -181,8 +186,9 @@ export const getLocationSetupContext = cache(
     const locations = await getLocations();
     const locationIds = locations.map((location) => location.id);
 
+    const businessMinBookingNoticeMinutes = business.min_notice_minutes ?? 0;
     if (locationIds.length === 0) {
-      return { sources: [], staff: [], defaultLocationCount: 0 };
+      return { sources: [], staff: [], defaultLocationCount: 0, businessMinBookingNoticeMinutes };
     }
 
     const [settingsRes, hoursRes, segmentsRes, servicesRes, staffRes] =
@@ -195,11 +201,11 @@ export const getLocationSetupContext = cache(
           .in("location_id", locationIds),
         supabase
           .from("location_hours")
-          .select("location_id, day_of_week, is_open")
+          .select("location_id, day_of_week, is_open, open_time, close_time")
           .in("location_id", locationIds),
         supabase
           .from("location_hour_segments")
-          .select("id, location_id")
+          .select("id, location_id, day_of_week, open_time, close_time, sort_order")
           .in("location_id", locationIds),
         supabase
           .from("services")
@@ -266,6 +272,28 @@ export const getLocationSetupContext = cache(
         openDayCount: openDaysByLocation.get(location.id) ?? 0,
         hourDayCount: hourDaysByLocation.get(location.id) ?? 0,
         segmentCount: segmentsByLocation.get(location.id) ?? 0,
+        weeklyHours: (hoursRes.data ?? [])
+          .filter((day) => day.location_id === location.id)
+          .sort((a, b) => a.day_of_week - b.day_of_week)
+          .map((day) => {
+            const segments = (segmentsRes.data ?? [])
+              .filter((segment) =>
+                segment.location_id === location.id &&
+                segment.day_of_week === day.day_of_week,
+              )
+              .sort((a, b) =>
+                a.sort_order - b.sort_order || a.open_time.localeCompare(b.open_time),
+              );
+            // Availability uses split hours before the single daily window.
+            const windows = segments.length > 0 ? segments : day.is_open ? [day] : [];
+            return {
+              dayOfWeek: day.day_of_week,
+              ranges: windows.map((window) => ({
+                openTime: window.open_time,
+                closeTime: window.close_time,
+              })),
+            };
+          }),
         settings: settings
           ? {
               appointmentIntervalMinutes: Number(
@@ -311,6 +339,7 @@ export const getLocationSetupContext = cache(
     return {
       sources,
       staff,
+      businessMinBookingNoticeMinutes,
       defaultLocationCount: locations.filter((location) => location.is_default)
         .length,
     };
@@ -380,9 +409,8 @@ export async function createLocation(
     };
   }
 
-  const slugInput = String(formData.get("slug") ?? "").trim();
-  const slug = slugInput ? slugify(slugInput) : slugify(name);
-  if (!slug) return { error: "Location URL slug could not be created." };
+  const slug = slugify(name);
+  if (!slug) return { error: "Use at least one letter (a–z) or number in the location name." };
 
   const timezone =
     String(formData.get("timezone") ?? "").trim() || business.timezone;
@@ -427,7 +455,7 @@ export async function createLocation(
       };
     }
     if (error.code === "23505") {
-      return { error: "A location with this URL slug already exists." };
+      return { error: "This location name is already in use. Choose a different name." };
     }
     return { error: error.message };
   }

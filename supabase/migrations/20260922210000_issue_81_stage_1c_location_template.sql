@@ -341,7 +341,7 @@ begin
       v_source_settings.cancellation_policy,
       v_source_settings.min_booking_notice_minutes,
       v_source_settings.default_travel_minutes,
-      coalesce(v_source_settings.timezone, trim(p_timezone))
+      trim(p_timezone)
     );
 
     insert into public.location_hours(

@@ -63,7 +63,6 @@ function AddLocationDialogInner({
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
   const [timezone, setTimezone] = useState(
     defaultTimezone ?? "America/Toronto",
   );
@@ -96,6 +95,14 @@ function AddLocationDialogInner({
       : mode === "copy"
         ? setupContext.sources.find((item) => item.id === copySourceId) ?? null
         : null;
+
+  const previewSettings = mode !== "blank" && source?.settings
+    ? source.settings
+    : {
+        ...blankDefaults,
+        minBookingNoticeMinutes: setupContext.businessMinBookingNoticeMinutes,
+        defaultTravelMinutes: 0,
+      };
 
   const sourceStaffIds = useMemo(() => {
     if (!source) return [];
@@ -198,15 +205,6 @@ function AddLocationDialogInner({
               onChange={(event) => setName(event.target.value)}
               required
               placeholder="Downtown Studio"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="location_slug">URL slug (optional)</Label>
-            <Input
-              id="location_slug"
-              value={slug}
-              onChange={(event) => setSlug(event.target.value)}
-              placeholder="downtown"
             />
           </div>
           <TimezoneSelect
@@ -358,7 +356,6 @@ function AddLocationDialogInner({
       ) : visibleStep === 3 ? (
         <form action={createAction} className="space-y-4">
           <input type="hidden" name="name" value={name} />
-          <input type="hidden" name="slug" value={slug} />
           <input type="hidden" name="timezone" value={timezone} />
           <input type="hidden" name="address_line1" value={addressLine1} />
           <input type="hidden" name="address_line2" value={addressLine2} />
@@ -379,46 +376,56 @@ function AddLocationDialogInner({
                 ? "Start blank"
                 : `Copied from ${source?.name ?? "location"}`}
             </p>
-            <div className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+            {mode === "blank" ? (
+              <p className="mt-1 text-xs text-muted-foreground">Business booking defaults</p>
+            ) : null}
+            <div className="mt-3 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2">
+              <PreviewItem
+                label="Services"
+                value={mode === "blank" ? "None copied" : `${source?.serviceCount ?? 0} active service${source?.serviceCount === 1 ? "" : "s"}`}
+              />
+              <PreviewItem label="New location timezone" value={timezone} />
+              <div className="sm:col-span-2">
+                {mode === "blank" ? (
+                  <PreviewItem label="Hours" value="Closed by default" />
+                ) : (
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide">Weekly hours</p>
+                    <dl className="mt-1 space-y-1 text-foreground">
+                      {source?.weeklyHours.map((day) => (
+                        <div key={day.dayOfWeek} className="flex flex-wrap justify-between gap-x-3">
+                          <dt>{["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][day.dayOfWeek]}</dt>
+                          <dd className="text-right">
+                            {day.ranges.length === 0 ? "Closed" : day.ranges.map((range) =>
+                              `${formatPreviewTime(range.openTime)}–${formatPreviewTime(range.closeTime)}`,
+                            ).join(", ")}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                )}
+              </div>
+              <PreviewItem label="Booking interval" value={`${previewSettings.appointmentIntervalMinutes} minutes`} />
+              <PreviewItem label="Booking window" value={`${previewSettings.bookingLimitDays} days`} />
+              <PreviewItem label="Minimum booking notice" value={`${previewSettings.minBookingNoticeMinutes} minutes`} />
+              {previewSettings.maxDailyBookings != null ? (
+                <PreviewItem label="Max daily bookings" value={String(previewSettings.maxDailyBookings)} />
+              ) : null}
+              {previewSettings.cancellationPolicy ? (
+                <div className="sm:col-span-2 break-words">
+                  <PreviewItem label="Cancellation policy" value={previewSettings.cancellationPolicy} />
+                </div>
+              ) : null}
+              {previewSettings.defaultTravelMinutes > 0 ? (
+                <PreviewItem label="Default travel time" value={`${previewSettings.defaultTravelMinutes} minutes`} />
+              ) : null}
               {mode === "blank" ? (
                 <>
-                  <PreviewItem label="Services" value="None copied" />
-                  <PreviewItem label="Hours" value="Closed by default" />
-                  <PreviewItem
-                    label="Booking interval"
-                    value={`${blankDefaults.appointmentIntervalMinutes} minutes`}
-                  />
-                  <PreviewItem
-                    label="Booking window"
-                    value={`${blankDefaults.bookingLimitDays} days`}
-                  />
+                  <PreviewItem label="Staff" value="None assigned" />
+                  <PreviewItem label="Rooms/resources" value="None copied" />
                 </>
-              ) : (
-                <>
-                  <PreviewItem
-                    label="Services"
-                    value={`${source?.serviceCount ?? 0} active service${source?.serviceCount === 1 ? "" : "s"}`}
-                  />
-                  <PreviewItem
-                    label="Hours"
-                    value={`${source?.openDayCount ?? 0} open day${source?.openDayCount === 1 ? "" : "s"}`}
-                  />
-                  <PreviewItem
-                    label="Booking interval"
-                    value={`${source?.settings?.appointmentIntervalMinutes ?? 30} minutes`}
-                  />
-                  <PreviewItem
-                    label="Booking window"
-                    value={`${source?.settings?.bookingLimitDays ?? 60} days`}
-                  />
-                  {(source?.segmentCount ?? 0) > 0 ? (
-                    <PreviewItem
-                      label="Split-hour segments"
-                      value={String(source?.segmentCount ?? 0)}
-                    />
-                  ) : null}
-                </>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -581,4 +588,10 @@ function PreviewItem({ label, value }: { label: string; value: string }) {
       <span className="mt-0.5 block text-foreground">{value}</span>
     </div>
   );
+}
+
+// These are local wall-clock hours, not instants to convert between timezones.
+function formatPreviewTime(time: string): string {
+  const [hour, minute] = time.split(":").map(Number);
+  return `${hour % 12 || 12}:${String(minute).padStart(2, "0")} ${hour < 12 ? "AM" : "PM"}`;
 }

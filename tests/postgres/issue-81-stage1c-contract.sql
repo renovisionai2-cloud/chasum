@@ -39,7 +39,7 @@ set local session_replication_role = origin;
 
 insert into public.locations(id,business_id,name,slug,timezone,is_default,is_active)
 values
-  ('10000000-0000-0000-0000-000000000301','10000000-0000-0000-0000-000000000201','A Default','a-default','UTC',true,true),
+  ('10000000-0000-0000-0000-000000000301','10000000-0000-0000-0000-000000000201','A Default','a-default','America/Toronto',true,true),
   ('10000000-0000-0000-0000-000000000302','10000000-0000-0000-0000-000000000202','B Default','b-default','UTC',true,true),
   ('10000000-0000-0000-0000-000000000303','10000000-0000-0000-0000-000000000203','Starter Existing','starter-existing','UTC',true,true);
 
@@ -201,6 +201,37 @@ begin
   end if;
 end $$;
 
+-- Preserve the complete source snapshot across both copying modes.
+select set_config('stage1c.source_before', jsonb_build_object(
+  'location', (select to_jsonb(l) from public.locations l where id='10000000-0000-0000-0000-000000000301'),
+  'settings', (select to_jsonb(s) from public.location_settings s where location_id='10000000-0000-0000-0000-000000000301'),
+  'hours', (select jsonb_agg(to_jsonb(h) order by day_of_week) from public.location_hours h where location_id='10000000-0000-0000-0000-000000000301'),
+  'segments', (select jsonb_agg(to_jsonb(h) order by day_of_week, sort_order) from public.location_hour_segments h where location_id='10000000-0000-0000-0000-000000000301')
+)::text, true);
+
+-- Explicit Copy Another also uses the new timezone and preserves other settings.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000101',true);
+select set_config('stage1c.explicit_created', (public.create_location_from_template(
+  '10000000-0000-0000-0000-000000000201','Explicit Copy','explicit-copy','America/Vancouver',
+  null,null,null,null,null,null,'copy','10000000-0000-0000-0000-000000000301'
+)->>'location_id'), true);
+reset role;
+do $$
+declare
+  new_id uuid := current_setting('stage1c.explicit_created')::uuid;
+begin
+  if (select timezone from public.locations where id=new_id) is distinct from 'America/Vancouver'
+     or (select timezone from public.location_settings where location_id=new_id) is distinct from 'America/Vancouver' then
+    raise exception 'explicit copy did not use requested timezone in both rows';
+  end if;
+  if (select to_jsonb(s) - array['location_id','created_at','updated_at','timezone','metadata'] from public.location_settings s where location_id=new_id)
+     is distinct from
+     (select to_jsonb(s) - array['location_id','created_at','updated_at','timezone','metadata'] from public.location_settings s where location_id='10000000-0000-0000-0000-000000000301') then
+    raise exception 'explicit copy changed approved scheduling settings';
+  end if;
+end $$;
+
 -- Default-location template copy as authenticated owner.
 set local role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000101',true);
@@ -230,9 +261,14 @@ begin
      or new_settings.max_daily_bookings is distinct from source_settings.max_daily_bookings
      or new_settings.cancellation_policy is distinct from source_settings.cancellation_policy
      or new_settings.min_booking_notice_minutes <> source_settings.min_booking_notice_minutes
-     or new_settings.default_travel_minutes <> source_settings.default_travel_minutes
-     or new_settings.timezone is distinct from source_settings.timezone then
+     or new_settings.default_travel_minutes <> source_settings.default_travel_minutes then
     raise exception 'source location settings were not copied exactly';
+  end if;
+  if new_settings.timezone is distinct from 'America/Vancouver'
+     or (select timezone from public.locations where id=new_id) is distinct from 'America/Vancouver'
+     or source_settings.timezone is distinct from 'America/Toronto'
+     or (select timezone from public.locations where id='10000000-0000-0000-0000-000000000301') is distinct from 'America/Toronto' then
+    raise exception 'new timezone did not win or source timezone was changed';
   end if;
 
   if new_settings.metadata <> '{}'::jsonb then
@@ -472,6 +508,18 @@ do $$
 begin
   if to_regclass('public.service_resource_requirements') is not null then
     raise exception 'locked resource requirement schema appeared';
+  end if;
+end $$;
+
+do $$
+begin
+  if current_setting('stage1c.source_before')::jsonb is distinct from jsonb_build_object(
+    'location', (select to_jsonb(l) from public.locations l where id='10000000-0000-0000-0000-000000000301'),
+    'settings', (select to_jsonb(s) from public.location_settings s where location_id='10000000-0000-0000-0000-000000000301'),
+    'hours', (select jsonb_agg(to_jsonb(h) order by day_of_week) from public.location_hours h where location_id='10000000-0000-0000-0000-000000000301'),
+    'segments', (select jsonb_agg(to_jsonb(h) order by day_of_week, sort_order) from public.location_hour_segments h where location_id='10000000-0000-0000-0000-000000000301')
+  ) then
+    raise exception 'copying changed the source location snapshot';
   end if;
 end $$;
 
