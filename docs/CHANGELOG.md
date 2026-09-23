@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-23 — Issue #73 Package B2 core (CODE-ONLY / candidate)
+
+- Add primary-owner-only, service-role governed import RPCs with authoritative snapshot/preview commitments, bounded atomic row/ref/audit batches, stable source identity and fenced lease recovery.
+- Preserve exact future-appointment money without booking events or communications; create safe blank Locations, internal Services with enforced explicit commercial review, and Staff with immediately closed seeded hours.
+- Reuse B1 audit tables, extract the unchanged Stage 1C slug helper, and add disposable PostgreSQL concurrency and application regression tests. See [B2 engineering evidence](import/ISSUE_73_PACKAGE_B2.md), including the unchanged baseline full-suite marketing failure.
+- B1 and Staff quota are merged/Staging accepted per Issue #73; their Production migrations remain unapplied. B2 is not merged or hosted-applied. Independent exact-candidate audit is the next gate; Staging/Production/GVM/HQ untouched by this task.
+
+
 ### 2026-09-23 — Issue #73 Staff quota hardening (CODE-ONLY / candidate)
 
 - Add guarded `subscription_plans.max_staff` values 1 / 3 / unlimited / unlimited and a Business-row-serialized Staff trigger for active INSERT and inactive→active UPDATE. Preserve grandfathered Staff and all non-consuming updates.

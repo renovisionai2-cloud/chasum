@@ -19,6 +19,7 @@ import {
   type OperatorServiceCatalogItem,
 } from "@/lib/services/operator-catalog";
 import { revalidatePath } from "next/cache";
+import { serviceWriteError } from "@/lib/services/commercial-readiness";
 
 function revalidateServices() {
   revalidatePath("/dashboard/services");
@@ -391,7 +392,9 @@ export async function createService(
     return { error: "Duration must be at least 5 minutes." };
   }
 
-  const payload = buildServicePayload(formData, business.id, primaryLocation);
+  // Creating a Service through its commercial-settings form is an explicit
+  // configuration decision. Imported Services never use this action.
+  const payload = { ...buildServicePayload(formData, business.id, primaryLocation), commercial_settings_reviewed: true };
 
   let insertedId: string | null = null;
   let { data, error } = await supabase
@@ -411,7 +414,7 @@ export async function createService(
     error = retry.error;
   }
 
-  if (error) return { error: error.message };
+  if (error) return { error: serviceWriteError(error.message) };
   insertedId = data?.id ?? null;
   if (!insertedId) return { error: "Service was created but id was missing." };
 
@@ -448,6 +451,7 @@ export async function updateService(
   const updatePayload = {
     ...payload,
     location_id: primaryLocation,
+    ...(checked(formData, "commercial_settings_reviewed") ? { commercial_settings_reviewed: true } : {}),
   };
 
   let { error } = await supabase
@@ -466,7 +470,7 @@ export async function updateService(
     error = retry.error;
   }
 
-  if (error) return { error: error.message };
+  if (error) return { error: serviceWriteError(error.message) };
 
   const locationError = await syncServiceLocations(id, primaryLocation, locationIds);
   if (locationError) return { error: locationError };
