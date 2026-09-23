@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-23 — Issue #73 Staff quota hardening (CODE-ONLY / candidate)
+
+- Add guarded `subscription_plans.max_staff` values 1 / 3 / unlimited / unlimited and a Business-row-serialized Staff trigger for active INSERT and inactive→active UPDATE. Preserve grandfathered Staff and all non-consuming updates.
+- Map the controlled database quota error across existing Staff, employee and owner-onboarding writers; add application/SQL parity and disposable PostgreSQL concurrency tests.
+- Separate Level-3 prerequisite only; B2 core is not implemented. Independent candidate audit and hosted application authorization remain outstanding. Staging/Production/GVM/HQ untouched. See [engineering evidence](import/ISSUE_73_STAFF_QUOTA.md).
+
 
 ### 2026-09-23 — Multi-location Add Location template workflow (Issue #81 Stage 1C, MERGED / PRODUCTION ACCEPTED)
 

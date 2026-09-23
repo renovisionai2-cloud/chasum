@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-23 by ChatGPT Control Tower after Issue #81 Stage 1C governed merge + Production acceptance.  
+**Updated:** 2026-09-23 by Codex for the authorized Issue #73 Staff quota CODE-ONLY candidate. Accepted Stage 1C runtime records preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md).
 
@@ -104,25 +104,29 @@ Package B1:
 - Production DB **NOT APPLIED**.
 
 Package B2:
-- read-only product / architecture / security preflight **COMPLETE**;
-- operational writer **NOT AUTHORIZED**;
-- independent Claude Level-3 audit is the current gate.
-
-The former #81 semantic blocker is resolved by accepted Stage 1, but this does **not** auto-authorize B2.
+- read-only product / architecture / security preflight COMPLETE;
+- live Issue #73 records Claude architecture audit COMPLETED and Product Owner
+  approval of D3-R, SQ, AUTH and SERVICE recommendations;
+- current engineering authorization is **Staff quota prerequisite only**;
+- B2 core writer remains outside this package and is not implemented here.
 
 ### Exact next safe gate
 
-**Claude independent Level-3 audit of the completed Package B2 preflight.**
+**Control Tower reconciliation and independent Claude Level-3 audit of the exact
+Staff quota candidate commit.** See [Staff quota engineering evidence](../import/ISSUE_73_STAFF_QUOTA.md).
 
-Execution truth:
-- Claude prompt on GitHub = **SENT only**;
-- no executable Claude session/task/run exists;
-- Claude execution channel from Control Tower = **MANUAL**;
-- status = **BLOCKED ON MANUAL CLAUDE DISPATCH**.
+Staff quota hardening is **CODE-ONLY / candidate** on
+`codex/issue-73-staff-quota-hardening`, from exact base
+`e52b78d131a466e9a4926cc592f37f54764d9791`. Local database/application evidence
+is recorded in the focused note. No hosted migration has been applied.
 
-Darshan has already been given the immutable Claude audit prompt. Required return is Claude's entire final audit report in one single markdown code block.
+Execution truth: Codex implementation executed with repository/test evidence.
+Claude's separate Staff quota audit is **PLANNED / NOT DISPATCHED**, with no
+accepted task/run evidence in this engineering session. Do not confuse the
+completed B2 architecture audit or supporting Codex review with candidate audit.
 
-Do **not** restart the B2 preflight, implement B2, apply Production B1, bulk-write operational records, connect competitor APIs, or mutate outside-customer data while this audit gate is unresolved.
+Do not implement B2, apply Production B1, apply the Staff migration to hosted
+environments, or bulk-write operational records under this package's authority.
 
 ## D. Other accepted program state
 
@@ -169,12 +173,13 @@ Migrations 034–036 remain unapplied.
 Issue #73 remains ACTIVE:
 Package A COMPLETE.
 Package B1 MERGED + STAGING VERIFIED / PRODUCTION DB NOT APPLIED.
-Package B2 NOT AUTHORIZED.
+Package B2 core is outside the Staff quota-only implementation authorization.
 
 NEXT SAFE GATE:
-Package B2 independent Claude Level-3 audit of the completed preflight.
-Claude execution channel is MANUAL; status BLOCKED ON MANUAL CLAUDE DISPATCH.
-Do not mistake a GitHub @mention/prompt for a running agent.
+Staff quota CODE-ONLY candidate: Control Tower reconciliation and independent
+Claude Level-3 audit of the exact candidate commit. Staff audit is PLANNED /
+NOT DISPATCHED. No hosted migration apply is authorized. Do not mistake a
+GitHub @mention/prompt for a running agent.
 
 Do not start Gate B or Summer horizontal-v1 before Outside Private Alpha readiness closes.
 Proceed automatically through safe read-only gates; stop only for a genuine Product Owner decision.

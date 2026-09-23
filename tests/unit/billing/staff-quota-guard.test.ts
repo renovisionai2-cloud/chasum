@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const getOrCreateBusiness = vi.fn();
 const requireUser = vi.fn();
@@ -47,6 +47,7 @@ import { ensureOwnerAsBookableStaff } from "@/lib/actions/onboarding";
 import {
   assertCanActivateStaff,
   countBusinessStaff,
+  staffQuotaWriteError,
 } from "@/lib/billing/staff-quota";
 
 type StaffRow = { id: string; is_active: boolean };
@@ -90,21 +91,28 @@ function staffChain(opts: {
   activeCount: number;
   unfilteredCount?: number;
   rows?: StaffRow[];
+  writeErrors?: Array<{ code: string; message: string }>;
 }) {
   const query: Record<string, unknown> = {};
   const state = {
     eqs: [] as Array<[string, unknown]>,
     inIds: null as string[] | null,
     usedIlike: false,
+    wrote: false,
+    error: null as { code: string; message: string } | null,
   };
   const self = () => query;
   query.select = self;
   query.insert = (...args: unknown[]) => {
     insertStaff(...args);
+    state.wrote = true;
+    state.error = opts.writeErrors?.shift() ?? null;
     return query;
   };
   query.update = (...args: unknown[]) => {
     updateStaffRow(...args);
+    state.wrote = true;
+    state.error = opts.writeErrors?.shift() ?? null;
     return query;
   };
   query.delete = () => {
@@ -129,11 +137,14 @@ function staffChain(opts: {
     if (state.usedIlike) return { data: null, error: null };
     return { data: { id: "staff-existing" }, error: null };
   };
-  query.single = async () => ({ data: { id: "staff-new" }, error: null });
+  query.single = async () => ({ data: state.error ? null : { id: "staff-new" }, error: state.error });
   query.then = (
     onFulfilled: (value: unknown) => unknown,
     onRejected?: (reason: unknown) => unknown,
   ) => {
+    if (state.wrote) {
+      return Promise.resolve({ data: [], error: state.error }).then(onFulfilled, onRejected);
+    }
     if (state.inIds) {
       const rows = (opts.rows ?? []).filter((row) =>
         state.inIds!.includes(row.id),
@@ -161,6 +172,7 @@ function mockTables(opts: {
   activeCount: number;
   unfilteredCount?: number;
   rows?: StaffRow[];
+  writeErrors?: Array<{ code: string; message: string }>;
 }) {
   supabaseFrom.mockImplementation((table: string) => {
     if (table === "staff") return staffChain(opts);
@@ -644,5 +656,49 @@ describe("reactivation cannot bypass the server-side quota", () => {
     expect(updateStaffRow).toHaveBeenCalledWith(
       expect.objectContaining({ is_active: true }),
     );
+  });
+});
+
+describe("DB-authoritative quota race rejection", () => {
+  const quotaError = { code: "P0001", message: "STAFF_LIMIT_REACHED" };
+  const schemaError = { code: "42703", message: 'column "first_name" does not exist' };
+
+  afterEach(() => vi.unstubAllEnvs());
+
+  beforeEach(() => {
+    getOrCreateBusiness.mockReset();
+    requireUser.mockReset();
+    supabaseFrom.mockReset();
+    insertStaff.mockReset();
+    updateStaffRow.mockReset();
+    getOrCreateBusiness.mockResolvedValue({ id: "biz-1", subscription_plan_key: "starter" });
+    requireUser.mockResolvedValue({ email: "owner@example.com", user_metadata: {} });
+  });
+
+  it.each([
+    ["create", () => createStaff({}, staffForm()), false],
+    ["create schema fallback", () => createStaff({}, staffForm()), true],
+    ["update", () => updateStaff({}, activateStaffForm("inactive-1")), false],
+    ["profile", () => updateEmployeeProfile({}, employeeActivateForm("inactive-1")), false],
+    ["profile schema fallback", () => updateEmployeeProfile({}, employeeActivateForm("inactive-1")), true],
+    ["bulk activation", () => bulkUpdateEmployeeStatus(["inactive-1"], true), false],
+    ["owner onboarding", () => ensureOwnerAsBookableStaff(), false],
+    ["owner onboarding fallback", () => ensureOwnerAsBookableStaff(), true],
+  ] as const)("maps %s quota loss after a passing application preflight", async (_name, action, fallback) => {
+    if (fallback) vi.stubEnv("CHASUM_ALLOW_SOFT_SCHEMA", "1");
+    mockTables({ activeCount: 0, rows: [{ id: "inactive-1", is_active: false }], writeErrors: fallback ? [schemaError, quotaError] : [quotaError] });
+    const result = await action();
+    expect(result.error).toBe(staffQuotaWriteError(quotaError));
+    expect(result.error).not.toContain("STAFF_LIMIT_REACHED");
+    expect(result.success).toBeUndefined();
+    expect(insertStaff.mock.calls.length + updateStaffRow.mock.calls.length).toBe(fallback ? 2 : 1);
+    expect(supabaseFrom).not.toHaveBeenCalledWith("staff_services");
+    expect(supabaseFrom).not.toHaveBeenCalledWith("staff_locations");
+  });
+
+  it("does not mask unrelated DB errors or accept a loosely matching marker", () => {
+    expect(staffQuotaWriteError({ code: "23503", message: "STAFF_LIMIT_REACHED" })).toBeNull();
+    expect(staffQuotaWriteError({ code: "P0001", message: "other STAFF_LIMIT_REACHED error" })).toBeNull();
+    expect(staffQuotaWriteError(null)).toBeNull();
   });
 });

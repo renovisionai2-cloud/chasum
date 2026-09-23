@@ -1,7 +1,7 @@
 "use server";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
-import { assertCanActivateStaff } from "@/lib/billing/staff-quota";
+import { assertCanActivateStaff, staffQuotaWriteError } from "@/lib/billing/staff-quota";
 import {
   composeDisplayName,
   isEmployeeRoleKey,
@@ -273,6 +273,8 @@ export async function updateEmployeeProfile(
   }
 
   if (error) {
+    const quotaError = staffQuotaWriteError(error);
+    if (quotaError) return { error: quotaError };
     return {
       error:
         error.message.includes("department") ||
@@ -386,7 +388,7 @@ export async function bulkUpdateEmployeeStatus(
     .eq("business_id", business.id)
     .in("id", staffIds);
 
-  if (error) return { error: error.message };
+  if (error) return { error: staffQuotaWriteError(error) ?? error.message };
 
   const userId = await currentUserId();
   for (const staffId of staffIds) {
