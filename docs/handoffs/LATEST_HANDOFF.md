@@ -104,32 +104,25 @@ Package B1:
 - Production DB **NOT APPLIED**.
 
 Package B2:
-- **NOT AUTHORIZED**.
+- read-only product / architecture / security preflight **COMPLETE**;
+- operational writer **NOT AUTHORIZED**;
+- independent Claude Level-3 audit is the current gate.
 
-The former #81 semantic blocker is now resolved by accepted Stage 1, but this does **not** auto-authorize B2.
+The former #81 semantic blocker is resolved by accepted Stage 1, but this does **not** auto-authorize B2.
 
 ### Exact next safe gate
 
-Proceed automatically with:
+**Claude independent Level-3 audit of the completed Package B2 preflight.**
 
-**Issue #73 Package B2 — READ-ONLY product / architecture / security preflight only.**
+Execution truth:
+- Claude prompt on GitHub = **SENT only**;
+- no executable Claude session/task/run exists;
+- Claude execution channel from Control Tower = **MANUAL**;
+- status = **BLOCKED ON MANUAL CLAUDE DISPATCH**.
 
-Reconcile:
-- source-neutral import writer contract;
-- accepted `service_locations` / `staff_locations` semantics;
-- locations + hours/settings authority;
-- dry-run/preview before commit;
-- duplicate/idempotency rules;
-- stable source IDs;
-- stale target-reference handling;
-- timezone/currency/status normalization;
-- rollback/retry/finalization;
-- audit outcome records;
-- `created_by` lifecycle/offboarding;
-- whether Production B1 migration is a prerequisite and when;
-- Summer UNDERSTAND / EXPLAIN / RECOMMEND / ACT / AUDIT readiness.
+Darshan has already been given the immutable Claude audit prompt. Required return is Claude's entire final audit report in one single markdown code block.
 
-Do **not** implement B2, apply Production B1, bulk-write operational records, connect competitor APIs, or mutate outside-customer data from this handoff.
+Do **not** restart the B2 preflight, implement B2, apply Production B1, bulk-write operational records, connect competitor APIs, or mutate outside-customer data while this audit gate is unresolved.
 
 ## D. Other accepted program state
 
@@ -179,7 +172,9 @@ Package B1 MERGED + STAGING VERIFIED / PRODUCTION DB NOT APPLIED.
 Package B2 NOT AUTHORIZED.
 
 NEXT SAFE GATE:
-Package B2 READ-ONLY product/architecture/security preflight only.
+Package B2 independent Claude Level-3 audit of the completed preflight.
+Claude execution channel is MANUAL; status BLOCKED ON MANUAL CLAUDE DISPATCH.
+Do not mistake a GitHub @mention/prompt for a running agent.
 
 Do not start Gate B or Summer horizontal-v1 before Outside Private Alpha readiness closes.
 Proceed automatically through safe read-only gates; stop only for a genuine Product Owner decision.
