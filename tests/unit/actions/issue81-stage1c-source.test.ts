@@ -86,6 +86,13 @@ describe("Issue #81 Stage 1C application contract", () => {
     expect(dialog).toContain('htmlFor="copy_source"');
   });
 
+  it("keeps shared dialogs above the fixed mobile navigation", () => {
+    const dialog = source("components/ui/dialog.tsx");
+    const mobileNav = source("components/dashboard/mobile-bottom-nav.tsx");
+    expect(dialog).toContain("fixed inset-0 z-[60]");
+    expect(mobileNav).toContain("fixed inset-x-0 bottom-0 z-50");
+  });
+
   it("routes global location-add entry into the single workflow and uses generic plan-change copy", () => {
     const switcher = source("components/dashboard/location-switcher.tsx");
     expect(switcher).toContain("/dashboard/business?tab=locations&add=1");
