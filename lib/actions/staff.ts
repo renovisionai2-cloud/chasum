@@ -9,6 +9,7 @@ import {
   assertCanActivateStaff,
   staffQuotaError,
   staffQuotaForBusiness,
+  staffQuotaWriteError,
 } from "@/lib/billing/staff-quota";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
@@ -275,6 +276,8 @@ export async function createStaff(
     .single();
 
   if (error || !staffMember) {
+    const quotaError = staffQuotaWriteError(error);
+    if (quotaError) return { error: quotaError };
     // Soft-fallback when newer columns are not applied yet
     if (
       error?.message?.includes("role_key") ||
@@ -300,7 +303,7 @@ export async function createStaff(
         .select("id")
         .single();
       if (fallback.error || !fallback.data) {
-        return { error: fallback.error?.message ?? "Failed to create employee." };
+        return { error: staffQuotaWriteError(fallback.error) ?? fallback.error?.message ?? "Failed to create employee." };
       }
       if (serviceIds.length > 0) {
         await supabase.from("staff_services").insert(
@@ -381,7 +384,7 @@ export async function updateStaff(
     .eq("id", id)
     .eq("business_id", business.id);
 
-  if (error) return { error: error.message };
+  if (error) return { error: staffQuotaWriteError(error) ?? error.message };
 
   await supabase.from("staff_services").delete().eq("staff_id", id);
 

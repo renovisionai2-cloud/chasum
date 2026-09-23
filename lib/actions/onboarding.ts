@@ -2,7 +2,7 @@
 
 import { getOrCreateBusiness, requireUser } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
-import { staffQuotaError, staffQuotaForBusiness } from "@/lib/billing/staff-quota";
+import { staffQuotaError, staffQuotaForBusiness, staffQuotaWriteError } from "@/lib/billing/staff-quota";
 import {
   composeDisplayName,
   permissionsForRole,
@@ -71,6 +71,8 @@ export async function ensureOwnerAsBookableStaff(): Promise<ActionState> {
   });
 
   if (error) {
+    const quotaError = staffQuotaWriteError(error);
+    if (quotaError) return { error: quotaError };
     // role_key owner may fail soft schema — retry as admin/employee
     const retry = await supabase.from("staff").insert({
       business_id: business.id,
@@ -88,7 +90,7 @@ export async function ensureOwnerAsBookableStaff(): Promise<ActionState> {
       color: "#2563EB",
     });
     if (retry.error) {
-      return { error: retry.error.message };
+      return { error: staffQuotaWriteError(retry.error) ?? retry.error.message };
     }
   }
 

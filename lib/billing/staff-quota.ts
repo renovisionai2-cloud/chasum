@@ -2,6 +2,7 @@ import {
   evaluateStaffQuota,
   evaluateStaffSeatRequest,
   PAID_PLANS_PRIVATE_ALPHA_NOTE,
+  STAFF_LIMIT_REACHED_CODE,
   type StaffQuotaDecision,
 } from "@/lib/billing/plan-entitlements";
 
@@ -46,6 +47,18 @@ export async function staffQuotaForBusiness(
 
 export function staffQuotaError(decision: StaffQuotaDecision): string {
   return `${decision.message} ${PAID_PLANS_PRIVATE_ALPHA_NOTE}`;
+}
+
+/** Translate the DB race loser without exposing database identifiers to operators. */
+export function staffQuotaWriteError(
+  error: { code?: string; message?: string } | null | undefined,
+): string | null {
+  if (error?.code !== "P0001" || error.message !== STAFF_LIMIT_REACHED_CODE) {
+    return null;
+  }
+  // The plan may have changed since the action's preflight. Do not repeat a
+  // stale plan name/number here; the DB has already decided capacity is full.
+  return `You've reached your plan's active staff limit. Deactivate another active staff member or apply for a higher plan. ${PAID_PLANS_PRIVATE_ALPHA_NOTE}`;
 }
 
 /**

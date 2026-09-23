@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-09-23. **Updated by:** ChatGPT Control Tower after Issue #81 Stage 1C governed Staging + Production acceptance.  
+**Snapshot date:** 2026-09-23. **Updated by:** Codex for the authorized Issue #73 Staff quota CODE-ONLY candidate; accepted Stage 1C runtime records preserved.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
 
 | Control field | Current record |
@@ -16,13 +16,13 @@
 | Location entitlement | Canonical live limits: starter 1 / professional 3 / business 6 / enterprise unlimited. GVM remains a normal Starter tenant with 3 existing Locations grandfathered; `can_add_location=false` until entitlement changes. Existing GVM rows were not rewritten by Stage 1C. |
 | Observability / Issue #65 | **COMPLETE / CLOSED.** Production Sentry remains OFF. |
 | Issue #72 tenant identity | **CLOSED / PRODUCTION ACCEPTED.** Do not reopen absent contradictory evidence. |
-| Issue #73 governed switching/import | **ACTIVE.** Package A COMPLETE. Package B1 code MERGED + Staging migration VERIFIED; Production B1 migration NOT APPLIED. Package B2 read-only product/architecture/security preflight is **COMPLETE**; operational writer remains **NOT AUTHORIZED** pending independent Claude Level-3 audit and any resulting Product Owner decisions. Claude execution channel is currently manual; GitHub `@claude` was SENT only, not RUNNING. |
+| Issue #73 governed switching/import | **ACTIVE.** Package A COMPLETE. B1 MERGED + Staging VERIFIED; Production B1 NOT APPLIED. Live Issue #73 records B2 architecture audit COMPLETED and PO approval of D3-R/SQ/AUTH/SERVICE. Current dispatch is **Staff quota hardening only**, a separate Level-3 **CODE-ONLY / candidate**; see [engineering evidence](import/ISSUE_73_STAFF_QUOTA.md). B2 core is not implemented or authorized by this package. |
 | Main-branch governance | Ruleset `23730556`: PR required; required checks include Vercel + competitive-product-gate; strict/up-to-date; force-push/deletion blocked; admin bypass PR-only. |
 | Competitive Product Gate | Permanent for material customer/operator features. |
 | Primary engineering governance | Codex = primary engineer; ChatGPT = Control Tower; Claude = independent high-risk auditor; Momentic/equivalent = browser/workflow validation; Cursor = local/authenticated/device-specific fallback. |
 | Deferred / design-for-now | Stage 2 location overrides, Stage 3 live inheritance, resource-aware booking, durable Summer action provenance, true employee RBAC, tenant switcher, Production Sentry activation, native apps, branded domain, residual historical security/migration debt when specifically scoped. |
-| Exact next substantive gate | **Issue #73 Package B2 — independent Claude Level-3 audit of the completed preflight.** Execution channel: MANUAL. Status: **BLOCKED ON MANUAL CLAUDE DISPATCH** until Darshan runs the already-prepared immutable audit prompt and returns Claude's single-block final report. Do not restart the preflight, implement B2, or apply Production B1 while waiting. |
-| Product Owner input | Stage 1C merge + Production rollout was approved and accepted. Current required Darshan action is **manual Claude audit dispatch**, not a product decision. Any B2 implementation decision, D3 reconsideration, Production B1 migration, bulk operational import write or outside-customer Production onboarding remains separately governed after audit reconciliation. |
+| Exact next substantive gate | **Issue #73 Staff quota candidate — Control Tower reconciliation and independent Claude Level-3 audit of the exact candidate commit.** Staff audit PLANNED / NOT DISPATCHED; no audit run evidence in the engineering session. No hosted application authorized. |
+| Product Owner input | Staff quota code implementation explicitly approved. No further input needed for this bounded code delivery; hosted application and consequential B2/Production decisions remain separately governed. Do not apply Production B1 or implement B2 core under this package. |
 
 GVM Baby World and Chasum HQ remain normal tenants. Platform Admin remains separate at `/owner`.
 
