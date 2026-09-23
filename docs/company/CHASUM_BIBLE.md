@@ -214,6 +214,7 @@ Related: [`../PRODUCTION_READINESS.md`](../PRODUCTION_READINESS.md).
 | **`docs/company/PRODUCT_PRINCIPLES.md`** | Feature decision filter |
 | **`docs/company/MASTER_ROADMAP.md`** | Official completed + future roadmap |
 | **`docs/company/MASTER_TASKS.md`** | Active backlog and sprint rules |
+| **`docs/company/GLOBAL_GO_TO_MARKET.md`** | Durable global discovery / distribution strategy; consumes Global Readiness truth |
 | `docs/CHANGELOG.md` | What shipped |
 | `docs/product/*` | Deep product strategy and modules |
 | `docs/DATABASE.md`, `docs/API.md`, etc. | Technical references |
