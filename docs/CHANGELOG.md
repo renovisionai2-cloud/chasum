@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-23 — Global-by-design roadmap lock
+
+- Make **GLOBAL ARCHITECTURE NOW. REGIONAL ACTIVATION DELIBERATELY.** a permanent Chasum constitutional principle.
+- Core architecture must not silently hardcode Canada/U.S.-only assumptions for locale/language, timezone/DST, money, addresses, phone, tax, invoice/legal fields, payments, communications, consent/privacy/compliance or Summer context; regional behavior stays configurable/isolated.
+- Insert the bounded **Global Readiness Foundation** after Outside Private Alpha readiness and before Commercial SaaS Gate B, Summer horizontal v1, native material implementation and broader regional/public expansion.
+- This is governance/roadmap only; it does not start a global implementation project or interrupt current Issue #73 work.
+
+
 ### 2026-09-23 — Issue #73 Package B2 core (MERGED / STAGING + PRODUCTION ACCEPTED)
 
 - PR #93 exact accepted head `84168a3c630550f040866700def2edcacdbd16c2` squash-merged as `06c7d502948a321b706ba07036724c9178e428e7`; Vercel Production deployment `dpl_HUcbeyiham9KTNftrZCB4QTinu2K` READY and direct build-info confirms the exact merge on Production.
