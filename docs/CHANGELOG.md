@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+
+### 2026-09-23 — Multi-location Add Location template workflow (Issue #81 Stage 1C, MERGED / PRODUCTION ACCEPTED)
+
+- PR #89 exact accepted head `457a6ab8da23c1104a81208338024511ab4f8115` squash-merged as `0a81084362ac43d076b35aa0cb463f4efd136afe`; Vercel Production deployment `dpl_8cgdg2JJJ984Y4jf5LFvPfrXHMV4` READY and direct build-info confirms the exact merge on Production.
+- Add Location now offers Default Location — Recommended, Copy Another Location, and Start Blank; source-based setup snapshots concrete hours/settings and reuses Business Service Catalog rows through `service_locations` rather than duplicating Services.
+- Staff assignment is deliberate and secondary-safe through `staff_locations`; Staff home/default Location is not moved. Resources remain explicit and are not copied or treated as public-booking authority.
+- Location creation is atomic and concurrency-safe through the governed `create_location_from_template` path. Canonical location entitlement is starter 1 / professional 3 / business 6 / enterprise unlimited; existing over-limit tenants are preserved but cannot add until entitlement permits it.
+- Exact migration `20260922210000_issue_81_stage_1c_location_template.sql` SHA-256 `6a4e3285382d1d1fbd9592af70ec1e2476ac8c9bec28cd0ba6a0e3287b3cb98f` is accepted on Staging and Production. Production ledger: `20260923135852 / issue_81_stage_1c_location_template`. Migrations 034–036 remain unapplied.
+- Hosted desktop/tablet/mobile acceptance passed after a bounded shared Dialog stacking correction prevented fixed mobile navigation from intercepting modal actions at 390×844.
+- GVM remained unchanged at 3 Locations / 14 Services / 3 Staff / 9 Appointments. As a grandfathered Starter tenant, GVM can continue operating existing Locations but cannot add another Location until its entitlement changes.
+- Stage 2 location-level overrides and Stage 3 live inheritance remain DESIGN FOR NOW / BUILD LATER.
+
+
 ### 2026-09-22 — Multi-location relationship + public-booking convergence (Issue #81 Stage 1B, MERGED / PRODUCTION ACCEPTED)
 
 - PR #87 exact audited candidate `7656bf6a163fa1708537c0f2cb7abf5088c3575b` squash-merged as `1d4ecc759076acb82da9f346ec05948e6e0194ca`; normal Vercel Production deployment SUCCESS.
