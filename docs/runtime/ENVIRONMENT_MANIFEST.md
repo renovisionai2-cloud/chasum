@@ -79,8 +79,8 @@ P87-STAGING and P87-PROD establish the accepted Stage 1B runtime/database state.
 | Deployment URL | Unique `https://chasum-bxotnq0i1-renovisionappcom.vercel.app`; primary alias is the accepted serving URL | MATCH | P55-PROD |
 | Active aliases | Observed `chasum.vercel.app` and `chasum-renovisionappcom.vercel.app`; not claimed exhaustive | MATCH | P55-PROD; primary alias is `chasum.vercel.app` |
 | Deployment readiness | PR #93 squash merge `06c7d502948a321b706ba07036724c9178e428e7`; Vercel Production deployment `dpl_HUcbeyiham9KTNftrZCB4QTinu2K` READY. | MATCH | P93-PROD |
-| Accepted application baseline vs serving | Latest accepted application release and directly observed serving SHA both `06c7d502948a321b706ba07036724c9178e428e7`. | MATCH | P93-PROD |
-| Production SHA vs canonical main | Git main and direct Production `/api/build-info` both `06c7d502948a321b706ba07036724c9178e428e7`. | MATCH | P93-PROD |
+| Accepted application baseline vs serving | Latest accepted behavior-changing application SHA is `06c7d502948a321b706ba07036724c9178e428e7`. Documentation-only merges may advance Git/serving SHA without changing behavior; fresh `/api/build-info` is required before consequential release work. | INTENTIONAL DIFFERENCE possible after docs-only merges | P93-PROD |
+| Production SHA vs canonical main | Do not assume equality after documentation-only merges. Accepted behavior-changing release is `06c7d502948a321b706ba07036724c9178e428e7`; freshly query canonical main and serving build-info. | UNKNOWN until freshly queried | P93-PROD |
 | Supabase project ref | Production project `kxcydvhswkuzepwzzinq` directly verified during Stage 1B release. | MATCH | P87-PROD |
 | Migration summary / applied hashes | Issue #73 Production prerequisites accepted DB-first: B1 `20260923185926`, Staff quota `20260923190213`, B2 `20260923190501`. Exact B2 SHA-256 `0f051b80fbdca7e199b8382e7d400785d408d73c6799beba17de0591c79c6062`. | MATCH | P93-PROD |
 | Locked/unapplied migrations | 034/035/036 remain freshly verified absent/unapplied after B2 Production acceptance. | MATCH | P93-PROD |
