@@ -12,7 +12,7 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Current accepted Production application release:
+Latest accepted **behavior-changing** Production application release:
 
 `06c7d502948a321b706ba07036724c9178e428e7`
 
@@ -20,7 +20,7 @@ This is PR #93 Package B2 core squash merge. Vercel Production deployment:
 
 `dpl_HUcbeyiham9KTNftrZCB4QTinu2K`
 
-is **READY**. Direct `/api/build-info` HTTP 200 reports the exact merge on `main`, `env=production`, `production=true`. Direct `/api/health` HTTP 200 reports `ok=true`; health remains configuration-presence evidence only.
+is **READY**. Direct `/api/build-info` confirmed this exact behavior-changing merge at acceptance. Later documentation-only merges may advance Git/serving SHA without changing application behavior, so fresh main/runtime evidence wins for consequential work. Direct `/api/health` HTTP 200 reported `ok=true`; health remains configuration-presence evidence only.
 
 Production Sentry remains OFF.
 
@@ -181,8 +181,10 @@ Read:
 
 Freshly query remote main/runtime before acting.
 
-Current main / accepted Production application release:
+Accepted behavior-changing Production application release:
 06c7d502948a321b706ba07036724c9178e428e7
+
+Documentation-only merges may have advanced current Git/serving SHA; freshly query both.
 
 Issue #81 Stage 1 is COMPLETE / STAGING + PRODUCTION ACCEPTED.
 Migrations 034–036 remain unapplied.
