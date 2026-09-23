@@ -1,9 +1,4 @@
 {
-  "git": {
-    "deploymentEnabled": {
-      "codex/issue-73-package-c1-artifacts": false
-    }
-  },
   "crons": [
     {
       "path": "/api/cron/process-jobs",
