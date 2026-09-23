@@ -19,6 +19,21 @@ The PO-locked policy supersedes historical Cursor-primary wording.
 Intended model and actually available model are different facts; do not silently
 escalate or circumvent approval/credit controls.
 
+## External agent execution truth — mandatory
+
+**REQUESTED IS NOT RUNNING.** Track every external-agent dispatch as
+PLANNED / SENT / ACCEPTED / RUNNING / COMPLETED / BLOCKED. An agent is active only
+with positive execution evidence such as an accepted task/run, active session,
+connected runner/job, or returned result. A GitHub mention or posted prompt alone
+is SENT, never RUNNING.
+
+If no executable channel exists, immediately surface the exact manual dispatch
+prompt/action and mark the task BLOCKED on that manual step; never silently wait.
+Before pausing, report the agent, task, dispatch state, execution evidence,
+blocker, whether safe parallel work can continue, and whether Darshan must act.
+Continue safe non-overlapping work automatically when no Product Owner input is
+required.
+
 ## Competitive product gate — mandatory
 
 **Material customer/operator features require a Competitive Product Gate before implementation.**
