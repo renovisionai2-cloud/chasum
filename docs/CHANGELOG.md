@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-23 — Global go-to-market strategy lock
+
+- Add one durable company strategy for **GLOBAL PRODUCT READINESS + GLOBAL DISCOVERY + DELIBERATE REGIONAL ACTIVATION**.
+- Separate product readiness from market discovery while requiring all country/region marketing to consume governed readiness truth; **marketing must never outrun product truth**.
+- Preserve future SEO/AEO/GEO discovery, country/industry/comparison content, assisted switching, Powered by Chasum, referrals, partners, review platforms, integrations, content and evidence-led paid acquisition without starting implementation now.
+- Require a single Global Readiness-owned Market Readiness Matrix rather than a conflicting marketing availability list.
+- Preserve Trinidad & Tobago and Guyana as candidate early international design-partner markets, with Jamaica and Barbados as possible Caribbean candidates subject to readiness/research; no launch authorization or permanent country order is created.
+
+
 ### 2026-09-23 — Global-by-design roadmap lock
 
 - Make **GLOBAL ARCHITECTURE NOW. REGIONAL ACTIVATION DELIBERATELY.** a permanent Chasum constitutional principle.
