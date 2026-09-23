@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-23 — Issue #73 Package C1 (code-only candidate; not merged or hosted-applied)
+
+- Add private import-source identity and artifact lifecycle metadata, service-role-only owner-authorized RPCs, and a migration-managed private `import-artifacts` bucket; preserve accepted B1/B2 writer/audit behavior.
+- Add exact-object create-only signed uploads, server byte/checksum verification, exact private reviewed-plan freeze/read and safe run binding. No wizard, CSV mapping, C3 orchestration or reminder takeover.
+- Enforce raw24h and reviewed72h/terminal+1h access deadlines; deletion confirmation precedes metadata finalization. Fenced independent cleanup retains retryable locators and reaps late-write tombstones via a dedicated hourly secret-protected cron.
+- Add disposable PostgreSQL/security/SDK-transport/server/cron tests and [C1 evidence](import/ISSUE_73_PACKAGE_C1.md), including honest hosted Storage gaps and the unchanged full-suite marketing failure reproduced on exact base.
+- Disable automatic Git deployment on the exact C1 branch pending DB-first migration/Storage verification and separate deployment authorization. No hosted environment, Storage, GVM/HQ or real files touched. Independent Claude Level-3 audit is the next manual dispatch gate.
+
 ### 2026-09-23 — Global-by-design roadmap lock
 
 - Make **GLOBAL ARCHITECTURE NOW. REGIONAL ACTIVATION DELIBERATELY.** a permanent Chasum constitutional principle.

@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-23 by ChatGPT Control Tower for Issue #73 Package B2 Staging + Production acceptance and next-gate reconciliation.
+**Updated:** 2026-09-23 by Codex for PO-authorized Issue #73 Package C1 code-only delivery; accepted B2 Staging/Production state preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md).
 
@@ -132,17 +132,32 @@ Governance incident retained:
 
 ### Exact next safe gate
 
-**Issue #73 Package C — READ-ONLY product / architecture / UX preflight.**
+**Issue #73 Package C1 — code-only candidate → independent Level-3 audit.**
 
-Reconcile the smallest commercially trustworthy assisted-Private-Alpha workflow:
-- Upload → Map → Review → Import → Results;
-- short-TTL reviewed-artifact / checksum / re-upload recovery;
-- mapping and duplicate/error review UX;
-- Location / Service / Staff configuration-readiness checks before public activation;
-- communications/reminder takeover and cutover;
-- partial-failure results, retry and audit visibility;
-- what remains Chasum-assisted vs tenant self-serve;
-- current Competitive Product Gate / world-class parity.
+PO approved C1 implementation after the Claude Package C architecture verdict and
+four reconciled decisions: guided self-service with primary-owner authority;
+one uploaded CSV per run; raw24h/reviewed72h plus terminal1h retention; later C3
+per-run reminder opt-in default OFF. This supersedes the earlier read-only gate.
+
+Existing branch `codex/issue-73-package-c1-artifacts`, exact base
+`68d944a8fb0cad282bb5df7b6100c490785d53de`; no new branch. C1 adds private sources,
+artifacts/bucket, owner upload/verification/freeze/read/binding seams and fenced
+cleanup cron. [C1 implementation, local evidence, hosted gaps and manual audit
+prompt](../import/ISSUE_73_PACKAGE_C1.md) is the candidate authority. C1 is NOT
+merged, Staging accepted or Production accepted. Package C is not complete.
+
+Control Tower must reconcile the delivered immutable HEAD and dispatch Claude's
+independent code audit. State: PLANNED / NOT SENT / NOT RUNNING; no executable
+Claude channel or accepted run evidence in this session. Manual dispatch is the
+next blocker requiring Control Tower/Darshan. Supporting Codex reviews/tests
+completed; safe review can continue. Hosted work remains separately PO-gated.
+
+DB-first: apply exact C1 migration/Storage only after separate authorization,
+verify, then deploy application. This branch's automatic Git deployment is
+disabled in vercel.json until that gate. No hosted migration, Storage bucket,
+Staging/Production/GVM/HQ data or configuration was changed; runtime manifest
+remains the dated accepted record. Full-suite marketing failure was reproduced
+on exact base and has no changed C1 dependency; see evidence doc.
 
 Do **not** re-run B2 preflight, create a second import writer, connect source APIs, import real customer data, or start Production onboarding from this handoff.
 
@@ -196,11 +211,11 @@ Staff quota MERGED / STAGING + PRODUCTION ACCEPTED.
 Package B2 core MERGED / STAGING + PRODUCTION ACCEPTED.
 
 NEXT SAFE GATE:
-Package C READ-ONLY product/architecture/UX preflight only.
-Define the assisted Private Alpha migration workflow, reviewed-artifact handling,
-mapping/review/results UX, activation readiness, communications cutover, retry/audit
-and current Competitive Product Gate. Do not reopen B2 or implement Package C before
-the preflight is reconciled.
+Package C1 CODE-ONLY candidate independent Claude Level-3 implementation audit.
+Read docs/import/ISSUE_73_PACKAGE_C1.md; bind audit to delivered exact HEAD and
+migration hash. Control Tower/Darshan manually dispatches; no Claude run exists.
+C2/C3, hosted apply/storage, merge and Production remain unauthorized here.
+Do not reopen accepted B2. DB migration/Storage first, verify, application second.
 
 REQUESTED IS NOT RUNNING remains mandatory for all external-agent dispatch.
 Proceed automatically through safe read-only gates; stop only for a genuine Product Owner decision.
