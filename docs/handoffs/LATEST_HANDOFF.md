@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-23 by Codex for the authorized Issue #73 Staff quota CODE-ONLY candidate. Accepted Stage 1C runtime records preserved.
+**Updated:** 2026-09-23 by Codex for the authorized Issue #73 Package B2 core CODE-ONLY candidate. Accepted Stage 1C runtime records preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md).
 
@@ -12,7 +12,7 @@ Current program phase:
 
 **Outside Private Alpha readiness — IN PROGRESS.**
 
-Application-release main at this restamp base:
+Accepted Stage 1C application-release baseline (dated runtime evidence):
 
 `0a81084362ac43d076b35aa0cb463f4efd136afe`
 
@@ -23,6 +23,10 @@ This is PR #89 Stage 1C squash merge. Vercel Production deployment:
 is **READY** and direct `/api/build-info` reports the exact merge on `main`, `env=production`, `production=true`.
 
 Production Sentry remains OFF.
+
+Current Git main was verified at B2 entry as
+`18933a3268a57f01daf439b9d116b4672a002a1d` (PR #92 Staff quota merge).
+This task does not restamp the accepted Production runtime evidence above.
 
 ## B. Issue #81 multi-location Stage 1 — COMPLETE / PRODUCTION ACCEPTED
 
@@ -103,30 +107,38 @@ Package B1:
 - Staging APPLIED + VERIFIED;
 - Production DB **NOT APPLIED**.
 
+Staff quota:
+- PR #92 MERGED as `18933a3268a57f01daf439b9d116b4672a002a1d`;
+- Staging accepted per governed Issue #73;
+- Production migration **NOT APPLIED**.
+
 Package B2:
-- read-only product / architecture / security preflight COMPLETE;
-- live Issue #73 records Claude architecture audit COMPLETED and Product Owner
-  approval of D3-R, SQ, AUTH and SERVICE recommendations;
-- current engineering authorization is **Staff quota prerequisite only**;
-- B2 core writer remains outside this package and is not implemented here.
+- PO-authorized core implementation is now a **CODE-ONLY candidate** on
+  `codex/issue-73-package-b2-core`, exact base above;
+- server-only session authority, owner-only service-role RPCs, reviewed row/target
+  commitments, bounded atomic batches and fenced lease/recovery;
+- internal Services with enforced commercial review, closed imported Location/
+  Staff hours, exact-only future appointment money and no communications;
+- [B2 engineering evidence](../import/ISSUE_73_PACKAGE_B2.md) records schema,
+  operational behavior, privacy/recovery requirements and exact validation limits;
+- no B2 hosted migration, merge, Production, GVM/HQ or real import occurred.
 
 ### Exact next safe gate
 
-**Control Tower reconciliation and independent Claude Level-3 audit of the exact
-Staff quota candidate commit.** See [Staff quota engineering evidence](../import/ISSUE_73_STAFF_QUOTA.md).
+**Control Tower reconciliation of the exact Draft PR HEAD → independent Claude
+Level-3 B2 candidate audit.** The earlier architecture audit does not replace this.
 
-Staff quota hardening is **CODE-ONLY / candidate** on
-`codex/issue-73-staff-quota-hardening`, from exact base
-`e52b78d131a466e9a4926cc592f37f54764d9791`. Local database/application evidence
-is recorded in the focused note. No hosted migration has been applied.
+Execution truth: Codex implementation and supporting Codex review/tests executed.
+Claude is **BLOCKED ON MANUAL DISPATCH**; no executable channel, accepted task/run
+or returned candidate audit exists here. Darshan/Control Tower must send the exact
+candidate and immutable audit prompt from the final delivery report. Supporting
+Codex reviews are not that independent audit. Momentic/browser is PLANNED / NOT
+DISPATCHED for later synthetic hosted acceptance.
 
-Execution truth: Codex implementation executed with repository/test evidence.
-Claude's separate Staff quota audit is **PLANNED / NOT DISPATCHED**, with no
-accepted task/run evidence in this engineering session. Do not confuse the
-completed B2 architecture audit or supporting Codex review with candidate audit.
-
-Do not implement B2, apply Production B1, apply the Staff migration to hosted
-environments, or bulk-write operational records under this package's authority.
+Only after independent audit: separate PO Staging-apply decision, synthetic
+hosted acceptance, separate merge decision, then later Production prerequisite
+and rollout decisions. Production B1 and Staff-quota migrations remain unapplied.
+Migrations 034–036 remain out of scope. Safe code review can continue now.
 
 ## D. Other accepted program state
 
@@ -163,8 +175,9 @@ Read:
 
 Freshly query remote main and runtime before acting.
 
-Application-release main at this restamp base:
-0a81084362ac43d076b35aa0cb463f4efd136afe
+Current Git main / exact B2 base verified at entry:
+18933a3268a57f01daf439b9d116b4672a002a1d
+Accepted Stage 1C runtime baseline remains a separate dated record above.
 
 Issue #81 Stage 1 is COMPLETE / MERGED / STAGING + PRODUCTION ACCEPTED.
 Stage 2 overrides and Stage 3 live inheritance are deferred.
@@ -173,13 +186,14 @@ Migrations 034–036 remain unapplied.
 Issue #73 remains ACTIVE:
 Package A COMPLETE.
 Package B1 MERGED + STAGING VERIFIED / PRODUCTION DB NOT APPLIED.
-Package B2 core is outside the Staff quota-only implementation authorization.
+Staff quota MERGED + STAGING ACCEPTED / PRODUCTION migration NOT APPLIED.
+Package B2 core is now a PO-authorized CODE-ONLY candidate; see B2 engineering note.
 
 NEXT SAFE GATE:
-Staff quota CODE-ONLY candidate: Control Tower reconciliation and independent
-Claude Level-3 audit of the exact candidate commit. Staff audit is PLANNED /
-NOT DISPATCHED. No hosted migration apply is authorized. Do not mistake a
-GitHub @mention/prompt for a running agent.
+B2 CODE-ONLY candidate: Control Tower reconciliation and independent Claude
+Level-3 audit of exact Draft PR HEAD. Claude BLOCKED ON MANUAL DISPATCH; no
+execution evidence. No hosted apply or merge authorized. A posted prompt is
+not a running agent. Continue safe code review only.
 
 Do not start Gate B or Summer horizontal-v1 before Outside Private Alpha readiness closes.
 Proceed automatically through safe read-only gates; stop only for a genuine Product Owner decision.

@@ -279,6 +279,17 @@ function ServiceForm({
         <h3 id="service-pricing" className="text-sm font-semibold">
           Pricing
         </h3>
+        {service?.commercial_settings_reviewed === false && (
+          <div className="space-y-2 rounded-[var(--radius-sm)] border border-border p-3">
+            <p className="text-sm text-muted-foreground">
+              Imported tax and deposit settings need your review before online booking can be enabled.
+            </p>
+            <label className="flex items-start gap-2 text-sm">
+              <input type="checkbox" name="commercial_settings_reviewed" value="on" className="mt-1" />
+              I have reviewed this service’s tax and deposit settings and confirm they are correct.
+            </label>
+          </div>
+        )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="price">Price ($)</Label>

@@ -235,6 +235,7 @@ export type Service = {
   is_active: boolean;
   online_booking: boolean;
   taxable?: boolean;
+  commercial_settings_reviewed?: boolean;
   deposit_required?: boolean;
   deposit_cents?: number;
   tax_rate_bps?: number;

@@ -18,6 +18,7 @@ import {
   type LocationScope,
 } from "@/lib/location/constants";
 import { readLocationScopeCookie } from "@/lib/location/scope";
+import { locationSlug as slugify } from "@/lib/location/slug";
 import { createClient } from "@/lib/supabase/server";
 import type {
   ActionState,
@@ -30,14 +31,6 @@ import type {
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { cache } from "react";
-
-function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 48);
-}
 
 export const getLocations = cache(async (): Promise<Location[]> => {
   const business = await getOrCreateBusiness();
