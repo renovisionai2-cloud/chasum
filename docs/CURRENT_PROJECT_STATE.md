@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-09-23. **Updated by:** ChatGPT Control Tower for Issue #73 Package B2 Staging + Production acceptance and release-order reconciliation.
+**Snapshot date:** 2026-09-23. **Updated by:** Codex for PO-authorized Issue #73 Package C1 code-only candidate; accepted B2 release unchanged.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
 
 | Control field | Current record |
@@ -21,8 +21,9 @@
 | Competitive Product Gate | Permanent for material customer/operator features. |
 | Primary engineering governance | Codex = primary engineer; ChatGPT = Control Tower; Claude = independent high-risk auditor; Momentic/equivalent = browser/workflow validation; Cursor = local/authenticated/device-specific fallback. |
 | Deferred / design-for-now | Stage 2 location overrides, Stage 3 live inheritance, resource-aware booking, durable Summer action provenance, true employee RBAC, tenant switcher, Production Sentry activation, native apps, branded domain, residual historical security/migration debt when specifically scoped. |
-| Exact next substantive gate | **Issue #73 Package C — READ-ONLY product / architecture / UX preflight.** Define the assisted Private Alpha customer workflow (Upload → Map → Review → Import → Results), short-TTL reviewed-artifact handling, activation/readiness checks for imported Locations/Services/Staff, communications cutover, results/retry UX, and the current Competitive Product Gate. Do not re-open B2 core or begin customer-facing implementation until this preflight is reconciled. |
-| Product Owner input | No Product Owner input is required for the next **read-only Package C preflight**. Any customer-facing Package C implementation, real outside-customer import, Production onboarding/cutover, provider/API connection, or broader commercial rollout remains separately governed. |
+| Package C1 candidate | **IMPLEMENTED / LOCAL VALIDATION / NOT MERGED / NOT HOSTED-APPLIED.** PO authorized private artifact foundation only on `codex/issue-73-package-c1-artifacts`, base `68d944a8fb0cad282bb5df7b6100c490785d53de`. [C1 evidence and gaps](import/ISSUE_73_PACKAGE_C1.md). Guided self-service, one CSV/run, locked raw24h/reviewed72h+terminal1h retention; reminders remain default-OFF C3 scope. Global-by-design preserved. |
+| Exact next substantive gate | **Independent Claude Level-3 audit of exact C1 candidate**, reconciled by Control Tower. Claude dispatch PLANNED / NOT SENT / NOT RUNNING; manual dispatch prompt in C1 doc. Supporting Codex review is not that audit. C2/C3 and Package C overall remain incomplete. |
+| Product Owner input | C1 code/local validation/Draft PR authorized. No merge, hosted migration/Storage, Staging/Production/GVM/HQ mutation or real files authorized. Branch automatic Git deployment disabled pending DB-first gate: migration/Storage → verify → application. Control Tower/Darshan must dispatch the independent audit, then separately authorize hosted work. |
 
 GVM Baby World and Chasum HQ remain normal tenants. Platform Admin remains separate at `/owner`.
 
