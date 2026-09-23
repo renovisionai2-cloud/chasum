@@ -41,20 +41,46 @@ Also foundational (earlier phases): design system, multi-tenant schema + RLS, se
 
 ## Future
 
-### Locked execution order — 2026-09-20
+### Locked execution order — 2026-09-23
 
-1. Outside Private Alpha readiness — **current**.
-2. Commercial SaaS Gate B.
-3. Summer Business Manager horizontal v1.
-4. Native material implementation after the Native App Start Gate and before broader public launch.
+1. Outside Private Alpha readiness / Issue #73 — **current**.
+2. **Global Readiness Foundation.**
+3. Commercial SaaS Gate B.
+4. Summer Business Manager horizontal v1.
+5. Native material implementation after the Native App Start Gate.
+6. Broader regional / public expansion.
 
-Phase 5 is complete. GVM + Chasum HQ continue real-use validation in parallel, but they are no longer the program gate.
+Phase 5 is complete. GVM + Chasum HQ continue real-use validation in parallel, but they are no longer the program gate. Issue #73 remains the current chapter through its remaining customer-facing migration readiness work; the Global Readiness Foundation begins after Outside Private Alpha readiness closes.
 
 The latter chapters remain separately scoped/approved implementation work. Core Operations launch-required defects continue throughout; validation tenants do not become product forks or dominate the roadmap.
 
 Outside Private Alpha readiness includes meaningful Production error visibility and trace/correlation, tenant onboarding/identity safety, and switching/import/migration as a product capability for customers, staff, services and future appointments. Observability Phase A (#66/#67) and B2 (#69/#70) are Production accepted; the active bounded observability slice is Issue #68/B1 framework + client-safe capture integration. Production telemetry-provider activation remains a separate Product Owner gate. Summer-assisted onboarding/migration is a strategic opportunity.
 
 Gate B covers real provider billing, truthful subscriptions and account lifecycle, paid activation, upgrade/downgrade/cancellation, failed-payment/dunning behavior, entitlement synchronization and pricing-math reconciliation. Pricing remains configurable: **pay for 10 months and receive 2 months free**, not “20% off.” Before selling multi-staff operation, resolve practical staff login/invitations/roles/permissions/owner-admin boundaries; promised team access makes RBAC LAUNCH REQUIRED, otherwise claims must explicitly say owner-operated v1.
+
+### Global Readiness Foundation
+
+**GLOBAL ARCHITECTURE NOW. REGIONAL ACTIVATION DELIBERATELY.**
+
+Chasum is global-by-design. This foundation is a bounded architecture/audit chapter, not an attempt to launch every jurisdiction at once. Its purpose is to ensure future country/region activation does not require rewrites of core Business, Booking, CRM, Commerce, Communications or Summer architecture.
+
+Define and audit:
+
+- BCP-47 locale and language identity;
+- timezone and DST correctness;
+- currency and money semantics;
+- international address model;
+- international phone normalization;
+- configurable tax architecture;
+- invoice/legal localization fields;
+- payment-provider regional capability;
+- email/SMS/voice regional capability;
+- consent/privacy/compliance hooks;
+- translation/message catalogs;
+- RTL readiness;
+- Summer localization and business-context requirements.
+
+Country-specific rules must remain configurable or isolated behind regional/provider layers. The foundation establishes extension points, truth models and audit requirements; actual countries, providers and compliance regimes are activated deliberately as commercial scope justifies them.
 
 ### Summer Business Manager / intelligence layer
 
