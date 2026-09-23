@@ -9,19 +9,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-23 — Issue #73 Package B2 core (CODE-ONLY / candidate)
+### 2026-09-23 — Issue #73 Package B2 core (MERGED / STAGING + PRODUCTION ACCEPTED)
 
+- PR #93 exact accepted head `84168a3c630550f040866700def2edcacdbd16c2` squash-merged as `06c7d502948a321b706ba07036724c9178e428e7`; Vercel Production deployment `dpl_HUcbeyiham9KTNftrZCB4QTinu2K` READY and direct build-info confirms the exact merge on Production.
 - Add primary-owner-only, service-role governed import RPCs with authoritative snapshot/preview commitments, bounded atomic row/ref/audit batches, stable source identity and fenced lease recovery.
 - Preserve exact future-appointment money without booking events or communications; create safe blank Locations, internal Services with enforced explicit commercial review, and Staff with immediately closed seeded hours.
-- Reuse B1 audit tables, extract the unchanged Stage 1C slug helper, and add disposable PostgreSQL concurrency and application regression tests. See [B2 engineering evidence](import/ISSUE_73_PACKAGE_B2.md), including the unchanged baseline full-suite marketing failure.
-- B1 and Staff quota are merged/Staging accepted per Issue #73; their Production migrations remain unapplied. B2 is not merged or hosted-applied. Independent exact-candidate audit is the next gate; Staging/Production/GVM/HQ untouched by this task.
+- Production DB prerequisites were applied and verified DB-first before application deployment: B1 `20260923185926 / governed_import_foundation`, Staff quota `20260923190213 / issue_73_staff_quota_hardening`, B2 `20260923190501 / issue_73_package_b2_core`.
+- Exact B2 migration `20260923210000_issue_73_package_b2_core.sql`, SHA-256 `0f051b80fbdca7e199b8382e7d400785d408d73c6799beba17de0591c79c6062`.
+- Staging hosted synthetic acceptance passed owner authority, two-batch 65-row commit, begin-CAS, lease expiry/reclaim/fencing, readiness/closed-hours behavior, exact money, zero communications/job delta and full cleanup.
+- All 31 existing Production Services were preserved as reviewed; all 14 GVM Services reviewed. GVM remained 3 Locations / 14 Services / 3 Staff / 9 Appointments. Production import runs/refs/outcomes remained zero and no synthetic Production import/customer/provider test was created.
+- Governance incident retained: the B2 Staging migration had been applied earlier than its PO gate through a Supabase MCP management request; it was later detected/reconciled and not force-reapplied. Do not treat current schema as implicit authorization.
+- Issue #73 remains open for the customer-facing Package C migration product. Next safe gate is read-only Product/Architecture/UX preflight; do not reopen B2 core absent contradictory evidence.
 
 
-### 2026-09-23 — Issue #73 Staff quota hardening (CODE-ONLY / candidate)
+### 2026-09-23 — Issue #73 Staff quota hardening (MERGED / STAGING + PRODUCTION ACCEPTED)
 
+- PR #92 exact accepted head `d13bbf164a321296f7fb7fd9c627904ecc41fba7` squash-merged as `18933a3268a57f01daf439b9d116b4672a002a1d`.
 - Add guarded `subscription_plans.max_staff` values 1 / 3 / unlimited / unlimited and a Business-row-serialized Staff trigger for active INSERT and inactive→active UPDATE. Preserve grandfathered Staff and all non-consuming updates.
-- Map the controlled database quota error across existing Staff, employee and owner-onboarding writers; add application/SQL parity and disposable PostgreSQL concurrency tests.
-- Separate Level-3 prerequisite only; B2 core is not implemented. Independent candidate audit and hosted application authorization remain outstanding. Staging/Production/GVM/HQ untouched. See [engineering evidence](import/ISSUE_73_STAFF_QUOTA.md).
+- Exact migration `20260923152046_issue_73_staff_quota_hardening.sql`, SHA-256 `e79b37d31d5aaf3e28ac48d18949e1dd892bdd0c7eb97f98492f0165e0fd7432`, accepted on Staging and Production. Production ledger: `20260923190213 / issue_73_staff_quota_hardening`.
+- GVM remains a grandfathered Starter tenant with 3 active Staff against max 1; existing Staff were not removed/deactivated, but new active Staff/reactivation is blocked while at/above the finite cap.
+- Map the controlled database quota error across existing Staff, employee and owner-onboarding writers; application/SQL parity and disposable PostgreSQL concurrency tests passed.
 
 
 ### 2026-09-23 — Multi-location Add Location template workflow (Issue #81 Stage 1C, MERGED / PRODUCTION ACCEPTED)
