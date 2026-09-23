@@ -63,7 +63,11 @@ Chasum is intended for service businesses around the world. New material archite
 
 This principle does **not** mean activating every jurisdiction at once. Build the reusable global foundation now so countries and regions can be enabled progressively without core architectural rewrites.
 
-Related: [`PRODUCT_PRINCIPLES.md`](./PRODUCT_PRINCIPLES.md), [`../product/16_PRODUCT_PRINCIPLES.md`](../product/16_PRODUCT_PRINCIPLES.md).
+**GLOBAL PRODUCT READINESS + GLOBAL DISCOVERY + DELIBERATE REGIONAL ACTIVATION.**
+
+Global product readiness and global go-to-market are separate but connected disciplines. Marketing must consume governed product/readiness truth and must never advertise regional capabilities that are not actually supported.
+
+Related: [`GLOBAL_GO_TO_MARKET.md`](./GLOBAL_GO_TO_MARKET.md), [`PRODUCT_PRINCIPLES.md`](./PRODUCT_PRINCIPLES.md), [`../product/16_PRODUCT_PRINCIPLES.md`](../product/16_PRODUCT_PRINCIPLES.md).
 
 ---
 
