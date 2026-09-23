@@ -1,6 +1,6 @@
 # Issue #73 — Package C1 private artifact security foundation
 
-**Level 3 / CORRECTION CANDIDATE / NOT MERGED / HOSTED C1 ACCEPTANCE INCOMPLETE.**
+**Level 3 / MERGED / STAGING + PRODUCTION ACCEPTED.**
 PO-authorized base: `68d944a8fb0cad282bb5df7b6100c490785d53de`; remote main
 matched on entry. Branch: `codex/issue-73-package-c1-artifacts` (existing checkout).
 Accepted behavior-changing application release remains
@@ -17,6 +17,29 @@ The hosted-absence correction is also NOT_APPLICABLE: a narrowly bounded
 compatibility defect in the locked cleanup contract, with no new product behavior.
 
 USER-FACING WORKFLOW: NO
+
+## Production acceptance — 2026-09-23
+
+Package C1 is **MERGED / STAGING + PRODUCTION ACCEPTED**.
+
+- exact pre-merge release candidate: `266afa531f34d8dd2578b869be060ff58d7b5616`
+- squash merge / accepted application release: `35f8da7644fed8dfa46f70c3151610b6ae4f9dfa`
+- Production deployment: `dpl_2G4VhsqnzyFBxxLE8czcM2dhes3y` READY
+- exact migration: `20260923205834_issue_73_package_c1_private_artifacts.sql`
+- SHA-256: `c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089`
+- Production ledger: `20260923232629 / issue_73_package_c1_private_artifacts`
+- direct Production build-info confirmed exact merge SHA on `main`, `env=production`, `production=true`
+- Production health HTTP 200; CRON secret configured; unauthenticated cleanup route HTTP 401
+- Production C1 sources/artifacts/bucket objects: 0 / 0 / 0
+- Production B1/B2 runs/refs/outcomes: 0 / 0 / 0
+- GVM unchanged: 3 Locations / 14 Services / 3 Staff / 9 Appointments
+- background jobs / communication send intents unchanged: 611 / 17
+- no real Production import/source/customer artifact created
+- no GVM/HQ mutation
+
+Hosted Staging acceptance passed after the independently audited Storage-absence correction and complete synthetic teardown. C1 is closed absent contradictory evidence.
+
+**Next safe gate:** Package C2 READ-ONLY product/architecture/security/UX preflight. C2 implementation is not authorized by C1 acceptance.
 
 ## Hosted absence correction — 2026-09-23
 

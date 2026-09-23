@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-23 by Codex for PO-authorized Issue #73 Package C1 code-only delivery; accepted B2 Staging/Production state preserved.
+**Updated:** 2026-09-23 by ChatGPT Control Tower for Issue #73 Package C1 Staging + Production acceptance and C2 continuation.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md).
 
@@ -14,13 +14,13 @@ Current program phase:
 
 Latest accepted **behavior-changing** Production application release:
 
-`06c7d502948a321b706ba07036724c9178e428e7`
+`35f8da7644fed8dfa46f70c3151610b6ae4f9dfa`
 
-This is PR #93 Package B2 core squash merge. Vercel Production deployment:
+This is PR #97 Package C1 squash merge. Vercel Production deployment:
 
-`dpl_HUcbeyiham9KTNftrZCB4QTinu2K`
+`dpl_2G4VhsqnzyFBxxLE8czcM2dhes3y`
 
-is **READY**. Direct `/api/build-info` confirmed this exact behavior-changing merge at acceptance. Later documentation-only merges may advance Git/serving SHA without changing application behavior, so fresh main/runtime evidence wins for consequential work. Direct `/api/health` HTTP 200 reported `ok=true`; health remains configuration-presence evidence only.
+is **READY**. Direct `/api/build-info` HTTP 200 confirmed the exact merge on `main`, `env=production`, `production=true`. Direct `/api/health` HTTP 200 reported `ok=true`, with Supabase/service-role/email/CRON secret configured and soft schema fallback disabled. Later documentation-only merges may advance Git/serving SHA without changing application behavior, so fresh runtime evidence wins for consequential work.
 
 Production Sentry remains OFF.
 
@@ -97,69 +97,61 @@ Package A:
 - COMPLETE / accepted deterministic preview foundation.
 
 Package B1:
-- MERGED;
-- exact migration `20260921203029_governed_import_foundation.sql`;
-- SHA-256 `57b79680fdc60ad5789d90d1d9e6e9600b9b15fb84002687e86c1130acd4dc9f`;
-- Staging APPLIED + VERIFIED;
-- Production APPLIED + VERIFIED as ledger `20260923185926 / governed_import_foundation`.
+- MERGED / STAGING + PRODUCTION ACCEPTED.
+- Production ledger `20260923185926 / governed_import_foundation`.
 
 Staff quota:
-- PR #92 MERGED;
-- exact migration `20260923152046_issue_73_staff_quota_hardening.sql`;
-- SHA-256 `e79b37d31d5aaf3e28ac48d18949e1dd892bdd0c7eb97f98492f0165e0fd7432`;
-- Staging APPLIED + VERIFIED;
-- Production APPLIED + VERIFIED as ledger `20260923190213 / issue_73_staff_quota_hardening`;
-- GVM remains a grandfathered Starter tenant with 3 active Staff against max 1; existing Staff were not removed/deactivated.
+- MERGED / STAGING + PRODUCTION ACCEPTED.
+- Production ledger `20260923190213 / issue_73_staff_quota_hardening`.
+- GVM remains grandfathered Starter with 3 active Staff against max 1; existing Staff were not removed/deactivated.
 
 Package B2 core:
-- exact accepted PR head `84168a3c630550f040866700def2edcacdbd16c2`;
-- squash merge / current main `06c7d502948a321b706ba07036724c9178e428e7`;
-- exact migration `20260923210000_issue_73_package_b2_core.sql`;
-- SHA-256 `0f051b80fbdca7e199b8382e7d400785d408d73c6799beba17de0591c79c6062`;
-- Staging APPLIED + hosted synthetic acceptance PASS;
-- Production APPLIED + VERIFIED as ledger `20260923190501 / issue_73_package_b2_core`;
-- Production application deployment `dpl_HUcbeyiham9KTNftrZCB4QTinu2K` READY;
-- all 31 existing Production Services preserved as reviewed; all 14 GVM Services reviewed;
-- B1/B2 import tables remain empty in Production; no synthetic Production import/customer/provider test was created;
-- GVM remains 3 Locations / 14 Services / 3 Staff / 9 Appointments;
-- migrations 034–036 remain unapplied.
+- MERGED / STAGING + PRODUCTION ACCEPTED.
+- accepted release `06c7d502948a321b706ba07036724c9178e428e7`.
+- Production ledger `20260923190501 / issue_73_package_b2_core`.
+- exact migration SHA-256 `0f051b80fbdca7e199b8382e7d400785d408d73c6799beba17de0591c79c6062`.
 
-Governance incident retained:
-- the B2 Staging migration had been applied earlier than its PO gate through a Supabase MCP management request;
-- Control Tower later detected/reconciled the state and did not force/reapply it;
-- authorized hosted synthetic acceptance subsequently passed with complete cleanup;
-- preserve **REQUESTED IS NOT RUNNING** and explicit mutation gates; do not infer authorization from current schema.
+Package C1 private artifact security foundation:
+- **MERGED / STAGING + PRODUCTION ACCEPTED**.
+- exact pre-merge release candidate `266afa531f34d8dd2578b869be060ff58d7b5616`.
+- squash merge / accepted application release `35f8da7644fed8dfa46f70c3151610b6ae4f9dfa`.
+- Production deployment `dpl_2G4VhsqnzyFBxxLE8czcM2dhes3y` READY.
+- exact migration `20260923205834_issue_73_package_c1_private_artifacts.sql`.
+- SHA-256 `c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089`.
+- Production ledger `20260923232629 / issue_73_package_c1_private_artifacts`.
+- private `import-artifacts` bucket live with `public=false`; Production remains 0 C1 sources / 0 artifacts / 0 bucket objects.
+- RLS/FORCE RLS, zero client policies, service-role-only C1 RPC execution and no direct anon/authenticated table access verified.
+- hosted Staging acceptance proved signed-upload exact-path behavior, replay/upsert resistance, private direct-access denial, owner-only authority, actual-byte verification, reviewed-plan fidelity, B2 bind while committing, concurrent cleanup fencing and hard reviewed-plan expiry.
+- hosted Supabase missing-object shape `status=400/statusCode="404"` was discovered, narrowly corrected and independently audited before acceptance.
+- final Staging synthetic teardown restored sources/artifacts/runs/refs/outcomes/bucket objects/synthetic users/businesses to zero.
+- Production post-deploy: GVM unchanged 3 Locations / 14 Services / 3 Staff / 9 Appointments; background_jobs 611; communication_send_intents 17; import runs/refs/outcomes 0 / 0 / 0.
+- no real Production import/source/customer artifact was created.
+
+Locked Package C Product Owner decisions remain:
+- Private Alpha migration = guided self-service, primary Business owner authorizes/commits;
+- one uploaded CSV per governed run, with deterministic related-row expansion allowed;
+- raw artifact max 24h, reviewed artifact terminal+~1h / hard 72h fail-closed retention;
+- C3 reminder takeover is explicit per-run owner opt-in, default OFF.
 
 ### Exact next safe gate
 
-**Issue #73 Package C1 — code-only candidate → independent Level-3 audit.**
+**Issue #73 Package C2 — READ-ONLY product / architecture / security / UX preflight.**
 
-PO approved C1 implementation after the Claude Package C architecture verdict and
-four reconciled decisions: guided self-service with primary-owner authority;
-one uploaded CSV per run; raw24h/reviewed72h plus terminal1h retention; later C3
-per-run reminder opt-in default OFF. This supersedes the earlier read-only gate.
+Reconcile the smallest launch-required mapping/review layer on top of accepted A/B1/B2/C1:
 
-Existing branch `codex/issue-73-package-c1-artifacts`, exact base
-`68d944a8fb0cad282bb5df7b6100c490785d53de`; no new branch. C1 adds private sources,
-artifacts/bucket, owner upload/verification/freeze/read/binding seams and fenced
-cleanup cron. [C1 implementation, local evidence, hosted gaps and manual audit
-prompt](../import/ISSUE_73_PACKAGE_C1.md) is the candidate authority. C1 is NOT
-merged, Staging accepted or Production accepted. Package C is not complete.
+- UTF-8 CSV adapter and bounded parsing;
+- source identity selection/reuse;
+- deterministic header/field mapping;
+- explicit date/time interpretation;
+- reference mapping for Location / Service / Staff / Customer;
+- Package A preview integration;
+- review categories CREATE / LINK / SKIP / REVIEW / BLOCK;
+- exact reviewed-plan freeze into C1;
+- privacy-safe client-only rows-needing-attention export with spreadsheet-formula escaping;
+- mobile/tablet/desktop mapping UX and accessibility;
+- global-by-design boundaries for locale/date/currency/address/phone without implementing the later Global Readiness Foundation.
 
-Control Tower must reconcile the delivered immutable HEAD and dispatch Claude's
-independent code audit. State: PLANNED / NOT SENT / NOT RUNNING; no executable
-Claude channel or accepted run evidence in this session. Manual dispatch is the
-next blocker requiring Control Tower/Darshan. Supporting Codex reviews/tests
-completed; safe review can continue. Hosted work remains separately PO-gated.
-
-DB-first: apply exact C1 migration/Storage only after separate authorization,
-verify, then deploy application. This branch's automatic Git deployment is
-disabled in vercel.json until that gate. No hosted migration, Storage bucket,
-Staging/Production/GVM/HQ data or configuration was changed; runtime manifest
-remains the dated accepted record. Full-suite marketing failure was reproduced
-on exact base and has no changed C1 dependency; see evidence doc.
-
-Do **not** re-run B2 preflight, create a second import writer, connect source APIs, import real customer data, or start Production onboarding from this handoff.
+Do **not** implement C2 until the preflight is reconciled and independently audited. Do not reopen C1 absent contradictory evidence.
 
 ## D. Other accepted program state
 
@@ -192,30 +184,30 @@ Read:
 3. docs/runtime/ENVIRONMENT_MANIFEST.md
 4. docs/company/CHASUM_BIBLE.md
 5. docs/company/PRODUCT_PRINCIPLES.md
-6. live Issue #73
+6. docs/company/GLOBAL_GO_TO_MARKET.md
+7. live Issue #73
 
 Freshly query remote main/runtime before acting.
 
-Accepted behavior-changing Production application release:
-06c7d502948a321b706ba07036724c9178e428e7
+Latest accepted behavior-changing Production application release:
+35f8da7644fed8dfa46f70c3151610b6ae4f9dfa
 
-Documentation-only merges may have advanced current Git/serving SHA; freshly query both.
-
-Issue #81 Stage 1 is COMPLETE / STAGING + PRODUCTION ACCEPTED.
+Issue #81 Stage 1 COMPLETE / Production accepted.
 Migrations 034–036 remain unapplied.
 
 Issue #73 remains ACTIVE:
 Package A COMPLETE.
-Package B1 MERGED / STAGING + PRODUCTION ACCEPTED.
+B1 MERGED / STAGING + PRODUCTION ACCEPTED.
 Staff quota MERGED / STAGING + PRODUCTION ACCEPTED.
-Package B2 core MERGED / STAGING + PRODUCTION ACCEPTED.
+B2 core MERGED / STAGING + PRODUCTION ACCEPTED.
+C1 private artifact foundation MERGED / STAGING + PRODUCTION ACCEPTED.
 
 NEXT SAFE GATE:
-Package C1 CODE-ONLY candidate independent Claude Level-3 implementation audit.
-Read docs/import/ISSUE_73_PACKAGE_C1.md; bind audit to delivered exact HEAD and
-migration hash. Control Tower/Darshan manually dispatches; no Claude run exists.
-C2/C3, hosted apply/storage, merge and Production remain unauthorized here.
-Do not reopen accepted B2. DB migration/Storage first, verify, application second.
+Package C2 READ-ONLY product/architecture/security/UX preflight only.
+Define CSV parsing, source reuse, deterministic mapping, preview/review,
+reviewed-plan freeze integration, privacy-safe client-only error export,
+responsive/accessibility and global-by-design parsing boundaries.
+Do not implement C2 until preflight + independent audit are reconciled.
 
 REQUESTED IS NOT RUNNING remains mandatory for all external-agent dispatch.
 Proceed automatically through safe read-only gates; stop only for a genuine Product Owner decision.

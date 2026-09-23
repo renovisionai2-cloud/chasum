@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-23 — Issue #73 Package C1 Production acceptance
+
+- PR #97 exact release candidate `266afa531f34d8dd2578b869be060ff58d7b5616` squash-merged as `35f8da7644fed8dfa46f70c3151610b6ae4f9dfa`; Vercel Production deployment `dpl_2G4VhsqnzyFBxxLE8czcM2dhes3y` READY and direct build-info confirmed the exact merge.
+- Exact migration `20260923205834_issue_73_package_c1_private_artifacts.sql`, SHA-256 `c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089`, applied/verified Staging and Production. Production ledger: `20260923232629 / issue_73_package_c1_private_artifacts`.
+- Private `import-artifacts` bucket, source identity, artifact lifecycle, signed-upload verification, reviewed-plan storage, TTL/cleanup fencing and dedicated cleanup cron are accepted.
+- Hosted Staging found real Supabase missing-object shape `status=400/statusCode="404"`; a narrow correction was independently audited and retested before release.
+- Final Production invariants: C1 sources/artifacts/bucket objects 0/0/0; import runs/refs/outcomes 0/0/0; GVM unchanged 3/14/3/9; background_jobs/send_intents unchanged 611/17.
+- No real Production import/customer/source artifact was created. Package C remains active; next gate is C2 read-only mapping/review preflight.
+
+
 ### 2026-09-23 — Issue #73 Package C1 hosted-absence correction (not merged; hosted acceptance incomplete)
 
 - Hosted Staging acceptance exposed Supabase `info()` returning `status=400` / `statusCode="404"` after confirmed physical raw-object deletion. Recognize exact string/numeric 404 alongside existing not-found shapes; keep generic 400, auth/transport errors, still-present data and remove errors fail-closed.
