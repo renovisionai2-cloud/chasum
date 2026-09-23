@@ -66,6 +66,7 @@ import type {
   Service,
 } from "@/lib/types/booking";
 import { AddLocationDialog } from "@/components/dashboard/add-location-dialog";
+import type { LocationSetupContext } from "@/lib/actions/location";
 import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { confirmDelete, useFormAction, useRefresh } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
@@ -206,6 +207,7 @@ export function BusinessHub({
   business,
   locations,
   locationQuota,
+  locationSetupContext,
   services,
   categories,
   resources,
@@ -220,15 +222,19 @@ export function BusinessHub({
   holidays,
   closures,
   documents,
+  initialAddLocationOpen = false,
   initialTab = "profile",
 }: {
   business: Business;
   locations: Location[];
   locationQuota?: {
     plan: { name?: string | null; max_locations?: number | null } | null;
+    planName: string;
+    maxLocations: number | null;
     currentCount: number;
     canAdd: boolean;
   };
+  locationSetupContext: LocationSetupContext;
   services: Service[];
   categories: ServiceCategory[];
   resources: BookingResource[];
@@ -243,13 +249,16 @@ export function BusinessHub({
   holidays: Holiday[];
   closures: BusinessClosure[];
   documents: BusinessDocument[];
+  initialAddLocationOpen?: boolean;
   initialTab?: TabKey;
 }) {
   const [tab, setTab] = useState<TabKey>(() =>
     TABS.some((item) => item.key === initialTab) ? initialTab : "profile",
   );
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
-  const [addLocationOpen, setAddLocationOpen] = useState(false);
+  const [addLocationOpen, setAddLocationOpen] = useState(
+    initialAddLocationOpen,
+  );
   const [certificateId, setCertificateId] = useState<string | null>(null);
   const refresh = useRefresh();
   const { toast } = useToast();
@@ -580,16 +589,17 @@ export function BusinessHub({
               type="button"
               size="sm"
               onClick={() => setAddLocationOpen(true)}
+              disabled={locationQuota?.canAdd === false}
             >
               Add Location
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              {locationQuota?.plan?.max_locations == null
+              {locationQuota?.maxLocations == null
                 ? "Your plan allows unlimited locations. Manage hours, employees, and services per site."
-                : `Your plan allows ${locationQuota.plan.max_locations} location${
-                    locationQuota.plan.max_locations === 1 ? "" : "s"
+                : `Your plan allows ${locationQuota.maxLocations} location${
+                    locationQuota.maxLocations === 1 ? "" : "s"
                   } (${locationQuota.currentCount} in use). ${
                     locationQuota.canAdd
                       ? "You can add another location."
@@ -597,7 +607,7 @@ export function BusinessHub({
                   }`}
             </p>
             {!locationQuota?.canAdd &&
-            locationQuota?.plan?.max_locations != null ? (
+            locationQuota?.maxLocations != null ? (
               <div className="rounded-[var(--radius-md)] border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm">
                 <p className="font-medium text-amber-950 dark:text-amber-100">
                   Location limit reached
@@ -605,8 +615,8 @@ export function BusinessHub({
                 <p className="mt-1 text-xs text-muted-foreground">
                   {locationQuota.currentCount} active location
                   {locationQuota.currentCount === 1 ? "" : "s"} on{" "}
-                  {locationQuota.plan.name ?? "your plan"} (max{" "}
-                  {locationQuota.plan.max_locations}). Request a plan change to
+                  {locationQuota.planName} (max{" "}
+                  {locationQuota.maxLocations}). Request a plan change to
                   create another site.
                 </p>
                 <Link href="/apply" className="mt-2 inline-block">
@@ -649,6 +659,7 @@ export function BusinessHub({
                 type="button"
                 size="sm"
                 onClick={() => setAddLocationOpen(true)}
+                disabled={locationQuota?.canAdd === false}
               >
                 Add Location
               </Button>
@@ -662,6 +673,16 @@ export function BusinessHub({
                   Assign employees
                 </Button>
               </Link>
+              <Link href="/dashboard/business?tab=services">
+                <Button size="sm" variant="outline">
+                  Review services
+                </Button>
+              </Link>
+              <Link href="/dashboard/business?tab=rooms">
+                <Button size="sm" variant="outline">
+                  Rooms & resources
+                </Button>
+              </Link>
             </div>
             <EditLocationDialog
               location={editingLocation}
@@ -672,6 +693,16 @@ export function BusinessHub({
               open={addLocationOpen}
               onOpenChange={setAddLocationOpen}
               defaultTimezone={business.timezone}
+              setupContext={locationSetupContext}
+              canAdd={locationQuota?.canAdd ?? true}
+              planName={locationQuota?.planName ?? "your plan"}
+              maxLocations={locationQuota?.maxLocations ?? null}
+              blankDefaults={{
+                appointmentIntervalMinutes: business.appointment_interval_minutes,
+                bookingLimitDays: business.booking_limit_days,
+                maxDailyBookings: business.max_daily_bookings,
+                cancellationPolicy: business.cancellation_policy,
+              }}
             />
           </CardContent>
         </Card>

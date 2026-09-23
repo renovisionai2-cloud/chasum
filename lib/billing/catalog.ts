@@ -44,7 +44,7 @@ export const FALLBACK_PLANS: BillingPlan[] = [
     name: "Business",
     description:
       "Multi-location management, advanced automation, and collaboration for growing teams.",
-    maxLocations: 10,
+    maxLocations: 6,
     monthlyPriceCents: 14900,
     yearlyPriceCents: 149000,
     sortOrder: 3,

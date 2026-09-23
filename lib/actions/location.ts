@@ -1,7 +1,11 @@
 "use server";
 
-import { FREE_PLAN_LIMIT_MESSAGE } from "@/lib/marketing/pricing";
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import {
+  evaluateLocationQuota,
+  locationLimitReachedMessage,
+  planDisplayName,
+} from "@/lib/billing/plan-entitlements";
 import {
   normalizeBookingIntervalMinutes,
   resolveBookingIntervalMinutes,
@@ -104,113 +108,441 @@ export async function setLocationScope(
 
 export const getLocationQuota = cache(async (): Promise<{
   plan: SubscriptionPlan | null;
+  planName: string;
+  maxLocations: number | null;
   currentCount: number;
   canAdd: boolean;
 }> => {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
-  const [locations, planRes, canAddRes] = await Promise.all([
+  const [locations, planRes] = await Promise.all([
     getLocations(),
     supabase
       .from("subscription_plans")
       .select("*")
       .eq("plan_key", business.subscription_plan_key ?? "starter")
       .maybeSingle(),
-    supabase.rpc("can_add_location", { p_business_id: business.id }),
   ]);
 
+  const quota = evaluateLocationQuota(
+    locations.length,
+    business.subscription_plan_key,
+  );
+  const plan = planRes.data
+    ? ({ ...planRes.data, max_locations: quota.max } as SubscriptionPlan)
+    : null;
+
   return {
-    plan: planRes.data,
+    plan,
+    planName: plan?.name ?? planDisplayName(quota.planKey),
+    maxLocations: quota.max,
     currentCount: locations.length,
-    canAdd: canAddRes.data === true,
+    canAdd: quota.canAdd,
   };
 });
 
+export type LocationTemplateSource = {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  serviceCount: number;
+  openDayCount: number;
+  hourDayCount: number;
+  segmentCount: number;
+  weeklyHours: Array<{
+    dayOfWeek: number;
+    ranges: Array<{ openTime: string; closeTime: string }>;
+  }>;
+  settings: {
+    appointmentIntervalMinutes: number;
+    bookingLimitDays: number;
+    maxDailyBookings: number | null;
+    cancellationPolicy: string | null;
+    minBookingNoticeMinutes: number;
+    defaultTravelMinutes: number;
+    timezone: string | null;
+  } | null;
+};
+
+export type LocationSetupStaffOption = {
+  id: string;
+  name: string;
+  homeLocationId: string | null;
+  locationIds: string[];
+};
+
+export type LocationSetupContext = {
+  sources: LocationTemplateSource[];
+  staff: LocationSetupStaffOption[];
+  defaultLocationCount: number;
+  businessMinBookingNoticeMinutes: number;
+};
+
+export const getLocationSetupContext = cache(
+  async (): Promise<LocationSetupContext> => {
+    const business = await getOrCreateBusiness();
+    const supabase = await createClient();
+    const locations = await getLocations();
+    const locationIds = locations.map((location) => location.id);
+
+    const businessMinBookingNoticeMinutes = business.min_notice_minutes ?? 0;
+    if (locationIds.length === 0) {
+      return { sources: [], staff: [], defaultLocationCount: 0, businessMinBookingNoticeMinutes };
+    }
+
+    const [settingsRes, hoursRes, segmentsRes, servicesRes, staffRes] =
+      await Promise.all([
+        supabase
+          .from("location_settings")
+          .select(
+            "location_id, appointment_interval_minutes, booking_limit_days, max_daily_bookings, cancellation_policy, min_booking_notice_minutes, default_travel_minutes, timezone",
+          )
+          .in("location_id", locationIds),
+        supabase
+          .from("location_hours")
+          .select("location_id, day_of_week, is_open, open_time, close_time")
+          .in("location_id", locationIds),
+        supabase
+          .from("location_hour_segments")
+          .select("id, location_id, day_of_week, open_time, close_time, sort_order")
+          .in("location_id", locationIds),
+        supabase
+          .from("services")
+          .select("id, location_id, service_locations(location_id)")
+          .eq("business_id", business.id)
+          .eq("is_active", true),
+        supabase
+          .from("staff")
+          .select("id, name, location_id, staff_locations(location_id)")
+          .eq("business_id", business.id)
+          .eq("is_active", true)
+          .order("name"),
+      ]);
+
+    const errors = [
+      settingsRes.error,
+      hoursRes.error,
+      segmentsRes.error,
+      servicesRes.error,
+      staffRes.error,
+    ].filter(Boolean);
+    if (errors.length > 0) {
+      throw new Error("Location setup preview could not be loaded.");
+    }
+
+    const settingsByLocation = new Map(
+      (settingsRes.data ?? []).map((row) => [row.location_id as string, row]),
+    );
+    const hourDaysByLocation = new Map<string, number>();
+    const openDaysByLocation = new Map<string, number>();
+    for (const row of hoursRes.data ?? []) {
+      const id = row.location_id as string;
+      hourDaysByLocation.set(id, (hourDaysByLocation.get(id) ?? 0) + 1);
+      if (!row.is_open) continue;
+      openDaysByLocation.set(id, (openDaysByLocation.get(id) ?? 0) + 1);
+    }
+    const segmentsByLocation = new Map<string, number>();
+    for (const row of segmentsRes.data ?? []) {
+      const id = row.location_id as string;
+      segmentsByLocation.set(id, (segmentsByLocation.get(id) ?? 0) + 1);
+    }
+
+    const serviceRows = (servicesRes.data ?? []) as Array<{
+      id: string;
+      location_id: string | null;
+      service_locations?: Array<{ location_id: string }> | null;
+    }>;
+
+    const sources = locations.map((location) => {
+      const settings = settingsByLocation.get(location.id);
+      const serviceCount = serviceRows.filter(
+        (service) =>
+          service.location_id === location.id ||
+          (service.service_locations ?? []).some(
+            (row) => row.location_id === location.id,
+          ),
+      ).length;
+
+      return {
+        id: location.id,
+        name: location.name,
+        isDefault: location.is_default,
+        serviceCount,
+        openDayCount: openDaysByLocation.get(location.id) ?? 0,
+        hourDayCount: hourDaysByLocation.get(location.id) ?? 0,
+        segmentCount: segmentsByLocation.get(location.id) ?? 0,
+        weeklyHours: (hoursRes.data ?? [])
+          .filter((day) => day.location_id === location.id)
+          .sort((a, b) => a.day_of_week - b.day_of_week)
+          .map((day) => {
+            const segments = (segmentsRes.data ?? [])
+              .filter((segment) =>
+                segment.location_id === location.id &&
+                segment.day_of_week === day.day_of_week,
+              )
+              .sort((a, b) =>
+                a.sort_order - b.sort_order || a.open_time.localeCompare(b.open_time),
+              );
+            // Availability uses split hours before the single daily window.
+            const windows = segments.length > 0 ? segments : day.is_open ? [day] : [];
+            return {
+              dayOfWeek: day.day_of_week,
+              ranges: windows.map((window) => ({
+                openTime: window.open_time,
+                closeTime: window.close_time,
+              })),
+            };
+          }),
+        settings: settings
+          ? {
+              appointmentIntervalMinutes: Number(
+                settings.appointment_interval_minutes,
+              ),
+              bookingLimitDays: Number(settings.booking_limit_days),
+              maxDailyBookings:
+                settings.max_daily_bookings == null
+                  ? null
+                  : Number(settings.max_daily_bookings),
+              cancellationPolicy: settings.cancellation_policy ?? null,
+              minBookingNoticeMinutes: Number(
+                settings.min_booking_notice_minutes ?? 0,
+              ),
+              defaultTravelMinutes: Number(
+                settings.default_travel_minutes ?? 0,
+              ),
+              timezone: settings.timezone ?? null,
+            }
+          : null,
+      } satisfies LocationTemplateSource;
+    });
+
+    const staff = ((staffRes.data ?? []) as Array<{
+      id: string;
+      name: string;
+      location_id: string | null;
+      staff_locations?: Array<{ location_id: string }> | null;
+    }>).map((member) => {
+      const locationIds = new Set<string>();
+      if (member.location_id) locationIds.add(member.location_id);
+      for (const row of member.staff_locations ?? []) {
+        locationIds.add(row.location_id);
+      }
+      return {
+        id: member.id,
+        name: member.name,
+        homeLocationId: member.location_id,
+        locationIds: [...locationIds],
+      } satisfies LocationSetupStaffOption;
+    });
+
+    return {
+      sources,
+      staff,
+      businessMinBookingNoticeMinutes,
+      defaultLocationCount: locations.filter((location) => location.is_default)
+        .length,
+    };
+  },
+);
+
+export type LocationCreateState = ActionState & {
+  locationId?: string;
+  locationName?: string;
+  setupMode?: "default" | "copy" | "blank";
+  sourceLocationName?: string | null;
+  copiedServiceCount?: number;
+};
+
 export async function createLocation(
+  _prev: LocationCreateState,
+  formData: FormData,
+): Promise<LocationCreateState> {
+  const business = await getOrCreateBusiness();
+  const supabase = await createClient();
+
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Location name is required." };
+
+  const locations = await getLocations();
+  const quota = evaluateLocationQuota(
+    locations.length,
+    business.subscription_plan_key,
+  );
+  if (!quota.canAdd && quota.max != null) {
+    return {
+      error: locationLimitReachedMessage(
+        quota.planKey,
+        quota.max,
+        quota.currentCount,
+      ),
+    };
+  }
+
+  const setupMode = String(formData.get("setup_mode") ?? "default");
+  if (
+    setupMode !== "default" &&
+    setupMode !== "copy" &&
+    setupMode !== "blank"
+  ) {
+    return { error: "Choose how to set up this location." };
+  }
+
+  const sourceLocationId =
+    setupMode === "blank"
+      ? null
+      : String(formData.get("source_location_id") ?? "").trim() || null;
+  const defaultSource = locations.find((location) => location.is_default) ?? null;
+  const sourceLocation =
+    setupMode === "default"
+      ? defaultSource
+      : setupMode === "copy"
+        ? locations.find((location) => location.id === sourceLocationId) ?? null
+        : null;
+
+  if (setupMode !== "blank" && !sourceLocation) {
+    return {
+      error:
+        setupMode === "default"
+          ? "No active default location is available to copy."
+          : "Choose an active location to copy.",
+    };
+  }
+
+  const slug = slugify(name);
+  if (!slug) return { error: "Use at least one letter (a–z) or number in the location name." };
+
+  const timezone =
+    String(formData.get("timezone") ?? "").trim() || business.timezone;
+  const emptyToNull = (key: string) => {
+    const value = String(formData.get(key) ?? "").trim();
+    return value || null;
+  };
+
+  const { data, error } = await supabase.rpc("create_location_from_template", {
+    p_business_id: business.id,
+    p_name: name,
+    p_slug: slug,
+    p_timezone: timezone,
+    p_address_line1: emptyToNull("address_line1"),
+    p_address_line2: emptyToNull("address_line2"),
+    p_city: emptyToNull("city"),
+    p_state: emptyToNull("state"),
+    p_postal_code: emptyToNull("postal_code"),
+    p_phone: emptyToNull("phone"),
+    p_setup_mode: setupMode,
+    p_source_location_id:
+      setupMode === "default" ? defaultSource?.id ?? null : sourceLocationId,
+  });
+
+  if (error) {
+    if (
+      error.code === "PGRST202" ||
+      error.message.includes("create_location_from_template")
+    ) {
+      return {
+        error:
+          "Location template setup is not available in this environment yet.",
+      };
+    }
+    if (error.message.includes("LOCATION_LIMIT_REACHED") && quota.max != null) {
+      return {
+        error: locationLimitReachedMessage(
+          quota.planKey,
+          quota.max,
+          quota.currentCount,
+        ),
+      };
+    }
+    if (error.code === "23505") {
+      return { error: "This location name is already in use. Choose a different name." };
+    }
+    return { error: error.message };
+  }
+
+  const result = data as {
+    location_id?: string;
+    setup_mode?: "default" | "copy" | "blank";
+    source_location_id?: string | null;
+    copied_service_count?: number;
+  } | null;
+
+  if (!result?.location_id) {
+    return { error: "Location setup completed without a location id." };
+  }
+
+  await setLocationScope(result.location_id);
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/dashboard/business");
+
+  return {
+    success: `Location "${name}" created.`,
+    locationId: result.location_id,
+    locationName: name,
+    setupMode,
+    sourceLocationName: sourceLocation?.name ?? null,
+    copiedServiceCount: Number(result.copied_service_count ?? 0),
+  };
+}
+
+export async function assignStaffToLocation(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
+  const locationId = String(formData.get("location_id") ?? "").trim();
+  const staffIds = [
+    ...new Set(formData.getAll("staff_ids").map(String).filter(Boolean)),
+  ];
 
-  const name = (formData.get("name") as string)?.trim();
-  if (!name) return { error: "Location name is required." };
+  if (!locationId) return { error: "Location is required." };
 
-  const { data: canAdd } = await supabase.rpc("can_add_location", {
-    p_business_id: business.id,
-  });
-  if (!canAdd) {
-    const quota = await getLocationQuota();
-    const max = quota.plan?.max_locations;
-    if (max != null) {
-      return {
-        error: `${FREE_PLAN_LIMIT_MESSAGE} Your plan allows ${max} location${max === 1 ? "" : "s"} (${quota.currentCount} in use).`,
-      };
-    }
-    return {
-      error: FREE_PLAN_LIMIT_MESSAGE,
-    };
-  }
-
-  const slugInput = (formData.get("slug") as string)?.trim();
-  const slug = slugInput ? slugify(slugInput) : slugify(name);
-  const timezone =
-    (formData.get("timezone") as string) || business.timezone;
-  const addressLine1 = (formData.get("address_line1") as string) || null;
-  const city = (formData.get("city") as string) || null;
-  const state = (formData.get("state") as string) || null;
-  const postalCode = (formData.get("postal_code") as string) || null;
-  const phone = (formData.get("phone") as string) || null;
-
-  const { data: location, error } = await supabase
+  const { data: location, error: locationError } = await supabase
     .from("locations")
-    .insert({
-      business_id: business.id,
-      name,
-      slug,
-      timezone,
-      is_default: false,
-      is_active: true,
-      address_line1: addressLine1,
-      city,
-      state,
-      postal_code: postalCode,
-      phone,
-    })
     .select("id")
-    .single();
+    .eq("id", locationId)
+    .eq("business_id", business.id)
+    .eq("is_active", true)
+    .maybeSingle();
 
-  if (error) {
-    if (error.code === "23505") {
-      return { error: "A location with this slug already exists." };
-    }
-    return { error: error.message };
+  if (locationError || !location) {
+    return { error: "The new location could not be verified." };
   }
 
-  await supabase.from("location_settings").insert({
-    location_id: location.id,
-    appointment_interval_minutes: normalizeBookingIntervalMinutes(
-      business.appointment_interval_minutes,
-    ),
-    booking_limit_days: business.booking_limit_days ?? 60,
-    max_daily_bookings: business.max_daily_bookings,
-    cancellation_policy: business.cancellation_policy,
-  });
+  if (staffIds.length === 0) {
+    return { success: "No staff assigned yet." };
+  }
 
-  await supabase.from("location_hours").insert(
-    Array.from({ length: 7 }, (_, day) => ({
-      location_id: location.id,
-      day_of_week: day,
-      is_open: day >= 1 && day <= 5,
-      open_time: "09:00",
-      close_time: "17:00",
+  const { data: staffRows, error: staffError } = await supabase
+    .from("staff")
+    .select("id")
+    .eq("business_id", business.id)
+    .eq("is_active", true)
+    .in("id", staffIds);
+
+  if (staffError || (staffRows ?? []).length !== staffIds.length) {
+    return { error: "One or more selected staff members are unavailable." };
+  }
+
+  const { error } = await supabase.from("staff_locations").upsert(
+    staffIds.map((staffId) => ({
+      staff_id: staffId,
+      location_id: locationId,
+      is_primary: false,
     })),
+    { onConflict: "staff_id,location_id" },
   );
 
-  await setLocationScope(location.id);
-  revalidatePath("/dashboard", "layout");
-  return { success: `Location "${name}" created.` };
+  if (error) return { error: "Staff assignments could not be saved." };
+
+  revalidatePath("/dashboard/business");
+  revalidatePath("/dashboard/staff");
+  revalidatePath("/dashboard/employees");
+  revalidatePath("/dashboard/calendar");
+  return {
+    success: `${staffIds.length} staff member${staffIds.length === 1 ? "" : "s"} assigned.`,
+  };
 }
 
 export async function updateLocation(

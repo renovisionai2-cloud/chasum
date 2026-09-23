@@ -1,18 +1,15 @@
 "use client";
 
-import { AddLocationDialog } from "@/components/dashboard/add-location-dialog";
-import { UpgradeToProfessionalModal } from "@/components/marketing/upgrade-to-professional-modal";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { ALL_LOCATIONS } from "@/lib/location/constants";
 import { setLocationScope } from "@/lib/actions/location";
 import type { LocationScope } from "@/lib/location/constants";
-import { FREE_PLAN_UPGRADE_CTA } from "@/lib/marketing/pricing";
 import type { Location, SubscriptionPlan } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { MapPin, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 
 type LocationSwitcherProps = {
   locations: Location[];
@@ -37,8 +34,6 @@ export function LocationSwitcher({
 }: LocationSwitcherProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [addOpen, setAddOpen] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   function handleChange(value: string) {
     startTransition(async () => {
@@ -61,14 +56,10 @@ export function LocationSwitcher({
           variant="outline"
           size="sm"
           className="h-9 shrink-0 px-2.5 text-xs"
-          onClick={() => setUpgradeOpen(true)}
+          onClick={() => router.push("/apply")}
         >
-          {FREE_PLAN_UPGRADE_CTA}
+          Request plan change
         </Button>
-        <UpgradeToProfessionalModal
-          open={upgradeOpen}
-          onClose={() => setUpgradeOpen(false)}
-        />
       </div>
     );
   }
@@ -101,7 +92,9 @@ export function LocationSwitcher({
           variant="outline"
           size="sm"
           className="h-9 shrink-0 px-2.5"
-          onClick={() => setAddOpen(true)}
+          onClick={() =>
+            router.push("/dashboard/business?tab=locations&add=1")
+          }
           aria-label="Add location"
         >
           <Plus className="h-4 w-4" />
@@ -112,20 +105,11 @@ export function LocationSwitcher({
           variant="outline"
           size="sm"
           className="h-9 shrink-0 px-2.5 text-xs"
-          onClick={() => setUpgradeOpen(true)}
+          onClick={() => router.push("/apply")}
         >
-          {FREE_PLAN_UPGRADE_CTA}
+          Request plan change
         </Button>
       )}
-      <AddLocationDialog
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        defaultTimezone={locations[0]?.timezone ?? undefined}
-      />
-      <UpgradeToProfessionalModal
-        open={upgradeOpen}
-        onClose={() => setUpgradeOpen(false)}
-      />
     </div>
   );
 }
