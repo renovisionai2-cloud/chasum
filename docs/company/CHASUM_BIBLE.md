@@ -53,6 +53,15 @@ Chasum is not “another booking tool.” Chasum is the operating layer for mode
 - **No breaking multi-tenant FKs** — Additive migrations, soft fallbacks when tables are missing, location scope respected.
 - **Mobile-first operations** — Reception and owner workflows must work on phones and tablets.
 - **Owner control** — Automation expands with consent; kill-switches and approvals matter.
+- **Global by design** — Core Business, Booking, CRM, Commerce, Communications, AI and tenant architecture must not silently assume one country or region.
+
+### Global architecture principle
+
+**GLOBAL ARCHITECTURE NOW. REGIONAL ACTIVATION DELIBERATELY.**
+
+Chasum is intended for service businesses around the world. New material architecture must preserve international capability for locale/language, timezone/DST, currency/money, addresses, phone numbers, tax, invoice/legal fields, payments, communications, consent/privacy/compliance and Summer business context. Country-specific behavior belongs in configurable regional/provider layers rather than hardcoded core-domain assumptions.
+
+This principle does **not** mean activating every jurisdiction at once. Build the reusable global foundation now so countries and regions can be enabled progressively without core architectural rewrites.
 
 Related: [`PRODUCT_PRINCIPLES.md`](./PRODUCT_PRINCIPLES.md), [`../product/16_PRODUCT_PRINCIPLES.md`](../product/16_PRODUCT_PRINCIPLES.md).
 
