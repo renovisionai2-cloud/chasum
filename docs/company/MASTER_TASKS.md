@@ -38,7 +38,7 @@ Update this file at the start of every sprint. It is the working queue — not a
 1. **Issue #68 / Observability Phase B1 — ACTIVE / Codex-owned.** Reconcile Codex work onto current main, preserve accepted B2 worker-health truth, run tests/Preview/Vercel + Claude audit, then bring only the genuine merge decision. Production Sentry/provider activation remains separately PO-governed.
 2. Tenant onboarding / identity safety acceptance for an outside design partner.
 3. Governed switching/import/migration capability for customers, staff, services and future appointments; Summer-assisted migration remains an opportunity, not the current implementation mandate.
-4. **Global Readiness Foundation** — after Outside Private Alpha readiness; architecture/audit foundation for progressive regional activation, not every-jurisdiction implementation.
+4. **Global Readiness Foundation** — after Outside Private Alpha readiness; architecture/audit foundation for progressive regional activation, including the single governed Market Readiness Matrix. Global GTM strategy is documented now but implementation remains deferred.
 5. Commercial SaaS Gate B — after Global Readiness Foundation; separately scoped/approved.
 6. Summer Business Manager horizontal v1 — after Gate B; separately scoped/approved.
 

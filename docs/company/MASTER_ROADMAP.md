@@ -82,6 +82,22 @@ Define and audit:
 
 Country-specific rules must remain configurable or isolated behind regional/provider layers. The foundation establishes extension points, truth models and audit requirements; actual countries, providers and compliance regimes are activated deliberately as commercial scope justifies them.
 
+The Global Readiness Foundation must also establish or prepare the **single governed Market Readiness Matrix** used by later country activation and marketing. Where relevant it should cover language/locale, currency, timezone/DST, tax, invoice/legal fields, address/phone readiness, payment and communication providers, consent/privacy/compliance, product readiness, migration readiness, support readiness, marketing readiness and activation status.
+
+### Global discovery / go-to-market
+
+Durable principle:
+
+**GLOBAL PRODUCT READINESS + GLOBAL DISCOVERY + DELIBERATE REGIONAL ACTIVATION.**
+
+Product readiness answers whether Chasum can operate safely in a market; Global GTM answers how a service business discovers, evaluates, switches to and recommends Chasum. Marketing may become globally discoverable before every country is commercially active, but **marketing must never outrun product truth**.
+
+Future country/industry/comparison/partner discovery, SEO/AEO/GEO, assisted switching, referrals, partner distribution and regional acquisition must consume the Global Readiness product truth rather than maintain an independent country-capability list.
+
+Trinidad & Tobago and Guyana remain candidate early international design-partner markets, with Jamaica and Barbados possible Caribbean candidates subject to readiness/research. This does not authorize launch or lock exact regional order.
+
+See [Global Go-To-Market Strategy](./GLOBAL_GO_TO_MARKET.md). No Global GTM implementation project starts during Issue #73.
+
 ### Summer Business Manager / intelligence layer
 
 Summer horizontal v1 is the explicit major intelligence track, not a chatbot, receptionist, FAQ bot or copy generator. Across booking/calendar, customers, staff/locations, payments, invoices/receipts, communications, reporting and business setup/context, progress through **UNDERSTAND → EXPLAIN → RECOMMEND → ACT WITH PERMISSION → AUDIT**; longer-term **AUTOMATE SAFELY → OPERATE PROACTIVELY**.
