@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-23 — Issue #73 Package C1 hosted-absence correction (not merged; hosted acceptance incomplete)
+
+- Hosted Staging acceptance exposed Supabase `info()` returning `status=400` / `statusCode="404"` after confirmed physical raw-object deletion. Recognize exact string/numeric 404 alongside existing not-found shapes; keep generic 400, auth/transport errors, still-present data and remove errors fail-closed.
+- Add focused regressions, installed-SDK mocked transport and cleanup result coverage without weakening existing tests. Migration filename/bytes/SHA, schema, Storage policies, lifecycle and configuration remain unchanged.
+- No hosted calls or mutations in this correction. Independent Claude correction audit must precede Control Tower's exact corrected Preview redeploy and resumed acceptance fixture; C1/Staging PASS is not claimed. See [C1 evidence](import/ISSUE_73_PACKAGE_C1.md).
+
 ### 2026-09-23 — Issue #73 Package C1 (code-only candidate; not merged or hosted-applied)
 
 - Add private import-source identity and artifact lifecycle metadata, service-role-only owner-authorized RPCs, and a migration-managed private `import-artifacts` bucket; preserve accepted B1/B2 writer/audit behavior.

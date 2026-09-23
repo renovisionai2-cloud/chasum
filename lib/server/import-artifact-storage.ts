@@ -78,7 +78,10 @@ export async function deleteArtifactObject(service: Service, key: string): Promi
     if (removed.error) return false;
     const info = await bucket.info(key);
     if (info.data) return false;
-    const error = info.error as { statusCode?: string; status?: number } | null;
-    return error?.statusCode === "NoSuchKey" || error?.statusCode === "ObjectNotFound" || error?.status === 404;
+    // Hosted Storage can return HTTP 400 with a body statusCode of "404".
+    // The SDK also passes numeric body statusCode values through unchanged.
+    const error = info.error as { statusCode?: string | number; status?: number } | null;
+    return error?.statusCode === "404" || error?.statusCode === 404
+      || error?.statusCode === "NoSuchKey" || error?.statusCode === "ObjectNotFound" || error?.status === 404;
   } catch { return false; }
 }

@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
+import { StorageClient } from "@supabase/storage-js";
 const mock = vi.hoisted(() => ({ user: vi.fn(), business: vi.fn(), service: vi.fn(), rpc: vi.fn(),
   from: vi.fn(), sign: vi.fn(), info: vi.fn(), download: vi.fn(), upload: vi.fn(), remove: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -212,6 +213,72 @@ it("sanitizes thrown transport errors and never logs payload or label", async ()
 });
 
 describe("cleanup with mocked Storage; provider behavior is a hosted gate", () => {
+  it.each([
+    { status: 400, statusCode: "404" },
+    { status: 400, statusCode: 404 },
+    { status: 400, statusCode: "NoSuchKey" },
+    { status: 400, statusCode: "ObjectNotFound" },
+    { status: 404 },
+  ])("confirms exact absence for %j", async error => {
+    mock.info.mockResolvedValue({ data: null, error });
+    expect(await deleteArtifactObject(service as never, rawKey)).toBe(true);
+    expect(mock.remove).toHaveBeenCalledExactlyOnceWith([rawKey]);
+    expect(mock.info).toHaveBeenCalledExactlyOnceWith(rawKey);
+    expect(mock.remove.mock.invocationCallOrder[0]).toBeLessThan(mock.info.mock.invocationCallOrder[0]);
+  });
+  it.each([
+    { status: 400 },
+    { status: 400, statusCode: "InvalidRequest" },
+    { status: 400, statusCode: "400" },
+    { status: 400, statusCode: 400 },
+    { status: 401, statusCode: "InvalidJWT" },
+    { status: 403, statusCode: "AccessDenied" },
+    { status: 500, statusCode: "InternalError" },
+    { status: 503, statusCode: "SlowDown" },
+    { message: "Object not found" },
+    new TypeError("fetch failed"),
+    {},
+    null,
+  ])("fails closed without confirmed absence for %j", async error => {
+    mock.info.mockResolvedValue({ data: null, error });
+    expect(await deleteArtifactObject(service as never, rawKey)).toBe(false);
+  });
+  it.each([null, { status: 400, statusCode: "404" }])("rejects still-present data even with error %j", async error => {
+    mock.info.mockResolvedValue({ data: { size: 1 }, error });
+    expect(await deleteArtifactObject(service as never, rawKey)).toBe(false);
+  });
+  it.each([{ status: 500 }, { status: 400, statusCode: "404" }])("rejects remove errors before checking absence: %j", async error => {
+    mock.remove.mockResolvedValue({ data: null, error });
+    expect(await deleteArtifactObject(service as never, rawKey)).toBe(false);
+    expect(mock.info).not.toHaveBeenCalled();
+  });
+  it.each(["remove", "info"] as const)("fails closed when %s throws a transport error", async operation => {
+    mock[operation].mockRejectedValue(new TypeError("fetch failed"));
+    expect(await deleteArtifactObject(service as never, rawKey)).toBe(false);
+    if (operation === "remove") expect(mock.info).not.toHaveBeenCalled();
+  });
+  it.each(["404", 404])("accepts installed SDK HTTP 400 / body statusCode %j with mocked transport", async statusCode => {
+    const origin = "https://synthetic.example.invalid/storage/v1";
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response("[]", { status: 200, headers: { "Content-Type": "application/json" } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ statusCode, error: "not_found", message: "Object not found" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }));
+    const storage = new StorageClient(origin, {}, fetcher);
+    expect(await deleteArtifactObject({ storage } as never, rawKey)).toBe(true);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher.mock.calls[0]).toEqual([`${origin}/object/import-artifacts`, expect.objectContaining({ method: "DELETE", body: JSON.stringify({ prefixes: [rawKey] }) })]);
+    expect(fetcher.mock.calls[1]).toEqual([`${origin}/object/info/import-artifacts/${rawKey}`, expect.objectContaining({ method: "GET" })]);
+  });
+  it("records hosted-shaped raw absence while retaining the private reviewed object", async () => {
+    frozen();
+    mock.rpc.mockImplementation(async name => ({ data: name === "c1_claim_cleanup" ? [claim()] : null, error: null }));
+    mock.info.mockResolvedValue({ data: null, error: { status: 400, statusCode: "404" } });
+    expect(await cleanupArtifactBatch(service as never)).toEqual({ claimed: 1, confirmed: 1, failed: 0 });
+    expect(objects.has(rawKey)).toBe(false);
+    expect(objects.has(reviewedKey)).toBe(true);
+    expect(mock.remove).toHaveBeenCalledExactlyOnceWith([rawKey]);
+    expect(mock.rpc).toHaveBeenLastCalledWith("c1_finish_cleanup", { p_artifact: id, p_token: token, p_raw_deleted: true, p_reviewed_deleted: false });
+  });
   it("confirms remove plus exact absence before metadata finalize", async () => {
     mock.rpc.mockImplementation(async name => ({ data: name === "c1_claim_cleanup" ? [claim()] : null, error: null }));
     expect(await cleanupArtifactBatch(service as never)).toEqual({ claimed: 1, confirmed: 1, failed: 0 });

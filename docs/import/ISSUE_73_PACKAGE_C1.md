@@ -1,6 +1,6 @@
 # Issue #73 — Package C1 private artifact security foundation
 
-**Level 3 / CODE-ONLY CANDIDATE / NOT MERGED / NOT HOSTED-APPLIED.**
+**Level 3 / CORRECTION CANDIDATE / NOT MERGED / HOSTED C1 ACCEPTANCE INCOMPLETE.**
 PO-authorized base: `68d944a8fb0cad282bb5df7b6100c490785d53de`; remote main
 matched on entry. Branch: `codex/issue-73-package-c1-artifacts` (existing checkout).
 Accepted behavior-changing application release remains
@@ -13,8 +13,61 @@ COMPETITIVE GATE APPLICABILITY: NOT_APPLICABLE
 NOT APPLICABLE REASON: internal privacy/security/artifact foundation implementing
 an already-audited Package C product contract; no customer-facing mapping/import
 workflow is introduced in C1.
+The hosted-absence correction is also NOT_APPLICABLE: a narrowly bounded
+compatibility defect in the locked cleanup contract, with no new product behavior.
 
 USER-FACING WORKFLOW: NO
+
+## Hosted absence correction — 2026-09-23
+
+Source: Product Owner / Control Tower correction handoff; no hosted calls were
+made by Codex for this correction. Starting HEAD:
+`8b7e2c39d77ce28aacf6716211d5439079edd07d`, Draft PR #97. Fresh remote main remains
+`68d944a8fb0cad282bb5df7b6100c490785d53de`.
+
+The original independent Claude Level-3 implementation audit returned
+**A — PASS / READY FOR PRODUCT OWNER STAGING-C1 DECISION**. PO then authorized
+Staging C1 migration and application/security acceptance. The handoff reports
+the exact migration applied and verified as ledger
+`20260923221157 / issue_73_package_c1_private_artifacts`, with Preview
+`dpl_AM5fXYWTiRwFcBNwGVHwKQHkfwjM` serving the starting HEAD above.
+
+Hosted `remove()` succeeded and the raw object was independently absent from
+`storage.objects`, but `info(key)` returned `data=null`, `error.status=400`,
+`error.statusCode="404"`. The previous allowlist misclassified that response:
+`claimed=1 / confirmed=0 / failed=1`, artifact `reviewed_frozen`,
+`raw_deleted_at=NULL`, `cleanup_failed=TRUE`; reviewed bytes remained private
+and present. **Hosted C1 acceptance and Staging PASS are not claimed.**
+
+This correction adds only exact string/numeric `statusCode` 404 to the existing
+absence allowlist. `NoSuchKey`, `ObjectNotFound` and `status=404` remain accepted.
+Ambiguous 400, `statusCode="400"`, auth/transport errors, other unrecognized
+errors, still-present data and any `remove()` error remain failures. The installed
+Storage SDK passes numeric body status codes through despite its string type;
+both forms are exercised through an entirely mocked SDK transport.
+
+All migration bytes/hash, schema/ACL/RLS, bucket policies, lifecycle, retention,
+fencing, ordering, owner authority, cron and Vercel configuration are unchanged.
+No hosted environment, data, deployment or Production/GVM/HQ mutation occurred
+in this correction. The dated original implementation evidence below is retained.
+
+Correction validation (credential-free local runs):
+
+- All ten requested regression categories covered; **26 added tests**, no existing
+  tests weakened. Before the code fix, five new tests failed with the reported
+  false-negative absence/cleanup result; all pass after the narrow correction.
+- Focused C1 suite: **121 PASS /4 files** — `import-artifacts.test.ts` **84**
+  (storage/server/cleanup), `import-artifact-cron.test.ts` **22**,
+  `artifact-storage-safety.test.ts` **7**, `import-artifact-client.test.ts` **8**.
+- Changed-file ESLint, `npm run typecheck`, `npm run build`, `git diff --check`:
+  **PASS**. Existing middleware deprecation warning unchanged.
+- Full `npm test`: **1573 PASS /1 FAIL /36 SKIP** (153 passing files, one failed,
+  one skipped). Only `tests/unit/marketing/multi-business-selection.test.ts:60`
+  fails (`discovered` undefined); independently reproduced on a fresh exact-base
+  archive: **3 PASS /1 FAIL**. Test/runtime dependency graph and config/lock files
+  remain byte-identical; no C1 intersection. Initial sandbox Chromium launch
+  failure resolved on the authorized local full-suite rerun. Repository-wide
+  green is not claimed. Unchanged database tests were not rerun for this correction.
 
 ## Scope and deployment order
 
@@ -179,7 +232,7 @@ telemetry instrumentation, logger, provider or hosted scheduler mutation.
 
 Database `FOR UPDATE SKIP LOCKED` claims and UUID fences serialize cleanup. The
 worker deletes each exact object, then confirms absence via exact-key `info`.
-Only known `NoSuchKey`/`ObjectNotFound` SDK `statusCode` or HTTP404 means absence;
+Only exact `"404"`/`404`/`NoSuchKey`/`ObjectNotFound` SDK `statusCode` or HTTP404 means absence;
 an ambiguous 400, authentication/transport error or still-present object fails.
 Each object's outcome is recorded independently. Both required fresh deletion
 confirmations are necessary before terminal metadata finalization, even if an
@@ -215,7 +268,7 @@ phone, currency/tax inference or regional provider model was added. Existing
 canonical source timezone/currency are checked only as part of the supplied plan;
 C1 does not activate the later Global Readiness Foundation.
 
-## Local evidence and hosted gaps
+## Original local evidence and hosted gaps
 
 Local PostgreSQL **17.11 (Homebrew)**, fresh disposable UTF-8 cluster, private Unix
 socket, TCP disabled, `psql -X`, credential-free child environment, teardown on
@@ -267,33 +320,36 @@ Mandatory later authorized Staging tests, synthetic fixtures only:
    policies, 10 MiB bucket enforcement, hosted secret posture, scheduler/backlog
    and failure visibility, provider log/cache behavior and complete cleanup.
 
-Staging NOT touched. Production NOT touched. Hosted Storage NOT touched.
+Original implementation session: Staging NOT touched. Production NOT touched. Hosted Storage NOT touched.
 GVM NOT touched. HQ NOT touched. No real files, merge or migration application.
 Runtime manifest remains unchanged because no runtime/configuration was applied.
 
-## Next Level-3 gate and dispatch truth
+## Next correction audit gate and dispatch truth
 
-Control Tower reconciles the exact candidate commit/diff and migration hash, then
-dispatches Claude for an independent implementation audit. Prior Package C
-architecture approval is not this code audit. Supporting Codex review/testing
-agents returned results; they are COMPLETED, not a substitute for Claude.
+Control Tower reconciles the exact corrected candidate commit/diff and unchanged
+migration hash, then dispatches Claude for an independent correction audit.
+The original audit PASS above does not accept this correction or hosted C1.
+Supporting Codex review/testing is not a substitute for Claude.
 
-Claude implementation audit: **PLANNED / NOT SENT / NOT RUNNING**. No accepted
-Claude task/session or result exists in this implementation session. Its next
+Claude correction audit: **PLANNED / NOT SENT / NOT RUNNING**. No accepted
+Claude correction task/session or result exists in this correction session. Its
 dispatch is **BLOCKED on manual Control Tower/Darshan dispatch**, not on code
 work. No executable Claude channel was available; no mention was posted.
 
-Manual dispatch prompt (fill the delivered immutable HEAD):
-“Claude, independently Level-3 audit Issue #73 Package C1 at HEAD <DELIVERED_HEAD>,
-base 68d944a8fb0cad282bb5df7b6100c490785d53de, branch
-codex/issue-73-package-c1-artifacts. Read ISSUE_73_PACKAGE_C1.md and the locked PO
-C1 contract. Audit exact migration c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089,
-primary-owner/tenant boundaries, source/run integrity, signed-upload path/upsert/
-replay/expiry, freeze crash races, TTL access versus physical deletion bounds,
-cleanup fences/tombstones/offboarding, cron and privacy. Validate local evidence
-and name remaining hosted gates. Return findings and exact verdict. Read-only;
-no merge, deploy, hosted SQL/Storage or tenant mutation.”
+Manual dispatch prompt (fill the delivered immutable corrected HEAD):
+“Claude, independently audit Issue #73 Package C1 hosted-absence correction at
+HEAD <CORRECTED_HEAD>, correction base 8b7e2c39d77ce28aacf6716211d5439079edd07d,
+branch codex/issue-73-package-c1-artifacts, Draft PR #97. Read
+docs/import/ISSUE_73_PACKAGE_C1.md. Review only the correction diff: exact string
+and numeric statusCode 404 recognition, existing absence shapes, fail-closed
+errors, remove/info ordering and all ten required regressions. Verify migration
+SHA-256 remains c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089.
+Return findings and correction verdict; do not claim hosted acceptance.
+Read-only; no merge, deploy, hosted calls or tenant mutation.”
 
 Darshan/Control Tower must dispatch that audit; safe source review can continue.
-Any hosted Staging application/Storage validation, later merge or Production
-release needs its own explicit PO authorization after audit reconciliation.
+**Exact next gate: independent Claude correction audit before corrected Preview
+redeploy.** After reconciliation, Control Tower must redeploy the exact corrected
+SHA and resume the existing authorized acceptance fixture. Codex must not deploy
+or touch hosted environments. Staging/C1 acceptance remains incomplete pending
+that retest; merge and Production remain separately PO-gated.
