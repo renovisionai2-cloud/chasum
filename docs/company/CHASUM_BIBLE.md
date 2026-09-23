@@ -63,7 +63,11 @@ Chasum is intended for service businesses around the world. New material archite
 
 This principle does **not** mean activating every jurisdiction at once. Build the reusable global foundation now so countries and regions can be enabled progressively without core architectural rewrites.
 
-Related: [`PRODUCT_PRINCIPLES.md`](./PRODUCT_PRINCIPLES.md), [`../product/16_PRODUCT_PRINCIPLES.md`](../product/16_PRODUCT_PRINCIPLES.md).
+**GLOBAL PRODUCT READINESS + GLOBAL DISCOVERY + DELIBERATE REGIONAL ACTIVATION.**
+
+Global product readiness and global go-to-market are separate but connected disciplines. Marketing must consume governed product/readiness truth and must never advertise regional capabilities that are not actually supported.
+
+Related: [`GLOBAL_GO_TO_MARKET.md`](./GLOBAL_GO_TO_MARKET.md), [`PRODUCT_PRINCIPLES.md`](./PRODUCT_PRINCIPLES.md), [`../product/16_PRODUCT_PRINCIPLES.md`](../product/16_PRODUCT_PRINCIPLES.md).
 
 ---
 
@@ -210,6 +214,7 @@ Related: [`../PRODUCTION_READINESS.md`](../PRODUCTION_READINESS.md).
 | **`docs/company/PRODUCT_PRINCIPLES.md`** | Feature decision filter |
 | **`docs/company/MASTER_ROADMAP.md`** | Official completed + future roadmap |
 | **`docs/company/MASTER_TASKS.md`** | Active backlog and sprint rules |
+| **`docs/company/GLOBAL_GO_TO_MARKET.md`** | Durable global discovery / distribution strategy; consumes Global Readiness truth |
 | `docs/CHANGELOG.md` | What shipped |
 | `docs/product/*` | Deep product strategy and modules |
 | `docs/DATABASE.md`, `docs/API.md`, etc. | Technical references |

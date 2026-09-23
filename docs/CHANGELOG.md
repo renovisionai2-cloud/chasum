@@ -22,6 +22,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Enforce raw24h and reviewed72h/terminal+1h access deadlines; deletion confirmation precedes metadata finalization. Fenced independent cleanup retains retryable locators and reaps late-write tombstones via a dedicated hourly secret-protected cron.
 - Add disposable PostgreSQL/security/SDK-transport/server/cron tests and [C1 evidence](import/ISSUE_73_PACKAGE_C1.md), including honest hosted Storage gaps and the unchanged full-suite marketing failure reproduced on exact base.
 - Disable automatic Git deployment on the exact C1 branch pending DB-first migration/Storage verification and separate deployment authorization. No hosted environment, Storage, GVM/HQ or real files touched. Independent Claude Level-3 audit is the next manual dispatch gate.
+### 2026-09-23 — Global go-to-market strategy lock
+
+- Add one durable company strategy for **GLOBAL PRODUCT READINESS + GLOBAL DISCOVERY + DELIBERATE REGIONAL ACTIVATION**.
+- Separate product readiness from market discovery while requiring all country/region marketing to consume governed readiness truth; **marketing must never outrun product truth**.
+- Preserve future SEO/AEO/GEO discovery, country/industry/comparison content, assisted switching, Powered by Chasum, referrals, partners, review platforms, integrations, content and evidence-led paid acquisition without starting implementation now.
+- Require a single Global Readiness-owned Market Readiness Matrix rather than a conflicting marketing availability list.
+- Preserve Trinidad & Tobago and Guyana as candidate early international design-partner markets, with Jamaica and Barbados as possible Caribbean candidates subject to readiness/research; no launch authorization or permanent country order is created.
+
 
 ### 2026-09-23 — Global-by-design roadmap lock
 
