@@ -1,6 +1,7 @@
 "use client";
 
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
+import { getLocationBookingReadiness } from "@/lib/booking/location-readiness";
 
 import { BookingSheet } from "@/components/booking-sheet";
 import {
@@ -114,6 +115,7 @@ type CalendarClientProps = {
   timezone?: string | null;
   /** Booking start-time interval (minutes) from location/business settings. */
   appointmentIntervalMinutes?: number;
+  selectedLocationId?: string | null;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -158,6 +160,7 @@ export function CalendarClient({
   taxRates = [],
   timezone = null,
   appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
+  selectedLocationId = null,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -250,7 +253,12 @@ export function CalendarClient({
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  const hasSetup = services.length > 0 && staff.length > 0;
+  const bookingReadiness = getLocationBookingReadiness(
+    services,
+    staff,
+    selectedLocationId,
+  );
+  const hasSetup = bookingReadiness.state === "ready";
   const effectiveView = view;
 
   function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null) {
@@ -463,20 +471,53 @@ export function CalendarClient({
   }
 
   if (!hasSetup) {
+    const readinessCopy =
+      bookingReadiness.state === "no-services"
+        ? {
+            title: "Enable a service at this location",
+            description:
+              "This Business already has a shared Service catalog. Enable at least one existing Service for the selected Location.",
+            primaryHref: "/dashboard/services",
+            primaryLabel: "Manage services",
+            secondaryHref: null,
+            secondaryLabel: null,
+          }
+        : bookingReadiness.state === "no-staff"
+          ? {
+              title: "Assign a bookable employee to this location",
+              description:
+                "Services are offered here, but no bookable employee is assigned to work at this Location.",
+              primaryHref: "/dashboard/employees",
+              primaryLabel: "Manage employees",
+              secondaryHref: "/dashboard/services",
+              secondaryLabel: "View services",
+            }
+          : {
+              title: "Connect an employee to an offered service",
+              description:
+                "Employees work at this Location, but none are assigned to a Service that is offered here.",
+              primaryHref: "/dashboard/employees",
+              primaryLabel: "Manage employees",
+              secondaryHref: "/dashboard/services",
+              secondaryLabel: "Manage services",
+            };
+
     return (
       <EmptyState
-        title="Set up your booking engine"
-        description="Add at least one service and one bookable employee before scheduling appointments."
+        title={readinessCopy.title}
+        description={readinessCopy.description}
       >
         <div className="flex flex-wrap justify-center gap-2">
-          <Link href="/dashboard/services">
-            <Button size="sm">Add service</Button>
+          <Link href={readinessCopy.primaryHref}>
+            <Button size="sm">{readinessCopy.primaryLabel}</Button>
           </Link>
-          <Link href="/dashboard/employees">
-            <Button size="sm" variant="outline">
-              Add employee
-            </Button>
-          </Link>
+          {readinessCopy.secondaryHref && readinessCopy.secondaryLabel ? (
+            <Link href={readinessCopy.secondaryHref}>
+              <Button size="sm" variant="outline">
+                {readinessCopy.secondaryLabel}
+              </Button>
+            </Link>
+          ) : null}
         </div>
       </EmptyState>
     );

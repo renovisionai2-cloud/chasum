@@ -44,6 +44,7 @@ type ReceptionWorkspaceProps = {
   taxRates?: TaxRate[];
   timezone?: string | null;
   appointmentIntervalMinutes?: number;
+  selectedLocationId?: string | null;
 };
 
 export function ReceptionWorkspace({
@@ -64,6 +65,7 @@ export function ReceptionWorkspace({
   taxRates = [],
   timezone = null,
   appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
+  selectedLocationId = null,
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
@@ -86,6 +88,7 @@ export function ReceptionWorkspace({
         taxRates={taxRates}
         timezone={timezone}
         appointmentIntervalMinutes={appointmentIntervalMinutes}
+        selectedLocationId={selectedLocationId}
       />
     </div>
   );

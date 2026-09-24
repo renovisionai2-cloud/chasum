@@ -35,4 +35,30 @@ describe("setup progress booking interval step", () => {
     });
     expect(steps.find((s) => s.id === "booking_interval")?.done).toBe(false);
   });
+
+
+  it("uses location-scoped wording without implying duplicate Service creation", () => {
+    const steps = buildSetupSteps({
+      business: {
+        name: "Acme Clinic",
+        slug: "acme-clinic",
+        appointment_interval_minutes: 15,
+      },
+      serviceCount: 0,
+      staffCount: 0,
+      hasHours: true,
+      locationScoped: true,
+    });
+    expect(steps.find((step) => step.id === "services")).toMatchObject({
+      label: "Enable a service at this location",
+      done: false,
+    });
+    expect(steps.find((step) => step.id === "staff")).toMatchObject({
+      label: "Assign a bookable employee to this location",
+      done: false,
+    });
+    expect(
+      steps.find((step) => step.id === "services")?.description,
+    ).toContain("existing Business Service");
+  });
 });
