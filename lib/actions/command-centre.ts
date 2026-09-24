@@ -179,6 +179,7 @@ export async function getCommandCentreSnapshot(): Promise<CommandCentreSnapshot>
     staffCount: bookingReadiness.bookableStaffCount,
     hasHours: hoursProbe,
     locationScoped: locationScope.mode === "single",
+    hasServiceStaffMatch: bookingReadiness.matchedStaffCount > 0,
   });
   const setupComplete = isSetupComplete(setupSteps);
   const nextSetupStep = setupSteps.find((step) => !step.done) ?? null;

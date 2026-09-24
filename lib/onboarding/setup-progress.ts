@@ -38,6 +38,7 @@ export function buildSetupSteps(input: {
   staffCount: number;
   hasHours: boolean;
   locationScoped?: boolean;
+  hasServiceStaffMatch?: boolean;
 }): SetupStep[] {
   const profileDone = !isPlaceholderBusiness(input.business);
   const interval = normalizeBookingIntervalMinutes(
@@ -79,13 +80,19 @@ export function buildSetupSteps(input: {
     {
       id: "staff",
       label: input.locationScoped
-        ? "Assign a bookable employee to this location"
+        ? input.staffCount > 0 && input.hasServiceStaffMatch === false
+          ? "Assign an employee to an offered service"
+          : "Assign a bookable employee to this location"
         : "Add a bookable employee",
       description: input.locationScoped
-        ? "At least one existing provider must be allowed to work at this location."
+        ? input.staffCount > 0 && input.hasServiceStaffMatch === false
+          ? "At least one employee at this Location must provide a Service offered here."
+          : "At least one existing provider must be allowed to work at this location."
         : "At least one provider must accept online bookings.",
       href: "/dashboard/employees",
-      done: input.staffCount > 0,
+      done: input.locationScoped
+        ? Boolean(input.hasServiceStaffMatch)
+        : input.staffCount > 0,
     },
     {
       id: "booking_link",
@@ -95,7 +102,9 @@ export function buildSetupSteps(input: {
       done:
         profileDone &&
         input.serviceCount > 0 &&
-        input.staffCount > 0,
+        (input.locationScoped
+          ? Boolean(input.hasServiceStaffMatch)
+          : input.staffCount > 0),
     },
   ];
 }
