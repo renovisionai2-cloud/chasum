@@ -61,6 +61,14 @@ async function currentPlan(input: unknown, mapping: unknown) {
   return { auth, context, plan };
 }
 
+/** C2 read-only preview seam. Fresh owner auth + authoritative Business context,
+ * but NO durable B1/B2 run mutation. Mapping iterations use this path.
+ */
+export async function previewGovernedImport(input: unknown, mapping: unknown) {
+  const { context, plan } = await currentPlan(input, mapping);
+  return { plan, capacity: context.capacity };
+}
+
 /** Internal server seam only: no route, Server Action, upload or public UI. */
 export async function prepareGovernedImport(input: unknown, mapping: unknown) {
   const { auth, context, plan } = await currentPlan(input, mapping);

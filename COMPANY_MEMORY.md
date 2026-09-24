@@ -90,7 +90,7 @@ Roadmap outcomes must stay balanced:
 
 ## Agent operating model
 
-Darshan = Founder / CEO / Product Owner. ChatGPT = control tower / Product & Development Program Lead. Cursor = primary implementation engineer unless otherwise directed. Claude = independent auditor for higher-risk work. Momentic = browser/workflow regression. Codex may be used where useful and available; Codex availability/capacity must not block Chasum progress and is not recorded as permanent product truth. One primary implementer per task.
+Darshan = Founder / CEO / Product Owner / ultimate business and product authority. ChatGPT = Chasum AI Executive / Product & Development Program Lead / Control Tower — the highest development and orchestration authority beneath Darshan and head of the Chasum development program. ChatGPT owns product-development strategy, architecture reconciliation, development sequencing, scope governance, agent orchestration, QA/audit strategy, release-gate management, continuity, competitive-product quality, and selection of the appropriate specialist agent. Codex = primary implementation engineer. Claude = independent high-risk / Level-3 auditor. Momentic or equivalent = browser/workflow validation. Cursor = local/authenticated/device-specific fallback. ChatGPT leads and manages the overall development program while normally delegating implementation to Codex. One primary implementer per task.
 
 ## Engineering reminders
 

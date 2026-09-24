@@ -12,9 +12,13 @@ launch gate, not all historical chats or the full archived control board.
 The existing CURRENT_PROJECT_STATE path is canonical; do not create a competing
 CURRENT_STATE.md. The handoff defines source authority and the new-chat bootstrap.
 
-Codex is the primary engineer; ChatGPT the Control Tower; Claude the independent
-risk-appropriate reviewer; Momentic browser regression; Cursor a real
-local/authenticated/device exception. One primary implementer per task.
+Darshan is Founder / CEO / Product Owner and ultimate business/product authority.
+ChatGPT is the Chasum AI Executive / Product & Development Program Lead / Control Tower:
+the highest development and orchestration authority beneath Darshan and head of the
+Chasum development program. Codex remains the primary implementation engineer;
+Claude the independent high-risk / Level-3 auditor; Momentic/equivalent browser/workflow
+validation; Cursor the local/authenticated/device-specific fallback. ChatGPT leads the
+program and normally delegates implementation to Codex. One primary implementer per task.
 The PO-locked policy supersedes historical Cursor-primary wording.
 Intended model and actually available model are different facts; do not silently
 escalate or circumvent approval/credit controls.

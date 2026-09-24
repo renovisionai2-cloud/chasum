@@ -9,6 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-24 — Issue #73 Package C2 mapping/review candidate (Draft PR only)
+
+- Add the primary-owner-only `/dashboard/business/import` workspace and Business setup entry on top of accepted Package A/B1/B2/C1 foundations; C2 remains review-only and performs no operational import.
+- Reuse the private C1 source/artifact lifecycle and exact-byte verification with a bounded UTF-8 server CSV parser and explicit delimiter, date/time, timezone, currency, decimal and money semantics.
+- Keep `CsvAdapterConfigV1` separate from Package A `MappingConfig`; use canonical source-system keys, opaque row locators, governed relationship resolution and narrow Customer lookup.
+- Add read-only governed preview, create/link/skip/review/blocked categories, quota/reason review, formula-neutralized client-only attention CSV export and exact `c2-reviewed-v1` reviewed bytes.
+- Lock Review re-reads the verified raw artifact, rebuilds current preview, prepares the governed run, verifies hashes, freezes reviewed bytes and binds C1 to B2 in that order without starting operational commit.
+- Add responsive mapping/review UI, pending-preview protection and focused C2/import regressions. Local validation: focused 239 PASS; B1/B2/C1 disposable PostgreSQL contracts 124/31/45 PASS; typecheck and production build PASS.
+- No migration, hosted mutation, real customer file, C3 commit/progress/results/cutover/cancellation/reminder behavior or customer-facing activation is included.
+
+### 2026-09-24 — Control Tower durable role clarification
+
+- Clarify existing governance only: Darshan remains Founder / CEO / Product Owner and ultimate business/product authority; ChatGPT is the Chasum AI Executive / Product & Development Program Lead / Control Tower and head of the development program beneath Darshan.
+- Preserve Codex as primary implementation engineer, Claude as independent high-risk / Level-3 auditor, Momentic/equivalent as browser/workflow validation, and Cursor as local/authenticated/device-specific fallback. ChatGPT leads the program while normally delegating implementation to Codex.
+
 ### 2026-09-23 — Issue #73 Package C1 Production acceptance
 
 - PR #97 exact release candidate `266afa531f34d8dd2578b869be060ff58d7b5616` squash-merged as `35f8da7644fed8dfa46f70c3151610b6ae4f9dfa`; Vercel Production deployment `dpl_2G4VhsqnzyFBxxLE8czcM2dhes3y` READY and direct build-info confirmed the exact merge.

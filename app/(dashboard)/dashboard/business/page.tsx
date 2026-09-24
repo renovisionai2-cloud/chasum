@@ -1,7 +1,7 @@
 import { BusinessHub } from "@/components/business/business-hub";
 import { PageHeader } from "@/components/ui/page-header";
 import { getBookingResources } from "@/lib/actions/booking-engine";
-import { getOrCreateBusiness } from "@/lib/actions/business";
+import { getOrCreateBusiness, requireUser } from "@/lib/actions/business";
 import {
   listAutomationRules,
   listBusinessClosures,
@@ -37,7 +37,11 @@ type PageProps = {
 
 export default async function BusinessPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const business = await getOrCreateBusiness();
+  const [business, user] = await Promise.all([
+    getOrCreateBusiness(),
+    requireUser(),
+  ]);
+  const canImportData = business.owner_id === user.id;
   const [
     locations,
     locationQuota,
@@ -84,6 +88,22 @@ export default async function BusinessPage({ searchParams }: PageProps) {
         title="Business"
         description="Configure your company profile, hours, booking, branding, notifications, and AI before running Calendar, CRM, and Summer."
       />
+      {canImportData ? (
+        <div className="mb-4 flex flex-col gap-3 rounded-[var(--radius-md)] border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">Business setup</p>
+            <p className="text-xs text-muted-foreground">
+              Switching systems? Upload and review CSV data safely before any operational import.
+            </p>
+          </div>
+          <Link
+            href="/dashboard/business/import"
+            className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-md)] border border-border bg-card px-4 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Import data
+          </Link>
+        </div>
+      ) : null}
       {needsRename ? (
         <div className="mb-4 rounded-[var(--radius-md)] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
           Your public name still looks like a placeholder (
