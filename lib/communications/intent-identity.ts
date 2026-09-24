@@ -25,6 +25,20 @@ export function scheduledReminderIntentId(appointmentId: string, scheduledAt: Da
   return occurrenceId("appointment-reminder", JSON.stringify([appointmentId, scheduledAt.toISOString()]));
 }
 
+
+export function importReminderJobId(
+  businessId: string,
+  importRunId: string,
+  appointmentId: string,
+  scheduledAt: Date,
+  channel: "email" | "sms",
+): string {
+  return occurrenceId(
+    "import-reminder-job",
+    JSON.stringify([businessId, importRunId, appointmentId, scheduledAt.toISOString(), channel]),
+  );
+}
+
 /** A retried fanout parent must retain each child communication's identity. */
 export function waitlistChildIntentId(parentJobId: string, waitlistEntryId: string): string {
   return occurrenceId("waitlist-child", JSON.stringify([parentJobId, waitlistEntryId]));

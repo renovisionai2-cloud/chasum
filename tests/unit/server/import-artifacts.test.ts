@@ -25,7 +25,8 @@ const baseRow = () => ({ id, business_id: business, created_by: actor, source_id
   state: "upload_pending", raw_object_key: rawKey, raw_sha256: null as string | null, raw_size_bytes: null as number | null,
   raw_expires_at: "2026-09-24T12:00:00Z", created_at: now.toISOString(), upload_quiesce_at: "2026-09-23T14:05:00Z",
   reviewed_object_key: null as string | null, reviewed_sha256: null as string | null, reviewed_size_bytes: null as number | null,
-  reviewed_expires_at: null as string | null, lease_token: null as string | null, source_system: "fixture", source_account_key: sourceId });
+  reviewed_expires_at: null as string | null, lease_token: null as string | null, import_run_id: null as string | null,
+  source_system: "fixture", source_account_key: sourceId });
 let artifact: ReturnType<typeof baseRow>;
 let objects: Map<string, { bytes: Buffer; media: string }>;
 const service = { rpc: mock.rpc, storage: { from: mock.from } };
@@ -195,7 +196,8 @@ it("does not freeze if private upload read-back hash differs", async () => {
   expect(mock.rpc.mock.calls.some(([name]) => name === "c1_finish_reviewed")).toBe(false);
 });
 it("reads reviewed exact bytes and rejects ownership change after download", async () => {
-  const bytes = frozen(); expect((await readReviewedImportPlan(id)).bytes).toEqual(bytes);
+  const bytes = frozen();
+  expect(await readReviewedImportPlan(id)).toMatchObject({ bytes, artifactId: id, importRunId: null });
   mock.business.mockResolvedValueOnce({ id: business, owner_id: actor }).mockResolvedValueOnce({ id: business, owner_id: run });
   await expect(readReviewedImportPlan(id)).rejects.toMatchObject({ code: "OWNER_REQUIRED" });
 });

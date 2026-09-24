@@ -29,6 +29,7 @@ PORT = '57374'  # Socket filename only; TCP disabled.
 B1 = '20260921203029_governed_import_foundation.sql'
 QUOTA = '20260923152046_issue_73_staff_quota_hardening.sql'
 B2 = '20260923210000_issue_73_package_b2_core.sql'
+C3 = '20260924150219_issue_73_package_c3_commit_cutover.sql'
 STAGE1B = '20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql'
 STAGE1C = '20260922210000_issue_81_stage_1c_location_template.sql'
 BIZ = '10000000-0000-4000-8000-000000000001'
@@ -160,6 +161,7 @@ for name, col, filename in [
 ]:
     FIXTURE += column(name, col, filename)
 FIXTURE += section('004_phase3_integrations.sql', 'create type job_status', 'create type waitlist_status')
+FIXTURE += "\nalter table businesses add column reminder_hours_before integer not null default 24;\n"
 FIXTURE += '\n'.join([
     table('staff_working_hours', '002_booking_enhancements.sql'),
     table('service_locations', '024_services_module.sql'),
@@ -215,7 +217,7 @@ class Writer(unittest.TestCase):
         cls.execute('create role anon; create role authenticated; create role service_role bypassrls;', 'postgres')
         cls.execute('create database writer_baseline', 'postgres')
         cls.execute(FIXTURE, 'writer_baseline')
-        for migration in [B1, QUOTA, B2]:
+        for migration in [B1, QUOTA, B2, C3]:
             body = source(migration)
             print('EXACT MIGRATION SHA256:', migration, hashlib.sha256(body.encode()).hexdigest(), flush=True)
             if migration == B2:
@@ -843,6 +845,177 @@ class Writer(unittest.TestCase):
             for pipe in [holder.stdin, holder.stdout, holder.stderr]:
                 if not pipe.closed:
                     pipe.close()
+
+    def test_32_c3_acl_rls_and_function_posture(self):
+        self.assertEqual(self.run_sql(
+            "select relrowsecurity and relforcerowsecurity from pg_class where oid='data_import_reminder_takeovers'::regclass"
+        ), 't')
+        self.assertEqual(self.run_sql(
+            "select count(*) from pg_policy where polrelid='data_import_reminder_takeovers'::regclass"
+        ), '0')
+        for name in ['cancel_data_import_run', 'request_data_import_reminder_takeover', 'get_data_import_run_summaries', 'get_data_import_reminder_candidates']:
+            self.assertEqual(self.run_sql(
+                f"select prosecdef and proconfig=array['search_path=pg_catalog, pg_temp'] from pg_proc where proname='{name}'"
+            ), 't')
+            for role in ['anon', 'authenticated']:
+                signature = {
+                    'cancel_data_import_run': 'uuid,uuid,uuid',
+                    'request_data_import_reminder_takeover': 'uuid,uuid,uuid',
+                    'get_data_import_run_summaries': 'uuid,uuid,integer',
+                    'get_data_import_reminder_candidates': 'uuid,uuid,uuid,integer',
+                }[name]
+                self.assertEqual(self.run_sql(
+                    f"select has_function_privilege('{role}','public.{name}({signature})','EXECUTE')"
+                ), 'f')
+            self.assertEqual(self.run_sql(
+                f"select has_function_privilege('service_role','public.{name}({signature})','EXECUTE')"
+            ), 't')
+        for role in ['anon', 'authenticated']:
+            for privilege in ['SELECT', 'INSERT', 'UPDATE', 'DELETE']:
+                self.assertEqual(self.run_sql(
+                    f"select has_table_privilege('{role}','public.data_import_reminder_takeovers','{privilege}')"
+                ), 'f')
+        self.assertEqual(self.run_sql(
+            "select has_table_privilege('service_role','public.data_import_reminder_takeovers','SELECT')"
+        ), 't')
+        for privilege in ['INSERT', 'UPDATE', 'DELETE']:
+            self.assertEqual(self.run_sql(
+                f"select has_table_privilege('service_role','public.data_import_reminder_takeovers','{privilege}')"
+            ), 'f')
+
+    def test_33_c3_cancel_idempotent_and_closed_after_begin(self):
+        run = self.prepare([customer('cancel-me')])
+        cancel = self.rpc('cancel_data_import_run', literal(run['id']))
+        self.assertEqual(self.run_sql(cancel), 'cancelled')
+        self.assertEqual(self.run_sql(cancel), 'cancelled')
+        self.assertEqual(self.run_sql(
+            f"select state='cancelled' and commit_started_at is null and finished_at is not null from data_import_runs where id='{run['id']}'"
+        ), 't')
+        self.rejected(self.begin_sql(run), 'IMPORT_RUN_NOT_CLAIMABLE')
+
+        active = self.prepare([customer('cannot-cancel-active')])
+        self.begin(active)
+        self.rejected(self.rpc('cancel_data_import_run', literal(active['id'])), 'IMPORT_RUN_NOT_CANCELLABLE')
+
+    def test_34_c3_cancel_vs_begin_real_lock_contention(self):
+        cancel_first = self.prepare([customer('cancel-first')])
+        winner, loser = self.race(
+            self.rpc('cancel_data_import_run', literal(cancel_first['id'])),
+            self.begin_sql(cancel_first),
+        )
+        self.assertEqual(winner, 'cancelled')
+        self.assertNotEqual(loser.returncode, 0)
+        self.assertIn('IMPORT_RUN_NOT_CLAIMABLE', loser.stderr)
+        self.assertEqual(self.run_sql(
+            f"select state from data_import_runs where id='{cancel_first['id']}'"
+        ), 'cancelled')
+
+        begin_first = self.prepare([customer('begin-first')])
+        winner, loser = self.race(
+            self.begin_sql(begin_first),
+            self.rpc('cancel_data_import_run', literal(begin_first['id'])),
+        )
+        self.assertEqual(len(winner), 36)
+        self.assertNotEqual(loser.returncode, 0)
+        self.assertIn('IMPORT_RUN_NOT_CANCELLABLE', loser.stderr)
+        self.assertEqual(self.run_sql(
+            f"select state from data_import_runs where id='{begin_first['id']}'"
+        ), 'committing')
+        print('RACE PASS: C3 cancel/begin share Business->run lock; waiter observes winner state', flush=True)
+
+    def test_35_c3_reminder_consent_race_and_immutability(self):
+        consent_first = self.prepare([customer('consent-first')])
+        request = self.rpc('request_data_import_reminder_takeover', literal(consent_first['id']))
+        winner, second = self.race(request, self.begin_sql(consent_first))
+        self.assertIn(consent_first['id'], winner)
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertEqual(self.run_sql(
+            f"select count(*) from data_import_reminder_takeovers where import_run_id='{consent_first['id']}' and business_id='{BIZ}' and requested_by='{OWNER}'"
+        ), '1')
+
+        begin_first = self.prepare([customer('consent-too-late')])
+        winner, second = self.race(
+            self.begin_sql(begin_first),
+            self.rpc('request_data_import_reminder_takeover', literal(begin_first['id'])),
+        )
+        self.assertEqual(len(winner), 36)
+        self.assertNotEqual(second.returncode, 0)
+        self.assertIn('IMPORT_REMINDER_TAKEOVER_CLOSED', second.stderr)
+        self.assertEqual(self.run_sql(
+            f"select count(*) from data_import_reminder_takeovers where import_run_id='{begin_first['id']}'"
+        ), '0')
+
+        self.rejected(
+            f"set role service_role; update data_import_reminder_takeovers set requested_at=clock_timestamp() where import_run_id='{consent_first['id']}';",
+            'permission denied',
+        )
+
+    def test_36_c3_source_contracts_do_not_reopen_c1_or_historical_migrations(self):
+        c3 = source(C3)
+        c1 = source('20260923205834_issue_73_package_c1_private_artifacts.sql')
+        self.assertIn('data_import_lock_run(p_business,p_actor,p_run)', c3)
+        self.assertIn("finished_at + interval '1 hour'", c1)
+        self.assertNotIn('034_', c3)
+        self.assertNotIn('035_', c3)
+        self.assertNotIn('036_', c3)
+
+    def test_37_c3_run_summary_is_exact_database_truth(self):
+        run = self.prepare(complete_plan())
+        self.begin(run)
+        out = self.batch(run)
+        self.assertEqual(self.finish(run), 'completed')
+        summary = json.loads(self.run_sql(
+            self.rpc('get_data_import_run_summaries', literal(20))
+        ))
+        self.assertEqual(len(summary), 1)
+        item = summary[0]
+        self.assertEqual(item['id'], run['id'])
+        self.assertEqual(item['total_rows'], len(run['items']))
+        self.assertEqual(item['committed_rows'], len(run['items']))
+        self.assertEqual(item['created_count'], len(out))
+        self.assertEqual(item['blocked_count'], 0)
+        self.assertFalse(item['reminder_requested'])
+        self.assertEqual(item['unreviewed_services'], 1)
+        self.assertEqual(item['staff_needing_setup'], 1)
+        self.assertEqual(item['locations_needing_hours'], 1)
+        self.assertEqual(item['eligible_reminder_appointments'], 1)
+        self.assertEqual(item['scheduled_reminder_jobs'], 0)
+
+    def test_38_c3_reminder_candidates_are_bounded_and_derive_missing_channels(self):
+        run = self.prepare(complete_plan())
+        self.run_sql(self.rpc('request_data_import_reminder_takeover', literal(run['id'])))
+        self.begin(run)
+        out = self.batch(run)
+        self.assertEqual(self.finish(run), 'completed')
+        appointment_id = next(x['target_entity_id'] for x in out if x['entity_type'] == 'appointment')
+        candidates = json.loads(self.run_sql(
+            self.rpc('get_data_import_reminder_candidates', literal(run['id']), literal(25))
+        ))
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]['appointmentId'], appointment_id)
+
+        email_job = str(uuid.uuid4())
+        self.run_sql(
+            f"insert into background_jobs(id,business_id,job_type,payload) values("
+            f"'{email_job}','{BIZ}','reminder',"
+            + j(dict(source='import_reminder_takeover', importRunId=run['id'],
+                     appointmentId=appointment_id, channel='email')) + ");"
+        )
+        candidates = json.loads(self.run_sql(
+            self.rpc('get_data_import_reminder_candidates', literal(run['id']), literal(25))
+        ))
+        self.assertEqual(len(candidates), 1)
+
+        sms_job = str(uuid.uuid4())
+        self.run_sql(
+            f"insert into background_jobs(id,business_id,job_type,payload) values("
+            f"'{sms_job}','{BIZ}','reminder',"
+            + j(dict(source='import_reminder_takeover', importRunId=run['id'],
+                     appointmentId=appointment_id, channel='sms')) + ");"
+        )
+        self.assertEqual(json.loads(self.run_sql(
+            self.rpc('get_data_import_reminder_candidates', literal(run['id']), literal(25))
+        )), [])
 
 
 if __name__ == '__main__':

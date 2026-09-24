@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, FileSpreadsheet, LockKeyhole, Search, ShieldCheck } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
@@ -169,6 +170,7 @@ function downloadText(filename: string, text: string) {
 }
 
 export function ImportWorkspace({ initial }: { initial: Setup }) {
+  const router = useRouter();
   const [sources, setSources] = useState(initial.sources);
   const [sourceId, setSourceId] = useState(initial.sources[0]?.id ?? "");
   const [newSystem, setNewSystem] = useState<(typeof C2_SOURCE_SYSTEMS)[number]["key"]>("other_csv");
@@ -505,8 +507,9 @@ export function ImportWorkspace({ initial }: { initial: Setup }) {
       setLocked(result.data as Locked);
       setMessage({
         tone: "success",
-        text: "Review locked. This run is ready for a future governed import step; C2 has not imported any operational data.",
+        text: "Review locked. This run is ready for governed import; no operational data has been imported yet.",
       });
+      router.refresh();
     } catch (error) {
       setBusy("");
       setMessage({ tone: "error", text: error instanceof Error ? error.message : "The review could not be locked." });
