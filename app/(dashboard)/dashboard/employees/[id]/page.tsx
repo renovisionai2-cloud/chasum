@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDepartments, loadEmployeeProfile } from "@/lib/actions/employees";
 import { getLocations } from "@/lib/actions/location";
-import { getServices } from "@/lib/actions/services";
+import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -27,7 +27,7 @@ export default async function EmployeeProfilePage({ params }: PageProps) {
   const business = await getOrCreateBusiness();
   const [employee, services, locations, departments] = await Promise.all([
     loadEmployeeProfile(id),
-    getServices(),
+    getOperatorServiceCatalog(),
     getLocations(),
     getDepartments(),
   ]);

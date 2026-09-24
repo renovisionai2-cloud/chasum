@@ -61,4 +61,42 @@ describe("Issue #81 Stage 1B application convergence", () => {
     const text = source("lib/actions/public-booking.ts");
     expect(text).toContain('assertNamedStaffRequired(null, "public")');
   });
+
+  it("operator Employee and Service assignment readers preserve secondary relationship truth", () => {
+    const employeesPage = source("app/(dashboard)/dashboard/employees/page.tsx");
+    const employeeProfilePage = source("app/(dashboard)/dashboard/employees/[id]/page.tsx");
+    const staffActions = source("lib/actions/staff.ts");
+
+    expect(employeesPage).toContain("getOperatorServiceCatalog");
+    expect(employeeProfilePage).toContain("getOperatorServiceCatalog");
+
+    const assignmentSection = staffActions.slice(
+      staffActions.indexOf("export async function getStaffForAssignment"),
+      staffActions.indexOf("async function resolveStaffLocationId"),
+    );
+    expect(assignmentSection).toContain("staff_locations(location_id)");
+    expect(assignmentSection).toContain("filterStaffByLocationScope");
+    expect(assignmentSection).not.toContain("withLocationFilter(query, scope)");
+  });
+
+  it("public booking explains location relationship gaps instead of presenting impossible choices", () => {
+    const text = source("components/booking/public-booking-page.tsx");
+    expect(text).toContain("No online services are offered at this location yet.");
+    expect(text).toContain("No bookable staff are assigned to this service at this location.");
+    expect(text).toContain("availableStaff.length === 0");
+  });
+
+
+  it("never treats missing Staff location truth as permission to work everywhere", () => {
+    const text = source("lib/actions/staff.ts");
+    const section = text.slice(
+      text.indexOf("function filterStaffByLocationScope"),
+      text.indexOf("export async function getEligibleStaffForBooking"),
+    );
+    expect(section).toContain("member.location_id === locationId");
+    expect(section).toContain("staff_locations");
+    expect(section).not.toContain("member.location_id == null");
+    expect(section).not.toContain('member.location_id === ""');
+  });
+
 });

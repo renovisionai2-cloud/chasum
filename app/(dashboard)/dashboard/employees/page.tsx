@@ -4,7 +4,7 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getDepartments, getEmployeeDirectory } from "@/lib/actions/employees";
 import { getLocations } from "@/lib/actions/location";
 import { getTrustedAccessPanel } from "@/lib/actions/operator-access";
-import { getServices } from "@/lib/actions/services";
+import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { getStaffQuota } from "@/lib/actions/staff";
 import type { Metadata } from "next";
 
@@ -17,7 +17,7 @@ export default async function EmployeesPage() {
   const [employees, services, locations, departments, staffQuota, trustedAccess] =
     await Promise.all([
       getEmployeeDirectory(),
-      getServices(),
+      getOperatorServiceCatalog(),
       getLocations(),
       getDepartments(),
       getStaffQuota(),
