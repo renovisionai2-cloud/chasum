@@ -84,6 +84,7 @@ describe("Issue #81 Stage 1B application convergence", () => {
     expect(text).toContain("No online services are offered at this location yet.");
     expect(text).toContain("No bookable staff are assigned to this service at this location.");
     expect(text).toContain("availableStaff.length === 0");
+    expect(text).toContain("availableStaff.length > 0");
   });
 
 

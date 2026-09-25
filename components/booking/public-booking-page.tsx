@@ -390,10 +390,12 @@ export function PublicBookingPage({
           <section className="space-y-4">
             <BackButton onClick={() => setStep("service")} />
             <h2 className="text-lg font-semibold">Choose staff</h2>
-            <p className="text-sm text-muted-foreground">
-              Pick a specific team member, or choose Any available staff — we will
-              assign someone later.
-            </p>
+            {availableStaff.length > 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Pick a specific team member, or choose Any available staff — we will
+                assign someone later.
+              </p>
+            ) : null}
             {selectedService.preparation_instructions && (
               <p className="rounded-[var(--radius-md)] border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
                 <strong className="text-foreground">Preparation:</strong>{" "}
