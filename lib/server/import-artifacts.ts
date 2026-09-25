@@ -23,6 +23,7 @@ const artifactSchema = z.object({
   raw_expires_at: z.string(), created_at: z.string(), upload_quiesce_at: z.string(),
   reviewed_object_key: z.string().nullable(), reviewed_sha256: sha.nullable(), reviewed_size_bytes: z.number().nullable(),
   reviewed_expires_at: z.string().nullable(), lease_token: z.uuid().nullable(),
+  import_run_id: z.uuid().nullable(),
   source_system: z.string().optional(), source_account_key: z.string().optional(),
 });
 // Validate ownership/source and bounded shape without rebuilding, normalizing or
@@ -198,8 +199,13 @@ export async function readReviewedImportPlan(artifactId: string) {
     const actual = await downloadArtifact(auth.service, artifact.reviewed_object_key, true);
     if (actual.sha256 !== artifact.reviewed_sha256 || actual.bytes.byteLength !== artifact.reviewed_size_bytes)
       throw new ImportArtifactError();
-    await access(await ownerContext(), id, "reviewed");
-    return { bytes: actual.bytes, sha256: actual.sha256 };
+    const confirmed = await access(await ownerContext(), id, "reviewed");
+    return {
+      bytes: actual.bytes,
+      sha256: actual.sha256,
+      artifactId: confirmed.id,
+      importRunId: confirmed.import_run_id,
+    };
   });
 }
 

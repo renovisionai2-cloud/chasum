@@ -5,7 +5,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ auth: { getUser: mock.getUser } }) }));
 vi.mock("@/lib/supabase/service", () => ({ createServiceClient: mock.service }));
 vi.mock("@/lib/actions/business", () => ({ resolveBusinessForUser: mock.business }));
-import { prepareGovernedImport, beginGovernedImport, commitGovernedImportBatch, finishGovernedImport, resumeGovernedImport } from "@/lib/server/import-writer";
+import { previewGovernedImport, prepareGovernedImport, beginGovernedImport, commitGovernedImportBatch, finishGovernedImport, resumeGovernedImport } from "@/lib/server/import-writer";
 import { buildOperationalPlan } from "@/lib/imports/operational-plan";
 const biz = "11111111-1111-4111-8111-111111111111", actor = "22222222-2222-4222-8222-222222222222", run = "33333333-3333-4333-8333-333333333333", token = "44444444-4444-4444-8444-444444444444";
 const context = { business: { id: biz, timezone: "UTC", currency: "CAD", planKey: "professional" }, capacity: { maxLocations: 3, maxStaff: 3, activeLocations: 1, activeStaff: 1 }, fingerprint: "a".repeat(64), snapshot: { businessId: biz, entities: [], assignments: [], sourceRefs: [] } };
@@ -18,6 +18,15 @@ beforeEach(() => {
   mock.business.mockResolvedValue({ id: biz, owner_id: actor }); mock.service.mockReturnValue({ rpc: mock.rpc });
   mock.rpc.mockImplementation(async (name: string) => ({ data: name === "get_data_import_context" ? context : name === "prepare_data_import_run" ? { runId: run, commitGuardHash: "c".repeat(64) } : name === "begin_data_import_commit" ? token : name === "finish_data_import_run" ? "completed" : [], error: null }));
 });
+it("previews read-only with fresh owner context and creates no durable run", async () => {
+  const result = await previewGovernedImport(
+    { ...input, target: { ...input.target, businessCurrency: "USD" } },
+    mapping,
+  );
+  expect(result.plan.preview.normalized.target.businessCurrency).toBe("CAD");
+  expect(mock.rpc.mock.calls.map(([name]) => name)).toEqual(["get_data_import_context"]);
+});
+
 it("prepares using authoritative Business currency and persists only via governed RPC", async () => {
   const result = await prepareGovernedImport({ ...input, target: { ...input.target, businessCurrency: "USD" } }, mapping);
   expect(result.review).toEqual(review());
