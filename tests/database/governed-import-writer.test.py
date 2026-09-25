@@ -980,6 +980,7 @@ class Writer(unittest.TestCase):
         self.assertEqual(item['locations_needing_hours'], 1)
         self.assertEqual(item['eligible_reminder_appointments'], 1)
         self.assertEqual(item['scheduled_reminder_jobs'], 0)
+        self.assertEqual(item['failed_reminder_jobs'], 0)
 
     def test_38_c3_reminder_candidates_are_bounded_and_derive_missing_channels(self):
         run = self.prepare(complete_plan())
@@ -1016,6 +1017,29 @@ class Writer(unittest.TestCase):
         self.assertEqual(json.loads(self.run_sql(
             self.rpc('get_data_import_reminder_candidates', literal(run['id']), literal(25))
         )), [])
+
+
+    def test_39_c3_failed_reminder_jobs_are_not_scheduled_truth(self):
+        run = self.prepare(complete_plan())
+        self.run_sql(self.rpc('request_data_import_reminder_takeover', literal(run['id'])))
+        self.begin(run)
+        out = self.batch(run)
+        self.assertEqual(self.finish(run), 'completed')
+        appointment_id = next(x['target_entity_id'] for x in out if x['entity_type'] == 'appointment')
+        for channel, status in [('email', 'completed'), ('sms', 'failed')]:
+            self.run_sql(
+                f"insert into background_jobs(id,business_id,job_type,payload,status) values("
+                f"'{str(uuid.uuid4())}','{BIZ}','reminder',"
+                + j(dict(source='import_reminder_takeover', importRunId=run['id'],
+                         appointmentId=appointment_id, channel=channel))
+                + f",'{status}');"
+            )
+        summary = json.loads(self.run_sql(
+            self.rpc('get_data_import_run_summaries', literal(20))
+        ))[0]
+        self.assertEqual(summary['eligible_reminder_appointments'], 1)
+        self.assertEqual(summary['scheduled_reminder_jobs'], 1)
+        self.assertEqual(summary['failed_reminder_jobs'], 1)
 
 
 if __name__ == '__main__':

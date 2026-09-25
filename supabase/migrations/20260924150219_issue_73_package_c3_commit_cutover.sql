@@ -150,7 +150,13 @@ begin
       'scheduled_reminder_jobs',(select count(*) from public.background_jobs j
         where j.business_id=r.business_id and j.job_type='reminder'
           and j.payload->>'source'='import_reminder_takeover'
-          and j.payload->>'importRunId'=r.id::text)
+          and j.payload->>'importRunId'=r.id::text
+          and j.status::text not in ('failed','cancelled')),
+      'failed_reminder_jobs',(select count(*) from public.background_jobs j
+        where j.business_id=r.business_id and j.job_type='reminder'
+          and j.payload->>'source'='import_reminder_takeover'
+          and j.payload->>'importRunId'=r.id::text
+          and j.status::text='failed')
     ) item
     from public.data_import_runs r
     where r.business_id=p_business and r.created_by=p_actor

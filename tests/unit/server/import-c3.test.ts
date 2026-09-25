@@ -4,6 +4,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 const mock = vi.hoisted(() => ({
   getUser: vi.fn(), business: vi.fn(), service: vi.fn(), rpc: vi.fn(),
   readReviewed: vi.fn(), begin: vi.fn(), batch: vi.fn(), finish: vi.fn(), resume: vi.fn(),
+  retryNotification: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ auth: { getUser: mock.getUser } }) }));
@@ -16,8 +17,16 @@ vi.mock("@/lib/server/import-writer", () => ({
   finishGovernedImport: mock.finish, resumeGovernedImport: mock.resume,
 }));
 vi.mock("@/lib/integrations/jobs/queue", () => ({ enqueueReminderJobs: vi.fn() }));
+vi.mock("@/lib/communications/queue", () => ({ retryNotification: mock.retryNotification }));
 
-import { advanceC3Import, C3ImportError, resumeC3Import, startC3Import } from "@/lib/server/import-c3";
+import {
+  advanceC3Import,
+  C3ImportError,
+  getC3ImportWorkspace,
+  getC3ResultPage,
+  resumeC3Import,
+  startC3Import,
+} from "@/lib/server/import-c3";
 
 const businessId = "10000000-0000-4000-8000-000000000001";
 const actor = "20000000-0000-4000-8000-000000000001";
@@ -76,7 +85,13 @@ function query(table: string) {
     select: (value: string) => { fields = value.split(","); return q; },
     eq: (field: string, value: unknown) => { rows = rows.filter((item) => item[field] === value); return q; },
     in: (field: string, values: unknown[]) => { rows = rows.filter((item) => values.includes(item[field])); return q; },
-    order: async () => ({ data: rows.map(project), error: null }),
+    order: () => q,
+    range: async (from: number, to: number) => ({
+      data: rows.slice(from, to + 1).map(project),
+      error: null,
+      count: rows.length,
+    }),
+    limit: async (limit: number) => ({ data: rows.slice(0, limit).map(project), error: null }),
     maybeSingle: async () => ({ data: rows[0] ? project(rows[0]) : null, error: null }),
   };
   return q;
@@ -102,6 +117,7 @@ function summaryRow() {
     locations_needing_hours: 0,
     eligible_reminder_appointments: 0,
     scheduled_reminder_jobs: 0,
+    failed_reminder_jobs: 0,
   };
 }
 
@@ -219,4 +235,57 @@ it("resumes only after expiry using the exact frozen review and rows", async () 
   const result = await resumeC3Import(runId);
   expect(mock.resume).toHaveBeenCalledWith(envelope.review, envelope.rows);
   expect(result).toMatchObject({ state: "committing", leaseToken: lease, committedRows: 0, totalRows: 1 });
+});
+
+it("failed reminder jobs force needs-attention and block cutover readiness", async () => {
+  takeovers = [{ import_run_id: runId, business_id: businessId, requested_by: actor }];
+  run = { ...run, state: "completed", finished_at: "2026-09-24T12:05:00Z" };
+  mock.rpc.mockImplementation(async (name: string) => {
+    if (name === "get_data_import_run_summaries") {
+      return {
+        data: [{
+          ...summaryRow(),
+          reminder_requested: true,
+          eligible_reminder_appointments: 1,
+          scheduled_reminder_jobs: 1,
+          failed_reminder_jobs: 1,
+        }],
+        error: null,
+      };
+    }
+    if (name === "get_data_import_reminder_candidates") return { data: [], error: null };
+    return { data: null, error: null };
+  });
+
+  const workspace = await getC3ImportWorkspace();
+  expect(workspace.runs[0]).toMatchObject({
+    reminderStatus: "needs_attention",
+    cutover: { ready: false, reminderNeedsAttention: true },
+  });
+});
+
+it("returns bounded row-level result details from durable commit outcomes", async () => {
+  commitRows = [{
+    import_run_id: runId,
+    phase: "commit",
+    entity_type: "appointment",
+    source_row_key: "appointment:2",
+    row_ordinal: 0,
+    commit_result: "BLOCKED",
+    target_entity_id: null,
+    reason_codes: ["MISSING_REFERENCE"],
+  }];
+
+  const result = await getC3ResultPage(runId, 0);
+  expect(result).toEqual({
+    page: 0,
+    pageSize: 25,
+    total: 1,
+    rows: [{
+      entityType: "appointment",
+      sourceRowKey: "appointment:2",
+      result: "BLOCKED",
+      reasonCodes: ["MISSING_REFERENCE"],
+    }],
+  });
 });

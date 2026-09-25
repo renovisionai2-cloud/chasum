@@ -5,6 +5,7 @@ import {
   advanceC3Import,
   cancelC3Import,
   C3ImportError,
+  getC3ResultPage,
   resumeC3Import,
   retryC3ReminderTakeover,
   startC3Import,
@@ -74,4 +75,14 @@ export async function cancelC3ImportAction(runId: unknown) {
 
 export async function retryC3ReminderTakeoverAction(runId: unknown) {
   return boundary(() => retryC3ReminderTakeover(z.uuid().parse(runId)));
+}
+
+export async function getC3ResultPageAction(input: unknown) {
+  return boundary(() => {
+    const value = z.object({
+      runId: z.uuid(),
+      page: z.number().int().min(0).max(199),
+    }).strict().parse(input);
+    return getC3ResultPage(value.runId, value.page);
+  });
 }

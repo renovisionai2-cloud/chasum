@@ -11,11 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   advanceC3ImportAction,
   cancelC3ImportAction,
+  getC3ResultPageAction,
   resumeC3ImportAction,
   retryC3ReminderTakeoverAction,
   startC3ImportAction,
 } from "@/lib/actions/import-c3";
-import type { C3RunSummary } from "@/lib/server/import-c3";
+import type { C3ResultPage, C3RunSummary } from "@/lib/server/import-c3";
 
 type Props = { initial: { serverNow: string; runs: C3RunSummary[] } };
 
@@ -105,6 +106,9 @@ export function ImportRunControl({ initial }: Props) {
   const runs = initial.runs;
   const [leases, setLeases] = useState<Record<string, string>>({});
   const [takeover, setTakeover] = useState<Record<string, boolean>>({});
+  const [resultPages, setResultPages] = useState<Record<string, C3ResultPage>>({});
+  const [resultLoadingRun, setResultLoadingRun] = useState<string | null>(null);
+  const [resultErrors, setResultErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ tone: "error" | "success" | "info"; text: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -187,8 +191,31 @@ export function ImportRunControl({ initial }: Props) {
     setMessage(null);
     const result = await retryC3ReminderTakeoverAction(run.runId);
     if (!result.ok) return setMessage({ tone: "error", text: result.error });
-    setMessage({ tone: "success", text: "Reminder takeover scheduling retried safely. Import results were not changed." });
+    if (result.data.reminderStatus === "needs_attention") {
+      setMessage({
+        tone: "info",
+        text: "Reminder retry was checked safely, but some reminder work still needs attention. Import results were not changed.",
+      });
+    } else {
+      setMessage({ tone: "success", text: "Reminder takeover scheduling retried safely. Import results were not changed." });
+    }
     refreshSoon();
+  }
+
+  async function loadResultPage(runId: string, page: number) {
+    setResultLoadingRun(runId);
+    setResultErrors((current) => {
+      const next = { ...current };
+      delete next[runId];
+      return next;
+    });
+    const result = await getC3ResultPageAction({ runId, page });
+    setResultLoadingRun((current) => current === runId ? null : current);
+    if (!result.ok) {
+      setResultErrors((current) => ({ ...current, [runId]: result.error }));
+      return;
+    }
+    setResultPages((current) => ({ ...current, [runId]: result.data }));
   }
 
   function renderRun(run: C3RunSummary) {
@@ -197,6 +224,9 @@ export function ImportRunControl({ initial }: Props) {
       ? Date.parse(run.leaseExpiresAt) > Date.parse(initial.serverNow)
       : false;
     const progress = run.totalRows > 0 ? Math.min(100, Math.round((run.committedRows / run.totalRows) * 100)) : 0;
+    const resultPage = resultPages[run.runId];
+    const resultError = resultErrors[run.runId];
+    const resultLoading = resultLoadingRun === run.runId;
     return (
       <Card key={run.runId}>
         <CardHeader className="space-y-2">
@@ -287,6 +317,101 @@ export function ImportRunControl({ initial }: Props) {
           {["completed", "completed_with_errors", "failed"].includes(run.state) ? (
             <>
               <ResultCounts run={run} />
+              <div className="space-y-3 rounded-[var(--radius-md)] border border-border p-4">
+                <div>
+                  <p className="text-sm font-medium">Row results</p>
+                  <p className="text-xs text-muted-foreground">
+                    Durable commit outcomes. Source row keys are opaque import identifiers, not customer names.
+                  </p>
+                </div>
+                {run.results.blocked > 0 ? (
+                  <Alert variant="warning">
+                    {run.results.blocked} blocked row{run.results.blocked === 1 ? "" : "s"} need review. Reason codes are shown in the row results.
+                  </Alert>
+                ) : null}
+                {!resultPage ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11"
+                    disabled={resultLoading}
+                    onClick={() => void loadResultPage(run.runId, 0)}
+                  >
+                    {resultLoading ? "Loading row results…" : "View row results"}
+                  </Button>
+                ) : (
+                  <div className="space-y-3" aria-live="polite">
+                    {resultPage.rows.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No committed row outcomes were recorded for this run.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {resultPage.rows.map((row, index) => (
+                          <div
+                            key={`${row.entityType}:${row.sourceRowKey}:${index}`}
+                            className="rounded-[var(--radius-md)] border border-border/80 p-3"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium">{row.entityType}</p>
+                                <p className="break-all font-mono text-xs text-muted-foreground">
+                                  Source row {row.sourceRowKey}
+                                </p>
+                              </div>
+                              <Badge variant="outline">{row.result}</Badge>
+                            </div>
+                            {row.reasonCodes.length > 0 ? (
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {row.reasonCodes.map((code) => (
+                                  <code
+                                    key={code}
+                                    className="rounded bg-muted px-1.5 py-1 text-[11px] text-muted-foreground"
+                                  >
+                                    {code}
+                                  </code>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs text-muted-foreground">
+                        {resultPage.total === 0
+                          ? "0 rows"
+                          : `Rows ${resultPage.page * resultPage.pageSize + 1}–${Math.min(
+                              (resultPage.page + 1) * resultPage.pageSize,
+                              resultPage.total,
+                            )} of ${resultPage.total}`}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="min-h-11"
+                          disabled={resultLoading || resultPage.page === 0}
+                          onClick={() => void loadResultPage(run.runId, resultPage.page - 1)}
+                        >
+                          Previous rows
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="min-h-11"
+                          disabled={
+                            resultLoading
+                            || (resultPage.page + 1) * resultPage.pageSize >= resultPage.total
+                          }
+                          onClick={() => void loadResultPage(run.runId, resultPage.page + 1)}
+                        >
+                          Next rows
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {resultError ? <Alert variant="destructive">{resultError}</Alert> : null}
+              </div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <span>Reminder takeover: {run.reminderRequested ? run.reminderStatus.replaceAll("_", " ") : "off"}</span>
                 {run.reminderRequested && ["partial", "needs_attention", "pending"].includes(run.reminderStatus) ? (

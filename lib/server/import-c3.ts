@@ -8,6 +8,7 @@ import {
   c3RunStateSchema,
   type C3ReviewedEnvelope,
 } from "@/lib/imports/c3-contract";
+import { retryNotification } from "@/lib/communications/queue";
 import { enqueueReminderJobs } from "@/lib/integrations/jobs/queue";
 import { readReviewedImportPlan } from "@/lib/server/import-artifacts";
 import {
@@ -66,6 +67,7 @@ const runSummaryRpcSchema = runRowSchema.extend({
   locations_needing_hours: z.number().int().nonnegative(),
   eligible_reminder_appointments: z.number().int().nonnegative(),
   scheduled_reminder_jobs: z.number().int().nonnegative(),
+  failed_reminder_jobs: z.number().int().nonnegative(),
 }).strict();
 
 const reminderCandidateSchema = z.object({
@@ -78,6 +80,13 @@ export type C3ResultRow = {
   sourceRowKey: string;
   result: z.infer<typeof c3CommitResultSchema>;
   reasonCodes: string[];
+};
+
+export type C3ResultPage = {
+  page: number;
+  pageSize: number;
+  total: number;
+  rows: C3ResultRow[];
 };
 
 export type C3ReminderStatus = "off" | "pending" | "scheduled" | "partial" | "needs_attention";
@@ -233,6 +242,7 @@ function reminderStatusFromSummary(
 ): C3ReminderStatus {
   if (!row.reminder_requested) return "off";
   if (row.eligible_reminder_appointments === 0) return "scheduled";
+  if (row.failed_reminder_jobs > 0) return "needs_attention";
   const expected = row.eligible_reminder_appointments * 2;
   if (row.scheduled_reminder_jobs >= expected) return "scheduled";
   if (row.scheduled_reminder_jobs > 0) return "partial";
@@ -371,7 +381,10 @@ export async function getC3ImportWorkspace() {
   };
 }
 
-export async function getC3ResultPage(runIdInput: unknown, pageInput: unknown) {
+export async function getC3ResultPage(
+  runIdInput: unknown,
+  pageInput: unknown,
+): Promise<C3ResultPage> {
   const auth = await ownerContext();
   const runId = uuid.parse(runIdInput);
   const page = z.number().int().min(0).max(199).parse(pageInput);
@@ -546,6 +559,28 @@ export async function cancelC3Import(runIdInput: unknown) {
   return terminalResponse(auth, runId);
 }
 
+async function retryFailedReminderJobs(auth: Owner, runId: string) {
+  const { data, error } = await auth.service
+    .from("background_jobs")
+    .select("id")
+    .eq("business_id", auth.business.id)
+    .eq("job_type", "reminder")
+    .eq("status", "failed")
+    .eq("payload->>source", "import_reminder_takeover")
+    .eq("payload->>importRunId", runId)
+    .limit(50);
+  if (error) throw new C3ImportError("UNAVAILABLE");
+
+  let requeued = 0;
+  let unresolved = 0;
+  for (const row of z.array(z.object({ id: z.uuid() }).strict()).max(50).parse(data ?? [])) {
+    const result = await retryNotification(auth.business.id, row.id);
+    if (result.ok) requeued += 1;
+    else unresolved += 1;
+  }
+  return { requeued, unresolved };
+}
+
 export async function retryC3ReminderTakeover(runIdInput: unknown) {
   const auth = await ownerContext();
   const runId = uuid.parse(runIdInput);
@@ -554,6 +589,7 @@ export async function retryC3ReminderTakeover(runIdInput: unknown) {
   const summary = await summaryRowForRun(auth, runId);
   if (!summary.reminder_requested) throw new C3ImportError("INVALID_INPUT");
   await scheduleReminderTakeover(auth, runId);
+  await retryFailedReminderJobs(auth, runId);
   return terminalResponse(auth, runId);
 }
 
