@@ -10,7 +10,7 @@ vi.mock("@/lib/env", () => ({ getResendApiKey: () => "local-stub", getTwilioConf
 vi.mock("@/lib/observability/logger", () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() } }));
 
 import { createServiceClient } from "@/lib/supabase/service";
-import { initialBookingIntentId, originalReceiptIntentId, scheduledReminderIntentId } from "@/lib/communications/intent-identity";
+import { importReminderJobId, initialBookingIntentId, originalReceiptIntentId, scheduledReminderIntentId } from "@/lib/communications/intent-identity";
 import { enqueueEmailJob, enqueueReminderJobs } from "@/lib/integrations/jobs/queue";
 import { handleAppointmentEvent } from "@/lib/integrations/notifications/orchestrator";
 import { registerCommunicationsBookingBridge } from "@/lib/communications/events/booking-bridge";
@@ -23,7 +23,9 @@ beforeEach(() => {
   vi.clearAllMocks(); vi.stubEnv("CHASUM_WORKER_RELIABILITY_ENABLED", "true"); inserted = [];
   vi.mocked(createServiceClient).mockReturnValue({ from: (table: string) => {
     let insert: Row | undefined;
+    let insertError: Row | undefined;
     const result = () => {
+      if (insertError) return { data: null, error: insertError };
       if (insert) return { data: insert, error: null };
       if (table === "appointments") return { data: {
         id: "appointment-a", business_id: "business-a", status: "confirmed",
@@ -48,7 +50,15 @@ beforeEach(() => {
     };
     const query = {
       select: () => query, eq: () => query,
-      insert: (row: Row) => { insert = row; if (table === "background_jobs") inserted.push(row); return query; },
+      insert: (row: Row) => {
+        if (table === "background_jobs" && inserted.some((item) => item.id === row.id)) {
+          insertError = { code: "23505", message: "duplicate fixture job id" };
+        } else {
+          insert = row;
+          if (table === "background_jobs") inserted.push(row);
+        }
+        return query;
+      },
       single: async () => result(), maybeSingle: async () => result(), then: (resolve: (value: unknown) => unknown) => Promise.resolve(result()).then(resolve),
     };
     return query;
@@ -172,6 +182,20 @@ describe("producer occurrence identity", () => {
     expect(new Set(inserted.map((job) => job.id)).size).toBe(8);
     expect(sendIntentKey(ids[0], "email", "appointment.reminder"))
       .not.toBe(sendIntentKey(ids[1], "sms", "appointment.reminder"));
+  });
+
+  it("C3 reminder takeover uses deterministic job IDs and duplicate scheduling is a no-op", async () => {
+    const at = new Date("2026-10-01T10:00:00Z");
+    await enqueueReminderJobs("business-a", "appointment-a", at, { importRunId: "run-a" });
+    await enqueueReminderJobs("business-a", "appointment-a", at, { importRunId: "run-a" });
+    expect(inserted).toHaveLength(2);
+    expect(inserted.map((job) => job.id)).toEqual([
+      importReminderJobId("business-a", "run-a", "appointment-a", at, "email"),
+      importReminderJobId("business-a", "run-a", "appointment-a", at, "sms"),
+    ]);
+    expect(inserted.every((job) => payload(job).source === "import_reminder_takeover")).toBe(true);
+    expect(inserted.every((job) => payload(job).importRunId === "run-a")).toBe(true);
+    expect(inserted.every((job) => !JSON.stringify(job).includes("example.invalid"))).toBe(true);
   });
 
   it("flag-off enqueue strips a forged protocol; a new-looking UUID cannot claim guarded delivery", async () => {

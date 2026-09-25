@@ -1,6 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import type { JobType } from "@/lib/types/integrations";
-import { newSendIntentId, scheduledReminderIntentId } from "@/lib/communications/intent-identity";
+import { importReminderJobId, newSendIntentId, scheduledReminderIntentId } from "@/lib/communications/intent-identity";
 import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
 
 export async function enqueueJob(
@@ -10,10 +10,12 @@ export async function enqueueJob(
     businessId?: string;
     scheduledAt?: Date;
     maxAttempts?: number;
+    id?: string;
+    duplicateIdIsSuccess?: boolean;
   },
 ) {
   const supabase = createServiceClient();
-  const jobId = newSendIntentId();
+  const jobId = options?.id ?? newSendIntentId();
   const durablePayload = { ...payload };
   if (["email", "sms", "reminder"].includes(jobType)) {
     durablePayload.sendIntentId = payload.sendIntentId ?? jobId;
@@ -36,7 +38,10 @@ export async function enqueueJob(
     .select("id")
     .single();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (options?.id && options.duplicateIdIsSuccess && error.code === "23505") return jobId;
+    throw new Error(error.message);
+  }
   return data.id as string;
 }
 
@@ -75,16 +80,26 @@ export async function enqueueReminderJobs(
   businessId: string,
   appointmentId: string,
   reminderAt: Date,
+  options?: { importRunId?: string },
 ) {
   const sendIntentId = scheduledReminderIntentId(appointmentId, reminderAt);
+  const importMeta = options?.importRunId
+    ? { importRunId: options.importRunId, source: "import_reminder_takeover" as const }
+    : {};
+  const emailJobId = options?.importRunId
+    ? importReminderJobId(businessId, options.importRunId, appointmentId, reminderAt, "email")
+    : undefined;
+  const smsJobId = options?.importRunId
+    ? importReminderJobId(businessId, options.importRunId, appointmentId, reminderAt, "sms")
+    : undefined;
   await enqueueJob(
     "reminder",
-    { appointmentId, channel: "email", sendIntentId },
-    { businessId, scheduledAt: reminderAt },
+    { appointmentId, channel: "email", sendIntentId, ...importMeta },
+    { businessId, scheduledAt: reminderAt, id: emailJobId, duplicateIdIsSuccess: Boolean(emailJobId) },
   );
   await enqueueJob(
     "reminder",
-    { appointmentId, channel: "sms", sendIntentId },
-    { businessId, scheduledAt: reminderAt },
+    { appointmentId, channel: "sms", sendIntentId, ...importMeta },
+    { businessId, scheduledAt: reminderAt, id: smsJobId, duplicateIdIsSuccess: Boolean(smsJobId) },
   );
 }
