@@ -99,4 +99,19 @@ describe("Issue #81 Stage 1B application convergence", () => {
     expect(section).not.toContain('member.location_id === ""');
   });
 
+
+  it("new booking surfaces inherit the active single-Location workspace without overriding explicit truth", () => {
+    const calendar = source("components/calendar/calendar-client.tsx");
+    const panel = source("components/reception/reception-panel.tsx");
+    const quick = source("components/reception/quick-appointment.tsx");
+    const sheet = source("components/booking-sheet/booking-sheet.tsx");
+
+    expect(calendar).toContain("defaultLocationId={selectedLocationId}");
+    expect(panel).toContain("defaultLocationId={defaultLocationId}");
+    expect(quick).toContain("activeLocationId: defaultLocationId");
+    expect(sheet).toContain("appointmentLocationId: appointment?.location_id");
+    expect(sheet).toContain("draftLocationId: !appointment ? draft?.locationId : null");
+    expect(sheet).toContain("activeLocationId: !appointment ? defaultLocationId : null");
+  });
+
 });

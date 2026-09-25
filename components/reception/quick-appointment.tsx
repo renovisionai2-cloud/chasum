@@ -27,6 +27,7 @@ import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { getEligibleStaffForBooking } from "@/lib/actions/staff";
 import type { TaxRate } from "@/lib/business/types";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
+import { resolveBookingLocationId } from "@/lib/booking/default-location";
 import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
@@ -71,6 +72,8 @@ type QuickAppointmentProps = {
   defaultSlotIso?: string | null;
   defaultServiceId?: string | null;
   defaultStaffId?: string | null;
+  /** Active single-Location workspace default for a new quick booking. */
+  defaultLocationId?: string | null;
   walkInMode?: boolean;
   focusSignal?: number;
   openCreateSignal?: number;
@@ -116,6 +119,7 @@ export function QuickAppointmentForm({
   defaultSlotIso,
   defaultServiceId,
   defaultStaffId,
+  defaultLocationId = null,
   walkInMode = false,
   focusSignal = 0,
   openCreateSignal = 0,
@@ -146,14 +150,11 @@ export function QuickAppointmentForm({
     return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
   }, [initialCustomers, extraCustomers]);
 
-  const preferredLocation =
-    (prefs.locationId &&
-    locations.some((l) => l.id === prefs.locationId)
-      ? prefs.locationId
-      : null) ??
-    locations.find((l) => l.is_default)?.id ??
-    locations[0]?.id ??
-    "";
+  const preferredLocation = resolveBookingLocationId({
+    locations,
+    activeLocationId: defaultLocationId,
+    preferenceLocationId: prefs.locationId,
+  });
 
   const preferredStaff = defaultStaffId ?? prefs.staffId ?? "";
 

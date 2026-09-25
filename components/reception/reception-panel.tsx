@@ -47,6 +47,8 @@ type ReceptionPanelProps = {
   services: OperatorServiceCatalogItem[];
   staff: StaffWithServices[];
   locations: Location[];
+  /** Active single-Location workspace; null when viewing all Locations. */
+  defaultLocationId?: string | null;
   taxRates?: TaxRate[];
   currency?: string | null;
   insights: DashboardInsight[];
@@ -69,6 +71,7 @@ export function ReceptionPanel({
   services,
   staff,
   locations,
+  defaultLocationId = null,
   taxRates = [],
   currency = "usd",
   insights,
@@ -258,6 +261,7 @@ export function ReceptionPanel({
             defaultSlotIso={slotDefaults.start}
             defaultServiceId={slotDefaults.serviceId}
             defaultStaffId={slotDefaults.staffId}
+            defaultLocationId={defaultLocationId}
             walkInMode={walkInMode}
             focusSignal={apptFocusSignal}
             openCreateSignal={createCustomerSignal}

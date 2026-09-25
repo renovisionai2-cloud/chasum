@@ -677,6 +677,7 @@ export function CalendarClient({
             services={services}
             staff={staff}
             locations={locations}
+            defaultLocationId={selectedLocationId}
             taxRates={taxRates}
             currency={currency}
             insights={insights}
@@ -749,7 +750,7 @@ export function CalendarClient({
       <BookingSheet
         key={
           selectedAppointment?.id ??
-          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${forceQuickAddCustomer ? "qc" : ""}`
+          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${selectedLocationId ?? "all"}-${forceQuickAddCustomer ? "qc" : ""}`
         }
         open={dialogOpen}
         onClose={() => {
@@ -766,6 +767,7 @@ export function CalendarClient({
         defaultStaffId={defaultStaffId}
         defaultCustomerId={bookingDraft?.customerId ?? undefined}
         defaultServiceId={bookingDraft?.serviceId ?? undefined}
+        defaultLocationId={selectedLocationId}
         draft={bookingDraft}
         channel={showReceptionPanel ? "reception" : "staff"}
         currency={currency}

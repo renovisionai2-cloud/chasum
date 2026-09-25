@@ -42,6 +42,7 @@ import {
 } from "@/lib/actions/booking-sheet";
 import type { BookingSheetChannel } from "@/lib/booking-sheet/channels";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
+import { resolveBookingLocationId } from "@/lib/booking/default-location";
 import type { ServicePackage, TaxRate } from "@/lib/business/types";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
@@ -96,6 +97,8 @@ export type BookingSheetProps = {
   defaultCustomerId?: string;
   /** Prefill service from Reception / calendar draft. */
   defaultServiceId?: string;
+  /** Active single-Location workspace default for new bookings only. */
+  defaultLocationId?: string | null;
   /** Structured draft from Quick Appointment — IDs win over prefs. */
   draft?: BookingDraft | null;
   channel?: BookingSheetChannel;
@@ -149,6 +152,7 @@ export function BookingSheet({
   defaultStaffId,
   defaultCustomerId,
   defaultServiceId,
+  defaultLocationId = null,
   draft = null,
   channel = "staff",
   onSuccess,
@@ -180,15 +184,13 @@ export function BookingSheet({
       locations[0]?.timezone ??
       null;
 
-    const locationId =
-      appointment?.location_id ??
-      (!appointment ? draft?.locationId : null) ??
-      (prefs.locationId && locations.some((l) => l.id === prefs.locationId)
-        ? prefs.locationId
-        : null) ??
-      locations.find((l) => l.is_default)?.id ??
-      locations[0]?.id ??
-      "";
+    const locationId = resolveBookingLocationId({
+      locations,
+      appointmentLocationId: appointment?.location_id,
+      draftLocationId: !appointment ? draft?.locationId : null,
+      activeLocationId: !appointment ? defaultLocationId : null,
+      preferenceLocationId: prefs.locationId,
+    });
 
     const locationServices = filterServicesOfferedAtLocation(services, locationId).filter(
       (service) => service.is_active,
@@ -297,6 +299,7 @@ export function BookingSheet({
     defaultStaffId,
     defaultCustomerId,
     defaultServiceId,
+    defaultLocationId,
     draft,
     timezone,
     prefs.locationId,
@@ -364,6 +367,7 @@ export function BookingSheet({
         defaultStaffId ?? "",
         defaultCustomerId ?? "",
         defaultServiceId ?? "",
+        defaultLocationId ?? "",
         draft?.serviceId ?? "",
         draft?.startIso ?? "",
         draft?.durationMinutes ?? "",
