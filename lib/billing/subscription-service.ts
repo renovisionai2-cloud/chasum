@@ -371,11 +371,12 @@ let provider: BillingProvider | null = null;
 
 /**
  * Returns the active billing provider.
- * Stripe can replace MockBillingProvider when credentials exist.
+ * A later audited SaaS Stripe adapter must use dedicated saas-configuration;
+ * configuration alone does not implement checkout or reconciliation.
  */
 export function getBillingProvider(): BillingProvider {
   if (!provider) {
-    // Future: if (getStripeSecretKey()) return new StripeBillingProvider();
+    // Future adapter gate: dedicated saas-configuration plus audited capabilities.
     provider = new MockBillingProvider();
   }
   return provider;
