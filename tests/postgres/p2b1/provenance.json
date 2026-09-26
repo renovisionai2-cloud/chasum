@@ -1,0 +1,140 @@
+{
+  "scope": "TEST ONLY; historical source is not fresh hosted evidence",
+  "sources": [
+    {
+      "path": "supabase/migrations/001_booking_engine.sql",
+      "sha256": "20b78578d4eb819f4dc13e8a30cf9a69d9b7312e370394c7008808a5529369c8"
+    },
+    {
+      "path": "supabase/migrations/008_phase5_multi_location.sql",
+      "sha256": "82398d6cc29c8a0678555b979f54481f1ab4c159ce197ccb7ad70b0589fd09b2"
+    },
+    {
+      "path": "supabase/migrations/014_owner_platform.sql",
+      "sha256": "14f64c3a516ed12f1781f0eaa843a26ba869971be8740370b68e5bf303f902cc"
+    },
+    {
+      "path": "supabase/migrations/015_billing_phase1.sql",
+      "sha256": "bd2e0bbaa4ac3f194356867250b1420d80a46fbf123e24102ad556e01f6ea884"
+    },
+    {
+      "path": "supabase/migrations/032_private_alpha_co_owners.sql",
+      "sha256": "7e2e00f37f9f314f465e046aa29a9e4a71c476052a558de6767fa933aa66d578"
+    },
+    {
+      "path": "supabase/migrations/20260920230358_tenant_identity_gate.sql",
+      "sha256": "75a0ab5578493df310db955b282543f5bba20291356056237fe1e727b8b2af62"
+    },
+    {
+      "path": "supabase/migrations/033_private_alpha_co_owner_rls.sql",
+      "sha256": "d2470783554edf549f02314fa9397f0f67be8c736c97b9d3c12960d13ba2db37"
+    }
+  ],
+  "excerpts": [
+    {
+      "source": "supabase/migrations/001_booking_engine.sql",
+      "firstLine": 8,
+      "lastLine": 16,
+      "sha256": "101f5b0c9e8ea3a854bc449f15b5ebe051d9866959cc2d9870deeaf1c43f2444"
+    },
+    {
+      "source": "supabase/migrations/008_phase5_multi_location.sql",
+      "firstLine": 8,
+      "lastLine": 15,
+      "sha256": "ed200a2f8d593f005a8e0e4cbe796cacd15c0f6afaed0d4e9f305fab8017c655"
+    },
+    {
+      "source": "supabase/migrations/008_phase5_multi_location.sql",
+      "firstLine": 25,
+      "lastLine": 27,
+      "sha256": "90c241efa6a75652fb0e6d741b6d509249ad2aa3eb08ad034e30a867ef5966b3"
+    },
+    {
+      "source": "supabase/migrations/014_owner_platform.sql",
+      "firstLine": 42,
+      "lastLine": 63,
+      "sha256": "741faa39ce89dfab5a793bab609b998b5c8e94d8717a81098b0d6473a47bdcf5"
+    },
+    {
+      "source": "supabase/migrations/015_billing_phase1.sql",
+      "firstLine": 61,
+      "lastLine": 178,
+      "sha256": "e106db703fc8c91fa55475869291773c14fdec2a2d91af98dd4b6caa1b193ad0"
+    },
+    {
+      "source": "supabase/migrations/001_booking_engine.sql",
+      "firstLine": 112,
+      "lastLine": 123,
+      "sha256": "32a4969b272eadb0ce038ecdd4ce24a90ab7d89643458d136d5e09264d590cee"
+    },
+    {
+      "source": "supabase/migrations/032_private_alpha_co_owners.sql",
+      "firstLine": 23,
+      "lastLine": 76,
+      "sha256": "69ad61ac55244eb829c1913ee2013e88d65e78c21df44d5825fd0bfbb97c734d"
+    },
+    {
+      "source": "supabase/migrations/20260920230358_tenant_identity_gate.sql",
+      "firstLine": 19,
+      "lastLine": 28,
+      "sha256": "a9173b329f82d9adc13406bdc84fb100b704e7f705f98456b410be76ea5c69da"
+    },
+    {
+      "source": "supabase/migrations/20260920230358_tenant_identity_gate.sql",
+      "firstLine": 38,
+      "lastLine": 49,
+      "sha256": "1654d296d3085c09e495fc18572c8cb9ea8decc15d04ebe2bdc0f088331fa894"
+    },
+    {
+      "source": "supabase/migrations/001_booking_engine.sql",
+      "firstLine": 131,
+      "lastLine": 133,
+      "sha256": "9bf3576e936270d37731d5b39285a274e041ad8b15aaaeb21611d4201f0e0fec"
+    },
+    {
+      "source": "supabase/migrations/033_private_alpha_co_owner_rls.sql",
+      "firstLine": 29,
+      "lastLine": 32,
+      "sha256": "4f367be5338d7cb9b004791cb718ff5393c443cbfc7fe88528bbe7d9c3118e86",
+      "standaloneTerminator": ";"
+    }
+  ],
+  "historicalInputs": [
+    {
+      "input": "../inputs/037_design_partner_applications.sql",
+      "fixture": "tests/postgres/p2b1/historical-037.sql",
+      "sha256": "949bbcad5da5555eba430acca338c4b79d7218040b4e5192cb5158b0c1eedc89",
+      "historicalGitBlob": "a812908c1763d25c8406b204760bf12259fea549",
+      "historicalHead": "970ea91bcf3480921c915a6635dd2b9e2e27088e"
+    },
+    {
+      "input": "../inputs/038_commercial_foundation_additive.sql",
+      "fixture": "tests/postgres/p2b1/historical-038.sql",
+      "sha256": "f7e24cc378dd80d60ed6d48a0e8108dc17a37ee76242cdd100eb712d9b336e73",
+      "historicalGitBlob": "32c6c05505731512198e388aefc2cef961dcd862",
+      "historicalHead": "970ea91bcf3480921c915a6635dd2b9e2e27088e"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "tests/postgres/p2b1/baseline-contract.sql",
+      "sha256": "67d91a2e4e8576ba683302dc44680c9e70b2e96ba64a25853f4cb5562cda44a0"
+    },
+    {
+      "path": "tests/postgres/p2b1/baseline.sql",
+      "sha256": "6f48e737691f9d29d7cd6bf9dfa511da82741357afba5866293484ea5947b979"
+    },
+    {
+      "path": "tests/postgres/p2b1/historical-037.sql",
+      "sha256": "949bbcad5da5555eba430acca338c4b79d7218040b4e5192cb5158b0c1eedc89"
+    },
+    {
+      "path": "tests/postgres/p2b1/historical-038.sql",
+      "sha256": "f7e24cc378dd80d60ed6d48a0e8108dc17a37ee76242cdd100eb712d9b336e73"
+    },
+    {
+      "path": "tests/postgres/p2b1/overlay-contract.sql",
+      "sha256": "7707c89c38854e0b0329c0b6f57f508e85ce4eadc17fb19ec36c18805d2c101e"
+    }
+  ]
+}

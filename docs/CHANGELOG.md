@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-26 — Issue #112 / P2B-1 disposable harness preparation only
+
+- Prepare a target-owned PostgreSQL 17 Unix-socket baseline runner, source-pinned synthetic fixtures (with/without historical 037/038), and separately invoked offline Node safety tests. No PostgreSQL startup or SQL execution in this sandbox; expected authority gaps are labelled baseline observations, never security acceptance.
+- Development approved; safe harness prepared; **full migration/atomic apply NOT IMPLEMENTED** because fresh hosted V1–V4/all-null/invoice-identity prechecks were blocked before execution by OpenAI safety. No alternate hosted route, production code/migration, CI/dependency change or release. P2A PASS / PR111 and completed #105/#107 remain untouched. Competitive gate NOT_APPLICABLE to internal test preparation.
+
 ### 2026-09-26 — Issue #110 / Gate B P2A subscription isolation candidate (provider OFF)
 
 - Add server-only dedicated SaaS configuration with fail-closed mode, deployment identity, key/signing-secret syntax and explicit new-purchase policy; no legacy/public credential fallback. Configured Production requires live mode/live key; Preview/development require test mode/test key. Test mode in Production returns redacted `test_requires_nonproduction`; disabled mode remains capability-free everywhere. Non-Vercel runtime support is not implemented; `NODE_ENV` never grants live permission.
