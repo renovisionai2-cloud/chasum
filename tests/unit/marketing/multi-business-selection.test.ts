@@ -56,7 +56,7 @@ describe("multi-business selection helpers", () => {
       businessType: "salon" as const,
     };
     const fields = buildUnderstandingFields(memory, { showPending: true });
-    const business = fields.find((f) => f.id === "business");
+    const business = fields.find((f) => f.id === "industry");
     expect(business?.discovered).toBe(true);
     expect(business?.value).toBe("Hair Salon · Medical Spa");
   });
