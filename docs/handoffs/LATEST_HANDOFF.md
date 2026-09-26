@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-26 by Codex for the bounded Issue #106 pricing candidate, using the Product Owner / supervisor dispatch; prior accepted records preserved.
+**Updated:** 2026-09-26 by Codex for the bounded Issue #110 provider-off subscription isolation candidate, using the Product Owner / supervisor dispatch; prior accepted records preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
@@ -10,9 +10,11 @@ World Class Phase 5 is **COMPLETE**.
 
 Current program phase:
 
-**Issue #106 CAD pricing presentation candidate ACTIVE / NOT Production accepted.** PR #105 / Slice 0A is COMPLETE, merged and Production verified per PO/supervisor dispatch; base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`, quality check REQUIRED (integration `15368`). No fresh hosted/runtime observation in this network-disabled clone. See section D.
+**Issue #110 / Gate B P2A provider-off subscription isolation candidate ACTIVE. PR #107 pricing presentation is MERGED / PRODUCTION ACCEPTED** at `1b11ade192bb2085d0325383b3f00f9fe97fda51`, tree `99786474cc43248dbf680b0ebbe6637cc70b2308`, per [PO/supervisor closeout](https://github.com/renovisionai2-cloud/chasum/pull/107#issuecomment-5849507275). PR #105 / Slice 0A is COMPLETE, merged and Production verified per PO/supervisor dispatch; base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`, quality check REQUIRED (integration `15368`). No fresh hosted/runtime observation in this network-disabled clone. See section D.
 
-Latest accepted **behavior-changing** Production application release:
+Latest accepted **behavior-changing** Production application release: `1b11ade192bb2085d0325383b3f00f9fe97fda51` (PR #107; source above). No fresh runtime query in this sandbox.
+
+Prior directly observed Production application release (historical):
 
 `934fe4c2d93f165f1b03189995f97ea2b32b8f4b`
 
@@ -169,15 +171,17 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**ISSUE #106 CANDIDATE REVIEW / HOSTED ACCEPTANCE.**
+**ISSUE #110 PROVIDER-OFF CANDIDATE REVIEW / HOSTED CHECKS.**
 
-One primary implementer: Codex, supervised by ChatGPT AI Executive; Claude Control Tower remains reviewer. Isolated branch `codex/issue-106-pricing-truth` at supplied base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`. PR #105 is closed; do not reopen it or PR #3/#13/#16. No competing pricing work is authorized.
+One primary implementer: Codex, supervised by ChatGPT; Claude independently reviews before merge. Isolated branch `codex/gate-b-subscription-isolation`; local HEAD/origin-main at entry match supplied accepted base `1b11ade192bb2085d0325383b3f00f9fe97fda51`. No network/runtime re-query. PR #105 and required quality are complete; PR #107 pricing is accepted. Preserve old drafts #3/#13/#16; no pricing redo.
 
 Locked CAD pricing: standard Professional 79/month, 790/year; Business 149/month, 1,490/year. First 25 businesses signing up for Alpha: fixed lifetime recurring Professional 59/month, 590/year; Business 129/month, 1,290/year. Annual totals are paid upfront for 12 months. Exact framing: “Pay for 10 months and receive 2 months free.” Leading offer: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Explain the 240/year lifetime saving at monthly rates first, then additional annual saving 118/258; combined savings 358/498 against 12 regular monthly payments. Monthly Alpha does not get two months free. Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided; a tenant Alpha flag never proves offer eligibility.
 
-Competitive Product Gate REQUIRED; supervisor completed the pre-build contract in Issue #106 comment `5848862526` (2026-09-26). Preserve CAD, cadence, upfront annual total and distinct savings; existing features and routes remain intact. Pure shared representation only; no runtime catalog override, checkout, assignment, historical-invoice relabeling or entitlement change. BillingManager remains unchanged; hosted authenticated acceptance is not claimed.
+Issue #110 adds only a server-only dedicated configuration module and pure redacted capability contract. Names: `CHASUM_SAAS_BILLING_MODE` (missing = disabled), `CHASUM_SAAS_STRIPE_SECRET_KEY`, `CHASUM_SAAS_STRIPE_WEBHOOK_SECRET`, `CHASUM_SAAS_NEW_PURCHASES_ENABLED` (only explicit `true`). No shared/public credential fallback. Recognized Vercel deployment identity is required: Production requires live mode/live key; Preview/development require test mode/test key, regardless of `NODE_ENV`. Test mode in Production returns `test_requires_nonproduction`; unknown identity is unavailable. Disabled mode is allowed everywhere with no capabilities. Non-Vercel support is not implemented. Prefix syntax does not prove validity, account identity, permissions or endpoint pairing. Checkout requires explicit implemented Stripe checkout AND reconciliation; stopping new purchases does not disable explicitly implemented reconciliation under otherwise valid config. Future subscriber rollback uses the new-purchase control while keeping configuration and reconciliation healthy; disabling whole billing mode or removing keys stops both and is not that rollback. All actual capabilities remain absent/OFF; existing mock provider, summary flag and mutation guards are unchanged. This is NOT a working checkout/reconciler.
 
-Next: supervisor inspects exact files/patch, publishes the candidate, verifies hosted Node 22 quality CI and Preview, and arranges independent review plus browser/responsive acceptance. Local Node is 26.7.0; local evidence does not replace hosted CI. Candidate is **NOT Production accepted**. Merge/activation and Production operations are expressly unauthorized. No new PO pricing decision is needed for candidate preparation. The environment manifest retains dated runtime evidence; this task does not mutate runtime.
+Future audited trust boundary, not implemented: server-resolved verified user/Business/price/offer → Checkout → verified canonical provider mapping → transactional replay/concurrency-safe activation. Competitive gate NOT_APPLICABLE for this bounded internal isolation/configuration foundation with no user-facing workflow; actual customer checkout remains REQUIRED in the next task.
+
+Next: supervisor publishes exact reviewed bytes and obtains hosted checks; Claude independently reviews before merge. Sandbox delivers evidence/patch/draft body only, with no push/PR/merge or provider activation. Terms remain gated: First 25 means Alpha signups, not payers; enrollment order, historic promises, internal/test counting, cancellation/rejoining/refunds/tax and lifetime continuity are UNDECIDED. Before later schema work, reconcile 037/038 history/RLS/grants; no database work here. Genuine bounded team access remains required wherever sold/needed. #108 theme deferral and #109 dependency exposure assessment remain open and untouched; 25 dependency findings remain UNASSESSED. Environment manifest retains dated evidence because no runtime changed.
 
 ## E. Other accepted program state
 
@@ -189,7 +193,7 @@ Next: supervisor inspects exact files/patch, publishes the candidate, verifies h
 - GVM Production relationship-data correction — **COMPLETE / ACCEPTED**.
 - Issue #57 branded domain — **OPEN but DEFERRED** by Product Owner decision `5745462206`. `https://chasum.vercel.app` remains the Private Alpha Production hostname; `https://staging.chasumai.com` remains Staging. `chasumai.com` / `www.chasumai.com` were attached Vercel-side before the stop; GoDaddy DNS, Supabase Auth Site URL, Production `NEXT_PUBLIC_APP_URL` and redeploy were NOT changed. Preserve Microsoft 365 and Resend mail DNS.
 - PR #105 / Slice 0A: COMPLETE / merged / Production verified; stale assertions corrected; quality REQUIRED (integration `15368`) alongside Vercel + competitive-product-gate, per PO/supervisor dispatch. Remaining non-blocking debt: pre-existing React-Compiler lint debt in `quick-appointment.tsx` / `sheet.tsx`; a 36px Employee-profile control below the Chasum ≥40px touch floor.
-- Dependency findings: PR #105 disclosed npm's 25 findings (3 low / 8 moderate / 13 high / 1 critical) on the unchanged lockfile. Runtime reachability/exploitability **UNASSESSED**; read-only triage pending. This is not evidence of compromise or dependency-fix/upgrade authorization. No audit/network/upgrade work in #106.
+- Dependency findings: PR #105 disclosed npm's 25 findings (3 low / 8 moderate / 13 high / 1 critical) on the unchanged lockfile. Runtime reachability/exploitability **UNASSESSED**; read-only triage pending. This is not evidence of compromise or dependency-fix/upgrade authorization. No audit/network/upgrade work in #110; #109 assessment remains open.
 - GVM and Chasum HQ remain normal tenants. Platform Admin / Control Centre remains a separate protected control plane at `/owner`; Chasum HQ is **not** Platform Admin.
 
 ## F. Agent governance — current model
@@ -264,7 +268,7 @@ and "Would a real business prefer this experience to the mature software it
 already uses?"
 
 Latest accepted behavior-changing Production application release:
-934fe4c2d93f165f1b03189995f97ea2b32b8f4b   (PR #103, Issue #102)
+1b11ade192bb2085d0325383b3f00f9fe97fda51   (PR #107, pricing accepted; source above)
 
 Issue #81 Stage 1 COMPLETE / Production accepted.
 Issue #73 CLOSED / COMPLETED - do NOT resume Package C2 or C3.
@@ -274,11 +278,11 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-Issue #106 CAD pricing candidate review / hosted acceptance. PR #105 is COMPLETE
-and Production verified; quality REQUIRED (integration 15368). #106 is NOT
-Production accepted. Supervisor publishes exact candidate and arranges hosted
-Node 22 CI / Preview and independent review. Merge and activation NOT authorized.
-See section D for locked prices/copy and undecided enrollment/continuity terms.
+Issue #110 provider-off subscription isolation candidate review / hosted checks.
+PR #107 pricing and #105 required quality are COMPLETE. Supervisor publishes exact
+reviewed bytes; Claude independently reviews before merge. No sandbox push/PR/merge.
+Provider activation and terms remain gated; configuration is NOT working checkout
+or reconciliation. See section D for remaining gates and undecided terms.
 
 AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = AI Executive & Chief
 Product/Technology Adviser. Claude Opus = Development Control Tower. Codex =
