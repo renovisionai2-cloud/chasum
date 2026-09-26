@@ -20,7 +20,10 @@ describe("pricing page subscription presentation", () => {
     render(<Pricing />);
     const group = screen.getByRole("group", { name: "Billing period" });
     const monthly = within(group).getByRole("button", { name: "Monthly" });
-    const yearly = within(group).getByRole("button", { name: "Yearly 2 months free" });
+    const yearly = within(group).getByRole("button", { name: "Yearly" });
+    expect(yearly.querySelector("span")).not.toBeInTheDocument();
+    expect(within(yearly).queryByText("2 months free")).not.toBeInTheDocument();
+    expect(within(group).getByText("Pay for 10 months and receive 2 months free.")).toBeVisible();
     expect(monthly).toHaveAttribute("aria-pressed", "true");
     expect(yearly).toHaveAttribute("aria-pressed", "false");
     expect(screen.getAllByText("Pay for 10 months and receive 2 months free.").length).toBeGreaterThan(0);

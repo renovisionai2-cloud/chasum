@@ -40,17 +40,7 @@ export function PricingBillingToggle({
             : "bg-muted/60 text-muted-foreground hover:text-foreground",
         )}
       >
-        Yearly{" "}
-        <span
-          className={cn(
-            "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-            value === "yearly"
-              ? "bg-primary-foreground/15 text-primary-foreground"
-              : "bg-primary/10 text-primary",
-          )}
-        >
-          2 months free
-        </span>
+        Yearly
       </button>
       <p className="w-full text-center text-sm text-muted-foreground">
         {PRICING_ANNUAL_EXPLANATION}
