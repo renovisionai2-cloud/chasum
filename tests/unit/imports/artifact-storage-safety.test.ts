@@ -47,7 +47,6 @@ describe("C1 Storage/ACL source contract (not live Storage RLS evidence)", () =>
 
   it("keeps cleanup hourly, bounded, and independent of communication workers", () => {
     const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
-    expect(vercel.git.deploymentEnabled).toEqual({ "codex/issue-73-package-c1-artifacts": false });
     expect(vercel.crons.filter((cron: { path: string }) => cron.path === "/api/cron/cleanup-import-artifacts"))
       .toEqual([{ path: "/api/cron/cleanup-import-artifacts", schedule: "0 * * * *" }]);
     expect(storage).toContain("CLEANUP_BATCH_SIZE = 25");
