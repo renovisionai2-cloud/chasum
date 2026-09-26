@@ -9,13 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-26 — Issue #106 CAD pricing presentation candidate (NOT Production accepted)
+### 2026-09-26 — Issue #110 / Gate B P2A subscription isolation candidate (provider OFF)
+
+- Add server-only dedicated SaaS configuration with fail-closed mode, deployment identity, key/signing-secret syntax and explicit new-purchase policy; no legacy/public credential fallback. Configured Production requires live mode/live key; Preview/development require test mode/test key. Test mode in Production returns redacted `test_requires_nonproduction`; disabled mode remains capability-free everywhere. Non-Vercel runtime support is not implemented; `NODE_ENV` never grants live permission.
+- Add pure redacted capability policy: configuration alone grants nothing; checkout requires implemented Stripe checkout and reconciliation. Purchase-off preserves only an explicitly implemented reconciliation capability under valid config. Future subscriber rollback must stop new purchases while preserving healthy reconciliation; disabling billing mode or removing keys stops both and is not that rollback. All actual capabilities remain OFF; this is NOT a working checkout/reconciler.
+- Add focused synthetic configuration/isolation/capability tests, including actual commerce resolver, mock billing, summary and mutation guard regressions. Keep existing commerce, pricing, guards and actions unchanged; subscription-service changes are comments only. No provider/DB/schema/runtime/dependency changes.
+- Competitive gate NOT_APPLICABLE: bounded internal security/configuration foundation with no user-facing workflow. Supervisor publishes exact reviewed bytes for hosted checks; Claude independently reviews before merge. Provider activation, terms, actual-checkout competitive gate, later 037/038 history/RLS/grants reconciliation and genuine team access remain gates. #108/#109 remain open; 25 dependency findings UNASSESSED.
+
+### 2026-09-26 — Issue #106 CAD pricing presentation (PR #107, Production accepted)
+
+- PR #107 MERGED / PRODUCTION PRICING ACCEPTED at `1b11ade192bb2085d0325383b3f00f9fe97fda51`, tree `99786474cc43248dbf680b0ebbe6637cc70b2308`, per [PO/supervisor closeout](https://github.com/renovisionai2-cloud/chasum/pull/107#issuecomment-5849507275). This supersedes the dated candidate status; pricing work is complete.
 
 - Record PR #105 / Slice 0A COMPLETE, merged and Production verified; quality check REQUIRED (integration `15368`) per PO/supervisor dispatch. Preserve its accepted closure; do not reopen PR #3/#13/#16.
 - Share pure integer-minor-unit CAD pricing across fallback catalog and public presentation. Standard Professional 79/month or 790/year; Business 149/month or 1,490/year. Show annual totals paid upfront for 12 months: “Pay for 10 months and receive 2 months free.”
 - Present the first-25 Alpha offer in the existing section: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Fixed lifetime recurring Professional 59/month or 590/year; Business 129/month or 1,290/year. First saving 240/year at monthly rates, then additional annual saving 118/258; combined saving 358/498 versus 12 regular monthly payments. Monthly Alpha alone does not include two free months.
 - Preserve plans/features/limits, application routes, paid-upgrade guards and closed checkout. Correct website pricing knowledge from the same representation; no Summer feature change. BillingManager and historical invoices remain unchanged. Add focused monetary, tenant-flag separation and keyboard/UI regression tests.
-- Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided. No offer assignment, checkout, database/provider/configuration or Production change. Competitive gate REQUIRED: Issue #106 comment `5848862526`; supervisor review, hosted CI/Preview and independent acceptance remain the next gate. Merge and activation are not authorized.
+- Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided. PR #107 deployed the pricing presentation to Production, with no database/provider configuration, offer assignment or checkout-activation change. Competitive gate REQUIRED: Issue #106 comment `5848862526`; pricing acceptance is closed by PR #107 above. Provider activation and unresolved terms remain separately gated. First 25 means Alpha signups, not payers; enrollment order, historic promises, internal/test counting, cancellation/rejoining/refunds/tax and lifetime continuity remain UNDECIDED.
 
 ### 2026-09-26 — Issue #102 multi-location readiness truth (PR #103, Production accepted)
 
