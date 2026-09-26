@@ -2,7 +2,7 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getLocationScope, getLocations } from "@/lib/actions/location";
-import { getServices } from "@/lib/actions/services";
+import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
 import {
   calendarDateInTimezone,
@@ -34,6 +34,7 @@ import {
 } from "@/lib/dashboard/insights";
 import { formatBusinessDate } from "@/lib/locale";
 import { withLocationFilter } from "@/lib/location/constants";
+import { getLocationBookingReadiness } from "@/lib/booking/location-readiness";
 import {
   buildSetupSteps,
   isSetupComplete,
@@ -133,7 +134,7 @@ export async function getCommandCentreSnapshot(): Promise<CommandCentreSnapshot>
 
   const [services, staff, locations, commerce, todayRes, pendingRes] =
     await Promise.all([
-      getServices(),
+      getOperatorServiceCatalog(),
       getStaff(),
       getLocations(),
       getCommerceDashboardSnapshot(business.id, business.name, {
@@ -144,17 +145,26 @@ export async function getCommandCentreSnapshot(): Promise<CommandCentreSnapshot>
       pendingQuery,
     ]);
 
+  const scopedLocationIds =
+    locationScope.mode === "single"
+      ? [locationScope.locationId]
+      : locations.map((location) => location.id);
   let hoursProbe = false;
-  const locationIds = locations.map((l) => l.id);
-  if (locationIds.length > 0) {
+  if (scopedLocationIds.length > 0) {
     const { data: hoursRows } = await supabase
       .from("location_hours")
       .select("id")
-      .in("location_id", locationIds)
+      .in("location_id", scopedLocationIds)
       .eq("is_open", true)
       .limit(1);
     hoursProbe = (hoursRows?.length ?? 0) > 0;
   }
+
+  const bookingReadiness = getLocationBookingReadiness(
+    services,
+    staff,
+    locationScope.mode === "single" ? locationScope.locationId : null,
+  );
 
   if (todayRes.error) {
     throw new Error(todayRes.error.message);
@@ -165,9 +175,11 @@ export async function getCommandCentreSnapshot(): Promise<CommandCentreSnapshot>
 
   const setupSteps = buildSetupSteps({
     business,
-    serviceCount: services.length,
-    staffCount: staff.length,
+    serviceCount: bookingReadiness.offeredServiceCount,
+    staffCount: bookingReadiness.bookableStaffCount,
     hasHours: hoursProbe,
+    locationScoped: locationScope.mode === "single",
+    hasServiceStaffMatch: bookingReadiness.matchedStaffCount > 0,
   });
   const setupComplete = isSetupComplete(setupSteps);
   const nextSetupStep = setupSteps.find((step) => !step.done) ?? null;

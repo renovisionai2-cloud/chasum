@@ -333,8 +333,16 @@ export function PublicBookingPage({
               <BackButton onClick={() => setStep("location")} label="Change location" />
             )}
             <h2 className="text-lg font-semibold">Select a service</h2>
-            <div className="grid gap-3">
-              {locationServices.map((service) => (
+            {locationServices.length === 0 ? (
+              <div className="rounded-2xl border border-border bg-card p-5 text-center">
+                <p className="font-medium">No online services are offered at this location yet.</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Choose another Location or contact the business for help.
+                </p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {locationServices.map((service) => (
                 <button
                   key={service.id}
                   type="button"
@@ -372,8 +380,9 @@ export function PublicBookingPage({
                     </p>
                   )}
                 </button>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
 
@@ -381,38 +390,49 @@ export function PublicBookingPage({
           <section className="space-y-4">
             <BackButton onClick={() => setStep("service")} />
             <h2 className="text-lg font-semibold">Choose staff</h2>
-            <p className="text-sm text-muted-foreground">
-              Pick a specific team member, or choose Any available staff — we will
-              assign someone later.
-            </p>
+            {availableStaff.length > 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Pick a specific team member, or choose Any available staff — we will
+                assign someone later.
+              </p>
+            ) : null}
             {selectedService.preparation_instructions && (
               <p className="rounded-[var(--radius-md)] border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
                 <strong className="text-foreground">Preparation:</strong>{" "}
                 {selectedService.preparation_instructions}
               </p>
             )}
-            <button
-              type="button"
-              onClick={() => {
-                setAnyStaff(true);
-                setSelectedStaff(null);
-                setSelectedSlot(null);
-                setStep("date");
-              }}
-              className="flex w-full items-start gap-3 rounded-2xl border border-primary/40 bg-accent/20 p-4 text-left transition-colors hover:border-primary"
-            >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <Users className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <span>
-                <span className="block font-medium">Any available staff</span>
-                <span className="mt-0.5 block text-sm text-muted-foreground">
-                  Show openings from every team member who offers this service
-                </span>
-              </span>
-            </button>
-            <div className="grid gap-3">
-              {availableStaff.map((member) => (
+            {availableStaff.length === 0 ? (
+              <div className="rounded-2xl border border-border bg-card p-5 text-center">
+                <p className="font-medium">No bookable staff are assigned to this service at this location.</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Choose another Service or Location, or contact the business for help.
+                </p>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAnyStaff(true);
+                    setSelectedStaff(null);
+                    setSelectedSlot(null);
+                    setStep("date");
+                  }}
+                  className="flex w-full items-start gap-3 rounded-2xl border border-primary/40 bg-accent/20 p-4 text-left transition-colors hover:border-primary"
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <Users className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span className="block font-medium">Any available staff</span>
+                    <span className="mt-0.5 block text-sm text-muted-foreground">
+                      Show openings from every team member who offers this service here
+                    </span>
+                  </span>
+                </button>
+                <div className="grid gap-3">
+                  {availableStaff.map((member) => (
                 <button
                   key={member.id}
                   type="button"
@@ -456,8 +476,10 @@ export function PublicBookingPage({
                     )}
                   </div>
                 </button>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
         )}
 

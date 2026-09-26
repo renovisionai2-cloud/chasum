@@ -175,7 +175,7 @@ export function Sheet({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 flex",
+        "fixed inset-0 z-[60] flex",
         "items-end justify-center",
         "md:items-stretch",
         side === "right" ? "md:justify-end" : "md:justify-start",

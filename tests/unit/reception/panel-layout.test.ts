@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   DASHBOARD_MAIN_PAD_X_LG_PX,
@@ -135,4 +137,14 @@ describe("receptionWorkspaceLayout", () => {
       }
     },
   );
+
+  it("keeps modal sheets above the persistent mobile navigation", () => {
+    const sheetSource = readFileSync(
+      resolve(process.cwd(), "components/ui/sheet.tsx"),
+      "utf8",
+    );
+    expect(sheetSource).toContain('"fixed inset-0 z-[60] flex"');
+    expect(sheetSource).not.toContain('"fixed inset-0 z-50 flex"');
+  });
+
 });

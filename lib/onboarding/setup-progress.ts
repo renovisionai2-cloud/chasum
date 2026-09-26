@@ -37,6 +37,8 @@ export function buildSetupSteps(input: {
   serviceCount: number;
   staffCount: number;
   hasHours: boolean;
+  locationScoped?: boolean;
+  hasServiceStaffMatch?: boolean;
 }): SetupStep[] {
   const profileDone = !isPlaceholderBusiness(input.business);
   const interval = normalizeBookingIntervalMinutes(
@@ -68,17 +70,29 @@ export function buildSetupSteps(input: {
     },
     {
       id: "services",
-      label: "Add a service",
-      description: "Customers can only book what you list here.",
+      label: input.locationScoped ? "Enable a service at this location" : "Add a service",
+      description: input.locationScoped
+        ? "Use an existing Business Service here without creating a duplicate."
+        : "Customers can only book what you list here.",
       href: "/dashboard/services",
       done: input.serviceCount > 0,
     },
     {
       id: "staff",
-      label: "Add a bookable employee",
-      description: "At least one provider must accept online bookings.",
+      label: input.locationScoped
+        ? input.staffCount > 0 && input.hasServiceStaffMatch === false
+          ? "Assign an employee to an offered service"
+          : "Assign a bookable employee to this location"
+        : "Add a bookable employee",
+      description: input.locationScoped
+        ? input.staffCount > 0 && input.hasServiceStaffMatch === false
+          ? "At least one employee at this Location must provide a Service offered here."
+          : "At least one existing provider must be allowed to work at this location."
+        : "At least one provider must accept online bookings.",
       href: "/dashboard/employees",
-      done: input.staffCount > 0,
+      done: input.locationScoped
+        ? Boolean(input.hasServiceStaffMatch)
+        : input.staffCount > 0,
     },
     {
       id: "booking_link",
@@ -88,7 +102,9 @@ export function buildSetupSteps(input: {
       done:
         profileDone &&
         input.serviceCount > 0 &&
-        input.staffCount > 0,
+        (input.locationScoped
+          ? Boolean(input.hasServiceStaffMatch)
+          : input.staffCount > 0),
     },
   ];
 }

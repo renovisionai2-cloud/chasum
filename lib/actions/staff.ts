@@ -80,7 +80,6 @@ function filterStaffByLocationScope<
   const locationId = scope.locationId;
   return rows.filter((member) => {
     if (member.location_id === locationId) return true;
-    if (member.location_id == null || member.location_id === "") return true;
     return (member.staff_locations ?? []).some(
       (row) => row.location_id === locationId,
     );
@@ -171,17 +170,14 @@ export async function getStaffForAssignment() {
   const scope = await getLocationScope();
   const supabase = await createClient();
 
-  let query = supabase
+  const { data, error } = await supabase
     .from("staff")
-    .select("id, name, title, is_active, location_id, color")
+    .select("id, name, title, is_active, location_id, color, staff_locations(location_id)")
     .eq("business_id", business.id)
     .order("name");
 
-  query = withLocationFilter(query, scope);
-
-  const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return filterStaffByLocationScope(data ?? [], scope);
 }
 
 async function resolveStaffLocationId(

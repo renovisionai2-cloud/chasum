@@ -144,6 +144,7 @@ export default async function CalendarPage({ searchParams }: PageProps) {
         taxRates={taxRates.filter((t) => t.is_active)}
         timezone={timezone}
         appointmentIntervalMinutes={appointmentIntervalMinutes}
+        selectedLocationId={scope.mode === "single" ? scope.locationId : null}
       />
     </div>
   );
