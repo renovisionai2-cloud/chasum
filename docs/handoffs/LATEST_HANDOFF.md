@@ -1,8 +1,8 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-23 by ChatGPT Control Tower for Issue #73 Package C1 Staging + Production acceptance and C2 continuation.
+**Updated:** 2026-09-26 by Claude Opus Development Control Tower for Issue #102 Production acceptance, the accepted GVM relationship-data correction and the bounded continuity closeout restamp.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
-**First read:** [Current Project State](../CURRENT_PROJECT_STATE.md).
+**First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
 ## A. Current control-tower state
 
@@ -10,19 +10,21 @@ World Class Phase 5 is **COMPLETE**.
 
 Current program phase:
 
-**Outside Private Alpha readiness — IN PROGRESS.**
+**Outside Private Alpha readiness — no open governed engineering work item.** See section C.
 
 Latest accepted **behavior-changing** Production application release:
 
-`35f8da7644fed8dfa46f70c3151610b6ae4f9dfa`
+`934fe4c2d93f165f1b03189995f97ea2b32b8f4b`
 
-This is PR #97 Package C1 squash merge. Vercel Production deployment:
+This is the PR #103 Issue #102 squash merge. Vercel Production deployment:
 
-`dpl_2G4VhsqnzyFBxxLE8czcM2dhes3y`
+`J6UTXrUeV4YjxRUfQU5hpAydBCe9`
 
-is **READY**. Direct `/api/build-info` HTTP 200 confirmed the exact merge on `main`, `env=production`, `production=true`. Direct `/api/health` HTTP 200 reported `ok=true`, with Supabase/service-role/email/CRON secret configured and soft schema fallback disabled. Later documentation-only merges may advance Git/serving SHA without changing application behavior, so fresh runtime evidence wins for consequential work.
+is **SUCCESS** / "Deployment has completed". Direct `/api/build-info` HTTP 200 confirmed this exact SHA on `main`, `env=production`, `production=true`. Direct `/api/health` HTTP 200 reported `ok=true`, with Supabase/service-role/email/CRON secret configured and soft schema fallback disabled — byte-identical to the pre-merge baseline on `93a4fc1`. The served public bundle confirmed the Production data plane as Supabase `kxcydvhswkuzepwzzinq`. Later documentation-only merges may advance Git/serving SHA without changing application behavior, so fresh runtime evidence wins for consequential work.
 
 Production Sentry remains OFF.
+
+Prior accepted behavior-changing releases remain historically valid and are not rewritten: `93a4fc13bed2fb2bf6cb00ead8050878aad1adb9` (PR #100 Package C) and `35f8da7644fed8dfa46f70c3151610b6ae4f9dfa` (PR #97 Package C1).
 
 ## B. Issue #81 multi-location Stage 1 — COMPLETE / PRODUCTION ACCEPTED
 
@@ -89,9 +91,41 @@ Migrations 034–036 remain unapplied.
 
 Stage 2 location overrides and Stage 3 live inheritance remain **DESIGN FOR NOW / BUILD LATER**.
 
-## C. Issue #73 governed switching/import
+### Stage-1 convergence completed by Issue #102
 
-Issue #73 remains **ACTIVE** because the customer-facing migration product is not complete.
+Issue #102 closed the last Stage-1 read-model gap without rewriting the accepted Stage 1 history above. It was legitimate post-acceptance contradictory operator evidence from real GVM Production use: Services reported "Offered here" at secondary Locations while Reception simultaneously demanded "add at least one service and one bookable employee", because Command Centre still read the legacy `services.location_id` scope.
+
+Accepted outcome, live in Production at `934fe4c`:
+
+- Command Centre, Services, Employees, Reception, Booking Sheet and public booking all read the same relationship truth (`service_locations` / `staff_locations` / `staff_services`).
+- The permissive "Staff with null `location_id` works everywhere" fallback was **removed**; booking readiness is now stricter, never looser.
+- `lib/booking/location-readiness.ts` models four states — `no-services`, `no-staff`, `no-service-staff-overlap`, `ready` — each naming the actual missing relationship.
+- Booking Location precedence is contract-locked: existing appointment → explicit draft → active workspace → user preference → Business default.
+- Shared modal Sheet raised above persistent mobile navigation (`z-[60]` vs nav `z-50`).
+
+Identity: audited candidate `af535ec9f1e86af0da59c7e199218af26a24a134`; hosted-accepted parent `5421facf97da019a1e2b375a541f25877145d6ef`; squash merge `934fe4c2d93f165f1b03189995f97ea2b32b8f4b` whose Git tree hash is byte-identical to the audited candidate (`4fd479460dd98a8a99a780d6ae182d2521b96972`). No migration, SQL, schema or RLS change. Issue #102 is **CLOSED / PRODUCTION ACCEPTED**.
+
+### GVM Production relationship-data correction — COMPLETE / ACCEPTED
+
+A separate governed Production **DATA** action, distinct from the software release. Shipping Issue #102 alone did not restore GVM bookability; it made the application state the true blocker. This correction supplied the missing relationships.
+
+Executed scope, additive only:
+
+- 6 additive non-primary `staff_locations` rows — Bobita Singh, Darshan Dindial and Summer Dindial each to Brampton **and** Caledonia.
+- 2 additive non-primary Caledonia `service_locations` rows — "2nd visit of ultimate package" and "Elite Pro Package".
+- **No** updates, **no** deletes, **no** `staff_services` changes, **no** home/default Location changes, **no** migrations, **no** schema/RLS changes.
+
+Accepted post-correction state: Burlington 14 Services / 3 bookable Staff / 3 matched Staff; Brampton 14 / 3 / 3; Caledonia 14 / 3 / 3. All three readiness states = `ready`. **0 of 42** Service/Location combinations lack eligible Staff. Burlington remains home/default for all three Staff. `staff_services` unchanged at 25. Exact IDs and rollback keys are in the [Environment Manifest](../runtime/ENVIRONMENT_MANIFEST.md) `GVM-DATA-2026-09-26` record.
+
+**GVM exposed the problem. GVM is not the architecture.** No tenant-specific application logic is authorized.
+
+## C. Issue #73 governed switching/import — CLOSED / COMPLETED
+
+Issue #73 is **CLOSED / COMPLETED** (2026-09-25). The customer-facing migration product is complete: Package A, B1, staff quota, B2 core, C1, C2 and C3 are all done, with Package C released to Production via PR #100 (`93a4fc13bed2fb2bf6cb00ead8050878aad1adb9`).
+
+**Do not resume Package C2 or C3 preflight work.** The previous "Package C2 READ-ONLY preflight" next-action recorded in this handoff was already superseded by live GitHub and was removed on 2026-09-26. Do not reopen absent contradictory evidence.
+
+Accepted package history is retained below for continuity.
 
 Package A:
 - COMPLETE / accepted deterministic preview foundation.
@@ -133,47 +167,53 @@ Locked Package C Product Owner decisions remain:
 - raw artifact max 24h, reviewed artifact terminal+~1h / hard 72h fail-closed retention;
 - C3 reminder takeover is explicit per-run owner opt-in, default OFF.
 
-### Exact next safe gate
+## D. Exact next governed gate
 
-**Issue #73 Package C2 — READ-ONLY product / architecture / security / UX preflight.**
+**PRODUCT OWNER CHAPTER SELECTION.**
 
-Reconcile the smallest launch-required mapping/review layer on top of accepted A/B1/B2/C1:
+Live GitHub reconciled 2026-09-26: **no open issue represents authorized active engineering work.**
 
-- UTF-8 CSV adapter and bounded parsing;
-- source identity selection/reuse;
-- deterministic header/field mapping;
-- explicit date/time interpretation;
-- reference mapping for Location / Service / Staff / Customer;
-- Package A preview integration;
-- review categories CREATE / LINK / SKIP / REVIEW / BLOCK;
-- exact reviewed-plan freeze into C1;
-- privacy-safe client-only rows-needing-attention export with spreadsheet-formula escaping;
-- mobile/tablet/desktop mapping UX and accessibility;
-- global-by-design boundaries for locale/date/currency/address/phone without implementing the later Global Readiness Foundation.
+- #73 CLOSED/COMPLETED · #102 CLOSED/COMPLETED · #81, #83, #72, #65 CLOSED.
+- The only open issue is **#57 branded Production domain**, which remains **DEFERRED** by accepted Product Owner decision `5745462206`.
+- The only open PRs are three stale August drafts: #3 "Enable GitHub Actions CI quality gates", #13 commercial strategy assessment, #16 Commercial Foundation Track 2.
 
-Do **not** implement C2 until the preflight is reconciled and independently audited. Do not reopen C1 absent contradictory evidence.
+The next substantive chapter is therefore a **Product Owner decision, not an inferred continuation**. Do not assume a gate from chat history; reconcile live GitHub at task start.
 
-## D. Other accepted program state
+Candidates visible in live evidence, offered for Product Owner selection only and **not** ranked or authorized here:
 
-- Observability / Issue #65 — **CLOSED / COMPLETE**.
+- reverse the Issue #57 deferral and complete the branded-domain cutover (Product Owner decision; a partial Vercel-side attachment already exists);
+- the Employee "Assigned locations" additive write path — IMPORTANT BUT POST-LAUNCH SAFE, and a prerequisite for Summer ACT on multi-location;
+- resolve draft PR #3 to establish a CI test gate, which first requires clearing the two pre-existing red tests on `main`;
+- the deferred bulk multi-location assignment controls.
+
+## E. Other accepted program state
+
+- Observability / Issue #65 — **CLOSED / COMPLETE**. Production Sentry remains OFF.
 - Issue #72 tenant identity — **CLOSED / PRODUCTION ACCEPTED**.
 - Phase 5 GVM booking/communications acceptance — **COMPLETE**.
-- Issue #57 branded domain — **DEFERRED**.
-- GVM and Chasum HQ remain normal tenants.
-- Platform Admin remains separate at `/owner`.
+- Issue #73 governed switching/import — **CLOSED / COMPLETED**.
+- Issue #102 multi-location readiness truth — **CLOSED / PRODUCTION ACCEPTED**.
+- GVM Production relationship-data correction — **COMPLETE / ACCEPTED**.
+- Issue #57 branded domain — **OPEN but DEFERRED** by Product Owner decision `5745462206`. `https://chasum.vercel.app` remains the Private Alpha Production hostname; `https://staging.chasumai.com` remains Staging. `chasumai.com` / `www.chasumai.com` were attached Vercel-side before the stop; GoDaddy DNS, Supabase Auth Site URL, Production `NEXT_PUBLIC_APP_URL` and redeploy were NOT changed. Preserve Microsoft 365 and Resend mail DNS.
+- Known non-blocking debt: two pre-existing red tests on `main` (`artifact-storage-safety`, `multi-business-selection`); no CI unit-test/typecheck gate (required checks are Vercel + competitive-product-gate only); pre-existing React-Compiler lint debt in `quick-appointment.tsx` / `sheet.tsx`; a 36px Employee-profile control below the Chasum ≥40px touch floor.
+- GVM and Chasum HQ remain normal tenants. Platform Admin / Control Centre remains a separate protected control plane at `/owner`; Chasum HQ is **not** Platform Admin.
 
-## E. Agent governance
+## F. Agent governance — current model
 
-- Darshan = Founder / CEO / Product Owner.
-- ChatGPT = Control Tower / product + development program lead.
-- Codex = primary engineer.
-- Claude = independent Level-3/high-risk auditor.
-- Momentic/equivalent = browser/workflow regression.
-- Cursor = local/authenticated/device-specific fallback.
+Do not blindly restore historical agent assignments if they are stale.
 
-One primary implementer per task. Closed/accepted work stays closed absent contradictory evidence.
+- **Darshan** = Founder / CEO / Product Owner.
+- **ChatGPT** = Chasum AI Executive & Chief Product/Technology Adviser.
+- **Claude Opus** = Development Control Tower.
+- **Codex** = Primary Engineering Implementer.
+- **Grok** = World-Class Product / Architecture Challenger.
+- **Independent audit** = assigned separately according to risk.
 
-## F. New-chat bootstrap
+One primary implementer per task. Claude becoming Development Control Tower does **not** automatically make Claude the normal implementation engineer. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
+
+The World-Class / Mission / Summer / Competitive re-anchor happens **once per major Chasum chapter**, not every few hours. Re-open strategic review only on new contradictory evidence, material divergence from the accepted contract, materially stale competitive evidence, or explicit Product Owner reconsideration.
+
+## G. New-chat bootstrap
 
 ```text
 Repository: renovisionai2-cloud/chasum. This is not a fresh project.
@@ -185,32 +225,76 @@ Read:
 4. docs/company/CHASUM_BIBLE.md
 5. docs/company/PRODUCT_PRINCIPLES.md
 6. docs/company/GLOBAL_GO_TO_MARKET.md
-7. live Issue #73
+7. live GitHub Issues and PRs
 
-Freshly query remote main/runtime before acting.
+Freshly query remote main/runtime and live GitHub before acting.
+
+MISSION: Chasum is becoming THE WORLD'S MOST INTELLIGENT AI-POWERED BUSINESS
+OPERATING SYSTEM FOR SERVICE-BASED BUSINESSES. Not booking software, not a
+scheduler, not a CRM, not a payment tool, not an AI receptionist, not a chatbot.
+Connected chain: Customer -> Booking -> Appointment -> Staff -> Location ->
+Service -> Payment -> Invoice -> Receipt -> Communication -> Follow-up ->
+Reporting -> Automation -> Summer Intelligence.
+
+PERMANENT PRINCIPLE:
+CHASUM ADAPTS TO HOW THE BUSINESS OPERATES.
+THE BUSINESS SHOULD NOT HAVE TO REORGANIZE ITSELF TO FIT CHASUM.
+GLOBAL ARCHITECTURE NOW. REGIONAL ACTIVATION DELIBERATELY.
+No tenant-specific application logic is authorized.
+
+MULTI-LOCATION OPERATING MODEL (governing architecture):
+Business -> Locations. One Business Service Catalog; each Service offered at
+ONE/SOME/ALL Locations. Each Staff member works at ONE/SOME/ALL Locations.
+Each Staff member provides ONE/SOME/ALL Services. Bookability at a Location =
+Service offered there + Staff permitted there + Staff provides it + applicable
+hours/availability. service_locations / staff_locations / staff_services carry
+operating truth. Home/default Location and legacy primary Service Location are
+metadata only and never mean "only here". GVM exposed the problem; GVM is not
+the architecture.
+
+SUMMER = AI BUSINESS MANAGER:
+UNDERSTAND -> EXPLAIN -> RECOMMEND -> ACT safely with permission -> AUDIT ->
+later AUTOMATE SAFELY -> later OPERATE PROACTIVELY. Do not bolt an AI label onto
+conventional SaaS. Multi-location UNDERSTAND/EXPLAIN/RECOMMEND are supported;
+ACT is blocked by the Employee assigned-location persistence gap.
+
+WORLD-CLASS STANDARD (do not copy these products):
+Apple simplicity/clarity/polish; Stripe truth/reliability/financial confidence;
+Linear speed/hierarchy/efficient workflows; Notion flexibility/adaptable
+business structure; OpenAI intelligence; Framer visual quality; Calendly
+scheduling simplicity; Jane workflow trust/usability; Fresha/Vagaro operational
+breadth. Standing question: "If a mature service business sees Chasum beside its
+existing software, why does Chasum feel like an upgrade?" Passing tests means
+technically credible, NOT world class. Always ask both "Does it work safely?"
+and "Would a real business prefer this experience to the mature software it
+already uses?"
 
 Latest accepted behavior-changing Production application release:
-35f8da7644fed8dfa46f70c3151610b6ae4f9dfa
+934fe4c2d93f165f1b03189995f97ea2b32b8f4b   (PR #103, Issue #102)
 
 Issue #81 Stage 1 COMPLETE / Production accepted.
-Migrations 034–036 remain unapplied.
+Issue #73 CLOSED / COMPLETED - do NOT resume Package C2 or C3.
+Issue #102 CLOSED / PRODUCTION ACCEPTED.
+GVM Production relationship-data correction COMPLETE / ACCEPTED.
+Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
+Migrations 034-036 remain unapplied.
 
-Issue #73 remains ACTIVE:
-Package A COMPLETE.
-B1 MERGED / STAGING + PRODUCTION ACCEPTED.
-Staff quota MERGED / STAGING + PRODUCTION ACCEPTED.
-B2 core MERGED / STAGING + PRODUCTION ACCEPTED.
-C1 private artifact foundation MERGED / STAGING + PRODUCTION ACCEPTED.
+NEXT GATE:
+PRODUCT OWNER CHAPTER SELECTION. No open issue represents authorized active
+engineering work. Do not infer a gate from chat history; reconcile live GitHub.
 
-NEXT SAFE GATE:
-Package C2 READ-ONLY product/architecture/security/UX preflight only.
-Define CSV parsing, source reuse, deterministic mapping, preview/review,
-reviewed-plan freeze integration, privacy-safe client-only error export,
-responsive/accessibility and global-by-design parsing boundaries.
-Do not implement C2 until preflight + independent audit are reconciled.
+AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = AI Executive & Chief
+Product/Technology Adviser. Claude Opus = Development Control Tower. Codex =
+Primary Engineering Implementer. Grok = World-Class Product/Architecture
+Challenger. Independent audit assigned separately by risk. One primary
+implementer per task; Control Tower is not automatically the implementer.
+
+Re-anchor Mission/World-Class/Summer/Competitive ONCE PER MAJOR CHAPTER, not
+every few hours.
 
 REQUESTED IS NOT RUNNING remains mandatory for all external-agent dispatch.
-Proceed automatically through safe read-only gates; stop only for a genuine Product Owner decision.
+Proceed automatically through safe read-only gates; stop only for a genuine
+Product Owner decision.
 ```
 
 Refresh this handoff after major releases, phase/incident closure, architecture/governance changes, every few significant PRs, or approximately weekly during heavy development.

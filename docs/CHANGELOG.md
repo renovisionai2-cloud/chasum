@@ -9,6 +9,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-26 — Issue #102 multi-location readiness truth (PR #103, Production accepted)
+
+- Converge Command Centre, Services, Employees, Reception, Booking Sheet and public booking onto one relationship truth (`service_locations` offered-at, `staff_locations` works-at, `staff_services` provides), replacing the legacy `services.location_id` Command Centre reader that made Services and Reception contradict each other at secondary Locations.
+- Remove the permissive "Staff with a null `location_id` works everywhere" fallback; booking readiness is now stricter, never looser.
+- Add `getLocationBookingReadiness()` with four explicit states — `no-services`, `no-staff`, `no-service-staff-overlap`, `ready` — so empty states name the actual missing relationship instead of a generic setup failure.
+- Lock new-booking Location precedence: existing appointment → explicit draft → active workspace → user preference → Business default.
+- Raise the shared modal Sheet above the persistent mobile navigation (`z-[60]` vs `z-50`) so Sheet footer actions are reliably tappable.
+- Scope the single-Location hours probe to the active Location; make Employee and Staff-assignment readers relationship-aware; make public booking explain no-Service and no-Staff gaps precisely and never offer "Any available staff" when no eligible Staff exist.
+- Generic multi-tenant behavior only: no tenant IDs, Staff names, Location names or Service lists in application logic. No migration, SQL, schema or RLS change.
+- Accepted Production release `934fe4c2d93f165f1b03189995f97ea2b32b8f4b`; audited candidate `af535ec9f1e86af0da59c7e199218af26a24a134` with a byte-identical merge tree; hosted-accepted parent `5421facf97da019a1e2b375a541f25877145d6ef`.
+
+### 2026-09-26 — GVM Production relationship-data correction (accepted)
+
+- Governed Production **data** action, separate from the Issue #102 software release: 6 additive non-primary `staff_locations` rows (three Staff × Brampton and Caledonia) and 2 additive non-primary Caledonia `service_locations` rows ("2nd visit of ultimate package", "Elite Pro Package").
+- No updates, deletes, `staff_services` changes, home/default Location changes, migrations or schema/RLS changes.
+- Post-acceptance readiness `ready` at all three Locations (14 Services / 3 bookable Staff / 3 matched Staff each); 0 of 42 Service/Location combinations lack eligible Staff; Burlington remains home/default for all three Staff.
+
+### 2026-09-26 — Continuity closeout restamp
+
+- Record the Chasum mission, the permanent Product Owner principle (**Chasum adapts to how the business operates**; **global architecture now, regional activation deliberately**), the reusable ONE / SOME / ALL multi-location operating model, Summer as AI Business Manager, and the permanent World-Class Standard as durable operating memory.
+- Remove the superseded "Issue #73 Package C2 READ-ONLY preflight" next-action; Issue #73 is closed and complete. Record that no open issue represents authorized active engineering work, so the next chapter is a Product Owner decision.
+- Record current agent governance and the once-per-major-chapter strategic re-anchor rule, plus the Employee "Assigned locations" persistence gap classified **IMPORTANT BUT POST-LAUNCH SAFE**.
+
 ### 2026-09-24 — Issue #73 Package C2 mapping/review candidate (Draft PR only)
 
 - Add the primary-owner-only `/dashboard/business/import` workspace and Business setup entry on top of accepted Package A/B1/B2/C1 foundations; C2 remains review-only and performs no operational import.
