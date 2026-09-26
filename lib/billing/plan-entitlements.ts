@@ -8,10 +8,8 @@
  * Inventory and Voice AI are product-status truths (Coming Soon), not
  * numeric entitlements — see lib/marketing/pricing.ts and the Roadmap.
  *
- * PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY:
- * No canonical Chasum SaaS list-price currency is locked. Do not invent
- * USD or CAD on public $79 / $149 labels. Tenant operational currency
- * (e.g. Chasum HQ = CAD) is separate.
+ * SaaS subscription list-price currency is CAD, approved in Issue #106.
+ * Tenant operational currency and historical invoice currency are separate.
  */
 
 import type { PlanKey } from "@/lib/billing/types";
@@ -38,8 +36,9 @@ export const LOCATION_LIMIT_REACHED_CODE = "LOCATION_LIMIT_REACHED";
 export const PAID_PLANS_PRIVATE_ALPHA_NOTE =
   "Paid plans are currently approved through Private Alpha.";
 
+/** Retained for import compatibility; the Product Owner decision is now locked. */
 export const SAAS_SUBSCRIPTION_CURRENCY_DECISION =
-  "PRODUCT OWNER DECISION REQUIRED — SAAS SUBSCRIPTION CURRENCY";
+  "PRODUCT OWNER APPROVED — SAAS SUBSCRIPTION CURRENCY: CAD (Issue #106)";
 
 const PLAN_DISPLAY_NAME: Record<PlanKey, string> = {
   starter: "Free",

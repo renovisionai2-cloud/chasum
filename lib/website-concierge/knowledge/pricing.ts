@@ -1,3 +1,4 @@
+import { annualPriceCents, FIRST_25_ALPHA_OFFER, formatCadFromCents, STANDARD_MONTHLY_PRICES } from "@/lib/billing/pricing";
 import type { KnowledgeEntry } from "@/lib/website-concierge/knowledge/types";
 
 export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
@@ -7,7 +8,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Plans",
     summary: "Free, Professional, Business, and Enterprise for every growth stage.",
     body:
-      "Free ($0) covers online booking, calendar, email reminders, basic customers, 1 staff, and 1 location. Professional ($79/mo, or $63/mo billed yearly) adds Summer — Chasum's AI Business Manager — plus SMS, business messaging, payments, gift cards, up to 3 staff and locations. Business ($149/mo, or $119/mo billed yearly) adds unlimited staff, up to 6 locations, analytics, API, priority support, and inventory where applicable. Enterprise is custom for franchises and large organizations. During Private Alpha, CTAs go through application—public self-serve billing is not open yet.",
+      `Free ($0) covers online booking, calendar, email reminders, basic customers, 1 staff, and 1 location. Professional (${formatCadFromCents(STANDARD_MONTHLY_PRICES.professional)}/month, or ${formatCadFromCents(annualPriceCents(STANDARD_MONTHLY_PRICES.professional))}/year, paid upfront for 12 months) adds Summer — Chasum's AI Business Manager — plus SMS, business messaging, payments, gift cards, up to 3 staff and locations. Business (${formatCadFromCents(STANDARD_MONTHLY_PRICES.business)}/month, or ${formatCadFromCents(annualPriceCents(STANDARD_MONTHLY_PRICES.business))}/year, paid upfront for 12 months) adds unlimited staff, up to 6 locations, analytics, API, priority support, and inventory where applicable. Enterprise is custom for franchises and large organizations. During Private Alpha, CTAs go through application—public self-serve billing is not open yet.`,
     tags: ["pricing", "plans", "cost", "subscription", "professional", "business", "enterprise", "free"],
     followUps: ["Which plan fits me?", "What is included in Professional?"],
     relatedIds: ["pricing-compare", "pricing-alpha"],
@@ -27,7 +28,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     id: "pricing-trial",
     category: "pricing",
     title: "Free Trial & Exploration",
-    summary: "Free tier to explore; alpha partners get founding pricing.",
+    summary: "Free tier to explore; first-25 Alpha pricing is separate.",
     body:
       "The Free tier lets you try core booking without a paid commitment. Broader free-trial marketing will firm up with public self-serve billing. Today the honest path is Free exploration or Private Alpha partnership with founding customer pricing.",
     tags: ["trial", "free trial", "explore", "starter"],
@@ -51,7 +52,7 @@ export const PRICING_KNOWLEDGE: KnowledgeEntry[] = [
     title: "Private Alpha Pricing",
     summary: "Invite-based founding pricing, not mass checkout yet.",
     body:
-      "Private Alpha is invite-based. Partners receive founding pricing and guided setup. Apply at /apply. Online self-serve billing isn’t open yet.",
+      `Private Alpha is invite-based with guided setup. Fixed lifetime recurring pricing is offered to the first ${FIRST_25_ALPHA_OFFER.businessLimit} businesses signing up for Alpha. See /pricing#private-alpha for monthly and upfront annual totals. Apply at /apply. Online self-serve billing isn’t open yet.`,
     tags: ["alpha", "founding", "apply", "invite"],
     followUps: ["Who is a good fit?", "Would you like a product tour first?"],
     relatedIds: ["company-story", "tour-intro"],

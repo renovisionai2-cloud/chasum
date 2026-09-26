@@ -1,5 +1,5 @@
 import type { BillingInterval, BillingPlan, PlanKey } from "@/lib/billing/types";
-import { formatUsdFromCents } from "@/lib/owner/constants";
+import { annualPriceCents, formatCadFromCents, STANDARD_MONTHLY_PRICES } from "@/lib/billing/pricing";
 
 /** Canonical plan order for Billing Phase 1 (Free = starter). */
 export const BILLING_PLAN_ORDER: PlanKey[] = [
@@ -34,8 +34,8 @@ export const FALLBACK_PLANS: BillingPlan[] = [
     description:
       "Powerful scheduling, AI assistance, and automation for professionals.",
     maxLocations: 3,
-    monthlyPriceCents: 7900,
-    yearlyPriceCents: 79000,
+    monthlyPriceCents: STANDARD_MONTHLY_PRICES.professional,
+    yearlyPriceCents: annualPriceCents(STANDARD_MONTHLY_PRICES.professional),
     sortOrder: 2,
     isActive: true,
   },
@@ -45,8 +45,8 @@ export const FALLBACK_PLANS: BillingPlan[] = [
     description:
       "Multi-location management, advanced automation, and collaboration for growing teams.",
     maxLocations: 6,
-    monthlyPriceCents: 14900,
-    yearlyPriceCents: 149000,
+    monthlyPriceCents: STANDARD_MONTHLY_PRICES.business,
+    yearlyPriceCents: annualPriceCents(STANDARD_MONTHLY_PRICES.business),
     sortOrder: 3,
     isActive: true,
   },
@@ -82,7 +82,7 @@ export function formatPlanPrice(
   const cents = planPriceCents(plan, interval);
   if (cents === null) return "Custom";
   if (cents === 0) return "$0";
-  return `${formatUsdFromCents(cents)}${interval === "yearly" ? "/year" : "/month"}`;
+  return `${formatCadFromCents(cents)}${interval === "yearly" ? "/year" : "/month"}`;
 }
 
 export function comparePlans(from: PlanKey, to: PlanKey): "upgrade" | "downgrade" | "same" {

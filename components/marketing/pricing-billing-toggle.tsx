@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { BillingPeriod } from "@/lib/marketing/pricing";
+import { PRICING_ANNUAL_EXPLANATION, type BillingPeriod } from "@/lib/marketing/pricing";
 
 export function PricingBillingToggle({
   value,
@@ -40,7 +40,7 @@ export function PricingBillingToggle({
             : "bg-muted/60 text-muted-foreground hover:text-foreground",
         )}
       >
-        Yearly
+        Yearly{" "}
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
@@ -49,9 +49,12 @@ export function PricingBillingToggle({
               : "bg-primary/10 text-primary",
           )}
         >
-          Save 20%
+          2 months free
         </span>
       </button>
+      <p className="w-full text-center text-sm text-muted-foreground">
+        {PRICING_ANNUAL_EXPLANATION}
+      </p>
     </div>
   );
 }
