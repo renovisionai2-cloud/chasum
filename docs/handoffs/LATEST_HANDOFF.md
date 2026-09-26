@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-26 by Claude Opus Development Control Tower for Issue #102 Production acceptance, the accepted GVM relationship-data correction and the bounded continuity closeout restamp.
+**Updated:** 2026-09-26 by Codex for the bounded Issue #106 pricing candidate, using the Product Owner / supervisor dispatch; prior accepted records preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
@@ -10,7 +10,7 @@ World Class Phase 5 is **COMPLETE**.
 
 Current program phase:
 
-**Outside Private Alpha readiness — no open governed engineering work item.** See section C.
+**Issue #106 CAD pricing presentation candidate ACTIVE / NOT Production accepted.** PR #105 / Slice 0A is COMPLETE, merged and Production verified per PO/supervisor dispatch; base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`, quality check REQUIRED (integration `15368`). No fresh hosted/runtime observation in this network-disabled clone. See section D.
 
 Latest accepted **behavior-changing** Production application release:
 
@@ -169,22 +169,15 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**PRODUCT OWNER CHAPTER SELECTION.**
+**ISSUE #106 CANDIDATE REVIEW / HOSTED ACCEPTANCE.**
 
-Live GitHub reconciled 2026-09-26: **no open issue represents authorized active engineering work.**
+One primary implementer: Codex, supervised by ChatGPT AI Executive; Claude Control Tower remains reviewer. Isolated branch `codex/issue-106-pricing-truth` at supplied base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`. PR #105 is closed; do not reopen it or PR #3/#13/#16. No competing pricing work is authorized.
 
-- #73 CLOSED/COMPLETED · #102 CLOSED/COMPLETED · #81, #83, #72, #65 CLOSED.
-- The only open issue is **#57 branded Production domain**, which remains **DEFERRED** by accepted Product Owner decision `5745462206`.
-- The only open PRs are three stale August drafts: #3 "Enable GitHub Actions CI quality gates", #13 commercial strategy assessment, #16 Commercial Foundation Track 2.
+Locked CAD pricing: standard Professional 79/month, 790/year; Business 149/month, 1,490/year. First 25 businesses signing up for Alpha: fixed lifetime recurring Professional 59/month, 590/year; Business 129/month, 1,290/year. Annual totals are paid upfront for 12 months. Exact framing: “Pay for 10 months and receive 2 months free.” Leading offer: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Explain the 240/year lifetime saving at monthly rates first, then additional annual saving 118/258; combined savings 358/498 against 12 regular monthly payments. Monthly Alpha does not get two months free. Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided; a tenant Alpha flag never proves offer eligibility.
 
-The next substantive chapter is therefore a **Product Owner decision, not an inferred continuation**. Do not assume a gate from chat history; reconcile live GitHub at task start.
+Competitive Product Gate REQUIRED; supervisor completed the pre-build contract in Issue #106 comment `5848862526` (2026-09-26). Preserve CAD, cadence, upfront annual total and distinct savings; existing features and routes remain intact. Pure shared representation only; no runtime catalog override, checkout, assignment, historical-invoice relabeling or entitlement change. BillingManager remains unchanged; hosted authenticated acceptance is not claimed.
 
-Candidates visible in live evidence, offered for Product Owner selection only and **not** ranked or authorized here:
-
-- reverse the Issue #57 deferral and complete the branded-domain cutover (Product Owner decision; a partial Vercel-side attachment already exists);
-- the Employee "Assigned locations" additive write path — IMPORTANT BUT POST-LAUNCH SAFE, and a prerequisite for Summer ACT on multi-location;
-- resolve draft PR #3 to establish a CI test gate, which first requires clearing the two pre-existing red tests on `main`;
-- the deferred bulk multi-location assignment controls.
+Next: supervisor inspects exact files/patch, publishes the candidate, verifies hosted Node 22 quality CI and Preview, and arranges independent review plus browser/responsive acceptance. Local Node is 26.7.0; local evidence does not replace hosted CI. Candidate is **NOT Production accepted**. Merge/activation and Production operations are expressly unauthorized. No new PO pricing decision is needed for candidate preparation. The environment manifest retains dated runtime evidence; this task does not mutate runtime.
 
 ## E. Other accepted program state
 
@@ -195,7 +188,8 @@ Candidates visible in live evidence, offered for Product Owner selection only an
 - Issue #102 multi-location readiness truth — **CLOSED / PRODUCTION ACCEPTED**.
 - GVM Production relationship-data correction — **COMPLETE / ACCEPTED**.
 - Issue #57 branded domain — **OPEN but DEFERRED** by Product Owner decision `5745462206`. `https://chasum.vercel.app` remains the Private Alpha Production hostname; `https://staging.chasumai.com` remains Staging. `chasumai.com` / `www.chasumai.com` were attached Vercel-side before the stop; GoDaddy DNS, Supabase Auth Site URL, Production `NEXT_PUBLIC_APP_URL` and redeploy were NOT changed. Preserve Microsoft 365 and Resend mail DNS.
-- Known non-blocking debt: two pre-existing red tests on `main` (`artifact-storage-safety`, `multi-business-selection`); no CI unit-test/typecheck gate (required checks are Vercel + competitive-product-gate only); pre-existing React-Compiler lint debt in `quick-appointment.tsx` / `sheet.tsx`; a 36px Employee-profile control below the Chasum ≥40px touch floor.
+- PR #105 / Slice 0A: COMPLETE / merged / Production verified; stale assertions corrected; quality REQUIRED (integration `15368`) alongside Vercel + competitive-product-gate, per PO/supervisor dispatch. Remaining non-blocking debt: pre-existing React-Compiler lint debt in `quick-appointment.tsx` / `sheet.tsx`; a 36px Employee-profile control below the Chasum ≥40px touch floor.
+- Dependency findings: PR #105 disclosed npm's 25 findings (3 low / 8 moderate / 13 high / 1 critical) on the unchanged lockfile. Runtime reachability/exploitability **UNASSESSED**; read-only triage pending. This is not evidence of compromise or dependency-fix/upgrade authorization. No audit/network/upgrade work in #106.
 - GVM and Chasum HQ remain normal tenants. Platform Admin / Control Centre remains a separate protected control plane at `/owner`; Chasum HQ is **not** Platform Admin.
 
 ## F. Agent governance — current model
@@ -280,8 +274,11 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-PRODUCT OWNER CHAPTER SELECTION. No open issue represents authorized active
-engineering work. Do not infer a gate from chat history; reconcile live GitHub.
+Issue #106 CAD pricing candidate review / hosted acceptance. PR #105 is COMPLETE
+and Production verified; quality REQUIRED (integration 15368). #106 is NOT
+Production accepted. Supervisor publishes exact candidate and arranges hosted
+Node 22 CI / Preview and independent review. Merge and activation NOT authorized.
+See section D for locked prices/copy and undecided enrollment/continuity terms.
 
 AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = AI Executive & Chief
 Product/Technology Adviser. Claude Opus = Development Control Tower. Codex =

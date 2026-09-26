@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-26 — Issue #106 CAD pricing presentation candidate (NOT Production accepted)
+
+- Record PR #105 / Slice 0A COMPLETE, merged and Production verified; quality check REQUIRED (integration `15368`) per PO/supervisor dispatch. Preserve its accepted closure; do not reopen PR #3/#13/#16.
+- Share pure integer-minor-unit CAD pricing across fallback catalog and public presentation. Standard Professional 79/month or 790/year; Business 149/month or 1,490/year. Show annual totals paid upfront for 12 months: “Pay for 10 months and receive 2 months free.”
+- Present the first-25 Alpha offer in the existing section: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Fixed lifetime recurring Professional 59/month or 590/year; Business 129/month or 1,290/year. First saving 240/year at monthly rates, then additional annual saving 118/258; combined saving 358/498 versus 12 regular monthly payments. Monthly Alpha alone does not include two free months.
+- Preserve plans/features/limits, application routes, paid-upgrade guards and closed checkout. Correct website pricing knowledge from the same representation; no Summer feature change. BillingManager and historical invoices remain unchanged. Add focused monetary, tenant-flag separation and keyboard/UI regression tests.
+- Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided. No offer assignment, checkout, database/provider/configuration or Production change. Competitive gate REQUIRED: Issue #106 comment `5848862526`; supervisor review, hosted CI/Preview and independent acceptance remain the next gate. Merge and activation are not authorized.
+
 ### 2026-09-26 — Issue #102 multi-location readiness truth (PR #103, Production accepted)
 
 - Converge Command Centre, Services, Employees, Reception, Booking Sheet and public booking onto one relationship truth (`service_locations` offered-at, `staff_locations` works-at, `staff_services` provides), replacing the legacy `services.location_id` Command Centre reader that made Services and Reception contradict each other at secondary Locations.

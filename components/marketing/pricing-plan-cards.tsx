@@ -65,7 +65,7 @@ function PlanCard({
           {plan.bestFor}
         </p>
         <div className="mt-6">
-          <span className="text-4xl font-semibold tracking-tight text-foreground md:text-[2.75rem]">
+          <span className="block text-3xl font-semibold tracking-tight text-foreground">
             {pricing.price}
           </span>
           {pricing.suffix ? (

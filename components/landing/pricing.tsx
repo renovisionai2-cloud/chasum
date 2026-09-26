@@ -4,6 +4,7 @@ import { Reveal } from "@/components/landing/reveal";
 import { PricingWorkflow } from "@/components/landing/pricing-workflow";
 import { PricingBillingToggle } from "@/components/marketing/pricing-billing-toggle";
 import { PricingPlanCards } from "@/components/marketing/pricing-plan-cards";
+import { PricingAlphaOffer } from "@/components/marketing/pricing-alpha-offer";
 import { Button } from "@/components/ui/button";
 import {
   APPLY_HREF,
@@ -277,6 +278,7 @@ export function Pricing() {
               {PRICING_ALPHA_HEADLINE}
             </h2>
             <p className="marketing-lede mx-auto">{PRICING_ALPHA_BODY}</p>
+            <PricingAlphaOffer />
             <div className="mt-10">
               <Link href={PRICING_ALPHA_HREF}>
                 <Button size="lg" className="h-12 rounded-full px-8">

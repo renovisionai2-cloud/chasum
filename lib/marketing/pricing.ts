@@ -8,6 +8,12 @@
  */
 
 import {
+  annualPriceCents,
+  FIRST_25_ALPHA_OFFER,
+  formatCadFromCents,
+  STANDARD_MONTHLY_PRICES,
+} from "@/lib/billing/pricing";
+import {
   APPLY_HREF,
   CTA_APPLY_LABEL,
   DEMO_HREF,
@@ -184,7 +190,7 @@ export type PricingPlanConfig = {
   bestFor: string;
   /** Display price string for monthly billing */
   monthlyPrice: string;
-  /** Monthly-equivalent when billed yearly (20% savings), or null for custom */
+  /** Actual annual total paid upfront for 12 months, or null for custom */
   yearlyPrice: string | null;
   priceSuffix?: string;
   billingLabel?: string;
@@ -204,10 +210,7 @@ export type PricingPlanConfig = {
   contactSales?: boolean;
 };
 
-/**
- * Yearly = 20% off monthly list (shown as monthly equivalent).
- * Professional $79 → $63 · Business $149 → $119
- */
+/** Standard list prices; the eligibility-limited Alpha offer is presented separately. */
 export const PRICING_PLANS: PricingPlanConfig[] = [
   {
     id: "free",
@@ -263,8 +266,8 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
     name: "Professional",
     bestFor:
       "Growing businesses that want automation and better customer communication.",
-    monthlyPrice: "$79",
-    yearlyPrice: "$63",
+    monthlyPrice: formatCadFromCents(STANDARD_MONTHLY_PRICES.professional),
+    yearlyPrice: formatCadFromCents(annualPriceCents(STANDARD_MONTHLY_PRICES.professional)),
     priceSuffix: "/month",
     badge: "Most Popular",
     highlighted: true,
@@ -316,8 +319,8 @@ export const PRICING_PLANS: PricingPlanConfig[] = [
     planKey: "business",
     name: "Business",
     bestFor: "Multi-staff businesses managing multiple locations.",
-    monthlyPrice: "$149",
-    yearlyPrice: "$119",
+    monthlyPrice: formatCadFromCents(STANDARD_MONTHLY_PRICES.business),
+    yearlyPrice: formatCadFromCents(annualPriceCents(STANDARD_MONTHLY_PRICES.business)),
     priceSuffix: "/month",
     highlighted: false,
     ctaLabel: "Choose Business",
@@ -561,6 +564,9 @@ export const PRICING_SUBHEADING =
 
 export const PRICING_NOTE = FOUNDER_PRICING_NOTE;
 
+export const PRICING_ANNUAL_EXPLANATION =
+  "Pay for 10 months and receive 2 months free.";
+
 export const PRICING_WORKFLOW_EYEBROW = "Built to work together";
 
 export const PRICING_WORKFLOW_HEADLINE =
@@ -581,10 +587,11 @@ export const PRICING_COMPARE_LEDE =
 
 export const PRICING_ALPHA_EYEBROW = "Private Alpha";
 
-export const PRICING_ALPHA_HEADLINE = "Built with real businesses.";
+export const PRICING_ALPHA_HEADLINE =
+  "Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.";
 
 export const PRICING_ALPHA_BODY =
-  "Chasum is launching with a small group of service businesses helping shape the platform before its wider release.";
+  `For the first ${FIRST_25_ALPHA_OFFER.businessLimit} businesses signing up for Alpha. Same plans and features, with fixed lifetime recurring subscription prices.`;
 
 export const PRICING_ALPHA_CTA = "Join the Private Alpha";
 
@@ -685,11 +692,12 @@ export function getPlanPrice(
   if (plan.contactSales || plan.monthlyPrice === "Custom") {
     return { price: "Custom" };
   }
+  if (plan.id === "free") return { price: plan.monthlyPrice };
   if (period === "yearly" && plan.yearlyPrice) {
     return {
       price: plan.yearlyPrice,
-      suffix: plan.priceSuffix ?? "/month",
-      note: "billed yearly",
+      suffix: "/year",
+      note: "Paid upfront for 12 months.",
     };
   }
   return {
