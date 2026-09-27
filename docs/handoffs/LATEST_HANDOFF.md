@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-26 by Codex for the bounded Issue #113 security dependency candidate, using the Product Owner / supervisor dispatch; prior accepted records preserved.
+**Updated:** 2026-09-27 by ChatGPT Control Tower for PR #114 Production closeout and Commercial SaaS Gate B continuation; prior accepted records preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
@@ -10,9 +10,11 @@ World Class Phase 5 is **COMPLETE**.
 
 Current program phase:
 
-**Issue #113 bounded Next.js security candidate ACTIVE / NOT Production accepted.** PR #105 safeguards and PR #107 pricing are COMPLETE / Production accepted at `1b11ade192bb2085d0325383b3f00f9fe97fda51`, per PO/supervisor dispatch. PR #111 P2A is independently accepted but still Draft at `dbdcfea`; Issue #112 partial harness is preserved at `ff17fdf`, migration authoring BLOCKED. Neither branch was imported or re-reviewed. See section D.
+**Issue #113 / PR #114 is CLOSED / PRODUCTION ACCEPTED.** The bounded Next.js 16.3.6 security update was squash-merged to `main` as `d2820c26238b98420f6942958743ba46ca8a54f5` and deployed to Production as `dpl_DZ5WAHmHTAvw8KNRGoMXPbB97u5r` (READY). Post-merge Quality passed; `/api/build-info` and `/api/health` verified the exact Production commit and healthy runtime; Production pricing/public-booking routes returned HTTP 200. No database/provider/pricing/billing/tenant-data/GVM behavior change occurred.
 
-Latest accepted **behavior-changing** Production application release: `1b11ade192bb2085d0325383b3f00f9fe97fda51` (PR #107), per supervisor dispatch. Local HEAD/origin-main matched that supplied fresh base; this run made no hosted/Production query. The manifest is intentionally unchanged and retains dated runtime evidence.
+Commercial SaaS Gate B now resumes. PR #111 P2A is independently accepted but remains Draft at `dbdcfea`; Issue #112 P2B preparation is preserved at `ff17fdf`. Both predate the accepted security release and must be reconciled onto current main before further implementation. See section D.
+
+Latest accepted Production application release: `d2820c26238b98420f6942958743ba46ca8a54f5` (PR #114). The change is dependency/security maintenance rather than intentional product behavior, but it is the current serving Production baseline and therefore the base for consequential follow-on work.
 
 Prior accepted #102 runtime observation, preserved as history:
 
@@ -171,17 +173,25 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**ISSUE #113 EXACT-CANDIDATE REVIEW / HOSTED CI + PREVIEW + INDEPENDENT ACCEPTANCE.**
+**COMMERCIAL SaaS GATE B — P2B-1 CONTINUATION / RE-ANCHOR.**
 
-One primary implementer: Codex; ChatGPT supervises; Claude independently reviews before any merge. Isolated branch `codex/issue-109-next-security` from `1b11ade192bb2085d0325383b3f00f9fe97fda51`. Exact Next.js and eslint-config-next 16.3.6; React/ReactDOM 19.2.4 and all other direct specifications retained. Supervisor-approved scratch npm correction retains fastq 1.20.1 without a delivered direct constraint/override. Competitive gate **NOT_APPLICABLE**: bounded security dependency maintenance, no intentional product/UX change. No app/test/migration/CI/config edits; no agent dispatch, push, merge or deployment. Do not reopen #105/#107 or import #111/#112.
+Current Production-accepted main: `d2820c26238b98420f6942958743ba46ca8a54f5`.
 
-Accepted PR #107 locked CAD pricing (preserved): standard Professional 79/month, 790/year; Business 149/month, 1,490/year. First 25 businesses signing up for Alpha: fixed lifetime recurring Professional 59/month, 590/year; Business 129/month, 1,290/year. Annual totals are paid upfront for 12 months. Exact framing: “Pay for 10 months and receive 2 months free.” Leading offer: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Explain the 240/year lifetime saving at monthly rates first, then additional annual saving 118/258; combined savings 358/498 against 12 regular monthly payments. Monthly Alpha does not get two months free. Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided; a tenant Alpha flag never proves offer eligibility.
+Preserve:
+- PR #111 P2A accepted Draft checkpoint at `dbdcfea737b30b75bdc7ac54bf14c01ffceb9ae3`;
+- Issue #112 partial disposable-PostgreSQL harness preparation at `ff17fdf092ca989a4daab8e97ba21d7bdf751bd5`;
+- the accepted P2B write-authority / mapping / transaction contract and its corrections;
+- #108 and #109 as separate work;
+- 034–036 unapplied and 037/038 historical objects/records unchanged.
 
-Pricing historical Competitive Product Gate REQUIRED; supervisor completed the pre-build contract in Issue #106 comment `5848862526` (2026-09-26). Preserve CAD, cadence, upfront annual total and distinct savings; existing features and routes remain intact. Pure shared representation only; no runtime catalog override, checkout, assignment, historical-invoice relabeling or entitlement change. BillingManager remains unchanged; hosted authenticated acceptance is not claimed.
+Immediate sequence:
+1. reconcile accepted P2A/P2B development work onto current main without redesigning or silently dropping accepted protections;
+2. complete the previously required fresh **READ-ONLY** P2B pre-authoring checks (V-1…V-4, all-null/uniqueness/collision assumptions and current schema/ACL compatibility);
+3. only if those checks pass, Codex authors the bounded P2B-1 migration + server-authoritative atomic apply implementation and runs the required disposable PostgreSQL proofs;
+4. Claude performs Level-3 independent audit before any hosted database application;
+5. Staging migration application / synthetic hosted role tests require separate Product Owner approval; Production remains separately gated.
 
-Next: supervisor inspects exact #113 files/patch, publishes the feature branch/Draft PR, verifies hosted Node 22 quality CI and Preview, and arranges independent Claude review plus hosted Auth/reset/session, Reception/booking/location, pricing and image regression. Hosted/interactive/independent acceptance is **PENDING**, not running. Local Node is 26.7.0; local evidence does not replace hosted CI. Candidate is **NOT Production accepted**; merge and Production are unauthorized. Detailed command outputs, hashes, lock-node rationale, audit JSON and draft body are retained in ignored `test-results/issue-113/`. No provider/DB/Production request or retry of #112’s blocked check is authorized by this candidate.
-
-Local #113 evidence: clean npm ci, 459 focused tests, typecheck, build and benign sharp codecs PASS. Full suite: 1,647 tests PASS; one Chromium suite fails at the existing macOS permission-denied browser hook; 37 reported skips = 36 optional Postgres + one hook-blocked test. No retry/bypass. Lint retains 29 baseline errors / 8 baseline warnings and adds two Next internal-navigation warnings on unchanged source; no app correction made. See retained report for exact diagnostics.
+No wait state exists. No further Product Owner approval is required merely to continue development and read-only reconciliation.
 
 ## E. Other accepted program state
 
