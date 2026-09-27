@@ -24,6 +24,22 @@ Every meaningful product decision should strengthen this operating system.
 
 No tenant-specific application logic is authorized.
 
+## Issue #112 local implementation continuation — 2026-09-27
+
+Live Product Owner dispatch supersedes the dated P2B authoring block below: re-anchor
+and hosted pre-authoring gate are accepted. Implementation base verified as
+`021db9e7185092a679da48bad1faba24d7887595`; supplied current-main baseline `ea575bb…`
+is not a new Production acceptance. Fresh remote-main check was unavailable (DNS).
+P2B-1 migration, trusted synthetic atomic apply and two-baseline verification are
+implemented as a local candidate, not pushed or deployed. Offline/unit/typecheck checks pass. Supervisor
+disposable PostgreSQL verification **COMPLETE / PASS** outside the Codex sandbox:
+295 assertions without historical 037/038 overlays (`test-results/issue-112/disposable-bCUYAA`),
+298 with overlays (`test-results/issue-112/disposable-ehnNSp`). Both exact clusters
+were cleaned; each evidence directory's `result.json` records PASS and cleanup.
+Next: Claude Level-3 audit, NOT STARTED / no dispatch or execution evidence.
+No hosted writes/push/merge/deploy. Details and exact command:
+[verification handoff](../tests/postgres/p2b1/README.md#p2b-1-corrected-verification-local-candidate-2026-09-27).
+
 ## Control board
 
 | Control field | Current record |

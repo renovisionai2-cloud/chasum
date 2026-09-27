@@ -16,7 +16,8 @@ export const BIN = "/opt/homebrew/opt/postgresql@17/bin";
 const ADMIN = "p2b1_admin";
 const PORT = "55432"; // Unique private socket directory; never a TCP listener.
 const owned = new WeakMap();
-export const BLOCKED = "NOT IMPLEMENTED: full P2B-1 migration/atomic apply; fresh hosted V1-V4, all-null and invoice uniqueness prechecks BLOCKED before execution. No database process started.";
+const MIGRATION = "supabase/migrations/20260927043000_issue_112_p2b1_subscription_authority.sql";
+const VERIFICATION = "tests/postgres/p2b1/full-verification.mjs";
 
 export function validateRequest(args, env) {
   if (args.length !== 1 || !["--baseline-only", "--full-verification"].includes(args[0])) {
@@ -27,8 +28,7 @@ export function validateRequest(args, env) {
       /DATABASE|POSTGRES|SUPABASE|(?:^|_)DB(?:_|$)/i.test(key))) {
     throw new Error("Conflicting database environment settings are forbidden; use a clean environment. No values were read or logged.");
   }
-  if (args[0] === "--full-verification") throw new Error(BLOCKED);
-  return "baseline-only";
+  return args[0].slice(2);
 }
 
 function statIdentity(path) {
@@ -176,6 +176,30 @@ export function loadFixtures() {
   }));
 }
 
+export function loadFullInputs() {
+  const provenance = JSON.parse(readFileSync(join(FIXTURES, "full-provenance.json"), "utf8"));
+  if (provenance.version !== 1) throw new Error("Unsupported full-verification provenance version.");
+  const loaded = {};
+  for (const [key, expected] of [["migration", MIGRATION], ["verification", VERIFICATION]]) {
+    const entry = provenance[key];
+    if (entry?.path !== expected || !/^[a-f0-9]{64}$/.test(entry?.sha256 ?? "")) {
+      throw new Error("Full-verification provenance must contain the exact reviewed input inventory.");
+    }
+    const path = resolve(REPO, expected);
+    if (realpathSync(path) !== path || !lstatSync(path).isFile()) {
+      throw new Error("Full-verification input must be a regular in-checkout file without symlinks.");
+    }
+    const data = readFileSync(path);
+    if (createHash("sha256").update(data).digest("hex") !== entry.sha256) {
+      throw new Error(`Full-verification hash changed: ${expected}; inspect provenance before running.`);
+    }
+    loaded[key] = data.toString("utf8");
+  }
+  // The fixed suite uses only node: imports; execute the exact bytes just hashed.
+  // Relative application imports are deliberately unavailable at this boundary.
+  return loaded;
+}
+
 function createEvidence() {
   // Evidence is deliberately outside the directory removed by cluster cleanup.
   let directory = REPO;
@@ -189,13 +213,13 @@ function createEvidence() {
   return mkdtempSync(join(directory, "disposable-"));
 }
 
-async function runBaseline() {
-  const fixtures = loadFixtures(); // Validate bytes before creating/spawning anything.
+async function runDisposable({ fixtures, full, overlay = false }) {
   const evidence = createEvidence();
   const run = createOwnedRun();
   const state = assertOwnedRun(run);
   const report = { run, evidence, directoryInode: state.inode, startedAt: new Date().toISOString(),
-    scope: "PRE-CORRECTION BASELINE ONLY; NOT A SECURITY PASS", phases: [], result: "FAILED" };
+    scope: full ? `FULL P2B-1 SYNTHETIC VERIFICATION; HISTORICAL OVERLAYS ${overlay ? "PRESENT" : "ABSENT"}` :
+      "PRE-CORRECTION BASELINE ONLY; NOT A SECURITY PASS", phases: [], result: "FAILED" };
   writeFileSync(join(evidence, "ownership.json"), JSON.stringify(report, null, 2));
   let logFd;
   let interrupted = false;
@@ -203,8 +227,11 @@ async function runBaseline() {
   const checkInterrupted = () => { if (interrupted) throw new Error("Interrupted; stopping own disposable instance."); };
   process.on("SIGINT", interrupt);
   process.on("SIGTERM", interrupt);
+  const pendingQueries = new Set();
+  let queryNumber = 0;
   function phase(name, sql, { database = run.database, transaction = true } = {}) {
     checkInterrupted();
+    if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error("Invalid evidence phase name.");
     assertOwnedRun(run);
     if (state.exited) throw new Error("Owned server exited before fixture phase.");
     const identity = identitySQL(run, state.systemId, database);
@@ -212,6 +239,52 @@ async function runBaseline() {
     command("psql", psqlArgs(run, database),
       identity + (transaction ? `begin;\n${sql}\ncommit;\n` : sql), join(evidence, `${name}.log`));
     report.phases.push(name);
+  }
+  function query(sql) {
+    checkInterrupted();
+    assertOwnedRun(run);
+    if (state.exited) throw new Error("Owned server exited before verification query.");
+    const input = identitySQL(run, state.systemId) + sql;
+    const logName = `query-${String(++queryNumber).padStart(4, "0")}.log`;
+    const promise = new Promise((resolveQuery, rejectQuery) => {
+      const child = spawn(join(BIN, "psql"), [...psqlArgs(run), "--tuples-only", "--no-align", "--quiet"], {
+        shell: false, env: childEnv(), cwd: REPO, stdio: ["pipe", "pipe", "pipe"],
+      });
+      let stdout = "", stderr = "", failed;
+      const timer = setTimeout(() => {
+        failed = new Error("Verification query timed out.");
+        child.kill("SIGTERM");
+      }, 30_000);
+      const capture = (stream) => (chunk) => {
+        if (stream === "stdout") stdout += chunk;
+        else stderr += chunk;
+        if (Buffer.byteLength(stdout) + Buffer.byteLength(stderr) > 4 * 1024 * 1024) {
+          failed = new Error("Verification query exceeded bounded output.");
+          child.kill("SIGTERM");
+        }
+      };
+      child.stdout.setEncoding("utf8").on("data", capture("stdout"));
+      child.stderr.setEncoding("utf8").on("data", capture("stderr"));
+      child.on("error", (error) => { failed = error; });
+      child.stdin.on("error", (error) => { failed ??= error; });
+      child.once("close", (code) => {
+        clearTimeout(timer);
+        writeFileSync(join(evidence, logName), stdout + stderr, { flag: "wx", mode: 0o600 });
+        if (failed || code !== 0) rejectQuery(new Error(`psql verification failed (${failed?.message ?? code}): ${stderr}`));
+        else resolveQuery({ stdout, stderr });
+      });
+      child.stdin.end(input);
+    });
+    pendingQueries.add(promise);
+    promise.then(() => pendingQueries.delete(promise), () => pendingQueries.delete(promise));
+    return promise;
+  }
+  async function concurrent(statements) {
+    // Settle every connection before surfacing a failure or cleaning up its cluster.
+    const results = await Promise.allSettled(statements.map((sql) => query(sql)));
+    const failed = results.find((result) => result.status === "rejected");
+    if (failed) throw failed.reason;
+    return results.map((result) => result.value);
   }
   try {
     command("initdb", ["--pgdata", run.data, "--username", ADMIN,
@@ -259,16 +332,31 @@ async function runBaseline() {
     phase("00-create-task-database", `create database "${run.database}";`, { database: "postgres", transaction: false });
     phase("01-baseline", fixtures["baseline.sql"]);
     phase("02-without-overlay", fixtures["baseline-contract.sql"], { transaction: false });
-    phase("03-historical-037", fixtures["historical-037.sql"]);
-    phase("04-historical-038", fixtures["historical-038.sql"]);
-    phase("05-with-overlay", fixtures["baseline-contract.sql"], { transaction: false });
-    phase("06-overlay-contract", fixtures["overlay-contract.sql"], { transaction: false });
-    report.result = "BASELINE OBSERVED; EXISTING AUTHORITY GAPS; FULL VERIFICATION BLOCKED";
+    if (!full || overlay) {
+      phase("03-historical-037", fixtures["historical-037.sql"]);
+      phase("04-historical-038", fixtures["historical-038.sql"]);
+      phase("05-with-overlay", fixtures["baseline-contract.sql"], { transaction: false });
+      phase("06-overlay-contract", fixtures["overlay-contract.sql"], { transaction: false });
+    }
+    if (full) {
+      // Exact access-flag definition from 032; the preserved baseline excerpt omitted it.
+      phase("full-baseline-access-flag", "alter table public.businesses add column private_alpha_enabled boolean not null default false;");
+      phase("07-p2b1-migration", full.migration);
+      phase("08-p2b1-migration-repeat", full.migration);
+      report.verification = await full.verify({ phase, query, concurrent, overlay, fixtures, migration: full.migration });
+      if (!Number.isInteger(report.verification?.assertions) || report.verification.assertions < 1) {
+        throw new Error("Full verification must report a positive assertion count; empty/skipped suites cannot pass.");
+      }
+      report.result = "FULL P2B-1 SYNTHETIC VERIFICATION PASSED";
+    } else {
+      report.result = "BASELINE OBSERVED; EXISTING AUTHORITY GAPS; NOT A SECURITY PASS";
+    }
   } catch (error) {
     report.error = error.message;
     throw error;
   } finally {
     try {
+      await Promise.allSettled([...pendingQueries]);
       assertOwnedRun(run);
       if (state.child && !state.exited) {
         // Signal only the direct ChildProcess this invocation actually spawned.
@@ -295,10 +383,22 @@ async function runBaseline() {
   }
 }
 
+async function runRequested(mode) {
+  const fixtures = loadFixtures(); // Validate bytes before creating/spawning anything.
+  if (mode === "baseline-only") return runDisposable({ fixtures });
+  const full = loadFullInputs();
+  const suite = await import(`data:text/javascript;base64,${Buffer.from(full.verification).toString("base64")}`);
+  if (typeof suite.verify !== "function") throw new Error("Full verification must export verify().");
+  full.verify = suite.verify;
+  // A fresh cluster per shape keeps roles, state and prior test effects isolated.
+  await runDisposable({ fixtures, full, overlay: false });
+  await runDisposable({ fixtures, full, overlay: true });
+}
+
 // Injection is solely an offline unit-test seam: rejected requests cannot reach execution.
-export async function main(args = process.argv.slice(2), env = process.env, execute = runBaseline) {
-  validateRequest(args, env);
-  await execute();
+export async function main(args = process.argv.slice(2), env = process.env, execute = runRequested) {
+  const mode = validateRequest(args, env);
+  await execute(mode);
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {

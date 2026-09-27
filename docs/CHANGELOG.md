@@ -9,6 +9,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-27 — Issue #112 P2B-1 local candidate (NOT deployed)
+
+- Add subscription write-authority enforcement, server-only mapping/receipt tables,
+  globally unique revision tokens and synthetic atomic apply/recovery. Existing
+  Platform Admin plan writes invalidate delayed snapshots automatically.
+- Add disposable role/concurrency/recovery verification for both historical schema
+  shapes. Offline checks pass. Supervisor PostgreSQL verification COMPLETE / PASS
+  outside the Codex sandbox: 295 assertions without historical 037/038 overlays
+  (`test-results/issue-112/disposable-bCUYAA`), 298 with overlays
+  (`test-results/issue-112/disposable-ehnNSp`); both exact clusters cleaned, as recorded
+  in their `result.json` files. Level-3 audit remains pending.
+- No provider activation, hosted mutation, pricing, entitlement, RBAC or UI change.
+
 ### 2026-09-26 — Issue #113 bounded security dependency candidate (NOT Production accepted)
 
 - Pin Next.js and eslint-config-next from 16.2.10 to exact 16.3.6, with npm-generated required framework/compiler/image/PostCSS lock changes. Preserve React/ReactDOM 19.2.4, all other direct specs, Momentic and fastq 1.20.1; no app, test, migration, CI or configuration change.

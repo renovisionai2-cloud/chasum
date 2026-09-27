@@ -7,7 +7,7 @@ import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync,
   renameSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assertOwnedRun, assertSocketPath, BIN, BLOCKED, createOwnedRun,
+import { assertOwnedRun, assertSocketPath, BIN, createOwnedRun,
   identitySQL, loadFixtures, main, psqlArgs, removeOwnedRun, validateRequest,
 } from "../../../scripts/verify-p2b1-disposable-postgres.mjs";
 
@@ -50,18 +50,20 @@ test("baseline mode has an explicit execution boundary; environment is not a tar
   assert.equal(executed, 1); // Fake executor, no processes.
 });
 
-test("full verification fails before any executor invocation", async () => {
-  let executed = 0;
-  await assert.rejects(main(["--full-verification"], {}, () => { executed++; }), { message: BLOCKED });
-  assert.equal(executed, 0);
+test("full verification is explicit and routes only to its owned-cluster executor", async () => {
+  const modes = [];
+  await main(["--full-verification"], {}, (mode) => { modes.push(mode); });
+  assert.deepEqual(modes, ["full-verification"]); // Fake executor; no processes.
 });
 
-test("full-verification CLI actually exits nonzero without PostgreSQL", () => {
+test("full-verification CLI refuses conflicting environment before PostgreSQL", () => {
   const result = spawnSync(process.execPath, [script, "--full-verification"], {
-    env: {}, encoding: "utf8", timeout: 5000, shell: false,
+    env: { DATABASE_URL: "postgresql://do-not-log@forbidden.example/db" },
+    encoding: "utf8", timeout: 5000, shell: false,
   });
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /NOT IMPLEMENTED.*BLOCKED/);
+  assert.match(result.stderr, /Conflicting database environment/);
+  assert.doesNotMatch(result.stderr, /do-not-log|forbidden\.example/);
   assert.equal(result.stdout, "");
 });
 
@@ -218,4 +220,13 @@ test("extracted 033 policy is terminated before the following ALTER TABLE", () =
   const missingTerminator = fixture.replace(`${statement};`, statement);
   assert.notEqual(missingTerminator, fixture);
   assert.throws(() => expectComplete(missingTerminator), { code: "ERR_ASSERTION" });
+});
+
+test("full inputs are hash-checked offline and have no unrelated migration references", async () => {
+  const { loadFullInputs } = await import("../../../scripts/verify-p2b1-disposable-postgres.mjs");
+  const full = loadFullInputs();
+  assert.doesNotMatch(full.migration, /plan_offers|usage_events|design_partner_applications|offer_id|\b03[4-8]\b/);
+  assert.doesNotMatch(full.verification, /^\s*import.*from\s*['"](?!node:)/m);
+  const suite = await import(`data:text/javascript;base64,${Buffer.from(full.verification).toString('base64')}`);
+  assert.equal(typeof suite.verify, "function");
 });

@@ -4,6 +4,22 @@
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
+## P2B-1 local delivery addendum — 2026-09-27
+
+The current PO dispatch accepts re-anchor/pre-authoring and authorizes implementation,
+superseding section D's dated authoring block. The local candidate is based on
+`021db9e7185092a679da48bad1faba24d7887595`; not pushed or deployed, with no hosted mutation.
+Supervisor disposable PostgreSQL verification is **COMPLETE / PASS**, executed outside
+the Codex sandbox: 295 assertions without historical 037/038 overlays at
+`test-results/issue-112/disposable-bCUYAA`, and 298 with overlays at
+`test-results/issue-112/disposable-ehnNSp`. Both `result.json` files confirm PASS and
+cleanup of their exact self-created clusters. Claude Level-3 audit is the next gate,
+NOT STARTED / no dispatch or execution evidence. The reproducible command remains in the
+[local verification handoff](../../tests/postgres/p2b1/README.md#p2b-1-corrected-verification-local-candidate-2026-09-27).
+Offline checks pass; remote-main verification was unavailable due to DNS. Production
+acceptance and the environment manifest remain unchanged. No repeat PO development
+approval is needed; hosted application remains separately gated.
+
 ## A. Current control-tower state
 
 World Class Phase 5 is **COMPLETE**.

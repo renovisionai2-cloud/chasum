@@ -153,3 +153,76 @@ any null/zero counts; no test asserts hosted counts from constants.
 P2A review PASS stands. PR111 stays untouched/Draft/unmerged. Full P2B-1 still needs
 the blocked preconditions, implementation, actual role/crash/concurrency proof,
 Claude Level-3 review and separately authorized release gates. STOP here.
+
+## P2B-1 corrected verification (local candidate, 2026-09-27)
+
+The approved continuation adds one scoped migration and a synthetic, pre-verified
+SQL apply primitive with a server-only TypeScript seam. No caller, route, provider,
+SDK, scheduler or hosted connection is installed. Existing runner edits present at
+entry were preserved and completed. Competitive gate: NOT_APPLICABLE to this bounded
+internal write-authority correction under the already-approved product contract.
+
+Supervisor command, outside the Codex shared-memory sandbox, from this checkout:
+
+```sh
+env -i PATH=/opt/homebrew/bin:/usr/bin:/bin TMPDIR=/private/tmp /opt/homebrew/bin/node scripts/verify-p2b1-disposable-postgres.mjs --full-verification
+```
+
+Requires the fixed Homebrew PostgreSQL 17 binaries and Node path above. It creates
+and destroys its own socket-only cluster for EACH baseline. No connection argument,
+existing server, hosted target, credentials or Supabase CLI is accepted. It validates
+fixed input hashes before spawning. Logs and result JSON remain under
+`test-results/issue-112/disposable-*`. Each migration runs twice to check replay.
+A failure is not acceptance; inspect the exact failed phase/query and repair locally.
+
+Coverage: actual anon/authenticated/service roles; protected column UPDATE/INSERT;
+ordinary settings; preserved invoice owner/member reads and existing direct-owner-only
+subscription-event reads (no RBAC expansion); private tables/functions; forged JWT
+role; uniqueness; correct Business; metadata/customer/account/mode/price mismatch;
+duplicate delivery and concurrent same event; same-Business concurrency; delayed
+snapshot and Platform Admin assignment invalidation; mapping change invalidation;
+receipt-only crash recovery; failed history insertion rolls back Business/invoice
+writes; unknown mapping repair; terminal ignored event/state; duplicate provider
+invoice across event IDs; historical non-null incompatible assignment fails closed.
+The untouched historical fixtures and their original provenance remain authoritative
+for the synthetic baseline only, not for hosted schema truth.
+
+### Apply/recovery contract
+
+1. `receiveSynthetic` commits the immutable envelope as RECEIVED separately.
+2. `readSyntheticRevision` reads DB mapping identity and revision BEFORE a fresh
+   authoritative snapshot is obtained. This slice performs no provider retrieval.
+3. `applySynthetic` runs the SQL atomic function in a short service-role transaction.
+   Receipt → mapping → Business locks serialize effects. Metadata only cross-checks
+   DB mapping; it never chooses the Business/plan. Price/plan/interval/currency come
+   from that server-only mapping. A globally unique sequence generates Business
+   revision tokens on every authority-column UPDATE and mapping mutation, including
+   the existing Platform Admin plan UPDATE. Tokens must remain decimal strings.
+4. APPLIED/IGNORED are terminal. RECEIVED/BLOCKED/RETRY_REQUIRED remain discoverable
+   by `scanSyntheticRecovery`. A retry must reacquire revision THEN a new snapshot;
+   never attach a newer revision to an old snapshot. Unknown mapping requires trusted
+   repair. Constraint failure stores only APPLY_FAILED, never raw payload/error text.
+5. An existing receipt is not success. Immutable-envelope mismatch is refused.
+   A repeated provider invoice cannot append history or overwrite state. Sequence
+   gaps after rollback are intentional. No snapshot timestamp is used as ordering.
+
+Do not call the seam from client code or an unverified request. The injected database
+must use service_role and independently commit calls; do not wrap receipt and apply
+in one outer transaction. No generic SQL adapter or network transport is included.
+Existing Platform Admin history atomicity debt is unchanged; its actual privileged
+subscription UPDATE now always invalidates earlier snapshots at the database layer.
+
+Local checks: 49 runner safety/provenance tests; 12 new module tests; typecheck;
+targeted ESLint; sandbox-compatible Vitest suite 1,750 passed / 36 skipped.
+The full suite's existing customer-location-email-mobile Chromium launch is blocked
+by macOS sandbox Mach-port permissions. It was excluded in the passing run.
+Supervisor disposable PostgreSQL verification: **COMPLETE / PASS**, outside the Codex
+sandbox on 2026-09-27. Without historical 037/038 overlays: **295 assertions PASS**,
+evidence `test-results/issue-112/disposable-bCUYAA/result.json`. With overlays:
+**298 assertions PASS**, evidence `test-results/issue-112/disposable-ehnNSp/result.json`.
+Both result files confirm their exact self-created clusters were cleaned, with
+evidence retained. This proves the disposable synthetic database gate only.
+Claude Level-3 independent audit remains required and NOT STARTED; no hosted or
+provider acceptance is inferred.
+No hosted writes, push, merge or deployment occurred. Fresh remote main could not be
+verified because GitHub DNS was unavailable; supplied HEAD matched exactly.
