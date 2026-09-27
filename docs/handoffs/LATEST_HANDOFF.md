@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-26 by Codex for the bounded Issue #106 pricing candidate, using the Product Owner / supervisor dispatch; prior accepted records preserved.
+**Updated:** 2026-09-26 by Codex for the bounded Issue #113 security dependency candidate, using the Product Owner / supervisor dispatch; prior accepted records preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
@@ -10,9 +10,11 @@ World Class Phase 5 is **COMPLETE**.
 
 Current program phase:
 
-**Issue #106 CAD pricing presentation candidate ACTIVE / NOT Production accepted.** PR #105 / Slice 0A is COMPLETE, merged and Production verified per PO/supervisor dispatch; base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`, quality check REQUIRED (integration `15368`). No fresh hosted/runtime observation in this network-disabled clone. See section D.
+**Issue #113 bounded Next.js security candidate ACTIVE / NOT Production accepted.** PR #105 safeguards and PR #107 pricing are COMPLETE / Production accepted at `1b11ade192bb2085d0325383b3f00f9fe97fda51`, per PO/supervisor dispatch. PR #111 P2A is independently accepted but still Draft at `dbdcfea`; Issue #112 partial harness is preserved at `ff17fdf`, migration authoring BLOCKED. Neither branch was imported or re-reviewed. See section D.
 
-Latest accepted **behavior-changing** Production application release:
+Latest accepted **behavior-changing** Production application release: `1b11ade192bb2085d0325383b3f00f9fe97fda51` (PR #107), per supervisor dispatch. Local HEAD/origin-main matched that supplied fresh base; this run made no hosted/Production query. The manifest is intentionally unchanged and retains dated runtime evidence.
+
+Prior accepted #102 runtime observation, preserved as history:
 
 `934fe4c2d93f165f1b03189995f97ea2b32b8f4b`
 
@@ -169,15 +171,17 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**ISSUE #106 CANDIDATE REVIEW / HOSTED ACCEPTANCE.**
+**ISSUE #113 EXACT-CANDIDATE REVIEW / HOSTED CI + PREVIEW + INDEPENDENT ACCEPTANCE.**
 
-One primary implementer: Codex, supervised by ChatGPT AI Executive; Claude Control Tower remains reviewer. Isolated branch `codex/issue-106-pricing-truth` at supplied base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`. PR #105 is closed; do not reopen it or PR #3/#13/#16. No competing pricing work is authorized.
+One primary implementer: Codex; ChatGPT supervises; Claude independently reviews before any merge. Isolated branch `codex/issue-109-next-security` from `1b11ade192bb2085d0325383b3f00f9fe97fda51`. Exact Next.js and eslint-config-next 16.3.6; React/ReactDOM 19.2.4 and all other direct specifications retained. Supervisor-approved scratch npm correction retains fastq 1.20.1 without a delivered direct constraint/override. Competitive gate **NOT_APPLICABLE**: bounded security dependency maintenance, no intentional product/UX change. No app/test/migration/CI/config edits; no agent dispatch, push, merge or deployment. Do not reopen #105/#107 or import #111/#112.
 
-Locked CAD pricing: standard Professional 79/month, 790/year; Business 149/month, 1,490/year. First 25 businesses signing up for Alpha: fixed lifetime recurring Professional 59/month, 590/year; Business 129/month, 1,290/year. Annual totals are paid upfront for 12 months. Exact framing: “Pay for 10 months and receive 2 months free.” Leading offer: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Explain the 240/year lifetime saving at monthly rates first, then additional annual saving 118/258; combined savings 358/498 against 12 regular monthly payments. Monthly Alpha does not get two months free. Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided; a tenant Alpha flag never proves offer eligibility.
+Accepted PR #107 locked CAD pricing (preserved): standard Professional 79/month, 790/year; Business 149/month, 1,490/year. First 25 businesses signing up for Alpha: fixed lifetime recurring Professional 59/month, 590/year; Business 129/month, 1,290/year. Annual totals are paid upfront for 12 months. Exact framing: “Pay for 10 months and receive 2 months free.” Leading offer: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Explain the 240/year lifetime saving at monthly rates first, then additional annual saving 118/258; combined savings 358/498 against 12 regular monthly payments. Monthly Alpha does not get two months free. Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided; a tenant Alpha flag never proves offer eligibility.
 
-Competitive Product Gate REQUIRED; supervisor completed the pre-build contract in Issue #106 comment `5848862526` (2026-09-26). Preserve CAD, cadence, upfront annual total and distinct savings; existing features and routes remain intact. Pure shared representation only; no runtime catalog override, checkout, assignment, historical-invoice relabeling or entitlement change. BillingManager remains unchanged; hosted authenticated acceptance is not claimed.
+Pricing historical Competitive Product Gate REQUIRED; supervisor completed the pre-build contract in Issue #106 comment `5848862526` (2026-09-26). Preserve CAD, cadence, upfront annual total and distinct savings; existing features and routes remain intact. Pure shared representation only; no runtime catalog override, checkout, assignment, historical-invoice relabeling or entitlement change. BillingManager remains unchanged; hosted authenticated acceptance is not claimed.
 
-Next: supervisor inspects exact files/patch, publishes the candidate, verifies hosted Node 22 quality CI and Preview, and arranges independent review plus browser/responsive acceptance. Local Node is 26.7.0; local evidence does not replace hosted CI. Candidate is **NOT Production accepted**. Merge/activation and Production operations are expressly unauthorized. No new PO pricing decision is needed for candidate preparation. The environment manifest retains dated runtime evidence; this task does not mutate runtime.
+Next: supervisor inspects exact #113 files/patch, publishes the feature branch/Draft PR, verifies hosted Node 22 quality CI and Preview, and arranges independent Claude review plus hosted Auth/reset/session, Reception/booking/location, pricing and image regression. Hosted/interactive/independent acceptance is **PENDING**, not running. Local Node is 26.7.0; local evidence does not replace hosted CI. Candidate is **NOT Production accepted**; merge and Production are unauthorized. Detailed command outputs, hashes, lock-node rationale, audit JSON and draft body are retained in ignored `test-results/issue-113/`. No provider/DB/Production request or retry of #112’s blocked check is authorized by this candidate.
+
+Local #113 evidence: clean npm ci, 459 focused tests, typecheck, build and benign sharp codecs PASS. Full suite: 1,647 tests PASS; one Chromium suite fails at the existing macOS permission-denied browser hook; 37 reported skips = 36 optional Postgres + one hook-blocked test. No retry/bypass. Lint retains 29 baseline errors / 8 baseline warnings and adds two Next internal-navigation warnings on unchanged source; no app correction made. See retained report for exact diagnostics.
 
 ## E. Other accepted program state
 
@@ -189,7 +193,7 @@ Next: supervisor inspects exact files/patch, publishes the candidate, verifies h
 - GVM Production relationship-data correction — **COMPLETE / ACCEPTED**.
 - Issue #57 branded domain — **OPEN but DEFERRED** by Product Owner decision `5745462206`. `https://chasum.vercel.app` remains the Private Alpha Production hostname; `https://staging.chasumai.com` remains Staging. `chasumai.com` / `www.chasumai.com` were attached Vercel-side before the stop; GoDaddy DNS, Supabase Auth Site URL, Production `NEXT_PUBLIC_APP_URL` and redeploy were NOT changed. Preserve Microsoft 365 and Resend mail DNS.
 - PR #105 / Slice 0A: COMPLETE / merged / Production verified; stale assertions corrected; quality REQUIRED (integration `15368`) alongside Vercel + competitive-product-gate, per PO/supervisor dispatch. Remaining non-blocking debt: pre-existing React-Compiler lint debt in `quick-appointment.tsx` / `sheet.tsx`; a 36px Employee-profile control below the Chasum ≥40px touch floor.
-- Dependency findings: PR #105 disclosed npm's 25 findings (3 low / 8 moderate / 13 high / 1 critical) on the unchanged lockfile. Runtime reachability/exploitability **UNASSESSED**; read-only triage pending. This is not evidence of compromise or dependency-fix/upgrade authorization. No audit/network/upgrade work in #106.
+- Dependency findings: **#109 remains OPEN** after prior applicability triage. Dated baseline audits: 25 full (3 low / 8 moderate / 13 high / 1 critical), 9 omit-dev (0 / 2 / 6 / 1). #113 candidate: 22 full (3 / 8 / 11 / 0), 5 omit-dev (0 / 2 / 3 / 0); both audit commands exit 1 for residual findings. Next is absent from the candidate advisory entries; separate Momentic sharp 0.35.3 remains affected. Package-entry counts are not independent CVEs, runtime reachability or compromise evidence. September 30 release remains a future follow-up, not installed or automated.
 - GVM and Chasum HQ remain normal tenants. Platform Admin / Control Centre remains a separate protected control plane at `/owner`; Chasum HQ is **not** Platform Admin.
 
 ## F. Agent governance — current model
@@ -197,13 +201,13 @@ Next: supervisor inspects exact files/patch, publishes the candidate, verifies h
 Do not blindly restore historical agent assignments if they are stale.
 
 - **Darshan** = Founder / CEO / Product Owner.
-- **ChatGPT** = Chasum AI Executive & Chief Product/Technology Adviser.
-- **Claude Opus** = Development Control Tower.
+- **ChatGPT** = Chasum AI Executive / Product & Development Program Lead / Control Tower, beneath Darshan.
+- **Claude** = Independent high-risk / Level-3 reviewer before merge.
 - **Codex** = Primary Engineering Implementer.
 - **Grok** = World-Class Product / Architecture Challenger.
 - **Independent audit** = assigned separately according to risk.
 
-One primary implementer per task. Claude becoming Development Control Tower does **not** automatically make Claude the normal implementation engineer. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
+One primary implementer per task. Codex remains primary implementer; the current PO-locked assignment supersedes historical Control Tower wording. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
 
 The World-Class / Mission / Summer / Competitive re-anchor happens **once per major Chasum chapter**, not every few hours. Re-open strategic review only on new contradictory evidence, material divergence from the accepted contract, materially stale competitive evidence, or explicit Product Owner reconsideration.
 
@@ -264,7 +268,8 @@ and "Would a real business prefer this experience to the mature software it
 already uses?"
 
 Latest accepted behavior-changing Production application release:
-934fe4c2d93f165f1b03189995f97ea2b32b8f4b   (PR #103, Issue #102)
+1b11ade192bb2085d0325383b3f00f9fe97fda51   (PR #107, supervisor acceptance)
+Prior #102/PR #103 acceptance at 934fe4c remains historical and valid.
 
 Issue #81 Stage 1 COMPLETE / Production accepted.
 Issue #73 CLOSED / COMPLETED - do NOT resume Package C2 or C3.
@@ -274,17 +279,18 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-Issue #106 CAD pricing candidate review / hosted acceptance. PR #105 is COMPLETE
-and Production verified; quality REQUIRED (integration 15368). #106 is NOT
-Production accepted. Supervisor publishes exact candidate and arranges hosted
-Node 22 CI / Preview and independent review. Merge and activation NOT authorized.
-See section D for locked prices/copy and undecided enrollment/continuity terms.
+Issue #113 exact security candidate review; Next/eslint-config-next 16.3.6.
+PR #105 and #107 are COMPLETE / Production accepted. #111 P2A accepted but
+Draft at dbdcfea; #112 harness preserved at ff17fdf, migration authoring BLOCKED.
+#109 residual analysis OPEN. Supervisor publishes exact #113 candidate for
+hosted Node 22 CI / Preview, interactive regression and independent Claude
+review (PENDING). Merge/Production NOT authorized; no #111/#112 code import.
+See section D; preserve accepted pricing and undecided commercial terms.
 
-AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = AI Executive & Chief
-Product/Technology Adviser. Claude Opus = Development Control Tower. Codex =
-Primary Engineering Implementer. Grok = World-Class Product/Architecture
-Challenger. Independent audit assigned separately by risk. One primary
-implementer per task; Control Tower is not automatically the implementer.
+AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = AI Executive / Product
+& Development Program Lead / Control Tower. Codex = sole primary implementer.
+Claude = independent high-risk / Level-3 reviewer before merge. Grok =
+World-Class Product/Architecture Challenger. One primary implementer per task.
 
 Re-anchor Mission/World-Class/Summer/Competitive ONCE PER MAJOR CHAPTER, not
 every few hours.

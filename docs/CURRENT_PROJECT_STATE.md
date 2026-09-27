@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-09-26. **Updated by:** Codex for the bounded Issue #106 pricing candidate, using the Product Owner / supervisor dispatch. Earlier acceptance records remain intact.
+**Snapshot date:** 2026-09-26. **Updated by:** Codex for the bounded Issue #113 security dependency candidate, using the Product Owner / supervisor dispatch. Earlier acceptance records remain intact.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
 
 ## Chasum mission
@@ -29,14 +29,17 @@ No tenant-specific application logic is authorized.
 | Control field | Current record |
 | --- | --- |
 | Project / product position | Chasum — world-class AI Business Operating System for service businesses. See mission above. |
-| Latest accepted behavior-changing application release | `934fe4c2d93f165f1b03189995f97ea2b32b8f4b` — PR #103 Issue #102 squash merge. Vercel Production deployment `J6UTXrUeV4YjxRUfQU5hpAydBCe9` SUCCESS; direct `/api/build-info` confirmed this exact SHA on `main`, `env=production`, `production=true`; `/api/health` `ok=true` byte-identical to the pre-merge baseline. Later documentation-only merges may advance Git/serving SHA without changing application behavior; freshly query main/runtime before consequential work. |
-| Prior accepted application release | **Issue #102 / PR #103 — MERGED + STAGING + PRODUCTION ACCEPTED.** Audited candidate `af535ec9f1e86af0da59c7e199218af26a24a134`; hosted-accepted parent `5421facf97da019a1e2b375a541f25877145d6ef`; squash merge `934fe4c2d93f165f1b03189995f97ea2b32b8f4b`. The merge commit's Git tree hash is byte-identical to the audited candidate (`4fd479460dd98a8a99a780d6ae182d2521b96972`). No migration, SQL, schema or RLS change. |
+| Latest accepted behavior-changing application release | `1b11ade192bb2085d0325383b3f00f9fe97fda51` — PR #107 CAD pricing presentation **Production accepted**, with PR #105 safeguards complete, per the 2026-09-26 PO/supervisor dispatch. Local HEAD and origin/main matched this supplied fresh base before implementation. Serving deployment was not re-queried in this restricted run; the Environment Manifest retains dated #102 runtime evidence, not a fresh #107 deployment identity. |
+| Prior accepted application release | **Issue #102 / PR #103 — MERGED + STAGING + PRODUCTION ACCEPTED.** Audited candidate `af535ec9f1e86af0da59c7e199218af26a24a134`; hosted-accepted parent `5421facf97da019a1e2b375a541f25877145d6ef`; squash merge `934fe4c2d93f165f1b03189995f97ea2b32b8f4b`. The merge commit's Git tree hash is byte-identical to the audited candidate (`4fd479460dd98a8a99a780d6ae182d2521b96972`). No migration, SQL, schema or RLS change. Dated #102 Production deployment `J6UTXrUeV4YjxRUfQU5hpAydBCe9` SUCCESS; `/api/build-info` confirmed the merge SHA on main/Production and `/api/health` was byte-identical to baseline. |
 | Issue #102 multi-location readiness truth | **CLOSED / PRODUCTION ACCEPTED** (2026-09-26). Converged Command Centre, Services, Employees, Reception, Booking Sheet and public booking onto one relationship truth; removed the legacy `services.location_id` Command Centre reader; removed the permissive "Staff with null `location_id` works everywhere" fallback; added `getLocationBookingReadiness()` four-state model; raised shared modal Sheet above persistent mobile navigation. Booking Location precedence: existing appointment → explicit draft → active workspace → user preference → Business default. |
 | GVM Production relationship-data correction | **COMPLETE / ACCEPTED** (2026-09-26). Separate governed Production DATA action, distinct from the software release. See the multi-location operating model below and the [Environment Manifest](runtime/ENVIRONMENT_MANIFEST.md) `GVM-DATA-2026-09-26` record. |
 | Stage 1C database release | Exact migration `20260922210000_issue_81_stage_1c_location_template.sql`, Git blob `748e9d0f6dd9d5796839b6a234222593d2f25bc2`, SHA-256 `6a4e3285382d1d1fbd9592af70ec1e2476ac8c9bec28cd0ba6a0e3287b3cb98f`, applied/accepted on Staging and Production. Production ledger: `20260923135852 / issue_81_stage_1c_location_template`. 034–036 remain unapplied. |
 | Phase 5 | **COMPLETE.** Genuine GVM Production booking + customer confirmation + business new-booking email acceptance remains closed. Do not manufacture replacement Production tests. |
-| Current program phase | **Issue #106 CAD pricing presentation candidate ACTIVE / NOT Production accepted.** Bounded implementation authorized; publishing, merge and activation are separate gates. |
+| Current program phase | **Issue #113 bounded Next.js security candidate ACTIVE / NOT Production accepted.** Development/Preview preparation only: exact Next.js and eslint-config-next 16.3.6 with necessary lock changes. No app, database, provider or configuration changes; no merge or Production authorization. |
 | Slice 0A / PR #105 | **COMPLETE / MERGED / Production verified** per live PO/supervisor dispatch. Base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`; quality check **REQUIRED** (integration `15368`). Do not reopen #105 or PR #3/#13/#16. |
+| Issue #106 / PR #107 pricing | **COMPLETE / Production accepted at `1b11ade`**, per PO/supervisor dispatch. Locked CAD presentation below remains accepted; separate commercial terms/activation are not inferred. |
+| PR #111 / P2A | **Independently accepted; still Draft at `dbdcfea`.** Preserve candidate and review; no code imported into #113. |
+| Issue #112 / P2B preparation | **Partial harness preserved at `ff17fdf`; migration authoring BLOCKED.** Hosted pre-authoring check was not retried or bypassed; no code imported. |
 | Issue #81 multi-location Stage 1 | **COMPLETE / PRODUCTION ACCEPTED.** Stage 1A Business Service Catalog, Stage 1B Service/Staff/location/public-booking convergence and Stage 1C atomic Add Location snapshot/template workflow are live. Issue #102 completed the remaining Stage-1 read-model convergence without rewriting this accepted history. |
 | Location entitlement | Canonical live limits: starter 1 / professional 3 / business 6 / enterprise unlimited. GVM remains a normal Starter tenant with 3 existing Locations grandfathered; `can_add_location=false` until entitlement changes. Existing GVM rows were not rewritten by Stage 1C or by the Issue #102 correction. |
 | Observability / Issue #65 | **COMPLETE / CLOSED.** Production Sentry remains OFF. |
@@ -47,10 +50,10 @@ No tenant-specific application logic is authorized.
 | Competitive Product Gate | Permanent for material customer/operator features. |
 | Known product gap | **Employee "Assigned locations" persistence path — IMPORTANT BUT POST-LAUNCH SAFE.** See below. |
 | Deferred / design-for-now | Stage 2 location overrides, Stage 3 live inheritance, bulk multi-location assignment controls, resource-aware booking, durable Summer action provenance, true employee RBAC, tenant switcher, Production Sentry activation, native apps, branded domain (Issue #57), residual historical security/migration debt when specifically scoped. |
-| Known non-blocking debt | PR #105 closed the two stale test assertions and established required quality CI. Remaining pre-existing React-Compiler lint debt in `quick-appointment.tsx` / `sheet.tsx`; a 36px Employee-profile control below the Chasum ≥40px touch floor. |
-| Dependency findings / pending triage | PR #105 disclosed npm's 25 findings (3 low / 8 moderate / 13 high / 1 critical) on the unchanged lockfile. Runtime reachability/exploitability **UNASSESSED**; read-only triage pending. This is not evidence of compromise or authorization to fix/upgrade dependencies. No audit/network/upgrade work in #106. |
-| Exact next substantive gate | Supervisor inspects the exact #106 candidate, publishes for hosted Node 22 quality CI / Preview, and arranges independent review and responsive/workflow acceptance. Merge and activation are **NOT authorized**. Remote/runtime re-query was not performed in this network-disabled clone. |
-| Product Owner input | No new pricing decision is required to prepare this candidate. Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided; do not infer eligibility from `private_alpha_enabled`. |
+| Known non-blocking debt | PR #105 closed the two stale test assertions and established required quality CI. Local #113 comparison: 29 pre-existing lint errors and 8 warnings, including `quick-appointment.tsx` / `sheet.tsx`; the new Next lint rule adds two warnings for existing internal `window.location.href` navigation (`app/global-error.tsx:54`, `components/day-view/appointment-drawer.tsx:370`); a 36px Employee-profile control below the Chasum ≥40px touch floor. |
+| Dependency findings / pending triage | **#109 residual analysis OPEN.** Dated baseline: 25 npm package entries (3 low / 8 moderate / 13 high / 1 critical), omit-dev 9 (0 / 2 / 6 / 1). #113 candidate: 22 (3 / 8 / 11 / 0), omit-dev 5 (0 / 2 / 3 / 0). Next no longer appears in the candidate audit; Momentic sharp 0.35.3 and other residuals remain. These are package entries, not independent CVEs or proof of exposure/compromise. September 30 release check is future follow-up, not installed or scheduled. |
+| Exact next substantive gate | Supervisor reviews the exact #113 bytes and publishes the feature branch/Draft PR for hosted Node 22 quality CI / Preview, then independent Claude review and hosted interactive regression. Those gates are **PENDING**. No push, merge or deployment from this run. Public registry/framework access only; no fresh hosted/runtime query. |
+| Product Owner input | The bounded #113 dependency update and npm-only fastq preservation are approved; no new PO decision is needed for candidate preparation. Merge/Production remain separate gates. Pricing enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided; do not infer eligibility from `private_alpha_enabled`. |
 
 **Issue #106 locked pricing (CAD):** Standard Professional 79/month or 790/year; Business 149/month or 1,490/year. First 25 businesses signing up for Alpha: fixed lifetime recurring Professional 59/month or 590/year; Business 129/month or 1,290/year. Annual totals are paid upfront for 12 months. “Pay for 10 months and receive 2 months free.” Leading offer: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” First saving at monthly rates: 240/year on either plan; additional Alpha annual saving: 118/258; combined savings vs 12 regular monthly payments: 358/498. Monthly Alpha alone does not include the two free months. Same product/entitlements; no checkout, assignment or runtime catalog change. Competitive gate REQUIRED, pre-build source: Issue #106 comment `5848862526`.
 
@@ -139,13 +142,13 @@ This preserves strategic consistency without creating development paralysis.
 Do not blindly restore historical agent assignments if they are stale.
 
 - **Darshan** — Founder / CEO / Product Owner.
-- **ChatGPT** — Chasum AI Executive & Chief Product/Technology Adviser.
-- **Claude Opus** — Development Control Tower.
+- **ChatGPT** — Chasum AI Executive / Product & Development Program Lead / Control Tower, beneath Darshan.
+- **Claude** — Independent high-risk / Level-3 reviewer before merge.
 - **Codex** — Primary Engineering Implementer.
 - **Grok** — World-Class Product / Architecture Challenger.
 - **Independent audit** — assigned separately according to risk.
 
-One primary implementer per task. Claude becoming Development Control Tower does **not** automatically make Claude the normal implementation engineer. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
+One primary implementer per task. Codex remains the primary implementer; the current PO-locked assignment supersedes historical Control Tower wording. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
 
 ## Continue without reconstructing history
 

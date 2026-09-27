@@ -9,13 +9,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-26 — Issue #106 CAD pricing presentation candidate (NOT Production accepted)
+### 2026-09-26 — Issue #113 bounded security dependency candidate (NOT Production accepted)
+
+- Pin Next.js and eslint-config-next from 16.2.10 to exact 16.3.6, with npm-generated required framework/compiler/image/PostCSS lock changes. Preserve React/ReactDOM 19.2.4, all other direct specs, Momentic and fastq 1.20.1; no app, test, migration, CI or configuration change.
+- Preserve baseline and first-resolution evidence; supervisor-approved scratch npm correction removes unnecessary fastq churn without a delivered direct dependency/override or fabricated integrity. Competitive gate NOT_APPLICABLE: bounded security dependency maintenance, no intentional product/UX change.
+- Audits move from 25 to 22 full package entries (3 low / 8 moderate / 11 high / 0 critical) and 9 to 5 omit-dev (0 / 2 / 3 / 0). Next is absent from candidate findings; Momentic sharp and other residuals remain. #109 stays OPEN; no zero-risk or compromise claim.
+- Reconcile supervisor acceptance: #105 safeguards and #107 pricing Production accepted at `1b11ade`; #111 P2A independently accepted but Draft at `dbdcfea`; #112 partial harness preserved at `ff17fdf`, migration authoring BLOCKED. No branch import or repeated review/precheck.
+- Local clean npm ci, 459 focused tests, typecheck, build and benign sharp codecs PASS. Full suite: 1,647 passed; one existing Chromium hook blocked by macOS sandbox, with 36 optional Postgres skips plus one hook-blocked test. Lint: unchanged 29 errors / 8 warnings plus two new Next rule warnings on unchanged source. No test edits or browser retry.
+- Hosted Node 22 CI/Preview, interactive regression and independent Claude review remain PENDING. No push, merge, provider/DB/Production action; local validation and limitations are recorded in ignored `test-results/issue-113/final-report.md`.
+
+### 2026-09-26 — Issue #106 CAD pricing presentation (PR #107, Production accepted)
 
 - Record PR #105 / Slice 0A COMPLETE, merged and Production verified; quality check REQUIRED (integration `15368`) per PO/supervisor dispatch. Preserve its accepted closure; do not reopen PR #3/#13/#16.
 - Share pure integer-minor-unit CAD pricing across fallback catalog and public presentation. Standard Professional 79/month or 790/year; Business 149/month or 1,490/year. Show annual totals paid upfront for 12 months: “Pay for 10 months and receive 2 months free.”
 - Present the first-25 Alpha offer in the existing section: “Save twice: lifetime Alpha pricing, plus two months FREE when you pay annually.” Fixed lifetime recurring Professional 59/month or 590/year; Business 129/month or 1,290/year. First saving 240/year at monthly rates, then additional annual saving 118/258; combined saving 358/498 versus 12 regular monthly payments. Monthly Alpha alone does not include two free months.
 - Preserve plans/features/limits, application routes, paid-upgrade guards and closed checkout. Correct website pricing knowledge from the same representation; no Summer feature change. BillingManager and historical invoices remain unchanged. Add focused monetary, tenant-flag separation and keyboard/UI regression tests.
-- Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided. No offer assignment, checkout, database/provider/configuration or Production change. Competitive gate REQUIRED: Issue #106 comment `5848862526`; supervisor review, hosted CI/Preview and independent acceptance remain the next gate. Merge and activation are not authorized.
+- Enrollment and cancellation/rejoin/transfer/plan-change/tax terms remain undecided. No offer assignment, checkout, database/provider/configuration change. Competitive gate REQUIRED: Issue #106 comment `5848862526`. Pricing presentation is **Production accepted via PR #107 at `1b11ade`**, per 2026-09-26 PO/supervisor dispatch; the former pricing-candidate next gate is complete. This does not authorize separate commercial activation.
 
 ### 2026-09-26 — Issue #102 multi-location readiness truth (PR #103, Production accepted)
 
