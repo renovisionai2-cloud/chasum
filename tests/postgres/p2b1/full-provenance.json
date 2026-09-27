@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "migration": {
+    "path": "supabase/migrations/20260927043000_issue_112_p2b1_subscription_authority.sql",
+    "sha256": "b25ecee239bafbc75a1d3ddac09e0512895ca3a017cffbd0f81750924ed26b20"
+  },
+  "verification": {
+    "path": "tests/postgres/p2b1/full-verification.mjs",
+    "sha256": "b0fb2649df1a48a7fc1fda4d328a612f2ac8fd119aa19c8a3bd661424889daaf"
+  }
+}
