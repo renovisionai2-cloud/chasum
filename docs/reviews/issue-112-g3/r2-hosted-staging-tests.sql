@@ -32,21 +32,46 @@ PRECHECK -- STOP on ANY failure or UNKNOWN, before migration or fixture creation
    output privately. Missing tables/columns, incomplete output or errors => STOP.
    All named object collisions, including overloads/columns/triggers/policies and
    saas_billing_recovery, must be absent before apply. STOP on any collision, even
-   when candidate uses IF NOT EXISTS. Check migration ledger for prior application.
+   when candidate uses IF NOT EXISTS. READ the migration ledger as a precheck:
+   prior application of 20260927043000 => STOP. WRITE NO ledger row in G-3.
+   Do not repair/fabricate/delete 034–038 ledger entries. After a separately authorized
+   Staging apply, explicitly record in Environment Manifest that it was applied
+   out-of-band from unmerged Draft PR #116, the exact migration SHA-256, and that
+   the ledger row was deliberately not written. Reconsider ledger treatment once
+   for Staging/Production at G-5/G-6.
 4. Require zero businesses with non-null stripe_customer_id/stripe_subscription_id;
    zero non-null invoice provider IDs and zero duplicate non-null invoice IDs;
    zero businesses.offer_id and zero plan_offers. Unexpected invoices/history or
    count differences from Claude's approved prestate => STOP, never delete to pass.
    Existing non-provider invoices require explicit expected baseline confirmation.
-   Preserve design_partner_applications exactly: complete sorted JSON and row count,
-   including all columns, not merely a count/hash of selected fields.
-5. NB-12: compare captured owners/role attributes/membership to Claude's approved
-   matrix. anon/authenticated/authenticator must lack superuser/BYPASSRLS and any
-   inherited escalation; current_user must actually match each tested role.
-   service_role must work under FORCE RLS using its approved bypass authority;
-   mere table ownership is insufficient. Verify postgres/current table owners and
-   creator/owners of new functions, sequence and tables. Missing/unapproved owner
-   or role evidence => STOP. Do not ALTER ROLE, grant memberships or relax FORCE RLS.
+   Preserve design_partner_applications using deterministic per-row digests over ALL
+   columns, ordered deterministically, plus row count and ordered column-name list.
+   Travelling evidence must contain no full pre-existing tenant/application payloads.
+5. NB-12: bind captured owners/role attributes/membership to this exact matrix
+   (rolsuper / rolbypassrls): service_role=false/true; anon=false/false;
+   authenticated=false/false; authenticator=false/false; postgres=false/true.
+   postgres.rolsuper=false is EXPECTED on hosted Supabase; bypass=true is determinant.
+   Owners of businesses/billing_invoices/subscription_events must each have
+   rolsuper OR rolbypassrls true; captured postgres or supabase_admin is acceptable.
+   ABORT if:
+   (a) service_role has neither bypass nor superuser;
+   (b) anon/authenticated/authenticator has superuser or bypass true;
+   (c) owner of any of the three existing tables has neither superuser nor bypass;
+   (d) any required role is absent;
+   (e) service_role or another bypassing/superuser role is granted to anon or
+       authenticated, directly or through a membership chain;
+   (f) any of the three tables already has FORCE RLS shape contradicting migration;
+   (g) ROLE THAT WILL EXECUTE APPLY has neither superuser nor bypass. This is
+       load-bearing: new mapping/event tables use FORCE RLS with zero policies.
+   Capture/verify the apply role and creator/owners of new functions, sequence and
+   tables; missing required evidence => STOP. current_user must match each tested role.
+   Do not wrongfully abort because authenticator is a member of service_role:
+   role attributes are not inherited through membership; authenticator.rolbypassrls
+   remains false until SET ROLE. Ordinary ownership alone cannot bypass FORCE RLS.
+   Record but do not abort for supabase_admin ownership satisfying the owner rule,
+   rolcanlogin differences on non-login roles, or additional Supabase platform
+   bypass roles unless they violate the owner condition; (a)–(g) still apply.
+   Do not ALTER ROLE, change memberships or relax FORCE RLS to make this pass.
 6. r1-reverse-restore.sql remains placeholder-bearing and WILL NOT be executed.
    Concretize it only from real G-3a read-only capture output, then return it to
    Claude Development Control Tower for re-review before any mutating statement.
@@ -117,9 +142,9 @@ OPERATOR HARNESS CONTRACT -- required before calling any test PASS
 - Every Staging-specific adaptation MUST be discovered from R-1a capture and linked
   to the exact captured evidence. Synthetic businesses/auth.users MUST satisfy actual
   captured NOT NULL/CHECK/FK requirements, including required referenced rows.
-  R-1a currently does not enumerate full fixture-table NOT NULL/CHECK/FK definitions:
-  missing capture evidence is UNKNOWN / NOT RUN, never permission to infer fields
-  from historical migrations. Report this gap to Claude before fixture adaptation.
+  Fixture adaptation uses captured R1a-B evidence. If ANY required constraint,
+  default, FK or trigger evidence remains missing or UNKNOWN, STOP and report
+  UNKNOWN / NOT RUN to Claude; never infer missing fields from historical migrations.
 - Prohibited as adaptation: add/alter column; alter constraint; alter policy; alter
   trigger; alter grant; modify any existing tenant row; weaken/skip/delete assertion.
   If an assertion cannot execute against real Staging state: STOP and report
@@ -158,15 +183,22 @@ SYNTHETIC FIXTURES AND EXACT COUNT LEDGER
   Use an existing catalog plan (professional) read-only; never modify the catalog.
 - Record exact baseline counts before migration and after migration, before fixtures:
   businesses B0; invoices I0; history H0; members M0; auth users U0;
-  plan_offers O0=0; applications D0 plus full row JSON. After migration mapping/event
-  counts MUST be 0/0. Immediately after fixture seed: B0+2/I0+1/H0+1/M0+2/U0+5.
+  plan_offers O0=0; applications D0 plus ordered all-column row digests/column names.
+  After migration mapping/event counts MUST be 0/0. Immediately after fixture seed: B0+2/I0+1/H0+1/M0+2/U0+5.
   Additional automatically created fixture rows must be enumerated by table/key and
   exact count before testing; unexplained side effects => STOP and review teardown.
-- Snapshot all existing businesses/invoices/history in private canonical ordered
-  JSON (complete rows), plus complete design_partner_applications, at start/end.
+- Snapshot existing businesses/invoices/history and design_partner_applications at
+  start/end as deterministic per-row digests over ALL columns, ordered deterministically,
+  plus row count and ordered column-name list. Travelling evidence is this structure only.
   Exclude only manifest UUIDs on comparisons. Migration adds subscription_revision:
-  compare old business columns exactly, and assert each existing new revision=0.
-  Never print existing customer/provider data in a public report.
+  compare digests over ALL captured pre-migration business columns, retaining their
+  ordered names, and separately assert each existing new revision=0; also capture
+  all-column post-migration digests and ordered column names for later comparisons.
+  Full SYNTHETIC row content is allowed and useful. Any full pre-existing tenant or
+  application content retained by an operator stays private local only; never transmit
+  it to Control Tower, GitHub, Environment Manifest or chat. Never print existing
+  customer/provider data in a public report; the same prohibition covers all full
+  pre-existing tenant/application row content.
 
 REAL-ROLE SECURITY MATRIX (use only A/B; repeat hosted API counterparts)
 A. Protected businesses writes: as anon and authenticated A owner/co-owner/admin,
@@ -336,7 +368,8 @@ EXACT EXPECTED END COUNTS before teardown (all nine scenarios completed once)
   businesses B0+2; invoices I0+3 (one seed, two unique synthetic provider invoices);
   subscription_events H0+8 (one seed, seven successful applies);
   saas_subscription_mappings=2; saas_billing_events=8 (7 APPLIED, 1 IGNORED);
-  members M0+2; auth users U0+5; plan_offers=0; applications=D0 with exact JSON equality.
+  members M0+2; auth users U0+5; plan_offers=0; applications=D0 with exact
+  all-column digest/ordered-column-list equality.
   No RETRY_REQUIRED/BLOCKED/RECEIVED remain. All eight receipts completed_at non-null.
   Non-null provider IDs: exactly 2 business customer IDs + 2 subscription IDs and
   exactly 2 invoice provider IDs, all in manifest; duplicates=0; offer_id nonnull=0.
@@ -357,7 +390,9 @@ TEARDOWN -- migration stays applied; this is NOT schema rollback
    any associated sessions/identity rows. On failure record CLEANUP INCOMPLETE and
    block acceptance; never claim deletion invalidates all existing tokens immediately.
 4. Final counts must be B0/I0/H0/M0/U0, mappings/events=0/0, offers=0, applications=D0.
-   Compare pre-existing complete row snapshots exactly and applications exact JSON;
+   Compare pre-existing tenant/application deterministic all-column row digests,
+   row counts and ordered column-name lists exactly, using the captured pre-migration
+   business columns plus the separate new-revision assertion as specified above;
    provider IDs all NULL again, offer_id all NULL, duplicate invoice IDs=0. New
    subscription_revision stays present with 0 for every pre-existing business.
    Confirm no synthetic keys or temporary failure trigger/function remain, all
@@ -366,6 +401,10 @@ TEARDOWN -- migration stays applied; this is NOT schema rollback
    values may advance from fixture writes/rolled-back probes; never reset them.
 5. Report each assertion PASS/FAIL/NOT RUN with evidence, exact pre/post counts,
    identity checks, NB-12 resolution, NB-2 observation and cleanup outcome to Claude.
+   For pre-existing tenant/application rows, travelling evidence is deterministic
+   all-column row digests, row count and ordered column-name list only. Never transmit
+   their full content to Control Tower, GitHub, Environment Manifest or chat; any
+   retained full content stays private local only. Full SYNTHETIC row content is allowed.
 
 NB-1: This does NOT prove provider-event monotonic ordering. Revisions fence stale
 snapshots relative to local authority/mapping writes; they do not order provider

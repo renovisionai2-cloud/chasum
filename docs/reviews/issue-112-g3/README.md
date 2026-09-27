@@ -8,14 +8,15 @@ Source candidate: PR #116, branch `codex/p2b1-pub`.
 - Migration: `supabase/migrations/20260927043000_issue_112_p2b1_subscription_authority.sql`
 - Migration SHA-256: `b25ecee239bafbc75a1d3ddac09e0512895ca3a017cffbd0f81750924ed26b20`
 
-These three SQL files preserve the exact current bytes from the source worktree's
-`test-results/issue-112/g3-staging-prep/` directory.
+These three SQL files originated from the source worktree's
+`test-results/issue-112/g3-staging-prep/` directory. This revision contains only
+R1a-A, R1a-B, R2-A, R2-B, R2-C and the README hash/note update; R-1b is unchanged.
 
 ## Artifact SHA-256
 
-- `r1-preapply-capture.sql`: `493f26f23aa286c88b8cd556f7ea84ea127f26367640637b26d181a2095dd04e`
+- `r1-preapply-capture.sql`: `f7872e361dfc70bb0d0e605cd6a79cf907e68e89df0f64cbf76d461ea1006aa5`
 - `r1-reverse-restore.sql`: `3da95aaced99efb1d6f2165e2c68cbd18483081ed091fbacf38a3797704f3468`
-- `r2-hosted-staging-tests.sql`: `7d56c1ceb37a09b32f855355b3312e133f43794b0038015ddd6c706f7d153fb0`
+- `r2-hosted-staging-tests.sql`: `62f3f5ba0e0415eb99db8d520c17e58af2f7b4ffd9b89d29c8b8c6aaacc43585`
 
 ## Review and execution gates
 
