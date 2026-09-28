@@ -274,7 +274,7 @@ function UserBadge({ email }: { email?: string }) {
 
   return (
     <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted/40">
-      <div className="hidden text-right sm:block">
+      <div className="hidden text-right md:block">
         <p className="text-sm font-medium leading-tight text-foreground">Account</p>
         <p className="max-w-[160px] truncate text-[11px] text-muted-foreground">
           {email}

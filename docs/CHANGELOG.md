@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-28 — M1A bounded header containment correction (local candidate)
+
+- Delay account label/email expansion from 640px to 768px to reserve space for workspace context and Request plan change. Preserve the compact account badge, existing account navigation, notification/theme controls, and phone behavior.
+- Add the browser-layout regression test covering 18 requested widths and both quota branches. PO-supplied external results: old frozen HEAD fails at 640px; corrected worktree passes both tests; full suite 1,665 passed / 36 skipped / zero failures; typecheck, changed-file ESLint and diff-check pass. Final sandbox rerun passes 12 mobile tests but cannot launch Chromium; external validation remains authoritative. The prior sandbox commit attempt was blocked by denial of the worktree Git index lock. PO-authorized local packaging proceeds on the same branch; the packaging report records the resulting commit and tree. Corrected exact-candidate hosted Preview acceptance is pending. No push, merge, deployment, Staging/Production or M1B work. See [continuation evidence](reviews/mobile-m1a-workspace-scope.md).
+
 ### 2026-09-28 — M1A smartphone workspace scope (feature candidate)
 
 - Show the current workspace location below 640px; multi-location operators can select an active location or All locations in the existing Sheet. Single-location context stays static. Reuse `setLocationScope()` and refresh the current route; no new scope store or booking action.

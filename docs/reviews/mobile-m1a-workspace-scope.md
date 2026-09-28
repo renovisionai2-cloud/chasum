@@ -1,8 +1,37 @@
 # M1A — mobile workspace scope implementation evidence
 
-Date: 2026-09-28. Status: **READY FOR CLAUDE AUDIT**, not merge or runtime acceptance.
+Date: 2026-09-28. Current continuation status: **VALIDATED / LOCAL PACKAGING AUTHORIZED**. Original implementation evidence below remains historical, not correction acceptance.
 
 Branch: `codex/m1a-mobile-workspace-scope`. Base: `ea575bb183abd5fb38cab6348494becd6b25e7e3`.
+
+## Bounded containment continuation — 2026-09-28
+
+Frozen starting HEAD: `3ac87e68130d0264b6c6f18f92e4a9f7e8b47096`; same branch retained. Fresh GitHub connector read of `main` returned `ea575bb183abd5fb38cab6348494becd6b25e7e3`. Accepted application baseline and serving deployment records were not changed or re-queried.
+
+PO-supplied evidence supersedes the earlier broad local responsive claim: authenticated Preview proved 640–646px overflow, and a live pre-M1A-class simulation reproduced it. This continuation does not repeat that investigation. Competitive Product Gate: **NOT_APPLICABLE**, narrowly bounded correction of an established layout defect with locked product behavior.
+
+The only runtime edit is `UserBadge` account label/email visibility in `sidebar.tsx`: `sm:block` → `md:block`. This retains the existing compact badge through 767px and restores the existing expanded identity at 768px. Location context, Request plan change, notifications, theme, and existing Account & billing navigation are unchanged. All phone classes, scope actions, Sheet lifecycle, Reception, booking code, dependencies and configuration remain unchanged.
+
+The new `tests/unit/dashboard/top-nav-containment.test.tsx` is included without further modification. It renders the actual header with compiled application CSS in Chromium, checks both quota branches, and retains all requested widths: **375, 390, 430, 639, 640, 641, 642, 643, 644, 645, 646, 647, 767, 768, 820, 1024, 1366, 1440**. It checks zero overflow, 64px height, exactly one visible selector, unobstructed controls at 640–767px, plan/add-location visibility at ≥640px, notifications and theme visibility.
+
+Authoritative external validation, supplied by the Product Owner on 2026-09-28, ran outside the Codex sandbox on this same corrected working tree. It supersedes the prior browser-validation blocker and incomplete full-suite result:
+
+- **Corrected worktree PASS:** `npm test -- tests/unit/dashboard/top-nav-containment.test.tsx` — one file, two tests passed, exit 0.
+- **Old frozen HEAD FAILS as intended:** a detached worktree at `3ac87e68130d0264b6c6f18f92e4a9f7e8b47096` received ONLY the new test file. The `canAdd=false` case failed with `640px overflow: expected 64 to be 0`; one test failed and one passed. This proves the regression test distinguishes the old broken behavior from the correction.
+- **Full suite PASS:** `npm test` — 168 files passed, one skipped (169); **1,665 tests passed, 36 skipped (1,701), zero failures**. React act, Supabase multi-client and localStorage experimental warnings were pre-existing/non-blocking; no candidate-related failure remained.
+- **PASS:** `npm run typecheck`; `npx eslint components/dashboard/sidebar.tsx tests/unit/dashboard/top-nav-containment.test.tsx` (clean output); `git diff --check`.
+
+Final Codex rerun, recorded separately from that external evidence:
+
+- `npm test -- tests/unit/dashboard/top-nav-containment.test.tsx tests/unit/dashboard/mobile-workspace-scope.test.tsx` — exit 1 in the sandbox: mobile workspace scope **12 passed**; containment browser setup failed with macOS `bootstrap_check_in ... Permission denied (1100)` before assertions, reporting two skipped tests and one failed file. This is a local execution limitation, not a reversal of the authoritative external containment PASS. Log: `/private/tmp/chasum-m1a-final-focused.log`.
+- `npm run typecheck` — **PASS**, exit 0. Changed-file ESLint for the two files above — **PASS**, exit 0, clean output. `git diff --check` — **PASS**.
+- Build and hosted CI were not rerun for this correction. No runtime or test changes were made during finalization.
+
+**Hosted acceptance remains PENDING for the NEW corrected exact candidate.** External Chromium geometry validation is not authenticated hosted Preview acceptance, cross-route persistence proof, or interactive workflow acceptance. The earlier Preview defect finding is not corrected-candidate acceptance. No push, merge, deployment, Staging/Production mutation or M1B work. No database, migration, booking, dependency or configuration change. The environment manifest remains unchanged because no serving environment/configuration changed.
+
+**Prior sandbox commit attempt (historical):** `git add` failed before staging or committing: Git could not create `/Users/darshan/chasum/.git/worktrees/chasum-m1a/index.lock` (`Operation not permitted`). The worktree Git metadata was outside that sandbox's writable roots; that attempt created no commit or tree. The Product Owner subsequently authorized local packaging of exactly the five bounded files on the same branch, with message `fix: contain tablet transition header`, without pushing. The packaging report records the resulting commit, tree, exact parent and clean-worktree verification. Validation evidence above is preserved; re-audit and hosted acceptance remain pending.
+
+Next gate: Claude narrow re-audit of the exact local correction commit, followed by separately authorized hosted acceptance of that exact candidate. Claude re-audit is **PLANNED**, not dispatched or running; no execution evidence exists. This finalization authorizes a local commit only; do not push, merge, deploy, begin M1B or reopen the broad mobile investigation.
 
 ## Implementation boundary
 
