@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-28 — M1A smartphone workspace scope (feature candidate)
+
+- Show the current workspace location below 640px; multi-location operators can select an active location or All locations in the existing Sheet. Single-location context stays static. Reuse `setLocationScope()` and refresh the current route; no new scope store or booking action.
+- Preserve tablet/desktop LocationSwitcher, five-item bottom navigation, booking behavior and accepted multi-location relationships. Phone-only spacing keeps the header at 64px; portal the sheet above persistent navigation.
+- Add focused UI and canonical-setter regression coverage. Local responsive evidence and validation limitations are recorded in [the M1A review handoff](reviews/mobile-m1a-workspace-scope.md). Independent audit and authenticated Preview acceptance remain pending; no hosted mutation or deployment.
+
 ### 2026-09-26 — Issue #113 bounded security dependency candidate (NOT Production accepted)
 
 - Pin Next.js and eslint-config-next from 16.2.10 to exact 16.3.6, with npm-generated required framework/compiler/image/PostCSS lock changes. Preserve React/ReactDOM 19.2.4, all other direct specs, Momentic and fastq 1.20.1; no app, test, migration, CI or configuration change.

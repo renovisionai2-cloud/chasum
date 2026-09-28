@@ -26,6 +26,8 @@ No tenant-specific application logic is authorized.
 
 ## Control board
 
+**2026-09-28 M1A feature candidate:** smartphone workspace scope control implemented on `codex/m1a-mobile-workspace-scope`, based on `ea575bb183abd5fb38cab6348494becd6b25e7e3`. Local validation only; independent Claude audit and authenticated branch-Preview acceptance remain pending. No merge, deployment, hosted data or database change. Accepted Issue #102 / Stage 1B / Stage 1C architecture and other mobile streams remain unchanged. See [M1A implementation evidence](reviews/mobile-m1a-workspace-scope.md).
+
 | Control field | Current record |
 | --- | --- |
 | Project / product position | Chasum — world-class AI Business Operating System for service businesses. See mission above. |

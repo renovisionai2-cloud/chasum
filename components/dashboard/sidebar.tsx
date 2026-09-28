@@ -2,6 +2,7 @@
 
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LocationSwitcher } from "@/components/dashboard/location-switcher";
+import { MobileWorkspaceScope } from "@/components/dashboard/mobile-workspace-scope";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/brand/logo";
 import {
@@ -309,8 +310,8 @@ export function DashboardTopNav({
   onMenuOpen,
 }: DashboardTopNavProps) {
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/85 px-4 backdrop-blur-xl md:px-6">
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+    <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-2 border-b border-border bg-card/85 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 md:px-6">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <Button
           variant="ghost"
           size="sm"
@@ -320,9 +321,10 @@ export function DashboardTopNav({
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <div className="lg:hidden">
+        <div className="shrink-0 lg:hidden">
           <Logo showText={false} />
         </div>
+        <MobileWorkspaceScope locations={locations} scope={locationScope} />
 
         <Link
           href="/dashboard/clients"
@@ -334,7 +336,7 @@ export function DashboardTopNav({
         </Link>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+      <div className="flex shrink-0 items-center gap-0 sm:gap-2">
         <LocationSwitcher
           locations={locations}
           scope={locationScope}
