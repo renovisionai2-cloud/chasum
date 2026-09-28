@@ -32,7 +32,7 @@ beforeAll(async () => {
     from: "app/globals.css",
   })).css;
   browser = await chromium.launch();
-}, 30_000);
+}, 120_000); // Allow cold CSS compilation and Chromium startup on shared CI runners.
 afterAll(async () => { await browser?.close(); });
 
 // Render the actual header and compiled application CSS in a layout-capable browser.
