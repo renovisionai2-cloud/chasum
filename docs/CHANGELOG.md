@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-29 — M1A Production accepted / closed (PR #118)
+
+- Product Owner-approved PR #118 squash-merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617`; automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully.
+- Production `/api/build-info` confirms the exact merge on `main`, `env=production`, `production=true`; `/api/health` is HTTP 200 / `ok=true`. Quality on the exact Production SHA passed **1,665 / 36 skipped / 0 failed**, including the 18-width real-Chromium containment regression.
+- Production runtime code is mechanically byte-identical to hosted-tested M1A runtime `26a4b328...`; only the six Markdown closeout files differ. Real GVM Production retained Burlington/Brampton/Caledonia and the accepted multi-location relationship truth.
+- No Production booking, customer/appointment/Staff/Service/Location/payment/invoice mutation, SQL write, migration, schema/RLS/Auth change or rollback was performed for verification.
+- Claude Opus 5 High Development Control Tower verdict: **B — PRODUCTION ACCEPTED / M1A CLOSED, WITH NON-BLOCKING LIMITATIONS**. No additional Production probe or rollback required.
+- M1A closure does **not** close the GVM technician mobile program. M1B is the next governed gate; M1C, M2A, M2B, M3, M4 and M5 remain preserved/open. P2B remains paused/preserved by Product Owner sequencing.
+
 ### 2026-09-28 — M1A authenticated hosted acceptance closeout (PR #118 Draft)
 
 - Exact hosted-tested runtime candidate: `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`; keep this distinct from any later documentation-only closeout SHA. PR #118 remains Draft / unmerged.

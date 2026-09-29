@@ -1,20 +1,21 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-28 for M1A authenticated hosted acceptance closeout and final Product Owner merge gate; prior accepted Production and Commercial SaaS records preserved.
+**Updated:** 2026-09-29 for M1A Production acceptance closeout and mobile-program continuation. Prior Production, multi-location and Commercial SaaS records remain preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
 ## A. Current control-tower state
 
-World Class Phase 5 is **COMPLETE**.
+**M1A — Mobile Workspace Scope Control is PRODUCTION ACCEPTED / CLOSED.**
 
-Current program phase:
+PR #118 merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617` on 2026-09-29T00:28:22Z. Exact hosted-tested runtime candidate was `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`. The merge tree `cdce0b0b8425672bd9361563b20bb4fa6035d0f4` is byte-identical to the docs-closeout tree and differs from the hosted-tested runtime only in six Markdown files; all executable/runtime/config/test subtrees are mechanically reconciled. Automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully. Direct Production `/api/build-info` and `/api/health` passed, and Quality on the exact Production SHA passed **1,665 / 36 skipped / 0 failed** including the Chromium containment test. Real GVM Production retained Burlington/Brampton/Caledonia and the accepted relationship truth; no Production booking or data mutation was manufactured. Claude Opus 5 High Development Control Tower verdict: **B — PRODUCTION ACCEPTED / M1A CLOSED, WITH NON-BLOCKING LIMITATIONS**; no further Production probe or rollback is required.
 
-**Immediate active gate: M1A — Mobile Workspace Scope Control.** Draft PR #118 is OPEN / UNMERGED. Authenticated hosted Preview acceptance is complete on exact runtime candidate `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329` (base `ea575bb183abd5fb38cab6348494becd6b25e7e3`). Claude Opus 5 High Development Control Tower returned **B — CLEAR TO CLOSE OUT WITH NON-BLOCKING LIMITATIONS**. The Product-Owner-approved temporary multi-location Staging fixture was fully restored and independently reconciled to the exact baseline. Production/GVM were untouched; M1B remains not started. Any later closeout SHA is documentation-only and must not be mistaken for the hosted-tested runtime candidate.
+**The GVM technician mobile correction program remains open.** Current preserved sequence:
+M1B All-Locations Booking Location Guard → M1C Mobile Account Control → M2A Reception Phone Composition → M2B Calendar Phone Progressive Disclosure → M3 Command Centre Up Next Across Your Business → M4 Assign Later Level-3 architecture/data-integrity → M5 Summer Operating Intelligence (design now/build later).
 
-Commercial SaaS Gate B / P2B remains **PAUSED / PRESERVED**, not abandoned. PR #111 P2A and Issue #112 P2B evidence/approvals remain intact for later resumption after the M1A Product Owner merge gate. Do not restart P2B automatically while PR #118 awaits decision.
+Commercial SaaS Gate B / P2B is **PAUSED / PRESERVED** by Product Owner sequencing. Do not resume it automatically while the mobile program is the active continuation.
 
-Latest accepted Production application release: `d2820c26238b98420f6942958743ba46ca8a54f5` (PR #114). The change is dependency/security maintenance rather than intentional product behavior, but it is the current serving Production baseline and therefore the base for consequential follow-on work.
+Latest accepted Production application release: `2733729ebbf65442cf55eb53b4962aa672535617` (PR #118 M1A). Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` SUCCESS; exact build identity and health verified.
 
 Prior accepted #102 runtime observation, preserved as history:
 
@@ -173,25 +174,29 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**M1A FINAL PRODUCT OWNER MERGE DECISION — PR #118.**
+**M1B — ALL-LOCATIONS BOOKING LOCATION GUARD — GOVERNED GATE PREPARATION ONLY.**
 
-Hosted acceptance is complete. Do **not** rerun the completed single-/multi-location matrix unless new contradictory evidence appears.
+M1B remains NOT STARTED. The purpose is to prevent a new appointment created while workspace scope = `ALL` from silently falling back to a previous preference or Business default Location. Existing appointment saved Location remains authoritative; an explicit booking draft Location remains authoritative.
 
-Hosted-tested runtime identity:
-`26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`
+Before implementation:
+1. re-read current source-of-truth and live code on `main`;
+2. identify every new-appointment mutation entry point and current Location precedence;
+3. run the **REQUIRED Competitive Product Gate** for this operator booking workflow;
+4. define the exact UX contract for choosing an appointment Location when workspace scope = `ALL`;
+5. confirm desktop/tablet/mobile behavior and what must NOT change;
+6. confirm no DB/schema/migration is needed unless contrary evidence appears;
+7. define focused tests plus authenticated hosted acceptance;
+8. have Claude Development Control Tower review the bounded gate;
+9. return the implementation gate to the Product Owner / coordinator.
 
-Control-Tower verdict:
-**B — CLEAR TO CLOSE OUT WITH NON-BLOCKING LIMITATIONS**
+Do **not** implement M1B automatically. Do not start M1C/M2A/M2B/M3/M4/M5 in parallel unless separately authorized.
 
-Current sequence:
-1. finish this documentation-only source-of-truth restamp, keeping the hosted-tested runtime SHA distinct from the docs-only closeout SHA;
-2. verify the docs-only PR head/checks and that no runtime/test/config/migration file changed;
-3. return the consolidated M1A merge gate to Darshan;
-4. STOP for Product Owner decision.
-
-Do **not** merge PR #118, deploy Production, start M1B/M1C/M2A/M2B, apply migration 034 or resume P2B automatically.
-
-Commercial SaaS Gate B / P2B is preserved for later resumption. Keep PR #111 P2A, the Issue #112 harness/evidence, prior P2B approvals and 034–036 status intact; M1A acceptance does not authorize billing work.
+Preserve:
+- M1A Production acceptance as CLOSED;
+- M1C/M2A/M2B/M3/M4/M5 as open future streams;
+- Commercial SaaS P2A/P2B work and approvals as paused/preserved;
+- migrations 034–036 status unchanged;
+- GVM Production data untouched.
 
 ## E. Other accepted program state
 
@@ -289,12 +294,13 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-M1A final Product Owner merge decision for Draft PR #118 after docs-only closeout.
-Exact hosted-tested runtime candidate: 26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329.
-Authenticated hosted acceptance PASS; temporary Staging fixture fully restored;
-Claude Development Control Tower verdict B — CLEAR TO CLOSE OUT WITH NON-BLOCKING
-LIMITATIONS. Do not rerun acceptance, merge automatically, deploy Production or
-start M1B. #111 P2A / #112 P2B remain paused and preserved for later resumption.
+M1B — All-Locations Booking Location Guard, GOVERNED GATE PREPARATION ONLY.
+M1A is Production accepted / closed at merge 2733729ebbf65442cf55eb53b4962aa672535617.
+Do not rerun M1A, do not start M1B implementation automatically, and do not
+resume P2B automatically. First reconcile current main, run the REQUIRED
+Competitive Product Gate, define the bounded UX/mutation/test contract, and
+return the M1B implementation gate for approval. M1C/M2A/M2B/M3/M4/M5 remain
+preserved/open.
 
 AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = coordinator / continuity /
 Product Owner decision preparation. Codex = primary implementer. Claude =
