@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-29 — M1B booking Location guard (Issue #120, local candidate)
+
+- Transport required canonical workspace scope through Calendar, Reception and CRM booking surfaces; multi-location ALL requires an explicit appointment Location, preserving saved appointment/draft truth and sole-active-Location behavior. Add the bounded authenticated-create guard and focused regressions within the restamped 11-file runtime boundary.
+- **IMPLEMENTED / LOCAL VALIDATION COMPLETE / PENDING CLAUDE AUDIT + HOSTED ACCEPTANCE.** Clean full suite: 1,693 pass / 36 skip / 0 fail; C11 PASS; Claude-restamped lint L4 PASS. Exact 11-file runtime boundary. No hosted mutation. Summer bypasses M1B; separate #121 remains untouched. See [M1B implementation evidence](reviews/mobile-m1b-booking-location-guard.md).
+
 ### 2026-09-29 — M1A Production accepted / closed (PR #118)
 
 - Product Owner-approved PR #118 squash-merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617`; automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully.

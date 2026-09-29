@@ -3,8 +3,8 @@
 import { parseISO } from "date-fns";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
-  getActiveLocationId,
   getLocationScope,
+  getLocations,
 } from "@/lib/actions/location";
 import {
   cancelBooking,
@@ -354,8 +354,7 @@ export async function createAppointment(
   const notes = (formData.get("notes") as string) || null;
   const status =
     (formData.get("status") as AppointmentStatus) || "pending";
-  const locationFromForm = (formData.get("location_id") as string) || null;
-  const locationId = locationFromForm || (await getActiveLocationId());
+  const locationFromForm = String(formData.get("location_id") ?? "").trim();
   const durationOverride = Number(formData.get("duration_minutes"));
 
   const packageId = String(formData.get("package_id") ?? "").trim() || null;
@@ -389,6 +388,17 @@ export async function createAppointment(
 
   if (!serviceId || !customerId) {
     return { error: "Customer and service are required." };
+  }
+
+  let locationId = locationFromForm;
+  if (!locationId) {
+    const [scope, locations] = await Promise.all([getLocationScope(), getLocations()]);
+    locationId = locations.length === 1
+      ? locations[0].id
+      : scope.mode === "single" ? scope.locationId : "";
+    if (!locationId) {
+      return { error: "Choose a location for this appointment before booking." };
+    }
   }
 
   const startTime = parseAppointmentStart(formData);

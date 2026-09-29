@@ -6,7 +6,7 @@ import { listMemberships } from "@/lib/actions/business-management";
 import { loadCustomerCommerceAccount } from "@/lib/actions/commerce";
 import { displayCustomerName, loadCrmCustomerProfile } from "@/lib/actions/crm";
 import { getCustomers } from "@/lib/actions/customers";
-import { getLocations } from "@/lib/actions/location";
+import { getLocations, getLocationScope } from "@/lib/actions/location";
 import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { getStaff } from "@/lib/actions/staff";
 import type {
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CustomerProfilePage({ params }: PageProps) {
   const { id } = await params;
   const business = await getOrCreateBusiness();
-  const [profile, staff, locations, services, customers, memberships, commerceAccount] =
+  const [profile, staff, locations, services, customers, memberships, commerceAccount, scope] =
     await Promise.all([
       loadCrmCustomerProfile(id),
       getStaff(),
@@ -61,6 +61,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
       getCustomers(),
       listMemberships(),
       loadCustomerCommerceAccount(id),
+      getLocationScope(),
     ]);
 
   if (!profile) notFound();
@@ -109,6 +110,7 @@ export default async function CustomerProfilePage({ params }: PageProps) {
         profile={profile}
         staff={staff as StaffWithServices[]}
         locations={locations}
+        scope={scope}
         services={services}
         customers={(customers ?? []) as Customer[]}
         memberships={memberships}

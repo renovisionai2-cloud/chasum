@@ -1,5 +1,6 @@
 "use client";
 
+import type { LocationScope } from "@/lib/location/constants";
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 
 import { AiSuggestionsCard } from "@/components/reception/ai-suggestions-card";
@@ -47,8 +48,8 @@ type ReceptionPanelProps = {
   services: OperatorServiceCatalogItem[];
   staff: StaffWithServices[];
   locations: Location[];
-  /** Active single-Location workspace; null when viewing all Locations. */
-  defaultLocationId?: string | null;
+  /** Canonical named or ALL workspace scope. */
+  scope: LocationScope;
   taxRates?: TaxRate[];
   currency?: string | null;
   insights: DashboardInsight[];
@@ -71,7 +72,7 @@ export function ReceptionPanel({
   services,
   staff,
   locations,
-  defaultLocationId = null,
+  scope,
   taxRates = [],
   currency = "usd",
   insights,
@@ -261,7 +262,7 @@ export function ReceptionPanel({
             defaultSlotIso={slotDefaults.start}
             defaultServiceId={slotDefaults.serviceId}
             defaultStaffId={slotDefaults.staffId}
-            defaultLocationId={defaultLocationId}
+            scope={scope}
             walkInMode={walkInMode}
             focusSignal={apptFocusSignal}
             openCreateSignal={createCustomerSignal}

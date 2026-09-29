@@ -112,7 +112,7 @@ export function AppointmentSection({
     String(durationMinutes || ""),
   );
 
-  const locationServices = filterServicesOfferedAtLocation(services, locationId).filter(
+  const locationServices = (locationId ? filterServicesOfferedAtLocation(services, locationId) : []).filter(
     (service) => service.is_active,
   );
   const activePackages = packages.filter((p) => p.is_active);
@@ -124,12 +124,12 @@ export function AppointmentSection({
         )
       : locationServices;
   const packageUnavailableAtLocation =
-    offerType === "package" && Boolean(selectedPackage) && selectableServices.length === 0;
-  const selectedService = services.find((s) => s.id === serviceId);
-  const eligibleStaff = filterEligibleBookingStaff(staff, {
+    offerType === "package" && Boolean(locationId) && Boolean(selectedPackage) && selectableServices.length === 0;
+  const selectedService = locationId ? services.find((s) => s.id === serviceId) : undefined;
+  const eligibleStaff = locationId ? filterEligibleBookingStaff(staff, {
     serviceId,
     locationId,
-  });
+  }) : [];
 
   const workflow = resolveAppointmentStatusWorkflow(
     statusWorkflow ?? DEFAULT_APPOINTMENT_STATUS_WORKFLOW,
@@ -201,6 +201,7 @@ export function AppointmentSection({
               disabled={locked}
               onChange={(e) => onLocationChange(e.target.value)}
             >
+              {!locationId && <option value="">Choose a location</option>}
               {locations.map((l) => (
                 <option key={l.id} value={l.id}>
                   {l.name}
@@ -267,12 +268,14 @@ export function AppointmentSection({
             value={serviceId}
             onChange={(e) => onServiceChange(e.target.value)}
             disabled={
-              locked || (offerType === "package" && includedNames.length > 0)
+              !locationId || locked || (offerType === "package" && includedNames.length > 0)
             }
           >
             {selectableServices.length === 0 ? (
               <option value="">
-                {packageUnavailableAtLocation
+                {!locationId
+                  ? "Choose a location first"
+                  : packageUnavailableAtLocation
                   ? "No package services are offered at this location"
                   : "No active services"}
               </option>
@@ -314,11 +317,11 @@ export function AppointmentSection({
           <Label htmlFor="bs-staff">Employee</Label>
           <Select
             id="bs-staff"
-            value={staffId}
-            disabled={locked}
+            value={locationId ? staffId : ""}
+            disabled={locked || !locationId}
             onChange={(e) => onStaffChange(e.target.value)}
           >
-            <option value="">Unassigned — assign later</option>
+            <option value="">{locationId ? "Unassigned — assign later" : "Choose a location first"}</option>
             {eligibleStaff.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.name}

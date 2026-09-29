@@ -1,5 +1,6 @@
 "use client";
 
+import type { LocationScope } from "@/lib/location/constants";
 import {
   filterServicesOfferedAtLocation,
   type OperatorServiceCatalogItem,
@@ -97,8 +98,8 @@ export type BookingSheetProps = {
   defaultCustomerId?: string;
   /** Prefill service from Reception / calendar draft. */
   defaultServiceId?: string;
-  /** Active single-Location workspace default for new bookings only. */
-  defaultLocationId?: string | null;
+  /** Canonical workspace scope for new bookings. */
+  scope: LocationScope;
   /** Structured draft from Quick Appointment — IDs win over prefs. */
   draft?: BookingDraft | null;
   channel?: BookingSheetChannel;
@@ -152,7 +153,7 @@ export function BookingSheet({
   defaultStaffId,
   defaultCustomerId,
   defaultServiceId,
-  defaultLocationId = null,
+  scope,
   draft = null,
   channel = "staff",
   onSuccess,
@@ -188,11 +189,11 @@ export function BookingSheet({
       locations,
       appointmentLocationId: appointment?.location_id,
       draftLocationId: !appointment ? draft?.locationId : null,
-      activeLocationId: !appointment ? defaultLocationId : null,
+      scope,
       preferenceLocationId: prefs.locationId,
     });
 
-    const locationServices = filterServicesOfferedAtLocation(services, locationId).filter(
+    const locationServices = (locationId ? filterServicesOfferedAtLocation(services, locationId) : []).filter(
       (service) => service.is_active,
     );
 
@@ -235,10 +236,10 @@ export function BookingSheet({
       serviceDurationMinutes: selectedSvc?.duration_minutes ?? null,
     });
 
-    const eligible = filterEligibleBookingStaff(staff, {
+    const eligible = locationId ? filterEligibleBookingStaff(staff, {
       serviceId,
       locationId,
-    });
+    }) : [];
 
     const draftStaff =
       !appointment && (draft?.staffId === "" || draft?.staffId)
@@ -299,7 +300,7 @@ export function BookingSheet({
     defaultStaffId,
     defaultCustomerId,
     defaultServiceId,
-    defaultLocationId,
+    scope,
     draft,
     timezone,
     prefs.locationId,
@@ -367,7 +368,7 @@ export function BookingSheet({
         defaultStaffId ?? "",
         defaultCustomerId ?? "",
         defaultServiceId ?? "",
-        defaultLocationId ?? "",
+        scope.mode === "single" ? scope.locationId : "all",
         draft?.serviceId ?? "",
         draft?.startIso ?? "",
         draft?.durationMinutes ?? "",
@@ -409,10 +410,10 @@ export function BookingSheet({
 
   const eligibleStaff = useMemo(
     () =>
-      filterEligibleBookingStaff(staff, {
+      locationId ? filterEligibleBookingStaff(staff, {
         serviceId,
         locationId,
-      }),
+      }) : [],
     [staff, locationId, serviceId],
   );
 

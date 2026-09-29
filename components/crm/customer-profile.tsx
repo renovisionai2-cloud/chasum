@@ -1,5 +1,6 @@
 "use client";
 
+import type { LocationScope } from "@/lib/location/constants";
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 
 import { BookingSheet } from "@/components/booking-sheet";
@@ -127,6 +128,7 @@ export function CustomerProfileView({
   profile,
   staff,
   locations,
+  scope,
   services,
   customers,
   memberships,
@@ -138,6 +140,7 @@ export function CustomerProfileView({
   profile: CrmProfile;
   staff: StaffWithServices[];
   locations: Location[];
+  scope: LocationScope;
   services: OperatorServiceCatalogItem[];
   customers: Customer[];
   memberships: Membership[];
@@ -919,6 +922,7 @@ export function CustomerProfileView({
         staff={staff}
         customers={customers}
         locations={locations}
+        scope={scope}
         defaultCustomerId={customer.id}
         defaultStaffId={customer.assigned_staff_id ?? undefined}
         channel="staff"
