@@ -1,8 +1,37 @@
 # M1A — mobile workspace scope implementation evidence
 
-Date: 2026-09-28. Current continuation status: **HOSTED ACCEPTED / STAGING RESTORED / PENDING PRODUCT OWNER MERGE DECISION**. Exact hosted-tested application/runtime candidate: `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`. Any later closeout commit is documentation-only and is not the runtime identity that received hosted acceptance.
+Date: 2026-09-29. Current status: **PRODUCTION ACCEPTED / CLOSED**. Exact hosted-tested runtime candidate remains `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`; Production squash merge is `2733729ebbf65442cf55eb53b4962aa672535617`.
 
 Branch: `codex/m1a-mobile-workspace-scope`. Base: `ea575bb183abd5fb38cab6348494becd6b25e7e3`.
+
+## Production acceptance closeout — 2026-09-29
+
+PR #118 was Product Owner-approved and squash-merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617` (tree `cdce0b0b8425672bd9361563b20bb4fa6035d0f4`). Automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully. Direct Production `/api/build-info` returned the exact merge SHA on `main`, `env=production`, `production=true`; `/api/health` returned HTTP 200 / `ok=true`.
+
+Claude Opus 5 High Development Control Tower mechanically verified that the Production merge tree is byte-identical to docs-closeout commit `3784c781b878107fa6da7628f837e50f33bdfb45` and differs from hosted-tested runtime candidate `26a4b328...` only in six Markdown files. All executable/runtime/config/test subtrees and root runtime/config files are identical, so the Production application code is exactly the code that earned authenticated hosted acceptance.
+
+Fresh Production evidence:
+- Vercel deployment and GitHub Production deployment reconcile to merge `2733729e...`.
+- Quality push run on the exact Production SHA passed **1,665 tests / 36 skipped / 0 failed**, including the real-Chromium containment test (2/2, 76.4s).
+- Real authenticated GVM Production source was safely inspected without mutation: `gvmbabyworld@gmail.com`, Brampton workspace selected, Burlington/Brampton/Caledonia plus All Locations present, phone M1A control present, tablet/desktop selector present, and containment class `md:block` live with old `sm:block` absent.
+- Safe authenticated route reads for Centre, Reception, Customers and Payments retained GVM identity and Brampton workspace; no sign-in, cross-tenant or booking redirect occurred.
+- Fresh read-only Production data showed GVM at 3 active Locations, 14 Services, 42 service-location rows, 3 Staff, 9 staff-location rows, 25 staff-service rows and zero cross-business mismatches. Claude independently corroborated the live three-Location/three-Staff/fourteen-Service relationship state via the anon RLS-gated public-booking payload.
+- No Production booking, customer, appointment, Staff, Service, Location, payment or invoice mutation; no SQL write, migration, schema/RLS/Auth change; no rollback.
+
+Claude final Production verdict: **B — PRODUCTION ACCEPTED / M1A CLOSED, WITH NON-BLOCKING LIMITATIONS**. No further Production probe is required and rollback is not indicated.
+
+Recorded non-blocking limitations:
+1. Authenticated Production dashboard markup is operator-observed because the dashboard is auth-gated from Claude.
+2. Exact 42/9/25 join-row counts and zero cross-business result are operator-attested read-only observations, directionally corroborated by public booking and structurally outside M1A's blast radius.
+3. Safari/macOS security controls blocked scripted Production clicks/scrollWidth; deterministic exact-SHA Chromium containment and byte-identical hosted interaction evidence carry the proof.
+4. No Chasum HQ tenant exists in Production; single-location behavior remains covered by authenticated hosted acceptance and the single-location CI branch.
+5. `quality.yml` does not run build/lint; Vercel is the deployed-bundler proof.
+6. Business=10 historical seed/source versus canonical application Business=6 remains separate entitlement-truth debt.
+7. The ~1s `router.refresh()` settle window remains intentional/no-second-scope-store behavior and future polish only.
+8. Production Sentry remains OFF by standing posture.
+
+**M1A is closed. The broader GVM technician mobile program is not.** Next governed gate: M1B preparation only. M1C/M2A/M2B/M3/M4/M5 remain open/preserved.
+
 ## Final authenticated hosted acceptance — 2026-09-28
 
 PR #118 remained **OPEN / DRAFT / UNMERGED** throughout acceptance. The exact runtime candidate was `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329` (tree `ea2f53f378e9552522c127ff062cccccd0fd1189`, parent `6b66fa2f91b9eaae021e5d0cb0979add1287e571`). Vercel exact-SHA status, Node 22 Quality and the competitive-product gate were green. The authenticated operator observed `/api/build-info` returning this exact SHA with `env=preview`, `ref=codex/m1a-mobile-workspace-scope`, `production=false`. Claude could not independently fetch the Vercel-protected endpoint, so that payload is operator-attested rather than auditor-verified; exact-SHA checks and deterministic Chromium containment independently corroborate it.
@@ -111,4 +140,4 @@ Claude's original M1A audit, narrow correction-delta re-audit and final Developm
 
 No database schema, migrations, RLS, booking engine, availability or Auth architecture changed as part of M1A. The temporary Staging fixture was acceptance-only DML under explicit Product Owner approval and is fully removed. Issue #102 / Stage 1B / Stage 1C remain locked. M1B, M1C and later mobile work are not implemented.
 
-**Current next gate:** documentation-only restamp, then return Draft PR #118 to Darshan for the **FINAL PRODUCT OWNER MERGE DECISION**. Do not merge, deploy Production or begin M1B automatically.
+**Current next gate:** **M1B — All-Locations Booking Location Guard, governed gate preparation only.** M1A is Production accepted / closed. Do not rerun M1A, start M1B implementation automatically, resume P2B automatically or begin later mobile streams without their own gates.
