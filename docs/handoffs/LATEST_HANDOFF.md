@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-27 by ChatGPT Control Tower for PR #114 Production closeout and Commercial SaaS Gate B continuation; prior accepted records preserved.
+**Updated:** 2026-09-28 for M1A authenticated hosted acceptance closeout and final Product Owner merge gate; prior accepted Production and Commercial SaaS records preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
@@ -10,9 +10,9 @@ World Class Phase 5 is **COMPLETE**.
 
 Current program phase:
 
-**Issue #113 / PR #114 is CLOSED / PRODUCTION ACCEPTED.** The bounded Next.js 16.3.6 security update was squash-merged to `main` as `d2820c26238b98420f6942958743ba46ca8a54f5` and deployed to Production as `dpl_DZ5WAHmHTAvw8KNRGoMXPbB97u5r` (READY). Post-merge Quality passed; `/api/build-info` and `/api/health` verified the exact Production commit and healthy runtime; Production pricing/public-booking routes returned HTTP 200. No database/provider/pricing/billing/tenant-data/GVM behavior change occurred.
+**Immediate active gate: M1A — Mobile Workspace Scope Control.** Draft PR #118 is OPEN / UNMERGED. Authenticated hosted Preview acceptance is complete on exact runtime candidate `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329` (base `ea575bb183abd5fb38cab6348494becd6b25e7e3`). Claude Opus 5 High Development Control Tower returned **B — CLEAR TO CLOSE OUT WITH NON-BLOCKING LIMITATIONS**. The Product-Owner-approved temporary multi-location Staging fixture was fully restored and independently reconciled to the exact baseline. Production/GVM were untouched; M1B remains not started. Any later closeout SHA is documentation-only and must not be mistaken for the hosted-tested runtime candidate.
 
-Commercial SaaS Gate B now resumes. PR #111 P2A is independently accepted but remains Draft at `dbdcfea`; Issue #112 P2B preparation is preserved at `ff17fdf`. Both predate the accepted security release and must be reconciled onto current main before further implementation. See section D.
+Commercial SaaS Gate B / P2B remains **PAUSED / PRESERVED**, not abandoned. PR #111 P2A and Issue #112 P2B evidence/approvals remain intact for later resumption after the M1A Product Owner merge gate. Do not restart P2B automatically while PR #118 awaits decision.
 
 Latest accepted Production application release: `d2820c26238b98420f6942958743ba46ca8a54f5` (PR #114). The change is dependency/security maintenance rather than intentional product behavior, but it is the current serving Production baseline and therefore the base for consequential follow-on work.
 
@@ -173,25 +173,25 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**COMMERCIAL SaaS GATE B — P2B-1 CONTINUATION / RE-ANCHOR.**
+**M1A FINAL PRODUCT OWNER MERGE DECISION — PR #118.**
 
-Current Production-accepted main: `d2820c26238b98420f6942958743ba46ca8a54f5`.
+Hosted acceptance is complete. Do **not** rerun the completed single-/multi-location matrix unless new contradictory evidence appears.
 
-Preserve:
-- PR #111 P2A accepted Draft checkpoint at `dbdcfea737b30b75bdc7ac54bf14c01ffceb9ae3`;
-- Issue #112 partial disposable-PostgreSQL harness preparation at `ff17fdf092ca989a4daab8e97ba21d7bdf751bd5`;
-- the accepted P2B write-authority / mapping / transaction contract and its corrections;
-- #108 and #109 as separate work;
-- 034–036 unapplied and 037/038 historical objects/records unchanged.
+Hosted-tested runtime identity:
+`26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`
 
-Immediate sequence:
-1. reconcile accepted P2A/P2B development work onto current main without redesigning or silently dropping accepted protections;
-2. complete the previously required fresh **READ-ONLY** P2B pre-authoring checks (V-1…V-4, all-null/uniqueness/collision assumptions and current schema/ACL compatibility);
-3. only if those checks pass, Codex authors the bounded P2B-1 migration + server-authoritative atomic apply implementation and runs the required disposable PostgreSQL proofs;
-4. Claude performs Level-3 independent audit before any hosted database application;
-5. Staging migration application / synthetic hosted role tests require separate Product Owner approval; Production remains separately gated.
+Control-Tower verdict:
+**B — CLEAR TO CLOSE OUT WITH NON-BLOCKING LIMITATIONS**
 
-No wait state exists. No further Product Owner approval is required merely to continue development and read-only reconciliation.
+Current sequence:
+1. finish this documentation-only source-of-truth restamp, keeping the hosted-tested runtime SHA distinct from the docs-only closeout SHA;
+2. verify the docs-only PR head/checks and that no runtime/test/config/migration file changed;
+3. return the consolidated M1A merge gate to Darshan;
+4. STOP for Product Owner decision.
+
+Do **not** merge PR #118, deploy Production, start M1B/M1C/M2A/M2B, apply migration 034 or resume P2B automatically.
+
+Commercial SaaS Gate B / P2B is preserved for later resumption. Keep PR #111 P2A, the Issue #112 harness/evidence, prior P2B approvals and 034–036 status intact; M1A acceptance does not authorize billing work.
 
 ## E. Other accepted program state
 
@@ -211,8 +211,8 @@ No wait state exists. No further Product Owner approval is required merely to co
 Do not blindly restore historical agent assignments if they are stale.
 
 - **Darshan** = Founder / CEO / Product Owner.
-- **ChatGPT** = Chasum AI Executive / Product & Development Program Lead / Control Tower, beneath Darshan.
-- **Claude** = Independent high-risk / Level-3 reviewer before merge.
+- **ChatGPT** = coordinator / continuity / Product Owner decision preparation / source-of-truth reconciliation, beneath Darshan.
+- **Claude** = Development Control Tower for the current mobile workflow and independent high-risk reviewer.
 - **Codex** = Primary Engineering Implementer.
 - **Grok** = World-Class Product / Architecture Challenger.
 - **Independent audit** = assigned separately according to risk.
@@ -278,7 +278,7 @@ and "Would a real business prefer this experience to the mature software it
 already uses?"
 
 Latest accepted behavior-changing Production application release:
-1b11ade192bb2085d0325383b3f00f9fe97fda51   (PR #107, supervisor acceptance)
+d2820c26238b98420f6942958743ba46ca8a54f5   (PR #114, Production accepted)
 Prior #102/PR #103 acceptance at 934fe4c remains historical and valid.
 
 Issue #81 Stage 1 COMPLETE / Production accepted.
@@ -289,17 +289,16 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-Issue #113 exact security candidate review; Next/eslint-config-next 16.3.6.
-PR #105 and #107 are COMPLETE / Production accepted. #111 P2A accepted but
-Draft at dbdcfea; #112 harness preserved at ff17fdf, migration authoring BLOCKED.
-#109 residual analysis OPEN. Supervisor publishes exact #113 candidate for
-hosted Node 22 CI / Preview, interactive regression and independent Claude
-review (PENDING). Merge/Production NOT authorized; no #111/#112 code import.
-See section D; preserve accepted pricing and undecided commercial terms.
+M1A final Product Owner merge decision for Draft PR #118 after docs-only closeout.
+Exact hosted-tested runtime candidate: 26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329.
+Authenticated hosted acceptance PASS; temporary Staging fixture fully restored;
+Claude Development Control Tower verdict B — CLEAR TO CLOSE OUT WITH NON-BLOCKING
+LIMITATIONS. Do not rerun acceptance, merge automatically, deploy Production or
+start M1B. #111 P2A / #112 P2B remain paused and preserved for later resumption.
 
-AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = AI Executive / Product
-& Development Program Lead / Control Tower. Codex = sole primary implementer.
-Claude = independent high-risk / Level-3 reviewer before merge. Grok =
+AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = coordinator / continuity /
+Product Owner decision preparation. Codex = primary implementer. Claude =
+Development Control Tower / high-risk reviewer for the current mobile workflow. Grok =
 World-Class Product/Architecture Challenger. One primary implementer per task.
 
 Re-anchor Mission/World-Class/Summer/Competitive ONCE PER MAJOR CHAPTER, not

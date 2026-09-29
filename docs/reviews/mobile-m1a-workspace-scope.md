@@ -1,8 +1,44 @@
 # M1A — mobile workspace scope implementation evidence
 
-Date: 2026-09-28. Current continuation status: **VALIDATED / LOCAL PACKAGING AUTHORIZED**. Original implementation evidence below remains historical, not correction acceptance.
+Date: 2026-09-28. Current continuation status: **HOSTED ACCEPTED / STAGING RESTORED / PENDING PRODUCT OWNER MERGE DECISION**. Exact hosted-tested application/runtime candidate: `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`. Any later closeout commit is documentation-only and is not the runtime identity that received hosted acceptance.
 
 Branch: `codex/m1a-mobile-workspace-scope`. Base: `ea575bb183abd5fb38cab6348494becd6b25e7e3`.
+## Final authenticated hosted acceptance — 2026-09-28
+
+PR #118 remained **OPEN / DRAFT / UNMERGED** throughout acceptance. The exact runtime candidate was `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329` (tree `ea2f53f378e9552522c127ff062cccccd0fd1189`, parent `6b66fa2f91b9eaae021e5d0cb0979add1287e571`). Vercel exact-SHA status, Node 22 Quality and the competitive-product gate were green. The authenticated operator observed `/api/build-info` returning this exact SHA with `env=preview`, `ref=codex/m1a-mobile-workspace-scope`, `production=false`. Claude could not independently fetch the Vercel-protected endpoint, so that payload is operator-attested rather than auditor-verified; exact-SHA checks and deterministic Chromium containment independently corroborate it.
+
+Hosted acceptance result: **PASS**.
+
+- Representative single-location Chasum HQ was exercised on Centre, Reception, Customers, Payments and More/sidebar at 375, 390, 430, 639, 640–647, 767, 768, 820, 1024, 1366 and 1440. All required probes had zero horizontal overflow, a 64px header and simple static Location context with no unnecessary switcher or `All locations`.
+- A stale already-open tab initially reproduced the historical 640–646 overflow because it retained old client assets. After a full authenticated reload, the DOM reflected the corrected `md:block` behavior and 639–647 were clean. The compiled-CSS Chromium containment test remains the load-bearing proof and independently fails the old frozen candidate.
+- Product Owner approved the minimum temporary **Staging-only** multi-location fixture because no Staging Business had more than one active Location. Existing synthetic `Chasum Test Studio` was used after a rollback-only preflight proved the exact setup sequence.
+- Temporary fixture delta only: one admin `business_members` row for the already-authenticated acceptance account; target plan `starter → professional`; one normal `create_location_from_template(..., setup_mode='blank')` Location; one `location_settings` row; seven `location_hours` rows; zero temporary `location_hour_segments`, `service_locations` and `staff_locations`; no appointment/customer/Service/Staff/payment/invoice/communication creation.
+- Phone scope Sheet contained `All locations` plus both legitimate Locations. Body scroll lock/unlock and Escape focus restoration passed.
+- With the phone Sheet open, 430→820 closed/unmounted it, restored body scrolling, removed the phone control and exposed exactly one tablet selector with no stale overlay.
+- Named scope persisted Centre → Reception → Customers → Centre. A real A→B scope switch stayed on the current operational surface and launched no booking workflow.
+- Reception `/dashboard/calendar?view=month&date=2026-09-28` remained byte-for-byte unchanged through real scope changes.
+- `ALL` persisted Centre → Reception → Customers → Centre without workspace-presentation fallback to the default Location.
+- Full multi-location matrix: four surfaces × 18 widths = **72 hosted combinations / 0 failure-like rows**. Every combination had zero horizontal overflow, 64px header and exactly one appropriate workspace selector.
+- Existing tablet/desktop `LocationSwitcher` performed real named/ALL switching at 640, 767, 768, 820, 1024, 1366 and 1440 with final cookie and controlled-select value agreeing, Reception query preserved, and no booking dialog/query.
+- The approximately 0.95–1.2s `router.refresh()` settling window is intentional and unit-pinned by the no-second-scope-store contract: the cookie updates first and server-provided presentation converges after refresh. A future trigger-level pending affordance is polish only and must not be pulled into M1A.
+
+Fixture restoration: **PASS**. Teardown targeted only captured temporary IDs; restored the target plan `professional → starter`; restored the original `businesses.updated_at` exactly with transaction-scoped trigger suppression because the normal trigger force-sets `now()`; and performed no broad cleanup. A separate read-only reconciliation proved zero temporary residue, original Business/Location/member intact, target operational counts unchanged, and global relevant Staging counts exactly equal to the pre-fixture baseline. Browser-only scope cleanup returned the acceptance account to Chasum HQ. Production and GVM Production were untouched; no migration, schema, RLS or Auth-identity change occurred.
+
+Claude Opus 5 High Development Control Tower final verdict: **B — CLEAR TO CLOSE OUT WITH NON-BLOCKING LIMITATIONS**. No runtime correction or repeat broad audit is required. Documentation-only closeout may proceed; after that M1A may be presented to Darshan for the **FINAL PRODUCT OWNER MERGE DECISION**. This does not authorize merge, Production, M1B, M1C, M2A/M2B, migration 034 or Commercial SaaS P2B.
+
+### Non-blocking limitations / follow-ups
+
+1. Protected Preview `/api/build-info` is operator-attested from Claude's environment; exact-SHA Vercel/check-run evidence and deterministic CI corroborate it.
+2. Preserve the stale-client-assets episode as historical context, not a current-candidate regression.
+3. Hosted multi-location testing used Professional at 2/3 Locations (`canAdd=true`); hosted single-location HQ covered the harder `canAdd=false` transition composition, and CI covers both branches at all 18 widths.
+4. The ~1s refresh settle window has no trigger-level pending affordance after the Sheet closes; correctness is preserved and future polish is outside M1A/M1B.
+5. Transaction-scoped trigger suppression is exceptional fixture-teardown technique, not normal application behavior.
+6. Earlier review text saying “no push” or “Claude re-audit planned” is historical and superseded.
+7. `quality.yml` is not build evidence; Vercel Preview is the deployed-bundler proof.
+8. Existing cosmetic accessibility notes remain non-blocking: single-location roleless `aria-label`, Sheet option semantics, and the pre-existing 40px Sheet close control.
+9. `playwright-core` direct-dependency hardening remains future repository maintenance, not M1A.
+
+Separate follow-up: historical Phase-5 seed/source material still contains Business=10 while current canonical application/Stage-1C Location entitlement is Business=6. Record and reconcile this source/history divergence separately; do not silently change entitlement code, migrations, triggers, RPCs or live data in M1A.
 
 ## Bounded containment continuation — 2026-09-28
 
@@ -27,11 +63,11 @@ Final Codex rerun, recorded separately from that external evidence:
 - `npm run typecheck` — **PASS**, exit 0. Changed-file ESLint for the two files above — **PASS**, exit 0, clean output. `git diff --check` — **PASS**.
 - Build and hosted CI were not rerun for this correction. No runtime or test changes were made during finalization.
 
-**Hosted acceptance remains PENDING for the NEW corrected exact candidate.** External Chromium geometry validation is not authenticated hosted Preview acceptance, cross-route persistence proof, or interactive workflow acceptance. The earlier Preview defect finding is not corrected-candidate acceptance. No push, merge, deployment, Staging/Production mutation or M1B work. No database, migration, booking, dependency or configuration change. The environment manifest remains unchanged because no serving environment/configuration changed.
+**Historical pre-acceptance note (superseded):** at this point in the correction history the corrected candidate had not yet received authenticated hosted acceptance. Final hosted acceptance and exact Staging restoration are recorded above. No merge or Production action occurred; M1B remained untouched.
 
 **Prior sandbox commit attempt (historical):** `git add` failed before staging or committing: Git could not create `/Users/darshan/chasum/.git/worktrees/chasum-m1a/index.lock` (`Operation not permitted`). The worktree Git metadata was outside that sandbox's writable roots; that attempt created no commit or tree. The Product Owner subsequently authorized local packaging of exactly the five bounded files on the same branch, with message `fix: contain tablet transition header`, without pushing. The packaging report records the resulting commit, tree, exact parent and clean-worktree verification. Validation evidence above is preserved; re-audit and hosted acceptance remain pending.
 
-Next gate: Claude narrow re-audit of the exact local correction commit, followed by separately authorized hosted acceptance of that exact candidate. Claude re-audit is **PLANNED**, not dispatched or running; no execution evidence exists. This finalization authorizes a local commit only; do not push, merge, deploy, begin M1B or reopen the broad mobile investigation.
+Historical next-gate note (superseded): the narrow Claude correction re-audit and authenticated hosted acceptance are complete. Current gate is the Product Owner's final decision on Draft PR #118 after documentation-only closeout. Do not merge, deploy Production or begin M1B without explicit Product Owner approval.
 
 ## Implementation boundary
 
@@ -69,8 +105,10 @@ Local interaction checks passed:
 
 Ephemeral evidence: `/private/tmp/chasum-m1a-ui/evidence/` (measurements, surface results and screenshots). These local artifacts are not durable hosted acceptance evidence. The signed-in Production tab was not inspected or used; a broad browser inventory was rejected by automatic review and replaced with an explicitly isolated localhost tab.
 
-## Independent review / next gate
+## Independent review / final gate
 
-Review the feature branch before merge. Authenticated branch-Preview validation remains **PENDING**: repeat the approved named/ALL navigation sequence and Reception query check against representative single/multi-location accounts, without hosted data mutation. No Preview was provisioned or authenticated for this local implementation delivery. Standard Turbopack/Node 22 CI should also be confirmed before release acceptance.
+Claude's original M1A audit, narrow correction-delta re-audit and final Development Control-Tower evidence review are complete. Final verdict: **B — CLEAR TO CLOSE OUT WITH NON-BLOCKING LIMITATIONS**. Authenticated hosted branch-Preview acceptance is complete on exact runtime candidate `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`; the temporary multi-location Staging fixture was restored exactly and independently reconciled.
 
-No database, migrations, RLS, relationship tables, booking engine, availability, billing, entitlements, auth architecture, account behavior or hosted environment configuration changed. Issue #102 / Stage 1B / Stage 1C remain locked. M1B, M1C and later mobile work are not implemented. The product direction relies on the explicitly approved M1A preflight; this task does not introduce a new product strategy.
+No database schema, migrations, RLS, booking engine, availability or Auth architecture changed as part of M1A. The temporary Staging fixture was acceptance-only DML under explicit Product Owner approval and is fully removed. Issue #102 / Stage 1B / Stage 1C remain locked. M1B, M1C and later mobile work are not implemented.
+
+**Current next gate:** documentation-only restamp, then return Draft PR #118 to Darshan for the **FINAL PRODUCT OWNER MERGE DECISION**. Do not merge, deploy Production or begin M1B automatically.

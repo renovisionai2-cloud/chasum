@@ -2,65 +2,107 @@
 
 ## Status
 
-**Shipped — Phase 5 (Foundation).** Single-location businesses continue to work via auto-created default location.
+**Stage 1 complete / Production accepted; Issue #102 read-model convergence complete.** Single-location businesses remain simple through their default Location. Multi-location operating truth uses explicit relationship tables rather than treating home/legacy Location metadata as exclusive scope.
 
-## Model
+## Governing model
 
+```text
+BUSINESS
+  ├── LOCATIONS
+  ├── BUSINESS SERVICE CATALOG
+  │     └── each Service may be offered at ONE / SOME / ALL Locations
+  ├── STAFF
+  │     └── each Staff member may work at ONE / SOME / ALL Locations
+  └── CUSTOMERS
+        └── business-scoped, shared across Locations
+
+Service offered at Location  -> service_locations
+Staff works at Location      -> staff_locations
+Staff provides Service       -> staff_services
+Appointments / availability  -> Location-aware operational records
 ```
-businesses (org / tenant root, 1 per owner)
-  ├── subscription_plan_key → subscription_plans.max_locations
-  ├── locations[] (physical sites)
-  │     ├── location_settings (interval, booking window, daily cap)
-  │     ├── location_hours (open/close per day)
-  │     ├── staff (location-scoped)
-  │     ├── services (location-scoped)
-  │     ├── appointments (location-scoped)
-  │     └── availability blocks (location-scoped)
-  └── customers (business-scoped, shared across locations)
-```
 
-## Dashboard behavior
+Bookability at a selected Location requires all relevant operating truth:
 
-- **Location switcher** in top nav: current location or "All locations"
-- Cookie `chasum_location_scope`: location UUID or `ALL`
-- Calendar, staff, services, settings, and reports filter by active scope
-- Customers and client history remain business-wide
+1. Service is offered at the Location.
+2. Staff is allowed at the Location.
+3. Staff provides the Service.
+4. Location/business hours, staff availability, conflicts and other operating rules pass.
+
+`service_locations`, `staff_locations` and `staff_services` are the canonical relationship truth.
+
+`services.location_id` and `staff.location_id` remain primary/home/compatibility metadata during Stage 1. They do **not** mean “only offered here” or “only works here.”
+
+Issue #102 completed read-model convergence so Command Centre, Services, Employees, Reception, Booking Sheet and public booking consume this relationship truth consistently.
+
+## Workspace scope
+
+- Canonical cookie: `chasum_location_scope`.
+- Values: a Location UUID or `ALL`.
+- Smartphone M1A uses the canonical `setLocationScope()` action and a phone workspace Sheet.
+- At `sm`/tablet and above, the existing top-nav `LocationSwitcher` remains the selector.
+- Single-location tenants show simple static Location context rather than unnecessary switching controls.
+- `ALL` means business-wide **workspace presentation**. Mutation/default-location semantics are separately governed; the known new-appointment ALL guard belongs to M1B, not M1A.
+
+Customers and customer history remain business-wide unless a specific workflow intentionally scopes them.
 
 ## Public booking
 
-- Single location: unchanged UX (default location used)
-- Multiple locations: location picker step; `?location=<slug>` deep-links
-- Slots validated via `get_available_slots(..., p_location_id)`
+- Single Location: default/simple Location experience.
+- Multiple Locations: Location selection/deep-link behavior uses explicit relationship truth.
+- Public bookability requires the same Service/Staff/Location relationship checks used by the operating system.
+- Scheduling RPCs remain Location-aware and validate availability rather than inventing times.
 
-## Subscription limits
+## Add Location — Stage 1C
 
-Location caps come from `subscription_plans`, not hard-coded app logic:
+`create_location_from_template()` is the accepted atomic Add Location workflow.
 
-| Plan | Max locations |
-|------|---------------|
-| starter | 1 |
-| professional | 3 |
-| business | 10 |
-| enterprise | unlimited |
+Setup modes:
 
-Enforced by `can_add_location()` RPC at create time.
+- **Default** — snapshot from the active default Location.
+- **Copy** — snapshot from an explicitly selected active Location.
+- **Start Blank** — create valid Location settings/hours without copying Service or Staff relationships.
 
-## Future extensions (metadata-ready)
+Stage 1C uses snapshot/copy semantics, **not live inheritance**. Staff assignment remains deliberate. Stage 2 Location overrides and Stage 3 live inheritance remain later work.
 
-`locations.metadata` and `location_settings.metadata` JSONB reserved for:
+## Location entitlements
 
-- Departments
-- Rooms
-- Equipment
-- Inventory
-- Franchises / enterprise HQ views
+Current canonical application / Stage-1C limits:
 
-## Migration
+| Plan | Max active Locations |
+| --- | ---: |
+| Starter / Free | 1 |
+| Professional | 3 |
+| Business | 6 |
+| Enterprise | unlimited |
 
-`008_phase5_multi_location.sql`:
+Current application entitlement logic is represented by `PLAN_LOCATION_LIMITS`; creation is also protected by the database `locations_enforce_plan_quota` trigger. `can_add_location()` remains part of the capability/read path but is not the sole enforcement mechanism.
 
-- Creates tables + backfills default location per business
-- Adds `location_id` to operational tables
-- Updates scheduling RPCs with optional `p_location_id`
+### Source/history reconciliation note
 
-Verification: `node scripts/verify-phase5-multi-location.mjs`
+Historical Phase-5 seed/source material and comments still contain an older Business limit of **10**, while the accepted current application/Stage-1C limit is **6**. Later Stage-1C accepted runtime/database records use 6.
+
+This is a separate **entitlements-truth source/history follow-up**. Do not silently change seeds, entitlement code, RPCs, triggers, migrations or live data as part of M1A documentation closeout.
+
+## Future extensions
+
+Design now / build later:
+
+- Stage 2 Location overrides
+- Stage 3 live inheritance
+- bulk relationship controls
+- resource-aware booking
+- cross-Location staff conflict visualization
+- saved calendar filters/presets
+- durable Summer action provenance and safe ACT paths
+
+`locations.metadata` / `location_settings.metadata` remain available for future structured extensions where appropriate; metadata must not replace explicit operating relationship truth.
+
+## Historical foundation
+
+Phase 5 migrations established Locations and Location-aware scheduling, including:
+
+- `008_phase5_multi_location.sql`
+- `009_phase5_drop_old_rpc_overloads.sql`
+
+Later Stage 1B/1C and Issue #102 hardened and converged that foundation. For current truth, prefer `docs/CURRENT_PROJECT_STATE.md`, this document, and the dated acceptance records in `docs/runtime/ENVIRONMENT_MANIFEST.md` over older Phase-5-only assumptions.
