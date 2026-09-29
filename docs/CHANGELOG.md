@@ -9,6 +9,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-28 — M1A authenticated hosted acceptance closeout (PR #118 Draft)
+
+- Exact hosted-tested runtime candidate: `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`; keep this distinct from any later documentation-only closeout SHA. PR #118 remains Draft / unmerged.
+- Authenticated single-location and approved temporary multi-location Preview/Staging acceptance PASS: phone scope Sheet/focus, 430→820 unmount/body-scroll restoration, named and ALL persistence, Reception route/date/view preservation, booking separation, and real tablet/desktop switching. Four surfaces × 18 widths produced 72 multi-location hosted combinations with zero failure-like rows, zero horizontal overflow, 64px header and exactly one selector.
+- A stale already-open browser tab briefly reproduced old 640–646 CSS until full reload; fresh exact-candidate assets were clean. Deterministic Chromium containment remains the load-bearing proof. The ~1s `router.refresh()` settle window is intended no-optimistic-scope behavior; future pending-affordance polish is non-blocking and outside M1A.
+- Product-Owner-approved temporary Chasum Test Studio fixture used only one temporary admin membership, `starter → professional`, one canonical blank Location, one settings row and seven hours. No appointment/customer/Service/Staff/money/communication data was created. Teardown restored the exact baseline; separate read-only reconciliation found zero residue; Production/GVM untouched.
+- Claude Opus 5 High Development Control Tower verdict: **B — CLEAR TO CLOSE OUT WITH NON-BLOCKING LIMITATIONS**. No runtime correction or repeat broad audit required. Documentation-only restamp may proceed, then stop for the final Product Owner merge decision. No Production, M1B, migration 034 or P2B authorization.
+- Multi-location documentation truth is reconciled descriptively: relationship tables carry operating truth; current canonical application/Stage-1C location caps are 1/3/6/unlimited. Historical Phase-5 seed/source material still contains Business=10 and is a separate entitlements-truth source/history follow-up, not an M1A behavior change.
+### 2026-09-28 — M1A bounded header containment correction (local candidate)
+
+- Delay account label/email expansion from 640px to 768px to reserve space for workspace context and Request plan change. Preserve the compact account badge, existing account navigation, notification/theme controls, and phone behavior.
+- Add the browser-layout regression test covering 18 requested widths and both quota branches. PO-supplied external results: old frozen HEAD fails at 640px; corrected worktree passes both tests; full suite 1,665 passed / 36 skipped / zero failures; typecheck, changed-file ESLint and diff-check pass. Final sandbox rerun passes 12 mobile tests but cannot launch Chromium; external validation remains authoritative. The prior sandbox commit attempt was blocked by denial of the worktree Git index lock. The exact runtime candidate was subsequently committed/pushed, independently re-audited and authenticated-hosted accepted. The historical containment evidence remains valid; no merge, Production deployment or M1B work has occurred. See [continuation evidence](reviews/mobile-m1a-workspace-scope.md).
+
+### 2026-09-28 — M1A smartphone workspace scope (feature candidate)
+
+- Show the current workspace location below 640px; multi-location operators can select an active location or All locations in the existing Sheet. Single-location context stays static. Reuse `setLocationScope()` and refresh the current route; no new scope store or booking action.
+- Preserve tablet/desktop LocationSwitcher, five-item bottom navigation, booking behavior and accepted multi-location relationships. Phone-only spacing keeps the header at 64px; portal the sheet above persistent navigation.
+- Add focused UI and canonical-setter regression coverage. Final independent audit and authenticated Preview/Staging acceptance are now complete and recorded in [the M1A review handoff](reviews/mobile-m1a-workspace-scope.md); the temporary acceptance fixture was fully restored. PR #118 remains Draft / unmerged.
+
 ### 2026-09-26 — Issue #113 bounded security dependency candidate (NOT Production accepted)
 
 - Pin Next.js and eslint-config-next from 16.2.10 to exact 16.3.6, with npm-generated required framework/compiler/image/PostCSS lock changes. Preserve React/ReactDOM 19.2.4, all other direct specs, Momentic and fastq 1.20.1; no app, test, migration, CI or configuration change.
