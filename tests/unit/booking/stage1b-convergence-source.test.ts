@@ -101,18 +101,32 @@ describe("Issue #81 Stage 1B application convergence", () => {
   });
 
 
-  it("new booking surfaces inherit the active single-Location workspace without overriding explicit truth", () => {
+  it("explicitly inherits named single-Location workspace scope and transports multi-location ALL without silent Location inheritance, keeping existing appointment and explicit draft truth authoritative", () => {
+    const page = source("app/(dashboard)/dashboard/calendar/page.tsx");
+    const workspace = source("components/reception/reception-workspace.tsx");
     const calendar = source("components/calendar/calendar-client.tsx");
     const panel = source("components/reception/reception-panel.tsx");
     const quick = source("components/reception/quick-appointment.tsx");
     const sheet = source("components/booking-sheet/booking-sheet.tsx");
 
-    expect(calendar).toContain("defaultLocationId={selectedLocationId}");
-    expect(panel).toContain("defaultLocationId={defaultLocationId}");
-    expect(quick).toContain("activeLocationId: defaultLocationId");
+    expect(page).toMatch(/const\s*\[\s*locations\s*,\s*scope\s*\]\s*=\s*await\s+Promise\.all\(\[\s*getLocations\(\)\s*,\s*getLocationScope\(\)\s*\]\)/);
+    for (const component of [workspace, calendar, panel, quick, sheet]) {
+      expect(component).toMatch(/import\s+type\s*\{\s*LocationScope\s*\}\s*from\s*"@\/lib\/location\/constants"/);
+      expect(component).toMatch(/\bscope:\s*LocationScope\s*;/);
+    }
+    expect(page).toMatch(/<ReceptionWorkspace\b[\s\S]*?\bscope=\{scope\}/);
+    expect(workspace).toMatch(/<CalendarClient\b[\s\S]*?\bscope=\{scope\}/);
+    expect(calendar).toMatch(/<BookingSheet\b[\s\S]*?\bscope=\{scope\}/);
+    expect(calendar).toMatch(/<ReceptionPanel\b[\s\S]*?\bscope=\{scope\}/);
+    expect(panel).toMatch(/<QuickAppointmentForm\b[\s\S]*?\bscope=\{scope\}/);
+    expect(quick).toMatch(/resolveBookingLocationId\(\{[^}]*\bscope\s*,/);
+    expect(sheet).toMatch(/resolveBookingLocationId\(\{[^}]*\bscope\s*,/);
+    expect(calendar).not.toContain("defaultLocationId={selectedLocationId}");
+    expect(panel).not.toContain("defaultLocationId={defaultLocationId}");
+    expect(quick).not.toContain("activeLocationId: defaultLocationId");
     expect(sheet).toContain("appointmentLocationId: appointment?.location_id");
     expect(sheet).toContain("draftLocationId: !appointment ? draft?.locationId : null");
-    expect(sheet).toContain("activeLocationId: !appointment ? defaultLocationId : null");
+    expect(sheet).not.toContain("activeLocationId: !appointment ? defaultLocationId : null");
   });
 
 });

@@ -123,6 +123,7 @@ function panelProps(): ComponentProps<typeof ReceptionPanel> {
     services: [],
     staff: [],
     locations: [],
+    scope: { mode: "all" },
     insights: [],
     open: true,
     onOpenChange: () => undefined,
@@ -152,6 +153,7 @@ function ReceptionWorkspace({ width }: { width: number }): ReactElement {
         services={[]}
         staff={[]}
         locations={[]}
+        scope={{ mode: "all" }}
         insights={[]}
         open
         onOpenChange={() => undefined}

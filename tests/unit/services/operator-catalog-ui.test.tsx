@@ -78,7 +78,7 @@ describe("real Booking Sheet and AppointmentSection location switching", () => {
       expires_after_days: null, transferable: false, is_active: true,
       service_ids: ["primary-only"], created_at: "2026-09-01", updated_at: "2026-09-01",
     };
-    render(<BookingSheet open onClose={vi.fn()} onSuccess={vi.fn()} services={catalog} locations={locations} staff={[]} customers={[]} packages={[pkg]} />);
+    render(<BookingSheet scope={{ mode: "single", locationId: "A" }} open onClose={vi.fn()} onSuccess={vi.fn()} services={catalog} locations={locations} staff={[]} customers={[]} packages={[pkg]} />);
     fireEvent.change(screen.getByLabelText("Location"), { target: { value: "C" } });
     expect(screen.getByLabelText("Service")).toHaveValue("shared");
     fireEvent.change(screen.getByLabelText("Book"), { target: { value: "package" } });
@@ -97,7 +97,7 @@ describe("real Booking Sheet and AppointmentSection location switching", () => {
   });
 
   it("preserves a still-offered service, removes unmapped options, clears an invalid selection", () => {
-    render(<BookingSheet open onClose={vi.fn()} onSuccess={vi.fn()} services={services} locations={locations} staff={[]} customers={[]} packages={[]} />);
+    render(<BookingSheet scope={{ mode: "single", locationId: "A" }} open onClose={vi.fn()} onSuccess={vi.fn()} services={services} locations={locations} staff={[]} customers={[]} packages={[]} />);
     const serviceSelect = screen.getByLabelText("Service");
     expect(serviceSelect).toHaveValue("shared");
     expect(within(serviceSelect).getAllByRole("option")).toHaveLength(2);
@@ -115,7 +115,7 @@ describe("real Booking Sheet and AppointmentSection location switching", () => {
 
 describe("Quick Appointment", () => {
   it("derives selectable services and submitted ID from the selected location", async () => {
-    render(<QuickAppointmentForm services={services} locations={locations} staff={[]} customers={[]} onSuccess={vi.fn()} />);
+    render(<QuickAppointmentForm scope={{ mode: "single", locationId: "A" }} services={services} locations={locations} staff={[]} customers={[]} onSuccess={vi.fn()} />);
     const select = screen.getByLabelText("Service");
     expect(within(select).getAllByRole("option")).toHaveLength(2);
     fireEvent.change(screen.getByLabelText("Location"), { target: { value: "B" } });

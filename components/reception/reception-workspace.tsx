@@ -1,5 +1,6 @@
 "use client";
 
+import type { LocationScope } from "@/lib/location/constants";
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 
 import { CalendarClient } from "@/components/calendar/calendar-client";
@@ -44,7 +45,7 @@ type ReceptionWorkspaceProps = {
   taxRates?: TaxRate[];
   timezone?: string | null;
   appointmentIntervalMinutes?: number;
-  selectedLocationId?: string | null;
+  scope: LocationScope;
 };
 
 export function ReceptionWorkspace({
@@ -65,7 +66,7 @@ export function ReceptionWorkspace({
   taxRates = [],
   timezone = null,
   appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
-  selectedLocationId = null,
+  scope,
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
@@ -88,7 +89,7 @@ export function ReceptionWorkspace({
         taxRates={taxRates}
         timezone={timezone}
         appointmentIntervalMinutes={appointmentIntervalMinutes}
-        selectedLocationId={selectedLocationId}
+        scope={scope}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import type { LocationScope } from "@/lib/location/constants";
 import {
   filterServicesOfferedAtLocation,
   type OperatorServiceCatalogItem,
@@ -72,8 +73,8 @@ type QuickAppointmentProps = {
   defaultSlotIso?: string | null;
   defaultServiceId?: string | null;
   defaultStaffId?: string | null;
-  /** Active single-Location workspace default for a new quick booking. */
-  defaultLocationId?: string | null;
+  /** Canonical workspace scope for a new quick booking. */
+  scope: LocationScope;
   walkInMode?: boolean;
   focusSignal?: number;
   openCreateSignal?: number;
@@ -119,7 +120,7 @@ export function QuickAppointmentForm({
   defaultSlotIso,
   defaultServiceId,
   defaultStaffId,
-  defaultLocationId = null,
+  scope,
   walkInMode = false,
   focusSignal = 0,
   openCreateSignal = 0,
@@ -152,7 +153,7 @@ export function QuickAppointmentForm({
 
   const preferredLocation = resolveBookingLocationId({
     locations,
-    activeLocationId: defaultLocationId,
+    scope,
     preferenceLocationId: prefs.locationId,
   });
 
@@ -166,9 +167,9 @@ export function QuickAppointmentForm({
   const [locationOverride, setLocationOverride] = useState<string | null>(
     null,
   );
-  const staffId = staffOverride ?? preferredStaff;
   const locationId = locationOverride ?? preferredLocation;
-  const activeServices = filterServicesOfferedAtLocation(services, locationId)
+  const staffId = locationId ? (staffOverride ?? preferredStaff) : "";
+  const activeServices = (locationId ? filterServicesOfferedAtLocation(services, locationId) : [])
     .filter((service) => service.is_active);
   const serviceId = [serviceOverride, defaultServiceId, prefs.serviceId]
     .find((id) => activeServices.some((service) => service.id === id))
@@ -255,16 +256,16 @@ export function QuickAppointmentForm({
 
   const eligibleStaff = useMemo(
     () =>
-      filterEligibleBookingStaff(staffPool, {
+      locationId ? filterEligibleBookingStaff(staffPool, {
         serviceId,
         locationId,
-      }),
+      }) : [],
     [staffPool, serviceId, locationId],
   );
 
   // Refresh complete eligible list from the server whenever service/location changes.
   useEffect(() => {
-    if (!serviceId) {
+    if (!serviceId || !locationId) {
       setEligibleOverride(null);
       return;
     }
@@ -484,6 +485,7 @@ export function QuickAppointmentForm({
 
   const loadSlots = useCallback(
     async (svcId: string, stfId: string, day: string) => {
+      if (!locationId) return [];
       if (stfId) {
         return getDashboardAvailableSlots(
           svcId,
@@ -517,6 +519,7 @@ export function QuickAppointmentForm({
 
   const missingHints = [
     !resolvedCustomerId ? "customer" : null,
+    !locationId ? "location" : null,
     !serviceId ? "service" : null,
     !slot ? "time slot" : null,
     needsNamedEmployee ? "employee" : null,
@@ -525,6 +528,7 @@ export function QuickAppointmentForm({
   const canBook =
     bookingPhase === "draft" &&
     !!resolvedCustomerId &&
+    !!locationId &&
     !!serviceId &&
     !!slot &&
     !needsNamedEmployee &&
@@ -970,30 +974,6 @@ export function QuickAppointmentForm({
         <input type="hidden" name="status" value="confirmed" />
 
         <div className="grid gap-3 sm:grid-cols-1">
-          <div className="space-y-1.5">
-            <Label htmlFor="qa_service">Service</Label>
-            <Select
-              ref={serviceRef}
-              id="qa_service"
-              value={serviceId}
-              onChange={(e) => {
-                setServiceOverride(e.target.value);
-                setStaffOverride("");
-                setSlot(null);
-                writeBookingPreferences({ serviceId: e.target.value });
-              }}
-            >
-              {activeServices.length === 0 && (
-                <option value="">No active services at this location</option>
-              )}
-              {activeServices.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-
           {locations.length > 1 && (
             <div className="space-y-1.5">
               <Label htmlFor="qa_location">Location</Label>
@@ -1006,6 +986,7 @@ export function QuickAppointmentForm({
                   writeBookingPreferences({ locationId: e.target.value });
                 }}
               >
+                {!locationId && <option value="">Choose a location</option>}
                 {locations.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.name}
@@ -1016,9 +997,35 @@ export function QuickAppointmentForm({
           )}
 
           <div className="space-y-1.5">
+            <Label htmlFor="qa_service">Service</Label>
+            <Select
+              ref={serviceRef}
+              id="qa_service"
+              disabled={!locationId}
+              value={serviceId}
+              onChange={(e) => {
+                setServiceOverride(e.target.value);
+                setStaffOverride("");
+                setSlot(null);
+                writeBookingPreferences({ serviceId: e.target.value });
+              }}
+            >
+              {activeServices.length === 0 && (
+                <option value="">{locationId ? "No active services at this location" : "Choose a location first"}</option>
+              )}
+              {activeServices.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
             <Label htmlFor="qa_staff">Employee</Label>
             <Select
               id="qa_staff"
+              disabled={!locationId}
               value={activeStaffId}
               onChange={(e) => {
                 setStaffOverride(e.target.value);
@@ -1027,7 +1034,7 @@ export function QuickAppointmentForm({
                 writeBookingPreferences({ staffId: e.target.value || undefined });
               }}
             >
-              <option value="">Unassigned — assign later</option>
+              <option value="">{locationId ? "Unassigned — assign later" : "Choose a location first"}</option>
               {eligibleStaff.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
@@ -1040,7 +1047,9 @@ export function QuickAppointmentForm({
               </p>
             ) : (
               <p className="text-[11px] text-muted-foreground">
-                {eligibleStaff.length === 0
+                {!locationId
+                  ? "Choose a location to see available employees."
+                  : eligibleStaff.length === 0
                   ? "No employees are assigned to this service yet."
                   : "Choose an employee, or leave unassigned."}
               </p>
@@ -1048,7 +1057,7 @@ export function QuickAppointmentForm({
           </div>
         </div>
 
-        {serviceId ? (
+        {locationId && serviceId ? (
           <SlotPicker
             serviceId={serviceId}
             staffId={activeStaffId || "unassigned"}
@@ -1065,7 +1074,7 @@ export function QuickAppointmentForm({
           />
         ) : (
           <p className="rounded-[var(--radius-md)] border border-dashed border-border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-            Choose a service to continue.
+            {locationId ? "Choose a service to continue." : "Choose a location to continue."}
             {OPTIONAL_STAFF_PERSISTENCE_ENABLED
               ? " Employee is optional."
               : ""}

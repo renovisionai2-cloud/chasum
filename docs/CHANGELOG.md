@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-29 — M1B booking Location guard (Issue #120, Draft PR #122)
+
+- Exact hosted-tested runtime candidate: `597a347194935617c556d2a6fa4006703d07bfcb`. Required canonical scope prevents silent preference/default Location reuse in multi-location ALL, preserving saved appointment/draft truth and sole-active-Location behavior.
+- **HOSTED ACCEPTANCE COMPLETE / PRE-MERGE DOCS-ONLY CLOSEOUT.** Claude final verdict B: A1–A7/A9 PASS; A8 NOT EXECUTED, accepted non-blocking limitation (no confirmed booking; no separate confirmed-booking gate before merge); A10 WAIVED, accepted deterministic sole-location coverage plus real HQ inventory. Responsive 390/1024/1440 and accessibility/usability basics PASS; zero console/page errors.
+- Quality / latest competitive-product-gate / Vercel PASS; two Issue-81 exact-candidate-verification skips are expected. Vercel supplies build proof; exact-commit audit/restamped lint supplies lint evidence. Clean local suite: 1,693 pass / 36 skip / 0 fail. See [M1B closeout evidence](reviews/mobile-m1b-booking-location-guard.md).
+- Approved temporary Staging fixture fully restored per coordinator/implementer reconciliation, not independent Claude DB audit. Teardown used transaction-scoped `session_replication_role` trigger suppression to restore original Business `updated_at` exactly, reverted before the database transaction committed; no persistent schema/RLS/trigger-definition change. Runtime candidate contains no migration/SQL/schema change.
+- #123 tracks inert `preferenceLocationId` cleanup as POST-M1B SAFE. Summer #121 remains separate and untouched. **No Production; PR #122 remains OPEN / DRAFT; final Product Owner merge decision pending.** This pre-merge closeout changes documentation only; no runtime change or merge.
+
 ### 2026-09-29 — M1A Production accepted / closed (PR #118)
 
 - Product Owner-approved PR #118 squash-merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617`; automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully.

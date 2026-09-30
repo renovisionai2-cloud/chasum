@@ -1,5 +1,6 @@
 "use client";
 
+import type { LocationScope } from "@/lib/location/constants";
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 import { getLocationBookingReadiness } from "@/lib/booking/location-readiness";
 
@@ -115,7 +116,7 @@ type CalendarClientProps = {
   timezone?: string | null;
   /** Booking start-time interval (minutes) from location/business settings. */
   appointmentIntervalMinutes?: number;
-  selectedLocationId?: string | null;
+  scope: LocationScope;
 };
 
 function getRange(view: CalendarView, date: Date) {
@@ -160,7 +161,7 @@ export function CalendarClient({
   taxRates = [],
   timezone = null,
   appointmentIntervalMinutes = DEFAULT_BOOKING_INTERVAL_MINUTES,
-  selectedLocationId = null,
+  scope,
 }: CalendarClientProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -253,6 +254,7 @@ export function CalendarClient({
     return () => mq.removeEventListener("change", apply);
   }, []);
 
+  const selectedLocationId = scope.mode === "single" ? scope.locationId : null;
   const bookingReadiness = getLocationBookingReadiness(
     services,
     staff,
@@ -677,7 +679,7 @@ export function CalendarClient({
             services={services}
             staff={staff}
             locations={locations}
-            defaultLocationId={selectedLocationId}
+            scope={scope}
             taxRates={taxRates}
             currency={currency}
             insights={insights}
@@ -767,7 +769,7 @@ export function CalendarClient({
         defaultStaffId={defaultStaffId}
         defaultCustomerId={bookingDraft?.customerId ?? undefined}
         defaultServiceId={bookingDraft?.serviceId ?? undefined}
-        defaultLocationId={selectedLocationId}
+        scope={scope}
         draft={bookingDraft}
         channel={showReceptionPanel ? "reception" : "staff"}
         currency={currency}

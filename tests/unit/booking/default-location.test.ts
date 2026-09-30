@@ -12,7 +12,7 @@ describe("resolveBookingLocationId", () => {
     expect(
       resolveBookingLocationId({
         locations,
-        activeLocationId: "branch",
+        scope: { mode: "single", locationId: "branch" },
         preferenceLocationId: "main",
       }),
     ).toBe("branch");
@@ -23,7 +23,7 @@ describe("resolveBookingLocationId", () => {
       resolveBookingLocationId({
         locations,
         draftLocationId: "other",
-        activeLocationId: "branch",
+        scope: { mode: "single", locationId: "branch" },
         preferenceLocationId: "main",
       }),
     ).toBe("other");
@@ -35,28 +35,44 @@ describe("resolveBookingLocationId", () => {
         locations,
         appointmentLocationId: "main",
         draftLocationId: "other",
-        activeLocationId: "branch",
+        scope: { mode: "single", locationId: "branch" },
       }),
     ).toBe("main");
   });
 
-  it("uses saved preference when there is no active single-Location scope", () => {
+  it("ignores saved preference under multi-location ALL", () => {
     expect(
       resolveBookingLocationId({
         locations,
-        activeLocationId: null,
+        scope: { mode: "all" },
         preferenceLocationId: "other",
       }),
-    ).toBe("other");
+    ).toBe("");
   });
 
-  it("falls back to the Business default when scope and preference are absent or stale", () => {
+  it("does not fall back to the Business default under ALL", () => {
     expect(
       resolveBookingLocationId({
         locations,
-        activeLocationId: "missing",
+        scope: { mode: "all" },
         preferenceLocationId: "also-missing",
       }),
-    ).toBe("main");
+    ).toBe("");
+  });
+});
+
+
+describe("M1B active-location and saved truth precedence", () => {
+  it.each([{ mode: "all" } as const, { mode: "single", locationId: "stale" } as const])("uses the sole active Location with scope %j", (scope) => {
+    expect(resolveBookingLocationId({ locations: [{ id: "closed", is_active: false }, { id: "sole", is_active: true }], scope })).toBe("sole");
+  });
+  it("preserves a historical appointment under ALL", () => {
+    expect(resolveBookingLocationId({ locations, scope: { mode: "all" }, appointmentLocationId: "historical" })).toBe("historical");
+  });
+  it("preserves an explicit draft under ALL", () => {
+    expect(resolveBookingLocationId({ locations, scope: { mode: "all" }, draftLocationId: "branch" })).toBe("branch");
+  });
+  it("leaves ALL empty without active locations", () => {
+    expect(resolveBookingLocationId({ locations: [], scope: { mode: "all" } })).toBe("");
   });
 });
