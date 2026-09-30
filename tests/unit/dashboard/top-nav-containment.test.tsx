@@ -53,7 +53,7 @@ it.each([false, true])("contains header controls at every acceptance width (canA
       await page.setViewportSize({ width, height: 900 });
       const metrics = await page.evaluate(() => {
         const header = document.querySelector("header")!;
-        const selectors = [...header.querySelectorAll('select, button[aria-haspopup="dialog"]')]
+        const selectors = [...header.querySelectorAll('select[aria-label="Switch location"], button[aria-label^="Workspace location:"]')]
           .filter((el) => el.getBoundingClientRect().width > 0);
         const controls = [...header.querySelectorAll("button, select")]
           .filter((el) => el.getBoundingClientRect().width > 0);
@@ -66,19 +66,35 @@ it.each([false, true])("contains header controls at every acceptance width (canA
             const r = el.getBoundingClientRect();
             return !el.contains(document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2));
           }).map((el) => el.getAttribute("aria-label") || el.textContent),
+          overlaps: controls.flatMap((el, index) => {
+            const a = el.getBoundingClientRect();
+            return controls.slice(index + 1).filter((other) => {
+              const b = other.getBoundingClientRect();
+              return Math.min(a.right, b.right) > Math.max(a.left, b.left)
+                && Math.min(a.bottom, b.bottom) > Math.max(a.top, b.top);
+            }).map((other) => [el.getAttribute("aria-label"), other.getAttribute("aria-label")]);
+          }),
         };
       });
       expect(metrics.overflow, `${width}px overflow`).toBe(0);
       expect(metrics.height, `${width}px header height`).toBe(64);
       expect(metrics.selectors, `${width}px workspace selectors`).toBe(1);
-      if (width >= 640 && width < 768) {
-        expect(metrics.obstructed, `${width}px obstructed controls`).toEqual([]);
-      }
+      expect(metrics.obstructed, `${width}px obstructed controls`).toEqual([]);
+      expect(metrics.overlaps, `${width}px overlapping controls`).toEqual([]);
       if (width >= 640) {
         expect(await page.getByRole("button", { name: canAdd ? "Add location" : "Request plan change" }).isVisible()).toBe(true);
       }
       expect(await page.getByRole("button", { name: "Communications" }).isVisible()).toBe(true);
       expect(await page.getByRole("button", { name: "Switch to dark mode" }).isVisible()).toBe(true);
+      const account = page.getByRole("button", { name: "Account, signed in as long.operator.account@example.test", exact: true });
+      expect(await account.isVisible(), `${width}px Account visible`).toBe(true);
+      const bounds = (await account.boundingBox())!;
+      expect(bounds.width, `${width}px Account touch width`).toBeGreaterThanOrEqual(44);
+      expect(bounds.height, `${width}px Account touch height`).toBeGreaterThanOrEqual(44);
+      expect(bounds.x + bounds.width, `${width}px Account contained`).toBeLessThanOrEqual(width);
+      if (width < 768) {
+        expect(bounds.width, `${width}px compact Account footprint`).toBeLessThanOrEqual(50);
+      }
     }
   } finally {
     await page.close();
