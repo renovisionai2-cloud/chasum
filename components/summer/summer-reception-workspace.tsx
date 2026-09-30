@@ -40,6 +40,7 @@ type ChatLine = {
   conflicts?: SummerConflictExplanation[];
   escalated?: boolean;
   confirmation?: string | null;
+  confirmationLocationName?: string | null;
 };
 
 export function SummerReceptionWorkspace({
@@ -230,6 +231,7 @@ export function SummerReceptionWorkspace({
           role: "assistant",
           content: result.reply,
           confirmation: result.ok ? result.reply : null,
+          confirmationLocationName: result.ok ? option.locationName ?? null : null,
           conflicts: result.conflicts,
           escalated: !result.ok,
         },
@@ -395,7 +397,14 @@ export function SummerReceptionWorkspace({
                 {m.confirmation ? (
                   <div className="flex items-start gap-2 rounded-[var(--radius-md)] border border-emerald-500/25 bg-emerald-500/5 px-3 py-2 text-sm">
                     <CalendarCheck2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
-                    {m.confirmation}
+                    <div className="min-w-0 break-words">
+                      <p>{m.confirmation}</p>
+                      {m.confirmationLocationName ? (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Location · {m.confirmationLocationName}
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
 
@@ -419,6 +428,11 @@ export function SummerReceptionWorkspace({
                             ? ` · $${Number(opt.price).toFixed(0)}`
                             : ""}
                         </p>
+                        {opt.locationName ? (
+                          <p className="mt-1 break-words text-xs text-muted-foreground">
+                            Location · {opt.locationName}
+                          </p>
+                        ) : null}
                         <p className="mt-2 text-[11px] font-medium text-spark">
                           {rescheduleTargetId
                             ? "Confirm reschedule"
