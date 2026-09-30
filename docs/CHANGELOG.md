@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-30 — M1C Mobile Account Control — implementation candidate (Issue #127)
+
+- Make the existing top-right Account/avatar interactive, opening a compact shared Sheet with the exact supplied email and prominent canonical Sign out form; preserve the sidebar fallback and phone header footprint.
+- PO-authorized bounded implementation; Issue #127 Competitive Product Gate **PASS**, **LAUNCH REQUIRED**. Auth, database, Location state and mobile bottom navigation remain unchanged.
+- Account/navigation regression coverage: **32/32 PASS** across the focused Account, portal-nav and mobile-workspace suites; typecheck and changed-file ESLint pass. Authorized real-Chromium top-nav containment also passes **2/2** cases across 18 widths × both quota branches (**36 geometry combinations**) with 64px header, zero overflow/overlap, exactly one workspace control and ≥44px Account trigger.
+- Zero-write real-Chromium Account-panel acceptance also passes at **390×844 / 1024×768 / 1440×900** with real compiled Chasum CSS: light/dark, long-email containment, focus entry/trap/return, Escape/overlay close, body-scroll restoration, zero horizontal overflow, 0 console/page errors and **no Sign out call**. Hosted Preview acceptance remains pending. **IMPLEMENTATION CANDIDATE / NO MERGE / NO PRODUCTION.** No real sign-out or Staging/Production access.
+
 ### 2026-09-29 — Summer Location disclosure — PRODUCTION ACCEPTED / CLOSED (Issue #121, PR #125)
 
 - Shared Summer booking/reschedule option cards display the supplied `locationName` as secondary “Location · …” text. Successful booking confirmation repeats the exact submitted option's Location through local client presentation state; missing names produce no fallback.
