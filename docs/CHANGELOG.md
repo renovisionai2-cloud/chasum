@@ -9,13 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-09-29 — M1B booking Location guard (Issue #120, Draft PR #122)
+### 2026-09-29 — M1B booking Location guard — PRODUCTION ACCEPTED / CLOSED (Issue #120, PR #122)
 
 - Exact hosted-tested runtime candidate: `597a347194935617c556d2a6fa4006703d07bfcb`. Required canonical scope prevents silent preference/default Location reuse in multi-location ALL, preserving saved appointment/draft truth and sole-active-Location behavior.
-- **HOSTED ACCEPTANCE COMPLETE / PRE-MERGE DOCS-ONLY CLOSEOUT.** Claude final verdict B: A1–A7/A9 PASS; A8 NOT EXECUTED, accepted non-blocking limitation (no confirmed booking; no separate confirmed-booking gate before merge); A10 WAIVED, accepted deterministic sole-location coverage plus real HQ inventory. Responsive 390/1024/1440 and accessibility/usability basics PASS; zero console/page errors.
+- **PRODUCTION ACCEPTED / CLOSED.** Historical hosted acceptance / Claude final pre-merge verdict B: A1–A7/A9 PASS; A8 NOT EXECUTED, accepted non-blocking limitation (no confirmed booking; no separate confirmed-booking gate before merge); A10 WAIVED, accepted deterministic sole-location coverage plus real HQ inventory. Responsive 390/1024/1440 and accessibility/usability basics PASS; zero console/page errors.
 - Quality / latest competitive-product-gate / Vercel PASS; two Issue-81 exact-candidate-verification skips are expected. Vercel supplies build proof; exact-commit audit/restamped lint supplies lint evidence. Clean local suite: 1,693 pass / 36 skip / 0 fail. See [M1B closeout evidence](reviews/mobile-m1b-booking-location-guard.md).
 - Approved temporary Staging fixture fully restored per coordinator/implementer reconciliation, not independent Claude DB audit. Teardown used transaction-scoped `session_replication_role` trigger suppression to restore original Business `updated_at` exactly, reverted before the database transaction committed; no persistent schema/RLS/trigger-definition change. Runtime candidate contains no migration/SQL/schema change.
-- #123 tracks inert `preferenceLocationId` cleanup as POST-M1B SAFE. Summer #121 remains separate and untouched. **No Production; PR #122 remains OPEN / DRAFT; final Product Owner merge decision pending.** This pre-merge closeout changes documentation only; no runtime change or merge.
+- Product Owner-approved squash merge `3ac31c1a58732b8c3c4c34ef04ac19c7522565c0` at `2026-09-30T00:21:41Z` (September 29 Toronto); Production deployment `dpl_AQDXaFxkSjJ4c2oX1CBZAjAk9jyX` READY/SUCCESS. Direct build-info HTTP 200 confirmed exact commit / `commitShort=3ac31c1` / `main` / `production` / `production=true`; health HTTP 200 / `ok=true` is configuration-presence evidence only, not DB binding/provider delivery/worker execution. Merge-SHA Quality: 172 test files passed / 1 integration file skipped; 1,693 tests passed / 36 skipped / 0 failed.
+- Authenticated real GVM: Brampton → ALL persisted through reload; fresh Booking Sheet Location empty, explicit three-Location choices, Service/Employee disabled “Choose a location first”, Confirm disabled. No customer/service/staff/time chosen or booking created. Sheet closed; GVM Baby World Ultrasound Brampton restored and reload-persisted; ALL unselected. No Production data/schema/RLS/Auth/provider mutation or rollback; only temporary workspace cookie/UI state, restored.
+- #123 remains OPEN / POST-M1B SAFE, not a blocker. #121 is next: PO APPROVED / pre-build competitive PASS / IMPLEMENTATION NOT STARTED; display existing Location on Summer options and successful confirmation only. Later mobile slices not started; P2B paused. Issue #57 remains deferred despite observed Vercel aliases. This continuity restamp edits only five authorized Markdown files; no code or environment action.
 
 ### 2026-09-29 — M1A Production accepted / closed (PR #118)
 
@@ -24,7 +26,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Production runtime code is mechanically byte-identical to hosted-tested M1A runtime `26a4b328...`; only the six Markdown closeout files differ. Real GVM Production retained Burlington/Brampton/Caledonia and the accepted multi-location relationship truth.
 - No Production booking, customer/appointment/Staff/Service/Location/payment/invoice mutation, SQL write, migration, schema/RLS/Auth change or rollback was performed for verification.
 - Claude Opus 5 High Development Control Tower verdict: **B — PRODUCTION ACCEPTED / M1A CLOSED, WITH NON-BLOCKING LIMITATIONS**. No additional Production probe or rollback required.
-- M1A closure does **not** close the GVM technician mobile program. M1B is the next governed gate; M1C, M2A, M2B, M3, M4 and M5 remain preserved/open. P2B remains paused/preserved by Product Owner sequencing.
+- M1A closure does **not** close the GVM technician mobile program. At M1A acceptance, M1B was the next governed gate (historical, superseded above); M1C, M2A, M2B, M3, M4 and M5 remain preserved/open. P2B remains paused/preserved by Product Owner sequencing.
 
 ### 2026-09-28 — M1A authenticated hosted acceptance closeout (PR #118 Draft)
 

@@ -1,10 +1,20 @@
 # M1B — All-Locations Booking Location Guard
 
-Status: **HOSTED ACCEPTANCE COMPLETE / PRE-MERGE DOCS-ONLY CLOSEOUT / NO MERGE / NO PRODUCTION**
+Status: **PRODUCTION ACCEPTED / CLOSED — Issue #120 completed; PR #122 merged.**
 
-Claude final reconciliation verdict: **B — HOSTED ACCEPTANCE PASS WITH NON-BLOCKING LIMITATIONS / BOUNDED DOCS-ONLY CLOSEOUT AUTHORIZED. NO MERGE. NO PRODUCTION.**
+**M1B — All-Locations Booking Location Guard (Issue #120): PRODUCTION ACCEPTED / CLOSED / COMPLETED.** PR #122 squash-merged at `2026-09-30T00:21:41Z` as `3ac31c1a58732b8c3c4c34ef04ac19c7522565c0` (2026-09-29 Toronto). Merge tree `6d6097ad975b86e685ec161a82b742bb77e7f92b`; parent `e729dea51ad4888736d09cda705bd317dc6a1055`. Production deployment `dpl_AQDXaFxkSjJ4c2oX1CBZAjAk9jyX` is **READY / SUCCESS**, target `production`, unique URL `https://chasum-gb94c8tba-renovisionappcom.vercel.app`.
 
-## Authority and candidate
+Direct Production `/api/build-info` HTTP 200: `commit=3ac31c1a58732b8c3c4c34ef04ac19c7522565c0`, `commitShort=3ac31c1`, `env=production`, `ref=main`, `production=true`. Direct `/api/health` HTTP 200: `ok=true`, `production=true`; `supabase=true`, `serviceRole=true`, `email=configured`, `cronSecret=configured`, `sms=optional_missing`, `stripe=optional_missing`, `sentry=optional_missing`, `softSchemaFallbacks=disabled`. Health proves configuration presence only, not active DB binding, provider delivery or worker execution. Public `/`, `/pricing`, `/status`, `/login`, `/book/gvm-baby-world` returned HTTP 200; `/status` rendered Operational. Merge-SHA Quality: **172 test files passed / 1 integration file skipped; 1,693 tests passed / 36 skipped / 0 failed**.
+
+Authenticated real-GVM acceptance used existing account `gvmbabyworld@gmail.com` in the correct GVM Baby World tenant. Burlington, Brampton, Caledonia and All locations were visible. The operator deliberately switched Brampton → All locations; normal reload confirmed ALL persisted. A fresh Booking Sheet had empty Location / “Choose a location”, explicit Burlington/Brampton/Caledonia choices, Service and Employee disabled / “Choose a location first”, and Confirm appointment disabled. No customer, service, staff or time was chosen; no booking was created. The empty sheet was closed, workspace restored to **GVM Baby World Ultrasound Brampton**, and normal reload confirmed Brampton persisted, ALL no longer selected, Booking Sheet closed.
+
+No Production tenant/database mutation, migration/schema/RLS/Auth/provider change or rollback occurred. Only operator workspace-scope cookie/UI state changed temporarily and was restored. Production DB counts were not queried for this spot-check. These are supplied accepted closeout observations; this documentation restamp performs no environment probe or action.
+
+Historical final pre-merge Claude reconciliation verdict: **B — HOSTED ACCEPTANCE PASS WITH NON-BLOCKING LIMITATIONS / BOUNDED DOCS-ONLY CLOSEOUT AUTHORIZED. NO MERGE. NO PRODUCTION.**
+
+## Historical pre-merge authority and candidate
+
+This section preserves the pre-merge observation and authorization boundary; its open/draft and baseline statements are historical, superseded by Production acceptance above.
 
 - Issue #120; branch `codex/m1b-all-locations-booking-guard`; worktree `/private/tmp/chasum-m1b-impl`.
 - Exact hosted-tested runtime candidate and starting HEAD: `597a347194935617c556d2a6fa4006703d07bfcb`; tree `cc146e1657731c68c6e99c80b2079aa694ae0bc3`. Both were verified locally for this docs-only edit.
@@ -203,10 +213,24 @@ Final Staging reconciliation, coordinator/implementer-attested:
 
 **DESIGN / TECH-DEBT FOLLOW-UP — POST-M1B SAFE.** Issue **#123 — Tech debt — remove inert booking preferenceLocationId plumbing** tracks the cleanup. `preferenceLocationId` remains present/pass-through, but the resolver no longer reads it. Current behavior is regression-protected; A9 proves hosted preference writes cannot leak into fresh ALL. Removing it now would invalidate the exact hosted-tested runtime for zero product correctness gain. No #123 implementation is included.
 
-## Scope integrity and next gate
+## Historical pre-merge scope integrity and gate
 
 The existing candidate comprises exactly the 11 runtime files above, four modified existing tests, four new tests, and the two documentation paths. The five protected tests remain byte-identical to base. `lib/location/constants.ts`, `lib/actions/location.ts`, `lib/actions/booking-sheet.ts` and `lib/actions/scheduling.ts` remain unchanged; global `getActiveLocationId` behavior and C10 latent fallback implementations are unchanged.
 
 This closeout edits only `docs/reviews/mobile-m1b-booking-location-guard.md` and `docs/CHANGELOG.md` relative to runtime candidate `597a347194935617c556d2a6fa4006703d07bfcb`. No runtime, test, config, migration or `supabase/**` change. CURRENT_PROJECT_STATE, LATEST_HANDOFF, ENVIRONMENT_MANIFEST, product docs and other protected documents remain unchanged. Summer #121 and later mobile streams remain separate and untouched; Summer is **not guarded by M1B**.
 
-**HOSTED ACCEPTANCE COMPLETE / PRE-MERGE DOCS-ONLY CLOSEOUT / NO MERGE / NO PRODUCTION.** PR #122 remains OPEN / DRAFT; M1B is not merged or Production accepted. This documentation restamp is the Control-Tower-authorized closeout record. After its single docs-only commit is created, E1–E5 equivalence and the required final-head checks must pass before the coordinator may return the **FINAL PRODUCT OWNER MERGE DECISION**. No hosted retest is required if that equivalence proof passes. No Staging/Production action or merge is authorized. Claude's completed final verdict is supplied evidence, not a newly running audit.
+**Historical pre-merge gate (superseded by Production acceptance): HOSTED ACCEPTANCE COMPLETE / PRE-MERGE DOCS-ONLY CLOSEOUT / NO MERGE / NO PRODUCTION.** PR #122 remains OPEN / DRAFT; M1B is not merged or Production accepted. This documentation restamp is the Control-Tower-authorized closeout record. After its single docs-only commit is created, E1–E5 equivalence and the required final-head checks must pass before the coordinator may return the **FINAL PRODUCT OWNER MERGE DECISION**. No hosted retest is required if that equivalence proof passes. No Staging/Production action or merge is authorized. Claude's completed final verdict is supplied evidence, not a newly running audit.
+
+## Final accepted state and next slice
+
+**PRODUCTION ACCEPTED / CLOSED.** Final docs-only pre-merge head `be343436e923093360351d61ccdb46e4993ab65e` has tree `6d6097ad975b86e685ec161a82b742bb77e7f92b`, identical to the squash merge. E1–E5 proved that only `docs/CHANGELOG.md` and this review changed from hosted runtime `597a347194935617c556d2a6fa4006703d07bfcb`; all pinned runtime/test/config subtrees and blobs were byte-identical. Claude’s pre-merge verdict B had no blocker. A8 remains NOT EXECUTED / accepted non-blocking limitation; A10 remains WAIVED / accepted, neither is relabeled PASS.
+
+**Issue #121 — Summer: disclose booking Location before confirmation. PRODUCT OWNER APPROVED / PRE-BUILD COMPETITIVE PRODUCT GATE PASS / IMPLEMENTATION NOT STARTED. LAUNCH REQUIRED.** Next substantive gate is bounded display-only implementation on current main under the recorded competitive PASS: display the already-populated Location name on every Summer booking option and on successful booking confirmation.
+
+Preflight source truth supplied for current main: `SummerBookingOption` has `locationId` and optional `locationName`; `lib/summer/tools.ts` already populates `locationName` from `knowledge.locations`; `components/summer/summer-reception-workspace.tsx` does not render it on option cards, and the confirmation banner does not separately disclose the selected option Location. Preferred architecture is UI-only using the already-selected option object; no Summer UI regression currently protects this.
+
+Approved boundary: no orchestrator, Summer tools behavior, AI reasoning/prompt, Location-selection or booking-engine mutation-semantics change; no DB/schema/migration. Location selection under ALL remains M5 / Summer ACT-safety; Summer is not guarded by M1B. The recorded competitive principles are Jane’s explicit multi-location selection and booking/notification Location disclosure, and Fresha’s explicit Location in calendar workflow; do not copy competitors. Chasum’s advantage is deterministic Location from the exact option being submitted, never AI-generated Location prose. Launch rationale: Summer can cause a real booking mutation, so hiding the target branch before human confirmation risks multi-location operational trust.
+
+Sequence: **M1B CLOSED → #121 → M1C → M2A → M2B → M3 → M4 → M5**. No #121 or #123 implementation is part of this restamp; M1C/M2A/M2B/M3/M4/M5 have not started. #123 — remove inert booking `preferenceLocationId` plumbing — remains **OPEN / POST-M1B SAFE / not an M1B blocker**. P2B remains paused; migrations 034–036 remain unapplied.
+
+This post-acceptance restamp updates only the five authorized continuity Markdown files. Local HEAD/tree/parent match the supplied merge identity. Fresh remote-main verification was attempted but shell DNS could not resolve GitHub and the GitHub connector read was unavailable; remote main is supplied authority, not independently reverified here. No commit, push, merge, runtime/test/config edit, DB query or environment action is performed.
