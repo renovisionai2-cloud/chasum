@@ -7,8 +7,10 @@ Bounded implementation and zero-write local browser acceptance complete. Hosted 
 
 - Worktree: `/private/tmp/chasum-127-impl`.
 - Branch: `codex/issue-127-mobile-account-control`.
-- Exact base and unchanged HEAD: `b2ee664a2e2125473450254f79af39563cf18471`.
-- Fresh GitHub `main` read at implementation entry returned that same SHA; initial worktree was clean.
+- Exact base: `b2ee664a2e2125473450254f79af39563cf18471`.
+- Exact runtime/test candidate: `fc1c015f06d250c3f7ecc207d42a50fea3debe9f`; tree `a25793ab2bdd18f55cbadb35c9da07faee77211d`; parent = exact base.
+- Draft PR #128 on branch `codex/issue-127-mobile-account-control`.
+- Fresh GitHub `main` read at implementation entry and before candidate commit returned the exact base; initial worktree was clean.
 - Product Owner explicitly authorized implementation under the prepared governed contract in the current dispatch. That authorization supersedes the earlier preparation-only wording in the issue and continuity documents; those documents are intentionally not restamped.
 - [Issue #127](https://github.com/renovisionai2-cloud/chasum/issues/127) was read directly: Competitive Product Gate **PASS**, classification **LAUNCH REQUIRED**. Prepared evidence covers Jane, Fresha and Vagaro; no new product strategy or competitor research was undertaken.
 - Parity floor: persistent interactive account access, exact signed-in identity and easy Sign out. Deliberate Chasum advantage: reuse the existing workspace identity and canonical server action without a parallel account system or Location side effect. The candidate implements this contract; hosted workflow acceptance remains pending.
@@ -62,8 +64,8 @@ A temporary local harness under `/private/tmp/chasum-127-browser-harness` import
 
 ## Limits and coordinator continuation
 
-The candidate remains an uncommitted implementation diff, not an accepted release. The full repository suite/build and governed PR Quality/Vercel checks have not yet run. Hosted Preview acceptance remains pending.
+The runtime/test candidate is committed/pushed on Draft PR #128 but is not an accepted release. Governed Quality on `fc1c015f…` is **SUCCESS: 174 test files passed / 1 skipped; 1,706 tests passed / 36 skipped / 0 failed**. Vercel Preview `dpl_4wLcyCazb7wHnuuY7jFoz99qdGTt` is **READY** at `https://chasum-bs1xtwx13-renovisionappcom.vercel.app`; authenticated Safari `/api/build-info` returned exact candidate, `env=preview`, `ref=codex/issue-127-mobile-account-control`, `production=false`.
 
 The unchanged Sheet restores body overflow to the default empty inline value. Tests establish lock/restoration for the normal dashboard state; they do not claim preservation of a pre-existing nonempty inline overflow value or simultaneous modal stacking. No shared primitive change is included.
 
-After candidate commit/push, open a Draft PR and verify exact Preview identity. Hosted acceptance should open/close the Account panel only and must **not** click Sign out on a live or Production account. No Staging/Production data mutation is required.
+The exact Preview dashboard redirected to `/login?redirect=%2Fdashboard` because this new Preview host had no Chasum app session. No Production session was copied, no credentials were invented, and no live Sign out was attempted. Authenticated hosted Account-panel interaction therefore remains a bounded evidence limitation for governed review, not a fabricated PASS. The load-bearing interaction/geometry evidence is the exact-candidate real-component/jsdom suite plus authorized real-Chromium containment and Account-panel harness above. Any later authenticated Preview acceptance should open/close the Account panel only and must **not** click Sign out unless separately authorized.
