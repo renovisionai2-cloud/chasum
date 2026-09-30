@@ -1,10 +1,24 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-29 for M1B Production acceptance closeout and #121 continuation (2026-09-30 UTC / 2026-09-29 Toronto). Prior Production, multi-location and Commercial SaaS records remain preserved.
+**Updated:** 2026-09-29 for #121 Production acceptance closeout and M1C preparation-only continuation (2026-09-30 UTC / 2026-09-29 Toronto). Prior Production, multi-location and Commercial SaaS records remain preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
 ## A. Current control-tower state
+
+**Issue #121 — Summer Location Disclosure: PRODUCTION ACCEPTED / CLOSED / COMPLETED.** Competitive Product Gate **PASS**; **LAUNCH REQUIRED**. PR #125 squash-merged at `2026-09-30T01:38:22Z` as `e8c307df07107736395f1b3b1f2d56bba3fec6be`, the latest accepted behavior-changing application release. Merge tree `17f396dfcb63afc7ccc237a9e7060ef46abbcbbf`; parent `f70229098ddf18443ae74c6456d35239824280e0`. Production deployment `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT`, target `production`, **READY / SUCCESS**; unique URL `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app`.
+
+Direct Production `/api/build-info` HTTP 200: `commit=e8c307df07107736395f1b3b1f2d56bba3fec6be`, `commitShort=e8c307d`, `env=production`, `ref=main`, `production=true`. `/api/health` HTTP 200: `ok=true`, `production=true`; `supabase=true`, `serviceRole=true`, `email=configured`, `cronSecret=configured`, `sms=optional_missing`, `stripe=optional_missing`, `sentry=optional_missing`, `softSchemaFallbacks=disabled`. Health proves configuration presence only, not active DB binding, provider delivery or worker execution. Public `/`, `/pricing`, `/status`, `/login`, `/book/gvm-baby-world` returned HTTP 200. Merge-SHA Quality: **173 test files passed / 1 skipped; 1,697 tests passed / 36 skipped / 0 failed**.
+
+Authenticated real-GVM **read-only** Production spot-check used the existing Safari session for `gvmbabyworld@gmail.com`, correct GVM Baby World tenant, workspace **GVM Baby World Ultrasound Brampton** throughout. Only `/dashboard/ai-workforce/summer` was loaded for the check: Summer, “AI Business Manager” and “Message Summer” input rendered with no login redirect. **No Summer message was typed/sent, no booking or Summer conversation/message/follow-up acceptance data was created.** Safari was restored to `/dashboard/calendar?view=day&date=2026-09-29`, still Brampton. No actual Production option card generation or live Summer mutation workflow is claimed: source inspection proved `sendSummerMessage()` / `handleSummerTurn` persists `ai_receptionist` conversation/message rows and may create communication/follow-up state.
+
+Accepted zero-write Chromium evidence uses exact runtime candidate `9d8bf216749a64ea5dbf569256e3809df43c92b6` (tree `445aedfea3742471a31f10c4e2799120afcf75e5`) and compiled real Chasum CSS, localhost only, server actions mocked, no Chasum/Supabase/Staging/Production network. **390×844 / 1024×768 / 1440×900 PASS**, light/dark, zero horizontal overflow, contained long Location wrapping, exact option `locationId`/`locationName` preserved, one existing `role=log` / no nested `role=status`, zero console/page errors. Final pre-merge evidence head `0fdb23bb3096b56df486416f202ab009538fe7c5` has the exact merge tree and runtime candidate as parent. Its one-commit delta changes only `docs/CHANGELOG.md` and `docs/reviews/issue-121-summer-location-disclosure.md`; **zero non-doc/runtime/test/config delta** carries this acceptance into the release.
+
+Production/browser/Quality observations above were verified during the governed release and are being recorded here; this documentation task performs no new environment action. Local Git confirms merge and final-head tree/parent identities and the two-file delta. A fresh GitHub connector read confirms canonical `main = e8c307df07107736395f1b3b1f2d56bba3fec6be`. No Production DB counts are claimed or queried. This restamp performs no runtime, DB, Staging or Production action.
+
+**Current continuation: M1C governed gate preparation ONLY / NOT STARTED; no implementation authorization.** See section D.
+
+### Preserved M1B accepted history
 
 **M1B — All-Locations Booking Location Guard (Issue #120): PRODUCTION ACCEPTED / CLOSED / COMPLETED.** PR #122 squash-merged at `2026-09-30T00:21:41Z` as `3ac31c1a58732b8c3c4c34ef04ac19c7522565c0` (2026-09-29 Toronto). Merge tree `6d6097ad975b86e685ec161a82b742bb77e7f92b`; parent `e729dea51ad4888736d09cda705bd317dc6a1055`. Production deployment `dpl_AQDXaFxkSjJ4c2oX1CBZAjAk9jyX` is **READY / SUCCESS**, target `production`, unique URL `https://chasum-gb94c8tba-renovisionappcom.vercel.app`.
 
@@ -14,7 +28,7 @@ Authenticated real-GVM acceptance used existing account `gvmbabyworld@gmail.com`
 
 No Production tenant/database mutation, migration/schema/RLS/Auth/provider change or rollback occurred. Only operator workspace-scope cookie/UI state changed temporarily and was restored. Production DB counts were not queried for this spot-check. These are supplied accepted closeout observations; this documentation restamp performs no environment probe or action.
 
-**Next: #121 bounded Summer Location Disclosure — PO APPROVED / competitive PASS / implementation not started.** See section D.
+**Historical M1B continuation was #121; #121 is now closed as recorded above.**
 
 ### Preserved M1A accepted history
 
@@ -23,7 +37,7 @@ No Production tenant/database mutation, migration/schema/RLS/Auth/provider chang
 PR #118 merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617` on 2026-09-29T00:28:22Z. Exact hosted-tested runtime candidate was `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`. The merge tree `cdce0b0b8425672bd9361563b20bb4fa6035d0f4` is byte-identical to the docs-closeout tree and differs from the hosted-tested runtime only in six Markdown files; all executable/runtime/config/test subtrees are mechanically reconciled. Automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully. Direct Production `/api/build-info` and `/api/health` passed, and Quality on the exact Production SHA passed **1,665 / 36 skipped / 0 failed** including the Chromium containment test. Real GVM Production retained Burlington/Brampton/Caledonia and the accepted relationship truth; no Production booking or data mutation was manufactured. Claude Opus 5 High Development Control Tower verdict: **B — PRODUCTION ACCEPTED / M1A CLOSED, WITH NON-BLOCKING LIMITATIONS**; no further Production probe or rollback is required.
 
 **The GVM technician mobile correction program remains open.** Current preserved sequence:
-M1B CLOSED → #121 bounded Summer Location Disclosure → M1C Mobile Account Control → M2A Reception Phone Composition → M2B Calendar Phone Progressive Disclosure → M3 Command Centre Up Next Across Your Business → M4 Assign Later Level-3 architecture/data-integrity → M5 Summer Operating Intelligence (design now/build later).
+M1B CLOSED → #121 CLOSED → M1C Mobile Account Control → M2A Reception Phone Composition → M2B Calendar Phone Progressive Disclosure → M3 Command Centre Up Next Across Your Business → M4 Assign Later Level-3 architecture/data-integrity → M5 Summer Operating Intelligence (design now/build later).
 
 Commercial SaaS Gate B / P2B is **PAUSED / PRESERVED** by Product Owner sequencing. Do not resume it automatically while the mobile program is the active continuation.
 
@@ -186,13 +200,9 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**Issue #121 — Summer: disclose booking Location before confirmation. PRODUCT OWNER APPROVED / PRE-BUILD COMPETITIVE PRODUCT GATE PASS / IMPLEMENTATION NOT STARTED. LAUNCH REQUIRED.** Next substantive gate is bounded display-only implementation on current main under the recorded competitive PASS: display the already-populated Location name on every Summer booking option and on successful booking confirmation.
+**M1C — Mobile Account Control: REQUIRED / NOT STARTED. Next substantive action: GOVERNED GATE PREPARATION ONLY.** Reconcile current source truth/current main; re-read technician feedback and current account/login/logout behavior; run the required Competitive Product Gate for user-facing account control; define a bounded UX / responsive / regression / auth-safety contract; return the implementation gate to the Product Owner/coordinator. **No M1C implementation authorization comes from this closeout; do not start implementation automatically.**
 
-Preflight source truth supplied for current main: `SummerBookingOption` has `locationId` and optional `locationName`; `lib/summer/tools.ts` already populates `locationName` from `knowledge.locations`; `components/summer/summer-reception-workspace.tsx` does not render it on option cards, and the confirmation banner does not separately disclose the selected option Location. Preferred architecture is UI-only using the already-selected option object; no Summer UI regression currently protects this.
-
-Approved boundary: no orchestrator, Summer tools behavior, AI reasoning/prompt, Location-selection or booking-engine mutation-semantics change; no DB/schema/migration. Location selection under ALL remains M5 / Summer ACT-safety; Summer is not guarded by M1B. The recorded competitive principles are Jane’s explicit multi-location selection and booking/notification Location disclosure, and Fresha’s explicit Location in calendar workflow; do not copy competitors. Chasum’s advantage is deterministic Location from the exact option being submitted, never AI-generated Location prose. Launch rationale: Summer can cause a real booking mutation, so hiding the target branch before human confirmation risks multi-location operational trust.
-
-Sequence: **M1B CLOSED → #121 → M1C → M2A → M2B → M3 → M4 → M5**. No #121 or #123 implementation is part of this restamp; M1C/M2A/M2B/M3/M4/M5 have not started. #123 — remove inert booking `preferenceLocationId` plumbing — remains **OPEN / POST-M1B SAFE / not an M1B blocker**. P2B remains paused; migrations 034–036 remain unapplied.
+Sequence: **M1B CLOSED → #121 CLOSED → M1C → M2A → M2B → M3 → M4 → M5**. M1C preparation itself remains NOT STARTED by this documentation task. M2A/M2B/M3/M4/M5 remain not started. #123 — remove inert booking `preferenceLocationId` plumbing — remains **OPEN / POST-M1B SAFE / deferred tech debt**; do not implement. P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
 
 ## E. Other accepted program state
 
@@ -279,7 +289,7 @@ and "Would a real business prefer this experience to the mature software it
 already uses?"
 
 Latest accepted behavior-changing Production application release:
-3ac31c1a58732b8c3c4c34ef04ac19c7522565c0   (PR #122, M1B Production accepted / closed)
+e8c307df07107736395f1b3b1f2d56bba3fec6be   (PR #125, #121 Production accepted / closed)
 Prior #102/PR #103 acceptance at 934fe4c remains historical and valid.
 
 Issue #81 Stage 1 COMPLETE / Production accepted.
@@ -290,13 +300,14 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-Issue #121 bounded Summer Location Disclosure: PO APPROVED / pre-build
-Competitive Product Gate PASS / IMPLEMENTATION NOT STARTED / LAUNCH REQUIRED.
-Display existing option Location on every option and successful confirmation.
-UI-only, using the selected option object; no orchestrator/tools/prompt/selection/
-booking-mutation or DB/schema/migration changes. ALL selection remains M5.
-M1B CLOSED -> #121 -> M1C -> M2A -> M2B -> M3 -> M4 -> M5.
-Do not reopen M1A/M1B, implement #123, or resume P2B in this docs-only restamp.
+M1C Mobile Account Control: REQUIRED / NOT STARTED; governed preparation ONLY.
+Reconcile current main/source; re-read technician feedback and account/login/logout
+behavior; complete required Competitive Product Gate; define bounded UX/responsive/
+regression/auth-safety contract; return implementation gate to PO/coordinator.
+NO M1C IMPLEMENTATION AUTHORIZATION. Do not start implementation automatically.
+M1B CLOSED -> #121 CLOSED -> M1C -> M2A -> M2B -> M3 -> M4 -> M5.
+#123 OPEN / POST-M1B SAFE; do not implement. P2B PAUSED; later slices not started.
+This closeout executes documentation only; M1C preparation remains NOT STARTED.
 
 AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = coordinator / continuity /
 Product Owner decision preparation. Codex = primary implementer. Claude =
