@@ -13,8 +13,9 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Shared Summer booking/reschedule option cards display the supplied `locationName` as secondary “Location · …” text. Successful booking confirmation repeats the exact submitted option's Location through local client presentation state; missing names produce no fallback.
 - Client-only runtime change: no server/action/tool/orchestrator, Location selection, booking mutation, DB/schema/RLS, package or configuration change. Pre-build Competitive Product Gate **PASS**; classification **LAUNCH REQUIRED**.
-- Real-component regression coverage: populated booking disclosure and unchanged option submission, selection between different Locations, missing name, and shared reschedule cards. Focused **4/4** and related Summer **24/24** tests pass; typecheck, changed-file ESLint (zero diagnostics), diff-check and four-file allowlist pass. Browser viewport acceptance remains unrun.
-- **IMPLEMENTATION CANDIDATE / NO MERGE / NO PRODUCTION.** No commit/push, real booking, Staging or Production access. See [bounded implementation evidence](reviews/issue-121-summer-location-disclosure.md).
+- Real-component regression coverage: populated booking disclosure and unchanged option submission, selection between different Locations, missing name, and shared reschedule cards. Focused **4/4** and related Summer **24/24** tests pass; typecheck, changed-file ESLint (zero diagnostics), diff-check and four-file allowlist pass.
+- Zero-write real-Chromium acceptance on the exact candidate component + compiled Chasum CSS: **390×844 / 1024×768 / 1440×900 PASS**, light/dark, 0 horizontal overflow, long Location wrapping contained, exact option identity preserved, 0 console/page errors. No live Summer message was sent because that path persists conversation/message state.
+- Exact runtime candidate `9d8bf216749a64ea5dbf569256e3809df43c92b6`: governed Quality PASS and Vercel Preview `dpl_5ZyFHaDEy5Tt5fM2ZnoyUJPG4iTQ` READY. **DRAFT PR #125 / NO MERGE / NO PRODUCTION.** No real booking or Staging/Production data access. See [bounded implementation evidence](reviews/issue-121-summer-location-disclosure.md).
 
 ### 2026-09-29 — M1B booking Location guard — PRODUCTION ACCEPTED / CLOSED (Issue #120, PR #122)
 

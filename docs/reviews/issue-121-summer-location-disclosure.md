@@ -1,11 +1,12 @@
 # Issue #121 — Summer Location disclosure
 
-**Status: IMPLEMENTATION CANDIDATE / NO MERGE / NO PRODUCTION.**
+**Status: IMPLEMENTATION CANDIDATE / REAL-CHROMIUM ACCEPTANCE PASS / DRAFT PR #125 / NO MERGE / NO PRODUCTION.**
 
-- Base / unchanged HEAD: `f70229098ddf18443ae74c6456d35239824280e0`.
-- Branch: `codex/issue-121-summer-location-disclosure`.
+- Base: `f70229098ddf18443ae74c6456d35239824280e0`.
+- Exact runtime/test candidate: `9d8bf216749a64ea5dbf569256e3809df43c92b6`; tree `445aedfea3742471a31f10c4e2799120afcf75e5`; parent = exact base.
+- Branch: `codex/issue-121-summer-location-disclosure`; Draft PR #125.
 - Worktree: `/private/tmp/chasum-121-impl`.
-- Remote `main` independently verified at this base through the GitHub connector during implementation; shell `git ls-remote` failed with GitHub DNS resolution unavailable. No branch reset or environment reconciliation was performed.
+- Remote `main` independently verified at the base through the GitHub connector before candidate commit/push. No branch reset or environment reconciliation was performed.
 - Product Owner approved; **LAUNCH REQUIRED**; [pre-build Competitive Product Gate PASS](https://github.com/renovisionai2-cloud/chasum/issues/121#issuecomment-5901896273). M1B remains Production accepted/closed. This candidate is not acceptance or release closeout.
 
 ## Contract and implementation
@@ -41,12 +42,31 @@ The test renders the real workspace and mocks only server actions, plus jsdom's 
 | `npm run typecheck` | PASS, exit 0, no diagnostics |
 | `./node_modules/.bin/eslint components/summer/summer-reception-workspace.tsx tests/unit/summer/summer-location-disclosure.test.tsx` | PASS, exit 0, zero errors/warnings/diagnostics |
 | `git diff --check` | PASS |
-| `git status --short`, `git diff --name-only f70229098ddf18443ae74c6456d35239824280e0`, plus untracked-file inventory | Only the four allowlisted files; new test/review are untracked pending explicit commit authorization |
+| Runtime candidate boundary (`git diff --name-only f70229098ddf18443ae74c6456d35239824280e0 9d8bf216749a64ea5dbf569256e3809df43c92b6`) | Exactly the four allowlisted files; candidate committed/pushed on Draft PR #125 |
 | Protected paths and all other tracked files compared with base | Unchanged |
+| Exact-SHA governed Quality on `9d8bf216...` | PASS |
+| Exact-SHA Vercel Preview | READY / SUCCESS — deployment `dpl_5ZyFHaDEy5Tt5fM2ZnoyUJPG4iTQ` |
+| Real-Chromium responsive / workflow acceptance | PASS at 390×844, 1024×768, 1440×900; option → confirmation workflow, light/dark, 0 horizontal overflow, 0 console errors, 0 page errors |
 
 Dependency setup reused the existing `/private/tmp/chasum-m1a/node_modules` through an ignored worktree symlink after byte-comparing lockfiles. No package, lockfile or configuration edits/install occurred. The installed Next.js client-component and Vitest guides were read before implementation. Tests emit Node's non-failing experimental localStorage warning (`--localstorage-file` not provided).
 
-Non-blocking candidate limitations: jsdom verifies visibility/workflow, not actual phone/tablet/desktop layout. Browser viewport checks and hosted workflow acceptance are **NOT RUN**; no production-readiness claim is made. Build/full repository suite and hosted PR Quality/Vercel checks were not part of this local validation. Existing typecheck configuration excludes tests; Vitest executes the new test and ESLint checks it.
+### Zero-write real-Chromium acceptance
+
+Because a genuine `sendSummerMessage()` call persists Summer conversation/message rows and may create communication/follow-up state, no live Staging/Production Summer message was sent solely for acceptance. Instead, an ephemeral browser harness under `/private/tmp/chasum-121-browser-harness` imported the exact candidate `SummerReceptionWorkspace`, compiled the real Chasum `app/globals.css`, and mocked only Summer server actions. The harness served localhost static assets only and made no Chasum, Supabase, Staging or Production network request.
+
+Evidence: `/private/tmp/chasum-121-browser-evidence/report.json`, `report.md`, and phone/tablet/desktop screenshots.
+
+- **390×844 phone:** PASS, `scrollWidth/clientWidth=390/390`, 0px overflow. A deliberately long Location name wrapped to two lines inside the option and successful confirmation without clipping.
+- **1024×768 tablet:** PASS, `1024/1024`, 0px overflow.
+- **1440×900 desktop:** PASS, `1440/1440`, 0px overflow.
+- Dark mode: PASS at all three sizes with 0 overflow.
+- Exact selected option remained unchanged through confirmation: `locationId`, `locationName`, Service, Staff, customer and conversation identifiers matched the deterministic option/input.
+- Existing chat log live-region semantics were preserved: one `role="log"`; no nested `role="status"` was introduced.
+- Browser console errors: **0**; page errors: **0**.
+
+This satisfies the responsive, accessibility/usability-basics and equivalent-workflow acceptance for the bounded UI behavior without manufacturing persistent Summer data. A real hosted Summer message/booking was intentionally not used because it would be a write, not a read-only validation.
+
+Non-blocking limitation: the zero-write acceptance validates the exact candidate component with real compiled application CSS and real Chromium, but not a live authenticated Staging Summer conversation because that would create data. The governed Preview build itself is READY on the exact runtime candidate. Existing typecheck configuration excludes tests; Vitest executes the new test and ESLint checks it.
 
 ## Explicit non-goals and preservation proof
 
@@ -54,4 +74,4 @@ The base diff and untracked inventory contain only the four paths above. There a
 
 `docs/CURRENT_PROJECT_STATE.md`, `docs/handoffs/LATEST_HANDOFF.md` and `docs/runtime/ENVIRONMENT_MANIFEST.md` remain untouched pending acceptance/release closeout. Issue #123 and M1C/M2A/M2B/M3/M4/M5 remain outside this task; P2B remains paused.
 
-No real booking, database access, Staging/Production access, commit, push, merge or deployment occurred.
+No real booking, database access, or Staging/Production application access occurred. The exact candidate was committed/pushed and Draft PR #125 opened so governed Quality/Vercel could run. No merge or Production deployment occurred.
