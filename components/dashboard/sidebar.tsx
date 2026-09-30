@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LocationSwitcher } from "@/components/dashboard/location-switcher";
 import { MobileWorkspaceScope } from "@/components/dashboard/mobile-workspace-scope";
 import { Button } from "@/components/ui/button";
+import { Sheet } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
 import {
   DASHBOARD_NAV_GROUPS,
@@ -48,7 +49,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export { getPageTitle };
 
@@ -269,24 +271,59 @@ export function DashboardSidebar({
   );
 }
 
-function UserBadge({ email }: { email?: string }) {
+function AccountControl({ email }: { email?: string }) {
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
   const initial = email?.charAt(0).toUpperCase() ?? "?";
+  const close = useCallback(() => {
+    setOpen(false);
+    trigger.current?.focus();
+  }, []);
 
   return (
-    <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted/40">
-      <div className="hidden text-right md:block">
-        <p className="text-sm font-medium leading-tight text-foreground">Account</p>
-        <p className="max-w-[160px] truncate text-[11px] text-muted-foreground">
-          {email}
-        </p>
-      </div>
-      <div
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20"
-        aria-hidden="true"
+    <>
+      <button
+        ref={trigger}
+        type="button"
+        className="ds-focus-ring flex min-h-11 min-w-11 shrink-0 items-center gap-2.5 rounded-[var(--radius-md)] border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted/40 touch-manipulation"
+        aria-label={email ? `Account, signed in as ${email}` : "Account"}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        onClick={() => setOpen(true)}
       >
-        {initial}
-      </div>
-    </div>
+        <span className="hidden text-right md:block">
+          <span className="block text-sm font-medium leading-tight text-foreground">Account</span>
+          <span className="block max-w-[160px] truncate text-[11px] text-muted-foreground">
+            {email}
+          </span>
+        </span>
+        <span
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20"
+          aria-hidden="true"
+        >
+          {initial}
+        </span>
+      </button>
+      {/* Escape the header's backdrop-filter containing block and stacking context. */}
+      {open && createPortal(
+        <Sheet open={open} onClose={close} title="Account" className="md:max-w-sm">
+          <div className="space-y-5">
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Signed in as</p>
+              <p className="break-all text-sm font-medium text-foreground">
+                {email || "Signed-in account identity is unavailable."}
+              </p>
+            </div>
+            <form action={signOut}>
+              <Button type="submit" className="min-h-11 w-full gap-2">
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Sign out
+              </Button>
+            </form>
+          </div>
+        </Sheet>, document.body,
+      )}
+    </>
   );
 }
 
@@ -354,7 +391,7 @@ export function DashboardTopNav({
           </Button>
         </Link>
         <ThemeToggle />
-        <UserBadge email={userEmail} />
+        <AccountControl email={userEmail} />
       </div>
     </header>
   );
