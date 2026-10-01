@@ -44,15 +44,21 @@ export function useFormAction(
     if (state.success) {
       if (lastSuccessRef.current !== state.success) {
         lastSuccessRef.current = state.success;
-        toast(state.success, "success");
+        toast(
+          state.success,
+          state.payment?.status === "failed" ? "error" : "success",
+        );
         refresh();
+        // Success callbacks can also close/remount the booking sheet. Preserve
+        // the created appointment's payment disclosure until explicitly closed.
+        if (state.appointmentId && state.payment?.status === "failed") return;
         onSuccessRef.current?.();
         onCloseRef.current?.();
       }
       return;
     }
     lastSuccessRef.current = null;
-  }, [state.error, state.success, toast, refresh]);
+  }, [state.error, state.success, state.appointmentId, state.payment?.status, toast, refresh]);
 }
 
 export async function confirmDelete(message: string): Promise<boolean> {
