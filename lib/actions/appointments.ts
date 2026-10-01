@@ -487,7 +487,7 @@ export async function createAppointment(
           appointmentId,
           limit: 20,
         });
-        const alreadyRecorded = existing.some(
+        const alreadyRecorded = existing.find(
           (tx) =>
             tx.status === "succeeded" &&
             tx.amountCents === paymentAmountCents &&
@@ -505,18 +505,15 @@ export async function createAppointment(
           appointmentTotalForKind,
         );
         const paymentLabel = kind === "deposit" ? "Deposit" : "Payment";
-        const amountLabel = formatMoneyCents(
-          paymentAmountCents,
-          business.currency ?? "usd",
-        );
-        const recordedSummary = `${paymentLabel} recorded — ${amountLabel} by ${methodLabel}`;
+        const paymentSummary = (amountCents: number) =>
+          `${paymentLabel} recorded — ${formatMoneyCents(amountCents, business.currency ?? "usd")} by ${methodLabel}`;
 
         if (alreadyRecorded) {
           action.payment = {
             status: "recorded",
-            amountCents: paymentAmountCents,
+            amountCents: alreadyRecorded.amountCents,
             detail: "Payment already recorded.",
-            transactionId: existing[0]?.id ?? null,
+            transactionId: alreadyRecorded.id,
             kind,
             method,
             methodLabel,
@@ -524,7 +521,7 @@ export async function createAppointment(
               ? "skipped"
               : "not_requested",
           };
-          action.success = `Appointment confirmed — ${recordedSummary}.`;
+          action.success = `Appointment confirmed — ${paymentSummary(alreadyRecorded.amountCents)}.`;
         } else {
           const payResult = await recordCommercePayment({
             businessId: business.id,
@@ -546,9 +543,11 @@ export async function createAppointment(
             sendReceiptEmail: false,
           });
           if (payResult.ok) {
+            const recordedAmountCents = payResult.transaction?.amountCents ?? paymentAmountCents;
+            const recordedSummary = paymentSummary(recordedAmountCents);
             action.payment = {
               status: "recorded",
-              amountCents: paymentAmountCents,
+              amountCents: recordedAmountCents,
               transactionId: payResult.transaction?.id ?? null,
               kind,
               method,
@@ -569,7 +568,7 @@ export async function createAppointment(
               action: "update",
               afterState: {
                 type: "payment.recorded",
-                amountCents: paymentAmountCents,
+                amountCents: recordedAmountCents,
                 method,
                 methodLabel,
                 kind,
@@ -625,34 +624,46 @@ export async function createAppointment(
               }
             }
           } else {
+            const transaction = payResult.transaction;
+            const detail = transaction
+              ? `Payment was recorded, but appointment financial sync failed.${payResult.error ? ` ${payResult.error}` : ""}`
+              : payResult.error ?? "Payment was not recorded.";
             action.payment = {
               status: "failed",
-              amountCents: paymentAmountCents,
+              amountCents: transaction?.amountCents ?? paymentAmountCents,
+              transactionId: transaction?.id ?? null,
               kind,
               method,
               methodLabel,
-              detail: payResult.error ?? "Payment was not recorded.",
-              canRetry: true,
+              detail,
+              canRetry: !transaction,
               receiptStatus: "not_applicable",
             };
-            action.success =
-              "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
+            action.success = transaction
+              ? "Appointment confirmed — payment was recorded, but appointment financial sync failed."
+              : "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
           }
         }
       } catch (payErr) {
         console.error("[booking] payment after create failed", payErr);
-        action.payment = {
-          status: "failed",
-          amountCents: paymentAmountCents,
-          detail:
-            payErr instanceof Error
-              ? payErr.message
-              : "Payment was not recorded.",
-          canRetry: true,
-          receiptStatus: "not_applicable",
-        };
-        action.success =
-          "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
+        // A later change-log failure must not erase a committed payment or
+        // invite the operator to collect it again.
+        if (!action.payment?.transactionId) {
+          action.payment = {
+            status: "failed",
+            amountCents: paymentAmountCents,
+            transactionId: null,
+            method: effectivePaymentMethodRaw,
+            detail:
+              payErr instanceof Error
+                ? payErr.message
+                : "Payment was not recorded.",
+            canRetry: true,
+            receiptStatus: "not_applicable",
+          };
+          action.success =
+            "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.";
+        }
       }
     } else {
       action.payment = {

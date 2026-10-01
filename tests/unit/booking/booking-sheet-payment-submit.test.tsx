@@ -1,14 +1,15 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { useState } from "react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BookingSheet } from "@/components/booking-sheet/booking-sheet";
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
-import type { Customer, Location, StaffWithServices } from "@/lib/types/booking";
+import type { ActionState, Customer, Location, StaffWithServices } from "@/lib/types/booking";
 
 const mocks = vi.hoisted(() => ({
   create: vi.fn(),
   preview: vi.fn().mockResolvedValue({
-    slots: [],
+    slots: [{ start: "2026-10-10T16:00:00.000Z", end: "2026-10-10T16:30:00.000Z" }],
     alternativeStaff: [],
     alternativeDays: [],
   }),
@@ -25,11 +26,6 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("@/providers/toast-provider", () => ({
   useToast: () => ({ toast: mocks.toast }),
-}));
-vi.mock("@/hooks/use-form-action", () => ({
-  useRefresh: () => mocks.refresh,
-  useFormAction: vi.fn(),
-  confirmDelete: vi.fn(),
 }));
 vi.mock("@/lib/actions/appointments", () => ({
   createAppointment: mocks.create,
@@ -140,34 +136,17 @@ const staff = {
   staff_services: [{ service_id: "svc" }],
 } as StaffWithServices;
 
-describe("Booking Sheet payment submission integrity", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mocks.eligible.mockResolvedValue([staff]);
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: () => ({
-        matches: false,
-        media: "",
-        onchange: null,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }),
-    });
-    HTMLElement.prototype.scrollIntoView = vi.fn();
-  });
-
-  afterEach(() => cleanup());
-
-  it("includes selected deposit fields in the actual footer form FormData", async () => {
-    const user = userEvent.setup();
-    render(
+function renderSheet() {
+  const onClose = vi.fn();
+  const onSuccess = vi.fn();
+  function Host() {
+    const [open, setOpen] = useState(true);
+    return (
+      <>
+      {!open ? <button onClick={() => setOpen(true)}>Reopen booking</button> : null}
       <BookingSheet
-        open
-        onClose={vi.fn()}
+        open={open}
+        onClose={() => { onClose(); setOpen(false); }}
         services={[service]}
         staff={[staff]}
         customers={[customer]}
@@ -198,9 +177,40 @@ describe("Booking Sheet payment submission integrity", () => {
           },
         ]}
         timezone="America/Toronto"
-        onSuccess={vi.fn()}
-      />,
+        onSuccess={() => { onSuccess(); setOpen(false); }}
+      />
+      </>
     );
+  }
+  render(<Host />);
+  return { onClose, onSuccess };
+}
+
+describe("Booking Sheet payment submission integrity", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.eligible.mockResolvedValue([staff]);
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: () => ({
+        matches: false,
+        media: "",
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }),
+    });
+    HTMLElement.prototype.scrollIntoView = vi.fn();
+  });
+
+  afterEach(() => cleanup());
+
+  it("includes selected deposit fields in the actual footer form FormData", async () => {
+    const user = userEvent.setup();
+    renderSheet();
 
     await user.click(await screen.findByText("Record $50 deposit"));
     await user.selectOptions(screen.getByLabelText("Payment method"), "e_transfer");
@@ -210,10 +220,136 @@ describe("Booking Sheet payment submission integrity", () => {
     const formData = new FormData(footerForm);
 
     expect(formData.get("payment_mode")).toBe("deposit");
+    expect(formData.getAll("payment_mode")).toHaveLength(1);
     expect(formData.get("payment_amount_cents")).toBe("5000");
     expect(formData.get("payment_method")).toBe("e_transfer");
     expect(formData.get("payment_note")).toBe("");
     expect(formData.get("payment_send_receipt")).toBe("0");
     expect(String(formData.get("payment_idempotency_key"))).toMatch(/^bs-/);
+  });
+
+  it.each([false, true])("keeps the failed result visible and prevents a second create (persisted=%s)", async (persisted) => {
+    const user = userEvent.setup();
+    const state: ActionState = {
+      appointmentId: "appt-created",
+      success: persisted
+        ? "Appointment confirmed — payment was recorded, but appointment financial sync failed."
+        : "Appointment confirmed — payment could not be recorded. Use Collect payment to retry.",
+      payment: {
+        status: "failed", amountCents: persisted ? 4000 : 5000,
+        transactionId: persisted ? "tx-committed" : null,
+        canRetry: !persisted, method: "e_transfer", methodLabel: "E-Transfer",
+        detail: persisted
+          ? "Payment was recorded, but appointment financial sync failed. Synthetic sync error."
+          : "Synthetic insert error.",
+      },
+    };
+    mocks.create.mockResolvedValue(state);
+    const { onClose, onSuccess } = renderSheet();
+    await user.click(await screen.findByText("Record $50 deposit"));
+    await user.selectOptions(screen.getByLabelText("Payment method"), "e_transfer");
+    const submit = screen.getByRole("button", { name: /Confirm and record/ });
+    await waitFor(() => expect(submit).toBeEnabled());
+    const form = submit.closest("form")!;
+    await user.click(submit);
+
+    const alert = await screen.findByRole("alert");
+    expect(screen.getByRole("dialog")).toBeVisible();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(mocks.toast).toHaveBeenCalledWith(state.success, "error");
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+    expect(alert).toHaveTextContent("Appointment reference: appt-created");
+    expect(alert).toHaveTextContent(state.payment!.detail!);
+    if (persisted) {
+      expect(alert).toHaveTextContent("payment WAS recorded, but appointment balance/status could not sync");
+      expect(alert).toHaveTextContent("Recorded amount: $40 · Method: E-Transfer");
+      expect(alert).toHaveTextContent("Transaction reference: tx-committed");
+      expect(alert).not.toHaveTextContent(/NOT recorded|retry/i);
+      expect(screen.queryByRole("link", { name: /Collect payment/i })).not.toBeInTheDocument();
+    } else {
+      expect(alert).toHaveTextContent("Appointment booked — payment NOT recorded");
+      expect(alert).toHaveTextContent("Attempted amount: $50 · Requested method: E-Transfer");
+      expect(alert).not.toHaveTextContent(/\bpaid\b|\breceived\b/i);
+      expect(within(alert).getByRole("link", { name: /Open Collect payment/ })).toHaveAttribute(
+        "href", "/dashboard/payments?customer=cust&appointment=appt-created",
+      );
+    }
+    // Draft controls/review must not keep netting the attempted payment from balance.
+    expect(screen.queryByLabelText("Payment method")).not.toBeInTheDocument();
+    expect(screen.queryByText("Balance remaining")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Quick actions/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Appointment booked" })).toBeDisabled();
+    // Exercise the form guard even when a submission bypasses the disabled button.
+    fireEvent.submit(form);
+    await waitFor(() => expect(mocks.create).toHaveBeenCalledTimes(1));
+    expect(alert).toBeVisible();
+    await user.click(within(form).getByRole("button", { name: "Close", exact: true }));
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Reopen booking" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("button", { name: "Confirm appointment" })).toBeEnabled());
+  });
+
+  it.each([
+    { transactionId: "tx-present", canRetry: true },
+    { transactionId: null, canRetry: false },
+  ])("does not offer recovery navigation for %j", async (payment) => {
+    const user = userEvent.setup();
+    mocks.create.mockResolvedValue({
+      appointmentId: "appt-created", success: "Appointment booked — payment needs attention.",
+      payment: { status: "failed", ...payment },
+    });
+    renderSheet();
+    const submit = screen.getByRole("button", { name: "Confirm appointment" });
+    await waitFor(() => expect(submit).toBeEnabled());
+    await user.click(submit);
+    expect(await screen.findByRole("alert")).toBeVisible();
+    expect(screen.queryByRole("link", { name: /Collect payment/i })).not.toBeInTheDocument();
+  });
+
+  it.each(["recorded", "skipped"] as const)("closes on %s success and permits a new booking after reopening", async (status) => {
+    const user = userEvent.setup();
+    mocks.create.mockResolvedValue({
+      appointmentId: "appt-created", success: "Appointment confirmed.", payment: { status },
+    });
+    const { onClose, onSuccess } = renderSheet();
+    const submit = screen.getByRole("button", { name: "Confirm appointment" });
+    await waitFor(() => expect(submit).toBeEnabled());
+    await user.click(submit);
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(onSuccess).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole("button", { name: "Reopen booking" }));
+    const nextSubmit = screen.getByRole("button", { name: "Confirm appointment" });
+    await waitFor(() => expect(nextSubmit).toBeEnabled());
+    await user.click(nextSubmit);
+    await waitFor(() => expect(mocks.create).toHaveBeenCalledTimes(2));
+  });
+
+  it("keeps an in-flight creation mounted when header, backdrop or Escape requests Close", async () => {
+    const user = userEvent.setup();
+    let finish!: (result: ActionState) => void;
+    mocks.create.mockReturnValue(new Promise<ActionState>((resolve) => { finish = resolve; }));
+    const { onClose } = renderSheet();
+    const submit = screen.getByRole("button", { name: "Confirm appointment" });
+    await waitFor(() => expect(submit).toBeEnabled());
+    await user.click(submit);
+    expect(screen.getByRole("button", { name: "Confirming…" })).toBeDisabled();
+    for (const close of screen.getAllByRole("button", { name: "Close", exact: true })) {
+      await user.click(close);
+    }
+    await user.click(screen.getByRole("button", { name: "Close panel" }));
+    await user.keyboard("{Escape}");
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByRole("dialog")).toBeVisible();
+    await act(async () => finish({
+      appointmentId: "appt-created", success: "Appointment confirmed — payment needs attention.",
+      payment: { status: "failed", transactionId: null, canRetry: true },
+    }));
+    expect(await screen.findByRole("alert")).toBeVisible();
+    expect(mocks.create).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "Appointment booked" })).toBeDisabled();
   });
 });

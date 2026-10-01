@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-01 — Persistent booking payment-failure truth (Issue #129, Draft PR #131)
+
+- Preserve committed transaction identity and amount when payment recording succeeds but appointment financial sync fails. Disclose recorded money without retry instructions; only a failure without a transaction offers manual Collect payment navigation for the already-created appointment.
+- Keep the Booking Sheet open with a persistent alert, attempted/requested labels for unrecorded money, explicit Close, and a second-create guard. Hide stale draft balance/payment controls and the unbound collection menu; a new open session resets the completed action. Other normal success outcomes retain closure.
+- Success text and change-log summaries use committed amounts when available. Existing payment calculations, fail-closed intent validation, transaction-matching predicate, appointment → payment → notification order, and commerce implementation remain unchanged.
+- Competitive Product Gate **NOT_APPLICABLE**: correction to a locked behavior contract. Draft implementation only; hosted acceptance and independent Control Tower review remain pending. No Production, schema/migration/RLS/Auth, Issue #130, M1C/PR #128, payment-attempt architecture, inline retry, or deployment work.
+- Local validation: focused **6 files / 36 tests PASS**; authorized local full-suite rerun **177 files passed / 1 skipped; 1,721 tests passed / 36 skipped / 0 failed**. The two Chromium suites that Codex could not launch inside its sandbox passed **2 files / 3 tests** from the authorized local environment, and the one unrelated full-suite timing failure passed **12/12** in isolation before the clean rerun. Typecheck, webpack build, diff-check and focused clean-file ESLint pass. Booking Sheet lint remains exactly the base's **2 errors / 1 warning**, no new diagnostics; global lint is not green. Installed local Next reports **16.2.10** while the repository declares **16.3.6**; dependency files were not changed, so hosted CI/Vercel remains the declared-version proof.
+
 ### 2026-09-29 — Summer Location disclosure — PRODUCTION ACCEPTED / CLOSED (Issue #121, PR #125)
 
 - Shared Summer booking/reschedule option cards display the supplied `locationName` as secondary “Location · …” text. Successful booking confirmation repeats the exact submitted option's Location through local client presentation state; missing names produce no fallback.

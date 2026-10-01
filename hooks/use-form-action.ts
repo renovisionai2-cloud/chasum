@@ -49,13 +49,16 @@ export function useFormAction(
           state.payment?.status === "failed" ? "error" : "success",
         );
         refresh();
+        // Success callbacks can also close/remount the booking sheet. Preserve
+        // the created appointment's payment disclosure until explicitly closed.
+        if (state.appointmentId && state.payment?.status === "failed") return;
         onSuccessRef.current?.();
         onCloseRef.current?.();
       }
       return;
     }
     lastSuccessRef.current = null;
-  }, [state.error, state.success, state.payment?.status, toast, refresh]);
+  }, [state.error, state.success, state.appointmentId, state.payment?.status, toast, refresh]);
 }
 
 export async function confirmDelete(message: string): Promise<boolean> {

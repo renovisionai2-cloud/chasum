@@ -21,7 +21,7 @@ describe("useFormAction payment outcome truth", () => {
     vi.clearAllMocks();
   });
 
-  it("styles an appointment partial-success payment failure as an error", async () => {
+  it.each([null, "tx-recorded"])("keeps a created appointment's failed payment open (%s)", async (transactionId) => {
     const onSuccess = vi.fn();
     const onClose = vi.fn();
     const state: ActionState = {
@@ -33,33 +33,54 @@ describe("useFormAction payment outcome truth", () => {
         amountCents: 5000,
         detail: "Synthetic failure",
         canRetry: true,
+        transactionId,
+      },
+    };
+
+    const { rerender } = renderHook(() => useFormAction(state, onSuccess, onClose));
+
+    await waitFor(() =>
+      expect(mocks.toast).toHaveBeenCalledWith(state.success, "error"),
+    );
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+    rerender();
+    expect(mocks.toast).toHaveBeenCalledTimes(1);
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it.each(["recorded", "skipped"] as const)("closes a normal %s success once", async (status) => {
+    const onSuccess = vi.fn();
+    const onClose = vi.fn();
+    const state: ActionState = {
+      success: "Appointment confirmed — Deposit recorded — $50 by E-Transfer.",
+      appointmentId: "appt",
+      payment: {
+        status,
+        amountCents: 5000,
       },
     };
 
     renderHook(() => useFormAction(state, onSuccess, onClose));
 
     await waitFor(() =>
-      expect(mocks.toast).toHaveBeenCalledWith(state.success, "error"),
+      expect(mocks.toast).toHaveBeenCalledWith(state.success, "success"),
     );
     expect(mocks.refresh).toHaveBeenCalledTimes(1);
     expect(onSuccess).toHaveBeenCalledTimes(1);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps normal successful outcomes styled as success", async () => {
-    const state: ActionState = {
-      success: "Appointment confirmed — Deposit recorded — $50 by E-Transfer.",
-      appointmentId: "appt",
-      payment: {
-        status: "recorded",
-        amountCents: 5000,
-      },
-    };
-
-    renderHook(() => useFormAction(state));
-
-    await waitFor(() =>
-      expect(mocks.toast).toHaveBeenCalledWith(state.success, "success"),
-    );
+  it("preserves callbacks for callers without a created appointment", () => {
+    const onSuccess = vi.fn();
+    const onClose = vi.fn();
+    renderHook(() => useFormAction({
+      success: "Saved",
+      payment: { status: "failed" },
+    }, onSuccess, onClose));
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

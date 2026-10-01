@@ -59,6 +59,7 @@ import { calendarDateInTimezone } from "@/lib/business/datetime";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
 import { resolveEditBookingPaymentSummary } from "@/lib/commerce/edit-booking-payment-summary";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import {
   useBookingPreferences,
   writeBookingPreferences,
@@ -74,6 +75,7 @@ import type {
 import { useFormAction } from "@/hooks/use-form-action";
 import { useToast } from "@/providers/toast-provider";
 import { addDays, format } from "date-fns";
+import Link from "next/link";
 import {
   useActionState,
   useEffect,
@@ -140,7 +142,13 @@ function slotKey(iso: string | null | undefined): string {
  * moving to tomorrow — clears it. Availability results are suggestions
  * only; they never overwrite the selection.
  */
-export function BookingSheet({
+export function BookingSheet(props: BookingSheetProps) {
+  // A created appointment stays locked for this open session. Closing ends
+  // that session so reopening can start a new booking with fresh action state.
+  return props.open ? <BookingSheetSession {...props} /> : null;
+}
+
+function BookingSheetSession({
   open,
   onClose,
   appointment,
@@ -165,6 +173,11 @@ export function BookingSheet({
   const isEditing = !!appointment;
   const action = isEditing ? updateAppointment : createAppointment;
   const [state, formAction, pending] = useActionState(action, {} as ActionState);
+  const createdAppointmentId = !isEditing ? state.appointmentId : undefined;
+  const paymentFailure = createdAppointmentId && state.payment?.status === "failed"
+    ? state.payment
+    : null;
+  const [submittedCustomerId, setSubmittedCustomerId] = useState<string | null>(null);
   const { toast } = useToast();
   const prefs = useBookingPreferences();
   const [busy, startBusy] = useTransition();
@@ -354,10 +367,7 @@ export function BookingSheet({
 
   useFormAction(state, onSuccess, onClose);
 
-  // Reset every field from `preferred` whenever the sheet opens for a
-  // (possibly) different appointment/default. The sheet can stay mounted
-  // across opens (callers don't always remount it), so this guards against
-  // stale state from the previous booking leaking into the next one.
+  // Reset fields if the appointment/default changes during an open session.
   // Adjusted during render (React's recommended pattern for resetting state
   // from props) rather than in an effect, so it applies before paint with
   // no extra render flash.
@@ -590,7 +600,8 @@ export function BookingSheet({
 
   const canSubmit = isCancelled
     ? !!selectedCustomer?.id
-    : !!selectedCustomer?.id &&
+    : !createdAppointmentId &&
+      !!selectedCustomer?.id &&
       !!serviceId &&
       !!locationId &&
       !!slot &&
@@ -600,6 +611,7 @@ export function BookingSheet({
       !needsNamedEmployee;
 
   const validationMessage = useMemo(() => {
+    if (createdAppointmentId) return "Appointment booked. Close this sheet when you are finished.";
     if (needsNamedEmployee && slot && selectedCustomer?.id && serviceId) {
       return RECEPTION_EMPLOYEE_REQUIRED_MESSAGE;
     }
@@ -625,6 +637,7 @@ export function BookingSheet({
     if (missing.length === 0) return "Check the highlighted fields above.";
     return `Still need ${missing.join(", ")}.`;
   }, [
+    createdAppointmentId,
     canSubmit,
     isEditing,
     selectedCustomer?.id,
@@ -835,7 +848,7 @@ function handleStaffChange(id: string) {
     <>
     <Sheet
       open={open}
-      onClose={onClose}
+      onClose={() => { if (!pending) onClose(); }}
       title={isEditing ? "Edit booking" : "New booking"}
       description={
         isCancelled
@@ -847,6 +860,7 @@ function handleStaffChange(id: string) {
       resizable
       widthStorageKey="chasum.bookingSheetWidthPx"
       headerActions={
+        createdAppointmentId ? null : (
         <QuickActionsMenu
           isEditing={isEditing}
           canCancel={canCancel}
@@ -892,11 +906,14 @@ function handleStaffChange(id: string) {
             setCommunicationsFocusSignal((n) => n + 1)
           }
         />
+        )
       }
       footer={
         <form
           action={(fd) => {
+            if (createdAppointmentId) return;
             if (!isEditing) {
+              setSubmittedCustomerId(String(fd.get("customer_id") ?? ""));
               writeBookingPreferences({
                 serviceId,
                 staffId: activeStaffId,
@@ -1012,6 +1029,8 @@ function handleStaffChange(id: string) {
             <Button type="submit" size="sm" disabled={!canSubmit || pending}>
               {pending
                 ? "Confirming…"
+                : createdAppointmentId
+                  ? "Appointment booked"
                 : isCancelled
                   ? "Save notes"
                   : isEditing
@@ -1029,6 +1048,48 @@ function handleStaffChange(id: string) {
       }
     >
       <div className="space-y-8">
+        {paymentFailure ? (
+          <div
+            role="alert"
+            className="space-y-3 rounded-[var(--radius-md)] border border-destructive/40 bg-destructive/5 p-4 text-sm"
+          >
+            <p className="font-semibold">
+              {paymentFailure.transactionId
+                ? "Appointment booked — payment WAS recorded, but appointment balance/status could not sync"
+                : "Appointment booked — payment NOT recorded"}
+            </p>
+            <p>
+              {paymentFailure.transactionId ? "Recorded amount: " : "Attempted amount: "}
+              {paymentFailure.amountCents != null
+                ? formatMoneyCents(paymentFailure.amountCents, currency)
+                : "Unavailable"}
+              {" · "}
+              {paymentFailure.transactionId ? "Method: " : "Requested method: "}
+              {paymentFailure.methodLabel ?? paymentFailure.method ?? "Unavailable"}
+            </p>
+            <p className="break-words">{paymentFailure.detail}</p>
+            <p className="break-all text-xs text-muted-foreground">
+              Appointment reference: {createdAppointmentId}
+            </p>
+            {paymentFailure.transactionId ? (
+              <p className="break-all text-xs text-muted-foreground">
+                Transaction reference: {paymentFailure.transactionId}
+              </p>
+            ) : paymentFailure.canRetry && submittedCustomerId ? (
+              <Link
+                href={`/dashboard/payments?${new URLSearchParams({
+                  customer: submittedCustomerId,
+                  appointment: createdAppointmentId!,
+                })}`}
+                className="inline-flex min-h-10 items-center font-medium underline underline-offset-4"
+              >
+                Open Collect payment for this appointment
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
+        {!createdAppointmentId ? (
+        <>
         <CustomerSection
           customers={customers}
           selected={selectedCustomer}
@@ -1294,6 +1355,8 @@ function handleStaffChange(id: string) {
             });
           }}
         />
+        </>
+        ) : null}
       </div>
     </Sheet>
     <CancelAppointmentDialog
