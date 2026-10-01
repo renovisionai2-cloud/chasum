@@ -553,6 +553,9 @@ export type ActionState = {
     amountCents?: number;
     detail?: string | null;
     transactionId?: string | null;
+    kind?: "deposit" | "payment";
+    method?: string;
+    methodLabel?: string;
     canRetry?: boolean;
     receiptStatus?:
       | "sent"

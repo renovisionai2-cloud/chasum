@@ -59,4 +59,48 @@ describe("M1B server location guard", () => {
     expect(await createAppointment({}, form())).toHaveProperty("error", "Choose a location for this appointment before booking.");
     expect(mocks.create).not.toHaveBeenCalled();
   });
+  it("fails closed when a booking payment key is present but payment mode is missing", async () => {
+    const data = form("b");
+    data.set("payment_idempotency_key", "bs-test-key");
+    expect(await createAppointment({}, data)).toEqual({
+      error: "Payment selection could not be verified. Choose the payment option again before confirming.",
+    });
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when a selected payment has no positive amount", async () => {
+    const data = form("b");
+    data.set("payment_idempotency_key", "bs-test-key");
+    data.set("payment_mode", "deposit");
+    data.set("payment_amount_cents", "0");
+    data.set("payment_method", "e_transfer");
+    expect(await createAppointment({}, data)).toEqual({
+      error: "Payment amount could not be verified. Choose the payment option again before confirming.",
+    });
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when a selected payment has no method", async () => {
+    const data = form("b");
+    data.set("payment_idempotency_key", "bs-test-key");
+    data.set("payment_mode", "deposit");
+    data.set("payment_amount_cents", "5000");
+    expect(await createAppointment({}, data)).toEqual({
+      error: "Payment method could not be verified. Choose the payment method again before confirming.",
+    });
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it("accepts an explicit no-payment selection with a booking payment key", async () => {
+    const data = form("b");
+    data.set("payment_idempotency_key", "bs-test-key");
+    data.set("payment_mode", "none");
+    data.set("payment_amount_cents", "0");
+    data.set("payment_method", "cash");
+    await createAppointment({}, data);
+    expect(mocks.create).toHaveBeenCalledWith(
+      expect.objectContaining({ locationId: "b" }),
+    );
+  });
+
 });

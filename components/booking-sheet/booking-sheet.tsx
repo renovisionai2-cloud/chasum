@@ -960,11 +960,40 @@ function handleStaffChange(id: string) {
             value={String(financialsForSubmit.depositRequiredCents || "")}
           />
           {!isEditing ? (
-            <input
-              type="hidden"
-              name="payment_idempotency_key"
-              value={paymentIdempotencyKey.current}
-            />
+            <>
+              <input
+                type="hidden"
+                name="payment_idempotency_key"
+                value={paymentIdempotencyKey.current}
+              />
+              <input
+                type="hidden"
+                name="payment_mode"
+                value={paymentDraft.mode}
+              />
+              <input
+                type="hidden"
+                name="payment_amount_cents"
+                value={String(
+                  paymentDraft.mode === "none" ? 0 : paymentDraft.amountCents,
+                )}
+              />
+              <input
+                type="hidden"
+                name="payment_method"
+                value={paymentDraft.method}
+              />
+              <input
+                type="hidden"
+                name="payment_note"
+                value={paymentDraft.note}
+              />
+              <input
+                type="hidden"
+                name="payment_send_receipt"
+                value={paymentDraft.sendReceipt ? "1" : "0"}
+              />
+            </>
           ) : null}
 
           <p className="flex-1 text-xs text-muted-foreground">

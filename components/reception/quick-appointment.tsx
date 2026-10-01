@@ -30,6 +30,7 @@ import type { TaxRate } from "@/lib/business/types";
 import type { BookingDraft } from "@/lib/booking/booking-draft";
 import { resolveBookingLocationId } from "@/lib/booking/default-location";
 import { resolveBookingFinancials } from "@/lib/commerce/booking-financials";
+import { formatMoneyCents } from "@/lib/commerce/money";
 import { filterEligibleBookingStaff } from "@/lib/booking/eligible-staff";
 import {
   OPTIONAL_STAFF_PERSISTENCE_ENABLED,
@@ -410,10 +411,8 @@ export function QuickAppointmentForm({
         locationId,
       });
       toast(
-        selectedCustomer
-          ? `Confirmed · ${selectedCustomer.name} · ${serviceLabel}${staffLabel ? ` with ${staffLabel}` : " · Unassigned"} · ${when}`
-          : `Confirmed · ${serviceLabel} · ${when}`,
-        "success",
+        state.success,
+        state.payment?.status === "failed" ? "error" : "success",
       );
       if (apptId) onAppointmentConfirmed?.(apptId);
       onSuccess();
@@ -671,6 +670,40 @@ export function QuickAppointmentForm({
               </dl>
             </div>
           </div>
+          {state.payment?.status === "recorded" ? (
+            <div
+              className="rounded-[var(--radius-md)] border border-success/30 bg-success/10 px-3 py-2 text-xs text-success"
+              role="status"
+            >
+              <p className="font-semibold">Payment recorded</p>
+              <p className="mt-0.5">
+                {state.payment.amountCents != null
+                  ? formatMoneyCents(state.payment.amountCents, currency)
+                  : "Payment"}
+                {state.payment.kind
+                  ? ` ${state.payment.kind}`
+                  : ""}
+                {state.payment.methodLabel
+                  ? ` · ${state.payment.methodLabel}`
+                  : ""}
+              </p>
+            </div>
+          ) : state.payment?.status === "failed" ? (
+            <div
+              className="rounded-[var(--radius-md)] border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+              role="alert"
+            >
+              <p className="font-semibold">
+                Appointment booked — payment NOT recorded
+              </p>
+              <p className="mt-0.5">
+                {state.payment.detail ?? "Payment could not be recorded."}
+                {state.payment.canRetry
+                  ? " Open the appointment and use Collect payment to retry."
+                  : ""}
+              </p>
+            </div>
+          ) : null}
           {confirmedAppointmentId && confirmedNotifications.length > 0 ? (
             <BookingNotificationStatus
               appointmentId={confirmedAppointmentId}
