@@ -44,7 +44,10 @@ export function useFormAction(
     if (state.success) {
       if (lastSuccessRef.current !== state.success) {
         lastSuccessRef.current = state.success;
-        toast(state.success, "success");
+        toast(
+          state.success,
+          state.payment?.status === "failed" ? "error" : "success",
+        );
         refresh();
         onSuccessRef.current?.();
         onCloseRef.current?.();
@@ -52,7 +55,7 @@ export function useFormAction(
       return;
     }
     lastSuccessRef.current = null;
-  }, [state.error, state.success, toast, refresh]);
+  }, [state.error, state.success, state.payment?.status, toast, refresh]);
 }
 
 export async function confirmDelete(message: string): Promise<boolean> {
