@@ -26,6 +26,13 @@ export function validateReleaseControlConfig(config) {
     throw new Error("git.deploymentEnabled.main must be exactly false");
   }
 
+  const deploymentKeys = Object.keys(deploymentEnabled);
+  if (deploymentKeys.length !== 1 || deploymentKeys[0] !== "main") {
+    throw new Error(
+      'git.deploymentEnabled must contain exactly the "main" key; additional deployment rules are not allowed',
+    );
+  }
+
   return true;
 }
 
