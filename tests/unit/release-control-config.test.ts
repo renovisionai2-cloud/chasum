@@ -68,6 +68,20 @@ describe("release-control config guard", () => {
     expect(result.stderr).toContain("main must be exactly false");
   });
 
+  it("rejects an additional glob rule that can enable main deployments", () => {
+    const result = run(
+      fixture(
+        JSON.stringify({
+          git: { deploymentEnabled: { main: false, "main*": true } },
+        }),
+      ),
+    );
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain(
+      'must contain exactly the "main" key; additional deployment rules are not allowed',
+    );
+  });
+
   it("rejects malformed JSON", () => {
     const result = run(fixture("{"));
     expect(result.status).not.toBe(0);

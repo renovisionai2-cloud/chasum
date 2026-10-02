@@ -1,0 +1,324 @@
+name: Release production
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Approved exact 40-character commit SHA on main (ancestors allowed)
+        required: true
+        type: string
+      rollback_hold_deployment:
+        description: Exact held dpl_... id only when acknowledging an active Vercel rollback hold
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  preflight:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      sha: ${{ steps.guard.outputs.sha }}
+    steps:
+      - name: Check out trusted release controls
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+
+      - name: Fetch current main and validate candidate without Production credentials
+        id: guard
+        env:
+          REQUESTED_SHA: ${{ inputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth"             fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          git show refs/remotes/origin/main:vercel.json > "$RUNNER_TEMP/current-vercel.json"
+          node scripts/verify-release-control-config.mjs "$RUNNER_TEMP/current-vercel.json"
+          sha="$(node scripts/assert-release-sha.mjs "$REQUESTED_SHA")"
+          printf 'sha=%s\n' "$sha" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: preflight
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production-release
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Check out trusted workflow revision separately from release source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+
+      - name: Refresh policy, ancestry, expiry and Option A after Environment approval
+        working-directory: control
+        env:
+          RELEASE_SHA: ${{ needs.preflight.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth"             fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          git show refs/remotes/origin/main:vercel.json > "$RUNNER_TEMP/current-vercel.json"
+          node scripts/verify-release-control-config.mjs "$RUNNER_TEMP/current-vercel.json"
+          test "$(node scripts/assert-release-sha.mjs "$RELEASE_SHA")" = "$RELEASE_SHA"
+
+      - name: Check out only the approved immutable release commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ needs.preflight.outputs.sha }}
+          path: source
+          persist-credentials: false
+
+      - name: Verify exact source
+        env:
+          RELEASE_SHA: ${{ needs.preflight.outputs.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "$RELEASE_SHA"
+          test -z "$(git -C source status --porcelain --untracked-files=no)"
+
+      - name: Install candidate dependencies
+        working-directory: source
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Test exact candidate
+        working-directory: source
+        run: npm test
+
+      - name: Build exact candidate
+        working-directory: source
+        run: npm run build
+
+      - name: Install pinned Vercel CLI without Production credentials
+        run: >-
+          npm install --prefix "$RUNNER_TEMP/chasum-vercel-cli"
+          --no-save --ignore-scripts --no-audit --no-fund vercel@59.1.4
+
+      - name: Export a clean tree of exactly the approved commit
+        env:
+          RELEASE_SHA: ${{ needs.preflight.outputs.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "$RELEASE_SHA"
+          test -z "$(git -C source status --porcelain --untracked-files=no)"
+          mkdir deploy-source
+          git --no-replace-objects -C control archive "$RELEASE_SHA" | tar -x -C deploy-source
+
+      - name: Final current-main policy recheck immediately before Production state access
+        working-directory: control
+        env:
+          RELEASE_SHA: ${{ needs.preflight.outputs.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth"             fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          git show refs/remotes/origin/main:vercel.json > "$RUNNER_TEMP/current-vercel-final.json"
+          node scripts/verify-release-control-config.mjs "$RUNNER_TEMP/current-vercel-final.json"
+          test "$(node scripts/assert-release-sha.mjs "$RELEASE_SHA")" = "$RELEASE_SHA"
+          printf 'Requested release SHA: %s\nCurrent policy commit: %s\n'             "$RELEASE_SHA" "$(git rev-parse refs/remotes/origin/main)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Snapshot, deploy, promote if needed, verify canonical Production, and restore on failure
+        working-directory: deploy-source
+        env:
+          RELEASE_SHA: ${{ needs.preflight.outputs.sha }}
+          ROLLBACK_ACK: ${{ inputs.rollback_hold_deployment }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+        run: |
+          set -Eeuo pipefail
+          : "${VERCEL_TOKEN:?Missing production-release Environment secret VERCEL_TOKEN}"
+          : "${VERCEL_ORG_ID:?Missing production-release Environment variable VERCEL_ORG_ID}"
+          : "${VERCEL_PROJECT_ID:?Missing production-release Environment variable VERCEL_PROJECT_ID}"
+
+          vc="$RUNNER_TEMP/chasum-vercel-cli/node_modules/.bin/vercel"
+          api="https://api.vercel.com"
+          canonical="https://chasum.vercel.app/api/build-info"
+          release_started=0
+          prior_id=""
+          prior_sha=""
+          new_id=""
+          promoted="no"
+
+          api_get() {
+            local path="$1"
+            curl --fail --silent --show-error --max-time 30 --proto '=https'               -H "Authorization: Bearer $VERCEL_TOKEN" "$api$path"
+          }
+
+          alias_id_from() {
+            node -e '
+              const fs=require("fs");
+              const d=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+              const project=process.argv[2];
+              if (d.projectId !== project || typeof d.deploymentId !== "string" || !/^dpl_[A-Za-z0-9]+$/.test(d.deploymentId)) process.exit(2);
+              process.stdout.write(d.deploymentId);
+            ' "$1" "$VERCEL_PROJECT_ID"
+          }
+
+          deployment_sha_from() {
+            node -e '
+              const fs=require("fs");
+              const d=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+              const project=process.argv[2];
+              if (!d.project || d.project.id !== project) process.exit(2);
+              const sha=(d.meta && d.meta.githubCommitSha) || (d.gitSource && d.gitSource.sha);
+              if (typeof sha !== "string" || !/^[0-9a-f]{40}$/.test(sha)) process.exit(3);
+              process.stdout.write(sha);
+            ' "$1" "$VERCEL_PROJECT_ID"
+          }
+
+          restore_previous() {
+            local original_status="$?"
+            trap - ERR
+            if [ "$release_started" = "1" ] && [ -n "$prior_id" ] && [ -n "$prior_sha" ]; then
+              printf '\nRelease failed after creating a fresh deployment. Attempting rollback to %s.\n' "$prior_id" >> "$GITHUB_STEP_SUMMARY"
+              if "$vc" rollback "$prior_id" --yes --token="$VERCEL_TOKEN"; then
+                restored=0
+                for _ in $(seq 1 12); do
+                  if curl --fail --silent --show-error --max-time 20 --proto '=https'                     "$canonical" > "$RUNNER_TEMP/restored-build-info.json" &&
+                    node ../control/scripts/verify-production-build-info.mjs                       "$RUNNER_TEMP/restored-build-info.json" --sha "$prior_sha"; then
+                    restored=1
+                    break
+                  fi
+                  sleep 5
+                done
+                if [ "$restored" = "1" ]; then
+                  printf 'Rollback restoration verified at prior SHA %s.\n' "$prior_sha" >> "$GITHUB_STEP_SUMMARY"
+                else
+                  printf 'CRITICAL: rollback command returned success but prior canonical SHA could not be verified.\n' >> "$GITHUB_STEP_SUMMARY"
+                fi
+              else
+                printf 'CRITICAL: rollback command failed; canonical restoration is unverified.\n' >> "$GITHUB_STEP_SUMMARY"
+              fi
+            fi
+            exit "$original_status"
+          }
+          trap restore_previous ERR
+
+          api_get "/v4/aliases/chasum.vercel.app" > "$RUNNER_TEMP/prior-alias.json"
+          prior_id="$(alias_id_from "$RUNNER_TEMP/prior-alias.json")"
+
+          api_get "/v13/deployments/$prior_id" > "$RUNNER_TEMP/prior-deployment.json"
+          prior_sha="$(deployment_sha_from "$RUNNER_TEMP/prior-deployment.json")"
+
+          curl --fail --silent --show-error --max-time 20 --proto '=https'             "$canonical" > "$RUNNER_TEMP/prior-build-info.json"
+          node ../control/scripts/verify-production-build-info.mjs             "$RUNNER_TEMP/prior-build-info.json" --sha "$prior_sha"
+
+          api_get "/v9/projects/$VERCEL_PROJECT_ID" > "$RUNNER_TEMP/project-before.json"
+          rollback_state="$(node -e '
+            const fs=require("fs");
+            const d=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+            if (d.lastRollbackTarget == null) {
+              process.stdout.write("none");
+              process.exit(0);
+            }
+            const held=d.lastAliasRequest && d.lastAliasRequest.toDeploymentId;
+            if (typeof held !== "string" || !/^dpl_[A-Za-z0-9]+$/.test(held)) process.exit(2);
+            process.stdout.write(held);
+          ' "$RUNNER_TEMP/project-before.json")"
+
+          if [ "$rollback_state" = "none" ]; then
+            if [ -n "$ROLLBACK_ACK" ]; then
+              echo "Rollback acknowledgement was supplied but no active rollback hold exists." >&2
+              exit 1
+            fi
+            held_id=""
+          else
+            held_id="$rollback_state"
+            if [ "$ROLLBACK_ACK" != "$held_id" ]; then
+              echo "Active rollback hold requires exact rollback_hold_deployment acknowledgement: $held_id" >&2
+              exit 1
+            fi
+          fi
+
+          printf 'Prior canonical deployment: %s\nPrior canonical SHA: %s\nRollback hold: %s\n'             "$prior_id" "$prior_sha" "${held_id:-none}" >> "$GITHUB_STEP_SUMMARY"
+
+          mkdir -p .vercel
+          node --input-type=module -e '
+            import { writeFileSync } from "node:fs";
+            writeFileSync(".vercel/project.json", JSON.stringify({
+              orgId: process.env.VERCEL_ORG_ID,
+              projectId: process.env.VERCEL_PROJECT_ID
+            }));
+          '
+
+          url="$("$vc" deploy --prod --force --yes             --token="$VERCEL_TOKEN"             --meta "githubCommitSha=$RELEASE_SHA"             --meta "githubCommitRef=main"             --meta "governedReleaseRun=$GITHUB_RUN_ID"             --env "VERCEL_GIT_COMMIT_SHA=$RELEASE_SHA"             --env "VERCEL_GIT_COMMIT_REF=main")"
+          release_started=1
+          host="${url#https://}"
+
+          api_get "/v13/deployments/$host" > "$RUNNER_TEMP/new-deployment.json"
+          new_id="$(node -e '
+            const fs=require("fs");
+            const d=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+            const project=process.argv[2];
+            const sha=process.argv[3];
+            if (!d.project || d.project.id !== project) process.exit(2);
+            if (d.target !== "production" || d.readyState !== "READY") process.exit(3);
+            if (!d.meta || d.meta.githubCommitSha !== sha) process.exit(4);
+            if (typeof d.id !== "string" || !/^dpl_[A-Za-z0-9]+$/.test(d.id)) process.exit(5);
+            process.stdout.write(d.id);
+          ' "$RUNNER_TEMP/new-deployment.json" "$VERCEL_PROJECT_ID" "$RELEASE_SHA")"
+
+          api_get "/v4/aliases/chasum.vercel.app" > "$RUNNER_TEMP/post-deploy-alias.json"
+          current_alias_id="$(alias_id_from "$RUNNER_TEMP/post-deploy-alias.json")"
+          if [ "$current_alias_id" != "$new_id" ]; then
+            "$vc" promote "$new_id" --yes --token="$VERCEL_TOKEN"
+            promoted="yes"
+          fi
+
+          verified=0
+          for _ in $(seq 1 12); do
+            if curl --fail --silent --show-error --max-time 20 --proto '=https'               "$canonical" > "$RUNNER_TEMP/final-build-info.json" &&
+              node ../control/scripts/verify-production-build-info.mjs                 "$RUNNER_TEMP/final-build-info.json" --sha "$RELEASE_SHA"; then
+              api_get "/v4/aliases/chasum.vercel.app" > "$RUNNER_TEMP/final-alias.json"
+              final_alias_id="$(alias_id_from "$RUNNER_TEMP/final-alias.json")"
+              if [ "$final_alias_id" = "$new_id" ]; then
+                verified=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+
+          if [ "$verified" != "1" ]; then
+            echo "Canonical Production did not verify the exact approved SHA and deployment id." >&2
+            false
+          fi
+
+          trap - ERR
+          printf 'New Production deployment: %s\nDeployment URL: %s\nExplicit promotion required: %s\nFinal canonical SHA: %s\nCanonical verification: PASS\n'             "$new_id" "$url" "$promoted" "$RELEASE_SHA" >> "$GITHUB_STEP_SUMMARY"
