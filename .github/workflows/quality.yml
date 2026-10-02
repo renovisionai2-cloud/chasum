@@ -36,6 +36,9 @@ jobs:
       - name: Verify release-control config
         run: node scripts/verify-release-control-config.mjs
 
+      - name: Test release controls
+        run: node --test tests/release-control/*.test.mjs
+
       - name: Typecheck
         run: npm run typecheck
 
