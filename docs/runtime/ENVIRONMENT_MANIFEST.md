@@ -1,8 +1,26 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-09-29 Toronto / 2026-09-30 UTC for Issue #121 PR #125 Production acceptance. Earlier Preview/Staging, Issue #102 and GVM data records remain intact and historical.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-02 for Issue #136 governed release-control closeout. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## 2026-10-02 Issue #136 governed Production release boundary
+
+**Observed canonical Production:** `https://chasum.vercel.app/api/build-info` served `b2ee664a2e2125473450254f79af39563cf18471`, `ref=main`, `env=production`, `production=true`. Canonical deployment: `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u`.
+
+**Pre-closeout Git main:** `c2bd57840001d2abf9b6af1d4a64ef3e881ce05d`. Main/Production divergence is now intentional until a separately approved governed release; never infer Production from Git main.
+
+**Production deployment policy:** CLI-only. Repository `vercel.json` independently suppresses `main` Git deployments. Preview remains enabled.
+
+**Governed release workflow:** `.github/workflows/release-production.yml`, exact-SHA + deny-all candidate policy, protected `production-release` Environment, Product Owner approval, canonical alias/build-info verification and restore-previous failure handling.
+
+**Release credential:** `Chasum Governed Production Release 2026-10-02`, project-only to `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`, finite expiry approximately **2026-11-01**, stored only as `production-release` Environment secret `VERCEL_TOKEN`. **Rotation due 2026-11-01.** Secret value is not recorded here.
+
+**Credential hygiene:** zero non-expiring personal Vercel tokens remain. Vercel-managed Git credential `cred_af7117d19d5654c3f9236e0115968a8f65c82518` is retained for Preview. Five recent unidentified OTP sessions remain finite-lived and intentionally excluded from revocation.
+
+**B-1 governance waiver:** CODEOWNERS is present but not enforcing while Chasum has one human collaborator. The Product Owner deliberately deferred mandatory approval/code-owner/stale/last-push review controls to avoid routine administrative bypass. Revisit when a second trusted collaborator joins.
+
+**#131:** merge SHA `664fbc734c4103d78484c6b3828849a6605a562f` remains NOT Production deployed. Historical deployment object `6788186484` records the original automatic-deployment defect and must not be interpreted as canonical release evidence.
 
 ## Evidence and classification contract
 
@@ -129,15 +147,15 @@ This record supersedes historical “current/latest” release values for presen
 
 | Field | Expected / last observed | Classification | Evidence |
 | --- | --- | --- | --- |
-| Application URL | Expected and observed `https://chasum.vercel.app` | MATCH | P55-PROD alias copied from 5744330411 |
-| Serving Git SHA | Direct Production build-info `e8c307df07107736395f1b3b1f2d56bba3fec6be`, `commitShort=e8c307d`, `ref=main`, `env=production`, `production=true`. | MATCH | P125-ISSUE121-PROD |
+| Application URL | Fresh alias read: `https://chasum.vercel.app` maps to `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u` in Chasum project `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`. | MATCH | ISSUE136-CLOSEOUT |
+| Serving Git SHA | Fresh 2026-10-02 direct Production build-info: `b2ee664a2e2125473450254f79af39563cf18471`, `commitShort=b2ee664`, `ref=main`, `env=production`, `production=true`. | MATCH | ISSUE136-CLOSEOUT |
 | Branch/ref; environment | `main`; `production`; `production=true`. | MATCH | P125-ISSUE121-PROD |
-| Vercel deployment ID | `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT` | MATCH | P125-ISSUE121-PROD |
-| Deployment URL | `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app` | MATCH | P125-ISSUE121-PROD |
-| Active aliases | Fresh Vercel Production deployment inspection for #121 observed `chasum.vercel.app`, `chasumai.com`, `www.chasumai.com`, `chasum-renovisionappcom.vercel.app`; Issue #57 cutover remains DEFERRED and these aliases do not complete that governed cutover. | MATCH at #121 acceptance | P125-ISSUE121-PROD |
-| Deployment readiness | PR #125 Production target READY / SUCCESS. | MATCH | P125-ISSUE121-PROD |
-| Accepted application baseline vs serving | Latest accepted behavior-changing release and directly observed serving SHA both `e8c307df07107736395f1b3b1f2d56bba3fec6be`. | MATCH at acceptance | P125-ISSUE121-PROD |
-| Production SHA vs canonical main | Fresh GitHub connector read and direct Production build-info both reported `e8c307df07107736395f1b3b1f2d56bba3fec6be` at acceptance; local HEAD matches. | MATCH at acceptance | P125-ISSUE121-PROD |
+| Vercel deployment ID | `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u` | MATCH | ISSUE136-CLOSEOUT |
+| Deployment URL | `https://chasum-ixrip9ce6-renovisionappcom.vercel.app` | MATCH | ISSUE136-CLOSEOUT |
+| Active aliases | Fresh 2026-10-02 read confirms canonical `chasum.vercel.app` maps to `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u`. Other historical aliases were not re-enumerated; Issue #57 remains DEFERRED. | MATCH for canonical alias / UNKNOWN remainder | ISSUE136-CLOSEOUT |
+| Deployment readiness | Current canonical deployment `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u` is `READY`, target `production`, Git metadata SHA `b2ee664a…`, ref `main`. | MATCH | ISSUE136-CLOSEOUT |
+| Accepted application baseline vs serving | Latest accepted behavior-changing release remains #121 `e8c307df…`; canonical serving SHA is later documentation continuity merge `b2ee664a…`. No #131 behavior is serving. | INTENTIONAL DIFFERENCE | ISSUE136-CLOSEOUT |
+| Production SHA vs canonical main | At 2026-10-02 reconciliation Production is `b2ee664a…` while pre-closeout main is `c2bd5784…`. Divergence is intentional under Issue #136: merge does not release. The docs closeout merge may advance main again without Production movement. | INTENTIONAL DIFFERENCE | ISSUE136-CLOSEOUT |
 | Supabase project ref | Production project `kxcydvhswkuzepwzzinq` directly verified during Stage 1B release, and re-confirmed 2026-09-26 as the sole Supabase endpoint in the served Production public bundle. | MATCH | P87-PROD / GVM-DATA-2026-09-26 |
 | Migration summary / applied hashes | B1 `20260923185926`; Staff quota `20260923190213`; B2 `20260923190501`; C1 `20260923232629`. C1 exact SHA-256 `c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089`. | MATCH | P97-PROD |
 | Locked/unapplied migrations | 034/035/036 remain absent/unapplied after C1 Production acceptance. | MATCH | P97-PROD |

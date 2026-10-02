@@ -23,6 +23,12 @@ The PO-locked policy supersedes historical Cursor-primary wording.
 Intended model and actually available model are different facts; do not silently
 escalate or circumvent approval/credit controls.
 
+## Production release invariant — Issue #136
+
+A merge to `main` does **not** authorize or trigger Chasum Production. Production may move only through the governed `.github/workflows/release-production.yml` path for an explicitly allowlisted exact SHA and after the protected `production-release` Environment receives Product Owner approval. `release/candidates.json` is deny-all by default. Never substitute a main merge, Preview success, READY Production-target artifact, or historical deployment object for canonical Production serving proof; verify `/api/build-info` and the exact promoted deployment identity.
+
+Current single-collaborator governance deliberately WAIVES CODEOWNER/mandatory approving-review enforcement; `.github/CODEOWNERS` is present but inert until a second trusted human collaborator makes non-bypass review practical. Do not describe this as active two-person control.
+
 ## External agent execution truth — mandatory
 
 **REQUESTED IS NOT RUNNING.** Track every external-agent dispatch as
