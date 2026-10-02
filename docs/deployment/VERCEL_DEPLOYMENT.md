@@ -17,18 +17,45 @@ This document lists every environment variable Chasum uses, where each value com
 
 | Item | Status |
 |------|--------|
-| App deployed on Vercel | Live (configure env next) |
-| Environment variables on Vercel | Not configured yet |
+| Canonical Production | `https://chasum.vercel.app` serving `b2ee664a2e2125473450254f79af39563cf18471` at the 2026-10-02 #136 reconciliation |
+| Production release model | **Governed exact-SHA release only**; a merge to `main` does not deploy Production |
+| Vercel Production Deployment Sources | **CLI only** |
+| Repository Git deployment control | `git.deploymentEnabled.main=false` with exact-key validator |
+| Release workflow | `.github/workflows/release-production.yml` |
+| Candidate policy | `release/candidates.json` deny-all by default |
+| Protected release environment | `production-release`, Product Owner reviewer, `can_admins_bypass=false` |
 | Framework | Next.js 16 (App Router) — Vercel-native |
 | Cron | Declared in `vercel.json` → `/api/cron/process-jobs` every 5 minutes |
 
-Until required env vars are set, auth, dashboard data, cron, and transactional email will not work correctly. `/api/health` will return `ok: false` in production.
+**Production release invariant:** do not use a normal main merge, Vercel Redeploy button, unrestricted local CLI deploy, or Preview success as Production authorization. Production may move only through the governed release workflow for an explicitly approved exact SHA. Verify canonical serving identity after release.
+
+Historical setup instructions below remain useful for variable/configuration reference, but any instruction to “Redeploy Production” is superseded by the governed release path.
+
+---
+
+## Governed Production release — Issue #136
+
+A Production release requires all of the following:
+
+1. Product Owner explicitly approves the exact release SHA/candidate.
+2. The SHA is represented in `release/candidates.json` under the governed candidate contract; deny-all is the default.
+3. Dispatch `.github/workflows/release-production.yml`.
+4. The workflow validates the exact 40-hex SHA against fetched `main`, candidate expiry/revocation and required build/test controls.
+5. The `production-release` Environment pauses for Product Owner approval before the Vercel credential becomes available.
+6. The workflow creates the exact Production deployment, verifies its project/SHA/target identity, handles rollback-hold promotion if required, and verifies canonical alias + `/api/build-info`.
+7. If the release fails after Production state begins changing, the workflow attempts to restore and re-verify the prior canonical deployment.
+
+The governed Vercel credential is project-only, finite-lived and stored only as `production-release → VERCEL_TOKEN`. Its value must never be copied into documentation, chat or repository files. Current rotation due date is approximately **2026-11-01**; see the runtime manifest for the dated record.
+
+A READY Production-target deployment is **not** sufficient proof that canonical traffic moved. Issue #136 fixture testing proved a rollback hold can leave canonical traffic on the prior deployment. Always verify the canonical alias/build-info identity.
+
+PR #131 (`664fbc734c4103d78484c6b3828849a6605a562f`) remains a separate Product Owner release decision; Issue #136 closeout does not authorize it.
 
 ---
 
 ## Quick start (minimum to boot)
 
-Add these in **Vercel → Project → Settings → Environment Variables**, then **Redeploy**.
+Add these in **Vercel → Project → Settings → Environment Variables**. If a Production rebuild is required after configuration, use the governed Production release workflow; do **not** use an ad-hoc Redeploy as release authorization.
 
 | Variable | Environments |
 |----------|----------------|
@@ -283,7 +310,7 @@ Environment variables alone are **not** enough.
 
 ### After setting env vars
 
-1. **Redeploy** Production (Required — especially for `NEXT_PUBLIC_*`).
+1. If the configuration change requires a Production rebuild, create/approve the exact release candidate and run the governed `release-production` workflow (especially for `NEXT_PUBLIC_*`).
 2. Hit `/api/health` until `ok: true`.
 3. Sign up / sign in once; confirm Supabase session + redirect to `/dashboard`.
 4. Create a test appointment; confirm Resend delivery and `background_jobs` completion after cron.

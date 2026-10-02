@@ -1,8 +1,22 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-09-29 for #121 Production acceptance closeout and M1C preparation-only continuation (2026-09-30 UTC / 2026-09-29 Toronto). Prior Production, multi-location and Commercial SaaS records remain preserved.
+**Updated:** 2026-10-02 for Issue #136 governed release-control closeout. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
+
+## 2026-10-02 — Issue #136 release-control continuity
+
+**Current pre-closeout Git main:** `c2bd57840001d2abf9b6af1d4a64ef3e881ce05d`. The documentation-only closeout merge will advance Git main without moving Production if the invariant holds.
+
+**Canonical Production:** `b2ee664a2e2125473450254f79af39563cf18471`, deployment `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u`.
+
+**#131:** merged as `664fbc734c4103d78484c6b3828849a6605a562f`, **NOT Production deployed**. Historical Production deployment object `6788186484` is the original #136 defect record, stopped before canonical traffic moved.
+
+Release model now: main merges create zero Production deployments; Vercel Production sources are CLI-only; Production may move only through the exact-SHA `release-production` workflow after an allowlisted candidate and Product Owner approval on protected Environment `production-release`. The environment contains one project-scoped, finite Vercel release credential; zero non-expiring personal Vercel tokens remain.
+
+Final Claude audit found one governance-depth gap only: CODEOWNERS is present but inert because approvals/code-owner review are disabled. Product Owner formally **WAIVED / DEFERRED** enforcement for the single-human-collaborator state to avoid routine admin bypass. Revisit when a second trusted human collaborator joins.
+
+Close #136 immediately after the docs-only closeout merge if all four hold: zero deployment objects for its merge SHA; canonical Production still `b2ee664a…`; release workflow runs remain zero; candidates remain deny-all. Then #131 returns as a **separate** Product Owner Production-release decision. M1C remains NOT STARTED.
 
 ## A. Current control-tower state
 
@@ -16,7 +30,7 @@ Accepted zero-write Chromium evidence uses exact runtime candidate `9d8bf216749a
 
 Production/browser/Quality observations above were verified during the governed release and are being recorded here; this documentation task performs no new environment action. Local Git confirms merge and final-head tree/parent identities and the two-file delta. A fresh GitHub connector read confirms canonical `main = e8c307df07107736395f1b3b1f2d56bba3fec6be`. No Production DB counts are claimed or queried. This restamp performs no runtime, DB, Staging or Production action.
 
-**Current continuation: M1C governed gate preparation ONLY / NOT STARTED; no implementation authorization.** See section D.
+**Current continuation:** finish #136 documentation closeout/closure; then return #131 for a separate Product Owner Production-release decision. **M1C remains governed gate preparation ONLY / NOT STARTED; no implementation authorization.** See section D.
 
 ### Preserved M1B accepted history
 

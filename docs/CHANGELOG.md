@@ -9,12 +9,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-10-01 — Persistent booking payment-failure truth (Issue #129, Draft PR #131)
+### 2026-10-02 — Governed Production release control (Issue #136 closeout)
+
+- Structurally separate merge approval from Production release approval. `main` Git deployments are suppressed in `vercel.json`, and Vercel Production Deployment Sources are CLI-only while Preview remains available.
+- Add the governed exact-SHA `release-production` workflow, deny-all-by-default `release/candidates.json`, protected Product-Owner-reviewed `production-release` Environment, canonical serving verification, promotion handling and restore-previous failure path.
+- Source-pin required checks and retain the low-privilege Chasum Engineering Author App. CODEOWNERS exists but enforcement is deliberately **WAIVED / DEFERRED** while Chasum has one human collaborator; revisit with a second trusted collaborator rather than create routine admin bypass.
+- Establish one project-only, finite Vercel release credential behind the protected Environment. Four non-expiring personal tokens and the discharged fixture token were revoked; zero non-expiring personal Vercel tokens remain. Rotation due approximately 2026-11-01.
+- Real-project proof: post-fix merges #138/#139/#140 produced zero deployment objects; canonical Production remains `b2ee664a2e2125473450254f79af39563cf18471`. PR #131 merge `664fbc734c4103d78484c6b3828849a6605a562f` remains **NOT Production deployed**; historical deployment object `6788186484` is the stopped original defect record.
+- Competitive Product Gate **NOT_APPLICABLE**: documentation/security/release-governance closeout only. The closeout PR's merge is the final no-Production re-proof before Issue #136 closure.
+
+### 2026-10-01 — Persistent booking payment-failure truth (Issue #129, PR #131 merged / not Production deployed)
 
 - Preserve committed transaction identity and amount when payment recording succeeds but appointment financial sync fails. Disclose recorded money without retry instructions; only a failure without a transaction offers manual Collect payment navigation for the already-created appointment.
 - Keep the Booking Sheet open with a persistent alert, attempted/requested labels for unrecorded money, explicit Close, and a second-create guard. Hide stale draft balance/payment controls and the unbound collection menu; a new open session resets the completed action. Other normal success outcomes retain closure.
 - Success text and change-log summaries use committed amounts when available. Existing payment calculations, fail-closed intent validation, transaction-matching predicate, appointment → payment → notification order, and commerce implementation remain unchanged.
-- Competitive Product Gate **NOT_APPLICABLE**: correction to a locked behavior contract. Draft implementation only; hosted acceptance and independent Control Tower review remain pending. No Production, schema/migration/RLS/Auth, Issue #130, M1C/PR #128, payment-attempt architecture, inline retry, or deployment work.
+- Competitive Product Gate **NOT_APPLICABLE**: correction to a locked behavior contract. Implementation was later merged as `664fbc734c4103d78484c6b3828849a6605a562f`; Production release remains separately gated and has not occurred. No schema/migration/RLS/Auth, Issue #130, M1C/PR #128, payment-attempt architecture or inline retry work was included.
 - Local validation: focused **6 files / 36 tests PASS**; authorized local full-suite rerun **177 files passed / 1 skipped; 1,721 tests passed / 36 skipped / 0 failed**. The two Chromium suites that Codex could not launch inside its sandbox passed **2 files / 3 tests** from the authorized local environment, and the one unrelated full-suite timing failure passed **12/12** in isolation before the clean rerun. Typecheck, webpack build, diff-check and focused clean-file ESLint pass. Booking Sheet lint remains exactly the base's **2 errors / 1 warning**, no new diagnostics; global lint is not green. Installed local Next reports **16.2.10** while the repository declares **16.3.6**; dependency files were not changed, so hosted CI/Vercel remains the declared-version proof.
 
 ### 2026-09-29 — Summer Location disclosure — PRODUCTION ACCEPTED / CLOSED (Issue #121, PR #125)
