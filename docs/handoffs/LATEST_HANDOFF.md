@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-03 for Issue #130 Outcome B closure and the Issue #135 candidate awaiting independent audit / PR publication. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
+**Updated:** 2026-10-03 for Issue #130 Outcome B closure and the completed Issue #135 independent audit; PR #150 is clear for Control Tower merge gate. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
@@ -30,7 +30,7 @@ Accepted zero-write Chromium evidence uses exact runtime candidate `9d8bf216749a
 
 Production/browser/Quality observations above were verified during the governed release and are being recorded here; this documentation task performs no new environment action. Local Git confirms merge and final-head tree/parent identities and the two-file delta. A fresh GitHub connector read confirms canonical `main = e8c307df07107736395f1b3b1f2d56bba3fec6be`. No Production DB counts are claimed or queried. This restamp performs no runtime, DB, Staging or Production action.
 
-**Current continuation:** #130 is **CLOSED / COMPLETED, Outcome B**; PR #148 closed unmerged. #135 Full Booking Sheet pre-result duplicate-submit guard is the **active bounded candidate awaiting independent audit / PR publication**. Claude audit is **PENDING / execution BLOCKED** because `cursor-agent` requires authentication, per Control Tower; no audit completion is claimed. #134 + #133 remain separate Level-3 payment integrity / observability work. **M1C/M2 remain behind the incident sequence; #149 is future M2A/M2B feedback, CAPTURE ONLY / DO NOT IMPLEMENT.** See section D.
+**Current continuation:** #130 is **CLOSED / COMPLETED, Outcome B**; PR #148 closed unmerged. #135 Full Booking Sheet pre-result duplicate-submit guard is the **active bounded candidate on PR #150, clear for Control Tower merge gate**. Claude independent high-risk audit completed 2026-10-03 with **A — PASS / CLEAR FOR CONTROL TOWER MERGE GATE**, no blocking findings; exact audited head/tree and non-blocking notes are recorded in section D. Merge execution remains governed by the Product Owner/Control Tower workflow; Production remains separately gated. #134 + #133 remain separate Level-3 payment integrity / observability work. **M1C/M2 remain behind the incident sequence; #149 is future M2A/M2B feedback, CAPTURE ONLY / DO NOT IMPLEMENT.** See section D.
 
 ### Preserved M1B accepted history
 
@@ -216,11 +216,15 @@ Locked Package C Product Owner decisions remain:
 
 **Issue #130 — CLOSED / COMPLETED, Outcome B.** Supplied Control Tower evidence records the governed real-iPhone non-Production Quick Appointment pass: `deposit` / `5000` / `e_transfer` survived state and submitted FormData, returned `payment=recorded`, and matched Staging persistence. All exact temporary Staging fixture/artifact rows were cleaned to zero; PR #148 closed unmerged. No Production/GVM/schema/Auth mutation occurred. This clean instrumented pass narrows hypotheses; it does not prove or fix the original loss mechanism.
 
-**Issue #135 — ACTIVE CANDIDATE / AWAITING INDEPENDENT AUDIT AND PR PUBLICATION.** Branch `codex/issue-135-duplicate-submit`, base `cd919ea681961e0f4ed5327a5da767d1782a639f`; do not invent a future candidate SHA. The create-only session guard blocks immediate duplicate dispatch, releases on a returned no-appointment result, and resets on close/reopen; edit saves and the #131 result lock remain intact. Competitive Product Gate **NOT_APPLICABLE** for this bounded integrity correction. Local focused 14/14 and broader booking/payment 392/392 tests and typecheck PASS; targeted lint retains the base's 2 errors / 1 warning. Control Tower independently reports `npm run build` PASS / exit 0 and full unit suite PASS / exit 0: **178 files passed / 1 skipped; 1,734 tests passed / 36 skipped / 0 failed (1,770 total)**. These additional results are supplied evidence, not new runs by this documentation reconciliation.
+**Issue #135 / PR #150 — ACTIVE CANDIDATE / CLEAR FOR CONTROL TOWER MERGE GATE.** Branch `codex/issue-135-duplicate-submit`, base `cd919ea681961e0f4ed5327a5da767d1782a639f`. The create-only session guard blocks immediate duplicate dispatch, releases on a returned no-appointment result, and resets on close/reopen; edit saves and the #131 result lock remain intact. Competitive Product Gate **NOT_APPLICABLE** for this bounded integrity correction. Local focused 14/14 and broader booking/payment 392/392 tests and typecheck PASS; targeted lint retains the base's 2 errors / 1 warning. Control Tower independently reports `npm run build` PASS / exit 0 and full unit suite PASS / exit 0: **178 files passed / 1 skipped; 1,734 tests passed / 36 skipped / 0 failed (1,770 total)**. These additional results are supplied evidence, not new runs by this documentation reconciliation.
 
-**Independent Claude audit: PENDING / execution BLOCKED.** Control Tower reports `cursor-agent` authentication required; no accepted/running audit or returned Claude result exists. Manual next action: restore the authenticated channel or arrange an approved independent channel, then dispatch the exact #135 candidate audit before merge acceptance. Safe documentation work and Control Tower PR publication may continue. Internal implementation-agent review and passing build/tests are not the independent audit. This session must not commit, push, open a PR, merge, deploy, mutate environments or alter release controls; no #135 merge or Production acceptance is claimed.
+**Independent Claude high-risk audit: COMPLETED 2026-10-03.** Supplied audit result for exact head `c45513c8cc3b7d4ab1a1188dc02c596558f60ff0`, tree `190897b4502f435d65a66862a51abc40644e314a`: **A — PASS / CLEAR FOR CONTROL TOWER MERGE GATE**, with no blocking findings and no blocking correction required. Claude requires no additional browser acceptance and no Product Owner decision for the technical merge gate.
 
-Incident sequence: **#131 PRODUCTION ACCEPTED → #130 CLOSED Outcome B → #135 active candidate / independent audit and PR publication → #134/#133 separate Level-3 payment integrity + observability work → final GVM operational acceptance.** M1C remains NOT STARTED and M2 stays behind this sequence. **Issue #149: CAPTURE ONLY / DO NOT IMPLEMENT** — future M2A/M2B Calendar-first Reception and progressive disclosure Product Owner feedback. #123 remains OPEN / POST-M1B SAFE / deferred tech debt; P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
+Non-blocking audit notes: the post-throw conservative lock now depends explicitly on `createSubmitGuardRef`; do not clear it on an error path. Issue #134 must account for per-session `payment_idempotency_key` reuse on a legitimate corrected retry. The changelog now attributes five new cases failing on base with two create calls to Claude: three immediate-overlap cases and both same-sheet retry cases.
+
+**Exact next action:** Control Tower docs-only commit / PR #150 update, then Product Owner/Control Tower governed merge action. This documentation session must not commit, push, update the PR, merge, deploy, mutate environments or alter release controls. No #135 merge or Production acceptance/release is implied; Production remains separately gated by the governed release workflow and Product Owner approval.
+
+Incident sequence: **#131 PRODUCTION ACCEPTED → #130 CLOSED Outcome B → #135 / PR #150 audit A / clear for Control Tower merge gate → #134/#133 separate Level-3 payment integrity + observability work → final GVM operational acceptance.** M1C remains NOT STARTED and M2 stays behind this sequence. **Issue #149: CAPTURE ONLY / DO NOT IMPLEMENT** — future M2A/M2B Calendar-first Reception and progressive disclosure Product Owner feedback. #123 remains OPEN / POST-M1B SAFE / deferred tech debt; P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
 
 ## E. Other accepted program state
 
@@ -321,13 +325,18 @@ Migrations 034-036 remain unapplied.
 NEXT GATE:
 #130 CLOSED / COMPLETED Outcome B; real-iPhone non-Production clean instrumented
 pass, exact temporary Staging fixtures/artifacts cleaned to zero; PR #148 closed unmerged.
-#135 is the active bounded candidate awaiting independent audit / PR publication.
+#135 / PR #150 is the active bounded candidate, clear for Control Tower merge gate.
 Branch codex/issue-135-duplicate-submit; base cd919ea681961e0f4ed5327a5da767d1782a639f.
-Claude audit PENDING / BLOCKED: cursor-agent authentication required; NOT completed.
-Control Tower must restore authenticated execution or arrange an approved independent
-channel and dispatch the exact candidate audit before merge acceptance.
-Control Tower build/full-suite evidence is recorded in section D; it is not an audit.
-#131 ACCEPTED -> #130 CLOSED Outcome B -> #135 candidate -> separate #134/#133
+Claude independent high-risk audit COMPLETED 2026-10-03:
+exact audited head c45513c8cc3b7d4ab1a1188dc02c596558f60ff0;
+tree 190897b4502f435d65a66862a51abc40644e314a;
+A — PASS / CLEAR FOR CONTROL TOWER MERGE GATE; no blocking findings.
+No additional browser acceptance or Product Owner decision is required for the
+technical merge gate. Non-blocking notes and build/full-suite evidence: section D.
+Next: Control Tower docs-only commit / PR #150 update; merge execution still
+requires Control Tower/Product Owner governed action. Production remains separately
+gated; no Production acceptance or release is implied.
+#131 ACCEPTED -> #130 CLOSED Outcome B -> #135 / PR #150 audit A -> separate #134/#133
 Level-3 payment integrity/observability -> final GVM operational acceptance.
 M1C NOT STARTED; M1C/M2 remain behind this active incident sequence.
 #149 future M2A/M2B Calendar-first Reception/progressive disclosure: CAPTURE ONLY / DO NOT IMPLEMENT.
