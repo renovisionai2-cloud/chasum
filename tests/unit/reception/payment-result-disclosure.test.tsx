@@ -204,6 +204,55 @@ describe("Reception payment result disclosure", () => {
     );
   });
 
+  it("captures privacy-safe real-device payment trace evidence when explicitly enabled", async () => {
+    window.history.replaceState({}, "", "/dashboard/calendar?qa_payment_debug=1");
+
+    mocks.create.mockResolvedValue({
+      success: "Appointment confirmed — Deposit recorded — $50.00 by E-Transfer.",
+      appointmentId: "appointment-debug-1234",
+      payment: {
+        status: "recorded",
+        amountCents: 5000,
+        kind: "deposit",
+        method: "e_transfer",
+        methodLabel: "E-Transfer",
+        detail: "Recorded deposit.",
+        transactionId: "transaction-debug-5678",
+        receiptStatus: "not_requested",
+      },
+      notifications: [],
+    });
+
+    const user = userEvent.setup();
+    render(<QuickAppointmentForm {...props()} />);
+
+    await screen.findByText("QA payment trace — non-Production investigation");
+    await user.click(await screen.findByText("Record $50 deposit"));
+    await user.selectOptions(screen.getByLabelText("Payment method"), "e_transfer");
+    fireEvent.submit(document.querySelector("form")!);
+
+    await waitFor(() =>
+      expect(document.querySelector("pre")?.textContent).toContain(
+        '"status": "recorded"',
+      ),
+    );
+
+    const evidence = document.querySelector("pre")?.textContent ?? "";
+    expect(evidence).toContain('"cause": "mode_changed"');
+    expect(evidence).toContain('"cause": "method_changed"');
+    expect(evidence).toContain('"cause": "submit"');
+    expect(evidence).toContain('"mode": "deposit"');
+    expect(evidence).toContain('"amountCents": 5000');
+    expect(evidence).toContain('"method": "e_transfer"');
+    expect(evidence).toContain('"attemptKeyPrefix": "qb-');
+    expect(evidence).toContain('"appointmentIdPrefix": "appointm"');
+    expect(evidence).toContain('"transactionIdPrefix": "transact"');
+    expect(evidence).not.toContain("Test Customer");
+    expect(evidence).not.toContain("test@example.test");
+
+    window.history.replaceState({}, "", "/");
+  });
+
   it("shows the authoritative recorded amount and method after payment succeeds", async () => {
     mocks.create.mockResolvedValue({
       success: "Appointment confirmed — Deposit recorded — $50.00 by E-Transfer.",

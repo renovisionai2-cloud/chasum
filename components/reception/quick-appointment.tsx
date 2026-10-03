@@ -63,6 +63,40 @@ import {
   useState,
 } from "react";
 
+type QaPaymentTraceEntry = {
+  seq: number;
+  cause: string;
+  mode: BookingPaymentDraft["mode"];
+  amountCents: number;
+  method: BookingPaymentDraft["method"];
+};
+
+type QaPaymentSubmitEvidence = {
+  state: Pick<BookingPaymentDraft, "mode" | "amountCents" | "method">;
+  formData: {
+    mode: string;
+    amountCents: number;
+    method: string;
+  };
+  attemptKeyPrefix: string | null;
+  trace: QaPaymentTraceEntry[];
+};
+
+type QaPaymentResultEvidence = {
+  outcome: "success" | "error";
+  appointmentIdPrefix: string | null;
+  errorPresent: boolean;
+  payment: null | {
+    status: string;
+    amountCents: number | null;
+    method: string | null;
+    kind: string | null;
+    canRetry: boolean | null;
+    transactionIdPrefix: string | null;
+    receiptStatus: string | null;
+  };
+};
+
 type QuickAppointmentProps = {
   customers: Customer[];
   services: OperatorServiceCatalogItem[];
@@ -205,6 +239,13 @@ export function QuickAppointmentForm({
   const [paymentDraft, setPaymentDraft] = useState<BookingPaymentDraft>(
     defaultBookingPaymentDraft(),
   );
+  const [qaPaymentDebugEnabled, setQaPaymentDebugEnabled] = useState(false);
+  const [qaPaymentDebugVersion, setQaPaymentDebugVersion] = useState(0);
+  const qaPaymentTraceRef = useRef<QaPaymentTraceEntry[]>([]);
+  const [qaPaymentSubmitEvidence, setQaPaymentSubmitEvidence] =
+    useState<QaPaymentSubmitEvidence | null>(null);
+  const [qaPaymentResultEvidence, setQaPaymentResultEvidence] =
+    useState<QaPaymentResultEvidence | null>(null);
   const paymentIdempotencyKey = useRef(
     `qb-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
   );
@@ -242,9 +283,50 @@ export function QuickAppointmentForm({
   });
   const qaDepositCents = qaFinancials.depositRequiredCents;
 
+  const recordQaPaymentTrace = useCallback(
+    (cause: string, next: BookingPaymentDraft) => {
+      const entry: QaPaymentTraceEntry = {
+        seq: qaPaymentTraceRef.current.length + 1,
+        cause,
+        mode: next.mode,
+        amountCents: next.amountCents,
+        method: next.method,
+      };
+      qaPaymentTraceRef.current = [
+        ...qaPaymentTraceRef.current.slice(-23),
+        entry,
+      ];
+      setQaPaymentDebugVersion((value) => value + 1);
+    },
+    [],
+  );
+
+  const handleQaPaymentDraftChange = useCallback(
+    (next: BookingPaymentDraft) => {
+      let cause = "draft_changed";
+      if (next.mode !== paymentDraft.mode) cause = "mode_changed";
+      else if (next.amountCents !== paymentDraft.amountCents) cause = "amount_changed";
+      else if (next.method !== paymentDraft.method) cause = "method_changed";
+      else if (next.sendReceipt !== paymentDraft.sendReceipt) cause = "receipt_toggled";
+      else if (next.note !== paymentDraft.note) cause = "note_changed";
+      recordQaPaymentTrace(cause, next);
+      setPaymentDraft(next);
+    },
+    [paymentDraft, recordQaPaymentTrace],
+  );
+
   useEffect(() => {
-    setPaymentDraft(defaultBookingPaymentDraft(qaDepositCents));
-  }, [serviceId, qaDepositCents]);
+    const next = defaultBookingPaymentDraft(qaDepositCents);
+    recordQaPaymentTrace("service_financials_reset", next);
+    setPaymentDraft(next);
+  }, [serviceId, qaDepositCents, recordQaPaymentTrace]);
+
+  useEffect(() => {
+    const enabled =
+      new URLSearchParams(window.location.search).get("qa_payment_debug") === "1";
+    setQaPaymentDebugEnabled(enabled);
+    if (enabled) setQaPaymentDebugVersion((value) => value + 1);
+  }, []);
 
   const [eligibleOverride, setEligibleOverride] = useState<
     StaffWithServices[] | null
@@ -378,6 +460,26 @@ export function QuickAppointmentForm({
     if (state.error) {
       submitGuardRef.current = false;
       setBookingPhase("draft");
+      setQaPaymentResultEvidence({
+        outcome: "error",
+        appointmentIdPrefix: state.appointmentId
+          ? state.appointmentId.slice(0, 8)
+          : null,
+        errorPresent: true,
+        payment: state.payment
+          ? {
+              status: state.payment.status,
+              amountCents: state.payment.amountCents ?? null,
+              method: state.payment.method ?? null,
+              kind: state.payment.kind ?? null,
+              canRetry: state.payment.canRetry ?? null,
+              transactionIdPrefix: state.payment.transactionId
+                ? state.payment.transactionId.slice(0, 8)
+                : null,
+              receiptStatus: state.payment.receiptStatus ?? null,
+            }
+          : null,
+      });
       toast(state.error, "error");
     }
     if (state.success) {
@@ -414,6 +516,24 @@ export function QuickAppointmentForm({
         state.success,
         state.payment?.status === "failed" ? "error" : "success",
       );
+      setQaPaymentResultEvidence({
+        outcome: "success",
+        appointmentIdPrefix: apptId ? apptId.slice(0, 8) : null,
+        errorPresent: false,
+        payment: state.payment
+          ? {
+              status: state.payment.status,
+              amountCents: state.payment.amountCents ?? null,
+              method: state.payment.method ?? null,
+              kind: state.payment.kind ?? null,
+              canRetry: state.payment.canRetry ?? null,
+              transactionIdPrefix: state.payment.transactionId
+                ? state.payment.transactionId.slice(0, 8)
+                : null,
+              receiptStatus: state.payment.receiptStatus ?? null,
+            }
+          : null,
+      });
       if (apptId) onAppointmentConfirmed?.(apptId);
       onSuccess();
     }
@@ -607,6 +727,24 @@ export function QuickAppointmentForm({
     }, 700);
   }
 
+  const qaPaymentDebugEvidence = useMemo(
+    () =>
+      JSON.stringify(
+        {
+          trace: qaPaymentTraceRef.current,
+          submit: qaPaymentSubmitEvidence,
+          result: qaPaymentResultEvidence,
+        },
+        null,
+        2,
+      ),
+    [
+      qaPaymentDebugVersion,
+      qaPaymentSubmitEvidence,
+      qaPaymentResultEvidence,
+    ],
+  );
+
   function onBookingKeyDown(e: React.KeyboardEvent) {
     if (!(e.metaKey || e.ctrlKey) || e.key !== "Enter") return;
     if (!canBook || showCreate) return;
@@ -624,6 +762,28 @@ export function QuickAppointmentForm({
           <span className="text-[10px] text-muted-foreground">⌘↵ save</span>
         ) : null}
       </div>
+
+      {qaPaymentDebugEnabled ? (
+        <div className="space-y-2 rounded-[var(--radius-md)] border border-amber-500/40 bg-amber-500/10 p-3 text-xs">
+          <div>
+            <p className="font-semibold">QA payment trace — non-Production investigation</p>
+            <p className="text-muted-foreground">
+              Payment state only. No customer, service, staff, phone, email or notes are captured.
+            </p>
+          </div>
+          <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words rounded bg-background/70 p-2 text-[10px]">
+            {qaPaymentDebugEvidence}
+          </pre>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => void navigator.clipboard.writeText(qaPaymentDebugEvidence)}
+          >
+            Copy debug evidence
+          </Button>
+        </div>
+      ) : null}
 
       {bookingPhase === "confirmed" && confirmedSummary ? (
         <div
@@ -994,6 +1154,23 @@ export function QuickAppointmentForm({
         action={(fd) => {
           if (submitGuardRef.current || bookingPhase !== "draft") return;
           submitGuardRef.current = true;
+          recordQaPaymentTrace("submit", paymentDraft);
+          const attemptKey = String(fd.get("payment_idempotency_key") ?? "");
+          setQaPaymentSubmitEvidence({
+            state: {
+              mode: paymentDraft.mode,
+              amountCents: paymentDraft.amountCents,
+              method: paymentDraft.method,
+            },
+            formData: {
+              mode: String(fd.get("payment_mode") ?? ""),
+              amountCents: Number(fd.get("payment_amount_cents") ?? 0),
+              method: String(fd.get("payment_method") ?? ""),
+            },
+            attemptKeyPrefix: attemptKey ? attemptKey.slice(0, 12) : null,
+            trace: [...qaPaymentTraceRef.current],
+          });
+          setQaPaymentResultEvidence(null);
           setBookingPhase("confirming");
           formAction(fd);
         }}
@@ -1141,7 +1318,7 @@ export function QuickAppointmentForm({
               depositRequired={selectedService.deposit_required}
               currency={currency}
               value={paymentDraft}
-              onChange={setPaymentDraft}
+              onChange={handleQaPaymentDraftChange}
               defaultExpanded={qaDepositCents > 0}
               compact
             />
