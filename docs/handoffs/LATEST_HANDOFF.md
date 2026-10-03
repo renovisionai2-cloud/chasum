@@ -1,26 +1,26 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-02 for Issue #136 governed release-control closeout. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
+**Updated:** 2026-10-03 for PR #131 governed Production acceptance and GVM financial-integrity continuation. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## 2026-10-02 — Issue #136 release-control continuity
+## 2026-10-03 — First governed real Production release proof
 
-**Current pre-closeout Git main:** `c2bd57840001d2abf9b6af1d4a64ef3e881ce05d`. The documentation-only closeout merge will advance Git main without moving Production if the invariant holds.
+**Current pre-restamp Git main:** `120ea6cb2fd5c8fd9013753284a29a9a821333c2`. This is later than the serving application SHA because post-#131 main changes are release-governance/authorization metadata; application/runtime trees remain byte-identical to #131.
 
-**Canonical Production:** `b2ee664a2e2125473450254f79af39563cf18471`, deployment `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u`.
+**Canonical Production:** exact approved #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f`, deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`, governed workflow run `37128562995`, READY / target production.
 
-**#131:** merged as `664fbc734c4103d78484c6b3828849a6605a562f`, **NOT Production deployed**. Historical Production deployment object `6788186484` is the original #136 defect record, stopped before canonical traffic moved.
+**Canonical verification:** `/api/build-info` reports exact `664fbc…`, `ref=main`, `env=production`, `production=true`; `/api/health` returned HTTP 200 / `ok=true`. Public `/`, `/login`, `/status`, `/book/gvm-baby-world` returned 200. Existing authenticated Production session loaded Command Centre, Reception/Calendar and Payments with no login redirect.
 
-Release model now: main merges create zero Production deployments; Vercel Production sources are CLI-only; Production may move only through the exact-SHA `release-production` workflow after an allowlisted candidate and Product Owner approval on protected Environment `production-release`. The environment contains one project-scoped, finite Vercel release credential; zero non-expiring personal Vercel tokens remain.
+**Issue #136:** COMPLETE / CLOSED. Its architecture is now proven on the real Chasum project: merge remains distinct from release; candidate/ancestry/expiry checks passed; Product Owner protected-Environment approval gated Production credentials; exact candidate tests/build passed; canonical exact-SHA verification passed; no rollback/restoration was invoked. Historical deployment object `6788186484` remains the original stopped pre-#136 defect record, not release evidence.
 
-Final Claude audit found one governance-depth gap only: CODEOWNERS is present but inert because approvals/code-owner review are disabled. Product Owner formally **WAIVED / DEFERRED** enforcement for the single-human-collaborator state to avoid routine admin bypass. Revisit when a second trusted human collaborator joins.
+**#131 / #129:** PRODUCTION ACCEPTED. This closes only the proven Full Booking Sheet payment-intent/outcome deployment gap. No manufactured GVM Production booking was created. The complete technician incident remains open.
 
-Close #136 immediately after the docs-only closeout merge if all four hold: zero deployment objects for its merge SHA; canonical Production still `b2ee664a…`; release workflow runs remain zero; candidates remain deny-all. Then #131 returns as a **separate** Product Owner Production-release decision. M1C remains NOT STARTED.
+**GVM integrity after release:** expected tenant owner identity matches; 3 active Locations / 3 active Staff; 9 staff-location / 43 service-location / 27 staff-service relationships; zero cross-tenant mismatches; zero offered-service coverage gaps. A 15th Service created on 2026-10-01 before release explains the evolved relationship counts. Read-only release-window checks found zero GVM appointment/customer/payment/invoice/Location/Service/Staff mutations caused by the release.
 
 ## A. Current control-tower state
 
-**Issue #121 — Summer Location Disclosure: PRODUCTION ACCEPTED / CLOSED / COMPLETED.** Competitive Product Gate **PASS**; **LAUNCH REQUIRED**. PR #125 squash-merged at `2026-09-30T01:38:22Z` as `e8c307df07107736395f1b3b1f2d56bba3fec6be`, the latest accepted behavior-changing application release. Merge tree `17f396dfcb63afc7ccc237a9e7060ef46abbcbbf`; parent `f70229098ddf18443ae74c6456d35239824280e0`. Production deployment `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT`, target `production`, **READY / SUCCESS**; unique URL `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app`.
+**Issue #121 — Summer Location Disclosure: PRODUCTION ACCEPTED / CLOSED / COMPLETED.** Competitive Product Gate **PASS**; **LAUNCH REQUIRED**. PR #125 squash-merged at `2026-09-30T01:38:22Z` as `e8c307df07107736395f1b3b1f2d56bba3fec6be`, the prior accepted behavior-changing application release before #131. Merge tree `17f396dfcb63afc7ccc237a9e7060ef46abbcbbf`; parent `f70229098ddf18443ae74c6456d35239824280e0`. Production deployment `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT`, target `production`, **READY / SUCCESS**; unique URL `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app`.
 
 Direct Production `/api/build-info` HTTP 200: `commit=e8c307df07107736395f1b3b1f2d56bba3fec6be`, `commitShort=e8c307d`, `env=production`, `ref=main`, `production=true`. `/api/health` HTTP 200: `ok=true`, `production=true`; `supabase=true`, `serviceRole=true`, `email=configured`, `cronSecret=configured`, `sms=optional_missing`, `stripe=optional_missing`, `sentry=optional_missing`, `softSchemaFallbacks=disabled`. Health proves configuration presence only, not active DB binding, provider delivery or worker execution. Public `/`, `/pricing`, `/status`, `/login`, `/book/gvm-baby-world` returned HTTP 200. Merge-SHA Quality: **173 test files passed / 1 skipped; 1,697 tests passed / 36 skipped / 0 failed**.
 
@@ -30,7 +30,7 @@ Accepted zero-write Chromium evidence uses exact runtime candidate `9d8bf216749a
 
 Production/browser/Quality observations above were verified during the governed release and are being recorded here; this documentation task performs no new environment action. Local Git confirms merge and final-head tree/parent identities and the two-file delta. A fresh GitHub connector read confirms canonical `main = e8c307df07107736395f1b3b1f2d56bba3fec6be`. No Production DB counts are claimed or queried. This restamp performs no runtime, DB, Staging or Production action.
 
-**Current continuation:** finish #136 documentation closeout/closure; then return #131 for a separate Product Owner Production-release decision. **M1C remains governed gate preparation ONLY / NOT STARTED; no implementation authorization.** See section D.
+**Current continuation:** Issue #130 — Reception Quick Appointment real-iPhone deposit-loss investigation, **non-Production instrumentation/reproduction only**. #135 remains the separate Full Booking Sheet pre-result duplicate-submit guard. #134 + #133 remain the Level-3 payment-attempt idempotency/reconciliation + observability program. **M1C remains NOT STARTED and is not authorized by this continuation.** See section D.
 
 ### Preserved M1B accepted history
 
@@ -214,9 +214,11 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**M1C — Mobile Account Control: REQUIRED / NOT STARTED. Next substantive action: GOVERNED GATE PREPARATION ONLY.** Reconcile current source truth/current main; re-read technician feedback and current account/login/logout behavior; run the required Competitive Product Gate for user-facing account control; define a bounded UX / responsive / regression / auth-safety contract; return the implementation gate to the Product Owner/coordinator. **No M1C implementation authorization comes from this closeout; do not start implementation automatically.**
+**Issue #130 — Reception Quick Appointment iPhone deposit-loss investigation: LAUNCH REQUIRED / INVESTIGATION ONLY.** Reconcile the current exact Quick Appointment implementation and existing #130 evidence, add only the smallest privacy-safe non-Production instrumentation needed to observe payment-draft transitions, submit-time payment fields, redacted attempt identity and returned `ActionState.payment`, then run a real-iPhone Preview/Staging reproduction. No customer PII beyond what the existing test workflow inherently needs may be added to instrumentation.
 
-Sequence: **M1B CLOSED → #121 CLOSED → M1C → M2A → M2B → M3 → M4 → M5**. M1C preparation itself remains NOT STARTED by this documentation task. M2A/M2B/M3/M4/M5 remain not started. #123 — remove inert booking `preferenceLocationId` plumbing — remains **OPEN / POST-M1B SAFE / deferred tech debt**; do not implement. P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
+Success condition is either: **A)** reproduce and mechanically prove the exact Quick Appointment loss mechanism; or **B)** obtain a clean real-iPhone non-Production pass with instrumentation and truthfully narrow the remaining hypothesis set. **Do not implement a speculative fix, mutate Production, manufacture a GVM Production booking, change schema/RLS/Auth, or start #134/#135/M1C under this gate.**
+
+Incident sequence: **#131 PRODUCTION ACCEPTED → #130 INVESTIGATION → #135 bounded duplicate-submit guard → #134/#133 Level-3 payment integrity + observability design → final GVM operational acceptance.** M1C remains NOT STARTED behind this active incident sequence. #123 remains OPEN / POST-M1B SAFE / deferred tech debt; P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
 
 ## E. Other accepted program state
 

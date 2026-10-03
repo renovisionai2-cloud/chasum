@@ -1,18 +1,18 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-02 for Issue #136 governed release-control closeout. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-03 for the first governed real Production release and PR #131 acceptance. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
-## 2026-10-02 Issue #136 governed Production release boundary
+## 2026-10-03 first governed real Production release proof
 
-**Observed canonical Production:** `https://chasum.vercel.app/api/build-info` served `b2ee664a2e2125473450254f79af39563cf18471`, `ref=main`, `env=production`, `production=true`. Canonical deployment: `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u`.
+**Observed canonical Production:** `https://chasum.vercel.app/api/build-info` served exact approved #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f`, `ref=main`, `env=production`, `production=true`. Canonical deployment: `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`, READY / target `production`. Governed workflow run: `37128562995`.
 
-**Pre-closeout Git main:** `c2bd57840001d2abf9b6af1d4a64ef3e881ce05d`. Main/Production divergence is now intentional until a separately approved governed release; never infer Production from Git main.
+**Git main after release-authorization closeout:** `120ea6cb2fd5c8fd9013753284a29a9a821333c2`. Main is later than serving SHA by governance/authorization metadata only; application/runtime trees are byte-identical across `app`, `components`, `lib`, `supabase`, `public`, package files, Next config and middleware. Never infer Production from Git main.
 
-**Production deployment policy:** CLI-only. Repository `vercel.json` independently suppresses `main` Git deployments. Preview remains enabled.
+**Production deployment policy:** CLI-only. Repository `vercel.json` independently suppresses `main` Git deployments. Preview remains enabled. The policy has now been exercised successfully on real Chasum.
 
-**Governed release workflow:** `.github/workflows/release-production.yml`, exact-SHA + deny-all candidate policy, protected `production-release` Environment, Product Owner approval, canonical alias/build-info verification and restore-previous failure handling.
+**Governed release workflow:** `.github/workflows/release-production.yml`, exact-SHA + deny-all candidate policy, protected `production-release` Environment, Product Owner approval, exact-candidate Chromium/full-test/build gates, canonical alias/build-info verification and restore-previous failure handling. Run `37128562995` passed all gates; rollback/restoration was not invoked.
 
 **Release credential:** `Chasum Governed Production Release 2026-10-02`, project-only to `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`, finite expiry approximately **2026-11-01**, stored only as `production-release` Environment secret `VERCEL_TOKEN`. **Rotation due 2026-11-01.** Secret value is not recorded here.
 
@@ -20,7 +20,9 @@
 
 **B-1 governance waiver:** CODEOWNERS is present but not enforcing while Chasum has one human collaborator. The Product Owner deliberately deferred mandatory approval/code-owner/stale/last-push review controls to avoid routine administrative bypass. Revisit when a second trusted collaborator joins.
 
-**#131:** merge SHA `664fbc734c4103d78484c6b3828849a6605a562f` remains NOT Production deployed. Historical deployment object `6788186484` records the original automatic-deployment defect and must not be interpreted as canonical release evidence.
+**#131 / #129:** PRODUCTION ACCEPTED. Exact SHA `664fbc734c4103d78484c6b3828849a6605a562f`; deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`; run `37128562995`; canonical build-info PASS; health HTTP 200 / `ok=true`. No manufactured GVM Production booking, schema/migration/RLS/Auth change or release-time GVM operational-data mutation was used for acceptance. Historical deployment object `6788186484` remains the original stopped automatic-deployment defect and must not be interpreted as governed release evidence.
+
+**GVM post-release read-only integrity:** 3 active Locations, 3 active Staff, 9 staff-location, 43 service-location and 27 staff-service rows; zero cross-tenant mismatches; Brampton 14 / Burlington 15 / Caledonia 14 offered Services, each with zero offered-Service coverage gaps. The 15th Service was created 2026-10-01 before release. Candidate policy was cleared back to deny-all after release.
 
 ## Evidence and classification contract
 
@@ -131,7 +133,7 @@ Local restamp HEAD/tree/parent match the supplied merge identity. Fresh remote-m
 
 ## 2026-09-30 UTC / 2026-09-29 Toronto Issue #121 Production reconciliation
 
-**Issue #121 — Summer Location Disclosure: PRODUCTION ACCEPTED / CLOSED / COMPLETED.** Competitive Product Gate **PASS**; **LAUNCH REQUIRED**. PR #125 squash-merged at `2026-09-30T01:38:22Z` as `e8c307df07107736395f1b3b1f2d56bba3fec6be`, the latest accepted behavior-changing application release. Merge tree `17f396dfcb63afc7ccc237a9e7060ef46abbcbbf`; parent `f70229098ddf18443ae74c6456d35239824280e0`. Production deployment `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT`, target `production`, **READY / SUCCESS**; unique URL `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app`.
+**Issue #121 — Summer Location Disclosure: PRODUCTION ACCEPTED / CLOSED / COMPLETED.** Competitive Product Gate **PASS**; **LAUNCH REQUIRED**. PR #125 squash-merged at `2026-09-30T01:38:22Z` as `e8c307df07107736395f1b3b1f2d56bba3fec6be`, the prior accepted behavior-changing application release before #131. Merge tree `17f396dfcb63afc7ccc237a9e7060ef46abbcbbf`; parent `f70229098ddf18443ae74c6456d35239824280e0`. Production deployment `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT`, target `production`, **READY / SUCCESS**; unique URL `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app`.
 
 Direct Production `/api/build-info` HTTP 200: `commit=e8c307df07107736395f1b3b1f2d56bba3fec6be`, `commitShort=e8c307d`, `env=production`, `ref=main`, `production=true`. `/api/health` HTTP 200: `ok=true`, `production=true`; `supabase=true`, `serviceRole=true`, `email=configured`, `cronSecret=configured`, `sms=optional_missing`, `stripe=optional_missing`, `sentry=optional_missing`, `softSchemaFallbacks=disabled`. Health proves configuration presence only, not active DB binding, provider delivery or worker execution. Public `/`, `/pricing`, `/status`, `/login`, `/book/gvm-baby-world` returned HTTP 200. Merge-SHA Quality: **173 test files passed / 1 skipped; 1,697 tests passed / 36 skipped / 0 failed**.
 
@@ -147,17 +149,17 @@ This record supersedes historical “current/latest” release values for presen
 
 | Field | Expected / last observed | Classification | Evidence |
 | --- | --- | --- | --- |
-| Application URL | Fresh alias read: `https://chasum.vercel.app` maps to `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u` in Chasum project `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`. | MATCH | ISSUE136-CLOSEOUT |
-| Serving Git SHA | Fresh 2026-10-02 direct Production build-info: `b2ee664a2e2125473450254f79af39563cf18471`, `commitShort=b2ee664`, `ref=main`, `env=production`, `production=true`. | MATCH | ISSUE136-CLOSEOUT |
-| Branch/ref; environment | `main`; `production`; `production=true`. | MATCH | P125-ISSUE121-PROD |
-| Vercel deployment ID | `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u` | MATCH | ISSUE136-CLOSEOUT |
-| Deployment URL | `https://chasum-ixrip9ce6-renovisionappcom.vercel.app` | MATCH | ISSUE136-CLOSEOUT |
-| Active aliases | Fresh 2026-10-02 read confirms canonical `chasum.vercel.app` maps to `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u`. Other historical aliases were not re-enumerated; Issue #57 remains DEFERRED. | MATCH for canonical alias / UNKNOWN remainder | ISSUE136-CLOSEOUT |
-| Deployment readiness | Current canonical deployment `dpl_2yFCVso4Twa5AUvm5PB6Kmvvv85u` is `READY`, target `production`, Git metadata SHA `b2ee664a…`, ref `main`. | MATCH | ISSUE136-CLOSEOUT |
-| Accepted application baseline vs serving | Latest accepted behavior-changing release remains #121 `e8c307df…`; canonical serving SHA is later documentation continuity merge `b2ee664a…`. No #131 behavior is serving. | INTENTIONAL DIFFERENCE | ISSUE136-CLOSEOUT |
-| Production SHA vs canonical main | At 2026-10-02 reconciliation Production is `b2ee664a…` while pre-closeout main is `c2bd5784…`. Divergence is intentional under Issue #136: merge does not release. The docs closeout merge may advance main again without Production movement. | INTENTIONAL DIFFERENCE | ISSUE136-CLOSEOUT |
+| Application URL | Fresh 2026-10-03 alias read: `https://chasum.vercel.app` maps to governed #131 deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` in Chasum project `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`. | MATCH | P131-PROD |
+| Serving Git SHA | Fresh 2026-10-03 direct Production build-info: `664fbc734c4103d78484c6b3828849a6605a562f`, `commitShort=664fbc7`, `ref=main`, `env=production`, `production=true`. | MATCH | P131-PROD |
+| Branch/ref; environment | `main`; `production`; `production=true`. | MATCH | P131-PROD |
+| Vercel deployment ID | `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` | MATCH | P131-PROD |
+| Deployment URL | `https://chasum-be6vrhrc4-renovisionappcom.vercel.app` | MATCH | P131-PROD |
+| Active aliases | Fresh 2026-10-03 read confirms canonical `chasum.vercel.app` maps to `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`; previously attached `chasumai.com` also points to the same deployment. This does not reverse Issue #57: DNS/Auth/app-URL branded-domain activation remains DEFERRED. | MATCH for observed Vercel aliases | P131-PROD |
+| Deployment readiness | Canonical deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` is `READY`, target `production`, Git metadata SHA `664fbc…`, ref `main`, governedReleaseRun `37128562995`. | MATCH | P131-PROD |
+| Accepted application baseline vs serving | Latest accepted behavior-changing release is #131 `664fbc…`, and canonical Production serves that exact SHA. | MATCH | P131-PROD |
+| Production SHA vs canonical main | At 2026-10-03 reconciliation Production is exact approved #131 `664fbc…` while Git main is later `120ea6c…`. Divergence is intentional release governance; runtime/application trees are byte-identical and the later commits are release-control/candidate metadata. | INTENTIONAL DIFFERENCE / behavior-equivalent | P131-PROD |
 | Supabase project ref | Production project `kxcydvhswkuzepwzzinq` directly verified during Stage 1B release, and re-confirmed 2026-09-26 as the sole Supabase endpoint in the served Production public bundle. | MATCH | P87-PROD / GVM-DATA-2026-09-26 |
-| Migration summary / applied hashes | B1 `20260923185926`; Staff quota `20260923190213`; B2 `20260923190501`; C1 `20260923232629`. C1 exact SHA-256 `c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089`. | MATCH | P97-PROD |
+| Migration summary / applied hashes | B1 `20260923185926`; Staff quota `20260923190213`; B2 `20260923190501`; C1 `20260923232629`; C3 cutover `20260925140328`. #131 carried no migration/schema change. | MATCH | P131-PROD read-only ledger |
 | Locked/unapplied migrations | 034/035/036 remain absent/unapplied after C1 Production acceptance. | MATCH | P97-PROD |
 | Schema compatibility | Observed `softSchemaFallbacks=disabled`; configuration flag is not schema evidence. | UNKNOWN (schema) | P125-ISSUE121-PROD health only |
 | Cron state | C1 cleanup route is deployed; Production CRON_SECRET configuration presence confirmed; unauthenticated cleanup request denied HTTP 401. Scheduled invocation execution itself remains separately observable operational state. | MATCH for route/config/auth gate; scheduler execution not claimed | P97-PROD |
