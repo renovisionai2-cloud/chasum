@@ -1,12 +1,12 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-03 for PR #131 governed Production acceptance and GVM financial-integrity continuation. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
+**Updated:** 2026-10-03 for Issue #130 Outcome B closure and the Issue #135 candidate awaiting independent audit / PR publication. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
 ## 2026-10-03 — First governed real Production release proof
 
-**Current pre-restamp Git main:** `120ea6cb2fd5c8fd9013753284a29a9a821333c2`. This is later than the serving application SHA because post-#131 main changes are release-governance/authorization metadata; application/runtime trees remain byte-identical to #131.
+**Historical pre-restamp Git main at the release closeout:** `120ea6cb2fd5c8fd9013753284a29a9a821333c2`. This was later than the serving application SHA because post-#131 main changes were release-governance/authorization metadata; application/runtime trees were byte-identical to #131. This is a dated observation, not the #135 candidate identity.
 
 **Canonical Production:** exact approved #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f`, deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`, governed workflow run `37128562995`, READY / target production.
 
@@ -30,7 +30,7 @@ Accepted zero-write Chromium evidence uses exact runtime candidate `9d8bf216749a
 
 Production/browser/Quality observations above were verified during the governed release and are being recorded here; this documentation task performs no new environment action. Local Git confirms merge and final-head tree/parent identities and the two-file delta. A fresh GitHub connector read confirms canonical `main = e8c307df07107736395f1b3b1f2d56bba3fec6be`. No Production DB counts are claimed or queried. This restamp performs no runtime, DB, Staging or Production action.
 
-**Current continuation:** Issue #130 — Reception Quick Appointment real-iPhone deposit-loss investigation, **non-Production instrumentation/reproduction only**. #135 remains the separate Full Booking Sheet pre-result duplicate-submit guard. #134 + #133 remain the Level-3 payment-attempt idempotency/reconciliation + observability program. **M1C remains NOT STARTED and is not authorized by this continuation.** See section D.
+**Current continuation:** #130 is **CLOSED / COMPLETED, Outcome B**; PR #148 closed unmerged. #135 Full Booking Sheet pre-result duplicate-submit guard is the **active bounded candidate awaiting independent audit / PR publication**. Claude audit is **PENDING / execution BLOCKED** because `cursor-agent` requires authentication, per Control Tower; no audit completion is claimed. #134 + #133 remain separate Level-3 payment integrity / observability work. **M1C/M2 remain behind the incident sequence; #149 is future M2A/M2B feedback, CAPTURE ONLY / DO NOT IMPLEMENT.** See section D.
 
 ### Preserved M1B accepted history
 
@@ -50,7 +50,7 @@ No Production tenant/database mutation, migration/schema/RLS/Auth/provider chang
 
 PR #118 merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617` on 2026-09-29T00:28:22Z. Exact hosted-tested runtime candidate was `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`. The merge tree `cdce0b0b8425672bd9361563b20bb4fa6035d0f4` is byte-identical to the docs-closeout tree and differs from the hosted-tested runtime only in six Markdown files; all executable/runtime/config/test subtrees are mechanically reconciled. Automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully. Direct Production `/api/build-info` and `/api/health` passed, and Quality on the exact Production SHA passed **1,665 / 36 skipped / 0 failed** including the Chromium containment test. Real GVM Production retained Burlington/Brampton/Caledonia and the accepted relationship truth; no Production booking or data mutation was manufactured. Claude Opus 5 High Development Control Tower verdict: **B — PRODUCTION ACCEPTED / M1A CLOSED, WITH NON-BLOCKING LIMITATIONS**; no further Production probe or rollback is required.
 
-**The GVM technician mobile correction program remains open.** Current preserved sequence:
+**The GVM technician mobile correction program remains open.** Preserved mobile sequence, behind the active financial/booking incident gate in section D:
 M1B CLOSED → #121 CLOSED → M1C Mobile Account Control → M2A Reception Phone Composition → M2B Calendar Phone Progressive Disclosure → M3 Command Centre Up Next Across Your Business → M4 Assign Later Level-3 architecture/data-integrity → M5 Summer Operating Intelligence (design now/build later).
 
 Commercial SaaS Gate B / P2B is **PAUSED / PRESERVED** by Product Owner sequencing. Do not resume it automatically while the mobile program is the active continuation.
@@ -214,11 +214,13 @@ Locked Package C Product Owner decisions remain:
 
 ## D. Exact next governed gate
 
-**Issue #130 — Reception Quick Appointment iPhone deposit-loss investigation: LAUNCH REQUIRED / INVESTIGATION ONLY.** Reconcile the current exact Quick Appointment implementation and existing #130 evidence, add only the smallest privacy-safe non-Production instrumentation needed to observe payment-draft transitions, submit-time payment fields, redacted attempt identity and returned `ActionState.payment`, then run a real-iPhone Preview/Staging reproduction. No customer PII beyond what the existing test workflow inherently needs may be added to instrumentation.
+**Issue #130 — CLOSED / COMPLETED, Outcome B.** Supplied Control Tower evidence records the governed real-iPhone non-Production Quick Appointment pass: `deposit` / `5000` / `e_transfer` survived state and submitted FormData, returned `payment=recorded`, and matched Staging persistence. All exact temporary Staging fixture/artifact rows were cleaned to zero; PR #148 closed unmerged. No Production/GVM/schema/Auth mutation occurred. This clean instrumented pass narrows hypotheses; it does not prove or fix the original loss mechanism.
 
-Success condition is either: **A)** reproduce and mechanically prove the exact Quick Appointment loss mechanism; or **B)** obtain a clean real-iPhone non-Production pass with instrumentation and truthfully narrow the remaining hypothesis set. **Do not implement a speculative fix, mutate Production, manufacture a GVM Production booking, change schema/RLS/Auth, or start #134/#135/M1C under this gate.**
+**Issue #135 — ACTIVE CANDIDATE / AWAITING INDEPENDENT AUDIT AND PR PUBLICATION.** Branch `codex/issue-135-duplicate-submit`, base `cd919ea681961e0f4ed5327a5da767d1782a639f`; do not invent a future candidate SHA. The create-only session guard blocks immediate duplicate dispatch, releases on a returned no-appointment result, and resets on close/reopen; edit saves and the #131 result lock remain intact. Competitive Product Gate **NOT_APPLICABLE** for this bounded integrity correction. Local focused 14/14 and broader booking/payment 392/392 tests and typecheck PASS; targeted lint retains the base's 2 errors / 1 warning. Control Tower independently reports `npm run build` PASS / exit 0 and full unit suite PASS / exit 0: **178 files passed / 1 skipped; 1,734 tests passed / 36 skipped / 0 failed (1,770 total)**. These additional results are supplied evidence, not new runs by this documentation reconciliation.
 
-Incident sequence: **#131 PRODUCTION ACCEPTED → #130 INVESTIGATION → #135 bounded duplicate-submit guard → #134/#133 Level-3 payment integrity + observability design → final GVM operational acceptance.** M1C remains NOT STARTED behind this active incident sequence. #123 remains OPEN / POST-M1B SAFE / deferred tech debt; P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
+**Independent Claude audit: PENDING / execution BLOCKED.** Control Tower reports `cursor-agent` authentication required; no accepted/running audit or returned Claude result exists. Manual next action: restore the authenticated channel or arrange an approved independent channel, then dispatch the exact #135 candidate audit before merge acceptance. Safe documentation work and Control Tower PR publication may continue. Internal implementation-agent review and passing build/tests are not the independent audit. This session must not commit, push, open a PR, merge, deploy, mutate environments or alter release controls; no #135 merge or Production acceptance is claimed.
+
+Incident sequence: **#131 PRODUCTION ACCEPTED → #130 CLOSED Outcome B → #135 active candidate / independent audit and PR publication → #134/#133 separate Level-3 payment integrity + observability work → final GVM operational acceptance.** M1C remains NOT STARTED and M2 stays behind this sequence. **Issue #149: CAPTURE ONLY / DO NOT IMPLEMENT** — future M2A/M2B Calendar-first Reception and progressive disclosure Product Owner feedback. #123 remains OPEN / POST-M1B SAFE / deferred tech debt; P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
 
 ## E. Other accepted program state
 
@@ -305,7 +307,8 @@ and "Would a real business prefer this experience to the mature software it
 already uses?"
 
 Latest accepted behavior-changing Production application release:
-e8c307df07107736395f1b3b1f2d56bba3fec6be   (PR #125, #121 Production accepted / closed)
+664fbc734c4103d78484c6b3828849a6605a562f   (PR #131 / #129, governed Production accepted)
+PR #125 / #121 at e8c307df07107736395f1b3b1f2d56bba3fec6be remains accepted history.
 Prior #102/PR #103 acceptance at 934fe4c remains historical and valid.
 
 Issue #81 Stage 1 COMPLETE / Production accepted.
@@ -316,14 +319,21 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-M1C Mobile Account Control: REQUIRED / NOT STARTED; governed preparation ONLY.
-Reconcile current main/source; re-read technician feedback and account/login/logout
-behavior; complete required Competitive Product Gate; define bounded UX/responsive/
-regression/auth-safety contract; return implementation gate to PO/coordinator.
-NO M1C IMPLEMENTATION AUTHORIZATION. Do not start implementation automatically.
-M1B CLOSED -> #121 CLOSED -> M1C -> M2A -> M2B -> M3 -> M4 -> M5.
+#130 CLOSED / COMPLETED Outcome B; real-iPhone non-Production clean instrumented
+pass, exact temporary Staging fixtures/artifacts cleaned to zero; PR #148 closed unmerged.
+#135 is the active bounded candidate awaiting independent audit / PR publication.
+Branch codex/issue-135-duplicate-submit; base cd919ea681961e0f4ed5327a5da767d1782a639f.
+Claude audit PENDING / BLOCKED: cursor-agent authentication required; NOT completed.
+Control Tower must restore authenticated execution or arrange an approved independent
+channel and dispatch the exact candidate audit before merge acceptance.
+Control Tower build/full-suite evidence is recorded in section D; it is not an audit.
+#131 ACCEPTED -> #130 CLOSED Outcome B -> #135 candidate -> separate #134/#133
+Level-3 payment integrity/observability -> final GVM operational acceptance.
+M1C NOT STARTED; M1C/M2 remain behind this active incident sequence.
+#149 future M2A/M2B Calendar-first Reception/progressive disclosure: CAPTURE ONLY / DO NOT IMPLEMENT.
 #123 OPEN / POST-M1B SAFE; do not implement. P2B PAUSED; later slices not started.
-This closeout executes documentation only; M1C preparation remains NOT STARTED.
+This reconciliation changes documentation only; no commit/push/PR/merge/deployment
+or environment mutation is authorized for this implementation session.
 
 AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = coordinator / continuity /
 Product Owner decision preparation. Codex = primary implementer. Claude =
