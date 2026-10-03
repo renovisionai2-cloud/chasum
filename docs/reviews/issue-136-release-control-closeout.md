@@ -133,18 +133,18 @@ All tenants remain on the same Chasum Vercel project and one shared application 
 
 These are not #136 closure blockers, but must remain visible:
 
-1. The governed real Production release workflow has not yet run.
-2. Project-scoped token write capabilities for deploy/promote/rollback remain unexercised on real Chasum.
+1. The governed real Production release workflow has now run successfully on Chasum: run `37128562995` released exact approved #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f` to canonical deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`.
+2. Project-scoped token deploy capability and canonical verification are now exercised on real Chasum. Rollback/restoration was not invoked in the successful run; rollback remains available but not yet exercised in a real-project failure.
 3. Release credential rotation is due approximately **2026-11-01**.
 4. A Vercel project-scoped token can still change project settings, including the CLI-only deployment policy; this is a Vercel platform limitation and requires periodic policy read-back/detection.
 5. If deploy succeeds but promotion fails, a staged Production artifact may remain while canonical traffic stays on the prior deployment.
 6. `prevent_self_review=false` on `production-release`; with one collaborator this is a deliberate human confirmation/audit gate, not two-person separation of duties.
 7. Five recent OTP sessions remain unidentified but finite-lived; target steady state is zero unowned active credentials by identification or expiry.
-8. Historical Production deployment object `6788186484` for PR #131 is the original defect record and must never be misread as evidence that #131 reached canonical Production.
+8. Historical Production deployment object `6788186484` for PR #131 is the original stopped defect record and must never be misread as the governed #131 Production release. The accepted governed release is run `37128562995` / deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`.
 
-## Closeout merge gate
+## Historical closeout merge gate — COMPLETED
 
-This documentation-only PR is itself the final real-project re-proof of the merge invariant.
+The documentation-only #136 closeout merge passed this final real-project re-proof and Issue #136 was closed. The original criteria are retained below as historical acceptance evidence.
 
 After its merge, close Issue #136 only if all four observations hold:
 
@@ -155,8 +155,10 @@ After its merge, close Issue #136 only if all four observations hold:
 
 If any observation fails, do not close Issue #136.
 
-## Separation from #131
+## Separation from #131 — later separately exercised
 
-Nothing in Issue #136 closeout authorizes PR #131 for Production.
+Issue #136 closeout itself did **not** authorize PR #131 for Production. That separation was preserved.
 
-PR #131 merge SHA `664fbc734c4103d78484c6b3828849a6605a562f` remains a separate Product Owner release decision and may become the first governed real Production release only under a later explicit gate.
+On 2026-10-03, the Product Owner later issued a separate fresh candidate authorization and separate protected-Environment Production approval for exact #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f`. Governed run `37128562995` then succeeded and canonical Production moved to deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`, with exact build-info and health verification. This is the first real-project exercise proving the control model beyond merge suppression. The used candidate was subsequently cleared back to deny-all.
+
+The historical automatic deployment object `6788186484` remains only the stopped pre-#136 defect record and must never be conflated with the governed release.

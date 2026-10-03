@@ -49,7 +49,9 @@ The governed Vercel credential is project-only, finite-lived and stored only as 
 
 A READY Production-target deployment is **not** sufficient proof that canonical traffic moved. Issue #136 fixture testing proved a rollback hold can leave canonical traffic on the prior deployment. Always verify the canonical alias/build-info identity.
 
-PR #131 (`664fbc734c4103d78484c6b3828849a6605a562f`) remains a separate Product Owner release decision; Issue #136 closeout does not authorize it.
+The separation above was proven on real Chasum. On 2026-10-03, a **later, separate** Product Owner decision authorized exact PR #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f`. Governed run `37128562995` passed preflight, protected Environment approval, exact-candidate Chromium/full tests/build, final policy recheck and canonical verification. Deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` became canonical and `/api/build-info` reported the exact SHA. Rollback/restoration was not invoked. The used candidate was then removed and policy returned to deny-all.
+
+This proof does **not** weaken the rule: every future Production release still needs its own fresh candidate + Product Owner gate. Never infer authorization from a prior successful run.
 
 ---
 

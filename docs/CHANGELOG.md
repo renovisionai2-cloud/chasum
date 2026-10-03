@@ -9,21 +9,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-03 — PR #131 / Issue #129 Production accepted through governed release
+
+- First real Chasum Production execution of the Issue #136 release-control architecture succeeded under workflow run `37128562995`. Exact approved #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f` became canonical only after fresh candidate authorization and explicit Product Owner approval on protected Environment `production-release`.
+- Production deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` is READY / target production. Canonical `/api/build-info` reports exact `664fbc…`, `ref=main`, `env=production`, `production=true`; `/api/health` returned HTTP 200 / `ok=true`. Rollback/restoration was not invoked.
+- Exact-candidate dependency install, Chromium install, full tests and build all passed before Production access. The deployed artifact is the bounded Full Booking Sheet payment-intent/outcome correction; current-main application/runtime trees remain byte-identical, so unrelated later main changes were not included.
+- Read-only GVM verification passed: expected tenant owner identity, 3 active Locations, 3 active Staff, 9 staff-location / 43 service-location / 27 staff-service relationships, zero cross-tenant mismatches, and zero offered-Service coverage gaps. The 15th Service was created before release on 2026-10-01. No manufactured GVM Production booking, schema migration or release-time GVM appointment/payment/invoice/customer/Location/Service/Staff mutation was used for acceptance.
+- The used candidate authorization was removed after release and `release/candidates.json` returned to deny-all. The complete GVM technician incident remains open: #130 is next for non-Production real-iPhone Quick Appointment investigation; #135 and #134/#133 remain separately governed integrity work.
+- Competitive Product Gate **NOT_APPLICABLE** for this closeout restamp: documentation/release evidence only.
+
 ### 2026-10-02 — Governed Production release control (Issue #136 closeout)
 
 - Structurally separate merge approval from Production release approval. `main` Git deployments are suppressed in `vercel.json`, and Vercel Production Deployment Sources are CLI-only while Preview remains available.
 - Add the governed exact-SHA `release-production` workflow, deny-all-by-default `release/candidates.json`, protected Product-Owner-reviewed `production-release` Environment, canonical serving verification, promotion handling and restore-previous failure path.
 - Source-pin required checks and retain the low-privilege Chasum Engineering Author App. CODEOWNERS exists but enforcement is deliberately **WAIVED / DEFERRED** while Chasum has one human collaborator; revisit with a second trusted collaborator rather than create routine admin bypass.
 - Establish one project-only, finite Vercel release credential behind the protected Environment. Four non-expiring personal tokens and the discharged fixture token were revoked; zero non-expiring personal Vercel tokens remain. Rotation due approximately 2026-11-01.
-- Real-project proof: post-fix merges #138/#139/#140 produced zero deployment objects; canonical Production remains `b2ee664a2e2125473450254f79af39563cf18471`. PR #131 merge `664fbc734c4103d78484c6b3828849a6605a562f` remains **NOT Production deployed**; historical deployment object `6788186484` is the stopped original defect record.
+- Historical 2026-10-02 closeout proof: post-fix merges #138/#139/#140 produced zero deployment objects; canonical Production then remained `b2ee664a2e2125473450254f79af39563cf18471`, and PR #131 was not yet Production deployed. Historical deployment object `6788186484` is the stopped original defect record. #131 was later separately authorized and Production accepted on 2026-10-03 as recorded above.
 - Competitive Product Gate **NOT_APPLICABLE**: documentation/security/release-governance closeout only. The closeout PR's merge is the final no-Production re-proof before Issue #136 closure.
 
-### 2026-10-01 — Persistent booking payment-failure truth (Issue #129, PR #131 merged / not Production deployed)
+### 2026-10-01 — Persistent booking payment-failure truth (Issue #129, PR #131 implementation)
 
 - Preserve committed transaction identity and amount when payment recording succeeds but appointment financial sync fails. Disclose recorded money without retry instructions; only a failure without a transaction offers manual Collect payment navigation for the already-created appointment.
 - Keep the Booking Sheet open with a persistent alert, attempted/requested labels for unrecorded money, explicit Close, and a second-create guard. Hide stale draft balance/payment controls and the unbound collection menu; a new open session resets the completed action. Other normal success outcomes retain closure.
 - Success text and change-log summaries use committed amounts when available. Existing payment calculations, fail-closed intent validation, transaction-matching predicate, appointment → payment → notification order, and commerce implementation remain unchanged.
-- Competitive Product Gate **NOT_APPLICABLE**: correction to a locked behavior contract. Implementation was later merged as `664fbc734c4103d78484c6b3828849a6605a562f`; Production release remains separately gated and has not occurred. No schema/migration/RLS/Auth, Issue #130, M1C/PR #128, payment-attempt architecture or inline retry work was included.
+- Competitive Product Gate **NOT_APPLICABLE**: correction to a locked behavior contract. Implementation merged as `664fbc734c4103d78484c6b3828849a6605a562f` and was later Production accepted on 2026-10-03 through governed run `37128562995`; see the closeout entry above. No schema/migration/RLS/Auth, Issue #130, M1C/PR #128, payment-attempt architecture or inline retry work was included.
 - Local validation: focused **6 files / 36 tests PASS**; authorized local full-suite rerun **177 files passed / 1 skipped; 1,721 tests passed / 36 skipped / 0 failed**. The two Chromium suites that Codex could not launch inside its sandbox passed **2 files / 3 tests** from the authorized local environment, and the one unrelated full-suite timing failure passed **12/12** in isolation before the clean rerun. Typecheck, webpack build, diff-check and focused clean-file ESLint pass. Booking Sheet lint remains exactly the base's **2 errors / 1 warning**, no new diagnostics; global lint is not green. Installed local Next reports **16.2.10** while the repository declares **16.3.6**; dependency files were not changed, so hosted CI/Vercel remains the declared-version proof.
 
 ### 2026-09-29 — Summer Location disclosure — PRODUCTION ACCEPTED / CLOSED (Issue #121, PR #125)
