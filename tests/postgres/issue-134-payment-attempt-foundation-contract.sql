@@ -235,6 +235,13 @@ select pg_temp.expect_failure(
   'PAYMENT_ATTEMPT_LEDGER_LINK_IMMUTABLE',
   '23514'
 );
+select pg_temp.expect_failure(
+  $q$update public.commerce_transactions
+      set payment_attempt_id = null
+      where id = '13400000-0000-0000-0000-000000000301'$q$,
+  'PAYMENT_ATTEMPT_LEDGER_LINK_IMMUTABLE',
+  '23514'
+);
 reset role;
 \echo 'PASS 04 ledger payment_attempt_id updates are rejected'
 
@@ -277,7 +284,7 @@ select pg_temp.expect_failure(
   '23514'
 );
 reset role;
-\echo 'PASS 06 ledger tuple mismatch rejected'
+\echo 'PASS 06 ledger INSERT tuple mismatch rejected'
 
 insert into public.commerce_payment_attempts(
   id, business_id, attempt_key, request_fingerprint, source, customer_id,
@@ -430,6 +437,21 @@ update public.commerce_payment_attempts
 set execution_state = 'SKIPPED', recovery_disposition = 'DO_NOT_RETRY'
 where id = '13400000-0000-0000-0000-000000000108';
 reset role;
+insert into public.commerce_payment_attempts(
+  id, business_id, attempt_key, request_fingerprint, source, customer_id,
+  payment_kind, amount_cents, currency, method, provider_route, execution_state
+) values (
+  '13400000-0000-0000-0000-000000000113',
+  '13400000-0000-0000-0000-000000000001',
+  '13400000-0000-0000-0000-000000000223',
+  'v1:'||repeat('d',64), 'collect_payment',
+  '13400000-0000-0000-0000-000000000011',
+  'payment', 513, 'cad', 'cash', 'manual', 'REQUESTED'
+);
+set local role service_role;
+update public.commerce_payment_attempts set execution_state = 'FAILED'
+where id = '13400000-0000-0000-0000-000000000113';
+reset role;
 \echo 'PASS 09 ACCEPTED/SKIPPED terminality; REQUESTED transitions and FAILED -> ACCEPTED allowed'
 
 select pg_temp.expect_failure(
@@ -525,6 +547,21 @@ select pg_temp.expect_failure(
   'commerce_payment_attempt_events_attempt_fk',
   '23503'
 );
+set local role service_role;
+select pg_temp.expect_failure(
+  $q$insert into public.commerce_transactions(
+    business_id, customer_id, kind, status, method, amount_cents, currency,
+    provider, payment_attempt_id
+  ) values (
+    '13400000-0000-0000-0000-000000000002',
+    '13400000-0000-0000-0000-000000000012',
+    'payment', 'succeeded', 'cash', 1000, 'cad', 'manual',
+    '13400000-0000-0000-0000-000000000101'
+  )$q$,
+  'PAYMENT_ATTEMPT_NOT_FOUND',
+  '23503'
+);
+reset role;
 select pg_temp.expect_failure(
   $q$insert into public.commerce_payment_reconciliation(
     business_id, attempt_id, projection_kind
@@ -596,8 +633,76 @@ select pg_temp.expect_failure(
   'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
   '23514'
 );
+select pg_temp.expect_failure(
+  $q$update public.commerce_transactions
+      set customer_id = '13400000-0000-0000-0000-000000000012'
+      where id = '13400000-0000-0000-0000-000000000303'$q$,
+  'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$update public.commerce_transactions
+      set appointment_id = '13400000-0000-0000-0000-000000000022'
+      where id = '13400000-0000-0000-0000-000000000303'$q$,
+  'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$update public.commerce_transactions
+      set currency = 'usd'
+      where id = '13400000-0000-0000-0000-000000000303'$q$,
+  'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$update public.commerce_transactions
+      set method = 'debit_card'
+      where id = '13400000-0000-0000-0000-000000000303'$q$,
+  'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$update public.commerce_transactions
+      set kind = 'deposit'
+      where id = '13400000-0000-0000-0000-000000000303'$q$,
+  'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$update public.commerce_transactions
+      set provider = 'stripe'
+      where id = '13400000-0000-0000-0000-000000000303'$q$,
+  'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
+  '23514'
+);
 reset role;
-\echo 'PASS 14 pending linked row may become succeeded; amount mutation rejected'
+
+insert into public.commerce_payment_attempts(
+  id, business_id, attempt_key, request_fingerprint, source, customer_id,
+  payment_kind, amount_cents, currency, method, provider_route, execution_state
+) values (
+  '13400000-0000-0000-0000-000000000112',
+  '13400000-0000-0000-0000-000000000001',
+  '13400000-0000-0000-0000-000000000212',
+  'v1:'||repeat('e',64), 'collect_payment',
+  '13400000-0000-0000-0000-000000000011',
+  'payment', 2512, 'cad', 'cash', 'manual', 'ACCEPTED'
+);
+set local role service_role;
+insert into public.commerce_transactions(
+  id, business_id, customer_id, kind, status, method, amount_cents, currency,
+  provider, payment_attempt_id
+) values (
+  '13400000-0000-0000-0000-000000000312',
+  '13400000-0000-0000-0000-000000000001',
+  '13400000-0000-0000-0000-000000000011',
+  'payment', 'requires_action', 'cash', 2512, 'cad', 'manual',
+  '13400000-0000-0000-0000-000000000112'
+);
+update public.commerce_transactions set status = 'succeeded'
+where id = '13400000-0000-0000-0000-000000000312';
+reset role;
+\echo 'PASS 14 pending/requires_action rows may succeed; every guarded tuple-field mutation rejected'
 
 insert into public.commerce_payment_reconciliation(
   business_id, attempt_id, projection_kind
@@ -635,6 +740,50 @@ select pg_temp.expect_failure(
   )$q$,
   'cannot insert a non-DEFAULT value',
   '428C9'
+);
+select pg_temp.expect_failure(
+  $q$insert into public.commerce_payment_reconciliation(
+    business_id, attempt_id, projection_kind, state
+  ) values (
+    '13400000-0000-0000-0000-000000000001',
+    '13400000-0000-0000-0000-000000000102',
+    'appointment_cache', 'COMPLETE'
+  )$q$,
+  'commerce_payment_reconciliation_completion_check',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$insert into public.commerce_payment_reconciliation(
+    business_id, attempt_id, projection_kind, state, completed_at
+  ) values (
+    '13400000-0000-0000-0000-000000000001',
+    '13400000-0000-0000-0000-000000000102',
+    'appointment_cache', 'PENDING', now()
+  )$q$,
+  'commerce_payment_reconciliation_completion_check',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$insert into public.commerce_payment_reconciliation(
+    business_id, attempt_id, projection_kind, state
+  ) values (
+    '13400000-0000-0000-0000-000000000001',
+    '13400000-0000-0000-0000-000000000102',
+    'appointment_cache', 'FAILED'
+  )$q$,
+  'commerce_payment_reconciliation_failure_check',
+  '23514'
+);
+select pg_temp.expect_failure(
+  $q$insert into public.commerce_payment_reconciliation(
+    business_id, attempt_id, projection_kind, state, failure_code
+  ) values (
+    '13400000-0000-0000-0000-000000000001',
+    '13400000-0000-0000-0000-000000000102',
+    'appointment_cache', 'PENDING', 'PROJECTION_FAILED'
+  )$q$,
+  'commerce_payment_reconciliation_failure_check',
+  '23514'
 );
 
 insert into public.commerce_payment_attempts(
