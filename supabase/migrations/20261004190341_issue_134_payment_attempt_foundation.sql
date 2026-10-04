@@ -4,6 +4,15 @@
 set lock_timeout = '5s';
 set statement_timeout = '30s';
 
+do $$
+begin
+  if current_setting('lock_timeout')::interval <> interval '5 seconds'
+     or current_setting('statement_timeout')::interval <> interval '30 seconds' then
+    raise exception 'ISSUE_134_TIMEOUT_ASSERTION_FAILED: lock=%, statement=%',
+      current_setting('lock_timeout'), current_setting('statement_timeout');
+  end if;
+end $$;
+
 -- Existing global PKs already imply uniqueness. These keys support tenant FKs only.
 alter table public.customers
   add constraint customers_id_business_attempt_key unique (id, business_id);
@@ -268,3 +277,6 @@ revoke all on function public.reject_commerce_attempt_history_mutation() from pu
 grant execute on function public.guard_commerce_payment_attempt() to service_role;
 grant execute on function public.guard_commerce_attempt_ledger_link() to service_role;
 grant execute on function public.reject_commerce_attempt_history_mutation() to service_role;
+
+reset lock_timeout;
+reset statement_timeout;

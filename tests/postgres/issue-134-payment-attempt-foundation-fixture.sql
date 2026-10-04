@@ -2,6 +2,16 @@
 
 -- Minimal disposable baseline for the exact Issue #134 migration. This file is
 -- local-test infrastructure only; it is not a deployable Chasum migration.
+create temporary table issue134_session_timeout_defaults (
+  lock_timeout interval not null,
+  statement_timeout interval not null
+) on commit preserve rows;
+insert into issue134_session_timeout_defaults(lock_timeout, statement_timeout)
+values (
+  current_setting('lock_timeout')::interval,
+  current_setting('statement_timeout')::interval
+);
+
 do $$
 begin
   if not exists (select 1 from pg_roles where rolname = 'anon') then

@@ -7,6 +7,7 @@ const root = process.cwd();
 const migrationPath = "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql";
 const migration = readFileSync(resolve(root, migrationPath), "utf8");
 const sql = migration.replace(/--[^\n]*/g, "");
+const verifier = readFileSync(resolve(root, "scripts/verify-issue134-disposable-postgres.mjs"), "utf8");
 const design = () => readFileSync(resolve(root, "docs/reviews/issue-134-payment-attempt-foundation.md"), "utf8");
 const tables = ["commerce_payment_attempts", "commerce_payment_attempt_events", "commerce_payment_reconciliation"];
 const table = (name: string) => sql.split(`create table public.${name} (`)[1]?.split("\n);")[0] ?? "";
@@ -26,11 +27,37 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
   it("has only three bounded new tables and balanced function bodies", () => {
     expect([...sql.matchAll(/create table public\.(\w+)/g)].map((m) => m[1])).toEqual(tables);
     expect(sql.match(/as \$\$/g)).toHaveLength(3);
-    expect(sql.match(/end \$\$;/g)).toHaveLength(3);
+    expect(sql.match(/end \$\$;/g)).toHaveLength(4);
     expect(sql).not.toMatch(/^\s*\$;\s*$/m);
+  });
+
+  it("sets, asserts, and resets session timeouts without SET LOCAL", () => {
     expect(sql).toContain("set lock_timeout = '5s'");
     expect(sql).toContain("set statement_timeout = '30s'");
+    expect(sql).toContain("current_setting('lock_timeout')::interval <> interval '5 seconds'");
+    expect(sql).toContain("current_setting('statement_timeout')::interval <> interval '30 seconds'");
+    expect(sql).toContain("ISSUE_134_TIMEOUT_ASSERTION_FAILED");
+    expect(sql).toContain("reset lock_timeout;");
+    expect(sql).toContain("reset statement_timeout;");
+    expect(sql.indexOf("reset lock_timeout;")).toBeGreaterThan(sql.lastIndexOf("grant execute"));
+    expect(sql.trimEnd().endsWith("reset statement_timeout;")).toBe(true);
     expect(sql).not.toMatch(/set\s+local\s+(?:lock_timeout|statement_timeout)/i);
+  });
+
+  it("rejects every verifier query string or fragment before PostgreSQL execution", () => {
+    expect(verifier).toContain('url.search === ""');
+    expect(verifier).toContain('url.hash === ""');
+    expect(verifier).toContain('!value.includes("?")');
+    expect(verifier).toContain('!value.includes("#")');
+    for (const value of [
+      "postgresql://local@127.0.0.1/db?host=evil.example.com",
+      "postgresql://local@127.0.0.1/db?hostaddr=203.0.113.1",
+      "postgresql://local@localhost/db?service=evil",
+      "postgresql://local@localhost/db#anything",
+    ]) {
+      expect(verifier).toContain(`"${value}"`);
+      expect(verifier.indexOf(value)).toBeLessThan(verifier.indexOf('run(["--version"])'));
+    }
   });
 
   it("requires immutable versioned fingerprint and opaque attempt key", () => {
@@ -103,6 +130,10 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
     expect(sql).toContain("PAYMENT_ATTEMPT_STATE_TERMINAL");
     expect(sql).not.toMatch(/old\.execution_state\s*=\s*'FAILED'/);
     expect(sql).not.toMatch(/old\.execution_state\s*=\s*'REQUESTED'/);
+    expect(design()).toContain("Terminality applies to `execution_state` only");
+    expect(design()).toContain("Contradictory advisory fields never override ledger truth");
+    expect(design()).toContain("must force UNKNOWN / review");
+    expect(design()).toContain("canonical writer owns coherent transition updates");
   });
 
   it("keeps evidence append-only, monotonically ordered and privacy-safe", () => {

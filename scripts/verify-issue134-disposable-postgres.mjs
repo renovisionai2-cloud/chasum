@@ -17,7 +17,11 @@ function isLocalPostgresUrl(value) {
     const url = new URL(value);
     return (
       new Set(["postgres:", "postgresql:"]).has(url.protocol) &&
-      new Set(["localhost", "127.0.0.1", "::1"]).has(normalizedHostname(url))
+      new Set(["localhost", "127.0.0.1", "::1"]).has(normalizedHostname(url)) &&
+      url.search === "" &&
+      url.hash === "" &&
+      !value.includes("?") &&
+      !value.includes("#")
     );
   } catch {
     return false;
@@ -38,6 +42,10 @@ for (const refused of [
   "postgresql://local@example.com/db",
   "postgresql://local@localhost.example.com/db",
   "https://localhost/db",
+  "postgresql://local@127.0.0.1/db?host=evil.example.com",
+  "postgresql://local@127.0.0.1/db?hostaddr=203.0.113.1",
+  "postgresql://local@localhost/db?service=evil",
+  "postgresql://local@localhost/db#anything",
 ]) {
   if (isLocalPostgresUrl(refused)) {
     console.error(`Local-host guard accepted a forbidden test URL: ${refused}`);
@@ -53,7 +61,7 @@ if (!isLocalPostgresUrl(databaseUrl)) {
     // Keep the redacted "invalid" classification.
   }
   console.error(
-    `Refusing database host "${host}". Issue #134 verification permits PostgreSQL on localhost, 127.0.0.1, or ::1 only.`,
+    `Refusing database URL with authority host "${host}". Issue #134 verification permits PostgreSQL on localhost, 127.0.0.1, or ::1 only and forbids query strings and fragments.`,
   );
   process.exit(1);
 }
@@ -128,7 +136,9 @@ const redactedDatabase = parsed.pathname.replace(/^\//, "") || "postgres";
 console.log(
   `Issue #134 disposable target: postgresql://${host}:${redactedPort}/${redactedDatabase} (credentials redacted)`,
 );
-console.log("PASS 18 local-host allowlist and non-local refusal self-tests");
+console.log(
+  "PASS 18 local-host allowlist and non-local/query/fragment refusal self-tests (4 endpoint-override cases)",
+);
 run(["--version"]);
 
 const apply = run([

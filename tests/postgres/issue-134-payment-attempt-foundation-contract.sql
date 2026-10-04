@@ -24,10 +24,17 @@ end $$;
 do $$
 declare
   object_name text;
+  timeout_defaults record;
 begin
-  if current_setting('lock_timeout') <> '5s'
-     or current_setting('statement_timeout') <> '30s' then
-    raise exception 'migration session timeouts are ineffective: lock=%, statement=%',
+  select lock_timeout, statement_timeout
+  into timeout_defaults
+  from pg_temp.issue134_session_timeout_defaults;
+  if not found then
+    raise exception 'pre-migration timeout defaults were not captured';
+  end if;
+  if current_setting('lock_timeout')::interval is distinct from timeout_defaults.lock_timeout
+     or current_setting('statement_timeout')::interval is distinct from timeout_defaults.statement_timeout then
+    raise exception 'migration did not restore session timeout defaults: lock=%, statement=%',
       current_setting('lock_timeout'), current_setting('statement_timeout');
   end if;
   if (
@@ -170,7 +177,7 @@ begin
     raise exception 'event history index does not use event_sequence';
   end if;
 end $$;
-\echo 'PASS 01 exact migration applied; effective 5s/30s timeouts and expected objects exist'
+\echo 'PASS 01 exact migration applied; timeout assertion ran, session defaults restored, and expected objects exist'
 
 insert into public.businesses(id, name) values
   ('13400000-0000-0000-0000-000000000001', 'Issue 134 A'),
