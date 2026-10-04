@@ -10,6 +10,17 @@ const sql = migration.replace(/--[^\n]*/g, "");
 const design = () => readFileSync(resolve(root, "docs/reviews/issue-134-payment-attempt-foundation.md"), "utf8");
 const tables = ["commerce_payment_attempts", "commerce_payment_attempt_events", "commerce_payment_reconciliation"];
 const table = (name: string) => sql.split(`create table public.${name} (`)[1]?.split("\n);")[0] ?? "";
+const allowedFiles = [
+  "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql",
+  "tests/unit/migrations/issue134-payment-attempt-foundation.test.ts",
+  "scripts/verify-issue134-disposable-postgres.mjs",
+  "tests/postgres/issue-134-payment-attempt-foundation-contract.sql",
+  "tests/postgres/issue-134-payment-attempt-foundation-fixture.sql",
+  "docs/reviews/issue-134-payment-attempt-foundation.md",
+  "docs/CHANGELOG.md",
+  "docs/CURRENT_PROJECT_STATE.md",
+  "docs/handoffs/LATEST_HANDOFF.md",
+] as const;
 
 describe("Issue #134 prepared-only foundation contract (offline)", () => {
   it("has only three bounded new tables and balanced function bodies", () => {
@@ -17,8 +28,9 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
     expect(sql.match(/as \$\$/g)).toHaveLength(3);
     expect(sql.match(/end \$\$;/g)).toHaveLength(3);
     expect(sql).not.toMatch(/^\s*\$;\s*$/m);
-    expect(sql).toContain("set local lock_timeout = '5s'");
-    expect(sql).toContain("set local statement_timeout = '30s'");
+    expect(sql).toContain("set lock_timeout = '5s'");
+    expect(sql).toContain("set statement_timeout = '30s'");
+    expect(sql).not.toMatch(/set\s+local\s+(?:lock_timeout|statement_timeout)/i);
   });
 
   it("requires immutable versioned fingerprint and opaque attempt key", () => {
@@ -44,8 +56,10 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
     const uniqueDefinitions = [...sql.matchAll(/\bunique\s*\(([^)]+)\)/gi)].map((m) => m[1]);
     expect(uniqueDefinitions.length).toBeGreaterThan(0);
     for (const definition of uniqueDefinitions) {
-      expect(definition).not.toMatch(/amount|currency|method|description|session|occurred|created_at/);
+      expect(definition).not.toMatch(/amount|currency|method|description|session|occurred|created_at|updated_at|resolved_at/);
     }
+    const uniqueIndexes = [...sql.matchAll(/create\s+unique\s+index[\s\S]*?;/gi)];
+    expect(uniqueIndexes).toHaveLength(0);
     expect(table(tables[0])).not.toMatch(/description|session_id|metadata|jsonb/);
   });
 
@@ -83,13 +97,32 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
     expect(design()).toContain("Receipt failure never changes recorded money or financial synchronization");
   });
 
-  it("keeps evidence append-only and privacy-safe with no arbitrary payload or raw error", () => {
+  it("makes ACCEPTED and SKIPPED terminal without blocking approved recovery transitions", () => {
+    expect(sql).toContain("old.execution_state in ('ACCEPTED', 'SKIPPED')");
+    expect(sql).toContain("new.execution_state is distinct from old.execution_state");
+    expect(sql).toContain("PAYMENT_ATTEMPT_STATE_TERMINAL");
+    expect(sql).not.toMatch(/old\.execution_state\s*=\s*'FAILED'/);
+    expect(sql).not.toMatch(/old\.execution_state\s*=\s*'REQUESTED'/);
+  });
+
+  it("keeps evidence append-only, monotonically ordered and privacy-safe", () => {
+    expect(table(tables[1])).toContain("event_sequence bigint generated always as identity unique");
+    expect(sql).toContain("commerce_payment_attempt_events(attempt_id, business_id, event_sequence)");
+    expect(sql).not.toContain("commerce_payment_attempt_events(attempt_id, business_id, occurred_at");
     expect(sql).toContain("before update or delete on public.commerce_payment_attempt_events");
     expect(sql).toContain("PAYMENT_ATTEMPT_HISTORY_IMMUTABLE");
     for (const name of tables) {
       expect(table(name)).not.toMatch(/jsonb?|payload|form_data|email|phone|description|message|client_secret/);
       expect(table(name)).toMatch(/failure_code text check/);
     }
+  });
+
+  it("mechanically classifies receipt obligations as non-financial", () => {
+    expect(table(tables[2])).toContain(
+      "is_financial boolean generated always as (projection_kind <> 'receipt') stored",
+    );
+    expect(design()).toContain("is_financial");
+    expect(design()).toContain("Financial synchronization MUST exclude");
   });
 
   it("enables RLS and revokes inherited public/client privileges on every new table", () => {
@@ -122,5 +155,22 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
 
   it("marks the foundation design as prepared only and not applied", () => {
     expect(design()).toContain("PREPARED ONLY / NOT APPLIED");
+  });
+
+  it("locks the explicit candidate file scope without requiring Git history", () => {
+    expect(allowedFiles).toEqual([
+      migrationPath,
+      "tests/unit/migrations/issue134-payment-attempt-foundation.test.ts",
+      "scripts/verify-issue134-disposable-postgres.mjs",
+      "tests/postgres/issue-134-payment-attempt-foundation-contract.sql",
+      "tests/postgres/issue-134-payment-attempt-foundation-fixture.sql",
+      "docs/reviews/issue-134-payment-attempt-foundation.md",
+      "docs/CHANGELOG.md",
+      "docs/CURRENT_PROJECT_STATE.md",
+      "docs/handoffs/LATEST_HANDOFF.md",
+    ]);
+    for (const path of allowedFiles) {
+      expect(() => readFileSync(resolve(root, path), "utf8")).not.toThrow();
+    }
   });
 });

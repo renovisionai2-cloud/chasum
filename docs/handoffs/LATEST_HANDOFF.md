@@ -1,6 +1,6 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-04 for Issue #134 prepared-only payment-attempt foundation. Historical acceptance records below remain preserved; this prepared-candidate gate supersedes older next-action wording.
+**Updated:** 2026-10-04 for the Issue #134 Claude-corrected prepared-only payment-attempt foundation. Historical acceptance records below remain preserved; this candidate gate supersedes older next-action wording.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
@@ -8,15 +8,15 @@
 
 **Phase A / PR #154 and #135: MERGED TO MAIN / NOT PRODUCTION ACCEPTED.** Base main / design source: `31115e6a51b71fc097c279d205065d80e0be3573`. #131 remains canonical Production under supplied accepted evidence; no new serving-runtime or DB observation is claimed.
 
-Product Owner [approved prepared-only foundation design/migration authoring](https://github.com/renovisionai2-cloud/chasum/issues/134#issuecomment-5983295092). Codex is sole implementer. Publication branch: `codex/issue-134-payment-attempt-foundation`; see the governed #134 PR for the exact current candidate head once published. Migration `20261004190341_issue_134_payment_attempt_foundation.sql` authors three bounded tables (attempt, append-only events, four projection obligations), nullable unique ledger linkage and narrowly necessary tenant/identity guards. It is authored but **NOT APPLIED** anywhere, including local DBs. See [focused design/review artifact](../reviews/issue-134-payment-attempt-foundation.md) for exact columns, fingerprint/state/recovery, permissions, rollback, offline validation and limitations.
+Product Owner [approved prepared-only foundation design/migration authoring](https://github.com/renovisionai2-cloud/chasum/issues/134#issuecomment-5983295092). GPT-5.6 Sol is the sole alternate implementer for this bounded correction. Publication branch: `codex/issue-134-payment-attempt-foundation`. Draft [PR #155](https://github.com/renovisionai2-cloud/chasum/pull/155) is the governed prepared-only candidate; see PR #155 for the exact current head. The corrected R-1 through R-10 candidate is prepared for Control Tower publication and independent Grok challenge. Pre-correction starting identity: `8df8c15a873df9d7f80c9ff0c33ef525863346e7`. Claude Level-3 supplied **Verdict B**; approved R-1 through R-7 corrections are implemented and R-8 through R-10 recorded. Migration `20261004190341_issue_134_payment_attempt_foundation.sql` authors three bounded tables (attempt, append-only identity-sequenced events, four mechanically classified projection obligations), nullable unique ledger linkage and narrowly necessary tenant/identity guards. It remains **PREPARED ONLY / NOT APPLIED** to Chasum environments. See [focused design/review artifact](../reviews/issue-134-payment-attempt-foundation.md) for exact columns, fingerprint/state/recovery, permissions, rollback, local execution validation and limitations.
 
 Current application code is unchanged, including Phase A tenant predicates/affected-row assertions, webhook CAS, post-commit recorded-but-sync-failed semantics, fail-closed booking currency, receipt/email non-financial boundary and PO Option A uncertainty. The 435-byte weak booking description/session-key dedupe remains byte-identical; it stays until the later durable runtime replacement is proven. N-2 completeness defaults must fail closed; N-3 non-booking USD fallback remains a runtime/#152 input. No currency default is introduced in the new attempt schema.
 
-**Next action:** Foundation is **READY FOR CONTROL TOWER REVIEW**, followed by Claude independent Level-3 audit. Claude is **NEXT / PLANNED / NOT DISPATCHED**, with no execution evidence; the manual audit prompt is in the design artifact. Engineering read-only review is completed and is not Claude acceptance. Migration application requires a separate future Product Owner gate after audit/reconciliation. No new Product Owner decision is needed merely to review the prepared candidate.
+**Next action:** Control Tower publication review, then independent Grok challenge of the exact candidate. Migration application requires a separate future Product Owner gate after review/reconciliation. No new Product Owner decision is needed merely to review the prepared candidate.
 
 Binding sequence: **Phase A MERGED / NOT PRODUCTION ACCEPTED → #134 foundation PREPARED ONLY / NOT APPLIED → Control Tower review + independent Level-3 audit → Product Owner migration/application gate → #134 canonical writer/retry/reconciliation → #133 durable observability/disclosure → Reporting re-source → approved isolated Staging fault/concurrency acceptance → separately approved Production release → GVM OPERATIONAL ACCEPTANCE.**
 
-No runtime writer/admission/retry/reconciliation, #133 disclosure, Reporting re-source, data repair, live fixture, provider activation, deployment or existing-table broad ACL/FORCE-RLS hardening is authorized here. No DB connection/mutation, live fixture or provider operation occurred. No runtime application code changed. Supplied live preflight was consumed, not rerun. Environment Manifest remains unchanged. Six historical GVM USD rows are **UNCHANGED / #152**; **#153 remains separate**. M1C/M2/Time Blocker and normal technician payment/deposit workflows remain held. **GVM OPERATIONAL ACCEPTANCE is NOT earned.** Competitive Product Gate **NOT_APPLICABLE**: bounded internal foundation for locked integrity behavior; no operator workflow implementation.
+No runtime writer/admission/retry/reconciliation, #133 disclosure, Reporting re-source, data repair, live fixture, provider activation, deployment or existing-table broad ACL/FORCE-RLS hardening is authorized here. The exact migration applied only to a fresh temporary PostgreSQL 17.11 cluster bound to `127.0.0.1`; all 20 grouped object/behavior/host/concurrency proofs passed and the cluster was stopped. No Supabase/Staging/Production/GVM connection or mutation, live fixture or provider operation occurred. No runtime application code changed. Supplied live preflight was consumed, not rerun. Environment Manifest remains unchanged. Six historical GVM USD rows are **UNCHANGED / #152** by file scope; **#153 remains separate and is a permission-cutover precondition**. Customer retention/anonymization remains a later Product Owner decision before canonical-writer cutover, not a migration-application blocker. M1C/M2/Time Blocker and normal technician payment/deposit workflows remain held. **GVM OPERATIONAL ACCEPTANCE is NOT earned.** Competitive Product Gate **NOT_APPLICABLE**: bounded internal foundation for locked integrity behavior; no operator workflow implementation.
 
 ## 2026-10-03 — First governed real Production release proof
 
@@ -341,17 +341,20 @@ NEXT GATE:
 #135 / PR #150 and Phase A / PR #154 are MERGED TO MAIN / NOT PRODUCTION ACCEPTED.
 Base main / design source: 31115e6a51b71fc097c279d205065d80e0be3573.
 #134 payment-attempt foundation is PREPARED ONLY / NOT APPLIED.
-Publication branch: codex/issue-134-payment-attempt-foundation; see the governed
-#134 PR for the exact current candidate head once published.
+Publication branch: codex/issue-134-payment-attempt-foundation. Draft PR #155 is
+the governed prepared-only candidate; see PR #155 for the exact current head.
+The corrected R-1 through R-10 candidate is prepared for Control Tower publication
+and independent Grok challenge. Pre-correction starting identity:
+8df8c15a873df9d7f80c9ff0c33ef525863346e7.
 Read docs/reviews/issue-134-payment-attempt-foundation.md and the exact migration
 20261004190341_issue_134_payment_attempt_foundation.sql before review.
-READY FOR CONTROL TOWER REVIEW, then independent Claude Level-3 audit.
-Claude is NEXT / PLANNED / NOT DISPATCHED; no positive execution evidence or audit pass.
+Claude Level-3 Verdict B received; R-1 through R-7 corrected and R-8 through R-10 recorded.
+Next: Control Tower publication review, then independent Grok exact-candidate challenge.
 PO Option A remains approved: lifetime paid/spend/deposits Unknown; current balances
 numeric only with successful complete agreeing sources. Weak booking dedupe remains.
-Migration is authored but NOT APPLIED anywhere, including locally.
-No DB connection/mutation (including Staging/Production/GVM), live fixture, provider
-operation or deployment occurred. No runtime application code changed; no runtime
+Migration passed a fresh temporary localhost-only PostgreSQL 17.11 execution proof;
+it remains NOT APPLIED to any Chasum environment. No Supabase/Staging/Production/GVM
+connection/mutation, live fixture, provider operation or deployment occurred. No runtime
 writer, #133 disclosure or Reporting re-source implemented.
 Migration application requires a separate future Product Owner gate.
 Then separate PO migration/application gate -> #134 canonical writer/retry/reconciliation

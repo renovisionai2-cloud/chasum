@@ -1,8 +1,8 @@
 -- Issue #134: PREPARED ONLY / NOT APPLIED. Separate Level-3 + PO application gate.
 -- DDL/guards only: no canonical writer, reconciliation worker, or historical backfill.
 -- Execute atomically in a future authorized migration transaction; fail on drift.
-set local lock_timeout = '5s';
-set local statement_timeout = '30s';
+set lock_timeout = '5s';
+set statement_timeout = '30s';
 
 -- Existing global PKs already imply uniqueness. These keys support tenant FKs only.
 alter table public.customers
@@ -96,6 +96,7 @@ alter table public.commerce_transactions
 
 create table public.commerce_payment_attempt_events (
   id uuid primary key default gen_random_uuid(),
+  event_sequence bigint generated always as identity unique,
   business_id uuid not null,
   attempt_id uuid not null,
   event_type text not null check (event_type in (
@@ -129,7 +130,7 @@ create table public.commerce_payment_attempt_events (
   )
 );
 create index commerce_payment_attempt_events_history_idx
-  on public.commerce_payment_attempt_events(attempt_id, business_id, occurred_at, id);
+  on public.commerce_payment_attempt_events(attempt_id, business_id, event_sequence);
 
 -- Each successful canonical writer must persist ALL FOUR rows atomically with
 -- its ledger effect, including explicit NOT_REQUIRED decisions. Missing != complete.
@@ -139,6 +140,7 @@ create table public.commerce_payment_reconciliation (
   projection_kind text not null check (projection_kind in (
     'appointment_cache', 'invoice_settlement', 'customer_payment_events', 'receipt'
   )),
+  is_financial boolean generated always as (projection_kind <> 'receipt') stored,
   state text not null default 'PENDING' check (state in ('NOT_REQUIRED', 'PENDING', 'COMPLETE', 'FAILED')),
   failure_code text check (failure_code in ('PROJECTION_FAILED', 'PROJECTION_UNCERTAIN')),
   created_at timestamptz not null default now() check (isfinite(created_at)),
@@ -162,6 +164,10 @@ create index commerce_payment_reconciliation_pending_idx
 create function public.guard_commerce_payment_attempt() returns trigger
 language plpgsql security invoker set search_path = pg_catalog, pg_temp as $$
 begin
+  if old.execution_state in ('ACCEPTED', 'SKIPPED')
+     and new.execution_state is distinct from old.execution_state then
+    raise exception 'PAYMENT_ATTEMPT_STATE_TERMINAL' using errcode = '23514';
+  end if;
   if row(new.id, new.business_id, new.attempt_key, new.request_fingerprint, new.source,
          new.customer_id, new.booking_operation_id, new.actor_id, new.payment_kind,
          new.amount_cents, new.currency, new.method, new.provider_route, new.gift_card_id, new.created_at)
