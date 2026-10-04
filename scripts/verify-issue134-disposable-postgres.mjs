@@ -28,6 +28,53 @@ function isLocalPostgresUrl(value) {
   }
 }
 
+function createPsqlChildEnv(parentEnv = process.env) {
+  const childEnv = {};
+  for (const [key, value] of Object.entries(parentEnv)) {
+    if (/^PG/i.test(key) || value === undefined) {
+      continue;
+    }
+    childEnv[key] = value;
+  }
+  return childEnv;
+}
+
+const poisonedPsqlVariables = {
+  PGHOSTADDR: "203.0.113.1",
+  PGHOST: "evil.example.com",
+  PGSERVICE: "evil",
+  PGSERVICEFILE: "/tmp/evil",
+  PGPORT: "9999",
+  PGDATABASE: "evil",
+  PGUSER: "evil",
+  PGOPTIONS: "-c search_path=evil",
+  PGPASSFILE: "/tmp/evil-passfile",
+  PGSYSCONFDIR: "/tmp/evil-system-config",
+  PGFUTURE_CONNECTION_OVERRIDE: "evil",
+};
+const environmentSentinel = "issue134-preserved";
+const sanitizedPoisonedEnv = createPsqlChildEnv({
+  ...process.env,
+  ...poisonedPsqlVariables,
+  ISSUE134_ENVIRONMENT_SENTINEL: environmentSentinel,
+});
+for (const key of Object.keys(poisonedPsqlVariables)) {
+  if (Object.hasOwn(sanitizedPoisonedEnv, key)) {
+    console.error(`Verifier environment self-test failed to strip ${key}.`);
+    process.exit(1);
+  }
+}
+if (
+  Object.keys(sanitizedPoisonedEnv).some((key) => /^PG/i.test(key)) ||
+  sanitizedPoisonedEnv.ISSUE134_ENVIRONMENT_SENTINEL !== environmentSentinel ||
+  sanitizedPoisonedEnv.PATH !== process.env.PATH
+) {
+  console.error("Verifier environment self-test failed to preserve normal non-PG environment.");
+  process.exit(1);
+}
+
+const psqlEnv = createPsqlChildEnv();
+
 for (const allowed of [
   "postgresql://local@localhost/db",
   "postgresql://local@127.0.0.1/db",
@@ -88,6 +135,7 @@ function run(args, { print = true } = {}) {
   const result = spawnSync(psql, args, {
     encoding: "utf8",
     stdio: "pipe",
+    env: psqlEnv,
   });
   if (print) {
     process.stdout.write(result.stdout ?? "");
@@ -112,7 +160,7 @@ function runAsync(sql) {
     const child = spawn(
       psql,
       [databaseUrl, "-X", "-v", "ON_ERROR_STOP=1", "-c", sql],
-      { stdio: ["ignore", "pipe", "pipe"] },
+      { stdio: ["ignore", "pipe", "pipe"], env: psqlEnv },
     );
     let stdout = "";
     let stderr = "";
@@ -138,6 +186,9 @@ console.log(
 );
 console.log(
   "PASS 18 local-host allowlist and non-local/query/fragment refusal self-tests (4 endpoint-override cases)",
+);
+console.log(
+  "PASS psql child-environment self-test (all parent PG* stripped; non-PG environment preserved)",
 );
 run(["--version"]);
 

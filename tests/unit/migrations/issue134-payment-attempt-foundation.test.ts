@@ -60,6 +60,37 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
     }
   });
 
+  it("sanitizes every psql child environment against libpq PG overrides", () => {
+    expect(verifier).toContain("function createPsqlChildEnv(parentEnv = process.env)");
+    expect(verifier).toContain("/^PG/i.test(key)");
+    expect(verifier).not.toContain("childEnv.PGPASSFILE");
+    expect(verifier).not.toContain("childEnv.PGSERVICEFILE");
+    for (const [key, value] of Object.entries({
+      PGHOSTADDR: "203.0.113.1",
+      PGHOST: "evil.example.com",
+      PGSERVICE: "evil",
+      PGSERVICEFILE: "/tmp/evil",
+      PGPORT: "9999",
+      PGDATABASE: "evil",
+      PGUSER: "evil",
+      PGOPTIONS: "-c search_path=evil",
+      PGPASSFILE: "/tmp/evil-passfile",
+      PGSYSCONFDIR: "/tmp/evil-system-config",
+      PGFUTURE_CONNECTION_OVERRIDE: "evil",
+    })) {
+      expect(verifier).toContain(`${key}: "${value}"`);
+    }
+    expect(verifier).toContain("ISSUE134_ENVIRONMENT_SENTINEL");
+    expect(verifier).toContain(
+      "Object.keys(sanitizedPoisonedEnv).some((key) => /^PG/i.test(key))",
+    );
+    expect(verifier).toContain("sanitizedPoisonedEnv.PATH !== process.env.PATH");
+    expect(verifier.match(/env: psqlEnv/g)).toHaveLength(2);
+    expect(verifier.indexOf("sanitizedPoisonedEnv")).toBeLessThan(
+      verifier.indexOf('run(["--version"])'),
+    );
+  });
+
   it("requires immutable versioned fingerprint and opaque attempt key", () => {
     expect(table(tables[0])).toMatch(/attempt_key uuid not null/);
     expect(table(tables[0])).toMatch(/request_fingerprint text not null/);
