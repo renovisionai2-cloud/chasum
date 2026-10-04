@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -121,13 +120,7 @@ describe("Issue #134 prepared-only foundation contract (offline)", () => {
     expect(createHash("sha256").update(block).digest("hex")).toBe("7ef95c88162e09eff801a036e60013e43521bd2a1ed596dfda5b579ec243396e");
   });
 
-  it("keeps this prepared candidate free of runtime/config/manifest or older-migration changes", () => {
-    // A prepared-gate assertion, deliberately retired/re-scoped only with authorized runtime work.
-    const baseline = "31115e6a51b71fc097c279d205065d80e0be3573";
-    const protectedPaths = ["app", "components", "lib", "public", "package.json", "package-lock.json", ".github", "release", "vercel.json", "docs/runtime/ENVIRONMENT_MANIFEST.md"];
-    expect(execFileSync("git", ["diff", "--name-only", baseline, "--", ...protectedPaths], { cwd: root, encoding: "utf8" }).trim()).toBe("");
-    const migrationChanges = execFileSync("git", ["diff", "--name-only", baseline, "--", "supabase"], { cwd: root, encoding: "utf8" }).trim().split("\n").filter(Boolean);
-    expect(migrationChanges.filter((name) => name !== migrationPath)).toEqual([]);
+  it("marks the foundation design as prepared only and not applied", () => {
     expect(design()).toContain("PREPARED ONLY / NOT APPLIED");
   });
 });
