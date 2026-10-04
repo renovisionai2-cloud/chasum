@@ -323,7 +323,7 @@ export function PaymentsDashboard({
                   on the client.
                 </p>
               ) : null}
-              <Button type="submit" size="sm" disabled={payPending}>
+              <Button type="submit" size="sm" disabled={payPending || (payState.canRetry === false && payState.syncStatus === "failed")}>
                 {payPending ? "Recording…" : "Record payment"}
               </Button>
             </form>
@@ -376,7 +376,7 @@ export function PaymentsDashboard({
                 error={refundState.error}
                 success={refundState.success}
               />
-              <Button type="submit" size="sm" variant="outline" disabled={refundPending}>
+              <Button type="submit" size="sm" variant="outline" disabled={refundPending || (refundState.canRetry === false && refundState.syncStatus === "failed")}>
                 {refundPending ? "Processing…" : "Process refund"}
               </Button>
             </form>

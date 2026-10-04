@@ -443,6 +443,10 @@ export async function createAppointment(
     return { error: staffGate };
   }
 
+  if (effectivePaymentMode !== "none" && !/^[a-z]{3}$/i.test(business.currency ?? "")) {
+    return { error: "Business currency is unavailable. Payment cannot be recorded until it is verified." };
+  }
+
   const result = await createBooking({
     channel: "staff",
     businessId: business.id,
@@ -506,7 +510,7 @@ export async function createAppointment(
         );
         const paymentLabel = kind === "deposit" ? "Deposit" : "Payment";
         const paymentSummary = (amountCents: number) =>
-          `${paymentLabel} recorded — ${formatMoneyCents(amountCents, business.currency ?? "usd")} by ${methodLabel}`;
+          `${paymentLabel} recorded — ${formatMoneyCents(amountCents, business.currency)} by ${methodLabel}`;
 
         if (alreadyRecorded) {
           action.payment = {
@@ -528,6 +532,7 @@ export async function createAppointment(
             customerId,
             appointmentId,
             amountCents: paymentAmountCents,
+            currency: business.currency,
             method,
             kind,
             description: [
@@ -648,7 +653,12 @@ export async function createAppointment(
         console.error("[booking] payment after create failed", payErr);
         // A later change-log failure must not erase a committed payment or
         // invite the operator to collect it again.
-        if (!action.payment?.transactionId) {
+        if (action.payment?.transactionId) {
+          action.payment.status = "failed";
+          action.payment.canRetry = false;
+          action.payment.detail = "Payment recorded, but downstream sync failed. Do not collect this payment again; review the recorded transaction.";
+          action.success = "Appointment confirmed — payment recorded, but downstream sync failed.";
+        } else {
           action.payment = {
             status: "failed",
             amountCents: paymentAmountCents,
@@ -724,7 +734,18 @@ export async function createAppointment(
       },
     ];
 
-    revalidateCalendar();
+    try {
+      revalidateCalendar();
+    } catch {
+      if (action.payment?.transactionId) {
+        action.payment.status = "failed";
+        action.payment.canRetry = false;
+        action.payment.detail = "Payment recorded, but the screen could not refresh. Do not collect again; reload to review it.";
+      }
+      action.success = action.payment?.transactionId
+        ? "Appointment confirmed — payment recorded, but the screen could not refresh."
+        : "Appointment confirmed, but the screen could not refresh. Reload to review it.";
+    }
   }
   return action;
 }

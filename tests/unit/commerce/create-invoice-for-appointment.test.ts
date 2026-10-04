@@ -54,6 +54,8 @@ function createDb(opts?: {
   existingInvoice?: Row;
   existingLines?: Row[];
   failFullAppointmentSelect?: boolean;
+  sequenceFault?: "read" | "update" | "zero";
+  existingReadFailure?: boolean;
 }) {
   const inserts: Array<{ table: string; payload: Row }> = [];
   const updates: Array<{ table: string; payload: Row }> = [];
@@ -83,6 +85,11 @@ function createDb(opts?: {
       let selectSpec = "";
 
       const execute = () => {
+        if (table === "commerce_invoice_sequences" && opts?.sequenceFault) {
+          if ((!pendingUpdate && opts.sequenceFault === "read") || (pendingUpdate && opts.sequenceFault === "update")) return { data: null, error: { message: "Synthetic sequence failure" } };
+          if (pendingUpdate && opts.sequenceFault === "zero") return { data: null, error: null };
+        }
+        if (table === "commerce_invoices" && !pendingInsert && opts?.existingReadFailure) return { data: null, error: { message: "Synthetic invoice read failure" } };
         if (
           table === "appointments" &&
           !pendingInsert &&
@@ -343,6 +350,7 @@ describe("createInvoiceForAppointment exclusive-tax integrity", () => {
         {
           id: "line-existing",
           invoice_id: "inv-existing",
+          business_id: BUSINESS_ID,
           description: "Historical line",
           quantity: 1,
           unit_amount_cents: 8700,
@@ -434,7 +442,7 @@ describe("createInvoiceForAppointment exclusive-tax integrity", () => {
     expect(result.invoice?.totalCents).toBe(25000);
   });
 
-  it("schema-compat missing price_cents still uses the existing catalog fallback", async () => {
+  it("schema degradation refuses an invoice rather than treating configured deposit as paid", async () => {
     const db = createDb({
       appointment: {
         id: APPOINTMENT_ID,
@@ -453,12 +461,9 @@ describe("createInvoiceForAppointment exclusive-tax integrity", () => {
       appointmentId: APPOINTMENT_ID,
     });
 
-    expect(invoicePayload(db)).toMatchObject({
-      subtotal_cents: 25000,
-      tax_cents: 0,
-      total_cents: 25000,
-    });
-    expect(result.invoice?.totalCents).toBe(25000);
+    expect(invoicePayload(db)).toBeUndefined();
+    expect(result.invoice).toBeNull();
+    expect(result.error).toContain("verified payment totals");
   });
 
   it("passthrough characterization: nonzero discount_cents is copied without a total formula", async () => {
@@ -484,5 +489,21 @@ describe("createInvoiceForAppointment exclusive-tax integrity", () => {
       taxCents: 1300,
       totalCents: 11300,
     });
+  });
+});
+
+describe("Phase A invoice failure contracts", () => {
+  it.each(["read", "update", "zero"] as const)("sequence %s failure cannot allocate an invoice number", async sequenceFault => {
+    const db = createDb({ sequenceFault });
+    const result = await createInvoiceForAppointment({ businessId: BUSINESS_ID, appointmentId: APPOINTMENT_ID });
+    expect(result.invoice).toBeNull();
+    expect(result.error).toBeTruthy();
+    expect(invoicePayload(db)).toBeUndefined();
+  });
+  it("existing invoice query error cannot create another invoice", async () => {
+    const db = createDb({ existingReadFailure: true });
+    const result = await createInvoiceForAppointment({ businessId: BUSINESS_ID, appointmentId: APPOINTMENT_ID });
+    expect(result).toMatchObject({ invoice: null, error: expect.stringContaining("existing invoice") });
+    expect(invoicePayload(db)).toBeUndefined();
   });
 });

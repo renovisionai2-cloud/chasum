@@ -45,34 +45,14 @@ export async function getCustomerCommerceAccount(
     listActiveGiftCardsForCustomer(businessId, customerId),
   ]);
 
-  let appointments = apptRes.data ?? [];
-  if (
-    apptRes.error &&
-    (apptRes.error.message.includes("price_cents") ||
-      apptRes.error.message.includes("tax_cents") ||
-      apptRes.error.message.includes("payment_status") ||
-      apptRes.error.message.includes("amount_paid"))
-  ) {
-    const fallback = await supabase
-      .from("appointments")
-      .select("id, deposit_cents, status, services(price)")
-      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
-      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.customerId, customerId)
-      .neq("status", "cancelled");
-    appointments = (fallback.data ?? []).map((row) => ({
-      ...row,
-      price_cents: null,
-      tax_cents: 0,
-      amount_paid_cents: Number(row.deposit_cents ?? 0),
-      amount_refunded_cents: 0,
-      payment_status: null,
-    }));
-  }
+  // Missing payment columns cannot turn configured deposits into paid money.
+  const appointments = apptRes.error ? [] : apptRes.data ?? [];
 
   const {
     depositsCents,
     totalPaidCents,
     outstandingBalanceCents,
+    financialStatus,
   } = projectCustomerAccountTotals({
     appointments,
     invoices,
@@ -81,6 +61,7 @@ export async function getCustomerCommerceAccount(
 
   return {
     customerId,
+    financialStatus,
     outstandingBalanceCents,
     lifetimeSpendCents: totalPaidCents,
     depositsCents,
@@ -109,6 +90,7 @@ export async function getSummerCommerceSnapshot(
     ["open", "partial", "overdue"].includes(i.status),
   );
   return {
+    financialStatus: account.financialStatus,
     outstandingBalanceCents: account.outstandingBalanceCents,
     lifetimeSpendCents: account.lifetimeSpendCents,
     depositsCents: account.depositsCents,
@@ -122,6 +104,6 @@ export async function getSummerCommerceSnapshot(
       dueDate: i.dueDate,
       status: i.status,
     })),
-    note: "Summer may explain balances and request deposits — never process card payments directly.",
+    note: "Account totals are unverified because the available history may be incomplete or disagree. Summer may explain individual invoice balances and request deposits — never process card payments directly.",
   };
 }
