@@ -3,10 +3,10 @@ import { createAppointment } from "@/lib/actions/appointments";
 
 const mocks = vi.hoisted(() => ({
   create: vi.fn(), record: vi.fn(), transactions: vi.fn(),
-  log: vi.fn(), notify: vi.fn(), revalidate: vi.fn(),
+  log: vi.fn(), notify: vi.fn(), revalidate: vi.fn(), currency: "cad" as string | undefined,
 }));
 vi.mock("@/lib/actions/business", () => ({
-  getOrCreateBusiness: async () => ({ id: "business", currency: "cad" }),
+  getOrCreateBusiness: async () => ({ id: "business", currency: mocks.currency }),
 }));
 vi.mock("@/lib/booking-engine", () => ({ createBooking: mocks.create }));
 vi.mock("@/lib/commerce", () => ({
@@ -38,6 +38,7 @@ const transaction = {
 describe("booking payment persistence truth", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    mocks.currency = "cad";
     mocks.create.mockResolvedValue({ phase: "success", data: { appointmentId: "appt" } });
     mocks.transactions.mockResolvedValue([]);
     mocks.notify.mockResolvedValue({ items: [] });
@@ -74,7 +75,7 @@ describe("booking payment persistence truth", () => {
   it("uses committed amount in success disclosure and change log without changing the requested payment", async () => {
     mocks.record.mockResolvedValue({ ok: true, transaction });
     const result = await createAppointment({}, form());
-    expect(mocks.record).toHaveBeenCalledWith(expect.objectContaining({ amountCents: 5000 }));
+    expect(mocks.record).toHaveBeenCalledWith(expect.objectContaining({ amountCents: 5000, currency: "cad", forceManual: true }));
     expect(result.payment).toMatchObject({ status: "recorded", amountCents: 4000, transactionId: "tx-committed" });
     expect(result.success).toContain("Deposit recorded — $40 by E-Transfer");
     expect(mocks.log).toHaveBeenCalledWith(expect.objectContaining({
@@ -82,13 +83,15 @@ describe("booking payment persistence truth", () => {
     }));
   });
 
-  it("returns the actual matching transaction for an already-recorded payment", async () => {
+  it("matching session-key dedupe reuses the recorded transaction without collecting again", async () => {
     mocks.transactions.mockResolvedValue([
       { ...transaction, id: "unrelated", amountCents: 1200 },
       { ...transaction, id: "matching", amountCents: 5000 },
     ]);
     const result = await createAppointment({}, form());
     expect(result.payment).toMatchObject({ status: "recorded", transactionId: "matching", amountCents: 5000 });
+    expect(result.payment?.detail).toBe("Payment already recorded.");
+    expect(mocks.transactions).toHaveBeenCalledWith({ businessId: "business", appointmentId: "appt", limit: 20 });
     expect(result.success).toContain("Deposit recorded — $50 by E-Transfer");
     expect(mocks.record).not.toHaveBeenCalled();
   });
@@ -97,8 +100,44 @@ describe("booking payment persistence truth", () => {
     mocks.record.mockResolvedValue({ ok: true, transaction });
     mocks.log.mockRejectedValue(new Error("Synthetic log failure"));
     const result = await createAppointment({}, form());
-    expect(result.payment).toMatchObject({ status: "recorded", transactionId: "tx-committed", amountCents: 4000 });
+    expect(result.payment).toMatchObject({ status: "failed", transactionId: "tx-committed", amountCents: 4000, canRetry: false });
     expect(result.success).not.toMatch(/retry|could not be recorded/i);
     expect(mocks.notify).toHaveBeenCalledOnce();
   });
+  it.each([undefined, "", "xyz", "XYZ"])("refuses unsupported/missing Business currency %s without USD fallback", async currency => {
+    mocks.currency = currency;
+    const result = await createAppointment({}, form());
+    expect(result.error).toContain("Business currency is unavailable");
+    expect(mocks.record).not.toHaveBeenCalled();
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it.each(["cad", "CAD", " CAD ", "USD", "eur", "GBP", "aud"])("normalizes supported Business currency %s before payment", async currency => {
+    mocks.currency = currency;
+    mocks.record.mockResolvedValue({ ok: true, transaction });
+    await createAppointment({}, form());
+    expect(mocks.record).toHaveBeenCalledWith(expect.objectContaining({ currency: currency.trim().toLowerCase(), sendReceiptEmail: false }));
+  });
+
+  it("retains committed transaction identity when calendar revalidation throws", async () => {
+    mocks.record.mockResolvedValue({ ok: true, transaction });
+    mocks.revalidate.mockImplementation(() => { throw new Error("Synthetic refresh failure"); });
+    const result = await createAppointment({}, form());
+    expect(result.payment).toMatchObject({ transactionId: "tx-committed", status: "failed", canRetry: false });
+    expect(result.success).toContain("payment recorded");
+  });
+
+});
+
+it("preserves weak dedupe session-key matching without suppressing a different key", async () => {
+  vi.resetAllMocks();
+  mocks.currency = "cad";
+  mocks.create.mockResolvedValue({ phase: "success", data: { appointmentId: "appt" } });
+  mocks.transactions.mockResolvedValue([{ ...transaction, id: "different-session-tx", amountCents: 5000, description: "booking:another-session" }]);
+  mocks.record.mockResolvedValue({ ok: true, transaction });
+  mocks.notify.mockResolvedValue({ items: [] });
+  mocks.log.mockResolvedValue(undefined);
+  const result = await createAppointment({}, form());
+  expect(mocks.record).toHaveBeenCalledOnce();
+  expect(result.payment?.transactionId).toBe("tx-committed");
 });

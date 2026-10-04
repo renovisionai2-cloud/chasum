@@ -1,8 +1,24 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-03 for Issue #130 Outcome B closure and the completed Issue #135 independent audit; PR #150 is clear for Control Tower merge gate. Historical Production, multi-location, mobile and Commercial SaaS records remain preserved.
+**Updated:** 2026-10-04 for Issue #151 / PR #154 docs-only N-1 continuity correction after Claude's completed corrected-candidate re-audit. Historical acceptance records below remain preserved; the current Phase A gate supersedes older next-action wording.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
+
+## 2026-10-04 — PR #154 corrected-candidate re-audit completed; N-1 docs-only correction
+
+Issue #151 remains open; [PR #154](https://github.com/renovisionai2-cloud/chasum/pull/154) exists and is the governed Phase A candidate. Sole implementer: Codex. Committed as the corrected Phase A candidate on branch codex/issue-151-phase-a-financial-safety; see PR #154 for the exact current head. Original Claude-audited head: `4875fe7a55be70870ec8e7252b3420060579502f`, tree `b57767825d1a52958dddf7ffe99ef889eb1cca19` ([original audit record](https://github.com/renovisionai2-cloud/chasum/pull/154#issuecomment-5982277948)); these are historical identities. Base main: `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, independently confirmed by the 2026-10-04 remote read. **#135 is MERGED TO MAIN / NOT Production accepted**; #131 remains the accepted Production application baseline. No new serving-runtime observation is claimed.
+
+Claude independently re-audited the committed corrected runtime candidate. Corrected-candidate re-audit is **COMPLETED**, with supplied verdict **B — PASS WITH REQUIRED CORRECTIONS BEFORE MERGE GATE**. **H-1/M-1/M-2/M-3/M-4 and L-3 are CLOSED**; no blocking financial, concurrency, security or scope defect remains. The **only remaining merge blocker from Claude is N-1 continuity documentation truth**, addressed by this docs-only correction.
+
+Product Owner **Option A remains approved** for M-3: lifetime paid/spend/deposits remain Unknown; current outstanding/remaining are numeric only with successful untruncated agreeing sources. Exact-count proof guards invoice, appointment and payment reads; read failure/throw, missing data/count, truncation or disagreement yields Unknown / needs review in Customer Billing and Summer. No durable reconciliation or lifetime-completeness claim.
+
+H-1 keeps receipt/email failures observable but non-financial; M-1 enforces supported/lowercase booking currency without USD fallback; M-2 logs actual redacted causes; M-4 permits collection without binding/replacing an unverifiable existing invoice, while new sequence/line failures block before money. Weak booking description/session-key dedupe is byte-identical (435 bytes) to base and the original audited head; both matching and mismatching-key regressions are explicit, and L-3 is closed. Recorded runtime validation and limitations are in [CHANGELOG](../CHANGELOG.md); application tests are not rerun for this docs-only correction. Environment Manifest is unchanged because no environment action occurred. Six historical GVM USD rows remain **UNCHANGED / #152**; **#153 remains separate** security hardening. Competitive Product Gate **NOT_APPLICABLE**: documentation-only reconciliation of supplied audit and committed-candidate facts; no product behavior change.
+
+**Next action:** Control Tower reconciles this docs-only N-1 correction. Corrected Phase A is clear for the Control Tower merge gate **after this correction is reconciled**. No additional Product Owner decision is required for technical merge readiness after this docs-only correction. The next Product Owner approval required is governed **MERGE of PR #154 only**; that approval is not granted by this correction. Publication, merge and release remain outside this task.
+
+Binding sequence: **Phase A merge gate → prepared-only #134 payment-attempt foundation design/migration → independent Level-3 audit → Product Owner migration/application gate → #134 canonical writer/retry/reconciliation → #133 unified durable observability/disclosure → Reporting re-source from ledger truth → isolated Staging fault/concurrency acceptance → separately approved Production release → GVM OPERATIONAL ACCEPTANCE.** No migration/schema/RLS/ACL/FORCE-RLS change, data repair, provider activation or environment mutation is authorized here. No Production deployment is authorized. M1C/M2/Time Blocker remain held; **GVM OPERATIONAL ACCEPTANCE is NOT earned**, and technician normal payment/deposit workflows remain held.
+
+Optional findings carried forward: N-2 fail-open projection default is deferred; N-3 silent USD default on non-booking surfaces is routed to #152/#134. Neither is implemented in this docs-only correction.
 
 ## 2026-10-03 — First governed real Production release proof
 
@@ -30,7 +46,7 @@ Accepted zero-write Chromium evidence uses exact runtime candidate `9d8bf216749a
 
 Production/browser/Quality observations above were verified during the governed release and are being recorded here; this documentation task performs no new environment action. Local Git confirms merge and final-head tree/parent identities and the two-file delta. A fresh GitHub connector read confirms canonical `main = e8c307df07107736395f1b3b1f2d56bba3fec6be`. No Production DB counts are claimed or queried. This restamp performs no runtime, DB, Staging or Production action.
 
-**Current continuation:** #130 is **CLOSED / COMPLETED, Outcome B**; PR #148 closed unmerged. #135 Full Booking Sheet pre-result duplicate-submit guard is the **active bounded candidate on PR #150, clear for Control Tower merge gate**. Claude independent high-risk audit completed 2026-10-03 with **A — PASS / CLEAR FOR CONTROL TOWER MERGE GATE**, no blocking findings; exact audited head/tree and non-blocking notes are recorded in section D. Merge execution remains governed by the Product Owner/Control Tower workflow; Production remains separately gated. #134 + #133 remain separate Level-3 payment integrity / observability work. **M1C/M2 remain behind the incident sequence; #149 is future M2A/M2B feedback, CAPTURE ONLY / DO NOT IMPLEMENT.** See section D.
+**Historical 2026-10-03 continuation (superseded by the Phase A gate above):** #130 is **CLOSED / COMPLETED, Outcome B**; PR #148 closed unmerged. #135 Full Booking Sheet pre-result duplicate-submit guard is the **active bounded candidate on PR #150, clear for Control Tower merge gate**. Claude independent high-risk audit completed 2026-10-03 with **A — PASS / CLEAR FOR CONTROL TOWER MERGE GATE**, no blocking findings; exact audited head/tree and non-blocking notes are recorded in section D. Merge execution remains governed by the Product Owner/Control Tower workflow; Production remains separately gated. #134 + #133 remain separate Level-3 payment integrity / observability work. **M1C/M2 remain behind the incident sequence; #149 is future M2A/M2B feedback, CAPTURE ONLY / DO NOT IMPLEMENT.** See section D.
 
 ### Preserved M1B accepted history
 
@@ -50,7 +66,7 @@ No Production tenant/database mutation, migration/schema/RLS/Auth/provider chang
 
 PR #118 merged to `main` as `2733729ebbf65442cf55eb53b4962aa672535617` on 2026-09-29T00:28:22Z. Exact hosted-tested runtime candidate was `26a4b328ea2b7de1fbf70cc3c28aa1ce23c24329`. The merge tree `cdce0b0b8425672bd9361563b20bb4fa6035d0f4` is byte-identical to the docs-closeout tree and differs from the hosted-tested runtime only in six Markdown files; all executable/runtime/config/test subtrees are mechanically reconciled. Automatic Vercel Production deployment `dpl_3gC2c7oAfXGdXJ4avdNpfPH7daT5` completed successfully. Direct Production `/api/build-info` and `/api/health` passed, and Quality on the exact Production SHA passed **1,665 / 36 skipped / 0 failed** including the Chromium containment test. Real GVM Production retained Burlington/Brampton/Caledonia and the accepted relationship truth; no Production booking or data mutation was manufactured. Claude Opus 5 High Development Control Tower verdict: **B — PRODUCTION ACCEPTED / M1A CLOSED, WITH NON-BLOCKING LIMITATIONS**; no further Production probe or rollback is required.
 
-**The GVM technician mobile correction program remains open.** Preserved mobile sequence, behind the active financial/booking incident gate in section D:
+**The GVM technician mobile correction program remains open.** Preserved mobile sequence, behind the current Phase A incident gate above:
 M1B CLOSED → #121 CLOSED → M1C Mobile Account Control → M2A Reception Phone Composition → M2B Calendar Phone Progressive Disclosure → M3 Command Centre Up Next Across Your Business → M4 Assign Later Level-3 architecture/data-integrity → M5 Summer Operating Intelligence (design now/build later).
 
 Commercial SaaS Gate B / P2B is **PAUSED / PRESERVED** by Product Owner sequencing. Do not resume it automatically while the mobile program is the active continuation.
@@ -212,7 +228,7 @@ Locked Package C Product Owner decisions remain:
 - raw artifact max 24h, reviewed artifact terminal+~1h / hard 72h fail-closed retention;
 - C3 reminder takeover is explicit per-run owner opt-in, default OFF.
 
-## D. Exact next governed gate
+## D. Historical 2026-10-03 gate — current continuation is Phase A above
 
 **Issue #130 — CLOSED / COMPLETED, Outcome B.** Supplied Control Tower evidence records the governed real-iPhone non-Production Quick Appointment pass: `deposit` / `5000` / `e_transfer` survived state and submitted FormData, returned `payment=recorded`, and matched Staging persistence. All exact temporary Staging fixture/artifact rows were cleaned to zero; PR #148 closed unmerged. No Production/GVM/schema/Auth mutation occurred. This clean instrumented pass narrows hypotheses; it does not prove or fix the original loss mechanism.
 
@@ -222,7 +238,7 @@ Locked Package C Product Owner decisions remain:
 
 Non-blocking audit notes: the post-throw conservative lock now depends explicitly on `createSubmitGuardRef`; do not clear it on an error path. Issue #134 must account for per-session `payment_idempotency_key` reuse on a legitimate corrected retry. The changelog now attributes five new cases failing on base with two create calls to Claude: three immediate-overlap cases and both same-sheet retry cases.
 
-**Exact next action:** Control Tower docs-only commit / PR #150 update, then Product Owner/Control Tower governed merge action. This documentation session must not commit, push, update the PR, merge, deploy, mutate environments or alter release controls. No #135 merge or Production acceptance/release is implied; Production remains separately gated by the governed release workflow and Product Owner approval.
+**Historical next action (superseded):** Control Tower docs-only commit / PR #150 update, then Product Owner/Control Tower governed merge action. This documentation session must not commit, push, update the PR, merge, deploy, mutate environments or alter release controls. No #135 merge or Production acceptance/release is implied; Production remains separately gated by the governed release workflow and Product Owner approval.
 
 Incident sequence: **#131 PRODUCTION ACCEPTED → #130 CLOSED Outcome B → #135 / PR #150 audit A / clear for Control Tower merge gate → #134/#133 separate Level-3 payment integrity + observability work → final GVM operational acceptance.** M1C remains NOT STARTED and M2 stays behind this sequence. **Issue #149: CAPTURE ONLY / DO NOT IMPLEMENT** — future M2A/M2B Calendar-first Reception and progressive disclosure Product Owner feedback. #123 remains OPEN / POST-M1B SAFE / deferred tech debt; P2B remains PAUSED; migrations 034–036 remain unapplied; Issue #57 remains separately DEFERRED.
 
@@ -244,10 +260,10 @@ Incident sequence: **#131 PRODUCTION ACCEPTED → #130 CLOSED Outcome B → #135
 Do not blindly restore historical agent assignments if they are stale.
 
 - **Darshan** = Founder / CEO / Product Owner.
-- **ChatGPT** = coordinator / continuity / Product Owner decision preparation / source-of-truth reconciliation, beneath Darshan.
-- **Claude** = Development Control Tower for the current mobile workflow and independent high-risk reviewer.
+- **ChatGPT** = Chasum AI Executive / Product & Development Program Lead / Control Tower, beneath Darshan.
+- **Claude** = independent high-risk / Level-3 auditor.
 - **Codex** = Primary Engineering Implementer.
-- **Grok** = World-Class Product / Architecture Challenger.
+- **Momentic/equivalent** = browser/workflow validation; **Cursor** = local/authenticated/device-specific fallback.
 - **Independent audit** = assigned separately according to risk.
 
 One primary implementer per task. Codex remains primary implementer; the current PO-locked assignment supersedes historical Control Tower wording. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
@@ -323,31 +339,44 @@ Issue #57 branded domain OPEN but DEFERRED by PO decision 5745462206.
 Migrations 034-036 remain unapplied.
 
 NEXT GATE:
-#130 CLOSED / COMPLETED Outcome B; real-iPhone non-Production clean instrumented
-pass, exact temporary Staging fixtures/artifacts cleaned to zero; PR #148 closed unmerged.
-#135 / PR #150 is the active bounded candidate, clear for Control Tower merge gate.
-Branch codex/issue-135-duplicate-submit; base cd919ea681961e0f4ed5327a5da767d1782a639f.
-Claude independent high-risk audit COMPLETED 2026-10-03:
-exact audited head c45513c8cc3b7d4ab1a1188dc02c596558f60ff0;
-tree 190897b4502f435d65a66862a51abc40644e314a;
-A — PASS / CLEAR FOR CONTROL TOWER MERGE GATE; no blocking findings.
-No additional browser acceptance or Product Owner decision is required for the
-technical merge gate. Non-blocking notes and build/full-suite evidence: section D.
-Next: Control Tower docs-only commit / PR #150 update; merge execution still
-requires Control Tower/Product Owner governed action. Production remains separately
-gated; no Production acceptance or release is implied.
-#131 ACCEPTED -> #130 CLOSED Outcome B -> #135 / PR #150 audit A -> separate #134/#133
-Level-3 payment integrity/observability -> final GVM operational acceptance.
-M1C NOT STARTED; M1C/M2 remain behind this active incident sequence.
-#149 future M2A/M2B Calendar-first Reception/progressive disclosure: CAPTURE ONLY / DO NOT IMPLEMENT.
-#123 OPEN / POST-M1B SAFE; do not implement. P2B PAUSED; later slices not started.
-This reconciliation changes documentation only; no commit/push/PR/merge/deployment
-or environment mutation is authorized for this implementation session.
+#131 PRODUCTION ACCEPTED; #130 CLOSED Outcome B; #135 / PR #150 MERGED at
+34dbd1518e1fe364cecaa5ad46576e93e9ed1afa, NOT PRODUCTION ACCEPTED.
+#151 / PR #154 exists and is the governed Phase A candidate.
+Committed as the corrected Phase A candidate on branch codex/issue-151-phase-a-financial-safety; see PR #154 for the exact current head.
+Original Claude-audited head (historical): 4875fe7a55be70870ec8e7252b3420060579502f;
+original audited tree: b57767825d1a52958dddf7ffe99ef889eb1cca19.
+Remote main read on 2026-10-04: 34dbd1518e1fe364cecaa5ad46576e93e9ed1afa.
+Claude independently re-audited the committed corrected runtime candidate.
+Corrected-candidate re-audit COMPLETED; supplied verdict:
+B — PASS WITH REQUIRED CORRECTIONS BEFORE MERGE GATE.
+H-1/M-1/M-2/M-3/M-4 and L-3 CLOSED; sole remaining Claude merge blocker = N-1
+continuity documentation truth, addressed by this docs-only correction.
+PO Option A remains approved: lifetime paid/spend/deposits Unknown; current outstanding/
+remaining numeric only with successful complete agreeing source reads; failure,
+truncation or disagreement => Unknown / needs review.
+Corrected Phase A is clear for Control Tower merge gate after this docs-only N-1
+correction is reconciled. No additional Product Owner decision is required for
+technical merge readiness after this correction. The next Product Owner approval
+required is governed MERGE of PR #154 only; this correction does not grant it.
+Phase A merge gate -> prepared-only #134 payment-attempt foundation design/migration
+-> independent Level-3 audit -> Product Owner migration/application gate
+-> #134 canonical writer/retry/reconciliation -> #133 unified durable observability/disclosure
+-> Reporting re-source from ledger truth -> isolated Staging fault/concurrency acceptance
+-> separately approved Production release -> GVM OPERATIONAL ACCEPTANCE.
+Six historical GVM USD rows UNCHANGED / #152; ACL/FORCE-RLS #153 remains separate.
+No Environment Manifest, migration/schema/RLS/ACL/FORCE-RLS or release-control changes.
+M1C/M2/Time Blocker held; #149 CAPTURE ONLY; #123 deferred; P2B PAUSED.
+No Production deployment authorized; GVM OPERATIONAL ACCEPTANCE NOT earned;
+technician normal payment/deposit workflows remain held.
+N-2 fail-open projection default deferred; N-3 silent USD default on non-booking
+surfaces routed to #152/#134. No runtime implementation of either in this correction.
+Docs-only N-1 reconciliation is the current task; publication/merge/release remain
+outside its scope. Staging/Production/GVM, provider and security controls stay unchanged.
 
-AGENT GOVERNANCE: Darshan = Product Owner. ChatGPT = coordinator / continuity /
-Product Owner decision preparation. Codex = primary implementer. Claude =
-Development Control Tower / high-risk reviewer for the current mobile workflow. Grok =
-World-Class Product/Architecture Challenger. One primary implementer per task.
+AGENT GOVERNANCE: Darshan = Founder / CEO / Product Owner and ultimate business authority.
+ChatGPT = Chasum AI Executive / Product & Development Program Lead / Control Tower.
+Codex = sole primary implementer. Claude = independent high-risk / Level-3 auditor.
+Momentic/equivalent = browser/workflow validation; Cursor = local/authenticated/device fallback.
 
 Re-anchor Mission/World-Class/Summer/Competitive ONCE PER MAJOR CHAPTER, not
 every few hours.

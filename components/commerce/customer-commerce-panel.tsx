@@ -38,13 +38,21 @@ export function CustomerCommercePanel({
     account.giftCards[0]?.id ?? "",
   );
 
+  const summaryMoney = (cents: number | null) => cents == null ? "Unknown" : centsToDollars(cents);
   return (
     <div className="space-y-6">
+      {account.outstandingBalanceCents == null ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          {account.financialStatus === "source_disagreement"
+            ? "Account totals need review. Available payment, appointment and invoice sources disagree."
+            : "Account totals need review. Current payment, appointment or invoice sources are unavailable or incomplete."}
+        </p>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Stat label="Outstanding balance" value={centsToDollars(account.outstandingBalanceCents)} />
-        <Stat label="Deposit paid" value={centsToDollars(account.depositsCents)} />
-        <Stat label="Remaining balance" value={centsToDollars(account.remainingBalanceCents)} />
-        <Stat label="Total paid" value={centsToDollars(account.totalPaidCents)} />
+        <Stat label="Outstanding balance" value={summaryMoney(account.outstandingBalanceCents)} />
+        <Stat label="Deposit paid" value={summaryMoney(account.depositsCents)} />
+        <Stat label="Remaining balance" value={summaryMoney(account.remainingBalanceCents)} />
+        <Stat label="Total paid" value={summaryMoney(account.totalPaidCents)} />
         <Stat label="Store credit" value={centsToDollars(account.storeCreditCents)} />
       </div>
 
@@ -107,7 +115,7 @@ export function CustomerCommercePanel({
           </div>
         ) : null}
         <AlertMessage error={payState.error} success={payState.success} />
-        <Button type="submit" size="sm" disabled={payPending}>
+        <Button type="submit" size="sm" disabled={payPending || (payState.canRetry === false && payState.syncStatus === "failed")}>
           {payPending ? "Saving…" : "Record payment"}
         </Button>
       </form>

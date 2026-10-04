@@ -1,4 +1,5 @@
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -189,7 +190,7 @@ describe("Reception payment result disclosure", () => {
 
     await user.click(await screen.findByText("Record $50 deposit"));
     await user.selectOptions(screen.getByLabelText("Payment method"), "e_transfer");
-    fireEvent.submit(document.querySelector("form")!);
+    await act(async () => { fireEvent.submit(document.querySelector("form")!); });
 
     await waitFor(() =>
       expect(
@@ -226,7 +227,7 @@ describe("Reception payment result disclosure", () => {
 
     await user.click(await screen.findByText("Record $50 deposit"));
     await user.selectOptions(screen.getByLabelText("Payment method"), "e_transfer");
-    fireEvent.submit(document.querySelector("form")!);
+    await act(async () => { fireEvent.submit(document.querySelector("form")!); });
 
     await waitFor(() => expect(screen.getByText("Payment recorded")).toBeVisible());
     expect(screen.getByText(/\$50 deposit · E-Transfer/)).toBeVisible();
@@ -235,4 +236,15 @@ describe("Reception payment result disclosure", () => {
       "success",
     );
   });
+  it("never labels a committed partial sync as not recorded or invites collection again", async () => {
+    mocks.create.mockResolvedValue({ success: "Appointment confirmed — payment recorded, sync needs review.", appointmentId: "appt", payment: { status: "failed", transactionId: "tx", amountCents: 5000, canRetry: false, detail: "Payment recorded, but downstream sync failed." }, notifications: [] });
+    const user = userEvent.setup();
+    render(<QuickAppointmentForm {...props()} />);
+    await user.click(await screen.findByText("Record $50 deposit"));
+    await act(async () => { fireEvent.submit(document.querySelector("form")!); });
+    await waitFor(() => expect(screen.getByText("Appointment booked — payment recorded; sync needs review")).toBeVisible());
+    expect(screen.queryByText(/payment NOT recorded/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Collect payment to retry/)).not.toBeInTheDocument();
+  });
+
 });

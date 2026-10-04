@@ -30,9 +30,13 @@ export type CustomerAccountTotals = {
   appointmentDepositsCents: number;
   appointmentPaidCents: number;
   invoiceOutstandingCents: number;
-  depositsCents: number;
-  totalPaidCents: number;
-  outstandingBalanceCents: number;
+  ledgerDepositsCents: number;
+  ledgerPaidCents: number;
+  sourceDisagreement: boolean;
+  financialStatus: "unknown" | "source_disagreement";
+  depositsCents: null;
+  totalPaidCents: null;
+  outstandingBalanceCents: number | null;
 };
 
 function serviceListPriceCents(
@@ -72,7 +76,7 @@ export function appointmentTotalCents(
 export function appointmentNetPaidCents(
   appt: CustomerAccountAppointmentRow,
 ): number {
-  const paid = Number(appt.amount_paid_cents ?? appt.deposit_cents ?? 0);
+  const paid = Number(appt.amount_paid_cents ?? 0);
   const refunded = Number(appt.amount_refunded_cents ?? 0);
   return Math.max(0, paid - refunded);
 }
@@ -138,8 +142,7 @@ export function ledgerSpendCents(
         t.status === "succeeded" &&
         (t.kind === "payment" ||
           t.kind === "deposit" ||
-          t.kind === "gift_card" ||
-          t.method === "gift_card"),
+          t.kind === "gift_card"),
     )
     .reduce((sum, t) => sum + t.amountCents, 0);
 }
@@ -158,6 +161,7 @@ export function projectCustomerAccountTotals(input: {
   timeline: Array<
     Pick<CommerceTransaction, "status" | "kind" | "method" | "amountCents">
   >;
+  currentSourcesAvailable?: boolean;
 }): CustomerAccountTotals {
   let appointmentOutstanding = 0;
   let appointmentDeposits = 0;
@@ -171,26 +175,26 @@ export function projectCustomerAccountTotals(input: {
   }
 
   const invoiceOutstanding = invoiceOutstandingCents(input.invoices);
-  const depositsCents = Math.max(
-    ledgerDepositCents(input.timeline),
-    appointmentDeposits,
-  );
-  const totalPaidCents = Math.max(
-    ledgerSpendCents(input.timeline),
-    appointmentPaid,
-  );
-  const outstandingBalanceCents = Math.max(
-    appointmentOutstanding,
-    invoiceOutstanding,
-  );
+  const ledgerDeposits = ledgerDepositCents(input.timeline);
+  const ledgerPaid = ledgerSpendCents(input.timeline);
+  // A match does not prove complete lifetime history. Option A permits current
+  // outstanding only when successfully read, untruncated sources agree.
+  const sourceDisagreement = input.currentSourcesAvailable !== false &&
+    (ledgerDeposits !== appointmentDeposits || ledgerPaid !== appointmentPaid ||
+      appointmentOutstanding !== invoiceOutstanding);
 
   return {
     appointmentOutstandingCents: appointmentOutstanding,
     appointmentDepositsCents: appointmentDeposits,
     appointmentPaidCents: appointmentPaid,
     invoiceOutstandingCents: invoiceOutstanding,
-    depositsCents,
-    totalPaidCents,
-    outstandingBalanceCents,
+    ledgerDepositsCents: ledgerDeposits,
+    ledgerPaidCents: ledgerPaid,
+    sourceDisagreement,
+    financialStatus: sourceDisagreement ? "source_disagreement" : "unknown",
+    depositsCents: null,
+    totalPaidCents: null,
+    outstandingBalanceCents: input.currentSourcesAvailable !== false &&
+      !sourceDisagreement ? appointmentOutstanding : null,
   };
 }

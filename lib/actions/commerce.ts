@@ -24,6 +24,11 @@ export type CommerceActionState = {
   success?: string;
   clientSecret?: string | null;
   requiresAction?: boolean;
+  transactionId?: string;
+  refundId?: string;
+  recorded?: boolean;
+  canRetry?: boolean;
+  syncStatus?: "complete" | "failed" | "unknown";
 };
 
 function revalidateCommerce(customerId?: string | null) {
@@ -98,17 +103,27 @@ export async function recordPaymentAction(
     sendReceiptEmail: true,
   });
 
+  const identity = {
+    transactionId: result.transaction?.id,
+    recorded: result.recorded ?? result.transaction?.status === "succeeded",
+    canRetry: result.transaction ? false : result.canRetry,
+    syncStatus: result.syncStatus,
+  };
   if (!result.ok) {
     return {
-      error: result.error ?? "Could not record payment.",
+      ...identity,
+      error: result.error ?? (identity.recorded ? "Payment recorded, but downstream sync failed. Do not collect again." : "Could not record payment."),
       clientSecret: result.clientSecret,
       requiresAction: result.requiresAction,
     };
   }
 
-  revalidateCommerce(customerId);
-
-  return { success: "Payment saved." };
+  try {
+    revalidateCommerce(customerId);
+  } catch {
+    return { ...identity, canRetry: false, syncStatus: "failed", error: "Payment recorded, but the screen could not refresh. Do not collect again; reload to review it." };
+  }
+  return { ...identity, success: "Payment saved." };
 }
 
 export async function createInvoiceAction(
@@ -168,12 +183,14 @@ export async function refundPaymentAction(
     actorId: user?.id ?? null,
   });
 
-  if (!result.ok) {
-    return { error: result.error ?? "Refund failed." };
+  const identity = { refundId: result.refund?.id, recorded: result.recorded, canRetry: result.canRetry, syncStatus: result.syncStatus };
+  if (!result.ok) return { ...identity, error: result.error ?? "Refund failed." };
+  try {
+    revalidateCommerce(result.refund?.customerId);
+  } catch {
+    return { ...identity, canRetry: false, syncStatus: "failed", error: "Refund recorded, but the screen could not refresh. Do not issue it again; reload to review it." };
   }
-
-  revalidateCommerce(result.refund?.customerId);
-  return { success: "Refund processed." };
+  return { ...identity, success: "Refund processed." };
 }
 
 export async function downloadInvoiceTextAction(

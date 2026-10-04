@@ -156,11 +156,12 @@ export type BookingPaymentSummary = {
 
 export type CustomerCommerceAccount = {
   customerId: string;
-  outstandingBalanceCents: number;
-  lifetimeSpendCents: number;
-  depositsCents: number;
-  remainingBalanceCents: number;
-  totalPaidCents: number;
+  financialStatus: "unknown" | "source_disagreement";
+  outstandingBalanceCents: number | null;
+  lifetimeSpendCents: number | null;
+  depositsCents: number | null;
+  remainingBalanceCents: number | null;
+  totalPaidCents: number | null;
   storeCreditCents: number;
   giftCards: {
     id: string;

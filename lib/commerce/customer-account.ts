@@ -1,15 +1,31 @@
+import { commerceDiagnosticMessage } from "@/lib/commerce/diagnostics";
 import {
   CUSTOMER_ACCOUNT_TENANT_SCOPE,
   projectCustomerAccountTotals,
 } from "@/lib/commerce/customer-account-projection";
 import { listActiveGiftCardsForCustomer } from "@/lib/commerce/gift-cards";
-import { listInvoices } from "@/lib/commerce/invoices";
-import { listTransactions } from "@/lib/commerce/payments";
+import { mapInvoice, mapTransaction } from "@/lib/commerce/mappers";
 import { listReceipts } from "@/lib/commerce/receipts";
 import { listRefunds } from "@/lib/commerce/refunds";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
-import { isSoftSchemaFallbackAllowed } from "@/lib/supabase/errors";
+import { isSoftSchemaFallbackAllowed, logQueryError } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
+
+type AccountSource<T> = { data: T[] | null; error: unknown; count: number | null };
+
+async function readAccountSource<T>(query: PromiseLike<AccountSource<T>>): Promise<AccountSource<T>> {
+  try {
+    return await query;
+  } catch (error) {
+    return { data: null, error, count: null };
+  }
+}
+
+function isCompleteSource(source: AccountSource<unknown>): boolean {
+  return !source.error && Array.isArray(source.data) &&
+    Number.isInteger(source.count) && source.count !== null && source.count >= 0 &&
+    source.count === source.data.length;
+}
 
 export async function getCustomerCommerceAccount(
   businessId: string,
@@ -28,59 +44,54 @@ export async function getCustomerCommerceAccount(
     // Continue — billing can still aggregate from appointments / ledger.
   }
 
-  const [invoices, receipts, refunds, timeline, apptRes, giftCards] =
+  const [invoiceRes, receipts, refunds, transactionRes, apptRes, giftCards] =
     await Promise.all([
-    listInvoices({ businessId, customerId, limit: 40 }),
+    // Keep the read outcome: listInvoices' [] fallback cannot prove zero due.
+    readAccountSource(supabase.from("commerce_invoices").select("*", { count: "exact" })
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.customerId, customerId)
+      .order("issue_date", { ascending: false }).limit(40)),
     listReceipts({ businessId, customerId, limit: 40 }),
     listRefunds({ businessId, customerId, limit: 40 }),
-    listTransactions({ businessId, customerId, limit: 60 }),
-    supabase
+    readAccountSource(supabase.from("commerce_transactions").select("*", { count: "exact" })
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
+      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.customerId, customerId)
+      .order("occurred_at", { ascending: false }).limit(60)),
+    readAccountSource(supabase
       .from("appointments")
       .select(
         "id, price_cents, tax_cents, deposit_cents, amount_paid_cents, amount_refunded_cents, payment_status, status, services(price)",
+        { count: "exact" },
       )
       .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
       .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.customerId, customerId)
-      .neq("status", "cancelled"),
+      .neq("status", "cancelled")),
     listActiveGiftCardsForCustomer(businessId, customerId),
   ]);
 
-  let appointments = apptRes.data ?? [];
-  if (
-    apptRes.error &&
-    (apptRes.error.message.includes("price_cents") ||
-      apptRes.error.message.includes("tax_cents") ||
-      apptRes.error.message.includes("payment_status") ||
-      apptRes.error.message.includes("amount_paid"))
-  ) {
-    const fallback = await supabase
-      .from("appointments")
-      .select("id, deposit_cents, status, services(price)")
-      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.businessId, businessId)
-      .eq(CUSTOMER_ACCOUNT_TENANT_SCOPE.customerId, customerId)
-      .neq("status", "cancelled");
-    appointments = (fallback.data ?? []).map((row) => ({
-      ...row,
-      price_cents: null,
-      tax_cents: 0,
-      amount_paid_cents: Number(row.deposit_cents ?? 0),
-      amount_refunded_cents: 0,
-      payment_status: null,
-    }));
-  }
+  // Missing payment columns cannot turn configured deposits into paid money.
+  const appointments = apptRes.error ? [] : apptRes.data ?? [];
+  const invoices = invoiceRes.error ? [] : (invoiceRes.data ?? []).map((row) => mapInvoice(row));
+  const timeline = transactionRes.error ? [] : (transactionRes.data ?? []).map((row) => mapTransaction(row));
+  if (apptRes.error) logQueryError("commerce.account.appointments", commerceDiagnosticMessage(apptRes.error));
+  if (invoiceRes.error) logQueryError("commerce.account.invoices", commerceDiagnosticMessage(invoiceRes.error));
+  if (transactionRes.error) logQueryError("commerce.account.transactions", commerceDiagnosticMessage(transactionRes.error));
 
   const {
     depositsCents,
     totalPaidCents,
     outstandingBalanceCents,
+    financialStatus,
   } = projectCustomerAccountTotals({
     appointments,
     invoices,
     timeline,
+    currentSourcesAvailable: [apptRes, invoiceRes, transactionRes].every(isCompleteSource),
   });
 
   return {
     customerId,
+    financialStatus,
     outstandingBalanceCents,
     lifetimeSpendCents: totalPaidCents,
     depositsCents,
@@ -109,6 +120,7 @@ export async function getSummerCommerceSnapshot(
     ["open", "partial", "overdue"].includes(i.status),
   );
   return {
+    financialStatus: account.financialStatus,
     outstandingBalanceCents: account.outstandingBalanceCents,
     lifetimeSpendCents: account.lifetimeSpendCents,
     depositsCents: account.depositsCents,
@@ -122,6 +134,6 @@ export async function getSummerCommerceSnapshot(
       dueDate: i.dueDate,
       status: i.status,
     })),
-    note: "Summer may explain balances and request deposits — never process card payments directly.",
+    note: "Lifetime paid, spend and deposit totals are unverified because history may be incomplete. Current outstanding may be stated when successfully read, untruncated appointment, invoice and payment sources agree; unavailable, truncated or disagreeing sources remain unknown and need review. Summer may explain individual invoice balances and request deposits — never process card payments directly.",
   };
 }

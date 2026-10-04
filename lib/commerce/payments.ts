@@ -1,3 +1,4 @@
+import { commerceDiagnosticMessage } from "@/lib/commerce/diagnostics";
 /**
  * Commerce payment ledger — records payments via provider abstraction.
  * Mirrors to customer_payment_events for CRM timeline compatibility.
@@ -52,7 +53,33 @@ export type RecordPaymentResult = {
   transaction?: CommerceTransaction;
   clientSecret?: string | null;
   requiresAction?: boolean;
+  recorded?: boolean;
+  canRetry?: boolean;
+  syncStatus?: "complete" | "failed" | "unknown";
+  replay?: boolean;
 };
+
+/** Receipt delivery is observable, but cannot change recorded money/sync truth. */
+async function preparePaymentReceipt(input: {
+  businessId: string;
+  transactionId: string;
+  actorId?: string | null;
+  sendReceiptEmail?: boolean;
+}): Promise<void> {
+  let scope = "commerce.payment.receipt.create";
+  try {
+    const receipt = await createReceiptForTransaction(input);
+    if (!receipt) throw new Error("Receipt creation failed.");
+    if (input.sendReceiptEmail) {
+      scope = "commerce.payment.receipt.email";
+      const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
+      const emailed = await queueReceiptEmail(input.businessId, receipt.id);
+      if (!emailed.ok) throw new Error(emailed.error ?? "Receipt email queue failed.");
+    }
+  } catch (error) {
+    logQueryError(scope, commerceDiagnosticMessage(error));
+  }
+}
 
 async function syncAppointmentPayment(
   businessId: string,
@@ -71,6 +98,7 @@ async function syncAppointmentPayment(
     .maybeSingle();
 
   if (apptErr) {
+    logQueryError("commerce.payment.appointment.read", commerceDiagnosticMessage(apptErr));
     // Retry without commerce columns if schema is behind.
     if (
       apptErr.message.includes("payment_status") ||
@@ -125,7 +153,7 @@ async function syncAppointmentPayment(
     amountRefundedCents: amountRefunded,
   });
 
-  const { error: updErr } = await supabase
+  const { data: updated, error: updErr } = await supabase
     .from("appointments")
     .update({
       price_cents: priceCents || null,
@@ -138,9 +166,15 @@ async function syncAppointmentPayment(
           ? Number(appt.deposit_cents)
           : depositRequiredCents,
     })
-    .eq("id", appointmentId);
+    .eq("id", appointmentId)
+    .eq("business_id", businessId)
+    .eq("amount_paid_cents", appt.amount_paid_cents)
+    .eq("amount_refunded_cents", appt.amount_refunded_cents)
+    .select("id")
+    .maybeSingle();
 
   if (updErr) {
+    logQueryError("commerce.payment.appointment.update", commerceDiagnosticMessage(updErr));
     return {
       ok: false,
       error: updErr.message.includes("payment_status")
@@ -148,6 +182,7 @@ async function syncAppointmentPayment(
         : updErr.message,
     };
   }
+  if (!updated) return { ok: false, error: "Appointment payment sync did not update a row; review the recorded payment." };
   return { ok: true };
 }
 
@@ -158,20 +193,20 @@ async function applyInvoicePayment(
   client?: Awaited<ReturnType<typeof createClient>>,
 ): Promise<void> {
   const supabase = client ?? (await createClient());
-  const { data: inv } = await supabase
+  const { data: inv, error: readError } = await supabase
     .from("commerce_invoices")
     .select("amount_paid_cents, total_cents, status")
     .eq("id", invoiceId)
     .eq("business_id", businessId)
     .maybeSingle();
-  if (!inv) return;
+  if (readError || !inv) throw new Error(readError?.message ?? "Invoice payment sync could not read the invoice.");
   const amountPaid = Number(inv.amount_paid_cents ?? 0) + paidDeltaCents;
   const totalCents = Number(inv.total_cents ?? 0);
   const balance = Math.max(0, totalCents - amountPaid);
   const status =
     balance <= 0 ? "paid" : amountPaid > 0 ? "partial" : String(inv.status);
 
-  await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("commerce_invoices")
     .update({
       amount_paid_cents: amountPaid,
@@ -180,27 +215,22 @@ async function applyInvoicePayment(
       paid_at: balance <= 0 ? new Date().toISOString() : null,
     })
     .eq("id", invoiceId)
-    .eq("business_id", businessId);
+    .eq("business_id", businessId)
+    .eq("amount_paid_cents", inv.amount_paid_cents)
+    .select("id")
+    .maybeSingle();
+  if (updateError || !updated) throw new Error(updateError?.message ?? "Invoice payment sync did not update a row.");
 }
 
 export async function recordCommercePayment(
   input: RecordPaymentInput,
 ): Promise<RecordPaymentResult> {
-  if (input.amountCents <= 0) {
+  if (!Number.isSafeInteger(input.amountCents) || input.amountCents <= 0) {
     return { ok: false, error: "Amount must be greater than zero." };
   }
 
   const supabase = await createClient();
   let invoiceId = input.invoiceId ?? null;
-
-  if (input.ensureInvoice && input.appointmentId && !invoiceId) {
-    const created = await createInvoiceForAppointment({
-      businessId: input.businessId,
-      appointmentId: input.appointmentId,
-      actorId: input.actorId,
-    });
-    invoiceId = created.invoice?.id ?? null;
-  }
 
   const { data: customer, error: customerErr } = await supabase
     .from("customers")
@@ -304,6 +334,29 @@ export async function recordCommercePayment(
       balance_cents: Number(card.balance_cents),
       status: String(card.status),
     };
+  }
+
+  // All local payment validation must pass before issuing a payment-triggered invoice.
+  // Keep invoice identity available to pending provider transactions as well.
+  if (input.ensureInvoice && input.appointmentId && !invoiceId) {
+    try {
+      const created = await createInvoiceForAppointment({
+        businessId: input.businessId,
+        appointmentId: input.appointmentId,
+        actorId: input.actorId,
+      });
+      if (!created.existingInvoiceUnverified) {
+        if (created.error || !created.invoice) {
+          throw new Error(created.error ?? "Could not prepare the payment invoice.");
+        }
+        invoiceId = created.invoice.id;
+      }
+      // An unverified existing invoice is logged by invoice preparation. Do not
+      // bind it or create a replacement; collection can proceed independently.
+    } catch (error) {
+      logQueryError("commerce.payment.invoice.prepare", commerceDiagnosticMessage(error));
+      return { ok: false, error: "Could not prepare the payment invoice. No payment was recorded." };
+    }
   }
 
   const provider = input.forceManual
@@ -417,129 +470,131 @@ export async function recordCommercePayment(
     return { ok: false, error: error?.message ?? "Could not record payment." };
   }
 
-  if (input.method === "store_credit") {
-    const credit = Number(customerRow.store_credit_cents ?? 0);
-    await supabase
-      .from("customers")
-      .update({ store_credit_cents: credit - input.amountCents })
-      .eq("id", input.customerId);
-  }
-
-  if (input.method === "gift_card" && giftCardRow) {
-    const nextBalance = giftCardRow.balance_cents - input.amountCents;
-    const { error: giftErr } = await supabase
-      .from("gift_cards")
-      .update({
-        balance_cents: nextBalance,
-        status: nextBalance <= 0 ? "redeemed" : "active",
-        redeemed_by_customer_id: input.customerId,
-      })
-      .eq("id", giftCardRow.id)
-      .eq("business_id", input.businessId);
-    if (giftErr) {
-      return {
-        ok: false,
-        error: `Payment recorded but gift certificate could not update: ${giftErr.message}`,
-        transaction: mapTransaction(row as Record<string, unknown>),
-      };
+  const transaction = mapTransaction(row as Record<string, unknown>);
+  let syncStep = "store credit";
+  try {
+    if (input.method === "store_credit") {
+      const credit = Number(customerRow.store_credit_cents ?? 0);
+      const { data: updated, error: creditError } = await supabase
+        .from("customers")
+        .update({ store_credit_cents: credit - input.amountCents })
+        .eq("id", input.customerId)
+        .eq("business_id", input.businessId)
+        .eq("store_credit_cents", credit)
+        .select("id")
+        .maybeSingle();
+      if (creditError || !updated) throw new Error(creditError?.message ?? "Store-credit update failed.");
     }
-  }
 
-  if (input.appointmentId) {
-    const sync = await syncAppointmentPayment(
-      input.businessId,
-      input.appointmentId,
-      input.amountCents,
-    );
-    if (!sync.ok) {
-      return {
-        ok: false,
-        error:
-          sync.error ??
-          "Payment recorded but appointment balance could not sync.",
-        transaction: mapTransaction(row as Record<string, unknown>),
-      };
+    syncStep = "gift certificate";
+    if (input.method === "gift_card" && giftCardRow) {
+      const nextBalance = giftCardRow.balance_cents - input.amountCents;
+      const { data: updated, error: giftErr } = await supabase
+        .from("gift_cards")
+        .update({
+          balance_cents: nextBalance,
+          status: nextBalance <= 0 ? "redeemed" : "active",
+          redeemed_by_customer_id: input.customerId,
+        })
+        .eq("id", giftCardRow.id)
+        .eq("business_id", input.businessId)
+        .eq("balance_cents", giftCardRow.balance_cents)
+        .select("id")
+        .maybeSingle();
+      if (giftErr || !updated) throw new Error(giftErr?.message ?? "Gift certificate update failed.");
     }
-  }
 
-  if (invoiceId) {
-    await applyInvoicePayment(input.businessId, invoiceId, input.amountCents);
-  }
-
-  // Legacy CRM timeline mirror
-  await supabase.from("customer_payment_events").insert({
-    business_id: input.businessId,
-    customer_id: input.customerId,
-    appointment_id: input.appointmentId ?? null,
-    amount_cents: input.amountCents,
-    currency: input.currency ?? "usd",
-    status: "paid",
-    method: input.method,
-    description: input.description ?? null,
-    provider: charge.provider,
-    provider_reference: charge.providerReference,
-  });
-
-  const receipt = await createReceiptForTransaction({
-    businessId: input.businessId,
-    transactionId: String(row.id),
-    actorId: input.actorId,
-  });
-
-  if (receipt && input.sendReceiptEmail) {
-    try {
-      const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
-      const emailed = await queueReceiptEmail(input.businessId, receipt.id);
-      if (!emailed.ok) {
-        logQueryError(
-          "commerce.receipt.auto_email",
-          emailed.error ?? "Receipt email was not queued.",
-        );
-      }
-    } catch (err) {
-      logQueryError(
-        "commerce.receipt.auto_email",
-        err instanceof Error ? err.message : "Receipt email queue failed.",
+    syncStep = "appointment";
+    if (input.appointmentId) {
+      const sync = await syncAppointmentPayment(
+        input.businessId,
+        input.appointmentId,
+        input.amountCents,
       );
+      if (!sync.ok) throw new Error(sync.error ?? "Appointment payment sync failed.");
     }
-  }
 
-  await writeCommerceAudit({
-    businessId: input.businessId,
-    actorId: input.actorId,
-    action: "payment.recorded",
-    entityType: "commerce_transaction",
-    entityId: String(row.id),
-    summary: `Payment ${input.amountCents}¢ via ${input.method} (${charge.provider})`,
-    afterState: {
+    syncStep = "invoice payment";
+    if (invoiceId) {
+      await applyInvoicePayment(input.businessId, invoiceId, input.amountCents);
+    }
+
+    syncStep = "CRM payment mirror";
+    // Legacy CRM timeline mirror
+    const { error: mirrorError } = await supabase.from("customer_payment_events").insert({
+      business_id: input.businessId,
+      customer_id: input.customerId,
+      appointment_id: input.appointmentId ?? null,
       amount_cents: input.amountCents,
+      currency: input.currency ?? "usd",
+      status: "paid",
       method: input.method,
+      description: input.description ?? null,
       provider: charge.provider,
-    },
-  });
+      provider_reference: charge.providerReference,
+    });
 
-  const { createCommerceEvent, emitCommerceEvent } = await import(
-    "@/lib/commerce/events"
-  );
-  await emitCommerceEvent(
-    createCommerceEvent({
-      type: kind === "deposit" ? "deposit.received" : "payment.received",
+    if (mirrorError) throw new Error(mirrorError.message);
+
+    await preparePaymentReceipt({
       businessId: input.businessId,
-      customerId: input.customerId,
-      appointmentId: input.appointmentId,
+      transactionId: String(row.id),
+      actorId: input.actorId,
+      sendReceiptEmail: input.sendReceiptEmail,
+    });
+
+    syncStep = "audit";
+    await writeCommerceAudit({
+      businessId: input.businessId,
+      actorId: input.actorId,
+      action: "payment.recorded",
+      entityType: "commerce_transaction",
       entityId: String(row.id),
-      payload: {
+      summary: `Payment ${input.amountCents}¢ via ${input.method} (${charge.provider})`,
+      afterState: {
         amount_cents: input.amountCents,
         method: input.method,
-        currency: input.currency ?? "usd",
+        provider: charge.provider,
       },
-    }),
-  );
+    });
 
-  return {
-    ok: true,
-    transaction: mapTransaction(row as Record<string, unknown>),
-  };
+    syncStep = "event";
+    const { createCommerceEvent, emitCommerceEvent } = await import(
+      "@/lib/commerce/events"
+    );
+    await emitCommerceEvent(
+      createCommerceEvent({
+        type: kind === "deposit" ? "deposit.received" : "payment.received",
+        businessId: input.businessId,
+        customerId: input.customerId,
+        appointmentId: input.appointmentId,
+        entityId: String(row.id),
+        payload: {
+          amount_cents: input.amountCents,
+          method: input.method,
+          currency: input.currency ?? "usd",
+        },
+      }),
+    );
+
+    return {
+      ok: true,
+      transaction,
+      recorded: true,
+      canRetry: false,
+      syncStatus: "complete",
+    };
+  } catch (error) {
+    logQueryError("commerce.payment.sync", commerceDiagnosticMessage(error));
+    return {
+      ok: false,
+      recorded: true,
+      canRetry: false,
+      syncStatus: "failed",
+      transaction,
+      error: `Payment recorded, but ${syncStep} sync failed. Do not collect this payment again; review the recorded transaction.`,
+    };
+  }
 }
 
 /**
@@ -548,7 +603,7 @@ export async function recordCommercePayment(
  */
 export async function finalizeStripePaymentIntent(input: {
   providerPaymentIntentId: string;
-}): Promise<{ ok: boolean; error?: string }> {
+}): Promise<RecordPaymentResult> {
   const { createServiceClient } = await import("@/lib/supabase/service");
   const supabase = createServiceClient();
   const pi = input.providerPaymentIntentId.trim();
@@ -569,7 +624,7 @@ export async function finalizeStripePaymentIntent(input: {
   }
 
   if (String(row.status) === "succeeded") {
-    return { ok: true };
+    return { ok: true, recorded: true, canRetry: false, replay: true, syncStatus: "unknown", transaction: mapTransaction(row as Record<string, unknown>) };
   }
 
   if (String(row.status) !== "requires_action" && String(row.status) !== "pending") {
@@ -587,7 +642,7 @@ export async function finalizeStripePaymentIntent(input: {
   const method = row.method as PaymentMethod;
   const currency = String(row.currency ?? "usd");
 
-  const { error: updErr } = await supabase
+  const { data: finalized, error: updErr } = await supabase
     .from("commerce_transactions")
     .update({
       status: "succeeded",
@@ -597,78 +652,81 @@ export async function finalizeStripePaymentIntent(input: {
           "",
         ) || "Card payment",
     })
-    .eq("id", row.id);
+    .eq("id", row.id)
+    .eq("business_id", businessId)
+    .eq("status", row.status)
+    .select("*")
+    .maybeSingle();
 
   if (updErr) {
     return { ok: false, error: updErr.message };
   }
 
-  if (appointmentId) {
-    const sync = await syncAppointmentPayment(
-      businessId,
-      appointmentId,
-      amountCents,
-      // Service role client is API-compatible for these table writes.
-      supabase as unknown as Awaited<ReturnType<typeof createClient>>,
-    );
-    if (!sync.ok) {
-      logQueryError(
-        "commerce.stripe.finalize.appt",
-        sync.error ?? "appointment sync failed",
+  // Only the winner may apply deltas. A replay cannot prove prior sync completed.
+  if (!finalized) return { ok: true, replay: true, canRetry: false, syncStatus: "unknown" };
+  const transaction = mapTransaction(finalized as Record<string, unknown>);
+  try {
+    if (appointmentId) {
+      const sync = await syncAppointmentPayment(
+        businessId,
+        appointmentId,
+        amountCents,
+        // Service role client is API-compatible for these table writes.
+        supabase as unknown as Awaited<ReturnType<typeof createClient>>,
+      );
+      if (!sync.ok) {
+        throw new Error(sync.error ?? "Appointment sync failed.");
+      }
+    }
+
+    if (invoiceId) {
+      await applyInvoicePayment(
+        businessId,
+        invoiceId,
+        amountCents,
+        supabase as unknown as Awaited<ReturnType<typeof createClient>>,
       );
     }
-  }
 
-  if (invoiceId) {
-    await applyInvoicePayment(
-      businessId,
-      invoiceId,
-      amountCents,
-      supabase as unknown as Awaited<ReturnType<typeof createClient>>,
-    );
-  }
+    const { error: mirrorError } = await supabase.from("customer_payment_events").insert({
+      business_id: businessId,
+      customer_id: customerId,
+      appointment_id: appointmentId,
+      amount_cents: amountCents,
+      currency,
+      status: "paid",
+      method,
+      description: "Card payment (Stripe confirmed)",
+      provider: "stripe",
+      provider_reference: pi,
+    });
 
-  await supabase.from("customer_payment_events").insert({
-    business_id: businessId,
-    customer_id: customerId,
-    appointment_id: appointmentId,
-    amount_cents: amountCents,
-    currency,
-    status: "paid",
-    method,
-    description: "Card payment (Stripe confirmed)",
-    provider: "stripe",
-    provider_reference: pi,
-  });
+    if (mirrorError) throw new Error(mirrorError.message);
 
-  // Receipt + email use the session client path; log and continue if unavailable.
-  try {
-    const receipt = await createReceiptForTransaction({
+    await preparePaymentReceipt({
       businessId,
       transactionId: String(row.id),
       actorId: null,
+      sendReceiptEmail: true,
     });
-    if (receipt) {
-      const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
-      await queueReceiptEmail(businessId, receipt.id);
-    }
-  } catch (err) {
-    logQueryError(
-      "commerce.stripe.finalize.receipt",
-      err instanceof Error ? err.message : "receipt create failed",
-    );
+
+    await writeCommerceAudit({
+      businessId,
+      actorId: null,
+      action: "payment.recorded",
+      entityType: "commerce_transaction",
+      entityId: String(row.id),
+      summary: `Stripe PaymentIntent ${pi} finalized`,
+    });
+
+    return { ok: true, recorded: true, canRetry: false, syncStatus: "complete", transaction };
+  } catch (error) {
+    logQueryError("commerce.stripe.finalize.sync", commerceDiagnosticMessage(error));
+    return {
+      ok: false, recorded: true, canRetry: false, syncStatus: "failed", transaction,
+      error: "Payment recorded, but downstream sync failed. Do not collect again; review the recorded transaction.",
+    };
   }
-
-  await writeCommerceAudit({
-    businessId,
-    actorId: null,
-    action: "payment.recorded",
-    entityType: "commerce_transaction",
-    entityId: String(row.id),
-    summary: `Stripe PaymentIntent ${pi} finalized`,
-  });
-
-  return { ok: true };
 }
 
 export async function listTransactions(input: {

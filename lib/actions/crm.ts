@@ -370,12 +370,11 @@ export async function deleteCrmNoteAction(
 export async function recordCrmPaymentAction(
   _prev: ActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<import("@/lib/actions/commerce").CommerceActionState> {
   // Delegate to Commerce Platform — never bypass the ledger
   const { recordPaymentAction } = await import("@/lib/actions/commerce");
   const result = await recordPaymentAction({}, formData);
-  if (result.error) return { error: result.error };
-  return { success: result.success ?? "Payment saved." };
+  return result;
 }
 
 export async function sparkCrmQueryAction(input: {
