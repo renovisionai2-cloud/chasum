@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { financialDb, type Fault } from "../../helpers/financial-db";
 
-const mocks = vi.hoisted(() => ({ client: vi.fn(), service: vi.fn(), charge: vi.fn(), refund: vi.fn(), invoice: vi.fn(), receipt: vi.fn(), email: vi.fn(), audit: vi.fn(), event: vi.fn() }));
+const mocks = vi.hoisted(() => ({ client: vi.fn(), service: vi.fn(), charge: vi.fn(), refund: vi.fn(), invoice: vi.fn(), receipt: vi.fn(), email: vi.fn(), audit: vi.fn(), event: vi.fn(), log: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.client }));
 vi.mock("@supabase/supabase-js", () => ({ createClient: mocks.service }));
 vi.mock("@/lib/env", () => ({ getSupabaseEnv: () => ({ url: "https://example.invalid" }), requireServiceRoleKey: () => "test-only" }));
@@ -11,6 +11,7 @@ vi.mock("@/lib/commerce/invoices", () => ({ createInvoiceForAppointment: mocks.i
 vi.mock("@/lib/commerce/receipts", () => ({ createReceiptForTransaction: mocks.receipt, queueReceiptEmail: mocks.email }));
 vi.mock("@/lib/commerce/audit", () => ({ writeCommerceAudit: mocks.audit }));
 vi.mock("@/lib/commerce/events", () => ({ createCommerceEvent: (v: unknown) => v, emitCommerceEvent: mocks.event }));
+vi.mock("@/lib/supabase/errors", () => ({ logQueryError: mocks.log, isSoftSchemaFallbackAllowed: () => false }));
 import { recordCommercePayment, finalizeStripePaymentIntent } from "@/lib/commerce/payments";
 import { processCommerceRefund } from "@/lib/commerce/refunds";
 
@@ -75,12 +76,64 @@ describe("Phase A payment recording", () => {
     expect(result.error).toContain("CRM payment mirror");
   });
 
-  it.each(["receipt", "audit", "event"] as const)("%s throw after commit is non-retryable with identity", async step => {
+  it.each(["audit", "event"] as const)("%s throw after commit is non-retryable with identity", async step => {
     const state = setup();
     mocks[step].mockRejectedValue(new Error("Synthetic failure"));
     const result = await recordCommercePayment(input);
     expect(result).toMatchObject({ ok: false, recorded: true, canRetry: false, syncStatus: "failed", transaction: { id: state.rows.commerce_transactions[0].id } });
     expect(result.error).toContain(step);
+    expect(mocks.log).toHaveBeenCalledWith("commerce.payment.sync", "Synthetic failure");
+    expect(result.error).not.toContain("Synthetic failure");
+  });
+
+  it.each(["receipt throw", "receipt missing", "email throw", "no email"])("%s stays observable without failing financial sync", async failure => {
+    const state = setup();
+    if (failure === "receipt throw") mocks.receipt.mockRejectedValue(new Error("Receipt storage unavailable"));
+    if (failure === "receipt missing") mocks.receipt.mockResolvedValue(null);
+    if (failure === "email throw") mocks.email.mockRejectedValue(new Error("Queue unavailable"));
+    if (failure === "no email") mocks.email.mockResolvedValue({ ok: false, error: "Customer has no email on file." });
+    const result = await recordCommercePayment({ ...input, sendReceiptEmail: true });
+    expect(result).toMatchObject({ ok: true, recorded: true, canRetry: false, syncStatus: "complete", transaction: { id: state.rows.commerce_transactions[0].id } });
+    expect(result.error).toBeUndefined();
+    expect(state.rows.appointments[0].amount_paid_cents).toBe(500);
+    expect(mocks.log).toHaveBeenCalledWith(failure.startsWith("receipt") ? "commerce.payment.receipt.create" : "commerce.payment.receipt.email", expect.any(String));
+    expect(mocks.audit).toHaveBeenCalled();
+    expect(mocks.event).toHaveBeenCalled();
+    if (failure === "no email") expect(mocks.log).toHaveBeenCalledWith("commerce.payment.receipt.email", "Customer has no email on file.");
+  });
+
+  it("retains booking's separate receipt-email flow", async () => {
+    setup();
+    await recordCommercePayment({ ...input, sendReceiptEmail: false });
+    expect(mocks.email).not.toHaveBeenCalled();
+  });
+
+  it.each(["appointments", "commerce_invoices", "customer_payment_events", "customers", "gift_cards"])("logs the actual %s post-commit cause without exposing it", async table => {
+    setup(q => q.table === table && q.operation === (table === "customer_payment_events" ? "insert" : "update") ? "error" : undefined);
+    const result = await recordCommercePayment({ ...input, invoiceId: "inv", method: table === "customers" ? "store_credit" : table === "gift_cards" ? "gift_card" : "cash", giftCardId: "gift" });
+    expect(mocks.log).toHaveBeenCalledWith("commerce.payment.sync", "Synthetic query failure");
+    expect(result).toMatchObject({ recorded: true, canRetry: false, syncStatus: "failed" });
+    expect(result.error).not.toContain("Synthetic query failure");
+  });
+
+  it("bounds diagnostics and removes contact/secret values without losing the cause", async () => {
+    setup();
+    mocks.audit.mockRejectedValue(new Error("Audit connection failed for person@example.invalid at https://provider.invalid/private?token=secret123; Bearer credential123; token=secret456; phone=+1 416 555 0100\nDetail: customer payload"));
+    const result = await recordCommercePayment(input);
+    const message = mocks.log.mock.calls.find(([scope]) => scope === "commerce.payment.sync")?.[1];
+    expect(message).toContain("Audit connection failed");
+    expect(message).not.toMatch(/person|example|provider.invalid|secret123|credential123|secret456|416|customer payload/);
+    expect(message.length).toBeLessThanOrEqual(500);
+    expect(result.error).toBe("Payment recorded, but audit sync failed. Do not collect this payment again; review the recorded transaction.");
+  });
+
+  it("logs an invoice preparation throw before returning a safe no-payment result", async () => {
+    setup();
+    mocks.invoice.mockRejectedValue(new Error("Internal invoice connection error"));
+    const result = await recordCommercePayment({ ...input, ensureInvoice: true });
+    expect(mocks.log).toHaveBeenCalledWith("commerce.payment.invoice.prepare", "Internal invoice connection error");
+    expect(result.error).toBe("Could not prepare the payment invoice. No payment was recorded.");
+    expect(mocks.charge).not.toHaveBeenCalled();
   });
 
   it.each(["invalid amount", "customer missing", "insufficient credit", "gift missing", "insufficient gift"])("%s validation creates no invoice or provider effect", async reason => {
@@ -96,7 +149,8 @@ describe("Phase A payment recording", () => {
 
   it("invoice preparation failure surfaces before provider effect", async () => {
     setup(); mocks.invoice.mockResolvedValue({ invoice: null, error: "Sequence allocation failed" });
-    expect(await recordCommercePayment({ ...input, ensureInvoice: true })).toMatchObject({ ok: false, error: "Sequence allocation failed" });
+    expect(await recordCommercePayment({ ...input, ensureInvoice: true })).toMatchObject({ ok: false, error: "Could not prepare the payment invoice. No payment was recorded." });
+    expect(mocks.log).toHaveBeenCalledWith("commerce.payment.invoice.prepare", "Sequence allocation failed");
     expect(mocks.charge).not.toHaveBeenCalled();
   });
 
@@ -112,6 +166,21 @@ describe("Phase A payment recording", () => {
 });
 
 describe("Phase A webhook compare-and-swap", () => {
+  it.each(["receipt", "email"] as const)("webhook %s failure does not fail money sync", async step => {
+    const state = setup(); state.rows.commerce_transactions.push({ ...payment });
+    mocks[step].mockRejectedValue(new Error("Receipt diagnostic cause"));
+    expect(await finalizeStripePaymentIntent({ providerPaymentIntentId: "pi-test" })).toMatchObject({ ok: true, recorded: true, canRetry: false, syncStatus: "complete" });
+    expect(mocks.log).toHaveBeenCalledWith(step === "receipt" ? "commerce.payment.receipt.create" : "commerce.payment.receipt.email", "Receipt diagnostic cause");
+    expect(state.rows.appointments[0].amount_paid_cents).toBe(500);
+  });
+  it("logs webhook post-commit root cause without exposing it", async () => {
+    const state = setup(q => q.table === "customer_payment_events" ? "error" : undefined);
+    state.rows.commerce_transactions.push({ ...payment });
+    const result = await finalizeStripePaymentIntent({ providerPaymentIntentId: "pi-test" });
+    expect(mocks.log).toHaveBeenCalledWith("commerce.stripe.finalize.sync", "Synthetic query failure");
+    expect(result).toMatchObject({ recorded: true, canRetry: false, syncStatus: "failed" });
+    expect(result.error).not.toContain("Synthetic query failure");
+  });
   it("concurrent identical pending snapshots and later replay apply projections exactly once", async () => {
     const state = setup(); state.rows.commerce_transactions.push({ ...payment });
     const results = await Promise.all([finalizeStripePaymentIntent({ providerPaymentIntentId: "pi-test" }), finalizeStripePaymentIntent({ providerPaymentIntentId: "pi-test" })]);
@@ -146,11 +215,20 @@ describe("Phase A webhook compare-and-swap", () => {
 
 describe("Phase A refunds", () => {
   const refundInput = { businessId: "biz", transactionId: "tx", amountCents: 200, reason: "Test refund" };
+  it.each(["commerce_transactions", "appointments", "commerce_invoices", "customer_payment_events"])("logs refund %s root cause without exposing it", async table => {
+    const state = setup(q => q.table === table && q.operation === (table === "customer_payment_events" ? "insert" : "update") ? "error" : undefined);
+    state.rows.commerce_transactions.push({ ...payment, status: "succeeded" });
+    const result = await processCommerceRefund(refundInput);
+    expect(mocks.log).toHaveBeenCalledWith("commerce.refund.sync", "Synthetic query failure");
+    expect(result).toMatchObject({ recorded: true, canRetry: false, syncStatus: "failed" });
+    expect(result.error).not.toContain("Synthetic query failure");
+  });
   it("prior-history failure refuses refund before any provider or write", async () => {
     const state = setup(q => q.table === "commerce_refunds" && q.operation === "select" ? "error" : undefined);
     state.rows.commerce_transactions.push({ ...payment, status: "succeeded" });
     expect(await processCommerceRefund(refundInput)).toMatchObject({ ok: false, error: expect.stringContaining("prior refunds") });
     expect(mocks.refund).not.toHaveBeenCalled();
+    expect(mocks.log).toHaveBeenCalledWith("commerce.refund.history", "Synthetic query failure");
     expect(state.calls.every(q => q.operation === "select")).toBe(true);
   });
   it("preserves prior refund cap and normal partial-refund behavior", async () => {

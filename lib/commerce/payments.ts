@@ -1,3 +1,4 @@
+import { commerceDiagnosticMessage } from "@/lib/commerce/diagnostics";
 /**
  * Commerce payment ledger — records payments via provider abstraction.
  * Mirrors to customer_payment_events for CRM timeline compatibility.
@@ -58,6 +59,28 @@ export type RecordPaymentResult = {
   replay?: boolean;
 };
 
+/** Receipt delivery is observable, but cannot change recorded money/sync truth. */
+async function preparePaymentReceipt(input: {
+  businessId: string;
+  transactionId: string;
+  actorId?: string | null;
+  sendReceiptEmail?: boolean;
+}): Promise<void> {
+  let scope = "commerce.payment.receipt.create";
+  try {
+    const receipt = await createReceiptForTransaction(input);
+    if (!receipt) throw new Error("Receipt creation failed.");
+    if (input.sendReceiptEmail) {
+      scope = "commerce.payment.receipt.email";
+      const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
+      const emailed = await queueReceiptEmail(input.businessId, receipt.id);
+      if (!emailed.ok) throw new Error(emailed.error ?? "Receipt email queue failed.");
+    }
+  } catch (error) {
+    logQueryError(scope, commerceDiagnosticMessage(error));
+  }
+}
+
 async function syncAppointmentPayment(
   businessId: string,
   appointmentId: string,
@@ -75,6 +98,7 @@ async function syncAppointmentPayment(
     .maybeSingle();
 
   if (apptErr) {
+    logQueryError("commerce.payment.appointment.read", commerceDiagnosticMessage(apptErr));
     // Retry without commerce columns if schema is behind.
     if (
       apptErr.message.includes("payment_status") ||
@@ -150,6 +174,7 @@ async function syncAppointmentPayment(
     .maybeSingle();
 
   if (updErr) {
+    logQueryError("commerce.payment.appointment.update", commerceDiagnosticMessage(updErr));
     return {
       ok: false,
       error: updErr.message.includes("payment_status")
@@ -174,7 +199,7 @@ async function applyInvoicePayment(
     .eq("id", invoiceId)
     .eq("business_id", businessId)
     .maybeSingle();
-  if (readError || !inv) throw new Error("Invoice payment sync could not read the invoice.");
+  if (readError || !inv) throw new Error(readError?.message ?? "Invoice payment sync could not read the invoice.");
   const amountPaid = Number(inv.amount_paid_cents ?? 0) + paidDeltaCents;
   const totalCents = Number(inv.total_cents ?? 0);
   const balance = Math.max(0, totalCents - amountPaid);
@@ -194,7 +219,7 @@ async function applyInvoicePayment(
     .eq("amount_paid_cents", inv.amount_paid_cents)
     .select("id")
     .maybeSingle();
-  if (updateError || !updated) throw new Error("Invoice payment sync did not update a row.");
+  if (updateError || !updated) throw new Error(updateError?.message ?? "Invoice payment sync did not update a row.");
 }
 
 export async function recordCommercePayment(
@@ -320,11 +345,16 @@ export async function recordCommercePayment(
         appointmentId: input.appointmentId,
         actorId: input.actorId,
       });
-      if (created.error || !created.invoice) {
-        return { ok: false, error: created.error ?? "Could not prepare the payment invoice." };
+      if (!created.existingInvoiceUnverified) {
+        if (created.error || !created.invoice) {
+          throw new Error(created.error ?? "Could not prepare the payment invoice.");
+        }
+        invoiceId = created.invoice.id;
       }
-      invoiceId = created.invoice.id;
-    } catch {
+      // An unverified existing invoice is logged by invoice preparation. Do not
+      // bind it or create a replacement; collection can proceed independently.
+    } catch (error) {
+      logQueryError("commerce.payment.invoice.prepare", commerceDiagnosticMessage(error));
       return { ok: false, error: "Could not prepare the payment invoice. No payment was recorded." };
     }
   }
@@ -441,9 +471,8 @@ export async function recordCommercePayment(
   }
 
   const transaction = mapTransaction(row as Record<string, unknown>);
-  let syncStep = "invoice";
+  let syncStep = "store credit";
   try {
-    syncStep = "store credit";
     if (input.method === "store_credit") {
       const credit = Number(customerRow.store_credit_cents ?? 0);
       const { data: updated, error: creditError } = await supabase
@@ -454,7 +483,7 @@ export async function recordCommercePayment(
         .eq("store_credit_cents", credit)
         .select("id")
         .maybeSingle();
-      if (creditError || !updated) throw new Error("Store-credit update failed.");
+      if (creditError || !updated) throw new Error(creditError?.message ?? "Store-credit update failed.");
     }
 
     syncStep = "gift certificate";
@@ -472,7 +501,7 @@ export async function recordCommercePayment(
         .eq("balance_cents", giftCardRow.balance_cents)
         .select("id")
         .maybeSingle();
-      if (giftErr || !updated) throw new Error("Gift certificate update failed.");
+      if (giftErr || !updated) throw new Error(giftErr?.message ?? "Gift certificate update failed.");
     }
 
     syncStep = "appointment";
@@ -482,7 +511,7 @@ export async function recordCommercePayment(
         input.appointmentId,
         input.amountCents,
       );
-      if (!sync.ok) throw new Error("Appointment payment sync failed.");
+      if (!sync.ok) throw new Error(sync.error ?? "Appointment payment sync failed.");
     }
 
     syncStep = "invoice payment";
@@ -505,22 +534,14 @@ export async function recordCommercePayment(
       provider_reference: charge.providerReference,
     });
 
-    if (mirrorError) throw new Error("CRM payment mirror failed.");
+    if (mirrorError) throw new Error(mirrorError.message);
 
-    syncStep = "receipt";
-    const receipt = await createReceiptForTransaction({
+    await preparePaymentReceipt({
       businessId: input.businessId,
       transactionId: String(row.id),
       actorId: input.actorId,
+      sendReceiptEmail: input.sendReceiptEmail,
     });
-
-    if (!receipt) throw new Error("Receipt creation failed.");
-
-    if (input.sendReceiptEmail) {
-      const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
-      const emailed = await queueReceiptEmail(input.businessId, receipt.id);
-      if (!emailed.ok) throw new Error("Receipt email queue failed.");
-    }
 
     syncStep = "audit";
     await writeCommerceAudit({
@@ -563,7 +584,8 @@ export async function recordCommercePayment(
       canRetry: false,
       syncStatus: "complete",
     };
-  } catch {
+  } catch (error) {
+    logQueryError("commerce.payment.sync", commerceDiagnosticMessage(error));
     return {
       ok: false,
       recorded: true,
@@ -653,7 +675,7 @@ export async function finalizeStripePaymentIntent(input: {
         supabase as unknown as Awaited<ReturnType<typeof createClient>>,
       );
       if (!sync.ok) {
-        throw new Error("Appointment sync failed.");
+        throw new Error(sync.error ?? "Appointment sync failed.");
       }
     }
 
@@ -679,21 +701,14 @@ export async function finalizeStripePaymentIntent(input: {
       provider_reference: pi,
     });
 
-    if (mirrorError) throw new Error("CRM payment mirror failed.");
+    if (mirrorError) throw new Error(mirrorError.message);
 
-    {
-      const receipt = await createReceiptForTransaction({
-        businessId,
-        transactionId: String(row.id),
-        actorId: null,
-      });
-      if (receipt) {
-        const { queueReceiptEmail } = await import("@/lib/commerce/receipts");
-        const emailed = await queueReceiptEmail(businessId, receipt.id);
-        if (!emailed.ok) throw new Error("Receipt email queue failed.");
-      }
-      if (!receipt) throw new Error("Receipt creation failed.");
-    }
+    await preparePaymentReceipt({
+      businessId,
+      transactionId: String(row.id),
+      actorId: null,
+      sendReceiptEmail: true,
+    });
 
     await writeCommerceAudit({
       businessId,
@@ -705,7 +720,8 @@ export async function finalizeStripePaymentIntent(input: {
     });
 
     return { ok: true, recorded: true, canRetry: false, syncStatus: "complete", transaction };
-  } catch {
+  } catch (error) {
+    logQueryError("commerce.stripe.finalize.sync", commerceDiagnosticMessage(error));
     return {
       ok: false, recorded: true, canRetry: false, syncStatus: "failed", transaction,
       error: "Payment recorded, but downstream sync failed. Do not collect again; review the recorded transaction.",

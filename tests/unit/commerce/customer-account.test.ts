@@ -252,7 +252,7 @@ describe("customer total paid", () => {
       timeline: CASH_PAYMENTS,
     });
     expect(totals.totalPaidCents).toBeNull();
-    expect(totals.outstandingBalanceCents).toBeNull();
+    expect(totals.outstandingBalanceCents).toBe(0);
   });
 });
 
@@ -268,8 +268,8 @@ describe("tenant filters", () => {
     expect(source).toContain("CUSTOMER_ACCOUNT_TENANT_SCOPE");
     expect(source).toMatch(/\.eq\(\s*CUSTOMER_ACCOUNT_TENANT_SCOPE\.businessId/);
     expect(source).toMatch(/\.eq\(\s*CUSTOMER_ACCOUNT_TENANT_SCOPE\.customerId/);
-    expect(source).toContain("listInvoices({ businessId, customerId");
-    expect(source).toContain("listTransactions({ businessId, customerId");
+    expect(source).toContain('supabase.from("commerce_invoices")');
+    expect(source).toContain('supabase.from("commerce_transactions")');
     expect(source).toContain("listReceipts({ businessId, customerId");
     expect(source).toContain("listRefunds({ businessId, customerId");
   });
@@ -288,8 +288,8 @@ describe("tenant filters", () => {
       invoices: [PAID_INVOICE, OPEN_INVOICE],
       timeline: CASH_PAYMENTS,
     });
-    expect(scoped.outstandingBalanceCents).toBeNull();
-    expect(mixed.outstandingBalanceCents).toBeNull();
+    expect(scoped.outstandingBalanceCents).toBe(0);
+    expect(mixed.outstandingBalanceCents).toBe(11300);
     expect(mixed.appointmentOutstandingCents).toBeGreaterThan(0);
   });
 });
@@ -310,5 +310,20 @@ describe("Phase A projection truth", () => {
     const giftRefund = { status: "succeeded" as const, method: "gift_card" as const, kind: "refund" as const, amountCents: 3000 };
     expect(ledgerSpendCents([giftRefund])).toBe(0);
     expect(ledgerSpendCents([{ ...giftRefund, kind: "payment", amountCents: 5000 }, giftRefund])).toBe(5000);
+  });
+});
+
+
+describe("Option A current outstanding", () => {
+  it.each([true, false])("current balance is numeric only when every source agrees (ledger matches=%s)", matches => {
+    const totals = projectCustomerAccountTotals({
+      appointments: [PARTIAL_AFTER_SUBTOTAL],
+      invoices: [{ status: "partial", balanceCents: 1300 }],
+      timeline: matches ? [CASH_PAYMENTS[0]] : [],
+    });
+    expect(totals).toMatchObject({ outstandingBalanceCents: matches ? 1300 : null, totalPaidCents: null, depositsCents: null, sourceDisagreement: !matches });
+  });
+  it("unavailable current sources cannot falsely agree at zero", () => {
+    expect(projectCustomerAccountTotals({ appointments: [], invoices: [], timeline: [], currentSourcesAvailable: false }).outstandingBalanceCents).toBeNull();
   });
 });

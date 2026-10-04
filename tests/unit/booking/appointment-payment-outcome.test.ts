@@ -83,13 +83,15 @@ describe("booking payment persistence truth", () => {
     }));
   });
 
-  it("returns the actual matching transaction for an already-recorded payment", async () => {
+  it("matching session-key dedupe reuses the recorded transaction without collecting again", async () => {
     mocks.transactions.mockResolvedValue([
       { ...transaction, id: "unrelated", amountCents: 1200 },
       { ...transaction, id: "matching", amountCents: 5000 },
     ]);
     const result = await createAppointment({}, form());
     expect(result.payment).toMatchObject({ status: "recorded", transactionId: "matching", amountCents: 5000 });
+    expect(result.payment?.detail).toBe("Payment already recorded.");
+    expect(mocks.transactions).toHaveBeenCalledWith({ businessId: "business", appointmentId: "appt", limit: 20 });
     expect(result.success).toContain("Deposit recorded — $50 by E-Transfer");
     expect(mocks.record).not.toHaveBeenCalled();
   });
@@ -102,12 +104,19 @@ describe("booking payment persistence truth", () => {
     expect(result.success).not.toMatch(/retry|could not be recorded/i);
     expect(mocks.notify).toHaveBeenCalledOnce();
   });
-  it("refuses a payment booking when authoritative Business currency is unavailable", async () => {
-    mocks.currency = undefined;
+  it.each([undefined, "", "xyz", "XYZ"])("refuses unsupported/missing Business currency %s without USD fallback", async currency => {
+    mocks.currency = currency;
     const result = await createAppointment({}, form());
     expect(result.error).toContain("Business currency is unavailable");
     expect(mocks.record).not.toHaveBeenCalled();
     expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it.each(["cad", "CAD", " CAD ", "USD", "eur", "GBP", "aud"])("normalizes supported Business currency %s before payment", async currency => {
+    mocks.currency = currency;
+    mocks.record.mockResolvedValue({ ok: true, transaction });
+    await createAppointment({}, form());
+    expect(mocks.record).toHaveBeenCalledWith(expect.objectContaining({ currency: currency.trim().toLowerCase(), sendReceiptEmail: false }));
   });
 
   it("retains committed transaction identity when calendar revalidation throws", async () => {

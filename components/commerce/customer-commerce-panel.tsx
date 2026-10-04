@@ -41,9 +41,13 @@ export function CustomerCommercePanel({
   const summaryMoney = (cents: number | null) => cents == null ? "Unknown" : centsToDollars(cents);
   return (
     <div className="space-y-6">
-      <p role="status" className="text-sm text-muted-foreground">
-        Account totals need review. Available payment, appointment and invoice history may be incomplete or disagree.
-      </p>
+      {account.outstandingBalanceCents == null ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          {account.financialStatus === "source_disagreement"
+            ? "Account totals need review. Available payment, appointment and invoice sources disagree."
+            : "Account totals need review. Current payment, appointment or invoice sources are unavailable or incomplete."}
+        </p>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <Stat label="Outstanding balance" value={summaryMoney(account.outstandingBalanceCents)} />
         <Stat label="Deposit paid" value={summaryMoney(account.depositsCents)} />

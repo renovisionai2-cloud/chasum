@@ -1,3 +1,4 @@
+import { commerceDiagnosticMessage } from "@/lib/commerce/diagnostics";
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapInvoice, mapInvoiceLine } from "@/lib/commerce/mappers";
 import { formatMoneyCents } from "@/lib/commerce/money";
@@ -14,7 +15,10 @@ async function nextInvoiceNumber(businessId: string): Promise<string | null> {
     .eq("business_id", businessId)
     .maybeSingle();
 
-  if (readError) return null;
+  if (readError) {
+    logQueryError("commerce.invoice.seq.read", commerceDiagnosticMessage(readError));
+    return null;
+  }
 
   if (!existing) {
     const { error } = await supabase.from("commerce_invoice_sequences").insert({
@@ -23,8 +27,7 @@ async function nextInvoiceNumber(businessId: string): Promise<string | null> {
       prefix: "INV",
     });
     if (error) {
-      if (isSoftSchemaFallbackAllowed(error.message)) return null;
-      logQueryError("commerce.invoice.seq", error.message);
+      logQueryError("commerce.invoice.seq", commerceDiagnosticMessage(error));
       return null;
     }
     return "INV-0001";
@@ -39,7 +42,10 @@ async function nextInvoiceNumber(businessId: string): Promise<string | null> {
     .eq("next_number", n)
     .select("next_number")
     .maybeSingle();
-  if (updateError || !updated) return null;
+  if (updateError || !updated) {
+    logQueryError("commerce.invoice.seq.update", commerceDiagnosticMessage(updateError ?? "Invoice sequence update affected no row."));
+    return null;
+  }
 
   return `${prefix}-${String(n).padStart(4, "0")}`;
 }
@@ -49,7 +55,7 @@ export async function createInvoiceForAppointment(input: {
   appointmentId: string;
   actorId?: string | null;
   dueInDays?: number;
-}): Promise<{ invoice: CommerceInvoice | null; error?: string }> {
+}): Promise<{ invoice: CommerceInvoice | null; error?: string; existingInvoiceUnverified?: boolean }> {
   const supabase = await createClient();
 
   const apptSelectFull =
@@ -61,6 +67,8 @@ export async function createInvoiceForAppointment(input: {
     .eq("id", input.appointmentId)
     .eq("business_id", input.businessId)
     .maybeSingle();
+
+  if (apptErr) logQueryError("commerce.invoice.appointment.read", commerceDiagnosticMessage(apptErr));
 
   if (
     apptErr &&
@@ -85,19 +93,29 @@ export async function createInvoiceForAppointment(input: {
     };
   }
 
-  // Prefer existing invoice for this appointment
-  const { data: existing, error: existingError } = await supabase
-    .from("commerce_invoices")
-    .select("*")
-    .eq("appointment_id", input.appointmentId)
-    .eq("business_id", input.businessId)
-    .maybeSingle();
+  // Never replace or bind an existing invoice whose identity/lines cannot be
+  // verified. Payment collection may continue independently of that invoice.
+  try {
+    const { data: existing, error: existingError } = await supabase
+      .from("commerce_invoices")
+      .select("*")
+      .eq("appointment_id", input.appointmentId)
+      .eq("business_id", input.businessId)
+      .maybeSingle();
 
-  if (existingError) return { invoice: null, error: "Could not verify the existing invoice." };
-
-  if (existing) {
-    const invoice = await getInvoiceById(input.businessId, String(existing.id));
-    return invoice?.lines.length ? { invoice } : { invoice: null, error: "Could not verify the existing invoice and its lines. Review the invoice before continuing." };
+    if (existingError) throw new Error(existingError.message);
+    if (existing) {
+      const invoice = await getInvoiceById(input.businessId, String(existing.id));
+      if (!invoice?.lines.length) throw new Error("Existing invoice or its lines could not be verified.");
+      return { invoice };
+    }
+  } catch (error) {
+    logQueryError("commerce.invoice.existing.verify", commerceDiagnosticMessage(error));
+    return {
+      invoice: null,
+      existingInvoiceUnverified: true,
+      error: "Existing invoice needs review. It could not be verified for payment binding.",
+    };
   }
 
   const service = appt.services as
@@ -211,7 +229,10 @@ export async function createInvoiceForAppointment(input: {
     service_id: appt.service_id,
   });
 
-  if (lineError) return { invoice: null, error: "Invoice created, but its lines could not be saved. Review the invoice before continuing." };
+  if (lineError) {
+    logQueryError("commerce.invoice.lines.create", commerceDiagnosticMessage(lineError));
+    return { invoice: null, error: "Invoice created, but its lines could not be saved. Review the invoice before continuing." };
+  }
 
   if (!appt.invoice_number) {
     const { data: updated, error: updateError } = await supabase
@@ -221,7 +242,10 @@ export async function createInvoiceForAppointment(input: {
       .eq("business_id", input.businessId)
       .select("id")
       .maybeSingle();
-    if (updateError || !updated) return { invoice: null, error: "Invoice created, but appointment invoice sync failed." };
+    if (updateError || !updated) {
+      logQueryError("commerce.invoice.appointment.update", commerceDiagnosticMessage(updateError ?? "Invoice appointment sync affected no row."));
+      return { invoice: null, error: "Invoice created, but appointment invoice sync failed." };
+    }
   }
 
   await writeCommerceAudit({
@@ -269,9 +293,7 @@ export async function getInvoiceById(
     .maybeSingle();
 
   if (error) {
-    if (!isSoftSchemaFallbackAllowed(error.message)) {
-      logQueryError("commerce.invoice.get", error.message);
-    }
+    logQueryError("commerce.invoice.get", commerceDiagnosticMessage(error));
     return null;
   }
   if (!data) return null;
@@ -282,7 +304,10 @@ export async function getInvoiceById(
     .eq("invoice_id", invoiceId)
     .eq("business_id", businessId)
     .order("sort_order");
-  if (linesError) return null;
+  if (linesError) {
+    logQueryError("commerce.invoice.lines.get", commerceDiagnosticMessage(linesError));
+    return null;
+  }
 
   return mapInvoice(
     data as Record<string, unknown>,

@@ -1,3 +1,4 @@
+import { commerceDiagnosticMessage } from "@/lib/commerce/diagnostics";
 import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapRefund, mapTransaction } from "@/lib/commerce/mappers";
 import { resolvePaymentProvider } from "@/lib/commerce/providers";
@@ -49,6 +50,7 @@ export async function processCommerceRefund(
     .eq("status", "succeeded");
 
   if (historyError || !priorRefunds) {
+    logQueryError("commerce.refund.history", commerceDiagnosticMessage(historyError ?? "Refund history returned no data."));
     return { ok: false, error: "Could not verify prior refunds. No refund was issued." };
   }
 
@@ -167,7 +169,7 @@ export async function processCommerceRefund(
         .eq("business_id", input.businessId)
         .select("id")
         .maybeSingle();
-      if (updateError || !updated) throw new Error("Refund transaction sync failed.");
+      if (updateError || !updated) throw new Error(updateError?.message ?? "Refund transaction sync failed.");
 
       // Ledger refund transaction
       const { error: ledgerError } = await supabase.from("commerce_transactions").insert({
@@ -186,7 +188,7 @@ export async function processCommerceRefund(
         created_by: input.actorId ?? null,
       });
 
-      if (ledgerError) throw new Error("Refund ledger sync failed.");
+      if (ledgerError) throw new Error(ledgerError?.message ?? "Refund ledger sync failed.");
 
       if (tx.appointmentId) {
         const { data: appt, error: readError } = await supabase
@@ -195,7 +197,7 @@ export async function processCommerceRefund(
           .eq("id", tx.appointmentId)
           .eq("business_id", input.businessId)
           .maybeSingle();
-        if (readError || !appt) throw new Error("Refund appointments read failed.");
+        if (readError || !appt) throw new Error(readError?.message ?? "Refund appointments read failed.");
         if (appt) {
           const amountRefunded =
             Number(appt.amount_refunded_cents ?? 0) + input.amountCents;
@@ -220,7 +222,7 @@ export async function processCommerceRefund(
             .eq("amount_paid_cents", appt.amount_paid_cents)
             .select("id")
             .maybeSingle();
-          if (updateError || !updated) throw new Error("Refund appointments sync failed.");
+          if (updateError || !updated) throw new Error(updateError?.message ?? "Refund appointments sync failed.");
         }
       }
 
@@ -231,7 +233,7 @@ export async function processCommerceRefund(
           .eq("id", tx.invoiceId)
           .eq("business_id", input.businessId)
           .maybeSingle();
-        if (readError || !inv) throw new Error("Refund commerce_invoices read failed.");
+        if (readError || !inv) throw new Error(readError?.message ?? "Refund commerce_invoices read failed.");
         if (inv) {
           const amountRefunded =
             Number(inv.amount_refunded_cents ?? 0) + input.amountCents;
@@ -258,7 +260,7 @@ export async function processCommerceRefund(
             .eq("amount_paid_cents", inv.amount_paid_cents)
             .select("id")
             .maybeSingle();
-          if (updateError || !updated) throw new Error("Refund commerce_invoices sync failed.");
+          if (updateError || !updated) throw new Error(updateError?.message ?? "Refund commerce_invoices sync failed.");
         }
       }
 
@@ -274,7 +276,7 @@ export async function processCommerceRefund(
         provider: tx.provider,
         provider_reference: providerRef,
       });
-      if (mirrorError) throw new Error("Refund CRM mirror failed.");
+      if (mirrorError) throw new Error(mirrorError?.message ?? "Refund CRM mirror failed.");
     }
 
     await writeCommerceAudit({
@@ -288,7 +290,8 @@ export async function processCommerceRefund(
     });
 
     return { ok: true, refund, recorded: status === "succeeded", canRetry: false, syncStatus: "complete" };
-  } catch {
+  } catch (error) {
+    logQueryError("commerce.refund.sync", commerceDiagnosticMessage(error));
     return {
       ok: false, refund, recorded: status === "succeeded", canRetry: false, syncStatus: "failed",
       error: "Refund recorded, but downstream sync failed. Do not issue it again; review the recorded refund.",

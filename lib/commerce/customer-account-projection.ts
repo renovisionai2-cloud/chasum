@@ -36,7 +36,7 @@ export type CustomerAccountTotals = {
   financialStatus: "unknown" | "source_disagreement";
   depositsCents: null;
   totalPaidCents: null;
-  outstandingBalanceCents: null;
+  outstandingBalanceCents: number | null;
 };
 
 function serviceListPriceCents(
@@ -161,6 +161,7 @@ export function projectCustomerAccountTotals(input: {
   timeline: Array<
     Pick<CommerceTransaction, "status" | "kind" | "method" | "amountCents">
   >;
+  currentSourcesAvailable?: boolean;
 }): CustomerAccountTotals {
   let appointmentOutstanding = 0;
   let appointmentDeposits = 0;
@@ -176,10 +177,11 @@ export function projectCustomerAccountTotals(input: {
   const invoiceOutstanding = invoiceOutstandingCents(input.invoices);
   const ledgerDeposits = ledgerDepositCents(input.timeline);
   const ledgerPaid = ledgerSpendCents(input.timeline);
-  // These are different, potentially incomplete source views. Disagreement is
-  // observable; neither the larger value nor an apparent match proves a total.
-  const sourceDisagreement = ledgerDeposits !== appointmentDeposits ||
-    ledgerPaid !== appointmentPaid || appointmentOutstanding !== invoiceOutstanding;
+  // A match does not prove complete lifetime history. Option A permits current
+  // outstanding only when successfully read, untruncated sources agree.
+  const sourceDisagreement = input.currentSourcesAvailable !== false &&
+    (ledgerDeposits !== appointmentDeposits || ledgerPaid !== appointmentPaid ||
+      appointmentOutstanding !== invoiceOutstanding);
 
   return {
     appointmentOutstandingCents: appointmentOutstanding,
@@ -192,6 +194,7 @@ export function projectCustomerAccountTotals(input: {
     financialStatus: sourceDisagreement ? "source_disagreement" : "unknown",
     depositsCents: null,
     totalPaidCents: null,
-    outstandingBalanceCents: null,
+    outstandingBalanceCents: input.currentSourcesAvailable !== false &&
+      !sourceDisagreement ? appointmentOutstanding : null,
   };
 }

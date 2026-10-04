@@ -503,7 +503,7 @@ describe("Phase A invoice failure contracts", () => {
   it("existing invoice query error cannot create another invoice", async () => {
     const db = createDb({ existingReadFailure: true });
     const result = await createInvoiceForAppointment({ businessId: BUSINESS_ID, appointmentId: APPOINTMENT_ID });
-    expect(result).toMatchObject({ invoice: null, error: expect.stringContaining("existing invoice") });
+    expect(result).toMatchObject({ invoice: null, existingInvoiceUnverified: true, error: expect.stringContaining("Existing invoice needs review") });
     expect(invoicePayload(db)).toBeUndefined();
   });
 });

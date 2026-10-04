@@ -216,9 +216,13 @@ export async function handleSummerTurn(
       );
       reply = [
         `Account for ${customerSnap.displayName}:`,
-        commerce.outstandingBalanceCents == null ? "Outstanding balance: unknown — account totals need review." : `Outstanding balance: $${(commerce.outstandingBalanceCents / 100).toFixed(2)}`,
-        commerce.lifetimeSpendCents == null ? "Lifetime spend: unknown — account totals need review." : `Lifetime spend: $${(commerce.lifetimeSpendCents / 100).toFixed(2)}`,
-        commerce.depositsCents == null ? "Deposits on file: unknown — account totals need review." : `Deposits on file: $${(commerce.depositsCents / 100).toFixed(2)}`,
+        commerce.outstandingBalanceCents == null
+          ? commerce.financialStatus === "source_disagreement"
+            ? "Outstanding balance: unknown — account totals need review."
+            : "Outstanding balance: unknown — current sources could not be verified; account totals need review."
+          : `Outstanding balance: $${(commerce.outstandingBalanceCents / 100).toFixed(2)}`,
+        commerce.lifetimeSpendCents == null ? "Lifetime spend: unknown — complete history is unverified." : `Lifetime spend: $${(commerce.lifetimeSpendCents / 100).toFixed(2)}`,
+        commerce.depositsCents == null ? "Deposits on file: unknown — complete history is unverified." : `Deposits on file: $${(commerce.depositsCents / 100).toFixed(2)}`,
         commerce.storeCreditCents > 0
           ? `Store credit: $${(commerce.storeCreditCents / 100).toFixed(2)}`
           : null,

@@ -19,6 +19,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { ActionState, AppointmentStatus } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
 import { enqueueWaitlistNotification } from "@/lib/integrations/automation/waitlist";
+import { BUSINESS_CURRENCIES } from "@/lib/commerce/money";
 
 function parseAppointmentStart(formData: FormData): Date | null {
   const startTime = formData.get("start_time") as string | null;
@@ -443,7 +444,8 @@ export async function createAppointment(
     return { error: staffGate };
   }
 
-  if (effectivePaymentMode !== "none" && !/^[a-z]{3}$/i.test(business.currency ?? "")) {
+  const paymentCurrency = (business.currency ?? "").trim().toLowerCase();
+  if (effectivePaymentMode !== "none" && !BUSINESS_CURRENCIES.some(({ value }) => value === paymentCurrency)) {
     return { error: "Business currency is unavailable. Payment cannot be recorded until it is verified." };
   }
 
@@ -532,7 +534,7 @@ export async function createAppointment(
             customerId,
             appointmentId,
             amountCents: paymentAmountCents,
-            currency: business.currency,
+            currency: paymentCurrency,
             method,
             kind,
             description: [
