@@ -171,8 +171,18 @@ function BookingSheetSession({
   forceQuickAddCustomer = false,
 }: BookingSheetProps) {
   const isEditing = !!appointment;
+  const createSubmitGuardRef = useRef(false);
   const action = isEditing ? updateAppointment : createAppointment;
-  const [state, formAction, pending] = useActionState(action, {} as ActionState);
+  const [state, formAction, pending] = useActionState(
+    isEditing ? action : async (prev: ActionState, fd: FormData) => {
+      const result = await action(prev, fd);
+      // A known no-appointment result permits correction/retry in this session.
+      // Keep the guard if an appointment was created or the action throws.
+      if (!result.appointmentId) createSubmitGuardRef.current = false;
+      return result;
+    },
+    {} as ActionState,
+  );
   const createdAppointmentId = !isEditing ? state.appointmentId : undefined;
   const paymentFailure = createdAppointmentId && state.payment?.status === "failed"
     ? state.payment
@@ -913,6 +923,9 @@ function handleStaffChange(id: string) {
           action={(fd) => {
             if (createdAppointmentId) return;
             if (!isEditing) {
+              // Claim synchronously: pending may not render before another submit.
+              if (createSubmitGuardRef.current) return;
+              createSubmitGuardRef.current = true;
               setSubmittedCustomerId(String(fd.get("customer_id") ?? ""));
               writeBookingPreferences({
                 serviceId,

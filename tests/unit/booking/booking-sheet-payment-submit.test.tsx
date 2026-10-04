@@ -4,10 +4,11 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BookingSheet } from "@/components/booking-sheet/booking-sheet";
 import type { OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
-import type { ActionState, Customer, Location, StaffWithServices } from "@/lib/types/booking";
+import type { ActionState, AppointmentWithRelations, Customer, Location, StaffWithServices } from "@/lib/types/booking";
 
 const mocks = vi.hoisted(() => ({
   create: vi.fn(),
+  update: vi.fn(),
   preview: vi.fn().mockResolvedValue({
     slots: [{ start: "2026-10-10T16:00:00.000Z", end: "2026-10-10T16:30:00.000Z" }],
     alternativeStaff: [],
@@ -29,7 +30,7 @@ vi.mock("@/providers/toast-provider", () => ({
 }));
 vi.mock("@/lib/actions/appointments", () => ({
   createAppointment: mocks.create,
-  updateAppointment: vi.fn(),
+  updateAppointment: mocks.update,
   cancelAppointment: vi.fn(),
   setAppointmentStatus: vi.fn(),
 }));
@@ -136,7 +137,7 @@ const staff = {
   staff_services: [{ service_id: "svc" }],
 } as StaffWithServices;
 
-function renderSheet() {
+function renderSheet(appointment?: AppointmentWithRelations) {
   const onClose = vi.fn();
   const onSuccess = vi.fn();
   function Host() {
@@ -146,6 +147,7 @@ function renderSheet() {
       {!open ? <button onClick={() => setOpen(true)}>Reopen booking</button> : null}
       <BookingSheet
         open={open}
+        appointment={appointment}
         onClose={() => { onClose(); setOpen(false); }}
         services={[service]}
         staff={[staff]}
@@ -189,6 +191,8 @@ function renderSheet() {
 describe("Booking Sheet payment submission integrity", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.create.mockReset();
+    mocks.update.mockReset();
     mocks.eligible.mockResolvedValue([staff]);
     Object.defineProperty(window, "matchMedia", {
       configurable: true,
@@ -207,6 +211,118 @@ describe("Booking Sheet payment submission integrity", () => {
   });
 
   afterEach(() => cleanup());
+
+  it.each(["direct submit", "requestSubmit", "pointer + requestSubmit"] as const)(
+    "dispatches only one create for immediate %s overlap before pending renders",
+    async (submission) => {
+      let finish!: (result: ActionState) => void;
+      const result: ActionState = {
+        appointmentId: "appt-created",
+        success: "Appointment confirmed — payment needs attention.",
+        payment: { status: "failed", transactionId: null, canRetry: true },
+      };
+      mocks.create.mockResolvedValue(result).mockReturnValueOnce(
+        new Promise<ActionState>((resolve) => { finish = resolve; }),
+      );
+      renderSheet();
+      const submit = screen.getByRole("button", { name: "Confirm appointment" });
+      await waitFor(() => expect(submit).toBeEnabled());
+      const form = submit.closest("form")!;
+
+      act(() => {
+        if (submission === "direct submit") fireEvent.submit(form);
+        else if (submission === "requestSubmit") form.requestSubmit();
+        else submit.click();
+        // Both entries occur before React commits the disabled pending UI.
+        expect(submit).toBeEnabled();
+        if (submission === "direct submit") fireEvent.submit(form);
+        else form.requestSubmit();
+        expect(submit).toBeEnabled();
+      });
+      expect(mocks.create).toHaveBeenCalledOnce();
+      expect(screen.getByRole("button", { name: "Confirming…" })).toBeDisabled();
+
+      // Drain useActionState's queue: a duplicate would run after the first settles.
+      await act(async () => finish(result));
+      expect(await screen.findByRole("alert")).toBeVisible();
+      expect(screen.getByRole("button", { name: "Appointment booked" })).toBeDisabled();
+      expect(mocks.create).toHaveBeenCalledOnce();
+      expect(mocks.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each<ActionState>([{ error: "Please correct the booking." }, {}])(
+    "releases a completed create without an appointment for same-sheet retries: %j",
+    async (result) => {
+      const user = userEvent.setup({ delay: null });
+      let finish!: (result: ActionState) => void;
+      mocks.create.mockResolvedValue(result).mockReturnValueOnce(
+        new Promise<ActionState>((resolve) => { finish = resolve; }),
+      );
+      const { onClose, onSuccess } = renderSheet();
+      const submit = screen.getByRole("button", { name: "Confirm appointment" });
+      await waitFor(() => expect(submit).toBeEnabled());
+      const form = submit.closest("form")!;
+      await user.click(submit);
+      fireEvent.submit(form); // The in-flight guard also covers direct submissions.
+      await act(async () => finish(result));
+      expect(mocks.create).toHaveBeenCalledOnce();
+      expect(submit).toBeEnabled();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(onSuccess).not.toHaveBeenCalled();
+
+      fireEvent.change(screen.getByLabelText("Notes"), { target: { value: "Corrected booking" } });
+      await act(async () => form.requestSubmit());
+      expect(mocks.create).toHaveBeenCalledTimes(2);
+      expect(mocks.create.mock.calls[1][0]).toBe(result);
+      expect(mocks.create.mock.calls[1][1].get("notes")).toBe("Corrected booking");
+      expect(submit).toBeEnabled();
+
+      // Even an identical no-appointment result releases the next retry.
+      // A real keyboard activation retains the normal form submission path.
+      mocks.create.mockResolvedValueOnce({
+        appointmentId: "appt-retried", success: "Appointment confirmed.",
+        payment: { status: "skipped" },
+      });
+      submit.focus();
+      await user.keyboard("{Enter}");
+      await waitFor(() => expect(onSuccess).toHaveBeenCalledOnce());
+      expect(mocks.create).toHaveBeenCalledTimes(3);
+      expect(mocks.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it("leaves immediate and subsequent edit saves unaffected by the create-only guard", async () => {
+    const appointment: AppointmentWithRelations = {
+      id: "appt-existing", business_id: "biz", location_id: "loc",
+      service_id: "svc", staff_id: "staff", customer_id: "cust",
+      start_time: "2026-10-10T16:00:00.000Z", end_time: "2026-10-10T16:30:00.000Z",
+      status: "confirmed", notes: null, created_at: "2026-01-01T00:00:00.000Z",
+      updated_at: "2026-01-01T00:00:00.000Z", service, staff, customer,
+    };
+    let finish!: (result: ActionState) => void;
+    mocks.update.mockResolvedValue({}).mockReturnValueOnce(
+      new Promise<ActionState>((resolve) => { finish = resolve; }),
+    );
+    renderSheet(appointment);
+    const submit = screen.getByRole("button", { name: "Save changes" });
+    await waitFor(() => expect(submit).toBeEnabled());
+    const form = submit.closest("form")!;
+    act(() => {
+      fireEvent.submit(form);
+      expect(submit).toBeEnabled();
+      form.requestSubmit();
+    });
+    await act(async () => finish({}));
+    expect(mocks.update).toHaveBeenCalledTimes(2);
+    expect(submit).toBeEnabled();
+    await act(async () => form.requestSubmit());
+    expect(mocks.update).toHaveBeenCalledTimes(3);
+    for (const [, formData] of mocks.update.mock.calls) {
+      expect(formData.get("id")).toBe(appointment.id);
+    }
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
 
   it("includes selected deposit fields in the actual footer form FormData", async () => {
     const user = userEvent.setup();
