@@ -9,6 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-04 — Issue #134 payment-attempt foundation (PREPARED ONLY / NOT APPLIED)
+
+- Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`; #135 remains merged/not Production accepted; #131 remains canonical Production under prior accepted evidence.
+- Publication branch: `codex/issue-134-payment-attempt-foundation`; see the governed #134 PR for the exact current candidate head once published. Base main / design source: `31115e6a51b71fc097c279d205065d80e0be3573`.
+- Prepared additive `20261004190341_issue_134_payment_attempt_foundation.sql`: immutable tenant-scoped attempts/fingerprints, nullable unique ledger attempt linkage, bounded append-only events and four durable projection obligations. Same-Business keys/FKs and narrow identity guards; no currency default, data rewrite, backfill, runtime canonical writer or broad #153 ACL change.
+- Added offline migration contracts and [design/review artifact](reviews/issue-134-payment-attempt-foundation.md), including state/fingerprint/recovery, permission and rollback decisions. Current weak dedupe and all Phase A runtime behavior remain untouched. Validation results are recorded in that artifact.
+- Sole implementer Codex; foundation is **READY FOR CONTROL TOWER REVIEW**. Independent Claude Level-3 audit is **NEXT / PLANNED / NOT DISPATCHED**; no audit pass claimed. Migration is authored but **NOT APPLIED**, including locally; application requires a separate future Product Owner gate after audit/reconciliation. No DB connection/mutation, live fixture, provider operation, historical currency repair, #133 disclosure/Reporting change or deployment occurred. No runtime application code changed. Environment Manifest unchanged. #152/#153 remain separate; M1C/M2/Time Blocker held; **GVM OPERATIONAL ACCEPTANCE is NOT earned**.
+- Competitive Product Gate **NOT_APPLICABLE**: internal financial-integrity foundation for already-locked invariants; no new customer/operator workflow.
+
 ### 2026-10-04 — Issue #151 / PR #154 Phase A corrected-candidate re-audit / N-1 continuity correction
 
 - **Phase A only / no schema.** [PR #154](https://github.com/renovisionai2-cloud/chasum/pull/154) exists and is the governed Phase A candidate. Committed as the corrected Phase A candidate on branch codex/issue-151-phase-a-financial-safety; see PR #154 for the exact current head. Original Claude-audited head: `4875fe7a55be70870ec8e7252b3420060579502f`, tree `b57767825d1a52958dddf7ffe99ef889eb1cca19` ([original audit record](https://github.com/renovisionai2-cloud/chasum/pull/154#issuecomment-5982277948)); these are historical identities. Base main: `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, independently confirmed by the 2026-10-04 remote read.
