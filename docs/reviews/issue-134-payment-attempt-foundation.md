@@ -1,5 +1,107 @@
 # Issue #134 — prepared payment-attempt foundation
 
+## Governed Staging application — 2026-10-04 23:21 Toronto
+
+**2026-10-04 23:21 America/Toronto — Issue #134 foundation APPLIED TO GOVERNED STAGING ONLY.** Product Owner explicitly approved the exact migration. Native Supabase application succeeded once on `wnfahklzaxirftyskctd`; hosted history is `20261005032107 / issue_134_payment_attempt_foundation` (2026-10-05 UTC). [Application evidence](https://github.com/renovisionai2-cloud/chasum/pull/155#issuecomment-5987566406).
+
+Applied source remains `supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql`, reviewed head `fc83ae4b14d3a806be942a82afb4e9ffefb44241`, tree `5cb58423d3a6ce0af8ff5e5c70cb7168e92513eb`. The stored 15,667-byte SQL independently hashes to `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47`. **Do not edit the applied source or reapply because the hosted timestamp differs.** This continuity restamp is documentation-only and does not change the applied candidate identity.
+
+Grok **G-A PASS** and Claude **A1** on that exact prepared candidate are complete. Do not restart them. Post-write read-only SQL verified 54 validated constraints, 17 valid/ready indexes, 3 matching SECURITY INVOKER guard bodies, 4 enabled triggers, RLS on all 3 new tables, expected same-Business keys/FKs, generated event ordering/financial classification and zero new-table PUBLIC/anon/authenticated privileges. All 66 checked catalogue/history entries share transaction xmin `4575`. New attempts/events/reconciliation/linked-ledger counts are all zero. All seven checked existing data tables and all 10 prior migration-history rows retain identical digests/counts. Fresh-session timeout defaults are lock `0`, statement `2min`; no reused-session RESET proof is claimed.
+
+**SEQ-ACL-1 / Issue #153:** the identity sequence inherited postgres-owned public-schema defaults granting anon/authenticated `USAGE + SELECT`, not UPDATE. The new tables remain inaccessible to those roles. No exploit/API reachability or sequence calls were tested. This separate least-privilege finding was recorded, not silently corrected; no additional grant/default-ACL/schema mutation is authorized.
+
+**Post-application independent review:** **COMPLETE — Claude S-A: exact Staging schema application ACCEPTED with bounded SEQ-ACL-1 follow-up in #153; no immediate corrective DDL gate.** Claude independently inspected source/identity and reviewed supplied live SQL evidence; Claude did not query Staging or reproduce hosted writes. Session `e4424f59-4662-4eca-8294-0fad6fab508f`.. This is a new read-only review of Staging evidence and SEQ-ACL-1, not a rerun of the completed foundation audits.
+
+**Before runtime adoption:** require an explicitly governed hosted Staging authenticated INSERT/UPDATE/DELETE smoke with NULL `payment_attempt_id`, because the new trigger also runs on legacy writers. The local PostgreSQL proof remains valid but is not a hosted write test. Confirm linked writes execute as `service_role`; #153 permission closure and all existing runtime/fault/concurrency gates remain open. No hosted DML acceptance was run in this schema-only task.
+
+**Next gate:** separately bounded #134 runtime-writer/admission/replay/reconciliation contract and the necessary permission-hardening disposition. Runtime implementation/application and any corrective migration require their own governed authorization. PR #155 remains DRAFT/UNMERGED. Phase A/#135 remain MERGED TO MAIN / NOT PRODUCTION ACCEPTED; `main` remains `31115e6a51b71fc097c279d205065d80e0be3573`. Prior accepted #131 Production baseline remains `664fbc734c4103d78484c6b3828849a6605a562f`; Production was not contacted or changed in this Staging application task. No provider activation, #133 completion, historical USD repair, weak-dedupe removal, technician resumption or GVM Operational Acceptance. M1C/M2/Time Blocker remain held.
+
+### Control Tower reconciliation of the post-application review
+
+**S-A accepted for schema application only.** This carries no runtime/Production/GVM acceptance. No immediate corrective DDL was performed or required for the inert Staging foundation. SEQ-ACL-1 is real least-privilege debt before permission cutover, not permission to broaden #153 automatically.
+
+Qualifications to the reviewer wording below: the sequence default source predates this migration, but the newly created sequence does carry those inherited grants; do not describe the new object as having no privilege gap. `pg_sequences.last_value = NULL` is an observed unused-state indicator, not a universal historical proof against every possible sequence operation. The tool trace contains no nextval/setval call, and no public API exploitability was tested. Any wider default-ACL correction requires its own dependency review, independent audit and PO authorization; a global default change is not pre-approved by this review. Service-role sequence privileges must be decided/tested in that scoped work, not silently revoked now.
+
+Claude's independent source inspection identified hosted legacy NULL-linked ledger writes as an unexercised acceptance surface; that smoke is mandatory before runtime adoption and was NOT performed under the schema-only approval. Supplied catalogue/hash/data-digest evidence and independent source review are explicitly separate evidence sources.
+
+<details>
+<summary>Claude post-application report — returned in one block, preserved verbatim</summary>
+
+```
+CLAUDE — INDEPENDENT POST-APPLICATION REVIEW (Issue #134, governed Staging)
+Scope: new Staging application evidence + SEQ-ACL-1 only. Foundation/Grok/A1 work closed, not re-reviewed.
+
+VERDICT: S-A — application ACCEPTED as an exact schema application, with one explicitly bounded
+follow-up (SEQ-ACL-1) tracked in Issue #153. No immediate corrective gate is required.
+This is schema-application acceptance ONLY. It is not runtime, writer, GVM, or Production acceptance.
+
+EVIDENCE PROVENANCE
+- MY OWN SOURCE INSPECTION (no DB, no Supabase, no network): HEAD fc83ae4b…, tree 5cb58423…, clean.
+  Local SHA-256 of supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql =
+  dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47, 15667 bytes — byte-identical to the
+  reported hosted ledger statements[1] digest and size. Independent exactness confirmation.
+  I verified in-file: 7 attempt UPDATE columns (appointment_id, execution_state, recovery_disposition,
+  failure_class, failure_code, updated_at, resolved_at) and 4 reconciliation UPDATE columns
+  (state, failure_code, updated_at, completed_at) — matches supplied ACL evidence; no table-level
+  UPDATE/DELETE/TRUNCATE granted; no wrapper/BEGIN/COMMIT; RLS enabled on all three tables.
+  I also confirmed the file contains ZERO sequence GRANT/REVOKE statements, and that
+  event_sequence is the only identity/serial sequence in the entire migration set.
+- SUPPLIED LIVE EVIDENCE (ChatGPT, not independently reproduced by me): tool SUCCESS, ledger
+  20261005032107, single xmin 4575 across 66 objects, 54 validated constraints, 17 valid indexes,
+  4 triggers, 3 function-body SHA matches, zero new rows, seven unchanged before/after digests,
+  pg_default_acl == actual sequence ACL, pg_depend identity ownership, pg_sequences.last_value NULL.
+
+SEQ-ACL-1 — ACTUAL vs THEORETICAL CONSEQUENCE
+Actual consequence today: none observed. last_value NULL proves no nextval ran. The ACL is provably
+inherited platform default (pg_default_acl exactly equals actual ACL; migration grants nothing), so
+Issue #134 did not introduce a privilege. UPDATE is false for anon/authenticated/service_role, so
+setval — the only sequence operation that could break monotonic forensic ordering — is denied to all
+three roles. event_sequence is UNIQUE, so duplicates cannot persist. Identity sequences are advanced
+by the server during INSERT, and anon/authenticated hold zero privileges on all three new tables, so
+no row can be written by them regardless.
+Theoretical consequence, if some role could call nextval/currval/read last_value: sequence
+advancement producing numbering gaps, plus a weak cross-tenant aggregate event-volume read. Gaps are
+already non-preventable (identity sequences are non-transactional), and event_sequence is forensic
+ordering, not money authority. I make NO claim about public API reachability or exploitability.
+Characterization: a least-privilege completeness gap that falls short of the migration's own stated
+"Do not rely on inherited defaults" principle — real, nameable, and non-financial. It is strictly
+smaller than the already-known broad authenticated ledger DML (031 grants
+select/insert/update/delete on commerce_transactions to authenticated), which #153 already owns as a
+cutover prerequisite. Holding acceptance for the lesser gap while the greater one is an accepted
+tracked precondition would be inconsistent.
+
+SMALLEST SAFE NEXT GATE (do not expand, do not touch the applied migration)
+1. Leave the applied migration unmodified. No corrective DDL now.
+2. Keep SEQ-ACL-1 recorded in #153 as a scoped line item: REVOKE ALL on that sequence from
+   anon/authenticated (+ decide service_role, which needs no sequence privilege for identity inserts),
+   and fix the schema default so future sequences do not inherit it. Separately designed, audited,
+   PO-approved — bundled with #153, not hotfixed.
+
+MANDATORY HOLDS BEFORE RUNTIME ADOPTION / PRODUCTION
+A. HIGHEST-PRIORITY UNEXERCISED SURFACE (my source finding, not in the supplied evidence): the new
+   BEFORE INSERT OR UPDATE OR DELETE trigger commerce_transactions_attempt_guard fires for EVERY
+   ledger writer. lib/commerce/payments.ts and lib/commerce/refunds.ts insert/update
+   commerce_transactions via lib/supabase/server createClient() — i.e. as authenticated, not
+   service_role. By source the NULL-link path returns early before the current_user check, so legacy
+   writes should be unaffected, and this was proven on local PG 17.11 — but the supplied Staging
+   evidence is all-static (zero rows, identical digests) and contains NO write test. Require one
+   Staging legacy-ledger write/update/delete smoke test as authenticated with payment_attempt_id NULL
+   before any runtime adoption.
+B. Confirm the future canonical writer's effective DB role is literally service_role (createServiceClient
+   path). Guards reject postgres-owned and authenticated linked DML by design.
+C. #153 closure of broad authenticated ledger DML remains the permission-cutover precondition.
+D. Runtime gates already named in docs/reviews remain open; none are discharged here.
+
+NOT AUTHORIZED / NOT CLAIMED: PR merge, deployment, Production access, runtime activation, GVM
+operational acceptance, whole-project security pass, or any expansion of the PO's Staging-only approval.
+```
+
+</details>
+
+## Historical prepared-foundation design and validation
+
+The material below records the already completed pre-application design/validation. Its prepared-only and next-audit wording is historical and superseded by the application record above. The migration SQL itself stays immutable.
+
 **Status: PREPARED ONLY / NOT APPLIED.** Alternate correction implementer: GPT-5.6 Sol in Cursor. Date: 2026-10-04. [Draft PR #155](https://github.com/renovisionai2-cloud/chasum/pull/155) on branch `codex/issue-134-payment-attempt-foundation` is the governed prepared-only candidate; see PR #155 for the exact current head. No merge or Chasum database/environment application is claimed. This document describes a candidate, not an application/release approval.
 
 ## Authority, source and scope

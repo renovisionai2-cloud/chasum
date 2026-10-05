@@ -1,8 +1,31 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-03 for the first governed real Production release and PR #131 acceptance. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-04 for P134-STAGING; the prior Production serving observation remains dated 2026-10-03 / PR #131. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## P134-STAGING — 2026-10-04 23:21 Toronto / 2026-10-05 03:21 UTC
+
+**Observed data plane:** Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native migration tool applied exactly one PO-approved SQL payload. This is schema-only Staging evidence, not Production or runtime-writer acceptance. [Full execution record](https://github.com/renovisionai2-cloud/chasum/pull/155#issuecomment-5987566406).
+
+| Observation | Result |
+| --- | --- |
+| Reviewed source head / tree | `fc83ae4b14d3a806be942a82afb4e9ffefb44241` / `5cb58423d3a6ce0af8ff5e5c70cb7168e92513eb` |
+| Source migration | `20261004190341_issue_134_payment_attempt_foundation.sql` |
+| Hosted history identity | `20261005032107 / issue_134_payment_attempt_foundation` |
+| Stored statement identity | One statement, 15,667 bytes, SHA-256 `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47` — exact match |
+| Atomic application evidence | 66 checked catalogue/history entries share xmin `4575` |
+| Catalogue checks | 54 constraints validated; 17 indexes valid/ready; 3 source-matching invoker functions; 4 enabled triggers; expected tenant FKs/generated columns |
+| New tables | RLS enabled; no browser-role policies; zero PUBLIC/anon/authenticated table/column-write privileges; bounded service_role privileges |
+| New adoption counts | Attempts 0; Events 0; Reconciliation 0; Linked ledger 0 |
+| Preserved data | Businesses 4; Customers 3; Appointments 11; Gift cards 0; Transactions 2; Invoices 1; Customer payment events 2 — all pre/post digests unchanged |
+| Existing history | Prior 10 rows/digest unchanged; total now 11 |
+| Timeouts | Fresh verification session lock 0 / statement 2min; no claim of inspecting reused apply session |
+| Sequence least privilege | SEQ-ACL-1: existing postgres/public defaults grant anon/authenticated sequence USAGE+SELECT, no UPDATE; no sequence call/exploit test; tracked in #153, not corrected |
+| Independent review | **COMPLETE — Claude S-A: exact Staging schema application ACCEPTED with bounded SEQ-ACL-1 follow-up in #153; no immediate corrective DDL gate.** Claude independently inspected source/identity and reviewed supplied live SQL evidence; Claude did not query Staging or reproduce hosted writes. Session `e4424f59-4662-4eca-8294-0fad6fab508f`. |
+| Production / GVM | No connection, mutation or release performed in this task; prior #131 accepted serving record below is historical, not re-probed |
+
+The repository timestamp and hosted timestamp are intentionally mapped; do not repair/rename/reapply this migration merely to equalize them. Its PREPARED ONLY source-header comment records authoring-time status and must remain byte-identical. Security advisor findings on the new tables are INFO RLS-enabled/no-policy, consistent with server-only design; other warnings concern existing objects. No whole-project security PASS is claimed. No runtime/provider activation, #153 closure, #133 completion, PR merge, Production acceptance or GVM Operational Acceptance follows.
 
 ## 2026-10-03 first governed real Production release proof
 

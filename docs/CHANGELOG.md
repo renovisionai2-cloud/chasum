@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-04 — Issue #134 governed Staging schema application
+
+- Product Owner approved and native Supabase migration application succeeded once on Staging `wnfahklzaxirftyskctd`; hosted history `20261005032107 / issue_134_payment_attempt_foundation`. Original source file/hash unchanged: `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47`.
+- Independent read-only post-write verification matched stored SQL, atomic catalogue/history transaction, expected schema/guards/RLS/table grants and all seven protected data-table digests. New tables/linked ledger remain empty; no Production/GVM connection or mutation.
+- Recorded SEQ-ACL-1 in #153: inherited sequence USAGE+SELECT for anon/authenticated, with no new-table access and no proven API exploit. No corrective grant/migration applied.
+- Post-application independent review: **COMPLETE — Claude S-A: exact Staging schema application ACCEPTED with bounded SEQ-ACL-1 follow-up in #153; no immediate corrective DDL gate.** Claude independently inspected source/identity and reviewed supplied live SQL evidence; Claude did not query Staging or reproduce hosted writes. Session `e4424f59-4662-4eca-8294-0fad6fab508f`.. Previous Grok G-A / Claude A1 foundation work remains closed. Continuity documents refreshed; PR #155 remains Draft and runtime-writer/Production/GVM gates remain separate. [Execution evidence](https://github.com/renovisionai2-cloud/chasum/pull/155#issuecomment-5987566406).
+
 ### 2026-10-04 — Issue #134 payment-attempt foundation (PREPARED ONLY / NOT APPLIED)
 
 - Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`; #135 remains merged/not Production accepted; #131 remains canonical Production under prior accepted evidence.
