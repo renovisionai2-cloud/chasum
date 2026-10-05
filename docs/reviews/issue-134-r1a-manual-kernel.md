@@ -1,9 +1,34 @@
 # Issue #134 — R1a manual-payment kernel
 
-**Status:** CORRECTED PREPARED CANDIDATE / RE-REVIEW REQUIRED / UNWIRED /
+**Status:** AUTHORING COMPLETE / GROK G-A PASS / CLAUDE A / UNWIRED /
 NOT APPLIED / NEW ADMISSION DEFAULT OFF
 **Competitive Product Gate:** NOT_APPLICABLE — internal implementation of locked integrity behavior; no UI or product workflow change.
 **Launch dependency:** REQUIRED. This candidate is not operational acceptance.
+
+## Final exact-code acceptance — 2026-10-05
+
+- Reviewed code HEAD: `888bac096778ed85171b880a816d2052d84c92a4`; tree `6cf9ab4ee1cd17aa72a974308a6737d9d7666cf6`. Base foundation head: `6c8d8d15d487e13b4547bee766d31d8806877180`. The later continuity closeout is Markdown-only; see Draft PR #156 for its current head. No non-documentation bytes change in that closeout.
+- Sole implementer: GPT-5.6 Sol, session `23774e3d-ef31-4603-bfb4-18c3d5315be1`. C1-C4 commit `9da2ea6`; C5 commit `888bac0`. Initial candidate `ef79a83` was held, not accepted.
+- **Grok G-A PASS**, [complete final report](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5998789722), session `82f30882-dd80-49e4-b247-7948a266c1e6`: independent corrected-source review; no test/hash/PG execution claimed by Grok.
+- **Claude A — AUTHORING PASS**, [complete final report](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5998789992), session `adc0319f-3c4c-4cdf-8362-2e9d0ed7dc16`: independently verified final identity/hashes/scope, 41 focused tests, 562 scoped regressions and typecheck. No PG execution or sandbox bypass claimed by Claude.
+- Coordinator independently ran the final verifier on an owned PostgreSQL 17.11 cluster bound to `127.0.0.1`, verified its data directory, obtained exit 0, and stopped/removed it. Verifier SHA: `d865fa7d8003c9e5c6a15ea0e15abb148f6f7c1c761ef8f3dac98fa24d4e5137`. Foundation loaded only as setup; no closed foundation audit was repeated.
+- Coordinator also repeated the ORIGINAL failing CT-R1 SQL: admit REQUESTED -> set DO_NOT_RETRY -> commit. Corrected result is UNKNOWN, recorded=false, REQUESTED+DO_NOT_RETRY unchanged and **0 linked ledger rows**. True two-process overlapping commits yield RECORDED+REPLAY with one transaction identity, one ledger/outcome and four obligations. Lost-response and conflict races pass. [Consolidated exact-code execution evidence](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5998723522).
+- Final focused **3 files / 41 tests PASS**; final scoped regressions **61 files / 562 tests PASS**; typecheck/targeted lint/diff-check PASS. The older full-suite attempt had 1,896 passes and 39 skips but **two browser suites failed to start** (Chromium absent): NOT a full-suite pass, not rerun for C5. Local build NOT RUN. No browser/hosted/Production workflow acceptance is implied.
+
+**C1-C5 CLOSED for this prepared component:** coherent REQUESTED/event holds; ledger-backed uncertainty; canonical recovery/admission/commit identities; actual concurrent commit/response-loss proof; explicit targets/attribution replay; existing supported-Business-currency validation without a new list/default. All sixteen approved paths remain the scope. Foundation SQL/vector fixtures and all existing runtime code are unchanged.
+
+**NEXT GATE — Product Owner authorization of the exact NEW R1a migration** `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7` to **governed Staging `wnfahklzaxirftyskctd` only**, prerequisite/collision/effective-privilege preflight followed by read-only post-apply schema/catalogue/hash verification. The migration is NOT APPLIED and both PRs remain Draft/unmerged. No activation, payment fixture, hosted legacy DML smoke, merge, Production/GVM, #135 release, historical USD repair, #153 change or technician resumption is authorized by these reviews.
+
+**Preserved nonblocking authoring limitations / mandatory later gates:**
+- Binding-table reads and event-sequence privileges are modeled locally, not freshly observed hosted ACLs; missing real privileges STOP. `031:71` does grant existing service_role ledger DML. #153/SEQ-ACL-1 stays open.
+- Concurrent appointment.customer_id reassignment after binding validation remains an explicit **pre-adoption binding/projection gate**. No full race-safety claim, new lock or privilege widening.
+- The local verifier creates disposable test-only trigger/function objects; use ONLY a newly owned disposable cluster, never a shared/local developer/hosted database. A failed assertion may leave test objects until the owned cluster is removed. Do not transplant this verifier to Staging.
+- Hosted writer/legacy fixtures require reviewed rollback/retention and exact scope first. Immutable committed attempts/ledger/events cannot be assumed deletable.
+- Authority-phase unsupported-currency errors can throw before the transport catches to preserve authentication redirects. Future wiring must handle that fail-closed path; there is no current UI wiring.
+- Two SQL proof labels both print PASS 09; this is a cosmetic evidence-label issue only. No renumbering/byte change was made after review.
+- R1a records durable obligations but does not process projections/documents/communications. **Activation stays prohibited until separately reviewed workflow readiness. GVM Operational Acceptance is NOT earned.**
+
+The following implementation and initial-audit history remains evidence; any re-review-next wording is superseded by this final acceptance record.
 
 ## Prepared candidate
 

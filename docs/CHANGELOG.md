@@ -9,7 +9,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### 2026-10-05 — #134 R1a bounded audit corrections (PREPARED ONLY / RE-REVIEW REQUIRED)
+### 2026-10-05 — #134 R1a authoring accepted (NOT APPLIED / UNWIRED)
+
+- Completed the approved dependent PR #156 implementation and bounded C1-C5 corrections; final reviewed code `888bac096778ed85171b880a816d2052d84c92a4`, migration SHA `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`.
+- Grok final corrected-code challenge G-A PASS and Claude final independent Level-3 A AUTHORING PASS. Scope remains sixteen paths, two invoker RPCs, no existing runtime/schema/privilege change; both PRs remain Draft/unmerged.
+- Coordinator independently reproduced final loopback PostgreSQL proof, actual overlapping commit replay and the original DO_NOT_RETRY case (now zero new ledger rows), then stopped/removed its cluster. Final 41 focused / 562 scoped regression tests pass, independently reproduced by Claude. Full-suite browser-start failures and local build NOT RUN remain disclosed.
+- Next genuine PO gate is exact Staging-only NEW migration application with preflight/read-only verification. No hosted fixture/legacy smoke without reviewed rollback/retention scope; no activation, #153 correction, #135 release, Production/GVM or technician resumption. Foundation Staging acceptance remains closed.
+
+
+### 2026-10-05 — #134 R1a bounded audit corrections (historical pre-re-review record)
 
 - Corrected CT-R1 so REQUESTED money can be committed only from coherent RECOVER state with clean annotations and a complete allowed event set. Incoherent attempts hold UNKNOWN with no new effect; valid linked-ledger uncertainty remains explicitly `recorded=true`.
 - Hardened recovered/admission/commit identities to canonical, exact Business/key/winner matches; malformed or drifting RPC responses cannot certify recorded truth. Added explicit customer/appointment target allowlisting and typed read/transport uncertainty.
