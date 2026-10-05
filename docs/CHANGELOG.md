@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-05 — #134 R1a contract gate (DOCUMENTATION ONLY / IMPLEMENTATION NOT AUTHORIZED)
+
+- Sol source contract, independent Grok/Claude corrections and final G-A/W-A reconfirmations recorded. Next proposal is an inactive two-RPC admission/manual-commit kernel plus internal server-only recovery and new offline proof, on a later governed dependent branch/PR.
+- Removed legacy invoice/receipt/mirror DDL and projection-worker work from the first slice. Locked committed conflict evidence, same-transaction ACCEPTED-before-ledger, four durable pending obligations, per-request tenant/customer binding and no ambiguous-key legacy fallback.
+- Six synthetic Node/Python fingerprint reference comparisons passed; these are not runtime/DB tests. No code, migration, environment, provider, #153 permission or Production/GVM action occurred. #155 stays Draft; next genuine decision is prepared-only R1a implementation authorization, not application, activation or GVM Operational Acceptance.
+
 ### 2026-10-04 — Issue #134 governed Staging schema application
 
 - Product Owner approved and native Supabase migration application succeeded once on Staging `wnfahklzaxirftyskctd`; hosted history `20261005032107 / issue_134_payment_attempt_foundation`. Original source file/hash unchanged: `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47`.

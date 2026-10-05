@@ -1,5 +1,551 @@
 # Issue #134 — prepared payment-attempt foundation
 
+## 2026-10-05 — R1a runtime-writer contract ready for the Product Owner gate
+
+**CONTRACT COMPLETE / GROK G-A PASS / CLAUDE W-A / PREPARED-ONLY IMPLEMENTATION NOT YET AUTHORIZED.** The Product Owner asked to continue the next governed runtime-writer gate from the accepted Staging application. That instruction authorized this bounded contract preparation, delegated source investigation, independent review and continuity publication. It did not authorize a new hosted migration, runtime activation, Production, GVM, or the consequential prepared runtime implementation scope now presented for approval.
+
+### Authority and evidence identity
+
+- Source investigated: `e9d1ccac7e2e8224d33cc906732d690a667b8c84`, tree `94dfe2963b63d7fff45c59ccf8da4dec467ef04c`, existing branch `codex/issue-134-payment-attempt-foundation`. ChatGPT freshly verified local/remote/PR identity, clean status and immutable migration hash. Main remains `31115e6a51b71fc097c279d205065d80e0be3573`.
+- Corrected Sol contract, exact report-file SHA-256: `34b8bc0986ab0fc4afe6f559ea489715297229264bbeebd79f4d621f1d90469c`. Both final reviewers received these identical bytes. The report preserved below retains its authoring-time evidence limits; the governing qualifications here supersede them explicitly.
+- GPT-5.6 Sol source investigation and correction: **COMPLETED**, Cursor session `bd8ded6e-4a38-4906-861e-e6552209b169`, reported model `GPT-5.6 Sol 272K High`.
+- Grok independent source challenge + corrected-contract reconfirmation: **COMPLETED / G-A**, session `dd9080a3-911f-4d97-af92-7c52406195ca`, reported model `Grok 4.7 256K High`.
+- Claude independent Level-3 source review + corrected-contract reconfirmation: **COMPLETED / W-A**, session `f965e5b2-b7c7-4a16-a360-dd13c69a897c`, reported model `Claude Opus 5 300K High`.
+- Initial G-B/W-B contract findings were corrected and reconfirmed, not waived. Earlier foundation/G-A/A1/S-A acceptance was not repeated. The initial Sol plan-mode UI-plan/empty-final delivery was recovered in the same session; two empty-input reviewer launches were stopped and excluded. Only the nonempty original and corrected reports were valid review inputs.
+- No application code, migration file, hosted data, permission, provider, environment configuration or release change occurred. Six new synthetic offline vector comparisons are the only new executed engineering proof; no runtime tests, local PostgreSQL writer test, hosted legacy DML smoke, or GVM workflow was executed.
+
+### Reconciled next implementation proposal — R1a only
+
+**LAUNCH REQUIRED dependency; not itself operational acceptance.** Competitive Product Gate **NOT_APPLICABLE** for this internal, unwired implementation of locked financial-integrity behavior. No UI redesign, supported-method removal or pricing/product restriction is proposed. Material operator workflow changes retain the separate product gate.
+
+1. Author exactly two `SECURITY INVOKER` / literal `service_role` RPCs: `admit_payment_attempt_v1` and `commit_manual_payment_attempt_v1`. One additive follow-on migration file, with its filename generated at authoring by the repository CLI. Only these new functions and their bounded EXECUTE grants are allowed; no existing-table/column/grant/default-ACL changes. Fixed search path and qualified SQL remain required.
+2. Add an **internal server-only, unwired** module for current-request authentication/Business resolution, normalized v1 intent, canonical admission/recovery reads, typed outcomes, and a default-off new-admission control. No current UI/Server Action/writer/provider route is modified. Allow only existing-customer/optional-existing-appointment manual payment/deposit using cash, debit_card, credit_card, e_transfer or other. All other modes and explicit invoice intent reject before admission.
+3. Commit the ACCEPTED update, one linked succeeded manual ledger effect, outcome event and **exactly four durable obligations in one transaction**. The state update precedes the ledger INSERT inside that transaction; it never commits separately. Obligations remain PENDING except structurally absent appointment_cache for a customer-only target, which is NOT_REQUIRED with completed_at. Invoice absence never implies NOT_REQUIRED. No projection/document/communication completion is claimed.
+4. Compare immutable normalized intent, not hash alone; current actor/Business is authorized per request, with appointment-to-customer binding rechecked. KEY_CONFLICT is a committed logical return with retry-idempotent evidence and an unchanged winning attempt. Same-key replay returns the original consistent ledger; inconsistent/missing accepted evidence returns UNKNOWN/hold, not a repair or another payment.
+5. The flag prevents only new admissions. Admitted or ambiguous identities never fall back to legacy, including when disabled or when schema/RPC status is uncertain. Safe canonical recovery remains available; current legacy UI stays unwired and is not represented as protected by this kernel.
+6. Publish literal cross-language vectors plus focused unit/static and disposable-local PostgreSQL proofs for the NEW kernel. Reusing the accepted foundation fixture as setup is permitted only after this prepared-only authoring is approved; it is not a mandate to repeat closed audits. All external calls/providers/hosted data remain off.
+
+**Claude's three mandatory candidate conditions are binding:** (a) no flag activation before separately reviewed projection work is ready; (b) duplicate conflict-event races must resolve using conflict-safe insertion or bounded exception handling plus same-Business/attempt/type verification, returning the committed logical conflict rather than an uncaught unique violation; (c) execute new offline proofs as the literal service_role using actual applicable grants. Missing required table/column/sequence privilege is a STOP/report condition, never permission to broaden grants or fold in #153.
+
+### Changes rejected or deferred during reconciliation
+
+- Invoice/receipt/mirror uniqueness and receipt counters are **not R1a**. Existing-table constraints could change legacy behavior despite the new-writer flag. Any later schema must receive exact dependency/collision preflight and reviewed issuance/numbering semantics; do not impose one invoice per appointment silently.
+- No skip or reconciliation-worker RPC in R1a. Ledger/obligation FK coupling requires the rows in one commit, not a projection worker in the same slice. Both reviewers explicitly accepted this narrower boundary.
+- Payment fingerprint v1 already supports `booking_operation` plus operation UUID. A later separate booking-operation registry/fingerprint does not alone require payment v2. Claude withdrew the contrary earlier framing. Explicit invoice selection still needs separately reviewed v2. Fresh booking and no-payment recovery remain later implementation blockers, not accepted behavior.
+- New Stripe collection is not a prerequisite for manual-first GVM acceptance. Recovery/idempotency must be proven before activating a real-provider route; no currently supported workflow may be silently removed to avoid acceptance. Stored-value/refund destination policy is a later explicit business decision, not decided here. No runtime void path is invented.
+- SEQ-ACL-1 is tracked in #153. No sequence/default ACL correction is authorized. The hosted legacy NULL-linked authenticated INSERT/UPDATE/DELETE smoke remains NOT RUN and mandatory before adoption; #153 closes before permission cutover.
+
+### Golden reference metadata and proof limits
+
+Six synthetic compact-JSON UTF-8 byte strings and SHA-256 digests matched between Node `JSON.stringify`/`node:crypto` and Python compact `json.dumps`/`hashlib`. This was coordinator-run offline in a temporary directory, not an implemented runtime normalization/auth/database test. Standalone reference filename: `fingerprint-v1-reference-vectors.json`; exact file SHA-256: `842c4afaf3d68a2778dded613a1b57dd4775a4019a3465c5130a82cc5d2f9874`. This metadata supersedes the corrected Sol report's statement that the container hash was not supplied. Reviewers accepted the supplied provenance but did not claim to recompute it. PostgreSQL must not recompute the stored request fingerprint.
+
+### Next genuine Product Owner decision and remaining finish line
+
+**Approve prepared-only R1a authoring/offline proof on one governed dependent branch/PR based on the freshly reconciled #155 head.** Keep #155 Draft and do not put runtime implementation into the foundation PR. This proposal permits no migration application, hosted fixture, legacy smoke execution, current writer/UI wiring, projection/receipt/invoice/mirror schema, fresh booking, stored-value/refund/provider activation, #153 changes, merge, Production/GVM action, #135 release or technician resumption.
+
+After that candidate's independent audit, hosted application/fixtures require a separate exact approval. The full path still requires deterministic projections and document/communication recovery; durable booking-operation/no-payment recovery; support for all activated payment/refund/invoice/provider paths; permission cutover; complete responsive Staging fault/concurrency/workflow acceptance; separately approved Production release; then genuine supported GVM operations proving consistent attempt → ledger → appointment → invoice/receipt → customer/business communication truth. **R1a, successful schema application and earlier Phase 5 acceptance do not earn GVM Operational Acceptance.**
+
+<details>
+<summary>Corrected Sol contract — exact reviewed input; qualifications above govern</summary>
+
+```markdown
+# Issue #134 — Corrected R1a Runtime-Writer Contract
+
+## 1. Authority, identity and status
+
+**Observed baseline.** Repository identity remains `/Users/darshan/chasum-worktrees/issue-134-foundation`, branch `codex/issue-134-payment-attempt-foundation`, HEAD `e9d1ccac7e2e8224d33cc906732d690a667b8c84`; supplied clean tree `94dfe2963b63d7fff45c59ccf8da4dec467ef04c`. The accepted immutable foundation is `supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql`, SHA-256 `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47`, applied only to governed Staging as history `20261005032107`.
+
+This report revises the contract only. No code, migration, branch, test, database, MCP, provider, network, Production or GVM action occurred. Competitive Product Gate remains **NOT_APPLICABLE**: R1a is an internal financial-integrity kernel implementing locked behavior, with no operator workflow or UX change.
+
+**Approval boundary.** The scope below is the coordinator’s corrected proposal. It is **not yet Product Owner authorization**. R1a authoring may start only after explicit PO approval.
+
+## 2. Correction dispositions
+
+| Review point | Corrected disposition |
+|---|---|
+| G-B invoice/receipt/mirror DDL | Removed from R1a. No existing-table uniqueness, counter, invoice, receipt or mirror mutation. Those belong to separately reviewed R1b/later gates. |
+| G-B kill switch | Flag gates new admission only. Existing or ambiguous canonical identities remain recoverable and can never fall through to legacy. |
+| G-B KEY_CONFLICT rollback | Corrected: KEY_CONFLICT is a committed logical result. Its idempotent event survives because the RPC returns rather than raises. |
+| G-B reconciliation worker | Removed. R1a creates durable obligations only; it performs no projection synchronization. |
+| Claude B1 indivisibility | Settled: the ledger and exactly four obligations commit together because the obligation FK requires the linked ledger. PENDING means durable unfinished work, not completion. |
+| Claude B4 ordering/binding | Locked below: same-transaction ACCEPTED update precedes linked ledger insert; every lookup is Business-scoped and appointment customer binding is checked. |
+| Claude B5 composite keys | Deferred with all R1b existing-table schema work. R1a does not create dependent receipt/mirror FKs. |
+| Claude B6 fresh booking | Payment fingerprint v1 remains valid for `booking_operation` + UUID. A separate future booking-operation registry/fingerprint is required, but payment v2 is not required solely for that discriminator. |
+| Sequence privilege disagreement | Unresolved by design in R1a. No sequence/default-ACL grant change or fresh hosted claim. Exact effective privilege is tested at the later governed application/fixture gate. |
+| Vector gap | Closed for reference values: six Node/Python byte-and-digest matches are supplied. The enclosing vector artifact’s filename/exact-byte file hash was not supplied, so no container hash is invented. R1a authoring must save the literal artifact and record its SHA-256. |
+
+## 3. Exact R1a boundary
+
+R1a is an **inactive, manual-payment kernel**. It adds no user-facing wiring and changes no current writer route.
+
+Admission allowlist:
+
+- target: existing customer, optionally one existing appointment;
+- target discriminator: `customer` or `appointment`;
+- kinds: `payment` or `deposit`;
+- methods: `cash`, `debit_card`, `credit_card`, `e_transfer`, `other`;
+- provider route: `manual`;
+- explicit invoice selector: prohibited before admission;
+- gift card, store credit, `none`, booking-operation integration, refund, void, adjustment and Stripe route: prohibited in R1a.
+
+Cards remain available in current product behavior. R1a merely represents a manual card record distinctly from a future real provider charge. No currently supported method is disabled to manufacture acceptance.
+
+### File-category allowlist
+
+On a new dependent branch/PR from the reconciled #155 head, after PO authorization only:
+
+1. **One new additive migration**, created using the repository’s migration CLI at authoring time; no filename is pre-invented.
+2. **New server-only files under one bounded payment-attempt domain directory in `lib/commerce/`** for:
+   - v1 normalization and fingerprinting;
+   - per-request authenticated authorization context;
+   - admission/recovery reads;
+   - default-off new-admission gate;
+   - typed RPC result mapping.
+3. **One literal offline vector fixture** under the test fixture tree.
+4. **New focused unit/migration contract tests** under `tests/unit/commerce/` and `tests/unit/migrations/`.
+5. **One new focused disposable-PostgreSQL R1a contract fixture/verifier**, reusing the accepted foundation/disposable setup without rerunning prior foundation audits.
+6. Bounded R1a review/continuity documentation.
+
+Forbidden files/categories include existing Server Actions, components, booking actions, current commerce payment/refund/invoice/receipt/provider implementations, communications, environment manifests, release controls, existing migrations and #155 foundation source. No expansion of PR #155 and no competing foundation branch.
+
+## 4. Allowed SQL objects and permissions
+
+The follow-on migration may create exactly two functions:
+
+1. `public.admit_payment_attempt_v1(...)`
+2. `public.commit_manual_payment_attempt_v1(...)`
+
+Both must be:
+
+- `LANGUAGE plpgsql SECURITY INVOKER`;
+- fixed `search_path = pg_catalog, pg_temp`;
+- fully schema-qualified internally;
+- `EXECUTE` revoked from PUBLIC, `anon` and `authenticated`;
+- executable only by `service_role`;
+- free of external calls and dynamic arbitrary SQL.
+
+R1a adds no table, column, index, constraint, policy, trigger, sequence, default privilege, broad grant/revoke or historical data change. It does not alter the applied foundation. It does not clean up #153 or SEQ-ACL-1.
+
+## 5. Admission, identity and conflict contract
+
+Before any service-client call, the server helper must reauthenticate and resolve the current actor and Business through the existing session guards represented by `lib/actions/business.ts:7-18` and `:64-84`. Because those functions are request-cached, “reauthorize every time” means once per incoming request, before every privileged recovery/admission/commit flow.
+
+The helper validates:
+
+- customer `(id,business_id)`;
+- optional appointment `(id,business_id)`;
+- appointment `customer_id` equals the requested customer;
+- supported Business currency and normalized minor-unit amount;
+- R1a target/kind/method/manual-route allowlist;
+- absence of explicit `invoice_id`.
+
+It computes the exact frozen v1 tuple and fingerprint. PostgreSQL stores but does not independently recompute that hash. Original `source` and `actor_id` remain immutable attribution and are excluded from equality; recovery by another currently authorized actor/surface remains possible.
+
+`admit_payment_attempt_v1` performs one transaction:
+
+1. attempt insert-or-winner lookup on `(business_id,attempt_key)`;
+2. first admission appends one REQUESTED/NOT_RECORDED event;
+3. replay locks/reads the winner and compares authoritative stored tuple columns—not merely the caller hash;
+4. equal tuple returns the existing attempt;
+5. any tuple difference, including equal fingerprint with changed tuple, appends a retry-idempotent KEY_CONFLICT event and returns `KEY_CONFLICT`.
+
+Conflict evidence uses a stable event UUID derived server-side from the winner identity and conflicting canonical tuple. If that UUID exists, the RPC must verify the row has the same Business, attempt and `KEY_CONFLICT` type. Any mismatch is an integrity failure. KEY_CONFLICT does not mutate winner execution/recovery/failure fields and never automatically creates a new key. A legitimate equal-value second payment requires a deliberately new attempt UUID.
+
+Expected replay/conflict outcomes return normally and commit. Unexpected database failures raise, roll back the open transaction and become infrastructure/transport uncertainty.
+
+## 6. Atomic manual commit and replay
+
+`commit_manual_payment_attempt_v1` accepts only Business and attempt identity plus bounded evidence identity. It must not accept caller-supplied amount, currency, customer, appointment, method, kind or provider as ledger authority. Those values come from the locked immutable attempt.
+
+For a REQUESTED attempt, one database transaction must:
+
+1. lock the attempt;
+2. revalidate Business/customer and optional appointment customer+Business binding;
+3. confirm no linked ledger already exists;
+4. update `execution_state` to `ACCEPTED`;
+5. insert one linked `succeeded` `commerce_transactions` row using the stored money tuple, `provider='manual'`, deterministic attempt-derived manual reference and `payment_attempt_id`;
+6. append ACCEPTED/RECORDED evidence;
+7. insert exactly four reconciliation obligations;
+8. commit once.
+
+The ACCEPTED update occurs before the ledger INSERT, satisfying the foundation guard at `20261004190341…sql:215-233`, but it is not separately committed. Any later statement failure rolls back the state update, ledger, event and obligations together.
+
+Obligations:
+
+| Target | appointment_cache | invoice_settlement | customer_payment_events | receipt |
+|---|---|---|---|---|
+| Existing appointment | PENDING | PENDING | PENDING | PENDING |
+| Customer-only payment | NOT_REQUIRED with `completed_at` | PENDING | PENDING | PENDING |
+
+No invoice row does **not** prove invoice settlement is unnecessary because the existing flow may issue one. PENDING deliberately means durable unfinished work. R1a returns `recorded=true`, the ledger identity and `synchronization=PENDING`; it never reports financial synchronization or receipt completion.
+
+An ACCEPTED attempt with a consistent linked ledger and exactly the expected four obligations is replay: return the existing identity without writes. ACCEPTED with missing/inconsistent ledger or obligations is UNKNOWN/integrity hold—never fabricate, repair or issue another effect. FAILED or SKIPPED attempts are not revived in R1a. The foundation’s legal future `FAILED -> ACCEPTED` recovery remains preserved for later design.
+
+## 7. Gate and recovery semantics
+
+The default-off flag applies only to **new** admission.
+
+For a presented attempt key, the server first performs authorized canonical recovery lookup:
+
+- existing canonical identity: recover/replay through the kernel even if new admission is disabled;
+- lookup/RPC/schema uncertainty: return UNKNOWN/hold;
+- confirmed absent identity plus disabled flag: return NOT_ADMITTED_DISABLED;
+- enabled plus confirmed absent: admission may proceed.
+
+Once a key is admitted or admission outcome is ambiguous, this code must never invoke `recordCommercePayment`, the Booking Sheet weak match at `lib/actions/appointments.ts:491-503`, or any other legacy writer. Disabling suspends new admissions but preserves safe recovery and commit replay.
+
+Current UI and Server Actions remain completely unwired and unchanged. Therefore existing runtime writers retain only their current guarantees and are not claimed canonical-safe.
+
+## 8. Golden vectors
+
+The literal fixture must preserve all six supplied canonical byte strings and fingerprints:
+
+- appointment cash payment: `v1:62b88626d90f2cbc0080a219aa5d27cdf521dc94400d81ab337ac4fe4fcdfb12`
+- appointment e-transfer deposit: `v1:ceb00e5af4adffa434780286eeffefc3f6db1c20881e5c6d6c8540f7a76631ef`
+- booking-operation deposit: `v1:8f3669d21d737e6bfb4579d958115c4646af83d35b4b0efc2a023e1f2a128aba`
+- customer cash payment: `v1:0c73f4d1f1c9e2e9be0d14f8dc1d47cf5ee07de80ab44084a4f3e234b10e40e4`
+- appointment none: `v1:62d306e5c12998634dd9b74f2c63aab831381a77b4de5131e32dcfd6ec1002d9`
+- gift-card design reference: `v1:4be365d45d50bef731b332022a0a7483b5f6e61c9c0402ba6a6a45bddee414ae`
+
+The final two and booking-operation vectors are contract references, not R1a-admissible modes. Supplied evidence proves only Node/Python compact-JSON byte/hash agreement, not runtime normalization, authorization or database behavior.
+
+## 9. Offline proof and stop criteria
+
+Required local proofs on new R1a code only:
+
+- all six vectors and malformed-normalization rejection;
+- per-request actor/Business/customer/appointment-customer binding;
+- same-key concurrent admission and one REQUESTED event;
+- committed, deduplicated KEY_CONFLICT across retry;
+- two deliberate keys with equal-value payments;
+- source/actor-independent replay with current actor reauthorization;
+- rejection before admission of explicit invoice and every non-R1a mode;
+- atomic rollback before commit and lost response after commit;
+- ACCEPTED replay from ledger plus exactly four obligations;
+- inconsistent/missing ledger or obligation produces UNKNOWN;
+- flag-off, missing-RPC and ambiguous-schema canonical routing;
+- obligations remain pending and result never claims synchronization;
+- existing rows unchanged;
+- literal service-role invoker boundary.
+
+Stop immediately if the candidate changes current writer/UI routes, adds an unlisted SQL object, mutates existing grants/defaults/data, changes the immutable foundation, generates a second effect after uncertainty, or cannot prove rollback/replay behavior. No hosted application follows automatically.
+
+## 10. Finite path to GVM acceptance
+
+1. PO authorizes prepared-only R1a authoring/offline proof.
+2. Exact candidate receives Grok challenge and independent Level-3 review.
+3. Separate PO gate decides follow-on migration application and isolated Staging kernel fixtures.
+4. Mandatory hosted authenticated NULL-linked legacy INSERT/UPDATE/DELETE smoke passes before adoption.
+5. Separately reviewed R1b/later gates settle projections, exact composite keys, collision preflight, invoices, mirrors, receipt documents/counters and communications recovery.
+6. Fresh booking adds a narrow immutable booking-operation fingerprint/registry and durable appointment binding while retaining payment v1’s `booking_operation` discriminator; no generic workflow platform or availability rewrite.
+7. Stored value, refund policy, explicit-invoice v2 and real-provider recovery are separately completed before activating those paths. Gift/store refund destination remains a genuine later PO policy question. Stripe recovery is required before its configured real-provider route activates, not before manual-first GVM acceptance.
+8. #153/SEQ-ACL-1 closes before permission cutover.
+9. Full responsive Staging workflows prove Booking Sheet, Quick Appointment, Payments, Customer Billing, refunds where supported, no-payment/public booking, receipt recovery and customer/business emails each once.
+10. Separately approved governed Production release precedes genuine GVM Operational Acceptance. No manufactured Production booking.
+
+## 11. Next genuine Product Owner gate
+
+**Coordinator proposal awaiting PO approval:** authorize a new dependent branch/PR for prepared-only R1a authoring and offline proofs exactly as bounded above.
+
+Explicitly withheld: expansion of #155, migration application, hosted fixtures, legacy smoke execution, UI/action wiring, current writer routing, projections, receipt/invoice/mirror schema, fresh booking, stored value, refunds, Stripe, #153 changes, merge, Production and GVM acceptance.
+```
+
+</details>
+
+<details>
+<summary>Grok final corrected-contract report — G-A</summary>
+
+```markdown
+# Issue #134 corrected R1a — final reconfirmation
+
+**Verdict: G-A corrected-contract PASS. W-A ready for the bounded prepared-only implementation Product Owner gate.** This is approval-readiness of contract `34b8bc0986ab0fc4afe6f559ea489715297229264bbeebd79f4d621f1d90469c` only. It is not Product Owner authorization, runtime acceptance, hosted proof, Production, or GVM.
+
+## Boundary accepted
+
+The first stage is exactly two invoker RPCs, `admit_payment_attempt_v1` and `commit_manual_payment_attempt_v1`, plus an unwired server-only module and offline kernel proof. The prior three/four-RPC recommendation is withdrawn for R1a. Skip and reconcile stay out. Receipt, invoice, and mirror DDL stay out. No global uniqueness, no current route or UI change, no existing-table grant change.
+
+That split is safe for this stage. The obligation FK requires the linked ledger row, so the ledger insert and exactly four obligation rows belong in one commit. `PENDING` is durable unfinished work. It does not require a projection worker, and it does not report financial synchronization or receipt completion. `appointment_cache = NOT_REQUIRED` with `completed_at` is valid only for a customer-only target, which has no appointment. Invoice absence stays `PENDING` on both targets, because no invoice row is proof that settlement will never be required. Later R1b owns projection, documents, counters, and communications recovery.
+
+## Correction dispositions
+
+| Point | Disposition |
+|---|---|
+| Invoice/receipt/mirror DDL and global constraints | Accepted as removed. |
+| Kill switch | Accepted. The flag blocks new admission only. |
+| KEY_CONFLICT | Accepted. Logical return commits one idempotent event; the winner’s execution, recovery, and failure fields stay unchanged. A raise remains only an unexpected-fault rollback. |
+| Reconcile worker | Accepted as removed from R1a. |
+| Same-transaction order | Accepted. Lock, revalidate binding, confirm no ledger, update `ACCEPTED`, insert the linked succeeded manual ledger row, append evidence, insert four obligations, then one commit. A later statement failure rolls the state change back with the effect. |
+| Binding | Accepted. Each incoming request re-resolves actor and Business once through the session guards before any service-role call, then checks customer `(id, business_id)` and, when present, appointment `(id, business_id)` plus `customer_id`. Commit repeats that binding from the stored attempt and rejects caller-supplied money fields. |
+| Payment v1 `booking_operation` | Accepted and not overridden. The v1 discriminator plus operation UUID stays. A later booking registry is a separate fingerprint. It does not by itself require payment v2. Explicit invoice intent still requires reviewed v2. Fresh booking, `none`, gift, store credit, refund, void, and Stripe are reference or later scope, not R1a-admissible. |
+| Sequence / existing privileges | Accepted as a candidate stop, not a #153 change. The offline verifier must execute both RPCs as literal `service_role`. If current grants cannot insert the attempt, event, linked ledger, or four obligations, or cannot update `execution_state`, the candidate stops. It must not add table, sequence, or default ACL privileges. |
+| Vectors | Closed for this gate by the supplied metadata below. That metadata is not runtime, authorization, or database proof. |
+
+## Required checks
+
+Committed KEY_CONFLICT evidence, immutable winner, per-request authorization, tenant/customer/appointment binding, ACCEPTED-before-ledger with no intermediate commit, four durable obligations, no false synchronization, and no legacy fallthrough for an admitted or ambiguous key are specified tightly enough to author. Confirmed absence with the flag off returns `NOT_ADMITTED_DISABLED`. Lookup, RPC, or schema uncertainty returns UNKNOWN/hold. An inconsistent ACCEPTED ledger or obligation set is an integrity hold: no repair and no second effect. `FAILED → ACCEPTED` stays later design. #153/SEQ-ACL-1 and the hosted authenticated NULL-linked legacy INSERT/UPDATE/DELETE smoke remain mandatory before adoption and are outside this authorization. Applied foundation SHA `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47` stays immutable.
+
+Section 2’s sentence that the vector container hash was not supplied is superseded by coordinator metadata: `/tmp/chasum-134-runtime-gate-k_5i5hpm/fingerprint-v1-reference-vectors.json`, standalone SHA-256 `842c4afaf3d68a2778dded613a1b57dd4775a4019a3465c5130a82cc5d2f9874`, six Node/Python byte-and-digest matches. No Product Owner investigation remains on that artifact. Authoring must save that literal file; the recorded SHA must equal the value above.
+
+## Remaining blocker
+
+None for this prepared-only contract gate.
+
+## Next genuine Product Owner gate
+
+Authorize one new dependent branch from the reconciled #155 head to author prepared-only R1a exactly as bounded: the two functions, the unwired `lib/commerce/` payment-attempt module, the literal vector fixture at the SHA above, focused unit/migration tests, one disposable PostgreSQL R1a verifier, and bounded review notes.
+
+Withheld: expanding #155, applying the migration, hosted fixtures, legacy smoke execution, UI or action wiring, projection work, receipt/invoice/mirror schema, fresh booking, stored value, refund policy, Stripe, #153 changes, merge, Production, and GVM.
+
+## Limits
+
+No source was re-opened in this pass. No hash was recomputed here. No test, database, MCP, network, git, or implementation action was run. Disposable or hosted `service_role` privilege results are still unexecuted; a privilege failure later stops the candidate and does not expand this gate. Full workflow acceptance remains the later manual-first path: supported booking and payment surfaces, response-loss recovery, receipts, both booking emails, and authoritative displays, with real-provider recovery required only before that provider route is activated.
+```
+
+</details>
+
+<details>
+<summary>Claude final corrected-contract report — W-A</summary>
+
+```markdown
+# CLAUDE — Final Independent Gate Verdict: Corrected R1a Contract
+Contract hash as supplied: 34b8bc0986ab0fc4afe6f559ea489715297229264bbeebd79f4d621f1d90469c
+
+## VERDICT: W-A — ready for a bounded prepared-only implementation PO gate
+
+No remaining blocker. The corrected contract is internally consistent, strictly smaller
+than my earlier recommendation, and consistent with the accepted foundation as I inspected
+it earlier in this session. Three authoring constraints below are conditions on the
+candidate, not contract defects. G-A/G-B is Grok's to issue; I make no claim about it.
+
+## Boundary decision: ACCEPTED
+
+I explicitly accept the two-RPC boundary (`admit` + `commit_manual`) with an unwired
+server-only module and offline proof, and I withdraw my prior three/four-RPC shape as a
+requirement. The reasoning holds: obligations FK the linked ledger row created in the same
+transaction, so no projection worker is needed to insert them, and `PENDING` with
+`completed_at` NULL satisfies the foundation's completion check. Dropping the skip RPC is
+coherent because `payment_kind='none'` is outside the R1a allowlist. Removing all
+legacy invoice/receipt/mirror DDL also dissolves my B1 and B5: those were objections to
+constraints that would have changed live legacy behavior and to FKs needing composite
+keys. With no existing-table DDL, neither applies. My B1 split recommendation is satisfied
+by a narrower R1a than I proposed.
+
+## Correction dispositions
+
+- **B2 KEY_CONFLICT (accepted).** Committed logical result, winner untouched, retry-
+  idempotent via a server-derived event UUID. Correct. The winner must not receive a
+  `failure_code`, and §5 says so.
+- **B3 kill switch (accepted).** Recovery-first lookup, `NOT_ADMITTED_DISABLED` only on a
+  confirmed-absent identity, UNKNOWN/hold on uncertainty, and an explicit prohibition on
+  reaching `recordCommercePayment` or the weak appointment match. This is the correct
+  resolution.
+- **B4 ordering/binding (accepted).** Same-transaction ACCEPTED update before the linked
+  ledger insert with no intermediate commit, Business-scoped lookups, appointment-to-
+  customer binding revalidated inside the commit RPC. Correct, and necessary because no
+  database constraint ties an attempt's appointment to its customer.
+- **B6 fresh booking (conceded).** I accept the settlement against the accepted source:
+  payment fingerprint v1 already carries the `booking_operation` discriminator, so a later
+  registry does not by itself require payment v2. I withdraw the v2-for-booking framing.
+  What survives is narrower and unchanged by this concession: the booking-operation
+  registry, its own immutable fingerprint, the durable appointment preallocation and the
+  NULL→value appointment binding path remain unsettled and excluded from R1a. Explicit
+  invoice intent still requires a separately reviewed v2.
+- **Sequence privilege (accepted as unresolved by design).** Correct to leave open with no
+  grant change and no fresh hosted claim.
+- **Vector artifact (accepted as metadata).** I record the supplied path and standalone
+  file SHA-256 `842c4afa…9874` and the Node/Python byte-and-digest agreement as a
+  coordinator offline observation. It supersedes only the missing-metadata statement. I
+  did not and cannot verify the file, its bytes, or any of the six digests in this
+  read-only turn, and it is not normalization, authorization or database testing. No PO
+  decision is implicated.
+
+## Requested specific confirmations
+
+Committed KEY_CONFLICT with immutable winner: satisfied. Per-request authorization plus
+tenant/customer/appointment binding: satisfied, with the request-cached clarification
+stated honestly. Same-transaction ACCEPTED-before-ledger with no intermediate commit:
+satisfied. Four durable obligations with no false synchronization: satisfied, including
+`NOT_REQUIRED` carrying `completed_at` as the foundation's check requires, and
+`synchronization=PENDING` never reported as settlement. Admitted or ambiguous identity
+never falling to legacy even with the flag off: satisfied. No existing schema or
+permission change: satisfied; R1a creates only two functions and no table, column, index,
+constraint, trigger, policy, sequence, default privilege or data change. No
+invoice-absence⇒`NOT_REQUIRED` inference: satisfied and explicitly reasoned. Deferred
+policy decisions are minimal, and the finish line stays manual-first with no supported
+method disabled and no new pricing or product restriction.
+
+## Three authoring constraints (candidate conditions, not blockers)
+
+1. **Activation remains prohibited until projections exist.** R1a deliberately produces
+   obligations nothing processes. Because the module is unwired and the flag defaults off,
+   this is inert, but the candidate must state that enabling the flag is not permitted
+   before the separately reviewed projection work; otherwise committed money would sit
+   behind permanently PENDING projections.
+2. **Handle the duplicate-event race.** The derived KEY_CONFLICT event UUID dedupes via
+   the events primary key, so a concurrent identical conflict will raise a unique
+   violation. That must be caught, re-read, verified for the same Business, attempt and
+   event type, and returned as a committed KEY_CONFLICT, or the committed-result semantics
+   break under concurrency.
+3. **Prove privileges; never broaden them.** The attempt-side grants are column-scoped, so
+   the ACCEPTED update must touch only granted columns. Add a stop criterion: if authoring
+   finds any required existing-table or column privilege absent, stop and report rather
+   than adding a grant, altering defaults, or touching #153/SEQ-ACL-1.
+
+## Exact next genuine PO gate
+
+Authorize only prepared-only R1a authoring and offline proofs on a new dependent
+branch/PR from the reconciled #155 head, within the stated file-category and SQL
+allowlists. Withheld: expansion of #155, migration application, hosted fixtures, the
+mandatory hosted legacy NULL-linked authenticated DML smoke, UI/action wiring, current
+writer routing, projections, receipt/invoice/mirror schema, fresh booking, stored value,
+refunds, Stripe, #153 changes, merge, Production and GVM acceptance.
+
+## Limits
+
+Contract-text review only. No tools, source re-inspection, hosted checks, tests, database
+or network calls in this turn; earlier findings are reused, not re-verified. I verified no
+supplied hash, including the contract and vector artifact hashes, and the legacy DML smoke
+remains NOT RUN. This is approval-readiness for a document, not PO authorization, code
+acceptance, or any runtime, Production or GVM acceptance.
+```
+
+</details>
+
+<details>
+<summary>Literal offline fingerprint reference file — preserve exact bytes when extracted</summary>
+
+```json
+{
+  "status": "OFFLINE REFERENCE VECTORS ONLY \u2014 NOT RUNTIME IMPLEMENTATION OR DB TEST",
+  "source": "Locked v1 tuple at e9d1ccac7e2e8224d33cc906732d690a667b8c84 docs/reviews/issue-134-payment-attempt-foundation.md",
+  "verification": "Node JSON.stringify + node:crypto independently compared to Python json.dumps compact UTF-8 + hashlib.sha256. Six exact byte/hash matches. No database, provider, network or tenant data used. Normalization, source/actor exclusion, authorization and application behavior remain future runtime tests.",
+  "vectors": [
+    {
+      "name": "appointment-cash-payment",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        5000,
+        "cad",
+        "cash",
+        "payment",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",5000,\"cad\",\"cash\",\"payment\",\"manual\",null]",
+      "sha256": "62b88626d90f2cbc0080a219aa5d27cdf521dc94400d81ab337ac4fe4fcdfb12",
+      "fingerprint": "v1:62b88626d90f2cbc0080a219aa5d27cdf521dc94400d81ab337ac4fe4fcdfb12"
+    },
+    {
+      "name": "appointment-etransfer-deposit",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        5000,
+        "cad",
+        "e_transfer",
+        "deposit",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",5000,\"cad\",\"e_transfer\",\"deposit\",\"manual\",null]",
+      "sha256": "ceb00e5af4adffa434780286eeffefc3f6db1c20881e5c6d6c8540f7a76631ef",
+      "fingerprint": "v1:ceb00e5af4adffa434780286eeffefc3f6db1c20881e5c6d6c8540f7a76631ef"
+    },
+    {
+      "name": "booking-operation-deposit",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "booking_operation",
+        "44444444-4444-4444-8444-444444444444",
+        5000,
+        "cad",
+        "e_transfer",
+        "deposit",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"booking_operation\",\"44444444-4444-4444-8444-444444444444\",5000,\"cad\",\"e_transfer\",\"deposit\",\"manual\",null]",
+      "sha256": "8f3669d21d737e6bfb4579d958115c4646af83d35b4b0efc2a023e1f2a128aba",
+      "fingerprint": "v1:8f3669d21d737e6bfb4579d958115c4646af83d35b4b0efc2a023e1f2a128aba"
+    },
+    {
+      "name": "customer-cash-payment",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "customer",
+        null,
+        5000,
+        "cad",
+        "cash",
+        "payment",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"customer\",null,5000,\"cad\",\"cash\",\"payment\",\"manual\",null]",
+      "sha256": "0c73f4d1f1c9e2e9be0d14f8dc1d47cf5ee07de80ab44084a4f3e234b10e40e4",
+      "fingerprint": "v1:0c73f4d1f1c9e2e9be0d14f8dc1d47cf5ee07de80ab44084a4f3e234b10e40e4"
+    },
+    {
+      "name": "appointment-none",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        0,
+        "cad",
+        null,
+        "none",
+        null,
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",0,\"cad\",null,\"none\",null,null]",
+      "sha256": "62d306e5c12998634dd9b74f2c63aab831381a77b4de5131e32dcfd6ec1002d9",
+      "fingerprint": "v1:62d306e5c12998634dd9b74f2c63aab831381a77b4de5131e32dcfd6ec1002d9"
+    },
+    {
+      "name": "gift-card-design-only",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        5000,
+        "cad",
+        "gift_card",
+        "payment",
+        "manual",
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",5000,\"cad\",\"gift_card\",\"payment\",\"manual\",\"55555555-5555-4555-8555-555555555555\"]",
+      "sha256": "4be365d45d50bef731b332022a0a7483b5f6e61c9c0402ba6a6a45bddee414ae",
+      "fingerprint": "v1:4be365d45d50bef731b332022a0a7483b5f6e61c9c0402ba6a6a45bddee414ae"
+    }
+  ]
+}
+```
+
+</details>
+
 ## Governed Staging application — 2026-10-04 23:21 Toronto
 
 **2026-10-04 23:21 America/Toronto — Issue #134 foundation APPLIED TO GOVERNED STAGING ONLY.** Product Owner explicitly approved the exact migration. Native Supabase application succeeded once on `wnfahklzaxirftyskctd`; hosted history is `20261005032107 / issue_134_payment_attempt_foundation` (2026-10-05 UTC). [Application evidence](https://github.com/renovisionai2-cloud/chasum/pull/155#issuecomment-5987566406).
