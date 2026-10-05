@@ -4,6 +4,12 @@
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
+## HV134 planning observations — 2026-10-05 (read-only; no financial test)
+
+The source/hash/adoption continuation remains P134-R1A-STAGING below. Native read-only metadata during plan preparation reconfirmed both accepted migration identities and zero attempts/events/obligations/linked-ledger rows. Actual `service_role` SELECT and UPDATE (including `appointments.customer_id`) exist; this corrects the earlier missing-lock-privilege inference, not the still-open binding race. No privileges or functions were changed.
+
+Execution access is separate: the native connector reads work; a read-only request with the saved local Management token returned HTTP401, while direct DB TCP had no route before any credential/SQL was sent. The reviewed validation package therefore uses fixed Staging Management HTTPS and requires a securely refreshed credential plus zero-write capability checks before fixture creation. No financial RPC/Auth creation/provider call was made. See [the exact execution gate](../reviews/issue-134-hosted-validation-plan.md). These observations do not update or re-probe Production serving identity.
+
 ## P134-R1A-STAGING — 2026-10-05 13:04:46 Toronto / 17:04:46 UTC
 
 PO-approved exact application on Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native apply called once. [Execution](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [Claude S-A and qualifications](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).

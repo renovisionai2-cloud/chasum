@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-05 — #134 hosted-validation plan reviewed (UNEXECUTED)
+
+- Added exact hashed plan, synthetic-fixture manifest and unexecuted Stage-only Management-API runner; Claude HV-A conditional on secure access and PO execution approval. Initial preparation findings corrected; no application or migration change.
+- Defined real-commit replay/concurrency, zero-message containment, immutable audit retention, 82 public-row ceiling, exact current-vs-future layer truth, reassignment/permission cutoffs and full end-to-end acceptance oracles.
+- Recorded genuine access blocker: saved local Management token401; native connector reads still work. No financial/Auth/fixture execution occurred.
+
 ### 2026-10-05 — R1a applied to governed Staging (NO ACTIVATION)
 
 - Applied exact R1a SHA `4b7e3855...4bad5ee7` once as `20261005170446 / issue_134_r1a_manual_payment_kernel`; both new invoker functions and stored SQL match the reviewed artifact. Foundation was not reapplied.

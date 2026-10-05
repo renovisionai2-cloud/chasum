@@ -1,8 +1,17 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-05 for the exact R1a Staging application at 13:04 America/Toronto and Claude S-A closeout. Prior accepted authoring/foundation work stays closed.
+**Updated:** 2026-10-05 14:20 America/Toronto for the reviewed HV134 execution package and concrete secure-access blocker. Prior Stage application remains accepted; no hosted financial test ran.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
+
+## 2026-10-05 14:20 America/Toronto — Reviewed hosted financial-validation execution gate
+
+**#134 hosted-validation PLAN/PACKAGE COMPLETE — Claude HV-A; EXECUTION NOT AUTHORIZED / ACCESS BLOCKED.** The accepted Staging R1a application is unchanged. Sol prepared the exact synthetic fixture and unexecuted Management-API runner; Grok independently challenged dependencies; Claude independently reviewed and accepted corrected package `1bcd751c472161abfea08fc29e0624f9e2f29d02a9c198c5c82c643bc777001a`, conditional on secure Stage access and one exact PO run approval. [Plan and execution package](../validation/issue-134-r1a/PLAN.md); [consolidated review/gate](../reviews/issue-134-hosted-validation-plan.md).
+
+Proposed run `HV134-20261005-R1A-01`: 2 synthetic Auth users / 2 normal #72 tenants, 82 retained public rows including 5 attempts / 9 events / 3 manual ledger entries / 12 obligations; separate Auth audit accounting. No email/SMS, current writer/UI activation, migration/ACL change or cleanup of immutable evidence. Current kernel results remain RECORDED with synchronization PENDING, not full-chain acceptance. All user-requested future financial/document/communication oracles and fault gates are explicit, not waived.
+
+**Actual access issue:** native Supabase read tools work, but the saved local Management token returned 401 for a read-only probe; direct DB TCP had no route. Securely refreshed `HV134_STAGING_MANAGEMENT_TOKEN` and valid exact Stage service key must pass zero-write capability/preflight before any Auth/fixture write. Do not paste secrets, reset passwords, weaken TLS or create actors before access passes. No hosted financial test ran. Appointment-customer reassignment still needs an enduring pre-adoption invariant; actual Stage UPDATE privilege exists, so the old missing-grant premise is withdrawn. #153/SEQ-ACL-1 cutover holds remain. PR155/156 Draft; no Production/GVM/#135 release/USD repair/technician resumption or GVM Operational Acceptance.
+
 
 ## 2026-10-05 — R1a applied to Staging; hosted behavior remains untested
 

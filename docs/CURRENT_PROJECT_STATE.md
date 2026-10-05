@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-05 13:04 America/Toronto. **Updated by:** ChatGPT Control Tower for the exact PO-approved R1a Staging application and bounded independent closeout; no Production action.
+**Snapshot date:** 2026-10-05 14:20 America/Toronto. **Updated by:** ChatGPT Program Lead for reviewed hosted-validation preparation only; no hosted financial execution.
 
 Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -27,6 +27,13 @@ Every meaningful product decision should strengthen this operating system.
 No tenant-specific application logic is authorized.
 
 ## Control board
+
+**#134 hosted-validation PLAN/PACKAGE COMPLETE — Claude HV-A; EXECUTION NOT AUTHORIZED / ACCESS BLOCKED.** The accepted Staging R1a application is unchanged. Sol prepared the exact synthetic fixture and unexecuted Management-API runner; Grok independently challenged dependencies; Claude independently reviewed and accepted corrected package `1bcd751c472161abfea08fc29e0624f9e2f29d02a9c198c5c82c643bc777001a`, conditional on secure Stage access and one exact PO run approval. [Plan and execution package](validation/issue-134-r1a/PLAN.md); [consolidated review/gate](reviews/issue-134-hosted-validation-plan.md).
+
+Proposed run `HV134-20261005-R1A-01`: 2 synthetic Auth users / 2 normal #72 tenants, 82 retained public rows including 5 attempts / 9 events / 3 manual ledger entries / 12 obligations; separate Auth audit accounting. No email/SMS, current writer/UI activation, migration/ACL change or cleanup of immutable evidence. Current kernel results remain RECORDED with synchronization PENDING, not full-chain acceptance. All user-requested future financial/document/communication oracles and fault gates are explicit, not waived.
+
+**Actual access issue:** native Supabase read tools work, but the saved local Management token returned 401 for a read-only probe; direct DB TCP had no route. Securely refreshed `HV134_STAGING_MANAGEMENT_TOKEN` and valid exact Stage service key must pass zero-write capability/preflight before any Auth/fixture write. Do not paste secrets, reset passwords, weaken TLS or create actors before access passes. No hosted financial test ran. Appointment-customer reassignment still needs an enduring pre-adoption invariant; actual Stage UPDATE privilege exists, so the old missing-grant premise is withdrawn. #153/SEQ-ACL-1 cutover holds remain. PR155/156 Draft; no Production/GVM/#135 release/USD repair/technician resumption or GVM Operational Acceptance.
+
 
 **2026-10-05 13:04:46 America/Toronto — #134 R1a APPLIED TO GOVERNED STAGING ONLY / CLAUDE S-A / UNWIRED / DEFAULT OFF.** Darshan approved the exact application gate. Native Supabase migration application succeeded once on `wnfahklzaxirftyskctd`, hosted history `20261005170446 / issue_134_r1a_manual_payment_kernel`. Applied source `supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql` is exactly 16,151 bytes with stored SQL SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`. Source head at application `c24a2a3b5120da5b3802c815c4bda102be416cbd`; reviewed code `888bac096778ed85171b880a816d2052d84c92a4` is unchanged. [Execution evidence](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [independent review and reconciled limits](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).
 
@@ -107,7 +114,7 @@ Commercial SaaS Gate B / P2B remains paused and preserved while the Product Owne
 | GVM Production relationship-data correction | **COMPLETE / ACCEPTED** (2026-09-26). Separate governed Production DATA action, distinct from the software release. See the multi-location operating model below and the [Environment Manifest](runtime/ENVIRONMENT_MANIFEST.md) `GVM-DATA-2026-09-26` record. |
 | Stage 1C database release | Exact migration `20260922210000_issue_81_stage_1c_location_template.sql`, Git blob `748e9d0f6dd9d5796839b6a234222593d2f25bc2`, SHA-256 `6a4e3285382d1d1fbd9592af70ec1e2476ac8c9bec28cd0ba6a0e3287b3cb98f`, applied/accepted on Staging and Production. Production ledger: `20260923135852 / issue_81_stage_1c_location_template`. 034–036 remain unapplied. |
 | Phase 5 | **COMPLETE.** Genuine GVM Production booking + customer confirmation + business new-booking email acceptance remains closed. Do not manufacture replacement Production tests. |
-| Current program phase | #134 foundation and exact R1a functions APPLIED TO STAGING ONLY; Claude S-A application evidence accepted. R1a unwired/default-off. Next: prepare the reviewed hosted validation/rollback-retention plan before its PO execution gate. PR155/156 Draft; Production/GVM not cleared. |
+| Current program phase | #134 R1a Staging application accepted. Hosted-validation package reviewed / Claude HV-A; exact execution awaits PO approval and secure runner access. No financial test or canonical activation. Binding race and #153 remain pre-adoption gates; PR155/156 Draft. |
 | Slice 0A / PR #105 | **COMPLETE / MERGED / Production verified** per live PO/supervisor dispatch. Base `7a3a62c6c0bae9358e43cc647a02f20df5d65372`; quality check **REQUIRED** (integration `15368`). Do not reopen #105 or PR #3/#13/#16. |
 | Issue #106 / PR #107 pricing | **COMPLETE / Production accepted at `1b11ade`**, per PO/supervisor dispatch. Locked CAD presentation below remains accepted; separate commercial terms/activation are not inferred. |
 | PR #111 / P2A | **Independently accepted; still Draft at `dbdcfea`.** Preserve candidate and review; no code imported into #113. |
