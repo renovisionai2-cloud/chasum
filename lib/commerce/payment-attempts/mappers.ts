@@ -1,10 +1,12 @@
 import "server-only";
 
+import { isCanonicalUuid } from "./normalize";
 import type { AdmissionOutcome, CommitOutcome } from "./types";
 
 type RpcError = { message?: string | null } | null;
 
 function firstRow(data: unknown): Record<string, unknown> | null {
+  if (Array.isArray(data) && data.length !== 1) return null;
   const row = Array.isArray(data) ? data[0] : data;
   return row && typeof row === "object"
     ? (row as Record<string, unknown>)
@@ -30,7 +32,7 @@ export function mapAdmissionRpcResult(
   const attemptId = row?.attempt_id;
   const executionState = row?.execution_state;
   if (
-    typeof attemptId !== "string" ||
+    !isCanonicalUuid(attemptId) ||
     !["REQUESTED", "ACCEPTED", "FAILED", "SKIPPED"].includes(
       String(executionState),
     )
@@ -51,7 +53,10 @@ export function mapAdmissionRpcResult(
         | "SKIPPED",
     };
   }
-  if (outcome === "KEY_CONFLICT" && typeof row.conflict_event_id === "string") {
+  if (
+    outcome === "KEY_CONFLICT" &&
+    isCanonicalUuid(row.conflict_event_id)
+  ) {
     return {
       kind: "KEY_CONFLICT",
       attemptId,
@@ -69,33 +74,35 @@ export function mapAdmissionRpcResult(
 export function mapCommitRpcResult(
   data: unknown,
   error: RpcError,
+  expectedAttemptId: string,
 ): CommitOutcome {
+  const unknown = (
+    reason: string,
+    options?: { transactionId: string; recorded: true },
+  ): CommitOutcome => ({
+    kind: "UNKNOWN",
+    attemptId: expectedAttemptId,
+    transactionId: options?.transactionId ?? null,
+    recorded: options?.recorded ?? false,
+    synchronization: "UNKNOWN",
+    reason,
+  });
   if (error) {
-    return {
-      kind: "UNKNOWN",
-      attemptId: null,
-      transactionId: null,
-      recorded: false,
-      synchronization: "UNKNOWN",
-      reason: unknownReason("Commit", error),
-    };
+    return unknown(unknownReason("Commit", error));
   }
   const row = firstRow(data);
   if (!row) {
-    return {
-      kind: "UNKNOWN",
-      attemptId: null,
-      transactionId: null,
-      recorded: false,
-      synchronization: "UNKNOWN",
-      reason: unknownReason("Commit", null),
-    };
+    return unknown(unknownReason("Commit", null));
   }
   const outcome = row?.outcome;
   const attemptId =
-    typeof row?.attempt_id === "string" ? row.attempt_id : null;
+    isCanonicalUuid(row?.attempt_id) ? row.attempt_id : null;
   const transactionId =
-    typeof row?.transaction_id === "string" ? row.transaction_id : null;
+    isCanonicalUuid(row?.transaction_id) ? row.transaction_id : null;
+
+  if (attemptId !== expectedAttemptId) {
+    return unknown("Commit returned a mismatched attempt identity.");
+  }
 
   if (
     (outcome === "RECORDED" || outcome === "REPLAY") &&
@@ -114,7 +121,7 @@ export function mapCommitRpcResult(
   }
   if (
     outcome === "NOT_COMMITTABLE" &&
-    attemptId &&
+    transactionId === null &&
     row?.recorded === false &&
     row?.synchronization === "UNKNOWN"
   ) {
@@ -125,12 +132,24 @@ export function mapCommitRpcResult(
       synchronization: "UNKNOWN",
     };
   }
-  return {
-    kind: "UNKNOWN",
-    attemptId,
-    transactionId,
-    recorded: row?.recorded === true,
-    synchronization: "UNKNOWN",
-    reason: unknownReason("Commit", null),
-  };
+  if (
+    outcome === "UNKNOWN" &&
+    row?.synchronization === "UNKNOWN" &&
+    row?.recorded === true &&
+    transactionId
+  ) {
+    return unknown("Ledger-backed commit evidence requires review.", {
+      transactionId,
+      recorded: true,
+    });
+  }
+  if (
+    outcome === "UNKNOWN" &&
+    row?.synchronization === "UNKNOWN" &&
+    row?.recorded === false &&
+    row?.transaction_id === null
+  ) {
+    return unknown("Commit produced no certifiable ledger evidence.");
+  }
+  return unknown(unknownReason("Commit", null));
 }

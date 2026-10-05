@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-05 — #134 R1a bounded audit corrections (PREPARED ONLY / RE-REVIEW REQUIRED)
+
+- Corrected CT-R1 so REQUESTED money can be committed only from coherent RECOVER state with clean annotations and a complete allowed event set. Incoherent attempts hold UNKNOWN with no new effect; valid linked-ledger uncertainty remains explicitly `recorded=true`.
+- Hardened recovered/admission/commit identities to canonical, exact Business/key/winner matches; malformed or drifting RPC responses cannot certify recorded truth. Added explicit customer/appointment target allowlisting and typed read/transport uncertainty.
+- Added SQL cases for DO_NOT_RETRY, failure annotations, missing/contradictory evidence and ledger-backed ACCEPTED uncertainty, plus true two-process RECORDED+REPLAY commit concurrency and separate lost-response replay.
+- Fresh loopback PostgreSQL 17.11 contract PASS; focused **38/38** and expanded commerce/migration/booking **559/559** tests PASS; typecheck, targeted lint and diff-check PASS. A broader run passed 1,896 tests but two unrelated browser suites could not start because Playwright is not installed; no install was permitted. Migration SHA-256 is now `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`; foundation/vector hashes remain unchanged.
+- Initial Grok G-B and Claude B are preserved findings, not acceptance. No wiring, schema-object expansion, existing privilege change, migration application or environment action. Next gate is fresh independent re-review; appointment-customer reassignment after binding remains a pre-adoption race gate.
+
 ### 2026-10-05 — #134 R1a manual-payment kernel (PREPARED ONLY / UNWIRED / NOT APPLIED)
 
 - Added CLI-generated migration `20261005154345_issue_134_r1a_manual_payment_kernel.sql` with exactly two literal-`service_role` SECURITY INVOKER functions for canonical admission and atomic manual commit. No existing schema object, permission or data changes; accepted foundation remains byte-identical.

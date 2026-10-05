@@ -162,6 +162,6 @@ describe("payment-attempt fingerprint v1", () => {
         target: "booking_operation",
         appointmentId: null,
       } as never),
-    ).toThrow();
+    ).toThrow("R1a target must be an existing customer or appointment.");
   });
 });

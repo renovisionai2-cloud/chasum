@@ -248,6 +248,8 @@ declare
   ledger_count integer;
   requested_event_count integer;
   accepted_event_count integer;
+  valid_conflict_event_count integer;
+  total_event_count integer;
   obligation_count integer;
   valid_obligation_count integer;
 begin
@@ -319,6 +321,34 @@ begin
   where tx.payment_attempt_id = attempt.id
     and tx.business_id = attempt.business_id;
 
+  select pg_catalog.count(*)::integer into requested_event_count
+  from public.commerce_payment_attempt_events event_row
+  where event_row.business_id = attempt.business_id
+    and event_row.attempt_id = attempt.id
+    and event_row.event_type = 'REQUESTED'
+    and event_row.money_state = 'NOT_RECORDED'
+    and event_row.failure_class is null
+    and event_row.failure_code is null;
+  select pg_catalog.count(*)::integer into accepted_event_count
+  from public.commerce_payment_attempt_events event_row
+  where event_row.business_id = attempt.business_id
+    and event_row.attempt_id = attempt.id
+    and event_row.event_type = 'ACCEPTED'
+    and event_row.money_state = 'RECORDED'
+    and event_row.failure_class is null
+    and event_row.failure_code is null;
+  select pg_catalog.count(*)::integer into valid_conflict_event_count
+  from public.commerce_payment_attempt_events event_row
+  where event_row.business_id = attempt.business_id
+    and event_row.attempt_id = attempt.id
+    and event_row.event_type = 'KEY_CONFLICT'
+    and event_row.money_state = 'NOT_RECORDED'
+    and event_row.failure_class = 'CONFLICT'
+    and event_row.failure_code = 'KEY_CONFLICT';
+  select pg_catalog.count(*)::integer into total_event_count
+  from public.commerce_payment_attempt_events event_row
+  where event_row.attempt_id = attempt.id;
+
   if attempt.execution_state = 'ACCEPTED' then
     if ledger_count = 1 then
       select *
@@ -327,18 +357,6 @@ begin
       where tx.payment_attempt_id = attempt.id
         and tx.business_id = attempt.business_id;
     end if;
-    select pg_catalog.count(*)::integer into requested_event_count
-    from public.commerce_payment_attempt_events event_row
-    where event_row.business_id = attempt.business_id
-      and event_row.attempt_id = attempt.id
-      and event_row.event_type = 'REQUESTED'
-      and event_row.money_state = 'NOT_RECORDED';
-    select pg_catalog.count(*)::integer into accepted_event_count
-    from public.commerce_payment_attempt_events event_row
-    where event_row.business_id = attempt.business_id
-      and event_row.attempt_id = attempt.id
-      and event_row.event_type = 'ACCEPTED'
-      and event_row.money_state = 'RECORDED';
     select pg_catalog.count(*)::integer into obligation_count
     from public.commerce_payment_reconciliation obligation
     where obligation.business_id = attempt.business_id
@@ -396,8 +414,13 @@ begin
          null::text,
          attempt.actor_id
        )
+       and attempt.recovery_disposition = 'RECOVER'
+       and attempt.failure_class is null
+       and attempt.failure_code is null
        and requested_event_count = 1
        and accepted_event_count = 1
+       and total_event_count =
+         2 + valid_conflict_event_count
        and obligation_count = 4
        and valid_obligation_count = 4 then
       return query
@@ -413,7 +436,14 @@ begin
     return;
   end if;
 
-  if attempt.execution_state <> 'REQUESTED' or ledger_count <> 0 then
+  if attempt.execution_state <> 'REQUESTED'
+     or ledger_count <> 0
+     or attempt.recovery_disposition <> 'RECOVER'
+     or attempt.failure_class is not null
+     or attempt.failure_code is not null
+     or requested_event_count <> 1
+     or accepted_event_count <> 0
+     or total_event_count <> 1 + valid_conflict_event_count then
     return query
       select 'UNKNOWN'::text, attempt.id, null::uuid, false, 'UNKNOWN'::text;
     return;

@@ -113,6 +113,9 @@ export function normalizeR1aManualIntent(
   authority: { businessId: string; currency: string },
   request: ManualPaymentAttemptRequest,
 ): NormalizedPaymentIntentV1 {
+  if (request.target !== "customer" && request.target !== "appointment") {
+    throw new Error("R1a target must be an existing customer or appointment.");
+  }
   if (!PAYMENT_ATTEMPT_SOURCES.includes(request.source)) {
     throw new Error("Payment source is outside R1a.");
   }
@@ -154,4 +157,8 @@ export function normalizeR1aManualIntent(
 
 export function assertCanonicalUuid(value: string, field: string): string {
   return normalizeUuid(value, field);
+}
+
+export function isCanonicalUuid(value: unknown): value is string {
+  return typeof value === "string" && UUID_PATTERN.test(value);
 }

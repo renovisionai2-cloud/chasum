@@ -17,6 +17,10 @@ import {
   runManualPaymentAttemptKernel,
   type PaymentAttemptKernelDependencies,
 } from "@/lib/commerce/payment-attempts/kernel";
+import {
+  mapAdmissionRpcResult,
+  mapCommitRpcResult,
+} from "@/lib/commerce/payment-attempts/mappers";
 import type { ManualPaymentAttemptRequest } from "@/lib/commerce/payment-attempts/types";
 
 const BUSINESS_ID = "11111111-1111-4111-8111-111111111111";
@@ -25,6 +29,7 @@ const APPOINTMENT_ID = "33333333-3333-4333-8333-333333333333";
 const ATTEMPT_KEY = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const ATTEMPT_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const TRANSACTION_ID = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+const OTHER_ID = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 
 const request: ManualPaymentAttemptRequest = {
   attemptKey: ATTEMPT_KEY,
@@ -182,6 +187,16 @@ describe("prepared manual payment-attempt kernel", () => {
   it("excludes source and current actor from the financial fingerprint", async () => {
     const captured: string[] = [];
     const first = dependencies({
+      admissionEnabled: false,
+      recover: vi.fn().mockResolvedValue({
+        kind: "FOUND",
+        attempt: {
+          id: ATTEMPT_ID,
+          business_id: BUSINESS_ID,
+          attempt_key: ATTEMPT_KEY,
+          execution_state: "ACCEPTED",
+        },
+      }),
       admit: vi.fn(async ({ intent }) => {
         captured.push(intent.fingerprint);
         return {
@@ -192,10 +207,20 @@ describe("prepared manual payment-attempt kernel", () => {
       }),
     });
     const second = dependencies({
+      admissionEnabled: false,
       resolveAuthority: vi.fn().mockResolvedValue({
-        actorId: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+        actorId: OTHER_ID,
         businessId: BUSINESS_ID,
         currency: "cad",
+      }),
+      recover: vi.fn().mockResolvedValue({
+        kind: "FOUND",
+        attempt: {
+          id: ATTEMPT_ID,
+          business_id: BUSINESS_ID,
+          attempt_key: ATTEMPT_KEY,
+          execution_state: "ACCEPTED",
+        },
       }),
       admit: vi.fn(async ({ intent }) => {
         captured.push(intent.fingerprint);
@@ -206,13 +231,228 @@ describe("prepared manual payment-attempt kernel", () => {
         };
       }),
     });
-    await runManualPaymentAttemptKernel(request, first);
-    await runManualPaymentAttemptKernel(
+    await expect(
+      runManualPaymentAttemptKernel(request, first),
+    ).resolves.toMatchObject({ kind: "RECORDED" });
+    await expect(runManualPaymentAttemptKernel(
       { ...request, source: "payments_dashboard" },
       second,
-    );
+    )).resolves.toMatchObject({ kind: "RECORDED" });
     expect(captured).toHaveLength(2);
     expect(captured[0]).toBe(captured[1]);
+    expect(first.resolveAuthority).toHaveBeenCalledOnce();
+    expect(second.resolveAuthority).toHaveBeenCalledOnce();
+    expect(first.admit).toHaveReturned();
+    expect(second.admit).toHaveReturned();
+  });
+
+  it.each([
+    {
+      label: "Business",
+      attempt: {
+        id: ATTEMPT_ID,
+        business_id: OTHER_ID,
+        attempt_key: ATTEMPT_KEY,
+        execution_state: "REQUESTED" as const,
+      },
+    },
+    {
+      label: "key",
+      attempt: {
+        id: ATTEMPT_ID,
+        business_id: BUSINESS_ID,
+        attempt_key: OTHER_ID,
+        execution_state: "REQUESTED" as const,
+      },
+    },
+    {
+      label: "malformed id",
+      attempt: {
+        id: "not-a-uuid",
+        business_id: BUSINESS_ID,
+        attempt_key: ATTEMPT_KEY,
+        execution_state: "REQUESTED" as const,
+      },
+    },
+  ])(
+    "holds a mismatched recovered $label and cannot bypass flag-off",
+    async ({ attempt }) => {
+      const deps = dependencies({
+        admissionEnabled: false,
+        recover: vi.fn().mockResolvedValue({ kind: "FOUND", attempt }),
+      });
+      await expect(
+        runManualPaymentAttemptKernel(request, deps),
+      ).resolves.toMatchObject({
+        kind: "UNKNOWN",
+        recorded: false,
+      });
+      expect(deps.admit).not.toHaveBeenCalled();
+      expect(deps.commit).not.toHaveBeenCalled();
+    },
+  );
+
+  it("holds admission winner drift from the recovered attempt", async () => {
+    const deps = dependencies({
+      admissionEnabled: false,
+      recover: vi.fn().mockResolvedValue({
+        kind: "FOUND",
+        attempt: {
+          id: ATTEMPT_ID,
+          business_id: BUSINESS_ID,
+          attempt_key: ATTEMPT_KEY,
+          execution_state: "REQUESTED",
+        },
+      }),
+      admit: vi.fn().mockResolvedValue({
+        kind: "EXISTING",
+        attemptId: OTHER_ID,
+        executionState: "REQUESTED",
+      }),
+    });
+    await expect(
+      runManualPaymentAttemptKernel(request, deps),
+    ).resolves.toMatchObject({ kind: "UNKNOWN", recorded: false });
+    expect(deps.commit).not.toHaveBeenCalled();
+  });
+
+  it("holds mismatched or malformed commit evidence without certifying money", async () => {
+    const mismatched = dependencies({
+      commit: vi.fn().mockResolvedValue({
+        kind: "RECORDED",
+        attemptId: OTHER_ID,
+        transactionId: TRANSACTION_ID,
+        recorded: true,
+        synchronization: "PENDING",
+      }),
+    });
+    await expect(
+      runManualPaymentAttemptKernel(request, mismatched),
+    ).resolves.toMatchObject({
+      kind: "UNKNOWN",
+      attemptId: ATTEMPT_ID,
+      transactionId: null,
+      recorded: false,
+    });
+
+    const malformed = dependencies({
+      commit: vi.fn().mockResolvedValue({
+        kind: "RECORDED",
+        attemptId: ATTEMPT_ID,
+        transactionId: "bad",
+        recorded: true,
+        synchronization: "PENDING",
+      }),
+    });
+    await expect(
+      runManualPaymentAttemptKernel(request, malformed),
+    ).resolves.toMatchObject({
+      kind: "UNKNOWN",
+      recorded: false,
+    });
+  });
+
+  it("maps only explicit matching ledger-backed UNKNOWN as recorded", () => {
+    expect(
+      mapCommitRpcResult(
+        [{
+          outcome: "UNKNOWN",
+          attempt_id: ATTEMPT_ID,
+          transaction_id: TRANSACTION_ID,
+          recorded: true,
+          synchronization: "UNKNOWN",
+        }],
+        null,
+        ATTEMPT_ID,
+      ),
+    ).toMatchObject({
+      kind: "UNKNOWN",
+      attemptId: ATTEMPT_ID,
+      transactionId: TRANSACTION_ID,
+      recorded: true,
+    });
+    expect(
+      mapCommitRpcResult(
+        [{
+          outcome: "UNKNOWN",
+          attempt_id: ATTEMPT_ID,
+          transaction_id: "malformed",
+          recorded: true,
+          synchronization: "UNKNOWN",
+        }],
+        null,
+        ATTEMPT_ID,
+      ),
+    ).toMatchObject({
+      kind: "UNKNOWN",
+      transactionId: null,
+      recorded: false,
+    });
+    expect(
+      mapCommitRpcResult(
+        [{
+          outcome: "RECORDED",
+          attempt_id: OTHER_ID,
+          transaction_id: TRANSACTION_ID,
+          recorded: true,
+          synchronization: "PENDING",
+        }],
+        null,
+        ATTEMPT_ID,
+      ),
+    ).toMatchObject({ kind: "UNKNOWN", recorded: false });
+  });
+
+  it("rejects malformed admission RPC identities", () => {
+    expect(
+      mapAdmissionRpcResult([{
+        outcome: "EXISTING",
+        attempt_id: "malformed",
+        execution_state: "REQUESTED",
+        conflict_event_id: null,
+      }], null),
+    ).toMatchObject({ kind: "UNKNOWN" });
+    expect(
+      mapAdmissionRpcResult([{
+        outcome: "KEY_CONFLICT",
+        attempt_id: ATTEMPT_ID,
+        execution_state: "REQUESTED",
+        conflict_event_id: "malformed",
+      }], null),
+    ).toMatchObject({ kind: "UNKNOWN" });
+  });
+
+  it.each(["binding", "recovery", "admission", "commit"])(
+    "maps %s transport throws to typed UNKNOWN",
+    async (stage) => {
+      const deps = dependencies({
+        ...(stage === "binding"
+          ? { validateBinding: vi.fn().mockRejectedValue(new Error("transport")) }
+          : {}),
+        ...(stage === "recovery"
+          ? { recover: vi.fn().mockRejectedValue(new Error("transport")) }
+          : {}),
+        ...(stage === "admission"
+          ? { admit: vi.fn().mockRejectedValue(new Error("transport")) }
+          : {}),
+        ...(stage === "commit"
+          ? { commit: vi.fn().mockRejectedValue(new Error("transport")) }
+          : {}),
+      });
+      await expect(
+        runManualPaymentAttemptKernel(request, deps),
+      ).resolves.toMatchObject({ kind: "UNKNOWN" });
+    },
+  );
+
+  it("does not swallow authentication/authorization control flow", async () => {
+    const redirect = new Error("NEXT_REDIRECT");
+    const deps = dependencies({
+      resolveAuthority: vi.fn().mockRejectedValue(redirect),
+    });
+    await expect(runManualPaymentAttemptKernel(request, deps)).rejects.toBe(
+      redirect,
+    );
   });
 
   it("rejects malformed identity and prohibited modes without privileged calls", async () => {

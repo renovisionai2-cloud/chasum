@@ -264,18 +264,91 @@ run(
   [
     databaseUrl,
     "-X",
-    "-At",
     "-v",
     "ON_ERROR_STOP=1",
     "-c",
-    `set role service_role;
-     select outcome from public.commit_manual_payment_attempt_v1(
-       '13410000-0000-4000-8000-000000000801',
-       '${attemptId}'
-     );`,
+    `
+      create function public.issue134_r1a_commit_race_delay()
+      returns trigger language plpgsql as $$
+      begin
+        if old.id = '${attemptId}'
+           and old.execution_state = 'REQUESTED' then
+          perform pg_catalog.pg_sleep(0.5);
+        end if;
+        return new;
+      end $$;
+      create trigger issue134_r1a_commit_race_delay
+      before update on public.commerce_payment_attempts
+      for each row execute function public.issue134_r1a_commit_race_delay();
+    `,
   ],
   { print: false },
 );
+
+const commitSql = `
+  set role service_role;
+  select outcome, transaction_id, recorded, synchronization
+  from public.commit_manual_payment_attempt_v1(
+    '13410000-0000-4000-8000-000000000801',
+    '${attemptId}'
+  );
+`;
+const commitRace = await Promise.all([runAsync(commitSql), runAsync(commitSql)]);
+if (commitRace.some(({ status }) => status !== 0)) {
+  console.error("Concurrent commit returned an infrastructure error.");
+  console.error(JSON.stringify(commitRace, null, 2));
+  process.exit(1);
+}
+const commitRows = commitRace.map(({ stdout }) =>
+  stdout.trim().split("\n").at(-1).split("|"),
+);
+const commitOutcomes = commitRows.map(([outcome]) => outcome).sort();
+if (
+  JSON.stringify(commitOutcomes) !== JSON.stringify(["RECORDED", "REPLAY"]) ||
+  !commitRows[0][1] ||
+  commitRows[0][1] !== commitRows[1][1] ||
+  commitRows.some(
+    ([, , recorded, synchronization]) =>
+      recorded !== "t" || synchronization !== "PENDING",
+  )
+) {
+  console.error(`Unexpected concurrent commit results: ${JSON.stringify(commitRows)}`);
+  process.exit(1);
+}
+const transactionId = commitRows[0][1];
+run(
+  [
+    databaseUrl,
+    "-X",
+    "-v",
+    "ON_ERROR_STOP=1",
+    "-c",
+    `
+      drop trigger issue134_r1a_commit_race_delay
+        on public.commerce_payment_attempts;
+      drop function public.issue134_r1a_commit_race_delay();
+    `,
+  ],
+  { print: false },
+);
+const lostResponseRetry = await runAsync(commitSql);
+const lostResponseRow = lostResponseRetry.stdout
+  .trim()
+  .split("\n")
+  .at(-1)
+  .split("|");
+if (
+  lostResponseRetry.status !== 0 ||
+  lostResponseRow[0] !== "REPLAY" ||
+  lostResponseRow[1] !== transactionId ||
+  lostResponseRow[2] !== "t" ||
+  lostResponseRow[3] !== "PENDING"
+) {
+  console.error(
+    `Post-commit lost-response retry did not replay the same identity: ${JSON.stringify(lostResponseRetry)}`,
+  );
+  process.exit(1);
+}
 
 const conflictSql = `
   set role service_role;
@@ -334,16 +407,20 @@ const counts = run(
        (select count(*) from public.commerce_payment_attempt_events
         where attempt_id = '${attemptId}' and event_type = 'KEY_CONFLICT'),
        (select count(*) from public.commerce_transactions
-        where payment_attempt_id = '${attemptId}');`,
+        where payment_attempt_id = '${attemptId}'),
+       (select count(*) from public.commerce_payment_attempt_events
+        where attempt_id = '${attemptId}' and event_type = 'ACCEPTED'),
+       (select count(*) from public.commerce_payment_reconciliation
+        where attempt_id = '${attemptId}');`,
   ],
   { print: false },
 ).stdout.trim();
-if (counts !== "1|1|1|1") {
+if (counts !== "1|1|1|1|1|4") {
   console.error(`Unexpected concurrency result counts: ${counts}`);
   process.exit(1);
 }
 
 console.log(
-  "PASS concurrent same-key admission has one winner/one REQUESTED; committed conflict race returns one stable evidence row",
+  "PASS concurrent same-key admission, overlapping commits (RECORDED+REPLAY), lost-response replay, and committed conflict race",
 );
 console.log("Issue #134 R1a disposable PostgreSQL contract passed.");

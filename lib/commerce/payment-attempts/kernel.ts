@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
 import {
   assertCanonicalUuid,
+  isCanonicalUuid,
   normalizeR1aManualIntent,
 } from "./normalize";
 import { mapAdmissionRpcResult, mapCommitRpcResult } from "./mappers";
@@ -64,17 +65,39 @@ export async function runManualPaymentAttemptKernel(
     };
   }
 
-  if (!(await dependencies.validateBinding(authority, intent))) {
+  let bindingIsValid: boolean;
+  try {
+    bindingIsValid = await dependencies.validateBinding(authority, intent);
+  } catch {
+    return {
+      kind: "UNKNOWN",
+      attemptId: null,
+      transactionId: null,
+      recorded: false,
+      synchronization: "UNKNOWN",
+      reason: "Customer or appointment binding is uncertain.",
+    };
+  }
+  if (!bindingIsValid) {
     return {
       kind: "INVALID",
       reason: "Customer or appointment binding is not authorized.",
     };
   }
 
-  const recovery = await dependencies.recover(
-    authority.businessId,
-    attemptKey,
-  );
+  let recovery: RecoveryResult;
+  try {
+    recovery = await dependencies.recover(authority.businessId, attemptKey);
+  } catch {
+    return {
+      kind: "UNKNOWN",
+      attemptId: null,
+      transactionId: null,
+      recorded: false,
+      synchronization: "UNKNOWN",
+      reason: "Canonical recovery transport is uncertain.",
+    };
+  }
   if (recovery.kind === "UNKNOWN") {
     return {
       kind: "UNKNOWN",
@@ -85,21 +108,125 @@ export async function runManualPaymentAttemptKernel(
       reason: recovery.reason,
     };
   }
+  if (
+    recovery.kind === "FOUND" &&
+    (!isCanonicalUuid(recovery.attempt.id) ||
+      !isCanonicalUuid(recovery.attempt.business_id) ||
+      !isCanonicalUuid(recovery.attempt.attempt_key) ||
+      recovery.attempt.business_id !== authority.businessId ||
+      recovery.attempt.attempt_key !== attemptKey)
+  ) {
+    return {
+      kind: "UNKNOWN",
+      attemptId: null,
+      transactionId: null,
+      recorded: false,
+      synchronization: "UNKNOWN",
+      reason: "Canonical recovery returned a mismatched identity.",
+    };
+  }
   if (recovery.kind === "ABSENT" && !dependencies.admissionEnabled) {
     return { kind: "NOT_ADMITTED_DISABLED" };
   }
 
-  const admission = await dependencies.admit({
-    authority,
-    request,
-    intent,
-    attemptKey,
-  });
-  if (admission.kind === "UNKNOWN" || admission.kind === "KEY_CONFLICT") {
+  let admission: AdmissionOutcome;
+  try {
+    admission = await dependencies.admit({
+      authority,
+      request,
+      intent,
+      attemptKey,
+    });
+  } catch {
+    return {
+      kind: "UNKNOWN",
+      reason: "Canonical admission transport is uncertain.",
+    };
+  }
+  if (admission.kind === "UNKNOWN") {
+    return admission;
+  }
+  if (admission.kind === "KEY_CONFLICT") {
+    if (
+      !isCanonicalUuid(admission.attemptId) ||
+      !isCanonicalUuid(admission.conflictEventId) ||
+      (recovery.kind === "FOUND" &&
+        admission.attemptId !== recovery.attempt.id)
+    ) {
+      return {
+        kind: "UNKNOWN",
+        reason: "Conflict admission returned a mismatched identity.",
+      };
+    }
     return admission;
   }
 
-  return dependencies.commit(authority.businessId, admission.attemptId);
+  if (
+    !isCanonicalUuid(admission.attemptId) ||
+    (recovery.kind === "FOUND" &&
+      (admission.kind !== "EXISTING" ||
+        admission.attemptId !== recovery.attempt.id))
+  ) {
+    return {
+      kind: "UNKNOWN",
+      attemptId: null,
+      transactionId: null,
+      recorded: false,
+      synchronization: "UNKNOWN",
+      reason: "Admission returned a mismatched winner identity.",
+    };
+  }
+
+  let commit: CommitOutcome;
+  try {
+    commit = await dependencies.commit(
+      authority.businessId,
+      admission.attemptId,
+    );
+  } catch {
+    return {
+      kind: "UNKNOWN",
+      attemptId: admission.attemptId,
+      transactionId: null,
+      recorded: false,
+      synchronization: "UNKNOWN",
+      reason: "Commit transport is uncertain.",
+    };
+  }
+  if (
+    commit.attemptId !== null &&
+    commit.attemptId !== admission.attemptId
+  ) {
+    return {
+      kind: "UNKNOWN",
+      attemptId: admission.attemptId,
+      transactionId: null,
+      recorded: false,
+      synchronization: "UNKNOWN",
+      reason: "Commit returned a mismatched attempt identity.",
+    };
+  }
+  if (
+    ((commit.kind === "RECORDED" || commit.kind === "REPLAY") &&
+      (!isCanonicalUuid(commit.attemptId) ||
+        !isCanonicalUuid(commit.transactionId))) ||
+    (commit.kind === "NOT_COMMITTABLE" &&
+      !isCanonicalUuid(commit.attemptId)) ||
+    (commit.kind === "UNKNOWN" &&
+      commit.recorded &&
+      (!isCanonicalUuid(commit.attemptId) ||
+        !isCanonicalUuid(commit.transactionId)))
+  ) {
+    return {
+      kind: "UNKNOWN",
+      attemptId: admission.attemptId,
+      transactionId: null,
+      recorded: false,
+      synchronization: "UNKNOWN",
+      reason: "Commit returned malformed evidence identities.",
+    };
+  }
+  return commit;
 }
 
 async function resolveCurrentAuthority(): Promise<PaymentAttemptAuthority> {
@@ -127,7 +254,10 @@ async function validateCurrentBinding(
     .eq("id", intent.customerId)
     .eq("business_id", authority.businessId)
     .maybeSingle();
-  if (customer.error || !customer.data) return false;
+  if (customer.error) {
+    throw new Error("Customer binding lookup is uncertain.");
+  }
+  if (!customer.data) return false;
   if (intent.target === "customer") return true;
   if (intent.target !== "appointment" || !intent.targetId) return false;
 
@@ -138,7 +268,10 @@ async function validateCurrentBinding(
     .eq("business_id", authority.businessId)
     .eq("customer_id", intent.customerId)
     .maybeSingle();
-  return !appointment.error && Boolean(appointment.data);
+  if (appointment.error) {
+    throw new Error("Appointment binding lookup is uncertain.");
+  }
+  return Boolean(appointment.data);
 }
 
 function createProductionDependencies(): PaymentAttemptKernelDependencies {
@@ -169,9 +302,11 @@ function createProductionDependencies(): PaymentAttemptKernelDependencies {
       }
       if (!data) return { kind: "ABSENT" };
       if (
-        typeof data.id !== "string" ||
-        typeof data.business_id !== "string" ||
-        typeof data.attempt_key !== "string" ||
+        !isCanonicalUuid(data.id) ||
+        !isCanonicalUuid(data.business_id) ||
+        !isCanonicalUuid(data.attempt_key) ||
+        data.business_id !== businessId ||
+        data.attempt_key !== attemptKey ||
         !["REQUESTED", "ACCEPTED", "FAILED", "SKIPPED"].includes(
           String(data.execution_state),
         )
@@ -212,7 +347,7 @@ function createProductionDependencies(): PaymentAttemptKernelDependencies {
           p_attempt_id: attemptId,
         },
       );
-      return mapCommitRpcResult(data, error);
+      return mapCommitRpcResult(data, error, attemptId);
     },
   };
 }

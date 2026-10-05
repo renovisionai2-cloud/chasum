@@ -1,6 +1,7 @@
 # Issue #134 — R1a manual-payment kernel
 
-**Status:** PREPARED ONLY / UNWIRED / NOT APPLIED / NEW ADMISSION DEFAULT OFF
+**Status:** CORRECTED PREPARED CANDIDATE / RE-REVIEW REQUIRED / UNWIRED /
+NOT APPLIED / NEW ADMISSION DEFAULT OFF
 **Competitive Product Gate:** NOT_APPLICABLE — internal implementation of locked integrity behavior; no UI or product workflow change.
 **Launch dependency:** REQUIRED. This candidate is not operational acceptance.
 
@@ -8,7 +9,7 @@
 
 R1a adds one CLI-generated additive migration,
 `20261005154345_issue_134_r1a_manual_payment_kernel.sql`, SHA-256
-`cb7d89f7f9646f103777713331323bca38be21493f761053cc50c2edc6b9e778`.
+`4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`.
 It creates exactly two `SECURITY INVOKER` functions with fixed
 `pg_catalog, pg_temp` search paths:
 
@@ -51,6 +52,31 @@ return the original ledger identity without writes; missing or inconsistent
 ledger/events/obligations return UNKNOWN without repair. FAILED and SKIPPED are
 not revived.
 
+KEY_CONFLICT `NOT_RECORDED` evidence describes only the rejected conflicting
+intent's lack of a new effect. It never overwrites or becomes the money truth
+for a winning attempt that already has a valid linked ledger.
+
+## Initial-candidate audit and bounded corrections
+
+Independent review of the frozen initial candidate at `ef79a83` concluded
+Grok G-B and Claude B; those results are preserved as findings, not acceptance.
+The coordinator then reproduced CT-R1 locally: a REQUESTED attempt marked
+DO_NOT_RETRY could still create a ledger and finish ACCEPTED.
+
+This corrected candidate requires a coherent RECOVER disposition, no failure
+annotations, exactly one valid REQUESTED event and no contradictory events
+before any new effect. Incoherent REQUESTED attempts return UNKNOWN without
+winner/evidence/ledger/obligation mutation. ACCEPTED replay now proves the
+complete allowed event set while preserving `recorded=true` and the linked
+transaction identity for an explicit ledger-backed UNKNOWN hold.
+
+Recovery, admission and commit mappings now require canonical UUIDs and exact
+Business/key/winner identities. A recovered winner must be returned as the same
+EXISTING attempt before commit; malformed or drifting RPC identities cannot
+certify recorded money. Read/RPC/transport uncertainty maps to typed UNKNOWN,
+while request authentication/authorization control flow remains outside those
+catches. R1a target validation explicitly allows only customer/appointment.
+
 ## Local proof and privilege provenance
 
 A fresh PostgreSQL 17.11 cluster bound only to `127.0.0.1` executed the
@@ -59,19 +85,25 @@ literal `service_role`; it was stopped and removed afterward. The verifier
 rejects every nonlocal/query/fragment URL and strips every inherited `PG*`
 variable from synchronous and concurrent `psql` children.
 
-The fixture models only required existing privileges: migration 031's
-`service_role` commerce-ledger DML, foundation grants on attempts/events/
-reconciliation, existing binding-table reads and the accepted inherited
-identity-sequence privilege. The R1a migration grants no table, column or
-sequence access. Local execution found no missing privilege.
+The fixture models only required existing privileges: migration 031 line 71's
+dynamic `service_role` commerce-ledger DML, foundation grants on attempts/
+events/reconciliation, binding-table SELECT and the Staging-observed inherited
+event-sequence USAGE+SELECT. The latter two are modeled local assumptions, not
+a fresh hosted ACL proof. The R1a migration grants no table, column or sequence
+access. Exact hosted privileges remain an application preflight; any missing
+privilege is a STOP, not permission to widen this migration or fixture.
 
 Proof covered service-role boundaries, tenant/customer/appointment binding,
-same-key concurrency, committed conflict and duplicate-event race, equal-value
-new-key payments, rollback before transaction completion, lost-response
-replay, no false synchronization, customer-only obligations, missing/tampered
-evidence holds, terminal FAILED/SKIPPED behavior and unchanged legacy data.
-Focused and payment/booking regressions passed 59 files / 518 tests; typecheck,
-targeted lint and diff-check passed.
+same-key admission, two genuinely concurrent commit processes producing exactly
+RECORDED+REPLAY, committed-conflict races, a separate lost-response retry,
+equal-value new-key payments, rollback, exact obligations, no false
+synchronization, coherent recovery holds, terminal states and unchanged legacy
+data. Focused correction tests passed 3 files / 38 tests; expanded commerce,
+migration and booking regressions passed 61 files / 559 tests; typecheck,
+targeted lint and diff-check passed. A broader run passed 185 files / 1,896
+tests (39 skipped) but was not a suite PASS: two unrelated browser-backed
+suites could not start because the local Playwright executable is absent. No
+package/browser install was permitted.
 
 ## Withheld and next gate
 
@@ -81,10 +113,16 @@ merge, Production, GVM, #135 release, historical repair or workflow activation
 occurred. Build was not run because the requested safe local proof excludes
 build-time environment/provider uncertainty.
 
+Concurrent reassignment of `appointments.customer_id` after the binding read
+remains an explicit pre-adoption binding/projection gate. This prepared,
+unwired candidate makes no full-race-safety claim; it adds no row-locking or
+existing-table privileges without a separately verified design.
+
 **Flag activation for application traffic remains prohibited.** The next gate
-is coordinator scope reconciliation followed by Grok challenge and independent
-Claude Level-3 candidate review. Only after that may a separate Product Owner
-gate consider migration application and isolated hosted fixtures. Hosted legacy
-NULL-linked DML smoke, #153 closure before permission cutover, projections,
-full workflow acceptance, governed Production release and GVM Operational
-Acceptance remain later requirements.
+is coordinator scope reconciliation followed by fresh Grok challenge and
+independent Claude Level-3 review of these corrections. The initial G-B/B
+reports do not accept this revision. Only after clearance may a separate
+Product Owner gate consider migration application and isolated hosted fixtures.
+Hosted legacy NULL-linked DML smoke, #153 closure before permission cutover,
+projections, full workflow acceptance, governed Production release and GVM
+Operational Acceptance remain later requirements.

@@ -122,6 +122,25 @@ describe("Issue #134 R1a prepared-only migration contract", () => {
     );
   });
 
+  it("holds incoherent REQUESTED/ACCEPTED evidence and proves overlapping commit replay", () => {
+    expect(sql).toContain("attempt.recovery_disposition = 'RECOVER'");
+    expect(sql).toContain("attempt.recovery_disposition <> 'RECOVER'");
+    expect(sql).toContain("attempt.failure_class is not null");
+    expect(sql).toContain("attempt.failure_code is not null");
+    expect(sql).toContain("requested_event_count <> 1");
+    expect(sql).toContain("accepted_event_count <> 0");
+    expect(sql).toContain("2 + valid_conflict_event_count");
+    expect(sql).toContain("1 + valid_conflict_event_count");
+    expect(verifier).toContain(
+      "const commitRace = await Promise.all([runAsync(commitSql), runAsync(commitSql)])",
+    );
+    expect(verifier).toContain("issue134_r1a_commit_race_delay");
+    expect(verifier).toContain("pg_catalog.pg_sleep(0.5)");
+    expect(verifier).toContain('JSON.stringify(["RECORDED", "REPLAY"])');
+    expect(verifier).toContain('if (counts !== "1|1|1|1|1|4")');
+    expect(verifier).toContain('lostResponseRow[0] !== "REPLAY"');
+  });
+
   it("takes no caller money fields in commit and writes all obligations atomically", () => {
     const commitSource = sql.split(
       "create function public.commit_manual_payment_attempt_v1(",
