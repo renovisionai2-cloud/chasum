@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
+import { BUSINESS_CURRENCIES } from "@/lib/commerce/money";
 import {
   PAYMENT_ATTEMPT_METHODS,
   PAYMENT_ATTEMPT_SOURCES,
@@ -113,6 +114,7 @@ export function normalizeR1aManualIntent(
   authority: { businessId: string; currency: string },
   request: ManualPaymentAttemptRequest,
 ): NormalizedPaymentIntentV1 {
+  const currency = assertSupportedBusinessCurrency(authority.currency);
   if (request.target !== "customer" && request.target !== "appointment") {
     throw new Error("R1a target must be an existing customer or appointment.");
   }
@@ -147,7 +149,7 @@ export function normalizeR1aManualIntent(
     targetId:
       request.target === "appointment" ? request.appointmentId ?? null : null,
     amountCents: request.amountCents,
-    currency: authority.currency,
+    currency,
     method: request.method,
     paymentKind: request.paymentKind,
     providerRoute: "manual",
@@ -157,6 +159,20 @@ export function normalizeR1aManualIntent(
 
 export function assertCanonicalUuid(value: string, field: string): string {
   return normalizeUuid(value, field);
+}
+
+export function assertSupportedBusinessCurrency(value: string): string {
+  const currency = value.trim().toLowerCase();
+  if (
+    !BUSINESS_CURRENCIES.some(
+      ({ value: supported }) => supported === currency,
+    )
+  ) {
+    throw new Error(
+      "Business currency is unavailable. Payment cannot be recorded until it is verified.",
+    );
+  }
+  return currency;
 }
 
 export function isCanonicalUuid(value: unknown): value is string {

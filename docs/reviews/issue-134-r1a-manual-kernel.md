@@ -24,8 +24,10 @@ privilege or data. The accepted foundation remains byte-identical at SHA-256
 The new `lib/commerce/payment-attempts/` module imports `server-only`, resolves
 the current actor and Business through the existing request-cached session
 guards, derives Business currency, verifies customer/appointment binding and
-uses a default-off admission control. It is not a Server Action or route and no
-existing writer, booking action, UI, provider or worker imports it.
+requires that currency to be present in the existing
+`BUSINESS_CURRENCIES` list before any privileged call. It uses a default-off
+admission control and is not a Server Action or route; no existing writer,
+booking action, UI, provider or worker imports it.
 
 ## Locked behavior
 
@@ -76,6 +78,10 @@ EXISTING attempt before commit; malformed or drifting RPC identities cannot
 certify recorded money. Read/RPC/transport uncertainty maps to typed UNKNOWN,
 while request authentication/authorization control flow remains outside those
 catches. R1a target validation explicitly allows only customer/appointment.
+The C5 correction reuses the existing supported Business-currency list in both
+current authority resolution and R1a normalization. Missing or syntactically
+valid unsupported values fail before binding, recovery, admission or commit;
+generic fingerprint-v1 normalization and all six vectors remain unchanged.
 
 ## Local proof and privilege provenance
 
@@ -98,8 +104,8 @@ same-key admission, two genuinely concurrent commit processes producing exactly
 RECORDED+REPLAY, committed-conflict races, a separate lost-response retry,
 equal-value new-key payments, rollback, exact obligations, no false
 synchronization, coherent recovery holds, terminal states and unchanged legacy
-data. Focused correction tests passed 3 files / 38 tests; expanded commerce,
-migration and booking regressions passed 61 files / 559 tests; typecheck,
+data. Focused correction tests passed 3 files / 41 tests; expanded commerce,
+migration and booking regressions passed 61 files / 562 tests; typecheck,
 targeted lint and diff-check passed. A broader run passed 185 files / 1,896
 tests (39 skipped) but was not a suite PASS: two unrelated browser-backed
 suites could not start because the local Playwright executable is absent. No

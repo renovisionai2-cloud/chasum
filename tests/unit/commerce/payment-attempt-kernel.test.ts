@@ -103,6 +103,34 @@ describe("prepared manual payment-attempt kernel", () => {
     });
   });
 
+  it.each([
+    ["unsupported", "zzz"],
+    ["missing", ""],
+  ])(
+    "rejects %s Business currency before binding or privileged calls",
+    async (_label, currency) => {
+      const deps = dependencies({
+        resolveAuthority: vi.fn().mockResolvedValue({
+          actorId: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+          businessId: BUSINESS_ID,
+          currency,
+        }),
+      });
+
+      await expect(
+        runManualPaymentAttemptKernel(request, deps),
+      ).resolves.toEqual({
+        kind: "INVALID",
+        reason:
+          "Business currency is unavailable. Payment cannot be recorded until it is verified.",
+      });
+      expect(deps.validateBinding).not.toHaveBeenCalled();
+      expect(deps.recover).not.toHaveBeenCalled();
+      expect(deps.admit).not.toHaveBeenCalled();
+      expect(deps.commit).not.toHaveBeenCalled();
+    },
+  );
+
   it("blocks only confirmed-absent new admission when disabled", async () => {
     const deps = dependencies({ admissionEnabled: false });
     await expect(runManualPaymentAttemptKernel(request, deps)).resolves.toEqual({

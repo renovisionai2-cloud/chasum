@@ -105,6 +105,27 @@ describe("payment-attempt fingerprint v1", () => {
     ).toThrow("targetId");
   });
 
+  it("preserves a configured supported Business currency for R1a", () => {
+    const normalized = normalizeR1aManualIntent(
+      {
+        businessId: "11111111-1111-4111-8111-111111111111",
+        currency: "CAD",
+      },
+      {
+        attemptKey: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        source: "collect_payment",
+        customerId: "22222222-2222-4222-8222-222222222222",
+        target: "customer",
+        amountCents: 500,
+        method: "cash",
+        paymentKind: "payment",
+      },
+    );
+
+    expect(normalized.currency).toBe("cad");
+    expect(normalized.tuple[7]).toBe("cad");
+  });
+
   it("rejects every non-R1a mode before admission", () => {
     const authority = {
       businessId: "11111111-1111-4111-8111-111111111111",

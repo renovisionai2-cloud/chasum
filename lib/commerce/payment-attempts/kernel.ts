@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
 import {
   assertCanonicalUuid,
+  assertSupportedBusinessCurrency,
   isCanonicalUuid,
   normalizeR1aManualIntent,
 } from "./normalize";
@@ -232,10 +233,7 @@ export async function runManualPaymentAttemptKernel(
 async function resolveCurrentAuthority(): Promise<PaymentAttemptAuthority> {
   const user = await requireUser();
   const business = await requireBusiness();
-  const currency = business.currency?.trim().toLowerCase() ?? "";
-  if (!/^[a-z]{3}$/.test(currency)) {
-    throw new Error("The active Business currency is not configured.");
-  }
+  const currency = assertSupportedBusinessCurrency(business.currency ?? "");
   return {
     actorId: assertCanonicalUuid(user.id, "actorId"),
     businessId: assertCanonicalUuid(business.id, "businessId"),
