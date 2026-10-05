@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-05 — #134 R1a manual-payment kernel (PREPARED ONLY / UNWIRED / NOT APPLIED)
+
+- Added CLI-generated migration `20261005154345_issue_134_r1a_manual_payment_kernel.sql` with exactly two literal-`service_role` SECURITY INVOKER functions for canonical admission and atomic manual commit. No existing schema object, permission or data changes; accepted foundation remains byte-identical.
+- Added a server-only/default-off/unwired payment-attempt module for frozen v1 normalization, current-request actor/Business resolution, tenant/customer/appointment binding, typed recovery/admission/commit outcomes and fail-closed ambiguity handling. No current Server Action, route, UI, provider or legacy writer imports it.
+- Preserved the literal six-vector fixture byte-for-byte. Added focused TypeScript/static and disposable PostgreSQL proofs for same-key/conflict races, equal-value new keys, transaction rollback, lost-response replay, exact pending obligations, no false synchronization, terminal states, integrity holds and literal service-role boundaries.
+- Local validation: PostgreSQL 17.11 loopback-only contract PASS; payment/booking regressions **59 files / 518 tests PASS**; typecheck, targeted lint and diff-check PASS. Build NOT RUN under the safe-local/no-real-environment constraint. No hosted database, provider, environment, Production or GVM action.
+- Competitive Product Gate **NOT_APPLICABLE**. Application-traffic activation remains prohibited until separately reviewed projection/workflow readiness. Next gate is coordinator reconciliation plus independent Grok/Claude candidate audit; migration application remains a later exact Product Owner decision.
+
 ### 2026-10-05 — #134 R1a contract gate (DOCUMENTATION ONLY / IMPLEMENTATION NOT AUTHORIZED)
 
 - Sol source contract, independent Grok/Claude corrections and final G-A/W-A reconfirmations recorded. Next proposal is an inactive two-RPC admission/manual-commit kernel plus internal server-only recovery and new offline proof, on a later governed dependent branch/PR.
