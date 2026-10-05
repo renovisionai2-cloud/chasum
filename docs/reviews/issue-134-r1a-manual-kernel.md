@@ -1,11 +1,38 @@
 # Issue #134 — R1a manual-payment kernel
 
-**Status:** AUTHORING COMPLETE / GROK G-A PASS / CLAUDE A / UNWIRED /
-NOT APPLIED / NEW ADMISSION DEFAULT OFF
+**Status:** APPLIED TO GOVERNED STAGING ONLY / CLAUDE S-A / UNWIRED /
+NEW ADMISSION DEFAULT OFF / HOSTED BEHAVIOR NOT TESTED
 **Competitive Product Gate:** NOT_APPLICABLE — internal implementation of locked integrity behavior; no UI or product workflow change.
 **Launch dependency:** REQUIRED. This candidate is not operational acceptance.
 
-## Final exact-code acceptance — 2026-10-05
+## 2026-10-05 — Governed Staging application accepted
+
+**2026-10-05 13:04:46 America/Toronto — #134 R1a APPLIED TO GOVERNED STAGING ONLY / CLAUDE S-A / UNWIRED / DEFAULT OFF.** Darshan approved the exact application gate. Native Supabase migration application succeeded once on `wnfahklzaxirftyskctd`, hosted history `20261005170446 / issue_134_r1a_manual_payment_kernel`. Applied source `supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql` is exactly 16,151 bytes with stored SQL SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`. Source head at application `c24a2a3b5120da5b3802c815c4bda102be416cbd`; reviewed code `888bac096778ed85171b880a816d2052d84c92a4` is unchanged. [Execution evidence](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [independent review and reconciled limits](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).
+
+**Verified:** required actual hosted service-role privileges were present; no collision, schema mismatch or permission widening. Both expected functions have source-matching bodies, fixed search path, SECURITY INVOKER and EXECUTE restricted to owner/service_role; PUBLIC/anon/authenticated denied. Both functions/history share observed xmin `4584`. All 12 checked table counts/full-row digests, all 11 prior migration-history rows, 3,319 public-schema catalogue entries and 267 pre-existing public functions remained unchanged. Attempts/events/obligations/linked-ledger counts remain zero. The prior foundation `20261005032107` / `dee700ae...ee3a47` was not reapplied. Existing #153/SEQ-ACL-1 grants are unchanged. Fresh-session timeouts are not reused-apply-session proof; catalogue privileges are not hosted DML or PostgREST behavior.
+
+**Independent application review COMPLETE — Claude S-A.** Fresh session `0c80e475-fb6c-430e-8a26-8cbf953daf37` independently checked source/payload identity and reviewed ChatGPT's supplied live evidence; no independent reviewer DB execution is claimed. No repeat of closed foundation or R1a authoring audits. Source/hosted version labels are deliberately mapped; never edit the SQL, rename/reapply it, or repair history merely to make labels equal. Its PREPARED ONLY comment remains immutable authoring history.
+
+**Next safe preparation:** a bounded hosted kernel + legacy NULL-linked validation plan, with exact synthetic scope, rollback/retention, trigger/communication containment and non-transactional sequence-effect accounting. Routine read-only/design preparation needs no new PO permission; executing fixtures/DML requires a separately reviewed exact plan and explicit PO approval. No plan execution or function call occurred here. Do not run the disposable-local verifier against shared Staging or assume immutable committed records can be deleted. Appointment-customer reassignment remains a pre-adoption binding/projection blocker; #153 closure remains required before permission cutover. R1a remains unwired/default-off; projection/document/communication and full workflow acceptance remain unfinished. PR #155/#156 DRAFT/UNMERGED; main `31115e6a51b71fc097c279d205065d80e0be3573` unchanged. No Production/GVM contact, #135/Phase A Production release, historical six-USD repair, technician resumption or GVM Operational Acceptance.
+
+### P134-R1A-STAGING evidence details
+
+- Admission body SHA-256: `110485eb1eb2a86fd2eec72507fdf8beb7304aae92251ddef598162d05dd5847`.
+- Commit body SHA-256: `e6acc9a31613b2f039305cf5169871e9b433839b4077b83d0858246194f46b15`.
+- Before/after old history digest: `98dcd1787e9240e1eefea4584546e629` (11 rows).
+- Before/after public-schema digest: `3f21a5e149708df22e9e0dca3c8a4c76` (3,319 entries).
+- Before/after existing public-function digest: `6cba5dc09cc9c6b54a38250fcb9181f3` (267 functions).
+- Checked data counts: Businesses 4; Customers 3; Appointments 11; Gift cards 0; Transactions 2; Invoices 1; Receipts 2; Customer payment events 2; Send intents 4; Attempts 0; Attempt events 0; Reconciliation 0. All full-row digests unchanged.
+- Both new function ACLs: `{postgres=X/postgres,service_role=X/postgres}`. Their bodies require literal service_role; owner EXECUTE is not a financial-writer bypass.
+- Required binding SELECT, ledger SELECT/INSERT, attempt/event/obligation SELECT/INSERT, attempt execution_state/updated_at/resolved_at UPDATE, schema USAGE and service_role BYPASSRLS were checked in hosted catalogues. No runtime call tested those permissions.
+- Security advisors name neither new function. Existing warnings and intentional RLS-enabled/no-policy INFO persist; no whole-project security pass.
+- This task invoked no payment RPC, fixture, local verifier, provider or sequence function. No build/full-suite/browser run was repeated for the schema application; prior disclosed test limitations persist.
+
+**Review qualifications govern:** matching xmin is bounded installation evidence; fresh-session timeout defaults do not prove a reused session reset; zero adoption is not a universal no-historical-call claim; read-only planning is routine coordination, while hosted execution needs its own PO gate. A future migration runner must reconcile stored-SQL/version mapping rather than blindly treating the source timestamp as pending.
+
+The authoring record below is historical. Its NOT APPLIED / application-next wording is superseded only for Staging by this section; its evidence limits and non-activation conditions remain valid. Do not rewrite the applied migration header.
+
+## Historical final exact-code authoring acceptance — 2026-10-05
 
 - Reviewed code HEAD: `888bac096778ed85171b880a816d2052d84c92a4`; tree `6cf9ab4ee1cd17aa72a974308a6737d9d7666cf6`. Base foundation head: `6c8d8d15d487e13b4547bee766d31d8806877180`. The later continuity closeout is Markdown-only; see Draft PR #156 for its current head. No non-documentation bytes change in that closeout.
 - Sole implementer: GPT-5.6 Sol, session `23774e3d-ef31-4603-bfb4-18c3d5315be1`. C1-C4 commit `9da2ea6`; C5 commit `888bac0`. Initial candidate `ef79a83` was held, not accepted.

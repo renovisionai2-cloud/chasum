@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-05 — R1a applied to governed Staging (NO ACTIVATION)
+
+- Applied exact R1a SHA `4b7e3855...4bad5ee7` once as `20261005170446 / issue_134_r1a_manual_payment_kernel`; both new invoker functions and stored SQL match the reviewed artifact. Foundation was not reapplied.
+- Required actual hosted privileges passed read-only preflight. Twelve table count/digest pairs plus prior schema/ACL/functions/history are unchanged; zero payment-attempt adoption. No fixture, function invocation, permission widening or current-workflow change.
+- Claude S-A accepted application verification with explicit evidence limits. #153/SEQ-ACL-1, binding-race and full workflow/operational acceptance remain open. Next safe preparation is the reviewed hosted validation/rollback-retention plan; execution remains PO-gated.
+- Restamped current board, handoff, environment manifest and R1a review on the existing dependent Draft PR156. No code/test/config/applied-SQL change; PR155/main/Production/GVM untouched.
+
 ### 2026-10-05 — #134 R1a authoring accepted (NOT APPLIED / UNWIRED)
 
 - Completed the approved dependent PR #156 implementation and bounded C1-C5 corrections; final reviewed code `888bac096778ed85171b880a816d2052d84c92a4`, migration SHA `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`.

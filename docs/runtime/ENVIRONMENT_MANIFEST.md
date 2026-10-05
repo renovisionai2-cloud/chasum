@@ -1,8 +1,30 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-04 for P134-STAGING; the prior Production serving observation remains dated 2026-10-03 / PR #131. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-05 for P134-R1A-STAGING. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## P134-R1A-STAGING — 2026-10-05 13:04:46 Toronto / 17:04:46 UTC
+
+PO-approved exact application on Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native apply called once. [Execution](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [Claude S-A and qualifications](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).
+
+| Observation | Verified result |
+| --- | --- |
+| Applied source | `20261005154345_issue_134_r1a_manual_payment_kernel.sql`, from `c24a2a3b5120da5b3802c815c4bda102be416cbd`; reviewed code `888bac0` unchanged |
+| Hosted history | `20261005170446 / issue_134_r1a_manual_payment_kernel` |
+| Stored SQL | 1 statement / 16,151 bytes / SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`, exact match |
+| Installed objects | Exactly the 2 approved invoker functions, expected signatures/results and source-matching bodies; fixed `pg_catalog, pg_temp` search path |
+| Function EXECUTE | owner/service_role only; PUBLIC/anon/authenticated denied |
+| Installation transaction | Both function catalogue rows + history row observed at xmin `4584` |
+| Actual prerequisites | Required service-role table/column/schema privileges present; no widening or missing column/collision |
+| Preservation | 12 table counts/digests unchanged; 11 old history rows unchanged; 3,319 public-schema catalogue entries and 267 old functions unchanged |
+| Adoption | Attempts 0 / events 0 / obligations 0 / linked ledger 0 |
+| Existing sequence | ACL unchanged; service_role USAGE/SELECT true, UPDATE false; last_value NULL; no sequence calls |
+| Independent review | Claude S-A; own source checks plus supplied ChatGPT live results, not reviewer hosted execution |
+| Application wiring | Unchanged, unwired/default-off; no flag/config/deployment action |
+| Production/GVM | Not contacted or changed |
+
+Foundation record below remains accepted and was not reapplied. Version mapping is explicit: never rename/edit/reapply or repair history to equalize timestamp labels. Applied file header retains immutable authoring-time status. Catalogue privilege checks are not hosted DML/PostgREST proof. #153/SEQ-ACL-1 and binding race remain open; test rollback/retention plan precedes any future hosted fixture authorization. No operational acceptance follows.
 
 ## P134-STAGING — 2026-10-04 23:21 Toronto / 2026-10-05 03:21 UTC
 
