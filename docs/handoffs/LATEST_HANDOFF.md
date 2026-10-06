@@ -1,10 +1,18 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-06 16:34 America/Toronto for factual C01 result publication. No new runtime execution in this closeout.
+**Updated:** 2026-10-06 17:08 America/Toronto for C01 publication and the next genuine attribution-policy/prepared-only gate.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — C01 limited hosted result accepted
+## Current continuation — next #134 attribution gate
+
+**NEXT #134 GATE — APPOINTMENT/CUSTOMER ATTRIBUTION DESIGN REVIEWED, NOT IMPLEMENTED.** C01 factual evidence and closeout are published at `88af990cd1ac929546692203a9e94a0a0719ce85`; do not rerun C01. Sol prepared and corrected the bounded attribution proposal; Claude returned **READY_FOR_PO_GATE** after targeted independent source review. Exact design SHA-256 `33af6e34083c43730137f2fa0b748ed735de6c985980ffffe53ccb6c08961f0f`. [Reviewed proposal](../reviews/issue-134-next-runtime-contract.md); [final review, qualifications and gate](../reviews/issue-134-next-runtime-contract-review.md).
+
+The genuine owner decision is the rule that any durable appointment-linked ledger history freezes customer attribution and blocks appointment hard-delete (with disclosed customer/Business teardown impacts), plus section 5's prepared-only implementation scope. No-ledger requests and other ordinary appointment edits remain allowed. This is a proposal, not a newly implemented restriction. The narrow legacy guard leaves accepted canonical/R1a code unchanged; the legacy customer-only #153 residual remains an activation blocker.
+
+No migration, runtime code, executable test, hosted call, financial write, activation, merge, Production/GVM operation or technician resumption was performed in this design work. After owner approval, prepare and prove locally; Staging application/cutover remains separately gated. Replacement writers, projections, durable booking recovery and #133 evidence must be ready before coordinated #153 permission cutover. Gate the retained cohort before future workers activate.
+
+## Accepted C01 result — preserved
 
 **HV134 C01 EXECUTED — LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.** Exact package aggregate `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`, all5member pins and all9immutable source pins match. Original evidence is exactly38lines at SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`. Real direct/indirect blocked sessions were witnessed. Both saved replies identify attempt `d211130f-02a9-47c5-a14a-6f91e7c08480` and transaction `4c2dd317-f6e0-418a-bda1-ff13250ae712`, exactly `RECORDED` + `REPLAY`; an independent durable read proved one CAD1 cash effect. N1 then admitted request-only. [Actual result, provenance and limits](../reviews/issue-134-hv134-c01-result.md).
 

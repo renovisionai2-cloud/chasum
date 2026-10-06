@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — Next #134 attribution design independently reviewed
+
+- C01 evidence and documentation closeout committed/pushed at `88af990`; no harness rerun or payment action.
+- Published corrected design and Claude READY_FOR_PO_GATE: appointment/customer composite invariant, narrow legacy guard and exact prepared-only allowlist. New customer-change/hard-delete policy remains awaiting Product Owner ruling; no implementation or application authorized by this publication.
+- Resolved FK/guard interactions, corrected C01 protection attribution, retained explicit #153 legacy-only residual and coordinated cutover order. No runtime/schema/ACL/flag change, executable test or hosted observation in this design task.
+
 ### 2026-10-06 — HV134 C01 limited hosted result accepted
 
 - Published the completed `HV134-20261006-C01` result as **EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED**. Exact38-line evidence SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`; source aggregate and all9immutable pins remain unchanged.
