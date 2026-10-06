@@ -1,8 +1,17 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-05 22:42 America/Toronto for HV134 run01 STOP_ZERO_WRITES and v2 HV2-A preparation. Original access gate succeeded; no financial writes; new exact execution approval required.
+**Updated:** 2026-10-06 10:50 America/Toronto for RUN02 stopped partial writes, retained evidence and independent read-only adjudication. No automatic retry.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
+
+## RUN02 current continuation
+
+**HV134 RUN02 STOPPED AFTER SYNTHETIC WRITES — PARTIAL ONLY, NOT ACCEPTED AS A HOSTED-KERNEL PASS.** Approved v2 `9b96fdda79170f23cf467082187123d8651a85fb3c91d6d9cc3600583f8ab968` / `HV134-20261006-R1A-02` passed access/preflight and reached financial testing, then stopped on concurrency-holder witness timeout. Native reconciliation proves 80 retained public rows: 53 parents plus4 attempts/8 events/3 linked manual CAD payments totalling18000c/12PENDING obligations. Two synthetic Auth users/identities remain. D1 CAD50 deposit, D2 CAD50 cash and F1 CAD80 are ACCEPTED once each; R1 REQUESTED; N1 absent. No duplicate attempt links or tuple mismatches. No cleanup or retry. [Current stopped-run evidence and independent adjudication](../reviews/issue-134-hv134-run02-stop.md).
+
+The holder observed other postgres-login workers under service_role, which masks required activity fields; the holder exception also prevented persistence of worker replies. Original logs prove overlap, but missing RECORDED+REPLAY responses keep the exact concurrency oracle OPEN. Claude accepts only the provenance-bounded partial record, not runtime acceptance. Separate native read-only checks confirm no active test transactions, no messages/documents/mirrors, unchanged four noncohort baseline digests, expected unchanged caches and applied SQL hashes.
+
+**No third execution package/gate is ready.** Follow-on authoring dispatch was blocked by a tool safety control and not retried or routed elsewhere; only read-only adjudication and documentation continued. Any fresh first-commit proof needs a new separately approved synthetic effect, because F1 has committed and may not be reset. Existing packages/run evidence/cohort stay immutable. R1a remains unwired/default-off; #153, customer-attribution invariant, projections, operator/full-workflow acceptance and GVM acceptance remain OPEN. No new token fixes this harness failure. No Production/GVM/#135 release/merge/USD repair/technician resumption.
+
 
 ## HV134 current continuation — stopped run preserved; corrected execution gate
 

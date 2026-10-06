@@ -4,6 +4,13 @@
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
+## HV134 RUN02 — 2026-10-06 14:36 UTC / 10:36 Toronto
+
+Approved run reached synthetic financial writes and stopped on concurrency witness failure. Native read-only checks at14:38–14:47 UTC: 2synthetic Auth users/identities; 2normal Businesses; 53parent rows +27financial rows=80public. Four attempts(3accepted/1requested),8events,3linked CAD manual ledgers totalling18000c,12PENDING obligations; sequence11/is_called=true. N1 not admitted. No active HV134 transaction, no tenant communication/document/mirror rows. Four existing noncohort baseline digests and all global communication count/latest diagnostics match preflight. Applied migrations unchanged. No Production observation or change.
+
+Source/evidence review independently adjudicated by Claude as partial record only; exact original worker response pair missing. Do not restart v2, delete financial evidence or accidentally activate workers over this cohort. No follow-on package ready; authoring dispatch blocked, not bypassed. [Report and retained identities](../reviews/issue-134-hv134-run02-stop.md).
+
+
 ## HV134 run01 — 2026-10-06 02:26 UTC / 2026-10-05 22:26 Toronto
 
 Refreshed scoped token accepted: exact package/role probe passed, followed by database preflight HTTP400 / STOP_ZERO_WRITES. Original log confirms restricted `supabase_read_only_user` lacked `tenant_identity_key` EXECUTE. No Auth/fixture/payment operation occurred; native read-only counts show no synthetic accounts/Businesses or attempt/ledger adoption. No runtime/schema/ACL or Production change. Earlier saved-token401 is historical and does not describe this newly accepted token. The original stopped run/evidence remains preserved; v2 is prepared only and has not run. [Exact evidence and new gate](../reviews/issue-134-hv134-preflight-stop.md).

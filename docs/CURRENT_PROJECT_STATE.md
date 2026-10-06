@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-05 22:42 America/Toronto. **Updated by:** ChatGPT Program Lead for the stopped HV134 run and independently reviewed preflight correction; no hosted financial writes.
+**Snapshot date:** 2026-10-06 10:50 America/Toronto. **Updated by:** ChatGPT Program Lead for RUN02 partial-write reconciliation and independent review; no additional financial execution.
 
 Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -27,6 +27,14 @@ Every meaningful product decision should strengthen this operating system.
 No tenant-specific application logic is authorized.
 
 ## Control board
+
+**HV134 RUN02 STOPPED AFTER SYNTHETIC WRITES — PARTIAL ONLY, NOT ACCEPTED AS A HOSTED-KERNEL PASS.** Approved v2 `9b96fdda79170f23cf467082187123d8651a85fb3c91d6d9cc3600583f8ab968` / `HV134-20261006-R1A-02` passed access/preflight and reached financial testing, then stopped on concurrency-holder witness timeout. Native reconciliation proves 80 retained public rows: 53 parents plus4 attempts/8 events/3 linked manual CAD payments totalling18000c/12PENDING obligations. Two synthetic Auth users/identities remain. D1 CAD50 deposit, D2 CAD50 cash and F1 CAD80 are ACCEPTED once each; R1 REQUESTED; N1 absent. No duplicate attempt links or tuple mismatches. No cleanup or retry. [Current stopped-run evidence and independent adjudication](reviews/issue-134-hv134-run02-stop.md).
+
+The holder observed other postgres-login workers under service_role, which masks required activity fields; the holder exception also prevented persistence of worker replies. Original logs prove overlap, but missing RECORDED+REPLAY responses keep the exact concurrency oracle OPEN. Claude accepts only the provenance-bounded partial record, not runtime acceptance. Separate native read-only checks confirm no active test transactions, no messages/documents/mirrors, unchanged four noncohort baseline digests, expected unchanged caches and applied SQL hashes.
+
+**No third execution package/gate is ready.** Follow-on authoring dispatch was blocked by a tool safety control and not retried or routed elsewhere; only read-only adjudication and documentation continued. Any fresh first-commit proof needs a new separately approved synthetic effect, because F1 has committed and may not be reset. Existing packages/run evidence/cohort stay immutable. R1a remains unwired/default-off; #153, customer-attribution invariant, projections, operator/full-workflow acceptance and GVM acceptance remain OPEN. No new token fixes this harness failure. No Production/GVM/#135 release/merge/USD repair/technician resumption.
+
+### Historical run01 and v2 preparation (superseded for execution status)
 
 **HV134 run01 STARTED AND STOPPED BEFORE WRITES; TOKEN ACCEPTED; PREFLIGHT CORRECTION CLAUDE HV2-A.** Approved package `1bcd751c472161abfea08fc29e0624f9e2f29d02a9c198c5c82c643bc777001a` / run `HV134-20261005-R1A-01` passed its initial access/role probe, then stopped in database preflight. Original native log: `42501 permission denied for function tenant_identity_key`, restricted role `supabase_read_only_user`. No Auth/provisioning/financial stage ran; native reconciliation found zero exact synthetic users/Businesses and zero attempts/events/obligations/linked ledger. This is a harness route defect, not a failed token or evidence of payment corruption. Run01/evidence are immutable and must not be reused or deleted.
 

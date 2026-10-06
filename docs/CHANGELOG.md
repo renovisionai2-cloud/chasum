@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — HV134 RUN02 partial hosted validation, stopped/preserved
+
+- Preserved original RUN02 logs and current native read-only census: three unique CAD manual payments totalling180, no duplicate link, zero messages, 80retained public records. Not a complete kernel PASS.
+- Documented observer visibility and worker-result-loss harness defects; Claude independently accepted only the partial evidence record. N1 and exact concurrency outcome oracle remain open.
+- No further financial execution, cleanup, code/migration/grant change, activation, merge or Production/GVM action. Follow-on authoring dispatch blocked; no new execution package/gate exists.
+
 ### 2026-10-06 UTC — HV134 zero-write stop and reviewed preflight correction
 
 - Recorded actual run01 access success, restricted-role preflight failure and zero Auth/financial writes; preserved original package and stopped-run evidence.
