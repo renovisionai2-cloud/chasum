@@ -1,0 +1,127 @@
+{
+  "status": "OFFLINE REFERENCE VECTORS ONLY \u2014 NOT RUNTIME IMPLEMENTATION OR DB TEST",
+  "source": "Locked v1 tuple at e9d1ccac7e2e8224d33cc906732d690a667b8c84 docs/reviews/issue-134-payment-attempt-foundation.md",
+  "verification": "Node JSON.stringify + node:crypto independently compared to Python json.dumps compact UTF-8 + hashlib.sha256. Six exact byte/hash matches. No database, provider, network or tenant data used. Normalization, source/actor exclusion, authorization and application behavior remain future runtime tests.",
+  "vectors": [
+    {
+      "name": "appointment-cash-payment",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        5000,
+        "cad",
+        "cash",
+        "payment",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",5000,\"cad\",\"cash\",\"payment\",\"manual\",null]",
+      "sha256": "62b88626d90f2cbc0080a219aa5d27cdf521dc94400d81ab337ac4fe4fcdfb12",
+      "fingerprint": "v1:62b88626d90f2cbc0080a219aa5d27cdf521dc94400d81ab337ac4fe4fcdfb12"
+    },
+    {
+      "name": "appointment-etransfer-deposit",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        5000,
+        "cad",
+        "e_transfer",
+        "deposit",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",5000,\"cad\",\"e_transfer\",\"deposit\",\"manual\",null]",
+      "sha256": "ceb00e5af4adffa434780286eeffefc3f6db1c20881e5c6d6c8540f7a76631ef",
+      "fingerprint": "v1:ceb00e5af4adffa434780286eeffefc3f6db1c20881e5c6d6c8540f7a76631ef"
+    },
+    {
+      "name": "booking-operation-deposit",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "booking_operation",
+        "44444444-4444-4444-8444-444444444444",
+        5000,
+        "cad",
+        "e_transfer",
+        "deposit",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"booking_operation\",\"44444444-4444-4444-8444-444444444444\",5000,\"cad\",\"e_transfer\",\"deposit\",\"manual\",null]",
+      "sha256": "8f3669d21d737e6bfb4579d958115c4646af83d35b4b0efc2a023e1f2a128aba",
+      "fingerprint": "v1:8f3669d21d737e6bfb4579d958115c4646af83d35b4b0efc2a023e1f2a128aba"
+    },
+    {
+      "name": "customer-cash-payment",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "customer",
+        null,
+        5000,
+        "cad",
+        "cash",
+        "payment",
+        "manual",
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"customer\",null,5000,\"cad\",\"cash\",\"payment\",\"manual\",null]",
+      "sha256": "0c73f4d1f1c9e2e9be0d14f8dc1d47cf5ee07de80ab44084a4f3e234b10e40e4",
+      "fingerprint": "v1:0c73f4d1f1c9e2e9be0d14f8dc1d47cf5ee07de80ab44084a4f3e234b10e40e4"
+    },
+    {
+      "name": "appointment-none",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        0,
+        "cad",
+        null,
+        "none",
+        null,
+        null
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",0,\"cad\",null,\"none\",null,null]",
+      "sha256": "62d306e5c12998634dd9b74f2c63aab831381a77b4de5131e32dcfd6ec1002d9",
+      "fingerprint": "v1:62d306e5c12998634dd9b74f2c63aab831381a77b4de5131e32dcfd6ec1002d9"
+    },
+    {
+      "name": "gift-card-design-only",
+      "tuple": [
+        "chasum.payment-attempt",
+        1,
+        "11111111-1111-4111-8111-111111111111",
+        "22222222-2222-4222-8222-222222222222",
+        "appointment",
+        "33333333-3333-4333-8333-333333333333",
+        5000,
+        "cad",
+        "gift_card",
+        "payment",
+        "manual",
+        "55555555-5555-4555-8555-555555555555"
+      ],
+      "canonical_utf8": "[\"chasum.payment-attempt\",1,\"11111111-1111-4111-8111-111111111111\",\"22222222-2222-4222-8222-222222222222\",\"appointment\",\"33333333-3333-4333-8333-333333333333\",5000,\"cad\",\"gift_card\",\"payment\",\"manual\",\"55555555-5555-4555-8555-555555555555\"]",
+      "sha256": "4be365d45d50bef731b332022a0a7483b5f6e61c9c0402ba6a6a45bddee414ae",
+      "fingerprint": "v1:4be365d45d50bef731b332022a0a7483b5f6e61c9c0402ba6a6a45bddee414ae"
+    }
+  ]
+}

@@ -1,8 +1,63 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-04 for P134-STAGING; the prior Production serving observation remains dated 2026-10-03 / PR #131. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-06 for the completed HV134 C01 limited hosted result. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## HV134 C01 actual result — 2026-10-06 17:56–18:02 UTC
+
+**EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.** Original append-only evidence is exactly38lines, SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`. Source aggregate remains `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`; all5member pins and all9immutable source pins match. [Result, provenance and limits](../reviews/issue-134-hv134-c01-result.md).
+
+The completed run witnessed real direct/indirect blocked sessions. Both replies identify attempt `d211130f-02a9-47c5-a14a-6f91e7c08480` and transaction/ledger `4c2dd317-f6e0-418a-bda1-ff13250ae712`, exactly `RECORDED` + `REPLAY`. Separate durable reconciliation proved one accepted customer-only CAD1 cash effect. N1 then admitted request-only.
+
+Coordinator native READ ONLY at `2026-10-06T18:00:10.778193Z`, with final containment through approximately18:02UTC, corroborated90public rows:53original parents+37financial;6attempts/11events/4linked CAD ledgers totalling18100c/16obligations(15PENDING+1NOT_REQUIRED);sequence14/is_called=true. C1 is ACCEPTED; N1 and retained R1 are REQUESTED. All18old-cohort snapshots and four explicitly checked noncohort baselines were unchanged; this is scoped preservation, not a whole-database claim. The completed-task native record is [preserved here](../reviews/evidence/issue-134-c01-result-readonly.json); this documentation closeout made no fresh database read.
+
+Run02 remains STOPPED/PARTIAL with original F1 replies missing. No appointment-binding/reassignment or full booking/payment/invoice/receipt/CRM/communications proof; no activation, Production/GVM action, technician acceptance or GVM Operational Acceptance. R1a remains unwired/default-off. The retained cohort must be gated/excluded before workers activate. Do not rerun C01 or start another payment.
+
+## C01 preparation observations — 2026-10-06 15:22–15:27 UTC
+
+**Historical preparation snapshot, superseded for current C01 execution status.** Native READ ONLY reconciliation then reconfirmed80retained Run02 public rows,4attempts/8events/3CADledgers totaling18000c/12PENDING obligations,sequence11/is_called=true,2synthetic Auth users,0cohort jobs/send intents/active test sessions. Full preparation-time census/digests: [read-only record](../reviews/evidence/issue-134-c01-preparation-readonly.json). No financial call, Auth operation or runtime/schema/permission change occurred in that preparation step. Original Run02 observation below remains historical evidence. No Production observation.
+
+## HV134 RUN02 — 2026-10-06 14:36 UTC / 10:36 Toronto
+
+Approved run reached synthetic financial writes and stopped on concurrency witness failure. Native read-only checks at14:38–14:47 UTC: 2synthetic Auth users/identities; 2normal Businesses; 53parent rows +27financial rows=80public. Four attempts(3accepted/1requested),8events,3linked CAD manual ledgers totalling18000c,12PENDING obligations; sequence11/is_called=true. N1 not admitted. No active HV134 transaction, no tenant communication/document/mirror rows. Four existing noncohort baseline digests and all global communication count/latest diagnostics match preflight. Applied migrations unchanged. No Production observation or change.
+
+Source/evidence review independently adjudicated by Claude as partial record only; exact original worker response pair missing. Do not restart v2, delete financial evidence or accidentally activate workers over this cohort. No follow-on package ready; authoring dispatch blocked, not bypassed. [Report and retained identities](../reviews/issue-134-hv134-run02-stop.md).
+
+
+## HV134 run01 — 2026-10-06 02:26 UTC / 2026-10-05 22:26 Toronto
+
+Refreshed scoped token accepted: exact package/role probe passed, followed by database preflight HTTP400 / STOP_ZERO_WRITES. Original log confirms restricted `supabase_read_only_user` lacked `tenant_identity_key` EXECUTE. No Auth/fixture/payment operation occurred; native read-only counts show no synthetic accounts/Businesses or attempt/ledger adoption. No runtime/schema/ACL or Production change. Earlier saved-token401 is historical and does not describe this newly accepted token. The original stopped run/evidence remains preserved; v2 is prepared only and has not run. [Exact evidence and new gate](../reviews/issue-134-hv134-preflight-stop.md).
+
+A separate read-only native audit verified 52 individual table privileges plus needed authenticated appointment update/SET capability; missing=[]; no grants changed. Another pure-helper diagnostic confirmed SQL transaction READ ONLY and existing helper access, not a v2 HTTP/financial run. The P134 schema application below remains the accepted baseline. No GVM Operational Acceptance follows.
+
+## HV134 planning observations — 2026-10-05 (read-only; no financial test)
+
+The source/hash/adoption continuation remains P134-R1A-STAGING below. Native read-only metadata during plan preparation reconfirmed both accepted migration identities and zero attempts/events/obligations/linked-ledger rows. Actual `service_role` SELECT and UPDATE (including `appointments.customer_id`) exist; this corrects the earlier missing-lock-privilege inference, not the still-open binding race. No privileges or functions were changed.
+
+Execution access is separate: the native connector reads work; a read-only request with the saved local Management token returned HTTP401, while direct DB TCP had no route before any credential/SQL was sent. The reviewed validation package therefore uses fixed Staging Management HTTPS and requires a securely refreshed credential plus zero-write capability checks before fixture creation. No financial RPC/Auth creation/provider call was made. See [the exact execution gate](../reviews/issue-134-hosted-validation-plan.md). These observations do not update or re-probe Production serving identity.
+
+## P134-R1A-STAGING — 2026-10-05 13:04:46 Toronto / 17:04:46 UTC
+
+PO-approved exact application on Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native apply called once. [Execution](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [Claude S-A and qualifications](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).
+
+| Observation | Verified result |
+| --- | --- |
+| Applied source | `20261005154345_issue_134_r1a_manual_payment_kernel.sql`, from `c24a2a3b5120da5b3802c815c4bda102be416cbd`; reviewed code `888bac0` unchanged |
+| Hosted history | `20261005170446 / issue_134_r1a_manual_payment_kernel` |
+| Stored SQL | 1 statement / 16,151 bytes / SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`, exact match |
+| Installed objects | Exactly the 2 approved invoker functions, expected signatures/results and source-matching bodies; fixed `pg_catalog, pg_temp` search path |
+| Function EXECUTE | owner/service_role only; PUBLIC/anon/authenticated denied |
+| Installation transaction | Both function catalogue rows + history row observed at xmin `4584` |
+| Actual prerequisites | Required service-role table/column/schema privileges present; no widening or missing column/collision |
+| Preservation | 12 table counts/digests unchanged; 11 old history rows unchanged; 3,319 public-schema catalogue entries and 267 old functions unchanged |
+| Adoption | Attempts 0 / events 0 / obligations 0 / linked ledger 0 |
+| Existing sequence | ACL unchanged; service_role USAGE/SELECT true, UPDATE false; last_value NULL; no sequence calls |
+| Independent review | Claude S-A; own source checks plus supplied ChatGPT live results, not reviewer hosted execution |
+| Application wiring | Unchanged, unwired/default-off; no flag/config/deployment action |
+| Production/GVM | Not contacted or changed |
+
+Foundation record below remains accepted and was not reapplied. Version mapping is explicit: never rename/edit/reapply or repair history to equalize timestamp labels. Applied file header retains immutable authoring-time status. Catalogue privilege checks are not hosted DML/PostgREST proof. #153/SEQ-ACL-1 and binding race remain open; test rollback/retention plan precedes any future hosted fixture authorization. No operational acceptance follows.
 
 ## P134-STAGING — 2026-10-04 23:21 Toronto / 2026-10-05 03:21 UTC
 

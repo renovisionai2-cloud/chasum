@@ -9,6 +9,76 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — Next #134 attribution design independently reviewed
+
+- C01 evidence and documentation closeout committed/pushed at `88af990`; no harness rerun or payment action.
+- Published corrected design and Claude READY_FOR_PO_GATE: appointment/customer composite invariant, narrow legacy guard and exact prepared-only allowlist. New customer-change/hard-delete policy remains awaiting Product Owner ruling; no implementation or application authorized by this publication.
+- Resolved FK/guard interactions, corrected C01 protection attribution, retained explicit #153 legacy-only residual and coordinated cutover order. No runtime/schema/ACL/flag change, executable test or hosted observation in this design task.
+
+### 2026-10-06 — HV134 C01 limited hosted result accepted
+
+- Published the completed `HV134-20261006-C01` result as **EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED**. Exact38-line evidence SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`; source aggregate and all9immutable pins remain unchanged.
+- Recorded witnessed direct/indirect contention, exact `RECORDED` + `REPLAY` replies sharing one attempt/transaction, separate durable CAD1 cash effect, N1 request-only admission and final90-row/CAD181 bounded state. All18old-cohort snapshots and four explicitly checked noncohort baselines remained unchanged; no whole-database claim.
+- Preserved Run02 as STOPPED/PARTIAL with original F1 replies missing. No appointment-binding or full-workflow proof, activation, Production/GVM action, technician acceptance or GVM Operational Acceptance. Retained cohort must be gated before workers activate.
+- Documentation-only factual closeout: no harness/test rerun, SQL/Auth/provider call, secret access, application/migration/grant/RLS/flag change, new payment, push or merge.
+
+### 2026-10-06 — HV134 retained-cohort C01 harness prepared, independently reviewed
+
+- Added only the new continuation plan/manifest/harness/SQL generator/offline tests; corrected observer visibility, indirect blocker chains, independent response persistence and sticky timeout stops. No kernel or applied-migration changes.
+- Claude final A on exact package after correcting initial blockers;13offline tests independently pass. Hosted execution remains unapproved/not run.
+- Preserved Run02 cohort/evidence; proposed separate exact gate for one incremental synthetic CAD1 customer-only concurrency effect plus previously unadmitted N1 request-only, without recreating parents or replaying recorded payments. GVM operational gates remain open.
+
+### 2026-10-06 — HV134 RUN02 partial hosted validation, stopped/preserved
+
+- Preserved original RUN02 logs and current native read-only census: three unique CAD manual payments totalling180, no duplicate link, zero messages, 80retained public records. Not a complete kernel PASS.
+- Documented observer visibility and worker-result-loss harness defects; Claude independently accepted only the partial evidence record. N1 and exact concurrency outcome oracle remain open.
+- No further financial execution, cleanup, code/migration/grant change, activation, merge or Production/GVM action. Follow-on authoring dispatch blocked; no new execution package/gate exists.
+
+### 2026-10-06 UTC — HV134 zero-write stop and reviewed preflight correction
+
+- Recorded actual run01 access success, restricted-role preflight failure and zero Auth/financial writes; preserved original package and stopped-run evidence.
+- Prepared separate v2 changing only preflight routing/checks and PLAN; exact fixture and financial functions remain unchanged. Claude HV2-A delta review complete; new exact hash/run02 approval required before execution.
+- Tightened required table privileges from comma-list ANY to explicit per-operation conjunctions without granting anything. Static/hash/AST checks passed; executable offline regression and revised hosted run remain NOT RUN.
+- No runtime/migration/RLS/permission/Production/GVM change, activation, release or operational acceptance.
+
+### 2026-10-05 — #134 hosted-validation plan reviewed (UNEXECUTED)
+
+- Added exact hashed plan, synthetic-fixture manifest and unexecuted Stage-only Management-API runner; Claude HV-A conditional on secure access and PO execution approval. Initial preparation findings corrected; no application or migration change.
+- Defined real-commit replay/concurrency, zero-message containment, immutable audit retention, 82 public-row ceiling, exact current-vs-future layer truth, reassignment/permission cutoffs and full end-to-end acceptance oracles.
+- Recorded genuine access blocker: saved local Management token401; native connector reads still work. No financial/Auth/fixture execution occurred.
+
+### 2026-10-05 — R1a applied to governed Staging (NO ACTIVATION)
+
+- Applied exact R1a SHA `4b7e3855...4bad5ee7` once as `20261005170446 / issue_134_r1a_manual_payment_kernel`; both new invoker functions and stored SQL match the reviewed artifact. Foundation was not reapplied.
+- Required actual hosted privileges passed read-only preflight. Twelve table count/digest pairs plus prior schema/ACL/functions/history are unchanged; zero payment-attempt adoption. No fixture, function invocation, permission widening or current-workflow change.
+- Claude S-A accepted application verification with explicit evidence limits. #153/SEQ-ACL-1, binding-race and full workflow/operational acceptance remain open. Next safe preparation is the reviewed hosted validation/rollback-retention plan; execution remains PO-gated.
+- Restamped current board, handoff, environment manifest and R1a review on the existing dependent Draft PR156. No code/test/config/applied-SQL change; PR155/main/Production/GVM untouched.
+
+### 2026-10-05 — #134 R1a authoring accepted (NOT APPLIED / UNWIRED)
+
+- Completed the approved dependent PR #156 implementation and bounded C1-C5 corrections; final reviewed code `888bac096778ed85171b880a816d2052d84c92a4`, migration SHA `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`.
+- Grok final corrected-code challenge G-A PASS and Claude final independent Level-3 A AUTHORING PASS. Scope remains sixteen paths, two invoker RPCs, no existing runtime/schema/privilege change; both PRs remain Draft/unmerged.
+- Coordinator independently reproduced final loopback PostgreSQL proof, actual overlapping commit replay and the original DO_NOT_RETRY case (now zero new ledger rows), then stopped/removed its cluster. Final 41 focused / 562 scoped regression tests pass, independently reproduced by Claude. Full-suite browser-start failures and local build NOT RUN remain disclosed.
+- Next genuine PO gate is exact Staging-only NEW migration application with preflight/read-only verification. No hosted fixture/legacy smoke without reviewed rollback/retention scope; no activation, #153 correction, #135 release, Production/GVM or technician resumption. Foundation Staging acceptance remains closed.
+
+
+### 2026-10-05 — #134 R1a bounded audit corrections (historical pre-re-review record)
+
+- Corrected CT-R1 so REQUESTED money can be committed only from coherent RECOVER state with clean annotations and a complete allowed event set. Incoherent attempts hold UNKNOWN with no new effect; valid linked-ledger uncertainty remains explicitly `recorded=true`.
+- Hardened recovered/admission/commit identities to canonical, exact Business/key/winner matches; malformed or drifting RPC responses cannot certify recorded truth. Added explicit customer/appointment target allowlisting and typed read/transport uncertainty.
+- C5 reuses the existing `BUSINESS_CURRENCIES` allowlist in the R1a authority/normalization path, rejecting missing or unsupported configured currency before any privileged call without changing generic fingerprint-v1 encoding.
+- Added SQL cases for DO_NOT_RETRY, failure annotations, missing/contradictory evidence and ledger-backed ACCEPTED uncertainty, plus true two-process RECORDED+REPLAY commit concurrency and separate lost-response replay.
+- Prior loopback PostgreSQL 17.11 contract remains the C1–C4 proof; PG was intentionally not rerun for helper-only C5. Focused **41/41** and expanded commerce/migration/booking **562/562** tests PASS; typecheck, targeted lint and diff-check PASS. The recorded broader run remains 1,896 tests passed with two unrelated browser suites unable to start because Playwright is not installed; it was not repeated and no install was permitted. Migration SHA-256 remains `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`; foundation/vector hashes remain unchanged.
+- Initial Grok G-B and Claude B are preserved findings, not acceptance. No wiring, schema-object expansion, existing privilege change, migration application or environment action. Next gate is fresh independent re-review; appointment-customer reassignment after binding remains a pre-adoption race gate.
+
+### 2026-10-05 — #134 R1a manual-payment kernel (PREPARED ONLY / UNWIRED / NOT APPLIED)
+
+- Added CLI-generated migration `20261005154345_issue_134_r1a_manual_payment_kernel.sql` with exactly two literal-`service_role` SECURITY INVOKER functions for canonical admission and atomic manual commit. No existing schema object, permission or data changes; accepted foundation remains byte-identical.
+- Added a server-only/default-off/unwired payment-attempt module for frozen v1 normalization, current-request actor/Business resolution, tenant/customer/appointment binding, typed recovery/admission/commit outcomes and fail-closed ambiguity handling. No current Server Action, route, UI, provider or legacy writer imports it.
+- Preserved the literal six-vector fixture byte-for-byte. Added focused TypeScript/static and disposable PostgreSQL proofs for same-key/conflict races, equal-value new keys, transaction rollback, lost-response replay, exact pending obligations, no false synchronization, terminal states, integrity holds and literal service-role boundaries.
+- Local validation: PostgreSQL 17.11 loopback-only contract PASS; payment/booking regressions **59 files / 518 tests PASS**; typecheck, targeted lint and diff-check PASS. Build NOT RUN under the safe-local/no-real-environment constraint. No hosted database, provider, environment, Production or GVM action.
+- Competitive Product Gate **NOT_APPLICABLE**. Application-traffic activation remains prohibited until separately reviewed projection/workflow readiness. Next gate is coordinator reconciliation plus independent Grok/Claude candidate audit; migration application remains a later exact Product Owner decision.
+
 ### 2026-10-05 — #134 R1a contract gate (DOCUMENTATION ONLY / IMPLEMENTATION NOT AUTHORIZED)
 
 - Sol source contract, independent Grok/Claude corrections and final G-A/W-A reconfirmations recorded. Next proposal is an inactive two-RPC admission/manual-commit kernel plus internal server-only recovery and new offline proof, on a later governed dependent branch/PR.

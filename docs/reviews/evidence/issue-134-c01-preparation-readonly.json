@@ -1,0 +1,40 @@
+{
+  "provenance": "ChatGPT native Supabase READ ONLY, project wnfahklzaxirftyskctd, 2026-10-06T15:27:16.584109Z; no hosted financial or kernel call",
+  "public_rows": 80,
+  "census": {
+    "businesses": 2,
+    "business_hours": 14,
+    "locations": 2,
+    "location_settings": 2,
+    "location_hours": 14,
+    "tenant_identity_decisions": 2,
+    "customers": 3,
+    "services": 1,
+    "staff": 1,
+    "staff_working_hours": 7,
+    "service_locations": 1,
+    "staff_locations": 1,
+    "staff_services": 1,
+    "appointments": 2,
+    "attempts": 4,
+    "events": 8,
+    "ledger": 3,
+    "obligations": 12
+  },
+  "parent_sha256": "171f5508cc4f5dfca20faeb58eb294eed979f678df67b3df4a0f6f869c8bc88f",
+  "financial_sha256": "42ed8dfff1dd81c807168b652f7d4bb5a736664f63b48fb261b9b8b94a0dd0de",
+  "digest_rule": "sha256 UTF8 string_agg(table-label || ':' || to_jsonb(row)::text, newline ordered by table-label, row-json-text); labels attempts/events/ledger/obligations are financial, remaining census labels parents",
+  "documents_and_queues_zero": true,
+  "first_snapshot_time": "2026-10-06T15:22:08.106734Z",
+  "sequence_last_value": "11",
+  "sequence_is_called": true,
+  "ledger_total_cents": 18000,
+  "all_ledger_currency": "cad",
+  "messages": 0,
+  "jobs": 0,
+  "active_test_sessions": 0,
+  "old_run02_log_hashes": {
+    "evidence.jsonl": "d35d4b7a5ccc678ae0ba085732c160d59e6db77e3e2640d5af187c18bcc7a397",
+    "run-manifest.jsonl": "2e54d8a0069f29792335256b967242ec0c59f8a8920451c1320fc758d306dd7f"
+  }
+}

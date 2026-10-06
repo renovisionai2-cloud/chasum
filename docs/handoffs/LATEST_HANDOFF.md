@@ -1,14 +1,52 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-04 for the Product-Owner-approved #134 Staging application (23:21 America/Toronto / 2026-10-05 UTC). This section supersedes earlier prepared-only/Grok-next wording; historical accepted work remains closed.
+**Updated:** 2026-10-06 17:08 America/Toronto for C01 publication and the next genuine attribution-policy/prepared-only gate.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## 2026-10-05 — Next #134 R1a prepared-only implementation gate
+## Current continuation — next #134 attribution gate
 
-**2026-10-05 — #134 next runtime-writer contract COMPLETE / Grok G-A / Claude W-A; prepared-only R1a implementation awaits Product Owner authorization.** Sol completed bounded source investigation and corrected the contract after independent G-B/W-B findings. Final scope is exactly two literal-service-role invoker admission/commit RPCs, an internal unwired/default-off server module and new offline proofs. No existing writer/UI wiring, projection worker, legacy invoice/receipt/mirror schema or permission change is included. [Reconciled contract and final reports](../reviews/issue-134-payment-attempt-foundation.md).
+**NEXT #134 GATE — APPOINTMENT/CUSTOMER ATTRIBUTION DESIGN REVIEWED, NOT IMPLEMENTED.** C01 factual evidence and closeout are published at `88af990cd1ac929546692203a9e94a0a0719ce85`; do not rerun C01. Sol prepared and corrected the bounded attribution proposal; Claude returned **READY_FOR_PO_GATE** after targeted independent source review. Exact design SHA-256 `33af6e34083c43730137f2fa0b748ed735de6c985980ffffe53ccb6c08961f0f`. [Reviewed proposal](../reviews/issue-134-next-runtime-contract.md); [final review, qualifications and gate](../reviews/issue-134-next-runtime-contract-review.md).
 
-Contract input SHA-256 `34b8bc0986ab0fc4afe6f559ea489715297229264bbeebd79f4d621f1d90469c`; six synthetic Node/Python vector byte/hash matches are offline references only. No runtime code/migration was authored; no DB/provider/Production/GVM action or hosted DML acceptance occurred. The accepted Staging schema record below is unchanged. Next genuine PO gate: **prepared-only R1a authoring/offline proof on a separate dependent branch/PR from reconciled #155**, not migration application or runtime activation. Keep #155 Draft; #153/SEQ-ACL-1 and hosted legacy NULL-linked smoke remain prerequisites before their respective cutover/adoption gates. #135/Phase A remain not Production released; six historical USD rows untouched; technician payments/GVM Operational Acceptance still held.
+The genuine owner decision is the rule that any durable appointment-linked ledger history freezes customer attribution and blocks appointment hard-delete (with disclosed customer/Business teardown impacts), plus section 5's prepared-only implementation scope. No-ledger requests and other ordinary appointment edits remain allowed. This is a proposal, not a newly implemented restriction. The narrow legacy guard leaves accepted canonical/R1a code unchanged; the legacy customer-only #153 residual remains an activation blocker.
+
+No migration, runtime code, executable test, hosted call, financial write, activation, merge, Production/GVM operation or technician resumption was performed in this design work. After owner approval, prepare and prove locally; Staging application/cutover remains separately gated. Replacement writers, projections, durable booking recovery and #133 evidence must be ready before coordinated #153 permission cutover. Gate the retained cohort before future workers activate.
+
+## Accepted C01 result — preserved
+
+**HV134 C01 EXECUTED — LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.** Exact package aggregate `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`, all5member pins and all9immutable source pins match. Original evidence is exactly38lines at SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`. Real direct/indirect blocked sessions were witnessed. Both saved replies identify attempt `d211130f-02a9-47c5-a14a-6f91e7c08480` and transaction `4c2dd317-f6e0-418a-bda1-ff13250ae712`, exactly `RECORDED` + `REPLAY`; an independent durable read proved one CAD1 cash effect. N1 then admitted request-only. [Actual result, provenance and limits](../reviews/issue-134-hv134-c01-result.md).
+
+Dated coordinator native READ ONLY at 2026-10-06 18:00–18:02UTC corroborated final90public rows,53original parents,6attempts,11events,4linked CAD ledgers totalling18100c,16obligations(15PENDING+1NOT_REQUIRED),sequence14/is_called=true. All18old-cohort snapshots and four explicitly checked noncohort baselines remained unchanged. This is scoped preservation only, not a whole-database assertion. The documentation closeout did not rerun SQL or any test.
+
+**C01 closes only the concurrency-oracle harness question.** Run02 remains STOPPED/partial; its original F1 reply pair remains missing. No appointment-binding/reassignment or complete workflow proof, no activation, no Production/GVM action, no technician acceptance and no GVM Operational Acceptance. R1a remains unwired/default-off; #153, projection/disclosure and operator/full-workflow gates remain open. Gate/exclude the retained cohort before any workers activate. Do not rerun C01 or start another payment. The next runtime/product task requires separate governed scope and has not started.
+
+## RUN02 preserved historical record
+
+**HV134 RUN02 STOPPED AFTER SYNTHETIC WRITES — PARTIAL ONLY, NOT ACCEPTED AS A HOSTED-KERNEL PASS.** Approved v2 `9b96fdda79170f23cf467082187123d8651a85fb3c91d6d9cc3600583f8ab968` / `HV134-20261006-R1A-02` passed access/preflight and reached financial testing, then stopped on concurrency-holder witness timeout. Native reconciliation proves 80 retained public rows: 53 parents plus4 attempts/8 events/3 linked manual CAD payments totalling18000c/12PENDING obligations. Two synthetic Auth users/identities remain. D1 CAD50 deposit, D2 CAD50 cash and F1 CAD80 are ACCEPTED once each; R1 REQUESTED; N1 absent. No duplicate attempt links or tuple mismatches. No cleanup or retry. [Current stopped-run evidence and independent adjudication](../reviews/issue-134-hv134-run02-stop.md).
+
+The holder observed other postgres-login workers under service_role, which masks required activity fields; the holder exception also prevented persistence of worker replies. Original logs prove overlap, but missing RECORDED+REPLAY responses keep Run02's exact response record incomplete. Claude accepts only the provenance-bounded Run02 partial record, not runtime acceptance. The later C01 result closes the harness concurrency question only; it does not repair Run02. Separate native read-only checks confirmed no active test transactions, no messages/documents/mirrors, unchanged four noncohort baseline digests, expected unchanged caches and applied SQL hashes.
+
+**Historical pre-C01 state, superseded for current execution status:** no third execution package was then ready and the authoring dispatch was blocked without bypass. The later separately approved C01 result above supplied fresh first-commit evidence without resetting F1. Run02 evidence remains immutable and partial.
+
+
+## Historical run01 and v2 correction — superseded for current continuation
+
+**HV134 run01 STARTED AND STOPPED BEFORE WRITES; TOKEN ACCEPTED; PREFLIGHT CORRECTION CLAUDE HV2-A.** Approved package `1bcd751c472161abfea08fc29e0624f9e2f29d02a9c198c5c82c643bc777001a` / run `HV134-20261005-R1A-01` passed its initial access/role probe, then stopped in database preflight. Original native log: `42501 permission denied for function tenant_identity_key`, restricted role `supabase_read_only_user`. No Auth/provisioning/financial stage ran; native reconciliation found zero exact synthetic users/Businesses and zero attempts/events/obligations/linked ledger. This is a harness route defect, not a failed token or evidence of payment corruption. Run01/evidence are immutable and must not be reused or deleted.
+
+Sol prepared a separate v2; Claude independently accepted its delta as **HV2-A**, static preparation only. New aggregate `9b96fdda79170f23cf467082187123d8651a85fb3c91d6d9cc3600583f8ab968`, proposed run `HV134-20261006-R1A-02`. Only `readonly_preflight()` and PLAN change: intended privileged transport with SQL READ ONLY enforcement, individual required privilege checks, authenticated diagnostic capability checks. Fixture, financial routines, runtime, migrations, actual permissions and retention unchanged. Original evidence and package remain preserved. [Current stop/review/gate](../reviews/issue-134-hv134-preflight-stop.md); [corrected package](../validation/issue-134-r1a-v2/PLAN.md).
+
+**NEXT GENUINE PO GATE:** exact approval of v2/hash/run02 before execution. No automatic transfer of the original single-run authorization. No new token or broader permission is needed to remedy this defect; secure credentials are supplied only at launch and every zero-write preflight still must pass. Revised package NOT RUN; executable offline regression NOT RUN after agent denial, no bypass. Static/hash/AST checks passed, and native read-only diagnostics verified existing privileges. #153, binding/projections/full-workflow holds remain. PR155/156 remain Draft/unmerged; no Production/GVM/#135 release, USD repair, activation, technician resumption or GVM Operational Acceptance.
+
+
+## 2026-10-05 — R1a applied to Staging; hosted behavior remains untested
+
+**2026-10-05 13:04:46 America/Toronto — #134 R1a APPLIED TO GOVERNED STAGING ONLY / CLAUDE S-A / UNWIRED / DEFAULT OFF.** Darshan approved the exact application gate. Native Supabase migration application succeeded once on `wnfahklzaxirftyskctd`, hosted history `20261005170446 / issue_134_r1a_manual_payment_kernel`. Applied source `supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql` is exactly 16,151 bytes with stored SQL SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`. Source head at application `c24a2a3b5120da5b3802c815c4bda102be416cbd`; reviewed code `888bac096778ed85171b880a816d2052d84c92a4` is unchanged. [Execution evidence](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [independent review and reconciled limits](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).
+
+**Verified:** required actual hosted service-role privileges were present; no collision, schema mismatch or permission widening. Both expected functions have source-matching bodies, fixed search path, SECURITY INVOKER and EXECUTE restricted to owner/service_role; PUBLIC/anon/authenticated denied. Both functions/history share observed xmin `4584`. All 12 checked table counts/full-row digests, all 11 prior migration-history rows, 3,319 public-schema catalogue entries and 267 pre-existing public functions remained unchanged. Attempts/events/obligations/linked-ledger counts remain zero. The prior foundation `20261005032107` / `dee700ae...ee3a47` was not reapplied. Existing #153/SEQ-ACL-1 grants are unchanged. Fresh-session timeouts are not reused-apply-session proof; catalogue privileges are not hosted DML or PostgREST behavior.
+
+**Independent application review COMPLETE — Claude S-A.** Fresh session `0c80e475-fb6c-430e-8a26-8cbf953daf37` independently checked source/payload identity and reviewed ChatGPT's supplied live evidence; no independent reviewer DB execution is claimed. No repeat of closed foundation or R1a authoring audits. Source/hosted version labels are deliberately mapped; never edit the SQL, rename/reapply it, or repair history merely to make labels equal. Its PREPARED ONLY comment remains immutable authoring history.
+
+**Next safe preparation:** a bounded hosted kernel + legacy NULL-linked validation plan, with exact synthetic scope, rollback/retention, trigger/communication containment and non-transactional sequence-effect accounting. Routine read-only/design preparation needs no new PO permission; executing fixtures/DML requires a separately reviewed exact plan and explicit PO approval. No plan execution or function call occurred here. Do not run the disposable-local verifier against shared Staging or assume immutable committed records can be deleted. Appointment-customer reassignment remains a pre-adoption binding/projection blocker; #153 closure remains required before permission cutover. R1a remains unwired/default-off; projection/document/communication and full workflow acceptance remain unfinished. PR #155/#156 DRAFT/UNMERGED; main `31115e6a51b71fc097c279d205065d80e0be3573` unchanged. No Production/GVM contact, #135/Phase A Production release, historical six-USD repair, technician resumption or GVM Operational Acceptance.
 
 ## 2026-10-04 — #134 foundation applied to governed Staging
 
@@ -349,26 +387,20 @@ NEXT GATE:
 #131 PRODUCTION ACCEPTED; #130 CLOSED Outcome B.
 #135 / PR #150 and Phase A / PR #154 are MERGED TO MAIN / NOT PRODUCTION ACCEPTED.
 Base main / design source: 31115e6a51b71fc097c279d205065d80e0be3573.
-#134 payment-attempt foundation is PREPARED ONLY / NOT APPLIED.
-Draft PR #155 on branch codex/issue-134-payment-attempt-foundation is the
-governed prepared-only candidate; see PR #155 for the exact current head.
-Read docs/reviews/issue-134-payment-attempt-foundation.md and the exact migration
-20261004190341_issue_134_payment_attempt_foundation.sql before review.
-Claude Level-3 Verdict B received; R-1 through R-7 corrected and R-8 through R-10 recorded.
-Next: READY FOR GROK 4.7 HIGH FINAL RE-CHALLENGE.
+#134 foundation and R1a migrations are APPLIED TO GOVERNED STAGING ONLY; both
+remain unwired/default-off. PR #155/#156 remain Draft/unmerged.
+C01 `HV134-20261006-C01` is EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.
+Exact evidence:38 lines / SHA-256 b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94.
+It proves fresh customer-only RECORDED+REPLAY concurrency and durable CAD1 effect,
+then N1 request-only admission. It does not repair Run02's missing F1 replies.
+Do not rerun C01 or start another payment. Before any worker activation, explicitly
+gate/exclude the retained cohort. Next separately governed runtime/product work must
+address appointment binding, #153 permission closure, projection/disclosure and full
+operator/workflow acceptance. This factual closeout starts none of that work.
 PO Option A remains approved: lifetime paid/spend/deposits Unknown; current balances
 numeric only with successful complete agreeing sources. Weak booking dedupe remains.
-Migration passed a fresh temporary localhost-only PostgreSQL 17.11 execution proof;
-it remains NOT APPLIED to any Chasum environment. No Supabase/Staging/Production/GVM
-connection/mutation, live fixture, provider operation or deployment occurred. No runtime
-writer, #133 disclosure or Reporting re-source implemented.
-Migration application requires a separate future Product Owner gate.
-Then separate PO migration/application gate -> #134 canonical writer/retry/reconciliation
--> #133 durable observability/disclosure -> Reporting re-source -> approved isolated
-Staging fault/concurrency acceptance -> separately approved Production release
--> GVM OPERATIONAL ACCEPTANCE.
 Six historical GVM USD rows UNCHANGED / #152; broad ACL/FORCE-RLS #153 separate.
-Environment Manifest and release controls unchanged. No Production deployment authorized.
+Release controls unchanged. No Production deployment authorized.
 GVM OPERATIONAL ACCEPTANCE NOT earned; normal technician payment/deposit workflows held.
 M1C/M2/Time Blocker held; #149 CAPTURE ONLY; #123 deferred; P2B PAUSED.
 N-2 fail-closed completeness and N-3 non-booking USD fallback remain later runtime inputs.
