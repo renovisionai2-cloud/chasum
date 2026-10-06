@@ -4,6 +4,12 @@
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
+## HV134 run01 — 2026-10-06 02:26 UTC / 2026-10-05 22:26 Toronto
+
+Refreshed scoped token accepted: exact package/role probe passed, followed by database preflight HTTP400 / STOP_ZERO_WRITES. Original log confirms restricted `supabase_read_only_user` lacked `tenant_identity_key` EXECUTE. No Auth/fixture/payment operation occurred; native read-only counts show no synthetic accounts/Businesses or attempt/ledger adoption. No runtime/schema/ACL or Production change. Earlier saved-token401 is historical and does not describe this newly accepted token. The original stopped run/evidence remains preserved; v2 is prepared only and has not run. [Exact evidence and new gate](../reviews/issue-134-hv134-preflight-stop.md).
+
+A separate read-only native audit verified 52 individual table privileges plus needed authenticated appointment update/SET capability; missing=[]; no grants changed. Another pure-helper diagnostic confirmed SQL transaction READ ONLY and existing helper access, not a v2 HTTP/financial run. The P134 schema application below remains the accepted baseline. No GVM Operational Acceptance follows.
+
 ## HV134 planning observations — 2026-10-05 (read-only; no financial test)
 
 The source/hash/adoption continuation remains P134-R1A-STAGING below. Native read-only metadata during plan preparation reconfirmed both accepted migration identities and zero attempts/events/obligations/linked-ledger rows. Actual `service_role` SELECT and UPDATE (including `appointments.customer_id`) exist; this corrects the earlier missing-lock-privilege inference, not the still-open binding race. No privileges or functions were changed.

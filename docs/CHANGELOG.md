@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 UTC — HV134 zero-write stop and reviewed preflight correction
+
+- Recorded actual run01 access success, restricted-role preflight failure and zero Auth/financial writes; preserved original package and stopped-run evidence.
+- Prepared separate v2 changing only preflight routing/checks and PLAN; exact fixture and financial functions remain unchanged. Claude HV2-A delta review complete; new exact hash/run02 approval required before execution.
+- Tightened required table privileges from comma-list ANY to explicit per-operation conjunctions without granting anything. Static/hash/AST checks passed; executable offline regression and revised hosted run remain NOT RUN.
+- No runtime/migration/RLS/permission/Production/GVM change, activation, release or operational acceptance.
+
 ### 2026-10-05 — #134 hosted-validation plan reviewed (UNEXECUTED)
 
 - Added exact hashed plan, synthetic-fixture manifest and unexecuted Stage-only Management-API runner; Claude HV-A conditional on secure access and PO execution approval. Initial preparation findings corrected; no application or migration change.
