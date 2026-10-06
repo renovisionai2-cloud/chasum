@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — HV134 retained-cohort C01 harness prepared, independently reviewed
+
+- Added only the new continuation plan/manifest/harness/SQL generator/offline tests; corrected observer visibility, indirect blocker chains, independent response persistence and sticky timeout stops. No kernel or applied-migration changes.
+- Claude final A on exact package after correcting initial blockers;13offline tests independently pass. Hosted execution remains unapproved/not run.
+- Preserved Run02 cohort/evidence; proposed separate exact gate for one incremental synthetic CAD1 customer-only concurrency effect plus previously unadmitted N1 request-only, without recreating parents or replaying recorded payments. GVM operational gates remain open.
+
 ### 2026-10-06 — HV134 RUN02 partial hosted validation, stopped/preserved
 
 - Preserved original RUN02 logs and current native read-only census: three unique CAD manual payments totalling180, no duplicate link, zero messages, 80retained public records. Not a complete kernel PASS.

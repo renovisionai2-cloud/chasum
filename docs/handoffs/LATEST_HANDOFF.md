@@ -1,8 +1,16 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-06 10:50 America/Toronto for RUN02 stopped partial writes, retained evidence and independent read-only adjudication. No automatic retry.
+**Updated:** 2026-10-06 11:47 America/Toronto for prepared C01 harness/continuation and exact independent-review gate. Run02 remains preserved; no C01 hosted execution.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
+
+## Current continuation — C01 prepared, exact execution gate
+
+**HV134 C01 HARNESS/CONTINUATION PREPARED — CLAUDE FINAL A / NOT EXECUTED.** Run02 remains STOPPED/partial with80retained public rows and3synthetic CAD ledger entries totaling18000c. Fresh native READ ONLY at15:22–15:27UTC reconfirmed the cohort; no financial call, original-record mutation or run restart. Codex primary was attempted but quota-blocked; approved Sol/Cursor fallback authored only the new harness package. Claude's separate review corrected5initial blockers and accepted FINAL aggregate `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`.13/13offline tests independently passed. [Exact review and next gate](../reviews/issue-134-hv134-continuation-c01.md).
+
+The next genuine PO decision is **one proposed retained-cohort C01 execution** (`HV134-20261006-C01`) with one NEW CAD1 customer-only manual concurrency specimen plus the absent N1 CAD25 request-only admission last. No D1/D2/F1/R1 dispatch, no new tenants/parents/Auth, no old evidence rewrite. Proposed final90rows/CAD181 are NOT current state. A new first-commit specimen is necessary for new returned-pair proof; original F1 replies stay missing. No kernel/migration/grant changes. New observer visibility, recursive blocker-chain, independently persisted replies, sticky timeout STOP and four separate acceptance checks correct instrumentation only.
+
+**AWAITING EXACT C01 EXECUTION APPROVAL; no Run03/C01 has started.** Current tests are offline; actual Management concurrency/witness remains untested. Scope cannot activate R1a, clear #153 or the appointment-customer invariant, run projections/communications, merge/release, repair USD rows, resume technicians or earn GVM Operational Acceptance. Existing foundation/application/Run02 reviews and records remain valid within their recorded limits. [Prepared package](../validation/issue-134-r1a-continuation/PLAN.md).
 
 ## RUN02 current continuation
 

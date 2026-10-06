@@ -4,6 +4,10 @@
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
+## C01 preparation observations — 2026-10-06 15:22–15:27 UTC
+
+Native READ ONLY reconciliation reconfirmed80retained Run02 public rows,4attempts/8events/3CADledgers totaling18000c/12PENDING obligations,sequence11/is_called=true,2synthetic Auth users,0cohort jobs/send intents/active test sessions. Full preparation-time census/digests: [read-only record](../reviews/evidence/issue-134-c01-preparation-readonly.json). No new financial call, Auth operation or runtime/schema/permission change occurred. C01 is a prepared package only; its proposed90rows/CAD181 outcome is NOT live state. Original Run02 observation below remains historical evidence. No Production observation.
+
 ## HV134 RUN02 — 2026-10-06 14:36 UTC / 10:36 Toronto
 
 Approved run reached synthetic financial writes and stopped on concurrency witness failure. Native read-only checks at14:38–14:47 UTC: 2synthetic Auth users/identities; 2normal Businesses; 53parent rows +27financial rows=80public. Four attempts(3accepted/1requested),8events,3linked CAD manual ledgers totalling18000c,12PENDING obligations; sequence11/is_called=true. N1 not admitted. No active HV134 transaction, no tenant communication/document/mirror rows. Four existing noncohort baseline digests and all global communication count/latest diagnostics match preflight. Applied migrations unchanged. No Production observation or change.

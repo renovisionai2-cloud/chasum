@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-06 10:50 America/Toronto. **Updated by:** ChatGPT Program Lead for RUN02 partial-write reconciliation and independent review; no additional financial execution.
+**Snapshot date:** 2026-10-06 11:47 America/Toronto. **Updated by:** ChatGPT Program Lead for prepared C01 harness and final independent review; no hosted continuation execution.
 
 Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -27,6 +27,14 @@ Every meaningful product decision should strengthen this operating system.
 No tenant-specific application logic is authorized.
 
 ## Control board
+
+**HV134 C01 HARNESS/CONTINUATION PREPARED — CLAUDE FINAL A / NOT EXECUTED.** Run02 remains STOPPED/partial with80retained public rows and3synthetic CAD ledger entries totaling18000c. Fresh native READ ONLY at15:22–15:27UTC reconfirmed the cohort; no financial call, original-record mutation or run restart. Codex primary was attempted but quota-blocked; approved Sol/Cursor fallback authored only the new harness package. Claude's separate review corrected5initial blockers and accepted FINAL aggregate `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`.13/13offline tests independently passed. [Exact review and next gate](reviews/issue-134-hv134-continuation-c01.md).
+
+The next genuine PO decision is **one proposed retained-cohort C01 execution** (`HV134-20261006-C01`) with one NEW CAD1 customer-only manual concurrency specimen plus the absent N1 CAD25 request-only admission last. No D1/D2/F1/R1 dispatch, no new tenants/parents/Auth, no old evidence rewrite. Proposed final90rows/CAD181 are NOT current state. A new first-commit specimen is necessary for new returned-pair proof; original F1 replies stay missing. No kernel/migration/grant changes. New observer visibility, recursive blocker-chain, independently persisted replies, sticky timeout STOP and four separate acceptance checks correct instrumentation only.
+
+**AWAITING EXACT C01 EXECUTION APPROVAL; no Run03/C01 has started.** Current tests are offline; actual Management concurrency/witness remains untested. Scope cannot activate R1a, clear #153 or the appointment-customer invariant, run projections/communications, merge/release, repair USD rows, resume technicians or earn GVM Operational Acceptance. Existing foundation/application/Run02 reviews and records remain valid within their recorded limits. [Prepared package](validation/issue-134-r1a-continuation/PLAN.md).
+
+### Preserved Run02 stopped-run record
 
 **HV134 RUN02 STOPPED AFTER SYNTHETIC WRITES — PARTIAL ONLY, NOT ACCEPTED AS A HOSTED-KERNEL PASS.** Approved v2 `9b96fdda79170f23cf467082187123d8651a85fb3c91d6d9cc3600583f8ab968` / `HV134-20261006-R1A-02` passed access/preflight and reached financial testing, then stopped on concurrency-holder witness timeout. Native reconciliation proves 80 retained public rows: 53 parents plus4 attempts/8 events/3 linked manual CAD payments totalling18000c/12PENDING obligations. Two synthetic Auth users/identities remain. D1 CAD50 deposit, D2 CAD50 cash and F1 CAD80 are ACCEPTED once each; R1 REQUESTED; N1 absent. No duplicate attempt links or tuple mismatches. No cleanup or retry. [Current stopped-run evidence and independent adjudication](reviews/issue-134-hv134-run02-stop.md).
 
