@@ -1,12 +1,22 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-05 for P134-R1A-STAGING. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-06 for the completed HV134 C01 limited hosted result. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
 
+## HV134 C01 actual result — 2026-10-06 17:56–18:02 UTC
+
+**EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.** Original append-only evidence is exactly38lines, SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`. Source aggregate remains `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`; all5member pins and all9immutable source pins match. [Result, provenance and limits](../reviews/issue-134-hv134-c01-result.md).
+
+The completed run witnessed real direct/indirect blocked sessions. Both replies identify attempt `d211130f-02a9-47c5-a14a-6f91e7c08480` and transaction/ledger `4c2dd317-f6e0-418a-bda1-ff13250ae712`, exactly `RECORDED` + `REPLAY`. Separate durable reconciliation proved one accepted customer-only CAD1 cash effect. N1 then admitted request-only.
+
+Coordinator native READ ONLY at `2026-10-06T18:00:10.778193Z`, with final containment through approximately18:02UTC, corroborated90public rows:53original parents+37financial;6attempts/11events/4linked CAD ledgers totalling18100c/16obligations(15PENDING+1NOT_REQUIRED);sequence14/is_called=true. C1 is ACCEPTED; N1 and retained R1 are REQUESTED. All18old-cohort snapshots and four explicitly checked noncohort baselines were unchanged; this is scoped preservation, not a whole-database claim. The completed-task native record is [preserved here](../reviews/evidence/issue-134-c01-result-readonly.json); this documentation closeout made no fresh database read.
+
+Run02 remains STOPPED/PARTIAL with original F1 replies missing. No appointment-binding/reassignment or full booking/payment/invoice/receipt/CRM/communications proof; no activation, Production/GVM action, technician acceptance or GVM Operational Acceptance. R1a remains unwired/default-off. The retained cohort must be gated/excluded before workers activate. Do not rerun C01 or start another payment.
+
 ## C01 preparation observations — 2026-10-06 15:22–15:27 UTC
 
-Native READ ONLY reconciliation reconfirmed80retained Run02 public rows,4attempts/8events/3CADledgers totaling18000c/12PENDING obligations,sequence11/is_called=true,2synthetic Auth users,0cohort jobs/send intents/active test sessions. Full preparation-time census/digests: [read-only record](../reviews/evidence/issue-134-c01-preparation-readonly.json). No new financial call, Auth operation or runtime/schema/permission change occurred. C01 is a prepared package only; its proposed90rows/CAD181 outcome is NOT live state. Original Run02 observation below remains historical evidence. No Production observation.
+**Historical preparation snapshot, superseded for current C01 execution status.** Native READ ONLY reconciliation then reconfirmed80retained Run02 public rows,4attempts/8events/3CADledgers totaling18000c/12PENDING obligations,sequence11/is_called=true,2synthetic Auth users,0cohort jobs/send intents/active test sessions. Full preparation-time census/digests: [read-only record](../reviews/evidence/issue-134-c01-preparation-readonly.json). No financial call, Auth operation or runtime/schema/permission change occurred in that preparation step. Original Run02 observation below remains historical evidence. No Production observation.
 
 ## HV134 RUN02 — 2026-10-06 14:36 UTC / 10:36 Toronto
 

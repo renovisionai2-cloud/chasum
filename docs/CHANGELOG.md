@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — HV134 C01 limited hosted result accepted
+
+- Published the completed `HV134-20261006-C01` result as **EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED**. Exact38-line evidence SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`; source aggregate and all9immutable pins remain unchanged.
+- Recorded witnessed direct/indirect contention, exact `RECORDED` + `REPLAY` replies sharing one attempt/transaction, separate durable CAD1 cash effect, N1 request-only admission and final90-row/CAD181 bounded state. All18old-cohort snapshots and four explicitly checked noncohort baselines remained unchanged; no whole-database claim.
+- Preserved Run02 as STOPPED/PARTIAL with original F1 replies missing. No appointment-binding or full-workflow proof, activation, Production/GVM action, technician acceptance or GVM Operational Acceptance. Retained cohort must be gated before workers activate.
+- Documentation-only factual closeout: no harness/test rerun, SQL/Auth/provider call, secret access, application/migration/grant/RLS/flag change, new payment, push or merge.
+
 ### 2026-10-06 — HV134 retained-cohort C01 harness prepared, independently reviewed
 
 - Added only the new continuation plan/manifest/harness/SQL generator/offline tests; corrected observer visibility, indirect blocker chains, independent response persistence and sticky timeout stops. No kernel or applied-migration changes.
