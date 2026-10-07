@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — #134 appointment/customer financial-attribution candidate (HOSTED UNAPPLIED)
+
+- Prepared the reviewed composite appointment/Business/customer FK, narrow legacy appointment-ledger attribution guard, and exact fail-closed booking error mapping. No accepted foundation/R1a source, canonical guard, payment kernel, writer, RLS, ACL, worker, provider, hosted database or retained evidence changed.
+- Reconciled the coordinator's technical correction from the undeployed 64-byte draft FK name to explicit 57-byte `commerce_transactions_appt_business_customer_financial_fk`; product semantics and object count are unchanged and no implicit PostgreSQL truncation is used.
+- New focused **16/16** and scoped booking/commerce/R1a **564/564** tests, typecheck and targeted lint pass. Build is blocked before compilation by the sandbox rejecting the existing out-of-root `node_modules` symlink.
+- The owned loopback PostgreSQL 17 contract is authored but **NOT EXECUTED**: sandbox denial of the bootstrap `shmget` syscall prevented cluster creation and all SQL. No database PASS, concurrency proof, index-cost proof or independent audit is claimed; migration remains prepared-only and hosted-unapplied.
+
 ### 2026-10-06 — Next #134 attribution design independently reviewed
 
 - C01 evidence and documentation closeout committed/pushed at `88af990`; no harness rerun or payment action.
