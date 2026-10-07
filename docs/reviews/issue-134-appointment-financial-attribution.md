@@ -1,6 +1,6 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-**Current status:** HUMAN LOCAL PROOF STOPPED IN CONTRACT PASS 07 ROLE ORACLE / PROOF-ONLY CORRECTION AWAITING INDEPENDENT DELTA REVIEW / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
+**Current status:** HUMAN LOCAL PROOF STOPPED IN CONTRACT PASS 07 ROLE ORACLE / CLAUDE SOURCE DELTA PASS / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
 
 ## Current continuation — executed local proof exposed a role-sequencing error in PASS 07
 
@@ -16,7 +16,186 @@ The remaining role/fixture/oracle audit was a bounded source scan, not database 
 
 The verifier now closes the prior evidence-provenance gap for future runs without changing database controls: before startup it writes a private mode-0600 identity record containing repository HEAD and SHA-256 values for the verifier, contract, new migration and every loaded accepted fixture/migration/contract input; after the cleanup attempt it records the same identity again and fails on any difference. Private mode-0600 phase, SQL stdout and SQL stderr files retain phase exit/error metadata, successful `PASS nn` output and controlled expected-negative SQLSTATE/mechanism notices without reading `.env`, shell credential values or hosted configuration. Success markers use exact output-line matching. Exact loopback, ephemeral port, canonical PGDATA, marker, minimal child environment and confirmed-stop-before-removal controls are unchanged.
 
-Offline validation after this correction: two focused files / 27 tests PASS; scoped booking/booking-engine/commerce/migrations 63 files / 589 tests PASS; typecheck, targeted lint and verifier syntax PASS. No verifier import/execution, PostgreSQL process, database SQL, build, network, credential, hosted or provider operation was run by this correction. The correction is source-ready but is not a database PASS and has not received independent delta acceptance. A fresh human-only local verifier execution may be considered only after that review.
+Offline validation after this correction: two focused files / 27 tests PASS; scoped booking/booking-engine/commerce/migrations 63 files / 589 tests PASS; typecheck, targeted lint and verifier syntax PASS. No verifier import/execution, PostgreSQL process, database SQL, build, network, credential, hosted or provider operation was run by this correction. Claude subsequently accepted the exact corrected source with SOURCE_DELTA_VERDICT: PASS; DATABASE_PROOF_GATE remains NOT MET. The final review and coordinator qualifications below govern one future human-only local run under the existing proof authority; no corrected database execution is claimed.
+
+## Latest independent delta review — role oracles and evidence capture
+
+Reviewed source commit `2ab4b8d1ce59f4acb683e8e2c34eedf75a154d81`, tree `fb8f41e791d5b45e8e601246c10028445f9865fc`, parent `709a8b6c6ce0b9f350926f2ce0d108e41279801e`. Source verdict **PASS**; complete database proof **NOT MET**. The following publication is documentation-only and does not change the reviewed executable files.
+
+Sole engineer Sol/Cursor session `05e3058c-3323-448d-b337-0bc23f3f505f`, reported GPT-5.6 Sol 272K High; independent same-session reviewer Claude `797e841c-7601-4f61-9e0c-363ec6842e7e`, reported Claude Opus 5 300K High No Thinking. Both independently ran 27 focused tests and 63 files / 589 scoped tests, typecheck, targeted lint and syntax. Claude independently recomputed source and original-evidence hashes; the coordinator separately verified five-file correction scope, preserved application/migration/design/accepted sources, byte-identical latest summary/log, absent owned PGDATA and the unchanged eight-file PR inventory. Neither agent ran the verifier, SQL, database bootstrap, build, provider, hosted or secret path in this correction.
+
+Corrected verifier SHA-256 `17e6455048c05b39ad44d832f04d058b7e5c9068f9e0f9415d74f7bbc55380d0`; test SQL `6be2c3ae69f0d1a08298bbc3f33083097040cc849b9a29a09dd160c0158fd747`. Migration remains `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`; financial implementation and applied foundation/R1a are unchanged.
+
+Coordinator qualifications: the review's PASS 06 phrase `customers.customer_id` is a table-name typo; that test changes `appointments.customer_id`. Earlier completions in the stopped human run are qualified control-flow inferences, not separately retained success outputs. New source identity and SQL-output capture are implemented for future runs only, not reconstructed into previous evidence. Optional negative-stderr matching limitations remain disclosed. No reviewer predicts that a later failure must be another harness defect; any genuine product-invariant violation is a HOLD.
+
+The next action is one personal human Terminal run of the reviewed verifier against a fresh disposable local cluster, without a token/password/hosted target. Existing local-only proof approval suffices; no Staging application, Production/GVM action, migration/permission cutover, shared financial replay, worker activation, merge or technician resumption follows. Do not repeat the denied agent-sandbox bootstrap or rewrite old evidence.
+
+### Returned final independent report
+
+This hinges on whether `service_role` can actually read `commerce_payment_attempts` after the foundation's blanket revoke. Checking the grant chain.Grant chain confirms `service_role` has SELECT on attempts (foundation line 266), so the new oracle path is viable. Now the verifier instrumentation.````markdown
+# CLAUDE — PR157 ROLE-ORACLE PROOF DELTA + ACTUAL RESULT REVIEW — Issue #134
+
+Same-session continuation. Accepted foundation/R1a/C01/product-rule reviews not reopened.
+Scope is proof reliability. I executed no verifier, initdb, pg_ctl, SQL, DB bootstrap,
+alternate engine, network, hosted call, build, credential or sandbox retry; made no edit,
+commit or push; read no `.supabase/` artifact.
+
+## SOURCE_DELTA_VERDICT: PASS — no blocker
+
+## DATABASE_PROOF_GATE: NOT MET — OPEN
+
+## Recomputed identity
+
+- HEAD `2ab4b8d1ce59f4acb683e8e2c34eedf75a154d81`, tree
+  `fb8f41e791d5b45e8e601246c10028445f9865fc`, parent `709a8b6c6ce0b9f350926f2ce0d108e41279801e`
+- Status `?? .supabase/` only; inventory vs base `789f54d1` is still exactly the eight-file
+  allowlist.
+- Five changed files since my last reviewed `8046bea6`, all hashes matching the engineer's
+  claims: changelog `a1bcfd45…6c99`, candidate review `1e46bc38…a441`, verifier
+  `17e64550…80d0`, contract `6be2c3ae…d747`, migration unit test `aac66bb4…7350a`.
+- Immutable and confirmed unchanged: migration `fd673cbf…3e7524`, application mapping
+  `727cd72b…ecdc`, design `33af6e34…1f0f`, foundation `dee700ae…ee3a47`, R1a
+  `4b7e3855…5ee7`. `git diff 8046bea6..HEAD -- supabase/ lib/` is empty.
+- No production code, migration, guard, grant, policy or RLS relaxation: the contract delta
+  contains no added `grant`, `revoke`, `create policy`, or `enable row level security` line.
+- Evidence: xCwB2v summary `62d9a91f…096d` and log `6cdafd3c…2840` both recompute to the
+  supplied values. Older evidence immutable: PQdbgH `d12a8ce2…1de299`, A9FjV3
+  `20b18b14…5ab9a`. PGDATA absent; `home/.pgpass` and `home/pg_service.conf` both 0 bytes,
+  0600. No secrets; synthetic fixture identifiers only.
+
+## Actual run classification
+
+`STOPPED_IN_CONTRACT_PASS_07 ON A TEST-SIDE ROLE ORACLE` — not a database PASS, not a
+financial-invariant failure, and not zero SQL. Local synthetic SQL executed and the
+attribution migration applied to the owned disposable cluster in 20 ms
+(`boundedFixture 2003|2001|188416|401408|155648`). The log contains exactly one ERROR:
+`wrong SQLSTATE. expected 23514, got 42501 (PAYMENT_ATTEMPT_SERVER_ONLY)` at contract line
+500, then clean shutdown. `passed=false`, `concurrency=[]`, `lockTimeoutElapsedMs=null`,
+`stopConfirmed=true`, `pgdataRemoved=true`, `cleanupFailure=null`, stop/status `0/3`.
+
+Root cause matches the conditional mechanism I recorded in my first audit: the accepted
+foundation guard's privilege gate (`current_user <> 'service_role'` → `42501`, foundation
+`:218-219`) precedes its mismatch raise (`23514`, `:233`). The old test ran the canonical
+UPDATE after `reset role`, so it hit the gate.
+
+## The key requirement: wrong-role 42501 does not substitute for the service-role 23514 oracle
+
+Verified satisfied. The contract now pins two *separate* exact oracles in fixed order:
+
+1. Role assertion requiring `current_user = session_user` and `current_user <> 'service_role'`,
+   then `expect_exact_failure(…, 'PAYMENT_ATTEMPT_SERVER_ONLY', '42501')`.
+2. `set local role service_role`, assertion `current_user = 'service_role'`, then
+   `expect_exact_failure(…, 'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH', '23514')`.
+3. `reset role` plus a restoration assertion.
+
+`expect_exact_failure` compares `sqlerrm is distinct from p_message` — full-message equality,
+strictly stronger than the substring `expect_failure`. So 42501 is asserted deliberately for
+the non-service role and cannot stand in for the intended service-role oracle; neither can
+pass in the other's place. `assert_canonical_financial_fixture_preserved()` runs after each
+rejection and is *tighter* than the previous inline version (it now also pins
+`attempt.business_id/customer_id/appointment_id` and `transaction.business_id/customer_id`,
+plus 1 ledger, 1 ACCEPTED event, 4 obligations).
+
+I independently confirmed the service-role path is viable rather than a new dead end:
+foundation `:266` grants `select, insert on commerce_payment_attempts to service_role`, so the
+subquery resolves; the fixture grants ledger DML; `service_role` is BYPASSRLS; and the
+BEFORE-UPDATE guard fires before the composite FK's after-row check, so `23514` — not `23503`
+— is the deterministic outcome. Every table read by the preservation helper is granted to
+`service_role`.
+
+The unit test locks this against future weakening: it pins both exact oracle literals, their
+relative order, both role predicates, exactly two `expect_exact_failure` call sites, exactly
+three preservation calls, the exact-message comparison line, and asserts the contract does
+**not** contain a collapsed `sqlstate in ('42501', '23514')`.
+
+## RI-owner vs direct UPDATE — distinguished
+
+These are different mechanisms that happened to coincide here, and the proof now treats them
+separately:
+
+- **Direct UPDATE** (PASS 07, line 500): `current_user` is the session/active role. Outcome is
+  session-role dependent — `42501` as the non-service session user, `23514` under
+  `set local role service_role`. Both now pinned exactly.
+- **RI-owner path** (PASS 11 appointment delete → old FK `ON DELETE SET NULL`): PostgreSQL
+  switches `current_user` to the *referencing table owner* for referential actions, so the
+  outcome is owner-dependent, not session-dependent. In this local cluster the owner is the
+  non-service superuser, giving `42501 PAYMENT_ATTEMPT_SERVER_ONLY`; were the owner
+  `service_role`, it would give `23514 REQUEST_MISMATCH`. `expect_canonical_appointment_delete_failure`
+  accepts exactly those two named outcomes plus the two named `23503` FK alternatives, each
+  requiring its exact identifier — so it is owner-robust without accepting arbitrary
+  permission errors.
+
+## Remaining clauses and the four interleavings — scanned, no deterministic role/fixture/oracle defect found
+
+- PASS 06 changes only `customers.customer_id` on ledger-free appointments; the attempt FK is
+  on `(appointment_id, business_id)`, so no key check fires.
+- PASS 09 and the `service_role` leg of PASS 10 insert ledger rows with NULL
+  `payment_attempt_id`, so the accepted guard early-returns at `:215` and the privilege gate is
+  never reached — `23503` is correct, not `42501`.
+- PASS 10's `authenticated` leg relies on granted appointment DML plus the tenant policy;
+  `42501 row-level security` is the intended oracle there and is asserted by substring on an
+  RLS message, which is appropriate.
+- PASS 11's customer and Business deletions use named-identifier arrays covering every
+  reachable cascade ordering.
+- All four interleavings run appointment reassignment as the non-service session user (no
+  trigger involved — pure FK `ON UPDATE RESTRICT`) and the payment leg under
+  `service_role` (passing the privilege gate), so no mistaken-role oracle exists. `RECORDED`
+  checks were tightened from substring to exact trimmed-line equality.
+
+## Instrumentation safety — verified
+
+`recordPhase` is invoked *before* `command()` rethrows, so failures are recorded and still
+propagate; no assertion is bypassed. The `quiet`/`phase` destructuring preserves prior
+behavior. Source identity (repo HEAD plus SHA-256 of all eight loaded inputs) is captured at
+the very top of the try, before port allocation and before `initdb` (line 466 vs 479), written
+`wx`/0600, re-captured after cleanup, and compared; on mismatch it sets `passed=false` and
+only becomes `originalFailure` when none exists — so it cannot mask the original error.
+`throw originalFailure` retains precedence. Endpoint, port, marker, `data_directory` realpath,
+minimal child environment, confirmed-stop-before-removal and the single marker-gated
+`rmSync(dataDir)` are unchanged. New artifacts (`phases.jsonl`, `sql.stdout.log`,
+`sql.stderr.log`, both identity files) are 0600 inside the private temp dir and capture
+synthetic SQL only; `git` runs from an absolute path with the private HOME and no credentials.
+
+## Provenance limitations (non-blocking)
+
+- The xCwB2v run predates this instrumentation, so its earlier PASS 01–06 progress is
+  **control-flow inferred from single-ERROR log absence**, not retained per-assertion output.
+  The engineer states this correctly and does not claim individual PASS evidence.
+- That run's `summary.json` records no HEAD or input hashes, so its source attribution remains
+  a coordinator before/after attestation. The log's embedded failing statement does
+  textually match the pre-correction contract, which corroborates it. The new capture closes
+  this for future runs.
+- Weakest remaining executable oracle: two interleaving rejections still match the constraint
+  name by substring on psql stderr (lines 664, 758) rather than an exact SQLSTATE+constraint
+  pair. Acceptable here because the migration's collision preflight excludes same-named
+  objects in a fresh synthetic cluster. Optional future tightening, not a blocker.
+
+## Tests I executed (offline only)
+
+Focused **2 files / 27 PASS**; scoped booking/booking-engine/commerce/migrations
+**63 files / 589 PASS**; `tsc --noEmit` PASS; targeted ESLint clean; `node --check` PASS.
+All match the engineer's claims. No database, build or network execution.
+
+## Precise next action
+
+One human-owned execution of the reviewed local-only verifier, from the worktree root, no
+arguments or sudo, against a fresh disposable cluster — within existing local-proof approval;
+**not** a migration-application or hosted approval, and no new policy gate. The coordinator
+reconciles first.
+
+```
+cd /Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution && node scripts/verify-issue134-appointment-financial-attribution-postgres.mjs
+```
+
+I make no prediction of success and specifically do not assert that a further failure would
+necessarily be a harness defect — PASS 08–11, all four interleavings and the lock-timeout
+rollback have never executed, and a genuine product or invariant finding is possible. Retain
+`summary.json`, `phases.jsonl`, both SQL logs, both identity files and the server log verbatim.
+
+Not authorized: Staging, Production, activation, hosted migration application, hosted
+validation, #153 change, merge, release, GVM action. Migration remains PREPARED ONLY /
+HOSTED UNAPPLIED; the local 20 ms application confers no hosted authority. Build not retried.
+````
 
 ## Prior continuation — executed local proof reached the new migration and stopped on proof typing
 

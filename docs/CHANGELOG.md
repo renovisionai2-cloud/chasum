@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — PR157 proof-role correction independently accepted
+
+- Reconciled the latest human local run as stopped in contract PASS 07: a test reset out of service_role and received the existing exact server-only 42501 rejection before its expected request-mismatch 23514. Owned PGDATA shutdown/removal and original evidence hashes are preserved; no hosted application or financial acceptance.
+- Corrected source `2ab4b8d` now separately asserts both roles, exact errors, restoration and preserved financial tuples; records future-run source identities, phase outcomes and SQL output without weakening local containment. Migration/application/accepted guards unchanged; source-only remaining-case scan found no further deterministic defect, not an execution guarantee.
+- Claude SOURCE_DELTA_VERDICT PASS; both agents independently passed 27 focused and 589 scoped tests, typecheck, lint and syntax. Database proof still OPEN; no verifier/bootstrap/build/hosted run in this correction. Next execution is human-only within the existing local-proof approval, not a new Staging/Production gate.
+
+
 ### 2026-10-06 — PR157 local proof PASS 07 role-oracle correction prepared
 
 - The latest human-owned local run reached contract PASS 07 after PostgreSQL 17.11 startup, synthetic fixture load and the locally completed 20ms attribution migration, then stopped because the proof had reset from `service_role` before expecting the service-only `PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH` branch. The accepted guard correctly returned `42501 PAYMENT_ATTEMPT_SERVER_ONLY`; this is a proof role-sequencing defect, not an invariant failure or hosted application. Original summary/log remain unchanged at SHA-256 `62d9a91fb2fc1f978f941f58da2752d6e72a955b3cf3a214a015665f0aff096d` / `6cdafd3c0f011fda358bbaa2481cac125ba11753946f6ffb4fe99ae2c5632840`.
