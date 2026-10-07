@@ -1,6 +1,6 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-**Current status:** HUMAN LOCAL PROOF PASSED ALL 11 ATTRIBUTION CONTRACT SECTIONS, THEN STOPPED BEFORE CONCURRENCY / PROOF-ONLY CORRECTION AWAITING INDEPENDENT DELTA REVIEW / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
+**Current status:** HUMAN LOCAL PROOF PASSED ALL 11 ATTRIBUTION CONTRACT SECTIONS, THEN STOPPED BEFORE CONCURRENCY / CLAUDE SOURCE DELTA PASS / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
 
 ## Current continuation — attribution contract passed; concurrency fixture call was misordered
 
@@ -12,7 +12,148 @@ The verifier declared `createConcurrencyFixture(database, suffix, amount)` but a
 
 A bounded source scan found no additional concrete deterministic helper-signature, result-shape, fixture-identifier, four-handoff or timeout-setup defect. This is static review only: all four concurrency interleavings, their rollback/state assertions and lock-timeout rollback remain unexecuted in the retained run. No later failure is preclassified as a proof defect.
 
-Offline tests evaluate the actual extracted helper with a fake SQL callback and prove invalid inputs make zero callback calls; an AST check captures all four exact literal call contracts. Focused tests pass 29/29 across two files; scoped booking/booking-engine/commerce/migrations pass 63 files / 591 tests; typecheck, targeted lint and verifier syntax pass. No verifier import/execution, PostgreSQL command, database, build, network, credential or hosted operation occurred in this correction. Independent delta review remains next; any later human-only local run is a post-review coordinator action and was not started here.
+Offline tests evaluate the actual extracted helper with a fake SQL callback and prove invalid inputs make zero callback calls; an AST check captures all four exact literal call contracts. Focused tests pass 29/29 across two files; scoped booking/booking-engine/commerce/migrations pass 63 files / 591 tests; typecheck, targeted lint and verifier syntax pass. No verifier import/execution, PostgreSQL command, database, build, network, credential or hosted operation occurred in this correction. Claude subsequently accepted exact correction e4b5bf74 with SOURCE_DELTA PASS, while DATABASE_PROOF_GATE remains NOT MET. The accepted delta and qualifications below govern one future human-only local execution under the existing scope; no corrected database execution occurred here.
+
+## Latest independent delta review — fixture arguments and instrumented human result
+
+Reviewed source: `e4b5bf74b19eb3ab5d863612838131f1ee605e66`; verifier SHA-256 `71c98a1e2f647bdd39e88b237eea342bc6b1a95fce5da629d17cf1dd724e4c83`. Sol/Cursor continued the existing sole implementation session; Claude continued independent session `797e841c-7601-4f61-9e0c-363ec6842e7e`, reported model `Claude Opus 5 300K High No Thinking`. Final source-delta PASS; complete database proof is NOT MET. Neither reviewer nor coordinator ran a database/verifier or changed a hosted environment during this correction/review.
+
+Both independently ran 29 focused tests and 63 files / 591 scoped tests, typecheck, targeted lint and syntax checks. Claude separately exercised the real isolated helper with a fake SQL callback across 18 cases and found no SQL callback on invalid arguments; its source AST scan found no arity mismatch across 20 functions / 78 internal call sites. Those are offline checks, not evidence of the unexecuted multi-session or timeout behavior. The migration, application mapping and financial test SQL remain unchanged.
+
+The actual human result now has retained PASS output for all eleven bounded attribution sections and the exact role-negative outcomes, with equal recorded source identities. This establishes the recorded single-session local contract sections only, including confirmation that the legacy NULL/NULL #153 residual remains open. It is not whole-ledger security, hosted-schema compatibility, full workflow acceptance, or GVM Operational Acceptance. Four concurrency interleavings and lock-timeout rollback remain unexecuted. Original logs and identity files are preserved byte-for-byte; owned PGDATA is confirmed absent.
+
+Coordinator qualifications to the verbatim review: the corrected verifier is changed from the human-run bytes, but unchanged from the newly reviewed e4b5bf74 candidate. A future human run must use that corrected source, never the previous failing version. Recorded before/after input hashes and source identity establish artifact-level provenance; they are not independent signed execution attestation. No future failure is assumed to be a harness defect.
+
+One fresh HUMAN local execution remains within the existing local-only approval after this reconciliation; no new token, hosted authority, or policy approval is required. Do not automate the denied database bootstrap. No application of this migration to Staging/Production, PR merge, #135 release, #153 change, worker activation, historical USD repair, retained C01/Run02 processing, GVM change or technician resumption is authorized. Build and hosted acceptance remain separate requirements.
+
+### Returned independent report
+
+````markdown
+# CLAUDE — PR157 FIXTURE-ARITY DELTA + HUMAN RESULT REVIEW — Issue #134
+
+Session continuity; not a restart of accepted product/foundation/R1a/C01/source audits. I ran
+no verifier, initdb, pg_ctl, psql, DB engine, build, hosted/credential call; made no edit,
+commit or push; read no `.supabase/` artifact; did not circumvent the sandbox denial.
+
+## SOURCE_DELTA: PASS — no blocker
+## DATABASE_PROOF_GATE: NOT MET — concurrency and timeout still unexecuted
+
+## Recomputed identity
+
+HEAD `e4b5bf74b19eb3ab5d863612838131f1ee605e66`, tree
+`921955a53da4a318d177610957f1540f838c0826`, parent `f1e5228898afe761410ae0812e8d12edc68c17b3`.
+Status `?? .supabase/` only. Delta is exactly the four allowed files (+210/−6): verifier,
+migration unit test, candidate review, changelog. `git diff f1e5228..HEAD -- supabase/ lib/
+tests/postgres/` is **empty**, and the three pinned artifacts recompute byte-identical:
+migration `fd673cbf…3e7524`, mapping `727cd72b…ecdc`, financial contract `6be2c3ae…d747`.
+Verifier is now `71c98a1e2f647bdd39e88b237eea342bc6b1a95fce5da629d17cf1dd724e4c83`
+(was `17e64550…80d0` in the run). No guard, grant, RLS, financial-policy or new fixture
+effect added; no database target added or changed.
+
+## Human run classification — PARTIAL: eleven bounded single-session sections proven; harness arity defect stopped it before any concurrency
+
+Evidence at `…-qS8l7J` reconciles exactly. Summary recomputes to
+`87fda797…fbde` as supplied; before/after source identity files are byte-identical
+(`8879e355…20a3` both), `sourceIdentityMatched: true`, `repositoryHead
+f1e5228898afe761410ae0812e8d12edc68c17b3` — so the run is now cryptographically bound to the
+reviewed bytes, closing the provenance gap I flagged in prior rounds.
+
+Retained captures: `phases.jsonl` shows sequences 1–13 all `status: 0` (initdb, start, identity,
+createdb, combined fixture+foundation+R1a+R1a-contract load, bounded fixture, migration,
+digests, attribution contract, delay trigger), then `sequence 14 phase "sql:10" status 2`.
+`sql.stdout.log` retains **26 PASS lines: 15 from the accepted R1a contract and all eleven
+attribution sections PASS 01–11**. `sql.stderr.log` retains the NOTICE oracle trail, which
+confirms the PR157 role work executed as intended: `EXPECTED_EXACT_FAILURE sqlstate=42501
+PAYMENT_ATTEMPT_SERVER_ONLY` for the non-service role and `sqlstate=23514
+PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH` under `service_role`, plus
+`EXPECTED_CANONICAL_DELETE_FAILURE sqlstate=42501` and `EXPECTED_INTEGRITY_FAILURE
+sqlstate=23503 appointments_customer_id_fkey`. Migration applied locally in 19 ms;
+`boundedFixture 2003|2001|188416|401408|155648`.
+
+Failure: `FATAL: database "10" does not exist` — `phase sql:10`, exit 2. Confirmed root cause:
+the three-parameter `createConcurrencyFixture(database, suffix, amount)` was invoked
+`("10", 501)`, so `database="10"`. **`concurrency: []` and `lockTimeoutElapsedMs: null`** —
+zero of the four interleavings and no lock-timeout rollback executed. Clean containment:
+`stopConfirmed: true`, `statusCommandStatus: 3`, `pgdataRemoved: true`, `cleanupFailure: null`;
+I confirmed PGDATA absent and both private `.pgpass`/`pg_service.conf` are 0 bytes, 0600.
+
+I do not overstate this. The eleven sections are single-session, single-statement assertions on
+a minimal synthetic local fixture. They are **not** multi-session concurrency proof, not
+hosted compatibility, not whole-system containment, and not GVM operational acceptance.
+
+## Root-cause correction — verified behaviourally, not by string presence
+
+All four call sites now pass three explicit arguments (AST-confirmed at lines 649, 704, 752,
+806), and guards precede any subprocess. I extracted the committed function text and exercised
+it in isolation with a stubbed `sql` recorder (no import, no psql). **18/18 cases correct, with
+zero recorded SQL on every rejection:** valid 3-arg proceeds with `dbArg=issue134_success`,
+`ids.business=13431000-0000-4000-8000-000000000001`, `ids.key=…0005`, amount in SQL; the
+original `("10", 501)` bug throws on arity; both misorderings, missing, 4-arg, `issue134_timeout`,
+`postgres`, numeric suffix `10`, unlisted `"50"`, an injection-shaped suffix, and `undefined`/
+`"501"`/`0`/negative/float/`NaN`/`Infinity` amounts all throw first. `arguments.length !== 3`
+is valid here (function declaration, not arrow). Only `issue134_success` is accepted, so no
+alternate target is reachable.
+
+The engineer's own new tests are genuinely behavioural too (AST visitor plus isolated function
+construction with a `sqlCalls` stub, `toThrow`, and `expect(sqlCalls).toEqual([])`), not
+string-presence only.
+
+## Remaining arity/wiring scan — no further source-demonstrable defect
+
+- Whole-file AST check: 20 declared functions, 78 internal call sites, **0 arity mismatches**.
+- Every database-typed first argument across the nine DB helpers resolves to a literal
+  `issue134_success`, `issue134_timeout`, or `postgres`, or to a forwarded `database`
+  parameter. No stray literal.
+- All nine `application_name` values match one-to-one between setters and `waitForActivity`
+  waiters; no orphan in either direction.
+- Delay wiring agrees: the verifier sets `issue134.delay_reference = 'manual-attempt:<attempt>'`
+  and R1a line 491 writes `provider_reference = 'manual-attempt:' || attempt.id::text`.
+- Fixture ids are well-formed per suffix (`1343{10,20,30,40}00-…`), and fingerprint seeds
+  `suffix[0]` are distinct `1/2/3/4`.
+- Timeout wiring consistent: `lock_timeout 5s`, holder `pg_sleep(6.5)`, asserted window
+  4500–6500 ms.
+- Containment unchanged (11 matches): strict `listen_addresses`/`inet` host/port equality,
+  `realpathSync` `data_directory` equality, marker checks, minimal child env with private
+  HOME/passfile/servicefile, confirmed stop (`status === 3`) before the single marker-gated
+  `rmSync(dataDir)`, private phase/SQL capture, and before/after source-pin equality.
+
+This is source inspection plus partial-run evidence. I make **no prediction** that the
+financial concurrency or timeout SQL will succeed.
+
+## Tests I executed (offline only)
+
+Focused **2 files / 29 PASS**; scoped booking/booking-engine/commerce/migrations
+**63 files / 591 PASS**; `tsc --noEmit` PASS; targeted ESLint clean; `node --check` PASS; plus
+my own AST arity scan (0 mismatches) and the 18-case isolated argument-handling harness. No
+database, build or network execution.
+
+## Material limits
+
+1. Concurrency (all four orderings), rollback variants and lock-timeout rollback remain
+   **AUTHORED / NEVER EXECUTED**; `concurrency: []` is the authoritative fact.
+2. The eleven passing sections run against the minimal synthetic fixture, not real `001`/`028`
+   schema, RLS or scale; the 2,000-row cost figure is smoke scale.
+3. Two interleaving rejections still match the constraint name by substring on psql stderr
+   rather than an exact SQLSTATE+constraint oracle — the weakest remaining executable oracle,
+   acceptable because the migration's collision preflight excludes same-named objects in a
+   fresh cluster. Non-blocking.
+4. Three consecutive runs stopped on harness defects; I explicitly do not infer that a future
+   stop would also be a harness defect. A genuine invariant defect would be HOLD, never a
+   reason to relax a test expectation.
+
+## Next real dependency
+
+One corrected single human-owned local execution — same worktree, unchanged verifier bytes at
+`e4b5bf74`, fresh private disposable cluster — is **within existing local-proof approval**: no
+hosted environment, no credentials, no new policy gate, and not a migration-application
+approval. I did not perform it, and the coordinator reconciles first. Retain `summary.json`,
+`phases.jsonl`, both SQL logs, both identity files and the server log verbatim.
+
+Not authorized: Staging, Production, activation, hosted migration application, hosted
+validation, #153 change, merge, release, GVM action. Migration remains PREPARED ONLY / HOSTED
+UNAPPLIED; the 19 ms local application confers no hosted authority. Build not retried. #153
+remains open — attribution PASS 05 re-confirms the NULL/NULL customer-cascade residual.
+````
 
 ## Prior continuation — executed local proof exposed a role-sequencing error in PASS 07
 

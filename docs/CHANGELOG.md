@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — PR157 eleven local attribution sections proven; fixture-argument correction accepted
+
+- The instrumented human run retained all eleven attribution-contract PASS sections with matching before/after source identities, then stopped before concurrency because a fixture suffix was passed as the database name. The original summary, SQL/phase/server logs and source identity files remain unchanged; shutdown and owned-PGDATA removal are confirmed. Complete database proof is still NOT MET.
+- Claude accepted exact proof-only correction `e4b5bf74`: all four fixture calls pass the intended local database/suffix/amount, with argument guards before SQL and behavioral offline regression tests. Both agents passed 29 focused and 591 scoped tests; Claude additionally checked 18 argument cases and all internal call arities. Migration/application/financial SQL and hosted environments remain unchanged; corrected database execution is human-only and has not occurred. No Staging application or GVM Operational Acceptance is implied.
+
+
 ### 2026-10-07 — PR157 attribution contract passed; concurrency fixture-call correction prepared
 
 - Retained instrumented human evidence at source `f1e5228` proves the local attribution contract phase exited 0 with all 11 PASS sections and separate exact `42501`/`23514` role-negative outcomes. The run then stopped before concurrency because two arguments made suffix `10` the database name; concurrency remained empty and timeout unrun. Summary SHA-256 is `87fda797ce56b9db3865c866677075a72e48ade6cfb59447fb2a5762ebfafbde`; source identities matched, shutdown/removal were confirmed and cleanup succeeded.
