@@ -5,6 +5,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -25,39 +26,13 @@ for (const [name, path] of Object.entries(binaries)) {
   }
 }
 
-function sanitizedEnv(parent = process.env) {
-  return Object.fromEntries(
-    Object.entries(parent).filter(
-      ([key, value]) => !/^PG/i.test(key) && value !== undefined,
-    ),
-  );
-}
-
-const poisoned = sanitizedEnv({
-  ...process.env,
-  PGHOST: "forbidden.example",
-  PGHOSTADDR: "203.0.113.1",
-  PGPORT: "1",
-  PGDATABASE: "forbidden",
-  PGUSER: "forbidden",
-  PGSERVICE: "forbidden",
-  PGSERVICEFILE: "/tmp/forbidden",
-  PGPASSFILE: "/tmp/forbidden",
-  PGOPTIONS: "-c search_path=forbidden",
-  ISSUE134_ATTRIBUTION_SENTINEL: "preserved",
-});
-if (
-  Object.keys(poisoned).some((key) => /^PG/i.test(key)) ||
-  poisoned.ISSUE134_ATTRIBUTION_SENTINEL !== "preserved"
-) {
-  throw new Error("PG* environment sanitization self-test failed");
-}
-const childEnv = sanitizedEnv();
-
 const root = process.cwd();
 const evidenceDir = mkdtempSync(
   join(tmpdir(), "chasum-issue134-attribution-evidence-"),
 );
+const privateHome = join(evidenceDir, "home");
+const privatePgpass = join(privateHome, ".pgpass");
+const privateServiceFile = join(privateHome, "pg_service.conf");
 const dataDir = join(evidenceDir, "pgdata");
 const serverLog = join(evidenceDir, "postgres.log");
 const summaryPath = join(evidenceDir, "summary.json");
@@ -65,20 +40,87 @@ const ownershipMarkerPath = join(evidenceDir, "ownership-marker");
 const markerPath = join(dataDir, ".chasum-issue134-disposable");
 const marker = `issue134-attribution-${randomBytes(16).toString("hex")}`;
 const user = userInfo().username;
+mkdirSync(privateHome, { mode: 0o700 });
+writeFileSync(privatePgpass, "", { flag: "wx", mode: 0o600 });
+writeFileSync(privateServiceFile, "", { flag: "wx", mode: 0o600 });
+
+function createChildEnv(parent = process.env) {
+  const child = {
+    PATH: `${pgBin}:/usr/bin:/bin`,
+    HOME: privateHome,
+    USER: user,
+    LOGNAME: user,
+    PGPASSFILE: privatePgpass,
+    PGSERVICEFILE: privateServiceFile,
+    PGSYSCONFDIR: privateHome,
+  };
+  for (const key of ["LANG", "LC_ALL", "LC_CTYPE", "TZ", "TMPDIR"]) {
+    if (parent[key] !== undefined) child[key] = parent[key];
+  }
+  return child;
+}
+
+const poisoned = createChildEnv({
+  ...process.env,
+  PGHOST: "forbidden.example",
+  PGHOSTADDR: "203.0.113.1",
+  PGPORT: "1",
+  PGDATABASE: "forbidden",
+  PGUSER: "forbidden",
+  PGSERVICE: "forbidden",
+  PGOPTIONS: "-c search_path=forbidden",
+  NODE_OPTIONS: "--require=/tmp/forbidden",
+  DYLD_INSERT_LIBRARIES: "/tmp/forbidden.dylib",
+  STRIPE_SECRET_KEY: "forbidden",
+});
+if (
+  poisoned.PGPASSFILE !== privatePgpass ||
+  poisoned.PGSERVICEFILE !== privateServiceFile ||
+  poisoned.PGSYSCONFDIR !== privateHome ||
+  [
+    "PGHOST",
+    "PGHOSTADDR",
+    "PGPORT",
+    "PGDATABASE",
+    "PGUSER",
+    "PGSERVICE",
+    "PGOPTIONS",
+    "NODE_OPTIONS",
+    "DYLD_INSERT_LIBRARIES",
+    "STRIPE_SECRET_KEY",
+  ].some((key) => Object.hasOwn(poisoned, key))
+) {
+  throw new Error("Minimal PostgreSQL child environment self-test failed");
+}
+const childEnv = createChildEnv();
+
 let port;
-let started = false;
+let startAttempted = false;
 let passed = false;
+let originalFailure = null;
 const evidence = {
   marker,
   evidenceDir,
   serverLog,
+  dataDirectory: null,
   postgresVersion: null,
   boundedFixture: null,
   migrationElapsedMs: null,
   lockTimeoutElapsedMs: null,
   concurrency: [],
   passed: false,
+  originalFailure: null,
+  cleanupFailure: null,
+  stopConfirmed: null,
+  pgdataRemoved: false,
 };
+
+function failureSummary(error) {
+  return {
+    name: error instanceof Error ? error.name : "Error",
+    message: error instanceof Error ? error.message : String(error),
+  };
+}
 
 function command(path, args, options = {}) {
   const result = spawnSync(path, args, {
@@ -318,16 +360,13 @@ try {
     "--auth-host=trust",
     "--encoding=UTF8",
     "--locale=C",
-    "--set",
-    "shared_memory_type=mmap",
-    "--set",
-    "dynamic_shared_memory_type=mmap",
   ], { quiet: true });
   writeFileSync(markerPath, `${marker}\n`, { flag: "wx", mode: 0o600 });
   if (readFileSync(markerPath, "utf8").trim() !== marker) {
     throw new Error("Disposable-cluster marker verification failed before startup");
   }
 
+  startAttempted = true;
   command(binaries.pgCtl, [
     "-D",
     dataDir,
@@ -338,20 +377,35 @@ try {
     "-w",
     "start",
   ], { quiet: true });
-  started = true;
 
   const binding = sql(
     "postgres",
     `select current_setting('listen_addresses'),
             inet_server_addr()::text,
             inet_server_port(),
-            current_setting('server_version_num')::integer >= 170000
+            current_setting('server_version_num')::integer >= 170000,
+            current_setting('data_directory')
     `,
     { quiet: true },
   );
-  if (binding !== `127.0.0.1|127.0.0.1|${port}|t`) {
+  const [
+    listenAddresses,
+    serverAddress,
+    serverPort,
+    isPostgres17,
+    observedDataDirectory,
+  ] = binding.split("|");
+  if (
+    listenAddresses !== "127.0.0.1" ||
+    serverAddress !== "127.0.0.1" ||
+    serverPort !== String(port) ||
+    isPostgres17 !== "t" ||
+    !observedDataDirectory ||
+    realpathSync(observedDataDirectory) !== realpathSync(dataDir)
+  ) {
     throw new Error(`Disposable cluster binding/version mismatch: ${binding}`);
   }
+  evidence.dataDirectory = realpathSync(observedDataDirectory);
   if (readFileSync(markerPath, "utf8").trim() !== marker) {
     throw new Error("Disposable-cluster marker changed before synthetic writes");
   }
@@ -692,31 +746,41 @@ try {
   passed = true;
   evidence.passed = true;
   console.log("Issue #134 appointment financial-attribution PostgreSQL contract passed.");
-} finally {
-  evidence.passed = passed;
-  writeFileSync(summaryPath, `${JSON.stringify(evidence, null, 2)}\n`, {
-    mode: 0o600,
-  });
-  if (started) {
-    command(binaries.pgCtl, [
-      "-D",
-      dataDir,
-      "-m",
-      "fast",
-      "-w",
-      "stop",
-    ], { quiet: true });
-    started = false;
+} catch (error) {
+  originalFailure = error;
+  evidence.originalFailure = failureSummary(error);
+}
+
+evidence.passed = passed;
+let cleanupFailure = null;
+let stopConfirmed = !startAttempted;
+try {
+  if (startAttempted) {
+    const stop = spawnSync(
+      binaries.pgCtl,
+      ["-D", dataDir, "-m", "fast", "-w", "stop"],
+      { encoding: "utf8", stdio: "pipe", env: childEnv },
+    );
     const status = spawnSync(
       binaries.pgCtl,
       ["-D", dataDir, "status"],
       { encoding: "utf8", stdio: "pipe", env: childEnv },
     );
-    if (status.status === 0) {
-      throw new Error("Disposable PostgreSQL cluster still reports running");
+    evidence.stopCommandStatus = stop.status;
+    evidence.statusCommandStatus = status.status;
+    stopConfirmed = !status.error && status.status === 3;
+    if (!stopConfirmed) {
+      throw new Error(
+        `Disposable PostgreSQL stop is unconfirmed; stop=${stop.status}, status=${status.status}`,
+      );
     }
   }
+  evidence.stopConfirmed = stopConfirmed;
+
   if (existsSync(dataDir)) {
+    if (!stopConfirmed) {
+      throw new Error("Refusing PGDATA removal without confirmed server stop");
+    }
     const ownedByInnerMarker =
       existsSync(markerPath) &&
       readFileSync(markerPath, "utf8").trim() === marker;
@@ -733,7 +797,33 @@ try {
       throw new Error("Disposable PostgreSQL data directory still exists");
     }
   }
+  evidence.pgdataRemoved = !existsSync(dataDir);
+} catch (error) {
+  cleanupFailure = error;
+  evidence.cleanupFailure = failureSummary(error);
+  evidence.stopConfirmed = stopConfirmed;
+}
+
+writeFileSync(summaryPath, `${JSON.stringify(evidence, null, 2)}\n`, {
+  mode: 0o600,
+});
+
+if (evidence.pgdataRemoved) {
   console.log(
-    `PASS disposable cluster stopped and owned PGDATA removed; retained local evidence: ${summaryPath}`,
+    `PASS owned PGDATA removed after confirmed stop state; retained local evidence: ${summaryPath}`,
+  );
+} else {
+  console.error(
+    `RETAINED owned PGDATA because cleanup was not confirmed; evidence: ${summaryPath}`,
   );
 }
+
+if (originalFailure) {
+  if (cleanupFailure) {
+    console.error(
+      `Cleanup failure after original failure: ${cleanupFailure.message}`,
+    );
+  }
+  throw originalFailure;
+}
+if (cleanupFailure) throw cleanupFailure;

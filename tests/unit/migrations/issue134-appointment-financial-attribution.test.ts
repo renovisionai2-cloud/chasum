@@ -27,6 +27,20 @@ const updateMutation = readFileSync(
   resolve(root, "lib/booking-engine/mutations/update.ts"),
   "utf8",
 );
+const verifier = readFileSync(
+  resolve(
+    root,
+    "scripts/verify-issue134-appointment-financial-attribution-postgres.mjs",
+  ),
+  "utf8",
+);
+const postgresContract = readFileSync(
+  resolve(
+    root,
+    "tests/postgres/issue-134-appointment-financial-attribution-contract.sql",
+  ),
+  "utf8",
+);
 const fkName =
   "commerce_transactions_appt_business_customer_financial_fk";
 
@@ -123,6 +137,52 @@ describe("Issue #134 appointment financial-attribution migration", () => {
     );
     expect(migration).not.toMatch(
       /supabase\s+(link|db|start|migration|apply)|apply_migration|database_url/i,
+    );
+  });
+
+  it("pins canonical cascade rejection without accepting arbitrary permission errors", () => {
+    expect(postgresContract).toContain(
+      "expect_canonical_appointment_delete_failure",
+    );
+    expect(postgresContract).toContain(
+      "sqlstate = '42501'\n        and position('PAYMENT_ATTEMPT_SERVER_ONLY'",
+    );
+    expect(postgresContract).toContain(
+      "PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH",
+    );
+    expect(postgresContract).toContain(
+      "commerce_payment_attempts_appointment_fk",
+    );
+    expect(postgresContract).not.toContain(
+      "sqlstate not in ('23503', '23514', '42501')",
+    );
+  });
+
+  it("models the claimed non-key edits only in the disclosed local contract", () => {
+    for (const column of ["service_id", "staff_id", "location_id"]) {
+      expect(postgresContract).toContain(`add column ${column} uuid`);
+    }
+    expect(postgresContract).toContain(
+      "minimal-local status/time/notes/service/staff/location edits remain mutable",
+    );
+  });
+
+  it("keeps verifier ownership, environment, and cleanup fail-closed", () => {
+    expect(verifier).not.toContain("shared_memory_type=mmap");
+    expect(verifier).toContain("current_setting('data_directory')");
+    expect(verifier).toContain(
+      "realpathSync(observedDataDirectory) !== realpathSync(dataDir)",
+    );
+    expect(verifier).toContain("PGPASSFILE: privatePgpass");
+    expect(verifier).toContain("PGSERVICEFILE: privateServiceFile");
+    expect(verifier).toContain("STRIPE_SECRET_KEY");
+    expect(verifier).toContain(
+      "Refusing PGDATA removal without confirmed server stop",
+    );
+    expect(verifier).toContain("originalFailure");
+    expect(verifier).toContain("cleanupFailure");
+    expect(verifier.indexOf("if (!stopConfirmed)")).toBeLessThan(
+      verifier.indexOf("rmSync(dataDir"),
     );
   });
 });

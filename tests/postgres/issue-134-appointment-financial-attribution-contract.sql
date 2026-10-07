@@ -22,9 +22,13 @@ begin
   end;
 end $$;
 
-create or replace function pg_temp.expect_integrity_failure(
-  p_sql text
+create or replace function pg_temp.expect_named_integrity_failure(
+  p_sql text,
+  p_expected_identifiers text[]
 ) returns void language plpgsql as $$
+declare
+  expected_identifier text;
+  recognized boolean := false;
 begin
   begin
     execute p_sql;
@@ -34,7 +38,95 @@ begin
     if sqlstate not in ('23503', '23514') then
       raise exception 'wrong integrity SQLSTATE: % (%)', sqlstate, sqlerrm;
     end if;
+    foreach expected_identifier in array p_expected_identifiers loop
+      if position(lower(expected_identifier) in lower(sqlerrm)) > 0 then
+        recognized := true;
+      end if;
+    end loop;
+    if not recognized then
+      raise exception 'unrecognized integrity mechanism: % (%)',
+        sqlstate, sqlerrm;
+    end if;
   end;
+end $$;
+
+create or replace function pg_temp.expect_canonical_appointment_delete_failure(
+  p_sql text
+) returns void language plpgsql as $$
+declare
+  rejected boolean := false;
+begin
+  begin
+    execute p_sql;
+    raise exception 'expected failure but statement succeeded: %', p_sql;
+  exception when others then
+    if sqlerrm like 'expected failure%' then raise; end if;
+    rejected :=
+      (
+        sqlstate = '42501'
+        and position('PAYMENT_ATTEMPT_SERVER_ONLY' in sqlerrm) > 0
+      )
+      or (
+        sqlstate = '23514'
+        and position(
+          'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH' in sqlerrm
+        ) > 0
+      )
+      or (
+        sqlstate = '23503'
+        and (
+          position(
+            'commerce_transactions_appt_business_customer_financial_fk'
+            in sqlerrm
+          ) > 0
+          or position(
+            'commerce_payment_attempts_appointment_fk' in sqlerrm
+          ) > 0
+        )
+      );
+    if not rejected then
+      raise exception 'unexpected canonical appointment-delete failure: % (%)',
+        sqlstate, sqlerrm;
+    end if;
+  end;
+
+  if not exists (
+       select 1
+       from public.appointments
+       where id = '13410000-0000-4000-8000-000000000032'
+         and business_id = '13410000-0000-4000-8000-000000000011'
+         and customer_id = '13410000-0000-4000-8000-000000000022'
+     )
+     or (
+       select count(*)
+       from public.commerce_transactions transaction_row
+       join public.commerce_payment_attempts attempt
+         on attempt.id = transaction_row.payment_attempt_id
+       where attempt.attempt_key =
+         '13420000-0000-4000-8000-000000000301'
+         and attempt.execution_state = 'ACCEPTED'
+         and transaction_row.appointment_id =
+           '13410000-0000-4000-8000-000000000032'
+     ) <> 1
+     or (
+       select count(*)
+       from public.commerce_payment_attempt_events event_row
+       join public.commerce_payment_attempts attempt
+         on attempt.id = event_row.attempt_id
+       where attempt.attempt_key =
+         '13420000-0000-4000-8000-000000000301'
+         and event_row.event_type = 'ACCEPTED'
+     ) <> 1
+     or (
+       select count(*)
+       from public.commerce_payment_reconciliation obligation
+       join public.commerce_payment_attempts attempt
+         on attempt.id = obligation.attempt_id
+       where attempt.attempt_key =
+         '13420000-0000-4000-8000-000000000301'
+     ) <> 4 then
+    raise exception 'canonical appointment-delete rejection changed protected rows';
+  end if;
 end $$;
 
 do $$
@@ -150,7 +242,10 @@ alter table public.appointments
   add column status text not null default 'confirmed',
   add column start_time timestamptz,
   add column end_time timestamptz,
-  add column notes text;
+  add column notes text,
+  add column service_id uuid,
+  add column staff_id uuid,
+  add column location_id uuid;
 alter table public.appointments enable row level security;
 create policy issue134_authenticated_appointments
   on public.appointments for all to authenticated
@@ -423,24 +518,38 @@ update public.appointments
 set start_time = '2026-10-08T14:00:00Z',
     end_time = '2026-10-08T14:30:00Z',
     status = 'cancelled',
-    notes = 'ordinary non-attribution edit'
+    notes = 'ordinary non-attribution edit',
+    service_id = '13420000-0000-4000-8000-000000000601',
+    staff_id = '13420000-0000-4000-8000-000000000602',
+    location_id = '13420000-0000-4000-8000-000000000603'
 where id = '13410000-0000-4000-8000-000000000032';
 do $$
 begin
   if (
-    select row(status, start_time, end_time, notes)
+    select row(
+      status,
+      start_time,
+      end_time,
+      notes,
+      service_id,
+      staff_id,
+      location_id
+    )
     from public.appointments
     where id = '13410000-0000-4000-8000-000000000032'
   ) is distinct from row(
     'cancelled'::text,
     '2026-10-08T14:00:00Z'::timestamptz,
     '2026-10-08T14:30:00Z'::timestamptz,
-    'ordinary non-attribution edit'::text
+    'ordinary non-attribution edit'::text,
+    '13420000-0000-4000-8000-000000000601'::uuid,
+    '13420000-0000-4000-8000-000000000602'::uuid,
+    '13420000-0000-4000-8000-000000000603'::uuid
   ) then
     raise exception 'ordinary appointment edit did not persist';
   end if;
 end $$;
-\echo 'PASS 08 reschedule/cancel/notes and non-attribution ledger fields remain mutable'
+\echo 'PASS 08 minimal-local status/time/notes/service/staff/location edits remain mutable'
 
 select pg_temp.expect_failure(
   $q$insert into public.commerce_transactions(
@@ -511,17 +620,27 @@ select pg_temp.expect_failure(
 reset role;
 \echo 'PASS 10 representative authenticated RLS and service_role BYPASSRLS paths retain tenant/FK enforcement'
 
-select pg_temp.expect_integrity_failure(
+select pg_temp.expect_named_integrity_failure(
   $q$delete from public.appointments
-     where id = '13410000-0000-4000-8000-000000000031'$q$
+     where id = '13410000-0000-4000-8000-000000000031'$q$,
+  array[
+    'LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE',
+    'commerce_transactions_appt_business_customer_financial_fk'
+  ]
 );
-select pg_temp.expect_integrity_failure(
+select pg_temp.expect_canonical_appointment_delete_failure(
   $q$delete from public.appointments
      where id = '13410000-0000-4000-8000-000000000032'$q$
 );
-select pg_temp.expect_integrity_failure(
+select pg_temp.expect_named_integrity_failure(
   $q$delete from public.customers
-     where id = '13410000-0000-4000-8000-000000000021'$q$
+     where id = '13410000-0000-4000-8000-000000000021'$q$,
+  array[
+    'commerce_payment_attempts_customer_fk',
+    'appointments_customer_id_fkey',
+    'LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN',
+    'LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE'
+  ]
 );
 
 insert into public.customers(id, business_id, name) values (
@@ -554,9 +673,13 @@ begin
   end if;
 end $$;
 reset role;
-select pg_temp.expect_integrity_failure(
+select pg_temp.expect_named_integrity_failure(
   $q$delete from public.customers
-     where id = '13420000-0000-4000-8000-000000000401'$q$
+     where id = '13420000-0000-4000-8000-000000000401'$q$,
+  array[
+    'commerce_payment_attempts_customer_fk',
+    'PAYMENT_ATTEMPT_LEDGER_DELETE_FORBIDDEN'
+  ]
 );
 
 insert into public.businesses(id, name, currency) values (
@@ -584,9 +707,14 @@ insert into public.commerce_transactions(
   '13420000-0000-4000-8000-000000000503',
   'payment', 'failed', 'cash', 504, 'cad', 'manual'
 );
-select pg_temp.expect_integrity_failure(
+select pg_temp.expect_named_integrity_failure(
   $q$delete from public.businesses
-     where id = '13420000-0000-4000-8000-000000000501'$q$
+     where id = '13420000-0000-4000-8000-000000000501'$q$,
+  array[
+    'LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN',
+    'LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE',
+    'commerce_transactions_appt_business_customer_financial_fk'
+  ]
 );
 do $$
 begin

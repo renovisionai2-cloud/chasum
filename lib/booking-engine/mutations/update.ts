@@ -28,18 +28,11 @@ function isFinancialAttributionConstraintError(error: unknown): boolean {
   const candidate = error as Record<string, unknown>;
   if (candidate.code !== "23503") return false;
 
-  return ["message", "details", "hint"].some((field) => {
-    const value = candidate[field];
-    if (typeof value !== "string") return false;
-    const index = value.indexOf(FINANCIAL_ATTRIBUTION_CONSTRAINT);
-    if (index < 0) return false;
-    const before = value[index - 1];
-    const after = value[index + FINANCIAL_ATTRIBUTION_CONSTRAINT.length];
-    return (
-      (before === undefined || !/[A-Za-z0-9_]/.test(before)) &&
-      (after === undefined || !/[A-Za-z0-9_]/.test(after))
-    );
-  });
+  if (candidate.constraint === FINANCIAL_ATTRIBUTION_CONSTRAINT) return true;
+  if (typeof candidate.message !== "string") return false;
+  return candidate.message.includes(
+    `constraint "${FINANCIAL_ATTRIBUTION_CONSTRAINT}"`,
+  );
 }
 
 function sameRef(left: unknown, right: unknown): boolean {

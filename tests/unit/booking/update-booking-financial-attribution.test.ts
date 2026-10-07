@@ -133,38 +133,66 @@ describe("updateBooking financial-attribution failure mapping", () => {
     });
   });
 
-  it.each(["message", "details", "hint"] as const)(
-    "maps an actual PostgREST-shaped 23503 carrying the exact constraint in %s",
-    async (field) => {
-      updateError = {
-        code: "23503",
-        message: "update failed",
-        details: null,
-        hint: null,
-        [field]: `violates foreign key constraint "${constraint}"`,
-      };
-
-      const result = await updateBooking(intent);
-
-      expect(result).toEqual({ phase: "rollback", error: calmMessage });
-      expect(updateRows).toHaveLength(1);
-      expect(emitBookingEvent).not.toHaveBeenCalled();
-      expect(logAppointmentChange).not.toHaveBeenCalled();
+  it.each([
+    {
+      code: "23503",
+      message: `update or delete on table "appointments" violates foreign key constraint "${constraint}" on table "commerce_transactions"`,
+      details: "Key is still referenced.",
+      hint: null,
     },
-  );
+    {
+      code: "23503",
+      message: "foreign key violation",
+      constraint,
+      details: null,
+      hint: null,
+    },
+  ])("maps only an exact structured or quoted constraint identity: %#", async (error) => {
+    updateError = error;
+
+    const result = await updateBooking(intent);
+
+    expect(result).toEqual({ phase: "rollback", error: calmMessage });
+    expect(updateRows).toHaveLength(1);
+    expect(emitBookingEvent).not.toHaveBeenCalled();
+    expect(logAppointmentChange).not.toHaveBeenCalled();
+  });
 
   it.each([
     {
       code: "23503",
-      message: "violates foreign key constraint some_other_constraint",
+      message: 'violates foreign key constraint "some_other_constraint"',
     },
     {
       code: "23503",
-      message: `violates foreign key constraint ${constraint}_suffix`,
+      message: `violates foreign key constraint "${constraint}$other"`,
     },
     {
       code: "23503",
-      message: `violates foreign key constraint prefix_${constraint}`,
+      message: `violates foreign key constraint "${constraint}é"`,
+    },
+    {
+      code: "23503",
+      message: `violates foreign key constraint "prefix_${constraint}"`,
+    },
+    {
+      code: "23503",
+      message: 'violates foreign key constraint "other_fk"',
+      hint: `Try constraint "${constraint}" instead.`,
+    },
+    {
+      code: "23503",
+      message: 'violates foreign key constraint "other_fk"',
+      details: `Internal note mentions constraint "${constraint}".`,
+    },
+    {
+      code: "23503",
+      message: "foreign key violation",
+      constraint: `${constraint}$other`,
+    },
+    {
+      code: "23503",
+      message: `violates foreign key constraint '${constraint}'`,
     },
     {
       code: "23514",
