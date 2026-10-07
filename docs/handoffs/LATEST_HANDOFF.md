@@ -12,6 +12,10 @@ Read-only postchecks returned `POST_APPLY_EXACT`: exact constraints/backing inde
 
 This is schema-only Staging acceptance evidence. No hosted DML/PostgREST/UI/payment/projection behavior was tested; R1a remains unwired/default-off. #153/SEQ-ACL-1, #133, #135, historical USD, retained-worker exclusion, application deployment, technician, Production/GVM and GVM Operational Acceptance remain held. Do not process retained obligations or restart accepted local/C01 proof. The stale PR body remains untouched.
 
+## Next preparation — durable fresh-booking and manual-deposit handoff
+
+The read-only source/dependency plan has independent verdict **PLAN_ACCEPTED_FOR_PREPARATION**, not implementation readiness. [Consolidated source map, review and corrections](../reviews/issue-134-connected-runtime-preparation-plan.md). Immediate work is the bounded Booking Sheet/Quick Appointment durable-operation/recovery contract, reusing existing booking_operation primitives, with projection/#133 evidence and #153 cutover dependencies. Record the applicable Competitive Product Gate before material operator-flow implementation. No new Product Owner approval is required to complete this design; seek the exact prepared-only implementation gate only when ready. No accepted proof, applied migration, retained financial record, Production/GVM workflow or blocked tool operation is to be repeated.
+
 ## Accepted C01 result — preserved
 
 **HV134 C01 EXECUTED — LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.** Exact package aggregate `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`, all5member pins and all9immutable source pins match. Original evidence is exactly38lines at SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`. Real direct/indirect blocked sessions were witnessed. Both saved replies identify attempt `d211130f-02a9-47c5-a14a-6f91e7c08480` and transaction `4c2dd317-f6e0-418a-bda1-ff13250ae712`, exactly `RECORDED` + `REPLAY`; an independent durable read proved one CAD1 cash effect. N1 then admitted request-only. [Actual result, provenance and limits](../reviews/issue-134-hv134-c01-result.md).
