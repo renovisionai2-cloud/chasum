@@ -158,6 +158,45 @@ describe("Issue #134 appointment financial-attribution migration", () => {
     );
   });
 
+  it("pins distinct canonical update role oracles and preservation checks", () => {
+    const nonServiceOracle = postgresContract.indexOf(
+      "'PAYMENT_ATTEMPT_SERVER_ONLY',\n  '42501'",
+    );
+    const serviceRole = postgresContract.indexOf(
+      "set local role service_role;",
+      nonServiceOracle,
+    );
+    const serviceOracle = postgresContract.indexOf(
+      "'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',\n  '23514'",
+    );
+    const restoredRole = postgresContract.indexOf(
+      "canonical role restoration mismatch",
+    );
+
+    expect(nonServiceOracle).toBeGreaterThan(0);
+    expect(serviceRole).toBeGreaterThan(nonServiceOracle);
+    expect(serviceOracle).toBeGreaterThan(serviceRole);
+    expect(restoredRole).toBeGreaterThan(serviceOracle);
+    expect(postgresContract).toContain(
+      "current_user is distinct from session_user",
+    );
+    expect(postgresContract).toContain("current_user <> 'service_role'");
+    expect(
+      postgresContract.match(/select pg_temp\.expect_exact_failure\(/g),
+    ).toHaveLength(2);
+    expect(postgresContract).toContain(
+      "if sqlerrm is distinct from p_message then",
+    );
+    expect(
+      postgresContract.match(
+        /select pg_temp\.assert_canonical_financial_fixture_preserved\(\);/g,
+      ),
+    ).toHaveLength(3);
+    expect(postgresContract).not.toContain(
+      "sqlstate in ('42501', '23514')",
+    );
+  });
+
   it("compares the exact trigger order with aligned text-array element types", () => {
     expect(postgresContract).toContain(
       "array_agg(\n      trigger_row.tgname::text order by trigger_row.tgname\n    )",
@@ -199,6 +238,53 @@ describe("Issue #134 appointment financial-attribution migration", () => {
     expect(verifier).toContain("cleanupFailure");
     expect(verifier.indexOf("if (!stopConfirmed)")).toBeLessThan(
       verifier.indexOf("rmSync(dataDir"),
+    );
+  });
+
+  it("records immutable source identity and private SQL phase evidence", () => {
+    for (const path of [
+      "scripts/verify-issue134-appointment-financial-attribution-postgres.mjs",
+      "tests/postgres/issue-134-appointment-financial-attribution-contract.sql",
+      "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql",
+      "tests/postgres/issue-134-payment-attempt-foundation-fixture.sql",
+      "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql",
+      "tests/postgres/issue-134-r1a-manual-kernel-fixture.sql",
+      "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql",
+      "tests/postgres/issue-134-r1a-manual-kernel-contract.sql",
+    ]) {
+      expect(verifier).toContain(`"${path}"`);
+    }
+    expect(verifier).toContain('spawnSync("/usr/bin/git"');
+    expect(verifier).toContain("sourceIdentityBefore = captureSourceIdentity()");
+    expect(verifier).toContain("evidence.sourceIdentityAfter = captureSourceIdentity()");
+    expect(verifier).toContain("evidence.sourceIdentityMatched");
+    expect(verifier).toContain("Verifier source identity changed during execution");
+    expect(
+      verifier.indexOf("sourceIdentityBeforePath,\n    `${JSON.stringify"),
+    ).toBeLessThan(verifier.indexOf("command(binaries.initdb"));
+    expect(verifier).toContain('join(evidenceDir, "phases.jsonl")');
+    expect(verifier).toContain('join(evidenceDir, "sql.stdout.log")');
+    expect(verifier).toContain('join(evidenceDir, "sql.stderr.log")');
+    expect(verifier).toContain(
+      'join(evidenceDir, "source-identity-before.json")',
+    );
+    expect(verifier).toContain(
+      'join(evidenceDir, "source-identity-after.json")',
+    );
+    expect(verifier).toContain("recordPhase(");
+    expect(verifier).toContain("mode: 0o600");
+    expect(verifier).not.toContain('.stdout.includes("RECORDED")');
+    expect(verifier).toContain(
+      'hasExactOutputLine(paymentFirstResult.stdout, "RECORDED")',
+    );
+    expect(postgresContract).toContain(
+      "EXPECTED_FAILURE sqlstate=% mechanism=%",
+    );
+    expect(postgresContract).toContain(
+      "EXPECTED_INTEGRITY_FAILURE sqlstate=% mechanism=%",
+    );
+    expect(postgresContract).toContain(
+      "EXPECTED_EXACT_FAILURE sqlstate=% mechanism=%",
     );
   });
 

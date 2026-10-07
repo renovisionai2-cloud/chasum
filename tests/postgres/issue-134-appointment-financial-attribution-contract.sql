@@ -19,6 +19,32 @@ begin
     if position(lower(p_contains) in lower(sqlerrm)) = 0 then
       raise exception 'wrong failure. expected %, got %', p_contains, sqlerrm;
     end if;
+    raise notice 'EXPECTED_FAILURE sqlstate=% mechanism=%',
+      sqlstate, p_contains;
+  end;
+end $$;
+
+create or replace function pg_temp.expect_exact_failure(
+  p_sql text,
+  p_message text,
+  p_sqlstate text
+) returns void language plpgsql as $$
+begin
+  begin
+    execute p_sql;
+    raise exception 'expected failure but statement succeeded: %', p_sql;
+  exception when others then
+    if sqlerrm like 'expected failure%' then raise; end if;
+    if sqlstate <> p_sqlstate then
+      raise exception 'wrong SQLSTATE. expected %, got % (%)',
+        p_sqlstate, sqlstate, sqlerrm;
+    end if;
+    if sqlerrm is distinct from p_message then
+      raise exception 'wrong exact failure. expected %, got %',
+        p_message, sqlerrm;
+    end if;
+    raise notice 'EXPECTED_EXACT_FAILURE sqlstate=% mechanism=%',
+      sqlstate, p_message;
   end;
 end $$;
 
@@ -28,6 +54,7 @@ create or replace function pg_temp.expect_named_integrity_failure(
 ) returns void language plpgsql as $$
 declare
   expected_identifier text;
+  matched_identifier text;
   recognized boolean := false;
 begin
   begin
@@ -41,13 +68,75 @@ begin
     foreach expected_identifier in array p_expected_identifiers loop
       if position(lower(expected_identifier) in lower(sqlerrm)) > 0 then
         recognized := true;
+        matched_identifier := expected_identifier;
+        exit;
       end if;
     end loop;
     if not recognized then
       raise exception 'unrecognized integrity mechanism: % (%)',
         sqlstate, sqlerrm;
     end if;
+    raise notice 'EXPECTED_INTEGRITY_FAILURE sqlstate=% mechanism=%',
+      sqlstate, matched_identifier;
   end;
+end $$;
+
+create or replace function pg_temp.assert_canonical_financial_fixture_preserved()
+returns void language plpgsql as $$
+begin
+  if not exists (
+       select 1
+       from public.appointments
+       where id = '13410000-0000-4000-8000-000000000032'
+         and business_id = '13410000-0000-4000-8000-000000000011'
+         and customer_id = '13410000-0000-4000-8000-000000000022'
+     )
+     or (
+       select count(*)
+       from public.commerce_payment_attempts attempt
+       where attempt.attempt_key =
+         '13420000-0000-4000-8000-000000000301'
+         and attempt.business_id =
+           '13410000-0000-4000-8000-000000000011'
+         and attempt.customer_id =
+           '13410000-0000-4000-8000-000000000022'
+         and attempt.appointment_id =
+           '13410000-0000-4000-8000-000000000032'
+         and attempt.execution_state = 'ACCEPTED'
+     ) <> 1
+     or (
+       select count(*)
+       from public.commerce_transactions transaction_row
+       join public.commerce_payment_attempts attempt
+         on attempt.id = transaction_row.payment_attempt_id
+       where attempt.attempt_key =
+         '13420000-0000-4000-8000-000000000301'
+         and transaction_row.business_id =
+           '13410000-0000-4000-8000-000000000011'
+         and transaction_row.customer_id =
+           '13410000-0000-4000-8000-000000000022'
+         and transaction_row.appointment_id =
+           '13410000-0000-4000-8000-000000000032'
+     ) <> 1
+     or (
+       select count(*)
+       from public.commerce_payment_attempt_events event_row
+       join public.commerce_payment_attempts attempt
+         on attempt.id = event_row.attempt_id
+       where attempt.attempt_key =
+         '13420000-0000-4000-8000-000000000301'
+         and event_row.event_type = 'ACCEPTED'
+     ) <> 1
+     or (
+       select count(*)
+       from public.commerce_payment_reconciliation obligation
+       join public.commerce_payment_attempts attempt
+         on attempt.id = obligation.attempt_id
+       where attempt.attempt_key =
+         '13420000-0000-4000-8000-000000000301'
+     ) <> 4 then
+    raise exception 'canonical financial fixture changed after rejection';
+  end if;
 end $$;
 
 create or replace function pg_temp.expect_canonical_appointment_delete_failure(
@@ -88,45 +177,11 @@ begin
       raise exception 'unexpected canonical appointment-delete failure: % (%)',
         sqlstate, sqlerrm;
     end if;
+    raise notice 'EXPECTED_CANONICAL_DELETE_FAILURE sqlstate=% mechanism=%',
+      sqlstate, sqlerrm;
   end;
 
-  if not exists (
-       select 1
-       from public.appointments
-       where id = '13410000-0000-4000-8000-000000000032'
-         and business_id = '13410000-0000-4000-8000-000000000011'
-         and customer_id = '13410000-0000-4000-8000-000000000022'
-     )
-     or (
-       select count(*)
-       from public.commerce_transactions transaction_row
-       join public.commerce_payment_attempts attempt
-         on attempt.id = transaction_row.payment_attempt_id
-       where attempt.attempt_key =
-         '13420000-0000-4000-8000-000000000301'
-         and attempt.execution_state = 'ACCEPTED'
-         and transaction_row.appointment_id =
-           '13410000-0000-4000-8000-000000000032'
-     ) <> 1
-     or (
-       select count(*)
-       from public.commerce_payment_attempt_events event_row
-       join public.commerce_payment_attempts attempt
-         on attempt.id = event_row.attempt_id
-       where attempt.attempt_key =
-         '13420000-0000-4000-8000-000000000301'
-         and event_row.event_type = 'ACCEPTED'
-     ) <> 1
-     or (
-       select count(*)
-       from public.commerce_payment_reconciliation obligation
-       join public.commerce_payment_attempts attempt
-         on attempt.id = obligation.attempt_id
-       where attempt.attempt_key =
-         '13420000-0000-4000-8000-000000000301'
-     ) <> 4 then
-    raise exception 'canonical appointment-delete rejection changed protected rows';
-  end if;
+  perform pg_temp.assert_canonical_financial_fixture_preserved();
 end $$;
 
 do $$
@@ -488,7 +543,35 @@ begin
 end $$;
 reset role;
 
-select pg_temp.expect_failure(
+do $$
+begin
+  if current_user is distinct from session_user
+     or current_user = 'service_role' then
+    raise exception 'canonical non-service oracle role mismatch';
+  end if;
+  raise notice 'ROLE_ASSERTION session-user non-service';
+end $$;
+select pg_temp.expect_exact_failure(
+  $q$update public.commerce_transactions
+     set customer_id = '13410000-0000-4000-8000-000000000021'
+     where payment_attempt_id = (
+       select id from public.commerce_payment_attempts
+       where attempt_key = '13420000-0000-4000-8000-000000000301'
+     )$q$,
+  'PAYMENT_ATTEMPT_SERVER_ONLY',
+  '42501'
+);
+select pg_temp.assert_canonical_financial_fixture_preserved();
+
+set local role service_role;
+do $$
+begin
+  if current_user <> 'service_role' then
+    raise exception 'canonical service-role oracle role mismatch';
+  end if;
+  raise notice 'ROLE_ASSERTION service_role';
+end $$;
+select pg_temp.expect_exact_failure(
   $q$update public.commerce_transactions
      set customer_id = '13410000-0000-4000-8000-000000000021'
      where payment_attempt_id = (
@@ -498,6 +581,17 @@ select pg_temp.expect_failure(
   'PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH',
   '23514'
 );
+select pg_temp.assert_canonical_financial_fixture_preserved();
+reset role;
+do $$
+begin
+  if current_user is distinct from session_user
+     or current_user = 'service_role' then
+    raise exception 'canonical role restoration mismatch';
+  end if;
+  raise notice 'ROLE_ASSERTION restored session-user non-service';
+end $$;
+
 select pg_temp.expect_failure(
   $q$delete from public.commerce_transactions
      where payment_attempt_id = (
@@ -507,6 +601,7 @@ select pg_temp.expect_failure(
   'PAYMENT_ATTEMPT_LEDGER_DELETE_FORBIDDEN',
   '23514'
 );
+select pg_temp.assert_canonical_financial_fixture_preserved();
 select pg_temp.expect_failure(
   $q$update public.appointments
      set customer_id = '13410000-0000-4000-8000-000000000021'
@@ -514,7 +609,7 @@ select pg_temp.expect_failure(
   'commerce_transactions_appt_business_customer_financial_fk',
   '23503'
 );
-\echo 'PASS 07 canonical guard remains sole ledger owner; composite FK blocks appointment reassignment'
+\echo 'PASS 07 exact non-service/server-only and service-role/mismatch oracles preserve canonical rows; composite FK blocks appointment reassignment'
 
 update public.appointments
 set start_time = '2026-10-08T14:00:00Z',

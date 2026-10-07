@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — PR157 local proof PASS 07 role-oracle correction prepared
+
+- The latest human-owned local run reached contract PASS 07 after PostgreSQL 17.11 startup, synthetic fixture load and the locally completed 20ms attribution migration, then stopped because the proof had reset from `service_role` before expecting the service-only `PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH` branch. The accepted guard correctly returned `42501 PAYMENT_ATTEMPT_SERVER_ONLY`; this is a proof role-sequencing defect, not an invariant failure or hosted application. Original summary/log remain unchanged at SHA-256 `62d9a91fb2fc1f978f941f58da2752d6e72a955b3cf3a214a015665f0aff096d` / `6cdafd3c0f011fda358bbaa2481cac125ba11753946f6ffb4fe99ae2c5632840`.
+- Split the proof into exact non-service `42501` and pinned service-role `23514` oracles, asserted role restoration, and verified canonical appointment/attempt/ledger/event/obligation preservation after each rejection. A bounded source-only scan found no further deterministic role/fixture/oracle hazard in the remaining interleavings or timeout setup; those paths remain unexecuted after the stop.
+- Future verifier evidence now records repository HEAD and hashes of every loaded source before startup and after the cleanup attempt, fails on any difference, and privately retains phase exits plus SQL stdout/stderr and controlled expected-negative outcomes. Existing loopback, owned-PGDATA, private-environment and cleanup controls are unchanged.
+- Offline validation: **27/27 focused**, **63 files / 589 scoped**, typecheck, targeted lint and verifier syntax PASS. No database, verifier, build, network or hosted action was run; database proof remains OPEN and this proof-only delta awaits independent review.
+
 ### 2026-10-06 — PR157 local contract proof reached migration; typing correction prepared
 
 - The corrected human-owned local run started PostgreSQL 17.11 on loopback, loaded the synthetic foundation/R1a fixture, and applied the new attribution migration locally in 20ms with bounded observation `2003|2001|188416|401408|155648`. It then stopped in contract PASS 02 before concurrency/timeout work: `array_agg(pg_trigger.tgname)` produced `name[]`, which cannot be compared directly with the expected `text[]` array. This is a proof-expression defect, not an invariant failure or hosted application.

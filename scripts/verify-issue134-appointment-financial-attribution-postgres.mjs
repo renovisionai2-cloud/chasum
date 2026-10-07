@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import {
+  appendFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -36,6 +37,11 @@ const privateServiceFile = join(privateHome, "pg_service.conf");
 const dataDir = join(evidenceDir, "pgdata");
 const serverLog = join(evidenceDir, "postgres.log");
 const summaryPath = join(evidenceDir, "summary.json");
+const phaseLogPath = join(evidenceDir, "phases.jsonl");
+const sqlStdoutPath = join(evidenceDir, "sql.stdout.log");
+const sqlStderrPath = join(evidenceDir, "sql.stderr.log");
+const sourceIdentityBeforePath = join(evidenceDir, "source-identity-before.json");
+const sourceIdentityAfterPath = join(evidenceDir, "source-identity-after.json");
 const ownershipMarkerPath = join(evidenceDir, "ownership-marker");
 const markerPath = join(dataDir, ".chasum-issue134-disposable");
 const marker = `issue134-attribution-${randomBytes(16).toString("hex")}`;
@@ -43,6 +49,9 @@ const user = userInfo().username;
 mkdirSync(privateHome, { mode: 0o700 });
 writeFileSync(privatePgpass, "", { flag: "wx", mode: 0o600 });
 writeFileSync(privateServiceFile, "", { flag: "wx", mode: 0o600 });
+writeFileSync(phaseLogPath, "", { flag: "wx", mode: 0o600 });
+writeFileSync(sqlStdoutPath, "", { flag: "wx", mode: 0o600 });
+writeFileSync(sqlStderrPath, "", { flag: "wx", mode: 0o600 });
 
 function createChildEnv(parent = process.env) {
   const child = {
@@ -93,15 +102,35 @@ if (
   throw new Error("Minimal PostgreSQL child environment self-test failed");
 }
 const childEnv = createChildEnv();
+const sourcePaths = [
+  "scripts/verify-issue134-appointment-financial-attribution-postgres.mjs",
+  "tests/postgres/issue-134-appointment-financial-attribution-contract.sql",
+  "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql",
+  "tests/postgres/issue-134-payment-attempt-foundation-fixture.sql",
+  "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql",
+  "tests/postgres/issue-134-r1a-manual-kernel-fixture.sql",
+  "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql",
+  "tests/postgres/issue-134-r1a-manual-kernel-contract.sql",
+];
 
 let port;
 let startAttempted = false;
 let passed = false;
 let originalFailure = null;
+let sourceIdentityBefore = null;
 const evidence = {
   marker,
   evidenceDir,
   serverLog,
+  phaseLog: phaseLogPath,
+  sqlStdoutLog: sqlStdoutPath,
+  sqlStderrLog: sqlStderrPath,
+  sourceIdentityBeforeFile: sourceIdentityBeforePath,
+  sourceIdentityAfterFile: sourceIdentityAfterPath,
+  sourceIdentityBefore: null,
+  sourceIdentityAfter: null,
+  sourceIdentityMatched: null,
+  sourceIdentityFailure: null,
   dataDirectory: null,
   postgresVersion: null,
   boundedFixture: null,
@@ -122,19 +151,80 @@ function failureSummary(error) {
   };
 }
 
+function sha256File(path) {
+  return createHash("sha256").update(readFileSync(resolve(root, path))).digest("hex");
+}
+
+function captureSourceIdentity() {
+  const head = spawnSync("/usr/bin/git", ["rev-parse", "--verify", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+    stdio: "pipe",
+    env: childEnv,
+  });
+  const repositoryHead = head.stdout?.trim();
+  if (
+    head.error ||
+    head.status !== 0 ||
+    !repositoryHead ||
+    !/^[0-9a-f]{40}$/.test(repositoryHead)
+  ) {
+    throw head.error ?? new Error(
+      `Could not record repository HEAD: ${head.stderr ?? ""}`,
+    );
+  }
+  return {
+    repositoryHead,
+    files: Object.fromEntries(
+      sourcePaths.map((path) => [path, sha256File(path)]),
+    ),
+  };
+}
+
+let phaseSequence = 0;
+function recordPhase(phase, status, error, stdout = "", stderr = "", sqlPhase = false) {
+  phaseSequence += 1;
+  appendFileSync(
+    phaseLogPath,
+    `${JSON.stringify({
+      sequence: phaseSequence,
+      phase,
+      status,
+      error: error ? failureSummary(error) : null,
+    })}\n`,
+  );
+  if (!sqlPhase) return;
+  const header = `\n=== phase=${phase} status=${status ?? "null"} ===\n`;
+  appendFileSync(sqlStdoutPath, `${header}${stdout}`);
+  appendFileSync(sqlStderrPath, `${header}${stderr}`);
+}
+
 function command(path, args, options = {}) {
+  const {
+    quiet = false,
+    phase = path === binaries.psql ? "psql" : "command",
+    ...spawnOptions
+  } = options;
   const result = spawnSync(path, args, {
     encoding: "utf8",
     stdio: "pipe",
     env: childEnv,
-    ...options,
+    ...spawnOptions,
   });
-  if (!options.quiet) {
+  recordPhase(
+    phase,
+    result.status,
+    result.error,
+    result.stdout ?? "",
+    result.stderr ?? "",
+    path === binaries.psql,
+  );
+  if (!quiet) {
     process.stdout.write(result.stdout ?? "");
     process.stderr.write(result.stderr ?? "");
   }
   if (result.error || result.status !== 0) {
-    if (options.quiet) {
+    if (quiet) {
       process.stdout.write(result.stdout ?? "");
       process.stderr.write(result.stderr ?? "");
     }
@@ -166,7 +256,7 @@ function sql(database, statement, options = {}) {
   return command(
     binaries.psql,
     psqlArgs(database, ["-At", "-F", "|", "-c", statement]),
-    options,
+    { ...options, phase: options.phase ?? `sql:${database}` },
   ).stdout.trim();
 }
 
@@ -174,7 +264,7 @@ function file(database, path, options = {}) {
   return command(
     binaries.psql,
     psqlArgs(database, ["-f", resolve(root, path)]),
-    options,
+    { ...options, phase: options.phase ?? `file:${path}` },
   );
 }
 
@@ -185,11 +275,14 @@ function files(database, paths, options = {}) {
       database,
       paths.flatMap((path) => ["-f", resolve(root, path)]),
     ),
-    options,
+    {
+      ...options,
+      phase: options.phase ?? `files:${paths.join(",")}`,
+    },
   );
 }
 
-function sqlAsync(database, statement) {
+function sqlAsync(database, statement, phase) {
   return new Promise((complete) => {
     const child = spawn(
       binaries.psql,
@@ -198,6 +291,20 @@ function sqlAsync(database, statement) {
     );
     let stdout = "";
     let stderr = "";
+    let settled = false;
+    const finish = (result) => {
+      if (settled) return;
+      settled = true;
+      recordPhase(
+        phase,
+        result.status,
+        result.error,
+        result.stdout,
+        result.stderr,
+        true,
+      );
+      complete(result);
+    };
     child.stdout.on("data", (chunk) => {
       stdout += chunk.toString();
     });
@@ -205,10 +312,15 @@ function sqlAsync(database, statement) {
       stderr += chunk.toString();
     });
     child.on("error", (error) => {
-      complete({ status: 1, stdout, stderr: `${stderr}${error.message}` });
+      finish({
+        status: 1,
+        error,
+        stdout,
+        stderr: `${stderr}${error.message}`,
+      });
     });
     child.on("close", (status) => {
-      complete({ status: status ?? 1, stdout, stderr });
+      finish({ status: status ?? 1, error: null, stdout, stderr });
     });
   });
 }
@@ -288,7 +400,7 @@ function createDatabase(name) {
     "-U",
     user,
     name,
-  ], { quiet: true });
+  ], { quiet: true, phase: `createdb:${name}` });
 }
 
 function createConcurrencyFixture(database, suffix, amount) {
@@ -344,7 +456,20 @@ function assertAttemptState(database, ids, expected) {
   }
 }
 
+function hasExactOutputLine(output, expected) {
+  return output
+    .split(/\r?\n/)
+    .some((line) => line.trim() === expected);
+}
+
 try {
+  sourceIdentityBefore = captureSourceIdentity();
+  evidence.sourceIdentityBefore = sourceIdentityBefore;
+  writeFileSync(
+    sourceIdentityBeforePath,
+    `${JSON.stringify(sourceIdentityBefore, null, 2)}\n`,
+    { flag: "wx", mode: 0o600 },
+  );
   port = await availableLoopbackPort();
   writeFileSync(ownershipMarkerPath, `${marker}\n`, {
     flag: "wx",
@@ -360,7 +485,7 @@ try {
     "--auth-host=trust",
     "--encoding=UTF8",
     "--locale=C",
-  ], { quiet: true });
+  ], { quiet: true, phase: "cluster:initdb" });
   writeFileSync(markerPath, `${marker}\n`, { flag: "wx", mode: 0o600 });
   if (readFileSync(markerPath, "utf8").trim() !== marker) {
     throw new Error("Disposable-cluster marker verification failed before startup");
@@ -376,7 +501,7 @@ try {
     `-c listen_addresses=127.0.0.1 -c port=${port} -c unix_socket_directories='' -c logging_collector=off`,
     "-w",
     "start",
-  ], { quiet: true });
+  ], { quiet: true, phase: "cluster:start" });
 
   const binding = sql(
     "postgres",
@@ -510,6 +635,7 @@ try {
        '${paymentFirst.business}', '${paymentFirst.attempt}'
      );
      commit`,
+    "concurrency:payment-first:commit",
   );
   waitForActivity(
     "issue134_payment_first",
@@ -521,6 +647,7 @@ try {
      update public.appointments
      set customer_id = '${paymentFirst.newCustomer}'
      where id = '${paymentFirst.appointment}'`,
+    "concurrency:payment-first:reassignment",
   );
   waitForActivity(
     "issue134_payment_first_update",
@@ -532,7 +659,7 @@ try {
   ]);
   if (
     paymentFirstResult.status !== 0 ||
-    !paymentFirstResult.stdout.includes("RECORDED") ||
+    !hasExactOutputLine(paymentFirstResult.stdout, "RECORDED") ||
     paymentFirstUpdate.status === 0 ||
     !paymentFirstUpdate.stderr.includes(
       "commerce_transactions_appt_business_customer_financial_fk",
@@ -559,6 +686,7 @@ try {
        '${paymentRollback.business}', '${paymentRollback.attempt}'
      );
      rollback`,
+    "concurrency:payment-rollback:payment",
   );
   waitForActivity(
     "issue134_payment_rollback",
@@ -570,6 +698,7 @@ try {
      update public.appointments
      set customer_id = '${paymentRollback.newCustomer}'
      where id = '${paymentRollback.appointment}'`,
+    "concurrency:payment-rollback:reassignment",
   );
   waitForActivity(
     "issue134_payment_rollback_update",
@@ -600,6 +729,7 @@ try {
      where id = '${reassignmentFirst.appointment}';
      select pg_catalog.pg_sleep(1.5);
      commit`,
+    "concurrency:reassignment-first:reassignment",
   );
   waitForActivity(
     "issue134_reassignment_first",
@@ -612,6 +742,7 @@ try {
      select outcome from public.commit_manual_payment_attempt_v1(
        '${reassignmentFirst.business}', '${reassignmentFirst.attempt}'
      )`,
+    "concurrency:reassignment-first:payment",
   );
   waitForActivity(
     "issue134_reassignment_first_payment",
@@ -648,6 +779,7 @@ try {
      where id = '${reassignmentRollback.appointment}';
      select pg_catalog.pg_sleep(1.5);
      rollback`,
+    "concurrency:reassignment-rollback:reassignment",
   );
   waitForActivity(
     "issue134_reassignment_rollback",
@@ -660,6 +792,7 @@ try {
      select outcome from public.commit_manual_payment_attempt_v1(
        '${reassignmentRollback.business}', '${reassignmentRollback.attempt}'
      )`,
+    "concurrency:reassignment-rollback:payment",
   );
   waitForActivity(
     "issue134_reassignment_rollback_payment",
@@ -673,7 +806,7 @@ try {
   if (
     reassignmentRollbackResult.status !== 0 ||
     reassignmentRollbackPayment.status !== 0 ||
-    !reassignmentRollbackPayment.stdout.includes("RECORDED")
+    !hasExactOutputLine(reassignmentRollbackPayment.stdout, "RECORDED")
   ) {
     throw new Error("Reassignment-rollback interleaving result mismatch");
   }
@@ -695,6 +828,7 @@ try {
      lock table public.appointments in access exclusive mode;
      select pg_catalog.pg_sleep(6.5);
      rollback`,
+    "timeout:lock-holder",
   );
   waitForActivity(
     "issue134_lock_holder",
@@ -711,6 +845,14 @@ try {
       ),
     ]),
     { encoding: "utf8", stdio: "pipe", env: childEnv },
+  );
+  recordPhase(
+    "timeout:migration-apply",
+    timeoutApply.status,
+    timeoutApply.error,
+    timeoutApply.stdout ?? "",
+    timeoutApply.stderr ?? "",
+    true,
   );
   evidence.lockTimeoutElapsedMs = Date.now() - timeoutStarted;
   await lockHolder;
@@ -766,6 +908,20 @@ try {
       ["-D", dataDir, "status"],
       { encoding: "utf8", stdio: "pipe", env: childEnv },
     );
+    recordPhase(
+      "cluster:stop",
+      stop.status,
+      stop.error,
+      stop.stdout ?? "",
+      stop.stderr ?? "",
+    );
+    recordPhase(
+      "cluster:status-after-stop",
+      status.status,
+      status.error,
+      status.stdout ?? "",
+      status.stderr ?? "",
+    );
     evidence.stopCommandStatus = stop.status;
     evidence.statusCommandStatus = status.status;
     stopConfirmed = !status.error && status.status === 3;
@@ -804,6 +960,33 @@ try {
   evidence.stopConfirmed = stopConfirmed;
 }
 
+let sourceIdentityFailure = null;
+try {
+  evidence.sourceIdentityAfter = captureSourceIdentity();
+  writeFileSync(
+    sourceIdentityAfterPath,
+    `${JSON.stringify(evidence.sourceIdentityAfter, null, 2)}\n`,
+    { flag: "wx", mode: 0o600 },
+  );
+  evidence.sourceIdentityMatched =
+    sourceIdentityBefore !== null &&
+    JSON.stringify(evidence.sourceIdentityAfter) ===
+      JSON.stringify(sourceIdentityBefore);
+  if (!evidence.sourceIdentityMatched) {
+    throw new Error("Verifier source identity changed during execution");
+  }
+} catch (error) {
+  sourceIdentityFailure = error;
+  evidence.sourceIdentityFailure = failureSummary(error);
+  evidence.sourceIdentityMatched = false;
+  evidence.passed = false;
+  passed = false;
+  if (!originalFailure) {
+    originalFailure = error;
+    evidence.originalFailure = failureSummary(error);
+  }
+}
+
 writeFileSync(summaryPath, `${JSON.stringify(evidence, null, 2)}\n`, {
   mode: 0o600,
 });
@@ -822,6 +1005,11 @@ if (originalFailure) {
   if (cleanupFailure) {
     console.error(
       `Cleanup failure after original failure: ${cleanupFailure.message}`,
+    );
+  }
+  if (sourceIdentityFailure && sourceIdentityFailure !== originalFailure) {
+    console.error(
+      `Source identity failure after original failure: ${sourceIdentityFailure.message}`,
     );
   }
   throw originalFailure;
