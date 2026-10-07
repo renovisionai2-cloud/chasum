@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { runInNewContext } from "node:vm";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
@@ -43,6 +45,38 @@ const postgresContract = readFileSync(
 );
 const fkName =
   "commerce_transactions_appt_business_customer_financial_fk";
+const verifierAst = ts.createSourceFile(
+  "verify-issue134-appointment-financial-attribution-postgres.mjs",
+  verifier,
+  ts.ScriptTarget.Latest,
+  true,
+  ts.ScriptKind.JS,
+);
+
+function findVerifierFunction(name: string) {
+  let match: ts.FunctionDeclaration | undefined;
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isFunctionDeclaration(node) &&
+      node.name?.text === name
+    ) {
+      match = node;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(verifierAst);
+  if (!match) throw new Error(`Missing verifier function ${name}`);
+  return match;
+}
+
+function isolatedConcurrencyFixture(sqlCallback: (...args: unknown[]) => string) {
+  const declaration = findVerifierFunction("createConcurrencyFixture");
+  return runInNewContext(
+    `${declaration.getText(verifierAst)}; createConcurrencyFixture`,
+    { sql: sqlCallback },
+  ) as (...args: unknown[]) => Record<string, string>;
+}
 
 describe("Issue #134 appointment financial-attribution migration", () => {
   it("preserves the accepted foundation, R1a, and reviewed design bytes", () => {
@@ -286,6 +320,120 @@ describe("Issue #134 appointment financial-attribution migration", () => {
     expect(postgresContract).toContain(
       "EXPECTED_EXACT_FAILURE sqlstate=% mechanism=%",
     );
+  });
+
+  it("calls every concurrency fixture with the explicit local database contract", () => {
+    const calls: Array<Array<string | number>> = [];
+    const visit = (node: ts.Node) => {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isIdentifier(node.expression) &&
+        node.expression.text === "createConcurrencyFixture"
+      ) {
+        calls.push(
+          node.arguments.map((argument) => {
+            if (ts.isStringLiteral(argument)) return argument.text;
+            if (ts.isNumericLiteral(argument)) return Number(argument.text);
+            throw new Error(
+              `Concurrency fixture call uses a non-literal argument: ${argument.getText(verifierAst)}`,
+            );
+          }),
+        );
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(verifierAst);
+
+    expect(calls).toEqual([
+      ["issue134_success", "10", 501],
+      ["issue134_success", "20", 502],
+      ["issue134_success", "30", 503],
+      ["issue134_success", "40", 504],
+    ]);
+  });
+
+  it("rejects invalid concurrency fixture arguments before calling SQL", () => {
+    const invalidArguments: Array<{
+      args: unknown[];
+      message: string;
+    }> = [
+      { args: [], message: "requires database, suffix, and amount" },
+      {
+        args: ["issue134_success", "10"],
+        message: "requires database, suffix, and amount",
+      },
+      {
+        args: ["10", 501, "issue134_success"],
+        message: "Unknown concurrency fixture database",
+      },
+      {
+        args: ["other_database", "10", 501],
+        message: "Unknown concurrency fixture database",
+      },
+      {
+        args: ["issue134_success", "11", 501],
+        message: "Invalid concurrency fixture suffix",
+      },
+      {
+        args: ["issue134_success", 10, 501],
+        message: "Invalid concurrency fixture suffix",
+      },
+      {
+        args: ["issue134_success", "10", Number.NaN],
+        message: "Invalid concurrency fixture amount",
+      },
+      {
+        args: ["issue134_success", "10", Number.POSITIVE_INFINITY],
+        message: "Invalid concurrency fixture amount",
+      },
+      {
+        args: ["issue134_success", "10", 0],
+        message: "Invalid concurrency fixture amount",
+      },
+      {
+        args: ["issue134_success", "10", -1],
+        message: "Invalid concurrency fixture amount",
+      },
+      {
+        args: ["issue134_success", "10", 1.5],
+        message: "Invalid concurrency fixture amount",
+      },
+      {
+        args: ["issue134_success", "10", "501"],
+        message: "Invalid concurrency fixture amount",
+      },
+    ];
+
+    for (const { args, message } of invalidArguments) {
+      const sqlCalls: unknown[][] = [];
+      const fixture = isolatedConcurrencyFixture((...sqlArgs) => {
+        sqlCalls.push(sqlArgs);
+        return "";
+      });
+      expect(() => fixture(...args)).toThrow(message);
+      expect(sqlCalls).toEqual([]);
+    }
+
+    const sqlCalls: unknown[][] = [];
+    const fixture = isolatedConcurrencyFixture((...sqlArgs) => {
+      sqlCalls.push(sqlArgs);
+      return sqlCalls.length === 2
+        ? "13431000-0000-4000-8000-000000000006"
+        : "REQUESTED|13431000-0000-4000-8000-000000000006";
+    });
+    expect(fixture("issue134_success", "10", 501)).toMatchObject({
+      business: "13431000-0000-4000-8000-000000000001",
+      oldCustomer: "13431000-0000-4000-8000-000000000002",
+      newCustomer: "13431000-0000-4000-8000-000000000003",
+      appointment: "13431000-0000-4000-8000-000000000004",
+      key: "13431000-0000-4000-8000-000000000005",
+      attempt: "13431000-0000-4000-8000-000000000006",
+    });
+    expect(sqlCalls).toHaveLength(2);
+    expect(sqlCalls.every(([database]) => database === "issue134_success")).toBe(
+      true,
+    );
+    expect(sqlCalls[0]?.[1]).toContain("'payment', 501, 'cad'");
   });
 
   it("normalizes only the PostgreSQL inet display while keeping identity checks strict", () => {

@@ -1,8 +1,20 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-**Current status:** HUMAN LOCAL PROOF STOPPED IN CONTRACT PASS 07 ROLE ORACLE / CLAUDE SOURCE DELTA PASS / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
+**Current status:** HUMAN LOCAL PROOF PASSED ALL 11 ATTRIBUTION CONTRACT SECTIONS, THEN STOPPED BEFORE CONCURRENCY / PROOF-ONLY CORRECTION AWAITING INDEPENDENT DELTA REVIEW / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
 
-## Current continuation — executed local proof exposed a role-sequencing error in PASS 07
+## Current continuation — attribution contract passed; concurrency fixture call was misordered
+
+Darshan's human-owned run retained instrumented evidence for exact source `f1e5228898afe761410ae0812e8d12edc68c17b3`. The summary is SHA-256 `87fda797ce56b9db3865c866677075a72e48ade6cfb59447fb2a5762ebfafbde`; PostgreSQL log is `8f013cc987b7ff1d00fb2fc6ebc09b254897054ece0672b1a98f06500a2646c0`. Before/after identity files are byte-identical at `8879e355ef0a2d255af2f6ee3d2a0e8c7459be1742cda6c0aecae6041b9220a3`: repository HEAD and all eight loaded-input hashes match, with `sourceIdentityMatched=true`.
+
+**Run classification: `ATTRIBUTION_CONTRACT_11_OF_11_RETAINED_PASS / STOPPED_BEFORE_CONCURRENCY_DISPATCH / NOT A COMPLETE DATABASE PASS`.** PostgreSQL 17.11 was exact-loopback bound; accepted fixtures loaded; the attribution migration completed locally in 19ms; bounded observation was `2003|2001|188416|401408|155648`. The attribution-contract phase exited 0 and retained stdout contains PASS 01 through PASS 11. Retained stderr separately records the exact non-service `42501 PAYMENT_ATTEMPT_SERVER_ONLY` and service-role `23514 PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH` outcomes. The following fixture-setup phase was `sql:10`, exit 2: PostgreSQL correctly rejected nonexistent database `10`. Summary state is `passed=false`, `concurrency=[]`, timeout `null`, confirmed stop, PGDATA removed and no cleanup failure.
+
+The verifier declared `createConcurrencyFixture(database, suffix, amount)` but all four call sites supplied only `(suffix, amount)`. The correction passes explicit database `issue134_success` with suffix/amount pairs `10/501`, `20/502`, `30/503`, `40/504`. The helper now rejects missing or misordered arguments, any database other than the owned success fixture, any suffix outside those four identifiers, and non-number, non-finite, non-integer or nonpositive amounts before invoking SQL.
+
+A bounded source scan found no additional concrete deterministic helper-signature, result-shape, fixture-identifier, four-handoff or timeout-setup defect. This is static review only: all four concurrency interleavings, their rollback/state assertions and lock-timeout rollback remain unexecuted in the retained run. No later failure is preclassified as a proof defect.
+
+Offline tests evaluate the actual extracted helper with a fake SQL callback and prove invalid inputs make zero callback calls; an AST check captures all four exact literal call contracts. Focused tests pass 29/29 across two files; scoped booking/booking-engine/commerce/migrations pass 63 files / 591 tests; typecheck, targeted lint and verifier syntax pass. No verifier import/execution, PostgreSQL command, database, build, network, credential or hosted operation occurred in this correction. Independent delta review remains next; any later human-only local run is a post-review coordinator action and was not started here.
+
+## Prior continuation — executed local proof exposed a role-sequencing error in PASS 07
 
 Darshan's latest human-owned Terminal run used coordinator-observed source at `709a8b6c6ce0b9f350926f2ce0d108e41279801e`. The retained artifacts do not embed the repository identity, so this remains a before/after source observation rather than an artifact-internal cryptographic binding. The original `summary.json` remains byte-identical at SHA-256 `62d9a91fb2fc1f978f941f58da2752d6e72a955b3cf3a214a015665f0aff096d`; `postgres.log` remains byte-identical at SHA-256 `6cdafd3c0f011fda358bbaa2481cac125ba11753946f6ffb4fe99ae2c5632840`.
 

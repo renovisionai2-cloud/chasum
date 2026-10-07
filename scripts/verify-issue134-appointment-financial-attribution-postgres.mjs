@@ -404,6 +404,28 @@ function createDatabase(name) {
 }
 
 function createConcurrencyFixture(database, suffix, amount) {
+  if (arguments.length !== 3) {
+    throw new Error(
+      "Concurrency fixture requires database, suffix, and amount",
+    );
+  }
+  if (database !== "issue134_success") {
+    throw new Error(`Unknown concurrency fixture database: ${database}`);
+  }
+  if (
+    typeof suffix !== "string" ||
+    !/^(10|20|30|40)$/.test(suffix)
+  ) {
+    throw new Error(`Invalid concurrency fixture suffix: ${suffix}`);
+  }
+  if (
+    typeof amount !== "number" ||
+    !Number.isFinite(amount) ||
+    !Number.isInteger(amount) ||
+    amount <= 0
+  ) {
+    throw new Error(`Invalid concurrency fixture amount: ${amount}`);
+  }
   const ids = {
     business: `1343${suffix}00-0000-4000-8000-000000000001`,
     oldCustomer: `1343${suffix}00-0000-4000-8000-000000000002`,
@@ -624,7 +646,11 @@ try {
     { quiet: true },
   );
 
-  const paymentFirst = createConcurrencyFixture("10", 501);
+  const paymentFirst = createConcurrencyFixture(
+    "issue134_success",
+    "10",
+    501,
+  );
   const paymentFirstPromise = sqlAsync(
     "issue134_success",
     `set application_name = 'issue134_payment_first';
@@ -675,7 +701,11 @@ try {
   evidence.concurrency.push("payment-commit-first");
   console.log("PASS true multi-session payment-first commit blocks and rejects reassignment");
 
-  const paymentRollback = createConcurrencyFixture("20", 502);
+  const paymentRollback = createConcurrencyFixture(
+    "issue134_success",
+    "20",
+    502,
+  );
   const paymentRollbackPromise = sqlAsync(
     "issue134_success",
     `set application_name = 'issue134_payment_rollback';
@@ -719,7 +749,11 @@ try {
   evidence.concurrency.push("payment-rollback-first");
   console.log("PASS true multi-session payment rollback releases reassignment with zero financial effect");
 
-  const reassignmentFirst = createConcurrencyFixture("30", 503);
+  const reassignmentFirst = createConcurrencyFixture(
+    "issue134_success",
+    "30",
+    503,
+  );
   const reassignmentFirstPromise = sqlAsync(
     "issue134_success",
     `set application_name = 'issue134_reassignment_first';
@@ -769,7 +803,11 @@ try {
   evidence.concurrency.push("reassignment-commit-first");
   console.log("PASS reassignment-first commit rejects R1a and rolls back ACCEPTED/ledger/event/obligations without a new key");
 
-  const reassignmentRollback = createConcurrencyFixture("40", 504);
+  const reassignmentRollback = createConcurrencyFixture(
+    "issue134_success",
+    "40",
+    504,
+  );
   const reassignmentRollbackPromise = sqlAsync(
     "issue134_success",
     `set application_name = 'issue134_reassignment_rollback';

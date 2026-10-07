@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — PR157 attribution contract passed; concurrency fixture-call correction prepared
+
+- Retained instrumented human evidence at source `f1e5228` proves the local attribution contract phase exited 0 with all 11 PASS sections and separate exact `42501`/`23514` role-negative outcomes. The run then stopped before concurrency because two arguments made suffix `10` the database name; concurrency remained empty and timeout unrun. Summary SHA-256 is `87fda797ce56b9db3865c866677075a72e48ade6cfb59447fb2a5762ebfafbde`; source identities matched, shutdown/removal were confirmed and cleanup succeeded.
+- Corrected all four calls to pass explicit `issue134_success`, suffix and amount. The fixture helper now rejects missing/misordered inputs, unknown database, unknown suffix and invalid amount before SQL. Offline tests execute the isolated actual helper with a fake SQL callback and AST-check all four calls.
+- Focused **29/29**, scoped **63 files / 591 tests**, typecheck, targeted lint and verifier syntax PASS. A source-only scan found no additional concrete deterministic handoff/timeout defect; concurrency and timeout remain unexecuted. Runtime, migration, financial SQL and hosted state are unchanged; independent delta review remains next.
+
 ### 2026-10-07 — PR157 proof-role correction independently accepted
 
 - Reconciled the latest human local run as stopped in contract PASS 07: a test reset out of service_role and received the existing exact server-only 42501 rejection before its expected request-mismatch 23514. Owned PGDATA shutdown/removal and original evidence hashes are preserved; no hosted application or financial acceptance.
