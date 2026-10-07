@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — #158 durable booking operation prepared and default-off
+
+- Implemented the exact #134 prepared-only durable fresh-booking/deposit backend: stable operation/attempt/inline-customer identities, operation-first replay, atomic operation-tagged appointment persistence, safe binding, explicit no-payment, specialized canonical manual commit, fenced close/correction, and private exact/history recovery readers.
+- Added one unapplied CLI-generated migration with the locked 23-delta database contract plus focused normalization/kernel/persistence/static regressions and a human-only disposable PostgreSQL 17 proof package. The backend is unwired and new admission remains hard-disabled.
+- Offline validation passed focused 45 tests, all 1,959 available non-browser tests, typecheck, scoped lint, verifier syntax/refusal checks, and a webpack production build. Full lint remains blocked by 29 pre-existing errors in untouched UI files; two browser-dependent suites remain unavailable because the Playwright Chromium binary is absent. **DATABASE PROOF: NOT RUN.** No hosted database, migration application, projection, communication, provider, deployment, push, PR, Production, GVM, or historical financial action occurred.
+
 ### 2026-10-07 — #134 durable fresh-booking/deposit design ready for implementation approval
 
 - Published the bounded competitor/product checkpoint and final contract `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d` after sole Sol authoring, Grok financial/idempotency challenge and Claude exact-byte final acceptance. Initial design findings were corrected, not waived.
