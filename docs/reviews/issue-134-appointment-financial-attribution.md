@@ -1,6 +1,22 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-## Current continuation — reviewed local identity-format correction
+**Current status:** HUMAN LOCAL PROOF STOPPED IN CONTRACT PASS 02 / PROOF-ONLY TYPE CORRECTION AWAITING INDEPENDENT DELTA REVIEW / HOSTED UNAPPLIED.
+
+## Current continuation — executed local proof reached the new migration and stopped on proof typing
+
+Darshan's second human-owned Terminal run used coordinator-observed source at `d23ba22ce7a271e18f777c892b09945ca498337d`. The evidence artifacts do not embed a repository identity, so this attribution remains a before/after source observation rather than an artifact-internal cryptographic binding.
+
+**Run classification: `STOPPED_IN_CONTRACT_PASS_02 / NOT A DATABASE PASS / NOT AN INVARIANT FAILURE`.** PostgreSQL 17.11 started on exact loopback, the synthetic foundation/R1a fixture loaded, and the new attribution migration completed locally in 20ms. The bounded observation was `2003|2001|188416|401408|155648`. The run then stopped at `issue-134-appointment-financial-attribution-contract.sql:236`, before concurrency or lock-timeout work, because PostgreSQL could not compare `name[]` from `array_agg(pg_trigger.tgname)` with the expected `text[]` literal.
+
+The retained `summary.json` is SHA-256 `20b18b148e915fd79af7bc9d31a727e4ff74633ad8c51da01477b515bfc5ab9a`; `postgres.log` is SHA-256 `d7e3195eb1436a78c0d8d4db579f4d66833f6427069925ba5714765a68144e2a`. Both remain byte-identical outside the repository. The summary records `passed=false`, `concurrency=[]`, `lockTimeoutElapsedMs=null`, `stopConfirmed=true`, `pgdataRemoved=true`, `cleanupFailure=null`, stop status 0 and final status 3. The coordinator separately confirmed PGDATA absent.
+
+This was a deterministic proof-expression type error, not rejection by the appointment/customer invariant and not a hosted migration application. The proof-only correction casts each catalogue `tgname` value to `text` inside `array_agg`, while retaining the exact two-name array, catalogue ordering and fail-closed mismatch exception. It does not cast the expected identifiers to PostgreSQL `name`, truncate them, weaken the assertion, or change runtime/migration behavior.
+
+A bounded source scan covered the remaining contract/verifier assertions for the same concrete class. The `pg_attribute.attname` aggregates are assigned into declared `text[]` variables and PASS 01 executed before this failure; `pg_proc.proconfig` is already `text[]`; the scalar `"char"` catalogue predicates, regprocedure/OID comparisons and ACL OID check all executed before the failing trigger comparison. Remaining expected-name arrays are parameters already typed `text[]`. The verifier has no further catalogue-name array comparison. No additional analogous deterministic defect was found. This is a source scan plus partial-run evidence, not execution proof of PASS 02 onward; the hard-delete cases, concurrency interleavings and timeout rollback remain unexecuted.
+
+Offline validation after the correction: two focused files / 25 tests PASS; scoped booking/booking-engine/commerce/migrations 63 files / 587 tests PASS; typecheck, targeted lint and verifier syntax PASS. No PostgreSQL process, verifier, build, network or hosted operation was run by this correction. Independent delta review is next; only afterward may another human execution be requested under the existing local-only authorization.
+
+## Prior continuation — reviewed local identity-format correction
 
 **Human local attempt: STOPPED_BEFORE_FIXTURES. Corrected source: CLAUDE SOURCE_DELTA_VERDICT PASS. DATABASE_PROOF_GATE: NOT MET.**
 
@@ -184,7 +200,7 @@ GVM Operational Acceptance is not earned.
 
 </details>
 
-**Status:** SOURCE ACCEPTED / HUMAN LOCAL PROOF STOPPED_BEFORE_FIXTURES / FORMAT CORRECTION AWAITING DELTA REVIEW / HOSTED UNAPPLIED.
+**Status:** HUMAN LOCAL PROOF STOPPED IN CONTRACT PASS 02 / PROOF-TYPING CORRECTION AWAITING DELTA REVIEW / HOSTED UNAPPLIED.
 **Competitive Product Gate:** NOT_APPLICABLE — bounded enforcement of the reviewed financial-integrity invariant and exact error mapping; no new operator workflow.
 
 ## Final independent source review preserved — database proof still open
@@ -275,7 +291,7 @@ The verifier accepts no `DATABASE_URL` or caller endpoint. It creates a uniquely
 - Verifier syntax: **PASS**.
 - Verifier display-format correction: **2 focused files / 24 tests PASS**; verifier syntax and targeted lint **PASS**. No database process was started by these checks.
 - Build: installed Next.js 16.3.6 help confirmed supported `--webpack` mode. A one-time sanitized no-secrets webpack build passed configuration and entered compilation, then failed because sandbox DNS could not resolve `fonts.googleapis.com` for existing `next/font` Inter and JetBrains Mono downloads. Turbopack was not retried; no network permission, dependency/config change or credential was requested.
-- PostgreSQL execution: the agent-sandbox attempts remained blocked before SQL. The later human run started PostgreSQL 17.11 but stopped at identity verification before database/fixture creation because `inet::text` returned `127.0.0.1/32`. Concurrency, FK/cascade behavior, RLS-role execution, index/validation cost, row digests and timeout rollback remain **AUTHORED / NOT EXECUTED**, not PASS.
+- PostgreSQL execution: the agent-sandbox attempts remained blocked before SQL. The first human run stopped at identity verification; the corrected second human run loaded the synthetic fixture and accepted R1a contract, applied the new migration locally in 20ms, then stopped on the PASS 02 `name[]`/`text[]` proof-expression mismatch. Concurrency, hard-delete/cascade completion, RLS-role completion and timeout rollback remain incomplete; the migration timing/fixture-size observation is bounded local evidence only, not a database PASS.
 
 Seven agent-sandbox attempts removed their marker-owned PGDATA and retained summaries outside the repository. The first pre-hardening attempt left an empty initdb-cleaned directory at `/tmp/chasum-issue134-attribution-evidence-HZi2On/pgdata`; specialized deletion was rejected, and no retry, alternate deletion, or permission escalation occurred. Separately, the human run started and cleanly stopped its owned server and removed its PGDATA, as recorded above.
 
@@ -287,7 +303,7 @@ This is not a database-accepted candidate while executable PostgreSQL proof rema
 
 ## Next independent gate
 
-Independent delta review of the narrow query-format correction is next. Only after that review may a human choose to run the corrected verifier in an approved local environment with a new disposable PostgreSQL 17 cluster; do not request another run of the unchanged failing script. Record the actual bounded cost/interleaving results before any Staging application gate. No independent review or database PASS for the new correction is claimed here.
+Independent delta review of the narrow proof-typing correction is next. Only after that review may a human choose to run the corrected verifier in an approved local environment with a new disposable PostgreSQL 17 cluster; do not request another run of the unchanged failing SQL bytes. Record the actual contract/interleaving/timeout results before any Staging application gate. No independent review or database PASS for this correction is claimed here.
 
 
 <details>

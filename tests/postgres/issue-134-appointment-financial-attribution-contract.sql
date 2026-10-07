@@ -219,7 +219,9 @@ begin
     raise exception 'legacy guard has direct EXECUTE privilege';
   end if;
   if (
-    select array_agg(trigger_row.tgname order by trigger_row.tgname)
+    select array_agg(
+      trigger_row.tgname::text order by trigger_row.tgname
+    )
     from pg_catalog.pg_trigger trigger_row
     where trigger_row.tgrelid = 'public.commerce_transactions'::regclass
       and not trigger_row.tgisinternal

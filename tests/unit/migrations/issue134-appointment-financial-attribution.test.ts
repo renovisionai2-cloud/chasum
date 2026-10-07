@@ -158,6 +158,22 @@ describe("Issue #134 appointment financial-attribution migration", () => {
     );
   });
 
+  it("compares the exact trigger order with aligned text-array element types", () => {
+    expect(postgresContract).toContain(
+      "array_agg(\n      trigger_row.tgname::text order by trigger_row.tgname\n    )",
+    );
+    expect(postgresContract).not.toContain(
+      "array_agg(trigger_row.tgname order by trigger_row.tgname)",
+    );
+    expect(postgresContract).toContain(
+      `) is distinct from array[
+    'commerce_transactions_attempt_guard',
+    'commerce_transactions_legacy_appointment_attribution_guard'
+  ] then
+    raise exception 'commerce guard trigger order/set mismatch';`,
+    );
+  });
+
   it("models the claimed non-key edits only in the disclosed local contract", () => {
     for (const column of ["service_id", "staff_id", "location_id"]) {
       expect(postgresContract).toContain(`add column ${column} uuid`);

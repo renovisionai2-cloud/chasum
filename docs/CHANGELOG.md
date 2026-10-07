@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — PR157 local contract proof reached migration; typing correction prepared
+
+- The corrected human-owned local run started PostgreSQL 17.11 on loopback, loaded the synthetic foundation/R1a fixture, and applied the new attribution migration locally in 20ms with bounded observation `2003|2001|188416|401408|155648`. It then stopped in contract PASS 02 before concurrency/timeout work: `array_agg(pg_trigger.tgname)` produced `name[]`, which cannot be compared directly with the expected `text[]` array. This is a proof-expression defect, not an invariant failure or hosted application.
+- Preserved the failed-run summary/log byte-exactly at SHA-256 `20b18b148e915fd79af7bc9d31a727e4ff74633ad8c51da01477b515bfc5ab9a` / `d7e3195eb1436a78c0d8d4db579f4d66833f6427069925ba5714765a68144e2a`. The summary records `passed=false`, no concurrency or timeout result, confirmed shutdown, owned-PGDATA removal and no cleanup failure.
+- Cast only catalogue `tgname` values to `text` before the exact ordered-array comparison; expected identifiers and mismatch behavior remain unchanged. A bounded scan found no further analogous deterministic name/text, OID/integer or `"char"`/text defect; this is source review, not proof beyond the stop.
+- Offline validation: **25/25 focused**, **63 files / 587 scoped**, typecheck, targeted lint and verifier syntax PASS. PostgreSQL, verifier execution, build and hosted operations were not rerun. Independent delta review precedes any next human-only local execution.
+
 ### 2026-10-06 — PR157 local verifier identity-format stop and reviewed correction
 
 - Human Terminal execution started and cleanly stopped its temporary PostgreSQL 17.11 server, but the `inet::text` netmask suffix caused a pre-fixture identity assertion to fail. No financial test or new hosted operation occurred; original result/log hashes and confirmed PGDATA removal are retained.
