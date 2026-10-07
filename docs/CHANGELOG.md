@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-06 — PR157 local verifier identity-format stop and reviewed correction
+
+- Human Terminal execution started and cleanly stopped its temporary PostgreSQL 17.11 server, but the `inet::text` netmask suffix caused a pre-fixture identity assertion to fail. No financial test or new hosted operation occurred; original result/log hashes and confirmed PGDATA removal are retained.
+- Corrected one SQL projection in source `9ea36e7` to `pg_catalog.host(pg_catalog.inet_server_addr())` without weakening exact host/port/ownership checks. Claude delta PASS; 24 focused and 586 scoped tests independently pass. Migration/application/financial-contract bytes unchanged. Actual database proof remains outstanding; next local execution is human-only under existing scope, not a new Product Owner policy gate.
+
+
 ### #134 attribution candidate — human verifier stopped before fixtures; format correction prepared
 
 - Recorded Claude AUTHORING_PASS on corrected code `d04a79c9`; independently reproduced 23 focused and 585 scoped tests, typecheck, targeted lint and syntax checks. Exact new migration remains `fd673cbf...3e7524`, hosted unapplied.

@@ -1,5 +1,189 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
+## Current continuation — reviewed local identity-format correction
+
+**Human local attempt: STOPPED_BEFORE_FIXTURES. Corrected source: CLAUDE SOURCE_DELTA_VERDICT PASS. DATABASE_PROOF_GATE: NOT MET.**
+
+The human-started disposable PostgreSQL 17.11 instance successfully started and performed the initial identity SELECT. The original verifier rejected its `127.0.0.1/32` text value against exact `127.0.0.1` equality, before any dedicated test database, fixture/migration load or financial contract. This is a reproduced identity-format defect, not evidence that the payment/attribution kernel failed. The stopped-run evidence reports confirmed shutdown, no cleanup failure and owned PGDATA removal, independently corroborated by the log and absent directory. Original summary/log remain unchanged at SHA-256 `d12a8ce2eb3d76dc78a5bd7a5d9ede63556ec8cf805990bc43ad54f1e61de299` and `e5b54ed10e02b1a93ab9febcf7a35cd86028dda9beacc12d3dffd2a6b889bcdd`.
+
+Sol corrected only the SQL address projection to `pg_catalog.host(pg_catalog.inet_server_addr())`, preserving every strict bind/host/port/realpath/marker/cleanup predicate. Corrected source `9ea36e72366fa4c17d96dd4d8a89b375ab7c2cd4`; verifier SHA-256 `1273354af70bbc574468a497affee80a7450b49fe59c2d49d6b76cbed05e1802`. The four-file delta adds one focused regression and updates this record/changelog; migration, application mapping and financial SQL contract are unchanged from accepted source `d04a79c9`.
+
+Claude continued independent session `797e841c-7601-4f61-9e0c-363ec6842e7e`, with reported model `Claude Opus 5 300K High No Thinking`, and returned **SOURCE_DELTA_VERDICT: PASS** after reading original evidence, hashing source/evidence, inspecting the four-file delta and independently running 24 focused tests plus 63 files / 586 scoped tests, syntax and targeted lint. Sol independently ran 24 focused tests, syntax and targeted lint. Neither reran PostgreSQL, a build, or any hosted operation. The original source audit remains valid within its recorded limits; no foundation/R1a/C01 audit was reopened.
+
+Coordinator qualifications to the verbatim review below: the initial identity SELECT **did run**; “no SQL” means no fixture/migration/financial-contract SQL, not zero connection queries. The adjacent version predicate proves PG >=17, not a categorical upper-major bound; the stopped-run server log explicitly identifies 17.11. Temp-path delimiter and elapsed-time observations are not stand-alone execution proof. Source control flow plus original stopped-run records establish the pre-fixture stop. The summary does not embed repository/verifier hashes; source-to-run identity is attested by the coordinator's before/after observations, not a cryptographic binding inside the artifact. This remains a disclosed provenance limitation, not a waived financial-test requirement.
+
+Next is one HUMAN local run of the corrected verifier under the existing local-only proof approval. It creates a fresh owned disposable cluster and must not repeat the unchanged failing bytes or the denied agent-sandbox bootstrap. No new policy approval is needed for this unchanged financial scope. No token or hosted URL is required. The prior human-run evidence remains retained, not overwritten. On any new failure, stop and preserve that result; no automatic retry. Current code/source readiness is NOT database acceptance, Staging application permission or GVM Operational Acceptance.
+
+This is a factual documentation-only closeout after the corrected-source audit. No fixture, worker, payment, Staging/Production/GVM operation, migration application, permission change, activation or merge is included. All prior operational holds remain.
+
+<details><summary>Claude final narrow delta and actual-stop review (verbatim final block)</summary>
+
+````markdown
+# CLAUDE — PR157 DELTA / HUMAN LOCAL STOP REVIEW — Issue #134
+
+Continuation of accepted source audit session `797e841c-7601-4f61-9e0c-363ec6842e7e`.
+Not a fresh foundation/R1a/C01 audit. I did not execute or import the verifier, initdb,
+pg_ctl, SQL, any build, network or credential path, and did not retry the established
+agent-sandbox `shmget` denial.
+
+## SOURCE_DELTA_VERDICT: PASS (narrow format correction accepted)
+
+Exactly four files changed vs `74d1b083cb6cfe7d7873b94d0b01f2fdee797e03`
+(+44/−12): the verifier, the migration unit test, the candidate review, and the changelog.
+No fifth file. The functional change is one line:
+
+`inet_server_addr()::text` → `pg_catalog.host(pg_catalog.inet_server_addr())`
+
+Verified **not** a loosening. Every acceptance predicate is unchanged strict equality:
+`listenAddresses !== "127.0.0.1"`, `serverAddress !== "127.0.0.1"`,
+`serverPort !== String(port)`, `isPostgres17 !== "t"`, `!observedDataDirectory`, and
+`realpathSync(observedDataDirectory) !== realpathSync(dataDir)`. I searched the verifier for
+any substring, prefix, regex, `split("/")`, `startsWith`, or SQL `LIKE` relaxation and found
+none — the correction normalizes the value at the SQL projection layer rather than weakening
+the comparison, which is the right fix direction. Per the coordinator-supplied PostgreSQL 17
+`functions-net` Table 9.40, `text(inet)` includes the netmask while `host(inet)` returns the
+address only; I am relying on that documented behavior, not on reviewer SQL execution.
+Schema-qualifying both functions additionally hardens against `search_path` shadowing, a
+small improvement over the prior bare call.
+
+Fail-closed behavior is preserved in the failure directions that matter: a non-loopback bind,
+an IPv6 bind, or a NULL `inet_server_addr()` (socket connection) all still mismatch and abort.
+No alternate target, endpoint override, or credential path was introduced; the minimal child
+environment, private empty `.pgpass`/`pg_service.conf`, `PGSYSCONFDIR` redirect, marker
+checks, stop-confirmation (`pg_ctl status` == 3) and single marker-gated `rmSync(dataDir)`
+are untouched.
+
+**No application, migration, or financial-contract change.** `git diff d04a79c9..HEAD` across
+`supabase/`, `lib/`, and `tests/postgres/` is empty. Migration stays
+`fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`.
+
+Documentation delta is accurate and does not conceal the outcome: it classifies the run
+STOPPED_BEFORE_FIXTURES / NOT PASS, cites the official docs, states no database PASS is
+claimed, relabels my prior audit as historical rather than restating it as current, and
+preserves all holds. No false PASS found.
+
+## Actual-human-run verdict: STOPPED_BEFORE_FIXTURES — NOT A FINANCIAL FAILURE
+
+Classification confirmed from the original evidence, not from the report. This was the
+harness refusing to proceed on its own identity self-check — a fail-closed abort, not a
+financial-contract failure and not a hosted event.
+
+Notably, every *substantive* ownership property was in fact satisfied in that run: field 1
+`127.0.0.1`, field 3 port `57017` matching the allocated port, field 4 `t` (PG≥17), and
+field 5 the owned PGDATA path. Only field 2's textual form (`127.0.0.1/32`) differed. So the
+cluster was correct and the assertion was wrong — which is the benign ordering.
+
+Proof that no fixture/database/SQL ran, from the retained summary's own null fields:
+`dataDirectory`, `postgresVersion`, `boundedFixture`, `migrationElapsedMs`,
+`lockTimeoutElapsedMs` are all `null` and `concurrency` is `[]`. `dataDirectory: null`
+places the throw at the binding check, which precedes the version read, which precedes
+`createDatabase()`. The server log independently corroborates: ready to accept connections at
+22:36:53.218, fast shutdown requested at 22:36:53.470 — a ~252 ms window, far too short to
+load the five fixture/migration files. The log also shows initdb had completed successfully,
+confirming the human environment does permit PG bootstrap (unlike the agent sandbox).
+
+### Proof of cleanup
+- `stopCommandStatus: 0`, `statusCommandStatus: 3` (no server running) → `stopConfirmed: true`
+- `cleanupFailure: null`, `pgdataRemoved: true`, `passed: false`
+- I independently confirmed `…PQdbgH/pgdata` is **absent** on disk now.
+- Retained dir is `0700`; only `ownership-marker`, `postgres.log`, `summary.json`, and
+  `home/`. Both `home/.pgpass` and `home/pg_service.conf` are **0 bytes, 0600** — no
+  credential was present, used, or captured.
+- Evidence immutability: `summary.json` SHA-256 recomputes to
+  `d12a8ce2eb3d76dc78a5bd7a5d9ede63556ec8cf805990bc43ad54f1e61de299`, matching the dispatch
+  value byte-exactly. Nothing was rewritten or deleted. I deleted no files.
+- Pre-existing `.supabase/` remains untracked, uninspected, not gitignored; git status is
+  `?? .supabase/` only.
+
+## Adjacent identity parsing — narrow check, no deterministic next-step error
+
+`binding.split("|")` into five scalars is safe: `listen_addresses` is pinned by the start
+option, and a `|` inside the temp path (not possible under macOS `TMPDIR` + `mkdtemp`) would
+truncate field 5 and fail the realpath comparison rather than widen acceptance.
+
+I also checked the immediate next-step loader asymmetry: `loadAcceptedBaseline` runs one
+`psql` per file (separate sessions) while the success database uses a single multi-`-f`
+session. This would break if a fixture's `on commit preserve rows` temp table were read
+across files — verified it is not: each fixture creates and reads only its own temp table
+within the same file, and neither accepted migration references either. No defect.
+
+Cosmetic only: `inet_server_port()` and `current_setting()` remain unqualified while the two
+corrected functions are `pg_catalog`-qualified. Negligible in a freshly provisioned owned
+cluster.
+
+Non-blocking recommendation (evidence provenance, not a code defect): `summary.json` records
+no repository HEAD or verifier SHA-256, so the retained evidence cannot be cryptographically
+bound to the reviewed bytes — the report's attribution of the run to `74d1b083` is not
+independently verifiable from the artifact. Recording HEAD and the verifier hash into the
+summary would close this before the next run produces acceptance-grade evidence.
+
+## Tests I actually ran (offline only)
+
+| Check | Result |
+|---|---|
+| Focused attribution tests (2 files) | **24/24 PASS** — matches claim |
+| Scoped booking/booking-engine/commerce/migrations | **63 files / 586 PASS** (+1 new test) |
+| `node --check` verifier | PASS (syntax only, no execution) |
+| eslint — verifier + migration test | PASS, no diagnostics |
+| Hashes / diff / four-file scope / preservation | PASS |
+| Verifier, initdb, pg_ctl, SQL, DB bootstrap, build, network, credentials | **NOT RUN** |
+
+## Exact SHA / hash provenance (all recomputed by me)
+
+- HEAD `9ea36e72366fa4c17d96dd4d8a89b375ab7c2cd4`, tree
+  `0137b5373aaeabea000c12e53dc5ba9f68ff5276`, parent `74d1b083cb6cfe7d7873b94d0b01f2fdee797e03`
+- Verifier `1273354af70bbc574468a497affee80a7450b49fe59c2d49d6b76cbed05e1802` (matches claim)
+- Migration `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524` (UNCHANGED)
+- Mapping `727cd72b54fd8a306456414d4f0cc248262bd89ee1a9ef3889f8fa3fe1dcecdc` (UNCHANGED)
+- Financial SQL contract `e87deb3946846c5fedfb95c9191c005360eb8f6819091de3da49ca5d990990aa` (UNCHANGED)
+- Design `33af6e34083c43730137f2fa0b748ed735de6c985980ffffe53ccb6c08961f0f` (UNCHANGED)
+- Foundation `dee700ae…1ee3a47`, R1a `4b7e3855…4bad5ee7` (UNCHANGED)
+- Human evidence: summary `d12a8ce2…1de299`, log
+  `e5b54ed10e02b1a93ab9febcf7a35cd86028dda9beacc12d3dffd2a6b889bcdd` — both match claims
+
+## Remaining DATABASE_PROOF_GATE: STILL NOT MET
+
+Corrected-source readiness and database proof are different facts. The source is accepted;
+the contract has still **never executed any SQL**. Outstanding and unproven: the eleven
+contract sections, all four concurrency interleavings with rollback variants, cascade/RLS
+role coverage, row digests, 2,000-row bounded index/FK validation cost, and atomic
+lock-timeout rollback. My predicted canonical-cascade 42501 remains unresolved by evidence;
+the corrected helper accepts it under any of the three analyzed orderings, but which
+mechanism actually fires is still unobserved. Everything beyond the identity query is
+first-execution territory.
+
+## One future human local command: WITHIN EXISTING LOCAL-ONLY APPROVAL
+
+Yes. Same worktree, same verifier, newly reviewed bytes at `9ea36e72`, fresh private temp
+cluster. This is instrumentation re-execution of an already-authorized local proof, so it
+needs **no fresh policy approval**. It reads no credentials, has no hosted or remote target,
+applies no migration to any Chasum environment, writes nothing into the repository, and
+deletes nothing outside its own fresh temp directory.
+
+```
+cd /Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution && node scripts/verify-issue134-appointment-financial-attribution-postgres.mjs
+```
+
+No arguments, no environment variables, no sudo; must run from the worktree root. Do not
+re-run the unchanged failing bytes, and do not automate this or retry the denied agent-sandbox
+launch. Unchanged disclosure: during the bounded window the throwaway cluster uses `trust`
+auth on an ephemeral loopback port with synthetic data only. If it stops again, capture
+`summary.json` and the verbatim error rather than re-running with modifications; a second
+stop before fixtures is still not a financial failure.
+
+## Not authorized
+
+No Staging, Production, activation, migration application, hosted validation, #153 change,
+projection execution, merge, release, or GVM action. Migration remains PREPARED ONLY /
+HOSTED UNAPPLIED; the branch still depends on PR156. Build remains NOT PASSED (sandbox DNS
+blocked existing Google Fonts downloads) — environmental, not a candidate defect. All
+numerical hosted figures referenced in the docs remain dated prior observations, not current
+reads. The approved financial rule and my earlier audits stand within their stated bounds;
+GVM Operational Acceptance is not earned.
+````
+
+</details>
+
 **Status:** SOURCE ACCEPTED / HUMAN LOCAL PROOF STOPPED_BEFORE_FIXTURES / FORMAT CORRECTION AWAITING DELTA REVIEW / HOSTED UNAPPLIED.
 **Competitive Product Gate:** NOT_APPLICABLE — bounded enforcement of the reviewed financial-integrity invariant and exact error mapping; no new operator workflow.
 
