@@ -4,7 +4,13 @@
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — #134 Staging application result
+## Current continuation — durable booking/deposit implementation gate
+
+**READY_FOR_PO_IMPLEMENTATION_GATE / PREPARED-ONLY IMPLEMENTATION NOT AUTHORIZED.** [Final contract, review and exact gate](../reviews/issue-134-durable-booking-deposit-design-review.md), contract SHA-256 `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`. Proposed scope is section 13's 16 paths and section 7's 23 new schema deltas; the existing foundation/R1a/attribution SQL remains immutable. The new path remains unwired/default-off, with private recovery and explicit unfinished-payment/no-payment outcomes; projections, public reporting, UI wiring, communication, permission cutover and hosted execution stay separately gated. Claude final exact-contract review has no required correction. Grok's earlier corrected-core pass is preserved at its own hash, not relabeled as a final-byte review.
+
+No tests, SQL, migration generation/application, new financial records or accepted-proof reruns occurred. Retention consequences and repeated no-ledger correction behavior are explicitly disclosed. Darshan's next decision is only the precise prepared-only implementation/local-proof gate; do not interpret prior 'let us go' preparation authority as code authorization. The completed Staging application below must not be reapplied.
+
+## Accepted continuation — #134 Staging application result
 
 **STAGING_SCHEMA_APPLICATION_ACCEPTED / APPLIED ONCE / POSTCHECKS PASS.** Darshan approved the exact gate; native `apply_migration` returned `success:true` once with no retry on `wnfahklzaxirftyskctd`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, exactly one 6,529-byte statement at migration SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524` and frozen package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`. **Do not reapply.**
 
@@ -12,7 +18,7 @@ Read-only postchecks returned `POST_APPLY_EXACT`: exact constraints/backing inde
 
 This is schema-only Staging acceptance evidence. No hosted DML/PostgREST/UI/payment/projection behavior was tested; R1a remains unwired/default-off. #153/SEQ-ACL-1, #133, #135, historical USD, retained-worker exclusion, application deployment, technician, Production/GVM and GVM Operational Acceptance remain held. Do not process retained obligations or restart accepted local/C01 proof. The stale PR body remains untouched.
 
-## Next preparation — durable fresh-booking and manual-deposit handoff
+## Preparation history — superseded by the exact contract gate above
 
 The read-only source/dependency plan has independent verdict **PLAN_ACCEPTED_FOR_PREPARATION**, not implementation readiness. [Consolidated source map, review and corrections](../reviews/issue-134-connected-runtime-preparation-plan.md). Immediate work is the bounded Booking Sheet/Quick Appointment durable-operation/recovery contract, reusing existing booking_operation primitives, with projection/#133 evidence and #153 cutover dependencies. Record the applicable Competitive Product Gate before material operator-flow implementation. No new Product Owner approval is required to complete this design; seek the exact prepared-only implementation gate only when ready. No accepted proof, applied migration, retained financial record, Production/GVM workflow or blocked tool operation is to be repeated.
 

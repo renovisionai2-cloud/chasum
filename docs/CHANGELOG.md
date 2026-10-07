@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — #134 durable fresh-booking/deposit design ready for implementation approval
+
+- Published the bounded competitor/product checkpoint and final contract `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d` after sole Sol authoring, Grok financial/idempotency challenge and Claude exact-byte final acceptance. Initial design findings were corrected, not waived.
+- Proposed first slice: 16 paths / 23 schema deltas, including private canonical readers; unwired/default-off with no projection or UI activation. Retention, same-identity recovery, repeated no-ledger corrections, legacy caller preservation and later permission/communication gates are explicit.
+- Documentation and read-only design only. No code, SQL, migration, tests/build, hosted financial operation or accepted-proof rerun. Accepted Staging/C01/Run02 evidence and all Production/GVM holds remain. [Exact gate](reviews/issue-134-durable-booking-deposit-design-review.md).
+
 ### 2026-10-07 — #134 exact attribution migration applied to governed Staging
 
 - Darshan approved the final exact gate; native application ran once without retry on `wnfahklzaxirftyskctd` and returned `success:true`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, one 6,529-byte statement at approved SHA-256 `fd673cbf...3e7524` and frozen package audit `6abdd6ff...e4ba`.
