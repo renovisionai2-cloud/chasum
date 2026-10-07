@@ -1,0 +1,224 @@
+{
+  "schema_version": "issue134-attribution-staging-application-v2",
+  "status": "CORRECTED_INDEPENDENT_DELTA_REVIEW_PENDING_NOT_AUTHORIZED_TO_APPLY",
+  "prepared_at": "2026-10-07",
+  "competitive_product_gate": "NOT_APPLICABLE_LOCKED_FINANCIAL_INTEGRITY_GATE",
+  "target": {
+    "kind": "governed_staging_only",
+    "supabase_project_ref": "wnfahklzaxirftyskctd",
+    "production_and_gvm_prohibited": true
+  },
+  "source": {
+    "branch": "codex/issue-134-appointment-financial-attribution",
+    "head": "732e3821858826898e0c9ec80996e643f6cf0f2c",
+    "tree": "c02e740f6eabecabcc961674623620e87fcbf4a3",
+    "parent": "e4b5bf74b19eb3ab5d863612838131f1ee605e66",
+    "base_pr156": "789f54d142bc80200654c04b87d82bced37e42e9",
+    "observed_main": "31115e6a51b71fc097c279d205065d80e0be3573"
+  },
+  "candidate": {
+    "path": "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql",
+    "bytes": 6529,
+    "lines": 186,
+    "sha256": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+    "transaction": "atomic",
+    "lock_timeout": "5s",
+    "lock_timeout_scope": "per_lock_wait",
+    "statement_timeout": "30s",
+    "statement_timeout_scope": "per_statement_not_whole_transaction",
+    "hosted_status": "UNAPPLIED",
+    "future_application_requires_explicit_product_owner_approval": true
+  },
+  "immutable_inputs": {
+    "runtime_mapping": {
+      "path": "lib/booking-engine/mutations/update.ts",
+      "sha256": "727cd72b54fd8a306456414d4f0cc248262bd89ee1a9ef3889f8fa3fe1dcecdc"
+    },
+    "financial_contract": {
+      "path": "tests/postgres/issue-134-appointment-financial-attribution-contract.sql",
+      "sha256": "6be2c3ae69f0d1a08298bbc3f33083097040cc849b9a29a09dd160c0158fd747"
+    },
+    "local_verifier": {
+      "path": "scripts/verify-issue134-appointment-financial-attribution-postgres.mjs",
+      "sha256": "71c98a1e2f647bdd39e88b237eea342bc6b1a95fce5da629d17cf1dd724e4c83"
+    },
+    "reviewed_design": {
+      "path": "docs/reviews/issue-134-next-runtime-contract.md",
+      "sha256": "33af6e34083c43730137f2fa0b748ed735de6c985980ffffe53ccb6c08961f0f"
+    },
+    "design_review": {
+      "path": "docs/reviews/issue-134-next-runtime-contract-review.md",
+      "sha256": "427176c409f94515188c0c35e1401bdb8ec2d903ad5d6cbd713061044ae90f01"
+    },
+    "candidate_review_historical_git_ref": {
+      "git_ref": "732e3821858826898e0c9ec80996e643f6cf0f2c",
+      "path": "docs/reviews/issue-134-appointment-financial-attribution.md",
+      "lookup": "732e3821858826898e0c9ec80996e643f6cf0f2c:docs/reviews/issue-134-appointment-financial-attribution.md",
+      "sha256": "b3c77736e7e70abe85c3e91e876f617d6d0aeb80faea0df3b29f58a8ce67173a"
+    },
+    "accepted_snapshot_logic": {
+      "path": "docs/validation/issue-134-r1a-continuation/sql_contract.py",
+      "sha256": "84ce558afa0aada0ac695f38755acdfb329d08ea18ea45f8972c28a43cbf1da2"
+    },
+    "accepted_c01_manifest": {
+      "path": "docs/validation/issue-134-r1a-continuation/manifest.json",
+      "sha256": "170da73552a87cb587d90fb190bfdd1f0dd4d31d62dd9358af42225568770759"
+    },
+    "accepted_c01_evidence": {
+      "path": "docs/validation/issue-134-r1a-continuation/evidence/HV134-20261006-C01/evidence.jsonl",
+      "sha256": "b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94"
+    }
+  },
+  "accepted_local_proof": {
+    "classification": "LOCAL_DATABASE_PROOF_ACCEPTED",
+    "reviewer": "Claude",
+    "postgresql": "17.11",
+    "fixture": "minimal_synthetic_disposable_local",
+    "summary_sha256": "cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418",
+    "migration_elapsed_ms": 23,
+    "attribution_sections_passed": 11,
+    "multi_session_interleavings_passed": 4,
+    "lock_timeout_elapsed_ms": 5020,
+    "lock_timeout_precision": "migration preflight read before ADD CONSTRAINT",
+    "source_identity_matched": true,
+    "cleanup_confirmed": true,
+    "hosted_equivalence_claimed": false,
+    "further_local_rerun_required": false
+  },
+  "accepted_local_evidence": {
+    "directory": "docs/reviews/evidence/issue-134-attribution-local-accepted",
+    "files": {
+      "summary.json": "cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418",
+      "phases.jsonl": "a317e0355fc2dfdcdd743bd33da5e85b770f8e891a13eec6e051ed6de8c75c85",
+      "sql.stdout.log": "17d312007928fa42b0f6729f61adbf902327d01ad41100aa3f18754e5adc1623",
+      "sql.stderr.log": "71ba53b6dfaad35f44fe1a91bd5ef34218f147bedee68cf031703473e8f6edaf",
+      "postgres.log": "f0416dcd0b7396ae13f85aeb67a268557260ed9754d140e1a30fcca081287e50",
+      "ownership-marker": "f04293906c952712f4937b935f661cf5b226a7c7666f2ce591b550baf32c5edf",
+      "source-identity-before.json": "87b28d55e9cb5a16ff9482f600fc7385515d1c985c74dcd9dec846de06619474",
+      "source-identity-after.json": "87b28d55e9cb5a16ff9482f600fc7385515d1c985c74dcd9dec846de06619474",
+      "claude-local-database-proof-accepted.md": "e246015ede2e26ad9aba9f6bb90f6a9ef1cf795f4a2155ec97cdbb52b74c027c"
+    },
+    "excluded": [
+      "private HOME",
+      ".pgpass",
+      "pg_service.conf",
+      "PGDATA"
+    ],
+    "content_scope": "synthetic identifiers and local execution metadata only; no credential or real-customer material"
+  },
+  "hosted_preparation_observations": {
+    "historical_1411_1421": {
+      "source": "coordinator_supplied_native_read_only_from_preceding_task",
+      "observed_window_utc": "2026-10-07T14:11:29.973933Z/2026-10-07T14:21:28.487580Z",
+      "postgresql": "17.6",
+      "appointments": 13,
+      "ledger_rows_global": 6,
+      "attempts": 6,
+      "events": 11,
+      "obligations": 16,
+      "linked_ledgers": 4,
+      "linked_ledger_cents": 18100,
+      "tuple_mismatches": 0,
+      "candidate_collisions": 0,
+      "other_target_locks": 0,
+      "accepted_parent_fingerprints_matched": "14/14",
+      "classification": "DATED_HISTORICAL_PREPARATION_EVIDENCE_NOT_FINAL_PREFLIGHT"
+    },
+    "preliminary_catalogue_1611": {
+      "source": "coordinator_supplied_to_initial_independent_reviewer",
+      "observed_at": "2026-10-07T16:11:49.606823Z",
+      "postgresql": "17.6",
+      "classification": "ACTOR_SUPPLIED_PRELIMINARY_CATALOGUE_SNAPSHOT_NOT_FINAL_GATE",
+      "reviewer_executed_query": false
+    },
+    "initial_package_probe": {
+      "source": "coordinator_normalized_native_read_only_results_not_agent_execution",
+      "initial_package_audit": "d41832fbfe9a585dfbac18b920b075f66a91b934b08859e6f5992ddd52e96c7f",
+      "archive": "/tmp/chasum-134-final-staging-plan-u5l009i4/preparation-probe-evidence",
+      "chunk_01": {
+        "source_sha256": "9830be274f3af7a28a07d83e3d66fa706b318d2d239f9058677c45493953f545",
+        "outcome": "READ_ONLY_QUERY_ERROR",
+        "sqlstate": "42725",
+        "message": "operator is not unique: text || \"char\"",
+        "catalogue_pass": false
+      },
+      "chunk_02": {
+        "source_sha256": "0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411",
+        "observed_at": "2026-10-07T16:29:22.098708Z",
+        "outcome": "PREPARATION_DATA_CHECK_PASS",
+        "accepted_old_snapshot_tables": 18,
+        "noncohort_tables": 4,
+        "run02_financial_matches": true,
+        "tuple_mismatch_count": 0,
+        "retained_public_rows": 90,
+        "no_hosted_write": true
+      },
+      "classification": "INITIAL_PACKAGE_PARTIAL_PROBE_CHUNK01_FAILED_CHUNK02_PASSED"
+    },
+    "corrected_catalogue_gate": {
+      "status": "PENDING_COORDINATOR_NATIVE_READ_ONLY_EXECUTION",
+      "independent_delta_review": "PENDING",
+      "application_authorized": false
+    }
+  },
+  "gate": {
+    "pre_apply_candidate_state": "PRE_APPLY_ABSENT",
+    "post_apply_candidate_state": "POST_APPLY_EXACT",
+    "fresh_preflight_required": true,
+    "target_locks_checked_immediately_before_apply": true,
+    "timeout_budget_semantics": "5s_per_lock_wait_30s_per_statement_not_transaction_wallclock",
+    "automatic_retry": false,
+    "kill_or_cancel_sessions": false,
+    "unknown_outcome": "READ_ONLY_RECONCILE_AND_HOLD",
+    "pre_commit_failure": "ATOMIC_ROLLBACK_AND_STOP",
+    "post_commit_correction": "SEPARATELY_REVIEWED_AND_APPROVED_FORWARD_CORRECTION_ONLY",
+    "expected_additions": {
+      "named_objects": 4,
+      "named_object_kinds": [
+        "unique_constraint",
+        "foreign_key_constraint",
+        "security_invoker_function",
+        "trigger"
+      ],
+      "required_dependencies": [
+        "unique_constraint_backing_index",
+        "foreign_key_internal_ri_triggers",
+        "one_migration_history_entry"
+      ],
+      "index_size_growth_expected": true,
+      "index_sizes_are_immutable_data_comparators": false
+    },
+    "hosted_dml_or_workflow_proof": false,
+    "open_holds": [
+      "#153 legacy NULL/NULL and SEQ-ACL-1",
+      "#133 observability",
+      "#135 release",
+      "historical USD",
+      "retained-cohort worker eligibility",
+      "technician resumption",
+      "Production/GVM operational acceptance"
+    ]
+  },
+  "package_files": {
+    "PLAN.md": "5d2113ba4ba7234f9dc0a7cd974162ad9756612817ac89cdca935a4e22d10115",
+    "preflight.sql": "5f970db8d557e23c68ef587156a16425286c5d421fa288dd0e03bfd3399de64e"
+  },
+  "preflight_chunks": {
+    "extraction": "For each occurrence in file order, hash bytes from the first byte of 'begin read only;' through the final byte of the following 'rollback;', excluding surrounding comments and newline.",
+    "chunk_01": {
+      "lines": "12-664",
+      "bytes": 24692,
+      "sha256": "6ba2c60d63a218da3b6101255a5ff7dd4da0c06556dd9567c95e5e6177bb96c5"
+    },
+    "chunk_02": {
+      "lines": "671-1363",
+      "bytes": 25495,
+      "sha256": "0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411"
+    }
+  },
+  "audit": {
+    "algorithm": "SHA-256",
+    "canonicalization": "Hash UTF-8 bytes: 'PLAN.md\\0' + raw PLAN.md + '\\0preflight.sql\\0' + raw preflight.sql + '\\0manifest.json\\0' + canonical JSON of this manifest (sorted keys, compact separators, ensure_ascii=false) after replacing audit.package_sha256 with 64 ASCII zeroes.",
+    "package_sha256": "6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba"
+  }
+}

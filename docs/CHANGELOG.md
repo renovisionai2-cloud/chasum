@@ -9,6 +9,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — #134 exact Staging application gate independently ready
+
+- Preserved accepted local proof and its nine exact nonsecret evidence/review files without rerunning the proof. Published the read-only application plan/query/manifest with audit `6abdd6ff...e4ba`; immutable migration remains `fd673cbf...3e7524`, hosted-unapplied.
+- Final Claude application-plan delta review: READY_FOR_STAGING_APPLICATION_APPROVAL, no required correction. Native read-only data/catalogue probes passed at16:29/16:43UTC; preserved18+4 fingerprints and90-row/CAD181 cohort, exact prerequisites, no mismatches/collisions/observed competing locks. Earlier query/provenance defects were corrected, not waived; no financial source changed.
+- Updated board/handoff/manifest and retained the normalized supplied-native result provenance. No application, financial write, local proof rerun, existing ACL/RLS/flag change, PR merge, Production/GVM operation or technician resumption. Next gate is explicit Product Owner Staging-only application approval; fresh pre/post checks remain mandatory.
+
+
+### 2026-10-07 — #134 Staging catalogue gate corrected after real read-only probe
+
+- Preserved the initial package/probe as partial evidence: chunk 01 returned PostgreSQL `42725` at policy `text || polcmd`, so the source-only review is not a runtime PASS. Byte-identical chunk 02 genuinely passed READ ONLY at 16:29:22Z for all 18+4 accepted fingerprints, Run02 aggregate, zero tuple mismatches and the exact retained 90-row shape.
+- Corrected only read-only package instrumentation: explicit catalogue text casts, exact positive validation of the accepted commerce ledger guard trigger, and a pre-existing noninternal target-trigger baseline excluding the proposed trigger. Clarified historical 14:11–14:21, preliminary 16:11 and executed 16:29 records without relabeling them.
+- Migration/runtime/verifier/financial contract and accepted local/C01/Run02 evidence remain byte-identical. Corrected catalogue execution, independent delta review and any later Product Owner application approval remain pending; no SQL/test/build/network/hosted action or commit/push occurred here.
+
+### 2026-10-07 — #134 local database proof accepted; Staging application gate prepared
+
+- Claude accepted the final retained local PostgreSQL 17.11 proof at source `732e382`: all 11 attribution sections, four interleavings, source identity and cleanup passed; summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418`. The 5,020ms timeout occurred in the migration preflight read before `ADD CONSTRAINT`. No further local rerun is required; this remains synthetic local proof, not hosted/full-workflow acceptance.
+- Prepared a read-only governed Staging application package for exact unchanged 6,529-byte migration `fd673cbf...3e7524`, including two one-result native pre/post query chunks, exact accepted cohort fingerprints, current hash baselines, catalogue/security/history checks and synthetic evidence copies. Independent package review, fresh native preflight and later explicit Product Owner approval remain mandatory before one Staging apply.
+- No SQL/test/verifier/build, network, credentials, hosted action, application deployment, commit/push or PR mutation occurred in this preparation. #153/SEQ-ACL-1, #133, #135, historical USD, worker, technician, Production and GVM holds remain open.
+
 ### 2026-10-07 — PR157 eleven local attribution sections proven; fixture-argument correction accepted
 
 - The instrumented human run retained all eleven attribution-contract PASS sections with matching before/after source identities, then stopped before concurrency because a fixture suffix was passed as the database name. The original summary, SQL/phase/server logs and source identity files remain unchanged; shutdown and owned-PGDATA removal are confirmed. Complete database proof is still NOT MET.

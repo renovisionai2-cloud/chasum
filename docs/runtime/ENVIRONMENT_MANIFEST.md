@@ -1,8 +1,19 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-06 for the completed HV134 C01 limited hosted result. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-07 for accepted local #134 attribution proof and dated Staging preparation reads. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## Issue #134 attribution — accepted local proof and prepared Staging gate
+
+**Current preparation update:** final exact-byte application-plan review is READY_FOR_STAGING_APPLICATION_APPROVAL, [recorded here](../reviews/issue-134-staging-application-plan-review.md). Corrected catalogue query passed READ ONLY at `2026-10-07T16:43:34.622352Z`, after the unchanged data query passed at `16:29:22.098708Z`. PostgreSQL 17.6; expected prior source/security/trigger state, candidate absent, zero mismatches, 90-row/CAD181 retention and 18+4 historical fingerprints verified. No hosted migration/application was performed. These are distinct dated preparation transactions; fresh checks precede any later approved apply. Initial query-error and pending-review prose below is preserved history superseded by this update, not a current blocker.
+
+
+Claude independently classified retained local summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418` as `LOCAL_DATABASE_PROOF_ACCEPTED`. On a disposable synthetic PostgreSQL 17.11 fixture, all 11 attribution sections and four multi-session interleavings passed; source identities matched before/after and shutdown/owned-PGDATA removal were confirmed. Migration elapsed time was 23ms. The 5,020ms lock timeout occurred in the migration preflight read before `ADD CONSTRAINT`. This is local fixture proof, not hosted/full-workflow equivalence, and no rerun is required.
+
+Earlier coordinator native READ ONLY observations from 2026-10-07 14:11:29.973933Z–14:21:28.487580Z remain dated history. A separate 16:11:49.606823Z catalogue snapshot supplied to the initial reviewer was preliminary. Coordinator execution of the initial package then returned PostgreSQL `42725` in chunk 01's policy fingerprint, so no catalogue PASS exists. Chunk 02, unchanged at SHA-256 `0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411`, passed READ ONLY at 16:29:22.098708Z for all 18 old-cohort/four noncohort comparisons, Run02 aggregate, zero tuple mismatches and the exact retained 90-row shape. These actor-supplied results are bounded preparation evidence, not application acceptance.
+
+The corrected [read-only application package](../validation/issue-134-attribution-staging-application/PLAN.md) is PREPARED / CORRECTED CATALOGUE EXECUTION PENDING / INDEPENDENT DELTA REVIEW PENDING / NOT AUTHORIZED TO APPLY. The immutable migration remains hosted-unapplied. No SQL was executed by this correction agent and no database/API/provider/Production/GVM mutation occurred.
 
 ## HV134 C01 actual result — 2026-10-06 17:56–18:02 UTC
 

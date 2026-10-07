@@ -1,16 +1,16 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-06 17:08 America/Toronto for C01 publication and the next genuine attribution-policy/prepared-only gate.
+**Updated:** 2026-10-07 for accepted local #134 attribution proof and the prepared-only Staging application gate.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — next #134 attribution gate
+## Current continuation — exact Staging application approval gate
 
-**NEXT #134 GATE — APPOINTMENT/CUSTOMER ATTRIBUTION DESIGN REVIEWED, NOT IMPLEMENTED.** C01 factual evidence and closeout are published at `88af990cd1ac929546692203a9e94a0a0719ce85`; do not rerun C01. Sol prepared and corrected the bounded attribution proposal; Claude returned **READY_FOR_PO_GATE** after targeted independent source review. Exact design SHA-256 `33af6e34083c43730137f2fa0b748ed735de6c985980ffffe53ccb6c08961f0f`. [Reviewed proposal](../reviews/issue-134-next-runtime-contract.md); [final review, qualifications and gate](../reviews/issue-134-next-runtime-contract-review.md).
+**CLAUDE READY_FOR_STAGING_APPLICATION_APPROVAL / HOSTED MIGRATION UNAPPLIED.** [Final plan review, native evidence and exact gate](../reviews/issue-134-staging-application-plan-review.md) is the current continuation. Package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`; immutable 6,529-byte migration SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. No Product Owner application authorization has been received. The frozen package retains authoring-time pending status; the external exact-byte final review supersedes that status only.
 
-The genuine owner decision is the rule that any durable appointment-linked ledger history freezes customer attribution and blocks appointment hard-delete (with disclosed customer/Business teardown impacts), plus section 5's prepared-only implementation scope. No-ledger requests and other ordinary appointment edits remain allowed. This is a proposal, not a newly implemented restriction. The narrow legacy guard leaves accepted canonical/R1a code unchanged; the legacy customer-only #153 residual remains an activation blocker.
+Accepted local proof remains closed at source HEAD `732e3821858826898e0c9ec80996e643f6cf0f2c`; exact result/logs/identities and Claude acceptance are now retained in the repository. Do not rerun it. Native read-only data and corrected catalogue queries passed at 16:29 and 16:43 UTC on October 7. All 18+4 fingerprints and the 90-row/CAD181 retained cohort match; prerequisites are exact and candidate objects/history remain absent. These dated separate transactions are preparation evidence, not freshness for application.
 
-No migration, runtime code, executable test, hosted call, financial write, activation, merge, Production/GVM operation or technician resumption was performed in this design work. After owner approval, prepare and prove locally; Staging application/cutover remains separately gated. Replacement writers, projections, durable booking recovery and #133 evidence must be ready before coordinated #153 permission cutover. Gate the retained cohort before future workers activate.
+Next consequential gate: Darshan authorizes the exact migration once to governed Staging `wnfahklzaxirftyskctd` only. After approval, rerun both numbered read-only chunks and immediately recheck source/locks; stop on any mismatch/unknown outcome. No automatic retry, fixtures, payments, existing permission change, worker/projection activation or application-code deployment. Installing this schema immediately restricts legacy appointment-linked attribution/delete even with R1a off. Postapply is exact catalogue/history/data acceptance only. Production/GVM, historical USD, #133/#153/#135, retained-worker exclusion and technician/GVM Operational Acceptance holds remain. PR body updates previously blocked were not retried; this repository record is the current gate.
 
 ## Accepted C01 result — preserved
 

@@ -1,6 +1,22 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-**Current status:** HUMAN LOCAL PROOF PASSED ALL 11 ATTRIBUTION CONTRACT SECTIONS, THEN STOPPED BEFORE CONCURRENCY / CLAUDE SOURCE DELTA PASS / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
+**LATEST GATE:** [Final independently reviewed Staging application plan](issue-134-staging-application-plan-review.md), package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`, is READY_FOR_STAGING_APPLICATION_APPROVAL. Native read-only catalogue/data preparation passed; no migration applied. This update supersedes pending preparation text below while preserving its chronology. Accepted local proof and all original financial/runtime/evidence bytes remain unchanged; no rerun is required.
+
+**Current status:** `LOCAL_DATABASE_PROOF_ACCEPTED` / STAGING PACKAGE CORRECTED / NATIVE CATALOGUE VALIDATION + INDEPENDENT DELTA REVIEW PENDING / HOSTED MIGRATION UNAPPLIED.
+
+## Current continuation — accepted local result; exact Staging gate prepared
+
+Exact source HEAD `732e3821858826898e0c9ec80996e643f6cf0f2c` produced retained local summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418`. Claude independently returned `LOCAL_DATABASE_PROOF_ACCEPTED`: all 11 attribution contract sections, four true multi-session interleavings, before/after source identity and cleanup passed on the disposable synthetic PostgreSQL 17.11 fixture. Migration elapsed time was 23ms. The 5,020ms timeout occurred in the migration preflight read before `ADD CONSTRAINT`, proving atomic timeout behavior at that first lock-acquisition point. Returned responses plus durable state checks support the scoped concurrency outcomes; attempt count alone is not treated as no-lost-response proof.
+
+The accepted result remains bounded: it is not hosted PostgreSQL 17.6 compatibility, whole-database or full booking/payment/invoice/receipt/CRM/communications proof, application deployment, cutover, Production/GVM acceptance or technician resumption. No further local rerun is required. Exact synthetic/nonsecret evidence and the independent report are retained under `docs/reviews/evidence/issue-134-attribution-local-accepted/`; originals remain unchanged.
+
+The initial [Staging application package](../validation/issue-134-attribution-staging-application/PLAN.md) received a source-only review, but coordinator execution proved chunk 01 was not executable as written: PostgreSQL `42725`, `operator is not unique: text || "char"`, in the policy fingerprint. No catalogue PASS is claimed. Byte-identical chunk 02 genuinely passed READ ONLY at `2026-10-07T16:29:22.098708Z` for all 18 old-cohort/four noncohort snapshots, Run02 aggregate, tuple compatibility and exact retained 90-row identity/counts. Earlier 14:11–14:21 observations and a separate 16:11 preliminary catalogue snapshot remain distinct actor-supplied dated records.
+
+The corrected package, audit SHA-256 `6b5a0dc92892e466992c8d2f4979bbb66edc04ce5a095be1514897d1267f62b5`, explicitly casts catalogue values, positively checks the accepted `commerce_transactions_attempt_guard` target/enabled/event/row/internal/function posture, and records the prior noninternal target-trigger baseline excluding only the proposed trigger. Corrected chunk 01 is `ec3fa04dca994a77eec6773a5be90b30ea84c2c9b1179e73e8176ec8233b926a`; chunk 02 remains `0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411`. Fresh native catalogue validation and final independent delta review are pending. The only proposed future hosted write remains the exact unchanged 6,529-byte migration SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`; no Product Owner apply gate exists yet.
+
+Schema application would immediately enforce the accepted legacy appointment attribution/delete rule even while R1a remains default-off; it would not deploy the application mapping. #153/SEQ-ACL-1, #133, #135, historical USD, retained-cohort worker exclusion, hosted workflow/cutover, technician, Production and GVM holds remain unchanged. This preparation performed no SQL, verifier/test/build, network, credential, hosted action, commit, push or PR mutation.
+
+The earlier stopped-run and correction sections below remain immutable history; their then-open local-proof status is superseded only by the accepted result above.
 
 ## Current continuation — attribution contract passed; concurrency fixture call was misordered
 
