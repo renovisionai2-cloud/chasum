@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-07. **Updated by:** ChatGPT Program Lead for final independently reviewed Staging application gate and native read-only preparation; no hosted mutation or runtime change.
+**Snapshot date:** 2026-10-07. **Updated by:** ChatGPT Program Lead for independently accepted #134 governed Staging schema application and documentation closeout.
 
 Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -28,9 +28,11 @@ No tenant-specific application logic is authorized.
 
 ## Control board
 
-**CURRENT NEXT GATE — CLAUDE READY_FOR_STAGING_APPLICATION_APPROVAL; NOTHING APPLIED.** Exact application-package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`; unchanged 6,529-byte migration `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. [Final review and exact gate](reviews/issue-134-staging-application-plan-review.md) supersedes authoring-time pending text below and within the frozen package. Native Staging READ ONLY data/catalogue preparation passed at 16:29/16:43 UTC on October 7: 18+4 fingerprints, 90 retained rows/CAD181, zero tuple/identity mismatches, exact prerequisites, candidate absent and no competing target locks at observation. Fresh reads are mandatory before any separately approved application. No local proof rerun, hosted write, activation, Production/GVM or technician resumption. Source/evidence publication only; no PR merge or Production release.
+**CURRENT #134 STATE — STAGING_SCHEMA_APPLICATION_ACCEPTED / EXACT MIGRATION APPLIED ONCE / POSTCHECKS PASS.** Darshan explicitly approved the final gate. Native application to `wnfahklzaxirftyskctd` returned `success:true` once, without retry, for exact package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba` and unchanged 6,529-byte migration `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. Hosted identity is `20261007170242 / issue_134_appointment_financial_attribution`, one statement at the approved size/hash. **Do not reapply.**
 
-### Preparation history — superseded by the current reviewed gate above
+Read-only postchecks at 17:04/17:06UTC returned `POST_APPLY_EXACT`: both constraints/index, new invoker function/ACL and trigger/order exact; prior security/functions/triggers/history preserved; all 18+4 accepted fingerprints and 20 returned full-table digests unchanged; retained 90 rows/CAD181 unchanged. [Application result and limits](reviews/issue-134-staging-attribution-application-result.md); evidence SHA-256 `b272c73746f7730343badb5a3422914f91721356c65346e15d92126daedc6504`. This is schema application only, not hosted behavior/UI/payment/projection acceptance. Claude independently accepted the result as `STAGING_SCHEMA_APPLICATION_ACCEPTED`; [verbatim review](reviews/issue-134-staging-attribution-application-review.md). Next is bounded read-only/design preparation for connected workflow and #153/#133 dependencies, not a new financial execution or permission cutover.
+
+### Preparation history — superseded by the current application result above
 
 **NEXT #134 GATE — LOCAL DATABASE PROOF ACCEPTED; CORRECTED STAGING PACKAGE AWAITS NATIVE CATALOGUE VALIDATION AND INDEPENDENT DELTA REVIEW / NOT AUTHORIZED TO APPLY.** Exact candidate HEAD `732e3821858826898e0c9ec80996e643f6cf0f2c`; immutable migration SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`, still hosted-unapplied. Claude's accepted local proof remains closed and unchanged.
 

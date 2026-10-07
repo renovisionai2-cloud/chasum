@@ -1,10 +1,12 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-**LATEST GATE:** [Final independently reviewed Staging application plan](issue-134-staging-application-plan-review.md), package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`, is READY_FOR_STAGING_APPLICATION_APPROVAL. Native read-only catalogue/data preparation passed; no migration applied. This update supersedes pending preparation text below while preserving its chronology. Accepted local proof and all original financial/runtime/evidence bytes remain unchanged; no rerun is required.
+**LATEST RESULT:** [Exact governed Staging application](issue-134-staging-attribution-application-result.md) executed once after Darshan's approval; native postchecks returned `POST_APPLY_EXACT`. Hosted identity is `20261007170242 / issue_134_appointment_financial_attribution`, one 6,529-byte statement at migration SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524` and frozen package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`. **Do not reapply.** Claude independently returned `STAGING_SCHEMA_APPLICATION_ACCEPTED`; [verbatim review](issue-134-staging-attribution-application-review.md).
 
-**Current status:** `LOCAL_DATABASE_PROOF_ACCEPTED` / STAGING PACKAGE CORRECTED / NATIVE CATALOGUE VALIDATION + INDEPENDENT DELTA REVIEW PENDING / HOSTED MIGRATION UNAPPLIED.
+**Current status:** `LOCAL_DATABASE_PROOF_ACCEPTED` / `STAGING_SCHEMA_APPLICATION_ACCEPTED` / R1A UNWIRED AND DEFAULT-OFF.
 
-## Current continuation — accepted local result; exact Staging gate prepared
+Native read-only postchecks preserved prior security/functions/triggers/history, all 18+4 accepted fingerprints and 20 returned full-table digests, and the 90-row/CAD181 retained state. Evidence SHA-256 is `b272c73746f7730343badb5a3422914f91721356c65346e15d92126daedc6504`. This is schema-only evidence: no hosted DML/PostgREST/UI/payment/projection behavior was tested; #153/#133/#135, historical USD, retained-worker, technician and Production/GVM holds remain.
+
+## Historical preparation and accepted local result
 
 Exact source HEAD `732e3821858826898e0c9ec80996e643f6cf0f2c` produced retained local summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418`. Claude independently returned `LOCAL_DATABASE_PROOF_ACCEPTED`: all 11 attribution contract sections, four true multi-session interleavings, before/after source identity and cleanup passed on the disposable synthetic PostgreSQL 17.11 fixture. Migration elapsed time was 23ms. The 5,020ms timeout occurred in the migration preflight read before `ADD CONSTRAINT`, proving atomic timeout behavior at that first lock-acquisition point. Returned responses plus durable state checks support the scoped concurrency outcomes; attempt count alone is not treated as no-lost-response proof.
 

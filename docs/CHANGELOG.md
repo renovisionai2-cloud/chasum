@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — #134 exact attribution migration applied to governed Staging
+
+- Darshan approved the final exact gate; native application ran once without retry on `wnfahklzaxirftyskctd` and returned `success:true`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, one 6,529-byte statement at approved SHA-256 `fd673cbf...3e7524` and frozen package audit `6abdd6ff...e4ba`.
+- Read-only postchecks returned `POST_APPLY_EXACT`: exact constraints/index/function/ACL/trigger/order, preserved prior security/functions/triggers/history, unchanged 18+4 accepted fingerprints and 20 returned full-table digests, and unchanged 90-row/CAD181 retained state. Evidence SHA-256 is `b272c737...6504`; Claude independently returned `STAGING_SCHEMA_APPLICATION_ACCEPTED`; the result, provenance qualifications and verbatim review are retained. No local proof or accepted audit was rerun.
+- Schema-only Staging result: no hosted behavior/UI/payment/projection test, application deployment, retained-obligation processing, permission/flag change, Production/GVM action, #135 release, PR merge or local-proof rerun. R1a remains unwired/default-off and #153/#133/operational holds remain.
+
 ### 2026-10-07 — #134 exact Staging application gate independently ready
 
 - Preserved accepted local proof and its nine exact nonsecret evidence/review files without rerunning the proof. Published the read-only application plan/query/manifest with audit `6abdd6ff...e4ba`; immutable migration remains `fd673cbf...3e7524`, hosted-unapplied.
