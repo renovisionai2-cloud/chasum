@@ -1,6 +1,6 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-**Current status:** HUMAN LOCAL PROOF STOPPED IN CONTRACT PASS 02 / PROOF-ONLY TYPE CORRECTION AWAITING INDEPENDENT DELTA REVIEW / HOSTED UNAPPLIED.
+**Current status:** HUMAN LOCAL PROOF STOPPED IN CONTRACT PASS 02 / CLAUDE SOURCE DELTA PASS / DATABASE PROOF OPEN / HOSTED MIGRATION UNAPPLIED.
 
 ## Current continuation — executed local proof reached the new migration and stopped on proof typing
 
@@ -14,7 +14,7 @@ This was a deterministic proof-expression type error, not rejection by the appoi
 
 A bounded source scan covered the remaining contract/verifier assertions for the same concrete class. The `pg_attribute.attname` aggregates are assigned into declared `text[]` variables and PASS 01 executed before this failure; `pg_proc.proconfig` is already `text[]`; the scalar `"char"` catalogue predicates, regprocedure/OID comparisons and ACL OID check all executed before the failing trigger comparison. Remaining expected-name arrays are parameters already typed `text[]`. The verifier has no further catalogue-name array comparison. No additional analogous deterministic defect was found. This is a source scan plus partial-run evidence, not execution proof of PASS 02 onward; the hard-delete cases, concurrency interleavings and timeout rollback remain unexecuted.
 
-Offline validation after the correction: two focused files / 25 tests PASS; scoped booking/booking-engine/commerce/migrations 63 files / 587 tests PASS; typecheck, targeted lint and verifier syntax PASS. No PostgreSQL process, verifier, build, network or hosted operation was run by this correction. Independent delta review is next; only afterward may another human execution be requested under the existing local-only authorization.
+Offline validation after the correction: two focused files / 25 tests PASS; scoped booking/booking-engine/commerce/migrations 63 files / 587 tests PASS; typecheck, targeted lint and verifier syntax PASS. No PostgreSQL process, verifier, build, network or hosted operation was run by this correction. Claude subsequently completed the exact delta review with PASS; the acceptance and qualifications are recorded below. A corrected human-only local run remains within the existing authorization. No corrected database execution is claimed.
 
 ## Prior continuation — reviewed local identity-format correction
 
@@ -498,3 +498,186 @@ not a candidate defect, but it means no build evidence exists.
 ```
 
 </details>
+
+## Current exact type-correction acceptance and coordinator qualifications
+
+Reviewed correction source: `8046bea67be4c6ff9023302f7d5933448ca33bd1`, tree `19079af38e9a7feb700c44cdce339d5e16a4e604`, parent `d23ba22ce7a271e18f777c892b09945ca498337d`. Contract SHA-256 is `4e90f6c968438928209627def8c6fba8a9c8200922036e2cd8f760506ddafa05`. The delta is exactly four existing allowlisted proof/test/documentation files; no migration, application mapping, verifier, accepted source or retained evidence change. This documentation closeout introduces no executable delta.
+
+Sol continued sole implementation session `05e3058c-3323-448d-b337-0bc23f3f505f` (reported GPT-5.6 Sol 272K High). Claude continued independent session `797e841c-7601-4f61-9e0c-363ec6842e7e` (reported Claude Opus 5 300K High No Thinking) and returned **SOURCE_DELTA_VERDICT: PASS**. Both independently ran 25 focused tests and 63 files / 587 scoped tests, syntax and targeted lint. Typecheck PASS is Sol's executed result, not a new Claude typecheck. Both inspected the remaining catalogue-array comparisons and found no other analogous issue. These are source/offline results, not proof of the remaining database behavior.
+
+The actual human result is a partial local run: baseline/fixture load, local migration application and early schema/posture checks were reached before the trigger-order assertion type error. Some reached-stage successes are inferred from verified sequential fail-fast source control flow and the retained error location, rather than captured PASS stdout. The 20ms DDL timing and 2000-row addition are bounded synthetic observations, not a hosted-scale capacity or locking guarantee. Actual summary/log hashes and independently absent owned PGDATA remain the durable evidence; no new hosted observation was made.
+
+Qualification to the returned reviewer text: a future stop is NOT presumed to be another harness error. Its actual evidence must determine whether it is a proof defect, environment problem, or real financial-invariant failure. No future result is pre-cleared. Full contract sections03-11, concurrency/rollback variants and timeout rollback remain unexecuted. Source-to-run identity remains coordinator before/after observation, not an embedded source signature; retaining source hashes and contract stdout in future evidence remains a non-blocking provenance recommendation, not a claim that this code already does so.
+
+Separate existing Preview build evidence was recovered read-only by the coordinator: Vercel deployment `dpl_HCNERnrx8NCzXiriZ41nraEQabQ1`, exact pre-correction source `d23ba22ce7a271e18f777c892b09945ca498337d`, target null/Preview, READY. Native build-log tail records Build Completed and Deployment completed. No deployment/build/protection change was triggered to obtain this evidence. This qualifies prior no-build-evidence wording for that earlier revision only; it is not a new build of `8046bea`, a full CI test pass, database validation, or Production acceptance. The local font-fetch build failure remains historical and was not retried.
+
+Next is one personal HUMAN local execution of the unchanged verifier loading the corrected contract, under existing local-only scope. No additional Product Owner policy approval, token, password, remote launcher or agent-sandbox bootstrap is required or authorized. Preserve this and all prior evidence. Stop on any new failure without automatic retry. No Staging/Production/GVM access, hosted migration application, #135 release, #153 cutover, retained-cohort processing, merge or technician resumption. GVM Operational Acceptance remains unearned.
+
+### Returned final Claude delta review — retained verbatim
+
+````markdown
+# CLAUDE — PR157 PROOF DELTA + HUMAN RESULT REVIEW — Issue #134
+
+Continuation of accepted review session. No re-audit of closed kernel/foundation/C01.
+I executed no verifier/initdb/pg_ctl/PostgreSQL/alternate engine, no hosted or network call,
+no credentials, no `.supabase/` read or deletion, no build retry, no sandbox retry, and no
+source modification, commit, or push.
+
+## SOURCE_DELTA_VERDICT: PASS — exact type correction, no weakening
+
+Exactly four allowlisted files changed vs `d23ba22ce7a271e18f777c892b09945ca498337d`
+(+46/−5): the PostgreSQL contract, the migration unit test, the candidate review, and the
+changelog. No fifth file. The functional change is one element-type cast:
+
+`array_agg(trigger_row.tgname …)` → `array_agg(trigger_row.tgname::text …)`
+
+Verified **not** a weakened trigger set/order assertion. Unchanged in full: the
+`ORDER BY trigger_row.tgname`; the `tgrelid = 'public.commerce_transactions'::regclass`,
+`not tgisinternal`, and two-name `tgname in (…)` filters; the `is distinct from array[…]`
+exact two-element ordered comparison with both full trigger names; and the
+`raise exception 'commerce guard trigger order/set mismatch'`. Expected literals were not
+cast to `name` and no name was truncated or shortened.
+
+One detail worth stating because it is easy to get wrong: the cast is applied to the
+*aggregated element*, while the `ORDER BY` still sorts the `name` column. That is the correct
+choice — PostgreSQL fires same-event triggers in `name`-type (C/byte) order, so retaining
+`name` ordering keeps the assertion aligned with real firing semantics instead of a
+potentially collation-dependent `text` sort. Narrower and more faithful, not looser.
+
+The new unit test pins the corrected form, asserts the old mismatched form is absent, and
+pins the comparison block including both names and the raise, so a future weakening would
+fail offline.
+
+Migration, application mapping, and verifier are byte-identical: `git diff d23ba22c..HEAD`
+across `supabase/`, `lib/`, and `scripts/` is empty.
+
+## Genuine run classification: LOCAL SYNTHETIC SQL EXECUTED; MIGRATION APPLIED LOCALLY; CONTRACT ABORTED IN PASS 02
+
+**Not** zero SQL, **not** "no local schema application", and **not** a financial-integrity
+PASS. This was a real local synthetic proof execution on an owned disposable PG 17.11
+cluster that got materially further than the prior attempt, then stopped on a catalogue-type
+defect in the *test*, not in the product. The invariant was neither proven nor disproven.
+
+Evidence I read directly rather than accepting: `dataDirectory` is now populated (so the
+`host()` correction worked), `postgresVersion` = `17.11 (Homebrew)`, `migrationElapsedMs` =
+20, `boundedFixture` = `2003|2001|188416|401408|155648`. The server log contains exactly one
+ERROR — `operator does not exist: name[] = text[]` — then a clean shutdown. Total window:
+ready 22:57:15.561, error 22:57:16.131, shut down 22:57:16.177.
+
+### Reached / skipped proof matrix
+
+| Stage | Status | Basis |
+|---|---|---|
+| Owned cluster provisioned; loopback/port/PG17/`data_directory`/marker identity | **REACHED — PASSED** | `dataDirectory` populated; prior stop no longer recurs |
+| Synthetic foundation + R1a fixtures and both accepted migrations loaded | **REACHED — no error** | only one ERROR in log, later |
+| Accepted R1a executable contract | **REACHED — no error** | same |
+| 2,000-row bounded fixture; new migration applied | **REACHED — PASSED, 20 ms** | `migrationElapsedMs=20`; all five preflight guards, UNIQUE build and FK validation succeeded |
+| Zero existing-row mutation (before/after digest) | **REACHED — PASSED** | run continued past the digest equality check, which throws on mismatch |
+| Bounded cost recorded | **REACHED** | 2003 appointments / 2001 ledger rows; heaps 188416 / 401408 B; new unique index 155648 B |
+| Contract PASS 01 — exact unique key + composite FK shape, MATCH SIMPLE / UPDATE RESTRICT / DELETE NO ACTION / NOT DEFERRABLE / validated | **REACHED — PASSED** | its DO block is absent from the log; failure was the next block |
+| Contract PASS 02 — SECURITY INVOKER, fixed `search_path`, no PUBLIC/anon/authenticated/service_role EXECUTE | **REACHED — PASSED** | those raises precede line 33 of the block and did not fire |
+| Contract PASS 02 — trigger set/order | **NOT PROVEN** | aborted on the type error |
+| Contract PASS 03–11 (legacy status matrix, NULL attachment, #153 residual, no-ledger reassignment, canonical ownership, ordinary edits, cross-tenant, RLS roles, hard-delete matrix) | **NOT REACHED** | — |
+| Four concurrency interleavings | **NOT REACHED** | `concurrency=[]` |
+| Lock-timeout atomic rollback | **NOT REACHED** | `lockTimeoutElapsedMs=null` |
+
+Net: schema-shape and security-posture assertions are now execution-proven on real
+PostgreSQL 17; every financial-behaviour, concurrency, cascade/RLS and timeout assertion
+remains authored and unexecuted.
+
+## Adjacent same-class scan: no remaining analogous defect found
+
+I enumerated every array/catalogue comparison in the contract. There are exactly four
+`array_agg` sites plus one `proconfig` comparison:
+
+- Lines 138, 156, 157 aggregate `pg_attribute.attname` but assign `INTO` variables declared
+  `text[]` (lines 134–136), so PL/pgSQL applies an assignment cast and the later comparison
+  is `text[]` vs `text[]`. This path is now **execution-proven**, because PASS 01 completed.
+- Line 199 compares `proconfig`, already `text[]`; it executed.
+- Line 222 was the single inline aggregate compared directly against a text array literal
+  with no intervening typed assignment — the one defect, now corrected.
+
+That asymmetry is the whole root cause: the assigned sites get an assignment cast, the inline
+site did not. Beyond line 237 the contract performs no further catalogue introspection, and
+the verifier contains no catalogue-name array comparison at all (its SQL compares scalars,
+booleans, counts and md5 text). So the risky pattern occurred once and is fixed.
+
+I am not predicting the next run will pass. PASS 03–11, the interleavings and the timeout
+proof have never executed, and my earlier predicted canonical-cascade `42501` remains
+unresolved by evidence — the helper accommodates it, but which mechanism fires is still
+unobserved. Static tests prove no database behaviour.
+
+## Blocker: none
+
+No defect outside the exact proof correction. Nothing to HOLD.
+
+## Evidence preservation and cleanup
+
+- Summary recomputes to `20b18b148e915fd79af7bc9d31a727e4ff74633ad8c51da01477b515bfc5ab9a`
+  and log to `d7e3195eb1436a78c0d8d4db579f4d66833f6427069925ba5714765a68144e2a` — both match
+  the dispatch values byte-exactly.
+- `pgdataRemoved: true`, `stopConfirmed: true`, `cleanupFailure: null`, stop/status `0 / 3`;
+  I independently confirmed `…A9FjV3/pgdata` is **absent** on disk.
+- Evidence dir `0700`; `home/.pgpass` and `home/pg_service.conf` are both **0 bytes, 0600**
+  — no credential present, used, or captured. Contents are synthetic fixture identifiers
+  only; no real customer data or secrets.
+- `passed: false` recorded honestly; the engineer's report does not overclaim and its
+  classification matches the artifact.
+- The prior `…PQdbgH` evidence remains untouched. I deleted nothing.
+- Git status is `?? .supabase/` only; `.supabase/` not read, not deleted, not gitignored.
+
+**Source-to-run attribution** remains a coordinator before/after attestation: `summary.json`
+still records no repository HEAD or verifier hash. However it is now corroborated
+independently — the log embeds the failing statement verbatim, and that text matches
+`d23ba22c`'s contract line 222 (`array_agg(trigger_row.tgname order by trigger_row.tgname)`)
+exactly, which is the pre-correction form that HEAD's test now asserts is absent. That is
+strong textual evidence the run used the pre-fix bytes.
+
+Recurring non-blocking recommendation, now materially more important since runs reach real
+assertions: record repo HEAD, the verifier hash and the contract hash into `summary.json`,
+and retain contract stdout (the `PASS nn` lines) in the evidence directory. Today the PASS 01
+and PASS 02 successes are inferable only from log absence, which is weaker than captured
+output for acceptance-grade evidence.
+
+## Checks I executed vs supplied
+
+Executed by me (offline only): HEAD/tree/parent and four-file scope; recomputation of both
+evidence hashes; recomputation of migration `fd673cbf…3e7524`, mapping `727cd72b…ecdc`,
+verifier `1273354a…1802`, contract `4e90f6c9…fa05`, design `33af6e34…1f0f`, foundation
+`dee700ae…ee3a47`, R1a `4b7e3855…5ee7`; full read of `summary.json` and `postgres.log`;
+scan of all contract/verifier catalogue comparisons; `git show` of the pre-fix line for log
+corroboration; focused tests **2 files / 25 PASS**; scoped booking/booking-engine/commerce/
+migrations **63 files / 587 PASS**; targeted lint clean; `node --check` verifier PASS.
+
+Supplied and accepted as coordinator attestation, not verified by me: that the run used
+commit `d23ba22c` (textually corroborated as above), and the engineer's typecheck PASS
+(I did not rerun typecheck this round). Not run by me: any database execution, build, or
+hosted call.
+
+## Corrected one-shot HUMAN local verifier: WITHIN EXISTING AUTHORITY
+
+Yes. Same worktree, same unchanged verifier bytes, corrected contract at `8046bea6`, fresh
+private temp cluster, human-only live local execution. This is instrumentation
+re-execution of an already-authorized local proof: **no hosted environment, no credentials,
+no extra policy gate.** Keep the current limit that live local execution is human-only; do
+not automate it, do not retry the agent-sandbox `shmget` denial, and do not re-run unchanged
+failing bytes.
+
+```
+cd /Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution && node scripts/verify-issue134-appointment-financial-attribution-postgres.mjs
+```
+
+No arguments, no environment variables, no sudo; run from the worktree root. I make no
+prediction of success: a third stop is a realistic outcome and would again be a harness
+finding, not a financial-invariant failure. If it stops, capture `summary.json`, the log and
+the terminal output verbatim rather than re-running with modifications.
+
+## Not authorized
+
+No Staging, Production, activation, hosted migration application, hosted validation, #153
+change, projection execution, merge, release, or GVM action. The migration remains PREPARED
+ONLY / HOSTED UNAPPLIED — the 20 ms application proven here was to a disposable local
+synthetic cluster only and confers no hosted authority. Build remains NOT PASSED and was not
+retried. DATABASE_PROOF_GATE remains **NOT MET**. The approved financial rule and earlier
+audits stand within their stated bounds; GVM Operational Acceptance is not earned.
+````
