@@ -262,13 +262,13 @@ function sql(statement, options = {}) {
   ).stdout.trim();
 }
 
-function sqlAsync(statement, phase) {
-  return new Promise((complete) => {
-    const child = spawn(
-      binaries.psql,
-      psqlArgs(["-At", "-F", "|", "-c", statement]),
-      { stdio: ["ignore", "pipe", "pipe"], env: childEnv },
-    );
+function startSqlAsync(statement, phase, { discardOutput = false } = {}) {
+  const child = spawn(
+    binaries.psql,
+    psqlArgs(["-At", "-F", "|", "-c", statement]),
+    { stdio: ["ignore", "pipe", "pipe"], env: childEnv },
+  );
+  const completion = new Promise((complete) => {
     let stdout = "";
     let stderr = "";
     let settled = false;
@@ -279,7 +279,7 @@ function sqlAsync(statement, phase) {
       complete(result);
     };
     child.stdout.on("data", (chunk) => {
-      stdout += chunk.toString();
+      if (!discardOutput) stdout += chunk.toString();
     });
     child.stderr.on("data", (chunk) => {
       stderr += chunk.toString();
@@ -291,6 +291,42 @@ function sqlAsync(statement, phase) {
       finish({ status: status ?? 1, error: null, stdout, stderr });
     });
   });
+  return { child, completion };
+}
+
+function sqlAsync(statement, phase) {
+  return startSqlAsync(statement, phase).completion;
+}
+
+async function sqlLostResponse(statement, applicationName, phase) {
+  const { child, completion } = startSqlAsync(
+    `set application_name='${applicationName}';
+     begin;
+     set local role service_role;
+     ${statement};
+     commit;
+     select pg_catalog.pg_sleep(30)`,
+    phase,
+    { discardOutput: true },
+  );
+  waitForActivity(
+    applicationName,
+    ([, , event]) => event === "PgSleep",
+  );
+  if (!child.kill("SIGKILL")) {
+    throw new Error(`Could not terminate lost-response client ${applicationName}`);
+  }
+  const result = await completion;
+  if (result.status === 0) {
+    throw new Error(`Lost-response client ${applicationName} exited cleanly`);
+  }
+  recordPhase(
+    `${phase}:classified`,
+    0,
+    null,
+    "UNKNOWN: committed boundary response was deliberately discarded",
+  );
+  return result;
 }
 
 function sleep(milliseconds) {
@@ -377,6 +413,7 @@ const summary = {
   dataDirectory: null,
   fixtureSetup: "NOT_STARTED",
   concurrency: [],
+  recovery: [],
   stopConfirmed: false,
   pgdataRemoved: false,
   passed: false,
@@ -626,6 +663,79 @@ try {
   }
   summary.concurrency.push("same-operation-appointment", "same-attempt-commit");
 
+  const nullStaffOperation = "15800000-0000-4000-8000-000000000360";
+  const nullStaffAdmitted = sql(
+    `set role service_role;
+     select public.issue134_bootstrap(
+       '${nullStaffOperation}',
+       '15800000-0000-4000-8000-000000000361',
+       '15800000-0000-4000-8000-000000000040',
+       'deposit','deposit',5000,'cash','manual','booking_sheet',null
+     )`,
+    { quiet: true, phase: "concurrency:null-staff:bootstrap" },
+  );
+  if (nullStaffAdmitted !== "ADMITTED") {
+    throw new Error(`NULL-staff operation was not admitted: ${nullStaffAdmitted}`);
+  }
+  const nullStaffPersistSql = persistSql
+    .replaceAll(
+      "15800000-0000-4000-8000-000000000300",
+      nullStaffOperation,
+    )
+    .replace("'15800000-0000-4000-8000-000000000030'", "null");
+  const nullStaffFirst = sqlAsync(
+    `set application_name='issue134_null_staff_first';
+     set statement_timeout='5s';
+     begin;
+     set local role service_role;
+     ${nullStaffPersistSql.replace("set role service_role;", "")};
+     select pg_catalog.pg_sleep(1.2);
+     commit`,
+    "concurrency:null-staff:a",
+  );
+  waitForActivity(
+    "issue134_null_staff_first",
+    ([, , event]) => event === "PgSleep",
+  );
+  const nullStaffSecond = sqlAsync(
+    `set application_name='issue134_null_staff_second';
+     set statement_timeout='5s';
+     ${nullStaffPersistSql}`,
+    "concurrency:null-staff:b",
+  );
+  waitForActivity(
+    "issue134_null_staff_second",
+    ([, waitType, event]) => waitType === "Lock" && event === "advisory",
+  );
+  const nullStaffRace = await Promise.all([
+    nullStaffFirst,
+    nullStaffSecond,
+  ]);
+  captureConcurrency("same-operation-null-staff-appointment", nullStaffRace);
+  requireStatuses("NULL-staff appointment race", nullStaffRace);
+  const nullStaffRows = nullStaffRace.map(finalRow);
+  const nullStaffOutcomes = nullStaffRows
+    .map((row) => row.split("|")[0])
+    .sort();
+  const nullStaffAppointmentIds = nullStaffRows.map(
+    (row) => row.split("|")[1],
+  );
+  if (
+    JSON.stringify(nullStaffOutcomes) !==
+      JSON.stringify(["CREATED", "EXISTING"]) ||
+    !nullStaffAppointmentIds[0] ||
+    nullStaffAppointmentIds[0] !== nullStaffAppointmentIds[1] ||
+    sql(
+      `select count(*) from public.appointments
+       where booking_operation_id='${nullStaffOperation}'
+         and staff_id is null`,
+      { quiet: true, phase: "concurrency:null-staff:count" },
+    ) !== "1"
+  ) {
+    throw new Error(`NULL-staff appointment race mismatch: ${nullStaffRows}`);
+  }
+  summary.concurrency.push("same-operation-null-staff-appointment");
+
   const closeOperation = "15800000-0000-4000-8000-000000000400";
   sql(
     `set role service_role; select public.issue134_bootstrap(
@@ -819,6 +929,364 @@ try {
     throw new Error("close-before-commit did not fence the zero-ledger attempt");
   }
   summary.concurrency.push("close-before-commit");
+
+  function exactRecoveryEvidence(operationId, phase) {
+    return sql(
+      `set role service_role;
+       select
+         payload->>'found',
+         payload->'attempt'->>'execution_state',
+         payload->>'appointment_count',
+         payload->>'ledger_count',
+         coalesce(payload->'attempt'->>'appointment_id','')
+       from public.read_booking_operations_v1(
+         '15800000-0000-4000-8000-000000000001',
+         '15800000-0000-4000-8000-000000000002',
+         'one','${operationId}',null,null,null,1
+       )`,
+      { quiet: true, phase },
+    );
+  }
+
+  function assertRecoveryCounts(
+    operationId,
+    attemptKey,
+    expectedAppointments,
+    expectedLedgers,
+    phase,
+  ) {
+    const counts = sql(
+      `select
+         (select count(*) from public.commerce_booking_operations
+          where id='${operationId}'),
+         (select count(*) from public.commerce_payment_attempts
+          where booking_operation_id='${operationId}'
+            and attempt_key='${attemptKey}'),
+         (select count(*) from public.appointments
+          where booking_operation_id='${operationId}'),
+         (select count(*) from public.commerce_transactions transaction_row
+          join public.commerce_payment_attempts attempt_row
+            on attempt_row.id=transaction_row.payment_attempt_id
+          where attempt_row.booking_operation_id='${operationId}')`,
+      { quiet: true, phase },
+    );
+    const expected = `1|1|${expectedAppointments}|${expectedLedgers}`;
+    if (counts !== expected) {
+      throw new Error(
+        `Recovery identity/count mismatch for ${operationId}: ${counts}`,
+      );
+    }
+  }
+
+  const bootstrapRecoveryOperation =
+    "15800000-0000-4000-8000-000000000810";
+  const bootstrapRecoveryKey = "15800000-0000-4000-8000-000000000811";
+  await sqlLostResponse(
+    `select public.issue134_bootstrap(
+       '${bootstrapRecoveryOperation}','${bootstrapRecoveryKey}',
+       '15800000-0000-4000-8000-000000000040',
+       'deposit','deposit',5000,'cash','manual'
+     )`,
+    "issue134_lost_bootstrap_response",
+    "recovery:bootstrap:lost-response",
+  );
+  const bootstrapEvidence = exactRecoveryEvidence(
+    bootstrapRecoveryOperation,
+    "recovery:bootstrap:canonical-read",
+  );
+  if (bootstrapEvidence !== "true|REQUESTED|0|0|") {
+    throw new Error(
+      `Bootstrap recovery evidence mismatch: ${bootstrapEvidence}`,
+    );
+  }
+  assertRecoveryCounts(
+    bootstrapRecoveryOperation,
+    bootstrapRecoveryKey,
+    0,
+    0,
+    "recovery:bootstrap:counts",
+  );
+  const bootstrapReplay = sql(
+    `set role service_role;
+     select public.issue134_bootstrap(
+       '${bootstrapRecoveryOperation}','${bootstrapRecoveryKey}',
+       '15800000-0000-4000-8000-000000000040',
+       'deposit','deposit',5000,'cash','manual'
+     )`,
+    { quiet: true, phase: "recovery:bootstrap:replay" },
+  );
+  if (bootstrapReplay !== "EXISTING") {
+    throw new Error(`Bootstrap recovery did not replay: ${bootstrapReplay}`);
+  }
+  summary.recovery.push({
+    boundary: "bootstrap_committed",
+    transportClassificationBeforeRead: "UNKNOWN",
+    canonicalEvidence: bootstrapEvidence,
+    sameIdentityReplay: bootstrapReplay,
+    recollectionInvited: false,
+  });
+
+  const appointmentRecoveryOperation =
+    "15800000-0000-4000-8000-000000000820";
+  const appointmentRecoveryKey = "15800000-0000-4000-8000-000000000821";
+  if (
+    sql(
+      `set role service_role;
+       select public.issue134_bootstrap(
+         '${appointmentRecoveryOperation}','${appointmentRecoveryKey}',
+         '15800000-0000-4000-8000-000000000040',
+         'deposit','deposit',5000,'cash','manual'
+       )`,
+      { quiet: true, phase: "recovery:appointment:bootstrap" },
+    ) !== "ADMITTED"
+  ) {
+    throw new Error("Could not prepare appointment recovery operation");
+  }
+  await sqlLostResponse(
+    persistSql
+      .replace("set role service_role;", "")
+      .replaceAll(
+        "15800000-0000-4000-8000-000000000300",
+        appointmentRecoveryOperation,
+      ),
+    "issue134_lost_appointment_response",
+    "recovery:appointment:lost-response",
+  );
+  const appointmentEvidence = exactRecoveryEvidence(
+    appointmentRecoveryOperation,
+    "recovery:appointment:canonical-read",
+  );
+  const appointmentEvidenceParts = appointmentEvidence.split("|");
+  if (
+    appointmentEvidenceParts[0] !== "true" ||
+    appointmentEvidenceParts[1] !== "REQUESTED" ||
+    appointmentEvidenceParts[2] !== "1" ||
+    appointmentEvidenceParts[3] !== "0" ||
+    appointmentEvidenceParts[4] !== ""
+  ) {
+    throw new Error(
+      `Appointment recovery evidence mismatch: ${appointmentEvidence}`,
+    );
+  }
+  const recoveredAppointmentId = sql(
+    `select id from public.appointments
+     where booking_operation_id='${appointmentRecoveryOperation}'`,
+    { quiet: true, phase: "recovery:appointment:id" },
+  );
+  const appointmentReplay = sql(
+    persistSql.replaceAll(
+      "15800000-0000-4000-8000-000000000300",
+      appointmentRecoveryOperation,
+    ),
+    { quiet: true, phase: "recovery:appointment:replay" },
+  );
+  if (appointmentReplay !== `EXISTING|${recoveredAppointmentId}`) {
+    throw new Error(
+      `Appointment recovery did not replay the same row: ${appointmentReplay}`,
+    );
+  }
+  assertRecoveryCounts(
+    appointmentRecoveryOperation,
+    appointmentRecoveryKey,
+    1,
+    0,
+    "recovery:appointment:counts",
+  );
+  summary.recovery.push({
+    boundary: "appointment_committed",
+    transportClassificationBeforeRead: "UNKNOWN",
+    canonicalEvidence: appointmentEvidence,
+    sameIdentityReplay: appointmentReplay,
+    recollectionInvited: false,
+  });
+
+  const bindRecoveryOperation = "15800000-0000-4000-8000-000000000830";
+  const bindRecoveryKey = "15800000-0000-4000-8000-000000000831";
+  if (
+    sql(
+      `set role service_role;
+       select public.issue134_bootstrap(
+         '${bindRecoveryOperation}','${bindRecoveryKey}',
+         '15800000-0000-4000-8000-000000000040',
+         'deposit','deposit',5000,'cash','manual'
+       )`,
+      { quiet: true, phase: "recovery:bind:bootstrap" },
+    ) !== "ADMITTED"
+  ) {
+    throw new Error("Could not prepare bind recovery operation");
+  }
+  const bindAppointmentRow = sql(
+    persistSql.replaceAll(
+      "15800000-0000-4000-8000-000000000300",
+      bindRecoveryOperation,
+    ),
+    { quiet: true, phase: "recovery:bind:persist" },
+  );
+  const bindAppointmentId = bindAppointmentRow.split("|")[1];
+  await sqlLostResponse(
+    `select outcome
+     from public.bind_booking_operation_appointment_v1(
+       '15800000-0000-4000-8000-000000000001',
+       '${bindRecoveryOperation}',
+       '15800000-0000-4000-8000-000000000002',
+       '${bindAppointmentId}'
+     )`,
+    "issue134_lost_bind_response",
+    "recovery:bind:lost-response",
+  );
+  const bindEvidence = exactRecoveryEvidence(
+    bindRecoveryOperation,
+    "recovery:bind:canonical-read",
+  );
+  if (
+    bindEvidence !==
+    `true|REQUESTED|1|0|${bindAppointmentId}`
+  ) {
+    throw new Error(`Bind recovery evidence mismatch: ${bindEvidence}`);
+  }
+  const bindReplay = sql(
+    `set role service_role;
+     select outcome,appointment_id
+     from public.bind_booking_operation_appointment_v1(
+       '15800000-0000-4000-8000-000000000001',
+       '${bindRecoveryOperation}',
+       '15800000-0000-4000-8000-000000000002',
+       '${bindAppointmentId}'
+     )`,
+    { quiet: true, phase: "recovery:bind:replay" },
+  );
+  if (bindReplay !== `EXISTING|${bindAppointmentId}`) {
+    throw new Error(`Bind recovery did not replay: ${bindReplay}`);
+  }
+  assertRecoveryCounts(
+    bindRecoveryOperation,
+    bindRecoveryKey,
+    1,
+    0,
+    "recovery:bind:counts",
+  );
+  summary.recovery.push({
+    boundary: "bind_committed",
+    transportClassificationBeforeRead: "UNKNOWN",
+    canonicalEvidence: bindEvidence,
+    sameIdentityReplay: bindReplay,
+    recollectionInvited: false,
+  });
+
+  const commitRecoveryOperation =
+    "15800000-0000-4000-8000-000000000840";
+  const commitRecoveryKey = "15800000-0000-4000-8000-000000000841";
+  const commitRecoveryFixture = setupBoundOperation(
+    commitRecoveryOperation,
+    commitRecoveryKey,
+  );
+  await sqlLostResponse(
+    `select outcome,transaction_id
+     from public.commit_booking_operation_manual_payment_v1(
+       '15800000-0000-4000-8000-000000000001',
+       '${commitRecoveryOperation}',
+       '15800000-0000-4000-8000-000000000002',
+       '${commitRecoveryFixture.attemptId}'
+     )`,
+    "issue134_lost_commit_response",
+    "recovery:commit:lost-response",
+  );
+  const commitEvidence = exactRecoveryEvidence(
+    commitRecoveryOperation,
+    "recovery:commit:canonical-read",
+  );
+  if (
+    commitEvidence !==
+    `true|ACCEPTED|1|1|${commitRecoveryFixture.appointmentId}`
+  ) {
+    throw new Error(`Commit recovery evidence mismatch: ${commitEvidence}`);
+  }
+  const commitReplay = sql(
+    `set role service_role;
+     select outcome,transaction_id
+     from public.commit_booking_operation_manual_payment_v1(
+       '15800000-0000-4000-8000-000000000001',
+       '${commitRecoveryOperation}',
+       '15800000-0000-4000-8000-000000000002',
+       '${commitRecoveryFixture.attemptId}'
+     )`,
+    { quiet: true, phase: "recovery:commit:replay" },
+  );
+  const durableTransactionId = sql(
+    `select transaction_row.id
+     from public.commerce_transactions transaction_row
+     join public.commerce_payment_attempts attempt_row
+       on attempt_row.id=transaction_row.payment_attempt_id
+     where attempt_row.booking_operation_id='${commitRecoveryOperation}'`,
+    { quiet: true, phase: "recovery:commit:transaction-id" },
+  );
+  if (commitReplay !== `REPLAY|${durableTransactionId}`) {
+    throw new Error(
+      `Commit recovery did not replay the durable transaction: ${commitReplay}`,
+    );
+  }
+  assertRecoveryCounts(
+    commitRecoveryOperation,
+    commitRecoveryKey,
+    1,
+    1,
+    "recovery:commit:counts",
+  );
+  if (
+    sql(
+      `select count(*) from public.commerce_payment_reconciliation
+       where attempt_id='${commitRecoveryFixture.attemptId}'`,
+      { quiet: true, phase: "recovery:commit:obligations" },
+    ) !== "4"
+  ) {
+    throw new Error("Commit recovery duplicated or lost obligations");
+  }
+  summary.recovery.push({
+    boundary: "money_commit_committed",
+    transportClassificationBeforeRead: "UNKNOWN",
+    canonicalEvidence: commitEvidence,
+    sameIdentityReplay: commitReplay,
+    recollectionInvited: false,
+  });
+
+  const rollbackRecoveryOperation =
+    "15800000-0000-4000-8000-000000000850";
+  const rollbackRecoveryKey = "15800000-0000-4000-8000-000000000851";
+  sql(
+    `begin;
+     set local role service_role;
+     select public.issue134_bootstrap(
+       '${rollbackRecoveryOperation}','${rollbackRecoveryKey}',
+       '15800000-0000-4000-8000-000000000040',
+       'deposit','deposit',5000,'cash','manual'
+     );
+     rollback`,
+    { quiet: true, phase: "recovery:known-rollback" },
+  );
+  const rollbackCounts = sql(
+    `select
+       (select count(*) from public.commerce_booking_operations
+        where id='${rollbackRecoveryOperation}'),
+       (select count(*) from public.commerce_payment_attempts
+        where booking_operation_id='${rollbackRecoveryOperation}'),
+       (select count(*) from public.appointments
+        where booking_operation_id='${rollbackRecoveryOperation}'),
+       (select count(*) from public.commerce_transactions transaction_row
+        join public.commerce_payment_attempts attempt_row
+          on attempt_row.id=transaction_row.payment_attempt_id
+        where attempt_row.booking_operation_id='${rollbackRecoveryOperation}')`,
+    { quiet: true, phase: "recovery:known-rollback:counts" },
+  );
+  if (rollbackCounts !== "0|0|0|0") {
+    throw new Error(`Known rollback left durable effects: ${rollbackCounts}`);
+  }
+  summary.recovery.push({
+    boundary: "known_rollback",
+    transportClassificationBeforeRead: "KNOWN_ROLLBACK",
+    canonicalEvidence: "ABSENT",
+    sameIdentityReplay: "NOT_RUN",
+    recollectionInvited: false,
+  });
 
   const revoked = spawnSync(
     binaries.psql,

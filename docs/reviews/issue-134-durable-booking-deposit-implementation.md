@@ -16,6 +16,73 @@ Product Owner authorization: Issue #158 exact prepared-only implementation under
 
 The candidate commit contains the 15 code, migration, test, proof, and changelog paths. This report is the 16th approved path and is committed afterward so it can record a real immutable candidate commit/tree; a Git object cannot embed its own hash.
 
+## Bounded correction after independent audit
+
+Claude independently returned `CORRECTIONS_REQUIRED_BEFORE_DATABASE_PROOF` for two bounded blockers. Darshan authorized correction within the existing Issue #158 allowlist at report HEAD `a293faa316784781a72fae60ac6dc00e7ed85ae5`; the implementation candidate under review remains the historical parent candidate `5f9af16422310428852d343f65f140591d2dac86`.
+
+The correction changes exactly these five approved paths:
+
+1. `lib/commerce/booking-operations/kernel.ts`
+2. `tests/unit/commerce/booking-operation-kernel.test.ts`
+3. `tests/postgres/issue-134-durable-booking-operation-contract.sql`
+4. `scripts/verify-issue134-durable-booking-operation-postgres.mjs`
+5. `docs/reviews/issue-134-durable-booking-deposit-implementation.md`
+
+No migration, UI, action wiring, permission, configuration, provider, projection, communication, worker, accepted evidence, Staging, Production, GVM, or historical financial-record path changed.
+
+Corrected source identities before the final documentation commit:
+
+- `lib/commerce/booking-operations/kernel.ts`: SHA-256 `824e42146827d084caf701f0fc5d00d58b98c7748f7ca159c164f9f01b2e2634`
+- `tests/unit/commerce/booking-operation-kernel.test.ts`: SHA-256 `d2dd3d860a1d5a58e7eb79ea779e9379a1d266c31586680ad1dbf47b967f5693`
+- `tests/postgres/issue-134-durable-booking-operation-contract.sql`: SHA-256 `0f4f3ae3681d421cf8162f43082678f3f233d27762ea966b441ee790f947fa6d`
+- `scripts/verify-issue134-durable-booking-operation-postgres.mjs`: SHA-256 `239981e3170dbdff5ec967581bd2b8ec7c359dd83c591aa65940d579441661c5`
+
+The exact corrected branch commit and tree are recorded in the final delivery handoff immediately after the single authorized correction commit. They cannot be embedded into this same commit without changing both identities; unlike the original report-only child, this correction is intentionally one commit.
+
+### B1 resolution — lossless history cursor
+
+`decodeCursor()` now validates the exact PostgreSQL timestamp string with a bounded RFC 3339/PostgreSQL shape, real calendar/date/time/offset ranges, and parse validity, then returns the original bytes unchanged. It no longer reconstructs the cursor boundary with `Date.toISOString()`, so six-digit PostgreSQL fractional precision survives the base64url cursor and the `(attention_rank, created_at, id)` comparison. `encodeCursor()` applies the same fail-closed timestamp validation.
+
+Focused reader tests drive two boundaries inside the same millisecond (`.123456` and `.123455`) through encode, decode, and successive pagination RPC arguments; they prove the encoded cursors remain distinct and the exact strings reach PostgreSQL unchanged. A malformed calendar date is rejected before the canonical reader is called.
+
+### B2 resolution — complete Section 14 proof vectors
+
+The disposable SQL contract and owned-cluster verifier now add executable coverage for every audit gap:
+
+- same-key changed-tuple admission returns exact `KEY_CONFLICT`; the conflict event ID is recomputed from the documented deterministic tuple, its full financial classification is checked, and a second conflict replay leaves exactly one event;
+- three rank-0 history rows include a same-timestamp UUID tie and a one-microsecond boundary; real non-null cursors paginate them in `attention_rank`, `created_at DESC`, `id DESC` order without skips or duplicates and preserve the six-digit cursor timestamp. Fixture-only timestamp seeding uses transaction-local `session_replication_role=replica` and positively asserts restoration to `origin` before reader proof;
+- a second synthetic Business/customer proves wrong-actor reader, close, and commit denial, authorized foreign-tenant nonvisibility, and an `UNKNOWN` foreign-Business commit with byte-stable full-row digests across attempts, events, ledger, and obligations;
+- two distinct attempt keys admit equal CAD50 payment intents under separate operation identities, with distinct operation IDs and request fingerprints;
+- four deliberately discarded-response sessions commit bootstrap, appointment, bind, and money boundaries, discard stdout, terminate the client only after the session is observed sleeping after explicit `COMMIT`, classify the transport result as `UNKNOWN`, and then recover by canonical same-identity read before replay. Every stage checks the original attempt key, one operation/attempt, zero-or-one appointment as appropriate, zero-or-one ledger as appropriate, same-row replay, the exact durable transaction ID, and four—not duplicated—obligations after money commit. A separate explicit rollback proves zero durable operation/attempt/appointment/ledger effect. Evidence marks `recollectionInvited=false`;
+- a bounded same-operation appointment race with `staff_id NULL` witnesses the first session after insert and the second blocked on the advisory lock, then requires exact `CREATED` plus `EXISTING`, the same appointment ID in both replies, and exactly one NULL-staff appointment row.
+
+The verifier retains its exact confirmation flag, fixed PostgreSQL 17 binaries, loopback-only/socket-disabled cluster, minimal sanitized child environment, before/after source identities, append-only phase/concurrency evidence, confirmed stop, and dual-marker cleanup fence.
+
+### Correction validation
+
+- Focused Issue #158 suites — PASS, 5 files / 47 tests.
+- Relevant booking/booking-engine/commerce/migration/customer/notification suites — PASS, 75 files / 695 tests.
+- `npm run typecheck` — PASS.
+- ESLint over every corrected TypeScript/JavaScript path — PASS.
+- `node --check scripts/verify-issue134-durable-booking-operation-postgres.mjs` — PASS.
+- Verifier `--help`, no-argument, wrong-argument, and extra-argument gates — PASS; statuses `0,2,2,2`, and every non-exact invocation refused before PostgreSQL binary inspection.
+- `npx next build --webpack` — PASS; optimized production compilation, TypeScript, and 37/37 static pages completed.
+- `git diff --check` — PASS.
+- Allowlist and protected-hash checks — PASS.
+
+Migration identity remains byte-identical: SHA-256 `805f49255069cf0cc0e831bd45986218246e982acdc35e75d8b25d91212cb727`, exactly `80,473` bytes.
+
+Protected hashes remain byte-identical:
+
+- Foundation: `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47`
+- R1a: `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`
+- Attribution: `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`
+- Approved contract: `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`
+
+**DATABASE PROOF: NOT RUN**
+
+PostgreSQL was not launched, the confirmation flag was never supplied exactly, and neither the corrected verifier nor any database migration was executed. The corrected package remains source-authored for one future Product-Owner-controlled human disposable-local run after independent delta review.
+
 ## Exact changed paths
 
 1. `supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql`

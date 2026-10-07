@@ -39,6 +39,29 @@ const ATTEMPT_ID = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const APPOINTMENT_ID = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 const TRANSACTION_ID = "ffffffff-ffff-4fff-8fff-ffffffffffff";
 
+function historyItem(createdAt: string) {
+  return {
+    operation_id: OPERATION_ID,
+    appointment_id: null,
+    attempt_id: ATTEMPT_ID,
+    source: "booking_sheet",
+    created_at: createdAt,
+    updated_at: createdAt,
+    lifecycle_state: "OPEN",
+    close_reason: null,
+    payment_mode: "deposit",
+    execution_state: "REQUESTED",
+    amount_cents: 5_000,
+    currency: "cad",
+    method: "cash",
+    transaction_id: null,
+    ledger_count: 0,
+    operator_state: "PAYMENT_RECOVERY_REQUIRED",
+    synchronization: "PENDING",
+    recovery_action: "CREATE_APPOINTMENT",
+  };
+}
+
 function request(
   overrides: Partial<BookingOperationRequest> = {},
 ): BookingOperationRequest {
@@ -573,5 +596,98 @@ describe("private canonical booking-operation readers", () => {
       kind: "UNKNOWN",
       reason: "History summary is malformed.",
     });
+  });
+
+  it("round-trips distinct sub-millisecond cursor boundaries without reducing PostgreSQL precision", async () => {
+    const firstBoundary = "2026-10-08T13:59:00.123456+00:00";
+    const secondBoundary = "2026-10-08T13:59:00.123455+00:00";
+    const rpc = vi
+      .fn()
+      .mockResolvedValueOnce({
+        data: [{
+          payload: {
+            items: [historyItem(firstBoundary)],
+            next_cursor: {
+              attention_rank: 0,
+              created_at: firstBoundary,
+              id: OPERATION_ID,
+            },
+          },
+        }],
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: [{
+          payload: {
+            items: [historyItem(secondBoundary)],
+            next_cursor: {
+              attention_rank: 0,
+              created_at: secondBoundary,
+              id: OPERATION_ID,
+            },
+          },
+        }],
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        data: [{ payload: { items: [], next_cursor: null } }],
+        error: null,
+      });
+    vi.mocked(createServiceClient).mockReturnValue({ rpc } as never);
+
+    const firstPage = await listBookingOperationHistory({ limit: 1 });
+    expect(firstPage.kind).toBe("PAGE");
+    if (firstPage.kind !== "PAGE") throw new Error("expected first page");
+
+    const secondPage = await listBookingOperationHistory({
+      cursor: firstPage.nextCursor ?? undefined,
+      limit: 1,
+    });
+    expect(secondPage.kind).toBe("PAGE");
+    if (secondPage.kind !== "PAGE") throw new Error("expected second page");
+    expect(secondPage.nextCursor).not.toBe(firstPage.nextCursor);
+
+    await listBookingOperationHistory({
+      cursor: secondPage.nextCursor ?? undefined,
+      limit: 1,
+    });
+
+    expect(rpc).toHaveBeenNthCalledWith(
+      2,
+      "read_booking_operations_v1",
+      expect.objectContaining({
+        p_cursor_attention_rank: 0,
+        p_cursor_created_at: firstBoundary,
+        p_cursor_id: OPERATION_ID,
+      }),
+    );
+    expect(rpc).toHaveBeenNthCalledWith(
+      3,
+      "read_booking_operations_v1",
+      expect.objectContaining({
+        p_cursor_attention_rank: 0,
+        p_cursor_created_at: secondBoundary,
+        p_cursor_id: OPERATION_ID,
+      }),
+    );
+  });
+
+  it("rejects malformed cursor timestamps before calling the canonical reader", async () => {
+    const malformedCursor = Buffer.from(
+      JSON.stringify({
+        attentionRank: 0,
+        createdAt: "2026-02-31T13:59:00.123456+00:00",
+        id: OPERATION_ID,
+      }),
+      "utf8",
+    ).toString("base64url");
+
+    await expect(
+      listBookingOperationHistory({ cursor: malformedCursor as never }),
+    ).resolves.toEqual({
+      kind: "UNKNOWN",
+      reason: "History cursor is invalid.",
+    });
+    expect(createServiceClient).not.toHaveBeenCalled();
   });
 });

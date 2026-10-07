@@ -85,6 +85,53 @@ function finiteInteger(value: unknown): number | null {
     : null;
 }
 
+function isLosslessPostgresTimestamp(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?(Z|([+-])(\d{2}):(\d{2}))$/,
+  );
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const hour = Number(match[4]);
+  const minute = Number(match[5]);
+  const second = Number(match[6]);
+  const offsetHour = match[8] === "Z" ? 0 : Number(match[10]);
+  const offsetMinute = match[8] === "Z" ? 0 : Number(match[11]);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [
+    31,
+    leapYear ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+
+  return (
+    year >= 1 &&
+    month >= 1 &&
+    month <= 12 &&
+    day >= 1 &&
+    day <= (daysInMonth[month - 1] ?? 0) &&
+    hour <= 23 &&
+    minute <= 59 &&
+    second <= 59 &&
+    offsetHour <= 14 &&
+    offsetMinute <= 59 &&
+    (offsetHour < 14 || offsetMinute === 0) &&
+    Number.isFinite(Date.parse(value))
+  );
+}
+
 function unknown(operationId: string, reason: string): BookingOperationKernelResult {
   return { kind: "UNKNOWN", operationId, reason };
 }
@@ -986,15 +1033,14 @@ function decodeCursor(
     if (
       !row ||
       (row.attentionRank !== 0 && row.attentionRank !== 1) ||
-      typeof row.createdAt !== "string" ||
-      !Number.isFinite(new Date(row.createdAt).getTime()) ||
+      !isLosslessPostgresTimestamp(row.createdAt) ||
       !isCanonicalUuid(row.id)
     ) {
       throw new Error("invalid");
     }
     return {
       attentionRank: row.attentionRank,
-      createdAt: new Date(row.createdAt).toISOString(),
+      createdAt: row.createdAt,
       id: row.id,
     };
   } catch {
@@ -1005,7 +1051,7 @@ function decodeCursor(
 function encodeCursor(value: JsonRecord): BookingOperationHistoryCursor | null {
   if (
     (value.attention_rank !== 0 && value.attention_rank !== 1) ||
-    typeof value.created_at !== "string" ||
+    !isLosslessPostgresTimestamp(value.created_at) ||
     !isCanonicalUuid(value.id)
   ) {
     return null;

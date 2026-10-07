@@ -1,4 +1,5 @@
 \set ON_ERROR_STOP on
+set timezone = 'UTC';
 
 -- Disposable fixture only. This file owns a synthetic PostgreSQL database and
 -- applies the immutable accepted sources before the new prepared migration.
@@ -260,7 +261,6 @@ as $$
     ),
     'hex'
   )
-  from jsonb_array_elements(p_values) with ordinality
 $$;
 
 create function public.issue134_bootstrap(
@@ -272,7 +272,8 @@ create function public.issue134_bootstrap(
   p_amount integer,
   p_method text,
   p_provider text,
-  p_source text default 'booking_sheet'
+  p_source text default 'booking_sheet',
+  p_staff uuid default '15800000-0000-4000-8000-000000000030'
 ) returns text
 language plpgsql
 set search_path = pg_catalog, pg_temp
@@ -293,7 +294,7 @@ begin
     p_customer,
     '15800000-0000-4000-8000-000000000010'::uuid,
     '15800000-0000-4000-8000-000000000020'::uuid,
-    '15800000-0000-4000-8000-000000000030'::uuid,
+    p_staff,
     '2026-10-08T14:00:00.000Z',
     '2026-10-08T15:00:00.000Z',
     'confirmed', 60, null::uuid, to_jsonb(array[
@@ -326,7 +327,7 @@ begin
     null,
     '15800000-0000-4000-8000-000000000010',
     '15800000-0000-4000-8000-000000000020',
-    '15800000-0000-4000-8000-000000000030',
+    p_staff,
     '2026-10-08T14:00:00.000Z',
     '2026-10-08T15:00:00.000Z',
     'confirmed',
@@ -433,10 +434,17 @@ insert into auth.users(id) values
   ('15800000-0000-4000-8000-000000000002'),
   ('15800000-0000-4000-8000-000000000099');
 insert into public.businesses(id, name, owner_id, currency)
-values(
+values
+(
   '15800000-0000-4000-8000-000000000001',
   'Issue 158 Synthetic',
   '15800000-0000-4000-8000-000000000002',
+  'cad'
+),
+(
+  '15800000-0000-4000-8000-000000000801',
+  'Issue 158 Foreign Tenant',
+  '15800000-0000-4000-8000-000000000099',
   'cad'
 );
 insert into public.locations(id, business_id, name) values(
@@ -498,6 +506,13 @@ insert into public.customers(id, business_id, name, email, phone) values
   'Customer Three',
   'three@example.com',
   '19055550102'
+),
+(
+  '15800000-0000-4000-8000-000000000802',
+  '15800000-0000-4000-8000-000000000801',
+  'Foreign Tenant Customer',
+  'foreign@example.com',
+  '19055550802'
 );
 
 set role service_role;
@@ -555,6 +570,70 @@ from public.bootstrap_booking_operation_v1(
 \else
   \quit 1
 \endif
+
+select public.issue134_bootstrap(
+  '15800000-0000-4000-8000-000000000100',
+  '15800000-0000-4000-8000-000000000101',
+  '15800000-0000-4000-8000-000000000040',
+  'deposit', 'deposit', 5000, 'e_transfer', 'manual', 'quick_appointment'
+) = 'KEY_CONFLICT' as changed_tuple_conflicted
+\gset
+\if :changed_tuple_conflicted
+\else
+  \quit 1
+\endif
+
+do $$
+declare
+  v_attempt_id uuid;
+  expected_event_id uuid;
+begin
+  select id into strict v_attempt_id
+  from public.commerce_payment_attempts
+  where booking_operation_id = '15800000-0000-4000-8000-000000000100';
+  expected_event_id := pg_catalog.md5(
+    'booking-operation-conflict:' ||
+    '15800000-0000-4000-8000-000000000100' ||
+    ':' || v_attempt_id::text
+  )::uuid;
+  if (
+    select count(*)
+    from public.commerce_payment_attempt_events
+    where attempt_id = v_attempt_id
+      and event_type = 'KEY_CONFLICT'
+      and money_state = 'NOT_RECORDED'
+      and failure_class = 'CONFLICT'
+      and failure_code = 'KEY_CONFLICT'
+      and id = expected_event_id
+  ) <> 1 then
+    raise exception 'changed-tuple conflict evidence mismatch';
+  end if;
+end $$;
+
+select public.issue134_bootstrap(
+  '15800000-0000-4000-8000-000000000100',
+  '15800000-0000-4000-8000-000000000101',
+  '15800000-0000-4000-8000-000000000040',
+  'deposit', 'deposit', 5000, 'e_transfer', 'manual', 'quick_appointment'
+) = 'KEY_CONFLICT' as changed_tuple_replayed
+\gset
+\if :changed_tuple_replayed
+\else
+  \quit 1
+\endif
+
+select count(*) = 1 as one_conflict_event
+from public.commerce_payment_attempt_events event_row
+join public.commerce_payment_attempts attempt_row
+  on attempt_row.id = event_row.attempt_id
+where attempt_row.booking_operation_id = '15800000-0000-4000-8000-000000000100'
+  and event_row.event_type = 'KEY_CONFLICT'
+\gset
+\if :one_conflict_event
+\else
+  \quit 1
+\endif
+\echo 'PASS same-key changed-tuple conflict is deterministic and idempotent'
 
 select outcome, appointment_id
 from public.persist_booking_operation_appointment_v1(
@@ -742,6 +821,338 @@ begin
   end;
 end $$;
 \echo 'PASS original appointment-linked ledger blocks customer reassignment'
+
+select public.issue134_bootstrap(
+  '15800000-0000-4000-8000-000000000231',
+  '15800000-0000-4000-8000-000000000331',
+  '15800000-0000-4000-8000-000000000040',
+  'deposit', 'deposit', 5000, 'cash', 'manual'
+) = 'ADMITTED' as history_231_admitted
+\gset
+select public.issue134_bootstrap(
+  '15800000-0000-4000-8000-000000000232',
+  '15800000-0000-4000-8000-000000000332',
+  '15800000-0000-4000-8000-000000000040',
+  'deposit', 'deposit', 5000, 'cash', 'manual'
+) = 'ADMITTED' as history_232_admitted
+\gset
+select public.issue134_bootstrap(
+  '15800000-0000-4000-8000-000000000233',
+  '15800000-0000-4000-8000-000000000333',
+  '15800000-0000-4000-8000-000000000040',
+  'deposit', 'deposit', 5000, 'cash', 'manual'
+) = 'ADMITTED' as history_233_admitted
+\gset
+\if :history_231_admitted
+\else
+  \quit 1
+\endif
+\if :history_232_admitted
+\else
+  \quit 1
+\endif
+\if :history_233_admitted
+\else
+  \quit 1
+\endif
+
+reset role;
+begin;
+set local session_replication_role = replica;
+update public.commerce_booking_operations
+set created_at = case id
+      when '15800000-0000-4000-8000-000000000231' then
+        '2026-10-08T18:00:00.123456+00:00'::timestamptz
+      when '15800000-0000-4000-8000-000000000232' then
+        '2026-10-08T18:00:00.123456+00:00'::timestamptz
+      else '2026-10-08T18:00:00.123455+00:00'::timestamptz
+    end,
+    updated_at = case id
+      when '15800000-0000-4000-8000-000000000231' then
+        '2026-10-08T18:00:00.123456+00:00'::timestamptz
+      when '15800000-0000-4000-8000-000000000232' then
+        '2026-10-08T18:00:00.123456+00:00'::timestamptz
+      else '2026-10-08T18:00:00.123455+00:00'::timestamptz
+    end
+where id in (
+  '15800000-0000-4000-8000-000000000231',
+  '15800000-0000-4000-8000-000000000232',
+  '15800000-0000-4000-8000-000000000233'
+);
+commit;
+do $$
+begin
+  if current_setting('session_replication_role') <> 'origin' then
+    raise exception 'history fixture trigger mode was not restored';
+  end if;
+end $$;
+set role service_role;
+
+do $$
+declare
+  first_page jsonb;
+  second_page jsonb;
+  third_page jsonb;
+begin
+  select payload into first_page
+  from public.read_booking_operations_v1(
+    '15800000-0000-4000-8000-000000000001',
+    '15800000-0000-4000-8000-000000000002',
+    'history', null, null, null, null, 1
+  );
+  if first_page->'items'->0->>'operation_id'
+       <> '15800000-0000-4000-8000-000000000232'
+     or first_page->'next_cursor'->>'attention_rank' <> '0'
+     or first_page->'next_cursor'->>'created_at'
+       <> '2026-10-08T18:00:00.123456+00:00'
+     or first_page->'next_cursor'->>'id'
+       <> '15800000-0000-4000-8000-000000000232' then
+    raise exception 'first history page/cursor mismatch: %', first_page;
+  end if;
+
+  select payload into second_page
+  from public.read_booking_operations_v1(
+    '15800000-0000-4000-8000-000000000001',
+    '15800000-0000-4000-8000-000000000002',
+    'history',
+    null,
+    (first_page->'next_cursor'->>'attention_rank')::integer,
+    (first_page->'next_cursor'->>'created_at')::timestamptz,
+    (first_page->'next_cursor'->>'id')::uuid,
+    1
+  );
+  if second_page->'items'->0->>'operation_id'
+       <> '15800000-0000-4000-8000-000000000231'
+     or second_page->'next_cursor'->>'created_at'
+       <> '2026-10-08T18:00:00.123456+00:00'
+     or second_page->'next_cursor'->>'id'
+       <> '15800000-0000-4000-8000-000000000231' then
+    raise exception 'second history page/cursor mismatch: %', second_page;
+  end if;
+
+  select payload into third_page
+  from public.read_booking_operations_v1(
+    '15800000-0000-4000-8000-000000000001',
+    '15800000-0000-4000-8000-000000000002',
+    'history',
+    null,
+    (second_page->'next_cursor'->>'attention_rank')::integer,
+    (second_page->'next_cursor'->>'created_at')::timestamptz,
+    (second_page->'next_cursor'->>'id')::uuid,
+    1
+  );
+  if third_page->'items'->0->>'operation_id'
+       <> '15800000-0000-4000-8000-000000000233'
+     or third_page->'items'->0->>'created_at'
+       <> '2026-10-08T18:00:00.123455+00:00'
+     or (
+       select count(distinct operation_id)
+       from unnest(array[
+         first_page->'items'->0->>'operation_id',
+         second_page->'items'->0->>'operation_id',
+         third_page->'items'->0->>'operation_id'
+       ]) as page_operation(operation_id)
+     ) <> 3 then
+    raise exception 'third history page/order mismatch: %', third_page;
+  end if;
+end $$;
+\echo 'PASS non-null history cursor preserves microseconds and deterministic rank/time/id order without skips or duplicates'
+
+select public.issue134_bootstrap(
+  '15800000-0000-4000-8000-000000000240',
+  '15800000-0000-4000-8000-000000000340',
+  '15800000-0000-4000-8000-000000000040',
+  'deposit', 'deposit', 5000, 'cash', 'manual'
+) = 'ADMITTED' as equal_value_first_admitted
+\gset
+select public.issue134_bootstrap(
+  '15800000-0000-4000-8000-000000000250',
+  '15800000-0000-4000-8000-000000000350',
+  '15800000-0000-4000-8000-000000000040',
+  'deposit', 'deposit', 5000, 'cash', 'manual'
+) = 'ADMITTED' as equal_value_second_admitted
+\gset
+\if :equal_value_first_admitted
+\else
+  \quit 1
+\endif
+\if :equal_value_second_admitted
+\else
+  \quit 1
+\endif
+do $$
+begin
+  if (
+    select row(
+      count(*),
+      count(distinct attempt_key),
+      count(distinct booking_operation_id),
+      count(distinct request_fingerprint),
+      min(amount_cents),
+      max(amount_cents)
+    )
+    from public.commerce_payment_attempts
+    where booking_operation_id in (
+      '15800000-0000-4000-8000-000000000240',
+      '15800000-0000-4000-8000-000000000250'
+    )
+  ) is distinct from row(
+    2::bigint, 2::bigint, 2::bigint, 2::bigint, 5000, 5000
+  ) then
+    raise exception 'equal-value distinct-attempt evidence mismatch';
+  end if;
+end $$;
+\echo 'PASS two deliberate equal-value attempt keys remain distinct legitimate intents'
+
+do $$
+declare
+  foreign_payload jsonb;
+  commit_outcome text;
+  financial_state_before jsonb;
+begin
+  begin
+    perform public.read_booking_operations_v1(
+      '15800000-0000-4000-8000-000000000001',
+      '15800000-0000-4000-8000-000000000099',
+      'one',
+      '15800000-0000-4000-8000-000000000100',
+      null, null, null, 1
+    );
+    raise exception 'foreign actor read unexpectedly succeeded';
+  exception when insufficient_privilege then
+    if position('BOOKING_OPERATION_NOT_AUTHORIZED' in sqlerrm) = 0 then
+      raise;
+    end if;
+  end;
+
+  begin
+    perform public.close_booking_operation_v1(
+      '15800000-0000-4000-8000-000000000001',
+      '15800000-0000-4000-8000-000000000200',
+      '15800000-0000-4000-8000-000000000099',
+      'APPOINTMENT_CANCELLED',
+      null, null, true
+    );
+    raise exception 'foreign actor mutation unexpectedly succeeded';
+  exception when insufficient_privilege then
+    if position('BOOKING_OPERATION_NOT_AUTHORIZED' in sqlerrm) = 0 then
+      raise;
+    end if;
+  end;
+
+  select payload into foreign_payload
+  from public.read_booking_operations_v1(
+    '15800000-0000-4000-8000-000000000801',
+    '15800000-0000-4000-8000-000000000099',
+    'one',
+    '15800000-0000-4000-8000-000000000100',
+    null, null, null, 1
+  );
+  if foreign_payload is distinct from jsonb_build_object('found', false) then
+    raise exception 'cross-tenant reader disclosed foreign operation: %',
+      foreign_payload;
+  end if;
+
+  begin
+    perform public.commit_booking_operation_manual_payment_v1(
+      '15800000-0000-4000-8000-000000000001',
+      '15800000-0000-4000-8000-000000000100',
+      '15800000-0000-4000-8000-000000000099',
+      (
+        select id
+        from public.commerce_payment_attempts
+        where booking_operation_id = '15800000-0000-4000-8000-000000000100'
+      )
+    );
+    raise exception 'foreign actor commit unexpectedly succeeded';
+  exception when insufficient_privilege then
+    if position('BOOKING_OPERATION_NOT_AUTHORIZED' in sqlerrm) = 0 then
+      raise;
+    end if;
+  end;
+
+  select jsonb_build_object(
+    'attempts', (
+      select md5(coalesce(
+        string_agg(row_to_json(attempt_row)::text, '|' order by id),
+        ''
+      ))
+      from public.commerce_payment_attempts attempt_row
+    ),
+    'events', (
+      select md5(coalesce(
+        string_agg(row_to_json(event_row)::text, '|' order by id),
+        ''
+      ))
+      from public.commerce_payment_attempt_events event_row
+    ),
+    'ledger', (
+      select md5(coalesce(
+        string_agg(row_to_json(transaction_row)::text, '|' order by id),
+        ''
+      ))
+      from public.commerce_transactions transaction_row
+    ),
+    'obligations', (
+      select md5(coalesce(
+        string_agg(
+          row_to_json(obligation_row)::text,
+          '|' order by attempt_id, projection_kind
+        ),
+        ''
+      ))
+      from public.commerce_payment_reconciliation obligation_row
+    )
+  ) into financial_state_before;
+  select outcome into commit_outcome
+  from public.commit_booking_operation_manual_payment_v1(
+    '15800000-0000-4000-8000-000000000801',
+    '15800000-0000-4000-8000-000000000100',
+    '15800000-0000-4000-8000-000000000099',
+    (
+      select id
+      from public.commerce_payment_attempts
+      where booking_operation_id = '15800000-0000-4000-8000-000000000100'
+    )
+  );
+  if commit_outcome is distinct from 'UNKNOWN'
+     or financial_state_before is distinct from jsonb_build_object(
+       'attempts', (
+         select md5(coalesce(
+           string_agg(row_to_json(attempt_row)::text, '|' order by id),
+           ''
+         ))
+         from public.commerce_payment_attempts attempt_row
+       ),
+       'events', (
+         select md5(coalesce(
+           string_agg(row_to_json(event_row)::text, '|' order by id),
+           ''
+         ))
+         from public.commerce_payment_attempt_events event_row
+       ),
+       'ledger', (
+         select md5(coalesce(
+           string_agg(row_to_json(transaction_row)::text, '|' order by id),
+           ''
+         ))
+         from public.commerce_transactions transaction_row
+       ),
+       'obligations', (
+         select md5(coalesce(
+           string_agg(
+             row_to_json(obligation_row)::text,
+             '|' order by attempt_id, projection_kind
+           ),
+           ''
+         ))
+         from public.commerce_payment_reconciliation obligation_row
+       )
+     ) then
+    raise exception 'foreign-tenant commit changed financial state';
+  end if;
+end $$;
+\echo 'PASS cross-tenant reader/mutation/commit paths deny or conceal foreign identity before financial writes'
 
 reset role;
 do $$
