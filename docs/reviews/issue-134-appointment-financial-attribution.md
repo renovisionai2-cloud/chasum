@@ -3,6 +3,19 @@
 **Status:** CORRECTED AFTER EXACT-CANDIDATE HOLD / HOSTED UNAPPLIED / POSTGRESQL PROOF NOT RUN.
 **Competitive Product Gate:** NOT_APPLICABLE — bounded enforcement of the reviewed financial-integrity invariant and exact error mapping; no new operator workflow.
 
+## Final independent source review — database proof still open
+
+**SOURCE_VERDICT: AUTHORING_PASS. DATABASE_PROOF_GATE: NOT MET.** The corrected executable candidate is `d04a79c922835c1bd831cf5ab33c39a6512e547a`, tree `af2a8f56ad8d7c649bf252ef9b156cbaa70a6a21`. Its migration remains SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. The subsequent publication closeout changes documentation only, not reviewed runtime, tests, verifier or SQL.
+
+Claude independently reviewed and hashed the exact corrected candidate in session `797e841c-7601-4f61-9e0c-363ec6842e7e` (reported Claude Opus 5 300K High), reran 23 focused tests and 585 scoped tests across 63 files, typecheck, targeted lint and verifier syntax, and separately verified 13 mapping counterexamples. No blocking source correction remains. The initial HOLD was corrected, not waived: targeted canonical cascade SQLSTATE expectations, exact constraint mapping, verifier ownership/environment/stop-confirmation cleanup, and bounded non-key edit coverage.
+
+**No PostgreSQL proof is claimed.** The previously observed sandbox `shmget` bootstrap denial remains; the corrected verifier was not retried in that sandbox. Build is not passed: the ordinary supported webpack build reached existing font downloads but sandbox DNS could not resolve Google Fonts. Full-suite and hosted/workflow proofs remain unperformed. No proof requirement is waived by the source verdict.
+
+Claude separately accepted a human-owned local proof as safe for this exact code: Darshan may personally run the verifier in a normal Terminal from this worktree, with no arguments, credentials or sudo. It provisions only a new marked disposable PG17 cluster on 127.0.0.1, verifies its data_directory, uses private empty password/service files, and removes only its owned PGDATA after confirmed shutdown. It has no hosted target option. Its temporary trust-auth loopback port contains synthetic data only and is reachable to other local processes during the bounded test window. This is the remaining execution dependency, not a Staging migration-application approval. Do not automate a rerun of the previously denied sandbox launch.
+
+The source branch remains dependent on PR156; no merge/release, Staging/Production/GVM action, historical USD repair, #153 change, worker execution, C01 rerun, or technician resumption follows. Existing pending synthetic records remain excluded from future worker activation. The untracked `.supabase/telemetry.json` and previously disclosed empty temp residue remain outside the candidate; no refused deletion was retried.
+
+
 ## Authority and bounded scope
 
 Product Owner approval authorizes only the eight-file local implementation in section 5 of the hash-bound [runtime contract](issue-134-next-runtime-contract.md), reviewed in [the final design review](issue-134-next-runtime-contract-review.md). The design SHA-256 remains `33af6e34083c43730137f2fa0b748ed735de6c985980ffffe53ccb6c08961f0f`; both historical documents remain byte-identical.
@@ -80,3 +93,197 @@ This is not a database-accepted candidate while executable PostgreSQL proof rema
 ## Next independent gate
 
 After independent delta review of the corrected commit, a human may run the authored verifier in an approved local environment that permits a new disposable PostgreSQL 17 cluster. Record the actual bounded cost/interleaving results before any Staging application gate. The earlier Claude audit applies only to `8d60454…` and returned HOLD; no independent review of the correction commit is claimed here.
+
+
+<details>
+<summary>Final independent source audit (database execution expressly not claimed)</summary>
+
+```markdown
+# CLAUDE — SAME-SESSION DELTA AUDIT — Issue #134 corrected attribution candidate
+
+## Exact identity (independently recomputed)
+
+- HEAD: `d04a79c922835c1bd831cf5ab33c39a6512e547a`
+- Tree: `af2a8f56ad8d7c649bf252ef9b156cbaa70a6a21`
+- Parent / prior HOLD candidate: `8d60454ce6f70572662ae2654121110966be975e`
+- Original base: `789f54d142bc80200654c04b87d82bced37e42e9`
+- Migration SHA-256: `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524` — **byte-identical to the HOLD candidate**
+- Hash-bound design `docs/reviews/issue-134-next-runtime-contract.md`: `33af6e34083c43730137f2fa0b748ed735de6c985980ffffe53ccb6c08961f0f` (UNCHANGED)
+- Foundation `dee700ae…ee3a47`, R1a `4b7e3855…bad5ee7` (UNCHANGED)
+- New hashes: update.ts `727cd72b…ecdc`, contract SQL `e87deb39…90aa`, verifier `e1c361b0…bfff`
+- Dirty status before and after my work: `?? .supabase/` only. `.supabase/telemetry.json` still untracked and NOT in `.gitignore`.
+- Delta vs `8d60454c`: 7 files, +420/−111. Inventory vs base still exactly the 8-file section 5 allowlist. All engineer-claimed identity values matched.
+
+## SOURCE_VERDICT: AUTHORING_PASS
+
+Both HOLD findings and all three non-blocking findings from my prior audit are resolved by
+method, verified against source. I found no new blocking code defect. The migration is
+untouched, so my prior schema-semantics acceptance carries forward unchanged.
+
+## DATABASE_PROOF_GATE: NOT MET — OPEN
+
+The PostgreSQL contract remains AUTHORED / NEVER EXECUTED. Per instruction I did not rerun
+initdb, pg_ctl, the verifier, or any database bootstrap, and I did not touch the established
+`shmget(..., 56, ...)` sandbox denial. Concurrency interleavings, cascade/RLS behavior, row
+digests, 2,000-row validation cost, and lock-timeout rollback are authored only. The
+candidate and changelog both state this correctly and claim no database PASS and no
+independent review of this commit. No overclaiming found anywhere I checked.
+
+## Verification of the corrections
+
+**B1 — canonical cascade 42501, narrowly qualified: RESOLVED.** The blanket
+`expect_integrity_failure` is fully renamed/removed (no residual references).
+`tests/postgres/…-contract.sql:52-137` adds
+`expect_canonical_appointment_delete_failure`, which accepts only: `42501` **with** exact
+`PAYMENT_ATTEMPT_SERVER_ONLY`; `23514` **with** exact
+`PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH`; or `23503` with the composite FK or
+`commerce_payment_attempts_appointment_fk`. A bare permission error cannot satisfy it, so
+arbitrary 42501 is not accepted. It then proves appointment `…032` retains its
+business/customer tuple and that exactly 1 canonical ledger row, 1 ACCEPTED event and 4
+obligations survive — a genuine post-rejection preservation check that did not exist before.
+I confirmed `commerce_payment_attempts_appointment_fk` and `_customer_fk` really exist
+(foundation `:62,:64`), so the named alternatives are live, not dead strings.
+`expect_named_integrity_failure` now requires 23503/23514 **plus** a named mechanism at all
+four remaining call sites.
+
+**B1a — design-review qualification: RESOLVED correctly.**
+`docs/reviews/issue-134-appointment-financial-attribution.md:18-26` records the conditional
+mechanism (SET NULL executing as referencing-table owner can trip `42501` before the later
+`23514`) in the candidate record only. Both hash-bound historical documents are byte-unchanged.
+
+**Exact-mapping counterexamples: RESOLVED.** `lib/booking-engine/mutations/update.ts:21-37`
+now requires `code === "23503"` plus either strict equality on a structured `constraint`
+field or the literal `constraint "<exact name>"` in `message`. `details` and `hint` are no
+longer consulted at all. I re-implemented the predicate standalone and ran 13 cases,
+including two beyond the engineer's suite:
+
+| Case | Maps | Required |
+|---|---|---|
+| Real referenced-side 23503 message | yes | yes |
+| Real structured `constraint` field | yes | yes |
+| 63-byte valid `…_fk$other` suffix | no | no |
+| Unicode `…_fk é` suffix | no | no |
+| Cyrillic homoglyph name (mine) | no | no |
+| `prefix_…_fk` | no | no |
+| Other FK, token in `hint` | no | no |
+| Other FK, token in `details` | no | no |
+| Structured `…_fk$other` | no | no |
+| Single-quoted name | no | no |
+| 23514 with exact token | no | no |
+| Unquoted bare token | no | no |
+| Token echoed inside `details` key values (mine) | no | no |
+
+All 13 behaved as required. Note the last case is a real improvement, not cosmetic: the
+previous predicate read `details`, where PostgreSQL echoes row key values, so
+attacker-influenced text could have spoofed the calm message. That vector is now closed. The
+candidate review's own admission that the old boundary predicate would have mapped `$other`
+is accurate — I confirmed `$` is not in `[A-Za-z0-9_]`.
+
+**Verifier ownership / environment / cleanup: RESOLVED.**
+- `data_directory` ownership is now canonical: `realpathSync(observed) !== realpathSync(dataDir)`
+  aborts before any fixture SQL, so a pre-existing or hosted backend on the chosen port is
+  categorically rejected rather than circumstantially unlikely.
+- `createChildEnv` is now an **allowlist** (PATH, HOME, USER, LOGNAME, PGPASSFILE,
+  PGSERVICEFILE, PGSYSCONFDIR, plus optional LANG/LC_*/TZ/TMPDIR) rather than a PG*
+  denylist. Private `HOME` (0700) with empty `.pgpass` and `pg_service.conf` (0600) and
+  `PGSYSCONFDIR` redirected, so the real `~/.pgpass` and system service files are
+  unreachable. The self-test proves `STRIPE_SECRET_KEY`, `NODE_OPTIONS` and
+  `DYLD_INSERT_LIBRARIES` are absent from the child env.
+- No deletion of live or unconfirmed server data: `stopConfirmed` now requires
+  `pg_ctl status` exit code **3** (no server running) instead of merely non-zero, so an exit-4
+  unreadable-datadir no longer masquerades as stopped. `startAttempted` is set before
+  `pg_ctl start`, so a half-started postmaster still goes through confirmation.
+  `Refusing PGDATA removal without confirmed server stop` precedes the single `rmSync`, which
+  targets only `dataDir` inside the fresh `mkdtemp` and still requires a marker match.
+  Failure to confirm retains PGDATA and reports `RETAINED` on stderr.
+- `originalFailure` and `cleanupFailure` are recorded separately and the original is
+  rethrown with precedence, so cleanup no longer masks the real error.
+- Inert `shared_memory_type=mmap` / `dynamic_shared_memory_type=mmap` flags removed.
+
+**Non-key fixture coverage: ADDED, honestly bounded.** `service_id`, `staff_id`,
+`location_id` added as plain nullable uuids, set and verified alongside status/time/notes.
+The PASS 08 label is downgraded to "minimal-local", and the migration test pins that
+disclosure wording. No hosted-schema or full-workflow claim.
+
+**No kernel/applied/schema-policy expansion.** Migration byte-identical; foundation and R1a
+hashes preserved; `lib/commerce/payment-attempts/**` untouched; contract SQL still opens
+`begin;` and ends `rollback;`; the delta introduces **zero** new `grant`, `create policy`,
+`enable row level security` or `drop policy` statements; the verifier still loads only the
+seven real migration/fixture/contract files and references none of the four forbidden
+production scripts, no `DATABASE_URL`, no dotenv, no `.env`.
+
+## Checks I independently executed
+
+| Check | Result |
+|---|---|
+| Focused tests (2 files) | **23/23 PASS** — matches claim exactly |
+| Scoped booking/booking-engine/commerce/migrations | **63 files / 585 PASS** — matches claim exactly |
+| `tsc --noEmit` | PASS, exit 0, no diagnostics |
+| eslint on all 4 code/test/script files | PASS, no diagnostics |
+| `node --check` verifier | PASS (syntax only; no execution) |
+| Standalone mapping counterexamples | 13/13 as required |
+| Hash/diff/allowlist/preservation | PASS |
+| initdb / pg_ctl / verifier / DB bootstrap | **NOT RUN** (per instruction) |
+| Build, full suite | NOT RUN (out of audit scope) |
+
+No new PGDATA was created by me. The disclosed empty
+`/tmp/chasum-issue134-attribution-evidence-HZi2On/pgdata` residue remains untouched. No
+source edit, commit, push, hosted, credential, Production or GVM action occurred.
+
+## Residual non-blocking notes
+
+1. English `lc_messages` dependency. The `message` path and the contract's `sqlerrm`
+   substring assertions assume untranslated messages. The local proof is safe because
+   `initdb --locale=C` yields `lc_messages=C`; hosted Supabase is English. Low risk.
+2. `writeFileSync(summaryPath, …)` sits outside both try blocks; a write failure there would
+   mask `originalFailure`. Very low.
+3. `expect_canonical_appointment_delete_failure` does not record which of its three accepted
+   branches actually fired. Correct and robust, but the evidence record would be stronger if
+   the observed `sqlstate`/`sqlerrm` were captured into `summary.json`. Nice-to-have only.
+4. The 2,000-row bounded-cost fixture remains smoke scale and cannot bound hosted index
+   build, FK validation, or lock duration.
+
+## Verified safe minimal human command — READY
+
+The exact unchanged source at `d04a79c9` is safe for Darshan to run personally in Terminal.
+It is a local owned-cluster proof, not a remote launcher and not a schema application: no
+credentials are read or passed, no remote or hosted target is reachable, no network host is
+contacted, nothing in the repository is written, and nothing outside its own fresh temp
+directory is deleted. This executes proofs already authorized by the approved section 5
+package, so **no fresh policy approval is required**.
+
+```
+cd /Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution && node scripts/verify-issue134-appointment-financial-attribution-postgres.mjs
+```
+
+No arguments, no environment variables, no `sudo`. Must run from the worktree root (SQL paths
+resolve from `process.cwd()`) in a normal Terminal that permits SysV shared memory. Expect
+roughly 30–60 seconds, PASS lines through contract 11 plus the four interleavings, bounded
+cost and lock-timeout rollback, then owned-PGDATA removal; non-zero exit on any failure.
+Disclosure, not a blocker: during the run the throwaway cluster uses `trust` auth on an
+ephemeral 127.0.0.1 port, so another local process could connect for that window. It is
+loopback-only with Unix sockets disabled and contains only synthetic data. A retained
+`summary.json`, `postgres.log` and empty private `.pgpass` stay in the temp directory; none
+contain secrets.
+
+If it fails, capture `summary.json` and the error verbatim rather than re-running with
+modifications.
+
+## Held gates — unchanged
+
+This audit authorizes no deployment, migration application, hosted validation, #153 change,
+projection execution, activation, merge, release, Production or GVM action. Migration remains
+PREPARED ONLY / HOSTED UNAPPLIED. Still owed before any Staging application gate: executed
+database proof; preflight that counts **and identifies** mismatched appointment-linked
+transactions; real table/index size and validation/lock budget at hosted scale; byte-for-byte
+preservation of the 90 synthetic rows, CAD181/four ledgers, six attempts, eleven events,
+sixteen obligations; disclosure that installing the guard immediately changes legacy
+appointment-linked identity/DELETE behavior including the 42501 surface; and a separately
+reviewed compatibility/application gate. #153 remains OPEN; #135 unreleased
+(`release/candidates.json` still deny-all); #133, projections, workers, fresh-booking
+identity and responsive operator workflows remain held. GVM Operational Acceptance is not
+earned. Build is NOT PASS (sandbox DNS blocked existing `next/font` downloads) — environmental,
+not a candidate defect, but it means no build evidence exists.
+```
+
+</details>

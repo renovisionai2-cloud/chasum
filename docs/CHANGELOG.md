@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### #134 attribution candidate — independent source review complete; local database gate open
+
+- Recorded Claude AUTHORING_PASS on corrected code `d04a79c9`; independently reproduced 23 focused and 585 scoped tests, typecheck, targeted lint and syntax checks. Exact new migration remains `fd673cbf...3e7524`, hosted unapplied.
+- Executable PostgreSQL proof remains unperformed due to the established agent-sandbox bootstrap restriction. The reviewed next action is human-owned local-only verifier execution, without credentials, hosted target, or new policy approval. Build remains not passed after sandbox DNS blocked existing font downloads.
+- Preserved the eight-file candidate scope, applied SQL, kernel, C01/Run02 evidence, pending-cohort exclusion and all Production/GVM/activation holds. No Staging application gate or operational acceptance is claimed.
+
 ### 2026-10-06 — #134 appointment/customer financial-attribution candidate (HOSTED UNAPPLIED)
 
 - Prepared the reviewed composite appointment/Business/customer FK, narrow legacy appointment-ledger attribution guard, and exact fail-closed booking error mapping. No accepted foundation/R1a source, canonical guard, payment kernel, writer, RLS, ACL, worker, provider, hosted database or retained evidence changed.
