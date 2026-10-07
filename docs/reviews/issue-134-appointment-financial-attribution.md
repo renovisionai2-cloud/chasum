@@ -1,19 +1,29 @@
 # Issue #134 — appointment/customer financial attribution candidate
 
-**Status:** CORRECTED AFTER EXACT-CANDIDATE HOLD / HOSTED UNAPPLIED / POSTGRESQL PROOF NOT RUN.
+**Status:** SOURCE ACCEPTED / HUMAN LOCAL PROOF STOPPED_BEFORE_FIXTURES / FORMAT CORRECTION AWAITING DELTA REVIEW / HOSTED UNAPPLIED.
 **Competitive Product Gate:** NOT_APPLICABLE — bounded enforcement of the reviewed financial-integrity invariant and exact error mapping; no new operator workflow.
 
-## Final independent source review — database proof still open
+## Final independent source review preserved — database proof still open
 
 **SOURCE_VERDICT: AUTHORING_PASS. DATABASE_PROOF_GATE: NOT MET.** The corrected executable candidate is `d04a79c922835c1bd831cf5ab33c39a6512e547a`, tree `af2a8f56ad8d7c649bf252ef9b156cbaa70a6a21`. Its migration remains SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. The subsequent publication closeout changes documentation only, not reviewed runtime, tests, verifier or SQL.
 
 Claude independently reviewed and hashed the exact corrected candidate in session `797e841c-7601-4f61-9e0c-363ec6842e7e` (reported Claude Opus 5 300K High), reran 23 focused tests and 585 scoped tests across 63 files, typecheck, targeted lint and verifier syntax, and separately verified 13 mapping counterexamples. No blocking source correction remains. The initial HOLD was corrected, not waived: targeted canonical cascade SQLSTATE expectations, exact constraint mapping, verifier ownership/environment/stop-confirmation cleanup, and bounded non-key edit coverage.
 
-**No PostgreSQL proof is claimed.** The previously observed sandbox `shmget` bootstrap denial remains; the corrected verifier was not retried in that sandbox. Build is not passed: the ordinary supported webpack build reached existing font downloads but sandbox DNS could not resolve Google Fonts. Full-suite and hosted/workflow proofs remain unperformed. No proof requirement is waived by the source verdict.
+**No PostgreSQL contract PASS is claimed.** The previously observed agent-sandbox `shmget` bootstrap denial remains, and the verifier was not retried in that sandbox. The later human-owned run described below started PostgreSQL but stopped at the initial identity query before any database, fixture, migration or financial contract SQL. Build is not passed: the ordinary supported webpack build reached existing font downloads but sandbox DNS could not resolve Google Fonts. Full-suite and hosted/workflow proofs remain unperformed. No proof requirement is waived by the source verdict.
 
-Claude separately accepted a human-owned local proof as safe for this exact code: Darshan may personally run the verifier in a normal Terminal from this worktree, with no arguments, credentials or sudo. It provisions only a new marked disposable PG17 cluster on 127.0.0.1, verifies its data_directory, uses private empty password/service files, and removes only its owned PGDATA after confirmed shutdown. It has no hosted target option. Its temporary trust-auth loopback port contains synthetic data only and is reachable to other local processes during the bounded test window. This is the remaining execution dependency, not a Staging migration-application approval. Do not automate a rerun of the previously denied sandbox launch.
+Claude separately accepted a human-owned local proof as safe for the reviewed executable. Darshan personally ran that exact command once. The run exposed a bounded verifier display-format defect; the unchanged failing script must not be requested again. Any later database run remains human-only after delta review of the correction. This is test instrumentation, not a Staging migration-application approval, and no automated database rerun is authorized here.
 
 The source branch remains dependent on PR156; no merge/release, Staging/Production/GVM action, historical USD repair, #153 change, worker execution, C01 rerun, or technician resumption follows. Existing pending synthetic records remain excluded from future worker activation. The untracked `.supabase/telemetry.json` and previously disclosed empty temp residue remain outside the candidate; no refused deletion was retried.
+
+## Human local verifier result — STOPPED_BEFORE_FIXTURES
+
+Darshan's human-owned Terminal run used publication HEAD `74d1b083cb6cfe7d7873b94d0b01f2fdee797e03` with reviewed executable parent `d04a79c922835c1bd831cf5ab33c39a6512e547a`. The retained `summary.json` is SHA-256 `d12a8ce2eb3d76dc78a5bd7a5d9ede63556ec8cf805990bc43ad54f1e61de299`; the retained `postgres.log` is SHA-256 `e5b54ed10e02b1a93ab9febcf7a35cd86028dda9beacc12d3dffd2a6b889bcdd`. Both original files remain byte-identical outside the repository.
+
+The evidence records PostgreSQL 17.11 starting on configured loopback `127.0.0.1:57017`, accepting the initial identity query, then shutting down normally. The summary truthfully reports `passed=false`, `stopConfirmed=true`, `pgdataRemoved=true`, and `cleanupFailure=null`. Execution stopped before `createDatabase()`: no fixture, accepted migration, new migration, financial contract, interleaving, digest, cost or timeout SQL ran.
+
+The returned identity was `127.0.0.1|127.0.0.1/32|57017|t|…/pgdata`. [PostgreSQL 17 network-address documentation](https://www.postgresql.org/docs/17/functions-net.html) states that converting `inet` to `text` includes the netmask, while `host(inet)` returns the address without its netmask. The strict equality check correctly rejected `127.0.0.1/32`; the query representation was wrong. The bounded correction replaces only `inet_server_addr()::text` with `pg_catalog.host(pg_catalog.inet_server_addr())`. Exact configured-address, host, ephemeral-port, PG17, canonical `data_directory`, marker, private child-environment, stop-confirmation and ownership checks remain fail-closed. Adjacent fields use stable unaligned scalar output; delimiter ambiguity would still fail closed rather than broaden endpoint acceptance.
+
+Focused offline regression now pins the normalized host query, absence of the old cast, and unchanged strict host/port/version/ownership comparisons. Two focused files / 24 tests, verifier syntax and targeted lint pass. This correction awaits independent delta review; it is not database-proof acceptance.
 
 
 ## Authority and bounded scope
@@ -79,24 +89,25 @@ The verifier accepts no `DATABASE_URL` or caller endpoint. It creates a uniquely
 - Typecheck: **PASS**.
 - Targeted lint: **PASS, 0 errors / 0 warnings**.
 - Verifier syntax: **PASS**.
+- Verifier display-format correction: **2 focused files / 24 tests PASS**; verifier syntax and targeted lint **PASS**. No database process was started by these checks.
 - Build: installed Next.js 16.3.6 help confirmed supported `--webpack` mode. A one-time sanitized no-secrets webpack build passed configuration and entered compilation, then failed because sandbox DNS could not resolve `fonts.googleapis.com` for existing `next/font` Inter and JetBrains Mono downloads. Turbopack was not retried; no network permission, dependency/config change or credential was requested.
-- PostgreSQL execution: **NOT RUN for this correction**, as explicitly required. The prior Homebrew PostgreSQL 17.11 bootstrap denial remains established: sandbox denied `shmget(..., 56, ...)` before cluster creation or SQL. Ineffective mmap flags were removed. Concurrency, FK/cascade behavior, RLS-role execution, index/validation cost, row digests and timeout rollback remain **AUTHORED / NOT EXECUTED**, not PASS.
+- PostgreSQL execution: the agent-sandbox attempts remained blocked before SQL. The later human run started PostgreSQL 17.11 but stopped at identity verification before database/fixture creation because `inet::text` returned `127.0.0.1/32`. Concurrency, FK/cascade behavior, RLS-role execution, index/validation cost, row digests and timeout rollback remain **AUTHORED / NOT EXECUTED**, not PASS.
 
-Seven later failed verifier attempts removed their marker-owned PGDATA and retained summaries outside the repository. The first pre-hardening attempt left an empty initdb-cleaned directory at `/tmp/chasum-issue134-attribution-evidence-HZi2On/pgdata`; specialized deletion was rejected, and no retry, alternate deletion, or permission escalation occurred. No PostgreSQL process started in any attempt.
+Seven agent-sandbox attempts removed their marker-owned PGDATA and retained summaries outside the repository. The first pre-hardening attempt left an empty initdb-cleaned directory at `/tmp/chasum-issue134-attribution-evidence-HZi2On/pgdata`; specialized deletion was rejected, and no retry, alternate deletion, or permission escalation occurred. Separately, the human run started and cleanly stopped its owned server and removed its PGDATA, as recorded above.
 
 ## Local artifacts and holds
 
 The Supabase CLI created untracked `.supabase/telemetry.json` while generating the one migration. Its specialized deletion was rejected. Per coordinator instruction it remains untracked, is not hidden by `.gitignore`, and must be excluded from every commit.
 
-This is not a database-accepted candidate while executable PostgreSQL proof remains blocked. No Staging/Production/GVM database, Auth, provider, worker, fixture, payment, retained C01/Run02 row, permission, flag, migration history, or release control was contacted or changed. Foundation, R1a, C01, Phase A, historical USD rows, #153, #133, projection/workflow, technician and GVM Operational Acceptance holds remain unchanged.
+This is not a database-accepted candidate while executable PostgreSQL proof remains incomplete. No Staging/Production/GVM database, Auth, provider, worker, fixture, payment, retained C01/Run02 row, permission, flag, migration history, or release control was contacted or changed. Foundation, R1a, C01, Phase A, historical USD rows, #153, #133, projection/workflow, technician and GVM Operational Acceptance holds remain unchanged.
 
 ## Next independent gate
 
-After independent delta review of the corrected commit, a human may run the authored verifier in an approved local environment that permits a new disposable PostgreSQL 17 cluster. Record the actual bounded cost/interleaving results before any Staging application gate. The earlier Claude audit applies only to `8d60454…` and returned HOLD; no independent review of the correction commit is claimed here.
+Independent delta review of the narrow query-format correction is next. Only after that review may a human choose to run the corrected verifier in an approved local environment with a new disposable PostgreSQL 17 cluster; do not request another run of the unchanged failing script. Record the actual bounded cost/interleaving results before any Staging application gate. No independent review or database PASS for the new correction is claimed here.
 
 
 <details>
-<summary>Final independent source audit (database execution expressly not claimed)</summary>
+<summary>Historical final source audit (predates the stopped human verifier run)</summary>
 
 ```markdown
 # CLAUDE — SAME-SESSION DELTA AUDIT — Issue #134 corrected attribution candidate

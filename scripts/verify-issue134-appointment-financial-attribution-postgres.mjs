@@ -381,7 +381,7 @@ try {
   const binding = sql(
     "postgres",
     `select current_setting('listen_addresses'),
-            inet_server_addr()::text,
+            pg_catalog.host(pg_catalog.inet_server_addr()),
             inet_server_port(),
             current_setting('server_version_num')::integer >= 170000,
             current_setting('data_directory')

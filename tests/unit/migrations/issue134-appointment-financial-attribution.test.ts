@@ -185,4 +185,24 @@ describe("Issue #134 appointment financial-attribution migration", () => {
       verifier.indexOf("rmSync(dataDir"),
     );
   });
+
+  it("normalizes only the PostgreSQL inet display while keeping identity checks strict", () => {
+    expect(verifier).toContain(
+      "pg_catalog.host(pg_catalog.inet_server_addr())",
+    );
+    expect(verifier).not.toContain("inet_server_addr()::text");
+    expect(verifier).toContain('listenAddresses !== "127.0.0.1"');
+    expect(verifier).toContain('serverAddress !== "127.0.0.1"');
+    expect(verifier).toContain("serverPort !== String(port)");
+    expect(verifier).toContain('isPostgres17 !== "t"');
+    expect(verifier).toContain(
+      "realpathSync(observedDataDirectory) !== realpathSync(dataDir)",
+    );
+
+    const humanRunFields =
+      "127.0.0.1|127.0.0.1/32|57017|t|/tmp/owned/pgdata".split("|");
+    expect(humanRunFields).toHaveLength(5);
+    expect(humanRunFields[1]).not.toBe("127.0.0.1");
+    expect(humanRunFields[1]?.split("/")[0]).toBe("127.0.0.1");
+  });
 });

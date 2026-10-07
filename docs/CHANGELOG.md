@@ -9,10 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-### #134 attribution candidate — independent source review complete; local database gate open
+### #134 attribution candidate — human verifier stopped before fixtures; format correction prepared
 
 - Recorded Claude AUTHORING_PASS on corrected code `d04a79c9`; independently reproduced 23 focused and 585 scoped tests, typecheck, targeted lint and syntax checks. Exact new migration remains `fd673cbf...3e7524`, hosted unapplied.
-- Executable PostgreSQL proof remains unperformed due to the established agent-sandbox bootstrap restriction. The reviewed next action is human-owned local-only verifier execution, without credentials, hosted target, or new policy approval. Build remains not passed after sandbox DNS blocked existing font downloads.
+- Darshan's human-owned local run started PostgreSQL 17.11 and executed only the identity query, then stopped before database/fixture/migration/financial SQL because `inet_server_addr()::text` returned documented netmask-bearing `127.0.0.1/32`. Evidence summary SHA-256 `d12a8ce2eb3d76dc78a5bd7a5d9ede63556ec8cf805990bc43ad54f1e61de299` records `passed=false`, confirmed shutdown, owned-PGDATA removal and no cleanup failure.
+- Corrected only the identity projection to `pg_catalog.host(pg_catalog.inet_server_addr())`, retaining exact loopback, port, PG17, canonical data-directory, marker, private-environment and cleanup checks. Focused offline regression is **24/24 PASS** across two files; verifier syntax and targeted lint pass. Database proof remains incomplete pending independent delta review and any later human-only rerun.
 - Preserved the eight-file candidate scope, applied SQL, kernel, C01/Run02 evidence, pending-cohort exclusion and all Production/GVM/activation holds. No Staging application gate or operational acceptance is claimed.
 
 ### 2026-10-06 — #134 appointment/customer financial-attribution candidate (HOSTED UNAPPLIED)
