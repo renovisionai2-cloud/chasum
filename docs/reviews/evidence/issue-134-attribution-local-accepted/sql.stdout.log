@@ -1,0 +1,629 @@
+
+=== phase=sql:postgres status=0 ===
+127.0.0.1|127.0.0.1|63655|t|/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/pgdata
+
+=== phase=sql:postgres status=0 ===
+17.11 (Homebrew)
+
+=== phase=files:tests/postgres/issue-134-payment-attempt-foundation-fixture.sql,supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql,tests/postgres/issue-134-r1a-manual-kernel-fixture.sql,supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql,tests/postgres/issue-134-r1a-manual-kernel-contract.sql status=0 ===
+CREATE TABLE
+INSERT 0 1
+DO
+GRANT
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+ALTER TABLE
+CREATE POLICY
+GRANT
+SET
+SET
+DO
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+ALTER TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+GRANT
+RESET
+RESET
+CREATE SCHEMA
+CREATE TABLE
+ALTER TABLE
+ALTER TABLE
+GRANT
+GRANT
+INSERT 0 2
+INSERT 0 2
+INSERT 0 3
+INSERT 0 3
+INSERT 0 1
+CREATE TABLE
+INSERT 0 4
+SET
+SET
+DO
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+REVOKE
+GRANT
+GRANT
+RESET
+RESET
+BEGIN
+CREATE FUNCTION
+DO
+PASS 01 R1a migration changed no existing rows and restored timeout defaults
+DO
+PASS 02 exactly two invoker functions have fixed search_path and service_role-only EXECUTE
+SET
+ expect_failure 
+----------------
+ 
+(1 row)
+
+RESET
+SET
+ expect_failure 
+----------------
+ 
+(1 row)
+
+RESET
+PASS 03 anon and authenticated cannot execute either kernel function
+SET
+DO
+RESET
+DO
+PASS 04 admission, commit, lost-response replay, and exactly four PENDING obligations
+SET
+DO
+RESET
+DO
+PASS 05 equal-hash changed tuples return stable KEY_CONFLICT evidence compatible with ledger replay
+SET
+DO
+RESET
+PASS 06 changed source/actor returns EXISTING; equal intent under a new key records separately
+SET
+DO
+RESET
+PASS 07 customer-only appointment cache is NOT_REQUIRED; invoice/CRM/receipt remain PENDING
+SET
+ expect_failure 
+----------------
+ 
+(1 row)
+
+ expect_failure 
+----------------
+ 
+(1 row)
+
+RESET
+PASS 08 cross-customer appointment and cross-Business customer bindings fail closed
+SET
+DO
+DO
+RESET
+INSERT 0 1
+SET
+DO
+DO
+RESET
+DO
+PASS 09 incoherent REQUESTED attempts return UNKNOWN with no new effect or hold mutation
+CREATE FUNCTION
+CREATE TRIGGER
+SET
+DO
+RESET
+DROP TRIGGER
+DO
+PASS 09 failure before transaction completion rolls back state, ledger, outcome, and obligations
+INSERT 0 1
+SET
+DO
+RESET
+PASS 10 ACCEPTED with missing ledger/evidence returns UNKNOWN without repair
+SET
+DO
+RESET
+DELETE 1
+SET
+DO
+RESET
+PASS 11 missing obligation returns UNKNOWN and creates no repair effect
+SET
+DO
+RESET
+INSERT 0 1
+SET
+DO
+RESET
+PASS 12 contradictory ACCEPTED evidence returns recorded ledger-backed UNKNOWN without a second effect
+INSERT 0 1
+INSERT 0 1
+SET
+DO
+RESET
+PASS 13 FAILED and SKIPPED attempts are not revived
+DO
+PASS 14 existing legacy transaction remains unchanged
+ROLLBACK
+
+=== phase=sql:issue134_success status=0 ===
+INSERT 0 2000
+INSERT 0 2000
+
+=== phase=sql:issue134_success status=0 ===
+088dde4cf0cee87019245b1e2b08e73f
+
+=== phase=file:supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql status=0 ===
+BEGIN
+SET
+SET
+DO
+ALTER TABLE
+ALTER TABLE
+CREATE FUNCTION
+CREATE TRIGGER
+REVOKE
+COMMIT
+
+=== phase=sql:issue134_success status=0 ===
+088dde4cf0cee87019245b1e2b08e73f
+
+=== phase=sql:issue134_success status=0 ===
+2003|2001|188416|401408|155648
+
+=== phase=file:tests/postgres/issue-134-appointment-financial-attribution-contract.sql status=0 ===
+BEGIN
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+DO
+PASS 01 exact validated immediate MATCH SIMPLE / UPDATE RESTRICT / DELETE NO ACTION FK and unique key
+DO
+PASS 02 invoker/fixed-search-path/no-direct-EXECUTE guard and alphabetical trigger order
+ALTER TABLE
+ALTER TABLE
+CREATE POLICY
+DROP POLICY
+CREATE POLICY
+GRANT
+INSERT 0 5
+DO
+ expect_failure 
+----------------
+ 
+(1 row)
+
+ expect_failure 
+----------------
+ 
+(1 row)
+
+UPDATE 1
+PASS 03 pending/succeeded/refunded/partially-refunded/failed/canceled legacy rows freeze only attribution and DELETE
+INSERT 0 1
+UPDATE 1
+ expect_failure 
+----------------
+ 
+(1 row)
+
+ expect_failure 
+----------------
+ 
+(1 row)
+
+PASS 04 matching legacy NULL appointment attachment is allowed and then permanently frozen
+INSERT 0 1
+INSERT 0 1
+DELETE 1
+DO
+PASS 05 legacy NULL-attempt/NULL-appointment customer cascade remains the explicit #153 residual
+INSERT 0 3
+INSERT 0 3
+UPDATE 3
+PASS 06 REQUESTED/FAILED/SKIPPED attempts without ledger do not freeze reassignment
+SET
+DO
+RESET
+DO
+ expect_exact_failure 
+----------------------
+ 
+(1 row)
+
+ assert_canonical_financial_fixture_preserved 
+----------------------------------------------
+ 
+(1 row)
+
+SET
+DO
+ expect_exact_failure 
+----------------------
+ 
+(1 row)
+
+ assert_canonical_financial_fixture_preserved 
+----------------------------------------------
+ 
+(1 row)
+
+RESET
+DO
+ expect_failure 
+----------------
+ 
+(1 row)
+
+ assert_canonical_financial_fixture_preserved 
+----------------------------------------------
+ 
+(1 row)
+
+ expect_failure 
+----------------
+ 
+(1 row)
+
+PASS 07 exact non-service/server-only and service-role/mismatch oracles preserve canonical rows; composite FK blocks appointment reassignment
+UPDATE 1
+DO
+PASS 08 minimal-local status/time/notes/service/staff/location edits remain mutable
+ expect_failure 
+----------------
+ 
+(1 row)
+
+PASS 09 mismatched and cross-customer tuples never commit
+SET
+SET
+ expect_failure 
+----------------
+ 
+(1 row)
+
+UPDATE 1
+DO
+ expect_failure 
+----------------
+ 
+(1 row)
+
+RESET
+SET
+ expect_failure 
+----------------
+ 
+(1 row)
+
+RESET
+PASS 10 representative authenticated RLS and service_role BYPASSRLS paths retain tenant/FK enforcement
+ expect_named_integrity_failure 
+--------------------------------
+ 
+(1 row)
+
+ expect_canonical_appointment_delete_failure 
+---------------------------------------------
+ 
+(1 row)
+
+ expect_named_integrity_failure 
+--------------------------------
+ 
+(1 row)
+
+INSERT 0 1
+SET
+DO
+RESET
+ expect_named_integrity_failure 
+--------------------------------
+ 
+(1 row)
+
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+ expect_named_integrity_failure 
+--------------------------------
+ 
+(1 row)
+
+DO
+PASS 11 canonical/legacy appointment, customer, and Business hard-delete outcomes preserve protected history
+ROLLBACK
+
+=== phase=sql:issue134_success status=0 ===
+CREATE FUNCTION
+CREATE TRIGGER
+
+=== phase=sql:issue134_success status=0 ===
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+SET
+ADMITTED|216de8e6-3a20-45fe-8bfd-1b1747ea4af2
+
+=== phase=sql:issue134_success status=0 ===
+216de8e6-3a20-45fe-8bfd-1b1747ea4af2
+
+=== phase=sql:postgres status=0 ===
+active||
+
+=== phase=sql:postgres status=0 ===
+active|Timeout|PgSleep
+
+=== phase=sql:postgres status=0 ===
+active|Lock|transactionid
+
+=== phase=concurrency:payment-first:commit status=0 ===
+SET
+BEGIN
+SET
+SET
+RECORDED
+COMMIT
+
+=== phase=concurrency:payment-first:reassignment status=1 ===
+SET
+
+=== phase=sql:issue134_success status=0 ===
+13431000-0000-4000-8000-000000000002|ACCEPTED|1|1|1|4
+
+=== phase=sql:issue134_success status=0 ===
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+SET
+ADMITTED|0dd852a8-e7f0-4e0b-8a0c-cdc8295fed25
+
+=== phase=sql:issue134_success status=0 ===
+0dd852a8-e7f0-4e0b-8a0c-cdc8295fed25
+
+=== phase=sql:postgres status=0 ===
+active||
+
+=== phase=sql:postgres status=0 ===
+active|Timeout|PgSleep
+
+=== phase=sql:postgres status=0 ===
+active|Lock|transactionid
+
+=== phase=concurrency:payment-rollback:payment status=0 ===
+SET
+BEGIN
+SET
+SET
+RECORDED
+ROLLBACK
+
+=== phase=concurrency:payment-rollback:reassignment status=0 ===
+SET
+UPDATE 1
+
+=== phase=sql:issue134_success status=0 ===
+13432000-0000-4000-8000-000000000003|REQUESTED|1|0|0|0
+
+=== phase=sql:issue134_success status=0 ===
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+SET
+ADMITTED|72fd23af-05a3-40a2-a403-e1d64d7055de
+
+=== phase=sql:issue134_success status=0 ===
+72fd23af-05a3-40a2-a403-e1d64d7055de
+
+=== phase=sql:postgres status=0 ===
+active|Timeout|PgSleep
+
+=== phase=sql:postgres status=0 ===
+active||
+
+=== phase=sql:postgres status=0 ===
+active|Lock|transactionid
+
+=== phase=concurrency:reassignment-first:reassignment status=0 ===
+SET
+BEGIN
+UPDATE 1
+
+COMMIT
+
+=== phase=concurrency:reassignment-first:payment status=1 ===
+SET
+SET
+
+=== phase=sql:issue134_success status=0 ===
+13433000-0000-4000-8000-000000000003|REQUESTED|1|0|0|0
+
+=== phase=sql:issue134_success status=0 ===
+INSERT 0 1
+INSERT 0 2
+INSERT 0 1
+SET
+ADMITTED|29b49767-b1dd-434b-a7f3-d59be4743e72
+
+=== phase=sql:issue134_success status=0 ===
+29b49767-b1dd-434b-a7f3-d59be4743e72
+
+=== phase=sql:postgres status=0 ===
+active||
+
+=== phase=sql:postgres status=0 ===
+active|Timeout|PgSleep
+
+=== phase=sql:postgres status=0 ===
+active||
+
+=== phase=sql:postgres status=0 ===
+active|Lock|transactionid
+
+=== phase=concurrency:reassignment-rollback:reassignment status=0 ===
+SET
+BEGIN
+UPDATE 1
+
+ROLLBACK
+
+=== phase=concurrency:reassignment-rollback:payment status=0 ===
+SET
+SET
+RECORDED
+
+=== phase=sql:issue134_success status=0 ===
+13434000-0000-4000-8000-000000000002|ACCEPTED|1|1|1|4
+
+=== phase=file:tests/postgres/issue-134-payment-attempt-foundation-fixture.sql status=0 ===
+CREATE TABLE
+INSERT 0 1
+DO
+GRANT
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+ALTER TABLE
+CREATE POLICY
+GRANT
+
+=== phase=file:supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql status=0 ===
+SET
+SET
+DO
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+ALTER TABLE
+CREATE TABLE
+CREATE INDEX
+CREATE TABLE
+CREATE INDEX
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE FUNCTION
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+CREATE TRIGGER
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+GRANT
+GRANT
+GRANT
+REVOKE
+REVOKE
+REVOKE
+GRANT
+GRANT
+GRANT
+RESET
+RESET
+
+=== phase=file:tests/postgres/issue-134-r1a-manual-kernel-fixture.sql status=0 ===
+CREATE SCHEMA
+CREATE TABLE
+ALTER TABLE
+ALTER TABLE
+GRANT
+GRANT
+INSERT 0 2
+INSERT 0 2
+INSERT 0 3
+INSERT 0 3
+INSERT 0 1
+CREATE TABLE
+INSERT 0 4
+
+=== phase=file:supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql status=0 ===
+SET
+SET
+DO
+CREATE FUNCTION
+CREATE FUNCTION
+REVOKE
+REVOKE
+GRANT
+GRANT
+RESET
+RESET
+
+=== phase=sql:issue134_timeout status=0 ===
+153cf739f363f0d02fcef560a7cc04a9
+
+=== phase=sql:postgres status=0 ===
+active|Timeout|PgSleep
+
+=== phase=timeout:migration-apply status=3 ===
+BEGIN
+SET
+SET
+
+=== phase=timeout:lock-holder status=0 ===
+SET
+BEGIN
+LOCK TABLE
+
+ROLLBACK
+
+=== phase=sql:issue134_timeout status=0 ===
+t|t
+
+=== phase=sql:issue134_timeout status=0 ===
+153cf739f363f0d02fcef560a7cc04a9

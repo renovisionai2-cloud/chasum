@@ -9,6 +9,92 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-07 — #134 durable fresh-booking/deposit design ready for implementation approval
+
+- Published the bounded competitor/product checkpoint and final contract `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d` after sole Sol authoring, Grok financial/idempotency challenge and Claude exact-byte final acceptance. Initial design findings were corrected, not waived.
+- Proposed first slice: 16 paths / 23 schema deltas, including private canonical readers; unwired/default-off with no projection or UI activation. Retention, same-identity recovery, repeated no-ledger corrections, legacy caller preservation and later permission/communication gates are explicit.
+- Documentation and read-only design only. No code, SQL, migration, tests/build, hosted financial operation or accepted-proof rerun. Accepted Staging/C01/Run02 evidence and all Production/GVM holds remain. [Exact gate](reviews/issue-134-durable-booking-deposit-design-review.md).
+
+### 2026-10-07 — #134 exact attribution migration applied to governed Staging
+
+- Darshan approved the final exact gate; native application ran once without retry on `wnfahklzaxirftyskctd` and returned `success:true`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, one 6,529-byte statement at approved SHA-256 `fd673cbf...3e7524` and frozen package audit `6abdd6ff...e4ba`.
+- Read-only postchecks returned `POST_APPLY_EXACT`: exact constraints/index/function/ACL/trigger/order, preserved prior security/functions/triggers/history, unchanged 18+4 accepted fingerprints and 20 returned full-table digests, and unchanged 90-row/CAD181 retained state. Evidence SHA-256 is `b272c737...6504`; Claude independently returned `STAGING_SCHEMA_APPLICATION_ACCEPTED`; the result, provenance qualifications and verbatim review are retained. No local proof or accepted audit was rerun.
+- Schema-only Staging result: no hosted behavior/UI/payment/projection test, application deployment, retained-obligation processing, permission/flag change, Production/GVM action, #135 release, PR merge or local-proof rerun. R1a remains unwired/default-off and #153/#133/operational holds remain.
+
+### 2026-10-07 — #134 exact Staging application gate independently ready
+
+- Preserved accepted local proof and its nine exact nonsecret evidence/review files without rerunning the proof. Published the read-only application plan/query/manifest with audit `6abdd6ff...e4ba`; immutable migration remains `fd673cbf...3e7524`, hosted-unapplied.
+- Final Claude application-plan delta review: READY_FOR_STAGING_APPLICATION_APPROVAL, no required correction. Native read-only data/catalogue probes passed at16:29/16:43UTC; preserved18+4 fingerprints and90-row/CAD181 cohort, exact prerequisites, no mismatches/collisions/observed competing locks. Earlier query/provenance defects were corrected, not waived; no financial source changed.
+- Updated board/handoff/manifest and retained the normalized supplied-native result provenance. No application, financial write, local proof rerun, existing ACL/RLS/flag change, PR merge, Production/GVM operation or technician resumption. Next gate is explicit Product Owner Staging-only application approval; fresh pre/post checks remain mandatory.
+
+
+### 2026-10-07 — #134 Staging catalogue gate corrected after real read-only probe
+
+- Preserved the initial package/probe as partial evidence: chunk 01 returned PostgreSQL `42725` at policy `text || polcmd`, so the source-only review is not a runtime PASS. Byte-identical chunk 02 genuinely passed READ ONLY at 16:29:22Z for all 18+4 accepted fingerprints, Run02 aggregate, zero tuple mismatches and the exact retained 90-row shape.
+- Corrected only read-only package instrumentation: explicit catalogue text casts, exact positive validation of the accepted commerce ledger guard trigger, and a pre-existing noninternal target-trigger baseline excluding the proposed trigger. Clarified historical 14:11–14:21, preliminary 16:11 and executed 16:29 records without relabeling them.
+- Migration/runtime/verifier/financial contract and accepted local/C01/Run02 evidence remain byte-identical. Corrected catalogue execution, independent delta review and any later Product Owner application approval remain pending; no SQL/test/build/network/hosted action or commit/push occurred here.
+
+### 2026-10-07 — #134 local database proof accepted; Staging application gate prepared
+
+- Claude accepted the final retained local PostgreSQL 17.11 proof at source `732e382`: all 11 attribution sections, four interleavings, source identity and cleanup passed; summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418`. The 5,020ms timeout occurred in the migration preflight read before `ADD CONSTRAINT`. No further local rerun is required; this remains synthetic local proof, not hosted/full-workflow acceptance.
+- Prepared a read-only governed Staging application package for exact unchanged 6,529-byte migration `fd673cbf...3e7524`, including two one-result native pre/post query chunks, exact accepted cohort fingerprints, current hash baselines, catalogue/security/history checks and synthetic evidence copies. Independent package review, fresh native preflight and later explicit Product Owner approval remain mandatory before one Staging apply.
+- No SQL/test/verifier/build, network, credentials, hosted action, application deployment, commit/push or PR mutation occurred in this preparation. #153/SEQ-ACL-1, #133, #135, historical USD, worker, technician, Production and GVM holds remain open.
+
+### 2026-10-07 — PR157 eleven local attribution sections proven; fixture-argument correction accepted
+
+- The instrumented human run retained all eleven attribution-contract PASS sections with matching before/after source identities, then stopped before concurrency because a fixture suffix was passed as the database name. The original summary, SQL/phase/server logs and source identity files remain unchanged; shutdown and owned-PGDATA removal are confirmed. Complete database proof is still NOT MET.
+- Claude accepted exact proof-only correction `e4b5bf74`: all four fixture calls pass the intended local database/suffix/amount, with argument guards before SQL and behavioral offline regression tests. Both agents passed 29 focused and 591 scoped tests; Claude additionally checked 18 argument cases and all internal call arities. Migration/application/financial SQL and hosted environments remain unchanged; corrected database execution is human-only and has not occurred. No Staging application or GVM Operational Acceptance is implied.
+
+
+### 2026-10-07 — PR157 attribution contract passed; concurrency fixture-call correction prepared
+
+- Retained instrumented human evidence at source `f1e5228` proves the local attribution contract phase exited 0 with all 11 PASS sections and separate exact `42501`/`23514` role-negative outcomes. The run then stopped before concurrency because two arguments made suffix `10` the database name; concurrency remained empty and timeout unrun. Summary SHA-256 is `87fda797ce56b9db3865c866677075a72e48ade6cfb59447fb2a5762ebfafbde`; source identities matched, shutdown/removal were confirmed and cleanup succeeded.
+- Corrected all four calls to pass explicit `issue134_success`, suffix and amount. The fixture helper now rejects missing/misordered inputs, unknown database, unknown suffix and invalid amount before SQL. Offline tests execute the isolated actual helper with a fake SQL callback and AST-check all four calls.
+- Focused **29/29**, scoped **63 files / 591 tests**, typecheck, targeted lint and verifier syntax PASS. A source-only scan found no additional concrete deterministic handoff/timeout defect; concurrency and timeout remain unexecuted. Runtime, migration, financial SQL and hosted state are unchanged; independent delta review remains next.
+
+### 2026-10-07 — PR157 proof-role correction independently accepted
+
+- Reconciled the latest human local run as stopped in contract PASS 07: a test reset out of service_role and received the existing exact server-only 42501 rejection before its expected request-mismatch 23514. Owned PGDATA shutdown/removal and original evidence hashes are preserved; no hosted application or financial acceptance.
+- Corrected source `2ab4b8d` now separately asserts both roles, exact errors, restoration and preserved financial tuples; records future-run source identities, phase outcomes and SQL output without weakening local containment. Migration/application/accepted guards unchanged; source-only remaining-case scan found no further deterministic defect, not an execution guarantee.
+- Claude SOURCE_DELTA_VERDICT PASS; both agents independently passed 27 focused and 589 scoped tests, typecheck, lint and syntax. Database proof still OPEN; no verifier/bootstrap/build/hosted run in this correction. Next execution is human-only within the existing local-proof approval, not a new Staging/Production gate.
+
+
+### 2026-10-06 — PR157 local proof PASS 07 role-oracle correction prepared
+
+- The latest human-owned local run reached contract PASS 07 after PostgreSQL 17.11 startup, synthetic fixture load and the locally completed 20ms attribution migration, then stopped because the proof had reset from `service_role` before expecting the service-only `PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH` branch. The accepted guard correctly returned `42501 PAYMENT_ATTEMPT_SERVER_ONLY`; this is a proof role-sequencing defect, not an invariant failure or hosted application. Original summary/log remain unchanged at SHA-256 `62d9a91fb2fc1f978f941f58da2752d6e72a955b3cf3a214a015665f0aff096d` / `6cdafd3c0f011fda358bbaa2481cac125ba11753946f6ffb4fe99ae2c5632840`.
+- Split the proof into exact non-service `42501` and pinned service-role `23514` oracles, asserted role restoration, and verified canonical appointment/attempt/ledger/event/obligation preservation after each rejection. A bounded source-only scan found no further deterministic role/fixture/oracle hazard in the remaining interleavings or timeout setup; those paths remain unexecuted after the stop.
+- Future verifier evidence now records repository HEAD and hashes of every loaded source before startup and after the cleanup attempt, fails on any difference, and privately retains phase exits plus SQL stdout/stderr and controlled expected-negative outcomes. Existing loopback, owned-PGDATA, private-environment and cleanup controls are unchanged.
+- Offline validation: **27/27 focused**, **63 files / 589 scoped**, typecheck, targeted lint and verifier syntax PASS. No database, verifier, build, network or hosted action was run; database proof remains OPEN and this proof-only delta awaits independent review.
+
+### 2026-10-06 — PR157 local contract proof reached migration; typing correction prepared
+
+- The corrected human-owned local run started PostgreSQL 17.11 on loopback, loaded the synthetic foundation/R1a fixture, and applied the new attribution migration locally in 20ms with bounded observation `2003|2001|188416|401408|155648`. It then stopped in contract PASS 02 before concurrency/timeout work: `array_agg(pg_trigger.tgname)` produced `name[]`, which cannot be compared directly with the expected `text[]` array. This is a proof-expression defect, not an invariant failure or hosted application.
+- Preserved the failed-run summary/log byte-exactly at SHA-256 `20b18b148e915fd79af7bc9d31a727e4ff74633ad8c51da01477b515bfc5ab9a` / `d7e3195eb1436a78c0d8d4db579f4d66833f6427069925ba5714765a68144e2a`. The summary records `passed=false`, no concurrency or timeout result, confirmed shutdown, owned-PGDATA removal and no cleanup failure.
+- Cast only catalogue `tgname` values to `text` before the exact ordered-array comparison; expected identifiers and mismatch behavior remain unchanged. A bounded scan found no further analogous deterministic name/text, OID/integer or `"char"`/text defect; this is source review, not proof beyond the stop.
+- Offline validation: **25/25 focused**, **63 files / 587 scoped**, typecheck, targeted lint and verifier syntax PASS. Claude subsequently accepted the exact four-file proof delta at `8046bea` and independently reproduced focused/scoped tests, syntax and lint. PostgreSQL was not rerun; complete database proof stays OPEN. Existing earlier-revision Preview build evidence is separately attributed in the candidate record; no new build or deployment was triggered.
+
+### 2026-10-06 — PR157 local verifier identity-format stop and reviewed correction
+
+- Human Terminal execution started and cleanly stopped its temporary PostgreSQL 17.11 server, but the `inet::text` netmask suffix caused a pre-fixture identity assertion to fail. No financial test or new hosted operation occurred; original result/log hashes and confirmed PGDATA removal are retained.
+- Corrected one SQL projection in source `9ea36e7` to `pg_catalog.host(pg_catalog.inet_server_addr())` without weakening exact host/port/ownership checks. Claude delta PASS; 24 focused and 586 scoped tests independently pass. Migration/application/financial-contract bytes unchanged. Actual database proof remains outstanding; next local execution is human-only under existing scope, not a new Product Owner policy gate.
+
+
+### #134 attribution candidate — human verifier stopped before fixtures; format correction prepared
+
+- Recorded Claude AUTHORING_PASS on corrected code `d04a79c9`; independently reproduced 23 focused and 585 scoped tests, typecheck, targeted lint and syntax checks. Exact new migration remains `fd673cbf...3e7524`, hosted unapplied.
+- Darshan's human-owned local run started PostgreSQL 17.11 and executed only the identity query, then stopped before database/fixture/migration/financial SQL because `inet_server_addr()::text` returned documented netmask-bearing `127.0.0.1/32`. Evidence summary SHA-256 `d12a8ce2eb3d76dc78a5bd7a5d9ede63556ec8cf805990bc43ad54f1e61de299` records `passed=false`, confirmed shutdown, owned-PGDATA removal and no cleanup failure.
+- Corrected only the identity projection to `pg_catalog.host(pg_catalog.inet_server_addr())`, retaining exact loopback, port, PG17, canonical data-directory, marker, private-environment and cleanup checks. Focused offline regression is **24/24 PASS** across two files; verifier syntax and targeted lint pass. Database proof remains incomplete pending independent delta review and any later human-only rerun.
+- Preserved the eight-file candidate scope, applied SQL, kernel, C01/Run02 evidence, pending-cohort exclusion and all Production/GVM/activation holds. No Staging application gate or operational acceptance is claimed.
+
+### 2026-10-06 — #134 appointment/customer financial-attribution candidate (HOSTED UNAPPLIED)
+
+- Prepared the reviewed composite appointment/Business/customer FK, narrow legacy appointment-ledger attribution guard, and exact fail-closed booking error mapping. No accepted foundation/R1a source, canonical guard, payment kernel, writer, RLS, ACL, worker, provider, hosted database or retained evidence changed.
+- Reconciled the coordinator's technical correction from the undeployed 64-byte draft FK name to explicit 57-byte `commerce_transactions_appt_business_customer_financial_fk`; product semantics and object count are unchanged and no implicit PostgreSQL truncation is used.
+- Corrected the exact-candidate audit HOLD: canonical appointment cascade may raise exact accepted-guard `PAYMENT_ATTEMPT_SERVER_ONLY` / `42501` before mismatch `23514`, so only that named case is accepted with full row preservation while other integrity checks remain exact. Tightened PostgREST mapping to an exact structured constraint or actual double-quoted message identity, rejecting dollar/Unicode/quoted lookalikes and unrelated detail/hint mentions.
+- Hardened the owned local verifier with canonical `data_directory` ownership verification, minimal child environment, private password/service files, separate original/cleanup failure records and stop confirmation before PGDATA removal. Added synthetic-only service/staff/location edit coverage without claiming hosted-schema or full-workflow proof.
+- Corrected focused **23/23** and scoped booking/booking-engine/commerce/migration **585/585** tests, verifier syntax, typecheck and targeted lint pass. Supported sanitized `next build --webpack` reached compilation, then sandbox DNS blocked existing Google Fonts downloads; no network permission or configuration bypass was attempted.
+- The loopback PostgreSQL 17 contract remains **AUTHORED / NOT EXECUTED** after the established sandbox `shmget` bootstrap denial; PostgreSQL was not rerun for these corrections. No database PASS, concurrency/index-cost proof, hosted application or corrected-candidate independent review is claimed; migration remains prepared-only and hosted-unapplied.
+
 ### 2026-10-06 — Next #134 attribution design independently reviewed
 
 - C01 evidence and documentation closeout committed/pushed at `88af990`; no harness rerun or payment action.

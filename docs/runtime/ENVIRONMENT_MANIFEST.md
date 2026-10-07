@@ -1,8 +1,25 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-06 for the completed HV134 C01 limited hosted result. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-07 for exact #134 governed Staging schema application and postchecks. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## Issue #134 attribution — governed Staging application result
+
+**STAGING_SCHEMA_APPLICATION_ACCEPTED / APPLIED ONCE / POSTCHECKS PASS.** Darshan explicitly approved the final exact gate. Native application ran once without retry on `wnfahklzaxirftyskctd`; response `success:true`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, one 6,529-byte statement at SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. Package audit remains `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`. Do not reapply.
+
+Read-only postchecks at `2026-10-07T17:04:22.453440Z` and `17:06:15.236808Z` returned `POST_APPLY_EXACT`. New constraints/index/function/ACL/trigger/order are exact; prior security/functions/triggers/history are preserved; all 18+4 accepted fingerprints and all 20 returned full relevant-table count/digests are unchanged; retained 90-row/CAD181 state is unchanged. Expected appointments index/total growth was exactly 16,384 bytes. [Result](../reviews/issue-134-staging-attribution-application-result.md); normalized selected native evidence SHA-256 `b272c73746f7730343badb5a3422914f91721356c65346e15d92126daedc6504`.
+
+This is schema-only Staging evidence, not hosted DML/PostgREST/UI/payment/projection/full-workflow acceptance. R1a remains unwired/default-off; #153/#133/#135, historical USD, worker/technician and Production/GVM holds remain. Claude independently accepted this scoped result as `STAGING_SCHEMA_APPLICATION_ACCEPTED`; the reviewer performed file/hash review of the normalized coordinator evidence, not database execution.
+
+**Historical preparation record:** final exact-byte application-plan review was READY_FOR_STAGING_APPLICATION_APPROVAL, [recorded here](../reviews/issue-134-staging-application-plan-review.md). Corrected catalogue query passed READ ONLY at `2026-10-07T16:43:34.622352Z`, after the unchanged data query passed at `16:29:22.098708Z`. Those preparation reads and older query-error chronology remain historical; they must not be read as current unapplied status.
+
+
+Claude independently classified retained local summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418` as `LOCAL_DATABASE_PROOF_ACCEPTED`. On a disposable synthetic PostgreSQL 17.11 fixture, all 11 attribution sections and four multi-session interleavings passed; source identities matched before/after and shutdown/owned-PGDATA removal were confirmed. Migration elapsed time was 23ms. The 5,020ms lock timeout occurred in the migration preflight read before `ADD CONSTRAINT`. This is local fixture proof, not hosted/full-workflow equivalence, and no rerun is required.
+
+Earlier coordinator native READ ONLY observations from 2026-10-07 14:11:29.973933Z–14:21:28.487580Z remain dated history. A separate 16:11:49.606823Z catalogue snapshot supplied to the initial reviewer was preliminary. Coordinator execution of the initial package then returned PostgreSQL `42725` in chunk 01's policy fingerprint, so no catalogue PASS exists. Chunk 02, unchanged at SHA-256 `0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411`, passed READ ONLY at 16:29:22.098708Z for all 18 old-cohort/four noncohort comparisons, Run02 aggregate, zero tuple mismatches and the exact retained 90-row shape. These actor-supplied results are bounded preparation evidence, not application acceptance.
+
+**Historical authoring-time package status:** the corrected [read-only application package](../validation/issue-134-attribution-staging-application/PLAN.md) was then PREPARED / NOT AUTHORIZED TO APPLY. That frozen status is superseded by the exact application result above; it is retained only as chronology.
 
 ## HV134 C01 actual result — 2026-10-06 17:56–18:02 UTC
 
