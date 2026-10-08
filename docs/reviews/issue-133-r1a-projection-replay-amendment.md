@@ -1,7 +1,7 @@
 # Issue #133 / #134 — R1a Projection-Aware ACCEPTED Replay Amendment
 
 **Date:** 2026-10-08  
-**Status:** CLAUDE LEVEL-3 ACCEPTED / READY FOR PRODUCT OWNER AMENDED IMPLEMENTATION GATE / NOT YET AUTHORIZED TO IMPLEMENT
+**Status:** PRODUCT OWNER APPROVED / R1a PROJECTION-AWARE ACCEPTED REPLAY AMENDMENT AUTHORIZED FOR PREPARED-ONLY SLICE 1 IMPLEMENTATION / NO DATABASE PROOF OR HOSTED ACTION AUTHORIZED
 **Trigger:** Codex Slice 1 HOLD from clean HEAD `cd0b797f745e90ca89d99a8d9cfcf166e05d0bae`  
 **Protected R1a source:** `supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql` SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`  
 **Approved Slice 1 architectural contract:** gate SHA-256 `51334ca5da427df068fc6370e2189dc83f58f1611b7e8a9a53e46045d61586f0`  
@@ -9,6 +9,8 @@
 This amendment resolves one concrete compatibility conflict discovered before Slice 1 implementation began. It does not authorize implementation, migration authoring/application, PostgreSQL execution, Staging, Production, GVM, worker activation, live admission, Reporting cutover, #153 changes, provider/communication activity or technician resumption.
 
 **Independent review:** Claude Opus 5 High independently reviewed the original amendment at SHA-256 `fae6246c8710dc71de1117499970b2db726736ee0cd9c46f017b5e1d530a9f29` / 14,247 bytes and returned `R1A_PROJECTION_REPLAY_AMENDMENT_READY_FOR_PO_GATE`. Claude confirmed the blocker in protected R1a source, confirmed this predicate remains stricter than the Issue #158 replay predicate that passed Database Proof #6, and required the implementation conditions now incorporated below.
+
+**Product Owner authorization:** Darshan explicitly approved this amended semantic scope after Claude Level-3 acceptance. The approved semantic gate is commit `5f9562b74215e8355e578569f7d406f14647e81e`, with reviewed amendment SHA-256 `5e43efcbc7ba3082b8062b6b9193c68e02bfb4a0a705b9834f123d85c4929d96` and reconciled projection contract SHA-256 `1472f0ff65e1b0476fbc57f86a3f18d6dfc35ca9b72d919ab3b2c6743cfcda91`. Authorization permits the previously approved Slice 1 implementation to resume and permits exactly one additional existing-function replacement inside the NEW Slice 1 migration: `CREATE OR REPLACE public.commit_manual_payment_attempt_v1(uuid,uuid)` with identical signature/result/security/ACL, changing only the zero-write ACCEPTED replay evidence predicate as specified here. No PostgreSQL proof execution, hosted migration application, Staging/Production/GVM action, worker/live admission, Reporting/CRM cutover, #153 change, provider/communication activity, historical repair or technician resumption is authorized.
 
 ## 1. Confirmed conflict
 
