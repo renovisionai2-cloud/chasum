@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { runInNewContext } from "node:vm";
+import { describe, expect, it, vi } from "vitest";
 
 const root = process.cwd();
 const migrationPath =
@@ -358,5 +359,93 @@ describe("Issue #134 durable booking-operation migration contract", () => {
     expect(verifier).not.toMatch(
       /^\s*["'][^"']*(?:\.env|\.supabase)[^"']*["'],?\s*$/m,
     );
+  });
+});
+
+// Execute only extracted helper definitions with an inert process stub.
+// Never import the executable verifier or start psql/PostgreSQL in these tests.
+function verifierHelper(name: string) {
+  const source = verifier.match(new RegExp(`^function ${name}\\([^]*?^}`, "m"))?.[0];
+  if (!source) throw new Error(`Verifier helper missing: ${name}`);
+  return source;
+}
+
+function verifierParser(stdout: string, status = 0) {
+  const recordPhase = vi.fn();
+  const spawnSync = vi.fn(() => ({ stdout, stderr: "", status }));
+  const context = {
+    spawnSync, recordPhase, childEnv: {}, binaries: { psql: "inert-psql-stub" },
+    psqlArgs: (args: string[]) => args,
+    process: { stdout: { write: vi.fn() }, stderr: { write: vi.fn() } },
+  };
+  const helpers = ["command", "sql", "finalRow"].map(verifierHelper).join("\n");
+  const parser = runInNewContext(`${helpers}; ({ sql, finalRow });`, context, { timeout: 1000 }) as {
+    sql: (statement: string, options: { quiet: boolean; phase: string }) => string;
+    finalRow: (result: { stdout: string }) => string;
+  };
+  return { ...parser, recordPhase, spawnSync };
+}
+
+describe("Issue #158 verifier semantic result parsing (offline)", () => {
+  it.each([
+    ["ADMITTED", true],
+    ["SET\nADMITTED\n", true],
+    ["SET\r\nBEGIN\r\nUPDATE 1\r\nADMITTED\r\nRESET\r\nCOMMIT\r\n", true],
+    ["SET\nEXISTING\n", false],
+    ["SET\nBEGIN\nUNKNOWN\nCOMMIT\n", false],
+    ["SET\nADMITTED\nWRONG\nCOMMIT\n", false],
+    ["SET\nNOT_ADMITTED\n", false],
+    ["SET\nADMITTED|extra\n", false],
+    ["SET\nBEGIN\nUPDATE 2\nRESET\nCOMMIT\n", false],
+    ["", false],
+  ])("requires exact ADMITTED after normalizing %j", (stdout, admitted) => {
+    const parser = verifierParser(stdout);
+    const result = parser.sql("inert statement", { quiet: true, phase: "offline:admission" });
+    expect(result === "ADMITTED").toBe(admitted);
+    expect(result).toBe(parser.finalRow({ stdout }));
+    expect(parser.recordPhase).toHaveBeenCalledWith("offline:admission", 0, undefined, stdout, "");
+  });
+
+  it.each([
+    "EXISTING",
+    "EXISTING|appointment-id",
+    "REPLAY|transaction-id",
+    "true|REQUESTED|0|0|",
+    "true|REQUESTED|1|0|",
+    "true|ACCEPTED|1|1|appointment-id",
+  ])("preserves exact synchronous replay/recovery fields: %s", (row) => {
+    const parser = verifierParser(`SET\n${row}\n`);
+    expect(parser.sql("inert statement", { quiet: true, phase: "offline:recovery" })).toBe(row);
+  });
+
+  it("parses the NULL-staff transaction result before trailing sleep/COMMIT output", () => {
+    const stdout = "SET\nSET\nBEGIN\nSET\nCREATED|appointment-id\n\nCOMMIT\n";
+    expect(verifierParser(stdout).finalRow({ stdout })).toBe("CREATED|appointment-id");
+  });
+
+  it("does not accept business output from a failed psql process", () => {
+    const parser = verifierParser("SET\nADMITTED\n", 3);
+    expect(() => parser.sql("inert statement", { quiet: true, phase: "offline:failure" }))
+      .toThrow("exited 3");
+    expect(parser.recordPhase).toHaveBeenCalledWith("offline:failure", 3, undefined, "SET\nADMITTED\n", "");
+  });
+
+  it.each([
+    ["closeAfterCreate", "createFirstResults", "RECOVERY_REQUIRED|", "RECOVERY_REQUIRED|appointment-id|f"],
+    ["cancelAfterCommit", "commitFirstResults", "|t", "CLOSED|t"],
+    ["commitAfterClose", "closeBeforeCommitResults", "NOT_COMMITTABLE|", "NOT_COMMITTABLE|f"],
+  ])("reads the settled sibling result for %s", (promiseName, resultsName, expected, row) => {
+    const checks = [...verifier.matchAll(/if \(!(?<check>finalRow\([^)]+\)\.(?:startsWith|endsWith)\("(?<expected>[^"]+)"\))\)/g)];
+    const check = checks.find((match) => match.groups?.expected === expected)?.groups?.check;
+    if (!check) throw new Error(`Result check missing: ${expected}`);
+    const parser = verifierParser("");
+    for (const [stdout, accepted] of [[`SET\n${row}\n`, true], ["SET\nWRONG\n", false]] as const) {
+      const result = { stdout };
+      expect(runInNewContext(check, {
+        finalRow: parser.finalRow,
+        [promiseName]: Promise.resolve(result),
+        [resultsName]: [{ stdout: "ignored holder output" }, result],
+      }, { timeout: 1000 })).toBe(accepted);
+    }
   });
 });

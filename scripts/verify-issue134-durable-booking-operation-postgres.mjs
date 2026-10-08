@@ -255,11 +255,11 @@ function psqlArgs(extra = []) {
 }
 
 function sql(statement, options = {}) {
-  return command(
+  return finalRow(command(
     binaries.psql,
     psqlArgs(["-At", "-F", "|", "-c", statement]),
     { ...options, phase: options.phase ?? "sql" },
-  ).stdout.trim();
+  ));
 }
 
 function startSqlAsync(statement, phase, { discardOutput = false } = {}) {
@@ -385,7 +385,11 @@ function captureConcurrency(name, results) {
 }
 
 function finalRow(result) {
-  return result.stdout.trim().split(/\r?\n/).filter(Boolean).at(-1) ?? "";
+  // psql -At still emits command tags, including after a result (COMMIT).
+  // Ignore only known standalone tags; keep wrong/unknown business outcomes.
+  return result.stdout.trim().split(/\r?\n/)
+    .filter((line) => line && !/^(?:SET|RESET|BEGIN|COMMIT|ROLLBACK|UPDATE \d+)$/.test(line))
+    .at(-1) ?? "";
 }
 
 function requireStatuses(name, results) {
@@ -812,7 +816,7 @@ try {
   const createFirstResults = await Promise.all([createFirst, closeAfterCreate]);
   captureConcurrency("create-before-close", createFirstResults);
   requireStatuses("create-before-close", createFirstResults);
-  if (!finalRow(closeAfterCreate).startsWith("RECOVERY_REQUIRED|")) {
+  if (!finalRow(createFirstResults[1]).startsWith("RECOVERY_REQUIRED|")) {
     throw new Error("create-before-close did not preserve the winning appointment");
   }
   summary.concurrency.push("create-before-close");
@@ -887,7 +891,7 @@ try {
   ]);
   captureConcurrency("commit-before-close", commitFirstResults);
   requireStatuses("commit-before-close", commitFirstResults);
-  if (!finalRow(cancelAfterCommit).endsWith("|t")) {
+  if (!finalRow(commitFirstResults[1]).endsWith("|t")) {
     throw new Error("commit-before-close did not preserve recorded money");
   }
   summary.concurrency.push("commit-before-close");
@@ -925,7 +929,7 @@ try {
   ]);
   captureConcurrency("close-before-commit", closeBeforeCommitResults);
   requireStatuses("close-before-commit", closeBeforeCommitResults);
-  if (!finalRow(commitAfterClose).startsWith("NOT_COMMITTABLE|")) {
+  if (!finalRow(closeBeforeCommitResults[1]).startsWith("NOT_COMMITTABLE|")) {
     throw new Error("close-before-commit did not fence the zero-ledger attempt");
   }
   summary.concurrency.push("close-before-commit");
