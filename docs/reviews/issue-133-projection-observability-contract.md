@@ -1,7 +1,7 @@
 # Issue #133 / #134 — Canonical Projection + Financial Observability Contract
 
 **Date:** 2026-10-08  
-**Status:** CORRECTED DESIGN AFTER GROK CHALLENGE / AWAITING CLAUDE LEVEL-3 REVIEW / NOT AUTHORIZED TO IMPLEMENT
+**Status:** INDEPENDENTLY REVIEWED / READY FOR PRODUCT OWNER PREPARED-ONLY IMPLEMENTATION GATE / NOT YET AUTHORIZED TO IMPLEMENT
 **Technical baseline:** `ff063bab8acbfb996c75fa8d7fa79ef2e838f303`  
 **Local-proof status:** `LOCAL_DATABASE_PROOF_6_ACCEPTED`  
 **Current documentation head at preparation:** `eb43aef1bb7774c1837d59ff8f02771a54d2e371`  
@@ -11,6 +11,8 @@
 This contract defines the next Chasum financial-integrity layer after the independently accepted Issue #158 local database proof. It is intentionally **design-only**. It does not authorize a migration, code implementation, Staging application, worker activation, UI wiring, communication delivery, Production change, GVM test booking, or technician payment/deposit resumption.
 
 **Independent challenge reconciliation:** Grok 4.7 High returned `CORRECTIONS_REQUIRED` on the original design hash `cdf61cb3...`. The overall architecture passed challenge; blocking specification corrections were required for legacy-writer/admission fencing, exact supported ledger set, void/unbound invoice behavior, COMPLETE verification, receipt/invoice independence, delete semantics, pre-bind recovery classification, Reporting authority, and retained-cohort exclusion. Those corrections are incorporated below; no implementation was performed.
+
+**Independent Level-3 acceptance:** Claude Opus 5 High independently reviewed corrected commit `f5bb3b81b45ee02cc04bbadaddfb9828cfac8536` / tree `5c95b36314c67c9adb5c43e563c24fd07fe82ce3`, verified this document at SHA-256 `a43c8f9a152715e0f86302ba9ce26e0abf3722a4bef3ccb16b1461a9036af703` / 41,154 bytes, and returned `READY_FOR_PO_IMPLEMENTATION_GATE`. This means the design is complete enough to ask the Product Owner for one PREPARED-ONLY Slice 1 implementation/local-proof authorization. It does not itself authorize implementation or any hosted action.
 
 ## 1. Launch classification and scope
 
@@ -201,7 +203,9 @@ The triggering accepted attempt must be represented by exactly one linked transa
 
 Any other appointment-linked financial evidence makes the affected automatic projection `PROJECTION_UNCERTAIN` with **no cache write**: refund/void/adjustment; `store_credit`/`gift_card`; non-succeeded status; non-manual provider; second currency; malformed identity; or contradictory transaction/attempt tuple.
 
-Stored commercial terms are authoritative: `total_cents = price_cents + tax_cents`; explicit zero remains zero; `deposit_cents` is a requirement, not collected money. A positive ledger against contradictory/invalid stored totals holds rather than substituting catalog values.
+Stored commercial terms are authoritative: `total_cents = price_cents + tax_cents`; explicit zero remains zero; `deposit_cents` is a requirement, not collected money. `price_cents` and `tax_cents` must both be present, finite integers and non-negative; invalid/NULL/negative stored terms hold `PROJECTION_UNCERTAIN` rather than falling back to the service catalog. `deposit_cents` must be finite/non-negative; contradictory stored terms hold rather than being normalized silently. A positive ledger against contradictory/invalid stored totals holds rather than substituting catalog values.
+
+As belt-and-braces protection, `appointments.amount_refunded_cents > 0` also holds `PROJECTION_UNCERTAIN` even if refund ledger evidence is unexpectedly absent. For an ACCEPTED canonical attempt the zero-total/zero-paid branch is unreachable because accepted non-none attempts require positive amount; do not "harmonize" this projector with legacy zero-total status derivation.
 
 For the supported set, `amount_paid_cents` is the sum of supported distinct transaction IDs and `amount_refunded_cents` remains zero because any refund evidence holds. `payment_status` derives only from stored terms and that recomputed paid amount:
 
@@ -466,6 +470,17 @@ No autonomous payment, refund, projection retry, invoice/receipt send, or identi
 
 Attempt events + obligation transitions are the durable audit trail. Summer action later must reference these identities; no hidden AI side log.
 
+### Implementation carry-forward conditions from independent Level-3 review
+
+The prepared-only implementation prompt must also enforce these non-blocking-but-binding details:
+
+- future worker claim/selection is exposed only through one service-role function that applies the admission predicate; no ad-hoc scanner may claim directly from the PENDING partial index;
+- COMPLETE-replay verification mismatch must be visible in the RPC/reader result without mutating or downgrading the COMPLETE obligation;
+- Slice 2 financial aggregate must define currency explicitly (group by currency or hold); the per-attempt "triggering currency" rule is not a reporting-scope rule;
+- any future refund-aware CRM mirror keys to the refund movement's own canonical refund transaction ID, not the original payment transaction ID;
+- `commerce_payment_attempt_events` has no actor column; this is accepted for Slice 1, but later Summer ACT attribution may require an additive actor/audit field;
+- legacy `createReceiptForTransaction()` reads existing receipts by transaction ID without a Business filter, reinforcing the requirement that legacy writers remain excluded before real-Business projection admission.
+
 ## 15. Proposed prepared-only schema delta
 
 Exact names remain subject to independent design review, but the implementation gate should stay bounded to the following additive intent:
@@ -493,28 +508,32 @@ No projection row backfill, no legacy mirror backfill, no historical invoice/rec
 
 Independent review must challenge whether any proposed FK/constraint would unintentionally change legacy delete semantics; if so, prefer a narrower tenant guard plus the later #153 cutover rather than silently changing legacy behavior.
 
-## 16. Proposed prepared-only implementation allowlist
+## 16. Exact proposed prepared-only Slice 1 implementation allowlist
 
-No implementation is authorized yet. If independently accepted, the next Product Owner implementation gate should be limited to an exact allowlist similar to:
+Implementation is **NOT authorized until the Product Owner explicitly approves this exact gate**. If approved, Slice 1 is limited to these 16 paths:
 
-1. `supabase/migrations/<CLI-generated>_issue_133_payment_projection_observability.sql` — NEW;
-2. `lib/commerce/payment-projections/types.ts` — NEW;
-3. `lib/commerce/payment-projections/kernel.ts` — NEW;
-4. `lib/commerce/payment-projections/index.ts` — NEW;
-5. `lib/commerce/payment-observability/types.ts` — NEW;
-6. `lib/commerce/payment-observability/reader.ts` — NEW;
-7. `lib/commerce/payment-observability/index.ts` — NEW;
-8. `lib/actions/reports.ts` — tests/design only initially; runtime re-source requires explicit implementation gate confirmation;
-9. `lib/crm/service.ts` — adapter/read-model only if required by exact reviewed scope;
-10. `tests/unit/commerce/payment-projection-kernel.test.ts` — NEW;
-11. `tests/unit/commerce/payment-observability-reader.test.ts` — NEW;
-12. `tests/unit/migrations/issue133-payment-projection-observability.test.ts` — NEW;
-13. `tests/postgres/issue-133-payment-projection-observability-contract.sql` — NEW;
-14. `scripts/verify-issue133-payment-projection-postgres.mjs` — NEW human-owned disposable-local verifier;
-15. `docs/reviews/issue-133-projection-observability-implementation.md` — NEW;
-16. `docs/CHANGELOG.md`.
+1. `supabase/migrations/<CLI-generated>_issue_133_payment_projection_observability.sql` — NEW; exact additive schema/functions only.
+2. `lib/commerce/payment-projections/types.ts` — NEW.
+3. `lib/commerce/payment-projections/kernel.ts` — NEW; server-only projector/admission wrappers, no worker loop.
+4. `lib/commerce/payment-projections/index.ts` — NEW.
+5. `lib/commerce/payment-observability/types.ts` — NEW.
+6. `lib/commerce/payment-observability/reader.ts` — NEW.
+7. `lib/commerce/payment-observability/index.ts` — NEW.
+8. `tests/unit/commerce/payment-projection-kernel.test.ts` — NEW.
+9. `tests/unit/commerce/payment-projection-admission.test.ts` — NEW.
+10. `tests/unit/commerce/payment-observability-reader.test.ts` — NEW.
+11. `tests/unit/migrations/issue133-payment-projection-observability.test.ts` — NEW.
+12. `tests/postgres/issue-133-payment-projection-observability-contract.sql` — NEW.
+13. `scripts/verify-issue133-payment-projection-postgres.mjs` — NEW human-owned disposable-local verifier.
+14. `docs/reviews/issue-133-projection-observability-implementation.md` — NEW consolidated implementation/proof report.
+15. `docs/CHANGELOG.md` — bounded factual entry only.
+16. `docs/reviews/issue-133-projection-observability-contract.md` — status/hash/proof reconciliation only if implementation evidence requires factual restamping; no architectural expansion.
 
-The prepared implementation remains split deliberately: **Slice 1 = schema + admission boundary + four projectors + canonical reader; Slice 2 = Reporting/CRM/operator read re-source/wiring.** Slice 1 has no worker and its admission state defaults to disabled, so it cannot create a temporary live dual-truth path. Slice 2 is the immediate follow-on before real-Business activation.
+Explicitly **not allowlisted in Slice 1**: `lib/actions/reports.ts`, `lib/crm/service.ts`, current booking/reception UI/actions, communications, workers/jobs, #153 grants/RLS/default ACL, existing provider/refund writers, Foundation/R1a/Attribution/Issue #158 migrations, Production release files, or tenant-specific code.
+
+Slice 1 = additive schema + admission boundary + four projectors + canonical #133 reader + offline/local database proofs. There is **no worker**, no live admission, no Reporting runtime re-source, no CRM/operator wiring, no hosted migration application, and no historical processing.
+
+Slice 2 remains the immediate separately reviewed follow-on before any real-Business activation: one canonical financial aggregate, Reporting re-source, CRM/operator read integration and user-facing disclosure/wiring as required.
 
 ## 17. Required local proof matrix before any connected Staging gate
 
@@ -529,7 +548,9 @@ Disposable-local PostgreSQL proof must include actual roles/grants and at minimu
 - replay COMPLETE performs no target mutation and returns same target identity;
 - older COMPLETE appointment/invoice obligation remains COMPLETE after a later legitimate payment; once the later attempt is projected, COMPLETE replay verifies the current aggregate without rewriting or reopening the older obligation;
 - an accepted attempt with NULL appointment leaves `appointment_cache` and `invoice_settlement` NOT_REQUIRED while CRM mirror and receipt can COMPLETE;
-- an attempt before the Business admission watermark is refused with zero target mutation.
+- an attempt before the Business admission watermark is refused with zero target mutation;
+- an attempt whose immutable `created_at` equals the watermark exactly is excluded by the strict `>` predicate;
+- first-time invoice-sequence allocation raced by two projectors with no existing sequence row yields one sequence row and one allocated number; repeat equivalently for first-time receipt-sequence allocation.
 
 ### Financial recomputation
 
