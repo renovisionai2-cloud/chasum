@@ -4,7 +4,49 @@ Date: 2026-10-08
 Status: PREPARED ONLY / UNWIRED / DEFAULT-OFF / NOT APPLIED TO HOSTED ENVIRONMENTS
 Product Owner authorization: Issue #158 exact prepared-only implementation under the reviewed #134 contract
 
-## Current gate — post-proof-4 verifier parsing correction
+## Current gate — post-proof-5 commit terminal-state correction
+
+**DATABASE PROOF #1: FAILED — fixture UUID default mismatch.**
+
+**DATABASE PROOF #2: FAILED — bind `appointment_id` ambiguity.**
+
+**DATABASE PROOF #3: FAILED — unsupported `min(uuid)`.**
+
+**DATABASE PROOF #4: FAILED — verifier parsing after successful NULL-staff admission.**
+
+**DATABASE PROOF #5: FAILED — PRODUCT MIGRATION / COMMIT CONTROL-FLOW DEFECT.**
+
+**DATABASE PROOF #6: NOT RUN.**
+
+Starting candidate: `2a9581310f5880b9c092edf7057b40f510eaeb0a`. This bounded correction changes only the product migration's commit function, the existing migration/static and kernel tests, and this report. The contract remains SHA-256 `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`. Corrected migration bytes are authored only and have not been applied anywhere. Older sections below are historical snapshots, superseded by this gate.
+
+### Proof #5 evidence and limits
+
+Retained evidence `chasum-issue134-durable-evidence-5boTKR` reports `fixtureSetup=PASS`, eight completed concurrency/fence phases and no recovery phases. It passed the full SQL contract: corrected fixture/bind/reader paths; inventory and protected digests; fingerprints and KEY_CONFLICT; canonical deposit commit/replay/read with four PENDING obligations; no-payment; repeated no-ledger correction and attribution protection; PII-free history/cursor precision; equal-value distinct attempt keys; tenant/browser denial. It then passed same-operation bootstrap, inline email/phone, same-operation appointment, same-attempt commit, NULL-staff appointment, close-before-create, create-before-close and commit-before-close races.
+
+The close-before-commit holder returned `CLOSED` and COMMIT at exit 0; the blocked commit also exited 0 but returned `UNKNOWN|f`, versus expected `NOT_COMMITTABLE|f`. The close source correctly closes/cancels and fences REQUESTED to FAILED/DO_NOT_RETRY with a FAILED/NOT_RECORDED event. Commit's generic lifecycle/cancellation gate ran before terminal evidence handling, masking conclusive terminal zero-ledger truth. The verifier correctly rejected that behavior. Recovery phases did not run. Retained cleanup fields are `stopConfirmed=true`, `pgdataRemoved=true`. Evidence is unchanged; no overall proof PASS is claimed.
+
+### Branch ordering and contract reconciliation
+
+Sections 8, 9, 10 and the section 15 cancellation fault matrix require terminal zero-money truth, explicit SKIPPED no-payment, and replay of previously recorded money. The correction preserves authorization, advisory locking, exact attempt/Business/operation lookup, appointment binding lookup, operation actor check and shared identity checks before any financial classification.
+
+Order is now: locked identity → ledger/requested-event/accepted-event/obligation census → certified FAILED/SKIPPED terminal branch → original positive-tender checks → unchanged ACCEPTED replay block → active lifecycle/not-cancelled gate → unchanged REQUESTED evidence checks → unchanged financial writes.
+
+The terminal branch requires zero attempt-linked ledger rows, one REQUESTED/NOT_RECORDED event, no ACCEPTED/RECORDED event, no obligations, exactly one matching terminal NOT_RECORDED event, exactly two lifecycle events, resolved_at and DO_NOT_RETRY. Event failure metadata must match the attempt. FAILED additionally requires the canonical close failure pair (CONFLICT/KEY_CONFLICT or VALIDATION/INVALID_REQUEST) and a valid positive manual tender. SKIPPED requires the exact none/zero/null-tender/null-failure tuple. Contradictory counts, malformed metadata, uncertain failures or missing terminal evidence return UNKNOWN before NOT_COMMITTABLE. SKIPPED is never changed to FAILED.
+
+Identity/binding failures still return UNKNOWN: this does not broaden the RPC to unbound/missing appointments or contradictory customer identity. Zero ledger is certified for this exact attempt, not an assertion that the appointment has no other legitimate payments. No recovery disposition, new attempt, retry or write is introduced by terminal classification.
+
+Sibling ordering findings corrected: the original positive-tender gate masked SKIPPED's valid no-payment tuple; the lifecycle/cancellation gate also masked ACCEPTED replay after cancellation; and the old terminal branch could report NOT_COMMITTABLE without checking ledger/event/obligation consistency. ACCEPTED's one-exact-ledger, event-count, four-obligation and tuple checks remain byte-identical. REQUESTED + CLOSED/cancelled remains UNKNOWN regardless of zero count; any new write still requires all original active-booking/tender/evidence checks. ACCEPTED with zero/multiple/mismatched ledger evidence remains UNKNOWN. No unrelated reader/kernel behavior or permission/schema contract is changed.
+
+### Tests and offline validation
+
+Eight new static cases guard exact identity/lock ordering; FAILED and SKIPPED before lifecycle/tender rejection; contradictory ledger/event/obligation rejection; resolved terminal metadata; byte-identical ACCEPTED replay checks before cancellation gating; REQUESTED UNKNOWN/write gating; and absence of writes before terminal/replay returns. Against the exact old migration, the expanded static suite failed (6 failures / 44 passes). Three kernel tests cover cancelled FAILED/SKIPPED operator truth and cancelled ACCEPTED replay without duplicate payment calls or appointment creation; these use mocked database outcomes and do not execute SQL.
+
+Validation PASS: focused suites 5 files / 91 tests (50 migration/verifier tests); scoped booking/booking-engine/commerce/migration/customer/notification suites 75 files / 739 tests; typecheck; changed-path ESLint; webpack build with telemetry disabled and OS-level network denial; verifier syntax and help/no-argument/wrong/extra refusal matrix (0/2/2/2); diff check; exact four-path allowlist; protected Foundation/R1a/attribution/contract/fixture/verifier hashes. Seven sibling SQL functions, the financial-write block, kernel implementation and all pre-existing regression tests remain byte-preserved. Static/source tests and mocked kernel results are not PostgreSQL proof. Verifier execution is limited to syntax/help/refusal gates; proof #6 is not run.
+
+Prior fixture UUID default, bind aliases, reader C-collated UUID aggregate, cursor precision, verifier parser/result-consumption corrections, Section 14 vectors and safety controls are preserved. No hosted/shared environment, Staging, Production, GVM, provider, projection, communication, UI/action, #153 permission or historical financial action occurred. No push or PR activity. Competitive Product Gate: NOT APPLICABLE — bounded bug correction to the locked financial-truth contract. Independent review and a fresh governed gate are required before proof #6.
+
+## Previous gate — post-proof-4 verifier parsing correction (historical)
 
 **DATABASE PROOF #1: FAILED — fixture UUID default mismatch.**
 
@@ -14,7 +56,7 @@ Product Owner authorization: Issue #158 exact prepared-only implementation under
 
 **DATABASE PROOF #4: FAILED — verifier output-parsing defect after successful NULL-staff bootstrap admission.**
 
-**DATABASE PROOF #5: NOT RUN.**
+**At this prior correction, proof #5 had not run; its subsequent product failure is recorded above.**
 
 Starting candidate: `38f2634e1da44503cf35b6434ef0d673fb043455`. This correction changes only the verifier, its existing migration/static test file and this report. Product migration is byte-identical: SHA-256 `49a5e3b8d8247d786878de34b3a9f021e44a4972453e17908add9c70dc9000d5`, 80,631 bytes. No new product defect was identified. The latest governed prompt and current section supersede older proof-state snapshots; historical correction sections below retain their dated scope.
 
@@ -154,7 +196,7 @@ The candidate commit contains the 15 code, migration, test, proof, and changelog
 
 ## First disposable-local database proof — run once, failed
 
-**Historical proof #1 result: FAILED. Current proofs #2, #3 and #4 also FAILED; proof #5 NOT RUN (see current gate above).**
+**Historical proof #1 result: FAILED. Current proofs #2–#5 also FAILED; proof #6 NOT RUN (see current gate above).**
 
 The first Product-Owner-authorized disposable-local run used corrected candidate `b1f54b81b740a088b331f5ddbfd33a0c54c2dd09` / tree `ff4384f591a6d18982f7321cbb1923786629e277` on PostgreSQL `17.11 (Homebrew)`. Retained evidence is timestamped `2026-10-07T20:20:04–05-0400` and remains outside the repository in the system temporary evidence directory identified as `chasum-issue134-durable-evidence-8QXkp7`. No credentials or machine-sensitive evidence contents are copied into this report.
 
@@ -242,7 +284,7 @@ Protected hashes remain byte-identical:
 - Attribution: `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`
 - Approved contract: `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`
 
-**Historical proof #1 result: FAILED. Current proofs #2, #3 and #4 also FAILED; proof #5 NOT RUN (see current gate above).**
+**Historical proof #1 result: FAILED. Current proofs #2–#5 also FAILED; proof #6 NOT RUN (see current gate above).**
 
 The first governed run reached PostgreSQL and stopped on the synthetic `appointments.id` default mismatch documented above. It did not apply the product migration to any shared or hosted environment.
 
@@ -271,9 +313,9 @@ No path outside the Section 13 allowlist changed.
 
 - Created only through the installed CLI path after checking `npx supabase migration new --help`.
 - Filename: `supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql`
-- Current corrected size: `80,631` bytes
-- Current corrected SHA-256: `49a5e3b8d8247d786878de34b3a9f021e44a4972453e17908add9c70dc9000d5`
-- State: current product bytes were exercised by failed disposable-local proof #4, whose SQL contract passed before the harness stopped. They have not been applied to Staging or Production. No migration was applied during this verifier correction.
+- Current corrected size: `83,565` bytes
+- Current corrected SHA-256: `01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b`
+- State: current corrected bytes are authored only / not applied anywhere. Earlier product bytes were exercised in proofs #1–#5, never applied to Staging or Production. No database was run during this correction.
 
 The migration supplies exactly the locked 23 deltas: one registry table, one appointment column, eight named constraints, three indexes, eight SECURITY INVOKER functions, and two triggers. It retains the accepted prior booking-attempt index and does not alter existing RLS policies or applied migrations.
 
@@ -298,11 +340,11 @@ The migration supplies exactly the locked 23 deltas: one registry table, one app
 
 The runner requires exactly `--confirm-disposable-local`, uses fixed PostgreSQL 17 Homebrew binaries, an owned loopback-only temporary cluster, a minimal sanitized child environment, before/after source hashes, phase recording, concurrency-response capture, confirmed shutdown, and two matching ownership markers before PGDATA removal. The SQL fixture loads immutable foundation/R1a/attribution sources, checks their digests, verifies schema/ACL inventory, and is authored to exercise replay, inline identity races, appointment races, commit races, both close/create orders, both close/commit orders, no-payment, repeated correction, ledger protection, reader privacy, and revocation. Proof #4 passed the SQL contract and the four pre-NULL-staff concurrency phases; the remaining scenarios are not proved (see current gate).
 
-Argument refusal, fixture source, phase capture, concurrency capture, cleanup logic, and JavaScript syntax were checked offline. The four failed disposable-local proof executions are historical. This verifier correction runs refusal gates only; it does not start PostgreSQL or execute a fifth proof.
+Argument refusal, fixture source, phase capture, concurrency capture, cleanup logic, and JavaScript syntax were checked offline. The five failed disposable-local proofs are historical. This commit correction runs refusal gates only; it does not start PostgreSQL or execute a sixth proof.
 
-**Historical proof #1 result: FAILED. Current proofs #2, #3 and #4 also FAILED; proof #5 NOT RUN (see current gate above).**
+**Historical proof #1 result: FAILED. Current proofs #2–#5 also FAILED; proof #6 NOT RUN (see current gate above).**
 
-The runtime failure and surviving/unexecuted proof boundaries are recorded above. A fifth human-operated run requires a fresh governed gate.
+The runtime failure and surviving/unexecuted proof boundaries are recorded above. A sixth human-operated run requires a fresh governed gate.
 
 ## Earlier implementation / first-proof commands and results (historical)
 
@@ -339,10 +381,10 @@ There was no hosted database access, migration application, projection processin
 
 ## Remaining limitations and next gate
 
-- DATABASE PROOF #1: FAILED (fixture default). DATABASE PROOF #2: FAILED (bind ambiguity). DATABASE PROOF #3: FAILED (reader min(uuid)). DATABASE PROOF #4: FAILED (verifier parsing after successful NULL-staff admission). DATABASE PROOF #5: NOT RUN. Proof #4 passed the SQL contract and four recorded concurrency phases, but NULL-staff race and later fence/recovery/final checks remain unproven. Offline parser tests do not establish database proof.
+- DATABASE PROOFS #1–#5: FAILED for the distinct reasons above. DATABASE PROOF #6: NOT RUN. Proof #5 passed the SQL contract, NULL-staff race and three earlier fences, then failed close-before-commit on product control-flow. Corrected terminal/replay behavior, that final fence, recovery and final checks remain unproven by PostgreSQL. Offline tests do not establish database proof.
 - The backend is intentionally unusable for new admissions while `admissionEnabled` is `false` and no current surface calls its prepared entrypoints.
 - Projection, operator UI, identity storage on target surfaces, #133/Summer reporting, communications, retention messaging, #153 cutover, and permission tightening remain separately governed follow-ons.
 - The default Turbopack command remains unusable in this symlinked worktree; the supported webpack build passed.
 - Repository-wide lint and the two Chromium-dependent tests retain the pre-existing/environment blockers recorded above.
 
-No scope reconciliation blocker required an out-of-allowlist change. The next database action requires independent review of this bounded verifier correction and a fresh governed Product Owner gate for a fifth disposable-local run. No rerun, hosted apply or activation is authorized by this delivery.
+No scope reconciliation blocker required an out-of-allowlist change. The next database action requires independent review of this bounded commit terminal-state correction and a fresh governed Product Owner gate for a sixth disposable-local run. No rerun, hosted apply or activation is authorized by this delivery.

@@ -283,6 +283,48 @@ describe("prepared durable booking-operation kernel", () => {
     ]);
   });
 
+  it.each(["FAILED", "SKIPPED"] as const)("preserves %s terminal truth after a cancellation race without retrying money", async (state) => {
+    const skipped = state === "SKIPPED";
+    const terminal = found({
+      lifecycleState: "CLOSED", closeReason: "APPOINTMENT_CANCELLED",
+      executionState: state, recoveryDisposition: "DO_NOT_RETRY",
+      paymentMode: skipped ? "none" : "deposit", paymentKind: skipped ? "none" : "deposit",
+      amountCents: skipped ? 0 : 5000, method: skipped ? null : "cash",
+      failureClass: skipped ? null : "CONFLICT", failureCode: skipped ? null : "KEY_CONFLICT",
+      transactionId: null, ledgerCount: 0, rawRecorded: false, obligations: [],
+      operatorState: "NOT_RECORDED", synchronization: "NOT_REQUIRED", recoveryAction: "NONE",
+    });
+    const deps = dependencies({
+      recoverAppointment: vi.fn().mockResolvedValue(APPOINTMENT_ID),
+      commit: vi.fn().mockResolvedValue({ kind: "NOT_COMMITTABLE", attemptId: ATTEMPT_ID,
+        transactionId: null, recorded: false, synchronization: "UNKNOWN" }),
+      read: vi.fn().mockResolvedValueOnce({ kind: "ABSENT" })
+        .mockResolvedValue({ kind: "FOUND", snapshot: terminal }),
+    });
+    await expect(runBookingOperationKernel(skipped ? request({ payment: { mode: "none" } }) : request(), deps))
+      .resolves.toMatchObject({ kind: "NOT_RECORDED", transactionId: null, reason: "APPOINTMENT_CANCELLED" });
+    expect(deps.commit).toHaveBeenCalledTimes(skipped ? 0 : 1);
+    expect(deps.bootstrap).toHaveBeenCalledTimes(1);
+    expect(deps.createAppointment).not.toHaveBeenCalled();
+    expect(deps.close).not.toHaveBeenCalled();
+  });
+
+  it("preserves recorded replay truth after cancellation without a second payment call", async () => {
+    const deps = dependencies({
+      recoverAppointment: vi.fn().mockResolvedValue(APPOINTMENT_ID),
+      commit: vi.fn().mockResolvedValue({ kind: "REPLAY", attemptId: ATTEMPT_ID,
+        transactionId: TRANSACTION_ID, recorded: true, synchronization: "PENDING" }),
+      read: vi.fn().mockResolvedValueOnce({ kind: "ABSENT" })
+        .mockResolvedValue({ kind: "FOUND", snapshot: found({ lifecycleState: "CLOSED", closeReason: "APPOINTMENT_CANCELLED" }) }),
+    });
+    await expect(runBookingOperationKernel(request(), deps)).resolves.toMatchObject({
+      kind: "RECORDED_BUT_NOT_FULLY_SYNCHRONIZED", transactionId: TRANSACTION_ID,
+    });
+    expect(deps.commit).toHaveBeenCalledTimes(1);
+    expect(deps.bootstrap).toHaveBeenCalledTimes(1);
+    expect(deps.createAppointment).not.toHaveBeenCalled();
+  });
+
   it("blocks only confirmed-absent admission while default-off", async () => {
     const deps = dependencies({ admissionEnabled: false });
     await expect(runBookingOperationKernel(request(), deps)).resolves.toEqual({

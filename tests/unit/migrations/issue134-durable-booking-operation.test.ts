@@ -449,3 +449,89 @@ describe("Issue #158 verifier semantic result parsing (offline)", () => {
     }
   });
 });
+
+// These guard SQL source ordering/evidence requirements, not PostgreSQL execution.
+describe("Issue #158 terminal commit evidence ordering", () => {
+  const body = migration.split("create function public.commit_booking_operation_manual_payment_v1(")[1]
+    .split("create function public.read_booking_operations_v1(")[0];
+  const terminalStart = body.indexOf("  if attempt_row.execution_state in ('FAILED', 'SKIPPED') then");
+  const tenderStart = body.indexOf("  if attempt_row.payment_kind not in");
+  const acceptedStart = body.indexOf("  if attempt_row.execution_state = 'ACCEPTED' then");
+  const lifecycleStart = body.indexOf("  if operation_row.lifecycle_state <> 'APPOINTMENT_CREATED'");
+  const writeStart = body.indexOf("  update public.commerce_payment_attempts");
+  const terminal = body.slice(terminalStart, tenderStart);
+
+  it("loads and locks exact tenant/operation/attempt identity before terminal evidence", () => {
+    for (const clause of [
+      "attempt_source.id = p_attempt_id", "attempt_source.business_id = p_business_id",
+      "attempt_source.booking_operation_id = p_operation_id",
+      "appointment_source.id = attempt_row.appointment_id",
+      "operation_source.id = p_operation_id", "operation_source.business_id = p_business_id",
+      "if operation_row.actor_id <> p_actor_id", "into ledger_count",
+      "transaction_row.payment_attempt_id = attempt_row.id",
+    ]) {
+      expect(body.indexOf(clause)).toBeGreaterThan(-1);
+      expect(body.indexOf(clause)).toBeLessThan(terminalStart);
+    }
+    expect(body.slice(0, terminalStart).match(/for update;/g)).toHaveLength(3);
+  });
+
+  it.each(["FAILED", "SKIPPED"])("certifies %s zero-ledger truth before lifecycle/tender rejection", (state) => {
+    expect(terminalStart).toBeGreaterThan(-1);
+    expect(terminalStart).toBeLessThan(tenderStart);
+    expect(tenderStart).toBeLessThan(acceptedStart);
+    expect(acceptedStart).toBeLessThan(lifecycleStart);
+    expect(terminal).toContain(`attempt_row.execution_state = '${state}'`);
+    expect(terminal).toMatch(/if ledger_count <> 0[\s\S]*?'UNKNOWN'::text[\s\S]*?return;[\s\S]*?'NOT_COMMITTABLE'::text,\s*attempt_row.id,\s*null::uuid,\s*false/);
+  });
+
+  it("rejects nonzero/duplicate ledger, missing or contradictory events and obligations before NOT_COMMITTABLE", () => {
+    for (const guard of ["ledger_count <> 0", "requested_event_count <> 1", "accepted_event_count <> 0",
+      "obligation_count <> 0", "terminal_event_count <> 1", "lifecycle_event_count <> 2"]) {
+      expect(terminal).toContain(guard);
+      expect(terminal.indexOf(guard)).toBeLessThan(terminal.indexOf("'UNKNOWN'::text"));
+    }
+    expect(terminal).toContain("event_row.event_type = attempt_row.execution_state");
+    expect(terminal).toContain("event_row.money_state = 'NOT_RECORDED'");
+    expect(terminal).toContain("event_row.failure_class is not distinct from attempt_row.failure_class");
+    expect(terminal).toContain("event_row.failure_code is not distinct from attempt_row.failure_code");
+    expect(terminal).toContain("event_row.event_type in ('REQUESTED', 'ACCEPTED', 'FAILED', 'SKIPPED')");
+  });
+
+  it("requires resolved DO_NOT_RETRY and canonical FAILED/SKIPPED metadata", () => {
+    expect(terminal).toContain("attempt_row.recovery_disposition is distinct from 'DO_NOT_RETRY'");
+    expect(terminal).toContain("attempt_row.resolved_at is null");
+    expect(terminal).toContain("is not distinct from row('CONFLICT'::text, 'KEY_CONFLICT'::text)");
+    expect(terminal).toContain("is not distinct from row('VALIDATION'::text, 'INVALID_REQUEST'::text)");
+    expect(terminal).toContain("and not coalesce(");
+    expect(terminal).toContain("and attempt_row.provider_route = 'manual'");
+    expect(terminal).toContain("'none'::text, 0, null::text, null::text, null::uuid, null::text, null::text");
+  });
+
+  it("preserves the exact ACCEPTED ledger/event/obligation replay block before mutable cancellation checks", () => {
+    const accepted = body.slice(acceptedStart, body.indexOf("  -- Replay above", acceptedStart));
+    expect(createHash("sha256").update(accepted).digest("hex")).toBe("6f4a0dfe4ed6318b812b62356437e19a3ef36de39106931b5eec61d7693ab669");
+    expect(accepted).toContain("ledger_count = 1");
+    expect(accepted).toContain("and requested_event_count = 1");
+    expect(accepted).toContain("and accepted_event_count = 1");
+    expect(accepted).toContain("and obligation_count = 4");
+    expect(accepted).toContain("select 'REPLAY'::text, attempt_row.id, ledger_row.id, true");
+    expect(acceptedStart).toBeLessThan(lifecycleStart);
+  });
+
+  it("leaves CLOSED/cancelled REQUESTED and uncertain counts UNKNOWN before any new money write", () => {
+    expect(lifecycleStart).toBeGreaterThan(terminalStart);
+    const gate = body.slice(lifecycleStart, writeStart);
+    expect(gate).toContain("or appointment_row.status::text = 'cancelled'");
+    expect(gate).toContain("if attempt_row.execution_state <> 'REQUESTED'");
+    for (const guard of ["ledger_count <> 0", "requested_event_count <> 1", "accepted_event_count <> 0", "obligation_count <> 0"]) expect(gate).toContain(guard);
+    expect(gate.match(/select 'UNKNOWN'::text/g)).toHaveLength(2);
+    expect(gate).not.toContain("NOT_COMMITTABLE");
+  });
+
+  it("returns terminal/replay outcomes without a new write, transition, attempt or retry", () => {
+    expect(writeStart).toBeGreaterThan(lifecycleStart);
+    expect(body.slice(0, writeStart).replace(/--[^\n]*/g, "")).not.toMatch(/\b(insert into|update public|delete from)\b/i);
+    expect(terminal).not.toContain("NEW_ATTEMPT_ALLOWED");
+  });
+});

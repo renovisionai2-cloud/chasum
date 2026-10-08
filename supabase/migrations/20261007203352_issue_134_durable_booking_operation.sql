@@ -1878,6 +1878,8 @@ declare
   requested_event_count integer;
   accepted_event_count integer;
   obligation_count integer;
+  terminal_event_count integer;
+  lifecycle_event_count integer;
 begin
   if current_user <> 'service_role' then
     raise exception 'BOOKING_OPERATION_SERVICE_ROLE_REQUIRED'
@@ -1945,8 +1947,6 @@ begin
   end if;
 
   if operation_row.actor_id <> p_actor_id
-     or operation_row.lifecycle_state <> 'APPOINTMENT_CREATED'
-     or appointment_row.status::text = 'cancelled'
      or row(
        operation_row.business_id,
        operation_row.customer_id,
@@ -1963,18 +1963,7 @@ begin
        p_business_id,
        appointment_row.customer_id,
        appointment_row.id
-     )
-     or attempt_row.payment_kind not in ('payment', 'deposit')
-     or attempt_row.amount_cents <= 0
-     or attempt_row.method not in (
-       'cash',
-       'e_transfer',
-       'debit_card',
-       'credit_card',
-       'other'
-     )
-     or attempt_row.provider_route is distinct from 'manual'
-     or attempt_row.gift_card_id is not null then
+     ) then
     return query
       select 'UNKNOWN'::text, attempt_row.id, null::uuid, false, 'UNKNOWN'::text;
     return;
@@ -2004,6 +1993,91 @@ begin
   from public.commerce_payment_reconciliation obligation_row
   where obligation_row.business_id = p_business_id
     and obligation_row.attempt_id = attempt_row.id;
+
+  -- Terminal truth precedes mutable lifecycle/tender eligibility, but never
+  -- precedes identity locks or proof of zero ledger and coherent terminal events.
+  if attempt_row.execution_state in ('FAILED', 'SKIPPED') then
+    select
+      count(*) filter (
+        where event_row.event_type = attempt_row.execution_state
+          and event_row.money_state = 'NOT_RECORDED'
+          and event_row.failure_class is not distinct from attempt_row.failure_class
+          and event_row.failure_code is not distinct from attempt_row.failure_code
+      )::integer,
+      count(*)::integer
+    into terminal_event_count, lifecycle_event_count
+    from public.commerce_payment_attempt_events event_row
+    where event_row.business_id = p_business_id
+      and event_row.attempt_id = attempt_row.id
+      and event_row.event_type in ('REQUESTED', 'ACCEPTED', 'FAILED', 'SKIPPED');
+
+    if ledger_count <> 0
+       or requested_event_count <> 1
+       or accepted_event_count <> 0
+       or obligation_count <> 0
+       or terminal_event_count <> 1
+       or lifecycle_event_count <> 2
+       or attempt_row.recovery_disposition is distinct from 'DO_NOT_RETRY'
+       or attempt_row.resolved_at is null
+       or (
+         attempt_row.execution_state = 'FAILED'
+         and not (
+           row(attempt_row.failure_class, attempt_row.failure_code)
+             is not distinct from row('CONFLICT'::text, 'KEY_CONFLICT'::text)
+           or row(attempt_row.failure_class, attempt_row.failure_code)
+             is not distinct from row('VALIDATION'::text, 'INVALID_REQUEST'::text)
+         )
+       )
+       or (
+         attempt_row.execution_state = 'FAILED'
+         and not coalesce(
+           attempt_row.payment_kind in ('payment', 'deposit')
+           and attempt_row.amount_cents > 0
+           and attempt_row.method in ('cash', 'e_transfer', 'debit_card', 'credit_card', 'other')
+           and attempt_row.provider_route = 'manual'
+           and attempt_row.gift_card_id is null,
+           false
+         )
+       )
+       or (
+         attempt_row.execution_state = 'SKIPPED'
+         and row(
+           attempt_row.payment_kind, attempt_row.amount_cents,
+           attempt_row.method, attempt_row.provider_route, attempt_row.gift_card_id,
+           attempt_row.failure_class, attempt_row.failure_code
+         ) is distinct from row(
+           'none'::text, 0, null::text, null::text, null::uuid, null::text, null::text
+         )
+       ) then
+      return query
+        select 'UNKNOWN'::text, attempt_row.id, null::uuid, false, 'UNKNOWN'::text;
+      return;
+    end if;
+    return query
+      select
+        'NOT_COMMITTABLE'::text,
+        attempt_row.id,
+        null::uuid,
+        false,
+        'UNKNOWN'::text;
+    return;
+  end if;
+
+  if attempt_row.payment_kind not in ('payment', 'deposit')
+     or attempt_row.amount_cents <= 0
+     or attempt_row.method not in (
+       'cash',
+       'e_transfer',
+       'debit_card',
+       'credit_card',
+       'other'
+     )
+     or attempt_row.provider_route is distinct from 'manual'
+     or attempt_row.gift_card_id is not null then
+    return query
+      select 'UNKNOWN'::text, attempt_row.id, null::uuid, false, 'UNKNOWN'::text;
+    return;
+  end if;
 
   if attempt_row.execution_state = 'ACCEPTED' then
     if ledger_count = 1 then
@@ -2052,14 +2126,11 @@ begin
     return;
   end if;
 
-  if attempt_row.execution_state in ('FAILED', 'SKIPPED') then
+  -- Replay above remains truthful after cancellation; only new money needs an active booking.
+  if operation_row.lifecycle_state <> 'APPOINTMENT_CREATED'
+     or appointment_row.status::text = 'cancelled' then
     return query
-      select
-        'NOT_COMMITTABLE'::text,
-        attempt_row.id,
-        null::uuid,
-        false,
-        'UNKNOWN'::text;
+      select 'UNKNOWN'::text, attempt_row.id, null::uuid, false, 'UNKNOWN'::text;
     return;
   end if;
   if attempt_row.execution_state <> 'REQUESTED'
