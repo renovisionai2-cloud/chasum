@@ -33,7 +33,71 @@ const functionNames = [
   "read_booking_operations_v1",
 ] as const;
 
+// Scoped source regression guard for the bind function's two UPDATEs.
+// This is not a PL/pgSQL parser or a substitute for a database proof.
+const bindBody = sql.match(
+  /create function public\.bind_booking_operation_appointment_v1\([\s\S]*?as \$\$([\s\S]*?)end \$\$;/,
+)?.[1];
+if (!bindBody) throw new Error("Binding function body missing");
+
+function bindingWrites(source: string) {
+  return [...source.matchAll(
+    /\bupdate\s+public\.(\w+)(?:\s+as\s+(\w+))?\s+set\s+([\s\S]*?)\s+where\s+([\s\S]*?);/gi,
+  )].map(([, table, alias, assignments, predicates]) => ({
+    table,
+    alias,
+    assignments: assignments.replace(/\s+/g, " ").trim(),
+    predicates: predicates.replace(/\s+/g, " ").trim(),
+  }));
+}
+
+const expectedBindingWrites = [
+  {
+    table: "commerce_payment_attempts",
+    alias: "attempt_target",
+    // SET targets must be bare columns; expression references must be qualified.
+    assignments: "appointment_id = appointment_row.id, updated_at = pg_catalog.now()",
+    predicates: "attempt_target.id = attempt_row.id and attempt_target.business_id = p_business_id and attempt_target.appointment_id is null",
+  },
+  {
+    table: "commerce_booking_operations",
+    alias: "operation_target",
+    assignments: "lifecycle_state = 'APPOINTMENT_CREATED', updated_at = pg_catalog.now()",
+    predicates: "operation_target.id = operation_row.id and operation_target.business_id = p_business_id and operation_target.lifecycle_state = 'OPEN'",
+  },
+];
+
 describe("Issue #134 durable booking-operation migration contract", () => {
+  it("binds only the locked tenant attempt and OPEN operation using qualified target predicates", () => {
+    expect(bindingWrites(bindBody)).toEqual(expectedBindingWrites);
+    expect(bindBody.match(/\bupdate\s+public\./g)).toHaveLength(2);
+    expect(bindBody).not.toMatch(/#variable_conflict|plpgsql\.variable_conflict/i);
+  });
+
+  it.each([
+    "attempt_target.id",
+    "attempt_target.business_id",
+    "attempt_target.appointment_id",
+    "operation_target.id",
+    "operation_target.business_id",
+    "operation_target.lifecycle_state",
+  ])("rejects reintroducing an unqualified %s target predicate", (qualified) => {
+    const mutant = bindBody.replace(qualified, qualified.split(".")[1]);
+    expect(mutant).not.toBe(bindBody);
+    expect(bindingWrites(mutant)).not.toEqual(expectedBindingWrites);
+  });
+
+  it("requires qualified bind expressions while allowing PostgreSQL's bare SET targets", () => {
+    const expressions = bindBody
+      .replace(/'([^']|'')*'/g, "''")
+      .replace(/\bset\s+appointment_id\s*=/gi, "set =");
+    expect(expressions).not.toMatch(
+      /(?<![\w.])(?:id|business_id|operation_id|appointment_id|attempt_id|outcome)\b/i,
+    );
+    expect(bindingWrites(bindBody.replace("set appointment_id = appointment_row.id,", "set appointment_id = appointment_id,")))
+      .not.toEqual(expectedBindingWrites);
+  });
+
   it("preserves every accepted migration byte-for-byte", () => {
     for (const [path, expected] of Object.entries(acceptedSources)) {
       expect(

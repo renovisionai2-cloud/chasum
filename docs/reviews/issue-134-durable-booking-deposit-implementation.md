@@ -4,7 +4,50 @@ Date: 2026-10-07
 Status: PREPARED ONLY / UNWIRED / DEFAULT-OFF / NOT APPLIED
 Product Owner authorization: Issue #158 exact prepared-only implementation under the reviewed #134 contract
 
-## Candidate identity
+## Current gate — post-second-proof product migration correction
+
+**DATABASE PROOF #1: FAILED — synthetic `appointments.id` fixture default mismatch.**
+
+**DATABASE PROOF #2: FAILED — product migration `bind_booking_operation_appointment_v1` ambiguous `appointment_id` reference.**
+
+**DATABASE PROOF #3: NOT RUN.**
+
+This current gate supersedes the earlier first-proof-only continuation in the dated control-board/handoff snapshots. Correction starts from `ef8c6a671c8683d5198160c97aeb9bb692c460d3` and preserves fixture-correction ancestor `4a43d893aa7fce8e38a658ff8ddea0e9dbcb901e`. The approved contract remains byte-identical at SHA-256 `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`. No PostgreSQL execution is authorized or performed during this correction; the revised migration is authored only / not applied anywhere.
+
+### Second-proof evidence and limits
+
+The retained `chasum-issue134-durable-evidence-fYAIYP` summary and phase log identify input HEAD `ef8c6a6`, the old migration hash `805f49255069cf0cc0e831bd45986218246e982acdc35e75d8b25d91212cb727`, and PostgreSQL `17.11 (Homebrew)`. The contract phase exited 3 at SQL contract line 665. Its exact failure was `column reference "appointment_id" is ambiguous`, at the bind UPDATE predicate `and appointment_id is null`; PostgreSQL reported that it could refer to a PL/pgSQL variable or a table column. This is a **product function defect**, separate from proof #1's fixture mismatch.
+
+The retained second-run stdout positively records PASS for the exact 23-delta schema inventory, protected pre-existing fixture digests, the TypeScript/PostgreSQL nested-resource fingerprint vector, and deterministic/idempotent same-key changed-tuple KEY_CONFLICT. The guarded admission and same-key EXISTING replay checks precede those markers. The golden-path appointment-persistence call completed and supplied its appointment ID to the failing bind call, so the original UUID-default failure was passed. This is execution progress, not complete appointment/binding/financial acceptance. The verifier confirmed shutdown and owned-PGDATA removal; original evidence is unchanged.
+
+Binding did not complete. Manual money commit, its one-ledger/one-ACCEPTED/four-obligation outcome, exact/history readers and cursor boundaries, tenant/actor/revocation denial, equal-value distinct attempt keys, inline and appointment concurrency, close/create and close/commit races, repeated no-ledger correction, lost-response recovery at all four boundaries, rollback versus UNKNOWN, and NULL-staff same-operation concurrency remain runtime-unproven in the durable-operation proof. No complete database-proof PASS is claimed.
+
+### Exact correction and eight-function ambiguity sweep
+
+`RETURNS TABLE` creates PL/pgSQL output variables. The bind function declares `appointment_id`, so its unqualified expression in a table UPDATE is ambiguous under PostgreSQL's normal conflict checking. The correction adds `AS attempt_target` and qualifies `id`, `business_id` and `appointment_id` in that UPDATE's predicates. Its second UPDATE adds `AS operation_target` and qualifies `id`, `business_id` and `lifecycle_state`. PostgreSQL SET assignment targets remain bare column names; RHS record references stay qualified. No conflict-resolution directive, schema delta, signature, guard, locking order, comparison or authorization is changed.
+
+| Function | Sweep result |
+| --- | --- |
+| `guard_commerce_booking_operation_v1` | NEW/OLD record references; no colliding SQL expression. Unchanged. |
+| `guard_appointment_booking_operation_link_v1` | Aliased lookup predicates and NEW/OLD/record fields; no collision. Unchanged. |
+| `bootstrap_booking_operation_v1` | Outputs include customer_id, attempt_id and execution_state; expression references are record-qualified or distinctly named. INSERT target lists are column targets; ON CONFLICT(id) has no same-named variable. Bare resource_id/lock_key/suffix_length query aliases do not match parameters/locals/outputs. Unchanged. |
+| `persist_booking_operation_appointment_v1` | Output appointment_id appears bare only as an INSERT target column; expression references are qualified. Unchanged. |
+| `bind_booking_operation_appointment_v1` | Confirmed appointment_id predicate collision fixed; all six target predicate column references in its two UPDATEs now explicitly qualified. |
+| `close_booking_operation_v1` | Bare UPDATE predicates id/business_id/customer_id/status/execution_state and RHS closed_at do not match its current parameters, locals or output names. No current runtime ambiguity; unchanged. |
+| `commit_booking_operation_manual_payment_v1` | Bare UPDATE predicates id/business_id/execution_state do not match its current parameters, locals or output names. attempt_id/transaction_id references are qualified or INSERT targets. Unchanged. |
+| `read_booking_operations_v1` | Outputs are snapshot_at/payload; bare history CTE attention_rank/created_at/id do not collide. Other expressions are qualified. Unchanged. |
+
+No sibling **current** PL/pgSQL name collision was found. No DELETE statement or dynamic SQL in these bodies needed correction. Wildcard SELECT/RETURNING projections and INSERT/SET target lists are not ambiguous variable expression references and were not rewritten. The seven sibling bodies remain byte-identical. Unqualified names that do not currently collide are recorded above rather than turned into an unrelated refactor.
+
+### Static regression and offline validation
+
+The existing migration test now extracts the bind body and checks both complete UPDATE shapes: target table, alias, assignments and tenant/identity/state predicates. Six mutation cases remove one qualification at a time and must be rejected; another guard rejects bare bind output/identity expressions while exempting the syntactically required SET target. It also rejects an ambiguous SET RHS mutant and conflict-resolution directives. These are bounded source guards, not a SQL parser or runtime proof.
+
+Before the SQL edit, the expanded migration suite failed (8 new failures / 9 existing passes), demonstrating detection against the defective source. After correction, focused Issue #158 tests passed (5 files / 55 tests), and relevant booking/booking-engine/commerce/migration/customer/notification scopes passed (75 files / 703 tests). Typecheck, changed-test ESLint, verifier syntax and help/no-arg/wrong/extra refusal gates passed (0/2/2/2). `npx next build --webpack` passed with telemetry disabled and OS-level network denial. `git diff --check`, the exact three-path allowlist, and protected Foundation/R1a/attribution/contract/fixture/verifier hashes passed. The prior fixture-correction ancestor and UUID default remain intact. No exact-confirmation verifier run occurred.
+
+Only the product migration, its existing static test, and this report change. The 23-delta contract and protected Foundation/R1a/attribution migrations remain unchanged. Competitive Product Gate: NOT APPLICABLE — narrow runtime-ambiguity correction to already-locked product behavior. No new remote/environment preflight was performed under the offline-only instruction.
+
+## Original implementation candidate identity (historical)
 
 - Branch: `codex/issue-158-durable-booking-operation`
 - Authorized starting commit / parent: `afafc855634dc8d53b2a3cdf554ce1060c96a1b2`
@@ -18,9 +61,7 @@ The candidate commit contains the 15 code, migration, test, proof, and changelog
 
 ## First disposable-local database proof — run once, failed
 
-**DATABASE PROOF: RUN ONCE, FAILED**
-
-**SECOND DATABASE PROOF: NOT RUN**
+**Historical proof #1 result: FAILED. Current proof #2 also FAILED; proof #3 NOT RUN (see current gate above).**
 
 The first Product-Owner-authorized disposable-local run used corrected candidate `b1f54b81b740a088b331f5ddbfd33a0c54c2dd09` / tree `ff4384f591a6d18982f7321cbb1923786629e277` on PostgreSQL `17.11 (Homebrew)`. Retained evidence is timestamped `2026-10-07T20:20:04–05-0400` and remains outside the repository in the system temporary evidence directory identified as `chasum-issue134-durable-evidence-8QXkp7`. No credentials or machine-sensitive evidence contents are copied into this report.
 
@@ -28,7 +69,7 @@ The run stopped in the SQL contract's golden-path `persist_booking_operation_app
 
 > `null value in column "id" of relation "appointments" violates not-null constraint`
 
-The failing row had a null appointment ID because the accepted synthetic foundation fixture declares `appointments.id uuid primary key` without the UUID default used by the production schema and existing application appointment inserts. This is classified as a synthetic proof-fixture mismatch, not currently a product migration defect. The Issue #158 migration was not changed. The allowlisted contract fixture now models the production convention locally with:
+The failing row had a null appointment ID because the accepted synthetic foundation fixture declares `appointments.id uuid primary key` without the UUID default used by the production schema and existing application appointment inserts. This is classified as a synthetic proof-fixture mismatch, not currently a product migration defect. The Issue #158 migration was not changed by that fixture correction; the later product correction is recorded above. The allowlisted contract fixture now models the production convention locally with:
 
 ```sql
 alter table public.appointments
@@ -43,9 +84,9 @@ The proof stopped before runtime execution of history cursor order/`next_cursor`
 
 Post-fixture-correction offline validation passed: focused Issue #158 suites (5 files / 47 tests), scoped booking/booking-engine/commerce/migration/notification suites (75 files / 695 tests), `npm run typecheck`, verifier `node --check`, verifier help/no-argument/wrong-argument/extra-argument gates (`0/2/2/2`), `git diff --check`, exact two-path allowlist verification, and protected source/migration hash verification. Changed-path ESLint is not applicable because this correction changes no TypeScript or JavaScript path. PostgreSQL and the verifier confirmation path were not run during the correction.
 
-Failure cleanup behaved as designed: the verifier confirmed shutdown, removed owned PGDATA through its dual-marker safety fence, and retained failure evidence outside the repository. No Staging, Production, GVM, hosted service, credential, provider, permission, projection, communication, UI, worker, or historical financial action occurred. Any second database run requires a fresh governed Product Owner gate.
+Failure cleanup behaved as designed: the verifier confirmed shutdown, removed owned PGDATA through its dual-marker safety fence, and retained failure evidence outside the repository. No Staging, Production, GVM, hosted service, credential, provider, permission, projection, communication, UI, worker, or historical financial action occurred. The separately governed second run subsequently failed as recorded above; any third run requires a fresh governed Product Owner gate.
 
-## Bounded correction after independent audit
+## Earlier bounded correction after independent audit (historical)
 
 Claude independently returned `CORRECTIONS_REQUIRED_BEFORE_DATABASE_PROOF` for two bounded blockers. Darshan authorized correction within the existing Issue #158 allowlist at report HEAD `a293faa316784781a72fae60ac6dc00e7ed85ae5`; the implementation candidate under review remains the historical parent candidate `5f9af16422310428852d343f65f140591d2dac86`.
 
@@ -99,7 +140,7 @@ The verifier retains its exact confirmation flag, fixed PostgreSQL 17 binaries, 
 - `git diff --check` — PASS.
 - Allowlist and protected-hash checks — PASS.
 
-Migration identity remains byte-identical: SHA-256 `805f49255069cf0cc0e831bd45986218246e982acdc35e75d8b25d91212cb727`, exactly `80,473` bytes.
+Migration identity at that earlier correction remained byte-identical: SHA-256 `805f49255069cf0cc0e831bd45986218246e982acdc35e75d8b25d91212cb727`, exactly `80,473` bytes.
 
 Protected hashes remain byte-identical:
 
@@ -108,13 +149,11 @@ Protected hashes remain byte-identical:
 - Attribution: `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`
 - Approved contract: `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`
 
-**DATABASE PROOF: RUN ONCE, FAILED**
-
-**SECOND DATABASE PROOF: NOT RUN**
+**Historical proof #1 result: FAILED. Current proof #2 also FAILED; proof #3 NOT RUN (see current gate above).**
 
 The first governed run reached PostgreSQL and stopped on the synthetic `appointments.id` default mismatch documented above. It did not apply the product migration to any shared or hosted environment.
 
-## Exact changed paths
+## Original implementation changed paths (historical)
 
 1. `supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql`
 2. `lib/booking-engine/types.ts`
@@ -139,9 +178,9 @@ No path outside the Section 13 allowlist changed.
 
 - Created only through the installed CLI path after checking `npx supabase migration new --help`.
 - Filename: `supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql`
-- Size: `80,473` bytes
-- SHA-256: `805f49255069cf0cc0e831bd45986218246e982acdc35e75d8b25d91212cb727`
-- State: authored only; never applied.
+- Current corrected size: `80,607` bytes
+- Current corrected SHA-256: `5c5f8754fc45edf978b5bc5cefedfc495c003dbbb1b48f4d1244005b6ba33df3`
+- State: revised bytes authored only; never applied anywhere. Earlier bytes were exercised only by the two failed disposable-local proofs, not applied to Staging or Production.
 
 The migration supplies exactly the locked 23 deltas: one registry table, one appointment column, eight named constraints, three indexes, eight SECURITY INVOKER functions, and two triggers. It retains the accepted prior booking-attempt index and does not alter existing RLS policies or applied migrations.
 
@@ -164,17 +203,15 @@ The migration supplies exactly the locked 23 deltas: one registry table, one app
 - Human runner: `scripts/verify-issue134-durable-booking-operation-postgres.mjs`
 - Static migration/verifier contract: `tests/unit/migrations/issue134-durable-booking-operation.test.ts`
 
-The runner requires exactly `--confirm-disposable-local`, uses fixed PostgreSQL 17 Homebrew binaries, an owned loopback-only temporary cluster, a minimal sanitized child environment, before/after source hashes, phase recording, concurrency-response capture, confirmed shutdown, and two matching ownership markers before PGDATA removal. The SQL fixture loads immutable foundation/R1a/attribution sources, checks their digests, verifies schema/ACL inventory, and is authored to exercise replay, inline identity races, appointment races, commit races, both close/create orders, both close/commit orders, no-payment, repeated correction, ledger protection, reader privacy, and revocation. The first run stopped before the deeper scenarios and does not prove them.
+The runner requires exactly `--confirm-disposable-local`, uses fixed PostgreSQL 17 Homebrew binaries, an owned loopback-only temporary cluster, a minimal sanitized child environment, before/after source hashes, phase recording, concurrency-response capture, confirmed shutdown, and two matching ownership markers before PGDATA removal. The SQL fixture loads immutable foundation/R1a/attribution sources, checks their digests, verifies schema/ACL inventory, and is authored to exercise replay, inline identity races, appointment races, commit races, both close/create orders, both close/commit orders, no-payment, repeated correction, ledger protection, reader privacy, and revocation. Both governed proofs stopped before the deeper scenarios and do not prove them.
 
-Argument refusal, fixture source, phase capture, concurrency capture, cleanup logic, and JavaScript syntax were checked offline. The exact confirmation flag was supplied once for the governed failed run; it was not supplied during this fixture correction, and no second run occurred.
+Argument refusal, fixture source, phase capture, concurrency capture, cleanup logic, and JavaScript syntax were checked offline. The two failed disposable-local proof executions are historical. This product correction runs refusal gates only; it does not start PostgreSQL or execute a third proof.
 
-**DATABASE PROOF: RUN ONCE, FAILED**
+**Historical proof #1 result: FAILED. Current proof #2 also FAILED; proof #3 NOT RUN (see current gate above).**
 
-**SECOND DATABASE PROOF: NOT RUN**
+The runtime failure and surviving/unexecuted proof boundaries are recorded above. A third human-operated run requires a fresh governed gate.
 
-The runtime failure and surviving/unexecuted proof boundaries are recorded above. A second human-operated run requires a fresh governed gate.
-
-## Commands and results
+## Earlier implementation / first-proof commands and results (historical)
 
 - `npx supabase migration new --help` — PASS; CLI help checked before authoring.
 - `npx supabase migration new issue_134_durable_booking_operation` — PASS; generated the sole migration filename above.
@@ -209,10 +246,10 @@ There was no hosted database access, migration application, projection processin
 
 ## Remaining limitations and next gate
 
-- Database proof has run once and failed in the synthetic fixture before the golden path completed. The fixture default is corrected, but runtime behavior/concurrency and the deeper Section 14 vectors remain unproven until a separately authorized second disposable-local run; static checks are not a substitute.
+- DATABASE PROOF #1: FAILED (fixture default). DATABASE PROOF #2: FAILED (bind-function ambiguity). DATABASE PROOF #3: NOT RUN. The fixture default and product ambiguity are now corrected in source; the corrected runtime behavior, concurrency and deeper Section 14 vectors remain unproven until a separately authorized third disposable-local run. Static checks are not a substitute.
 - The backend is intentionally unusable for new admissions while `admissionEnabled` is `false` and no current surface calls its prepared entrypoints.
 - Projection, operator UI, identity storage on target surfaces, #133/Summer reporting, communications, retention messaging, #153 cutover, and permission tightening remain separately governed follow-ons.
 - The default Turbopack command remains unusable in this symlinked worktree; the supported webpack build passed.
 - Repository-wide lint and the two Chromium-dependent tests retain the pre-existing/environment blockers recorded above.
 
-No scope reconciliation blocker required an out-of-allowlist change. The next database action is a fresh governed Product Owner gate for a second disposable-local run after review of this proof-fixture-only correction.
+No scope reconciliation blocker required an out-of-allowlist change. The next database action requires independent review of this bounded product correction and a fresh governed Product Owner gate for a third disposable-local run. No rerun, hosted apply or activation is authorized by this delivery.

@@ -1594,20 +1594,20 @@ begin
   end if;
 
   if attempt_row.appointment_id is null then
-    update public.commerce_payment_attempts
+    update public.commerce_payment_attempts as attempt_target
     set appointment_id = appointment_row.id,
         updated_at = pg_catalog.now()
-    where id = attempt_row.id
-      and business_id = p_business_id
-      and appointment_id is null;
+    where attempt_target.id = attempt_row.id
+      and attempt_target.business_id = p_business_id
+      and attempt_target.appointment_id is null;
   end if;
   if operation_row.lifecycle_state = 'OPEN' then
-    update public.commerce_booking_operations
+    update public.commerce_booking_operations as operation_target
     set lifecycle_state = 'APPOINTMENT_CREATED',
         updated_at = pg_catalog.now()
-    where id = operation_row.id
-      and business_id = p_business_id
-      and lifecycle_state = 'OPEN';
+    where operation_target.id = operation_row.id
+      and operation_target.business_id = p_business_id
+      and operation_target.lifecycle_state = 'OPEN';
   end if;
 
   return query
