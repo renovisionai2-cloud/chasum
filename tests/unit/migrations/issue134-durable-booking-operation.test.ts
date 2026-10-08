@@ -67,7 +67,50 @@ const expectedBindingWrites = [
   },
 ];
 
+// Protect the complete history ledger summary, not merely a cast anywhere in SQL.
+const readerBody = sql.split("create function public.read_booking_operations_v1(")[1]
+  ?.split("end $$;")[0];
+if (!readerBody) throw new Error("Reader function body missing");
+const ledgerSummary = readerBody.match(
+  /left join lateral \(([\s\S]*?)\) ledger_summary on true/,
+)?.[1].replace(/\s+/g, " ").trim();
+const expectedLedgerSummary =
+  'select count(*)::integer as ledger_count, min(transaction_row.id::text collate "C")::uuid as transaction_id ' +
+  "from public.commerce_transactions transaction_row " +
+  "where transaction_row.business_id = attempt_row.business_id " +
+  "and transaction_row.payment_attempt_id = attempt_row.id";
+const directUuidMinMax = /\b(?:min|max)\s*\(\s*(?:\w+\.)?(?:id|\w+_id)\s*\)/i;
+
 describe("Issue #134 durable booking-operation migration contract", () => {
+  it("uses a deterministic text minimum cast back to UUID without filtering the ledger count", () => {
+    expect(ledgerSummary).toBe(expectedLedgerSummary);
+    expect(sql).not.toMatch(directUuidMinMax);
+    expect([...sql.matchAll(/\b(?:min|max)\s*\([^\n]+/gi)].map(([expression]) => expression))
+      .toEqual(['min(transaction_row.id::text collate "C")::uuid as transaction_id']);
+  });
+
+  it.each(["min", "max"])("rejects unsupported direct UUID %s in the ledger summary", (aggregate) => {
+    const mutant = expectedLedgerSummary.replace(
+      'min(transaction_row.id::text collate "C")::uuid',
+      `${aggregate}(transaction_row.id)`,
+    );
+    expect(mutant).toMatch(directUuidMinMax);
+    expect(mutant).not.toBe(ledgerSummary);
+  });
+
+  it("keeps recorded history states gated on exactly one ledger and otherwise UNKNOWN", () => {
+    const operatorState = readerBody.match(/'operator_state', case([\s\S]*?)end,/)?.[1];
+    if (!operatorState) throw new Error("History operator-state case missing");
+    const recordedBranches = [...operatorState.matchAll(
+      /when([\s\S]*?)then '(RECORDED(?:_BUT_NOT_FULLY_SYNCHRONIZED)?)'/g,
+    )];
+    expect(recordedBranches).toHaveLength(2);
+    for (const [, condition] of recordedBranches) {
+      expect(condition).toContain("visible_row.ledger_count = 1");
+    }
+    expect(operatorState.trim()).toMatch(/else 'UNKNOWN'$/);
+  });
+
   it("binds only the locked tenant attempt and OPEN operation using qualified target predicates", () => {
     expect(bindingWrites(bindBody)).toEqual(expectedBindingWrites);
     expect(bindBody.match(/\bupdate\s+public\./g)).toHaveLength(2);

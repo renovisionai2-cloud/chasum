@@ -2404,7 +2404,7 @@ begin
     left join lateral (
       select
         count(*)::integer as ledger_count,
-        min(transaction_row.id) as transaction_id
+        min(transaction_row.id::text collate "C")::uuid as transaction_id
       from public.commerce_transactions transaction_row
       where transaction_row.business_id = attempt_row.business_id
         and transaction_row.payment_attempt_id = attempt_row.id
