@@ -1,7 +1,7 @@
 # Issue #133 / #134 — Canonical Projection + Financial Observability Contract
 
 **Date:** 2026-10-08  
-**Status:** PRODUCT OWNER APPROVED / PREPARED-ONLY SLICE 1 IMPLEMENTATION + LOCAL PROOF AUTHORIZED / NO HOSTED APPLICATION OR ACTIVATION AUTHORIZED
+**Status:** PREPARED-ONLY SLICE 1 SOURCE IMPLEMENTED UNDER APPROVED AMENDMENT / DATABASE PROOF NOT RUN / INDEPENDENT CANDIDATE AUDIT NEXT / NO HOSTED APPLICATION OR ACTIVATION AUTHORIZED
 **Technical baseline:** `ff063bab8acbfb996c75fa8d7fa79ef2e838f303`  
 **Local-proof status:** `LOCAL_DATABASE_PROOF_6_ACCEPTED`  
 **Current documentation head at preparation:** `eb43aef1bb7774c1837d59ff8f02771a54d2e371`  
@@ -15,6 +15,8 @@ This contract defines the next Chasum financial-integrity layer after the indepe
 **Independent Level-3 acceptance:** Claude Opus 5 High independently reviewed corrected commit `f5bb3b81b45ee02cc04bbadaddfb9828cfac8536` / tree `5c95b36314c67c9adb5c43e563c24fd07fe82ce3`, verified this document at SHA-256 `a43c8f9a152715e0f86302ba9ce26e0abf3722a4bef3ccb16b1461a9036af703` / 41,154 bytes, and returned `READY_FOR_PO_IMPLEMENTATION_GATE`. This means the design is complete enough to ask the Product Owner for one PREPARED-ONLY Slice 1 implementation/local-proof authorization. It does not itself authorize implementation or any hosted action.
 
 **Product Owner authorization:** Darshan explicitly approved the exact prepared-only Slice 1 implementation and local-proof preparation under final contract SHA-256 `51334ca5da427df068fc6370e2189dc83f58f1611b7e8a9a53e46045d61586f0`. Authorization is limited to the exact 16-path Slice 1 allowlist and disposable-local proof preparation/execution gates defined below. It does **not** authorize Staging or Production migration application, worker activation, live Business admission, Reporting/CRM runtime cutover, UI wiring, communications, provider activity, #153 permission changes, historical repair, Production/GVM change, or technician payment/deposit resumption.
+
+**Implementation record (2026-10-08):** The approved Slice 1 source and proof package have been authored in the exact 16-path scope, including the separately approved R1a ACCEPTED replay replacement. See [implementation inventory and limits](issue-133-projection-observability-implementation.md). PostgreSQL execution is NOT authorized or performed by this implementation task; it requires independent exact-candidate audit and a fresh PO run gate. Reviewed architectural content below is unchanged.
 
 ## 1. Launch classification and scope
 

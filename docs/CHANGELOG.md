@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-08 — #133/#134 projection and observability Slice 1 prepared
+
+- Authored one unapplied migration with disabled Business admission, deterministic appointment/invoice/CRM/receipt projectors and a private canonical history reader. No worker, UI, reporting, communication or live activation.
+- Superseded only R1a's zero-write ACCEPTED replay classification in the new migration under the PO-approved amendment; preserved protected migration bytes, new-money behavior and REPLAY/PENDING wire compatibility.
+- Added server-only wrappers, focused/static regressions and a human-owned PostgreSQL proof package. **DATABASE PROOF: NOT RUN.** Offline webpack build is blocked by the unchanged Google Fonts imports under OS network denial. No hosted application, provider action, Production/GVM mutation, push, PR, merge or deployment.
+- [Implementation inventory, checks and next independent gate](reviews/issue-133-projection-observability-implementation.md).
+
 ### 2026-10-07 — #158 durable booking operation prepared and default-off
 
 - Implemented the exact #134 prepared-only durable fresh-booking/deposit backend: stable operation/attempt/inline-customer identities, operation-first replay, atomic operation-tagged appointment persistence, safe binding, explicit no-payment, specialized canonical manual commit, fenced close/correction, and private exact/history recovery readers.
