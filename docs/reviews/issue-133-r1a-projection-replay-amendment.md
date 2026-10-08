@@ -1,12 +1,14 @@
 # Issue #133 / #134 — R1a Projection-Aware ACCEPTED Replay Amendment
 
 **Date:** 2026-10-08  
-**Status:** DESIGN AMENDMENT / READ-ONLY RECONCILIATION / NOT AUTHORIZED TO IMPLEMENT  
+**Status:** CLAUDE LEVEL-3 ACCEPTED / READY FOR PRODUCT OWNER AMENDED IMPLEMENTATION GATE / NOT YET AUTHORIZED TO IMPLEMENT
 **Trigger:** Codex Slice 1 HOLD from clean HEAD `cd0b797f745e90ca89d99a8d9cfcf166e05d0bae`  
 **Protected R1a source:** `supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql` SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`  
 **Approved Slice 1 architectural contract:** gate SHA-256 `51334ca5da427df068fc6370e2189dc83f58f1611b7e8a9a53e46045d61586f0`  
 
 This amendment resolves one concrete compatibility conflict discovered before Slice 1 implementation began. It does not authorize implementation, migration authoring/application, PostgreSQL execution, Staging, Production, GVM, worker activation, live admission, Reporting cutover, #153 changes, provider/communication activity or technician resumption.
+
+**Independent review:** Claude Opus 5 High independently reviewed the original amendment at SHA-256 `fae6246c8710dc71de1117499970b2db726736ee0cd9c46f017b5e1d530a9f29` / 14,247 bytes and returned `R1A_PROJECTION_REPLAY_AMENDMENT_READY_FOR_PO_GATE`. Claude confirmed the blocker in protected R1a source, confirmed this predicate remains stricter than the Issue #158 replay predicate that passed Database Proof #6, and required the implementation conditions now incorporated below.
 
 ## 1. Confirmed conflict
 
@@ -174,7 +176,7 @@ Replay must not merely accept any syntactically valid projection events.
 For each projection kind:
 
 - initial PENDING state with no projector transition may have zero `PROJECTION_CHANGED` events;
-- initial customer-only `appointment_cache=NOT_REQUIRED` may have zero projection events because R1a created that state directly;
+- initial customer-only `appointment_cache=NOT_REQUIRED` must have **zero** `PROJECTION_CHANGED` events because R1a created that state directly and Slice 1 never runs an appointment-cache projector for it; any such event is contradictory and yields UNKNOWN;
 - if current state is FAILED, the latest projection event for that kind must be FAILED with matching failure_code;
 - if current state is COMPLETE, the latest projection event for that kind must be COMPLETE;
 - customer-only `invoice_settlement=NOT_REQUIRED` created by the projector must have latest projection event NOT_REQUIRED;
@@ -230,7 +232,18 @@ The existing 16-path filesystem allowlist can remain unchanged because the new m
 
 The Slice 1 migration object inventory must explicitly classify this as **one existing function replacement**, not as a new function.
 
-## 10. Regression/proof additions
+## 10. Binding implementation conditions from independent Level-3 review
+
+These conditions are part of the amended Product Owner gate if approved:
+
+1. The exact `PROJECTION_CHANGED` emitter vocabulary is jointly pinned in the main #133 projection contract and this amendment: `money_state='RECORDED'`; reconciliation state only COMPLETE/FAILED/NOT_REQUIRED; FAILED carries `failure_class='PROJECTION'` plus `PROJECTION_FAILED|PROJECTION_UNCERTAIN`; COMPLETE/NOT_REQUIRED carry null failure metadata; Slice 1 never emits PENDING transitions.
+2. The future Slice 1 disposable-local verifier must execute the **unchanged historical R1a PostgreSQL contract** against the replaced function in addition to the new amendment vectors. The historical contract file remains byte-identical and is not edited.
+3. The replacement definition must explicitly re-declare `SECURITY INVOKER` and `SET search_path = pg_catalog, pg_temp`; the new static test must pin both. Do not rely on CREATE OR REPLACE to preserve definition clauses.
+4. Customer-only `appointment_cache=NOT_REQUIRED` is an initial R1a state with **zero** projection events; a NOT_REQUIRED projection event for that kind is not accepted.
+5. Event vocabulary is a jointly reviewed invariant. Any future event type or PENDING/requeue projection event requires coordinated replay-validator review before activation.
+6. Do not modify/harmonize Issue #158 replay in this slice. Its event-census asymmetry is an accepted observation only; Proof #6 remains closed.
+
+## 11. Regression/proof additions
 
 The new Slice 1 local PostgreSQL proof must include all prior Slice 1 vectors plus R1a compatibility cases:
 
@@ -254,7 +267,9 @@ The new Slice 1 local PostgreSQL proof must include all prior Slice 1 vectors pl
 
 Static tests must prove the old protected R1a source remains byte-identical and that the replacement's REQUESTED/new-money write block is semantically/source-pinned unchanged as far as practical.
 
-## 11. Risk classification
+The human-owned Slice 1 verifier must also load and execute the **unchanged** `tests/postgres/issue-134-r1a-manual-kernel-contract.sql` against the replaced function and require its existing contract to pass before the new replay-amendment vectors may pass.
+
+## 12. Risk classification
 
 **Risk if not corrected:** HIGH before projection activation. A healthy recorded payment becomes UNKNOWN merely because its synchronization progressed, degrading recovery/operator truth and undermining #133/#134 convergence.
 
@@ -264,7 +279,7 @@ Static tests must prove the old protected R1a source remains byte-identical and 
 
 **Impact later:** required for R1a and projection state machine to coexist. It avoids forcing TypeScript/API changes and keeps exact synchronization truth in the #133 reader.
 
-## 12. Governance decision
+## 13. Governance decision
 
 The old approved decision was to preserve the R1a function as part of the protected baseline. The proposed direction preserves the applied migration bytes but supersedes the function definition through a new migration solely for projection-aware ACCEPTED replay classification.
 

@@ -360,9 +360,16 @@ For each projection retry:
    - `failure_code=NULL`;
    - `updated_at=now()`;
    - `completed_at=now()`;
-5. append `PROJECTION_CHANGED` event with projection kind + COMPLETE;
-6. on a definitely rolled-back/recoverable target error, set FAILED/PROJECTION_FAILED and append matching event;
-7. on contradictory/ambiguous target evidence, set FAILED/PROJECTION_UNCERTAIN and append matching event;
+5. append exactly one canonical `PROJECTION_CHANGED` event in the same transaction. The emitted vocabulary is a jointly locked invariant with the R1a replay amendment:
+   - `money_state='RECORDED'`;
+   - `projection_kind` = the exact obligation kind;
+   - success: `reconciliation_state='COMPLETE'`, `failure_class=NULL`, `failure_code=NULL`;
+   - definite projection failure: `reconciliation_state='FAILED'`, `failure_class='PROJECTION'`, `failure_code='PROJECTION_FAILED'`;
+   - contradictory/ambiguous projection evidence: `reconciliation_state='FAILED'`, `failure_class='PROJECTION'`, `failure_code='PROJECTION_UNCERTAIN'`;
+   - customer-only invoice transition: `reconciliation_state='NOT_REQUIRED'`, `failure_class=NULL`, `failure_code=NULL`;
+   - Slice 1 never emits `PROJECTION_CHANGED` with `reconciliation_state='PENDING'`.
+6. on a definitely rolled-back/recoverable target error, set FAILED/PROJECTION_FAILED and append the exact matching event above;
+7. on contradictory/ambiguous target evidence, set FAILED/PROJECTION_UNCERTAIN and append the exact matching event above;
 8. transport loss after a database commit is recovered by re-reading the **same obligation**; never create another obligation or payment attempt.
 
 No projector may set all obligations complete as a batch. Each target earns its own COMPLETE state.
@@ -372,6 +379,8 @@ For aggregate targets such as appointment cache or invoice settlement, COMPLETE 
 Unique-violation losers must re-read the canonical target: exact matching identity/tuple can converge to COMPLETE; a different or contradictory target is `PROJECTION_UNCERTAIN`. Target write + obligation transition + `PROJECTION_CHANGED` event must commit atomically so a committed target cannot be hidden behind a FAILED obligation.
 
 Unbound accepted attempts preserve the R1a shape: `appointment_cache` remains NOT_REQUIRED; `invoice_settlement` is resolved to NOT_REQUIRED by this slice; CRM mirror and receipt can independently COMPLETE.
+
+**Locked cross-contract vocabulary:** any future slice that proposes a new payment-attempt event type, a new `PROJECTION_CHANGED` reconciliation state (including PENDING/requeue), or different projection failure metadata must jointly review and update both the projection emitter contract and every ACCEPTED replay validator before activation. Do not repeat the implicit-coupling defect that triggered the R1a amendment. Issue #158 replay is intentionally not harmonized in this slice; its looser event census already holds an accepted Database Proof #6 and remains closed.
 
 ## 12. #133 canonical financial-intent/outcome reader
 
