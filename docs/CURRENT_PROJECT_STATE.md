@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-07. **Updated by:** ChatGPT Program Lead for independently accepted #134 governed Staging schema application and documentation closeout.
+**Snapshot date:** 2026-10-07. **Updated by:** ChatGPT Program Lead for Issue #158 implementation/proof-fixture continuation and agent-governance clarification.
 
 Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -28,7 +28,9 @@ No tenant-specific application logic is authorized.
 
 ## Control board
 
-**NEXT #134 GATE — READY_FOR_PO_IMPLEMENTATION_GATE / NOT AUTHORIZED TO IMPLEMENT.** [Exact durable booking/deposit contract and independent review](reviews/issue-134-durable-booking-deposit-design-review.md), final contract SHA-256 `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`. The proposed first slice is 16 paths / 23 schema deltas, prepared-only and unwired: durable operation/customer admission, operation-tagged appointment persistence, canonical manual commit, closure and private canonical recovery. Grok challenged the corrected core; Claude accepted the final exact contract without required correction. Competitive checkpoint recorded; functional/UX/SQL tests NOT RUN. No current UI/action/weak-dedupe change, migration generation/application, accepted-proof rerun, hosted mutation, activation or Production/GVM change occurred in this design task. This supersedes only older next-preparation wording; the accepted Staging result below stays closed.
+**CURRENT ISSUE #158 GATE — PREPARED-ONLY IMPLEMENTATION AUTHORIZED AND COMPLETE LOCALLY / FIRST DISPOSABLE-LOCAL DATABASE PROOF RUN ONCE, FAILED ON SYNTHETIC FIXTURE / FIXTURE CORRECTED / SECOND DATABASE PROOF NOT RUN.** Reviewed contract SHA-256 `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`; branch `codex/issue-158-durable-booking-operation`. Core implementation candidate `5f9af16422310428852d343f65f140591d2dac86`; audit correction `b1f54b81b740a088b331f5ddbfd33a0c54c2dd09`; current bounded proof-fixture correction HEAD `4a43d893aa7fce8e38a658ff8ddea0e9dbcb901e`. The backend remains unwired/default-off and the 80,473-byte migration SHA-256 `805f49255069cf0cc0e831bd45986218246e982acdc35e75d8b25d91212cb727` remains authored only / never applied.
+
+The first Product-Owner-authorized disposable-local PostgreSQL 17.11 proof reached the golden-path `persist_booking_operation_appointment_v1` and failed because the accepted synthetic fixture modeled `appointments.id` without the UUID default used by the production schema; this is classified as a proof-fixture mismatch, not currently a product migration defect. The allowlisted proof source now adds the production-compatible UUID default at commit `4a43d89`; offline focused/scoped tests, typecheck, verifier safety/refusal checks, diff/allowlist/protected-hash checks passed. The first run genuinely passed schema inventory, protected fixture digests, the cross-language fingerprint vector and KEY_CONFLICT determinism before stopping. Deeper Section 14 runtime vectors remain unproven. **DATABASE PROOF: RUN ONCE, FAILED. SECOND DATABASE PROOF: NOT RUN.** Next governed action is Claude Opus 5 High short delta review of the fixture correction; only after acceptance may ChatGPT prepare a fresh Product Owner gate for a second human disposable-local run. Do not rerun automatically. No migration application, Staging/Production/GVM mutation, technician financial resumption, wiring, projection or permission cutover is authorized.
 
 **CURRENT #134 STATE — STAGING_SCHEMA_APPLICATION_ACCEPTED / EXACT MIGRATION APPLIED ONCE / POSTCHECKS PASS.** Darshan explicitly approved the final gate. Native application to `wnfahklzaxirftyskctd` returned `success:true` once, without retry, for exact package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba` and unchanged 6,529-byte migration `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. Hosted identity is `20261007170242 / issue_134_appointment_financial_attribution`, one statement at the approved size/hash. **Do not reapply.**
 
@@ -258,14 +260,14 @@ This preserves strategic consistency without creating development paralysis.
 
 Do not blindly restore historical agent assignments if they are stale.
 
-- **Darshan** — Founder / CEO / Product Owner.
-- **ChatGPT** — Chasum AI Executive / Product & Development Program Lead / Control Tower, beneath Darshan.
-- **Claude** — independent high-risk / Level-3 auditor.
-- **Codex** — Primary Engineering Implementer.
-- **Grok** — World-Class Product / Architecture Challenger.
-- **Independent audit** — assigned separately according to risk.
+- **Darshan** — Founder / CEO / Product Owner; final consequential authority.
+- **ChatGPT** — Chasum AI Executive / Product & Development Program Lead; highest overall development/orchestration authority beneath Darshan.
+- **Claude Opus 5 High** — Development Control Tower / Independent High-Risk Reviewer.
+- **Codex** — PRIMARY Implementation Engineer.
+- **Cursor / GPT-5.6 Sol** — Local Engineering Environment / Fallback Implementer.
+- **Grok 4.7 High Fast / High** — Independent Challenger used selectively for meaningful technical, architecture, UX, concurrency and financial-integrity challenges.
 
-One primary implementer per task. Codex remains the primary implementer; the current PO-locked assignment supersedes historical Control Tower wording. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
+One primary implementer per bounded task. Do not interrupt an actively running authorized task merely to switch agents. Codex resumes primary implementation responsibility for subsequent work; do not have Codex and Cursor independently implement the same task. Claude independently reviews high-risk candidates. ChatGPT coordinates and reconciles the overall development program, preserves source-of-truth decisions/evidence, and escalates only genuine consequential decisions to the Product Owner. Avoid duplicate investigations/tests/audits and keep Development chats context-efficient through delegated execution and consolidated reports. Historical Cursor-primary or ChatGPT-as-Development-Control-Tower wording is superseded by this Product Owner clarification. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
 
 ## Continue without reconstructing history
 

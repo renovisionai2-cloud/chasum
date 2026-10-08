@@ -1,14 +1,16 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-07 for exact #134 governed Staging schema application closeout.
+**Updated:** 2026-10-07 for Issue #158 local implementation/proof-fixture continuation and agent-governance clarification.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — durable booking/deposit implementation gate
+## Current continuation — Issue #158 durable booking/deposit local proof gate
 
-**READY_FOR_PO_IMPLEMENTATION_GATE / PREPARED-ONLY IMPLEMENTATION NOT AUTHORIZED.** [Final contract, review and exact gate](../reviews/issue-134-durable-booking-deposit-design-review.md), contract SHA-256 `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`. Proposed scope is section 13's 16 paths and section 7's 23 new schema deltas; the existing foundation/R1a/attribution SQL remains immutable. The new path remains unwired/default-off, with private recovery and explicit unfinished-payment/no-payment outcomes; projections, public reporting, UI wiring, communication, permission cutover and hosted execution stay separately gated. Claude final exact-contract review has no required correction. Grok's earlier corrected-core pass is preserved at its own hash, not relabeled as a final-byte review.
+**PREPARED-ONLY IMPLEMENTATION COMPLETE LOCALLY / UNWIRED / DEFAULT-OFF / NOT APPLIED. FIRST DISPOSABLE-LOCAL DATABASE PROOF RUN ONCE AND FAILED ON A SYNTHETIC FIXTURE DEFAULT; FIXTURE CORRECTED; SECOND DATABASE PROOF NOT RUN.** [Implementation/proof record](../reviews/issue-134-durable-booking-deposit-implementation.md), reviewed contract SHA-256 `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`. Branch `codex/issue-158-durable-booking-operation`; current bounded fixture-correction HEAD `4a43d893aa7fce8e38a658ff8ddea0e9dbcb901e`. Product migration remains exactly 80,473 bytes / SHA-256 `805f49255069cf0cc0e831bd45986218246e982acdc35e75d8b25d91212cb727`, authored only and never applied.
 
-No tests, SQL, migration generation/application, new financial records or accepted-proof reruns occurred. Retention consequences and repeated no-ledger correction behavior are explicitly disclosed. Darshan's next decision is only the precise prepared-only implementation/local-proof gate; do not interpret prior 'let us go' preparation authority as code authorization. The completed Staging application below must not be reapplied.
+The first Product-Owner-controlled PostgreSQL 17.11 disposable-local run stopped at golden-path appointment persistence because the accepted synthetic foundation fixture lacked the UUID default on `appointments.id` that the production schema and existing application insert paths rely on. The bounded correction changes the allowlisted proof fixture only and records the failed run honestly; no product migration change was made. The first run passed schema inventory, protected fixture digests, the cross-language fingerprint vector and KEY_CONFLICT determinism before stopping; deeper history/cross-tenant/equal-value/lost-response/rollback-vs-UNKNOWN/NULL-staff runtime vectors remain unproven. **DATABASE PROOF: RUN ONCE, FAILED. SECOND DATABASE PROOF: NOT RUN.** Next action is Claude Opus 5 High short delta review of commit `4a43d89`; after acceptance, ChatGPT may prepare a fresh Product Owner gate for one second human disposable-local run. Do not rerun automatically and do not restart completed design/implementation work.
+
+No migration application, Staging mutation, Production/GVM change, provider/permission/projection/communication/UI/worker activation, historical financial change or technician deposit/payment resumption is authorized by this continuation. The completed Staging attribution application below remains closed and must not be reapplied.
 
 ## Accepted continuation — #134 Staging application result
 
@@ -314,14 +316,14 @@ Incident sequence: **#131 PRODUCTION ACCEPTED → #130 CLOSED Outcome B → #135
 
 Do not blindly restore historical agent assignments if they are stale.
 
-- **Darshan** = Founder / CEO / Product Owner.
-- **ChatGPT** = Chasum AI Executive / Product & Development Program Lead / Control Tower, beneath Darshan.
-- **Claude** = independent high-risk / Level-3 auditor.
-- **Codex** = Primary Engineering Implementer.
-- **Momentic/equivalent** = browser/workflow validation; **Cursor** = local/authenticated/device-specific fallback.
-- **Independent audit** = assigned separately according to risk.
+- **Darshan** = Founder / CEO / Product Owner; final consequential authority.
+- **ChatGPT** = Chasum AI Executive / Product & Development Program Lead; highest overall development/orchestration authority beneath Darshan.
+- **Claude Opus 5 High** = Development Control Tower / Independent High-Risk Reviewer.
+- **Codex** = PRIMARY Implementation Engineer.
+- **Cursor / GPT-5.6 Sol** = Local Engineering Environment / Fallback Implementer.
+- **Grok 4.7 High Fast / High** = Independent Challenger used selectively for meaningful technical, architecture, UX, concurrency and financial-integrity challenges.
 
-One primary implementer per task. Codex remains primary implementer; the current PO-locked assignment supersedes historical Control Tower wording. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
+One primary implementer per bounded task. Do not interrupt an actively running authorized task merely to switch agents. Codex resumes primary implementation responsibility for subsequent work; do not have Codex and Cursor independently implement the same task. Claude independently reviews high-risk candidates. ChatGPT coordinates and reconciles the overall program and prepares Product Owner gates. Do not duplicate completed investigations, tests or audits. Preserve approved decisions/current evidence and keep Development chats context-efficient through delegated execution and consolidated reports. Escalate only genuine consequential decisions to Darshan. Historical Cursor-primary or ChatGPT-as-Development-Control-Tower wording is superseded by this Product Owner clarification. Live GitHub/repository/runtime truth remains authoritative over stale handoffs. Closed/accepted work stays closed absent contradictory evidence.
 
 The World-Class / Mission / Summer / Competitive re-anchor happens **once per major Chasum chapter**, not every few hours. Re-open strategic review only on new contradictory evidence, material divergence from the accepted contract, materially stale competitive evidence, or explicit Product Owner reconsideration.
 

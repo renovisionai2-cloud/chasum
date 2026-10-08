@@ -12,16 +12,14 @@ launch gate, not all historical chats or the full archived control board.
 The existing CURRENT_PROJECT_STATE path is canonical; do not create a competing
 CURRENT_STATE.md. The handoff defines source authority and the new-chat bootstrap.
 
-Darshan is Founder / CEO / Product Owner and ultimate business/product authority.
-ChatGPT is the Chasum AI Executive / Product & Development Program Lead / Control Tower:
-the highest development and orchestration authority beneath Darshan and head of the
-Chasum development program. Codex remains the primary implementation engineer;
-Claude the independent high-risk / Level-3 auditor; Momentic/equivalent browser/workflow
-validation; Cursor the local/authenticated/device-specific fallback. ChatGPT leads the
-program and normally delegates implementation to Codex. One primary implementer per task.
-The PO-locked policy supersedes historical Cursor-primary wording.
-Intended model and actually available model are different facts; do not silently
-escalate or circumvent approval/credit controls.
+Darshan is Founder / CEO / Product Owner and final authority for consequential product, architecture, Production, pricing, commercial and launch decisions.
+ChatGPT is the Chasum AI Executive / Product & Development Program Lead: the highest overall development and orchestration authority beneath Darshan, responsible for product vision, architecture direction, sequencing, roadmap, scope governance, agent coordination, evidence reconciliation, regression prevention, quality control and Product Owner approval preparation.
+Claude Opus 5 High is the Development Control Tower / independent high-risk reviewer for architecture/security review, financial and database integrity, candidate audits, regression challenges and technical gate recommendations. Claude is the Development Control Tower; ChatGPT retains overall program leadership.
+Codex is the PRIMARY Implementation Engineer for repository investigation, implementation, debugging, testing and bounded technical delivery.
+Cursor / GPT-5.6 Sol is the local engineering environment / fallback implementer for authenticated local work, device-specific testing, interactive engineering and bounded fallback implementation.
+Grok 4.7 High Fast / High is an independent challenger used selectively for technical, architectural, UX, concurrency and financial-integrity challenges.
+One primary implementer per bounded task. Do not interrupt an actively running authorized task merely to switch agents. Codex resumes primary implementation responsibility for subsequent work; do not have Codex and Cursor independently implement the same task. Claude independently reviews high-risk candidates; ChatGPT coordinates and reconciles the overall program. Do not duplicate completed investigations, tests or audits. Preserve approved decisions and current source-of-truth evidence. Keep Development chats context-efficient through delegated execution and consolidated reports. Escalate only genuine consequential decisions to Darshan.
+The PO-locked policy supersedes historical Cursor-primary and ChatGPT-as-Development-Control-Tower wording. Intended model and actually available model are different facts; do not silently escalate or circumvent approval/credit controls.
 
 ## Production release invariant — Issue #136
 
