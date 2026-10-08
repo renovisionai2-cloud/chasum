@@ -4,7 +4,30 @@ Date: 2026-10-08
 Status: PREPARED ONLY / UNWIRED / DEFAULT-OFF / NOT APPLIED TO HOSTED ENVIRONMENTS
 Product Owner authorization: Issue #158 exact prepared-only implementation under the reviewed #134 contract
 
-## Current gate — post-proof-5 commit terminal-state correction
+## Current gate — local database proof #6 accepted / prepared-only local gate closed
+
+**DATABASE PROOFS #1–#5: HISTORICAL FAILED ATTEMPTS — preserved, not rewritten.**
+
+**DATABASE PROOF #6: PASSED / INDEPENDENTLY ACCEPTED.**
+
+Claude Opus 5 High independently returned `LOCAL_DATABASE_PROOF_6_ACCEPTED` for exact candidate `ff063bab8acbfb996c75fa8d7fa79ef2e838f303` / tree `9b22daeab43fd961faf7d9df93e586d311df2718`. The exact corrected migration is SHA-256 `01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b`, 83,565 bytes. The backend remains PREPARED ONLY / UNWIRED / DEFAULT-OFF and the migration remains authored only / not applied to any hosted environment.
+
+Retained Proof #6 evidence directory: `chasum-issue134-durable-evidence-SadzsY`. Frozen evidence identities:
+
+- `summary.json` — SHA-256 `319b2f8f9f34f5865ea74a82587d38bf2cf58b382305eb3eea7b29386602e05d`, 7,871 bytes.
+- `phases.jsonl` — SHA-256 `5ae2190e68681de5cd81bafb4ed5ca37fa9808fe78f80dfe0501b8eaf82cc744`, 17,076 bytes.
+- `concurrency-responses.json` — SHA-256 `414f9a10b2911b3eddac20730a6b43429c4d5e6c3dca0afa0110619162f82684`, 3,116 bytes.
+- `postgres.log` — SHA-256 `667d11f34fc1317dd0bf0a5a703bcb88b23ebd165834f913b6ed1cad99403048`, 5,792 bytes.
+
+Proof #6 genuinely completed on PostgreSQL 17.11 (Homebrew): source identity before/after matched exactly; `ISSUE134_DURABLE_SQL_CONTRACT_PASS` was reached; all nine concurrency scenarios completed; all five recovery boundaries completed; revoked authorization and final reconciliation completed; `stopConfirmed=true`; `pgdataRemoved=true`; `passed=true`; `originalFailure=null`; `cleanupFailure=null`; final counts were `18|10|4|16`. The four deliberate lost-response boundaries were classified UNKNOWN before canonical read and never invited recollection; known rollback proved zero durable operation/attempt/appointment/ledger effect.
+
+Runtime acceptance includes same-operation and NULL-staff one-appointment identity, RECORDED+REPLAY on the same transaction under concurrent commit, both close/create lock orders, both close/commit lock orders, `NOT_COMMITTABLE|f` when close wins before commit, canonical lost-response recovery at bootstrap/appointment/bind/money boundaries, equal-value distinct payment intent, tenant/browser/revoked-access denial, exact four PENDING obligations, and microsecond cursor/history behavior.
+
+The local database-proof gate for the prepared-only Issue #158 candidate is **CLOSED / ACCEPTED**. This does **not** authorize Staging application, hosted PostgREST/application behavior, UI wiring, projections, communications, #133 public/Summer reporting, #153 permission cutover, Production, GVM operational acceptance, or technician deposit/payment resumption.
+
+Per the locked contract sequence, the next safe continuation is **projection/#133 design preparation**: appointment cache, invoice settlement, receipt, CRM/customer-payment-event uniqueness/idempotency and canonical #133 reader design, with communications remaining OFF. No Staging application occurs yet. After separately reviewed projection design/implementation, the later connected Staging gate requires a fresh read-only preflight and exact Product Owner migration/application approval using only a new synthetic cohort; retained Staging cohorts/obligations remain untouched.
+
+## Previous gate — post-proof-5 commit terminal-state correction (historical)
 
 **DATABASE PROOF #1: FAILED — fixture UUID default mismatch.**
 
@@ -381,10 +404,12 @@ There was no hosted database access, migration application, projection processin
 
 ## Remaining limitations and next gate
 
-- DATABASE PROOFS #1–#5: FAILED for the distinct reasons above. DATABASE PROOF #6: NOT RUN. Proof #5 passed the SQL contract, NULL-staff race and three earlier fences, then failed close-before-commit on product control-flow. Corrected terminal/replay behavior, that final fence, recovery and final checks remain unproven by PostgreSQL. Offline tests do not establish database proof.
+- DATABASE PROOFS #1–#5 remain historical FAILED attempts for the distinct reasons recorded above. DATABASE PROOF #6 PASSED and is independently accepted; do not rerun it merely for confidence.
 - The backend is intentionally unusable for new admissions while `admissionEnabled` is `false` and no current surface calls its prepared entrypoints.
-- Projection, operator UI, identity storage on target surfaces, #133/Summer reporting, communications, retention messaging, #153 cutover, and permission tightening remain separately governed follow-ons.
+- Local proof does not establish Staging application, hosted PostgREST/application behavior, UI wiring, projections, communications, #133 public/Summer reporting, #153 cutover, Production/GVM acceptance or technician resumption.
+- The next safe task is bounded projection/#133 design preparation under contract step 6; communications remain OFF. Projection implementation requires its own reviewed gate.
+- Connected Staging application is later contract step 7, after projection work: fresh read-only preflight, exact migration/application Product Owner approval, synthetic new cohort only, and no retained-cohort processing.
 - The default Turbopack command remains unusable in this symlinked worktree; the supported webpack build passed.
 - Repository-wide lint and the two Chromium-dependent tests retain the pre-existing/environment blockers recorded above.
 
-No scope reconciliation blocker required an out-of-allowlist change. The next database action requires independent review of this bounded commit terminal-state correction and a fresh governed Product Owner gate for a sixth disposable-local run. No rerun, hosted apply or activation is authorized by this delivery.
+No rerun, hosted apply, activation, permission cutover, Production/GVM action or technician resumption is authorized by this local-proof acceptance.
