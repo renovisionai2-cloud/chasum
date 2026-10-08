@@ -1,7 +1,7 @@
 # Issue #133 / #134 — Canonical Projection + Financial Observability Contract
 
 **Date:** 2026-10-08  
-**Status:** DESIGN PREPARATION / NOT AUTHORIZED TO IMPLEMENT  
+**Status:** CORRECTED DESIGN AFTER GROK CHALLENGE / AWAITING CLAUDE LEVEL-3 REVIEW / NOT AUTHORIZED TO IMPLEMENT
 **Technical baseline:** `ff063bab8acbfb996c75fa8d7fa79ef2e838f303`  
 **Local-proof status:** `LOCAL_DATABASE_PROOF_6_ACCEPTED`  
 **Current documentation head at preparation:** `eb43aef1bb7774c1837d59ff8f02771a54d2e371`  
@@ -9,6 +9,8 @@
 **Parent product issues:** #133 financial observability, #134 idempotency/reconciliation, #153 permission cutover  
 
 This contract defines the next Chasum financial-integrity layer after the independently accepted Issue #158 local database proof. It is intentionally **design-only**. It does not authorize a migration, code implementation, Staging application, worker activation, UI wiring, communication delivery, Production change, GVM test booking, or technician payment/deposit resumption.
+
+**Independent challenge reconciliation:** Grok 4.7 High returned `CORRECTIONS_REQUIRED` on the original design hash `cdf61cb3...`. The overall architecture passed challenge; blocking specification corrections were required for legacy-writer/admission fencing, exact supported ledger set, void/unbound invoice behavior, COMPLETE verification, receipt/invoice independence, delete semantics, pre-bind recovery classification, Reporting authority, and retained-cohort exclusion. Those corrections are incorporated below; no implementation was performed.
 
 ## 1. Launch classification and scope
 
@@ -113,34 +115,56 @@ A projection result is one of:
 - `COMPLETE` — target exists and exactly matches canonical truth;
 - `FAILED / PROJECTION_FAILED` — current projection transaction definitely failed without an uncertain committed target effect;
 - `FAILED / PROJECTION_UNCERTAIN` — target evidence is ambiguous or contradictory and must be reviewed/recovered by the same obligation identity;
-- `NOT_REQUIRED` — only where the contract explicitly says no target should exist. For the accepted booking-payment path, all four current obligations are required and begin PENDING.
+- `NOT_REQUIRED` — only where the contract explicitly says no target should exist.
+
+Obligation shape is source-specific and preserved:
+
+- accepted Issue #158 booking payment with a bound appointment creates all four obligations as PENDING;
+- accepted R1a customer-only payment already creates `appointment_cache=NOT_REQUIRED` and leaves `invoice_settlement`, `customer_payment_events`, and `receipt` PENDING; the invoice projector must resolve `invoice_settlement` to NOT_REQUIRED when `appointment_id` is NULL, while CRM mirror and receipt remain required.
 
 No failed/unknown projection allows recollection, a new payment attempt, or a second appointment.
 
-## 5. Projection worker security and transaction boundary
+## 5. Projection worker security, admission and transaction boundary
 
 The first projection implementation must remain server-only and service-role-only.
+
+### Durable projection admission / retained-cohort exclusion
+
+A pending-index scanner or direct projector call must not be able to claim historical retained attempts merely because their obligation is PENDING. Add one durable per-Business projection-admission row. The minimum v1 shape is:
+
+- `business_id uuid PRIMARY KEY`;
+- `enabled boolean NOT NULL DEFAULT false`;
+- `admit_attempts_created_after timestamptz NULL`;
+- `updated_at timestamptz NOT NULL`.
+
+No row, `enabled=false`, or a NULL watermark means **no attempts are admitted**. First governed activation sets the watermark to `clock_timestamp()` and enables admission in one service-role-only transaction. Re-enabling may reuse the same watermark; v1 does not move it backward or silently admit older work. Every claim query and every projector RPC must require `enabled=true` and `attempt.created_at > admit_attempts_created_after`. Thus retained attempts created before activation are mechanically ineligible even if they remain PENDING.
+
+Projection admission is also a traffic-cutover boundary. For a Business with projection admission enabled, legacy payment/refund writers must not run. Before any real-Business activation, the supported writer inventory must be converged and the application must route/deny legacy payment/refund entrypoints **before provider/network or database side effects**. The projector does not attempt to repair a race with `recordCommercePayment()` or `processCommerceRefund()`. Connected Staging uses a new synthetic Business/cohort dedicated to the canonical path.
 
 Every projection RPC/function must:
 
 1. require literal `service_role`;
 2. accept exact `business_id` + `attempt_id` only (plus no browser-controlled customer/amount/target identity);
-3. lock the matching reconciliation obligation first;
-4. require obligation kind to match the called projector;
-5. accept only `PENDING` or `FAILED` as retryable input; replay of `COMPLETE/NOT_REQUIRED` returns the recorded result without target mutation;
-6. load and lock the attempt;
-7. prove `execution_state='ACCEPTED'` and exact one linked ledger row;
-8. prove Business/customer/appointment/amount/currency/method/kind/provider identity agrees between attempt and ledger;
-9. load required target rows in documented deterministic order;
-10. perform one idempotent target reconciliation;
-11. transition the obligation by compare-and-set and append one `PROJECTION_CHANGED` event in the same transaction;
-12. never call a provider, email/SMS service, external API, or non-transactional network operation inside the database transaction.
+3. prove the Business projection-admission row currently admits this attempt;
+4. lock the matching reconciliation obligation first;
+5. require obligation kind to match the called projector;
+6. accept only `PENDING` or `FAILED` as mutating/retryable input; `COMPLETE/NOT_REQUIRED` is verification-only and never mutates target state;
+7. load and lock the attempt;
+8. prove `execution_state='ACCEPTED'` and exact one linked ledger row;
+9. prove Business/customer/appointment/amount/currency/method/kind/provider identity agrees between attempt and ledger;
+10. for appointment-scoped projection, lock the appointment **before** reading the full appointment ledger set used for recomputation;
+11. load required target rows in documented deterministic order;
+12. perform one idempotent target reconciliation;
+13. transition the obligation by compare-and-set and append one `PROJECTION_CHANGED` event in the same transaction;
+14. never call a provider, email/SMS service, external API, or non-transactional network operation inside the database transaction.
 
 Lock order for the new projector layer:
 
-**obligation → attempt → ledger → appointment → invoice/sequence or receipt/sequence or CRM target.**
+**obligation → attempt → triggering ledger → appointment → full appointment ledger snapshot → invoice/sequence or receipt/sequence or CRM target.**
 
 No projector may obtain an attempt lock after locking its target.
+
+Invoice/receipt sequence allocation must take a distinct Business-scoped advisory lock **before** inserting a missing sequence row, then lock the sequence row `FOR UPDATE`. Use separate advisory namespaces such as `invoice-sequence:<business_id>` and `receipt-sequence:<business_id>`; do not reuse the booking-operation advisory key. This closes the first-row creation race that `FOR UPDATE` alone cannot cover.
 
 ## 6. Canonical appointment-cache projection
 
@@ -162,13 +186,34 @@ Never substitute today's service catalog values during reconciliation.
 
 ### Recompute rule
 
-The projector reads all same-Business ledger movements linked to the appointment, not just the triggering attempt, so later legitimate payments cannot be overwritten by replaying an older obligation.
+The projector locks the appointment, then reads all same-Business ledger movements linked to that appointment, not just the triggering attempt, so later legitimate payments cannot be overwritten by replaying an older obligation.
 
-For the first slice, automatic reconciliation proceeds only when financial history is unambiguous and supported. It must hold `PROJECTION_UNCERTAIN` when it encounters refund/void/adjustment evidence or a currency/identity contradiction that the current bounded contract cannot safely interpret.
+The exact supported positive set for this first slice is every distinct transaction row satisfying all of:
 
-For supported positive manual movements, gross paid is derived from canonical ledger rows once per distinct transaction identity. The triggering accepted attempt must be present exactly once.
+- same `business_id`;
+- same `appointment_id`;
+- `kind IN ('payment','deposit')`;
+- `status='succeeded'`;
+- `provider='manual'`;
+- `currency` equals the triggering accepted attempt currency.
 
-The projector writes the fully recomputed totals/status, never `existing + delta`.
+The triggering accepted attempt must be represented by exactly one linked transaction. Two legitimate equal-value payments count because they have distinct transaction IDs. Legacy positive manual rows may contribute only when they satisfy the same supported tuple; no amount/time/description dedupe is allowed.
+
+Any other appointment-linked financial evidence makes the affected automatic projection `PROJECTION_UNCERTAIN` with **no cache write**: refund/void/adjustment; `store_credit`/`gift_card`; non-succeeded status; non-manual provider; second currency; malformed identity; or contradictory transaction/attempt tuple.
+
+Stored commercial terms are authoritative: `total_cents = price_cents + tax_cents`; explicit zero remains zero; `deposit_cents` is a requirement, not collected money. A positive ledger against contradictory/invalid stored totals holds rather than substituting catalog values.
+
+For the supported set, `amount_paid_cents` is the sum of supported distinct transaction IDs and `amount_refunded_cents` remains zero because any refund evidence holds. `payment_status` derives only from stored terms and that recomputed paid amount:
+
+- `paid <= 0 && total > 0 && deposit_cents > 0` → `deposit_required`;
+- `paid <= 0 && total > 0` → `unpaid`;
+- `deposit_cents > 0 && paid >= deposit_cents && paid < total` → `deposit_paid`;
+- `paid >= total` → `fully_paid`;
+- otherwise → `partially_paid`.
+
+Cancellation is not money uncertainty: a cancelled appointment still receives the canonical financial cache when its ledger history is otherwise supported.
+
+The projector writes **only** `amount_paid_cents`, `amount_refunded_cents`, and `payment_status`; it never rewrites `price_cents`, `tax_cents`, or `deposit_cents`. It writes the fully recomputed totals/status, never `existing + delta`.
 
 ### Refund boundary
 
@@ -198,13 +243,17 @@ Before creating anything, the projector accepts only:
 - zero matching invoices; or
 - one matching invoice whose Business/customer/appointment/commercial terms can be verified.
 
-More than one existing invoice, mismatched customer/Business, unverifiable line identity, or conflicting financial totals is `PROJECTION_UNCERTAIN`; do not choose one and do not create a replacement.
+More than one existing invoice, mismatched customer/Business, unverifiable line identity, or conflicting financial totals is `PROJECTION_UNCERTAIN`; do not choose one and do not create a replacement. The migration must fail preflight/application if duplicate non-null `(business_id, appointment_id)` pairs already exist; it must not silently skip or weaken the unique index.
+
+A `void` invoice is also `PROJECTION_UNCERTAIN`: do not mark it paid and do not create a replacement. **V1 deliberately reserves the one invoice identity even when void.** Invoice reissue/replacement requires a later explicit document-version contract and future index change; it is not inferred here.
+
+If an accepted attempt has `appointment_id IS NULL`, `invoice_settlement` becomes `NOT_REQUIRED` in this slice. It must not remain permanently PENDING without a document identity. CRM mirror and receipt remain required for that accepted ledger.
 
 ### Invoice creation
 
 When no invoice exists, create invoice + initial line(s) atomically from stored appointment terms. Do not seed paid amount from stale appointment cache; compute settlement from canonical ledger truth in the same projector transaction.
 
-Invoice number allocation must use the existing `commerce_invoice_sequences` row under a database/advisory lock and update/return the number atomically. Do not reuse the current application read-then-update allocator as the canonical concurrency contract.
+Invoice number allocation must use a Business-scoped invoice-sequence advisory lock taken before first-row creation, then the existing `commerce_invoice_sequences` row `FOR UPDATE`, with allocation/increment committed in the same invoice projection transaction. Do not reuse the current application read-then-update allocator as the canonical concurrency contract. A unique invoice-number collision is a same-obligation retry/verification event, never permission to create a second appointment invoice. Gaps are acceptable; duplicate document identity is not.
 
 Invoice document identity is appointment identity; invoice number is display/business sequence identity, not dedupe identity.
 
@@ -271,6 +320,10 @@ Receipt number is presentation identity; canonical dedupe identity is transactio
 
 Receipt amount/currency/method/customer/transaction reference must come from canonical transaction. Appointment/service/tax/balance context may be included only after same-Business verification and must never override transaction money.
 
+Receipt completion does **not** depend on `invoice_id`. The required completion tuple is Business + transaction + customer + amount + currency + method plus the canonical receipt identity/number/body derived from that transaction. If the transaction has no invoice yet, receipt may COMPLETE with `invoice_id=NULL`. COMPLETE replay never mutates the receipt later merely to fill invoice linkage; any future NULL→exact-invoice enrichment is a separately reviewed monotonic document-link contract.
+
+Receipt sequence allocation takes the Business receipt-sequence advisory lock before inserting a missing `commerce_receipt_sequences` row, then locks that row `FOR UPDATE` and allocates/increments in the same receipt transaction. Reprint/regeneration reuses the same receipt row and number.
+
 Receipt document creation is required; receipt email/SMS delivery is **not** part of this projection. `email_status` remains `not_sent` and communications remain separately gated.
 
 ## 10. Required transaction same-Business key
@@ -281,14 +334,20 @@ To support DB-enforced same-Business projection references, add a tenant key on 
 
 This does not change transaction identity; the existing global UUID PK remains authoritative. It only permits composite tenant FKs for canonical mirrors/documents.
 
+Delete semantics are explicit:
+
+- receipt → transaction: retain the existing single-column `ON DELETE CASCADE` FK and add composite same-Business integrity only with **ON DELETE CASCADE**; do not replace it with RESTRICT/NO ACTION;
+- CRM mirror → transaction: new composite same-Business FK uses **ON DELETE CASCADE** because the mirror is derived and legacy NULL-transaction rows remain unaffected;
+- invoice → appointment: **do not add a composite FK in this slice**. The current single-column relationship uses `ON DELETE SET NULL`; a naïve composite SET NULL would also try to null non-null `business_id`, changing delete behavior. V1 uses appointment uniqueness plus projector same-Business validation; broader cross-tenant legacy-writer closure stays with #153/cutover.
+
 The implementation preflight must check collisions/duplicates and exact deployed object names before authoring/applying anything.
 
 ## 11. Obligation state/event contract
 
 For each projection retry:
 
-1. lock exact obligation;
-2. if COMPLETE/NOT_REQUIRED, re-read/verify target and return replay result without write;
+1. prove Business admission admits the attempt and lock the exact obligation;
+2. if COMPLETE/NOT_REQUIRED, re-read/verify current target truth and return replay result **without target mutation or obligation downgrade**;
 3. if PENDING/FAILED, execute deterministic projection;
 4. on success set:
    - `state='COMPLETE'`;
@@ -301,6 +360,12 @@ For each projection retry:
 8. transport loss after a database commit is recovered by re-reading the **same obligation**; never create another obligation or payment attempt.
 
 No projector may set all obligations complete as a batch. Each target earns its own COMPLETE state.
+
+For aggregate targets such as appointment cache or invoice settlement, COMPLETE replay verifies the target against the **current full supported same-appointment ledger aggregate**, not the triggering attempt delta or an old completion snapshot. A later legitimate payment does not invalidate or reopen the older COMPLETE obligation; the later attempt's own PENDING/FAILED obligation is responsible for writing the new aggregate. If a COMPLETE replay observes contradiction with current truth, it returns a fail-closed verification result but does not rewrite the target or downgrade the historical COMPLETE row.
+
+Unique-violation losers must re-read the canonical target: exact matching identity/tuple can converge to COMPLETE; a different or contradictory target is `PROJECTION_UNCERTAIN`. Target write + obligation transition + `PROJECTION_CHANGED` event must commit atomically so a committed target cannot be hidden behind a FAILED obligation.
+
+Unbound accepted attempts preserve the R1a shape: `appointment_cache` remains NOT_REQUIRED; `invoice_settlement` is resolved to NOT_REQUIRED by this slice; CRM mirror and receipt can independently COMPLETE.
 
 ## 12. #133 canonical financial-intent/outcome reader
 
@@ -345,7 +410,7 @@ Do not return inline customer name/email/phone, raw notes, provider secrets, car
 Use one shared derivation:
 
 - `NOT_RECORDED` — SKIPPED no-payment or coherent terminal FAILED attempt with certified zero ledger;
-- `PAYMENT_RECOVERY_REQUIRED` — appointment exists, same attempt is REQUESTED, zero ledger, and same-identity recovery is required;
+- `PAYMENT_RECOVERY_REQUIRED` — coherent REQUESTED attempt with `recovery_disposition='RECOVER'` and zero ledger, whether or not an appointment is already bound; same-identity recovery is required;
 - `RECORDED_BUT_NOT_FULLY_SYNCHRONIZED` — exact ACCEPTED ledger exists but one or more required obligations are PENDING/FAILED;
 - `RECORDED` — exact ACCEPTED ledger exists and every required obligation is COMPLETE/NOT_REQUIRED;
 - `UNKNOWN` — contradictory identity/count/tuple/state evidence or query uncertainty.
@@ -364,12 +429,14 @@ Current Reporting reads `customer_payment_events`. That is a derived mirror and 
 
 Before GVM operational acceptance:
 
-- financial totals/revenue/payment counts must be sourced from canonical `commerce_transactions` under explicit status/kind/currency rules, or from a canonical #133 server query built on that ledger;
-- `customer_payment_events` may remain a CRM timeline projection only;
-- a missing CRM mirror may surface synchronization failure but may never erase recorded money from financial reporting;
+- financial totals/revenue/payment counts use **one canonical ledger aggregate definition** over `commerce_transactions`; Reporting and any later totals endpoint must call/reuse that same definition rather than independently reimplementing financial math;
+- revenue inclusion is ledger truth, **not obligation COMPLETE**. Missing/failed CRM or receipt synchronization must never erase recorded revenue; synchronization is reported separately;
+- the first supported positive revenue set follows the bounded manual ledger predicate in section 6. If the requested reporting scope contains refund/void/adjustment, unsupported provider/kind, or currency ambiguity, the aggregate must return an explicit held/unknown condition for that affected scope rather than silently netting or silently omitting it;
+- location reporting continues to derive location from appointments; this slice does not add `location_id` to the ledger;
+- `customer_payment_events` remains a CRM timeline projection only;
 - customer account disagreement remains visible/fail-closed rather than using `Math.max` or another masking heuristic.
 
-Summer must use the same canonical reader/query as Reporting/operator recovery, not the mirror.
+The #133 attempt reader remains the per-attempt intent/outcome contract; it is not a second revenue calculator. Summer and operators consume the same canonical reader for attempt truth and the same canonical ledger aggregate for financial totals.
 
 ## 14. Summer readiness
 
@@ -404,19 +471,23 @@ Attempt events + obligation transitions are the durable audit trail. Summer acti
 Exact names remain subject to independent design review, but the implementation gate should stay bounded to the following additive intent:
 
 1. unique tenant key `(id, business_id)` on `commerce_transactions` for projection FKs;
-2. unique appointment invoice identity `(business_id, appointment_id)` for non-null appointment;
+2. partial unique appointment invoice identity `(business_id, appointment_id)` where appointment is non-null; migration aborts on existing duplicates;
 3. unique receipt identity `(business_id, transaction_id)`;
-4. same-Business receipt→transaction composite integrity using the transaction tenant key, preserving compatible delete semantics;
+4. additional same-Business receipt→transaction composite FK with `ON DELETE CASCADE`, preserving the existing single-column cascade;
 5. nullable `customer_payment_events.transaction_id`;
-6. unique canonical CRM mirror `(business_id, transaction_id)` where non-null;
-7. same-Business CRM mirror→transaction composite integrity;
+6. partial unique canonical CRM mirror `(business_id, transaction_id)` where transaction is non-null;
+7. same-Business CRM mirror→transaction composite FK with `ON DELETE CASCADE`;
 8. new `commerce_receipt_sequences` table and server-only security posture;
-9. canonical appointment-ledger-truth read helper;
-10. appointment-cache reconcile RPC;
-11. invoice-settlement reconcile RPC;
-12. CRM-mirror reconcile RPC;
-13. receipt reconcile RPC;
-14. private canonical #133 attempt read/history RPC.
+9. new per-Business projection-admission table, disabled by default with nullable admission watermark;
+10. service-role-only admission read/activation boundary used by every claim/projector path; no worker activation in this slice;
+11. canonical appointment-ledger-truth read helper implementing the exact supported-set/hold rule;
+12. appointment-cache reconcile RPC;
+13. invoice-settlement reconcile RPC, including NULL-appointment NOT_REQUIRED and void-invoice hold;
+14. CRM-mirror reconcile RPC;
+15. receipt reconcile RPC whose COMPLETE predicate does not require invoice linkage;
+16. private canonical #133 attempt read/history RPC.
+
+No invoice→appointment composite FK is added in this slice.
 
 No projection row backfill, no legacy mirror backfill, no historical invoice/receipt repair and no worker activation in the migration.
 
@@ -443,7 +514,7 @@ No implementation is authorized yet. If independently accepted, the next Product
 15. `docs/reviews/issue-133-projection-observability-implementation.md` — NEW;
 16. `docs/CHANGELOG.md`.
 
-Before implementation approval, independent review must decide whether report/CRM runtime re-source belongs in this same slice or in the immediately following operator/read-integration slice. Default preference: **schema + projector + canonical reader first; re-source/wiring second**, to keep the financial write/projection candidate bounded and independently provable.
+The prepared implementation remains split deliberately: **Slice 1 = schema + admission boundary + four projectors + canonical reader; Slice 2 = Reporting/CRM/operator read re-source/wiring.** Slice 1 has no worker and its admission state defaults to disabled, so it cannot create a temporary live dual-truth path. Slice 2 is the immediate follow-on before real-Business activation.
 
 ## 17. Required local proof matrix before any connected Staging gate
 
@@ -455,7 +526,10 @@ Disposable-local PostgreSQL proof must include actual roles/grants and at minimu
 - two workers race invoice creation → one invoice for appointment, one atomic invoice number, no duplicate lines;
 - two workers race same CRM mirror → one transaction-linked event;
 - two workers race receipt → one receipt for transaction, one atomic receipt number;
-- replay COMPLETE performs no target mutation and returns same target identity.
+- replay COMPLETE performs no target mutation and returns same target identity;
+- older COMPLETE appointment/invoice obligation remains COMPLETE after a later legitimate payment; once the later attempt is projected, COMPLETE replay verifies the current aggregate without rewriting or reopening the older obligation;
+- an accepted attempt with NULL appointment leaves `appointment_cache` and `invoice_settlement` NOT_REQUIRED while CRM mirror and receipt can COMPLETE;
+- an attempt before the Business admission watermark is refused with zero target mutation.
 
 ### Financial recomputation
 
@@ -463,7 +537,9 @@ Disposable-local PostgreSQL proof must include actual roles/grants and at minimu
 - old obligation replay after a later payment recomputes full ledger aggregate and does not overwrite the later payment;
 - zero-value/tax stored appointment terms remain exact;
 - transaction currency mismatch holds projection rather than converting currency;
-- refund/void/adjustment evidence holds `PROJECTION_UNCERTAIN` in this slice rather than guessing.
+- refund/void/adjustment evidence, refunded original status, unsupported provider/kind, or second currency holds `PROJECTION_UNCERTAIN` in this slice rather than guessing;
+- a void existing invoice holds and does not create a replacement;
+- receipt can COMPLETE with transaction `invoice_id`/receipt `invoice_id` still NULL.
 
 ### Partial failure/recovery
 
@@ -478,7 +554,7 @@ Disposable-local PostgreSQL proof must include actual roles/grants and at minimu
 
 - exact REQUESTED / FAILED / SKIPPED / ACCEPTED states;
 - zero-ledger terminal NOT_RECORDED;
-- REQUESTED bound appointment PAYMENT_RECOVERY_REQUIRED;
+- coherent REQUESTED zero-ledger attempt PAYMENT_RECOVERY_REQUIRED both before and after appointment binding;
 - ACCEPTED + one ledger + pending obligation = RECORDED_BUT_NOT_FULLY_SYNCHRONIZED;
 - all four complete = RECORDED;
 - malformed/multiple ledger or obligation contradiction = UNKNOWN;
@@ -501,12 +577,13 @@ Only after projection implementation and local proof are independently accepted:
 2. prove exact existing schema/data compatibility and zero collisions;
 3. explicit Product Owner approval of exact migration/application candidate;
 4. apply exact reviewed migrations once to governed Staging only;
-5. create **new synthetic cohort only**; do not process retained 90-row/CAD181 obligations/cohorts;
-6. keep communications/providers off;
-7. run fault/concurrency recovery matrix;
-8. prove exact attempt→ledger→appointment cache→invoice→CRM mirror→receipt convergence;
-9. prove #133/operator/Summer read truth;
-10. only then approach writer inventory/#153 and operator UI/wiring gates.
+5. create a **new synthetic Business/cohort only**; do not process retained 90-row/CAD181 obligations/cohorts;
+6. initialize that synthetic Business projection-admission row disabled, then in the separately authorized run set its watermark immediately before creating the new canonical cohort; prove pre-watermark attempts are rejected by direct RPC and any claim query;
+7. keep communications/providers off;
+8. run fault/concurrency recovery matrix;
+9. prove exact attempt→ledger→appointment cache→invoice→CRM mirror→receipt convergence;
+10. prove #133/operator/Summer read truth;
+11. only then approach writer inventory/#153 and operator UI/wiring gates.
 
 No local proof authorizes this Staging step automatically.
 
@@ -524,15 +601,16 @@ Issue #133/#134 merge status alone never earns GVM Operational Acceptance.
 
 Claude/Grok review must explicitly challenge:
 
-1. whether one-invoice-per-appointment is the correct v1 durable invariant;
-2. whether receipt transaction uniqueness plus a new receipt-sequence table is the minimum safe numbering contract;
-3. whether composite same-Business FKs can preserve existing delete semantics or should be narrowed to service-role guards until #153;
-4. whether refund evidence should hold all affected projections in v1 or whether a safe bounded ledger-only refund interpretation can already be proven;
+1. whether the corrected one-invoice-per-appointment v1 invariant plus explicit void/reissue hold is safe enough for launch;
+2. whether receipt transaction uniqueness plus Business-scoped receipt sequence/advisory allocation is the minimum safe numbering contract;
+3. whether the explicit receipt/CRM composite `ON DELETE CASCADE` rules preserve legacy semantics and the decision to omit invoice→appointment composite FK is correct;
+4. whether the refund/void/adjustment hold is the correct launch boundary;
 5. whether #133's current attempt schema is sufficient for non-booking requested-mode observability;
-6. whether Reporting re-source belongs in the projector implementation slice or the immediate follow-on read/wiring slice;
-7. whether projection lock order introduces any reverse edge with current invoice/receipt/legacy writers;
-8. whether obligation FAILED vs PROJECTION_UNCERTAIN classification is sufficiently deterministic;
-9. whether retained Staging cohorts can be mechanically excluded before any worker activation;
-10. whether any schema hardening is missing that would be expensive to retrofit after activation.
+6. whether the two-slice boundary (projector/read foundation first, Reporting/CRM/operator re-source second) is safe with admission disabled by default;
+7. whether the corrected projection/advisory lock order and real-Business legacy-writer exclusion close the phantom/race risks without a reverse edge;
+8. whether COMPLETE verification, FAILED vs PROJECTION_UNCERTAIN classification, and unbound NOT_REQUIRED behavior are sufficiently deterministic;
+9. whether the disabled-by-default nullable watermark mechanically excludes retained Staging cohorts and is safer than an infinity sentinel;
+10. whether the supported manual-ledger predicate and one canonical Reporting aggregate avoid a second financial truth;
+11. whether any schema hardening is still missing that would be expensive to retrofit after activation.
 
 Until that review is complete, this document is a design proposal, not an implementation authorization.
