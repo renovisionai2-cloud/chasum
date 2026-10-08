@@ -72,6 +72,8 @@ alter table public.appointments
   add column deposit_cents integer not null default 0,
   add column amount_paid_cents integer not null default 0,
   add column payment_status text not null default 'unpaid';
+alter table public.appointments
+  alter column id set default gen_random_uuid();
 create table public.appointment_resources(
   appointment_id uuid not null references public.appointments(id) on delete cascade,
   resource_id uuid not null references public.booking_resources(id),

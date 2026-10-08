@@ -16,6 +16,35 @@ Product Owner authorization: Issue #158 exact prepared-only implementation under
 
 The candidate commit contains the 15 code, migration, test, proof, and changelog paths. This report is the 16th approved path and is committed afterward so it can record a real immutable candidate commit/tree; a Git object cannot embed its own hash.
 
+## First disposable-local database proof — run once, failed
+
+**DATABASE PROOF: RUN ONCE, FAILED**
+
+**SECOND DATABASE PROOF: NOT RUN**
+
+The first Product-Owner-authorized disposable-local run used corrected candidate `b1f54b81b740a088b331f5ddbfd33a0c54c2dd09` / tree `ff4384f591a6d18982f7321cbb1923786629e277` on PostgreSQL `17.11 (Homebrew)`. Retained evidence is timestamped `2026-10-07T20:20:04–05-0400` and remains outside the repository in the system temporary evidence directory identified as `chasum-issue134-durable-evidence-8QXkp7`. No credentials or machine-sensitive evidence contents are copied into this report.
+
+The run stopped in the SQL contract's golden-path `persist_booking_operation_appointment_v1` call with PostgreSQL status 3:
+
+> `null value in column "id" of relation "appointments" violates not-null constraint`
+
+The failing row had a null appointment ID because the accepted synthetic foundation fixture declares `appointments.id uuid primary key` without the UUID default used by the production schema and existing application appointment inserts. This is classified as a synthetic proof-fixture mismatch, not currently a product migration defect. The Issue #158 migration was not changed. The allowlisted contract fixture now models the production convention locally with:
+
+```sql
+alter table public.appointments
+  alter column id set default gen_random_uuid();
+```
+
+Corrected proof-source SHA-256: `d32455b8ec6f6de154e89468ff606c59417bdaa47e2f7ccb9c4e4ed5335aa7aa`.
+
+Before the stop, the run genuinely passed the 23-delta schema inventory, protected pre-existing fixture digests, the TypeScript/PostgreSQL nested-resource fingerprint vector, and changed-tuple `KEY_CONFLICT` determinism/idempotency. The repaired `issue134_fingerprint` helper executed successfully through admission. These assertions remain intact.
+
+The proof stopped before runtime execution of history cursor order/`next_cursor`/sub-millisecond boundaries, cross-/foreign-tenant denial, two equal-value attempt keys, lost-response recovery at all four committed boundaries, known rollback versus `UNKNOWN`, and NULL-staff same-operation concurrency. Those deeper Section 14 vectors remain runtime-unproven; database proof has not passed.
+
+Post-fixture-correction offline validation passed: focused Issue #158 suites (5 files / 47 tests), scoped booking/booking-engine/commerce/migration/notification suites (75 files / 695 tests), `npm run typecheck`, verifier `node --check`, verifier help/no-argument/wrong-argument/extra-argument gates (`0/2/2/2`), `git diff --check`, exact two-path allowlist verification, and protected source/migration hash verification. Changed-path ESLint is not applicable because this correction changes no TypeScript or JavaScript path. PostgreSQL and the verifier confirmation path were not run during the correction.
+
+Failure cleanup behaved as designed: the verifier confirmed shutdown, removed owned PGDATA through its dual-marker safety fence, and retained failure evidence outside the repository. No Staging, Production, GVM, hosted service, credential, provider, permission, projection, communication, UI, worker, or historical financial action occurred. Any second database run requires a fresh governed Product Owner gate.
+
 ## Bounded correction after independent audit
 
 Claude independently returned `CORRECTIONS_REQUIRED_BEFORE_DATABASE_PROOF` for two bounded blockers. Darshan authorized correction within the existing Issue #158 allowlist at report HEAD `a293faa316784781a72fae60ac6dc00e7ed85ae5`; the implementation candidate under review remains the historical parent candidate `5f9af16422310428852d343f65f140591d2dac86`.
@@ -79,9 +108,11 @@ Protected hashes remain byte-identical:
 - Attribution: `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`
 - Approved contract: `29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d`
 
-**DATABASE PROOF: NOT RUN**
+**DATABASE PROOF: RUN ONCE, FAILED**
 
-PostgreSQL was not launched, the confirmation flag was never supplied exactly, and neither the corrected verifier nor any database migration was executed. The corrected package remains source-authored for one future Product-Owner-controlled human disposable-local run after independent delta review.
+**SECOND DATABASE PROOF: NOT RUN**
+
+The first governed run reached PostgreSQL and stopped on the synthetic `appointments.id` default mismatch documented above. It did not apply the product migration to any shared or hosted environment.
 
 ## Exact changed paths
 
@@ -133,13 +164,15 @@ The migration supplies exactly the locked 23 deltas: one registry table, one app
 - Human runner: `scripts/verify-issue134-durable-booking-operation-postgres.mjs`
 - Static migration/verifier contract: `tests/unit/migrations/issue134-durable-booking-operation.test.ts`
 
-The runner requires exactly `--confirm-disposable-local`, uses fixed PostgreSQL 17 Homebrew binaries, an owned loopback-only temporary cluster, a minimal sanitized child environment, before/after source hashes, phase recording, concurrency-response capture, confirmed shutdown, and two matching ownership markers before PGDATA removal. The SQL fixture loads immutable foundation/R1a/attribution sources, checks their digests, verifies schema/ACL inventory, and exercises replay, inline identity races, appointment races, commit races, both close/create orders, both close/commit orders, no-payment, repeated correction, ledger protection, reader privacy, and revocation.
+The runner requires exactly `--confirm-disposable-local`, uses fixed PostgreSQL 17 Homebrew binaries, an owned loopback-only temporary cluster, a minimal sanitized child environment, before/after source hashes, phase recording, concurrency-response capture, confirmed shutdown, and two matching ownership markers before PGDATA removal. The SQL fixture loads immutable foundation/R1a/attribution sources, checks their digests, verifies schema/ACL inventory, and is authored to exercise replay, inline identity races, appointment races, commit races, both close/create orders, both close/commit orders, no-payment, repeated correction, ledger protection, reader privacy, and revocation. The first run stopped before the deeper scenarios and does not prove them.
 
-Argument refusal, fixture source, phase capture, concurrency capture, cleanup logic, and JavaScript syntax were checked offline. The confirmation flag was never supplied alone.
+Argument refusal, fixture source, phase capture, concurrency capture, cleanup logic, and JavaScript syntax were checked offline. The exact confirmation flag was supplied once for the governed failed run; it was not supplied during this fixture correction, and no second run occurred.
 
-**DATABASE PROOF: NOT RUN**
+**DATABASE PROOF: RUN ONCE, FAILED**
 
-PostgreSQL was not launched and neither the new nor any older database verifier was executed. Runtime SQL proof must remain human-operated until independent exact-candidate source review is complete.
+**SECOND DATABASE PROOF: NOT RUN**
+
+The runtime failure and surviving/unexecuted proof boundaries are recorded above. A second human-operated run requires a fresh governed gate.
 
 ## Commands and results
 
@@ -157,8 +190,9 @@ PostgreSQL was not launched and neither the new nor any older database verifier 
 - Verifier `--help`, no-argument, wrong-argument, and extra-argument checks — PASS; every non-exact invocation refused before PostgreSQL binary use.
 - `git diff --check` / cached equivalent — PASS.
 - Static hash and path checks — PASS.
+- First governed disposable-local PostgreSQL 17.11 run — FAILED at the golden-path appointment insert because the synthetic fixture lacked the production `appointments.id` UUID default; verifier shutdown/owned-PGDATA cleanup PASS.
 
-Evidence is retained in the changed focused tests, static migration test, SQL proof source, verifier source, this report, and the local Cursor task transcript. No separate database evidence directory exists because database proof was not run.
+Source evidence remains in the changed focused tests, static migration test, SQL proof source, verifier source, this report, and the local task transcript. Failed-run evidence remains outside the repository in the retained system temporary evidence directory identified above.
 
 ## Preservation and boundaries
 
@@ -175,10 +209,10 @@ There was no hosted database access, migration application, projection processin
 
 ## Remaining limitations and next gate
 
-- Database syntax/behavior/concurrency remains unproven until the independently reviewed human disposable-local run; static checks are not a substitute.
+- Database proof has run once and failed in the synthetic fixture before the golden path completed. The fixture default is corrected, but runtime behavior/concurrency and the deeper Section 14 vectors remain unproven until a separately authorized second disposable-local run; static checks are not a substitute.
 - The backend is intentionally unusable for new admissions while `admissionEnabled` is `false` and no current surface calls its prepared entrypoints.
 - Projection, operator UI, identity storage on target surfaces, #133/Summer reporting, communications, retention messaging, #153 cutover, and permission tightening remain separately governed follow-ons.
 - The default Turbopack command remains unusable in this symlinked worktree; the supported webpack build passed.
 - Repository-wide lint and the two Chromium-dependent tests retain the pre-existing/environment blockers recorded above.
 
-No scope reconciliation blocker required an out-of-allowlist change. The next action is Claude's independent exact-candidate review, followed by Product Owner-controlled human disposable-local proof only if that review accepts the new source.
+No scope reconciliation blocker required an out-of-allowlist change. The next database action is a fresh governed Product Owner gate for a second disposable-local run after review of this proof-fixture-only correction.
