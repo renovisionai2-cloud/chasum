@@ -1,6 +1,6 @@
 # #133 / #134 Slice 1 — Prepared implementation
 
-Date: 2026-10-08. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / PROOF #1 FAILED (HARNESS) / PROOF #2 NOT RUN OR AUTHORIZED.
+Date: 2026-10-08. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / PROOF #1 FAILED (HARNESS) / PROOF #2 PASSED — AWAITING INDEPENDENT EVIDENCE AUDIT.
 
 ## Authority and source identity
 
@@ -52,7 +52,17 @@ A bounded source sweep found no remaining JSON/range alias `a` in a block declar
 
 Correction checks: exact two-path scope, inverse alias substitution restoring the entire original proof byte-for-byte, diff whitespace, immutable migration/verifier sizes and hashes, and all protected hashes. No PostgreSQL process, verifier positive mode, hosted test or broad validation run was invoked during this correction. Prior unit/typecheck/lint results below remain historical.
 
-**DATABASE PROOF #2: NOT RUN / NOT AUTHORIZED.** Proof #1 consumed the previous run approval. Return the correction for a short Claude exact-delta audit; only after acceptance may Darshan authorize exactly one separate disposable-local Proof #2 run.
+**DATABASE PROOF #2: PASSED — AWAITING INDEPENDENT EVIDENCE AUDIT.** After Claude accepted the Proof #1 harness correction, Darshan explicitly authorized exactly one new disposable-local run. That approval was consumed once. The verifier ran from repository HEAD `91af454a79460dd2a444ca45a30fba687b2fbd8f` against corrected proof SHA-256 `552a9c971ba25ab6b92ee04e7c15cacf4c5a179b6236018622ba1e776ba12842`, unchanged migration SHA-256 `ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56`, and unchanged verifier SHA-256 `a6b8c34bb7251cc1a16ff9179ac9cac4abda304e401cff22b020294a22d6372b`.
+
+Retained Proof #2 evidence: `/tmp/chasum-issue133-projection-evidence-nTgl8K/`. Summary SHA-256 `8669fd940eeb7214c1eb10e1bfe1cff5ff92bf5d5e6ac052b561c43b182574d2`; phases SHA-256 `83bcb467484cd690413a773055d0f447cd2c65968f39b7b7b4992ab12ba71e31`; concurrency responses SHA-256 `e5b6f31e432ca3ccc0e99a847d208fb0f46311b34eff5f4f3bf409831af48926`; PostgreSQL log SHA-256 `97aea497df288cb5ae95950f427ccc4e584545cca597ebc8e0044c7928be32f7`; source identity before/after SHA-256 both `6b104b06352327454620c738f45510442d4d457f170ff76cba38fc41ccb8a624`.
+
+Runtime result: PostgreSQL `17.11 (Homebrew)`; `sourceIdentityMatched=true`; `fixtureSetup=PASS`; final sentinels `ISSUE133_SQL_CONTRACT_PASS`, `ISSUE133_FIXTURE_READY`, and `ISSUE133_POSTGRES_PROOF_PASS` were reached; `passed=true`; `originalFailure=null`; `cleanupFailure=null`; `stopConfirmed=true`; `pgdataRemoved=true`. Duplicate-prestate migration rejection rolled back as expected.
+
+Concurrency completed for all six authored scenarios: `appointment_cache`, `invoice_settlement`, `customer_payment_events`, `receipt`, first-row invoice-sequence allocation and first-row receipt-sequence allocation. Same-obligation races converged APPLIED/VERIFIED on one target identity; first-row sequence races completed with separate unique target identities under the Business advisory locks.
+
+Lost-response recovery completed for three committed boundaries: receipt identity/number remained `75651241-5734-4f84-9a53-4969be47f644|RCT-0003`; invoice identity/number remained `0cefb6d8-812c-4272-8ff8-3cb9c2255c83|INV-0003`; CRM identity remained `d5abde72-310c-45d2-85e7-f7a201d2cfd5|7014a68d-f68f-4f22-b3f7-c08bb739f5a4`. Each deliberate discarded response was classified UNKNOWN, then replay returned VERIFIED with the exact same durable identity.
+
+This establishes a complete disposable-local runtime proof for the authored package, but it is **not yet independently accepted**. Do not rerun Proof #2 merely for confidence. Next gate is read-only Claude evidence audit of the retained package. No hosted application, Staging/Production/GVM action, live admission, worker, Reporting/CRM cutover, #153, provider/communication or technician resumption follows from this local pass.
 
 ## Exact changed paths
 
@@ -161,7 +171,7 @@ The future owned fixture loads protected migrations without rerunning #158's his
 
 Verifier authors six forced-overlap races (four obligations plus two first-row allocators), three discarded committed-response recovery scenarios, and a second owned database whose duplicate invoice prestate must reject/roll back migration. It refuses dirty sources and all arguments except an exact future human confirmation token; sanitized child environment, loopback-only owned PG17, observed PGDATA/host binding, raw phase/concurrency evidence, source identity before/after, confirmed stop and dual-marker deletion fencing. Evidence is retained. No existing/hosted connection parameters are accepted.
 
-**DATABASE PROOF #1: FAILED (HARNESS); PROOF #2: NOT RUN / NOT AUTHORIZED.** Historical runtime evidence is limited to the completed portions recorded above. The corrected artifact has not been executed. Full runtime, concurrency and recovery acceptance remains outstanding; static/mocked checks do not replace it.
+**DATABASE PROOF #1: FAILED (HARNESS); PROOF #2: PASSED / AWAITING INDEPENDENT EVIDENCE AUDIT.** Proof #2 executed the corrected artifact completely in the owned disposable-local environment, including runtime SQL, concurrency and lost-response recovery. Independent evidence review remains required before the local database gate is closed.
 
 ## Prior implementation/correction offline validation — historical results
 
@@ -194,16 +204,15 @@ N1 dead declarations were left untouched. None of these notes expands executable
 
 ## Limits and next gate
 
-No completed PostgreSQL proof; historical Proof #1 is a failed partial run. No hosted schema/ACL equivalence claim; local fixture models existing grants without implementing #153. Existing duplicate/cross-tenant documents can fail migration and must not be silently repaired. Unsupported refunds, providers or currencies deliberately hold. Admission remains off; no claim worker, UI wiring, communications, financial backfill, reporting/CRM runtime re-source or provider action. The offline font-fetch build limitation remains explicit.
+Proof #1 remains a historical failed partial run; Proof #2 completed and passed locally but awaits independent evidence acceptance. No hosted schema/ACL equivalence claim; local fixture models existing grants without implementing #153. Existing duplicate/cross-tenant documents can fail migration and must not be silently repaired. Unsupported refunds, providers or currencies deliberately hold. Admission remains off; no claim worker, UI wiring, communications, financial backfill, reporting/CRM runtime re-source or provider action. The offline font-fetch build limitation remains explicit.
 
-Next: return the exact harness correction commit to Claude for a short exact-delta audit. No correction acceptance is claimed. Only after acceptance may Darshan authorize exactly one separate disposable-local Proof #2; prior approval was consumed by Proof #1. No hosted application or technician resumption is authorized.
+Next: Claude independently audits the retained Proof #2 evidence and exact source identities. Do not rerun Proof #2. No hosted application or technician resumption is authorized.
 
-PROOF HARNESS CORRECTION: COMPLETE (not independent acceptance)
-POSTGRESQL: NOT EXECUTED DURING CORRECTION
-SLICE 1 IMPLEMENTATION: COMPLETE (prepared source/package, not runtime acceptance)
+PROOF HARNESS CORRECTION: ACCEPTED BEFORE PROOF #2
+SLICE 1 IMPLEMENTATION: COMPLETE (prepared source/package)
 R1a REPLAY AMENDMENT: IMPLEMENTED
 DATABASE PROOF #1: FAILED — PROOF HARNESS / TEST SQL DEFECT
-DATABASE PROOF #2: NOT RUN / NOT AUTHORIZED
+DATABASE PROOF #2: PASSED — AWAITING INDEPENDENT EVIDENCE AUDIT
 STAGING APPLICATION: NOT AUTHORIZED / NOT RUN
 PRODUCTION: UNTOUCHED
 GVM: UNTOUCHED
