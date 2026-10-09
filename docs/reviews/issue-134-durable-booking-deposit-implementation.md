@@ -1,10 +1,26 @@
 # Issue #134 / #158 durable booking-operation implementation
 
 Date: 2026-10-08
-Status: PREPARED ONLY / UNWIRED / DEFAULT-OFF / NOT APPLIED TO HOSTED ENVIRONMENTS
+Status: PREPARED ONLY / UNWIRED / DEFAULT-OFF / STAGING PREFLIGHT PASS / STAGING APPLICATION AWAITS PRODUCT OWNER
 Product Owner authorization: Issue #158 exact prepared-only implementation under the reviewed #134 contract
 
-## Current gate — local database proof #6 accepted / prepared-only local gate closed
+## Current gate — fresh read-only Staging preflight PASS / exact application awaits Product Owner
+
+After #133 Slice 1 local PostgreSQL Proof #2 was independently accepted, Control Tower performed the locked fresh read-only dependency/application preflight against governed Staging project `wnfahklzaxirftyskctd` only. No SQL mutation, migration application, synthetic row creation, admission activation, provider call, Staging setting change, Production/GVM access or credential change occurred.
+
+**Exact candidate for the next hosted step:** `supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql`, SHA-256 `01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b`, 83,565 bytes. The independently accepted local technical candidate remains `ff063bab8acbfb996c75fa8d7fa79ef2e838f303`; Proof #6 remains closed and must not be rerun.
+
+Fresh Staging observations at `2026-10-09 03:46:41+00`: database `postgres`, current/session user `postgres`, PostgreSQL `17.6`. Hosted migration history contains exactly the accepted protected predecessors: Foundation `20261005032107 / issue_134_payment_attempt_foundation`, one stored statement / 15,667 bytes / SHA-256 `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47`; R1a `20261005170446 / issue_134_r1a_manual_payment_kernel`, one statement / 16,151 bytes / SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`; Attribution `20261007170242 / issue_134_appointment_financial_attribution`, one statement / 6,529 bytes / SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. #158 and #133 are absent from hosted history. Do not reapply any predecessor.
+
+Collision/prerequisite gate passes: `commerce_booking_operations` absent; `appointments.booking_operation_id` absent as expected; `commerce_payment_attempts.booking_operation_id` exists as UUID and all six current attempts have NULL operation links; accepted `commerce_payment_attempts_booking_idx` exists with `(business_id, booking_operation_id) WHERE booking_operation_id IS NOT NULL`; all three new indexes, both new triggers and all eight #158 functions are absent; no collision detected. A required-column/type sweep across Businesses, membership, customers, locations, services, staff, resources, appointments, attempts, attempt events, reconciliation and transactions returned zero missing/type-mismatch rows. `appointments.id`, `customers.id` and `commerce_payment_attempts.id` all retain `gen_random_uuid()` defaults; `customers(id,business_id)` composite uniqueness exists.
+
+Hosted effective privilege preflight passes without grant widening: `service_role.rolbypassrls=true`, public schema USAGE present, and required SELECT/INSERT/UPDATE privileges on existing target tables are available. `commerce_payment_attempts` does not have broad table UPDATE, but the exact columns #158 mutates (`appointment_id`, `execution_state`, `recovery_disposition`, `failure_class`, `failure_code`, `updated_at`, `resolved_at`) each have effective service_role UPDATE privilege. No #153 ACL change is needed or authorized for this Staging schema application.
+
+Privacy-safe pre-application baseline (counts / SHA-256 full-row digest) is frozen for later postcheck: Businesses `6 / 49a44849fd5c61aa75070720ee6c68d69fffac529d9fee84592ca4b3b218eafd`; Customers `6 / 398301018e7e92ad5279ac441ce08953ed4b76b5edd95fafbc1d5045e15c7525`; Appointments `13 / fdf113eb9b06d55f55bf0991ab8a2991cfc704902fd65c4a3d1d7e07183f82ee`; Appointment resources `0 / e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`; Attempts `6 / ed9f221358f53afac119a3841042807884545a480c8474b16e66932e38a9137c`; Attempt events `11 / 690e347f076f6482ab91ca0da9bceeb70a2645b8c99f74e169416bc6d9f3bf64`; Reconciliation obligations `16 / e4080793b4aa70aa03f78f12270b169918c6dbec98fa3db41b6c56f7c8f71b32`; Transactions `6 / ff2fe7b24fdd1407ba0b918a4b4ab0ee5fa8da73dfa90c43a43a9e40a77979f6`.
+
+The preflight therefore returns **ISSUE158_STAGING_PREFLIGHT_PASS**. The next genuine Product Owner gate is exact #158 migration application to Staging only, once, followed immediately by read-only migration-history/object/ACL/data-digest postchecks and independent result review. Application does not authorize function invocation, synthetic booking/payment execution, admission, #133 migration application, worker/projection activation, communications, Production/GVM action, historical repair or technician resumption. The later connected workflow must use a NEW synthetic Business/cohort; all retained current attempts/obligations remain untouched.
+
+## Historical local gate — local database proof #6 accepted / prepared-only local gate closed
 
 **DATABASE PROOFS #1–#5: HISTORICAL FAILED ATTEMPTS — preserved, not rewritten.**
 
