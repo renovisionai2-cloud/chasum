@@ -1,6 +1,6 @@
 # #133 / #134 Slice 1 — Prepared implementation
 
-Date: 2026-10-09. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / LOCAL DATABASE GATE CLOSED-ACCEPTED / STAGING PREFLIGHT CLOSED-ACCEPTED / STAGING SCHEMA APPLIED ONCE / POSTCHECKS PASS / INDEPENDENT RESULT AUDIT PENDING.
+Date: 2026-10-09. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / LOCAL DATABASE GATE CLOSED-ACCEPTED / STAGING PREFLIGHT CLOSED-ACCEPTED / STAGING SCHEMA GATE CLOSED-ACCEPTED / CONNECTED STAGING BEHAVIORAL VALIDATION NOT YET AUTHORIZED.
 
 ## Authority and source identity
 
@@ -220,7 +220,9 @@ Read-only postchecks PASS. All expected constraints/indexes/new column/tables ex
 
 Mandatory P1 was applied to the post-application data proof: `customer_payment_events` was hashed as `(to_jsonb(t) - 'transaction_id')`, while the other eleven relations used the exact pre-application expression/order. The preflight baseline file SHA remains `cbeb1288486185175c3bf318b9512e6252e29b1b62438587d1ebc3297097cbf4`; pre/post arrays are exactly equal across all 12 relations. Retained state is unchanged: 6 attempts (4 ACCEPTED / 2 REQUESTED), 15 PENDING obligations, 0 booking operations, 0 operation-linked attempts, 0 admission rows, 0 receipt-sequence rows and 0 correlated CRM rows. Existing pre-#133 security catalogue rows also match the preflight byte-for-byte. The new CRM `transaction_id` column inherits the table's pre-existing broad anon/authenticated table privileges exactly as Claude predicted; no browser-role GRANT was introduced by #133. This remains an explicit #153 hardening carry-forward, not a schema-application correction in this gate.
 
-Raw application/postcheck evidence is retained at `/Users/darshan/chasum-evidence/issue133-staging-application-20261009/`. `SHA256SUMS.txt` covers 16 evidence/source files plus `SUMMARY.md`; manifest SHA-256 `5d05584f5c8c468eac983a12c0e78d81e3fd5a210258585fb47702a20d103746`. Pre-application evidence was already anchored before application by documentation commit `cbb352866b41713bcc595725bb19fc3b93112d04` at 2026-10-09T09:25:30-04:00; hosted application version time is 2026-10-09T13:32:04Z. **Independent Claude result audit is now required before the #133 Staging schema gate is called CLOSED / ACCEPTED. No further Staging write is authorized.**
+Raw application/postcheck evidence is retained at `/Users/darshan/chasum-evidence/issue133-staging-application-20261009/`. `SHA256SUMS.txt` covers 16 evidence/source files plus `SUMMARY.md`; manifest SHA-256 `5d05584f5c8c468eac983a12c0e78d81e3fd5a210258585fb47702a20d103746`. Pre-application evidence was already anchored before application by documentation commit `cbb352866b41713bcc595725bb19fc3b93112d04` at 2026-10-09T09:25:30-04:00; hosted application version time is 2026-10-09T13:32:04Z. Claude Opus 5 High independently audited the exact retained package and returned `ISSUE133_STAGING_SCHEMA_APPLICATION_ACCEPTED` with zero defects. It re-hashed both preflight and application evidence, verified the full local→hosted identity chain, all installed objects/validation state, new-table security, all ten function signatures/ACL/search-path posture, the R1a projection-aware replacement body, mandatory P1 across all 12 relations, retained-cohort/default-off state, and unchanged pre-existing security catalogue. **The #133 Staging SCHEMA gate is CLOSED / ACCEPTED.** #133 remains UNWIRED / DEFAULT-OFF and no hosted workflow acceptance is implied.
+
+Per the governed sequence, the next safe phase is **prepared-only design/package authoring for one bounded connected #133/#158 Staging behavioral validation on a NEW synthetic Business/cohort**. No execution authority exists yet. Preconditions for the future run are: new synthetic Business/cohort only; never process the retained six attempts/fifteen PENDING obligations; enable projection admission only for the synthetic Business under explicit PO authority; writer quiescence around the server-time watermark; frozen retained-cohort pre/post baseline; communications/providers off; no worker; no #153 mutation; and no Production/GVM/technician action. The earlier #134 competitive product gate already governs this approved booking/deposit contract, so no new competitor research is required merely to validate the accepted backend behavior.
 
 PROOF HARNESS CORRECTION: ACCEPTED BEFORE PROOF #2
 SLICE 1 IMPLEMENTATION: COMPLETE (prepared source/package)
@@ -228,7 +230,7 @@ R1a REPLAY AMENDMENT: IMPLEMENTED
 DATABASE PROOF #1: FAILED — PROOF HARNESS / TEST SQL DEFECT
 DATABASE PROOF #2: PASSED — INDEPENDENTLY ACCEPTED
 STAGING PREFLIGHT: CLOSED / INDEPENDENTLY ACCEPTED
-STAGING APPLICATION: APPLIED ONCE / POSTCHECKS PASS / INDEPENDENT RESULT AUDIT PENDING
+STAGING APPLICATION: CLOSED / INDEPENDENTLY ACCEPTED
 PRODUCTION: UNTOUCHED
 GVM: UNTOUCHED
 WORKER/LIVE ADMISSION: OFF
