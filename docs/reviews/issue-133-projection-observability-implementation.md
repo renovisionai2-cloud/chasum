@@ -1,6 +1,6 @@
 # #133 / #134 Slice 1 — Prepared implementation
 
-Date: 2026-10-09. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / LOCAL DATABASE GATE CLOSED-ACCEPTED / STAGING PREFLIGHT CLOSED-ACCEPTED / PRODUCT OWNER APPLICATION GATE READY / HOSTED APPLICATION NOT AUTHORIZED.
+Date: 2026-10-09. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / LOCAL DATABASE GATE CLOSED-ACCEPTED / STAGING PREFLIGHT CLOSED-ACCEPTED / STAGING SCHEMA APPLIED ONCE / POSTCHECKS PASS / INDEPENDENT RESULT AUDIT PENDING.
 
 ## Authority and source identity
 
@@ -214,7 +214,13 @@ N1 dead declarations were left untouched. None of these notes expands executable
 
 Proof #1 remains a historical failed partial run; Proof #2 is independently accepted. #158's dependency schema is independently accepted on governed Staging. The fresh #133 Staging compatibility preflight is also independently accepted. Existing broad legacy commerce ACL posture remains separately governed under #153; this Slice does not widen grants or perform the permission cutover. Unsupported refunds/providers/currencies deliberately hold. Admission remains off; there is no worker, UI wiring, communication delivery, financial backfill, Reporting/CRM runtime cutover or provider action.
 
-**Next genuine decision: Product Owner approval for ONE exact #133 Staging schema application only.** If approved: target only `wnfahklzaxirftyskctd`; exact migration SHA `ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56` / 48,612 bytes; apply once only; no admission row seeding; no RPC/function invocation; no worker; no synthetic workflow in the same gate; no retained-cohort processing; no #153 mutation; no communications/providers; no Production/GVM. Immediately after application, STOP writes and run read-only migration/object/ACL/data-digest postchecks, including mandatory P1 for `customer_payment_events`, then independent result review.
+Darshan explicitly approved that exact one-time Staging schema gate. Native Supabase `apply_migration` returned `success:true` once for governed Staging `wnfahklzaxirftyskctd`. Hosted history now records `20261009133204 / issue_133_payment_projection_observability`, exactly one 48,612-byte statement at SHA-256 `ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56`; protected Foundation/R1a/Attribution/#158 statements remain exact. **Do not reapply #133.**
+
+Read-only postchecks PASS. All expected constraints/indexes/new column/tables exist at the contracted definitions; all relevant constraints are validated and both partial unique indexes are valid/ready/unique. Both new tables have RLS enabled, FORCE RLS false, zero policies, no anon/authenticated SELECT, service_role table SELECT only, and the exact contracted column-level INSERT/UPDATE rights. `commerce_projection_admission` has 0 rows and `commerce_receipt_sequences` has 0 rows. All ten relevant functions, including the replaced `commit_manual_payment_attempt_v1(uuid,uuid)`, are SECURITY INVOKER with `search_path=pg_catalog, pg_temp`, postgres owner and postgres/service_role EXECUTE only; the replacement body is projection-aware and retains the service-role guard.
+
+Mandatory P1 was applied to the post-application data proof: `customer_payment_events` was hashed as `(to_jsonb(t) - 'transaction_id')`, while the other eleven relations used the exact pre-application expression/order. The preflight baseline file SHA remains `cbeb1288486185175c3bf318b9512e6252e29b1b62438587d1ebc3297097cbf4`; pre/post arrays are exactly equal across all 12 relations. Retained state is unchanged: 6 attempts (4 ACCEPTED / 2 REQUESTED), 15 PENDING obligations, 0 booking operations, 0 operation-linked attempts, 0 admission rows, 0 receipt-sequence rows and 0 correlated CRM rows. Existing pre-#133 security catalogue rows also match the preflight byte-for-byte. The new CRM `transaction_id` column inherits the table's pre-existing broad anon/authenticated table privileges exactly as Claude predicted; no browser-role GRANT was introduced by #133. This remains an explicit #153 hardening carry-forward, not a schema-application correction in this gate.
+
+Raw application/postcheck evidence is retained at `/Users/darshan/chasum-evidence/issue133-staging-application-20261009/`. `SHA256SUMS.txt` covers 16 evidence/source files plus `SUMMARY.md`; manifest SHA-256 `5d05584f5c8c468eac983a12c0e78d81e3fd5a210258585fb47702a20d103746`. Pre-application evidence was already anchored before application by documentation commit `cbb352866b41713bcc595725bb19fc3b93112d04` at 2026-10-09T09:25:30-04:00; hosted application version time is 2026-10-09T13:32:04Z. **Independent Claude result audit is now required before the #133 Staging schema gate is called CLOSED / ACCEPTED. No further Staging write is authorized.**
 
 PROOF HARNESS CORRECTION: ACCEPTED BEFORE PROOF #2
 SLICE 1 IMPLEMENTATION: COMPLETE (prepared source/package)
@@ -222,7 +228,7 @@ R1a REPLAY AMENDMENT: IMPLEMENTED
 DATABASE PROOF #1: FAILED — PROOF HARNESS / TEST SQL DEFECT
 DATABASE PROOF #2: PASSED — INDEPENDENTLY ACCEPTED
 STAGING PREFLIGHT: CLOSED / INDEPENDENTLY ACCEPTED
-STAGING APPLICATION: NOT AUTHORIZED / NOT RUN
+STAGING APPLICATION: APPLIED ONCE / POSTCHECKS PASS / INDEPENDENT RESULT AUDIT PENDING
 PRODUCTION: UNTOUCHED
 GVM: UNTOUCHED
 WORKER/LIVE ADMISSION: OFF
