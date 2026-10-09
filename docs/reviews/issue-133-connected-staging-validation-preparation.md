@@ -1,6 +1,6 @@
 # #133/#158 connected Staging validation preparation
 
-Status: **PREPARED_ONLY_NOT_RUN / INDEPENDENTLY ACCEPTED FOR PRODUCT OWNER EXECUTION GATE**. **HOSTED VALIDATION WAS NOT RUN.**
+Status: **C01 EXECUTED THROUGH ZERO-WRITE PREFLIGHT ONLY / STOP_ZERO_WRITES / NO MUTATION / IMMUTABLE; NARROW V2 PREPARATION NEXT**.
 Classification: **LAUNCH REQUIRED**. BUILD NOW: package preparation only.
 
 ## Authority and source reconciliation
@@ -104,3 +104,12 @@ Reporting/CRM cutover, technician resumption, Production or GVM acceptance is cl
 Claude Opus 5 High independently audited this exact commit/seal and returned `CONNECTED_STAGING_PACKAGE_READY_FOR_PO_EXECUTION_GATE` with zero blockers and zero required corrections. The review accepted the exact seven-path scope, member hashes/sizes, canonical aggregate seal, source/function pins, zero-write preflight, network/credential containment, tenant provisioning, retained-cohort exclusion, writer-quiescence contract, admission lifecycle, #158 booking/payment sequence, #133 projection sequence, truth/privacy/replay oracles, communication/provider containment, no-cleanup behavior, evidence chain and all 32 offline tests.
 
 The package is therefore ready only for Darshan's exact one-run execution decision: aggregate `2a212324eae2b610f7dda105931d78deef9bf02826507c1c4361d59a5d705090`, run `HV133-158-20261009-C01-72d9f02a`, target `wnfahklzaxirftyskctd`. **HOSTED VALIDATION WAS NOT RUN.** Continuous external writer/worker quiescence is a condition of execution. If execution ever returns `STOP_AFTER_WRITES`, the contract is preserve state/evidence, no retry/key rotation/cleanup/automatic admission disable, keep workers held, and seek a separate governed containment/reconciliation decision. Preparation, audit and a local commit authorize no hosted execution. No push, PR, merge, deployment, credential read, Staging/Production write, admission change, fixture creation or communication occurred.
+
+
+## C01 actual execution result — STOP_ZERO_WRITES
+
+Darshan approved exact aggregate `2a212324eae2b610f7dda105931d78deef9bf02826507c1c4361d59a5d705090`, run `HV133-158-20261009-C01-72d9f02a`, target `wnfahklzaxirftyskctd`. The runner created the exclusive evidence directory and recorded six valid hash-linked entries. Zero-write SQL preflight passed with the exact protected migration chain, source-backed function/security posture, privileges, collision checks, future slot, retained census and deterministic retained baseline. Literal service_role READ ONLY capability also passed. The next phase, Management `project-identity`, stopped with `STOP_ZERO_WRITES`; reason is intentionally opaque `transport failure; response may be lost; no retry`, and `admission_may_remain_enabled=false`. Evidence file SHA-256: `a16c19aed6778ea76789f6d35e263f140611148aae6074ccade548369b745ab8`.
+
+Fresh native read-only reconciliation after the stop found zero fixture Auth owner/Business/customer/service/staff/booking-operation/attempt-key rows, zero projection-admission rows and unchanged retained census 6 attempts / 16 obligations / 15 PENDING / 1 NOT_REQUIRED. Accepted attempt/event/transaction digests remain unchanged. Therefore C01 created no synthetic or financial state and has no unknown money outcome. The C01 run ID is nevertheless consumed because its evidence directory exists and the package is intentionally single-shot. Do not rerun, overwrite or delete it.
+
+Supabase's current Management API reference confirms `GET /v1/projects/{ref}` is a valid read-only endpoint. Because the approved runner intentionally collapses HTTP/network failures to an opaque transport error and stores no response body/status, C01 evidence cannot distinguish HTTP authorization/scope, rate-limit/service error or lower-level transport failure at that phase. Next safe work is a narrow prepared-only V2/new-run package that preserves the accepted financial/containment contract while making zero-write project-identity failure classification auditably specific without storing remote bodies or credentials. No hosted write is authorized until that new package is independently reviewed and Darshan separately approves it.
