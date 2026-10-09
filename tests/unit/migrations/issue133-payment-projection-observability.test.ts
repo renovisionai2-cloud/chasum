@@ -64,6 +64,23 @@ describe("Slice 1 source contract — NOT PostgreSQL execution",()=>{
     for(const kind of ["invoice","receipt"]){const lock=sql.indexOf(`hashtextextended('${kind}-sequence:`);const insert=sql.indexOf(`insert into public.commerce_${kind}_sequences`);expect(lock).toBeGreaterThan(-1);expect(lock).toBeLessThan(insert);}
     expect(sql).toContain("'not_sent'");expect(sql).not.toMatch(/background_jobs|enqueue|http_post|net\./);
   });
+  it.each([
+    ["invoice_settlement", "customer_payment_events"],
+    ["receipt", null],
+  ])("pins four-digit minimum at the %s allocation assignment", (kind, nextKind) => {
+    const start = sql.indexOf(`    elsif p_kind='${kind}' then`);
+    expect(start).toBeGreaterThan(-1);
+    const end = nextKind
+      ? sql.indexOf(`    elsif p_kind='${nextKind}' then`, start)
+      : sql.indexOf("    if not coalesce(target_valid,false)", start);
+    expect(end).toBeGreaterThan(start);
+    const allocation = sql.slice(start, end);
+    const assignments = [...allocation.matchAll(/document_number\s*:=([^;]+);/g)]
+      .map(match => match[1].replace(/\s+/g, ""));
+    expect(assignments).toEqual([
+      "prefix_value||'-'||lpad(number_value::text,greatest(4,length(number_value::text)),'0')",
+    ]);
+  });
   it("preserves terminal states and rolls back target failures before event",()=>{
     expect(sql).toContain("terminal:=o.state in ('COMPLETE','NOT_REQUIRED')");expect(sql).toContain("if failure is not null and not terminal then");
     expect(sql).toContain("VERIFICATION_MISMATCH");expect(sql).toContain("exception\n    when sqlstate 'P1331'");

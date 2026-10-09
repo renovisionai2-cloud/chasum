@@ -401,10 +401,12 @@ begin
  perform public.issue133_replay(a,'REPLAY');
  select to_jsonb(r) into receipt_before from public.commerce_receipts r where transaction_id=(select id from public.commerce_transactions where payment_attempt_id=a);
  perform public.issue133_assert(receipt_before->>'invoice_id' is null,'receipt independent of invoice');
+ perform public.issue133_assert(receipt_before->>'receipt_number'='RCT-0001','first receipt exact four-digit number');
  foreach k in array array['appointment_cache','invoice_settlement','customer_payment_events'] loop
  result:=public.project_payment_obligation_v1('13410000-0000-4000-8000-000000000011',a,k);
  perform public.issue133_assert(result->>'outcome'='APPLIED','project '||k);
  end loop;
+ perform public.issue133_assert((select invoice_number from public.commerce_invoices where business_id='13410000-0000-4000-8000-000000000011' and appointment_id=(select appointment_id from public.issue133_ids where n=1))='INV-0001','first invoice exact four-digit number');
  perform public.issue133_replay(a,'REPLAY');
  result:=public.project_payment_receipt_v1('13410000-0000-4000-8000-000000000011',a);
  perform public.issue133_assert(result->>'outcome'='VERIFIED' and receipt_before=(select to_jsonb(r) from public.commerce_receipts r where transaction_id=(select id from public.commerce_transactions where payment_attempt_id=a)),'receipt COMPLETE replay never enriches');
@@ -419,6 +421,36 @@ begin
 end $$;
 reset role;
 \echo 'PASS projection targets and original/complete/unbound/key-conflict replay'
+
+-- Exact later number boundaries use real projectors; fixture counters/documents roll back.
+begin;
+set local role service_role;
+do $$ declare example record; a uuid; tid uuid; result jsonb;
+begin
+ for example in select * from (values
+   (26,42,'0042'),(27,9999,'9999'),(28,10000,'10000')
+ ) as cases(fixture_n,counter_value,expected_digits) loop
+   select attempt_id into a from public.issue133_ids where n=example.fixture_n;
+   select id into tid from public.commerce_transactions where payment_attempt_id=a;
+   update public.commerce_invoice_sequences set next_number=example.counter_value
+     where business_id='13410000-0000-4000-8000-000000000011';
+   update public.commerce_receipt_sequences set next_number=example.counter_value
+     where business_id='13410000-0000-4000-8000-000000000011';
+   result:=public.project_payment_invoice_settlement_v1('13410000-0000-4000-8000-000000000011',a);
+   perform public.issue133_assert(result->>'outcome'='APPLIED','invoice number boundary projected');
+   perform public.issue133_assert((select invoice_number from public.commerce_invoices
+     where business_id='13410000-0000-4000-8000-000000000011'
+     and appointment_id=(select appointment_id from public.issue133_ids where n=example.fixture_n))
+     ='INV-'||example.expected_digits,'exact invoice number boundary');
+   result:=public.project_payment_receipt_v1('13410000-0000-4000-8000-000000000011',a);
+   perform public.issue133_assert(result->>'outcome'='APPLIED','receipt number boundary projected');
+   perform public.issue133_assert((select receipt_number from public.commerce_receipts
+     where business_id='13410000-0000-4000-8000-000000000011' and transaction_id=tid)
+     ='RCT-'||example.expected_digits,'exact receipt number boundary');
+ end loop;
+end $$;
+rollback;
+\echo 'PASS exact four-digit minimum invoice/receipt numbers without truncation'
 
 -- Atomic rollback injection: target exception => no target; FAILED then COMPLETE same obligation.
 create function public.issue133_injected_failure() returns trigger language plpgsql as $$ begin raise exception 'synthetic definite failure'; end $$;
@@ -685,6 +717,54 @@ select pg_temp.expect_failure($q$insert into public.commerce_invoices(business_i
  values('13410000-0000-4000-8000-000000000011','13410000-0000-4000-8000-000000000021',md5('issue133-ap-4')::uuid,'DUPLICATE')$q$,'duplicate key','23505');
 rollback;
 \echo 'PASS supported full aggregate, hold classes, zero/cancellation, invoice identity'
+
+-- Same-Business authorized Actor B sees Actor A's attempt, but never Actor A's key.
+-- Membership is local proof setup only; rollback preserves later authorization negatives.
+begin;
+insert into public.business_members(business_id,user_id,role)
+ values('13410000-0000-4000-8000-000000000011','13410000-0000-4000-8000-000000000002','admin');
+set local role service_role;
+do $$ declare a uuid; original_key uuid; result_a jsonb; result_b jsonb; row_a jsonb; row_b jsonb;
+begin
+ select attempt_id into a from public.issue133_ids where n=1;
+ select attempt_key into original_key from public.commerce_payment_attempts
+   where id=a and actor_id='13410000-0000-4000-8000-000000000001';
+ perform public.issue133_assert(original_key is not null,'privacy fixture belongs to Actor A');
+ perform public.issue133_assert(exists(select 1 from public.businesses
+   where id='13410000-0000-4000-8000-000000000011' and owner_id='13410000-0000-4000-8000-000000000001')
+   and exists(select 1 from public.business_members where business_id='13410000-0000-4000-8000-000000000011'
+   and user_id='13410000-0000-4000-8000-000000000002' and role='admin'),'Actor A owner and Actor B independently authorized admin');
+ result_b:=public.read_payment_observability_v1('13410000-0000-4000-8000-000000000011','13410000-0000-4000-8000-000000000002','one',a,null,1);
+ result_a:=public.read_payment_observability_v1('13410000-0000-4000-8000-000000000011','13410000-0000-4000-8000-000000000001','one',a,null,1);
+ row_b:=result_b#>'{rows,0}'; row_a:=result_a#>'{rows,0}';
+ perform public.issue133_assert(jsonb_array_length(result_b->'rows')=1 and row_b->>'attempt_id'=a::text
+   and row_b->>'operator_state'='RECORDED','Actor B can see same-Business attempt');
+ perform public.issue133_assert(row_b ? 'attempt_key' and row_b->'attempt_key'='null'::jsonb,'Actor B attempt_key explicitly NULL');
+ perform public.issue133_assert(jsonb_array_length(result_a->'rows')=1 and row_a->>'attempt_key'=original_key::text,'Actor A retains own attempt_key');
+ perform public.issue133_assert(row_b=(row_a-'attempt_key')||jsonb_build_object('attempt_key',null),'only role-appropriate key masking differs');
+ -- Closed key sets cover the envelope, row, ledger, events and obligations.
+ -- Canonical provider/provider_route enum labels are allowed; references/secrets are not.
+ perform public.issue133_assert(not exists(select 1 from jsonb_object_keys(result_b) as keys(k)
+   where k<>all(array['snapshot_at','business_id','rows','next_cursor'])),'privacy envelope fields only');
+ perform public.issue133_assert(not exists(select 1 from jsonb_object_keys(row_b) as keys(k)
+   where k<>all(array['attempt_id','attempt_key','source','booking_operation_id','appointment_id','payment_kind',
+   'amount_cents','currency','method','provider_route','payment_mode','execution_state','recovery_disposition',
+   'failure_class','failure_code','events','ledger_count','ledger','obligations','operator_state','synchronization',
+   'created_at','resolved_at','communication_eligibility'])),'privacy attempt fields only');
+ perform public.issue133_assert(not exists(select 1 from jsonb_object_keys(row_b->'ledger') as keys(k)
+   where k<>all(array['id','appointment_id','amount_cents','currency','method','kind','status','provider'])),'privacy ledger fields only');
+ perform public.issue133_assert(not exists(select 1 from jsonb_array_elements(row_b->'events') as items(item)
+   cross join lateral jsonb_object_keys(item) as keys(k)
+   where k<>all(array['id','sequence','type','money_state','projection_kind','state','failure_class','failure_code','occurred_at'])),'privacy event fields only');
+ perform public.issue133_assert(not exists(select 1 from jsonb_array_elements(row_b->'obligations') as items(item)
+   cross join lateral jsonb_object_keys(item) as keys(k)
+   where k<>all(array['kind','state','failure_code','updated_at','completed_at'])),'privacy obligation fields only');
+ perform public.issue133_assert(position(original_key::text in result_b::text)=0
+   and result_b::text !~ 'customer_email|customer_name|request_fingerprint|provider_reference|provider_payment_intent_id|payment_note',
+   'Actor B response contains no private key or PII/internal/provider detail');
+end $$;
+rollback;
+\echo 'PASS same-Business Actor B key masked and Actor A key retained'
 
 -- Canonical reader state/privacy, foreign/revoked authorization, stable pagination.
 set role service_role;

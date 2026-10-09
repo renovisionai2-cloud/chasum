@@ -16,6 +16,19 @@ This is internal implementation of an already locked financial/security contract
 
 Authorized: the exact sixteen paths below, migration authoring, private wrappers, test/proof authoring, offline validation and one local commit. PostgreSQL execution, hosted actions, migration application, admission activation, provider calls, worker/UI wiring, reporting/CRM cutover and #153 changes are excluded.
 
+## Exact-candidate audit correction — prepared only
+
+Claude returned `CORRECTIONS_REQUIRED_BEFORE_DATABASE_PROOF` for audited commit `860de2fd5aca8dcf1109fd5f0cf54c6179fbc8a9`, tree `023f82ac92e9eac2668648817c04b0c37965c5b1`. Branch/HEAD/tree and clean working tree were verified before correction. Control Tower explicitly selected the existing four-digit document-number behavior. This bounded regression correction requires no new product design or competitive gate.
+
+The correction is one new local commit on that audited parent, without amend/rewrite. It changes only four existing allowlisted paths: the Slice 1 migration, its migration static test, its PostgreSQL contract, and this report. The complete original sixteen-path inventory below remains unchanged.
+
+- **B1:** the migration differs from the audited file only in the two allocation expressions: `greatest(6,length(number_value::text))` becomes `greatest(4,length(number_value::text))`. Prefixes, lock order, sequence creation/counters, 32-candidate collision scan, identity constraints and all other function/security behavior are byte-preserved.
+- **Static pin:** two branch-bound assertions extract the `document_number :=` assignment independently from invoice_settlement and receipt allocation. Each must exactly equal the four-digit expression after whitespace normalization; six digits in either branch fail its assertion.
+- **Authored number proof:** the first actual projector documents must be `INV-0001` and `RCT-0001`. A rollback-only fixture block sets the existing sequences to 42, 9999 and 10000 and invokes the actual projectors, requiring exactly `INV-0042` / `RCT-0042`, `INV-9999` / `RCT-9999`, and `INV-10000` / `RCT-10000`. Existing first-row/concurrent allocator proofs are preserved; the verifier is byte-identical.
+- **B2 authored privacy proof:** attempt n=1 belongs to Actor A (`...0001`), the existing Business owner. A transaction gives distinct Actor B (`...0002`) an explicit same-Business admin membership. Both call the real reader as service_role with their respective actor identity. Actor B must see the same RECORDED attempt with the attempt_key property explicitly JSON null; Actor A retains its exact original key. All other row fields must match. Closed key sets cover the envelope, attempt, ledger, events and obligations; private-key occurrence and PII/internal/provider-detail exclusions are asserted. The membership addition rolls back, preserving existing foreign/revoked authorization negatives. Reader implementation/authorization is unchanged.
+
+These are source assertions and authored future database tests, not database execution evidence. **Correction acceptance remains pending a short Claude exact-delta re-audit**, followed by fresh Darshan approval before one disposable-local positive proof run.
+
 ## Exact changed paths
 
 1. `supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql`
@@ -40,7 +53,7 @@ Authorized: the exact sixteen paths below, migration authoring, private wrappers
 Generated through installed Supabase CLI 2.117.0, with telemetry disabled and OS network denial:
 `supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql`
 
-SHA-256 / size: `2dacbacaebcd149d85183d27c14b0dc9409774231e7a7c10446a10563bad09b0 / 48,612 bytes`.
+SHA-256 / size: `ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56 / 48,612 bytes`.
 
 The npm wrapper could not use its local cache; direct invocation of the already installed CLI successfully displayed help and generated the filename. Timestamp was not invented. Migration is unapplied everywhere.
 
@@ -114,7 +127,7 @@ TypeScript modules are server-only and unwired. Tenant/actor authority is resolv
 ## Proof package — AUTHORED ONLY
 
 SQL: `tests/postgres/issue-133-payment-projection-observability-contract.sql`
-SHA-256 / size: `2f447c625f92b6b79f24489265ea913bc94853584c2e6e030717ef6d24b14cda / 65,196 bytes`.
+SHA-256 / size: `3d5fdacb17a2f5da2320b409fcb3b6ca348e1f7e6d31e6b014c1d3ab25a35daa / 71,763 bytes`.
 
 Verifier: `scripts/verify-issue133-payment-projection-postgres.mjs`
 SHA-256 / size: `a6b8c34bb7251cc1a16ff9179ac9cac4abda304e401cff22b020294a22d6372b / 25,338 bytes`.
@@ -127,13 +140,13 @@ Verifier authors six forced-overlap races (four obligations plus two first-row a
 
 ## Offline validation
 
-- New focused suites: 48 tests PASS (included in the final scoped run).
-- Final broader booking/commerce/migration run: 70 suites / 716 tests PASS.
+- Correction focused/static suites: 50 tests PASS (included in the final scoped run; two new branch-bound format cases).
+- Correction broader booking/commerce/migration run: 70 suites / 718 tests PASS, with OS network denial.
 - TypeScript: PASS with --noEmit --incremental false.
-- Changed-path ESLint: PASS after removing the new unused verifier helper.
+- Correction changed-path ESLint: PASS, zero warnings. No cleanup changes to dead declarations.
 - Verifier syntax: PASS. Help/no-argument/wrong/extra refusal exits: 0/2/2/2. No exact positive invocation.
-- Webpack build: BLOCKED by offline font fetch. OS-level network denial prevented next/font fetching Inter and JetBrains Mono from fonts.googleapis.com (ENOTFOUND). No source workaround or network exception. app/layout.tsx is byte-identical to the starting candidate: `04ec78618505c863f5db80595473b91e75a7cf0aa9d2ccd5ce65780c150b08b2`.
-- Exact sixteen-path allowlist, protected hashes and diff whitespace: verified before the one local commit; final Git identities recorded in delivery.
+- Webpack build: NOT RERUN for this SQL/test/document-only correction. Prior audited-candidate attempt was BLOCKED by offline font fetch. OS-level network denial prevented next/font fetching Inter and JetBrains Mono from fonts.googleapis.com (ENOTFOUND). No source workaround or network exception. app/layout.tsx is byte-identical to the starting candidate: `04ec78618505c863f5db80595473b91e75a7cf0aa9d2ccd5ce65780c150b08b2`.
+- Exact four-path correction subset of the sixteen-path allowlist, protected hashes and diff whitespace: verified before the one local correction commit; final Git identities recorded in delivery. Migration delta is exactly two 6-to-4 substitutions; verifier unchanged.
 
 ## Protected sources
 
@@ -143,12 +156,25 @@ Verifier authors six forced-overlap races (four obligations plus two first-row a
 - #158: 01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b
 - Historical R1a proof: 7d343b902711e264c3c2bbc15695ba092f983b88b84d9bdf9a4580b1652f2f23
 
+## Independent audit carry-forward notes — no executable expansion
+
+- **N2 — Admission disable/re-enable:** advancing the watermark on re-enable is an accepted fail-closed choice. Attempts created while disabled remain below the new watermark after re-enable and are not automatically projected. The future activation/runbook must account for this; real activation should quiesce relevant writers around watermark enable. Algorithm unchanged.
+- **N3 — Existing target-table privileges:** hosted read-only preflight must STOP if any required service_role privilege is missing. Do not widen grants in Slice 1; #153 remains a separate gate. No hosted check or grant change performed here.
+- **N4 — Receipt body:** body_text is intentionally simple and exact-string verified. Later wording changes can produce VERIFICATION_MISMATCH. Customer-grade receipt wording must be deliberately designed before activation, not silently changed after documents exist.
+- **N5 — Legacy receipt namespace:** the new canonical receipt sequence starts at 1. Before an existing real Business is admitted, hosted read-only preflight must inspect its existing receipt-number namespace. If the first 32 canonical candidates are occupied, activation must STOP. Do not silently renumber historical receipts or automatically seed/repair the sequence without a separately reviewed contract. The current collision scan is preserved; no backfill/seeding migration is introduced. The planned NEW synthetic Staging Business/cohort is unaffected by this legacy namespace precondition.
+- **N6 — Customer-only invoice exception asymmetry:** the P1331 catch versus other-exception rethrow remains a future fragility observation. No current executable incorrectness was established by this correction, and no failure/subtransaction semantics were changed.
+- **N7 — Refund / terminal verification:** a later refund can cause terminal receipt verification to report VERIFICATION_MISMATCH because the appointment financial scope becomes unsupported. This remains read-only: it does not mutate/downgrade the receipt or obligation.
+
+N1 dead declarations were left untouched. None of these notes expands executable scope.
+
 ## Limits and next gate
 
 No PostgreSQL runtime proof; no hosted schema/ACL equivalence claim; local fixture models existing grants without implementing #153. Existing duplicate/cross-tenant documents can fail migration and must not be silently repaired. Unsupported refunds, providers or currencies deliberately hold. Admission remains off; no claim worker, UI wiring, communications, financial backfill, reporting/CRM runtime re-source or provider action. The offline font-fetch build limitation remains explicit.
 
-Next: independently audit the exact local implementation commit, including the R1a predicate and proof harness. Only after independent acceptance may Darshan authorize a separate disposable-local positive proof. No hosted application or technician resumption is authorized.
+Next: return the exact correction commit to Claude for a short exact-delta re-audit. No correction acceptance is claimed. Only after independent acceptance may Darshan authorize the single separate disposable-local positive proof. No hosted application or technician resumption is authorized.
 
+SLICE 1 CORRECTION: COMPLETE (prepared source/package, not independent acceptance)
+POSTGRESQL: NOT EXECUTED
 SLICE 1 IMPLEMENTATION: COMPLETE (prepared source/package, not runtime acceptance)
 R1a REPLAY AMENDMENT: IMPLEMENTED
 DATABASE PROOF: NOT RUN

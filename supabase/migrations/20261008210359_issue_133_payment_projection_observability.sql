@@ -512,7 +512,7 @@ begin
         select next_number,prefix into number_value,prefix_value from public.commerce_invoice_sequences where business_id=p_business_id for update;
         if number_value<=0 or prefix_value is null then raise exception 'INVALID_SEQUENCE' using errcode='P1331'; end if;
         for allocation in 1..32 loop
-          document_number:=prefix_value||'-'||lpad(number_value::text, greatest(6,length(number_value::text)), '0');
+          document_number:=prefix_value||'-'||lpad(number_value::text, greatest(4,length(number_value::text)), '0');
           number_value:=number_value+1;
           exit when not exists(select 1 from public.commerce_invoices where business_id=p_business_id and invoice_number=document_number);
           if allocation=32 then raise exception 'SEQUENCE_COLLISION' using errcode='23505'; end if;
@@ -570,7 +570,7 @@ begin
         insert into public.commerce_receipt_sequences(business_id) values(p_business_id) on conflict do nothing;
         select next_number,prefix into number_value,prefix_value from public.commerce_receipt_sequences where business_id=p_business_id for update;
         for allocation in 1..32 loop
-          document_number:=prefix_value||'-'||lpad(number_value::text,greatest(6,length(number_value::text)),'0');
+          document_number:=prefix_value||'-'||lpad(number_value::text,greatest(4,length(number_value::text)),'0');
           number_value:=number_value+1;
           exit when not exists(select 1 from public.commerce_receipts where business_id=p_business_id and receipt_number=document_number);
           if allocation=32 then raise exception 'SEQUENCE_COLLISION' using errcode='23505'; end if;
