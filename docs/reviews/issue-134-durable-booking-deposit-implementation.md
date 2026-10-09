@@ -1,10 +1,10 @@
 # Issue #134 / #158 durable booking-operation implementation
 
 Date: 2026-10-08
-Status: PREPARED ONLY / UNWIRED / DEFAULT-OFF / STAGING SCHEMA APPLIED ONCE / POSTCHECKS PASS / INDEPENDENT RESULT AUDIT PENDING
+Status: PREPARED ONLY / UNWIRED / DEFAULT-OFF / STAGING SCHEMA APPLIED ONCE / POSTCHECKS PASS / INDEPENDENT AUDIT HOLD ON EVIDENCE ACCESS / RETAINED EVIDENCE READY
 Product Owner authorization: Issue #158 exact prepared-only implementation under the reviewed #134 contract
 
-## Current gate — exact #158 Staging schema application succeeded / postchecks PASS / independent result audit pending
+## Current gate — #158 Staging application/postchecks PASS / independent audit HOLD on evidence accessibility / retained evidence ready
 
 Darshan explicitly approved one exact #158 schema application to governed Staging project `wnfahklzaxirftyskctd`. A preliminary coordinator wrapper attempt stopped before calling Supabase because it misread the local hash-check result object; it performed no hosted mutation. The corrected wrapper rechecked migration history (no existing #158), revalidated the local source SHA/size, reconstructed the exact 83,565-character SQL payload, and invoked native `apply_migration` exactly once. Supabase returned `success:true`. No retry or second migration application occurred.
 
@@ -14,7 +14,13 @@ Read-only catalogue postchecks PASS: `commerce_booking_operations` exists; `appo
 
 The frozen pre-application operational/financial data baseline is byte-stable after application. Counts/digests remain exactly: Businesses `6 / 49a44849fd5c61aa75070720ee6c68d69fffac529d9fee84592ca4b3b218eafd`; Customers `6 / 398301018e7e92ad5279ac441ce08953ed4b76b5edd95fafbc1d5045e15c7525`; Appointments pre-existing columns `13 / fdf113eb9b06d55f55bf0991ab8a2991cfc704902fd65c4a3d1d7e07183f82ee`; Appointment resources `0 / e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`; Attempts `6 / ed9f221358f53afac119a3841042807884545a480c8474b16e66932e38a9137c`; Attempt events `11 / 690e347f076f6482ab91ca0da9bceeb70a2645b8c99f74e169416bc6d9f3bf64`; Reconciliation obligations `16 / e4080793b4aa70aa03f78f12270b169918c6dbec98fa3db41b6c56f7c8f71b32`; Transactions `6 / ff2fe7b24fdd1407ba0b918a4b4ab0ee5fa8da73dfa90c43a43a9e40a77979f6`. No existing operational or financial row was rewritten.
 
-This is **schema application only**. No #158 function was invoked; no synthetic booking/payment/customer row was created; no admission/worker/projection was activated; no #133 migration was applied; no #153 permission change, communication/provider call, Production/GVM action, historical repair or technician resumption occurred. The application result now awaits independent Claude read-only audit. After that acceptance, the next safe continuation is a fresh #133 Staging compatibility preflight on the newly completed dependency schema before any #133 application request.
+This is **schema application only**. No #158 function was invoked; no synthetic booking/payment/customer row was created; no admission/worker/projection was activated; no #133 migration was applied; no #153 permission change, communication/provider call, Production/GVM action, historical repair or technician resumption occurred.
+
+Claude's first application-result audit returned `HOLD` solely because that session had no Supabase/read-only Staging channel. It found zero contradictions and passed the local artifact identity, migration object inventory, declared invoker/search-path security posture, narrow table/column ACL design, documentation accuracy and preflight/result internal consistency. The HOLD is an evidence-access gap, not an adverse hosted finding.
+
+Control Tower therefore produced the requested retained read-only evidence package at `/Users/darshan/chasum-evidence/issue158-staging-application-20261009/staging-postcheck-evidence.json`, final SHA-256 `0fe9d45ddbb1377e2f32f8eb770236f1484372ebfc35eec404a47e173e6b4b81`, 117,580 bytes. It contains E0 environment/project identity plus Claude-requested E1-E6: exact hosted migration rows/counts and #133 absence; exhaustive non-function object inventory/counts; raw pg_proc rows for all eight functions; RLS/table/column ACL grids; zero new-business-data counts; and the eight pre/post count+digest pairs with the exact deterministic `ORDER BY` digest SQL. Two intermediate E2 packaging queries were rejected locally after self-checks exposed query-only name/count formatting mistakes; they were never treated as evidence and caused no hosted change. Final E2 has 16 non-function expected objects, each exactly once; E3 has eight functions; E6 pre/post rows are exactly equal. `SHA256SUMS.txt` records the final artifact hash.
+
+The application result now requires one short Claude re-audit against that retained evidence artifact. **Do not reapply #158.** Only after independent acceptance may a fresh read-only #133 Staging compatibility preflight begin.
 
 ## Historical local gate — local database proof #6 accepted / prepared-only local gate closed
 
