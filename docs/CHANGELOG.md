@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-09 — #133/#158 connected Staging V2 diagnostics prepared after C01 stop
+
+- Preserved immutable C01 STOP_ZERO_WRITES package/evidence and prepared a separate V2 with fresh run and fixture identities. The mandatory zero-write project metadata GET now classifies HTTP/access/throttling/server, timeout, TLS/network, JSON and identity failures using bounded non-sensitive codes; SQL/Auth write failures remain opaque and single-shot.
+- Preserved all accepted commercial/projection/admission/retention semantics and source pins; 58 offline tests pass, including metadata failure/privacy/no-retry cases and C01 source-equivalence checks. **HOSTED V2 VALIDATION WAS NOT RUN.** No credentials, hosted calls, mutations, proof reruns, migration applications, workers, sends, push, PR, merge or deployment.
+- [V2 preparation, immutable C01 provenance and next gate](reviews/issue-133-connected-staging-v2-preparation.md).
+
 ### 2026-10-09 — #133/#158 connected Staging backend validation package prepared
 
 - Prepared one exact-run, hash-bound backend validation package for a new synthetic Business and the accepted durable booking → CAD50 manual deposit → appointment/invoice/CRM/receipt projection → canonical readers chain. Includes fail-closed preflight, retained-cohort digests, explicit admission containment, successful-path replay and offline fake-transport regressions.
