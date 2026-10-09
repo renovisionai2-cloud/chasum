@@ -1,6 +1,6 @@
 # #133 / #134 Slice 1 — Prepared implementation
 
-Date: 2026-10-09. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / LOCAL DATABASE GATE CLOSED-ACCEPTED / STAGING PREFLIGHT CONTROL-TOWER PASS / INDEPENDENT PREFLIGHT AUDIT PENDING / HOSTED APPLICATION NOT AUTHORIZED.
+Date: 2026-10-09. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / LOCAL DATABASE GATE CLOSED-ACCEPTED / STAGING PREFLIGHT CLOSED-ACCEPTED / PRODUCT OWNER APPLICATION GATE READY / HOSTED APPLICATION NOT AUTHORIZED.
 
 ## Authority and source identity
 
@@ -68,7 +68,9 @@ The #158 Staging schema application is now independently accepted under `ISSUE15
 
 Retained cohort boundary is explicit: six historical attempts (4 ACCEPTED / 2 REQUESTED), 15 PENDING obligations, zero operation-linked attempts and zero booking operations. #133 seeds no admission rows; no row/disabled/NULL watermark denies, and later enable uses server time with strict attempt.created_at > watermark, so retained attempts remain mechanically excluded. Connected Staging must use a NEW synthetic Business/cohort. Legacy receipt namespace currently contains two numeric RCT receipts (1–2) in one Business; that is not a schema-application blocker for the planned new synthetic Business and remains an activation/runbook note before any existing Business admission. Existing broad legacy commerce ACLs are recorded under separate #153; #133 does not widen them.
 
-Raw read-only preflight evidence is retained outside the repository at `/Users/darshan/chasum-evidence/issue133-staging-preflight-20261009/`. `SHA256SUMS.txt` covers 13 raw/source files plus `SUMMARY.md`; SHA-256 of the manifest is `20efada59a8028c8272be7d94face6c4d915b498ad976213991cef0e899bd965`. The package includes exact queries/raw hosted outputs for project/migration identity, collision checks, data compatibility, table and column privileges, R1a replacement metadata, retained cohort, receipt namespace, existing ACL/RLS posture, a deterministic privacy-safe pre-application baseline, 128-column schema compatibility, and local source identity. **Independent Claude preflight audit is still required before any Product Owner #133 application gate. #133 remains NOT APPLIED / NOT AUTHORIZED.**
+Raw read-only preflight evidence is retained outside the repository at `/Users/darshan/chasum-evidence/issue133-staging-preflight-20261009/`. `SHA256SUMS.txt` covers 13 raw/source files plus `SUMMARY.md`; SHA-256 of the manifest is `20efada59a8028c8272be7d94face6c4d915b498ad976213991cef0e899bd965`. Claude Opus 5 High independently hashed all 14 files, re-parsed the raw hosted outputs, enumerated the migration source against the collision scan, verified the R1a replacement signature/return/search_path/ACL compatibility, and returned `ISSUE133_STAGING_PREFLIGHT_ACCEPTED_FOR_APPLICATION_GATE`. **The #133 Staging PREFLIGHT gate is CLOSED / ACCEPTED. #133 itself remains NOT APPLIED / NOT AUTHORIZED.**
+
+Mandatory future application postcheck condition **P1**: the frozen baseline hashes `customer_payment_events` before the new nullable `transaction_id` column exists. After schema application, its postcheck MUST hash `(to_jsonb(t) - 'transaction_id')` with the same deterministic row ordering; the other eleven baseline relations remain unchanged. Reusing plain `to_jsonb(t)` after application would create an expected false mismatch and destroy evidentiary value. Observation **O2 / #153 scope**: because `customer_payment_events` currently has broad legacy table-level anon/authenticated grants, PostgreSQL will extend those existing table privileges to the new `transaction_id` column. #133 issues no browser-role GRANT and does not widen the existing table ACL, so Claude classifies this as a separate #153 permission-hardening concern rather than a schema-application blocker. Record `customer_payment_events.transaction_id` explicitly in future #153 scope; do not alter ACLs in this gate.
 
 ## Exact changed paths
 
@@ -210,15 +212,16 @@ N1 dead declarations were left untouched. None of these notes expands executable
 
 ## Limits and next gate
 
-Proof #1 remains a historical failed partial run; Proof #2 completed and is independently accepted. Hosted application remains separately gated and dependency-ordered. No hosted schema/ACL equivalence claim; local fixture models existing grants without implementing #153. Existing duplicate/cross-tenant documents can fail migration and must not be silently repaired. Unsupported refunds, providers or currencies deliberately hold. Admission remains off; no claim worker, UI wiring, communications, financial backfill, reporting/CRM runtime re-source or provider action. The offline font-fetch build limitation remains explicit.
+Proof #1 remains a historical failed partial run; Proof #2 is independently accepted. #158's dependency schema is independently accepted on governed Staging. The fresh #133 Staging compatibility preflight is also independently accepted. Existing broad legacy commerce ACL posture remains separately governed under #153; this Slice does not widen grants or perform the permission cutover. Unsupported refunds/providers/currencies deliberately hold. Admission remains off; there is no worker, UI wiring, communication delivery, financial backfill, Reporting/CRM runtime cutover or provider action.
 
-Next: #158 must reach governed Staging before #133 can be applied there. #133 Staging application is not yet a valid gate. Do not rerun Proof #2. No hosted application or technician resumption is authorized by this report.
+**Next genuine decision: Product Owner approval for ONE exact #133 Staging schema application only.** If approved: target only `wnfahklzaxirftyskctd`; exact migration SHA `ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56` / 48,612 bytes; apply once only; no admission row seeding; no RPC/function invocation; no worker; no synthetic workflow in the same gate; no retained-cohort processing; no #153 mutation; no communications/providers; no Production/GVM. Immediately after application, STOP writes and run read-only migration/object/ACL/data-digest postchecks, including mandatory P1 for `customer_payment_events`, then independent result review.
 
 PROOF HARNESS CORRECTION: ACCEPTED BEFORE PROOF #2
 SLICE 1 IMPLEMENTATION: COMPLETE (prepared source/package)
 R1a REPLAY AMENDMENT: IMPLEMENTED
 DATABASE PROOF #1: FAILED — PROOF HARNESS / TEST SQL DEFECT
-DATABASE PROOF #2: PASSED — AWAITING INDEPENDENT EVIDENCE AUDIT
+DATABASE PROOF #2: PASSED — INDEPENDENTLY ACCEPTED
+STAGING PREFLIGHT: CLOSED / INDEPENDENTLY ACCEPTED
 STAGING APPLICATION: NOT AUTHORIZED / NOT RUN
 PRODUCTION: UNTOUCHED
 GVM: UNTOUCHED
