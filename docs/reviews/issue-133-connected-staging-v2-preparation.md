@@ -116,3 +116,10 @@ Next: independent review of this exact local V2 candidate and seal, then Control
 reconciliation and fresh Product Owner authorization for this exact new run. No push, PR,
 merge, deployment, hosted execution, Production/GVM action or technician resumption is
 approved or performed by package preparation.
+
+
+## Independent V2 package audit
+
+Claude Opus 5 High independently returned `CONNECTED_STAGING_V2_PACKAGE_READY_FOR_PO_EXECUTION_GATE` with zero blockers and zero required corrections. It verified commit/tree/parent, exact seven-path scope, original C01 package/evidence preservation, fresh fixture/run identities, all member hashes/sizes, aggregate `75b839ffa18696663a817ab8e390202db66812a5e5ee348c4b149b8a9b169539`, the bounded project-identity diagnostic implementation and privacy properties, no-retry/zero-write ordering, byte-preserved financial/behavioral C01 contract, unchanged source/function/privilege pins, retained-cohort exclusion, evidence/single-shot controls, and 58/58 offline tests. Claude also independently confirmed diagnostic reason codes are derived only from numeric HTTP status / exception types and that no response body/header/token/raw exception text can enter evidence.
+
+The exact next gate is Darshan's Product Owner decision for one C02 run: `HV133-158-20261009-C02-5776d6c8` against `wnfahklzaxirftyskctd`, aggregate `75b839ffa18696663a817ab8e390202db66812a5e5ee348c4b149b8a9b169539`. **HOSTED V2 VALIDATION WAS NOT RUN.** C01 remains immutable and must not be rerun.
