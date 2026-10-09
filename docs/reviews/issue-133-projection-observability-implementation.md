@@ -1,6 +1,6 @@
 # #133 / #134 Slice 1 — Prepared implementation
 
-Date: 2026-10-08. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / DATABASE PROOF NOT RUN.
+Date: 2026-10-08. Status: IMPLEMENTED / UNWIRED / DEFAULT-OFF / PROOF #1 FAILED (HARNESS) / PROOF #2 NOT RUN OR AUTHORIZED.
 
 ## Authority and source identity
 
@@ -14,9 +14,9 @@ The prior HOLD identified R1a ACCEPTED replay rejecting every legitimate project
 
 This is internal implementation of an already locked financial/security contract, with no new product/UX decisions; separate competitive research is not applicable to this bounded backend correction. No runtime product acceptance is claimed.
 
-Authorized: the exact sixteen paths below, migration authoring, private wrappers, test/proof authoring, offline validation and one local commit. PostgreSQL execution, hosted actions, migration application, admission activation, provider calls, worker/UI wiring, reporting/CRM cutover and #153 changes are excluded.
+Original implementation authority: the exact sixteen paths below, migration authoring, private wrappers, test/proof authoring, offline validation and one local commit. PostgreSQL execution, hosted actions, migration application, admission activation, provider calls, worker/UI wiring, reporting/CRM cutover and #153 changes are excluded.
 
-## Exact-candidate audit correction — prepared only
+## Prior exact-candidate audit correction — authoring record
 
 Claude returned `CORRECTIONS_REQUIRED_BEFORE_DATABASE_PROOF` for audited commit `860de2fd5aca8dcf1109fd5f0cf54c6179fbc8a9`, tree `023f82ac92e9eac2668648817c04b0c37965c5b1`. Branch/HEAD/tree and clean working tree were verified before correction. Control Tower explicitly selected the existing four-digit document-number behavior. This bounded regression correction requires no new product design or competitive gate.
 
@@ -27,7 +27,32 @@ The correction is one new local commit on that audited parent, without amend/rew
 - **Authored number proof:** the first actual projector documents must be `INV-0001` and `RCT-0001`. A rollback-only fixture block sets the existing sequences to 42, 9999 and 10000 and invokes the actual projectors, requiring exactly `INV-0042` / `RCT-0042`, `INV-9999` / `RCT-9999`, and `INV-10000` / `RCT-10000`. Existing first-row/concurrent allocator proofs are preserved; the verifier is byte-identical.
 - **B2 authored privacy proof:** attempt n=1 belongs to Actor A (`...0001`), the existing Business owner. A transaction gives distinct Actor B (`...0002`) an explicit same-Business admin membership. Both call the real reader as service_role with their respective actor identity. Actor B must see the same RECORDED attempt with the attempt_key property explicitly JSON null; Actor A retains its exact original key. All other row fields must match. Closed key sets cover the envelope, attempt, ledger, events and obligations; private-key occurrence and PII/internal/provider-detail exclusions are asserted. The membership addition rolls back, preserving existing foreign/revoked authorization negatives. Reader implementation/authorization is unchanged.
 
-These are source assertions and authored future database tests, not database execution evidence. **Correction acceptance remains pending a short Claude exact-delta re-audit**, followed by fresh Darshan approval before one disposable-local positive proof run.
+At that delivery, these were source assertions and authored tests, not database execution evidence. The subsequent authorized Proof #1 result and current correction gate are recorded below.
+
+## Database Proof #1 — failed; narrow harness correction
+
+**DATABASE PROOF #1: FAILED — PROOF HARNESS / TEST SQL DEFECT.** The retained logs were read, not re-executed. Proof #1 ran PostgreSQL 17.11 (Homebrew) at source HEAD `b8919b07b76be4db6004f00d62abd92ff83fad86`; the failed proof SQL SHA was `3d5fdacb17a2f5da2320b409fcb3b6ca348e1f7e6d31e6b014c1d3ab25a35daa`. No product migration, R1a, projection, security or concurrency defect is established by this failure.
+
+Exact error: **SQLSTATE 42702 — column reference "a" is ambiguous**. The cursor-disjointness assertion in the canonical #133 reader proof used SQL range alias `a` inside a PL/pgSQL block declaring `a uuid`. psql reported the containing block at line 796 (assertion line 793), inline block line 21.
+
+Retained evidence: `/tmp/chasum-issue133-projection-evidence-TXl9oX/`. `summary.json`, `phases.jsonl` and source identity records were inspected read-only. This directory remains historical Proof #1 evidence; nothing there was overwritten or rewritten.
+
+Bounded evidence before failure:
+
+- Protected migrations loaded and the new migration compiled/applied in the disposable fixture; the fixture log reached subsequent tests. This is not hosted migration acceptance.
+- The unchanged historical R1a contract printed its PASS markers through PASS 14.
+- Explicit subsequent PASS markers cover projection targets and original/complete/unbound/key-conflict replay; exact four-digit invoice/receipt numbers; replay negative census/state/history; admission equality/absence/disable/re-enable; supported aggregate/hold/zero/cancellation/invoice identity; and same-Business Actor B key masking with Actor A key retention.
+- The containing canonical reader block failed; statements printed or reached inside it are not claimed as a completed reader gate. The overall SQL contract/fixture-ready sentinels were not reached. `fixtureSetup=NOT_STARTED` in the summary is the verifier's unset completion state, not evidence that no fixture SQL ran.
+- Verifier concurrency and recovery phases were NOT reached: both arrays are empty. Earlier historical R1a replay PASS markers do not imply those later verifier phases ran.
+- `sourceIdentityMatched=true`, `stopConfirmed=true`, `pgdataRemoved=true`, `cleanupFailure=null`, `passed=false`.
+
+Harness correction preflight matched clean HEAD `2df774015fdf57d863afd17dd46eb92a079243d0`, tree `b7bb23c950295433e8735bad53d460b0c97dfa26` on the existing governed branch. Exactly two files change: this report and the proof SQL. In the single cursor assertion, aliases `a` / `b` become `page1_row` / `page2_row`, including their two JSON references. `a uuid` is not renamed. The next_cursor non-null requirement and NOT EXISTS equality join on attempt_id remain identical. No reader, pagination, migration, verifier or runtime behavior changes.
+
+A bounded source sweep found no remaining JSON/range alias `a` in a block declaring variable `a`. The two `commerce_payment_attempts a` aliases in the replay helper do not collide: that helper declares `aid`, not `a`. No equivalent short-alias collision was found in the affected DO block. This is a static inspection, not PostgreSQL compilation proof.
+
+Correction checks: exact two-path scope, inverse alias substitution restoring the entire original proof byte-for-byte, diff whitespace, immutable migration/verifier sizes and hashes, and all protected hashes. No PostgreSQL process, verifier positive mode, hosted test or broad validation run was invoked during this correction. Prior unit/typecheck/lint results below remain historical.
+
+**DATABASE PROOF #2: NOT RUN / NOT AUTHORIZED.** Proof #1 consumed the previous run approval. Return the correction for a short Claude exact-delta audit; only after acceptance may Darshan authorize exactly one separate disposable-local Proof #2 run.
 
 ## Exact changed paths
 
@@ -55,7 +80,7 @@ Generated through installed Supabase CLI 2.117.0, with telemetry disabled and OS
 
 SHA-256 / size: `ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56 / 48,612 bytes`.
 
-The npm wrapper could not use its local cache; direct invocation of the already installed CLI successfully displayed help and generated the filename. Timestamp was not invented. Migration is unapplied everywhere.
+The npm wrapper could not use its local cache; direct invocation of the already installed CLI successfully displayed help and generated the filename. Timestamp was not invented. Migration was applied only inside historical disposable-local Proof #1; no hosted/shared application is claimed. No migration is applied during this correction.
 
 Additive schema:
 
@@ -100,7 +125,7 @@ Projection emitter vocabulary: PROJECTION_CHANGED / RECORDED; COMPLETE or NOT_RE
 
 ## Admission and transaction boundary
 
-No admission rows are seeded. No row, disabled, or NULL watermark denies. Each direct projector obtains an admission share lock and requires attempt.created_at > watermark; equality denies. Private activation accepts no timestamp and advances the watermark to at least clock_timestamp on every enable. Disable retains the watermark. No activation call was executed.
+No admission rows are seeded. No row, disabled, or NULL watermark denies. Each direct projector obtains an admission share lock and requires attempt.created_at > watermark; equality denies. Private activation accepts no timestamp and advances the watermark to at least clock_timestamp on every enable. Disable retains the watermark. No live Business activation was executed; historical Proof #1 exercised admission only in its disposable synthetic fixture.
 
 Before real Business activation, legacy payment/refund entrypoints must be excluded before provider/network/database effects. No legacy writer modification or post-provider rejection trigger is included. There is no worker/claim loop; a future claim RPC must enforce the same admission predicate.
 
@@ -124,10 +149,10 @@ States: coherent terminal zero-ledger NOT_RECORDED; REQUESTED/RECOVER zero-ledge
 
 TypeScript modules are server-only and unwired. Tenant/actor authority is resolved on the server. RPC responses are strictly validated/redacted. Transport uncertainty returns UNKNOWN; no automatic retry, identity rotation, collection, or projection activation.
 
-## Proof package — AUTHORED ONLY
+## Proof package — corrected artifact awaiting Proof #2
 
 SQL: `tests/postgres/issue-133-payment-projection-observability-contract.sql`
-SHA-256 / size: `3d5fdacb17a2f5da2320b409fcb3b6ca348e1f7e6d31e6b014c1d3ab25a35daa / 71,763 bytes`.
+SHA-256 / size: `552a9c971ba25ab6b92ee04e7c15cacf4c5a179b6236018622ba1e776ba12842 / 71,795 bytes`.
 
 Verifier: `scripts/verify-issue133-payment-projection-postgres.mjs`
 SHA-256 / size: `a6b8c34bb7251cc1a16ff9179ac9cac4abda304e401cff22b020294a22d6372b / 25,338 bytes`.
@@ -136,9 +161,9 @@ The future owned fixture loads protected migrations without rerunning #158's his
 
 Verifier authors six forced-overlap races (four obligations plus two first-row allocators), three discarded committed-response recovery scenarios, and a second owned database whose duplicate invoice prestate must reject/roll back migration. It refuses dirty sources and all arguments except an exact future human confirmation token; sanitized child environment, loopback-only owned PG17, observed PGDATA/host binding, raw phase/concurrency evidence, source identity before/after, confirmed stop and dual-marker deletion fencing. Evidence is retained. No existing/hosted connection parameters are accepted.
 
-**DATABASE PROOF: NOT RUN.** SQL compilation, triggers, ACLs, rollback and concurrency behavior are not certified by the static/mocked tests. Positive verifier mode and PostgreSQL startup were not invoked. Independent audit plus a fresh PO execution gate are mandatory.
+**DATABASE PROOF #1: FAILED (HARNESS); PROOF #2: NOT RUN / NOT AUTHORIZED.** Historical runtime evidence is limited to the completed portions recorded above. The corrected artifact has not been executed. Full runtime, concurrency and recovery acceptance remains outstanding; static/mocked checks do not replace it.
 
-## Offline validation
+## Prior implementation/correction offline validation — historical results
 
 - Correction focused/static suites: 50 tests PASS (included in the final scoped run; two new branch-bound format cases).
 - Correction broader booking/commerce/migration run: 70 suites / 718 tests PASS, with OS network denial.
@@ -169,15 +194,16 @@ N1 dead declarations were left untouched. None of these notes expands executable
 
 ## Limits and next gate
 
-No PostgreSQL runtime proof; no hosted schema/ACL equivalence claim; local fixture models existing grants without implementing #153. Existing duplicate/cross-tenant documents can fail migration and must not be silently repaired. Unsupported refunds, providers or currencies deliberately hold. Admission remains off; no claim worker, UI wiring, communications, financial backfill, reporting/CRM runtime re-source or provider action. The offline font-fetch build limitation remains explicit.
+No completed PostgreSQL proof; historical Proof #1 is a failed partial run. No hosted schema/ACL equivalence claim; local fixture models existing grants without implementing #153. Existing duplicate/cross-tenant documents can fail migration and must not be silently repaired. Unsupported refunds, providers or currencies deliberately hold. Admission remains off; no claim worker, UI wiring, communications, financial backfill, reporting/CRM runtime re-source or provider action. The offline font-fetch build limitation remains explicit.
 
-Next: return the exact correction commit to Claude for a short exact-delta re-audit. No correction acceptance is claimed. Only after independent acceptance may Darshan authorize the single separate disposable-local positive proof. No hosted application or technician resumption is authorized.
+Next: return the exact harness correction commit to Claude for a short exact-delta audit. No correction acceptance is claimed. Only after acceptance may Darshan authorize exactly one separate disposable-local Proof #2; prior approval was consumed by Proof #1. No hosted application or technician resumption is authorized.
 
-SLICE 1 CORRECTION: COMPLETE (prepared source/package, not independent acceptance)
-POSTGRESQL: NOT EXECUTED
+PROOF HARNESS CORRECTION: COMPLETE (not independent acceptance)
+POSTGRESQL: NOT EXECUTED DURING CORRECTION
 SLICE 1 IMPLEMENTATION: COMPLETE (prepared source/package, not runtime acceptance)
 R1a REPLAY AMENDMENT: IMPLEMENTED
-DATABASE PROOF: NOT RUN
+DATABASE PROOF #1: FAILED — PROOF HARNESS / TEST SQL DEFECT
+DATABASE PROOF #2: NOT RUN / NOT AUTHORIZED
 STAGING APPLICATION: NOT AUTHORIZED / NOT RUN
 PRODUCTION: UNTOUCHED
 GVM: UNTOUCHED

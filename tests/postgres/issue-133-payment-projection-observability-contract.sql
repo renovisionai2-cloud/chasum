@@ -790,7 +790,7 @@ do $$ declare a uuid; result jsonb; page1 jsonb; page2 jsonb; ap uuid; begin
  perform public.issue133_assert(result#>>'{rows,0,operator_state}'='NOT_RECORDED','SKIPPED zero ledger');
  page1:=public.read_payment_observability_v1('13410000-0000-4000-8000-000000000011','13410000-0000-4000-8000-000000000001','history',null,null,5);
  page2:=public.read_payment_observability_v1('13410000-0000-4000-8000-000000000011','13410000-0000-4000-8000-000000000001','history',null,page1->>'next_cursor',5);
- perform public.issue133_assert(page1->>'next_cursor' is not null and not exists(select 1 from jsonb_array_elements(page1->'rows') a join jsonb_array_elements(page2->'rows') b on a->>'attempt_id'=b->>'attempt_id'),'cursor disjoint pages');
+ perform public.issue133_assert(page1->>'next_cursor' is not null and not exists(select 1 from jsonb_array_elements(page1->'rows') page1_row join jsonb_array_elements(page2->'rows') page2_row on page1_row->>'attempt_id'=page2_row->>'attempt_id'),'cursor disjoint pages');
  perform public.issue133_assert(page2->'rows'=public.read_payment_observability_v1('13410000-0000-4000-8000-000000000011','13410000-0000-4000-8000-000000000001','history',null,page1->>'next_cursor',5)->'rows','cursor deterministic');
  perform public.issue133_assert(page1::text !~ 'customer_email|customer_name|request_fingerprint|provider_reference|payment_note','PII-free history');
 end $$;
