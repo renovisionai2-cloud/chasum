@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-09 — #133/#158 connected Staging backend validation package prepared
+
+- Prepared one exact-run, hash-bound backend validation package for a new synthetic Business and the accepted durable booking → CAD50 manual deposit → appointment/invoice/CRM/receipt projection → canonical readers chain. Includes fail-closed preflight, retained-cohort digests, explicit admission containment, successful-path replay and offline fake-transport regressions.
+- Existing #158 proof6 and #133 proof2/Staging schema applications remain accepted; no migration or product implementation changed. **HOSTED VALIDATION WAS NOT RUN.** No credentials, hosted calls, fixture/admission writes, workers, communications, provider actions, Production/GVM changes, push, PR, merge or deployment.
+- [Preparation, limits and next independent gate](reviews/issue-133-connected-staging-validation-preparation.md).
+
 ### 2026-10-08 — #133/#134 projection and observability Slice 1 prepared
 
 - Authored one unapplied migration with disabled Business admission, deterministic appointment/invoice/CRM/receipt projectors and a private canonical history reader. No worker, UI, reporting, communication or live activation.
