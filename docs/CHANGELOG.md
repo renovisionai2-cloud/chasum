@@ -9,6 +9,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-09 — #133/#158 C03 accepted validation documentation closeout
+
+- Recorded the supplied accepted single-shot connected Staging CAD50 E-Transfer deposit proof: exactly-once financial/projection truth, stable replay, final admission disabled, zero communication side effects and unchanged retained state/digests. C03 is consumed and must never be rerun; C01/C02 STOP_ZERO_WRITES history is preserved.
+- Preserved Claude's exact `CONNECTED_STAGING_C03_ACCEPTED_WITH_NONBLOCKING_LIMITATIONS` verdict and hashing limitation, Program Lead mechanical hash verification, six nonblocking observations and the next source/design governance boundary. [Result](reviews/issue-133-connected-staging-c03-result.md); [review](reviews/issue-133-connected-staging-c03-review.md).
+- Documentation/validation record only: no customer feature or Production release. Application/UI/worker/#153 and Production/GVM gates remain open; no new hosted contact, financial execution, code/schema/permission change or evidence/package mutation occurred in this closeout.
+
 ### 2026-10-09 — #133/#158 connected Staging V2 diagnostics prepared after C01 stop
 
 - Preserved immutable C01 STOP_ZERO_WRITES package/evidence and prepared a separate V2 with fresh run and fixture identities. The mandatory zero-write project metadata GET now classifies HTTP/access/throttling/server, timeout, TLS/network, JSON and identity failures using bounded non-sensitive codes; SQL/Auth write failures remain opaque and single-shot.

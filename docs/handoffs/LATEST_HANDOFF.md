@@ -1,18 +1,24 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-09 for independently accepted #158 Staging schema application and fresh #133 Staging preflight.
+**Updated:** 2026-10-09 (America/Toronto) for accepted/consumed #133/#158 connected Staging C03; documentation-only reconciliation of supplied accepted evidence.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — #158 Staging schema accepted / #133 fresh Staging preflight next
+## Current continuation — #133/#158 connected Staging C03 accepted / consumed
 
-**#158 LOCAL_DATABASE_PROOF_6_ACCEPTED + STAGING SCHEMA APPLICATION ACCEPTED.** Exact proven candidate `ff063bab8acbfb996c75fa8d7fa79ef2e838f303`, tree `9b22daeab43fd961faf7d9df93e586d311df2718`; exact migration SHA-256 `01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b`, 83,565 bytes. Proofs #1–#5 remain historical failed attempts; Proof #6 PASSED. Darshan later approved exactly one governed Staging schema application, which succeeded and was independently accepted by Claude as `ISSUE158_STAGING_SCHEMA_APPLICATION_ACCEPTED`. The backend remains UNWIRED / DEFAULT-OFF; hosted workflow behavior has not been accepted. [Implementation/proof/application record](../reviews/issue-134-durable-booking-deposit-implementation.md).
+**#158 LOCAL_DATABASE_PROOF_6_ACCEPTED + STAGING SCHEMA APPLICATION ACCEPTED.** Exact proven candidate `ff063bab8acbfb996c75fa8d7fa79ef2e838f303`, tree `9b22daeab43fd961faf7d9df93e586d311df2718`; exact migration SHA-256 `01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b`, 83,565 bytes. Proofs #1–#5 remain historical failed attempts; Proof #6 PASSED. Darshan later approved exactly one governed Staging schema application, which succeeded and was independently accepted by Claude as `ISSUE158_STAGING_SCHEMA_APPLICATION_ACCEPTED`. The backend remains UNWIRED / DEFAULT-OFF. That schema gate did not accept hosted behavior; C03 below subsequently accepted only the exact connected CAD50 deposit backend path. [Implementation/proof/application record](../reviews/issue-134-durable-booking-deposit-implementation.md).
 
 Proof #6 genuinely completed the SQL contract, all nine concurrency scenarios and all five recovery boundaries with exact identity reconciliation; source identity matched before/after; revoked authorization and final reconciliation completed; PostgreSQL stopped; owned PGDATA was removed; no shared/hosted database was touched. Close-before-commit now returns the contracted `NOT_COMMITTABLE|f`, concurrent commit gives one RECORDED and one REPLAY against the same transaction, NULL-staff and named-staff appointment races converge on one appointment, and lost-response recovery never invites recollection.
 
-**CURRENT ACTION — CONNECTED V2 PACKAGE INDEPENDENTLY ACCEPTED / PRODUCT OWNER C02 EXECUTION GATE READY.** C01 remains immutable `STOP_ZERO_WRITES`, no-mutation, evidence SHA `a16c19aed6778ea76789f6d35e263f140611148aae6074ccade548369b745ab8`; never rerun/reuse it. Claude independently accepted V2 under `CONNECTED_STAGING_V2_PACKAGE_READY_FOR_PO_EXECUTION_GATE` with zero blockers/corrections. Candidate `b74316e8d6dd89c4c4ff0032f71158148e6324b5`; aggregate `75b839ffa18696663a817ab8e390202db66812a5e5ee348c4b149b8a9b169539`; run `HV133-158-20261009-C02-5776d6c8`; target `wnfahklzaxirftyskctd`. V2 preserves the C01 financial path and single-shot controls; only the read-only project-identity phase gains bounded status/type diagnostics that cannot retain response body/header/token/raw exception text. **HOSTED V2 VALIDATION HAS NOT RUN.** Execution requires Darshan's fresh exact approval, continuous external writer/worker quiescence, and the standing STOP_AFTER_WRITES preserve/no-retry containment rule. No #153/worker/communications/Production/GVM/technician authority is included.
+**CURRENT RESULT — C03 CONNECTED_BACKEND_PASS / CONSUMED / NEVER RERUN.** Exact package commit `0314e6d3694002e16e051a3789c1949035e76023`, tree `0b57a9aa88366b8cb9d397620e63483d883ac807`, parent `72be50fd93bd3f4dca4be97cfc01c72d01fc7f49`; aggregate `3653c35027a98ff86e647e737252dbd97353da959ad075be2c91c367919002e9`; run `HV133-158-20261009-C03-9b8c5783`, target `wnfahklzaxirftyskctd` only. Evidence: 216221 bytes / 83 records / SHA-256 `d703df6fe6d43759d7949bc8093d33eb5ce8ab8d629398f61bc4f5d17c56f747`; final hosted_validation_run=true. Program Lead mechanically verified the exact SHA and full sequence/previous-hash/per-record hash chain. Independent Claude verdict **CONNECTED_STAGING_C03_ACCEPTED_WITH_NONBLOCKING_LIMITATIONS**, model `claude-opus-5`, thinking=true, effort=high, fast=false; its shell allowlist prevented independent hashing, a disclosed nonblocking reviewer-tool limitation. [Result and evidence path](../reviews/issue-133-connected-staging-c03-result.md); [review](../reviews/issue-133-connected-staging-c03-review.md).
 
-## Accepted continuation — #134 Staging application result
+One accepted attempt / one CAD50 E-Transfer deposit / one confirmed appointment / one partial invoice / one unsent receipt / one CRM event / four COMPLETE obligations; final canonical state RECORDED / synchronization COMPLETE. Replay preserved rows, money, document identities and sequence next values 2/2. Admission was disabled with the same watermark. Sessions/other members/other admission/other writers and all nine synthetic communication surfaces were zero. Program Lead separate-principal post-run read-only reconciliation confirmed synthetic truth and unchanged retained state/digests excluding C03. C03 earns only this exact connected Staging backend acceptance; no application UI, worker, #153, broader failure/concurrency/refund/payment-shape, communications/provider, Production/GVM or technician acceptance/activation.
+
+**Next safe continuation, identified but not authorized or started here:** bounded local source/read-only design for the separately reviewed #133 Slice 2 canonical ledger aggregate, Reporting re-source, CRM/operator reader integration/disclosure and Booking Sheet/Quick Appointment recovery wiring. Use [#133 contract](../reviews/issue-133-projection-observability-contract.md) §13/§16/§18 and the [booking-operation contract](../reviews/issue-134-durable-booking-deposit-contract.md). Make canonical reader truth authoritative over stale replay PENDING and settled recovery_disposition=RECOVER; preserve receipt → transaction → invoice reconciliation. Map replacement writers/#153 dependencies (including legacy NULL/NULL durability, SEQ-ACL-1 and customer_payment_events.transaction_id permissions) and retained-cohort exclusion before any cutover. Program Lead reconciles design/competitive obligations, then independent review and the applicable exact PO gate precede implementation or consequential execution. **No automatic financial run, C03 reuse, worker activation, migration/RLS/ACL change or historical repair.** This local-only closeout did not verify remote main or current app serving identity.
+
+**Preserved connected C01/C02 history:** C01 `HV133-158-20261009-C01-72d9f02a`, aggregate `2a212324eae2b610f7dda105931d78deef9bf02826507c1c4361d59a5d705090`, evidence SHA `a16c19aed6778ea76789f6d35e263f140611148aae6074ccade548369b745ab8`, stopped at opaque project identity after passing zero-write preflight/literal service_role READ ONLY. C02 `HV133-158-20261009-C02-5776d6c8`, accepted V2 candidate `b74316e8d6dd89c4c4ff0032f71158148e6324b5`, aggregate `75b839ffa18696663a817ab8e390202db66812a5e5ee348c4b149b8a9b169539`, evidence SHA `19a833b4bf73b1eec798dcade86e26b69407a3cd97db711e50b3f79714921fd6`, also passed both gates then stopped at project identity with `PROJECT_IDENTITY_HTTP_403`, automatic_retry=false, admission_may_remain_enabled=false. Both are **STOP_ZERO_WRITES / no synthetic or financial mutation / CONSUMED / NEVER RERUN OR REUSE**. C02 post-stop reconciliation proved zero C02 fixture/admission/receipt-sequence rows and unchanged retained financial state; no unknown-money outcome. C01's opaque failure remains unknowable; V3 preserves the PO's historical finding that the old Management credential lacked Project Settings Read. Older C02-ready/not-run and V3 prepared-only text is authoring history, not current execution status; frozen packages and manifests stay unchanged.
+
+## Accepted #134 Staging application history — current continuation is C03 above
 
 **STAGING_SCHEMA_APPLICATION_ACCEPTED / APPLIED ONCE / POSTCHECKS PASS.** Darshan approved the exact gate; native `apply_migration` returned `success:true` once with no retry on `wnfahklzaxirftyskctd`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, exactly one 6,529-byte statement at migration SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524` and frozen package audit `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`. **Do not reapply.**
 
@@ -405,10 +411,23 @@ C01 `HV134-20261006-C01` is EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED
 Exact evidence:38 lines / SHA-256 b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94.
 It proves fresh customer-only RECORDED+REPLAY concurrency and durable CAD1 effect,
 then N1 request-only admission. It does not repair Run02's missing F1 replies.
-Do not rerun C01 or start another payment. Before any worker activation, explicitly
-gate/exclude the retained cohort. Next separately governed runtime/product work must
-address appointment binding, #153 permission closure, projection/disclosure and full
-operator/workflow acceptance. This factual closeout starts none of that work.
+That historical HV134 C01 proof remains closed and must never be rerun.
+#133/#158 connected run HV133-158-20261009-C03-9b8c5783 is now
+CONNECTED_BACKEND_PASS / CONNECTED_STAGING_C03_ACCEPTED_WITH_NONBLOCKING_LIMITATIONS.
+Package 0314e6d3694002e16e051a3789c1949035e76023; evidence 83 records / 216221 bytes /
+SHA-256 d703df6fe6d43759d7949bc8093d33eb5ce8ab8d629398f61bc4f5d17c56f747.
+One CAD50 E-Transfer deposit path accepted; canonical RECORDED / COMPLETE;
+replay stable, admission disabled, communications zero, retained digests unchanged.
+Connected C01/C02 remain STOP_ZERO_WRITES; all C01/C02/C03 consumed, never rerun/reuse.
+Read the C03 result/review linked above; do not reopen the frozen V3 preparation.
+Next boundary: bounded local source/read-only design for separately reviewed #133
+Slice 2 aggregate/Reporting/CRM/operator integration and booking recovery wiring.
+Carry canonical-reader authority over stale replay PENDING and RECOVER, receipt via
+transaction to invoice, actual replacement writers/#153 and retained-cohort exclusions.
+Implementation, another financial run, UI/worker/provider activation, migration/RLS/ACL
+change and historical repair remain unauthorized by this closeout; broader hosted
+failure/concurrency/refund/payment-shape and full operator acceptance stay open.
+No automatic financial run. This factual closeout starts none of that next work.
 PO Option A remains approved: lifetime paid/spend/deposits Unknown; current balances
 numeric only with successful complete agreeing sources. Weak booking dedupe remains.
 Six historical GVM USD rows UNCHANGED / #152; broad ACL/FORCE-RLS #153 separate.

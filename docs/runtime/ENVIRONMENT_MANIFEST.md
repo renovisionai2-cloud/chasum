@@ -1,8 +1,22 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-07 for exact #134 governed Staging schema application and postchecks. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-09 America/Toronto (C03 evidence dated 2026-10-10 UTC), documenting supplied accepted connected Staging results. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## #133/#158 C03 — accepted connected Staging observation
+
+**Observed interval:** `2026-10-10T02:48:09.368060+00:00`–`2026-10-10T02:48:29.572203+00:00` (2026-10-09 22:48:09–22:48:29 America/Toronto), from first/final local evidence `observed_at` metadata. **Actual target:** Chasum Staging only `wnfahklzaxirftyskctd`; same-Management-bearer identity returned exact ref / `ACTIVE_HEALTHY` before any mutation. This is a dated completed-run observation, not a fresh runtime query in this documentation closeout.
+
+Run `HV133-158-20261009-C03-9b8c5783`; exact package `0314e6d3694002e16e051a3789c1949035e76023`, tree `0b57a9aa88366b8cb9d397620e63483d883ac807`, aggregate `3653c35027a98ff86e647e737252dbd97353da959ad075be2c91c367919002e9`. Append-only evidence at `/Users/darshan/chasum-evidence/issue133-connected-staging/HV133-158-20261009-C03-9b8c5783/evidence.jsonl`: 216221 bytes / 83 records / SHA-256 `d703df6fe6d43759d7949bc8093d33eb5ce8ab8d629398f61bc4f5d17c56f747`. Final `phase=final`, `status=CONNECTED_BACKEND_PASS`, `hosted_validation_run=true`. Program Lead exact SHA/full hash-chain recomputation PASS; Claude verdict **CONNECTED_STAGING_C03_ACCEPTED_WITH_NONBLOCKING_LIMITATIONS**, with disclosed inability to independently hash because of its shell allowlist. [Exact result](../reviews/issue-133-connected-staging-c03-result.md); [audit](../reviews/issue-133-connected-staging-c03-review.md).
+
+Retained synthetic state: one accepted attempt / one CAD5000-cent manual E-Transfer deposit / one confirmed appointment (price10000/tax0/deposit5000/paid5000/refunded0/deposit_paid), one partial INV-0001 (total10000/paid5000/balance5000), one RCT-0001 (5000 CAD, not_sent, emailed_at NULL, invoice_id NULL by contract, exact transaction link), one CRM event, four COMPLETE obligations, six lifecycle/projection events, zero refunds. Canonical reader RECORDED / synchronization COMPLETE; replay kept rows/digest and identities unchanged, invoice/receipt sequence next 2/2. Both nonmember readers denied with SQLSTATE 42501.
+
+Final admission **enabled=false**, same watermark as enable; synthetic records and disabled admission retained. Sessions/other_members/other_admission/other_writers all zero; customer_provider_absent=true; all nine synthetic communication surface counts zero, receipt not_sent, confirmed owner never logged in. No communication/provider side effects observed. Business protection flags were separately confirmed by Program Lead post-run read, not directly echoed as evidence rows.
+
+Independent separate-principal Program Lead post-run READ ONLY reconciliation corroborated the synthetic state. Excluding C03: attempts6 / accepted4 / requested2 / obligations16 / pending15 / not_required1 / operations0 / admission0 / receipt_sequences0; all retained exact full-row digests unchanged, enumerated in the result. Empty retained admission/sequences exclude C03's own retained rows. The separate read's exact timestamp was not supplied; no timestamp is inferred from the run interval.
+
+**C03 consumed; never rerun/reuse.** C01/C02 remain consumed STOP_ZERO_WRITES. Accepted only for the exact connected backend deposit path; application remains unwired/default-off and broader UI/worker/#153/financial/Production/GVM gates remain open. No current application serving SHA, deployment identity, bank verification or whole-database preservation is inferred. Prior Production serving evidence below remains a dated observation; Production/GVM were not contacted by this closeout.
 
 ## Issue #134 attribution — governed Staging application result
 
