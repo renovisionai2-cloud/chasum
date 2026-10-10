@@ -13,13 +13,19 @@ Targeted Claude delta correction: supplied verdict `SLICE2_CORRECTED_DESIGN_NEED
 
 **Refund-witness reconciliation history (A3):** supplied Claude Opus 5 High verdict `SLICE2A_REFUND_WITNESS_CONTRACT_ACCEPTED` confirms Codex correctly stopped at I1 with `SLICE2A_IMPLEMENTATION_BLOCKED` before application edits. Section 3.2 previously required `business_id` filtering on every evidence read/join; that wording conflicted with section 3.4's relationship-bound refund veto because the current `commerce_refunds` schema has no composite refund-to-transaction tenant invariant. The clarified existence-only exception aligns with already-accepted #133 `payment_appointment_truth_v1` in `supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql`; the independent foreign keys in `supabase/migrations/028_commerce_platform.sql` explain the gap. Neither migration changes. This is technical reconciliation of approved financial-integrity and tenant-isolation rules, not a new Product Owner business/product decision. E1-B and the 2A/2B separation remain locked. The supplied review is recorded, not a new reviewer dispatch or proof of implementation feasibility.
 
-This reconciliation starts from verified clean HEAD `f8bea1a34c8af50e5f41aa3e6c9cde675a2dd485`, tree `824167f094ea43a486d0c680ca8b22a7e033f8df`, parent `97bc1d6a0dc8f25cc1f7963645cddcd3b0b12bcd`; prior design SHA-256 `ebd407499fe8ed5a32b3a831684986724ef13d417aeabf24b6f9b142bbb5804a`, 79,913 bytes. Future composite refund-to-transaction tenant-integrity hardening is **DESIGN FOR NOW / BUILD LATER**: it requires separate architecture consideration of at least `commerce_transactions(business_id, id)` and a composite refund-to-transaction invariant. No such migration is authored or approved here.
+This reconciliation starts from verified clean HEAD `f8bea1a34c8af50e5f41aa3e6c9cde675a2dd485`, tree `824167f094ea43a486d0c680ca8b22a7e033f8df`, parent `97bc1d6a0dc8f25cc1f7963645cddcd3b0b12bcd`; prior design SHA-256 `ebd407499fe8ed5a32b3a831684986724ef13d417aeabf24b6f9b142bbb5804a`, 79,913 bytes. **Design-history correction:** the earlier review/search claim that no composite UNIQUE exists on `commerce_transactions(business_id, id)` was incorrect. Accepted #133 already creates `commerce_transactions_projection_tenant_key unique(id, business_id)` in `supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql` (lines 8–9). Future composite refund-to-transaction tenant-integrity hardening would not need that UNIQUE added first; this is not a claim that the composite refund FK already exists.
+
+Future composite refund FK: **DESIGN FOR NOW / BUILD LATER** only. The current read witness is expected to be sufficient; validating a new FK could expose historical violating rows whose repair is outside Slice 2A. The appointment-axis refund veto would still be required, and the work overlaps separate security/integrity governance. A second FK between `commerce_refunds` and `commerce_transactions` could create PostgREST relationship ambiguity unless the query uses explicit FK hints. No SQL, migration or historical repair is authored or authorized here.
+
+**PostgREST I1 refinement provenance:** supplied Claude Opus 5 High verdict `SLICE2A_I1_CONTRACT_REFINEMENT_REQUIRED` confirms the latest `SLICE2A_BLOCKED_CONSISTENT_READ` stop was correct before application edits. The accepted witness architecture remains valid; ordinary PostgREST needs an observable join-key-only payload instead of the former literal zero-column rule. This refinement starts from clean HEAD `529587f682c2aceefcf2f364cc2feeb6851f0980`, tree `63df5f6fbd6309f7db71d1b8834bfc319dfac320`, parent `f8bea1a34c8af50e5f41aa3e6c9cde675a2dd485`, design SHA-256 `f40eb619176e09dbf62833c5b7bd58706bcda1c0fad4403596c8ecb593d05a82`, 89,501 bytes. The relationship shape is accepted in principle; actual local execution is NOT proven. A separate local P1–P9 proof must pass before any application implementation.
+
+This is a **TECHNICAL CONTRACT REFINEMENT**: no new Product Owner business/product decision is required. Existing Slice 2A Product Owner approval remains valid, subject to the local proof gate and subsequent manual dispatch. It changes no user-visible state, pricing/commercial rule, writer, ACL/RLS/FORCE-RLS or #153 scope, discloses no new tenant data, and introduces no migration or RPC. E1-B and Slice 2A / Slice 2B separation remain approved and locked. Competitive Product Gate: NOT APPLICABLE to this documentation-only technical refinement.
 
 Accepted C03 closeout `6a2fbd4bc569430baf86fd17d57b49b65f645699` remains preserved. Run `HV133-158-20261009-C03-9b8c5783` is CONNECTED_BACKEND_PASS / CONNECTED_STAGING_C03_ACCEPTED_WITH_NONBLOCKING_LIMITATIONS: one CAD50 manual E-Transfer deposit, confirmed appointment, partial invoice, unsent receipt, CRM event and four COMPLETE obligations, canonical RECORDED/COMPLETE. It is accepted only for that backend path. C01/C02/C03 are CONSUMED; never rerun/reuse or clean up retained evidence/state. C03 admission remains disabled.
 
 ## 1. Launch classification and separate implementation slices
 
-Both slices are **LAUNCH REQUIRED**, each with a separate exact implementation, review and acceptance gate. “Build now” means only after its future Product Owner implementation approval. Neither this design nor 2A alone earns GVM Operational Acceptance.
+Both slices are **LAUNCH REQUIRED**, each with a separate exact implementation, review and acceptance gate. Existing Slice 2A Product Owner approval remains valid, but “Build now” for 2A is gated on successful local P1–P9 proof and the subsequent manual implementation dispatch; Slice 2B remains separately gated. Neither this design nor 2A alone earns GVM Operational Acceptance.
 
 ### Slice 2A — Financial truth + recovery visibility
 
@@ -137,11 +143,102 @@ All other evidence defaults to HELD: `pending`, `requires_action`, `refunded`, `
 
 **Refund veto:** any in-scope relevant `commerce_refunds` evidence HOLDS the affected bucket even when the original transaction still says succeeded. Include refunds linked to relevant transactions regardless of a later refund date/status; filtering to only succeeded refunds is insufficient. Also HOLD if linked `appointments.amount_refunded_cents > 0` contradicts an otherwise supported positive row. Missing/unreadable refund evidence prevents EXACT. No netting, refund reconciliation, writer change or historical repair is designed here.
 
-The refund veto is a relationship-bound contradiction witness, not an affirmative money or payload read. It is rooted only in a transaction or appointment already proven to belong to the authorized Business, and it then asks whether ANY `commerce_refunds` row references that authorized transaction or that authorized appointment. Both link axes must be evaluated. This existence check is deliberately NOT filtered by `commerce_refunds.business_id`, because the schema carries no composite refund-to-transaction tenant invariant and a `business_id`-filtered probe cannot distinguish ‘no refund exists’ from ‘a contradicting refund exists but was filtered out’, which would permit a false EXACT. This matches the accepted #133 `payment_appointment_truth_v1` behavior. The witness selects NO refund column values: existence alone is sufficient because this veto is already status-agnostic and date-agnostic. It may only downgrade EXACT to HELD or UNKNOWN. A linked refund whose `business_id` differs from the authorized Business is classified with the same generic financial-integrity contradiction as any other linked refund; no result state, reason code, log line, DTO, export or Summer context may disclose another Business’s identity, name, refund identifier, amount, reason, provider reference, customer or transaction detail. Operator-facing meaning is bounded to a generic statement that the financial scope requires review because linked refund evidence is inconsistent. This clarification introduces no migration, RPC, writer, ACL, RLS or FORCE-RLS change, expands no part of #153, and does not weaken same-Business requirements for canonical transactions, customers, appointments, attempts, Locations, money amounts, report attribution or any browser/client payload.
+The refund veto is a relationship-bound contradiction witness, not an affirmative money or payload read. It is rooted only in a transaction or appointment already proven to belong to the authorized Business, and it then asks whether ANY `commerce_refunds` row references that authorized transaction or that authorized appointment. Both link axes must be evaluated. This existence check is deliberately NOT filtered by `commerce_refunds.business_id`, because the schema carries no composite refund-to-transaction tenant invariant and a `business_id`-filtered probe cannot distinguish ‘no refund exists’ from ‘a contradicting refund exists but was filtered out’, which would permit a false EXACT. This matches the accepted #133 `payment_appointment_truth_v1` behavior. The witness may select only the relationship join key already known to the authorized root (`transaction_id` or `appointment_id` on its respective axis), with `limit=1` per axis; it verifies key equality, reduces the result to a boolean and discards the payload before constructing any application/domain result. No other refund column or refund-attribute filter is permitted. This veto remains status-agnostic and date-agnostic; B1 and C1–C6 below govern disclosure and completeness. It may only downgrade EXACT to HELD or UNKNOWN. A linked refund whose `business_id` differs from the authorized Business is classified with the same generic financial-integrity contradiction as any other linked refund; no result state, reason code, log line, DTO, export or Summer context may disclose another Business’s identity, name, refund identifier, amount, reason, provider reference, customer or transaction detail. Operator-facing meaning is bounded to a generic statement that the financial scope requires review because linked refund evidence is inconsistent. This clarification introduces no migration, RPC, writer, ACL, RLS or FORCE-RLS change, expands no part of #153, and does not weaken same-Business requirements for canonical transactions, customers, appointments, attempts, Locations, money amounts, report attribution or any browser/client payload.
 
 #### Binding refund-witness implementation boundary (B1)
 
-The witness selects **NO `commerce_refunds` column values**; existence alone is sufficient. It does not read/return `business_id`, refund ID, amount, currency, reason, provider reference, customer identity, approval fields, metadata or foreign transaction details. Use the single generic classification `REFUND_EVIDENCE_INCONSISTENT` for both an ordinary same-Business linked refund and a malformed cross-business linked refund. Do not introduce `FOREIGN_BUSINESS_REFUND` or any equivalent discriminator. No foreign identifier or payload may appear in client DTOs, operator UI, Summer context, CSV, exports, tenant-facing logs or user-visible errors. The witness may only prevent numeric certainty, never supply money or attribution.
+The witness is an existence-only probe. It may select AT MOST the single join key that links the refund row to the already-authorized root — `transaction_id` on the transaction axis, `appointment_id` on the appointment axis — and NO other `commerce_refunds` column.
+
+This is necessary because PostgREST omits a zero-column embedded resource from the response entirely, so zero-column selection cannot produce an observable existence result, and every alternative that makes it observable removes root transactions. Embedded `count()` is a PostgREST aggregate that is disabled by default and whose deployed state is not provable from this repository.
+
+The permitted join key discloses nothing new because its value is necessarily identical to the authorized root key the server already resolved.
+
+The reader MUST assert that every value returned by the witness equals that authorized root key and MUST classify any other value, any missing witness key, any non-array witness value, any witness error and any incomplete response as UNKNOWN rather than as absence.
+
+Each witness axis MUST be limited to one row so the witness yields exactly one bit and never discloses how many linked refund rows exist.
+
+The witness MUST NOT read, return or filter on:
+
+- business_id;
+- refund id;
+- amount;
+- currency;
+- reason;
+- provider;
+- provider reference;
+- metadata;
+- status;
+- approval fields;
+- customer identity;
+- timestamps;
+- or any other refund attribute.
+
+Filtering on refund attributes is additionally forbidden because the refund veto is already status-agnostic and date-agnostic and such a filter would refine the one-bit signal into a finer oracle.
+
+The existence bit MUST be reduced to a boolean and the witness payload discarded before any application or domain result is constructed.
+
+This boundary binds at the Chasum application/domain layer and at every client-facing channel. It does not and cannot forbid PostgreSQL or PostgREST from touching refund columns internally, consistent with the already-accepted `payment_appointment_truth_v1`.
+
+Use the single generic classification:
+
+REFUND_EVIDENCE_INCONSISTENT
+
+for both:
+
+- ordinary same-Business linked refunds;
+- malformed cross-Business linked refunds.
+
+Do not introduce:
+
+FOREIGN_BUSINESS_REFUND
+
+or any equivalent discriminator.
+
+No foreign identifier or payload may appear in:
+
+- client DTOs;
+- operator UI;
+- Summer context;
+- CSV;
+- exports;
+- tenant-facing logs;
+- user-visible errors.
+
+The witness may only prevent numeric certainty.
+
+It may never supply money or attribution.
+
+#### Security layers and join-key postcondition
+
+- **L1 — PostgreSQL:** internal column access is not tenant disclosure.
+- **L2 — PostgREST:** internal relationship materialization is not, by itself, Chasum application/domain disclosure.
+- **L3 — Chasum server application:** B1 binds the attributes received in the raw response. Only the permitted, already-authorized join key may cross this boundary from the refund relation.
+- **L4 — browser/operator/Summer and all client-facing channels:** B1 also binds here. The server has already reduced the witness to a boolean and discarded the payload before constructing an application/domain result.
+
+No foreign refund attribute may cross into the Chasum application/domain layer. B1 does not forbid a database or PostgREST execution plan from touching refund columns internally. The permitted join key is not foreign information: transaction-axis `refund.transaction_id` MUST equal the authorized root `commerce_transactions.id`; appointment-axis `refund.appointment_id` MUST equal the already-authorized `appointment.id`. Missing or unequal element keys, extra refund attributes or malformed returned payload produce UNKNOWN, never HELD based on that malformed payload, never EXACT and never silent acceptance. Valid linked evidence alone produces the generic refund contradiction. No returned witness payload is logged or serialized as an application/domain result.
+
+#### Bounded witness shape and explicit relationships
+
+The conceptual read is ONE bounded GET rooted in server-authorized `commerce_transactions`, with payment attempt, appointment, current Location and both refund witnesses in the SAME response. Use left one-to-many refund embeds with aliases: transaction-axis payload contains only `transaction_id`; appointment-axis payload contains only `appointment_id`. Each axis explicitly requests nested `limit=1`, bounding payload and exposing only empty/non-empty, never a linked-refund count. The proof must validate cardinality and reject an unexpected second element. Do not select refund ID, Business, amount, status, reason, metadata or any other refund attribute.
+
+Both axes remain mandatory. `commerce_refunds.transaction_id` is required but can reference a transaction unrelated to the refund's appointment; `appointment_id` is nullable. Neither axis subsumes the other. An appointment-only contradiction must be detected independently even when its transaction axis is not linked to a selected root transaction. Missing or inconsistent appointment authority is not permission to skip applicable evidence.
+
+**Explicit FK hints are mandatory for EVERY PostgREST embed in the canonical financial read**, including:
+
+- `commerce_transactions` → `commerce_refunds` via refunds' `transaction_id`;
+- `commerce_transactions` → `appointments`;
+- `appointments` → `commerce_refunds` via refunds' `appointment_id`;
+- `appointments` → `locations`;
+- `commerce_transactions` → `commerce_payment_attempts`.
+
+The local proof must confirm the exact FK hint spelling, aliases and nested limit syntax against the real repository schema. This design intentionally specifies no unverified literal hint string. Do not rely on implicit inference that a later second FK could make ambiguous.
+
+#### Rejected witness mechanisms
+
+- **Empty zero-column embed:** PostgREST omits the relationship payload; omitted is UNKNOWN, never proof of no refund. It is not the selected mechanism.
+- **Root-filtering embeds:** do not use `!inner`, `not.is.null`, `is.null` anti-join or another relationship filter to obtain the witness if it removes root transactions. The witness may downgrade a row, never remove it from the complete authorized financial envelope.
+- **Embedded `count()`:** not the selected Slice 2A mechanism. PostgREST aggregates are default-disabled through `db-aggregates-enabled`; no tracked Chasum configuration proves enablement. Canonical collected-money availability must not depend on that mutable platform setting. Do not add `supabase/config.toml`, enable aggregates or add an aggregate RPC. Exact ROOT count metadata below is a separate completeness requirement, not an embedded aggregate.
+
 
 Gift-card liability consumption and active-membership price are commercial/document metrics, not canonical collected cash. `lib/actions/reports.ts` owns `giftCardRevenueCents` / `membershipRevenueCents`; `lib/reports/compute.ts` and `lib/reports/types.ts` carry the Executive values, and `components/reports/reports-hub.tsx` renders them. Reports must explicitly relabel them as non-collected commercial/document metrics or mark them HELD/remove them from collected-money views. The CSV labels in `lib/actions/reports.ts`, currently “Membership Revenue ($)” and “Gift Card Revenue ($)”, must not continue to say “Revenue” when the value is not canonical collected money. No gift-card/membership accounting redesign is introduced.
 
@@ -149,9 +246,40 @@ Gift-card liability consumption and active-membership price are commercial/docum
 
 **EXACT requires a complete bounded single response/read with one consistent view of all evidence required for that result**, including refund veto and applicable joins. The later implementation must prove its selected existing read surface provides that view; independently timed reads cannot prove a common snapshot merely by all succeeding. If the existing surface cannot return complete consistent evidence, return UNKNOWN. No new RPC/migration is allowed for convenience.
 
-**I1 — before coding 2A:** determine whether an existing source can return transactions, refund-veto evidence and appointment/Location attribution in one bounded consistent read. If it cannot, the honest v1 result is UNKNOWN for affected collected-money scopes unless a separately approved architecture/migration gate provides a DB-side aggregate. The future 2A Product Owner gate must disclose this visible consequence; do not promise numeric collected-money views before proving the read is feasible.
+**I1 — separate local execution proof BEFORE application implementation:** the accepted conceptual mechanism uses left one-to-many PostgREST embeds, join-key-only witness payloads, explicit FK hints, per-axis `limit=1`, exact root count reconciliation and C1–C6. This documentation refinement does NOT prove execution against Chasum's schema. P1–P9 must prove the conjunction of three-level embedding, both refund axes, aliases, nested limits, exact hints, raw-response privacy, clean empty-array absence, same-Business and malformed cross-Business refund detection, independent appointment-only detection, every root retained and one-statement/snapshot execution with exact root completeness. No application reader/UI code may be implemented before that separate local proof passes. Failure to prove complete consistent evidence means UNKNOWN, never numeric EXACT; no RPC/migration or independently timed read workaround is authorized.
 
-**Refund-witness continuation:** the existence witness in sections 3.2/3.4 is contractually permitted, but this documentation reconciliation does **not** prove PostgREST implementation feasibility. Before future application edits, I1 must still prove ONE bounded consistent read containing authorized-Business transactions, linked refund contradiction existence on both transaction and appointment axes, appointment relationships and current Location attribution where applicable. Failure to prove complete consistent evidence remains UNKNOWN; no new RPC/migration is authorized for convenience. Do not resume implementation as part of this documentation task.
+#### Root completeness and witness absence — C1–C6
+
+Request `Prefer: count=exact`. Reconcile the `Content-Range` exact root total against the rows actually accumulated from the ONE complete bounded response/read. A cap, partial response, missing page, count mismatch, root truncation, missing/unusable total or response error means UNKNOWN. Do not use `count=planned` or `count=estimated`. Do not collect independently timed pages to manufacture a complete snapshot.
+
+A zero-row witness array proves ABSENCE only when ALL guards pass, independently on each applicable transaction-linked and appointment-linked axis:
+
+- **C1:** HTTP success, no PostgREST error, and the response body is fully parsed.
+- **C2:** the witness key is PRESENT on the applicable returned root/embedded authorized appointment. An omitted key is UNKNOWN, not absence.
+- **C3:** the witness value is an ARRAY. Any other type is UNKNOWN.
+- **C4:** an explicit nested limit >= 1 was requested on that axis; Slice 2A v1 requires exactly `limit=1`.
+- **C5:** the root transaction set is proven complete by exact root count reconciliation.
+- **C6:** every returned witness element's join key equals its already-authorized root key. A missing or mismatched element key is UNKNOWN.
+
+Completeness guards do not replace B1's single-key field allowlist or one-row cardinality. Reject any extra refund attribute or unexpected second row as malformed/UNKNOWN. Only a fully validated non-empty witness yields generic `REFUND_EVIDENCE_INCONSISTENT`; malformed evidence must not be classified as HELD or EXACT. Empty arrays alone, absent these guards, cannot prove absence.
+
+#### Intended local proof environment — DESIGN RECORD ONLY
+
+The next governed step uses a disposable local PostgreSQL cluster with existing installed PostgreSQL binaries, a locally installed PostgREST binary, real repository migrations and synthetic local-only fixtures. Use a BYPASSRLS service-like principal with actual grants; leave PostgREST aggregates disabled and use `db-plan-enabled` only for proof evidence. No Chasum hosted connection, Docker requirement or Supabase CLI requirement is introduced. Binary availability/setup and execution belong to the later manual proof task, not a claim that PostgREST is already installed. **Do not install/start PostgREST, run the proof or implement application code in this documentation task.**
+
+#### Mandatory local proof PASS conditions — P1–P9 (NOT RUN)
+
+- **P1:** HTTP 200, no PGRST201 / HTTP 300, and no PostgREST error.
+- **P2:** every seeded authorized root transaction remains in the result; witness logic removes none.
+- **P3:** both witness keys are PRESENT on every applicable root/authorized appointment relationship.
+- **P4:** both witness values are arrays; clean evidence returns an empty array.
+- **P5:** each relevant non-empty witness has length exactly 1 for same-Business refunds, malformed cross-Business refunds and the independently seeded appointment-only case. Include multiple linked refund rows to prove the nested limit bounds disclosure.
+- **P6:** each element contains ONLY its axis's relevant join key, equal to the already-authorized root key.
+- **P7:** assert against RAW response text, before mapping: no foreign Business ID, refund ID, refund amount, currency, reason, provider, provider_reference, metadata, status, approval field, customer ID, foreign timestamp or other refund payload. Use forbidden synthetic fixture values plus strict witness-field allowlists. These prohibitions concern refund/foreign attributes, not the independently authorized transaction/attempt/appointment/Location fields needed by the canonical read; root financial fields cannot be used to excuse leaked refund values.
+- **P8:** payment attempt, appointment and current Location evidence appear in the SAME response as both witnesses.
+- **P9:** execution-plan evidence proves one PostgREST-generated SQL statement/snapshot for that complete read; exact root count reconciles with returned rows.
+
+**Local proof STOP:** any refund attribute beyond the allowed join key in the raw response, or failure to detect a malformed cross-Business linked refund, requires STOP and return to Control Tower without a workaround. Either would be the first genuine execution evidence against the accepted approach. Any other P1–P9 failure also prevents application implementation; documentation or mocked serialization is not execution proof.
 
 Multi-request ordinary PostgREST pagination, including exact counts or keyset pagination, cannot claim EXACT without snapshot isolation. Row caps, nested relation truncation, incomplete evidence scope, read errors, partial responses and count mismatch are UNKNOWN. “Latest N” is never an exact aggregate. A future DB-side aggregate/RPC for scale is a separate architecture/migration gate, not part of 2A/2B.
 
@@ -356,7 +484,9 @@ This does **not** mean broad legacy ACL posture is accepted for launch.
 
 Slice 2A's refund-existence witness depends on the trusted server reading principal retaining the ability to observe `commerce_refunds` rows across `refund.business_id` when those rows are relationship-bound to an already-authorized transaction/appointment. The server-resolved root Business filter is mandatory; RLS is **not** the backstop when this principal bypasses RLS. FORCE RLS alone does not necessarily break the witness because BYPASSRLS roles still bypass RLS.
 
-A future #153 change that removes the reading principal's BYPASSRLS capability, revokes required SELECT on `commerce_refunds`, or adds a restrictive policy that reaches that principal must re-review this interface. Row filtering could turn a contradiction into a false empty set and reintroduce false EXACT; a denied/unreadable read must yield UNKNOWN, never be converted into an empty successful read. Re-prove witness visibility and both tenant-root and privacy obligations before relying on EXACT after such a change. This records an interface dependency, not authorization to retain, grant, revoke or change privileges now.
+The four binding dependencies are: (1) effective BYPASSRLS visibility of the trusted server reading principal; (2) required SELECT access to `commerce_refunds`; (3) the existing embedded FK relationship topology; and (4) the query's explicit FK hints. PostgREST aggregate configuration is NOT a dependency.
+
+A future #153/security/schema change that removes BYPASSRLS, revokes required SELECT, changes effective policies, changes FK topology or adds another FK between a relevant table pair requires re-review of this interface. If a second FK is added, the explicit hint must continue to select the intended relationship. Row filtering could turn a contradiction into a false empty set and reintroduce false EXACT; a denied/unreadable read must yield UNKNOWN, never be converted into an empty successful read. Re-prove witness visibility and both tenant-root and privacy obligations before relying on EXACT after such a change. This records an interface dependency, not authorization to retain, grant, revoke or change privileges now.
 
 The future Slice 2A implementation final report **must repeat this exact interface dependency and its governance status**. **GitHub #153 interface note: PENDING MANUAL GOVERNANCE RECORDING by Darshan/ChatGPT after implementation reconciliation.** No GitHub issue mutation is authorized by this documentation task; #153 scope is not expanded.
 
@@ -457,10 +587,10 @@ Both slices are stack-dependent on accepted-but-unmerged #133/#158/#134 foundati
 
 ### 2A truth and visibility
 
-- **I1 pre-coding feasibility / PO disclosure:** identify the existing bounded consistent read that returns transactions + refund veto + appointment/Location attribution together. If none is feasible, disclose that affected collected-money scopes will visibly be UNKNOWN in v1 unless a separate architecture/migration gate approves a DB-side aggregate. Do not code around this with independent reads or silently expand 2A's no-migration scope.
+- **I1 pre-coding LOCAL execution gate:** section 3.5 P1–P9 must pass in a separately dispatched local PostgREST proof BEFORE application edits. Prove transactions + both join-key-only refund witnesses + attempts + appointment/current Location in one bounded statement/snapshot using explicit FK hints, nested `limit=1`, exact root count and C1–C6. This documentation has not executed that proof. On failure STOP; affected evidence remains UNKNOWN. No independent-read workaround, aggregate enablement, new RPC/migration or new routine Product Owner decision is authorized.
 - **Aggregate:** succeeded/manual/payment-or-deposit with supported tender and coherent identities is EXACT only on complete evidence. Coherent failed/canceled non-collections exclude; pending/requires_action/refunded/partially_refunded/unknown status, unsupported provider/kind/method, invalid amount/currency/identity HOLD. Test gift_card/store_credit methods on otherwise valid succeeded payments.
 - **Refund veto:** relevant commerce_refunds row with still-succeeded transaction, refund outside transaction period, non-succeeded refund evidence and positive contradictory appointment amount_refunded_cents all HOLD. Unreadable refund evidence is UNKNOWN. No netting.
-- **Refund-witness privacy (B1):** prove existence-only selection with NO refund column values on both link axes, including a refund referencing only the authorized appointment. Ordinary same-Business and malformed cross-business linked refunds produce the same generic `REFUND_EVIDENCE_INCONSISTENT` classification and generic HELD; no foreign-specific discriminator or foreign field enters any result, DTO, operator UI, Summer context, CSV/export, tenant-facing log or user-visible error. Unreadable/incomplete witness evidence remains UNKNOWN.
+- **Refund-witness privacy (B1):** prove existence-only selection of AT MOST the relevant known join key on each axis (`transaction_id` or `appointment_id`), no other refund attribute or attribute filter, with explicit FK hints, per-axis `limit=1`, C1–C6 and key equality. Reduce to boolean and discard witness payload before constructing application/domain results; test an independently appointment-linked refund. Ordinary same-Business and malformed cross-business linked refunds produce the same generic `REFUND_EVIDENCE_INCONSISTENT` classification and generic HELD; no foreign-specific discriminator or foreign field enters any result, DTO, operator UI, Summer context, CSV/export, tenant-facing log or user-visible error. Unreadable/incomplete witness evidence remains UNKNOWN.
 - **Root tenant filter (B2):** the witness requires a trusted server reading principal capable of seeing linked refund rows irrespective of `refund.business_id`. Application authorization and the SERVER-RESOLVED ROOT Business filter are mandatory; RLS is not the backstop for this existence witness when using the RLS-bypassing server principal. Mandatory implementation/test obligations:
   1. Root `commerce_transactions` scope uses only the server-resolved active Business.
   2. Browser/client `business_id` cannot control or replace that scope.
@@ -469,7 +599,22 @@ Both slices are stack-dependent on accepted-but-unmerged #133/#158/#134 foundati
   5. A malformed cross-business refund linked to an authorized transaction causes generic HELD; test the authorized-appointment link independently too.
   6. No foreign field appears in the result or any disclosure channel listed in B1.
   7. Another Business cannot read the authorized Business's transaction payload through the witness.
-- **#153 interface (B3):** carry section 8's witness-visibility dependency and PENDING MANUAL GOVERNANCE RECORDING status into the implementation final report; any later change to the reading principal's effective visibility requires re-review before EXACT can be trusted.
+
+  Binding B2 regression matrix (retains all seven obligations above):
+
+  - **T1:** derive root `business_id` server-side from the authenticated actor's authorized active Business. Hostile body, query, header, cookie or other client input cannot change that filter. Test the actual authority boundary; do not invent acceptance of arbitrary JWT claims.
+  - **T2:** the root Business filter cannot be omitted; missing server Business authority fails closed.
+  - **T3:** ordinary same-Business and malformed cross-Business linked refunds yield the SAME `REFUND_EVIDENCE_INCONSISTENT` classification, with no foreign discriminator.
+  - **T4:** test the appointment-only axis independently of transaction-linked evidence.
+  - **T5:** assert B1/P7 privacy on the raw response before any mapper discards fields.
+  - **T6:** enforce per-axis join-key equality with the already-authorized root; missing/wrong keys are UNKNOWN.
+  - **T7:** omitted witness key is UNKNOWN, never absence or EXACT.
+  - **T8:** root truncation/caps, exact count mismatch, missing page, non-array witness, witness error or partial response are UNKNOWN. Also reject unexpected extra fields or more than one witness element.
+  - **T9:** no foreign field reaches client DTOs, operator UI, Summer, CSV/export, tenant-facing logs or user-visible errors.
+  - **T10:** service-role/trusted credentials remain server-only.
+  - **T11:** arbitrary client-supplied transaction/refund/appointment IDs cannot redirect the witness into foreign-row lookup; another Business cannot obtain the authorized root's payload.
+
+- **#153 interface (B3):** carry section 8's effective BYPASSRLS visibility, SELECT access, FK topology and explicit-hint dependencies plus PENDING MANUAL GOVERNANCE RECORDING status into the implementation final report. Effective visibility/policy changes, FK changes or a second FK require re-review before EXACT can be trusted. Aggregate enablement is not a dependency; no #153/GitHub mutation is authorized.
 - **Completeness:** complete bounded consistent single read, empty exact zero; cap/truncation/error/incomplete nested evidence UNKNOWN. Multi-request count/keyset/ordinary pagination never proves EXACT. No new migration/RPC.
 - **Currency/time:** all five raw supported keys; malformed/uppercase/unsupported strings never normalize to USD; separate currency buckets and held single-number view. Business-timezone midnight/DST and [from,to) boundaries agree across Reports/Commerce/briefs, unaffected by appointment start_time/server timezone.
 - **Location:** supported unbound money can be Business-wide exact but HOLDS requested Location result; missing/cross-Business/contradictory links HOLD. Current appointment-location edits move historical attribution as disclosed. No default/home fallback or filtering away unresolved evidence.
@@ -543,7 +688,7 @@ Employee Completed service value is completed-only operational appointment/servi
 
 No numeric commission in Slice 2: unavailable/not configured, NEVER $0 for absent policy. Future tenant-configurable compensation may address taxes, tips, deposits, partial payments, refunds/clawbacks, discounts, timing, employee attribution and multi-staff policy, but is DESIGN FOR NOW / BUILD LATER. No GVM-specific rule, Option-C engine or payroll attribution is included, and a full commission system is not required for GVM Operational Acceptance.
 
-Approved 2A/2B separation and design correction do not grant implementation. Each slice still needs its final exact Product Owner implementation gate following independent review. Existing ledger authority, Option A, receipt independence, #153 separation, no activation, C03 consumption/retention and governed release decisions remain locked. New architecture blockers, if actually demonstrated later, must be stated specifically; do not invent a routine PO decision now.
+Approved 2A/2B separation and this documentation refinement do not automatically authorize implementation. Existing Slice 2A Product Owner approval remains valid; no new business/product decision is required, but application implementation remains gated on successful local P1–P9 proof and subsequent manual dispatch. Slice 2B remains separately gated. Existing ledger authority, Option A, receipt independence, #153 separation, no activation, C03 consumption/retention and governed release decisions remain locked. New architecture blockers, if actually demonstrated later, must be stated specifically; do not invent a routine PO decision now.
 
 ## 15. World-class, Summer and commercial check
 
@@ -574,10 +719,11 @@ Deferring it creates a high retrofit risk: every additional report/AI/CRM consum
 
 ## 16. Exact next gate and current delivery boundary
 
-1. Return this exact documentation candidate, local commit/tree/hash and validation report to ChatGPT for reconciliation. The supplied `SLICE2A_REFUND_WITNESS_CONTRACT_ACCEPTED` verdict resolves the technical conflict; it does not claim that this new file's bytes or a future implementation have been independently reviewed.
-2. If accepted, ChatGPT prepares the manual **CODEX — SLICE 2A RESUME IMPLEMENTATION** prompt using this exact new design identity. No new Product Owner business/product decision is required; do not dispatch an agent or resume implementation in this documentation session.
-3. The future 2A prompt must retain I1–I5 and B1–B3: pre-coding consistent-read proof, both refund-existence axes, server-resolved root authorization/privacy tests, #153 interface dependency, the legacy `buildFinancial` inventory, E1-B value-basis disclosure/tests, both event-sequence omissions and CRM threshold/unknown handling. The 2A/2B split remains locked. **Implementation NOT authorized now by this design or documentation task.**
-4. This reconciliation authorizes no Slice 2B, hosted SQL/Staging mutation, financial execution, migrations/RPC/schema change, ACL/RLS/FORCE-RLS or #153 change, workers/providers/communications, historical repair, C01/C02/C03 rerun, push/PR/GitHub issue mutation/merge/deploy, Production/GVM action or technician resumption.
+1. Return this exact documentation candidate, local commit/tree/hash and validation report to Darshan/ChatGPT for reconciliation. The supplied `SLICE2A_I1_CONTRACT_REFINEMENT_REQUIRED` adjudication accepts the architecture in principle; it is not actual PostgREST execution proof or independent acceptance of these new bytes.
+2. If accepted, ChatGPT prepares the manual **CODEX — SLICE 2A LOCAL POSTGREST I1 PROOF** prompt using this exact new design identity. Do not run the proof or application implementation in this session. Do not dispatch another agent. Existing Slice 2A Product Owner approval remains valid; no new business/product decision is introduced.
+3. The separate local proof must pass P1–P9 with B1, C1–C6 and B2/B3 preserved before any application reader/UI edits. It must establish one bounded statement/snapshot, both join-key-only witnesses, exact counts, explicit FK hints and raw-response privacy with synthetic local fixtures. No hosted connection, aggregate enablement or RPC/migration workaround is authorized. Return any STOP evidence to Control Tower.
+4. Later implementation dispatch must retain I1–I5, B1–B3 and T1–T11: root authorization/privacy, #153 dependencies, legacy `buildFinancial` inventory, E1-B value-basis disclosure/tests, both event-sequence omissions and CRM threshold/unknown handling. E1-B and the 2A/2B split remain locked. **Application implementation is NOT authorized now by this documentation task.**
+5. This task authorizes no application/test/script/package edits, local PostgREST proof execution, Slice 2A reader implementation, Slice 2B, SQL/schema/migration/RPC, hosted SQL/Staging mutation, financial execution, ACL/RLS/FORCE-RLS or #153 change, workers/providers/communications, historical repair, C01/C02/C03 rerun, push/PR/GitHub mutation/merge/deploy, Production/GVM action or technician resumption.
 
 The present correction edits this document only and records its approved design; it does not update control board/handoff/manifest/changelog or mutate accepted runtime evidence. Local diff/path/scope validation and the one authorized documentation commit are the delivery evidence. The GVM technician CAD50 deposit/confirmation discrepancy remains the primary open operational objective.
 
